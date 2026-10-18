@@ -130,4 +130,32 @@ const docs = defineCollection({
   },
 })
 
-export default defineConfig({ content: [posts, legalPages, docs] })
+/**
+ * 数字命理页正文（openspec add-numerology-tools design.md 决策 2）：12 个生命灵数页、两个枢纽页与首页长文。
+ * `number` 为生命灵数，枢纽页与首页为 null。正文末尾的「## FAQ」及之后的互链、声明由页面组件
+ * 统一渲染（ToolFaq、数字网格、Disclaimer），这里只编译 FAQ 之前的部分，FAQ 以 frontmatter 为准。
+ */
+const numerology = defineCollection({
+  name: 'numerology',
+  directory: 'content/numerology',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })),
+    updated: isoDate,
+    number: z.number().int().nullable(),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const body = content.split(/^## FAQ\s*$/m)[0] ?? content
+    return {
+      ...data,
+      ...localeAndSlug(document._meta),
+      html: await renderMdx(context, { ...document, content: body }),
+    }
+  },
+})
+
+export default defineConfig({ content: [posts, legalPages, docs, numerology] })

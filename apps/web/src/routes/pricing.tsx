@@ -1,7 +1,13 @@
 import { createFileRoute, notFound as featureNotFound, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { GrowthForm } from '../features/growth/forms.tsx'
+import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { getMarketingPricing } from '../features/marketing/pricing.functions.ts'
 import { PRICING_TTL_MS } from '../features/marketing/pricing-data.ts'
+import { Cta } from '../features/marketing/sections/cta.tsx'
+import { Faq } from '../features/marketing/sections/faq.tsx'
+import { Features } from '../features/marketing/sections/features.tsx'
+import { Testimonials } from '../features/marketing/sections/testimonials.tsx'
 import { originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
 import { pricingData } from '../features/seo/structured-data.ts'
 import { getLocale } from '../paraglide/runtime.js'
@@ -44,58 +50,69 @@ function PricingPage() {
       window.clearInterval(timer)
     }
   }, [initialCatalog])
+  // 西方站首页改为 Life Path 计算器后，原营销首页的功能 / 评价 / FAQ / CTA 与订阅表单放在定价页
+  // （openspec add-numerology-tools design.md「Risks」）
   return (
-    <main className="mx-auto grid max-w-4xl gap-6 p-6">
-      <h1 className="text-2xl font-semibold">Pricing</h1>
-      <p>Choose a subscription or buy extra credits.</p>
-      <label>
-        Payment method{' '}
-        <select
-          value={provider}
-          disabled={!ready}
-          onChange={(event) => setProvider(event.target.value)}
-        >
-          {catalog.providers.map((p) => (
-            <option key={p.id} value={p.id} disabled={!p.available}>
-              {p.id}
-              {p.available ? '' : ' — unavailable'}
-            </option>
+    <MarketingShell>
+      <div className="mx-auto grid max-w-4xl gap-6 p-6">
+        <h1 className="text-2xl font-semibold">Pricing</h1>
+        <p>Choose a subscription or buy extra credits.</p>
+        <label>
+          Payment method{' '}
+          <select
+            value={provider}
+            disabled={!ready}
+            onChange={(event) => setProvider(event.target.value)}
+          >
+            {catalog.providers.map((p) => (
+              <option key={p.id} value={p.id} disabled={!p.available}>
+                {p.id}
+                {p.available ? '' : ' — unavailable'}
+              </option>
+            ))}
+          </select>
+        </label>
+        {!catalog.providers.some((p) => p.available) && (
+          <p role="status">Payments are currently unavailable. You can still explore the plans.</p>
+        )}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {catalog.plans.map((plan) => (
+            <section key={plan.id} className="grid gap-3 rounded-xl border p-6">
+              <h2 className="text-xl font-semibold">{plan.name}</h2>
+              <p>
+                {plan.credits} credits {plan.type === 'subscription' ? 'each month' : 'per pack'}
+              </p>
+              <p>
+                {plan.features.maxSeats} seats · {plan.features.storageGb} GB storage
+              </p>
+              {plan.creditExpiryDays && <p>Credits expire after {plan.creditExpiryDays} days.</p>}
+              {catalog.prices
+                .filter((price) => price.planId === plan.id && price.provider === provider)
+                .map((price) => (
+                  <p key={price.id}>
+                    {price.currency.toUpperCase() === 'USD'
+                      ? new Intl.NumberFormat('en-US', {
+                          style: 'currency',
+                          currency: 'USD',
+                        }).format(price.amount / 100)
+                      : 'Price unavailable'}
+                    {price.interval ? ` / ${price.interval}` : ''}
+                    {price.available ? '' : ' · Payments unavailable'}
+                  </p>
+                ))}
+              <Link to="/app" className="underline">
+                View in my workspace
+              </Link>
+            </section>
           ))}
-        </select>
-      </label>
-      {!catalog.providers.some((p) => p.available) && (
-        <p role="status">Payments are currently unavailable. You can still explore the plans.</p>
-      )}
-      <div className="grid gap-4 sm:grid-cols-2">
-        {catalog.plans.map((plan) => (
-          <section key={plan.id} className="grid gap-3 rounded-xl border p-6">
-            <h2 className="text-xl font-semibold">{plan.name}</h2>
-            <p>
-              {plan.credits} credits {plan.type === 'subscription' ? 'each month' : 'per pack'}
-            </p>
-            <p>
-              {plan.features.maxSeats} seats · {plan.features.storageGb} GB storage
-            </p>
-            {plan.creditExpiryDays && <p>Credits expire after {plan.creditExpiryDays} days.</p>}
-            {catalog.prices
-              .filter((price) => price.planId === plan.id && price.provider === provider)
-              .map((price) => (
-                <p key={price.id}>
-                  {price.currency.toUpperCase() === 'USD'
-                    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                        price.amount / 100,
-                      )
-                    : 'Price unavailable'}
-                  {price.interval ? ` / ${price.interval}` : ''}
-                  {price.available ? '' : ' · Payments unavailable'}
-                </p>
-              ))}
-            <Link to="/app" className="underline">
-              View in my workspace
-            </Link>
-          </section>
-        ))}
+        </div>
       </div>
-    </main>
+      <Features />
+      <Testimonials />
+      <Faq />
+      <Cta />
+      {templateConfig.features.waitlist ? <GrowthForm feature="waitlist" /> : null}
+      {templateConfig.features.newsletter ? <GrowthForm feature="newsletter" /> : null}
+    </MarketingShell>
   )
 }

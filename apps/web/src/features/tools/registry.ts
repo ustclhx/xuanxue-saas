@@ -1,4 +1,5 @@
 import type { SiteId } from '@xuanxue/config'
+import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
 /**
@@ -56,6 +57,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
     },
   },
   ...TAROT_TOOL_ROUTES,
+  // openspec add-numerology-tools：西方站首页、工具内页、12 个数字页与两个枢纽页
+  ...NUMEROLOGY_ROUTES,
 ]
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */

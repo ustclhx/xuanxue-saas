@@ -24,7 +24,13 @@ interface Page {
 
 /** 地图与 OG 共用公开页面清单，始终排除草稿、未来文章和关闭的功能。 */
 export function publicPages(
-  content: { posts: readonly Post[]; legal: readonly Page[]; docs: readonly Page[] },
+  content: {
+    posts: readonly Post[]
+    legal: readonly Page[]
+    docs: readonly Page[]
+    /** 工具自带 SEO 文案的页面（如 numerology 的工具内页与内容页），按自身 locale 收录并按路径去重 */
+    toolPages?: readonly SeoPage[]
+  },
   now = new Date(),
   config = templateConfig,
   site?: SiteId,
@@ -95,6 +101,12 @@ export function publicPages(
           alternates: tool.paths,
         }
         const existing = pages.findIndex((entry) => entry.path === path)
+        if (existing === -1) pages.push(page)
+        else pages[existing] = page
+      }
+      for (const page of content.toolPages ?? []) {
+        if (page.locale !== locale) continue
+        const existing = pages.findIndex((entry) => entry.path === page.path)
         if (existing === -1) pages.push(page)
         else pages[existing] = page
       }
