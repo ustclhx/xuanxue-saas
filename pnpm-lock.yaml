@@ -308,6 +308,9 @@ importers:
       '@xuanxue/storage':
         specifier: workspace:*
         version: link:../../packages/storage
+      '@xuanxue/tarot':
+        specifier: workspace:*
+        version: link:../../packages/tarot
       '@xuanxue/ui':
         specifier: workspace:*
         version: link:../../packages/ui

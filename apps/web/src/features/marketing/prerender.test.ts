@@ -47,9 +47,22 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）
       { path: '/zh-hant/紫微斗數排盤' },
       { path: '/zh-hant/命盤查詢' },
+      // 塔罗牌阵（openspec add-tarot-reading）
+      { path: '/zh-hant/塔羅' },
+      { path: '/zh-hant/塔羅/每日一張' },
+      { path: '/zh-hant/塔羅/是非' },
+      { path: '/zh-hant/塔羅/凱爾特十字' },
       { path: '/ko' },
       { path: '/ko/사주궁합' },
+      { path: '/ko/타로' },
+      { path: '/ko/타로/오늘의-카드' },
+      { path: '/ko/타로/예-아니오' },
+      { path: '/ko/타로/켈틱-크로스' },
       { path: '/' },
+      { path: '/tarot' },
+      { path: '/tarot/daily' },
+      { path: '/tarot/yes-or-no' },
+      { path: '/tarot/celtic-cross' },
     ])
   })
 })

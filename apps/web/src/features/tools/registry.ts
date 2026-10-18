@@ -1,4 +1,5 @@
 import type { SiteId } from '@xuanxue/config'
+import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
 /**
  * 工具路由注册表（openspec add-dual-site-foundation 决策 3、5；docs/10-v1-plan.md §3）：
@@ -15,6 +16,8 @@ export interface ToolRoute {
   readonly descriptions?: Readonly<Partial<Record<string, string>>>
   /** 各语言的导航名称 */
   readonly titles: Readonly<Partial<Record<string, string>>>
+  /** false 时不进页头导航（同一工具的次级页面），仍参与预渲染、站点地图与 hreflang */
+  readonly nav?: boolean
 }
 
 export const TOOL_ROUTES: readonly ToolRoute[] = [
@@ -52,6 +55,7 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
       ko: '무료 사주궁합: 두 사람의 일주 관계와 오행 보완으로 본 참고 점수와 항목별 가감점.',
     },
   },
+  ...TAROT_TOOL_ROUTES,
 ]
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */
@@ -59,9 +63,13 @@ export function toolsForLocale(
   locale: string,
   routes: readonly ToolRoute[] = TOOL_ROUTES,
 ): { id: string; path: string; title: string }[] {
+  const seen = new Set<string>()
   return routes.flatMap((route) => {
     const path = route.paths[locale]
     const title = route.titles[locale]
-    return path && title ? [{ id: route.id, path, title }] : []
+    // 跨站工具在两站各登记一条、共用同一组路径，按路径去重
+    if (!path || !title || route.nav === false || seen.has(path)) return []
+    seen.add(path)
+    return [{ id: route.id, path, title }]
   })
 }
