@@ -183,3 +183,28 @@ test('relative cross-package imports enforce foundation layers and packages cann
   assert.ok(violations.some((message) => message.includes('@xuanxue/db → @xuanxue/platform')))
   assert.ok(violations.some((message) => message.includes('packages 不得引用 apps')))
 })
+
+test('configured pure packages reject business imports in manifests and source', (t) => {
+  const check = workspace(
+    t,
+    {
+      'packages/numerology/package.json': manifest('@xuanxue/numerology', {
+        '@xuanxue/db': '*',
+        '@xuanxue/shared': '*',
+      }),
+      'packages/tarot/package.json': manifest('@xuanxue/tarot', { '@xuanxue/shared': '*' }),
+      'packages/tarot/src/index.ts': "import '@xuanxue/ai'; import '@xuanxue/shared'",
+    },
+    {
+      ...emptyRules(),
+      packageLayers: {
+        '@xuanxue/numerology': ['@xuanxue/shared'],
+        '@xuanxue/tarot': ['@xuanxue/shared'],
+      },
+    },
+  )
+  const violations = check()
+  assert.equal(violations.length, 2)
+  assert.ok(violations.some((message) => message.includes('@xuanxue/numerology → @xuanxue/db')))
+  assert.ok(violations.some((message) => message.includes('@xuanxue/tarot → @xuanxue/ai')))
+})

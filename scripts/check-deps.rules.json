@@ -116,5 +116,9 @@
     "apps/jobs/test/node-media.integration.test.ts": ["node"],
     "apps/jobs/test/fixtures/media-node-env.ts": ["node"],
     "apps/jobs/test/fixtures/media-node-storage.ts": ["node"]
+  },
+  "packageLayers": {
+    "@xuanxue/numerology": ["@xuanxue/shared"],
+    "@xuanxue/tarot": ["@xuanxue/shared"]
   }
 }
