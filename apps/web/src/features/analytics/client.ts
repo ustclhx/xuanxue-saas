@@ -115,3 +115,18 @@ export function startPostHog(config: TemplateConfig): () => void {
     sdk()?.opt_out_capturing()
   }
 }
+
+/**
+ * 发送一条产品事件（工具页埋点等）。只在已同意、SDK 已由 startPostHog 初始化时发送；
+ * 属性由调用方按白名单构造（features/tools/events.ts），这里不再补充任何个人信息。
+ */
+export function captureProductEvent(
+  config: TemplateConfig,
+  event: string,
+  properties: Record<string, string | number | boolean>,
+): boolean {
+  const posthog = (window as PostHogWindow).posthog
+  if (!posthog || posthog !== initializedSdk || !mayCapture(config)) return false
+  posthog.capture(event, properties)
+  return true
+}

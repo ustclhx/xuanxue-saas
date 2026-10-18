@@ -5,6 +5,7 @@ import {
   Scripts,
   useRouterState,
 } from '@tanstack/react-router'
+import type { SiteId } from '@xuanxue/config'
 import { themeInitScript } from '@xuanxue/ui'
 import type { ReactNode } from 'react'
 import { ImpersonationBanner } from '../features/admin/impersonation-banner.tsx'
@@ -15,6 +16,9 @@ import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageControls } from '../features/i18n/language-controls.tsx'
 import { privateMeta } from '../features/seo/metadata.ts'
 import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
+import { SiteContext } from '../features/site/context.tsx'
+import { getCurrentSite } from '../features/site/site.functions.ts'
+import { SITE_THEME_SCRIPT, siteFontLinks } from '../features/site/theme.ts'
 import { ThemeToggle } from '../features/theme/theme-toggle.tsx'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
@@ -22,15 +26,16 @@ import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
   loader: async () => {
-    const [impersonation, announcement, appUrl] = await Promise.all([
+    const [impersonation, announcement, appUrl, site] = await Promise.all([
       getSafeImpersonation(),
       getAnnouncement(),
       getSeoOrigin(),
+      getCurrentSite(),
     ])
-    return { impersonation, announcement, appUrl }
+    return { impersonation, announcement, appUrl, site }
   },
   staleTime: Infinity,
-  head: ({ matches }) => ({
+  head: ({ matches, loaderData }) => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -38,10 +43,16 @@ export const Route = createRootRoute({
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),
     ],
     // 全局样式（Tailwind + @xuanxue/ui 主题），SSR 输出的 <head> 中直接引用，避免首屏无样式闪烁
-    links: [{ rel: 'stylesheet', href: appCss }],
-    // 首屏前按偏好（未设置时跟随系统）给 <html> 设置 dark 类：<head> 内同步执行，避免刷新时先浅后深的闪烁
+    // 站点字体（docs/design/visual-system.md「字体」）：只加载本站本语言的一套，display=swap
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      ...siteFontLinks(loaderData?.site.id ?? 'west', getLocale()),
+    ],
+    // 首屏前按偏好（未设置时跟随系统）给 <html> 设置 dark 类：<head> 内同步执行，避免刷新时先浅后深的闪烁；
+    // 西方站始终为深色（features/site/theme.ts）
     scripts: [
       { children: themeInitScript() },
+      { children: SITE_THEME_SCRIPT },
       ...analyticsHeadScripts(matches.at(-1)?.pathname ?? '/', templateConfig),
     ],
   }),
@@ -49,7 +60,7 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
-  const { impersonation, announcement } = Route.useLoaderData()
+  const { impersonation, announcement, site } = Route.useLoaderData()
   // 后台侧栏与认证页脚自带控件，避免浮动控件遮挡正文。
   const hasInlineControls = useRouterState({
     select: (state) =>
@@ -57,7 +68,7 @@ function RootComponent() {
       /^\/admin(\/|$)/.test(state.location.pathname),
   })
   return (
-    <RootDocument floatingControls={!hasInlineControls}>
+    <RootDocument site={site.id} floatingControls={!hasInlineControls}>
       <ProductAnalytics />
       <ImpersonationBanner viewer={impersonation} />
       <AnnouncementBanner initial={announcement} />
@@ -69,17 +80,21 @@ function RootComponent() {
 
 function RootDocument({
   children,
+  site,
   floatingControls,
-}: Readonly<{ children: ReactNode; floatingControls: boolean }>) {
+}: Readonly<{ children: ReactNode; site: SiteId; floatingControls: boolean }>) {
   return (
-    // 主题类名由下方内联脚本在水合前写到 <html> 上，与服务端输出不一致属预期
-    <html lang={getLocale()} suppressHydrationWarning>
+    // 主题类名由下方内联脚本在水合前写到 <html> 上，与服务端输出不一致属预期；
+    // data-site 切换两站 token（styles/site-theme.css）
+    <html lang={getLocale()} data-site={site} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        {children}
-        {floatingControls && <ThemeToggle className="fixed right-4 bottom-4" />}
+        <SiteContext value={site}>
+          {children}
+          {floatingControls && <ThemeToggle className="fixed right-4 bottom-4" />}
+        </SiteContext>
         <Scripts />
       </body>
     </html>

@@ -20,6 +20,6 @@
 
 ## 4. 工具页外壳与视觉
 
-- [ ] 4.1 按 `docs/design/visual-system.md` 实现两站主题 token（Tailwind theme，按站点切换）、站点 header/footer 与品牌；验证：两站首页截图与原型一致，暗色模式无闪烁测试仍通过
-- [ ] 4.2 `features/tools`：ToolPage / ResultBlock / ShareLink（`#r=` 片段编码，无姓名明文）/ Disclaimer（三语）/ 内链矩阵 / FAQ 组件，配 Storybook 式 demo 路由 `/dev/tools`（仅本地）；验证：组件单元测试 + 禁用 JS 请求 demo 页含 H1 与表单标签
-- [ ] 4.3 `useToolEvents` 埋点接入 `features/analytics`，六个事件名固定且不含个人信息；验证：单元测试断言事件载荷字段白名单
+- [x] 4.1 按 `docs/design/visual-system.md` 实现两站主题 token（Tailwind theme，按站点切换）、站点 header/footer 与品牌；验证：两站首页截图与原型一致，暗色模式无闪烁测试仍通过
+- [x] 4.2 `features/tools`：ToolPage / ResultBlock / ShareLink（`#r=` 片段编码，无姓名明文）/ Disclaimer（三语）/ 内链矩阵 / FAQ 组件，配 Storybook 式 demo 路由 `/dev/tools`（仅本地）；验证：组件单元测试 + 禁用 JS 请求 demo 页含 H1 与表单标签
+- [x] 4.3 `useToolEvents` 埋点接入 `features/analytics`，六个事件名固定且不含个人信息；验证：单元测试断言事件载荷字段白名单

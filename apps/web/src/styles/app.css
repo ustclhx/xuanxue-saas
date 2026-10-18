@@ -1,4 +1,5 @@
-/* apps/web 的全局样式：主题与基础样式来自 @xuanxue/ui，再声明本应用的源码目录供 Tailwind 扫描类名 */
+/* apps/web 的全局样式：主题与基础样式来自 @xuanxue/ui，再叠加两站 token，并声明本应用的源码目录供 Tailwind 扫描类名 */
 @import "@xuanxue/ui/globals.css";
+@import "./site-theme.css";
 
 @source "../";
