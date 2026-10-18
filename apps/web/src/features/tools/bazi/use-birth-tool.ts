@@ -90,6 +90,7 @@ export function useBirthTool<R>({
   locale,
   compute,
   focusBlock,
+  focusItem,
   initial,
 }: {
   locale: string
@@ -98,6 +99,8 @@ export function useBirthTool<R>({
   compute: (input: BirthInput) => Promise<R>
   /** 概念页嵌入时提交后滚动到的区块 id */
   focusBlock?: string | undefined
+  /** 空亡等概念只强调区块中的对应项 */
+  focusItem?: string | undefined
 }) {
   const person = useBirthValues(BIRTH_STORAGE_KEY, locale, initial)
   const [state, setState] = useState<ToolState<R>>({ status: 'idle' })
@@ -129,7 +132,16 @@ export function useBirthTool<R>({
     if (state.status !== 'done' || !pendingScroll.current) return
     pendingScroll.current = false
     scrollToResult(focusBlock)
-  }, [state, focusBlock])
+    if (!focusBlock) return
+    const target = document.getElementById(focusItem ?? focusBlock)
+    if (!target) return
+    target.dataset.conceptFocus = 'true'
+    target.classList.add('outline-2', 'outline-brand', 'outline-offset-4')
+    return () => {
+      delete target.dataset.conceptFocus
+      target.classList.remove('outline-2', 'outline-brand', 'outline-offset-4')
+    }
+  }, [state, focusBlock, focusItem])
 
   const { restore, update, defaults, loadStored } = person
   useShareFragment(
