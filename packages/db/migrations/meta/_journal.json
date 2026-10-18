@@ -92,6 +92,13 @@
       "when": 1791543863638,
       "tag": "0012_thick_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792366262686,
+      "tag": "0013_superb_excalibur",
+      "breakpoints": true
     }
   ]
 }
