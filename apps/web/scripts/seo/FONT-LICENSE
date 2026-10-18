@@ -1,3 +1,10 @@
+Build-only font sources (unmodified, one Regular weight):
+Noto Sans SC: https://github.com/notofonts/noto-cjk/blob/main/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf
+Noto Sans KR: https://github.com/notofonts/noto-cjk/blob/main/Sans/SubsetOTF/KR/NotoSansKR-Regular.otf
+Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+Both files use the SIL Open Font License 1.1 reproduced below.
+These files are read by the Node OG build only, never shipped to browsers or Workers.
+
 This Font Software is licensed under the SIL Open Font License,
 Version 1.1.
 

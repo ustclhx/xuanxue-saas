@@ -15,7 +15,7 @@ export function OgCard({ title }: { title: string }) {
         padding: 72,
         color: '#f8fafc',
         background: 'linear-gradient(135deg, #0f172a, #312e81)',
-        fontFamily: 'Noto Sans SC',
+        fontFamily: 'Noto Sans SC, Noto Sans KR',
       },
     },
     createElement('div', { style: { display: 'flex', fontSize: 36 } }, templateConfig.app.name),

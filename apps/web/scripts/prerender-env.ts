@@ -8,6 +8,7 @@ import { randomBytes } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Plugin } from 'vite'
+import { prerenderToken } from './site-build.ts'
 
 const WEB_ROOT = new URL('..', import.meta.url).pathname
 
@@ -21,6 +22,8 @@ export function prerenderEnvFallback(root = WEB_ROOT): Plugin {
       const example = join(root, '.dev.vars.example')
       if ('.dev.vars' in bundle) {
         const asset = bundle['.dev.vars']
+        if (asset.type === 'asset')
+          asset.source = `${String(asset.source)}\nSITE_PRERENDER_TOKEN=${prerenderToken}\n`
         if (process.env.APP_URL && asset.type === 'asset') {
           asset.source = String(asset.source).replace(
             /^APP_URL=.*$/m,
@@ -36,7 +39,11 @@ export function prerenderEnvFallback(root = WEB_ROOT): Plugin {
       )
       if (process.env.APP_URL)
         source = source.replace(/^APP_URL=.*$/m, `APP_URL=${process.env.APP_URL}`)
-      this.emitFile({ type: 'asset', fileName: '.dev.vars', source })
+      this.emitFile({
+        type: 'asset',
+        fileName: '.dev.vars',
+        source: `${source}\nSITE_PRERENDER_TOKEN=${prerenderToken}\n`,
+      })
     },
   }
 }

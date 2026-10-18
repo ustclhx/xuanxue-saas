@@ -8,8 +8,11 @@ import { Features } from '../features/marketing/sections/features.tsx'
 import { Hero } from '../features/marketing/sections/hero.tsx'
 import { Pricing } from '../features/marketing/sections/pricing.tsx'
 import { Testimonials } from '../features/marketing/sections/testimonials.tsx'
-import { originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
+import { eastEntryPage, originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
+import { seoSiteOrigin } from '../features/seo/origins.ts'
 import { organizationData, websiteData } from '../features/seo/structured-data.ts'
+import { useSiteId } from '../features/site/context.tsx'
+import { EastEntry } from '../features/site/east-entry.tsx'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 
@@ -20,15 +23,20 @@ export const Route = createFileRoute('/')({
   },
   head: ({ matches }) =>
     templateConfig.marketing.enabled
-      ? pageHead(staticPage('/', getLocale()), originFromMatches(matches), [
-          organizationData(originFromMatches(matches)),
-          websiteData(originFromMatches(matches)),
-        ])
+      ? pageHead(
+          getLocale() === 'en' && originFromMatches(matches) === seoSiteOrigin('east')
+            ? eastEntryPage()
+            : staticPage('/', getLocale()),
+          originFromMatches(matches),
+          [organizationData(originFromMatches(matches)), websiteData(originFromMatches(matches))],
+        )
       : {},
   component: HomePage,
 })
 
 function HomePage() {
+  const site = useSiteId()
+  if (site === 'east' && getLocale() === 'en') return <EastEntry />
   return (
     <MarketingShell>
       <Hero />

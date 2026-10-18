@@ -2,9 +2,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
-import { robots, sitemap } from './crawlers.ts'
-import { localizedPath, pageHead, privateMeta } from './metadata.ts'
+import { robots, sitemap, sitemapIndex } from './crawlers.ts'
+import { alternateLinks, localizedPath, pageHead, privateMeta } from './metadata.ts'
 import { OgCard } from './og-card.ts'
+import { localeOrigin, seoSiteOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
 import { articleData, organizationData, pricingData, websiteData } from './structured-data.ts'
 
@@ -86,7 +87,9 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         expect(canonicals.has(canonical ?? '')).toBe(false)
         titles.add(title ?? '')
         canonicals.add(canonical ?? '')
-        expect(canonical).toBe(`${origin}${localizedPath(page.path, locale)}`)
+        expect(canonical).toBe(
+          `${localeOrigin(locale)}${page.siteEntry ? '/' : localizedPath(page.path, locale)}`,
+        )
         for (const key of [
           'description',
           'twitter:card',
@@ -109,7 +112,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         expect(head.links).toContainEqual({
           rel: 'alternate',
           hrefLang: 'x-default',
-          href: `${origin}${page.path}`,
+          href: `${seoSiteOrigin('west')}${page.path}`,
         })
       }
     }
@@ -128,7 +131,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
     for (const locale of locales) {
       const prefix =
         !config.i18n.enabled || locale === config.i18n.defaultLocale ? '' : localePrefix(locale)
-      expect(xml).toContain(`<loc>${origin}${prefix}/blog/published</loc>`)
+      expect(xml).toContain(`<loc>${localeOrigin(locale)}${prefix}/blog/published</loc>`)
     }
     for (const path of [
       '/app',
@@ -262,4 +265,63 @@ describe('分享图与缓存（4.4）', () => {
     expect(markup).toContain(templateConfig.app.name)
     expect(markup).toContain(page.title)
   })
+})
+
+const bazi = {
+  id: 'bazi',
+  site: 'east' as const,
+  paths: { 'zh-Hant': '/八字排盤/', ko: '/' },
+  titles: { 'zh-Hant': '八字排盤', ko: '만세력' },
+}
+
+it('跨站定价 hreflang 使用 BCP 47 语言码与西方英语 x-default', () => {
+  const links = alternateLinks(origin, '/pricing')
+  expect(links).toContainEqual({
+    rel: 'alternate',
+    hrefLang: 'zh-Hant',
+    href: 'https://xuanxue-east.example/zh-hant/pricing',
+  })
+  expect(links).toContainEqual({
+    rel: 'alternate',
+    hrefLang: 'ko',
+    href: 'https://xuanxue-east.example/ko/pricing',
+  })
+  expect(links).toContainEqual({
+    rel: 'alternate',
+    hrefLang: 'x-default',
+    href: 'https://xuanxue-west.example/pricing',
+  })
+})
+
+it('异名工具路由互指；无英语版本时 x-default 指向本站入口', () => {
+  const tools = publicPages(content, new Date('2026-10-01'), config, 'east', [bazi])
+  const page = tools.find((p) => p.path === '/八字排盤/')
+  if (!page) throw new Error('Missing tool page')
+  const links = pageHead(page, origin).links
+  expect(links).toContainEqual({
+    rel: 'alternate',
+    hrefLang: 'ko',
+    href: 'https://xuanxue-east.example/ko',
+  })
+  expect(links).toContainEqual({
+    rel: 'alternate',
+    hrefLang: 'x-default',
+    href: 'https://xuanxue-east.example/',
+  })
+  expect(links.some((link) => 'hrefLang' in link && link.hrefLang === 'en')).toBe(false)
+  expect(tools.every((p) => p.locale !== 'en')).toBe(true)
+  const xml = sitemap(tools, origin, 'zh-Hant')
+  expect(xml).toContain('/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4')
+  expect(xml).toContain('hreflang="ko" href="https://xuanxue-east.example/ko"')
+  expect(xml).not.toContain('<loc>https://xuanxue-east.example/ko')
+})
+
+it('两站地图索引只列本站语言；未知 Host 与分享结果禁止抓取', () => {
+  expect(sitemapIndex('east')).toContain('https://xuanxue-east.example/sitemap/zh-hant.xml')
+  expect(sitemapIndex('east')).toContain('/sitemap/ko.xml')
+  expect(sitemapIndex('east')).not.toContain('/sitemap/en.xml')
+  expect(sitemapIndex('west')).not.toContain('/sitemap/ko.xml')
+  expect(robots(origin)).toContain('Disallow: /*?r=')
+  expect(robots(origin)).toContain('Disallow: /*&r=')
+  expect(robots(origin, false)).toBe('User-agent: *\nDisallow: /\n')
 })

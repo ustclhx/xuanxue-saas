@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { cloudflare } from '@cloudflare/vite-plugin'
 import { defineConfig, loadEnv } from 'vite'
 import { syncLocalPaymentEnv } from '../../scripts/local-payment-env.mjs'
+import templateConfig from '../../template.config.ts'
 import { ogImages } from './scripts/og-images.ts'
 import { prerenderEnvFallback } from './scripts/prerender-env.ts'
 import { pricingSnapshotPlugin } from './scripts/pricing-snapshot.ts'
@@ -46,8 +47,16 @@ export default defineConfig(({ command }) => {
   if (command === 'serve') syncLocalPaymentEnv(new URL('./', import.meta.url))
   return {
     build: { sourcemap: 'hidden' },
-    server: { port, strictPort: true },
-    preview: { port, strictPort: true },
+    server: {
+      port,
+      strictPort: true,
+      allowedHosts: Object.values(templateConfig.sites).flatMap((site) => site.hosts),
+    },
+    preview: {
+      port,
+      strictPort: true,
+      allowedHosts: Object.values(templateConfig.sites).flatMap((site) => site.hosts),
+    },
     define: {
       __APP_VERSION__: JSON.stringify(appVersion),
     },

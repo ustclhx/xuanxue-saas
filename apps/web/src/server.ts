@@ -38,6 +38,7 @@ import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
 import { siteHosts } from './features/site/site.ts'
+import { prerenderRequest, staticPageResponse } from './features/site/static-pages.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
 import { checkEnv, webEnvSchema } from './server/cloudflare/env.ts'
@@ -55,7 +56,12 @@ const startHandler = createStartHandler((context) => {
 })
 
 const worker = instrumentWeb({
-  fetch(request, env) {
+  fetch(incoming, env) {
+    const buildRequest = prerenderRequest(incoming, env.SITE_PRERENDER_TOKEN)
+    const path = decodeURI(new URL(incoming.url).pathname)
+    if (!buildRequest && /^\/_site(?:\/|$)/.test(path))
+      return Promise.resolve(new Response('Not Found', { status: 404 }))
+    const request = buildRequest ?? incoming
     const invalid = checkEnv(env)
     if (invalid) return Promise.resolve(invalid)
     if (new URL(request.url).pathname === SENTRY_TEST_PATH)
@@ -65,6 +71,9 @@ const worker = instrumentWeb({
         request,
         templateConfig,
         async () =>
+          (!import.meta.env.DEV && !buildRequest && env.ASSETS
+            ? await staticPageResponse(request, (asset) => env.ASSETS.fetch(asset))
+            : null) ??
           gatePublicApiRequest(request, templateConfig) ??
           (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
       ),
@@ -88,6 +97,8 @@ export default {
         // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
         const headers = new Headers(response.headers)
         headers.set('x-request-id', context.requestId)
+        if (new URL(request.url).searchParams.has('r'))
+          headers.set('x-robots-tag', 'noindex, nofollow')
         return new Response(response.body, {
           status: response.status,
           statusText: response.statusText,

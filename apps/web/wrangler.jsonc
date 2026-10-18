@@ -5,6 +5,24 @@
   "main": "./src/server.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "html_handling": "none",
+    "run_worker_first": [
+      "/*",
+      "!/assets/*",
+      // 牌图直通；同目录下的工具 HTML 仍须经过站点守卫。
+      "!/tarot/*.webp",
+      "!/tarot/SOURCES.md",
+      "!/fonts/*",
+      "!/images/*",
+      "!/og/*",
+      "!/favicon.ico",
+      "!/src/*",
+      "!/@*",
+      "!/node_modules/*"
+    ]
+  },
 
   // FILES 专用私有桶；顶层由 Miniflare 模拟，预签名配置必须与绑定一致。
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files" }],
