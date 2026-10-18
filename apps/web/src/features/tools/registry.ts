@@ -1,4 +1,5 @@
 import type { SiteId } from '@xuanxue/config'
+import { CONCEPT_SLUGS, type ConceptKey, conceptPath } from './bazi/eastern-routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
@@ -20,6 +21,30 @@ export interface ToolRoute {
   /** false 时不进页头导航（同一工具的次级页面），仍参与预渲染、站点地图与 hreflang */
   readonly nav?: boolean
 }
+
+// 每个 conceptKey 一条记录，只有存在译文的语言参与 hreflang。
+const conceptKeys: readonly Exclude<ConceptKey, 'base'>[] = [
+  'luck',
+  'useful-god',
+  'elements',
+  'strength',
+  'void',
+  'shensha',
+  'weight',
+  'ten-gods',
+  'day-pillar',
+]
+const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
+  const paths: Record<string, string> = {}
+  const titles: Record<string, string> = {}
+  for (const locale of ['zh-Hant', 'ko'] as const) {
+    const path = conceptPath(locale, key)
+    if (!path) continue
+    paths[locale] = path
+    titles[locale] = (CONCEPT_SLUGS[locale] as Record<string, string>)[key] ?? key
+  }
+  return { id: `bazi-concept-${key}`, site: 'east', nav: false, paths, titles }
+})
 
 export const TOOL_ROUTES: readonly ToolRoute[] = [
   // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本
@@ -59,6 +84,7 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   ...TAROT_TOOL_ROUTES,
   // openspec add-numerology-tools：西方站首页、工具内页、12 个数字页与两个枢纽页
   ...NUMEROLOGY_ROUTES,
+  ...conceptRoutes,
 ]
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */

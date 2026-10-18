@@ -64,6 +64,8 @@ jobs:
       - run: pnpm test
       # turbo run build：没有 build 脚本的包会被跳过
       - run: pnpm build
+      - name: Check eastern pages and bazi engine size
+        run: node apps/web/scripts/check-bazi-build.mjs
 
   e2e-smoke:
     runs-on: ubuntu-latest

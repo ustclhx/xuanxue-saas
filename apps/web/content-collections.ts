@@ -158,4 +158,54 @@ const numerology = defineCollection({
   },
 })
 
-export default defineConfig({ content: [posts, legalPages, docs, numerology] })
+const concepts = defineCollection({
+  name: 'concepts',
+  directory: 'content/concepts',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    description: z.string().min(1),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[^/\s]+$/),
+    locale: z.enum(['zh-Hant', 'ko']),
+    conceptKey: z.enum([
+      'luck',
+      'useful-god',
+      'elements',
+      'strength',
+      'void',
+      'shensha',
+      'weight',
+      'ten-gods',
+      'day-pillar',
+    ]),
+    block: z.enum([
+      'pillars',
+      'elements',
+      'strength',
+      'useful-god',
+      'luck',
+      'shensha',
+      'weight',
+      'ten-gods',
+    ]),
+    faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(1),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    if (localeAndSlug(document._meta).locale !== data.locale)
+      throw new Error(`Concept locale does not match directory: ${document._meta.path}`)
+    // FAQ 和内链由 ToolPage 统一展示；正文沿用仓库内容，不重复尾部模板。
+    const body = content.split(/^## (?:常見問題|자주 묻는 질문)\s*$/m)[0] ?? content
+    const html = await renderMdx(context, { ...document, content: body })
+    if (plainText(html).replace(/\s/g, '').length < 600)
+      throw new Error(`Concept body must contain at least 600 characters: ${document._meta.path}`)
+    return { ...data, html }
+  },
+})
+
+export default defineConfig({ content: [posts, legalPages, docs, numerology, concepts] })
