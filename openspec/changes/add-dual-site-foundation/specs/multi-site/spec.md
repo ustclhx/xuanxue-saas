@@ -7,7 +7,7 @@
 ## ADDED Requirements
 
 ### Requirement: 按域名识别站点
-系统 SHALL 根据请求的 Host 识别当前站点（东方站或西方站）；未配置的 Host（如 `*.workers.dev` 预览地址）SHALL 视为西方站并对全部页面输出 noindex。
+系统 SHALL 根据请求的 Host 识别当前站点（东方站或西方站）；未配置的 Host（如 `*.workers.dev` 预览地址）SHALL 以西方站品牌服务全部语言（不做跨站跳转，便于 staging 验收东方站页面），并对全部页面输出 noindex。
 
 #### Scenario: 访问东方站
 - **WHEN** 访客请求东方站域名的 `/zh-hant/`
@@ -16,6 +16,10 @@
 #### Scenario: 预览地址
 - **WHEN** 访客请求 staging 的 `*.workers.dev` 地址
 - **THEN** 页面按西方站渲染，且带 `noindex`
+
+#### Scenario: 预览地址访问韩语页
+- **WHEN** 访客请求 staging 预览地址的 `/ko/`
+- **THEN** 直接返回韩语页面，不跳转到东方站域名，且带 `noindex`
 
 ### Requirement: 语言归属站点
 每种语言 SHALL 只属于一个站点：v1 中 `zh-Hant`、`ko` 属于东方站，`en` 属于西方站；访问不属于当前站点的语言前缀时 SHALL 301 重定向到该语言所属站点的同一路径。
