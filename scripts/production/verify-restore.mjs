@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 /**
  * 恢复演练校验（add-cloud-production-neon 4.2）：对恢复出的临时目标只读执行检查，
- * 规则与 deploy/selfhost/backup/restore.py 一致（积分不变量同 reconcileWorkspaceCredits）。
+ * 积分不变量与 reconcileWorkspaceCredits 一致。
  * 连接串只经环境变量 RESTORE_DATABASE_URL 传入，拆成 PG* 环境变量交给 psql，不进命令参数。
  * 用法：RESTORE_DATABASE_URL=... node scripts/production/verify-restore.mjs [--roles]
  */

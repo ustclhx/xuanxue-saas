@@ -5,16 +5,13 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./queue": "./src/queue.ts",
-    "./node": "./src/node/index.ts"
+    "./queue": "./src/queue.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json && tsc -p tsconfig.node.json",
-    "test": "vitest run",
-    "test:node:smtp": "node src/node/test/runner.mjs"
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json",
+    "test": "vitest run"
   },
   "dependencies": {
-    "nodemailer": "10.1.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-email": "^6.11.0",

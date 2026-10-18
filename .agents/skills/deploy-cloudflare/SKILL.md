@@ -65,7 +65,7 @@ pnpm --dir apps/web exec wrangler deploy --config dist/server/wrangler.json --dr
 
 bindings/vars 不从顶层继承，复制完整所需环境块并逐项更新，不能只新增 name。新环境不沿用模板 staging 的 reduced Cron 除非用户选择；心跳核验按实际调度。
 
-secret 来源与归属见 quick-start 和 `docs/07-infrastructure.md` §4。对获准缺项在对应 app 执行交互输入（真值不写参数、vars、PR、日志）：
+secret 来源与归属见 `PROJECT_SETUP.md` 和 `docs/07-infrastructure.md` §4。对获准缺项在对应 app 执行交互输入（真值不写参数、vars、PR、日志）：
 
 ```sh
 pnpm exec wrangler secret put <SECRET_NAME> --env <env>
@@ -87,7 +87,7 @@ node scripts/staging/wait-healthy.mjs https://<domain>/api/health <full-sha>
 ```
 
 4. 版本门要求 HTTP200、db.up、完整 SHA 相等。核对 jobs 心跳按调度推进（模板 staging reduced 是半小时，不要求10分钟），注册/登录/个人空间与所启功能冒烟。staging 浏览器配置先核对 `apps/web/playwright.config.ts` 的 URL 来源，再运行 `pnpm --filter @xuanxue/web exec playwright test --project staging`。
-5. BOOTSTRAP_ADMIN_EMAILS 仅 web secret；名单内账号已验证且未封禁才提升。注册→验证邮箱→重新登录→访问 `/admin`，核对 bootstrap 审计。移除名单不自动撤权。按 quick-start 完成模型、套餐授权、余额与首个 AI 调用；缺凭据标记待验收。
+5. BOOTSTRAP_ADMIN_EMAILS 仅 web secret；名单内账号已验证且未封禁才提升。注册→验证邮箱→重新登录→访问 `/admin`，核对 bootstrap 审计。移除名单不自动撤权。按 README「本地开发」第 4 步完成模型、套餐授权、余额与首个 AI 调用；缺凭据标记待验收。
 
 ## 故障与完成条件
 

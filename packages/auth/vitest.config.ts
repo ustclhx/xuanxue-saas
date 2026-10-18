@@ -52,7 +52,6 @@ export default defineConfig({
               test: {
                 name: 'integration',
                 include: ['test/**/*.test.ts'],
-                exclude: ['test/node/**'],
                 globalSetup: ['@xuanxue/db/test/global-setup'],
               },
             },

@@ -10,14 +10,14 @@
 - PR 2 [#62](https://github.com/ustclhx/xuanxue/pull/62) 已 squash 合并为 `ad1b5dafce6d3007c9409e0e0e9032437474eb7a`，包含 Neon Hyperdrive 绑定、AI Gateway vars 与 staging observability 配置；历史任务记录提交 `a876735` 的 CI run `37882993185` 已全部通过。随后 [#64](https://github.com/ustclhx/xuanxue/pull/64) 已 squash 合并为当前 main `ce623cab63a99d6eee8c8ba67eeb09e564f97779`，修复 CI web 预渲染的本地 Hyperdrive 配置。
 - PR #62 合并后的初次自动发布 [run 37892016841](https://github.com/ustclhx/xuanxue/actions/runs/37892016841) 在 Deploy web 预渲染阶段失败，不能记录为成功。PR #64 仅在 Deploy web step 设置两个 local Hyperdrive 占位连接变量，目标不可达且不是真实数据库；构建沿用已有 pricing fallback 示例套餐。线上 Hyperdrive 绑定与迁移目标保持 Neon。
 - 成功的自动发布 [run 37894416572](https://github.com/ustclhx/xuanxue/actions/runs/37894416572) 为 `completed / success`，head SHA 为 `ce623cab63a99d6eee8c8ba67eeb09e564f97779`，时间 2026-10-09 06:36:31–06:38:28 UTC。迁移 06:37:12–14 → jobs 06:37:14–21 → web 06:37:21–43 → 版本探活 06:37:43–45 → 冒烟 06:38:13–23，全部 success；探活要求 200、db.up 与完整 SHA 匹配，三个原始冒烟用例 3 passed（10.0 秒），任务 7.4 通过。
-- 自动部署日志记录 jobs Worker version `38ec01c5-8ced-4173-b478-e2e4f1dc9139`（06:37:21.5132201 UTC），web `7281e552-88c9-4c40-bfb9-b3ae0c69c83d`（06:37:43.8174925 UTC）。2026-10-09 06:41:05.684100 UTC 的独立健康观测为 status ok、db.up、version 与上述完整 SHA 一致；`jobs.lastCronAt = 2026-10-09T06:40:35.438Z`，晚于自动部署。脱敏证据汇总为 `/tmp/cloud-staging-neon-pr3-auto-evidence.json`。以下手动部署 SHA / Worker version 均为历史记录。
-- Neon 项目 `xuanxue-staging`（`ancient-hill-97648731`），分支 `production`（`br-royal-band-aklc7axw`），已确认 Free、Postgres 17、`aws-us-west-2`。数据库 `xuanxue_staging` 与 public schema owner 均为 `migrator`。
+- 自动部署日志记录 jobs Worker version `<uuid>`（06:37:21.5132201 UTC），web `<uuid>`（06:37:43.8174925 UTC）。2026-10-09 06:41:05.684100 UTC 的独立健康观测为 status ok、db.up、version 与上述完整 SHA 一致；`jobs.lastCronAt = 2026-10-09T06:40:35.438Z`，晚于自动部署。脱敏证据汇总为 `/tmp/cloud-staging-neon-pr3-auto-evidence.json`。以下手动部署 SHA / Worker version 均为历史记录。
+- Neon 项目 `xuanxue-staging`（`<project-id>`），分支 `production`（`<branch-id>`），已确认 Free、Postgres 17、`aws-us-west-2`。数据库 `xuanxue_staging` 与 public schema owner 均为 `migrator`。
 - SQL 重建后的三角色均无 CREATEDB / CREATEROLE / BYPASSRLS / REPLICATION，且无 `neon_superuser` 成员身份。`migrator` 完整执行未经修改的 `infra/local/initdb/02-db-grants.sql`；app 在 public 有 USAGE、无 CREATE。
 - psql 复核返回 `migrator | xuanxue_staging`，`\dn+ public` 显示 owner migrator、app/readonly 均只有 U。宿主机未装 psql，使用已有 PG 容器的客户端、通过 stdin 设置 PG 连接环境，仅连接 Neon 目标库。
 - 迁移命令退出 0；数据库记录、SQL 文件、journal 条目均为 12。app 的 public 建表与 audit_log UPDATE、readonly 的 plan DELETE 均在事务探测中被拒绝，SQLSTATE `42501`。
 - `billing:seed` 两次均退出 0，四套餐 `credit_pack` / `free` / `pro` / `team` 的行数与 ID 一致。平台价格同步已完成：网络失败后安全续跑 `billing:sync` 两次均退出 0，10 项映射均 active，UUID 与远端 ID 稳定；seed 与价格同步均不代替购买验收，详见 §2。
 - 新 Hyperdrive 资源已创建并部署到两个 app 的 staging 绑定，见 §3；构建通过，配置已在 PR #62 合入 main。Neon 锁探针经用户批准补正 abandon 持锁时序后，一轮七场景、49 项原断言全部通过。
-- 历史手动部署代码版本为 `7a229ce5e663d6781cefa2f441c01f164766a9ff`。开启 staging 日志后已按 jobs → web 重部署：jobs Worker version `cac1c571-e2b9-4e64-9ce9-f61faf9e4c70`（2026-10-09 03:37:51 UTC），web `c937023d-701a-4526-885f-42a5531f403b`（03:38:58 UTC），两者 APP_VERSION 均为同一完整 SHA。2026-10-09 03:35:05.869–03:36:10.165 UTC 的健康检查均为 200、db.up、完整 SHA 匹配；`jobs.lastCronAt` 从 `2026-10-09T03:35:04.669Z` 更新至 `2026-10-09T03:35:48.639Z`，在 10 分钟内更新，任务 2.3 通过。
+- 历史手动部署代码版本为 `7a229ce5e663d6781cefa2f441c01f164766a9ff`。开启 staging 日志后已按 jobs → web 重部署：jobs Worker version `<uuid>`（2026-10-09 03:37:51 UTC），web `<uuid>`（03:38:58 UTC），两者 APP_VERSION 均为同一完整 SHA。2026-10-09 03:35:05.869–03:36:10.165 UTC 的健康检查均为 200、db.up、完整 SHA 匹配；`jobs.lastCronAt` 从 `2026-10-09T03:35:04.669Z` 更新至 `2026-10-09T03:35:48.639Z`，在 10 分钟内更新，任务 2.3 通过。
 - GitHub `staging` environment 已创建，`CLOUDFLARE_ACCOUNT_ID`、`STAGING_MIGRATION_DATABASE_URL` 与 `CLOUDFLARE_API_TOKEN` 三项名称已核对。CI 令牌经用户指示创建并配置，API 验证 active 与当前 account，剪贴板已清空。
 - R2 桶 `files-staging` 已创建并核对列表；仅该桶对象读写的 S3 令牌 `files-staging-s3` 已获用户批准创建，凭据已按用户选择保存到本 worktree 的 `.env.staging-r2`（git 忽略、600、明文），两个字段已核验，剪贴板已清空，未写入 Mac 全局存储。AI Gateway `xuanxue-staging` 已创建、鉴权开启；Run 令牌已获批准创建并通过剪贴板 stdin 写入 web secret `AI_GATEWAY_TOKEN`，剪贴板已清空。Gateway vars 与 token 已部署；`staging:check-secrets` 退出 0、无必需缺项，健康检查无启动配置错误，任务 5.4 通过。
 - Stripe key 已通过 API 核对目标 Sandbox，并补到 jobs。两平台既有 staging webhook 地址与事件均经 API 核对，PayPal 为 12 项事件；没有新建或删除 endpoint。PayPal Sandbox OAuth 已核验，jobs 三项 PayPal secrets 已补齐，临时 bulk 文件已删除；用户批准后 web PayPal 三项也已统一为核验过的 Sandbox 配置、名称已复核。Stripe endpoint signing secret 已按用户提供的值通过 stdin 补齐 jobs，名称已核对、临时文件已删除。
@@ -26,10 +26,10 @@
 - 独立空库重建（8.1）已通过；文档与路线图最终结项（8.2）在本 PR 3 完成。staging 注册冒烟（6.2）已通过：原三个用例、断言与超时均未修改，临时等效 Playwright 配置显式使用本机现有 HTTP 代理 `127.0.0.1:7897`，退出 0、3 passed、20.2 秒；注册与个人空间用例通过。没有 mock、伪造 Turnstile token 或修改系统设置，证据为 `/tmp/cloud-staging-neon-proxy-evidence.txt`。
 - 版本探活（7.1）已通过：正确版本退出 0；错误版本经过 36 轮、约 180 秒退出 1，证据为 `/tmp/cloud-staging-neon-wrong-timed.log`。
 - Stripe Checkout 首次返回 `BILLING_UNAVAILABLE`，Workbench 400 确认账户默认 Managed Payments 要求 product tax code。用户已批准每次创建 Checkout Session 显式设置 `managed_payments.enabled=false` 的两文件三行补正，已应用为提交 `ab9dc21274291a82a22da67aaa776c6a779dafef`；Stripe operations 回归由 RED（2 fail）转为 GREEN（20 passed），该提交的 CI run `37886473852` 全部通过。根目录 `check`、`check:deps`、`check:singletons`、`typecheck`、`test`、`build` 六项均退出 0，日志为 `/tmp/cloud-staging-neon-managed-{check,check-deps,check-singletons,typecheck,test,build}.log`。
-- 历史 Managed Payments 补正后约 2026-10-09 04:58 UTC 再次按 jobs → web 手动部署完整代码版本 `ab9dc21274291a82a22da67aaa776c6a779dafef`，jobs Worker version `172b231b-7ef3-43f0-b677-aafba97c282e`、web `1c4273f4-420e-453c-96e0-fe950447372c`。部署时间仅据脱敏部署日志/文件时间推断，不作为精确时间戳；`2026-10-09T04:59:01.440Z` 健康检查为 200、status ok、db.up、完整 SHA 匹配，`lastCronAt = 2026-10-09T04:55:31.328Z`；随后心跳推进至 `2026-10-09T05:00:53.721Z`。
-- 已在明确的 Stripe Sandbox 中用官方 `4242` 测试卡购买一次 $10 积分包，空间 `u-4py7aicz` 的 UI 余额从 0 增至 1000。`checkout.session.completed` 事件 `evt_1UOVuiL3UTpBAoXom7S1Ate2` 在 `2026-10-09T05:00:14.299Z` 验签处理成功，API 版本为 `2026-09-30.endive`、`status = processed`、`attempts = 1`；付款 `01a11f08-8359-71e9-813e-64beae2501f9` 关联 `pi_3UOVugL3UTpBAoXo0hPVnZJQ`，`one_time / succeeded / 1000 USD`（最小货币单位）。唯一积分批次 `01a11f08-83f6-750c-b841-c10649a02cdd` 为 `purchase`、`amount = remaining = 1000`，`source_ref` 与 `payment_id` 均匹配该付款。
+- 历史 Managed Payments 补正后约 2026-10-09 04:58 UTC 再次按 jobs → web 手动部署完整代码版本 `ab9dc21274291a82a22da67aaa776c6a779dafef`，jobs Worker version `<uuid>`、web `<uuid>`。部署时间仅据脱敏部署日志/文件时间推断，不作为精确时间戳；`2026-10-09T04:59:01.440Z` 健康检查为 200、status ok、db.up、完整 SHA 匹配，`lastCronAt = 2026-10-09T04:55:31.328Z`；随后心跳推进至 `2026-10-09T05:00:53.721Z`。
+- 已在明确的 Stripe Sandbox 中用官方 `4242` 测试卡购买一次 $10 积分包，空间 `u-4py7aicz` 的 UI 余额从 0 增至 1000。`checkout.session.completed` 事件 `evt_1UOVuiL3UTpBAoXom7S1Ate2` 在 `2026-10-09T05:00:14.299Z` 验签处理成功，API 版本为 `2026-09-30.endive`、`status = processed`、`attempts = 1`；付款 `<uuid>` 关联 `pi_3UOVugL3UTpBAoXo0hPVnZJQ`，`one_time / succeeded / 1000 USD`（最小货币单位）。唯一积分批次 `<uuid>` 为 `purchase`、`amount = remaining = 1000`，`source_ref` 与 `payment_id` 均匹配该付款。
 - 已修复的重投诊断历史：Workbench 原始投递为 200，`05:00:46` 与 `05:01:03` UTC 两次手动投递均为 500；`05:03:19` UTC 的第三次重投在 live tail 中报 `billing.webhook_failed` / `Webhook delivery association mismatch`。当时 `assertAssociation` 比较完整 event payload，已存与重投的顶层 `pending_webhooks` 从 3 变为 1，导致关联检查失败；三次失败均未重复入账。用户已授权最小修复，提交 `433e737b517733553537cfdb7ed9bb9fad6dbe4e` 仅在 Stripe 已存事件与入站事件的关联比较中忽略顶层 `pending_webhooks`；当前投递原始字节的签名验证、业务 payload 及 PayPal 比较仍严格校验。真实 worktree PG 管线回归由 RED 转为 GREEN（10 passed）；根目录六项检查全部退出 0，`typecheck` 13/13、`test` 22/22（802 passed、2 个既有 skip，其中 billing 247 passed）、`build` 2/2。日志为 `/tmp/cloud-staging-neon-duplicate-{check,check-deps,check-singletons,typecheck,test,build}.log`。
-- 历史去重补正后已按 jobs → web 手动部署完整代码 `433e737b517733553537cfdb7ed9bb9fad6dbe4e`，jobs Worker version `e60c6ed2-0f59-4bf8-b245-98e018096bd6`、web `5bfb1235-9cf6-4558-9b88-802938dcfb05`。部署精确时间未留证；`2026-10-09T05:11:05.853Z` 健康观测为 200、status ok、db.up、完整 SHA 匹配，`jobs.lastCronAt` 从 `2026-10-09T05:00:53.721Z` 推进至 `2026-10-09T05:10:39.639Z`。该历史提交的 [CI run 37887162498](https://github.com/ustclhx/xuanxue/actions/runs/37887162498) 已全部通过，head SHA 为上述完整 `433e737b517733553537cfdb7ed9bb9fad6dbe4e`；CI 通过不代替首次 main 自动发布验收。
+- 历史去重补正后已按 jobs → web 手动部署完整代码 `433e737b517733553537cfdb7ed9bb9fad6dbe4e`，jobs Worker version `<uuid>`、web `<uuid>`。部署精确时间未留证；`2026-10-09T05:11:05.853Z` 健康观测为 200、status ok、db.up、完整 SHA 匹配，`jobs.lastCronAt` 从 `2026-10-09T05:00:53.721Z` 推进至 `2026-10-09T05:10:39.639Z`。该历史提交的 [CI run 37887162498](https://github.com/ustclhx/xuanxue/actions/runs/37887162498) 已全部通过，head SHA 为上述完整 `433e737b517733553537cfdb7ed9bb9fad6dbe4e`；CI 通过不代替首次 main 自动发布验收。
 - 修复部署后，使用受保护的测试 key 经 Stripe CLI 重投同一原始购买事件 `evt_1UOVuiL3UTpBAoXom7S1Ate2`；Stripe Workbench 的 `2026-10-09T05:11:10Z` Manual retry 明确返回 200 OK。重投后 readonly 核对付款、积分批次、事件与初始快照完全 deepEqual：各一条，付款仍为 `one_time / succeeded / 1000 USD`（最小货币单位），唯一 `purchase` 批次 `amount = remaining = 1000` 且关联原付款，事件仍 `processed / attempts = 1 / processed_at = 2026-10-09T05:00:14.299Z`；UI 余额仍为 1000。小额测试积分包购买、同事件去重及 Cron 心跳三项均通过，Neon 任务 9.1 已完成，Neon change 最终为 28/29，仅24 小时观察（9.2）保持未完成。
 - 验收汇总为 `/tmp/cloud-staging-neon-purchase-acceptance.json`，只读前后快照为 `/tmp/cloud-staging-neon-payment-before-resend.json`、`/tmp/cloud-staging-neon-payment-result.json`，CLI 重投提交记录为 `/tmp/cloud-staging-neon-stripe-resend-result.json`，当时健康记录为 `/tmp/cloud-staging-neon-final-health.json`。CLI 退出 0 仅证明提交成功；endpoint 200 由 Workbench 独立观测确认。以上证据仅含公开 ID 与测试数据。
 - 一小时日志验收（5.6）已通过：2026-10-09 03:39–04:39 UTC，账户级 Workers 数据集限定 jobs-staging，48 条 scheduled 记录、0 条错误；`event = "cron.heartbeat"` 为 13 条，确认结构化字段可检索；`event = "billing.provider_unconfigured"` 为 0 条。该窗口在日志启用后的部署之后，涵盖小时、每日和十分钟计费 Cron。jobs 仅 staging 开启日志、采样率 100%、traces 关闭。自动发布（7.4）已通过；24 小时观察（9.2）仍待完成。
@@ -116,18 +116,18 @@ pnpm --dir apps/web exec wrangler hyperdrive create xuanxue-staging-neon-cached 
 
 | 资源 | ID | 缓存 |
 |---|---|---|
-| `xuanxue-staging-neon` | `b3a797e705e849a196a4f7fcaf887293` | disabled |
-| `xuanxue-staging-neon-cached` | `ad4f2267382b427fbdd2ffe60d3a64de` | enabled；创建时指定 `--max-age 60` |
+| `xuanxue-staging-neon` | `<resource-id>` | disabled |
+| `xuanxue-staging-neon-cached` | `<resource-id>` | enabled；创建时指定 `--max-age 60` |
 
 缓存资源的 API 响应省略默认 `max_age` / `stale_while_revalidate` 字段；[Cloudflare 官方默认值](https://developers.cloudflare.com/hyperdrive/concepts/query-caching/#default-cache-settings)分别为 60 秒 / 15 秒。这里记录创建参数与官方默认，不将省略字段当成显式返回的 60。
 
-两个 app 的 `env.staging.hyperdrive` ID、Neon 注释、AI Gateway vars 与 observability 配置已随 PR #62 合入 main，本 PR 3 仅更新文档与任务记录，不重复配置变更。自动发布已使用新绑定并通过，见顶部证据。旧关缓存 ID `c4b28441aeaf49c3853a321a39cf8ec4`，旧缓存 ID `1b360caddf134503af774993499bdc4e`；观察期保留。以下为经授权的手动部署/重验参考；日常 main 发布由 §4 流水线负责。
+两个 app 的 `env.staging.hyperdrive` ID、Neon 注释、AI Gateway vars 与 observability 配置已随 PR #62 合入 main，本 PR 3 仅更新文档与任务记录，不重复配置变更。自动发布已使用新绑定并通过，见顶部证据。旧关缓存 ID `<resource-id>`，旧缓存 ID `<resource-id>`；观察期保留。以下为经授权的手动部署/重验参考；日常 main 发布由 §4 流水线负责。
 
 ```sh
 pnpm --filter @xuanxue/jobs deploy:staging
 APP_VERSION="$(git rev-parse HEAD)" pnpm --filter @xuanxue/web deploy:staging
-node scripts/staging/wait-healthy.mjs https://web-staging.xuanxue-jobs.workers.dev/api/health "$(git rev-parse HEAD)"
-STAGING_URL=https://web-staging.xuanxue-jobs.workers.dev pnpm --filter @xuanxue/web exec playwright test --project staging
+node scripts/staging/wait-healthy.mjs https://web-staging.<子域>.workers.dev/api/health "$(git rev-parse HEAD)"
+STAGING_URL=https://web-staging.<子域>.workers.dev pnpm --filter @xuanxue/web exec playwright test --project staging
 ```
 
 健康检查应 200、db.up、版本匹配；当时按原调度验证 10 分钟内 jobs.lastCronAt 更新。本次线上检查与心跳已通过，完整版本及时间见顶部证据。2026-10-13 的 staging 半小时调度决定与后续心跳核验窗口见 §6。按 `scripts/probes/71-locks/README.md` 对新关缓存 ID 重跑一轮七场景；探针 token 只走 secret/stdin，避免 README 示例的明文参数。只操作本轮创建的临时探针，保留其他现有资源。记录日期、往返延迟、锁释放与七场景结论到 docs/07。**Neon 锁探针已通过，见下方补正重跑结果；2026-10-03 的本机链路历史结果不能代替本轮。**
@@ -166,7 +166,7 @@ jobs 已仅在 staging 开启日志、采样率 100%、traces 关闭，并按 jo
 
 独立空库重建（8.1）已通过，结果如下。重建只用新的 Neon 分支/空数据库，先核对它仍叫 `xuanxue_staging`；删除/覆盖继承副本需用户明确授权。新分支通常继承角色与数据，必须核对三角色已受限且目标库确实为空；已存在角色时跳过 §1 的 CREATE ROLE，不盲目删角色或已有表。按 §1–2 完成 owner、权限、迁移与 seed 校验，验证迁移数及 seed 幂等一致；将新分支直连信息写受保护本地文件。验证完成后才决定是否切换 Hyperdrive，不自动删除分支。
 
-2026-10-08 13:47 UTC 创建独立验证分支 `verify-empty-rebuild-20261008`（`br-lucky-rice-ak38vmkg`，Free、Never 自动删除），父分支为 `production`。继承副本包含 12 条迁移，Console 无改名入口。用户明确授权后，仅删除此分支的 `xuanxue_staging` 副本，保留 neondb 与全部角色，再创建 owner 为 migrator 的空 `xuanxue_staging`。主分支、Hyperdrive 与 GitHub 迁移 secret 均未切换。
+2026-10-08 13:47 UTC 创建独立验证分支 `verify-empty-rebuild-20261008`（`<branch-id>`，Free、Never 自动删除），父分支为 `production`。继承副本包含 12 条迁移，Console 无改名入口。用户明确授权后，仅删除此分支的 `xuanxue_staging` 副本，保留 neondb 与全部角色，再创建 owner 为 migrator 的空 `xuanxue_staging`。主分支、Hyperdrive 与 GitHub 迁移 secret 均未切换。
 
 验证仅加载忽略的 `.env.staging-neon-rebuild`（600），先确认新分支 hostname、三角色身份、库名 xuanxue_staging/owner migrator，以及用户关系/函数/枚举/域对象均为 0。原权限 SQL 完整通过，三角色高权限均为 false；迁移退出 0，12 记录 = 12 SQL = 12 journal；app DDL/audit UPDATE 与 readonly DELETE 均拒绝 42501；seed 两次退出 0，四套餐及 ID 一致。没有更新 GitHub 迁移目标、没有部署 Worker。用户已完成 readonly 轮换，新连接与最小权限复核通过；该角色未绑定 Hyperdrive。验证分支不自动删除。
 
@@ -189,10 +189,10 @@ jobs 已仅在 staging 开启日志、采样率 100%、traces 关闭，并按 jo
 
 **历史结论（原高频调度）**：jobs Cron 每 5 分钟唤醒，scale-to-zero 不会生效，按当时推算，Free 计划的 compute 在每个计费周期约第 18 天用尽，之后 staging 数据库不可用到下一周期。该结论用于原调度，不代表半小时调度后的实测用量。
 
-**决定与执行（2026-10-10，用户决定）**：测试阶段保持 Neon Free，接受计费周期后段 compute 暂停的风险，实际产品上线时再升级付费计划。已删除旧 Hyperdrive `c4b28441aeaf49c3853a321a39cf8ec4` / `1b360caddf134503af774993499bdc4e`、Workers VPC 服务 `01a10214-295e-78c1-b8db-506adb15ef2a` 与 Tunnel `xuanxue-local`（`1fad053b-8b3b-4dde-a8aa-7ddf524847a3`），并停止本机 `cloudflared` 容器；删除后 staging `/api/health` 正常（`db.status=up`，Cron 心跳持续）。阶段二若仍采用 Tunnel 方案，按 [hyperdrive-tunnel.md](hyperdrive-tunnel.md) 重新创建资源。9.2 完成。
+**决定与执行（2026-10-10，用户决定）**：测试阶段保持 Neon Free，接受计费周期后段 compute 暂停的风险，实际产品上线时再升级付费计划。已删除旧 Hyperdrive `<resource-id>` / `<resource-id>`、Workers VPC 服务 `<uuid>` 与 Tunnel `xuanxue-local`（`<uuid>`），并停止本机 `cloudflared` 容器；删除后 staging `/api/health` 正常（`db.status=up`，Cron 心跳持续）。阶段二若仍采用 Tunnel 方案，按 [hyperdrive-tunnel.md](hyperdrive-tunnel.md) 重新创建资源。9.2 完成。
 
 **staging 降频决定（2026-10-13，用户决定）**：测试阶段的定时任务只需在一定窗口内跑通，staging 使用 `CRON_PROFILE=reduced`。仅 Cloudflare `env.staging` 将原五分钟心跳与十分钟维护合并到 `*/30 * * * *`：每次各执行一次心跳及 hold 回收、Webhook 恢复、退款补偿、文件清理，子任务继续独立处理失败。`0 * * * *` 小时计费和 `0 3 * * *`、`0 4 * * *` 每日任务保持不变；它们与半小时任务同分钟触发，预计不增加独立唤醒次数。顶层/本地默认、生产默认频率和 Node 五项调度均保持原样。配置合入 main 后由自动发布生效，不手动部署分支到 staging。
 
 **预期用量（估算，待发布后复核）**：按每天约 48 次唤醒、每次计算活跃约 5.5 分钟、0.25 CU 估算，`48 × (5.5 / 60) × 0.25 ≈ 1.1 CU-hours/天`，月度约 35 CU-hours，低于上述 Free 每月 100 CU-hours 配额。实际请求、任务耗时、连接活跃时间与其他 Neon 分支会影响项目用量；持续访问可能阻止缩容到零。这是调度预算，不是已测得的节省量；发布后用 Dashboard Usage 与缩容记录复核。
 
-**健康与验收窗口**：Cloudflare `/api/health` 返回实时 `jobs.lastCronAt`，不以心跳是否在 10 分钟内决定 200/503；部署探活只要求 200、db.up 与完整 SHA 匹配，staging 冒烟覆盖首页、定价页、注册与注销，也不检查心跳新鲜度。Node 健康接口的 10 分钟门槛随原调度保持不变。自动发布后按半小时触发窗口核验心跳推进及维护任务日志，不再要求 10 分钟内推进；健康接口请求本身会访问数据库，观察缩容时避免持续轮询。
+**健康与验收窗口**：Cloudflare `/api/health` 返回实时 `jobs.lastCronAt`，不以心跳是否在 10 分钟内决定 200/503；部署探活只要求 200、db.up 与完整 SHA 匹配，staging 冒烟覆盖首页、定价页、注册与注销，也不检查心跳新鲜度。自动发布后按半小时触发窗口核验心跳推进及维护任务日志，不再要求 10 分钟内推进；健康接口请求本身会访问数据库，观察缩容时避免持续轮询。

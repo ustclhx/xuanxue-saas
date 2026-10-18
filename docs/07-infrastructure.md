@@ -9,15 +9,11 @@
 | **阶段一：开发与云端 staging 测试** | 从 Phase 0 到完成最小原型 | 本地开发：Docker PG（`infra/local`）；线上 staging：Neon `xuanxue_staging` | 本地开发直连；staging：Hyperdrive → Neon 非 pooled TLS 直连（§2） | staging 部署到 `*.workers.dev` | 不需要 | 不做 |
 | **阶段二：生产上线**（派生项目参考） | 完成最小原型之后 | production：Neon Launch 的独立项目；staging 为同组织另一项目（2026-10-15 随组织升级为 Launch 计费） | Hyperdrive → Neon 非 pooled TLS 直连（与 staging 相同） | staging / production，绑定自定义域名 | 需要（可先用已有 Zone 的子域名） | 必须：Neon PITR + 独立逻辑备份与恢复演练 |
 
-**2026-10-15 用户决定**：Cloudflare 形态的生产数据库使用 Neon 付费档，不自建 PG，不建设 Tunnel / Workers VPC，计划与任务见 `docs/08-roadmap.md`「Cloudflare 生产上线」。§1 的自建 PG、§2 的 Workers VPC / Access 方案保留为历史与后路，不再是阶段二默认。自托管形态（Node + Compose）使用 Compose 内的 PG，见 `docs/node-jobs-extension.md` 与 `docs/runbooks/selfhost-*.md`。
+**2026-10-15 用户决定**：Cloudflare 形态的生产数据库使用 Neon 付费档，不自建 PG，不建设 Tunnel / Workers VPC，计划与任务见 `docs/08-roadmap.md`「Cloudflare 生产上线」。§1 的自建 PG、§2 的 Workers VPC / Access 方案保留为历史与后路，不再是阶段二默认。
 
 **最小原型**指 Phase 0–3 完成：可以注册登录、开通套餐或购买积分、进行一次计费正确的 AI 对话（见 `docs/08-roadmap.md`）。
 
-**当前状态（2026-10-18）**：按用户确认，模板演示的 Cloudflare 生产实例与自托管测试实例已拆除。生产 Workers、KV、Queues、Hyperdrive、Turnstile 与 Neon 项目已删除；GitHub `production` environment（含 secrets）与 `PRODUCTION_BACKUP_SCHEDULE` 已删除。自托管 `xuanxue-selfhost` 栈、项目卷、本机项目镜像与 `/opt/xuanxue-selfhost` 已清理，80/443 已释放。四个非空 R2 桶已解除锁并设为所有对象 1 天后过期，待 2026-10-19 核空后删桶；`selfhost.ezarouter.cc` DNS 与 Sentry Uptime 监控因 API 权限不足待用户手动删除。生产自定义域名已解绑，公共 DNS 的 A/AAAA/CNAME 均为 NXDOMAIN。详见[拆除记录](./runbooks/evidence/teardown-2026-10-18.md)。
-
-拆除前 Cloudflare 生产 **v0.1.3** 的完整 SHA 为 `54c537542ad0f2033628c136a7057a705c6d0218`；[发布 run 38910072786](https://github.com/ustclhx/xuanxue/actions/runs/38910072786)、每日加密逻辑备份、两路恢复演练及 Sentry 可读堆栈与健康监控均已验证，见 [production runbook](./runbooks/production-neon.md) 与[历史发布恢复证据](./runbooks/evidence/production/release-2026-10-16.md)。配置、workflow、部署材料与 runbook 保留供派生项目使用，原生产资源 ID 已失效，重新上线须创建项目自身资源和凭据。staging 继续由 main 自动发布到 Neon（同组织 Launch），`add-cloud-staging-neon` 已于 2026-10-11 完成 29/29 并归档。
-
-Cloudflare 生产 change 的模板范围已结项，合并后由协调者归档；自托管四个 change 已于 2026-10-17 全部同步并归档（#239）。`add-cloud-acceptance-followups` 的 staging 支付验收由另一 worker 处理中，未合并结果不计入当前 main 进度。2026-10-18 用户决定：正式收款主体（Q9）、生产 live 支付（原 6.1）与生产延迟放置对比（原 5.1）不在模板内验收，移交派生项目上线清单，方法见 `docs/05-billing.md` §8、本文件 §8 与 production runbook。派生项目开放注册前还需恢复默认 Cron 并复核费用。
+**当前状态（2026-10-19）**：本项目只使用 Cloudflare Workers 部署。模板演示期的生产与测试实例已全部拆除，原资源 ID 已失效；本项目上线须创建自身的 Neon 项目、Cloudflare 资源和凭据。配置、workflow 与 runbook 保留供上线使用，staging 由 main 自动发布。生产 live 支付与收款主体在本项目上线清单中验收，方法见 `docs/05-billing.md` §8、本文件 §8 与 production runbook。开放注册前恢复默认 Cron 并复核费用。
 
 Phase 0 本机链路的历史实测条件与当前观察范围：
 
@@ -25,19 +21,9 @@ Phase 0 本机链路的历史实测条件与当前观察范围：
 - Phase 0 请求绕回本机，其延迟基线只验证原链路可用，不能代表 Neon 或生产环境。
 - 本机 PG 不做备份；Neon staging 为可重建测试数据，24 小时观察显示 compute 常驻约 165 CU-hrs/月，超出 Free 100 CU-hrs；2026-10-10 曾决定测试阶段保持 Free，2026-10-15 已随组织升级为 Launch（见 runbook staging-neon §6 与 production-neon §4），staging 不替代生产备份方案。阶段一的旧 Hyperdrive、Tunnel 与 Workers VPC 资源已于 2026-10-10 删除。
 
-## 1. 自建 Postgres（Cloudflare 形态后路；2026-10-15 起阶段二改用 Neon 付费档，见 §0）
+## 1. 自建 Postgres（后路，未采用）
 
-### 部署形态
-一台 VPS（地区按具体应用的主要用户选择，模板不限定），Docker Compose 运行：
-
-| 服务 | 说明 |
-|---|---|
-| `postgres` | Postgres 17，数据卷挂载本地 SSD；只监听 Docker 内网 / localhost |
-| `cloudflared` ×2 | Cloudflare Tunnel，把 PG 暴露给 Hyperdrive（不开放公网端口）；同一 Tunnel 运行**两个副本**（Tunnel 原生支持多个连接器），单个进程崩溃或升级时会自动切换到另一个副本，但切换期间数据库访问会卡住约 5–10 秒、少量请求失败（7.5 实测，见 §2「cloudflared 副本切换」）；副本应放在不同故障域，计划内重启逐个进行 |
-| `walg` / `pgbackrest` | 基础备份 + WAL 归档到 R2（S3 兼容） |
-| （可选）`postgres-exporter` | 指标给 Grafana / 监控平台 |
-
-模板提供 `infra/postgres/docker-compose.yml`、`postgresql.conf` 基础调优、初始化脚本（创建应用用户，最小权限）。
+2026-10-15 起生产使用 Neon 付费档（§0），仓库不再提供 VPS 上的 PG / cloudflared / WAL-G Compose。若以后改为自建 PG，经 Cloudflare Tunnel 或 Workers VPC 暴露给 Hyperdrive（§2），沿用下表的数据库账号划分。
 
 ### 数据库账号
 | 账号 | 权限 | 用途 |
@@ -46,31 +32,6 @@ Phase 0 本机链路的历史实测条件与当前观察范围：
 | `migrator` | DDL | 仅 CI / 迁移使用 |
 | `readonly` | SELECT | 数据分析、排查 |
 
-### 备份与恢复（阶段二必须；阶段一不做）
-
-> 状态：推迟到阶段二实施。R2 主备份与异地第二副本均为待办（`docs/08-roadmap.md`「生产迁移」）。
-
-- 每日基础备份 + 持续 WAL 归档到独立的 R2 桶（开启 Bucket Lock 保留规则，防误删）。
-- **异地第二副本**：每日基础备份与 `pg_dump` 再同步一份到**非 Cloudflare 账号**下的对象存储（如 Backblaze B2，使用独立凭证）。业务和主备份都在同一个 Cloudflare 账号下，账号被盗、被封或误操作时会一起丢失。
-- 保留策略：7 天每日 + 4 周每周（可调）。
-- **每月恢复演练**：在临时实例恢复到指定时间点，并跑一次校验脚本（含积分对账不变式）。
-- 另做一份每日 `pg_dump` 逻辑备份（跨版本迁移时用）。
-
-### 可用性目标（单机部署的明确承诺）
-
-| 指标 | 目标 | 依据 |
-|---|---|---|
-| RPO（最多丢失的数据） | ≤ 1 分钟 | WAL 持续归档，`archive_timeout = 60s` |
-| RTO（VPS 故障时的恢复时间） | 约 1–2 小时 | 新开 VPS → 从 R2 拉基础备份 + 回放 WAL → 切换 Tunnel；Runbook 写入 `docs/runbooks/` |
-| 计划内停机 | 有 | PG 小版本升级、VPS 重启期间整站写操作不可用 |
-
-单机没有高可用。业务需要更高可用性时，可加一台异地流式复制备库（手动提升），或迁移到托管 PG。
-
-### 监控与告警
-- 磁盘使用率、连接数、复制/归档延迟、慢查询（`pg_stat_statements`）、备份是否成功。
-- 外部探活：Uptime Kuma 或 Cloudflare Health Checks；告警到邮件 / Telegram / Discord。
-
-### 迁移到托管服务的后路
 只使用标准 PG 特性与常见扩展（`pgcrypto`、`pg_trgm`，可选 `pgvector`），更换为 Neon / Supabase / RDS 时只需修改 Hyperdrive 配置。
 
 ## 2. Hyperdrive 与数据库连接
@@ -81,8 +42,8 @@ Neon 项目 `xuanxue-staging`（2026-10-15 前为 Free，现随组织为 Launch 
 
 | 绑定 | 新资源 | ID | 状态 |
 |---|---|---|---|
-| `HYPERDRIVE` | `xuanxue-staging-neon` | `b3a797e705e849a196a4f7fcaf887293` | web/jobs staging 已部署使用，缓存关闭 |
-| `HYPERDRIVE_CACHED` | `xuanxue-staging-neon-cached` | `ad4f2267382b427fbdd2ffe60d3a64de` | web/jobs staging 已部署使用，缓存开启，创建参数 max_age 60 |
+| `HYPERDRIVE` | `xuanxue-staging-neon` | `<resource-id>` | web/jobs staging 已部署使用，缓存关闭 |
+| `HYPERDRIVE_CACHED` | `xuanxue-staging-neon-cached` | `<resource-id>` | web/jobs staging 已部署使用，缓存开启，创建参数 max_age 60 |
 
 缓存 API 省略默认字段，官方默认 max_age 为 60 秒，详见 [操作记录](./runbooks/staging-neon.md#3-hyperdrive-与切换)。计费、会话及权限读写使用不缓存的 `HYPERDRIVE`。新关缓存 Hyperdrive 经 remote preview 的 Neon 锁探针七场景/49 断言已通过，证据见下文；§8 保留本机链路历史延迟，不能作为 Neon 业务 Worker 延迟基线。
 
@@ -91,7 +52,7 @@ Neon 项目 `xuanxue-staging`（2026-10-15 前为 Free，现随组织为 Launch 
 Hyperdrive 通过 Workers VPC 服务经 Tunnel 访问私有数据库，**不需要公网主机名、DNS 记录、Access 应用或 Service Token**。链路：Worker → Hyperdrive → Workers VPC 服务（TCP）→ Tunnel → `cloudflared` → Postgres。
 
 步骤（在 `docs/runbooks/hyperdrive-tunnel.md` 中细化）：
-1. 创建一个专用 Tunnel，在数据库所在机器上运行 `cloudflared`（阶段一为 `infra/local` 中的可选 `cloudflared` 服务，阶段二为 `infra/postgres`）。
+1. 创建一个专用 Tunnel，在数据库所在机器上运行 `cloudflared`（阶段一为 `infra/local` 中的可选 `cloudflared` 服务）。
 2. Postgres 必须启用 TLS（Workers VPC 的要求）；阶段一使用自签证书，VPC 服务设置为不校验证书。
 3. `wrangler vpc service create <name> --type tcp --tcp-port 5432 --app-protocol postgresql --tunnel-id <tunnel-id> --hostname <cloudflared 可达的数据库主机名>`（或 `--ipv4`）；阶段一的自签证书加 `--cert-verification-mode disabled`。
 4. 创建两个 Hyperdrive 配置，指向该 VPC 服务（`wrangler hyperdrive create <name> --service-id <id> --database ... --user app ...`）：
@@ -390,7 +351,7 @@ staging 尚未通过前不勾选 OpenSpec 1.2。
 
 ### 生产初测（2026-10-16，v0.1.0）
 
-`https://app.ezarouter.cc/api/health` 顺序请求 40 次（间隔 1 秒），记录 Worker 内 `db.latencyMs`（Hyperdrive → Neon `aws-us-west-2`，非缓存连接）与 `cf-ray` 入口机房。全部入口为 LAX（开发机经美国西部出口）：
+`https://<生产域名>/api/health` 顺序请求 40 次（间隔 1 秒），记录 Worker 内 `db.latencyMs`（Hyperdrive → Neon `aws-us-west-2`，非缓存连接）与 `cf-ray` 入口机房。全部入口为 LAX（开发机经美国西部出口）：
 
 | n | min | p50 | p90 | p95 | max |
 |---|---|---|---|---|---|

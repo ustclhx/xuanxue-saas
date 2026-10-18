@@ -57,7 +57,7 @@ APP_URL=https://xuanxue-west.example pnpm --filter @xuanxue/web build
 git diff --check
 ```
 
-构建地址换成用户的目标公开域名。直接调用 web 包构建可将 `APP_URL` 送入 Vite；预渲染地址构建时固化，部署域名变化需重建。Node 目标沿用 `apps/web/package.json` 的 `build:node` 和现有 Node 构建入口，不把 Worker 产物当作 Node 产物。
+构建地址换成用户的目标公开域名。直接调用 web 包构建可将 `APP_URL` 送入 Vite；预渲染地址构建时固化，部署域名变化需重建。
 
 类型检查/构建生成 `apps/web/src/routeTree.gen.ts`、`apps/web/src/paraglide/`、`apps/web/.content-collections/generated/`；均按仓库忽略规则处理，不手工编辑生成文件。仅对新增分支或真实回归扩展现有测试。通过本地 dev/preview 检查目标 URL、启用语言、缺译文回退、canonical/hreflang、地图条目和 OG 图片；构建输出中的页面 HTML 应含正文且不依赖数据库。只停止自己启动的进程。
 

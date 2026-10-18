@@ -13,7 +13,7 @@ import type { AvailableModel } from '../models.ts'
 
 /** 构造模型所需的环境变量（AI Gateway 端点与鉴权，design 决策 8） */
 export interface TextModelEnv {
-  /** CF 缺省 gateway；Node composition 显式装配 direct。 */
+  /** 缺省 gateway；composition 可显式装配 direct。 */
   readonly AI_TEXT_EGRESS?: 'direct' | 'gateway' | undefined
   /** 完整 OpenAI 兼容 API base，只来自管理员部署配置。 */
   readonly OPENAI_BASE_URL?: string | undefined

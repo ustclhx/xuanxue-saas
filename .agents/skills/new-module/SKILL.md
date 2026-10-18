@@ -5,7 +5,7 @@ description: 为本模板增加后端业务能力或领域模块，复用现有�
 
 # 新增后端业务模块
 
-在含 `package.json` 与 `template.config.ts` 的项目根执行。所有路径相对项目根；生成器会改包 scope，先读相关 manifest，命令和 imports 中的 `@xuanxue/*` 使用副本实际名称。
+在含 `package.json` 与 `template.config.ts` 的项目根执行。所有路径相对项目根；包 scope 为 `@xuanxue/*`，以相关 manifest 为准。
 
 ## 1. 确定最小业务切片
 

@@ -8,7 +8,7 @@
     "./settings-schema": "./src/settings-schema.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json && tsc -p tsconfig.node.json",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json",
     "test": "vitest run",
     "probe:cpu": "AUTH_CPU_PROBE=1 vitest run --project probe --silent=false --reporter=verbose"
   },

@@ -32,11 +32,11 @@ description: 在本模板配置文本、图片或视频模型的参数、定价�
 
 ## 3. 凭据与目标能力
 
-Cloudflare 文本默认 Gateway/BYOK，Node 默认 OpenAI 兼容直连；选择依据是 `AI_TEXT_EGRESS`，细节见 `docs/06-ai.md` 的「Gateway 与密钥」和 `packages/config/src/node-schema.ts`。Gateway 的 account/id 是公开配置，token/Provider key 是 secret。直连使用部署管理员配置的 `OPENAI_BASE_URL` 与 key，普通聊天请求不能选择端点；DeepSeek 的 direct 分支与缺 key 时的 Gateway 路径按现有实现处理。
+文本默认 Gateway/BYOK，也可设为 OpenAI 兼容直连；选择依据是 `AI_TEXT_EGRESS`，细节见 `docs/06-ai.md` 的「Gateway 与密钥」和 `apps/web/src/server/cloudflare/env.ts`。Gateway 的 account/id 是公开配置，token/Provider key 是 secret。直连使用部署管理员配置的 `OPENAI_BASE_URL` 与 key，普通聊天请求不能选择端点；DeepSeek 的 direct 分支与缺 key 时的 Gateway 路径按现有实现处理。
 
-本地 AI 密钥放 app 的已忽略 `.dev.vars` 或 Node 配置支持的 secret 文件；根 `.env.local` 的 dev 支付同步只加载支付项。输出配置键名和缺项，不输出值。取得/填写 key 按 `docs/07-infrastructure.md` §4；本技能不替用户申请账号或默认写云端 secrets。
+本地 AI 密钥放 app 的已忽略 `.dev.vars`；根 `.env.local` 的 dev 支付同步只加载支付项。输出配置键名和缺项，不输出值。取得/填写 key 按 `docs/07-infrastructure.md` §4；本技能不替用户申请账号或默认写云端 secrets。
 
-Cloudflare Workers AI 图片要求真实 `AI` binding；Node 不提供 Workers AI，后台和模型列表会过滤并在提交端复核。fal 与媒体持久任务依赖当前运行时装配的 workflow、storage 等能力，检查 `apps/web/src/server/runtime.ts`，能力不可用时应在 task/hold 副作用前报告。不要用模板启用状态替代能力检查。
+Cloudflare Workers AI 图片要求真实 `AI` binding；缺 binding 时后台和模型列表会过滤并在提交端复核。fal 与媒体持久任务依赖当前运行时装配的 workflow、storage 等能力，检查 `apps/web/src/server/runtime.ts`，能力不可用时应在 task/hold 副作用前报告。不要用模板启用状态替代能力检查。
 
 完成标准：选择的模型、Provider 与实际部署目标能力相符；缺凭据或外部环境时首次真实调用明确记为未验收。
 
@@ -44,9 +44,9 @@ Cloudflare Workers AI 图片要求真实 `AI` binding；Node 不提供 Workers A
 
 先读 `docs/01-architecture.md`、`docs/02-project-structure.md`，确定变更范围：
 
-- 文本在 `packages/ai/src/text/model.ts` 接入已有 LanguageModelFactory；有 thinking/续写能力才扩展 `text/capabilities.ts`。key/env 增项同步对应 Cloudflare/Node 配置和 composition，保持 SDK 运行时兼容；协议逻辑不放页面。
+- 文本在 `packages/ai/src/text/model.ts` 接入已有 LanguageModelFactory；有 thinking/续写能力才扩展 `text/capabilities.ts`。key/env 增项同步 Cloudflare 配置和 composition，保持 SDK 运行时兼容；协议逻辑不放页面。
 - 媒体实现 `packages/ai/src/media/provider.ts` 的 MediaProvider 或 SyncMediaProvider，并在 `media/registry.ts` 注册 supportedKinds、配置判定、同步/幂等能力和精确 outputHosts。异步提交保持 provider_request_key、原始请求验签、先回调落库后唤醒、超时查询和结算边界；不确定的非幂等提交不能盲重试。
-- 新媒体 Provider 同步更新 `packages/config/src/template.ts` 的 `MediaProviderId` 与默认配置，并在 `template.config.ts` 启用所需 Provider；更新 `scripts/create-project.mjs` 的允许列表、密钥/资源清单和关闭功能时的裁剪，扩展 `scripts/create-project.test.mjs` 的相关生成器回归用例。按需补 web/jobs Wrangler bindings 与 `packages/config/src/node-schema.ts`、`apps/web/src/node/runtime.ts`、`apps/jobs/src/node/runtime.ts` 的 env/composition；配置、生成项目与运行时装配必须一致，只有受支持目标才提供能力。
+- 新媒体 Provider 同步更新 `packages/config/src/template.ts` 的 `MediaProviderId` 与默认配置，并在 `template.config.ts` 启用所需 Provider；按需补 web/jobs Wrangler bindings 与 env/composition；配置与运行时装配必须一致，未装配的能力不提供。
 - 下载复用 `packages/storage/src/media-validation.ts`，按 Provider 精确主机白名单限制重定向、大小和 MIME；不要增加通配域名绕过 SSRF 边界。
 - 后台 Provider 可用性校验见 `apps/web/src/features/ai/admin-model-provider.ts`；新增配置或能力同时覆盖这里及注册表可见性。平台调用经 platform 中立入口，业务包不直接导入 cloudflare:workers。
 
@@ -66,8 +66,7 @@ pnpm typecheck
 git diff --check
 ```
 
-按目标完成 build 或 build:node；新增媒体服务再运行受影响的 storage/jobs 测试，范围以对应 manifest 为准。仅配置后台模型时无需为未改源码增加测试，复用编辑器校验并核对保存/列表/权限行为。
-修改生成器时执行 `pnpm test:create-project`；有新增配置组合时在一次性副本验证生成结果及目标构建，使用现有 `pnpm test:create-project:verify` 承载需要真实生成/安装的验收。
+完成 `pnpm build`；新增媒体服务再运行受影响的 storage/jobs 测试，范围以对应 manifest 为准。仅配置后台模型时无需为未改源码增加测试，复用编辑器校验并核对保存/列表/权限行为。
 
 用户已授权真实服务调用时，以允许套餐且有足够积分的本地/测试空间发起一次调用：文本检查流式输出、最终状态、定价快照与 hold 结算；媒体检查提交、终态、文件落存储和预扣释放/扣款。复核禁止套餐或余额不足在外部调用前拒绝。真实调用会消耗服务商额度，配置准备本身不代表调用授权。测试 fixture 和假 fetch 仅证明离线行为。
 
