@@ -1,0 +1,14 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "tools_disclaimer_label": "고지",
+  "tools_disclaimer": "이 도구는 AI의 도움을 받아 전통 명리를 정리한 것으로, 오락용 참고 자료이며 미래를 예측하지 않습니다. 건강 관련 문제는 전문 의료진과 상담하세요.",
+  "tools_share_label": "공유 링크",
+  "tools_share_copy": "공유 링크 복사",
+  "tools_share_copied": "링크를 복사했습니다",
+  "tools_share_failed": "자동으로 복사하지 못했습니다. 위 링크를 선택해 직접 복사하세요.",
+  "tools_share_hint": "링크를 열면 같은 결과를 볼 수 있으며, 이름은 포함되지 않습니다.",
+  "tools_results_label": "결과",
+  "tools_result_loading": "계산 중…",
+  "tools_links_title": "함께 읽기",
+  "tools_faq_title": "자주 묻는 질문"
+}

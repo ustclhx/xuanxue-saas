@@ -1,0 +1,120 @@
+/*
+ * 两站主题 token（docs/design/visual-system.md「设计 token」，openspec add-dual-site-foundation tasks.md 4.1）。
+ * 根布局在 <html> 上输出 data-site="east|west"；token 名与视觉规范一致，同时映射到 @xuanxue/ui 的
+ * shadcn 变量，让认证页、应用区等既有组件自动换成站点配色，组件中不写死颜色。
+ * 西方站本身为深色，不随浅色偏好变化；东方站在 .dark 下使用视觉规范给出的暗色基准。
+ */
+
+:root[data-site="east"] {
+  color-scheme: light;
+  --bg: #f4efe4;
+  --surface: #fffdf8;
+  --surface-2: #ece5d6;
+  --ink: #1f1c18;
+  --ink-muted: #4a443b;
+  --ink-subtle: #6b6355;
+  --line: #dcd3c1;
+  --line-strong: #c9bea8;
+  --accent: #b8432f;
+  --accent-ink: #9e3a27;
+  --on-accent: #fffdf8;
+  --inverse: #1f1c18;
+  --on-inverse: #fffdf8;
+  --site-font-heading: "Noto Serif TC", "Songti TC", serif;
+  --site-font-body: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* 韩语页只加载 Noto Serif KR，正文用韩文系统字体 */
+:root[data-site="east"]:lang(ko) {
+  --site-font-heading: "Noto Serif KR", "AppleMyungjo", serif;
+  --site-font-body:
+    -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+/* 视觉规范只给出 bg/surface/ink/line/朱砂 的暗色基准，其余按同一明度关系推出 */
+:root.dark[data-site="east"] {
+  color-scheme: dark;
+  --bg: #1a1815;
+  --surface: #24211c;
+  --surface-2: #2c2823;
+  --ink: #ece5d6;
+  --ink-muted: #cfc6b4;
+  --ink-subtle: #a89f8e;
+  --line: #3a352d;
+  --line-strong: #4e473c;
+  --accent: #d0583f;
+  --accent-ink: #e58a72;
+  --inverse: #ece5d6;
+  --on-inverse: #1f1c18;
+}
+
+:root[data-site="west"] {
+  color-scheme: dark;
+  --bg: #11162a;
+  --surface: #181f3a;
+  --surface-2: #151b33;
+  --ink: #ece7da;
+  --ink-muted: #c9c4b7;
+  --ink-subtle: #b9b5aa;
+  --line: #2a3150;
+  --line-strong: #3a4266;
+  --accent: #e3c36f;
+  --accent-ink: #e3c36f;
+  --on-accent: #11162a;
+  --inverse: #ece7da;
+  --on-inverse: #11162a;
+  --site-font-heading: "Cormorant Garamond", Georgia, serif;
+  --site-font-body: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+}
+
+:root[data-site] {
+  /* 五行色两站共用，配合文字标签使用 */
+  --wx-metal: #6e7480;
+  --wx-wood: #3e7d4f;
+  --wx-water: #2e5e8c;
+  --wx-fire: #b8432f;
+  --wx-earth: #9a7438;
+
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--accent);
+  --primary-foreground: var(--on-accent);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-2);
+  --muted-foreground: var(--ink-subtle);
+  --border: var(--line);
+  --input: var(--line-strong);
+  --ring: var(--accent);
+}
+
+@theme inline {
+  /* 视觉规范的 --accent 是品牌主色，shadcn 的 accent（悬停底色）改为指向 surface-2 */
+  --color-accent: var(--surface-2);
+  --color-accent-foreground: var(--ink);
+
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--accent);
+  --color-brand-ink: var(--accent-ink);
+  --color-on-brand: var(--on-accent);
+  --color-inverse: var(--inverse);
+  --color-on-inverse: var(--on-inverse);
+  --color-wx-metal: var(--wx-metal);
+  --color-wx-wood: var(--wx-wood);
+  --color-wx-water: var(--wx-water);
+  --color-wx-fire: var(--wx-fire);
+  --color-wx-earth: var(--wx-earth);
+
+  --font-sans: var(--site-font-body);
+  --font-heading: var(--site-font-heading);
+}
