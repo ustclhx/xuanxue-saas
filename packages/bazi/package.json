@@ -1,0 +1,25 @@
+{
+  "name": "@xuanxue/bazi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ziwei": "./src/ziwei.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",
+    "test": "vitest run",
+    "generate:fixtures": "node scripts/generate-fixtures.ts",
+    "generate:zones": "node scripts/generate-zones.mjs"
+  },
+  "dependencies": {
+    "iztro": "^2.6.3",
+    "tyme4ts": "^1.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "lunar-javascript": "^1.7.7",
+    "vitest": "^5.0.3"
+  }
+}

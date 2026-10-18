@@ -1,0 +1,6 @@
+{
+  // 生成脚本在 Node 中运行，单独开启 Node 类型，避免源码误用 Node API
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": { "types": ["node"] },
+  "include": [".", "../test/lunar-javascript.d.ts"]
+}

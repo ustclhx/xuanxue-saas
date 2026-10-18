@@ -208,3 +208,19 @@ test('configured pure packages reject business imports in manifests and source',
   assert.ok(violations.some((message) => message.includes('@xuanxue/numerology → @xuanxue/db')))
   assert.ok(violations.some((message) => message.includes('@xuanxue/tarot → @xuanxue/ai')))
 })
+
+test('packageLayers in rules restrict pure packages to listed internal deps', (t) => {
+  const run = workspace(
+    t,
+    {
+      'packages/bazi/package.json': manifest('@xuanxue/bazi', { '@xuanxue/db': 'workspace:*' }),
+      'packages/bazi/src/index.ts': "import { x } from '@xuanxue/shared'\n",
+      'packages/db/package.json': manifest('@xuanxue/db'),
+      'packages/shared/package.json': manifest('@xuanxue/shared'),
+    },
+    { ...emptyRules(), packageLayers: { '@xuanxue/bazi': [] } },
+  )
+  const violations = run()
+  assert.equal(violations.length, 2)
+  assert.ok(violations.every((v) => v.includes('@xuanxue/bazi 不得依赖其他内部包')))
+})

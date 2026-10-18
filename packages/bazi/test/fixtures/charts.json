@@ -1,0 +1,4410 @@
+{
+  "referenceYear": 2026,
+  "cases": [
+    {
+      "id": "sample-1990-taipei-male",
+      "note": "回归首例：庚午 辛巳 庚辰 辛巳，起运 7 岁 3 个月，首步大运壬午（1997），日空申酉",
+      "input": {
+        "calendar": "solar",
+        "year": 1990,
+        "month": 5,
+        "day": 15,
+        "time": {
+          "hour": 10,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1990-05-15 10:30",
+        "pillars": ["庚午", "辛巳", "庚辰", "辛巳"],
+        "lunar": "1990-4-21",
+        "hiddenStems": [["丁", "己"], ["丙", "庚", "戊"], ["戊", "乙", "癸"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["比肩", "劫财", "日主", "劫财"],
+        "hiddenTenGods": [
+          ["正官", "正印"],
+          ["七杀", "比肩", "偏印"],
+          ["偏印", "正财", "伤官"],
+          ["七杀", "比肩", "偏印"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "7年3月",
+          "decades": [
+            "壬午 1997-2006 8-17岁",
+            "癸未 2007-2016 18-27岁",
+            "甲申 2017-2026 28-37岁",
+            "乙酉 2027-2036 38-47岁",
+            "丙戌 2037-2046 48-57岁",
+            "丁亥 2047-2056 58-67岁",
+            "戊子 2057-2066 68-77岁",
+            "己丑 2067-2076 78-87岁",
+            "庚寅 2077-2086 88-97岁",
+            "辛卯 2087-2096 98-107岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>",
+          "luShen/dayStem:shen=>"
+        ],
+        "startAfter": {
+          "years": 7,
+          "months": 3,
+          "days": 11,
+          "hours": 8
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 44,
+          "liang": 4,
+          "qian": 4,
+          "parts": {
+            "year": 9,
+            "month": 9,
+            "day": 10,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["water", "wood", "fire"]
+      }
+    },
+    {
+      "id": "term-1985-before",
+      "note": "1985 立春交接前一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 1985,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 5,
+          "minute": 10
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1985-02-04 05:10",
+        "pillars": ["甲子", "丁丑", "甲戌", "丁卯"],
+        "lunar": "1984-12-15",
+        "hiddenStems": [["癸"], ["己", "癸", "辛"], ["戊", "辛", "丁"], ["乙"]],
+        "stemTenGods": ["比肩", "伤官", "日主", "伤官"],
+        "hiddenTenGods": [["正印"], ["正财", "正印", "正官"], ["偏财", "正官", "伤官"], ["劫财"]],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年0月",
+          "decades": [
+            "戊寅 1985-1994 1-10岁",
+            "己卯 1995-2004 11-20岁",
+            "庚辰 2005-2014 21-30岁",
+            "辛巳 2015-2024 31-40岁",
+            "壬午 2025-2034 41-50岁",
+            "癸未 2035-2044 51-60岁",
+            "甲申 2045-2054 61-70岁",
+            "乙酉 2055-2064 71-80岁",
+            "丙戌 2065-2074 81-90岁",
+            "丁亥 2075-2084 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:xu,hai=>day",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:mao=>hour",
+          "tianYiGuiRen/dayStem:chou,wei=>month",
+          "tianYiGuiRen/yearStem:chou,wei=>month",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:si=>",
+          "yangRen/dayStem:mao=>hour",
+          "luShen/dayStem:yin=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 37,
+          "liang": 3,
+          "qian": 7,
+          "parts": {
+            "year": 12,
+            "month": 5,
+            "day": 10,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "fire"]
+      }
+    },
+    {
+      "id": "term-1985-after",
+      "note": "1985 立春交接后一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 1985,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 5,
+          "minute": 13
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1985-02-04 05:13",
+        "pillars": ["乙丑", "戊寅", "甲戌", "丁卯"],
+        "lunar": "1984-12-15",
+        "hiddenStems": [["己", "癸", "辛"], ["甲", "丙", "戊"], ["戊", "辛", "丁"], ["乙"]],
+        "stemTenGods": ["劫财", "偏财", "日主", "伤官"],
+        "hiddenTenGods": [
+          ["正财", "正印", "正官"],
+          ["比肩", "食神", "偏财"],
+          ["偏财", "正官", "伤官"],
+          ["劫财"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "丁丑 1985-1994 1-10岁",
+            "丙子 1995-2004 11-20岁",
+            "乙亥 2005-2014 21-30岁",
+            "甲戌 2015-2024 31-40岁",
+            "癸酉 2025-2034 41-50岁",
+            "壬申 2035-2044 51-60岁",
+            "辛未 2045-2054 61-70岁",
+            "庚午 2055-2064 71-80岁",
+            "己巳 2065-2074 81-90岁",
+            "戊辰 2075-2084 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:xu,hai=>day",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:mao=>hour",
+          "tianYiGuiRen/dayStem:chou,wei=>year",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:si=>",
+          "yangRen/dayStem:mao=>hour",
+          "luShen/dayStem:yin=>month"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 37,
+          "liang": 3,
+          "qian": 7,
+          "parts": {
+            "year": 12,
+            "month": 5,
+            "day": 10,
+            "hour": 10
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "wood"]
+      }
+    },
+    {
+      "id": "term-2000-before",
+      "note": "2000 立春交接前一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2000,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 20,
+          "minute": 39
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2000-02-04 20:39",
+        "pillars": ["己卯", "丁丑", "壬辰", "庚戌"],
+        "lunar": "1999-12-29",
+        "hiddenStems": [["乙"], ["己", "癸", "辛"], ["戊", "乙", "癸"], ["戊", "辛", "丁"]],
+        "stemTenGods": ["正官", "正财", "日主", "偏印"],
+        "hiddenTenGods": [
+          ["伤官"],
+          ["正官", "劫财", "正印"],
+          ["七杀", "伤官", "劫财"],
+          ["七杀", "正印", "正财"]
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年0月",
+          "decades": [
+            "戊寅 2000-2009 1-10岁",
+            "己卯 2010-2019 11-20岁",
+            "庚辰 2020-2029 21-30岁",
+            "辛巳 2030-2039 31-40岁",
+            "壬午 2040-2049 41-50岁",
+            "癸未 2050-2059 51-60岁",
+            "甲申 2060-2069 61-70岁",
+            "乙酉 2070-2079 71-80岁",
+            "丙戌 2080-2089 81-90岁",
+            "丁亥 2090-2099 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:mao,si=>year",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:yin=>",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 19,
+            "month": 5,
+            "day": 16,
+            "hour": 6
+          }
+        },
+        "strength": "weak",
+        "favorable": ["metal", "water"]
+      }
+    },
+    {
+      "id": "term-2000-after",
+      "note": "2000 立春交接后一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2000,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 20,
+          "minute": 42
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2000-02-04 20:42",
+        "pillars": ["庚辰", "戊寅", "壬辰", "庚戌"],
+        "lunar": "1999-12-29",
+        "hiddenStems": [
+          ["戊", "乙", "癸"],
+          ["甲", "丙", "戊"],
+          ["戊", "乙", "癸"],
+          ["戊", "辛", "丁"]
+        ],
+        "stemTenGods": ["偏印", "七杀", "日主", "偏印"],
+        "hiddenTenGods": [
+          ["七杀", "伤官", "劫财"],
+          ["食神", "偏财", "七杀"],
+          ["七杀", "伤官", "劫财"],
+          ["七杀", "正印", "正财"]
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "丁丑 2000-2009 1-10岁",
+            "丙子 2010-2019 11-20岁",
+            "乙亥 2020-2029 21-30岁",
+            "甲戌 2030-2039 31-40岁",
+            "癸酉 2040-2049 41-50岁",
+            "壬申 2050-2059 51-60岁",
+            "辛未 2060-2069 61-70岁",
+            "庚午 2070-2079 71-80岁",
+            "己巳 2080-2089 81-90岁",
+            "戊辰 2090-2099 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:mao,si=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>month",
+          "yiMa/dayBranch:yin=>month",
+          "huaGai/yearBranch:chen=>day",
+          "huaGai/dayBranch:chen=>year",
+          "wenChang/dayStem:yin=>month",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 19,
+            "month": 5,
+            "day": 16,
+            "hour": 6
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "metal"]
+      }
+    },
+    {
+      "id": "term-2024-before",
+      "note": "2024 立春交接前一分钟（shanghai）",
+      "input": {
+        "calendar": "solar",
+        "year": 2024,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 16,
+          "minute": 26
+        },
+        "gender": "male",
+        "location": {
+          "city": "shanghai"
+        }
+      },
+      "expected": {
+        "usedTime": "2024-02-04 16:26",
+        "pillars": ["癸卯", "乙丑", "戊戌", "庚申"],
+        "lunar": "2023-12-25",
+        "hiddenStems": [["乙"], ["己", "癸", "辛"], ["戊", "辛", "丁"], ["庚", "壬", "戊"]],
+        "stemTenGods": ["正财", "正官", "日主", "食神"],
+        "hiddenTenGods": [
+          ["正官"],
+          ["劫财", "正财", "伤官"],
+          ["比肩", "伤官", "正印"],
+          ["食神", "偏财", "比肩"]
+        ],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "9年9月",
+          "decades": [
+            "甲子 2033-2042 10-19岁",
+            "癸亥 2043-2052 20-29岁",
+            "壬戌 2053-2062 30-39岁",
+            "辛酉 2063-2072 40-49岁",
+            "庚申 2073-2082 50-59岁",
+            "己未 2083-2092 60-69岁",
+            "戊午 2093-2102 70-79岁",
+            "丁巳 2103-2112 80-89岁",
+            "丙辰 2113-2122 90-99岁",
+            "乙卯 2123-2132 100-109岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>year",
+          "tianYiGuiRen/dayStem:chou,wei=>month",
+          "tianYiGuiRen/yearStem:mao,si=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>hour",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>hour",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 9,
+          "months": 9,
+          "days": 28,
+          "hours": 0
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 40,
+          "liang": 4,
+          "qian": 0,
+          "parts": {
+            "year": 12,
+            "month": 5,
+            "day": 15,
+            "hour": 8
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "term-2024-after",
+      "note": "2024 立春交接后一分钟（shanghai）",
+      "input": {
+        "calendar": "solar",
+        "year": 2024,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 16,
+          "minute": 29
+        },
+        "gender": "male",
+        "location": {
+          "city": "shanghai"
+        }
+      },
+      "expected": {
+        "usedTime": "2024-02-04 16:29",
+        "pillars": ["甲辰", "丙寅", "戊戌", "庚申"],
+        "lunar": "2023-12-25",
+        "hiddenStems": [
+          ["戊", "乙", "癸"],
+          ["甲", "丙", "戊"],
+          ["戊", "辛", "丁"],
+          ["庚", "壬", "戊"]
+        ],
+        "stemTenGods": ["七杀", "偏印", "日主", "食神"],
+        "hiddenTenGods": [
+          ["比肩", "正官", "正财"],
+          ["七杀", "偏印", "比肩"],
+          ["比肩", "伤官", "正印"],
+          ["食神", "偏财", "比肩"]
+        ],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "寅卯"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "9年10月",
+          "decades": [
+            "丁卯 2034-2043 11-20岁",
+            "戊辰 2044-2053 21-30岁",
+            "己巳 2054-2063 31-40岁",
+            "庚午 2064-2073 41-50岁",
+            "辛未 2074-2083 51-60岁",
+            "壬申 2084-2093 61-70岁",
+            "癸酉 2094-2103 71-80岁",
+            "甲戌 2104-2113 81-90岁",
+            "乙亥 2114-2123 91-100岁",
+            "丙子 2124-2133 101-110岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>year",
+          "kongWang/yearPillar:yin,mao=>month",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:mao=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>month",
+          "yiMa/dayBranch:shen=>hour",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>hour",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 9,
+          "months": 10,
+          "days": 29,
+          "hours": 10
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 40,
+          "liang": 4,
+          "qian": 0,
+          "parts": {
+            "year": 12,
+            "month": 5,
+            "day": 15,
+            "hour": 8
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "term-1962-before",
+      "note": "1962 立春交接前一分钟（hongKong）",
+      "input": {
+        "calendar": "solar",
+        "year": 1962,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 15,
+          "minute": 16
+        },
+        "gender": "female",
+        "location": {
+          "city": "hongKong"
+        }
+      },
+      "expected": {
+        "usedTime": "1962-02-04 15:16",
+        "pillars": ["辛丑", "辛丑", "癸酉", "庚申"],
+        "lunar": "1961-12-30",
+        "hiddenStems": [["己", "癸", "辛"], ["己", "癸", "辛"], ["辛"], ["庚", "壬", "戊"]],
+        "stemTenGods": ["偏印", "偏印", "日主", "正印"],
+        "hiddenTenGods": [
+          ["七杀", "比肩", "偏印"],
+          ["七杀", "比肩", "偏印"],
+          ["偏印"],
+          ["正印", "劫财", "正官"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年0月",
+          "decades": [
+            "壬寅 1962-1971 1-10岁",
+            "癸卯 1972-1981 11-20岁",
+            "甲辰 1982-1991 21-30岁",
+            "乙巳 1992-2001 31-40岁",
+            "丙午 2002-2011 41-50岁",
+            "丁未 2012-2021 51-60岁",
+            "戊申 2022-2031 61-70岁",
+            "己酉 2032-2041 71-80岁",
+            "庚戌 2042-2051 81-90岁",
+            "辛亥 2052-2061 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chou=>month",
+          "huaGai/dayBranch:chou=>year,month",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>year,month",
+          "luShen/dayStem:zi=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 26,
+          "liang": 2,
+          "qian": 6,
+          "parts": {
+            "year": 7,
+            "month": 5,
+            "day": 6,
+            "hour": 8
+          }
+        },
+        "strength": "strong",
+        "favorable": ["wood", "fire", "earth"]
+      }
+    },
+    {
+      "id": "term-1962-after",
+      "note": "1962 立春交接后一分钟（hongKong）",
+      "input": {
+        "calendar": "solar",
+        "year": 1962,
+        "month": 2,
+        "day": 4,
+        "time": {
+          "hour": 15,
+          "minute": 19
+        },
+        "gender": "female",
+        "location": {
+          "city": "hongKong"
+        }
+      },
+      "expected": {
+        "usedTime": "1962-02-04 15:19",
+        "pillars": ["壬寅", "壬寅", "癸酉", "庚申"],
+        "lunar": "1961-12-30",
+        "hiddenStems": [["甲", "丙", "戊"], ["甲", "丙", "戊"], ["辛"], ["庚", "壬", "戊"]],
+        "stemTenGods": ["劫财", "劫财", "日主", "正印"],
+        "hiddenTenGods": [
+          ["伤官", "正财", "正官"],
+          ["伤官", "正财", "正官"],
+          ["偏印"],
+          ["正印", "劫财", "正官"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "辛丑 1962-1971 1-10岁",
+            "庚子 1972-1981 11-20岁",
+            "己亥 1982-1991 21-30岁",
+            "戊戌 1992-2001 31-40岁",
+            "丁酉 2002-2011 41-50岁",
+            "丙申 2012-2021 51-60岁",
+            "乙未 2022-2031 61-70岁",
+            "甲午 2032-2041 71-80岁",
+            "癸巳 2042-2051 81-90岁",
+            "壬辰 2052-2061 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>",
+          "tianYiGuiRen/yearStem:mao,si=>",
+          "yiMa/yearBranch:shen=>hour",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 26,
+          "liang": 2,
+          "qian": 6,
+          "parts": {
+            "year": 7,
+            "month": 5,
+            "day": 6,
+            "hour": 8
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "fire", "wood"]
+      }
+    },
+    {
+      "id": "term-2010-before",
+      "note": "2010 惊蛰交接前一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2010,
+        "month": 3,
+        "day": 6,
+        "time": {
+          "hour": 0,
+          "minute": 45
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2010-03-06 00:45",
+        "pillars": ["庚寅", "戊寅", "乙卯", "丙子"],
+        "lunar": "2010-1-21",
+        "hiddenStems": [["甲", "丙", "戊"], ["甲", "丙", "戊"], ["乙"], ["癸"]],
+        "stemTenGods": ["正官", "正财", "日主", "伤官"],
+        "hiddenTenGods": [["劫财", "伤官", "正财"], ["劫财", "伤官", "正财"], ["比肩"], ["偏印"]],
+        "kongWang": {
+          "day": "子丑",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "9年10月",
+          "decades": [
+            "丁丑 2020-2029 11-20岁",
+            "丙子 2030-2039 21-30岁",
+            "乙亥 2040-2049 31-40岁",
+            "甲戌 2050-2059 41-50岁",
+            "癸酉 2060-2069 51-60岁",
+            "壬申 2070-2079 61-70岁",
+            "辛未 2080-2089 71-80岁",
+            "庚午 2090-2099 81-90岁",
+            "己巳 2100-2109 91-100岁",
+            "戊辰 2110-2119 101-110岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:zi,chou=>hour",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:mao=>day",
+          "taoHua/dayBranch:zi=>hour",
+          "tianYiGuiRen/dayStem:zi,shen=>hour",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:wu=>",
+          "yangRen/dayStem:chen=>",
+          "luShen/dayStem:mao=>"
+        ],
+        "startAfter": {
+          "years": 9,
+          "months": 10,
+          "days": 29,
+          "hours": 18
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 41,
+          "liang": 4,
+          "qian": 1,
+          "parts": {
+            "year": 9,
+            "month": 6,
+            "day": 10,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "fire"]
+      }
+    },
+    {
+      "id": "term-2010-after",
+      "note": "2010 惊蛰交接后一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2010,
+        "month": 3,
+        "day": 6,
+        "time": {
+          "hour": 0,
+          "minute": 48
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2010-03-06 00:48",
+        "pillars": ["庚寅", "己卯", "乙卯", "丙子"],
+        "lunar": "2010-1-21",
+        "hiddenStems": [["甲", "丙", "戊"], ["乙"], ["乙"], ["癸"]],
+        "stemTenGods": ["正官", "偏财", "日主", "伤官"],
+        "hiddenTenGods": [["劫财", "伤官", "正财"], ["比肩"], ["比肩"], ["偏印"]],
+        "kongWang": {
+          "day": "子丑",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "戊寅 2010-2019 1-10岁",
+            "丁丑 2020-2029 11-20岁",
+            "丙子 2030-2039 21-30岁",
+            "乙亥 2040-2049 31-40岁",
+            "甲戌 2050-2059 41-50岁",
+            "癸酉 2060-2069 51-60岁",
+            "壬申 2070-2079 61-70岁",
+            "辛未 2080-2089 71-80岁",
+            "庚午 2090-2099 81-90岁",
+            "己巳 2100-2109 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:zi,chou=>hour",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:mao=>month,day",
+          "taoHua/dayBranch:zi=>hour",
+          "tianYiGuiRen/dayStem:zi,shen=>hour",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:wu=>",
+          "yangRen/dayStem:chen=>",
+          "luShen/dayStem:mao=>month"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 41,
+          "liang": 4,
+          "qian": 1,
+          "parts": {
+            "year": 9,
+            "month": 6,
+            "day": 10,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "fire"]
+      }
+    },
+    {
+      "id": "term-1995-before",
+      "note": "1995 芒种交接前一分钟（beijing）",
+      "input": {
+        "calendar": "solar",
+        "year": 1995,
+        "month": 6,
+        "day": 6,
+        "time": {
+          "hour": 11,
+          "minute": 41
+        },
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      },
+      "expected": {
+        "usedTime": "1995-06-06 11:41",
+        "pillars": ["乙亥", "辛巳", "戊辰", "戊午"],
+        "lunar": "1995-5-9",
+        "hiddenStems": [["壬", "甲"], ["丙", "庚", "戊"], ["戊", "乙", "癸"], ["丁", "己"]],
+        "stemTenGods": ["正官", "伤官", "日主", "比肩"],
+        "hiddenTenGods": [
+          ["偏财", "七杀"],
+          ["偏印", "食神", "比肩"],
+          ["比肩", "正官", "正财"],
+          ["正印", "劫财"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "10年4月",
+          "decades": [
+            "庚辰 2005-2014 11-20岁",
+            "己卯 2015-2024 21-30岁",
+            "戊寅 2025-2034 31-40岁",
+            "丁丑 2035-2044 41-50岁",
+            "丙子 2045-2054 51-60岁",
+            "乙亥 2055-2064 61-70岁",
+            "甲戌 2065-2074 71-80岁",
+            "癸酉 2075-2084 81-90岁",
+            "壬申 2085-2094 91-100岁",
+            "辛未 2095-2104 101-110岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>year",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:si=>month",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>hour",
+          "luShen/dayStem:si=>month"
+        ],
+        "startAfter": {
+          "years": 10,
+          "months": 4,
+          "days": 20,
+          "hours": 20
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 32,
+          "liang": 3,
+          "qian": 2,
+          "parts": {
+            "year": 9,
+            "month": 5,
+            "day": 8,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["water", "metal", "wood"]
+      }
+    },
+    {
+      "id": "term-1995-after",
+      "note": "1995 芒种交接后一分钟（beijing）",
+      "input": {
+        "calendar": "solar",
+        "year": 1995,
+        "month": 6,
+        "day": 6,
+        "time": {
+          "hour": 11,
+          "minute": 44
+        },
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      },
+      "expected": {
+        "usedTime": "1995-06-06 11:44",
+        "pillars": ["乙亥", "壬午", "戊辰", "戊午"],
+        "lunar": "1995-5-9",
+        "hiddenStems": [["壬", "甲"], ["丁", "己"], ["戊", "乙", "癸"], ["丁", "己"]],
+        "stemTenGods": ["正官", "偏财", "日主", "比肩"],
+        "hiddenTenGods": [
+          ["偏财", "七杀"],
+          ["正印", "劫财"],
+          ["比肩", "正官", "正财"],
+          ["正印", "劫财"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "辛巳 1995-2004 1-10岁",
+            "庚辰 2005-2014 11-20岁",
+            "己卯 2015-2024 21-30岁",
+            "戊寅 2025-2034 31-40岁",
+            "丁丑 2035-2044 41-50岁",
+            "丙子 2045-2054 51-60岁",
+            "乙亥 2055-2064 61-70岁",
+            "甲戌 2065-2074 71-80岁",
+            "癸酉 2075-2084 81-90岁",
+            "壬申 2085-2094 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>year",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>month,hour",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 32,
+          "liang": 3,
+          "qian": 2,
+          "parts": {
+            "year": 9,
+            "month": 5,
+            "day": 8,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "wood", "water"]
+      }
+    },
+    {
+      "id": "term-2019-before",
+      "note": "2019 大雪交接前一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2019,
+        "month": 12,
+        "day": 7,
+        "time": {
+          "hour": 18,
+          "minute": 17
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2019-12-07 18:17",
+        "pillars": ["己亥", "乙亥", "戊寅", "辛酉"],
+        "lunar": "2019-11-12",
+        "hiddenStems": [["壬", "甲"], ["壬", "甲"], ["甲", "丙", "戊"], ["辛"]],
+        "stemTenGods": ["劫财", "正官", "日主", "伤官"],
+        "hiddenTenGods": [["偏财", "七杀"], ["偏财", "七杀"], ["七杀", "偏印", "比肩"], ["伤官"]],
+        "kongWang": {
+          "day": "申酉",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "9年10月",
+          "decades": [
+            "甲戌 2029-2038 11-20岁",
+            "癸酉 2039-2048 21-30岁",
+            "壬申 2049-2058 31-40岁",
+            "辛未 2059-2068 41-50岁",
+            "庚午 2069-2078 51-60岁",
+            "己巳 2079-2088 61-70岁",
+            "戊辰 2089-2098 71-80岁",
+            "丁卯 2099-2108 81-90岁",
+            "丙寅 2109-2118 91-100岁",
+            "乙丑 2119-2128 101-110岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>hour",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 9,
+          "months": 10,
+          "days": 24,
+          "hours": 8
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 44,
+          "liang": 4,
+          "qian": 4,
+          "parts": {
+            "year": 9,
+            "month": 9,
+            "day": 17,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "term-2019-after",
+      "note": "2019 大雪交接后一分钟（taipei）",
+      "input": {
+        "calendar": "solar",
+        "year": 2019,
+        "month": 12,
+        "day": 7,
+        "time": {
+          "hour": 18,
+          "minute": 20
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2019-12-07 18:20",
+        "pillars": ["己亥", "丙子", "戊寅", "辛酉"],
+        "lunar": "2019-11-12",
+        "hiddenStems": [["壬", "甲"], ["癸"], ["甲", "丙", "戊"], ["辛"]],
+        "stemTenGods": ["劫财", "偏印", "日主", "伤官"],
+        "hiddenTenGods": [["偏财", "七杀"], ["正财"], ["七杀", "偏印", "比肩"], ["伤官"]],
+        "kongWang": {
+          "day": "申酉",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年0月",
+          "decades": [
+            "乙亥 2019-2028 1-10岁",
+            "甲戌 2029-2038 11-20岁",
+            "癸酉 2039-2048 21-30岁",
+            "壬申 2049-2058 31-40岁",
+            "辛未 2059-2068 41-50岁",
+            "庚午 2069-2078 51-60岁",
+            "己巳 2079-2088 61-70岁",
+            "戊辰 2089-2098 71-80岁",
+            "丁卯 2099-2108 81-90岁",
+            "丙寅 2109-2118 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>hour",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:zi=>month",
+          "taoHua/dayBranch:mao=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>month",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 0,
+          "days": 0,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 44,
+          "liang": 4,
+          "qian": 4,
+          "parts": {
+            "year": 9,
+            "month": 9,
+            "day": 17,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "zi-2001-2259",
+      "note": "22:59 亥时，日柱不变",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 3,
+        "day": 10,
+        "time": {
+          "hour": 22,
+          "minute": 59
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2001-03-10 22:59",
+        "pillars": ["辛巳", "辛卯", "壬申", "辛亥"],
+        "lunar": "2001-2-16",
+        "hiddenStems": [["丙", "庚", "戊"], ["乙"], ["庚", "壬", "戊"], ["壬", "甲"]],
+        "stemTenGods": ["正印", "正印", "日主", "正印"],
+        "hiddenTenGods": [
+          ["偏财", "偏印", "七杀"],
+          ["伤官"],
+          ["偏印", "比肩", "七杀"],
+          ["比肩", "食神"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "1年8月",
+          "decades": [
+            "庚寅 2002-2011 2-11岁",
+            "己丑 2012-2021 12-21岁",
+            "戊子 2022-2031 22-31岁",
+            "丁亥 2032-2041 32-41岁",
+            "丙戌 2042-2051 42-51岁",
+            "乙酉 2052-2061 52-61岁",
+            "甲申 2062-2071 62-71岁",
+            "癸未 2072-2081 72-81岁",
+            "壬午 2082-2091 82-91岁",
+            "辛巳 2092-2101 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>hour",
+          "kongWang/yearPillar:shen,you=>day",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:mao,si=>year,month",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:hai=>hour",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:yin=>",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>hour"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 8,
+          "days": 12,
+          "hours": 4
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 27,
+          "liang": 2,
+          "qian": 7,
+          "parts": {
+            "year": 6,
+            "month": 7,
+            "day": 8,
+            "hour": 6
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "fire", "wood"]
+      }
+    },
+    {
+      "id": "zi-2001-2300",
+      "note": "23:00 起换日（晚子时日柱取次日）",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 3,
+        "day": 10,
+        "time": {
+          "hour": 23,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2001-03-10 23:00",
+        "pillars": ["辛巳", "辛卯", "癸酉", "壬子"],
+        "lunar": "2001-2-17",
+        "hiddenStems": [["丙", "庚", "戊"], ["乙"], ["辛"], ["癸"]],
+        "stemTenGods": ["偏印", "偏印", "日主", "劫财"],
+        "hiddenTenGods": [["正财", "正印", "正官"], ["食神"], ["偏印"], ["比肩"]],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "1年8月",
+          "decades": [
+            "庚寅 2002-2011 2-11岁",
+            "己丑 2012-2021 12-21岁",
+            "戊子 2022-2031 22-31岁",
+            "丁亥 2032-2041 32-41岁",
+            "丙戌 2042-2051 42-51岁",
+            "乙酉 2052-2061 52-61岁",
+            "甲申 2062-2071 62-71岁",
+            "癸未 2072-2081 72-81岁",
+            "壬午 2082-2091 82-91岁",
+            "辛巳 2092-2101 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:shen,you=>day",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>year,month",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>month",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>hour"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 8,
+          "days": 12,
+          "hours": 6
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 38,
+          "liang": 3,
+          "qian": 8,
+          "parts": {
+            "year": 6,
+            "month": 7,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "fire", "wood"]
+      }
+    },
+    {
+      "id": "zi-2001-2345",
+      "note": "23:45 子时跨日",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 3,
+        "day": 10,
+        "time": {
+          "hour": 23,
+          "minute": 45
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2001-03-10 23:45",
+        "pillars": ["辛巳", "辛卯", "癸酉", "壬子"],
+        "lunar": "2001-2-17",
+        "hiddenStems": [["丙", "庚", "戊"], ["乙"], ["辛"], ["癸"]],
+        "stemTenGods": ["偏印", "偏印", "日主", "劫财"],
+        "hiddenTenGods": [["正财", "正印", "正官"], ["食神"], ["偏印"], ["比肩"]],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "8年4月",
+          "decades": [
+            "壬辰 2009-2018 9-18岁",
+            "癸巳 2019-2028 19-28岁",
+            "甲午 2029-2038 29-38岁",
+            "乙未 2039-2048 39-48岁",
+            "丙申 2049-2058 49-58岁",
+            "丁酉 2059-2068 59-68岁",
+            "戊戌 2069-2078 69-78岁",
+            "己亥 2079-2088 79-88岁",
+            "庚子 2089-2098 89-98岁",
+            "辛丑 2099-2108 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:shen,you=>day",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>year,month",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>month",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>hour"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 4,
+          "days": 8,
+          "hours": 6
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 38,
+          "liang": 3,
+          "qian": 8,
+          "parts": {
+            "year": 6,
+            "month": 7,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "fire", "wood"]
+      }
+    },
+    {
+      "id": "zi-2001-0015",
+      "note": "00:15 早子时",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 3,
+        "day": 11,
+        "time": {
+          "hour": 0,
+          "minute": 15
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2001-03-11 00:15",
+        "pillars": ["辛巳", "辛卯", "癸酉", "壬子"],
+        "lunar": "2001-2-17",
+        "hiddenStems": [["丙", "庚", "戊"], ["乙"], ["辛"], ["癸"]],
+        "stemTenGods": ["偏印", "偏印", "日主", "劫财"],
+        "hiddenTenGods": [["正财", "正印", "正官"], ["食神"], ["偏印"], ["比肩"]],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "8年4月",
+          "decades": [
+            "壬辰 2009-2018 9-18岁",
+            "癸巳 2019-2028 19-28岁",
+            "甲午 2029-2038 29-38岁",
+            "乙未 2039-2048 39-48岁",
+            "丙申 2049-2058 49-58岁",
+            "丁酉 2059-2068 59-68岁",
+            "戊戌 2069-2078 69-78岁",
+            "己亥 2079-2088 79-88岁",
+            "庚子 2089-2098 89-98岁",
+            "辛丑 2099-2108 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:shen,you=>day",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>year,month",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>month",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>hour"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 4,
+          "days": 5,
+          "hours": 18
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 38,
+          "liang": 3,
+          "qian": 8,
+          "parts": {
+            "year": 6,
+            "month": 7,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "fire", "wood"]
+      }
+    },
+    {
+      "id": "zi-1999-month-end",
+      "note": "月末 23:30 跨月换日",
+      "input": {
+        "calendar": "solar",
+        "year": 1999,
+        "month": 12,
+        "day": 31,
+        "time": {
+          "hour": 23,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1999-12-31 23:30",
+        "pillars": ["己卯", "丙子", "戊午", "壬子"],
+        "lunar": "1999-11-25",
+        "hiddenStems": [["乙"], ["癸"], ["丁", "己"], ["癸"]],
+        "stemTenGods": ["劫财", "偏印", "日主", "偏财"],
+        "hiddenTenGods": [["正官"], ["正财"], ["正印", "劫财"], ["正财"]],
+        "kongWang": {
+          "day": "子丑",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年0月",
+          "decades": [
+            "乙亥 2008-2017 10-19岁",
+            "甲戌 2018-2027 20-29岁",
+            "癸酉 2028-2037 30-39岁",
+            "壬申 2038-2047 40-49岁",
+            "辛未 2048-2057 50-59岁",
+            "庚午 2058-2067 60-69岁",
+            "己巳 2068-2077 70-79岁",
+            "戊辰 2078-2087 80-89岁",
+            "丁卯 2088-2097 90-99岁",
+            "丙寅 2098-2107 100-109岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:zi,chou=>month,hour",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>month,hour",
+          "taoHua/dayBranch:mao=>year",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>month,hour",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 0,
+          "days": 8,
+          "hours": 12
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 59,
+          "liang": 5,
+          "qian": 9,
+          "parts": {
+            "year": 19,
+            "month": 9,
+            "day": 15,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "lunar-2020-leap4",
+      "note": "农历 2020 闰四月十五",
+      "input": {
+        "calendar": "lunar",
+        "year": 2020,
+        "month": 4,
+        "day": 15,
+        "time": {
+          "hour": 8,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        },
+        "isLeapMonth": true
+      },
+      "expected": {
+        "usedTime": "2020-06-06 08:00",
+        "pillars": ["庚子", "壬午", "庚辰", "庚辰"],
+        "lunar": "2020-闰4-15",
+        "hiddenStems": [["癸"], ["丁", "己"], ["戊", "乙", "癸"], ["戊", "乙", "癸"]],
+        "stemTenGods": ["比肩", "食神", "日主", "比肩"],
+        "hiddenTenGods": [
+          ["伤官"],
+          ["正官", "正印"],
+          ["偏印", "正财", "伤官"],
+          ["偏印", "正财", "伤官"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年3月",
+          "decades": [
+            "辛巳 2020-2029 1-10岁",
+            "庚辰 2030-2039 11-20岁",
+            "己卯 2040-2049 21-30岁",
+            "戊寅 2050-2059 31-40岁",
+            "丁丑 2060-2069 41-50岁",
+            "丙子 2070-2079 51-60岁",
+            "乙亥 2080-2089 61-70岁",
+            "甲戌 2090-2099 71-80岁",
+            "癸酉 2100-2109 81-90岁",
+            "壬申 2110-2119 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:chen,si=>day,hour",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:chen=>day,hour",
+          "huaGai/dayBranch:chen=>hour",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>",
+          "luShen/dayStem:shen=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 3,
+          "days": 5,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 35,
+          "liang": 3,
+          "qian": 5,
+          "parts": {
+            "year": 7,
+            "month": 9,
+            "day": 10,
+            "hour": 9
+          }
+        },
+        "strength": "strong",
+        "favorable": ["wood", "fire", "water"]
+      }
+    },
+    {
+      "id": "lunar-2023-leap2",
+      "note": "农历 2023 闰二月初十",
+      "input": {
+        "calendar": "lunar",
+        "year": 2023,
+        "month": 2,
+        "day": 10,
+        "time": {
+          "hour": 14,
+          "minute": 20
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        },
+        "isLeapMonth": true
+      },
+      "expected": {
+        "usedTime": "2023-03-31 14:20",
+        "pillars": ["癸卯", "乙卯", "戊子", "己未"],
+        "lunar": "2023-闰2-10",
+        "hiddenStems": [["乙"], ["乙"], ["癸"], ["己", "丁", "乙"]],
+        "stemTenGods": ["正财", "正官", "日主", "劫财"],
+        "hiddenTenGods": [["正官"], ["正官"], ["正财"], ["劫财", "正印", "正官"]],
+        "kongWang": {
+          "day": "午未",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年5月",
+          "decades": [
+            "甲寅 2031-2040 9-18岁",
+            "癸丑 2041-2050 19-28岁",
+            "壬子 2051-2060 29-38岁",
+            "辛亥 2061-2070 39-48岁",
+            "庚戌 2071-2080 49-58岁",
+            "己酉 2081-2090 59-68岁",
+            "戊申 2091-2100 69-78岁",
+            "丁未 2101-2110 79-88岁",
+            "丙午 2111-2120 89-98岁",
+            "乙巳 2121-2130 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>hour",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:zi=>day",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>hour",
+          "tianYiGuiRen/yearStem:mao,si=>month",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>hour",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 5,
+          "days": 13,
+          "hours": 14
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 43,
+          "liang": 4,
+          "qian": 3,
+          "parts": {
+            "year": 12,
+            "month": 7,
+            "day": 16,
+            "hour": 8
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "lunar-1995-leap8",
+      "note": "农历 1995 闰八月廿九",
+      "input": {
+        "calendar": "lunar",
+        "year": 1995,
+        "month": 8,
+        "day": 29,
+        "time": {
+          "hour": 6,
+          "minute": 5
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        },
+        "isLeapMonth": true
+      },
+      "expected": {
+        "usedTime": "1995-10-23 06:05",
+        "pillars": ["乙亥", "丙戌", "丁亥", "癸卯"],
+        "lunar": "1995-闰8-29",
+        "hiddenStems": [["壬", "甲"], ["戊", "辛", "丁"], ["壬", "甲"], ["乙"]],
+        "stemTenGods": ["偏印", "劫财", "日主", "七杀"],
+        "hiddenTenGods": [["正官", "正印"], ["伤官", "偏财", "比肩"], ["正官", "正印"], ["偏印"]],
+        "kongWang": {
+          "day": "午未",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "4年8月",
+          "decades": [
+            "乙酉 2000-2009 6-15岁",
+            "甲申 2010-2019 16-25岁",
+            "癸未 2020-2029 26-35岁",
+            "壬午 2030-2039 36-45岁",
+            "辛巳 2040-2049 46-55岁",
+            "庚辰 2050-2059 56-65岁",
+            "己卯 2060-2069 66-75岁",
+            "戊寅 2070-2079 76-85岁",
+            "丁丑 2080-2089 86-95岁",
+            "丙子 2090-2099 96-105岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:zi=>",
+          "tianYiGuiRen/dayStem:hai,you=>year",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 4,
+          "months": 8,
+          "days": 18,
+          "hours": 2
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 50,
+          "liang": 5,
+          "qian": 0,
+          "parts": {
+            "year": 9,
+            "month": 15,
+            "day": 16,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "water"]
+      }
+    },
+    {
+      "id": "lunar-1984-1-1",
+      "note": "农历 1984 正月初一（春节早于立春）",
+      "input": {
+        "calendar": "lunar",
+        "year": 1984,
+        "month": 1,
+        "day": 1,
+        "time": {
+          "hour": 12,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1984-02-02 12:00",
+        "pillars": ["癸亥", "乙丑", "丙寅", "甲午"],
+        "lunar": "1984-1-1",
+        "hiddenStems": [["壬", "甲"], ["己", "癸", "辛"], ["甲", "丙", "戊"], ["丁", "己"]],
+        "stemTenGods": ["正官", "正印", "日主", "偏印"],
+        "hiddenTenGods": [
+          ["七杀", "偏印"],
+          ["伤官", "正官", "正财"],
+          ["偏印", "比肩", "食神"],
+          ["劫财", "伤官"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "子丑"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年9月",
+          "decades": [
+            "丙寅 1984-1993 1-10岁",
+            "丁卯 1994-2003 11-20岁",
+            "戊辰 2004-2013 21-30岁",
+            "己巳 2014-2023 31-40岁",
+            "庚午 2024-2033 41-50岁",
+            "辛未 2034-2043 51-60岁",
+            "壬申 2044-2053 61-70岁",
+            "癸酉 2054-2063 71-80岁",
+            "甲戌 2064-2073 81-90岁",
+            "乙亥 2074-2083 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>year",
+          "kongWang/yearPillar:zi,chou=>month",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>",
+          "tianYiGuiRen/dayStem:hai,you=>year",
+          "tianYiGuiRen/yearStem:mao,si=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>hour",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 9,
+          "days": 26,
+          "hours": 12
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 33,
+          "liang": 3,
+          "qian": 3,
+          "parts": {
+            "year": 12,
+            "month": 6,
+            "day": 5,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "water"]
+      }
+    },
+    {
+      "id": "tw-dst-1975",
+      "note": "台湾夏令时：10:30 → 标准时间 09:30",
+      "input": {
+        "calendar": "solar",
+        "year": 1975,
+        "month": 7,
+        "day": 1,
+        "time": {
+          "hour": 10,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1975-07-01 09:30",
+        "pillars": ["乙卯", "壬午", "戊申", "丁巳"],
+        "lunar": "1975-5-22",
+        "hiddenStems": [["乙"], ["丁", "己"], ["庚", "壬", "戊"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["正官", "偏财", "日主", "正印"],
+        "hiddenTenGods": [
+          ["正官"],
+          ["正印", "劫财"],
+          ["食神", "偏财", "比肩"],
+          ["偏印", "食神", "比肩"]
+        ],
+        "kongWang": {
+          "day": "寅卯",
+          "year": "子丑"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年2月",
+          "decades": [
+            "辛巳 1983-1992 9-18岁",
+            "庚辰 1993-2002 19-28岁",
+            "己卯 2003-2012 29-38岁",
+            "戊寅 2013-2022 39-48岁",
+            "丁丑 2023-2032 49-58岁",
+            "丙子 2033-2042 59-68岁",
+            "乙亥 2043-2052 69-78岁",
+            "甲戌 2053-2062 79-88岁",
+            "癸酉 2063-2072 89-98岁",
+            "壬申 2073-2082 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:yin,mao=>year",
+          "kongWang/yearPillar:zi,chou=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:zi,shen=>day",
+          "yiMa/yearBranch:si=>hour",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>month",
+          "luShen/dayStem:si=>hour"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 2,
+          "days": 28,
+          "hours": 22
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 38,
+          "liang": 3,
+          "qian": 8,
+          "parts": {
+            "year": 8,
+            "month": 5,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "water", "wood"]
+      }
+    },
+    {
+      "id": "tw-dst-1979",
+      "note": "台湾 1979 夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1979,
+        "month": 8,
+        "day": 1,
+        "time": {
+          "hour": 0,
+          "minute": 30
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1979-07-31 23:30",
+        "pillars": ["己未", "辛未", "庚子", "丙子"],
+        "lunar": "1979-闰6-9",
+        "hiddenStems": [["己", "丁", "乙"], ["己", "丁", "乙"], ["癸"], ["癸"]],
+        "stemTenGods": ["正印", "劫财", "日主", "七杀"],
+        "hiddenTenGods": [["正印", "正官", "正财"], ["正印", "正官", "正财"], ["伤官"], ["伤官"]],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "子丑"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "2年5月",
+          "decades": [
+            "壬申 1982-1991 4-13岁",
+            "癸酉 1992-2001 14-23岁",
+            "甲戌 2002-2011 24-33岁",
+            "乙亥 2012-2021 34-43岁",
+            "丙子 2022-2031 44-53岁",
+            "丁丑 2032-2041 54-63岁",
+            "戊寅 2042-2051 64-73岁",
+            "己卯 2052-2061 74-83岁",
+            "庚辰 2062-2071 84-93岁",
+            "辛巳 2072-2081 94-103岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>",
+          "kongWang/yearPillar:zi,chou=>day,hour",
+          "taoHua/yearBranch:zi=>day,hour",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>year,month",
+          "tianYiGuiRen/yearStem:zi,shen=>day,hour",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:wei=>month",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>",
+          "luShen/dayStem:shen=>"
+        ],
+        "startAfter": {
+          "years": 2,
+          "months": 5,
+          "days": 28,
+          "hours": 8
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 6,
+            "month": 16,
+            "day": 8,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["wood", "fire", "water"]
+      }
+    },
+    {
+      "id": "tw-dst-1950",
+      "note": "台湾 1950 夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1950,
+        "month": 6,
+        "day": 15,
+        "time": {
+          "hour": 12,
+          "minute": 40
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1950-06-15 11:40",
+        "pillars": ["庚寅", "壬午", "辛巳", "甲午"],
+        "lunar": "1950-5-1",
+        "hiddenStems": [["甲", "丙", "戊"], ["丁", "己"], ["丙", "庚", "戊"], ["丁", "己"]],
+        "stemTenGods": ["劫财", "伤官", "日主", "正财"],
+        "hiddenTenGods": [
+          ["正财", "正官", "正印"],
+          ["七杀", "偏印"],
+          ["正官", "劫财", "正印"],
+          ["七杀", "偏印"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "7年6月",
+          "decades": [
+            "癸未 1957-1966 8-17岁",
+            "甲申 1967-1976 18-27岁",
+            "乙酉 1977-1986 28-37岁",
+            "丙戌 1987-1996 38-47岁",
+            "丁亥 1997-2006 48-57岁",
+            "戊子 2007-2016 58-67岁",
+            "己丑 2017-2026 68-77岁",
+            "庚寅 2027-2036 78-87岁",
+            "辛卯 2037-2046 88-97岁",
+            "壬辰 2047-2056 98-107岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:wu,wei=>month,hour",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:wu=>month,hour",
+          "tianYiGuiRen/dayStem:wu,yin=>year,month,hour",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:zi=>",
+          "yangRen/dayStem:xu=>",
+          "luShen/dayStem:you=>"
+        ],
+        "startAfter": {
+          "years": 7,
+          "months": 6,
+          "days": 7,
+          "hours": 18
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 29,
+          "liang": 2,
+          "qian": 9,
+          "parts": {
+            "year": 9,
+            "month": 5,
+            "day": 5,
+            "hour": 10
+          }
+        },
+        "strength": "weak",
+        "favorable": ["earth", "metal"]
+      }
+    },
+    {
+      "id": "tw-1940-jst",
+      "note": "台湾 1937–1945 使用 UTC+9",
+      "input": {
+        "calendar": "solar",
+        "year": 1940,
+        "month": 3,
+        "day": 8,
+        "time": {
+          "hour": 7,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1940-03-08 07:00",
+        "pillars": ["庚辰", "己卯", "庚戌", "庚辰"],
+        "lunar": "1940-1-30",
+        "hiddenStems": [["戊", "乙", "癸"], ["乙"], ["戊", "辛", "丁"], ["戊", "乙", "癸"]],
+        "stemTenGods": ["比肩", "正印", "日主", "比肩"],
+        "hiddenTenGods": [
+          ["偏印", "正财", "伤官"],
+          ["正财"],
+          ["偏印", "劫财", "正官"],
+          ["偏印", "正财", "伤官"]
+        ],
+        "kongWang": {
+          "day": "寅卯",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年8月",
+          "decades": [
+            "戊寅 1940-1949 1-10岁",
+            "丁丑 1950-1959 11-20岁",
+            "丙子 1960-1969 21-30岁",
+            "乙亥 1970-1979 31-40岁",
+            "甲戌 1980-1989 41-50岁",
+            "癸酉 1990-1999 51-60岁",
+            "壬申 2000-2009 61-70岁",
+            "辛未 2010-2019 71-80岁",
+            "庚午 2020-2029 81-90岁",
+            "己巳 2030-2039 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:yin,mao=>month",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:mao=>month",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:chen=>hour",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>",
+          "luShen/dayStem:shen=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 8,
+          "days": 23,
+          "hours": 0
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 33,
+          "liang": 3,
+          "qian": 3,
+          "parts": {
+            "year": 12,
+            "month": 6,
+            "day": 6,
+            "hour": 9
+          }
+        },
+        "strength": "strong",
+        "favorable": ["fire", "water", "wood"]
+      }
+    },
+    {
+      "id": "kr-dst-1987",
+      "note": "韩国 1987 夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1987,
+        "month": 7,
+        "day": 15,
+        "time": {
+          "hour": 14,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "1987-07-15 13:00",
+        "pillars": ["丁卯", "丁未", "乙丑", "癸未"],
+        "lunar": "1987-6-20",
+        "hiddenStems": [["乙"], ["己", "丁", "乙"], ["己", "癸", "辛"], ["己", "丁", "乙"]],
+        "stemTenGods": ["食神", "食神", "日主", "偏印"],
+        "hiddenTenGods": [
+          ["比肩"],
+          ["偏财", "食神", "比肩"],
+          ["偏财", "偏印", "七杀"],
+          ["偏财", "食神", "比肩"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "2年6月",
+          "decades": [
+            "丙午 1990-1999 4-13岁",
+            "乙巳 2000-2009 14-23岁",
+            "甲辰 2010-2019 24-33岁",
+            "癸卯 2020-2029 34-43岁",
+            "壬寅 2030-2039 44-53岁",
+            "辛丑 2040-2049 54-63岁",
+            "庚子 2050-2059 64-73岁",
+            "己亥 2060-2069 74-83岁",
+            "戊戌 2070-2079 84-93岁",
+            "丁酉 2080-2089 94-103岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:zi,shen=>",
+          "tianYiGuiRen/yearStem:hai,you=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:wei=>month,hour",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:wu=>",
+          "yangRen/dayStem:chen=>",
+          "luShen/dayStem:mao=>year"
+        ],
+        "startAfter": {
+          "years": 2,
+          "months": 6,
+          "days": 1,
+          "hours": 18
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 7,
+            "month": 16,
+            "day": 15,
+            "hour": 8
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "wood"]
+      }
+    },
+    {
+      "id": "kr-dst-1988",
+      "note": "韩国 1988 夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1988,
+        "month": 6,
+        "day": 1,
+        "time": {
+          "hour": 0,
+          "minute": 40
+        },
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "1988-05-31 23:40",
+        "pillars": ["戊辰", "丁巳", "丁亥", "庚子"],
+        "lunar": "1988-4-17",
+        "hiddenStems": [["戊", "乙", "癸"], ["丙", "庚", "戊"], ["壬", "甲"], ["癸"]],
+        "stemTenGods": ["伤官", "比肩", "日主", "正财"],
+        "hiddenTenGods": [
+          ["伤官", "偏印", "七杀"],
+          ["劫财", "正财", "伤官"],
+          ["正官", "正印"],
+          ["七杀"]
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年9月",
+          "decades": [
+            "丙辰 1997-2006 10-19岁",
+            "乙卯 2007-2016 20-29岁",
+            "甲寅 2017-2026 30-39岁",
+            "癸丑 2027-2036 40-49岁",
+            "壬子 2037-2046 50-59岁",
+            "辛亥 2047-2056 60-69岁",
+            "庚戌 2057-2066 70-79岁",
+            "己酉 2067-2076 80-89岁",
+            "戊申 2077-2086 90-99岁",
+            "丁未 2087-2096 100-109岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:xu,hai=>day",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:zi=>hour",
+          "tianYiGuiRen/dayStem:hai,you=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:si=>month",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 9,
+          "days": 8,
+          "hours": 4
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 12,
+            "month": 9,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["wood", "fire"]
+      }
+    },
+    {
+      "id": "kr-dst-1957",
+      "note": "韩国 1957 夏令时（标准 UTC+8:30）",
+      "input": {
+        "calendar": "solar",
+        "year": 1957,
+        "month": 7,
+        "day": 1,
+        "time": {
+          "hour": 6,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "1957-07-01 05:00",
+        "pillars": ["丁酉", "丙午", "甲戌", "丁卯"],
+        "lunar": "1957-6-4",
+        "hiddenStems": [["辛"], ["丁", "己"], ["戊", "辛", "丁"], ["乙"]],
+        "stemTenGods": ["伤官", "食神", "日主", "伤官"],
+        "hiddenTenGods": [["正官"], ["伤官", "正财"], ["偏财", "正官", "伤官"], ["劫财"]],
+        "kongWang": {
+          "day": "申酉",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年3月",
+          "decades": [
+            "乙巳 1965-1974 9-18岁",
+            "甲辰 1975-1984 19-28岁",
+            "癸卯 1985-1994 29-38岁",
+            "壬寅 1995-2004 39-48岁",
+            "辛丑 2005-2014 49-58岁",
+            "庚子 2015-2024 59-68岁",
+            "己亥 2025-2034 69-78岁",
+            "戊戌 2035-2044 79-88岁",
+            "丁酉 2045-2054 89-98岁",
+            "丙申 2055-2064 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>year",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:wu=>month",
+          "taoHua/dayBranch:mao=>hour",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:hai,you=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:si=>",
+          "yangRen/dayStem:mao=>hour",
+          "luShen/dayStem:yin=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 3,
+          "days": 15,
+          "hours": 10
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 55,
+          "liang": 5,
+          "qian": 5,
+          "parts": {
+            "year": 14,
+            "month": 16,
+            "day": 15,
+            "hour": 10
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "wood"]
+      }
+    },
+    {
+      "id": "kr-0830-1958",
+      "note": "韩国 1954–1961 标准时间 UTC+8:30",
+      "input": {
+        "calendar": "solar",
+        "year": 1958,
+        "month": 1,
+        "day": 10,
+        "time": {
+          "hour": 23,
+          "minute": 20
+        },
+        "gender": "female",
+        "location": {
+          "city": "busan"
+        }
+      },
+      "expected": {
+        "usedTime": "1958-01-10 23:20",
+        "pillars": ["丁酉", "癸丑", "戊子", "壬子"],
+        "lunar": "1957-11-22",
+        "hiddenStems": [["辛"], ["己", "癸", "辛"], ["癸"], ["癸"]],
+        "stemTenGods": ["正印", "正财", "日主", "偏财"],
+        "hiddenTenGods": [["伤官"], ["劫财", "正财", "伤官"], ["正财"], ["正财"]],
+        "kongWang": {
+          "day": "午未",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "8年2月",
+          "decades": [
+            "甲寅 1966-1975 9-18岁",
+            "乙卯 1976-1985 19-28岁",
+            "丙辰 1986-1995 29-38岁",
+            "丁巳 1996-2005 39-48岁",
+            "戊午 2006-2015 49-58岁",
+            "己未 2016-2025 59-68岁",
+            "庚申 2026-2035 69-78岁",
+            "辛酉 2036-2045 79-88岁",
+            "壬戌 2046-2055 89-98岁",
+            "癸亥 2056-2065 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:chen,si=>",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:you=>year",
+          "tianYiGuiRen/dayStem:chou,wei=>month",
+          "tianYiGuiRen/yearStem:hai,you=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:chou=>month",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 2,
+          "days": 24,
+          "hours": 22
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 48,
+          "liang": 4,
+          "qian": 8,
+          "parts": {
+            "year": 14,
+            "month": 9,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "kr-1949-dst",
+      "note": "韩国 1949 夏令时 UTC+10",
+      "input": {
+        "calendar": "solar",
+        "year": 1949,
+        "month": 7,
+        "day": 1,
+        "time": {
+          "hour": 9,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "1949-07-01 08:00",
+        "pillars": ["己丑", "庚午", "壬辰", "甲辰"],
+        "lunar": "1949-6-6",
+        "hiddenStems": [["己", "癸", "辛"], ["丁", "己"], ["戊", "乙", "癸"], ["戊", "乙", "癸"]],
+        "stemTenGods": ["正官", "偏印", "日主", "食神"],
+        "hiddenTenGods": [
+          ["正官", "劫财", "正印"],
+          ["正财", "正官"],
+          ["七杀", "伤官", "劫财"],
+          ["七杀", "伤官", "劫财"]
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年3月",
+          "decades": [
+            "己巳 1957-1966 9-18岁",
+            "戊辰 1967-1976 19-28岁",
+            "丁卯 1977-1986 29-38岁",
+            "丙寅 1987-1996 39-48岁",
+            "乙丑 1997-2006 49-58岁",
+            "甲子 2007-2016 59-68岁",
+            "癸亥 2017-2026 69-78岁",
+            "壬戌 2027-2036 79-88岁",
+            "辛酉 2037-2046 89-98岁",
+            "庚申 2047-2056 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>month",
+          "kongWang/yearPillar:wu,wei=>month",
+          "taoHua/yearBranch:wu=>month",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:mao,si=>",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chen=>hour",
+          "wenChang/dayStem:yin=>",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 3,
+          "days": 19,
+          "hours": 10
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 47,
+          "liang": 4,
+          "qian": 7,
+          "parts": {
+            "year": 7,
+            "month": 16,
+            "day": 15,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["metal", "water"]
+      }
+    },
+    {
+      "id": "kr-modern",
+      "note": "首尔 2005 普通样例",
+      "input": {
+        "calendar": "solar",
+        "year": 2005,
+        "month": 11,
+        "day": 23,
+        "time": {
+          "hour": 17,
+          "minute": 45
+        },
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "2005-11-23 17:45",
+        "pillars": ["乙酉", "丁亥", "辛亥", "丁酉"],
+        "lunar": "2005-10-22",
+        "hiddenStems": [["辛"], ["壬", "甲"], ["壬", "甲"], ["辛"]],
+        "stemTenGods": ["偏财", "七杀", "日主", "七杀"],
+        "hiddenTenGods": [["比肩"], ["伤官", "正财"], ["伤官", "正财"], ["比肩"]],
+        "kongWang": {
+          "day": "寅卯",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "4年6月",
+          "decades": [
+            "戊子 2010-2019 6-15岁",
+            "己丑 2020-2029 16-25岁",
+            "庚寅 2030-2039 26-35岁",
+            "辛卯 2040-2049 36-45岁",
+            "壬辰 2050-2059 46-55岁",
+            "癸巳 2060-2069 56-65岁",
+            "甲午 2070-2079 66-75岁",
+            "乙未 2080-2089 76-85岁",
+            "丙申 2090-2099 86-95岁",
+            "丁酉 2100-2109 96-105岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:yin,mao=>",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:zi=>",
+          "tianYiGuiRen/dayStem:wu,yin=>",
+          "tianYiGuiRen/yearStem:zi,shen=>",
+          "yiMa/yearBranch:hai=>month,day",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:zi=>",
+          "yangRen/dayStem:xu=>",
+          "luShen/dayStem:you=>year,hour"
+        ],
+        "startAfter": {
+          "years": 4,
+          "months": 6,
+          "days": 18,
+          "hours": 22
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 41,
+          "liang": 4,
+          "qian": 1,
+          "parts": {
+            "year": 15,
+            "month": 8,
+            "day": 9,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["earth", "metal"]
+      }
+    },
+    {
+      "id": "nohour-1990",
+      "note": "不知道时辰：三柱",
+      "input": {
+        "calendar": "solar",
+        "year": 1990,
+        "month": 5,
+        "day": 15,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1990-05-15",
+        "pillars": ["庚午", "辛巳", "庚辰", null],
+        "lunar": "1990-4-21",
+        "hiddenStems": [["丁", "己"], ["丙", "庚", "戊"], ["戊", "乙", "癸"], null],
+        "stemTenGods": ["比肩", "劫财", "日主", null],
+        "hiddenTenGods": [
+          ["正官", "正印"],
+          ["七杀", "比肩", "偏印"],
+          ["偏印", "正财", "伤官"],
+          null
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "7年3月",
+          "decades": [
+            "壬午 1997-2006 8-17岁",
+            "癸未 2007-2016 18-27岁",
+            "甲申 2017-2026 28-37岁",
+            "乙酉 2027-2036 38-47岁",
+            "丙戌 2037-2046 48-57岁",
+            "丁亥 2047-2056 58-67岁",
+            "戊子 2057-2066 68-77岁",
+            "己丑 2067-2076 78-87岁",
+            "庚寅 2077-2086 88-97岁",
+            "辛卯 2087-2096 98-107岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>",
+          "luShen/dayStem:shen=>"
+        ],
+        "startAfter": {
+          "years": 7,
+          "months": 3,
+          "days": 3,
+          "hours": 20
+        },
+        "weight": {
+          "status": "requiresHour",
+          "parts": {
+            "year": 9,
+            "month": 9,
+            "day": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["water", "wood", "fire"]
+      }
+    },
+    {
+      "id": "nohour-1972-female",
+      "note": "不知道时辰：女命",
+      "input": {
+        "calendar": "solar",
+        "year": 1972,
+        "month": 9,
+        "day": 9,
+        "time": null,
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      },
+      "expected": {
+        "usedTime": "1972-09-09",
+        "pillars": ["壬子", "己酉", "癸卯", null],
+        "lunar": "1972-8-2",
+        "hiddenStems": [["癸"], ["辛"], ["乙"], null],
+        "stemTenGods": ["劫财", "七杀", "日主", null],
+        "hiddenTenGods": [["比肩"], ["偏印"], ["食神"], null],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "寅卯"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年6月",
+          "decades": [
+            "戊申 1973-1982 2-11岁",
+            "丁未 1983-1992 12-21岁",
+            "丙午 1993-2002 22-31岁",
+            "乙巳 2003-2012 32-41岁",
+            "甲辰 2013-2022 42-51岁",
+            "癸卯 2023-2032 52-61岁",
+            "壬寅 2033-2042 62-71岁",
+            "辛丑 2043-2052 72-81岁",
+            "庚子 2053-2062 82-91岁",
+            "己亥 2063-2072 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>",
+          "kongWang/yearPillar:yin,mao=>day",
+          "taoHua/yearBranch:you=>month",
+          "taoHua/dayBranch:zi=>year",
+          "tianYiGuiRen/dayStem:mao,si=>",
+          "tianYiGuiRen/yearStem:mao,si=>day",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>year"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 6,
+          "days": 8,
+          "hours": 16
+        },
+        "weight": {
+          "status": "requiresHour",
+          "parts": {
+            "year": 5,
+            "month": 15,
+            "day": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["fire", "wood", "earth"]
+      }
+    },
+    {
+      "id": "nohour-lunar-2006",
+      "note": "不知道时辰 + 农历闰七月",
+      "input": {
+        "calendar": "lunar",
+        "year": 2006,
+        "month": 7,
+        "day": 3,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        },
+        "isLeapMonth": true
+      },
+      "expected": {
+        "usedTime": "2006-08-26",
+        "pillars": ["丙戌", "丙申", "丁亥", null],
+        "lunar": "2006-闰7-3",
+        "hiddenStems": [["戊", "辛", "丁"], ["庚", "壬", "戊"], ["壬", "甲"], null],
+        "stemTenGods": ["劫财", "劫财", "日主", null],
+        "hiddenTenGods": [
+          ["伤官", "偏财", "比肩"],
+          ["正财", "正官", "伤官"],
+          ["正官", "正印"],
+          null
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "4年2月",
+          "decades": [
+            "丁酉 2010-2019 5-14岁",
+            "戊戌 2020-2029 15-24岁",
+            "己亥 2030-2039 25-34岁",
+            "庚子 2040-2049 35-44岁",
+            "辛丑 2050-2059 45-54岁",
+            "壬寅 2060-2069 55-64岁",
+            "癸卯 2070-2079 65-74岁",
+            "甲辰 2080-2089 75-84岁",
+            "乙巳 2090-2099 85-94岁",
+            "丙午 2100-2109 95-104岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:zi=>",
+          "tianYiGuiRen/dayStem:hai,you=>",
+          "tianYiGuiRen/yearStem:hai,you=>day",
+          "yiMa/yearBranch:shen=>month",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 4,
+          "months": 2,
+          "days": 13,
+          "hours": 6
+        },
+        "weight": {
+          "status": "requiresHour",
+          "parts": {
+            "year": 6,
+            "month": 9,
+            "day": 8
+          }
+        },
+        "strength": "strong",
+        "favorable": ["earth", "water", "metal"]
+      }
+    },
+    {
+      "id": "tst-seoul-1993",
+      "note": "首尔真太阳时（东经 126.98°，约慢 32 分钟）",
+      "input": {
+        "calendar": "solar",
+        "year": 1993,
+        "month": 3,
+        "day": 3,
+        "time": {
+          "hour": 11,
+          "minute": 10
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        },
+        "trueSolarTime": true
+      },
+      "expected": {
+        "usedTime": "1993-03-03 10:25",
+        "pillars": ["癸酉", "甲寅", "癸未", "丁巳"],
+        "lunar": "1993-2-11",
+        "hiddenStems": [["辛"], ["甲", "丙", "戊"], ["己", "丁", "乙"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["比肩", "伤官", "日主", "偏财"],
+        "hiddenTenGods": [
+          ["偏印"],
+          ["伤官", "正财", "正官"],
+          ["七杀", "偏财", "食神"],
+          ["正财", "正印", "正官"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "9年1月",
+          "decades": [
+            "癸丑 2002-2011 10-19岁",
+            "壬子 2012-2021 20-29岁",
+            "辛亥 2022-2031 30-39岁",
+            "庚戌 2032-2041 40-49岁",
+            "己酉 2042-2051 50-59岁",
+            "戊申 2052-2061 60-69岁",
+            "丁未 2062-2071 70-79岁",
+            "丙午 2072-2081 80-89岁",
+            "乙巳 2082-2091 90-99岁",
+            "甲辰 2092-2101 100-109岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>year",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:zi=>",
+          "tianYiGuiRen/dayStem:mao,si=>hour",
+          "tianYiGuiRen/yearStem:mao,si=>hour",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:si=>hour",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>"
+        ],
+        "startAfter": {
+          "years": 9,
+          "months": 1,
+          "days": 2,
+          "hours": 16
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 40,
+          "liang": 4,
+          "qian": 0,
+          "parts": {
+            "year": 8,
+            "month": 7,
+            "day": 9,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["metal", "water"]
+      }
+    },
+    {
+      "id": "tst-kaohsiung-2011",
+      "note": "高雄真太阳时",
+      "input": {
+        "calendar": "solar",
+        "year": 2011,
+        "month": 11,
+        "day": 3,
+        "time": {
+          "hour": 7,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "kaohsiung"
+        },
+        "trueSolarTime": true
+      },
+      "expected": {
+        "usedTime": "2011-11-03 07:18",
+        "pillars": ["辛卯", "戊戌", "壬戌", "甲辰"],
+        "lunar": "2011-10-8",
+        "hiddenStems": [["乙"], ["戊", "辛", "丁"], ["戊", "辛", "丁"], ["戊", "乙", "癸"]],
+        "stemTenGods": ["正印", "七杀", "日主", "食神"],
+        "hiddenTenGods": [
+          ["伤官"],
+          ["七杀", "正印", "正财"],
+          ["七杀", "正印", "正财"],
+          ["七杀", "伤官", "劫财"]
+        ],
+        "kongWang": {
+          "day": "子丑",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "1年7月",
+          "decades": [
+            "己亥 2013-2022 3-12岁",
+            "庚子 2023-2032 13-22岁",
+            "辛丑 2033-2042 23-32岁",
+            "壬寅 2043-2052 33-42岁",
+            "癸卯 2053-2062 43-52岁",
+            "甲辰 2063-2072 53-62岁",
+            "乙巳 2073-2082 63-72岁",
+            "丙午 2083-2092 73-82岁",
+            "丁未 2093-2102 83-92岁",
+            "戊申 2103-2112 93-102岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:zi,chou=>",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>year",
+          "tianYiGuiRen/dayStem:mao,si=>year",
+          "tianYiGuiRen/yearStem:wu,yin=>",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>month",
+          "wenChang/dayStem:yin=>",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 7,
+          "days": 7,
+          "hours": 20
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 45,
+          "liang": 4,
+          "qian": 5,
+          "parts": {
+            "year": 12,
+            "month": 8,
+            "day": 16,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "metal"]
+      }
+    },
+    {
+      "id": "la-dst-1998",
+      "note": "洛杉矶夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1998,
+        "month": 8,
+        "day": 20,
+        "time": {
+          "hour": 21,
+          "minute": 15
+        },
+        "gender": "male",
+        "location": {
+          "city": "losAngeles"
+        }
+      },
+      "expected": {
+        "usedTime": "1998-08-20 20:15",
+        "pillars": ["戊寅", "庚申", "己亥", "甲戌"],
+        "lunar": "1998-6-29",
+        "hiddenStems": [["甲", "丙", "戊"], ["庚", "壬", "戊"], ["壬", "甲"], ["戊", "辛", "丁"]],
+        "stemTenGods": ["劫财", "伤官", "日主", "正官"],
+        "hiddenTenGods": [
+          ["正官", "正印", "劫财"],
+          ["伤官", "正财", "劫财"],
+          ["正财", "正官"],
+          ["劫财", "食神", "偏印"]
+        ],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "5年10月",
+          "decades": [
+            "辛酉 2004-2013 7-16岁",
+            "壬戌 2014-2023 17-26岁",
+            "癸亥 2024-2033 27-36岁",
+            "甲子 2034-2043 37-46岁",
+            "乙丑 2044-2053 47-56岁",
+            "丙寅 2054-2063 57-66岁",
+            "丁卯 2064-2073 67-76岁",
+            "戊辰 2074-2083 77-86岁",
+            "己巳 2084-2093 87-96岁",
+            "庚午 2094-2103 97-106岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>",
+          "kongWang/yearPillar:shen,you=>month",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:zi=>",
+          "tianYiGuiRen/dayStem:zi,shen=>month",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>month",
+          "yiMa/dayBranch:si=>",
+          "huaGai/yearBranch:xu=>hour",
+          "huaGai/dayBranch:wei=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 5,
+          "months": 10,
+          "days": 20,
+          "hours": 0
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 46,
+          "liang": 4,
+          "qian": 6,
+          "parts": {
+            "year": 8,
+            "month": 16,
+            "day": 16,
+            "hour": 6
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "ny-winter-1980",
+      "note": "纽约冬令",
+      "input": {
+        "calendar": "solar",
+        "year": 1980,
+        "month": 1,
+        "day": 5,
+        "time": {
+          "hour": 4,
+          "minute": 30
+        },
+        "gender": "female",
+        "location": {
+          "city": "newYork"
+        }
+      },
+      "expected": {
+        "usedTime": "1980-01-05 04:30",
+        "pillars": ["己未", "丙子", "丁丑", "壬寅"],
+        "lunar": "1979-11-18",
+        "hiddenStems": [["己", "丁", "乙"], ["癸"], ["己", "癸", "辛"], ["甲", "丙", "戊"]],
+        "stemTenGods": ["食神", "劫财", "日主", "正官"],
+        "hiddenTenGods": [
+          ["食神", "比肩", "偏印"],
+          ["七杀"],
+          ["食神", "七杀", "偏财"],
+          ["正印", "劫财", "伤官"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "子丑"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年3月",
+          "decades": [
+            "丁丑 1980-1989 1-10岁",
+            "戊寅 1990-1999 11-20岁",
+            "己卯 2000-2009 21-30岁",
+            "庚辰 2010-2019 31-40岁",
+            "辛巳 2020-2029 41-50岁",
+            "壬午 2030-2039 51-60岁",
+            "癸未 2040-2049 61-70岁",
+            "甲申 2050-2059 71-80岁",
+            "乙酉 2060-2069 81-90岁",
+            "丙戌 2070-2079 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:zi,chou=>month,day",
+          "taoHua/yearBranch:zi=>month",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:hai,you=>",
+          "tianYiGuiRen/yearStem:zi,shen=>month",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>year",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 3,
+          "days": 4,
+          "hours": 20
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 40,
+          "liang": 4,
+          "qian": 0,
+          "parts": {
+            "year": 6,
+            "month": 9,
+            "day": 18,
+            "hour": 7
+          }
+        },
+        "strength": "weak",
+        "favorable": ["wood", "fire"]
+      }
+    },
+    {
+      "id": "london-bst-2002",
+      "note": "伦敦夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 2002,
+        "month": 6,
+        "day": 30,
+        "time": {
+          "hour": 13,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "london"
+        }
+      },
+      "expected": {
+        "usedTime": "2002-06-30 12:00",
+        "pillars": ["壬午", "丙午", "己巳", "庚午"],
+        "lunar": "2002-5-20",
+        "hiddenStems": [["丁", "己"], ["丁", "己"], ["丙", "庚", "戊"], ["丁", "己"]],
+        "stemTenGods": ["正财", "正印", "日主", "伤官"],
+        "hiddenTenGods": [
+          ["偏印", "比肩"],
+          ["偏印", "比肩"],
+          ["正印", "伤官", "劫财"],
+          ["偏印", "比肩"]
+        ],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "2年3月",
+          "decades": [
+            "丁未 2004-2013 3-12岁",
+            "戊申 2014-2023 13-22岁",
+            "己酉 2024-2033 23-32岁",
+            "庚戌 2034-2043 33-42岁",
+            "辛亥 2044-2053 43-52岁",
+            "壬子 2054-2063 53-62岁",
+            "癸丑 2064-2073 63-72岁",
+            "甲寅 2074-2083 73-82岁",
+            "乙卯 2084-2093 83-92岁",
+            "丙辰 2094-2103 93-102岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:wu=>year,month,hour",
+          "tianYiGuiRen/dayStem:zi,shen=>",
+          "tianYiGuiRen/yearStem:mao,si=>day",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>year,month,hour"
+        ],
+        "startAfter": {
+          "years": 2,
+          "months": 3,
+          "days": 4,
+          "hours": 16
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 38,
+          "liang": 3,
+          "qian": 8,
+          "parts": {
+            "year": 8,
+            "month": 5,
+            "day": 15,
+            "hour": 10
+          }
+        },
+        "strength": "strong",
+        "favorable": ["wood", "water", "metal"]
+      }
+    },
+    {
+      "id": "sydney-dst-2015",
+      "note": "悉尼夏令时（南半球）",
+      "input": {
+        "calendar": "solar",
+        "year": 2015,
+        "month": 1,
+        "day": 20,
+        "time": {
+          "hour": 10,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "sydney"
+        }
+      },
+      "expected": {
+        "usedTime": "2015-01-20 09:00",
+        "pillars": ["甲午", "丁丑", "丙申", "癸巳"],
+        "lunar": "2014-12-1",
+        "hiddenStems": [["丁", "己"], ["己", "癸", "辛"], ["庚", "壬", "戊"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["偏印", "劫财", "日主", "正官"],
+        "hiddenTenGods": [
+          ["劫财", "伤官"],
+          ["伤官", "正官", "正财"],
+          ["偏财", "七杀", "食神"],
+          ["比肩", "偏财", "食神"]
+        ],
+        "kongWang": {
+          "day": "辰巳",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "4年9月",
+          "decades": [
+            "丙子 2019-2028 5-14岁",
+            "乙亥 2029-2038 15-24岁",
+            "甲戌 2039-2048 25-34岁",
+            "癸酉 2049-2058 35-44岁",
+            "壬申 2059-2068 45-54岁",
+            "辛未 2069-2078 55-64岁",
+            "庚午 2079-2088 65-74岁",
+            "己巳 2089-2098 75-84岁",
+            "戊辰 2099-2108 85-94岁",
+            "丁卯 2109-2118 95-104岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:chen,si=>hour",
+          "kongWang/yearPillar:chen,si=>hour",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:hai,you=>",
+          "tianYiGuiRen/yearStem:chou,wei=>month",
+          "yiMa/yearBranch:shen=>day",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:xu=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>year",
+          "luShen/dayStem:si=>hour"
+        ],
+        "startAfter": {
+          "years": 4,
+          "months": 9,
+          "days": 3,
+          "hours": 6
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 41,
+          "liang": 4,
+          "qian": 1,
+          "parts": {
+            "year": 15,
+            "month": 5,
+            "day": 5,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["metal", "earth", "water"]
+      }
+    },
+    {
+      "id": "shanghai-dst-1988",
+      "note": "中国 1986–1991 夏令时",
+      "input": {
+        "calendar": "solar",
+        "year": 1988,
+        "month": 7,
+        "day": 1,
+        "time": {
+          "hour": 8,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "shanghai"
+        }
+      },
+      "expected": {
+        "usedTime": "1988-07-01 07:30",
+        "pillars": ["戊辰", "戊午", "丁巳", "甲辰"],
+        "lunar": "1988-5-18",
+        "hiddenStems": [["戊", "乙", "癸"], ["丁", "己"], ["丙", "庚", "戊"], ["戊", "乙", "癸"]],
+        "stemTenGods": ["伤官", "伤官", "日主", "正印"],
+        "hiddenTenGods": [
+          ["伤官", "偏印", "七杀"],
+          ["比肩", "食神"],
+          ["劫财", "正财", "伤官"],
+          ["伤官", "偏印", "七杀"]
+        ],
+        "kongWang": {
+          "day": "子丑",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "1年11月",
+          "decades": [
+            "己未 1990-1999 3-12岁",
+            "庚申 2000-2009 13-22岁",
+            "辛酉 2010-2019 23-32岁",
+            "壬戌 2020-2029 33-42岁",
+            "癸亥 2030-2039 43-52岁",
+            "甲子 2040-2049 53-62岁",
+            "乙丑 2050-2059 63-72岁",
+            "丙寅 2060-2069 73-82岁",
+            "丁卯 2070-2079 83-92岁",
+            "戊辰 2080-2089 93-102岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:zi,chou=>",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:wu=>month",
+          "tianYiGuiRen/dayStem:hai,you=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chen=>hour",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:you=>",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>month"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 11,
+          "days": 20,
+          "hours": 4
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 44,
+          "liang": 4,
+          "qian": 4,
+          "parts": {
+            "year": 12,
+            "month": 5,
+            "day": 18,
+            "hour": 9
+          }
+        },
+        "strength": "strong",
+        "favorable": ["water", "metal", "earth"]
+      }
+    },
+    {
+      "id": "tokyo-2010",
+      "note": "东京 UTC+9",
+      "input": {
+        "calendar": "solar",
+        "year": 2010,
+        "month": 10,
+        "day": 10,
+        "time": {
+          "hour": 10,
+          "minute": 10
+        },
+        "gender": "female",
+        "location": {
+          "city": "tokyo"
+        }
+      },
+      "expected": {
+        "usedTime": "2010-10-10 10:10",
+        "pillars": ["庚寅", "丙戌", "癸巳", "丁巳"],
+        "lunar": "2010-9-3",
+        "hiddenStems": [
+          ["甲", "丙", "戊"],
+          ["戊", "辛", "丁"],
+          ["丙", "庚", "戊"],
+          ["丙", "庚", "戊"]
+        ],
+        "stemTenGods": ["正印", "正财", "日主", "偏财"],
+        "hiddenTenGods": [
+          ["伤官", "正财", "正官"],
+          ["正官", "偏印", "偏财"],
+          ["正财", "正印", "正官"],
+          ["正财", "正印", "正官"]
+        ],
+        "kongWang": {
+          "day": "午未",
+          "year": "午未"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年6月",
+          "decades": [
+            "乙酉 2011-2020 2-11岁",
+            "甲申 2021-2030 12-21岁",
+            "癸未 2031-2040 22-31岁",
+            "壬午 2041-2050 32-41岁",
+            "辛巳 2051-2060 42-51岁",
+            "庚辰 2061-2070 52-61岁",
+            "己卯 2071-2080 62-71岁",
+            "戊寅 2081-2090 72-81岁",
+            "丁丑 2091-2100 82-91岁",
+            "丙子 2101-2110 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:wu,wei=>",
+          "kongWang/yearPillar:wu,wei=>",
+          "taoHua/yearBranch:mao=>",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>hour",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:shen=>",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:xu=>month",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 6,
+          "days": 18,
+          "hours": 14
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 51,
+          "liang": 5,
+          "qian": 1,
+          "parts": {
+            "year": 9,
+            "month": 18,
+            "day": 8,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "metal"]
+      }
+    },
+    {
+      "id": "hk-1968",
+      "note": "香港",
+      "input": {
+        "calendar": "solar",
+        "year": 1968,
+        "month": 4,
+        "day": 4,
+        "time": {
+          "hour": 16,
+          "minute": 50
+        },
+        "gender": "male",
+        "location": {
+          "city": "hongKong"
+        }
+      },
+      "expected": {
+        "usedTime": "1968-04-04 16:50",
+        "pillars": ["戊申", "乙卯", "甲辰", "壬申"],
+        "lunar": "1968-3-7",
+        "hiddenStems": [["庚", "壬", "戊"], ["乙"], ["戊", "乙", "癸"], ["庚", "壬", "戊"]],
+        "stemTenGods": ["偏财", "劫财", "日主", "偏印"],
+        "hiddenTenGods": [
+          ["七杀", "偏印", "偏财"],
+          ["劫财"],
+          ["偏财", "劫财", "正印"],
+          ["七杀", "偏印", "偏财"]
+        ],
+        "kongWang": {
+          "day": "寅卯",
+          "year": "寅卯"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年1月",
+          "decades": [
+            "丙辰 1968-1977 1-10岁",
+            "丁巳 1978-1987 11-20岁",
+            "戊午 1988-1997 21-30岁",
+            "己未 1998-2007 31-40岁",
+            "庚申 2008-2017 41-50岁",
+            "辛酉 2018-2027 51-60岁",
+            "壬戌 2028-2037 61-70岁",
+            "癸亥 2038-2047 71-80岁",
+            "甲子 2048-2057 81-90岁",
+            "乙丑 2058-2067 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:yin,mao=>month",
+          "kongWang/yearPillar:yin,mao=>month",
+          "taoHua/yearBranch:you=>",
+          "taoHua/dayBranch:you=>",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:yin=>",
+          "huaGai/yearBranch:chen=>day",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:si=>",
+          "yangRen/dayStem:mao=>month",
+          "luShen/dayStem:yin=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 1,
+          "days": 12,
+          "hours": 12
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 48,
+          "liang": 4,
+          "qian": 8,
+          "parts": {
+            "year": 14,
+            "month": 18,
+            "day": 8,
+            "hour": 8
+          }
+        },
+        "strength": "strong",
+        "favorable": ["fire", "metal", "earth"]
+      }
+    },
+    {
+      "id": "manual-offset-2003",
+      "note": "手选 UTC+7（曼谷）",
+      "input": {
+        "calendar": "solar",
+        "year": 2003,
+        "month": 5,
+        "day": 5,
+        "time": {
+          "hour": 5,
+          "minute": 5
+        },
+        "gender": "female",
+        "location": {
+          "utcOffsetMinutes": 420,
+          "longitude": 100.5
+        }
+      },
+      "expected": {
+        "usedTime": "2003-05-05 05:05",
+        "pillars": ["癸未", "丙辰", "戊寅", "乙卯"],
+        "lunar": "2003-4-5",
+        "hiddenStems": [["己", "丁", "乙"], ["戊", "乙", "癸"], ["甲", "丙", "戊"], ["乙"]],
+        "stemTenGods": ["正财", "偏印", "日主", "正官"],
+        "hiddenTenGods": [
+          ["劫财", "正印", "正官"],
+          ["比肩", "正官", "正财"],
+          ["七杀", "偏印", "比肩"],
+          ["正官"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "申酉"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "0年4月",
+          "decades": [
+            "丁巳 2003-2012 1-10岁",
+            "戊午 2013-2022 11-20岁",
+            "己未 2023-2032 21-30岁",
+            "庚申 2033-2042 31-40岁",
+            "辛酉 2043-2052 41-50岁",
+            "壬戌 2053-2062 51-60岁",
+            "癸亥 2063-2072 61-70岁",
+            "甲子 2073-2082 71-80岁",
+            "乙丑 2083-2092 81-90岁",
+            "丙寅 2093-2102 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>",
+          "kongWang/yearPillar:shen,you=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>hour",
+          "tianYiGuiRen/dayStem:chou,wei=>year",
+          "tianYiGuiRen/yearStem:mao,si=>hour",
+          "yiMa/yearBranch:si=>",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:shen=>",
+          "yangRen/dayStem:wu=>",
+          "luShen/dayStem:si=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 4,
+          "days": 0,
+          "hours": 10
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 42,
+          "liang": 4,
+          "qian": 2,
+          "parts": {
+            "year": 7,
+            "month": 9,
+            "day": 16,
+            "hour": 10
+          }
+        },
+        "strength": "weak",
+        "favorable": ["fire", "earth"]
+      }
+    },
+    {
+      "id": "edge-1900",
+      "note": "1900 年（范围下限）",
+      "input": {
+        "calendar": "solar",
+        "year": 1900,
+        "month": 3,
+        "day": 1,
+        "time": {
+          "hour": 9,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1900-03-01 09:00",
+        "pillars": ["庚子", "戊寅", "癸酉", "丁巳"],
+        "lunar": "1900-2-1",
+        "hiddenStems": [["癸"], ["甲", "丙", "戊"], ["辛"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["正印", "正官", "日主", "偏财"],
+        "hiddenTenGods": [["比肩"], ["伤官", "正财", "正官"], ["偏印"], ["正财", "正印", "正官"]],
+        "kongWang": {
+          "day": "戌亥",
+          "year": "辰巳"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "1年7月",
+          "decades": [
+            "己卯 1901-1910 2-11岁",
+            "庚辰 1911-1920 12-21岁",
+            "辛巳 1921-1930 22-31岁",
+            "壬午 1931-1940 32-41岁",
+            "癸未 1941-1950 42-51岁",
+            "甲申 1951-1960 52-61岁",
+            "乙酉 1961-1970 62-71岁",
+            "丙戌 1971-1980 72-81岁",
+            "丁亥 1981-1990 82-91岁",
+            "戊子 1991-2000 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:xu,hai=>",
+          "kongWang/yearPillar:chen,si=>hour",
+          "taoHua/yearBranch:you=>day",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:mao,si=>hour",
+          "tianYiGuiRen/yearStem:chou,wei=>",
+          "yiMa/yearBranch:yin=>month",
+          "yiMa/dayBranch:hai=>",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:mao=>",
+          "yangRen/dayStem:chou=>",
+          "luShen/dayStem:zi=>year"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 7,
+          "days": 26,
+          "hours": 18
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 35,
+          "liang": 3,
+          "qian": 5,
+          "parts": {
+            "year": 7,
+            "month": 7,
+            "day": 5,
+            "hour": 16
+          }
+        },
+        "strength": "strong",
+        "favorable": ["wood", "earth", "fire"]
+      }
+    },
+    {
+      "id": "edge-2100",
+      "note": "2100 年（范围上限）",
+      "input": {
+        "calendar": "solar",
+        "year": 2100,
+        "month": 12,
+        "day": 1,
+        "time": {
+          "hour": 18,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "2100-12-01 18:00",
+        "pillars": ["庚申", "丁亥", "丁丑", "己酉"],
+        "lunar": "2100-11-1",
+        "hiddenStems": [["庚", "壬", "戊"], ["壬", "甲"], ["己", "癸", "辛"], ["辛"]],
+        "stemTenGods": ["正财", "比肩", "日主", "食神"],
+        "hiddenTenGods": [
+          ["正财", "正官", "伤官"],
+          ["正官", "正印"],
+          ["食神", "七杀", "偏财"],
+          ["偏财"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "子丑"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "8年0月",
+          "decades": [
+            "丙戌 2108-2117 9-18岁",
+            "乙酉 2118-2127 19-28岁",
+            "甲申 2128-2137 29-38岁",
+            "癸未 2138-2147 39-48岁",
+            "壬午 2148-2157 49-58岁",
+            "辛巳 2158-2167 59-68岁",
+            "庚辰 2168-2177 69-78岁",
+            "己卯 2178-2187 79-88岁",
+            "戊寅 2188-2197 89-98岁",
+            "丁丑 2198-2207 99-108岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>year,hour",
+          "kongWang/yearPillar:zi,chou=>day",
+          "taoHua/yearBranch:you=>hour",
+          "taoHua/dayBranch:wu=>",
+          "tianYiGuiRen/dayStem:hai,you=>month,hour",
+          "tianYiGuiRen/yearStem:chou,wei=>day",
+          "yiMa/yearBranch:yin=>",
+          "yiMa/dayBranch:hai=>month",
+          "huaGai/yearBranch:chen=>",
+          "huaGai/dayBranch:chou=>",
+          "wenChang/dayStem:you=>hour",
+          "yangRen/dayStem:wei=>",
+          "luShen/dayStem:wu=>"
+        ],
+        "startAfter": {
+          "years": 8,
+          "months": 0,
+          "days": 8,
+          "hours": 6
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 31,
+          "liang": 3,
+          "qian": 1,
+          "parts": {
+            "year": 8,
+            "month": 9,
+            "day": 5,
+            "hour": 9
+          }
+        },
+        "strength": "weak",
+        "favorable": ["wood", "fire"]
+      }
+    },
+    {
+      "id": "female-backward-1991",
+      "note": "阴年男命逆排（辛未年）",
+      "input": {
+        "calendar": "solar",
+        "year": 1991,
+        "month": 9,
+        "day": 9,
+        "time": {
+          "hour": 9,
+          "minute": 9
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1991-09-09 09:09",
+        "pillars": ["辛未", "丁酉", "壬午", "乙巳"],
+        "lunar": "1991-8-2",
+        "hiddenStems": [["己", "丁", "乙"], ["辛"], ["丁", "己"], ["丙", "庚", "戊"]],
+        "stemTenGods": ["正印", "正财", "日主", "伤官"],
+        "hiddenTenGods": [
+          ["正官", "正财", "伤官"],
+          ["正印"],
+          ["正财", "正官"],
+          ["偏财", "偏印", "七杀"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": false,
+          "startAfter": "0年3月",
+          "decades": [
+            "丙申 1991-2000 1-10岁",
+            "乙未 2001-2010 11-20岁",
+            "甲午 2011-2020 21-30岁",
+            "癸巳 2021-2030 31-40岁",
+            "壬辰 2031-2040 41-50岁",
+            "辛卯 2041-2050 51-60岁",
+            "庚寅 2051-2060 61-70岁",
+            "己丑 2061-2070 71-80岁",
+            "戊子 2071-2080 81-90岁",
+            "丁亥 2081-2090 91-100岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>month",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:zi=>",
+          "taoHua/dayBranch:mao=>",
+          "tianYiGuiRen/dayStem:mao,si=>hour",
+          "tianYiGuiRen/yearStem:wu,yin=>day",
+          "yiMa/yearBranch:si=>hour",
+          "yiMa/dayBranch:shen=>",
+          "huaGai/yearBranch:wei=>",
+          "huaGai/dayBranch:xu=>",
+          "wenChang/dayStem:yin=>",
+          "yangRen/dayStem:zi=>",
+          "luShen/dayStem:hai=>"
+        ],
+        "startAfter": {
+          "years": 0,
+          "months": 3,
+          "days": 18,
+          "hours": 10
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 49,
+          "liang": 4,
+          "qian": 9,
+          "parts": {
+            "year": 8,
+            "month": 15,
+            "day": 10,
+            "hour": 16
+          }
+        },
+        "strength": "weak",
+        "favorable": ["water", "metal"]
+      }
+    },
+    {
+      "id": "female-forward-1993",
+      "note": "阴年女命顺排（癸酉年）",
+      "input": {
+        "calendar": "solar",
+        "year": 1993,
+        "month": 2,
+        "day": 28,
+        "time": {
+          "hour": 15,
+          "minute": 30
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      },
+      "expected": {
+        "usedTime": "1993-02-28 15:30",
+        "pillars": ["癸酉", "甲寅", "庚辰", "甲申"],
+        "lunar": "1993-2-8",
+        "hiddenStems": [["辛"], ["甲", "丙", "戊"], ["戊", "乙", "癸"], ["庚", "壬", "戊"]],
+        "stemTenGods": ["伤官", "偏财", "日主", "偏财"],
+        "hiddenTenGods": [
+          ["劫财"],
+          ["偏财", "七杀", "偏印"],
+          ["偏印", "正财", "伤官"],
+          ["比肩", "食神", "偏印"]
+        ],
+        "kongWang": {
+          "day": "申酉",
+          "year": "戌亥"
+        },
+        "fortune": {
+          "forward": true,
+          "startAfter": "1年9月",
+          "decades": [
+            "乙卯 1994-2003 2-11岁",
+            "丙辰 2004-2013 12-21岁",
+            "丁巳 2014-2023 22-31岁",
+            "戊午 2024-2033 32-41岁",
+            "己未 2034-2043 42-51岁",
+            "庚申 2044-2053 52-61岁",
+            "辛酉 2054-2063 62-71岁",
+            "壬戌 2064-2073 72-81岁",
+            "癸亥 2074-2083 82-91岁",
+            "甲子 2084-2093 92-101岁"
+          ]
+        }
+      },
+      "engineOnly": {
+        "shensha": [
+          "kongWang/dayPillar:shen,you=>year,hour",
+          "kongWang/yearPillar:xu,hai=>",
+          "taoHua/yearBranch:wu=>",
+          "taoHua/dayBranch:you=>year",
+          "tianYiGuiRen/dayStem:chou,wei=>",
+          "tianYiGuiRen/yearStem:mao,si=>",
+          "yiMa/yearBranch:hai=>",
+          "yiMa/dayBranch:yin=>month",
+          "huaGai/yearBranch:chou=>",
+          "huaGai/dayBranch:chen=>",
+          "wenChang/dayStem:hai=>",
+          "yangRen/dayStem:you=>year",
+          "luShen/dayStem:shen=>hour"
+        ],
+        "startAfter": {
+          "years": 1,
+          "months": 9,
+          "days": 1,
+          "hours": 0
+        },
+        "weight": {
+          "status": "ok",
+          "totalQian": 39,
+          "liang": 3,
+          "qian": 9,
+          "parts": {
+            "year": 8,
+            "month": 7,
+            "day": 16,
+            "hour": 8
+          }
+        },
+        "strength": "weak",
+        "favorable": ["earth", "metal"]
+      }
+    }
+  ],
+  "disagreements": []
+}
