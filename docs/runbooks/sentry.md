@@ -100,7 +100,7 @@ eventId=`<resource-id>`。
 | 环境 | 状态 | 证据 |
 |---|---|---|
 | 本地真实事件 | 接收端 200；入库确认待协调者（查询 403） | `<resource-id>`，详见 §4 |
-| main staging 可读堆栈 | 2026-10-14 协调者已核验 web 与 jobs SDK step 的 TypeScript 帧及脱敏；另发现 jobs 重复上报 | [事件与源码映射证据](./evidence/staging-acceptance/2026-10-13/acceptance-2026-10-13j-sentry-verification.json) |
+| main staging 可读堆栈 | 2026-10-14 协调者已核验 web 与 jobs SDK step 的 TypeScript 帧及脱敏；另发现 jobs 重复上报 | 事件与源码映射证据（证据文件随模板验收证据删除，未保留） |
 
 OpenSpec 1.2 已由协调者在 main 勾选；此修复不更改任务勾选、不手动部署 staging。
 本次 Workflow 原始错误补报的 staging 复核待 main 合并自动发布后进行，历史事件不代表修复已上线。

@@ -17,7 +17,7 @@ P2 离线基线：PR #24 / `458fafdef81cf30cc41516eec15fc4d1e7122725`，2026-10-
 
 后续用户已批准上述沙箱订单，但应用确认失败。05:45 UTC 只读核验：PayPal 订单 `APPROVED`、capture 数 0，本地 purchase 为 pending，PayPal payment 与该订单关联 webhook 均为 0，余额仍为原 Stripe 的 1,000。staging 被 main `04fb16c47cf3d0bcbe2f89bbe7c79f217ba6d131` 的自动发布覆盖；实时回调日志在旧 bundle 中再次报 `Illegal invocation`（request ID `<uuid>`）。已再次按 jobs → web 恢复修复：jobs version `<uuid>`，web version `<uuid>`，健康检查 `ok` / `db.up`，应用版本 `04fb16c-paypal-fetch-fix`。用户授权后，修复已提交为 `a6566d1` 并创建草稿 [PR #82](https://github.com/ustclhx/xuanxue/pull/82)，尚未合并；在合入 main 前，自动部署仍可能覆盖临时修复。
 
-05:51 UTC 复核：用户再次确认后，原订单和唯一 Capture `821243239P5069342` 均为 `COMPLETED`，金额 USD 10.00。本地对应 1 条 paid purchase、1 条 succeeded payment、1 条 1,000 积分 grant 和 1 条 +1,000 ledger；余额由 1,000 增至 2,000，与账本及有效批次余额一致。`CHECKOUT.ORDER.APPROVED` 与 `PAYMENT.CAPTURE.COMPLETED` 均为 processed、attempts=1、error=null，capture 完成时间 05:50:09 UTC，完成回调处理时间 05:50:30.848 UTC。只读证据见 [PayPal 积分包 capture](evidence/p2-paypal/credit-pack-capture-2026-10-11.json)。这证明本次实际沙箱积分包购买、验签与唯一入账通过；没有主动重投事件，订阅、续费、取消/恢复、退款和重复回调矩阵仍待验收，3.3、10.4、11.1 不提前勾选。
+05:51 UTC 复核：用户再次确认后，原订单和唯一 Capture `821243239P5069342` 均为 `COMPLETED`，金额 USD 10.00。本地对应 1 条 paid purchase、1 条 succeeded payment、1 条 1,000 积分 grant 和 1 条 +1,000 ledger；余额由 1,000 增至 2,000，与账本及有效批次余额一致。`CHECKOUT.ORDER.APPROVED` 与 `PAYMENT.CAPTURE.COMPLETED` 均为 processed、attempts=1、error=null，capture 完成时间 05:50:09 UTC，完成回调处理时间 05:50:30.848 UTC。PayPal 积分包 capture 只读证据（证据文件随模板验收证据删除，未保留）。这证明本次实际沙箱积分包购买、验签与唯一入账通过；没有主动重投事件，订阅、续费、取消/恢复、退款和重复回调矩阵仍待验收，3.3、10.4、11.1 不提前勾选。
 
 2026-10-05 本机旧 staging 历史记录：已应用 0002–0007（累计 8 条迁移），seed 为 4 套餐、10 报价且当时全部 inactive；`events-staging` 已有 1 producer / 1 consumer。发布版本：jobs `<uuid>`，web `<uuid>`；健康检查、定价页和未配置支付时 503 已核验。上述 inactive 与缺少凭据均为历史状态。
 
@@ -284,7 +284,7 @@ WHERE workspace_id = :'workspace_id' AND remaining < 0;
 | 场景 | 本轮状态 |
 |---|---|
 | 积分包批准、capture、验签、唯一入账 | 已通过，订单 `2A672877DY6250409`，Capture `821243239P5069342`，余额 1,000 → 2,000，见 §1 |
-| 同一付款完成事件两次重投 | 两次 resend 均 202；第二次实际接收 HTTP 200，原付款/批次/流水不变、余额仍 2,000。第一次监听目标错误，缺少 HTTP 结果；补做一次被自动审批拒绝，待用户授权。尚不计完整通过，见 [证据](evidence/p2-paypal/credit-pack-duplicate-2026-10-11.json) |
+| 同一付款完成事件两次重投 | 两次 resend 均 202；第二次实际接收 HTTP 200，原付款/批次/流水不变、余额仍 2,000。第一次监听目标错误，缺少 HTTP 结果；补做一次被自动审批拒绝，待用户授权。尚不计完整通过；证据文件随模板验收证据删除，未保留 |
 | Pro 月付首付 | 真实 $19 首付成功，Sale `7WT17462SJ5165744`，唯一 initial 付款/1,000 积分批次/流水，余额 2,000 → 3,000；付款周期与平台下次账单时间存在差异，待修复，见 §10 |
 | 年付首付、首月发放 | 待独立工作区验收 |
 | 取消/恢复、权益保留、旧事件迟到 | 当前月付取消/恢复及其回调已通过，权益保留且付款/积分不变；旧事件迟到与恢复后自然续费仍待验收，见 §10 |
@@ -305,7 +305,7 @@ WHERE workspace_id = :'workspace_id' AND remaining < 0;
 
 通过账单 UI 周期末取消后，远端 SUSPENDED、本地 canceled / cancel_at_period_end=true；SUSPENDED 回调处理完成后仍保留 Pro 权益、已付周期与余额。随后 UI 恢复，远端 ACTIVE、本地 active / false，恢复 ACTIVATED 回调 processed。三个阶段的 payments、grants、ledger 逐字段一致，对账差额均为 0。订阅最终保持 ACTIVE，下一账单时间 `2026-11-11T10:00:00Z`；尚未验收到期终止、自然续费或旧事件迟到。
 
-脱敏证据：[首付](evidence/p2-paypal/monthly-initial-2026-10-11.json)、[取消回调处理后](evidence/p2-paypal/monthly-canceled-settled-2026-10-11.json)、[恢复](evidence/p2-paypal/monthly-resumed-2026-10-11.json)。
+脱敏证据：首付、取消回调处理后、恢复（证据文件随模板验收证据删除，未保留）。
 
 发现两项缺陷，完整验收仍不通过：
 

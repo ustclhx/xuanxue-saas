@@ -100,7 +100,7 @@ type NormalizedEvent =
 - 税务：暂不启用 Stripe Tax；接入 MoR 时由 MoR 处理。
 - **限制**：正式收款需要 Stripe 支持地区的主体；无主体阶段仅用测试模式开发与联调。
 
-2026-10-18（Asia/Taipei）补充：按协调者指示，使用已登录 Sandbox CLI 的 Test Clocks，复用已有应用 Checkout 的月付/年付独立订阅，在 staging `a2381f875fbd8b1009e48f7024addcb25285aca9` 各推进一个平台账期。两笔 `invoice.paid` 在 endpoint 中实际为 `2026-09-30.endive`、`livemode=false`，分别入账 renewal / 1900 与 19000（USD 最小单位），各只新增首月 1000 积分；各两次重投的 staging HTTP 200、duplicate 事件 ID 与前后账务快照一致，两个空间同快照对账差额均为 0。证据见 [W3 沙箱验收](runbooks/evidence/staging-acceptance/2026-10-17/README.md)。平台时钟推进不代表应用时间、年付后续月份 Cron 或自然到期已发生；真实主体与 live 收款验收移交派生项目，沿用 §8 清单。
+2026-10-18（Asia/Taipei）补充：按协调者指示，使用已登录 Sandbox CLI 的 Test Clocks，复用已有应用 Checkout 的月付/年付独立订阅，在 staging `a2381f875fbd8b1009e48f7024addcb25285aca9` 各推进一个平台账期。两笔 `invoice.paid` 在 endpoint 中实际为 `2026-09-30.endive`、`livemode=false`，分别入账 renewal / 1900 与 19000（USD 最小单位），各只新增首月 1000 积分；各两次重投的 staging HTTP 200、duplicate 事件 ID 与前后账务快照一致，两个空间同快照对账差额均为 0。证据见 W3 沙箱验收（证据文件随模板验收证据删除，未保留）。平台时钟推进不代表应用时间、年付后续月份 Cron 或自然到期已发生；真实主体与 live 收款验收移交派生项目，沿用 §8 清单。
 
 ### PayPal 实现要点
 - 直接使用 REST（`fetch`），自封装：OAuth token（缓存到 KV，按 `expires_in` 过期）、Orders v2、Subscriptions v1、Webhook 验签。
@@ -138,7 +138,7 @@ type NormalizedEvent =
 
 月付退款后按比例保留 `floor(1000 × 1500 / 1900)=789` 积分，回收 211；年付全额退款回收其 5000。余额从原 90 经首付变为 6090，再为 5879、879；各阶段无负批次、重复付款或重复积分来源，对账差额为 0。既有验收付款、订阅与待审退款未变。
 
-四条新增录制及十份 GET 快照位于 `packages/billing/src/paypal/fixtures/recorded/w3-*.json`；原始回调先在线验签 SUCCESS，再脱敏，离线 recorded 测试验证月付/年付历史分类、不可变账期和部分/全额退款关联。使用额外临时 webhook 经自建接收器 + Docker quick tunnel 录制，原 staging webhook 未改动；清理与重复回调结果见 [W3 补充验收证据](runbooks/evidence/staging-acceptance/2026-10-18/README.md)。
+四条新增录制及十份 GET 快照位于 `packages/billing/src/paypal/fixtures/recorded/w3-*.json`；原始回调先在线验签 SUCCESS，再脱敏，离线 recorded 测试验证月付/年付历史分类、不可变账期和部分/全额退款关联。使用额外临时 webhook 经自建接收器 + Docker quick tunnel 录制，原 staging webhook 未改动；清理与重复回调结果见 W3 补充验收证据（证据文件随模板验收证据删除，未保留）。
 
 **移交派生项目**：按 2026-10-18 用户决定，PayPal 自然月/年续费（含恢复后续费）、取消到期终止及年付第 2–12 月真实 Cron 观察按实际账期执行。既有订阅下一扣款为 `2026-11-11T10:00:00Z`；不能用模拟器、DAY Plan、欠款 capture 或隔离库时间夹具替代。Capture 部分退款、争议及其他未录制终态不在本次四项任务已通过证据内。OAuth KV 缓存仍有离线测试，本次不证明线上 KV 命中。
 

@@ -88,7 +88,7 @@
 - [x] 对话列表、对话页（`useChat`）、模型选择（#36、#41）
 - [x] 权益检查与 AI 限流（#33、#38）
 - [x] 决策 12：结算使用「流内最终 usage → 预扣额封顶的估算」；被中断流在 Gateway 不产生日志，不做日志回查（#98；chat 2.9，2026-10-12 已决）。
-- [x] **阶段验收（chat 5.1）**：staging 对话、停止、关页与服务商报错、账本不变式及 Gateway 可比用量核对已通过（#205），change 已归档（#209）；证据见 `docs/runbooks/evidence/staging-acceptance/`。
+- [x] **阶段验收（chat 5.1）**：staging 对话、停止、关页与服务商报错、账本不变式及 Gateway 可比用量核对已通过（#205），change 已归档（#209）；证据随模板验收证据删除，未保留。
 
 ## CI 能力建设
 
@@ -130,7 +130,7 @@
 
 **验收**：production 绑定域名可访问；tag 发布全流程自动化且健康 SHA 匹配；从 Neon 时间点与逻辑备份各恢复一次并通过校验。
 
-**进度（2026-10-18）**：生产演示实例已拆除；拆除前 **v0.1.3** 的完整 SHA 为 `54c537542ad0f2033628c136a7057a705c6d0218`（[发布 run 38910072786](https://github.com/ustclhx/xuanxue/actions/runs/38910072786) 成功）。seed、每日加密备份、两路恢复演练、Sentry source map / 可读堆栈与健康监控均有[历史证据](./runbooks/evidence/production/release-2026-10-16.md)。本次核对 1–5 的模板范围并完成 7.1，13/13；change 保持活动状态，待合并后由协调者归档。2026-10-18 用户决定：原 5.1、6.1 与 Q9 不在模板内验收，移交派生项目上线清单；派生项目开放注册前还需重建自身资源和凭据、按 production runbook 恢复默认 Cron 并复核费用。
+**进度（2026-10-18）**：生产演示实例已拆除；拆除前 **v0.1.3** 的完整 SHA 为 `54c537542ad0f2033628c136a7057a705c6d0218`（[发布 run 38910072786](https://github.com/ustclhx/xuanxue/actions/runs/38910072786) 成功）。seed、每日加密备份、两路恢复演练、Sentry source map / 可读堆栈与健康监控均有历史证据（证据文件随模板验收证据删除，未保留）。本次核对 1–5 的模板范围并完成 7.1，13/13；change 保持活动状态，待合并后由协调者归档。2026-10-18 用户决定：原 5.1、6.1 与 Q9 不在模板内验收，移交派生项目上线清单；派生项目开放注册前还需重建自身资源和凭据、按 production runbook 恢复默认 Cron 并复核费用。
 
 ## Phase 4 · AI 图片 / 视频
 
@@ -140,7 +140,7 @@
 - [x] 媒体回调入口（HMAC + 服务商验签 + 先落库再 sendEvent；#73）
 - [x] 任务列表/详情页、参数表单（由 params_schema 渲染）；后台模型参数 schema 编辑（#72、#75、#96）
 - [x] 并发数限制（空间级事务锁）；DB-only 超时回收，Workflow 自检终态停止（#73；media 4.7，不依赖查询 Workflow 状态）
-- [x] **阶段验收（media 7.1/7.2）**：staging 媒体矩阵（含 `add-staging-fault-injection` 的受控故障）与 fal 视频真实产出已通过（#200、#209），change 已归档；证据见 `docs/runbooks/evidence/staging-acceptance/`。
+- [x] **阶段验收（media 7.1/7.2）**：staging 媒体矩阵（含 `add-staging-fault-injection` 的受控故障）与 fal 视频真实产出已通过（#200、#209），change 已归档；证据随模板验收证据删除，未保留。
 
 ## Phase 5 · 管理后台
 
@@ -159,7 +159,7 @@
 - [x] content-collections 博客（MDX）、法律页、可选文档站（#44；Q2 已决定）
 - [x] SEO：metadata、sitemap、robots、构建期 OG 图片、JSON-LD、hreflang（#53）
 - [x] 暗色模式与主题定制（#37）
-- [x] **阶段验收（marketing 5.2）**：2026-10-11 staging 首页、定价页、博客中英文共六页 Lighthouse SEO / 可访问性均为 100；16/16 任务已同步并归档（#86；[验收证据](./runbooks/evidence/marketing/lighthouse-2026-10-11.md)）。
+- [x] **阶段验收（marketing 5.2）**：2026-10-11 staging 首页、定价页、博客中英文共六页 Lighthouse SEO / 可访问性均为 100；16/16 任务已同步并归档（#86；验收证据随模板验收证据删除，未保留）。
 
 ## Phase 7 · 打磨与可选功能
 
