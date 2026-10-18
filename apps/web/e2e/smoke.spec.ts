@@ -59,3 +59,53 @@ test('register, sign out/in, and buy a credit pack through the local provider', 
   await expect(page.getByRole('table').getByRole('row')).toHaveCount(2)
   expect(externalRequests).toEqual([])
 })
+
+// openspec add-dual-site-foundation 3.2：东方站登录与支付都回到发起页面，界面仍为韩语。
+// 本地用 east.localhost 访问东方站（features/site/site.ts），支付使用 smoke 的本地服务商。
+test('east site sign-in and checkout return to the originating /ko page', async ({
+  browser,
+  baseURL,
+}) => {
+  const east = new URL(baseURL ?? '')
+  east.hostname = 'east.localhost'
+  const context = await browser.newContext({ baseURL: east.origin })
+  const page = await context.newPage()
+  const externalRequests: string[] = []
+  await context.route('**/*', async (route) => {
+    const url = new URL(route.request().url())
+    if (url.origin === east.origin) return route.continue()
+    externalRequests.push(url.origin)
+    await route.abort()
+  })
+  await stubTurnstile(page)
+  await simulateClientIp(page)
+  const korean = async (path: RegExp) => {
+    await expect(page).toHaveURL(path)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
+  }
+
+  const email = `ci-smoke-east-${randomUUID()}@example.com`
+  await register(page, email)
+  // Node 的请求上下文不解析 *.localhost，改在页面内退出登录
+  const signedOut = await page.evaluate(async () => {
+    const response = await fetch('/api/auth/sign-out', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    })
+    return response.ok
+  })
+  expect(signedOut).toBe(true)
+  await login(page, email, `/login?redirect=${encodeURIComponent('/ko')}`)
+  await korean(new RegExp(`^${east.origin}/ko/?$`))
+
+  // 公开页面的购买入口：/app?returnTo= 进入计费页，支付回跳经 billing-return 回到发起页面
+  await page.goto(`/app?returnTo=${encodeURIComponent('/ko')}`)
+  await expect(page).toHaveURL(/\/billing\?returnTo=/)
+  await page.getByLabel('Payment method').selectOption('stripe')
+  await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)
+  await page.getByRole('button', { name: 'Continue to checkout' }).click()
+  await korean(new RegExp(`^${east.origin}/ko/?\\?checkout=success$`))
+  expect(externalRequests).toEqual([])
+  await context.close()
+})

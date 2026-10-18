@@ -26,6 +26,13 @@
 ### 4. 认证与支付跨 Host
 优先方案：两个 Host 各自持有会话 Cookie（同一数据库），Better Auth `trustedOrigins` 包含两站，`baseURL` 按请求 Host 动态取值；Google OAuth 登记两个回调地址；Stripe Checkout 的 success/cancel URL 由请求 Host 生成。任务 3.1 先做 spike 验证 Better Auth 动态 baseURL；若不可行，回退方案为「账号中心固定在西方站 `/account`，东方站通过带签名 state 的跳转完成登录与支付后回跳」，spec 行为不变。
 
+**Spike 结论（2026-10-19，任务 3.1）：可行，采用「两站各自登录」，不实施回退方案。** OAuth 只启用 Google。
+- Better Auth 1.7.7 原生支持动态 baseURL：`baseURL: { allowedHosts, fallback, protocol }`。每个请求按 `Host` 匹配 allowedHosts 得到本请求的 baseURL，并把 allowedHosts 全部加入 trustedOrigins；不匹配的 Host（预览地址等）回退到 `APP_URL`。不信任 `x-forwarded-host`（未开启 `trustedProxyHeaders`）。
+- 实现：`createAuth` 的 `hosts` 依赖（`packages/auth/src/auth.ts` 的 `baseURLOption`），web 传入站点注册表全部域名（`features/site/site.ts` 的 `siteHosts`；`APP_URL` 指向本机时再加入 `east.localhost` / `west.localhost`）。`protocol` 固定取 `APP_URL` 的协议，Cookie 的 `__Secure-` 前缀与单站点时一致，也不额外信任 http 来源。
+- 本地验证（`east.localhost:27070`、`west.localhost:27070`，同一数据库）：两个 Host 分别完成邮箱验证码登录并取得会话；会话 Cookie 为 host-only，东方站 Cookie 在西方站 `get-session` 为 `null`；`sign-in/social` 生成的 Google `redirect_uri` 分别为各自 Host 的 `/api/auth/callback/google`；`Origin` 为未登记来源时返回 403。
+- 上线要求：Google OAuth 客户端登记两个回调 `https://<东方站>/api/auth/callback/google`、`https://<西方站>/api/auth/callback/google`（随 `launch-v1-production` 的真实域名配置）。两站会话互不共享，用户在另一站点需要重新登录，账号、积分与订单仍是同一份数据。
+- 回跳：登录后的 `redirect` 允许本站公开页面路径；Stripe success/cancel 地址由请求所在站点生成，`billing-return` 校验 `returnTo` 后跳回发起页面（任务 3.2）。
+
 ### 5. 工具页外壳
 `features/tools/`：`ToolPage`（H1、导语、内联表单、结果区插槽、内链矩阵、FAQ、合规声明）、`ResultBlock`（可折叠区块，带锚点 id）、`ShareLink`（结果输入编码为 base64url JSON 放在 `#r=` 片段：片段不发往服务器，天然不被索引；页面再额外输出 noindex 仅对 `?r=` 兼容形式）、`useToolEvents`（埋点）。计算引擎是纯 TS 包，在客户端动态 import，表单本身不等待引擎下载（提交时若引擎未就绪显示 <300ms 的骨架）。
 埋点复用 `features/analytics`，事件名固定：`tool_submit`、`result_view`、`block_open`、`tool_link_click`、`optin_submit`、`unlock_click`。

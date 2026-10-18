@@ -2,7 +2,12 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Button, useAppForm } from '@xuanxue/ui'
 import { type ReactNode, useState } from 'react'
 import { z } from 'zod'
-import { authClient, goToApp, signInCallbackURL } from '../../features/auth/auth-client.ts'
+import {
+  authClient,
+  goToApp,
+  signInCallbackURL,
+  signInErrorCallbackURL,
+} from '../../features/auth/auth-client.ts'
 import {
   AuthDivider,
   AuthLayout,
@@ -348,7 +353,7 @@ function MagicLinkSignIn({ siteKey }: { siteKey: string | null }) {
         authClient().signIn.magicLink({
           email: value.email,
           callbackURL: signInCallbackURL(),
-          errorCallbackURL: '/login',
+          errorCallbackURL: signInErrorCallbackURL(),
           fetchOptions: { headers },
         }),
       )
@@ -382,7 +387,7 @@ function OAuthButton({ provider }: { provider: AuthUiOptions['oauth'][number] })
     const { data, error } = await authClient().signIn.social({
       provider,
       callbackURL: signInCallbackURL(),
-      errorCallbackURL: '/login',
+      errorCallbackURL: signInErrorCallbackURL(),
     })
     if (data?.url) {
       window.location.assign(data.url)

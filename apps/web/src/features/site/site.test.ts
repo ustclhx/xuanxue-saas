@@ -1,7 +1,7 @@
 import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { gateSiteRequest, routeSite } from './gate.ts'
-import { resolveSite, siteOfLocale, siteOrigin } from './site.ts'
+import { requestSiteOrigin, resolveSite, siteHosts, siteOfLocale, siteOrigin } from './site.ts'
 
 const EAST = 'https://xuanxue-east.example'
 const WEST = 'https://xuanxue-west.example'
@@ -187,5 +187,34 @@ describe('gateSiteRequest', () => {
     const single = { ...config, i18n: { ...config.i18n, enabled: false } }
     expect(routeSite(new URL(`${WEST}/ko/`), single)).toEqual(pass)
     expect(routeSite(new URL(`${EAST}/pricing`), single)).toEqual(pass)
+  })
+})
+
+describe('两站各自登录的 Host 白名单（决策 4）', () => {
+  it('生产只接受注册表中的域名；APP_URL 指向本机时加入同端口的 <站点>.localhost', () => {
+    expect(siteHosts(config, WEST)).toEqual([
+      'xuanxue-east.example',
+      'xuanxue-west.example',
+      'www.xuanxue-west.example',
+    ])
+    expect(siteHosts(config, 'http://localhost:27070')).toEqual([
+      'xuanxue-east.example',
+      'xuanxue-west.example',
+      'www.xuanxue-west.example',
+      'east.localhost:27070',
+      'west.localhost:27070',
+    ])
+  })
+
+  it('支付回跳使用请求所在站点；未登记的 Host 回退到 APP_URL', () => {
+    expect(requestSiteOrigin(`${EAST}/_serverFn/x`, config, WEST)).toBe(EAST)
+    expect(requestSiteOrigin('https://evil.example/_serverFn/x', config, WEST)).toBe(WEST)
+    expect(
+      requestSiteOrigin(
+        'http://east.localhost:27070/_serverFn/x',
+        config,
+        'http://localhost:27070',
+      ),
+    ).toBe('http://east.localhost:27070')
   })
 })

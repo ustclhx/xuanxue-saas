@@ -6,6 +6,8 @@ import {
   organizationClient,
   twoFactorClient,
 } from 'better-auth/client/plugins'
+import { templateConfig } from '../../server/template-config.ts'
+import { safeReturnPath } from '../site/return-path.ts'
 
 /**
  * 浏览器端的 Better Auth 客户端（接口挂在同源的 /api/auth/*）。
@@ -42,20 +44,32 @@ export function authClient() {
 /** 登录成功后的去处；/app 再重定向到当前空间（docs/04-auth-and-tenancy.md §3） */
 export const AFTER_SIGN_IN_PATH = '/app'
 
-/** Only these local destinations may be resumed after authentication. */
+/**
+ * Only these local destinations may be resumed after authentication: the account page,
+ * a validated invitation, or a page on the current site (登录后回到发起页面，决策 4).
+ */
 export function signInDestination(search: string): string {
   const redirect = new URLSearchParams(search).get('redirect')
-  return redirect &&
-    (redirect === '/account' ||
+  if (
+    redirect === '/account' ||
+    (redirect &&
       /^\/accept-invitation\?id=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
         redirect,
       ))
-    ? redirect
-    : AFTER_SIGN_IN_PATH
+  )
+    return redirect
+  return safeReturnPath(redirect, templateConfig.i18n.locales) ?? AFTER_SIGN_IN_PATH
 }
 
 export function signInCallbackURL() {
   return signInDestination(window.location.search)
+}
+
+/** OAuth 失败时回到当前登录页（保留语言前缀与 redirect），Better Auth 追加 `error` */
+export function signInErrorCallbackURL() {
+  const url = new URL(window.location.href)
+  url.searchParams.delete('error')
+  return `${url.pathname}${url.search}`
 }
 
 /** 整页跳转：让服务端以新的会话 Cookie 渲染应用区 */

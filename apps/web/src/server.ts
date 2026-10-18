@@ -37,6 +37,7 @@ import { assertSignupAdmission } from './features/growth/service.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
+import { siteHosts } from './features/site/site.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
 import { checkEnv, webEnvSchema } from './server/cloudflare/env.ts'
@@ -187,6 +188,7 @@ function createCloudflareWebRuntime(
       cache: authCache,
       rateLimiter,
       clientIp: requestMeta.clientIp,
+      hosts: siteHosts(templateConfig, config.APP_URL),
       sendEmail,
       deletionSteps: createBillingDeletionSteps(config, db, cache),
       beforeUserCreate: async (user, headers) => {

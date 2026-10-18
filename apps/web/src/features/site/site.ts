@@ -44,3 +44,23 @@ export function siteOrigin(id: SiteId, from: URL, config: SitesConfig): string {
   const [host] = config.sites[id].hosts
   return host ? `https://${host}` : from.origin
 }
+
+/**
+ * 认证与支付回跳接受的站点 Host（决策 4「两站各自登录」）：注册表中的全部域名；
+ * `appUrl` 指向本机时再加入同端口的 `<站点 id>.localhost`，生产部署不接受本地 Host。
+ */
+export function siteHosts(config: SitesConfig, appUrl: string): string[] {
+  const app = new URL(appUrl)
+  const hosts: string[] = SITE_IDS.flatMap((id) => [...config.sites[id].hosts])
+  if (app.hostname === 'localhost' || app.hostname === '127.0.0.1')
+    for (const id of SITE_IDS) hosts.push(`${id}${LOCAL_SUFFIX}${app.port ? `:${app.port}` : ''}`)
+  return hosts
+}
+
+/** 请求所在站点的 origin；Host 不在 siteHosts 中（预览地址等）时回退到 `appUrl` */
+export function requestSiteOrigin(requestUrl: string, config: SitesConfig, appUrl: string): string {
+  const url = new URL(requestUrl)
+  return siteHosts(config, appUrl).includes(url.host.toLowerCase())
+    ? url.origin
+    : new URL(appUrl).origin
+}
