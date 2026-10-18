@@ -81,7 +81,17 @@ export function BaziHome({ focusBlock }: { focusBlock?: string }) {
         { question: m.bazi_home_faq_q3(), answer: m.bazi_home_faq_a3() },
       ]}
     >
-      <ReadingSlots tool="bazi" />
+      <ReadingSlots
+        tool="bazi"
+        optin={
+          tool.state.status === 'done'
+            ? {
+                result: { kind: 'bazi', dayMaster: tool.state.result.dayMaster },
+                share: toShareInput(tool.submitted ?? tool.values),
+              }
+            : null
+        }
+      />
     </ToolPage>
   )
 }

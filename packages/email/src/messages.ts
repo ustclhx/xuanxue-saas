@@ -1,4 +1,5 @@
 import type { EmailLocale } from './locale.ts'
+import { readingSummaryCopy } from './reading-summary.ts'
 
 /** 各模板的输入（必须可 JSON 序列化：3.2 会把它放进 EMAIL_QUEUE 消息）。 */
 export interface EmailTemplateProps {
@@ -16,6 +17,15 @@ export interface EmailTemplateProps {
 
   /** 付费详批生成完成，附报告链接 */
   'reading-ready': { readonly url: string }
+  'reading-summary': {
+    readonly name: string
+    readonly subject: string
+    readonly paragraphs: readonly string[]
+    readonly resultUrl: string
+    readonly unlockUrl: string
+    readonly unsubscribeUrl: string
+    readonly disclaimer: string
+  }
 
   /** 注册后的邮箱验证 */
   'verify-email': { readonly url: string }
@@ -59,6 +69,7 @@ export interface EmailCopy {
   readonly paragraphs: readonly string[]
   /** 按钮；有按钮时同时显示可复制的链接 */
   readonly action?: { readonly label: string; readonly url: string }
+  readonly links?: readonly { readonly label: string; readonly url: string }[]
   /** 验证码 */
   readonly code?: string
   /** 按钮无法点击时的提示 */
@@ -75,6 +86,7 @@ const minutesEn = (n: number) => (n === 1 ? '1 minute' : `${n} minutes`)
 const daysEn = (n: number) => (n === 1 ? '1 day' : `${n} days`)
 
 const en: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('en', props),
   'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
     subject: `You are invited to ${appName}`,
     preview: 'Your registration invitation is ready.',
@@ -221,6 +233,7 @@ const en: CopyBuilders = {
 }
 
 const zhHant: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('zh-Hant', props),
   'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
     subject: `邀請你註冊 ${appName}`,
     preview: '你的註冊邀請已就緒。',
@@ -355,6 +368,7 @@ const zhHant: CopyBuilders = {
 }
 
 const ko: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('ko', props),
   'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
     subject: `${appName}에 초대합니다`,
     preview: '가입 초대가 준비되었습니다.',

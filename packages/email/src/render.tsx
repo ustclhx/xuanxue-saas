@@ -42,13 +42,15 @@ export async function renderEmail<N extends EmailTemplateName>(
   const copy = build(props, { appName: context.appName, recipientName: context.recipientName })
   if (copy.action !== undefined) assertHttpUrl(copy.action.url)
 
+  for (const link of copy.links ?? []) assertHttpUrl(link.url)
+
   const element = <EmailLayout copy={copy} locale={locale} appName={context.appName} />
   const [html, text] = await Promise.all([
     render(element),
     render(element, { plainText: true, htmlToTextOptions: { selectors: plainTextHeadings } }),
   ])
   const headers: EmailHeaders | undefined =
-    template === 'newsletter'
+    template === 'newsletter' || template === 'reading-summary'
       ? {
           'List-Unsubscribe': `<${(props as EmailTemplateProps['newsletter']).unsubscribeUrl}>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
