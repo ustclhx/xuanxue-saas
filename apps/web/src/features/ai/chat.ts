@@ -41,6 +41,7 @@ import { type Entitlements, getEntitlements } from '@xuanxue/entitlements'
 import type { BackgroundTasks, RateLimiter } from '@xuanxue/platform'
 import { AppError, newId, toErrorResponse } from '@xuanxue/shared'
 import { log, setLogContext } from '@xuanxue/shared/log'
+import type { ModelMessage } from 'ai'
 import { and, asc, eq, inArray, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
@@ -183,9 +184,16 @@ export async function startWorkspaceChat(
   context: {
     workspaceId: string
     userId: string
-    prompt?: { role: 'system' | 'user' | 'assistant'; text: string }[]
+    prompt?: {
+      role: 'system' | 'user' | 'assistant'
+      text: string
+      /** 如固定 system 前缀的 prompt caching 标记 */
+      providerOptions?: ModelMessage['providerOptions']
+    }[]
     maxOutputTokens?: number | undefined
     temperature?: number | undefined
+    /** 覆盖模型定价快照（付费详批按次固定价格）；预扣、检查点与兜底结算都读这份快照 */
+    pricing?: Pricing
   },
   deps: WorkspaceChatDeps,
 ) {
@@ -215,7 +223,7 @@ export async function startWorkspaceChat(
   )
   if (model.kind !== 'text')
     throw new AppError(MODEL_UNAVAILABLE, 'Model is not available', { status: 404 })
-  const pricing = model.pricing
+  const pricing = context.pricing ?? model.pricing
   // fresh 调用闸门已通过，此处固定模式；后续模型修改不改变在途语义。
   const fault = parseAcceptanceFault(model)
   const faultMode =
@@ -371,7 +379,13 @@ export async function startWorkspaceChat(
   const result = createChatStream({
     model: streamModel,
     provider: model.provider,
-    messages: prompt.map((message) => ({ role: message.role, content: message.text })),
+    messages: prompt.map((message) => ({
+      role: message.role,
+      content: message.text,
+      ...('providerOptions' in message && message.providerOptions
+        ? { providerOptions: message.providerOptions }
+        : {}),
+    })) as ModelMessage[],
     thinking: supportsTextThinking(model.provider, thinking)
       ? (input.thinking ?? textConfig.thinking.default === 'on')
       : undefined,

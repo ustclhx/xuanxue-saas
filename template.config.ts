@@ -37,7 +37,7 @@ export default defineTemplateConfig({
     enabled: true, // 计费依赖积分；关闭计费时同时关闭 AI
     providers: ['stripe'], // 结账页展示顺序
     currency: 'usd',
-    signupBonusCredits: 100, // 用户领取时触发邮箱验证，验证完成后发放
+    signupBonusCredits: 0, // 不送注册积分，避免注册即白拿一次详批（add-reading-monetization 决策 4）
     pastDueGraceDays: 7, // past_due 期间保留权益的天数
     subscriptionCreditGraceHours: 24, // 订阅积分批次在周期末之后的额外有效期
     overage: {

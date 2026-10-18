@@ -1,5 +1,5 @@
 import { newId } from '@xuanxue/shared'
-import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 
 /** 等候名单按规范化邮箱去重，邀请凭据只保存在服务端。 */
 export const waitlist = pgTable('waitlist', {
@@ -27,6 +27,13 @@ export const newsletterSubscriber = pgTable(
     confirmToken: uuid('confirm_token').notNull().$defaultFn(newId),
     confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
     unsubscribedAt: timestamp('unsubscribed_at', { withTimezone: true }),
+    /** 最近一次订阅的来源工具、主题、站点与语言（add-reading-monetization 决策 6） */
+    sourceTool: text('source_tool'),
+    topic: text('topic'),
+    site: text('site'),
+    locale: text('locale'),
+    /** 该次结构化结果，确认后用于发送解读邮件，发送后清空 */
+    lastResult: jsonb('last_result').$type<Record<string, unknown>>(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()

@@ -32,6 +32,7 @@ const templatePropsSchemas = {
     note: z.string().max(2000),
     supportEmail: z.email(),
   }),
+  'reading-ready': z.object({ url }),
   'verify-email': z.object({ url }),
   otp: z.object({
     otp: z.string().min(1),

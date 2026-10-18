@@ -72,18 +72,20 @@ describe('catalog on isolated PostgreSQL', () => {
         const plans = await tx
           .select()
           .from(plan)
-          .where(inArray(plan.key, ['free', 'pro', 'team', 'credit_pack']))
+          .where(inArray(plan.key, ['free', 'pro', 'team', 'reading_single', 'reading_five']))
         const catalogIds = plans.map((p) => p.id)
         expect(plans.find((p) => p.key === 'free')?.features).toEqual(DEFAULT_FREE_FEATURES)
         expect(
-          plans.filter((p) => ['free', 'pro', 'team', 'credit_pack'].includes(p.key)),
-        ).toHaveLength(4)
+          plans.filter((p) =>
+            ['free', 'pro', 'team', 'reading_single', 'reading_five'].includes(p.key),
+          ),
+        ).toHaveLength(5)
         let prices = await tx
           .select()
           .from(planPrice)
           .where(inArray(planPrice.planId, catalogIds))
           .orderBy(planPrice.id)
-        expect(prices).toHaveLength(10)
+        expect(prices).toHaveLength(12)
         const first = prices[0]
         if (!first) throw new Error('Missing seeded price')
         const [historical] = await tx

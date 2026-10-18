@@ -30,6 +30,7 @@ pattern workspace_table() {
     `payment`,
     `paymentRefund`,
     `purchase`,
+    `reading`,
     `refundRequest`,
     `subscription`
   }
