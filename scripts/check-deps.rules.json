@@ -118,6 +118,7 @@
     "apps/jobs/test/fixtures/media-node-storage.ts": ["node"]
   },
   "packageLayers": {
+    "@xuanxue/bazi": [],
     "@xuanxue/numerology": ["@xuanxue/shared"],
     "@xuanxue/tarot": ["@xuanxue/shared"]
   }

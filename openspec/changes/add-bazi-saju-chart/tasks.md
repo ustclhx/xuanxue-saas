@@ -2,11 +2,11 @@
 
 ## 1. 排盘引擎包
 
-- [ ] 1.1 创建 `packages/bazi`（依赖 tyme4ts，devDependency lunar-javascript），更新 `scripts/check-deps.rules.json`；实现输入校验与时间换算（历史时区/夏令时表、真太阳时）；验证：`pnpm check:deps` 与时间换算单元测试通过
-- [ ] 1.2 实现四柱、藏干、十神、五行计分、身强弱、喜用神（design 决策 4）并写 `packages/bazi/README.md` 说明规则；验证：单元测试覆盖规则表
-- [ ] 1.3 实现大运（起运年龄、十步、起止年份）、流年、神煞表（空亡/桃花/天乙贵人/驿马/华盖/文昌/羊刃/禄神）、八字重量、无时辰降级；验证：单元测试覆盖 spec「不知道时辰」场景
-- [ ] 1.4 生成 ≥ 40 个双源一致的样例 fixtures 并加入回归测试，`ENGINE_VERSION` 写入输出；验证：`pnpm --filter @xuanxue/bazi test` 全部通过
-- [ ] 1.5 紫微基础命盘（iztro 封装，统一输入）与사주궁합计分（含分项明细）；验证：单元测试覆盖 spec 紫微无时辰与궁합可解释场景
+- [x] 1.1 创建 `packages/bazi`（依赖 tyme4ts，devDependency lunar-javascript），更新 `scripts/check-deps.rules.json`；实现输入校验与时间换算（历史时区/夏令时表、真太阳时）；验证：`pnpm check:deps` 与时间换算单元测试通过
+- [x] 1.2 实现四柱、藏干、十神、五行计分、身强弱、喜用神（design 决策 4）并写 `packages/bazi/README.md` 说明规则；验证：单元测试覆盖规则表
+- [x] 1.3 实现大运（起运年龄、十步、起止年份）、流年、神煞表（空亡/桃花/天乙贵人/驿马/华盖/文昌/羊刃/禄神）、八字重量、无时辰降级；验证：单元测试覆盖 spec「不知道时辰」场景
+- [x] 1.4 生成 ≥ 40 个双源一致的样例 fixtures 并加入回归测试，`ENGINE_VERSION` 写入输出；验证：`pnpm --filter @xuanxue/bazi test` 全部通过
+- [x] 1.5 紫微基础命盘（iztro 封装，统一输入）与사주궁합计分（含分项明细）；验证：单元测试覆盖 spec 紫微无时辰与궁합可解释场景
 
 ## 2. 繁中页面
 
