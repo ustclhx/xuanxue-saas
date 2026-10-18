@@ -57,17 +57,15 @@ for (const locale of locales) {
 }
 
 test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request }) => {
-  const response = await request.get('/sitemap.xml')
+  const response = await request.get('/sitemap/en.xml')
   expect(response.status()).toBe(200)
   const xml = await response.text()
-  for (const locale of locales) {
-    const prefix = locale === defaultLocale ? '' : localePrefix(locale)
-    if (templateConfig.features.blog) expect(xml).toContain(`${prefix}/blog/welcome</loc>`)
-  }
+  if (templateConfig.features.blog) expect(xml).toContain('/blog/welcome</loc>')
   for (const path of ['/app', '/admin', '/api', 'draft-example', 'scheduled-example'])
     expect(xml).not.toContain(path)
   const rules = await (await request.get('/robots.txt')).text()
-  for (const path of ['/app', '/admin', '/api']) expect(rules).toContain(`Disallow: ${path}`)
+  // 默认 localhost 属于预览 Host，禁止全部抓取；已知 Host 的规则由 dual-site-seo 验证。
+  expect(rules).toContain('Disallow: /')
   for (const image of await Promise.all(
     ['/og/en/legal/terms.png', '/og/zh-hant/legal/terms.png', '/og/ko/legal/terms.png'].map(
       (path) => request.get(path),

@@ -13,6 +13,12 @@ const font = new CustomFont(
   { weight: 400 },
 )
 
+const koreanFont = new CustomFont(
+  'Noto Sans KR',
+  readFileSync(new URL('./seo/NotoSansKR-Regular.otf', import.meta.url)),
+  { weight: 400 },
+)
+
 function pages() {
   // content-collections 输出是 JSON 数组的默认导出；每次读取避免 dev 热更新沿用 ESM 缓存。
   const read = <T>(name: string): T =>
@@ -34,7 +40,7 @@ export async function renderOgImage(title: string): Promise<Uint8Array> {
   const response = await ImageResponse.create(createElement(OgCard, { title }), {
     width: 1200,
     height: 630,
-    fonts: [font],
+    fonts: [font, koreanFont],
   })
   return new Uint8Array(await response.arrayBuffer())
 }

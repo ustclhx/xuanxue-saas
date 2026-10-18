@@ -3,7 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "env": ["APP_URL", "EAST_URL", "WEST_URL"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]

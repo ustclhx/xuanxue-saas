@@ -8,10 +8,10 @@
 
 ## 2. SEO 与预渲染
 
-- [ ] 2.1 `pageHead` 改为跨站 hreflang（绝对地址）+ x-default 规则，`publicPages` 按站点过滤；验证：`features/seo` 单元测试覆盖 spec `seo` 两个修改的场景
-- [ ] 2.2 站点地图索引 + 按语言子站点地图、robots 按 Host 输出，禁止抓取 `/app`、`/admin`、`/api` 与分享链接；验证：单元测试 + `curl -H 'Host: xuanxue-east.example' localhost:$WEB_PORT/sitemap.xml` 输出符合场景
-- [ ] 2.3 预渲染按站点进行：入口页来自站点注册表，新增 `TOOL_ROUTES` 注册点，`EAST_URL`/`WEST_URL` 构建变量；验证：`pnpm build` 后 `dist/client` 下两站入口页与 hreflang 绝对地址正确，`prerender.test.ts` 更新通过
-- [ ] 2.4 东方站入口页（双语卡片、按浏览器语言高亮、无自动跳转）；验证：e2e 用 `ko-KR` locale 打开东方站 `/`，断言无跳转且韩语入口高亮
+- [x] 2.1 `pageHead` 改为跨站 hreflang（绝对地址）+ x-default 规则，`publicPages` 按站点过滤；验证：`features/seo` 单元测试覆盖 spec `seo` 两个修改的场景
+- [x] 2.2 站点地图索引 + 按语言子站点地图、robots 按 Host 输出，禁止抓取 `/app`、`/admin`、`/api` 与分享链接；验证：单元测试 + `curl -H 'Host: xuanxue-east.example' localhost:$WEB_PORT/sitemap.xml` 输出符合场景
+- [x] 2.3 预渲染按站点进行：入口页来自站点注册表，新增 `TOOL_ROUTES` 注册点，`EAST_URL`/`WEST_URL` 构建变量；验证：`pnpm build` 后 `dist/client` 下两站入口页与 hreflang 绝对地址正确，`prerender.test.ts` 更新通过
+- [x] 2.4 东方站入口页（双语卡片、按浏览器语言高亮、无自动跳转）；验证：e2e 用 `ko-KR` locale 打开东方站 `/`，断言无跳转且韩语入口高亮
 
 ## 3. 跨站认证与支付
 

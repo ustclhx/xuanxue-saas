@@ -11,6 +11,8 @@ export interface ToolRoute {
   readonly site: SiteId
   /** 各语言的页面路径（不含语言前缀，以 `/` 开头），没有对应语言版本时省略 */
   readonly paths: Readonly<Partial<Record<string, string>>>
+  /** 可选 SEO 描述；未提供时沿用标题 */
+  readonly descriptions?: Readonly<Partial<Record<string, string>>>
   /** 各语言的导航名称 */
   readonly titles: Readonly<Partial<Record<string, string>>>
 }

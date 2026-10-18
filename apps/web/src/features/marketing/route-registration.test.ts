@@ -12,6 +12,7 @@ const publicPaths = [
   '/api/newsletter/',
   '/api/newsletter/confirm',
   '/api/waitlist/',
+  '/sitemap/$file',
   '/sitemap.xml',
   '/robots.txt',
 ]
@@ -43,6 +44,7 @@ function mockRouteTree() {
       '/api/newsletter/',
       '/api/newsletter/confirm',
       '/api/waitlist/',
+      '/sitemap/$file',
       '/sitemap.xml',
       '/robots.txt',
     ]

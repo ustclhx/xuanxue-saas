@@ -1,13 +1,18 @@
 import type { AnyRouteMatch } from '@tanstack/react-router'
+import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { TOOL_ROUTES } from '../tools/registry.ts'
+import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
 export interface SeoPage {
   path: string
+  siteEntry?: SiteId
   title: string
   description: string
   locale: string
+  alternates?: Readonly<Partial<Record<string, string>>>
   cover?: string | undefined
   date?: string | undefined
 }
@@ -26,18 +31,35 @@ export function absoluteUrl(appUrl: string, path: string): string {
 }
 
 export function alternateLinks(
-  appUrl: string,
+  _appUrl: string,
   path: string,
   languages: readonly string[] = locales,
+  translations?: Readonly<Partial<Record<string, string>>>,
+  locale = languages[0] ?? defaultLocale,
 ) {
-  return [...languages, 'x-default'].map((language) => ({
-    rel: 'alternate',
-    hrefLang: language,
-    href: absoluteUrl(
-      appUrl,
-      localizedPath(path, language === 'x-default' ? defaultLocale : language),
-    ),
-  }))
+  const tool = TOOL_ROUTES.find((route) => route.paths[locale] === path)
+  const paths = translations ?? tool?.paths ?? Object.fromEntries(languages.map((l) => [l, path]))
+  const links = Object.entries(paths).flatMap(([language, translatedPath]) =>
+    translatedPath && locales.some((locale) => locale === language)
+      ? [
+          {
+            rel: 'alternate',
+            hrefLang: language,
+            href: absoluteUrl(localeOrigin(language), localizedPath(translatedPath, language)),
+          },
+        ]
+      : [],
+  )
+  return [
+    ...links,
+    {
+      rel: 'alternate',
+      hrefLang: 'x-default',
+      href: paths.en
+        ? absoluteUrl(seoSiteOrigin('west'), localizedPath(paths.en, 'en'))
+        : absoluteUrl(localeOrigin(locale), '/'),
+    },
+  ]
 }
 
 const staticCopy: Record<string, Record<string, readonly [string, string]>> = {
@@ -102,12 +124,25 @@ export function originFromMatches(
   return (root.loaderData as { appUrl: string }).appUrl
 }
 
-export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
-  return `/og${localePrefix(page.locale)}${page.path === '/' ? '/index' : page.path}.png`
+export function eastEntryPage(): SeoPage {
+  return {
+    path: '/',
+    locale: 'zh-Hant',
+    siteEntry: 'east',
+    title: '選擇語言 · 언어 선택',
+    description: '繁體中文 · 한국어',
+  }
+}
+
+export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale' | 'siteEntry'>): string {
+  if (page.siteEntry) return `/og/${page.siteEntry}/index.png`
+  const path = page.path.replace(/\/+$/, '') || '/'
+  return `/og${localePrefix(page.locale)}${path === '/' ? '/index' : path}.png`
 }
 
 export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly unknown[] = []) {
-  const url = absoluteUrl(appUrl, localizedPath(page.path, page.locale))
+  appUrl = page.siteEntry ? seoSiteOrigin(page.siteEntry) : localeOrigin(page.locale)
+  const url = absoluteUrl(appUrl, page.siteEntry ? '/' : localizedPath(page.path, page.locale))
   const title = `${page.title} | ${templateConfig.app.name}`
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
@@ -130,7 +165,10 @@ export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly
       { name: 'twitter:image', content: image },
       { name: 'twitter:image:alt', content: title },
     ],
-    links: [{ rel: 'canonical', href: url }, ...alternateLinks(appUrl, page.path)],
+    links: [
+      { rel: 'canonical', href: url },
+      ...alternateLinks(appUrl, page.path, locales, page.alternates, page.locale),
+    ],
     scripts: structuredData.map((data) => ({
       type: 'application/ld+json',
       children: JSON.stringify(data).replace(/</g, '\\u003c'),

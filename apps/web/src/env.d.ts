@@ -5,6 +5,9 @@ declare namespace Cloudflare {
   type MediaEnv = import('@xuanxue/ai').MediaRuntimeEnv
   type TextEnv = import('@xuanxue/ai').TextModelEnv
   interface Env extends PaymentEnv, StorageEnv, MediaEnv, TextEnv {
+    ASSETS: Fetcher
+    /** 仅构建 preview 的本地变量，不部署 */
+    SITE_PRERENDER_TOKEN?: string
     AI_FAULT_INJECTION?: string
     SENTRY_DSN?: string
     SENTRY_ENVIRONMENT?: 'development' | 'staging' | 'production' | 'smoke'

@@ -9,7 +9,7 @@ export function getRouter() {
     routeTree.addChildren(
       Object.values(routeTree.children ?? {}).filter(
         (route) =>
-          !/^\/(?:pricing|blog|docs|legal|newsletter|waitlist|api\/(?:newsletter|waitlist)|sitemap\.xml|robots\.txt)(?:\/|$)/.test(
+          !/^\/(?:pricing|blog|docs|legal|newsletter|waitlist|api\/(?:newsletter|waitlist)|sitemap|sitemap\.xml|robots\.txt)(?:\/|$)/.test(
             route.options.path ?? '',
           ),
       ),
