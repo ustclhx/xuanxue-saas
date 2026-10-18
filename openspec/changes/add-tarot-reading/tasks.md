@@ -8,9 +8,9 @@
 
 ## 2. 抽牌页面
 
-- [ ] 2.1 `features/tools/tarot`：铺牌、洗牌/切牌/翻牌交互（CSS 动画、reduced-motion 降级、键盘可选）、问句模板、不能问的问题、牌阵互导、分享与埋点；验证：组件测试 + e2e 用 reducedMotion 抽三张牌
-- [ ] 2.2 西方站四个牌阵页（英语）；验证：e2e 凯尔特十字出 10 张不重复牌，是/否显示依据
-- [ ] 2.3 东方站 zh-Hant、ko 四个牌阵页（牌阵与牌位文案本地化）与跨站 hreflang；验证：e2e 每种语言抽三张牌，SEO 单测断言三语 hreflang 互指
+- [x] 2.1 `features/tools/tarot`：铺牌、洗牌/切牌/翻牌交互（CSS 动画、reduced-motion 降级、键盘可选）、问句模板、不能问的问题、牌阵互导、分享与埋点；验证：组件测试 + e2e 用 reducedMotion 抽三张牌
+- [x] 2.2 西方站四个牌阵页（英语）；验证：e2e 凯尔特十字出 10 张不重复牌，是/否显示依据
+- [x] 2.3 东方站 zh-Hant、ko 四个牌阵页（牌阵与牌位文案本地化）与跨站 hreflang；验证：e2e 每种语言抽三张牌，SEO 单测断言三语 hreflang 互指
 
 ## 3. 牌义页
 

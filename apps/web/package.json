@@ -36,6 +36,7 @@
     "@xuanxue/platform": "workspace:*",
     "@xuanxue/shared": "workspace:*",
     "@xuanxue/storage": "workspace:*",
+    "@xuanxue/tarot": "workspace:*",
     "@xuanxue/ui": "workspace:*",
     "ai": "^7.0.127",
     "better-auth": "^1.7.7",
