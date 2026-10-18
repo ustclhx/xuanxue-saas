@@ -114,12 +114,13 @@ test('wrong deployed version times out and emits only status and version', async
   assert.equal(
     await waitHealthy(url, 'new-sha', {
       intervalMs: 20,
-      timeoutMs: 100,
+      // 留出足够轮次，避免 CI 上首个请求较慢时只拿到一次响应
+      timeoutMs: 300,
       write: (line) => lines.push(line),
     }),
     1,
   )
-  assert.ok(performance.now() - started >= 90)
+  assert.ok(performance.now() - started >= 290)
   assert.ok(lines.length >= 2)
   assert.ok(lines.filter((line) => line === '{"status":200,"version":"old-sha"}').length >= 2)
   // 总时限附近的最后一轮可在取得响应前中止，同样只能记录两个允许字段。
