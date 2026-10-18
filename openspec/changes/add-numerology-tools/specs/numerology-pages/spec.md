@@ -14,7 +14,7 @@
 - **THEN** 同页显示生命灵数、计算步骤与「Read the full meaning of Life Path N」链接
 
 ### Requirement: 数字页
-`/life-path-number/<n>/` SHALL 为 1–9、11、22、33 各一页，包含性格、爱情、事业、相性、名人示例与 FAQ，页面内嵌首页计算器；每页 SHALL 链接到其他 11 个数字页。
+`/life-path-number/<n>/` SHALL 为 1–9、11、22、33 各一页，包含性格、爱情、事业、相性、计算样例与 FAQ（不写无法核实的名人生日），页面内嵌首页计算器；每页 SHALL 链接到其他 11 个数字页。
 
 #### Scenario: 访问大师数页
 - **WHEN** 访客打开 `/life-path-number/22/`
