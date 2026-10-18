@@ -43,6 +43,25 @@ const conceptBlocks = {
     십신: 'ten-gods',
   },
 }
+// 跨语言共用 ASCII 文件标识，原语言 slug 继续用于 URL 与展示。
+const conceptKeys = {
+  luck: ['大運', '대운'],
+  'useful-god': ['喜用神', '용신'],
+  elements: ['五行', '오행'],
+  strength: ['身強身弱', '신강신약'],
+  void: ['空亡', '공망'],
+  shensha: ['神煞', '신살'],
+  weight: ['八字重量'],
+  'day-pillar': ['일주'],
+  'ten-gods': ['十神', '십신'],
+}
+
+function conceptFilename(slug) {
+  const key = Object.entries(conceptKeys).find(([, slugs]) => slugs.includes(slug))?.[0]
+  assert.ok(key && /^[a-z]+(?:-[a-z]+)*$/.test(key), `missing ASCII concept key: ${slug}`)
+  return key
+}
+
 const titles = new Set()
 const descriptions = new Set()
 const totals = { 'zh-Hant': [], ko: [], en: [] }
@@ -137,7 +156,9 @@ function checkExamples(tree, number) {
 }
 
 async function checkFile(collection, locale, slug) {
-  const file = new URL(`${collection}/${locale}/${slug}.mdx`, root)
+  const isConcept = collection === 'concepts'
+  const filename = isConcept ? conceptFilename(slug) : slug
+  const file = new URL(`${collection}/${locale}/${filename}.mdx`, root)
   const source = await readFile(file, 'utf8')
   const match = source.match(/^---\n([\s\S]+?)\n---\n\n([\s\S]+)$/)
   assert.ok(match, 'frontmatter delimiters')
@@ -145,7 +166,6 @@ async function checkFile(collection, locale, slug) {
   assert.equal(document.errors.length, 0, 'valid YAML with unique keys')
   const data = document.toJS()
   const content = match[2]
-  const isConcept = collection === 'concepts'
   assert.deepEqual(
     Object.keys(data).sort(),
     [
@@ -155,7 +175,7 @@ async function checkFile(collection, locale, slug) {
       'locale',
       'faq',
       'updated',
-      isConcept ? 'block' : 'number',
+      ...(isConcept ? ['block', 'conceptKey'] : ['number']),
     ].sort(),
   )
   for (const field of ['title', 'description', 'slug', 'locale', 'updated']) {
@@ -207,6 +227,7 @@ async function checkFile(collection, locale, slug) {
   const plain = visibleText(processor.parse(prose))
   let count
   if (isConcept) {
+    assert.equal(data.conceptKey, filename, 'conceptKey must match the shared ASCII filename')
     assert.equal(data.block, conceptBlocks[locale][slug])
     assert.ok(data.title.includes(slug), 'concept title keyword')
     const heading = locale === 'ko' ? '만세력 결과에서 보는 법' : '在排盤結果中怎麼看'
@@ -291,7 +312,7 @@ async function checkFile(collection, locale, slug) {
     }
   }
   totals[locale].push(count)
-  console.log(`OK ${collection}/${locale}/${slug}.mdx (${count})`)
+  console.log(`OK ${collection}/${locale}/${filename}.mdx (${count})`)
 }
 
 for (const [collection, locale, slugs] of [
@@ -314,14 +335,15 @@ for (const [collection, locale, slugs] of [
   const files = (await readdir(directory)).filter((file) => file.endsWith('.mdx')).sort()
   assert.deepEqual(
     files,
-    slugs.map((slug) => `${slug}.mdx`).sort(),
+    slugs.map((slug) => `${collection === 'concepts' ? conceptFilename(slug) : slug}.mdx`).sort(),
     `unexpected inventory: ${fileURLToPath(directory)}`,
   )
   for (const slug of slugs) {
     try {
       await checkFile(collection, locale, slug)
     } catch (error) {
-      failures.push(`${collection}/${locale}/${slug}.mdx: ${error.message}`)
+      const filename = collection === 'concepts' ? conceptFilename(slug) : slug
+      failures.push(`${collection}/${locale}/${filename}.mdx: ${error.message}`)
     }
   }
 }
