@@ -18,11 +18,14 @@ describe.each(LOCALES)('templates (%s)', (locale) => {
 describe('renderEmail', () => {
   it('picks the language from the recipient locale and falls back to en', async () => {
     const props = { url: 'https://acme.test/verify' }
-    const zh = await renderEmail('verify-email', props, { locale: 'zh-CN', appName: APP_NAME })
+    const zh = await renderEmail('verify-email', props, { locale: 'zh-TW', appName: APP_NAME })
+    const ko = await renderEmail('verify-email', props, { locale: 'ko-KR', appName: APP_NAME })
     const fr = await renderEmail('verify-email', props, { locale: 'fr', appName: APP_NAME })
     const none = await renderEmail('verify-email', props, { locale: null, appName: APP_NAME })
-    expect(zh.locale).toBe('zh')
-    expect(zh.html).toContain('lang="zh-CN"')
+    expect(zh.locale).toBe('zh-Hant')
+    expect(zh.html).toContain('lang="zh-Hant"')
+    expect(ko.locale).toBe('ko')
+    expect(ko.html).toContain('lang="ko"')
     expect(fr.locale).toBe('en')
     expect(none.locale).toBe('en')
     expect(none.subject).toBe(fr.subject)
@@ -30,7 +33,8 @@ describe('renderEmail', () => {
 
   it.each([
     ['en', 'as an owner', '7 days'],
-    ['zh', '以所有者身份', '7 天'],
+    ['zh-Hant', '以所有者身份', '7 天'],
+    ['ko', '소유자(으)로', '7일'],
   ] as const)('renders owner invitations in %s', async (locale, roleCopy, expiryCopy) => {
     const email = await renderEmail(
       'workspace-invitation',
@@ -78,11 +82,11 @@ describe('renderEmail', () => {
     const email = await renderEmail(
       'otp',
       { otp: '000731', purpose: 'forget-password', expiresInMinutes: 10 },
-      { locale: 'zh', appName: APP_NAME },
+      { locale: 'zh-Hant', appName: APP_NAME },
     )
     expect(email.html).toContain('000731')
     expect(email.text).toContain('000731')
-    expect(email.text).toContain('重置 Acme 密码')
+    expect(email.text).toContain('重設 Acme 密碼')
   })
 })
 

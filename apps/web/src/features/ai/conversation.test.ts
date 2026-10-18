@@ -16,7 +16,7 @@ import {
 } from './conversation.ts'
 
 const locale = locales.find((locale) => String(locale) === 'en') ?? baseLocale
-const fallback = String(locale) === 'zh' ? '操作失败，请重试。' : CHAT_ERROR_FALLBACK
+const fallback = String(locale) === 'zh-Hant' ? '操作失敗，請重試。' : CHAT_ERROR_FALLBACK
 beforeEach(() => overwriteGetLocale(() => locale))
 afterEach(() => overwriteGetLocale(() => baseLocale))
 
@@ -153,8 +153,8 @@ describe('chat errors', () => {
     )
     expect(chatErrorCode(error)).toBe('AI_PROVIDER_NOT_CONFIGURED')
     expect(chatErrorMessage('AI_PROVIDER_NOT_CONFIGURED')).toBe(
-      String(locale) === 'zh'
-        ? '服务器尚未配置 AI 回复，请稍后重试。'
+      String(locale) === 'zh-Hant'
+        ? '伺服器尚未設定 AI 回覆，請稍後重試。'
         : 'AI replies are not set up on this server yet. Please try later.',
     )
     for (const code of [

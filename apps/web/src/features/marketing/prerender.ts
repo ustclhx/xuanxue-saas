@@ -5,13 +5,15 @@
  *
  * vite.config.ts 据此配置 TanStack Start 的 prerender.filter，因此这里不引用任何运行时模块。
  */
+import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
+
 export const PRERENDERED_PREFIXES = ['/blog', '/legal', '/docs'] as const
 
 /** 去掉语言前缀后判断是否预渲染；`locales` 为模板配置中的全部语言 */
 export function isPrerenderedPath(path: string, locales: readonly string[]): boolean {
   const pathname = (path.split(/[?#]/)[0] ?? '').replace(/\/+$/, '') || '/'
-  const [, first = '', ...rest] = pathname.split('/')
-  const delocalized = locales.includes(first)
+  const [, , ...rest] = pathname.split('/')
+  const delocalized = prefixLocale(pathname, locales)
     ? `/${rest.join('/')}`.replace(/\/$/, '') || '/'
     : pathname
   if (delocalized === '/') return true
@@ -25,5 +27,5 @@ export function prerenderEntryPages(
   locales: readonly string[],
   defaultLocale: string,
 ): { path: string }[] {
-  return locales.map((locale) => ({ path: locale === defaultLocale ? '/' : `/${locale}` }))
+  return locales.map((locale) => ({ path: locale === defaultLocale ? '/' : localePrefix(locale) }))
 }

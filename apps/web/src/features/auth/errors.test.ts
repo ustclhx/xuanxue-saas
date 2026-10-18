@@ -8,14 +8,24 @@ describe('authErrorMessage（按错误码提示）', () => {
   afterEach(() => overwriteGetLocale(() => baseLocale))
 
   it('按调用时的语言显示认证错误，未知错误仍显示本地化通用提示', () => {
-    const locale = locales.find((locale) => String(locale) === 'zh') ?? baseLocale
-    overwriteGetLocale(() => locale)
-    expect(authErrorMessage('INVALID_EMAIL_OR_PASSWORD')).toBe(
-      String(locale) === 'zh' ? '邮箱或密码不正确。' : 'Incorrect email or password.',
-    )
-    expect(authErrorMessage('UNRECOGNIZED')).toBe(
-      String(locale) === 'zh' ? '操作失败，请重试。' : 'Something went wrong. Please try again.',
-    )
+    for (const [target, invalid, unknown] of [
+      ['zh-Hant', '電子郵件或密碼不正確。', '操作失敗，請重試。'],
+      [
+        'ko',
+        '이메일 또는 비밀번호가 올바르지 않습니다.',
+        '문제가 발생했습니다. 다시 시도해 주세요.',
+      ],
+    ]) {
+      const locale = locales.find((locale) => String(locale) === target) ?? baseLocale
+      overwriteGetLocale(() => locale)
+      const localized = String(locale) === target
+      expect(authErrorMessage('INVALID_EMAIL_OR_PASSWORD')).toBe(
+        localized ? invalid : 'Incorrect email or password.',
+      )
+      expect(authErrorMessage('UNRECOGNIZED')).toBe(
+        localized ? unknown : 'Something went wrong. Please try again.',
+      )
+    }
   })
 
   it('429 一律提示限流', () => {

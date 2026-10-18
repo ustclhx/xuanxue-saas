@@ -1,0 +1,18 @@
+Acme
+
+
+Acme 로그인
+
+안녕하세요.
+
+아래 버튼을 눌러 로그인하세요. 링크는 5분 동안 유효하며 한 번만 사용할 수 있습니다.
+
+로그인 https://acme.test/api/auth/magic-link/verify?token=tok_magic
+
+버튼이 작동하지 않으면 아래 링크를 복사해 브라우저에 붙여 넣으세요:
+
+https://acme.test/api/auth/magic-link/verify?token=tok_magic
+
+----------------------------------------
+
+직접 요청하지 않았다면 이 메일을 무시하셔도 됩니다.

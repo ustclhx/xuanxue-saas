@@ -1,6 +1,6 @@
 import type { EmailTemplateName, EmailTemplateProps } from '../src/index.ts'
 
-/** 快照用的固定输入：每个模板一份，en / zh 共用。 */
+/** 快照用的固定输入：每个模板一份，各语言共用。 */
 export const APP_NAME = 'Acme'
 
 type Fixture<N extends EmailTemplateName> = {
@@ -43,7 +43,7 @@ export const fixtures: readonly Fixture<EmailTemplateName>[] = [
   },
 ]
 
-export const LOCALES = ['en', 'zh'] as const
+export const LOCALES = ['en', 'zh-Hant', 'ko'] as const
 
 export function snapshotPath(template: string, locale: string, ext: 'html' | 'txt'): string {
   return `./__snapshots__/${template}.${locale}.${ext}`

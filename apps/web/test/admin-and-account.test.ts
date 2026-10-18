@@ -142,7 +142,7 @@ describe('设置页数据', () => {
   it('包含资料、语言时区、是否有密码，两步验证按模板配置', async () => {
     const s = setup()
     const u = await signedIn(s, 'account')
-    await s.db.$client`update "user" set locale = 'zh', timezone = 'Asia/Tokyo' where id = ${u.id}`
+    await s.db.$client`update "user" set locale = 'ko', timezone = 'Asia/Tokyo' where id = ${u.id}`
     const { user } = await requireFreshSession({ auth: s.auth, db: s.db, headers: u.headers })
 
     const view = await loadAccount(s.db, user, config(false))
@@ -153,13 +153,13 @@ describe('设置页数据', () => {
         email: u.email,
         emailVerified: false,
         image: null,
-        locale: 'zh',
+        locale: 'ko',
         timezone: 'Asia/Tokyo',
         twoFactorEnabled: false,
       },
       hasPassword: true,
       twoFactorAvailable: false,
-      locales: ['en', 'zh'],
+      locales: ['en', 'zh-Hant', 'ko'],
     })
     expect((await loadAccount(s.db, user, config(true))).twoFactorAvailable).toBe(true)
 

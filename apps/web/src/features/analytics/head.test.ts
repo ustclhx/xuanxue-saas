@@ -18,7 +18,7 @@ describe('分析脚本页面 head', () => {
   it('默认页面 head 无 PostHog 或 beacon，主题内联脚本保持原样', async () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
-    for (const pathname of ['/', '/zh/pricing', '/app/personal/chat', '/admin/users']) {
+    for (const pathname of ['/', '/zh-hant/pricing', '/app/personal/chat', '/admin/users']) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])
       expect(result?.scripts).toEqual([{ children: themeInitScript() }])
       expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon/i)
@@ -30,7 +30,7 @@ describe('分析脚本页面 head', () => {
       ...templateConfig,
       analytics: { ...templateConfig.analytics, cloudflareToken: 'public-token' },
     }
-    expect(analyticsHeadScripts('/zh/pricing', config)).toEqual([
+    expect(analyticsHeadScripts('/zh-hant/pricing', config)).toEqual([
       {
         src: 'https://static.cloudflareinsights.com/beacon.min.js',
         defer: true,

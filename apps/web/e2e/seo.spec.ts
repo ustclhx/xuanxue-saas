@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import templateConfig from '../../../template.config.ts'
+import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
 const { locales, defaultLocale } = templateConfig.i18n
 const publicPaths = ['/', '/pricing', '/legal/privacy', '/legal/terms', '/legal/refund']
@@ -21,7 +22,7 @@ for (const locale of locales) {
     const titles = new Set<string>()
     const canonicals = new Set<string>()
     for (const path of publicPaths) {
-      const prefix = locale === defaultLocale ? '' : `/${locale}`
+      const prefix = locale === defaultLocale ? '' : localePrefix(locale)
       const response = await page.goto(`${prefix}${path === '/' ? '' : path}` || '/')
       expect(response?.status(), path).toBe(200)
       const title = await page.title()
@@ -47,9 +48,9 @@ for (const locale of locales) {
       await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0)
     }
     // 客户端导航也必须更换 canonical 与标题。
-    await page.goto(locale === defaultLocale ? '/' : `/${locale}`)
+    await page.goto(locale === defaultLocale ? '/' : localePrefix(locale))
     await page
-      .locator(`header a[href="${locale === defaultLocale ? '' : `/${locale}`}/pricing"]`)
+      .locator(`header a[href="${locale === defaultLocale ? '' : localePrefix(locale)}/pricing"]`)
       .click()
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/pricing$/)
   })
@@ -60,17 +61,18 @@ test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request })
   expect(response.status()).toBe(200)
   const xml = await response.text()
   for (const locale of locales) {
-    const prefix = locale === defaultLocale ? '' : `/${locale}`
+    const prefix = locale === defaultLocale ? '' : localePrefix(locale)
     if (templateConfig.features.blog) expect(xml).toContain(`${prefix}/blog/welcome</loc>`)
   }
   for (const path of ['/app', '/admin', '/api', 'draft-example', 'scheduled-example'])
     expect(xml).not.toContain(path)
   const rules = await (await request.get('/robots.txt')).text()
   for (const path of ['/app', '/admin', '/api']) expect(rules).toContain(`Disallow: ${path}`)
-  for (const path of ['/legal/terms', '/zh/legal/terms']) {
-    const image = await request.get(
-      `/og/${path.startsWith('/zh/') ? 'zh' : 'en'}${path.replace(/^\/zh/, '')}.png`,
-    )
+  for (const image of await Promise.all(
+    ['/og/en/legal/terms.png', '/og/zh-hant/legal/terms.png', '/og/ko/legal/terms.png'].map(
+      (path) => request.get(path),
+    ),
+  )) {
     expect(image.status()).toBe(200)
     expect(image.headers()['content-type']).toBe('image/png')
     const data = await image.body()

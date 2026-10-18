@@ -65,12 +65,16 @@ describe('认证与租户表（Hyperdrive → 本地 Postgres）', () => {
     try {
       await db
         .update(user)
-        .set({ locale: 'zh', timezone: 'Asia/Shanghai' })
+        .set({ locale: 'zh-Hant', timezone: 'Asia/Shanghai' })
         .where(eq(user.id, userId))
       const [row] = await db.select().from(user).where(eq(user.id, userId))
       expect(row?.id).toBe(userId)
       expect(isUuidV7(row?.id ?? '')).toBe(true)
-      expect(row).toMatchObject({ locale: 'zh', timezone: 'Asia/Shanghai', emailVerified: false })
+      expect(row).toMatchObject({
+        locale: 'zh-Hant',
+        timezone: 'Asia/Shanghai',
+        emailVerified: false,
+      })
       const [org] = await db.select().from(organization).where(eq(organization.id, orgId))
       expect(org).toMatchObject({ isPersonal: true, deletedAt: null })
     } finally {

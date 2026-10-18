@@ -1,6 +1,7 @@
 import type { AnyRouteMatch } from '@tanstack/react-router'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
+import { localePrefix } from '../i18n/url-prefix.ts'
 
 export interface SeoPage {
   path: string
@@ -15,7 +16,9 @@ const { defaultLocale, enabled } = templateConfig.i18n
 const locales = enabled ? templateConfig.i18n.locales : [defaultLocale]
 export function localizedPath(path: string, locale: string): string {
   const clean = path.replace(/\/+$/, '') || '/'
-  return !enabled || locale === defaultLocale ? clean : `/${locale}${clean === '/' ? '' : clean}`
+  return !enabled || locale === defaultLocale
+    ? clean
+    : `${localePrefix(locale)}${clean === '/' ? '' : clean}`
 }
 
 export function absoluteUrl(appUrl: string, path: string): string {
@@ -37,33 +40,53 @@ export function alternateLinks(
   }))
 }
 
+const staticCopy: Record<string, Record<string, readonly [string, string]>> = {
+  en: {
+    '/': [
+      'Your AI workspace',
+      'AI conversations, creation and team collaboration in one workspace.',
+    ],
+    '/pricing': [
+      'Pricing and plans',
+      'Compare subscriptions and credit packs for your AI workspace.',
+    ],
+    '/blog': ['Blog', 'Product updates, practical guides and creation tips.'],
+    '/docs': [
+      'Documentation',
+      'Getting started, configuration and content guides for your workspace.',
+    ],
+    '/newsletter': ['Newsletter', 'Subscribe to receive the latest product news.'],
+    '/waitlist': ['Join the waitlist', 'Join the waitlist to hear when the product is ready.'],
+  },
+  'zh-Hant': {
+    '/': ['AI 工作空間', '在一個工作空間中使用 AI 對話、創作與團隊協作。'],
+    '/pricing': ['定價與方案', '比較訂閱方案與積分包，選擇適合你的 AI 工作空間。'],
+    '/blog': ['部落格', '閱讀產品更新、實用指南與創作技巧。'],
+    '/docs': ['文件', '查閱工作空間的入門、設定與內容指南。'],
+    '/newsletter': ['訂閱電子報', '訂閱電子報，取得最新產品消息。'],
+    '/waitlist': ['加入候補名單', '登記候補名單，第一時間收到產品開放通知。'],
+  },
+  ko: {
+    '/': ['AI 워크스페이스', 'AI 대화, 창작, 팀 협업을 하나의 워크스페이스에서.'],
+    '/pricing': ['요금제', 'AI 워크스페이스에 맞는 구독 요금제와 크레딧 팩을 비교해 보세요.'],
+    '/blog': ['블로그', '제품 소식, 실용 가이드와 창작 팁을 읽어 보세요.'],
+    '/docs': ['문서', '워크스페이스 시작하기, 설정, 콘텐츠 가이드를 확인하세요.'],
+    '/newsletter': ['뉴스레터', '뉴스레터를 구독하고 최신 제품 소식을 받아 보세요.'],
+    '/waitlist': ['대기자 명단 등록', '대기자 명단에 등록하고 출시 소식을 가장 먼저 받아 보세요.'],
+  },
+}
+
+/** 未提供文案的语言回退到英语 */
 export function staticPage(path: string, locale: string): SeoPage {
-  const zh = locale === 'zh'
-  const copy: Record<string, [string, string]> = {
-    '/': zh
-      ? ['AI 工作空间', '在一个工作空间中使用 AI 对话、创作与团队协作。']
-      : [
-          'Your AI workspace',
-          'AI conversations, creation and team collaboration in one workspace.',
-        ],
-    '/pricing': zh
-      ? ['定价与套餐', '比较订阅套餐与积分包，选择适合你的 AI 工作空间。']
-      : ['Pricing and plans', 'Compare subscriptions and credit packs for your AI workspace.'],
-    '/blog': zh
-      ? ['博客', '阅读产品更新、实践指南与创作技巧。']
-      : ['Blog', 'Product updates, practical guides and creation tips.'],
-    '/docs': zh
-      ? ['文档', '查阅工作空间的入门、配置和内容指南。']
-      : ['Documentation', 'Getting started, configuration and content guides for your workspace.'],
-    '/newsletter': zh
-      ? ['订阅通讯', '订阅邮件通讯，获取最新产品消息。']
-      : ['Newsletter', 'Subscribe to receive the latest product news.'],
-    '/waitlist': zh
-      ? ['加入候补名单', '登记候补名单，第一时间收到产品开放通知。']
-      : ['Join the waitlist', 'Join the waitlist to hear when the product is ready.'],
-  }
-  const [title, description] = copy[path] ?? [path, path]
+  const [title, description] = (staticCopy[locale] ?? staticCopy.en)?.[path] ?? [path, path]
   return { path, title, description, locale }
+}
+
+/** 博客标签页标题 */
+export function tagPageTitle(tag: string, locale: string): string {
+  if (locale === 'zh-Hant') return `標籤「${tag}」下的文章`
+  if (locale === 'ko') return `‘${tag}’ 태그가 달린 글`
+  return `Posts tagged “${tag}”`
 }
 
 export function privateMeta(path: string) {
@@ -80,7 +103,7 @@ export function originFromMatches(
 }
 
 export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
-  return `/og/${page.locale}${page.path === '/' ? '/index' : page.path}.png`
+  return `/og${localePrefix(page.locale)}${page.path === '/' ? '/index' : page.path}.png`
 }
 
 export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly unknown[] = []) {

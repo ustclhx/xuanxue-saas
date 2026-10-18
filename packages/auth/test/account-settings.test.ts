@@ -61,7 +61,7 @@ describe('资料、语言与时区', () => {
       {
         name: '  New Name  ',
         image: 'https://xuanxue-west.example/a.png',
-        locale: 'zh',
+        locale: 'zh-Hant',
         timezone: 'Asia/Shanghai',
       },
       { cookie },
@@ -70,12 +70,12 @@ describe('资料、语言与时区', () => {
     expect(await userRow(s, u.userId)).toMatchObject({
       name: 'New Name',
       image: 'https://xuanxue-west.example/a.png',
-      locale: 'zh',
+      locale: 'zh-Hant',
       timezone: 'Asia/Shanghai',
     })
     // 响应下发了新的 Cookie 缓存，普通页面立即看到新资料
     const session = await sessionOf(s, cookieHeader(res))
-    expect(session?.user).toMatchObject({ name: 'New Name', locale: 'zh' })
+    expect(session?.user).toMatchObject({ name: 'New Name', locale: 'zh-Hant' })
 
     // null 清除语言与时区（回到默认值）
     const clear = await s.post('/update-user', { locale: null, timezone: null }, { cookie })

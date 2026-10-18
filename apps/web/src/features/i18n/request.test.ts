@@ -43,12 +43,12 @@ describe('请求级语言与只读会话隔离', () => {
         templateConfig.i18n.enabled ? handle() : withSessionCache(handle),
       )
     }
-    const responses = await Promise.all([run('zh'), run('en')])
+    const responses = await Promise.all([run('ko'), run('en')])
     expect(await Promise.all(responses.map((response) => response.json()))).toEqual([
       {
-        locale: templateConfig.i18n.enabled && isLocale('zh') ? 'zh' : baseLocale,
-        a: 'zh',
-        b: 'zh',
+        locale: templateConfig.i18n.enabled && isLocale('ko') ? 'ko' : baseLocale,
+        a: 'ko',
+        b: 'ko',
       },
       {
         locale: templateConfig.i18n.enabled && isLocale('en') ? 'en' : baseLocale,
@@ -61,15 +61,16 @@ describe('请求级语言与只读会话隔离', () => {
 
   it('公开 server function 用同源来源页的 URL 语言，Cookie 不覆盖营销页', async () => {
     const request = new Request(`${origin}/_serverFn/test`, {
-      headers: { referer: `${origin}/zh/pricing`, cookie: 'PARAGLIDE_LOCALE=en' },
+      headers: { referer: `${origin}/zh-hant/pricing`, cookie: 'PARAGLIDE_LOCALE=en' },
     })
     const response = await localizeRequest(request, runtime, async () => new Response(getLocale()))
     expect(await response.text()).toBe(
-      templateConfig.i18n.enabled && isLocale('zh') ? 'zh' : baseLocale,
+      templateConfig.i18n.enabled && isLocale('zh-Hant') ? 'zh-Hant' : baseLocale,
     )
     expect(
-      languageUrl(new Request(request, { headers: { referer: 'https://other.test/zh/pricing' } }))
-        .pathname,
+      languageUrl(
+        new Request(request, { headers: { referer: 'https://other.test/zh-hant/pricing' } }),
+      ).pathname,
     ).toBe('/_serverFn/test')
   })
 
@@ -105,11 +106,11 @@ it('账号语言只在多语言模式读取，单语言忽略 Cookie 和账号�
   const { requireFreshSession } = await import('@xuanxue/auth')
   vi.mocked(requireFreshSession).mockClear()
   const request = new Request(`${origin}/account`, {
-    headers: { 'x-user': 'one', 'x-locale': 'zh', cookie: 'PARAGLIDE_LOCALE=en' },
+    headers: { 'x-user': 'one', 'x-locale': 'zh-Hant', cookie: 'PARAGLIDE_LOCALE=en' },
   })
   const response = await localizeRequest(request, runtime, async () => new Response(getLocale()))
   expect(await response.text()).toBe(
-    templateConfig.i18n.enabled && isLocale('zh') ? 'zh' : baseLocale,
+    templateConfig.i18n.enabled && isLocale('zh-Hant') ? 'zh-Hant' : baseLocale,
   )
   expect(requireFreshSession).toHaveBeenCalledTimes(templateConfig.i18n.enabled ? 1 : 0)
   if (!templateConfig.i18n.enabled) {
@@ -120,7 +121,11 @@ it('账号语言只在多语言模式读取，单语言忽略 Cookie 和账号�
 
 describe('首次访问建议', () => {
   it('按 Accept-Language 的 q 权重、地区语言和禁用项匹配，默认语言也尊重优先级', () => {
-    expect(preferredLocale('fr,zh-CN;q=0.8,en;q=0.2')).toBe(isLocale('zh') ? 'zh' : baseLocale)
+    const zh = isLocale('zh-Hant') ? 'zh-Hant' : baseLocale
+    expect(preferredLocale('fr,zh-TW;q=0.8,en;q=0.2')).toBe(zh)
+    expect(preferredLocale('zh-hant-tw')).toBe(zh)
+    expect(preferredLocale('zh-CN,zh;q=0.9')).toBe(zh)
+    expect(preferredLocale('ko-KR,ko;q=0.9,en;q=0.8')).toBe(isLocale('ko') ? 'ko' : baseLocale)
     expect(preferredLocale('zh;q=0,en;q=0.9')).toBe(isLocale('en') ? 'en' : baseLocale)
     expect(preferredLocale('en-US;q=0.9,zh;q=0.8')).toBe(isLocale('en') ? 'en' : baseLocale)
     expect(preferredLocale('zh;q=oops,fr')).toBe(baseLocale)

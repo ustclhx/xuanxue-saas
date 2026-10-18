@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { localePrefix } from '../i18n/url-prefix.ts'
 import { robots, sitemap } from './crawlers.ts'
 import { localizedPath, pageHead, privateMeta } from './metadata.ts'
 import { OgCard } from './og-card.ts'
@@ -21,9 +22,9 @@ const content = {
     },
     {
       slug: 'published',
-      locale: 'zh',
-      title: '已发布文章',
-      summary: '已发布摘要',
+      locale: 'zh-Hant',
+      title: '已發布文章',
+      summary: '已發布摘要',
       date: '2026-01-01',
       tags: ['guide'],
       draft: false,
@@ -49,11 +50,11 @@ const content = {
   ],
   legal: [
     { slug: 'terms', locale: 'en', title: 'Terms', description: 'Terms of service' },
-    { slug: 'terms', locale: 'zh', title: '服务条款', description: '服务使用条款' },
+    { slug: 'terms', locale: 'zh-Hant', title: '服務條款', description: '服務使用條款' },
   ],
   docs: [
     { slug: 'guide', locale: 'en', title: 'Getting started', description: 'Setup guide' },
-    { slug: 'guide', locale: 'zh', title: '入门指南', description: '配置说明' },
+    { slug: 'guide', locale: 'zh-Hant', title: '入門指南', description: '設定說明' },
   ],
 }
 const config = {
@@ -126,7 +127,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
     const xml = sitemap(pages, origin)
     for (const locale of locales) {
       const prefix =
-        !config.i18n.enabled || locale === config.i18n.defaultLocale ? '' : `/${locale}`
+        !config.i18n.enabled || locale === config.i18n.defaultLocale ? '' : localePrefix(locale)
       expect(xml).toContain(`<loc>${origin}${prefix}/blog/published</loc>`)
     }
     for (const path of [
@@ -237,16 +238,16 @@ it('关闭营销时没有公开页面，单语言只生成默认语言页面', (
   ).toEqual([])
   const single = publicPages(content, new Date('2026-10-01'), {
     ...config,
-    i18n: { ...config.i18n, enabled: false, defaultLocale: 'zh' },
+    i18n: { ...config.i18n, enabled: false, defaultLocale: 'zh-Hant' },
   })
-  expect(new Set(single.map((page) => page.locale))).toEqual(new Set(['zh']))
+  expect(new Set(single.map((page) => page.locale))).toEqual(new Set(['zh-Hant']))
   expect(single.find((page) => page.path === '/')).toMatchObject({
-    locale: 'zh',
-    title: 'AI 工作空间',
+    locale: 'zh-Hant',
+    title: 'AI 工作空間',
   })
-  expect(single.find((page) => page.path === '/blog/published')?.title).toBe('已发布文章')
+  expect(single.find((page) => page.path === '/blog/published')?.title).toBe('已發布文章')
   if (!templateConfig.i18n.enabled) {
-    for (const locale of ['en', 'zh', 'fr']) {
+    for (const locale of ['en', 'zh-Hant', 'fr']) {
       expect(localizedPath('/pricing/', locale)).toBe('/pricing')
       expect(localizedPath('/', locale)).toBe('/')
     }

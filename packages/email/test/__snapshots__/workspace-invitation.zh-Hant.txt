@@ -1,0 +1,20 @@
+Acme
+
+
+加入 Research Lab
+
+你好：
+
+Grace 邀請你以管理員身份加入 Acme 上的 Research Lab 空間。
+
+邀請 7 天內有效。
+
+接受邀請 https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+如果按鈕無法點選，請將以下連結複製到瀏覽器中開啟：
+
+https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+----------------------------------------
+
+如果你不認識邀請人，請忽略這封郵件。

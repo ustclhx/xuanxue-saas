@@ -18,7 +18,7 @@ const post = (locale: string, slug: string, date: string, tags: string[] = []): 
 })
 const posts = [
   post('en', 'welcome', '2026-09-01', ['guide']),
-  post('zh', 'welcome', '2026-09-01', ['guide']),
+  post('zh-Hant', 'welcome', '2026-09-01', ['guide']),
   post('en', 'english-only', '2026-09-20', ['news']),
   post('en', 'scheduled', '2099-01-01', ['news']),
 ]
@@ -37,10 +37,11 @@ describe('博客（tasks.md 3.3）', () => {
   })
 
   it('优先当前语言的版本，缺少翻译时回退到默认语言', () => {
-    const list = listPosts(posts, { locale: 'zh', defaultLocale: 'en', now })
-    expect(list.map((p) => `${p.locale}/${p.slug}`)).toEqual(['en/english-only', 'zh/welcome'])
+    const list = listPosts(posts, { locale: 'zh-Hant', defaultLocale: 'en', now })
+    expect(list.map((p) => `${p.locale}/${p.slug}`)).toEqual(['en/english-only', 'zh-Hant/welcome'])
     expect(
-      findPost(posts, { slug: 'english-only', locale: 'zh', defaultLocale: 'en', now })?.locale,
+      findPost(posts, { slug: 'english-only', locale: 'zh-Hant', defaultLocale: 'en', now })
+        ?.locale,
     ).toBe('en')
   })
 
@@ -66,7 +67,7 @@ const docs = [
   doc('en', 'configuration', 'Basics', 2),
   doc('en', 'getting-started', 'Basics', 1),
   doc('en', 'deploy', 'Guides', 3),
-  doc('zh', 'getting-started', '基础', 1),
+  doc('zh-Hant', 'getting-started', '基础', 1),
 ]
 
 describe('文档站（tasks.md 3.4）', () => {
@@ -105,8 +106,8 @@ describe('文档站（tasks.md 3.4）', () => {
   })
 
   it('其他语言使用该语言的文档，缺失的页面回退到默认语言', () => {
-    const zh = loadDocsPage(docs, { locale: 'zh', defaultLocale: 'en', enabled: true })
-    expect(zh?.page.locale).toBe('zh')
+    const zh = loadDocsPage(docs, { locale: 'zh-Hant', defaultLocale: 'en', enabled: true })
+    expect(zh?.page.locale).toBe('zh-Hant')
     expect(zh?.nav.map((s) => s.title)).toEqual(['基础', 'Basics', 'Guides'])
   })
 })

@@ -23,8 +23,8 @@ describe('workspace actions', () => {
     await expect(
       workspaceAction('invite-member', { email: 'member@example.com' }, z.unknown()),
     ).rejects.toThrow(
-      String(locale) === 'zh'
-        ? '所有席位已占用，请让所有者提高上限或移除成员。'
+      String(locale) === 'zh-Hant'
+        ? '所有席位已佔用，請讓所有者提高上限或移除成員。'
         : 'All seats are in use. Ask the owner to increase the limit or remove a member.',
     )
   })
@@ -36,8 +36,8 @@ describe('workspace actions', () => {
       vi.fn().mockResolvedValue(Response.json({ code: 'SESSION_REQUIRED' }, { status: 401 })),
     )
     await expect(activateWorkspace({ id: 'team-id', slug: 'team' })).rejects.toThrow(
-      String(locale) === 'zh'
-        ? '会话已过期，请重新登录。'
+      String(locale) === 'zh-Hant'
+        ? '登入已過期，請重新登入。'
         : 'Your session has expired. Sign in again.',
     )
     expect(assign).not.toHaveBeenCalled()

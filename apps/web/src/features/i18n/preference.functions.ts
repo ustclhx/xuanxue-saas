@@ -6,14 +6,14 @@ import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { languageUrl, PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
 import { readRequestSession } from './session.server.ts'
+import { prefixLocale } from './url-prefix.ts'
 
 /** 水合后读取真实请求头，预渲染 HTML 不混入访客偏好。 */
 export const getLanguageSuggestion = createServerFn({ method: 'GET' }).handler(() => {
   if (!templateConfig.i18n.enabled) return null
   const request = getRequest()
-  const first = languageUrl(request).pathname.split('/')[1]
-  if (isLocale(first) || readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE))
-    return null
+  const prefixed = prefixLocale(languageUrl(request).pathname, templateConfig.i18n.locales)
+  if (prefixed || readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE)) return null
   const preferred = preferredLocale(request.headers.get('accept-language'))
   return preferred === baseLocale ? null : preferred
 })
