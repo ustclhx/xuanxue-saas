@@ -18,22 +18,19 @@
 | Phase 7 | `add-observability-and-optional-features` | 16/16；已归档：`archive/2026-10-14-add-observability-and-optional-features`（#184） |
 | 验收承接 | `add-cloud-acceptance-followups` | main 为 0/4；另一 worker 正在处理 staging 支付验收，尚未合并的结果不计入完成项 |
 | Cloudflare 生产 | `add-cloud-production-neon` | 模板范围 13/13（本次结项）；演示实例于 2026-10-18 拆除，合并后由协调者同步规格并归档；原 5.1 / 6.1 移交派生项目 |
-| 自托管 | `add-selfhost-*`（四个 change） | 116/116；2026-10-17 已同步规格并归档（#239） |
 
 已归档的其他 change：`add-cloud-staging-neon` 29/29（#85）、`add-first-run-admin-setup` 6/6 与 `add-payment-live-mode` 9/9（#184）、`add-text-reasoning-resilience` 9/9（#196）、`add-staging-fault-injection` 20/20（#209）、`add-agent-skills` 8/8（#211）。live 模式只交付代码，生产凭据与外部收款验收见下文「Cloudflare 生产上线」与 Q9。
 
-**自托管形态**（Node + Docker Compose，PG 在 Compose 内）：**2026-10-17 结项并归档**。四个 change 全部完成（foundation 33/33、job-engine 32/32、storage-observability 18/18、delivery 33/33），已同步主 spec 并归档为 `archive/2026-10-17-add-selfhost-*`。服务器验收在新加坡测试主机 `product-res-ecs`（2 vCPU / 3.5 GiB）用正式 release `1888e7d` 完成：真实 ACME（`selfhost.ezarouter.cc`）、R2 外部存储与备份（用户决定单一供应商：同一 R2 账号下独立桶与桶级 token，已记录失去供应商独立性）、两路时间点与逻辑恢复、2 核整机任务预算与真实整机 reboot（21 项恢复检查通过）。证据见 [server-acceptance-1888e7d](./runbooks/evidence/selfhost/server-acceptance-1888e7d/report.md)。
-
-**实例状态（2026-10-18）**：用户确认拆除模板演示的生产实例与自托管测试实例，验收勾选保留为历史交付结果。生产云资源与自托管栈已清理；四个非空 R2 桶待 2026-10-19 核空删除，DNS / Sentry 与桶级 token 手动收尾见[拆除记录](./runbooks/evidence/teardown-2026-10-18.md)。生产配置、workflow、GHCR 镜像与 runbook 保留供派生项目使用；staging 全部资源保留。
+**实例状态（2026-10-18）**：用户确认拆除模板演示的生产实例，验收勾选保留为历史交付结果。生产配置、workflow 与 runbook 保留供本项目上线使用。
 
 各阶段之间与阶段内部的并行拆分见 [09-parallel-plan.md](./09-parallel-plan.md)。
 
-**基础设施节奏**（`docs/07` §0）：阶段二的模板生产与自托管能力已完成验收，演示实例于 2026-10-18 拆除；本地开发继续使用各 worktree 的隔离 Docker PG 数据库，线上 staging 使用 Neon Launch 并部署到 `*.workers.dev`。派生项目保留 **Cloudflare 生产使用 Neon 付费档、不自建 PG** 的路径（2026-10-15 用户决定，原「生产服务器 PG + cloudflared + Workers VPC」方案作废）；**自托管形态使用 Compose 内的 PG**，其备份/PITR/副本由 `add-selfhost-*` 交付。
+**基础设施节奏**（`docs/07` §0）：阶段二的模板生产能力已完成验收，演示实例于 2026-10-18 拆除；本地开发继续使用各 worktree 的隔离 Docker PG 数据库，线上 staging 使用 Neon Launch 并部署到 `*.workers.dev`。派生项目保留 **Cloudflare 生产使用 Neon 付费档、不自建 PG** 的路径（2026-10-15 用户决定，原「生产服务器 PG + cloudflared + Workers VPC」方案作废）。
 
 ## Phase 0 · 脚手架与基础设施验证（技术风险最高，优先做）
 
 - [x] pnpm monorepo、Biome、TypeScript、Vitest 基础配置（`setup-scaffold-and-infra` 1.1–1.4）
-- [x] `apps/web`：TanStack Start 跑在 workerd（Cloudflare Vite 插件），本地 + 部署各一次（staging：`web-staging.xuanxue-jobs.workers.dev`；#3、P0 5.5）
+- [x] `apps/web`：TanStack Start 跑在 workerd（Cloudflare Vite 插件），本地 + 部署各一次（staging：`web-staging.<子域>.workers.dev`；#3、P0 5.5）
 - [x] `apps/jobs`：导出一个空 Workflow + Queue consumer + Cron，web 能通过绑定调用（#5）
 - [x] 本地 Docker PG + Drizzle + 第一个迁移（#4）
 - [x] 本机 PG（TLS）+ `cloudflared` + Tunnel + Workers VPC + Hyperdrive，部署到 `*.workers.dev` 的 Worker 查询成功；记录延迟基线（开/关 Smart Placement 对比，仅验证链路）——复用连接约 160 ms（LAX），Smart Placement 无效果（#9、P0 5.1/5.2；`07` §8）。这是历史链路验证，旧资源已在 Neon 9.2 收尾时删除。
@@ -43,7 +40,7 @@
 - [x] 本机两个 `cloudflared` 副本，停掉其中一个时 Hyperdrive 查询不中断——会自动切换，但有约 5–10 秒卡顿与少量失败，不是无感（#10；`07` §2）
 - [x] `template.config.ts` + env Zod 校验（#2、#5）
 
-**验收**：staging（`*.workers.dev`）首页 SSR 正常；`/api/health` 返回 DB 往返耗时；jobs 的 Cron 能写库。——已通过（2026-10-03，`web-staging.xuanxue-jobs.workers.dev`）。CI 自动部署 staging（原任务 6.2）已移到下文「CI 能力建设」。
+**验收**：staging（`*.workers.dev`）首页 SSR 正常；`/api/health` 返回 DB 往返耗时；jobs 的 Cron 能写库。——已通过（2026-10-03，`web-staging.<子域>.workers.dev`）。CI 自动部署 staging（原任务 6.2）已移到下文「CI 能力建设」。
 
 **Phase 0 实测对后续阶段的影响**：
 
@@ -91,7 +88,7 @@
 - [x] 对话列表、对话页（`useChat`）、模型选择（#36、#41）
 - [x] 权益检查与 AI 限流（#33、#38）
 - [x] 决策 12：结算使用「流内最终 usage → 预扣额封顶的估算」；被中断流在 Gateway 不产生日志，不做日志回查（#98；chat 2.9，2026-10-12 已决）。
-- [x] **阶段验收（chat 5.1）**：staging 对话、停止、关页与服务商报错、账本不变式及 Gateway 可比用量核对已通过（#205），change 已归档（#209）；证据见 `docs/runbooks/evidence/staging-acceptance/`。
+- [x] **阶段验收（chat 5.1）**：staging 对话、停止、关页与服务商报错、账本不变式及 Gateway 可比用量核对已通过（#205），change 已归档（#209）；证据随模板验收证据删除，未保留。
 
 ## CI 能力建设
 
@@ -99,7 +96,7 @@
 
 - [x] main 上 CI 成功后自动部署 staging：`deploy-staging.yml` 按迁移 → jobs → web → 版本健康检查 → Chromium 冒烟的顺序执行；PR #62 与预渲染补正 PR #64 已合并，[Deploy staging run 37894416572](https://github.com/ustclhx/xuanxue/actions/runs/37894416572) 全部成功，健康版本匹配 `ce623cab63a99d6eee8c8ba67eeb09e564f97779`、数据库正常、三项冒烟通过，任务 7.4 已验收。
 - [x] staging 迁移通过 Neon 直连以 `migrator` 自动执行；Neon 建库、受限角色与权限、12 条迁移实测及切换已完成，GitHub staging 三项 secrets 已配置；上述成功自动发布已验证迁移后按 jobs → web 发布。阶段二 Neon 生产迁移已随 tag 发布流水线完成，见下文「Cloudflare 生产上线」。
-- [x] Neon 9.2：观察期由七天缩短为 24 小时，2026-10-10 用户决定测试阶段保持 Free、接受计费周期后段 compute 暂停，上线时再升级；旧 Hyperdrive、Tunnel 与 Workers VPC 已删除，本机 `cloudflared` 容器已停止（#79）。2026-10-13 用户决定 staging 使用 `CRON_PROFILE=reduced`，将五分钟心跳与十分钟维护合并为半小时执行，小时和每日调度不变；生产默认、顶层/本地及 Node 五项调度保持原频率。预计约 48 次唤醒/天 × 5.5 分钟 × 0.25 CU，约 1.1 CU-hours/天、35 CU-hours/月；实际请求与任务耗时会影响用量，合入 main 自动发布后再复核缩容及用量。
+- [x] Neon 9.2：观察期由七天缩短为 24 小时，2026-10-10 用户决定测试阶段保持 Free、接受计费周期后段 compute 暂停，上线时再升级；旧 Hyperdrive、Tunnel 与 Workers VPC 已删除，本机 `cloudflared` 容器已停止（#79）。2026-10-13 用户决定 staging 使用 `CRON_PROFILE=reduced`，将五分钟心跳与十分钟维护合并为半小时执行，小时和每日调度不变；生产默认、顶层/本地五项调度保持原频率。预计约 48 次唤醒/天 × 5.5 分钟 × 0.25 CU，约 1.1 CU-hours/天、35 CU-hours/月；实际请求与任务耗时会影响用量，合入 main 自动发布后再复核缩容及用量。
 
 发布使用 GitHub `staging` environment 的三个 secrets，PR CI 不获取这些凭据；发布串行且不取消进行中的运行。`add-cloud-staging-neon` 已完成 29/29，并于 2026-10-11 同步规格及归档（#85）。操作与验收证据、2026-10-13 staging 降频决定及半小时心跳核验窗口见 [Neon staging runbook](./runbooks/staging-neon.md) §6。
 
@@ -125,7 +122,7 @@
 
 - [x] Neon 生产项目：独立项目与付费计划、PG 17、受限 `migrator` / `app` / `readonly` 角色（沿用 [staging-neon runbook](./runbooks/staging-neon.md) §1–2），确认计划的 PITR 保留窗口
 - [x] Cloudflare production 环境：web / jobs 的 `env.production`（Hyperdrive 缓存/非缓存、KV、Queues、Workflows、R2）与 Wrangler secrets
-- [x] 域名：production 选定 `app.ezarouter.cc`（2026-10-15，绑定在首次部署时完成），staging 保持 workers.dev
+- [x] 域名：production 选定 `<生产域名>`（2026-10-15，绑定在首次部署时完成），staging 保持 workers.dev
 - [x] 备份：Neon PITR + 每日逻辑备份到独立对象存储（R2 Bucket Lock 或非 Cloudflare 存储）；恢复演练用 Neon 时间点分支 + 校验脚本，写 `docs/runbooks/restore.md` 并记录 RTO/RPO
 - [x] 发布流水线：GitHub `production` environment 的 Neon 直连迁移凭据；tag 触发 生产迁移 → jobs → web → `/api/health` 完整 SHA → 冒烟
 - 移交派生项目（原 5.1，非模板验收任务）：保留健康探测基线；按真实用户地域执行 Hyperdrive → Neon 区域与 Smart Placement / 显式放置对比，方法见 [07 §8](./07-infrastructure.md#8-延迟基线phase-0-实测-742026-10-03)。
@@ -133,7 +130,7 @@
 
 **验收**：production 绑定域名可访问；tag 发布全流程自动化且健康 SHA 匹配；从 Neon 时间点与逻辑备份各恢复一次并通过校验。
 
-**进度（2026-10-18）**：生产演示实例已拆除；拆除前 **v0.1.3** 的完整 SHA 为 `54c537542ad0f2033628c136a7057a705c6d0218`（[发布 run 38910072786](https://github.com/ustclhx/xuanxue/actions/runs/38910072786) 成功）。seed、每日加密备份、两路恢复演练、Sentry source map / 可读堆栈与健康监控均有[历史证据](./runbooks/evidence/production/release-2026-10-16.md)。本次核对 1–5 的模板范围并完成 7.1，13/13；change 保持活动状态，待合并后由协调者归档。2026-10-18 用户决定：原 5.1、6.1 与 Q9 不在模板内验收，移交派生项目上线清单；派生项目开放注册前还需重建自身资源和凭据、按 production runbook 恢复默认 Cron 并复核费用。
+**进度（2026-10-18）**：生产演示实例已拆除；拆除前 **v0.1.3** 的完整 SHA 为 `54c537542ad0f2033628c136a7057a705c6d0218`（[发布 run 38910072786](https://github.com/ustclhx/xuanxue/actions/runs/38910072786) 成功）。seed、每日加密备份、两路恢复演练、Sentry source map / 可读堆栈与健康监控均有历史证据（证据文件随模板验收证据删除，未保留）。本次核对 1–5 的模板范围并完成 7.1，13/13；change 保持活动状态，待合并后由协调者归档。2026-10-18 用户决定：原 5.1、6.1 与 Q9 不在模板内验收，移交派生项目上线清单；派生项目开放注册前还需重建自身资源和凭据、按 production runbook 恢复默认 Cron 并复核费用。
 
 ## Phase 4 · AI 图片 / 视频
 
@@ -143,7 +140,7 @@
 - [x] 媒体回调入口（HMAC + 服务商验签 + 先落库再 sendEvent；#73）
 - [x] 任务列表/详情页、参数表单（由 params_schema 渲染）；后台模型参数 schema 编辑（#72、#75、#96）
 - [x] 并发数限制（空间级事务锁）；DB-only 超时回收，Workflow 自检终态停止（#73；media 4.7，不依赖查询 Workflow 状态）
-- [x] **阶段验收（media 7.1/7.2）**：staging 媒体矩阵（含 `add-staging-fault-injection` 的受控故障）与 fal 视频真实产出已通过（#200、#209），change 已归档；证据见 `docs/runbooks/evidence/staging-acceptance/`。
+- [x] **阶段验收（media 7.1/7.2）**：staging 媒体矩阵（含 `add-staging-fault-injection` 的受控故障）与 fal 视频真实产出已通过（#200、#209），change 已归档；证据随模板验收证据删除，未保留。
 
 ## Phase 5 · 管理后台
 
@@ -162,7 +159,7 @@
 - [x] content-collections 博客（MDX）、法律页、可选文档站（#44；Q2 已决定）
 - [x] SEO：metadata、sitemap、robots、构建期 OG 图片、JSON-LD、hreflang（#53）
 - [x] 暗色模式与主题定制（#37）
-- [x] **阶段验收（marketing 5.2）**：2026-10-11 staging 首页、定价页、博客中英文共六页 Lighthouse SEO / 可访问性均为 100；16/16 任务已同步并归档（#86；[验收证据](./runbooks/evidence/marketing/lighthouse-2026-10-11.md)）。
+- [x] **阶段验收（marketing 5.2）**：2026-10-11 staging 首页、定价页、博客中英文共六页 Lighthouse SEO / 可访问性均为 100；16/16 任务已同步并归档（#86；验收证据随模板验收证据删除，未保留）。
 
 ## Phase 7 · 打磨与可选功能
 
@@ -172,8 +169,8 @@
 - [x] 公开 API（API Key、OpenAI 兼容对话、媒体任务接口与文档；#57、#60、#77）
 - [x] Waitlist、Newsletter（#46）
 - [x] `CLAUDE.md` / `AGENTS.md`：模块说明、约定、常用命令（#52）
-- [x] 「从模板创建新项目」的清单与脚本（改名、换配置、初始化基础设施；#52、#92、#100）
-- [x] **新项目阶段验收（observability 6.1）**：#100 从模板生成独立文本 AI 项目，配置新 Neon / Cloudflare staging，健康、注册到首次 AI 调用、精确积分结算和 Sentry 源码堆栈均通过；临时资源已清理（2026-10-12；[脱敏证据](./runbooks/evidence/create-project/2026-10-12/acceptance.json)）。原 staging 的 Sentry 1.2 已另行验收。
+- [x] 「从模板创建新项目」的清单与脚本（改名、换配置、初始化基础设施；#52、#92、#100）；本项目已删除生成器
+- [x] **新项目阶段验收（observability 6.1）**：#100 从模板生成独立文本 AI 项目，配置新 Neon / Cloudflare staging，健康、注册到首次 AI 调用、精确积分结算和 Sentry 源码堆栈均通过；临时资源已清理（2026-10-12）。原 staging 的 Sentry 1.2 已另行验收。
 
 ## 待决事项
 

@@ -5,7 +5,7 @@ description: 为本模板新增需要登录的 app 空间页面或 admin 后台�
 
 # 新增应用或后台页面
 
-在含 `package.json` 与 `template.config.ts` 的项目根执行。下文路径均相对项目根；生成器副本已改包 scope，先读 `apps/web/package.json` 的 name/dependencies，示例 `@xuanxue/*` 替换为实际名称。
+在含 `package.json` 与 `template.config.ts` 的项目根执行。下文路径均相对项目根；包 scope 为 `@xuanxue/*`，以 `apps/web/package.json` 的 name/dependencies 为准。
 
 ## 1. 确定边界与参考
 

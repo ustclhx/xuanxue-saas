@@ -5,19 +5,6 @@ export default defineConfig({
   test: {
     projects: [
       {
-        test: {
-          name: 'node',
-          include: [
-            'test/node.test.ts',
-            'test/node/request.test.ts',
-            'test/node/background.test.ts',
-            'test/node/task-health.test.ts',
-            'test/node/ownership.test.ts',
-            'test/node/job-lock.test.ts',
-          ],
-        },
-      },
-      {
         plugins: [
           cloudflareTest({
             remoteBindings: false,

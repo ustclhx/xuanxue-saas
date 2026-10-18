@@ -1,6 +1,6 @@
 # Cloudflare 形态生产数据库恢复与演练
 
-对应 `add-cloud-production-neon` 4.1 / 4.2 与 production-deployment spec「生产数据库备份与恢复演练」。生产库为 Neon 项目 `xuanxue-production`（`super-resonance-99115167`，默认分支 `main`），项目与凭据见 [production-neon](./production-neon.md)。自托管形态的 WAL-G / PITR 见 [selfhost-restore](./selfhost-restore.md)，两者互不替代。
+对应 `add-cloud-production-neon` 4.1 / 4.2 与 production-deployment spec「生产数据库备份与恢复演练」。生产库为 Neon 项目 `xuanxue-production`（`<project-id>`，默认分支 `main`），项目与凭据见 [production-neon](./production-neon.md)。
 
 **铁律**：演练与恢复只创建临时目标（Neon 临时分支或本地临时库），**不覆盖、不重置生产 `main` 分支**；校验只读执行；不在命令参数、日志或证据中写连接串与密钥。
 
@@ -15,18 +15,18 @@
 
 ```sh
 # 目标时间用 UTC ISO 格式；分支 24 小时后自动过期，演练结束仍应主动删除
-neonctl branches create --project-id super-resonance-99115167 \
+neonctl branches create --project-id <project-id> \
   --name restore-drill-<YYYYMMDD> --parent <2026-10-20T03:00:00Z> \
   --expires-at <创建时间 + 24h> --no-secrets --output json
 ```
 
-取临时分支的 readonly 非 pooled 连接串（`neonctl connection-string restore-drill-<YYYYMMDD> --project-id super-resonance-99115167 --database-name xuanxue_production --role-name readonly`），只放进环境变量，运行校验：
+取临时分支的 readonly 非 pooled 连接串（`neonctl connection-string restore-drill-<YYYYMMDD> --project-id <project-id> --database-name xuanxue_production --role-name readonly`），只放进环境变量，运行校验：
 
 ```sh
 RESTORE_DATABASE_URL=<只在环境变量中> node scripts/production/verify-restore.mjs --roles
 ```
 
-`--roles` 额外核对三角色仍受限（时间点分支保留集群角色）。演练结束：`neonctl branches delete restore-drill-<YYYYMMDD> --project-id super-resonance-99115167`。
+`--roles` 额外核对三角色仍受限（时间点分支保留集群角色）。演练结束：`neonctl branches delete restore-drill-<YYYYMMDD> --project-id <project-id>`。
 
 真正需要用历史数据恢复生产时，先停写（暂停 jobs 发布或开启维护）、评估差异，再由用户决定：把应用切到恢复分支，或从恢复分支导出少量数据回写。不要直接 reset `main`。
 
@@ -61,7 +61,7 @@ RESTORE_DATABASE_URL=<只在环境变量中> node scripts/production/verify-rest
 - `pg17`：服务端为 PostgreSQL 17。
 - `migrations`：`drizzle.__drizzle_migrations` 行数等于 `packages/db/migrations/meta/_journal.json` 条目数。
 - `business_tables`、`constraints`：public 表存在，所有约束已验证。
-- `credits_balance`：每个空间 ledger 合计 = active 剩余 + held − debt（与 `reconcileWorkspaceCredits`、自托管恢复演练相同）。
+- `credits_balance`：每个空间 ledger 合计 = active 剩余 + held − debt（与 `reconcileWorkspaceCredits` 相同）。
 - `--roles` 时另查 `roles`、`role_permissions`。
 
 另输出 `user`、`organization`、`payment`、`credit_ledger`、`ai_task` 行数，与恢复目标时间点的生产只读查询对比。

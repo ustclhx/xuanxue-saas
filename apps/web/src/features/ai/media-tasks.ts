@@ -87,7 +87,7 @@ function requireSubmissionProvider(providerId: string, kind: string, deps: Works
     !definition.supportedKinds.some((supported) => supported === kind)
   )
     throw new AppError('MODEL_UNAVAILABLE', 'Media provider is not enabled', { status: 404 })
-  // 测试与自托管调用可注入 Provider；生产入口始终按真实密钥 / 绑定检查。
+  // 测试可注入 Provider；生产入口始终按真实密钥 / 绑定检查。
   if (!deps.providerFactory && !definition.isConfigured(deps.env))
     throw new AppError('AI_PROVIDER_NOT_CONFIGURED', 'Media provider is not configured', {
       status: 503,

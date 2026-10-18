@@ -33,7 +33,7 @@ xuanxue/
 ├─ packages/
 │  ├─ config/                     # template.config.ts 类型与默认值、env schema
 │  ├─ db/                         # Drizzle schema、迁移、createDb()、scoped 查询
-│  ├─ platform/                   # 目标中立能力契约、显式 cloudflare/node 入口
+│  ├─ platform/                   # 目标中立能力契约、显式 cloudflare 入口
 │  ├─ auth/                       # Better Auth 实例工厂与插件配置
 │  ├─ billing/                    # PaymentProvider 接口 + stripe/ paypal/ 实现
 │  ├─ credits/                    # 积分：grant / hold / capture / release / expire
@@ -44,7 +44,6 @@ xuanxue/
 │  ├─ ui/                         # shadcn/ui 组件（被 web 使用）
 │  └─ shared/                     # 通用类型、错误、id 生成、时间工具
 ├─ infra/
-│  ├─ postgres/                   # VPS 上的 docker-compose（PG + cloudflared + WAL-G）
 │  └─ local/                      # 本地开发 docker-compose
 ├─ docs/
 ├─ .env.example                 # 本地支付配置模板（只含键与占位符）
@@ -62,9 +61,9 @@ xuanxue/
 
 **平台导入边界**：业务通过 platform 中立入口访问平台能力。检查器解析 apps/packages 下的源码（含 test/probe/e2e，排除依赖和构建产物），识别静态 import、export from、动态 import、require 和 type import。`cloudflare:workers` / `cloudflare:workflows` 仅允许在 `packages/platform/src/cloudflare/**`；显式 app composition entry 只允许 `cloudflare:workers`。目标测试夹具按文件与模块名明确登记，`cloudflare:test` 只向这些夹具开放，不按目录或 `.test.ts` 后缀豁免。
 
-入口与测试夹具清单位于 [`scripts/check-deps.rules.json`](../scripts/check-deps.rules.json)。A 4.6 已删除 `transition` 及其检查器豁免逻辑，业务导入不再有过渡额度。CF 环境校验与 Sentry 装配位于 web 的 `server/cloudflare/`，作为明确的 composition 辅助入口登记；绑定声明与仅含目标类型的夹具也逐文件登记（空模块列表不授权平台导入）。新增目标入口或测试夹具时只登记确切路径与所需模块，不扩大业务例外。CF/Node 适配器子入口（含相对路径）也仅向对应目标目录、明确入口和目标夹具开放；跨包相对导入同样执行基础包依赖方向检查。
+入口与测试夹具清单位于 [`scripts/check-deps.rules.json`](../scripts/check-deps.rules.json)。A 4.6 已删除 `transition` 及其检查器豁免逻辑，业务导入不再有过渡额度。CF 环境校验与 Sentry 装配位于 web 的 `server/cloudflare/`，作为明确的 composition 辅助入口登记；绑定声明与仅含目标类型的夹具也逐文件登记（空模块列表不授权平台导入）。新增目标入口或测试夹具时只登记确切路径与所需模块，不扩大业务例外。CF 适配器子入口（含相对路径）也仅向对应目标目录、明确入口和目标夹具开放；跨包相对导入同样执行基础包依赖方向检查。
 
-平台能力的具体 API、CF 装配和 B 交接见 [平台能力与交接](platform-capabilities.md)。
+平台能力的具体 API 与 CF 装配见 [平台能力](platform-capabilities.md)。
 
 ## 2. 为什么拆 `apps/jobs`
 
@@ -92,8 +91,7 @@ xuanxue/
 启用计费和积分。团队工具可关闭计费、积分和所有 AI，保留认证、空间、邮件、运维事件与
 成功 heartbeat，无需支付密钥或 `billing:seed`。关闭开关不删除历史账本。
 关闭营销后首页转向 `/app`，公开营销路由与预渲染关闭；关闭 i18n 后只编译默认语言，
-不注册语言前缀入口，不读取语言偏好，也不展示语言切换。完整组合以真实副本 Node 构建及
-空卷 Compose 登录/空间/heartbeat 验证，步骤见 [创建项目](create-project.md)。
+不注册语言前缀入口，不读取语言偏好，也不展示语言切换。
 
 `template.config.ts` 草案：
 

@@ -39,8 +39,7 @@ function adaptInstance<R extends JsonValue>(instance: WorkflowInstance): Platfor
         await instance.terminate()
       } catch (error) {
         // 先查状态再 terminate 之间实例可能自行结束；CF 对终态实例抛
-        // instance.cannot_terminate，而 Node（DBOS）对终态取消是空操作。复查确认已是
-        // 终态才视为完成，否则原样抛出，不吞掉真实失败。
+        // instance.cannot_terminate。复查确认已是终态才视为完成，否则原样抛出，不吞掉真实失败。
         const state = await instance.status().catch(() => null)
         if (state && ['complete', 'errored', 'terminated'].includes(state.status)) return
         throw error
@@ -87,7 +86,7 @@ export function createCloudflareWorkflowStep(step: CloudflareStep): WorkflowStep
   }
   // CF 引擎把 step 内抛出的错误经 RPC 复制后再拒绝 do()：只保留 name/message，丢失共享
   // NonRetryableError 的实例身份与业务 code。本次 do 内由回调抛出的原错误在同一 isolate 中，
-  // 拒绝时据此还原为共享错误（与 Node adapter 一致），引擎拒绝作为 cause 保留供观测关联。
+  // 拒绝时据此还原为共享错误，引擎拒绝作为 cause 保留供观测关联。
   function call<T extends JsonValue>(
     start: (callback: () => Promise<JsonValue>) => Promise<JsonValue>,
     callback: () => Promise<T>,

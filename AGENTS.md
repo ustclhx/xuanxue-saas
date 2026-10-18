@@ -24,11 +24,11 @@ v1 产品需求见 `doc/design.md`，任务拆分、波次与补充共享文件�
 - `apps/web`：TanStack Start 路由、页面、Server Functions 和 HTTP 接口。
 - `apps/jobs`：Cloudflare Workflows、Queue 消费者和 Cron；web 经绑定调用 jobs。
 - `packages/shared`：类型、错误、ID、结构化日志；`config`：模板类型、默认值和环境校验；
-  `db`：Drizzle schema、迁移、租户查询和运行时设置；`platform`：目标中立能力契约与 Cloudflare/Node 适配。
+  `db`：Drizzle schema、迁移、租户查询和运行时设置；`platform`：目标中立能力契约与 Cloudflare 适配。
 - `packages/auth`：身份、会话和空间；`billing`：支付、订单和订阅；`credits`：积分账本和预扣结算；
   `entitlements`：套餐权益；`ai`：模型和 Provider；`storage`：R2 与安全下载；
   `email`：邮件模板与发送；`ui`：共享 React 组件。
-- `infra`：本地及服务器 Postgres；`scripts`：工程检查、项目生成和 Orca 生命周期。
+- `infra`：本地 Postgres；`scripts`：工程检查、staging/生产发布辅助和 Orca 生命周期。
 
 依赖边界以 `scripts/check-deps.mjs` 为准：packages 不依赖 apps；shared 不依赖其他内部包；
 config 只可依赖 shared；db 只可依赖 shared、config；platform 只可依赖 shared、config、db，
@@ -65,13 +65,9 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 | `pnpm check:singletons` | 关键依赖唯一实例检查 |
 | `pnpm test` | 各包测试；有隔离数据库配置时包含集成测试 |
 | `pnpm build` | web 生产构建与 jobs 部署 dry-run |
-| `pnpm create-project --help` | 查看生成器的交互和非交互参数 |
-| `pnpm test:create-project` | 临时目录中的生成器边界测试 |
-| `pnpm test:create-project:verify` | 真实副本改名、类型检查与单元测试验收 |
 | `openspec list --json` | 查看当前 change 与项目根 |
 
 持续开发使用根 package.json 的 dev 脚本，启动 web 与 jobs；停止时仅结束自己启动的进程。
-新项目生成与自检见 [创建项目](docs/create-project.md)。
 
 ## OpenSpec 工作流
 

@@ -49,7 +49,7 @@ export function emailRetryDelaySeconds(attempts: number): number {
 /** 一次投递：发送渲染好的邮件，返回服务商的邮件 ID（log 通道为 null）。 */
 type Deliver = (message: EmailQueueMessage, rendered: RenderedEmail) => Promise<string | null>
 
-export type JobsEmailTransport = EmailTransportConfig | { readonly transport: 'smtp' }
+export type JobsEmailTransport = EmailTransportConfig
 
 interface EmailBatchOptions {
   observer?: JobObserver
@@ -64,19 +64,13 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  if (transport.transport === 'smtp' && !injectedSender) {
-    throw new EmailSendError('SMTP_SENDER_UNAVAILABLE', { retryable: false })
-  }
   const sender =
     injectedSender ??
-    (transport.transport === 'resend'
-      ? createResendSender({
-          apiKey: transport.apiKey,
-          from: transport.from,
-          ...(transport.replyTo === undefined ? {} : { replyTo: transport.replyTo }),
-        })
-      : undefined)
-  if (!sender) throw new EmailSendError('SMTP_SENDER_UNAVAILABLE', { retryable: false })
+    createResendSender({
+      apiKey: transport.apiKey,
+      from: transport.from,
+      ...(transport.replyTo === undefined ? {} : { replyTo: transport.replyTo }),
+    })
   return async (message, rendered) => {
     const result = await sender.send({
       to: message.to,
