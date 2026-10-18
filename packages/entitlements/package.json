@@ -1,0 +1,21 @@
+{
+  "name": "@xuanxue/entitlements",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@xuanxue/db": "workspace:*",
+    "@xuanxue/shared": "workspace:*",
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
+  }
+}
