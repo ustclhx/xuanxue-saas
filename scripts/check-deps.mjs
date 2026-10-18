@@ -201,7 +201,7 @@ export function checkWorkspace(
         `${pkgName} → ${dep}（${where}）：React 仅允许 ui，email 仅允许 React / React Email，不能依赖 ui`,
       )
     }
-    const allowed = LAYERS[pkgName]
+    const allowed = LAYERS[pkgName] ?? rules.packageLayers?.[pkgName]
     if (allowed && dep.startsWith(SCOPE) && dep !== pkgName && !allowed.includes(dep)) {
       const rule = allowed.length > 0 ? `只允许依赖 ${allowed.join('、')}` : '不得依赖其他内部包'
       violations.push(`${pkgName} → ${dep}（${where}）：${pkgName} ${rule}`)
