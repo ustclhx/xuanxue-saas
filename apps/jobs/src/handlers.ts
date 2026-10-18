@@ -37,7 +37,11 @@ export interface JobsContext extends BillingEnv {
 }
 
 const EMAIL_QUEUES = new Set(['xuanxue-email', 'xuanxue-email-staging', 'xuanxue-email-production'])
-const EVENTS_QUEUES = new Set(['xuanxue-events', 'xuanxue-events-staging', 'xuanxue-events-production'])
+const EVENTS_QUEUES = new Set([
+  'xuanxue-events',
+  'xuanxue-events-staging',
+  'xuanxue-events-production',
+])
 
 export function consumeJobsBatch(batch: QueueBatch<unknown>, context: JobsContext) {
   return withJobObserver(context.observer, () => consumeBatch(batch, context))

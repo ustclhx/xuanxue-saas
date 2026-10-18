@@ -17,6 +17,7 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 [项目结构和配置](docs/02-project-structure.md)，再阅读对应领域文档。
 并行工作、共享文件修改、创建或清理 worktree、提交 PR 时，必须阅读
 [并行计划 §3 与 §6](docs/09-parallel-plan.md) 并遵守其规则；共享文件规则以该文档为准。
+v1 产品需求见 `doc/design.md`，任务拆分、波次与补充共享文件约定见 [v1 上线计划](docs/10-v1-plan.md)，UI 以 [视觉规范](docs/design/visual-system.md) 为准。
 
 ## 模块职责与依赖方向
 

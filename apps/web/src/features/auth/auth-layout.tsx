@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import {
   Alert,
   AlertDescription,
@@ -9,7 +10,6 @@ import {
   CardTitle,
   Separator,
 } from '@xuanxue/ui'
-import { Link } from '@tanstack/react-router'
 import { type ReactNode, useEffect, useState } from 'react'
 import { templateConfig } from '../../server/template-config.ts'
 import { LanguageControls } from '../i18n/language-controls.tsx'

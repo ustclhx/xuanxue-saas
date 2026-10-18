@@ -51,7 +51,11 @@ describe('SMTP local validation', () => {
       { subject: 'subject\r\nBcc: secret@example.com' },
       { html: { path: '/should-not-read' } },
       { text: { href: 'https://should-not-fetch.invalid' } },
-      { headers: { 'List-Unsubscribe': '<https://xuanxue-west.example>\r\nBcc: secret@example.com' } },
+      {
+        headers: {
+          'List-Unsubscribe': '<https://xuanxue-west.example>\r\nBcc: secret@example.com',
+        },
+      },
     ]) {
       const error = await sender.send({ ...message, ...invalid } as typeof message).catch((e) => e)
       expect(error).toBeInstanceOf(EmailSendError)

@@ -1,5 +1,9 @@
 schema: spec-driven
 
+context: |
+  所有 OpenSpec 产物使用中文。产品需求来源是 doc/design.md；v1 范围与波次见 docs/10-v1-plan.md。
+  合规表述统一为「AI 辅助、仅供娱乐、不预测未来」，AI 不作为标题卖点。
+
 # Project context (optional)
 # Add only constraints that should guide OpenSpec artifacts and workflows.
 # Include constraints an agent cannot infer by reading the code.

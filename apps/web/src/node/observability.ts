@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { AppError } from '@xuanxue/shared'
-import { getLogContext, log, sentryBeforeSend } from '@xuanxue/shared/log'
 import type { ErrorEvent, EventHint, NodeOptions, StackFrame } from '@sentry/node'
 import { isNotFound, isRedirect } from '@tanstack/react-router'
+import { AppError } from '@xuanxue/shared'
+import { getLogContext, log, sentryBeforeSend } from '@xuanxue/shared/log'
 
 export interface NodeObservabilityConfig {
   dsn?: string | undefined

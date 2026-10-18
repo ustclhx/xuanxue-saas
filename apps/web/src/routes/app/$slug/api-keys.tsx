@@ -1,5 +1,5 @@
-import { Button, DataTable, Input, Label } from '@xuanxue/ui'
 import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
+import { Button, DataTable, Input, Label } from '@xuanxue/ui'
 import { useState } from 'react'
 import { createKey, editKey, listKeys } from '../../../features/api-keys/functions.ts'
 import { templateConfig } from '../../../server/template-config.ts'

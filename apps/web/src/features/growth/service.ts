@@ -1,6 +1,12 @@
 import { normalizeSignupEmail } from '@xuanxue/billing'
 import type { TemplateConfig } from '@xuanxue/config'
-import { type Database, dbSettingStore, getSetting, newsletterSubscriber, waitlist } from '@xuanxue/db'
+import {
+  type Database,
+  dbSettingStore,
+  getSetting,
+  newsletterSubscriber,
+  waitlist,
+} from '@xuanxue/db'
 import { EMAIL_QUEUE_MESSAGE_VERSION, type EmailQueueMessage } from '@xuanxue/email/queue'
 import { type Capability, type QueueProducer, requireCapability } from '@xuanxue/platform'
 import { AppError, newId } from '@xuanxue/shared'

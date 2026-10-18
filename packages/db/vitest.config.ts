@@ -7,10 +7,10 @@ import { readLocalEnv } from './worktree-env.ts'
 const HYPERDRIVE_ENV = 'CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE'
 const fallback = (url: string) => (process.env.CI ? undefined : url)
 const appUrl =
-  readLocalEnv(HYPERDRIVE_ENV) ?? fallback('postgres://app:app@localhost:5432/xuanxue_dev')
+  readLocalEnv(HYPERDRIVE_ENV) ?? fallback('postgres://app:app@localhost:5433/xuanxue_dev')
 const migratorUrl =
   readLocalEnv('MIGRATION_DATABASE_URL') ??
-  fallback('postgres://migrator:migrator@localhost:5432/xuanxue_dev')
+  fallback('postgres://migrator:migrator@localhost:5433/xuanxue_dev')
 
 const integration = appUrl && migratorUrl
 if (integration) {

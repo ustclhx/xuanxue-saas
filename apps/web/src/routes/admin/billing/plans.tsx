@@ -1,5 +1,5 @@
-import { Button, DataTable } from '@xuanxue/ui'
 import { createFileRoute, notFound as featureNotFound, useRouter } from '@tanstack/react-router'
+import { Button, DataTable } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import {
   adminListPage,

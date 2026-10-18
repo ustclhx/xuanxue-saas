@@ -1,5 +1,5 @@
-import { Button, Label } from '@xuanxue/ui'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { Button, Label } from '@xuanxue/ui'
 import { useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { FormAlert } from '../auth/auth-layout.tsx'

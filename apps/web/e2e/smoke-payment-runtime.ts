@@ -1,4 +1,9 @@
-import type { BillingProviders, CheckoutInput, OrderSnapshot, PaymentProvider } from '@xuanxue/billing'
+import type {
+  BillingProviders,
+  CheckoutInput,
+  OrderSnapshot,
+  PaymentProvider,
+} from '@xuanxue/billing'
 import type { TemplateConfig } from '@xuanxue/config'
 import { WebhookVerificationError } from '../../../packages/billing/src/provider.ts'
 import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'

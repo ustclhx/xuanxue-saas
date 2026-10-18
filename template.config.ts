@@ -6,7 +6,11 @@ import { defineTemplateConfig } from '@xuanxue/config'
  * apps/web 经 `apps/web/src/server/template-config.ts` 读取。
  */
 export default defineTemplateConfig({
-  app: {"name":"xuanxue","url":"https://xuanxue-west.example","supportEmail":"support@xuanxue-west.example"},
+  app: {
+    name: 'xuanxue',
+    url: 'https://xuanxue-west.example',
+    supportEmail: 'support@xuanxue-west.example',
+  },
   i18n: { enabled: true, locales: ['en', 'zh'], defaultLocale: 'en' },
   tenancy: {
     multiTenant: false, // false = 仅个人空间；true = 允许团队 workspace
@@ -17,12 +21,13 @@ export default defineTemplateConfig({
     requireEmailVerification: false, // 邮箱密码注册是否必须先验证邮箱才能登录；默认否，领取注册赠送积分时才要求验证
     emailOtp: true, // 邮箱验证码登录（emailOTP 插件）
     magicLink: false, // 魔法链接登录（magicLink 插件）
-    oauth: ["google"],
+    oauth: ['google'],
     twoFactor: false,
     turnstile: true,
   },
-  billing: { enabled: true, // 计费依赖积分；关闭计费时同时关闭 AI
-    providers: ["stripe"], // 结账页展示顺序
+  billing: {
+    enabled: true, // 计费依赖积分；关闭计费时同时关闭 AI
+    providers: ['stripe'], // 结账页展示顺序
     currency: 'usd',
     signupBonusCredits: 100, // 用户领取时触发邮箱验证，验证完成后发放
     pastDueGraceDays: 7, // past_due 期间保留权益的天数
@@ -35,8 +40,8 @@ export default defineTemplateConfig({
     },
     refundWindowDays: 30, // 可申请退款的付款时间范围；退款需人工审核，默认不主动退
   },
-  credits: { enabled: true, },
-  marketing: { enabled: true, },
+  credits: { enabled: true },
+  marketing: { enabled: true },
   ai: {
     text: {
       enabled: true,
@@ -46,9 +51,9 @@ export default defineTemplateConfig({
     },
     image: false,
     video: false,
-    mediaProviders: ["fal","workers-ai"], // 只启用需要的媒体服务商；Workers AI 使用 AI 绑定，无外部密钥
+    mediaProviders: ['fal', 'workers-ai'], // 只启用需要的媒体服务商；Workers AI 使用 AI 绑定，无外部密钥
     // 新建模型时的默认计费方式，后台可逐个模型修改：'per_call' 按次 | 'token' 按 token | 'per_unit' 按张/秒
     defaultPricingMode: { text: 'token', image: 'per_call', video: 'per_call' },
   },
-  features: {"publicApi":false,"blog":true,"docs":false,"waitlist":false,"newsletter":true},
+  features: { publicApi: false, blog: true, docs: false, waitlist: false, newsletter: true },
 })

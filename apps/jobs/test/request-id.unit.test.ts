@@ -77,7 +77,9 @@ afterEach(() => vi.restoreAllMocks())
 it('follows one checkout request ID from EVENTS_QUEUE to EMAIL_QUEUE and both consumers', async () => {
   const emails: EmailQueueMessage[] = []
   const env = { emailQueue: refundMail((message) => emails.push(message)) }
-  const events = batch('xuanxue-events', [{ v: 1, deliveryId, requestId } satisfies BillingQueueMessage])
+  const events = batch('xuanxue-events', [
+    { v: 1, deliveryId, requestId } satisfies BillingQueueMessage,
+  ])
   await handleBillingBatch(events, env as never)
   expect(events.messages[0]?.ack).toHaveBeenCalledOnce()
 

@@ -2,7 +2,11 @@ import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { authUiOptions } from './options.ts'
 
-const app = { name: 'Test', url: 'https://xuanxue-west.example', supportEmail: 'support@xuanxue-west.example' }
+const app = {
+  name: 'Test',
+  url: 'https://xuanxue-west.example',
+  supportEmail: 'support@xuanxue-west.example',
+}
 const credentials = {
   GOOGLE_CLIENT_ID: 'id',
   GOOGLE_CLIENT_SECRET: 'secret',

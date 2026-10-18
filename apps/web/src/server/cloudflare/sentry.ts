@@ -1,7 +1,7 @@
-import { AppError } from '@xuanxue/shared'
-import { getLogContext, sentryBeforeSend } from '@xuanxue/shared/log'
 import { type CloudflareOptions, captureException, getClient, withSentry } from '@sentry/cloudflare'
 import { isNotFound, isRedirect } from '@tanstack/react-router'
+import { AppError } from '@xuanxue/shared'
+import { getLogContext, sentryBeforeSend } from '@xuanxue/shared/log'
 
 export function sentryEnabled(env: Pick<Cloudflare.Env, 'SENTRY_DSN' | 'SENTRY_ENVIRONMENT'>) {
   return Boolean(

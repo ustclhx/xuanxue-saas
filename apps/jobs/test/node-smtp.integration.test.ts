@@ -32,7 +32,11 @@ it('delivers SMTP through persistent inbox/DBOS, preserves mixed outcomes and ne
   const admin = postgres(migratorUrl, { max: 1, onnotice: () => {} })
   const directory = await mkdtemp(join(tmpdir(), 'selfhost-c-wire-smtp-'))
   const template = defineTemplateConfig({
-    app: { name: 'Fixture', url: 'https://xuanxue-west.example', supportEmail: 'support@xuanxue-west.example' },
+    app: {
+      name: 'Fixture',
+      url: 'https://xuanxue-west.example',
+      supportEmail: 'support@xuanxue-west.example',
+    },
     billing: { enabled: false },
     credits: { enabled: false },
     ai: { text: { enabled: false }, image: false, video: false },

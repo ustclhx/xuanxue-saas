@@ -5,7 +5,7 @@
   "main": "./src/server.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
-  
+
   // FILES 专用私有桶；顶层由 Miniflare 模拟，预签名配置必须与绑定一致。
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files" }],
   // 本地开发时 localConnectionString 指向主 checkout 的 xuanxue_dev；
@@ -16,16 +16,16 @@
     {
       "binding": "HYPERDRIVE",
       "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgres://app:app@localhost:5432/xuanxue_dev"
+      "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     },
     {
       "binding": "HYPERDRIVE_CACHED",
       "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgres://app:app@localhost:5432/xuanxue_dev"
+      "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     }
   ],
   // Workflow 定义在 apps/jobs，这里按 script_name 绑定（docs/02-project-structure.md §2）
-  
+
   // web 为 producer，apps/jobs 为 consumer
   "queues": {
     "producers": [
@@ -58,7 +58,7 @@
   "env": {
     "staging": {
       "name": "xuanxue-web-staging",
-      
+
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-staging" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "staging",
@@ -84,7 +84,7 @@
         { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
         { "binding": "HYPERDRIVE_CACHED", "id": "00000000000000000000000000000000" }
       ],
-      
+
       "queues": {
         "producers": [
           { "binding": "EMAIL_QUEUE", "queue": "xuanxue-email-staging" },
@@ -99,7 +99,7 @@
       "workers_dev": false,
       "preview_urls": false,
       "routes": [{ "pattern": "configure-production-domain.invalid", "custom_domain": true }],
-      
+
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
@@ -109,7 +109,7 @@
         "R2_ACCOUNT_ID": "",
         "R2_FILES_BUCKET": "xuanxue-files-production"
       },
-      "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "ffffffffffffffffffffffffffffffff" }],
       "ratelimits": [
         { "name": "RL_AUTH", "namespace_id": "1007", "simple": { "limit": 10, "period": 60 } },
         { "name": "RL_AI", "namespace_id": "1008", "simple": { "limit": 20, "period": 60 } },
@@ -117,10 +117,10 @@
       ],
       "hyperdrive": [
         // Neon xuanxue_production，app 非 pooled TLS 直连；分别关闭缓存与默认缓存
-        { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
-        { "binding": "HYPERDRIVE_CACHED", "id": "00000000000000000000000000000000" }
+        { "binding": "HYPERDRIVE", "id": "ffffffffffffffffffffffffffffffff" },
+        { "binding": "HYPERDRIVE_CACHED", "id": "ffffffffffffffffffffffffffffffff" }
       ],
-      
+
       "queues": {
         "producers": [
           { "binding": "EMAIL_QUEUE", "queue": "xuanxue-email-production" },

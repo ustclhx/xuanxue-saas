@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>만세력</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#9E3A27}a:hover{color:#7A2B1C}
+</style>
+</helmet>
+<div style="width: 390px; height: 1900px; box-sizing: border-box; background: #F4EFE4; color: #1F1C18; font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; display: flex; flex-direction: column">
+  <header style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #DCD3C1">
+    <span style="font-family: 'Noto Serif KR', serif; font-weight: 700; font-size: 18px">[동방 사이트 브랜드]</span>
+    <button type="button" aria-label="메뉴" style="width: 44px; height: 44px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="#1F1C18" stroke-width="1.8" stroke-linecap="round"></path></svg></button>
+  </header>
+  <main style="padding: 20px 16px 32px; display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-family: 'Noto Serif KR', serif; font-size: 28px">무료 만세력</h1>
+      <p style="margin: 0; font-size: 15px; color: #4A443B; line-height: 1.6">생년월일시만 입력하면 사주팔자·대운·신살을 바로 보여드립니다. 회원가입 없이 무료.</p>
+    </div>
+    <form style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px" aria-label="출생 정보">
+      <div style="display: flex; gap: 8px">
+        <label style="flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #1F1C18; color: #FFFDF8; font-size: 15px"><input type="radio" name="c" checked style="position: absolute; opacity: 0"> 양력</label>
+        <label style="flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #C9BEA8; font-size: 15px"><input type="radio" name="c" style="position: absolute; opacity: 0"> 음력</label>
+        <label style="flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #C9BEA8; font-size: 15px"><input type="radio" name="g" style="position: absolute; opacity: 0"> 남 / 여</label>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">생년월일<input value="1990-05-15" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">태어난 시간<input value="10:30" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <div style="display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap">
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #B8432F"> 시간 모름</label>
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 15px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #B8432F"> 진태양시 보정</label>
+      </div>
+      <button type="button" style="min-height: 48px; border: 0; border-radius: 8px; background: #B8432F; color: #FFFDF8; font-size: 17px; font-weight: 600">즉시 만세력</button>
+    </form>
+
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: 'Noto Serif KR', serif; font-size: 20px">사주팔자</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 10px; padding: 10px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #6B6355">시주</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #6E7480">辛</span><span style="font-size: 12px">신</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #B8432F">巳</span><span style="font-size: 12px">사</span></div>
+        <div style="background: #1F1C18; color: #FFFDF8; border-radius: 10px; padding: 10px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #D8CDB6">일주</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #E6E0D2">庚</span><span style="font-size: 12px">경</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #D9A441">辰</span><span style="font-size: 12px">진</span></div>
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 10px; padding: 10px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #6B6355">월주</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #6E7480">辛</span><span style="font-size: 12px">신</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #B8432F">巳</span><span style="font-size: 12px">사</span></div>
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 10px; padding: 10px 4px; text-align: center; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; color: #6B6355">연주</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #6E7480">庚</span><span style="font-size: 12px">경</span><span style="font-family: 'Noto Serif KR', serif; font-size: 30px; color: #B8432F">午</span><span style="font-size: 12px">오</span></div>
+      </div>
+      <p style="margin: 0; font-size: 12px; color: #6B6355">한국식 표기: 시·일·월·연 순서 (오른쪽 → 왼쪽)</p>
+    </section>
+
+    <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: 'Noto Serif KR', serif; font-size: 18px">오행 분포</h2>
+      <div style="display: flex; gap: 6px">
+        <div style="flex: 4; height: 28px; border-radius: 6px; background: #6E7480; color: #FFFDF8; font-size: 13px; display: flex; align-items: center; justify-content: center">금 4</div>
+        <div style="flex: 3; height: 28px; border-radius: 6px; background: #B8432F; color: #FFFDF8; font-size: 13px; display: flex; align-items: center; justify-content: center">화 3</div>
+        <div style="flex: 1; height: 28px; border-radius: 6px; background: #9A7438; color: #FFFDF8; font-size: 13px; display: flex; align-items: center; justify-content: center">토 1</div>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #4A443B">목 0 · 수 0</p>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><h2 style="margin: 0; font-size: 16px">신강 · 신약</h2><p style="margin: 0; font-size: 14px; color: #4A443B">[엔진 결과]</p></section>
+      <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><h2 style="margin: 0; font-size: 16px">용신 <span style="font-size: 12px; color: #6B6355">참고</span></h2><p style="margin: 0; font-size: 14px; color: #4A443B">[엔진 결과]</p></section>
+    </div>
+
+    <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-family: 'Noto Serif KR', serif; font-size: 18px">대운 · 세운</h2>
+      <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px">
+        <button type="button" style="flex: 0 0 72px; min-height: 72px; border: 1px solid #DCD3C1; border-radius: 10px; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #1F1C18"><span style="font-size: 18px">壬午</span><span style="font-size: 11px; color: #6B6355">8세</span></button>
+        <button type="button" style="flex: 0 0 72px; min-height: 72px; border: 1px solid #DCD3C1; border-radius: 10px; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #1F1C18"><span style="font-size: 18px">癸未</span><span style="font-size: 11px; color: #6B6355">18세</span></button>
+        <button type="button" style="flex: 0 0 72px; min-height: 72px; border: 2px solid #B8432F; border-radius: 10px; background: #FBF1EC; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #1F1C18"><span style="font-size: 18px">甲申</span><span style="font-size: 11px; color: #9E3A27">28세 · 현재</span></button>
+        <button type="button" style="flex: 0 0 72px; min-height: 72px; border: 1px solid #DCD3C1; border-radius: 10px; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #1F1C18"><span style="font-size: 18px">乙酉</span><span style="font-size: 11px; color: #6B6355">38세</span></button>
+        <button type="button" style="flex: 0 0 72px; min-height: 72px; border: 1px solid #DCD3C1; border-radius: 10px; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: #1F1C18"><span style="font-size: 18px">丙戌</span><span style="font-size: 11px; color: #6B6355">48세</span></button>
+      </div>
+    </section>
+
+    <section style="background: #1F1C18; color: #FFFDF8; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-family: 'Noto Serif KR', serif; font-size: 20px">신살 · 귀인 · 공망</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #2C2822"><span>공망</span><span style="color: #D9A441">申酉 (신유)</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #2C2822"><span>천을귀인</span><span style="color: #D8CDB6">[엔진 결과]</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #2C2822"><span>도화살</span><span style="color: #D8CDB6">[엔진 결과]</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #2C2822"><span>역마살</span><span style="color: #D8CDB6">[엔진 결과]</span></div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 8px; background: #2C2822"><span>화개살</span><span style="color: #D8CDB6">[엔진 결과]</span></div>
+      </div>
+      <a href="#" style="color: #E9B9A9; font-size: 14px">신살 자세히 보기 →</a>
+    </section>
+
+    <p style="margin: 0; padding: 12px; border-radius: 8px; background: #ECE5D6; font-size: 13px; color: #4A443B; line-height: 1.6">AI 보조 전통 명리 정리이며 오락용 참고 자료입니다. 미래를 예측하지 않습니다. 건강 문제는 전문 의료진과 상담하세요.</p>
+
+    <section style="border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; background: #FFFDF8; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 17px">맞춤 풀이를 메일로 받기</h2>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">이메일<input type="email" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px"></label>
+      <button type="button" style="min-height: 48px; border: 1px solid #1F1C18; border-radius: 8px; background: #FFFDF8; color: #1F1C18; font-size: 16px">받아보기</button>
+    </section>
+
+    <a href="#" style="min-height: 56px; border-radius: 12px; background: #B8432F; color: #FFFDF8; text-decoration: none; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 16px; font-weight: 600"><span>사주 상세 풀이 열기</span><span>100 크레딧 · 약 [₩ 가격]</span></a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

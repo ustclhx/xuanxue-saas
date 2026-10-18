@@ -12,7 +12,8 @@ if (appUrl || migratorUrl) {
   if (
     app.host !== migrator.host ||
     app.pathname !== migrator.pathname ||
-    (!app.pathname.startsWith('/xuanxue_wt_') && !(process.env.CI && app.pathname === '/xuanxue_ci'))
+    (!app.pathname.startsWith('/xuanxue_wt_') &&
+      !(process.env.CI && app.pathname === '/xuanxue_ci'))
   )
     throw new Error('Node storage tests require matching isolated worktree or CI databases')
   process.env.NODE_DB_TEST_URL = appUrl

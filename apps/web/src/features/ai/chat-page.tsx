@@ -1,7 +1,7 @@
 import { useChat } from '@ai-sdk/react'
+import { Link } from '@tanstack/react-router'
 import { estimateInputTokens } from '@xuanxue/ai/client'
 import { Button, Label } from '@xuanxue/ui'
-import { Link } from '@tanstack/react-router'
 import { DefaultChatTransport } from 'ai'
 import { useMemo, useRef, useState } from 'react'
 import { templateConfig } from '../../server/template-config.ts'

@@ -1,5 +1,5 @@
-import { Button } from '@xuanxue/ui'
 import { Link } from '@tanstack/react-router'
+import { Button } from '@xuanxue/ui'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { site } from './site.ts'

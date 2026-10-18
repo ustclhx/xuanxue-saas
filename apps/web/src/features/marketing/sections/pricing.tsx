@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import {
   Button,
   Card,
@@ -8,7 +9,6 @@ import {
   CardTitle,
   cn,
 } from '@xuanxue/ui'
-import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'

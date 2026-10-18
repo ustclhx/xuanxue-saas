@@ -5,7 +5,7 @@
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "vars": { "SENTRY_ENVIRONMENT": "development", "PAYMENT_MODE": "test" },
-  
+
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files" }],
   // 本地开发时 localConnectionString 指向主 checkout 的 xuanxue_dev；
   // Orca worktree 中由 scripts/dev.mjs（或 web 的 vite.config.ts）从 .env.worktree 读取
@@ -15,16 +15,16 @@
     {
       "binding": "HYPERDRIVE",
       "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgres://app:app@localhost:5432/xuanxue_dev"
+      "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     },
     {
       "binding": "HYPERDRIVE_CACHED",
       "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgres://app:app@localhost:5432/xuanxue_dev"
+      "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     }
   ],
   // Workflow 定义在 jobs；apps/web 用同名 workflow + script_name: "jobs" 绑定
-  
+
   // web 投递业务事件，jobs 消费并从 Cron 投递对账告警。
   // max_retries 与 src/queues/email.ts 的 EMAIL_MAX_ATTEMPTS（首次 + 5 次重试）一致；
   // 不配置死信队列：最后一次投递仍失败时由消费者确认并记录 email.dropped（原因见该文件注释）。
@@ -54,7 +54,7 @@
         "PAYMENT_MODE": "test",
         "CRON_PROFILE": "reduced"
       },
-      
+
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-staging" }],
       // 计费 Cron 验收需要查询一小时内的完整日志，仅 staging 开启日志采集。
       "observability": {
@@ -68,7 +68,7 @@
         { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
         { "binding": "HYPERDRIVE_CACHED", "id": "00000000000000000000000000000000" }
       ],
-      
+
       "queues": {
         "producers": [
           { "queue": "xuanxue-email-staging", "binding": "EMAIL_QUEUE" },
@@ -104,14 +104,14 @@
         "SENTRY_ENVIRONMENT": "production",
         "CRON_PROFILE": "reduced"
       },
-      
+
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
-      "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "ffffffffffffffffffffffffffffffff" }],
       "hyperdrive": [
-        { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
-        { "binding": "HYPERDRIVE_CACHED", "id": "00000000000000000000000000000000" }
+        { "binding": "HYPERDRIVE", "id": "ffffffffffffffffffffffffffffffff" },
+        { "binding": "HYPERDRIVE_CACHED", "id": "ffffffffffffffffffffffffffffffff" }
       ],
-      
+
       "queues": {
         "producers": [
           { "queue": "xuanxue-email-production", "binding": "EMAIL_QUEUE" },

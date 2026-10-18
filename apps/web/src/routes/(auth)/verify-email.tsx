@@ -1,5 +1,5 @@
-import { Button } from '@xuanxue/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Button } from '@xuanxue/ui'
 import { z } from 'zod'
 import { AFTER_SIGN_IN_PATH } from '../../features/auth/auth-client.ts'
 import { AuthLayout, FormAlert, StatusAlert } from '../../features/auth/auth-layout.tsx'

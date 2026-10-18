@@ -1,4 +1,8 @@
-import { profileImageSchema, profileNameSchema, timezoneSchema } from '@xuanxue/auth/settings-schema'
+import {
+  profileImageSchema,
+  profileNameSchema,
+  timezoneSchema,
+} from '@xuanxue/auth/settings-schema'
 import { z } from 'zod'
 import { ACCOUNT_COPY } from './copy.ts'
 

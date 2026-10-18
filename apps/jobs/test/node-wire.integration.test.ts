@@ -38,7 +38,11 @@ it('wires real consumers, retry/DLQ, disabled modules, heartbeat readiness and g
     SHUTDOWN_TIMEOUT_MS: 5000,
   })
   const template = defineTemplateConfig({
-    app: { name: 'Fixture', url: 'https://xuanxue-west.example', supportEmail: 'support@xuanxue-west.example' },
+    app: {
+      name: 'Fixture',
+      url: 'https://xuanxue-west.example',
+      supportEmail: 'support@xuanxue-west.example',
+    },
     billing: { enabled: false },
     credits: { enabled: false },
     ai: { text: { enabled: false }, image: false, video: false },

@@ -1,3 +1,4 @@
+import { createServerFn } from '@tanstack/react-start'
 import {
   defaultPricing,
   invalidateModelCache,
@@ -8,7 +9,6 @@ import {
 import { isAiFaultInjectionEnabled } from '@xuanxue/config'
 import { aiModel } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
-import { createServerFn } from '@tanstack/react-start'
 import { asc, desc, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { withBilling } from '../../server/feature-gates.ts'

@@ -1,6 +1,6 @@
+import { createServerFn } from '@tanstack/react-start'
 import { dbSettingStore, getSetting } from '@xuanxue/db'
 import { log } from '@xuanxue/shared/log'
-import { createServerFn } from '@tanstack/react-start'
 import { getWebRuntime } from '../../server/runtime.ts'
 
 // 公开入口只返回公告，不暴露后台其余设置。

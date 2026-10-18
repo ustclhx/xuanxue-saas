@@ -7,7 +7,7 @@
     {
       "binding": "HYPERDRIVE",
       "id": "00000000000000000000000000000000",
-      "localConnectionString": "postgres://app:app@localhost:5432/xuanxue_dev"
+      "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     }
   ],
   "r2_buckets": [{ "binding": "FILES", "bucket_name": "files" }]

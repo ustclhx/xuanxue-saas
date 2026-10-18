@@ -1,5 +1,5 @@
-import { Button, DataTable } from '@xuanxue/ui'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { Button, DataTable } from '@xuanxue/ui'
 import { useState } from 'react'
 import { ADMIN_PAGE_SIZE, adminListPage, adminListSearch } from '../../features/admin/list.ts'
 import { AdminPage, adminTableLabels, formatDateTime } from '../../features/admin/ui.tsx'

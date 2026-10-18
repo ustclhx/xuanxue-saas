@@ -10,7 +10,8 @@ if (appUrl || migrationUrl) {
   if (
     app.host !== migrator.host ||
     app.pathname !== migrator.pathname ||
-    (!app.pathname.startsWith('/xuanxue_wt_') && !(process.env.CI && app.pathname === '/xuanxue_ci'))
+    (!app.pathname.startsWith('/xuanxue_wt_') &&
+      !(process.env.CI && app.pathname === '/xuanxue_ci'))
   )
     throw new Error('Entitlements tests require matching isolated worktree or CI databases')
   process.env.MIGRATION_DATABASE_URL = migrationUrl

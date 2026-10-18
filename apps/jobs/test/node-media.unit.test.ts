@@ -1,5 +1,9 @@
 import type { MediaResult } from '@xuanxue/ai'
-import { defineTemplateConfig, MEDIA_MAX_FILE_BYTES, MEDIA_OUTPUT_MIME_TYPES } from '@xuanxue/config'
+import {
+  defineTemplateConfig,
+  MEDIA_MAX_FILE_BYTES,
+  MEDIA_OUTPUT_MIME_TYPES,
+} from '@xuanxue/config'
 import type { AiTask, Database } from '@xuanxue/db'
 import type { WorkflowStep } from '@xuanxue/platform'
 import { getLogContext, withLogContext } from '@xuanxue/shared/log'

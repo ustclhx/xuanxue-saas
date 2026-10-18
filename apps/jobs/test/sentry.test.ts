@@ -4,8 +4,8 @@ import {
   waitOnExecutionContext,
 } from 'cloudflare:test'
 import { env, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers'
-import { NonRetryableError } from '@xuanxue/platform'
 import { instrumentWorkflowWithSentry } from '@sentry/cloudflare'
+import { NonRetryableError } from '@xuanxue/platform'
 import { afterEach, expect, it, vi } from 'vitest'
 import worker, { AiMediaWorkflow } from '../src/index.ts'
 import { sentryOptions } from '../src/sentry.ts'

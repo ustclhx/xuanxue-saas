@@ -1,5 +1,5 @@
-import { requireCapability } from '@xuanxue/platform'
 import { createFileRoute } from '@tanstack/react-router'
+import { requireCapability } from '@xuanxue/platform'
 import { createQueueAuthEmailSender } from '../../../server/auth-email.ts'
 import { devOnly } from '../../../server/dev-only.ts'
 import { getWebRuntime } from '../../../server/runtime.ts'

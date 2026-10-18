@@ -1,6 +1,6 @@
+import { isNotFound, isRedirect } from '@tanstack/react-router'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
-import { isNotFound, isRedirect } from '@tanstack/react-router'
 import { getWebRuntime } from './runtime.ts'
 
 /** Start 序列化异常前通知入口注入的观测能力，避免共享中间件加载 CF SDK。 */

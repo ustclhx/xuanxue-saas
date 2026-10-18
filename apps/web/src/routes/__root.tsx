@@ -1,4 +1,3 @@
-import { themeInitScript } from '@xuanxue/ui'
 import {
   createRootRoute,
   HeadContent,
@@ -6,6 +5,7 @@ import {
   Scripts,
   useRouterState,
 } from '@tanstack/react-router'
+import { themeInitScript } from '@xuanxue/ui'
 import type { ReactNode } from 'react'
 import { ImpersonationBanner } from '../features/admin/impersonation-banner.tsx'
 import { getAnnouncement } from '../features/admin/settings-announcement.functions.ts'

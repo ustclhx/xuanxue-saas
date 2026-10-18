@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
+import type { ErrorEvent, NodeOptions } from '@sentry/node'
 import { AppError } from '@xuanxue/shared'
 import { getLogContext, withLogContext } from '@xuanxue/shared/log'
-import type { ErrorEvent, NodeOptions } from '@sentry/node'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { consumeJobsBatch, type JobsContext, runJobsSchedule } from '../src/handlers.ts'
 import { initializeNodeObservability, nodeBeforeSend } from '../src/node/observability.ts'
@@ -286,7 +286,10 @@ it('isolates actual consumer members and captures cron and outer sink failures w
     },
   } as unknown as JobsContext
   await withLogContext({ jobId: 'batch-identity', workspaceId: 'workspace' }, () =>
-    consumeJobsBatch({ queue: 'xuanxue-email', messages, ackAll: vi.fn(), retryAll: vi.fn() }, context),
+    consumeJobsBatch(
+      { queue: 'xuanxue-email', messages, ackAll: vi.fn(), retryAll: vi.fn() },
+      context,
+    ),
   )
   expect(scopes).toHaveLength(2)
   expect(scopes[0]).not.toBe(parentScope)

@@ -1,5 +1,5 @@
-import { Button, useAppForm } from '@xuanxue/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Button, useAppForm } from '@xuanxue/ui'
 import { type ReactNode, useState } from 'react'
 import { z } from 'zod'
 import { authClient, goToApp, signInCallbackURL } from '../../features/auth/auth-client.ts'

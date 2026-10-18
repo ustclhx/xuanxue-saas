@@ -52,7 +52,8 @@ describe('apps/jobs', () => {
     expect((error as Error).message).toBe('Invalid environment: missing HYPERDRIVE')
   })
 
-  it('AiMediaWorkflow 跨绑定等待媒体事件，并读取落库回调进入转存与结算步骤', async () => {
+  // 生成项目关闭图片/视频时没有 Workflow 绑定，媒体编排用例随之跳过
+  it.skipIf(!env.AI_MEDIA_WORKFLOW)('AiMediaWorkflow 跨绑定等待媒体事件，并读取落库回调进入转存与结算步骤', async () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     const id = crypto.randomUUID()
     const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)
@@ -114,7 +115,7 @@ describe('apps/jobs', () => {
     }
   })
 
-  it('取消读到 running 后实例已自行结束：真实绑定 terminate 抛错，中立适配视为已终止', async () => {
+  it.skipIf(!env.AI_MEDIA_WORKFLOW)('取消读到 running 后实例已自行结束：真实绑定 terminate 抛错，中立适配视为已终止', async () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     const id = crypto.randomUUID()
     const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)

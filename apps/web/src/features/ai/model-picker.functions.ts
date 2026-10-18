@@ -1,7 +1,12 @@
-import { dbModelStore, listAvailableModels, supportsTextThinking, textModelConfig } from '@xuanxue/ai'
-import { getEntitlements } from '@xuanxue/entitlements'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
+import {
+  dbModelStore,
+  listAvailableModels,
+  supportsTextThinking,
+  textModelConfig,
+} from '@xuanxue/ai'
+import { getEntitlements } from '@xuanxue/entitlements'
 import { z } from 'zod'
 import { withBilling } from '../../server/feature-gates.ts'
 import { withWorkspace } from '../../server/middleware.ts'

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@xuanxue/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Card, CardContent, CardHeader, CardTitle } from '@xuanxue/ui'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminMetrics } from '../../features/admin/metrics.functions.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>免費八字排盤</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4EFE4}
+a{color:#9E3A27}a:hover{color:#7A2B1C}
+</style>
+</helmet>
+<div style="background: #F4EFE4; color: #1F1C18; font-family: -apple-system, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; min-height: 100%">
+  <header style="border-bottom: 1px solid #DCD3C1; background: #F4EFE4">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #1F1C18">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12.5" fill="none" stroke="#1F1C18" stroke-width="1.5"></circle><path d="M14 1.5a6.25 6.25 0 0 1 0 12.5a6.25 6.25 0 0 0 0 12.5" fill="none" stroke="#1F1C18" stroke-width="1.5"></path><circle cx="14" cy="7.75" r="1.6" fill="#B8432F"></circle><circle cx="14" cy="20.25" r="1.6" fill="#1F1C18"></circle></svg>
+        <span style="font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 20px; letter-spacing: 2px">[東方站品牌名]</span>
+      </a>
+      <nav style="display: flex; gap: 20px; font-size: 15px; flex-wrap: wrap" aria-label="主要工具">
+        <a href="#" style="color: #1F1C18; text-decoration: none; border-bottom: 2px solid #B8432F; padding-bottom: 2px">八字排盤</a>
+        <a href="#" style="color: #4A443B; text-decoration: none">紫微斗數</a>
+        <a href="#" style="color: #4A443B; text-decoration: none">命盤查詢</a>
+        <a href="#" style="color: #4A443B; text-decoration: none">塔羅</a>
+        <a href="#" style="color: #4A443B; text-decoration: none">한국어</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width: 1120px; margin: 0 auto; padding: 40px 24px 64px; display: flex; flex-direction: column; gap: 32px">
+    <section style="display: flex; flex-direction: column; gap: 10px">
+      <h1 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 40px; line-height: 1.25; font-weight: 700">免費八字排盤</h1>
+      <p style="margin: 0; font-size: 17px; color: #4A443B; max-width: 720px; line-height: 1.7">輸入生辰，立即查看四柱命盤、五行強弱、大運流年與喜用神。免註冊、免填信箱，結果在你的瀏覽器裡直接算出。</p>
+    </section>
+
+    <form style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 20px" aria-label="出生資料">
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-size: 14px; color: #4A443B; margin-bottom: 8px">曆法</legend>
+        <div style="display: flex; gap: 8px">
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 8px; background: #1F1C18; color: #FFFDF8; font-size: 15px"><input type="radio" name="cal" checked style="position: absolute; opacity: 0"> 國曆</label>
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 8px; border: 1px solid #C9BEA8; font-size: 15px"><input type="radio" name="cal" style="position: absolute; opacity: 0"> 農曆</label>
+        </div>
+      </fieldset>
+      <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+        <legend style="font-size: 14px; color: #4A443B; margin-bottom: 8px">性別</legend>
+        <div style="display: flex; gap: 8px">
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 8px; background: #1F1C18; color: #FFFDF8; font-size: 15px"><input type="radio" name="sex" checked style="position: absolute; opacity: 0"> 男</label>
+          <label style="flex: 1; display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 8px; border: 1px solid #C9BEA8; font-size: 15px"><input type="radio" name="sex" style="position: absolute; opacity: 0"> 女</label>
+        </div>
+      </fieldset>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">出生年<input value="1990" inputmode="numeric" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">月<input value="5" inputmode="numeric" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">日<input value="15" inputmode="numeric" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">時間<input value="10:30" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px; background: #FFFDF8; color: #1F1C18"></label>
+      <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; min-height: 44px"><input type="checkbox" style="width: 20px; height: 20px; accent-color: #B8432F"> 不知道出生時辰</label>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">出生地<select style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 10px; font-size: 16px; background: #FFFDF8; color: #1F1C18"><option>台北</option><option>台中</option><option>高雄</option><option>香港</option></select></label>
+      <button type="button" style="align-self: end; min-height: 48px; border: 0; border-radius: 8px; background: #B8432F; color: #FFFDF8; font-size: 17px; font-weight: 600; letter-spacing: 2px; cursor: pointer">立即排盤</button>
+    </form>
+
+    <section aria-labelledby="pillars" style="display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+        <h2 id="pillars" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 24px">① 四柱命盤</h2>
+        <span style="font-size: 14px; color: #6B6355">排盤時間：1990-05-15 10:30（台北，國曆）· 農曆四月廿一</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; color: #6B6355">年柱 · 比肩</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #6E7480">庚</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #B8432F">午</span>
+        </div>
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; color: #6B6355">月柱 · 劫財</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #6E7480">辛</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #B8432F">巳</span>
+        </div>
+        <div style="background: #1F1C18; color: #FFFDF8; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; color: #D8CDB6">日柱 · 日主</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #E6E0D2">庚</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #D9A441">辰</span>
+        </div>
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 16px; text-align: center; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 13px; color: #6B6355">時柱 · 劫財</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #6E7480">辛</span>
+          <span style="font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.1; color: #B8432F">巳</span>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+      <section aria-labelledby="wx" style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <h2 id="wx" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">② 五行強弱</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px">
+          <div style="display: flex; align-items: center; gap: 12px"><span style="width: 24px">金</span><div style="flex: 1; height: 14px; background: #EEE7D8; border-radius: 7px"><div style="width: 50%; height: 14px; background: #6E7480; border-radius: 7px"></div></div><span style="width: 36px; text-align: right">4</span></div>
+          <div style="display: flex; align-items: center; gap: 12px"><span style="width: 24px">火</span><div style="flex: 1; height: 14px; background: #EEE7D8; border-radius: 7px"><div style="width: 37.5%; height: 14px; background: #B8432F; border-radius: 7px"></div></div><span style="width: 36px; text-align: right">3</span></div>
+          <div style="display: flex; align-items: center; gap: 12px"><span style="width: 24px">土</span><div style="flex: 1; height: 14px; background: #EEE7D8; border-radius: 7px"><div style="width: 12.5%; height: 14px; background: #9A7438; border-radius: 7px"></div></div><span style="width: 36px; text-align: right">1</span></div>
+          <div style="display: flex; align-items: center; gap: 12px"><span style="width: 24px">木</span><div style="flex: 1; height: 14px; background: #EEE7D8; border-radius: 7px"></div><span style="width: 36px; text-align: right">0</span></div>
+          <div style="display: flex; align-items: center; gap: 12px"><span style="width: 24px">水</span><div style="flex: 1; height: 14px; background: #EEE7D8; border-radius: 7px"></div><span style="width: 36px; text-align: right">0</span></div>
+        </div>
+        <p style="margin: 0; font-size: 13px; color: #6B6355">按天干地支本氣計數；引擎版另含藏干加權。</p>
+      </section>
+      <section style="display: flex; flex-direction: column; gap: 20px">
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+          <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">③ 身強身弱</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.7">日主 <strong>庚金</strong> · [引擎結果：身強／身弱與同黨分數]</p>
+        </div>
+        <div style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 8px">
+          <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">④ 喜用神 <span style="font-size: 13px; color: #6B6355; font-family: inherit">參考</span></h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.7">[引擎結果：喜用五行與扶抑依據]</p>
+        </div>
+      </section>
+    </div>
+
+    <section aria-labelledby="dayun" style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+        <h2 id="dayun" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">⑤ 大運十年軸</h2>
+        <span style="font-size: 14px; color: #6B6355">7 歲 3 個月起運 · 點擊任一步查看流年</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px">
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">壬午</span><span style="font-size: 12px; color: #6B6355">8歲 · 1997</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">癸未</span><span style="font-size: 12px; color: #6B6355">18歲 · 2007</span></button>
+        <button type="button" style="min-height: 88px; border: 2px solid #B8432F; background: #FBF1EC; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">甲申</span><span style="font-size: 12px; color: #9E3A27">28歲 · 2017 · 目前</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">乙酉</span><span style="font-size: 12px; color: #6B6355">38歲 · 2027</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">丙戌</span><span style="font-size: 12px; color: #6B6355">48歲 · 2037</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">丁亥</span><span style="font-size: 12px; color: #6B6355">58歲 · 2047</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">戊子</span><span style="font-size: 12px; color: #6B6355">68歲 · 2057</span></button>
+        <button type="button" style="min-height: 88px; border: 1px solid #DCD3C1; background: #FFFDF8; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1F1C18"><span style="font-family: 'Noto Serif TC', serif; font-size: 22px">己丑</span><span style="font-size: 12px; color: #6B6355">78歲 · 2067</span></button>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+      <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">⑥ 神煞</h2>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <span style="padding: 6px 12px; border-radius: 999px; background: #1F1C18; color: #FFFDF8; font-size: 14px">空亡 · 申酉</span>
+          <span style="padding: 6px 12px; border-radius: 999px; border: 1px solid #C9BEA8; font-size: 14px">[桃花]</span>
+          <span style="padding: 6px 12px; border-radius: 999px; border: 1px solid #C9BEA8; font-size: 14px">[天乙貴人]</span>
+          <span style="padding: 6px 12px; border-radius: 999px; border: 1px solid #C9BEA8; font-size: 14px">[驛馬]</span>
+          <span style="padding: 6px 12px; border-radius: 999px; border: 1px solid #C9BEA8; font-size: 14px">[華蓋]</span>
+          <span style="padding: 6px 12px; border-radius: 999px; border: 1px solid #C9BEA8; font-size: 14px">[文昌]</span>
+        </div>
+        <a href="#" style="font-size: 14px">什麼是空亡？→</a>
+      </section>
+      <section style="background: #FFFDF8; border: 1px solid #DCD3C1; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">⑦ 八字重量</h2>
+        <p style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 32px">[ ] 兩 [ ] 錢</p>
+        <a href="#" style="font-size: 14px">八字重量怎麼算？→</a>
+      </section>
+    </div>
+
+    <p style="margin: 0; padding: 14px 16px; border-radius: 8px; background: #ECE5D6; font-size: 14px; color: #4A443B; line-height: 1.6">本工具為 AI 輔助的傳統命理整理，僅供娛樂參考，不預測未來。健康相關問題請諮詢專業醫師。</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+      <section style="border: 1px solid #DCD3C1; border-radius: 12px; padding: 24px; background: #FFFDF8; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">收一份你的個人化解讀</h2>
+        <p style="margin: 0; font-size: 14px; color: #4A443B">依你的日主與關心的主題，寄一封整理好的說明到信箱。</p>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">稱呼（選填）<input style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">Email<input type="email" style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 12px; font-size: 16px"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #4A443B">想了解<select style="min-height: 44px; border: 1px solid #C9BEA8; border-radius: 8px; padding: 0 10px; font-size: 16px"><option>感情</option><option>事業</option><option>財運</option><option>復合</option><option>自我成長</option></select></label>
+        <button type="button" style="min-height: 48px; border: 1px solid #1F1C18; border-radius: 8px; background: #FFFDF8; color: #1F1C18; font-size: 16px; cursor: pointer">寄給我</button>
+      </section>
+      <section style="border-radius: 12px; padding: 24px; background: #1F1C18; color: #FFFDF8; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 22px">完整命盤分析</h2>
+        <ol style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.9; color: #E6E0D2">
+          <li>總論與日主性格</li><li>事業與財運</li><li>感情與人際</li><li>健康作息提示</li><li>未來十年大運逐年重點</li><li>具體建議</li>
+        </ol>
+        <div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 28px; font-weight: 700; color: #D9A441">100 積分</span><span style="font-size: 14px; color: #D8CDB6">約 [NT$ 價格]</span></div>
+        <button type="button" style="min-height: 48px; border: 0; border-radius: 8px; background: #B8432F; color: #FFFDF8; font-size: 17px; font-weight: 600; cursor: pointer">解鎖完整分析</button>
+        <p style="margin: 0; font-size: 12px; color: #D8CDB6">生成失敗不扣積分 · 報告永久保存在你的帳戶</p>
+      </section>
+    </div>
+
+    <nav aria-label="延伸閱讀" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 20px">延伸閱讀</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 15px">
+        <a href="#" style="padding: 14px; border: 1px solid #DCD3C1; border-radius: 10px; text-decoration: none; color: #1F1C18; background: #FFFDF8">大運怎麼看</a>
+        <a href="#" style="padding: 14px; border: 1px solid #DCD3C1; border-radius: 10px; text-decoration: none; color: #1F1C18; background: #FFFDF8">喜用神是什麼</a>
+        <a href="#" style="padding: 14px; border: 1px solid #DCD3C1; border-radius: 10px; text-decoration: none; color: #1F1C18; background: #FFFDF8">身強身弱判斷</a>
+        <a href="#" style="padding: 14px; border: 1px solid #DCD3C1; border-radius: 10px; text-decoration: none; color: #1F1C18; background: #FFFDF8">十神入門</a>
+      </div>
+    </nav>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2380}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

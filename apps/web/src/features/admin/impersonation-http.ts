@@ -1,6 +1,6 @@
+import { isNotFound } from '@tanstack/react-router'
 import { requireFreshSession } from '@xuanxue/auth'
 import { AppError } from '@xuanxue/shared'
-import { isNotFound } from '@tanstack/react-router'
 import { z } from 'zod'
 import type { WebRuntime } from '../../server/runtime.ts'
 import { requireAdmin } from './guard.ts'

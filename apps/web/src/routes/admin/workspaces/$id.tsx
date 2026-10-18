@@ -1,5 +1,5 @@
-import { Button, DetailList } from '@xuanxue/ui'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { Button, DetailList } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { ADMIN_COPY } from '../../../features/admin/copy.ts'
 import {

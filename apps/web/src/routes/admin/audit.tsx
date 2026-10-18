@@ -1,5 +1,5 @@
-import { DataTable } from '@xuanxue/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import { DataTable } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { getAdminAuditLogs } from '../../features/admin/audit.functions.ts'
 import {

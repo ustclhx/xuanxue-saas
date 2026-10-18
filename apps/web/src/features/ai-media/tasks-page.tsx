@@ -1,5 +1,5 @@
-import { Button, Input, Label } from '@xuanxue/ui'
 import { Link } from '@tanstack/react-router'
+import { Button, Input, Label } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'

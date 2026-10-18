@@ -1,7 +1,12 @@
 // Cloudflare composition entry：绑定、WorkflowEntrypoint 与 Sentry SDK 只在目标入口装配。
 import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers'
+import { instrumentWorkflowWithSentry, withSentry } from '@sentry/cloudflare'
 import { createTaskMediaProvider, getMediaOutputHosts, readMediaTaskInput } from '@xuanxue/ai'
-import { emailTransportConfig, MEDIA_MAX_FILE_BYTES, MEDIA_OUTPUT_MIME_TYPES } from '@xuanxue/config'
+import {
+  emailTransportConfig,
+  MEDIA_MAX_FILE_BYTES,
+  MEDIA_OUTPUT_MIME_TYPES,
+} from '@xuanxue/config'
 import { createDb } from '@xuanxue/db'
 import { getEntitlements } from '@xuanxue/entitlements'
 import {
@@ -14,7 +19,6 @@ import {
 import { newRequestId, withLogContext } from '@xuanxue/shared/log'
 import { getFileDownload, persistMediaOutputs } from '@xuanxue/storage'
 import { createCloudflareMediaCopier, createCloudflareStorage } from '@xuanxue/storage/cloudflare'
-import { instrumentWorkflowWithSentry, withSentry } from '@sentry/cloudflare'
 import templateConfig from '../../../template.config.ts'
 import { registerAiHoldSweepers } from './ai.ts'
 import { requireEnv } from './env.ts'

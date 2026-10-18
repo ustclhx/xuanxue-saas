@@ -1,5 +1,5 @@
-import { Input } from '@xuanxue/ui'
 import { Link } from '@tanstack/react-router'
+import { Input } from '@xuanxue/ui'
 import { useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { type DocsNavSection, type DocsSearchEntry, searchDocs } from './content.ts'

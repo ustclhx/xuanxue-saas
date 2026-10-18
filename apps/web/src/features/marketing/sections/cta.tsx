@@ -1,5 +1,5 @@
-import { Button } from '@xuanxue/ui'
 import { Link } from '@tanstack/react-router'
+import { Button } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
 
 export function Cta() {

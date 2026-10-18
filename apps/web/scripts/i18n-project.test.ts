@@ -84,7 +84,9 @@ it('关闭 i18n 后真实编译仅保留默认中文，账号 Cookie 和语言 U
     expect(m.common_save()).toBe('保存')
     for (const path of ['/app', '/en/pricing', '/zh/pricing']) {
       const response = await paraglideMiddleware(
-        new Request(`https://xuanxue-west.example${path}`, { headers: { cookie: 'PARAGLIDE_LOCALE=en' } }),
+        new Request(`https://xuanxue-west.example${path}`, {
+          headers: { cookie: 'PARAGLIDE_LOCALE=en' },
+        }),
         () => new Response(runtime.getLocale()),
       )
       expect(await response.text()).toBe('zh')

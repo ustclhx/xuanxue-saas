@@ -1,5 +1,5 @@
-import { AppError } from '@xuanxue/shared'
 import { createMiddleware } from '@tanstack/react-start'
+import { AppError } from '@xuanxue/shared'
 import { templateConfig } from './template-config.ts'
 
 export function requireFeature(feature: 'billing' | 'credits') {

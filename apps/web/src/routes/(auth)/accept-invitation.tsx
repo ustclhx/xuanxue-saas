@@ -1,5 +1,5 @@
-import { Button } from '@xuanxue/ui'
 import { createFileRoute } from '@tanstack/react-router'
+import { Button } from '@xuanxue/ui'
 import { useState } from 'react'
 import { z } from 'zod'
 import { authClient } from '../../features/auth/auth-client.ts'

@@ -18,7 +18,9 @@ function objectUrl(env: StorageEnv, key: string): URL {
     !env.FILES ||
     !env.R2_ACCOUNT_ID ||
     !/^[a-f0-9]{32}$/.test(env.R2_ACCOUNT_ID) ||
-    !['xuanxue-files', 'xuanxue-files-staging', 'xuanxue-files-production'].includes(env.R2_FILES_BUCKET ?? '') ||
+    !['xuanxue-files', 'xuanxue-files-staging', 'xuanxue-files-production'].includes(
+      env.R2_FILES_BUCKET ?? '',
+    ) ||
     !env.R2_ACCESS_KEY_ID ||
     !env.R2_SECRET_ACCESS_KEY
   ) {

@@ -15,7 +15,10 @@ const migration = new URL(migrationUrl)
 if (
   app.host !== migration.host ||
   app.pathname !== migration.pathname ||
-  !(/^\/xuanxue_wt_[a-z0-9_]+$/.test(app.pathname) || (process.env.CI && app.pathname === '/xuanxue_ci'))
+  !(
+    /^\/xuanxue_wt_[a-z0-9_]+$/.test(app.pathname) ||
+    (process.env.CI && app.pathname === '/xuanxue_ci')
+  )
 )
   throw new Error('Catalog tests require matching isolated xuanxue_wt_* databases')
 const db = createDb({ connectionString: url })

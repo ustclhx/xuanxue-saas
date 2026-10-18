@@ -107,7 +107,11 @@ it('triggers one audited admin HTTP error and one durable SMTP job failure in th
       db,
       {
         config: defineTemplateConfig({
-          app: { name: 'Sentry fixture', url: appUrl, supportEmail: 'support@xuanxue-west.example' },
+          app: {
+            name: 'Sentry fixture',
+            url: appUrl,
+            supportEmail: 'support@xuanxue-west.example',
+          },
           auth: { oauth: [], turnstile: false, requireEmailVerification: true },
         }),
         sendEmail: async (message) => {

@@ -1,6 +1,6 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { requireCapability } from '@xuanxue/platform'
 import { withRequestId } from '@xuanxue/shared/log'
-import { createFileRoute } from '@tanstack/react-router'
 import { devOnly } from '../../../server/dev-only.ts'
 import { getWebRuntime } from '../../../server/runtime.ts'
 

@@ -56,7 +56,11 @@ for (const mode of ['reachable', 'stalled', 'disabled']) {
     try {
       const auth = createAuth({ APP_URL: appUrl, BETTER_AUTH_SECRET: secret }, db, {
         config: defineTemplateConfig({
-          app: { name: 'Observer fixture', url: appUrl, supportEmail: 'support@xuanxue-west.example' },
+          app: {
+            name: 'Observer fixture',
+            url: appUrl,
+            supportEmail: 'support@xuanxue-west.example',
+          },
           auth: { oauth: [], turnstile: false },
         }),
         sendEmail: async () => {},

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Life Path Number Calculator</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#11162A}
+a{color:#E3C36F}a:hover{color:#F2DA9A}
+</style>
+</helmet>
+<div style="background: #11162A; color: #ECE7DA; font-family: 'Source Sans 3', -apple-system, 'Segoe UI', sans-serif; min-height: 100%">
+  <header style="border-bottom: 1px solid #2A3150">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ECE7DA">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 2l2.6 7.4L23 13l-7.4 2.6L13 23l-2.6-7.4L3 13l7.4-3.6z" fill="none" stroke="#E3C36F" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        <span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 22px; letter-spacing: 0.5px">[West brand name]</span>
+      </a>
+      <nav aria-label="Tools" style="display: flex; gap: 22px; font-size: 15px; flex-wrap: wrap">
+        <a href="#" style="color: #ECE7DA; text-decoration: none; border-bottom: 2px solid #E3C36F; padding-bottom: 2px">Life Path</a>
+        <a href="#" style="color: #B9B5AA; text-decoration: none">Numerology Calculator</a>
+        <a href="#" style="color: #B9B5AA; text-decoration: none">Compatibility</a>
+        <a href="#" style="color: #B9B5AA; text-decoration: none">Tarot</a>
+      </nav>
+    </div>
+  </header>
+  <main style="max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; display: flex; flex-direction: column; gap: 40px">
+    <section style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+      <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 16px">
+        <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 56px; line-height: 1.05">Life Path Number Calculator</h1>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #C9C4B7; max-width: 520px">Enter your birth date to find your life path number and see exactly how it is calculated — including master numbers 11, 22 and 33.</p>
+        <form style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-top: 8px" aria-label="Birth date">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #B9B5AA; flex: 1 1 220px">Date of birth<input value="1987-11-29" style="min-height: 48px; border: 1px solid #3A4266; border-radius: 10px; padding: 0 14px; font-size: 17px; background: #181F3A; color: #ECE7DA"></label>
+          <button type="button" style="min-height: 48px; padding: 0 24px; border: 0; border-radius: 10px; background: #E3C36F; color: #11162A; font-size: 17px; font-weight: 600; cursor: pointer">Calculate</button>
+        </form>
+      </div>
+      <section aria-labelledby="res" style="flex: 1 1 380px; background: #181F3A; border: 1px solid #2A3150; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+        <span id="res" style="font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; color: #B9B5AA">Your life path number</span>
+        <div style="display: flex; align-items: center; gap: 18px">
+          <span style="font-family: 'Cormorant Garamond', serif; font-size: 112px; line-height: 0.9; color: #E3C36F">11</span>
+          <span style="padding: 6px 12px; border: 1px solid #E3C36F; border-radius: 999px; font-size: 13px; color: #E3C36F">Master number</span>
+        </div>
+        <div style="font-size: 15px; line-height: 1.8; color: #C9C4B7; font-variant-numeric: tabular-nums">
+          <div>Month 11 → 11 (kept)</div>
+          <div>Day 29 → 2 + 9 = 11 (kept)</div>
+          <div>Year 1987 → 1 + 9 + 8 + 7 = 25 → 7</div>
+          <div style="color: #ECE7DA">11 + 11 + 7 = 29 → 2 + 9 = <strong>11</strong></div>
+        </div>
+        <a href="#" style="font-size: 16px">Read the full meaning of Life Path 11 →</a>
+        <p style="margin: 0; font-size: 12px; color: #9A96A0">For entertainment and self-reflection. Not a prediction of the future.</p>
+      </section>
+    </section>
+
+    <nav aria-labelledby="nums" style="display: flex; flex-direction: column; gap: 14px">
+      <h2 id="nums" style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600">All life path numbers</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px">
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">1</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">2</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">3</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">4</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">5</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">6</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">7</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">8</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">9</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #E3C36F; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #E3C36F; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">11</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">22</a>
+        <a href="#" style="min-height: 64px; border: 1px solid #2A3150; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #ECE7DA; font-family: 'Cormorant Garamond', serif; font-size: 28px; background: #151B33">33</a>
+      </div>
+    </nav>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+      <section style="border: 1px solid #2A3150; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; background: #151B33">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600">Get your personal reading by email</h2>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #B9B5AA">Email<input type="email" style="min-height: 44px; border: 1px solid #3A4266; border-radius: 10px; padding: 0 12px; font-size: 16px; background: #181F3A; color: #ECE7DA"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: #B9B5AA">I want to understand<select style="min-height: 44px; border: 1px solid #3A4266; border-radius: 10px; padding: 0 10px; font-size: 16px; background: #181F3A; color: #ECE7DA"><option>Love</option><option>Career</option><option>Money</option><option>My ex</option><option>Personal growth</option></select></label>
+        <button type="button" style="min-height: 48px; border: 1px solid #E3C36F; border-radius: 10px; background: transparent; color: #E3C36F; font-size: 16px; cursor: pointer">Send it to me</button>
+      </section>
+      <section style="border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 12px; background: #ECE7DA; color: #11162A">
+        <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700">Full numerology report</h2>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6">Life path, expression, soul urge, personality and your personal year — read together in one report.</p>
+        <div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 26px; font-weight: 600">100 credits</span><span style="font-size: 14px; color: #3D4361">about [$ price]</span></div>
+        <button type="button" style="min-height: 48px; border: 0; border-radius: 10px; background: #11162A; color: #ECE7DA; font-size: 17px; font-weight: 600; cursor: pointer">Unlock full report</button>
+      </section>
+    </div>
+
+    <article style="max-width: 720px; display: flex; flex-direction: column; gap: 12px">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600">What is a life path number?</h2>
+      <p style="margin: 0; font-size: 17px; line-height: 1.75; color: #C9C4B7">[Long-form explainer, about 800 words, written for this page: definition, how the calculation works, master numbers, how to read your number, FAQ.]</p>
+    </article>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

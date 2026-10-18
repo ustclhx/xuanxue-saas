@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import type { ErrorEvent, EventHint, NodeOptions, StackFrame } from '@sentry/node'
 import { AppError } from '@xuanxue/shared'
 import { getLogContext, log, sentryBeforeSend } from '@xuanxue/shared/log'
-import type { ErrorEvent, EventHint, NodeOptions, StackFrame } from '@sentry/node'
 import type { JobObserver } from '../observer.ts'
 
 export interface NodeObservabilityConfig {

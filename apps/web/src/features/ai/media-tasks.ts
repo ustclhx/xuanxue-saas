@@ -32,7 +32,12 @@ import {
   scoped,
 } from '@xuanxue/db'
 import { type Entitlements, getEntitlements, requireEntitlement } from '@xuanxue/entitlements'
-import { type Capability, type RateLimiter, requireCapability, type Workflow } from '@xuanxue/platform'
+import {
+  type Capability,
+  type RateLimiter,
+  requireCapability,
+  type Workflow,
+} from '@xuanxue/platform'
 import { AppError, MEDIA_DONE_EVENT, newId, toErrorResponse } from '@xuanxue/shared'
 import { log, setLogContext } from '@xuanxue/shared/log'
 import { getStorageUsage } from '@xuanxue/storage'

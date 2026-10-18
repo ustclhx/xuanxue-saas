@@ -1,5 +1,5 @@
-import { DataTable } from '@xuanxue/ui'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { DataTable } from '@xuanxue/ui'
 import {
   adminListPage,
   adminListSearch,

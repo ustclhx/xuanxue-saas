@@ -505,7 +505,15 @@ secrets:
   })
   run(
     'pnpm',
-    ['--filter', '@xuanxue/web', 'exec', 'playwright', 'test', '-c', 'playwright.selfhost.config.ts'],
+    [
+      '--filter',
+      '@xuanxue/web',
+      'exec',
+      'playwright',
+      'test',
+      '-c',
+      'playwright.selfhost.config.ts',
+    ],
     {
       env: {
         ...env,

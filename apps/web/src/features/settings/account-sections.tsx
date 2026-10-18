@@ -1,5 +1,5 @@
-import { Button, Input, Label, useAppForm } from '@xuanxue/ui'
 import { useRouter } from '@tanstack/react-router'
+import { Button, Input, Label, useAppForm } from '@xuanxue/ui'
 import { type ReactNode, useId, useState } from 'react'
 import { baseLocale, isLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'

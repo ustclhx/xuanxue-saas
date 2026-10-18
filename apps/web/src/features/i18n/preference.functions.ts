@@ -1,6 +1,6 @@
-import { AppError } from '@xuanxue/shared'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
+import { AppError } from '@xuanxue/shared'
 import { baseLocale, isLocale } from '../../paraglide/runtime.js'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'

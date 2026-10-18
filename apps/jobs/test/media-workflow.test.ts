@@ -12,7 +12,15 @@ import {
   updateMediaFaultProof,
 } from '@xuanxue/ai'
 import { getCreditBalance, grant, hold } from '@xuanxue/credits'
-import { type AiPricingJson, aiTask, createDb, member, organization, scoped, user } from '@xuanxue/db'
+import {
+  type AiPricingJson,
+  aiTask,
+  createDb,
+  member,
+  organization,
+  scoped,
+  user,
+} from '@xuanxue/db'
 import { NonRetryableError, type WorkflowStep } from '@xuanxue/platform'
 import { createCloudflareWorkflowStep } from '@xuanxue/platform/cloudflare'
 import { MEDIA_DONE_EVENT } from '@xuanxue/shared'

@@ -1,10 +1,10 @@
-import { getLogContext, sentryBeforeSend } from '@xuanxue/shared/log'
 import {
   type CloudflareOptions,
   captureException,
   getClient,
   getIsolationScope,
 } from '@sentry/cloudflare'
+import { getLogContext, sentryBeforeSend } from '@xuanxue/shared/log'
 import type { JobObserver } from './observer.ts'
 
 export interface SentryEnv {

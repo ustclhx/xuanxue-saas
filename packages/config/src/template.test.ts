@@ -8,7 +8,11 @@ import {
   templateConfigDefaults,
 } from './template.ts'
 
-const app = { name: 'xuanxue', url: 'https://xuanxue-west.example', supportEmail: 'support@xuanxue-west.example' }
+const app = {
+  name: 'xuanxue',
+  url: 'https://xuanxue-west.example',
+  supportEmail: 'support@xuanxue-west.example',
+}
 
 describe('defineTemplateConfig', () => {
   it('fills every omitted option with the documented default', () => {

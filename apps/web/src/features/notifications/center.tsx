@@ -1,5 +1,5 @@
-import { Button, DataTable } from '@xuanxue/ui'
 import { useRouter } from '@tanstack/react-router'
+import { Button, DataTable } from '@xuanxue/ui'
 import { useCallback, useEffect, useState } from 'react'
 import { adminListPage, offsetOfPage } from '../admin/list.ts'
 import { getNotifications, readNotifications } from './notifications.functions.ts'

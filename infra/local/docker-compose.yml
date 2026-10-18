@@ -1,5 +1,5 @@
 # 本地开发 Postgres。约定（scripts/orca/lib.sh 与 docs/09-parallel-plan.md §2 依赖它们）：
-#   - 容器名 xuanxue-pg，超级用户 postgres，宿主机端口 5432
+#   - 容器名 xuanxue-pg，超级用户 postgres，宿主机端口 5433（5432 留给 saas-template-pg）
 #   - 主 checkout 使用数据库 xuanxue_dev；Orca worktree 由 scripts/orca/setup.sh 另建 xuanxue_wt_<名称>
 #   - 初始化脚本创建 app（DML）/ migrator（DDL）/ readonly（SELECT）三个账号，本地密码与账号名相同
 # 启动：docker compose -f infra/local/docker-compose.yml up -d
@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: xuanxue_dev
     ports:
-      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:5433:5432'
     volumes:
       - pg-data:/var/lib/postgresql/data
       - ./initdb:/docker-entrypoint-initdb.d:ro
