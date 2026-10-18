@@ -97,7 +97,14 @@ test.describe('禁用脚本', () => {
     for (const label of ['出生時間', '不知道出生時辰', '真太陽時校正'])
       await expect(form.getByLabel(label, { exact: true })).toBeVisible()
     await expect(form.getByRole('combobox', { name: '出生地' })).toBeVisible()
-    await expect(form.getByRole('button', { name: '立即排盤' })).toBeVisible()
+    // 隐私：未水合 / 禁用脚本时不能原生提交（POST 且按钮禁用），并提示需要 JavaScript
+    await expect(form.getByRole('button', { name: '立即排盤' })).toBeDisabled()
+    await expect(form).toHaveAttribute('method', 'post')
+    expect(await form.getAttribute('action')).toBe('/zh-hant')
+    // Playwright 禁用脚本时解析器仍按启用脚本处理 <noscript>（内容为原始文本），因此检查文档 HTML
+    expect(await form.innerHTML()).toMatch(
+      /<noscript>.*需要啟用 JavaScript 才能排盤。.*<\/noscript>/s,
+    )
   })
 })
 

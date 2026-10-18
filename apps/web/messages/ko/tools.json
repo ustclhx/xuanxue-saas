@@ -10,5 +10,6 @@
   "tools_results_label": "결과",
   "tools_result_loading": "계산 중…",
   "tools_links_title": "함께 읽기",
-  "tools_faq_title": "자주 묻는 질문"
+  "tools_faq_title": "자주 묻는 질문",
+  "tools_requires_js": "결과를 계산하려면 JavaScript를 켜 주세요."
 }

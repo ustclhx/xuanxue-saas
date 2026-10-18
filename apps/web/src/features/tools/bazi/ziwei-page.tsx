@@ -113,6 +113,7 @@ export function ZiweiPage() {
         <ToolForm
           key={tool.formKey}
           label={m.bazi_form_label()}
+          requiresJs={m.bazi_requires_js()}
           onSubmit={tool.onSubmit}
           onChange={tool.onChange}
         >

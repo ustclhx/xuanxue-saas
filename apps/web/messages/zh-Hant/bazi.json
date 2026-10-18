@@ -234,5 +234,6 @@
   "bazi_mingpan_faq_q1": "命盤查詢和八字排盤的結果一樣嗎？",
   "bazi_mingpan_faq_a1": "一樣。兩頁使用同一個排盤引擎與同一份出生資料，命盤查詢改用表格呈現，方便逐欄對照。",
   "bazi_mingpan_faq_q2": "表格中的歲數怎麼算？",
-  "bazi_mingpan_faq_a2": "大運歲數採虛歲，與常見萬年曆一致；起運時間依出生到前後節氣的時間差換算。"
+  "bazi_mingpan_faq_a2": "大運歲數採虛歲，與常見萬年曆一致；起運時間依出生到前後節氣的時間差換算。",
+  "bazi_requires_js": "需要啟用 JavaScript 才能排盤。"
 }

@@ -161,6 +161,7 @@ export function GunghapPage() {
         <ToolForm
           key={`${a.formKey}-${b.formKey}`}
           label={m.bazi_form_label()}
+          requiresJs={m.bazi_requires_js()}
           onSubmit={onSubmit}
           onChange={onChange}
           className="flex flex-col"

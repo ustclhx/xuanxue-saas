@@ -148,3 +148,21 @@ describe('registry', () => {
     expect(toolsForLocale('ko', routes)).toEqual([])
   })
 })
+
+describe('ToolForm 隐私', () => {
+  it('SSR 输出 POST 表单（不以 GET 把输入放进查询串），水合前禁用提交并给出禁用脚本提示', () => {
+    const html = render(
+      <ToolForm label="Birth details" onSubmit={() => {}} requiresJs="JavaScript needed">
+        <TextField label="Birth year" name="year" />
+        <SubmitButton>Calculate</SubmitButton>
+      </ToolForm>,
+    )
+    const form = html.match(/<form[^>]*>/)?.[0] ?? ''
+    expect(form).toContain('method="post"')
+    expect(form).not.toMatch(/method="get"/i)
+    expect(form).not.toMatch(/action="[^"]*\?/)
+    expect(html).toMatch(/<button type="submit" disabled=""/)
+    expect(html).toContain('<noscript>')
+    expect(html).toContain('JavaScript needed')
+  })
+})

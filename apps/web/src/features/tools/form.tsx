@@ -1,16 +1,45 @@
+import { useRouter } from '@tanstack/react-router'
 import { cn } from '@xuanxue/ui'
-import { type ComponentProps, type FormEvent, type ReactNode, useId } from 'react'
+import {
+  type ComponentProps,
+  createContext,
+  type FormEvent,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useId,
+  useState,
+} from 'react'
+import { m } from '../../paraglide/messages.js'
 import { useTool } from './context.tsx'
+
+/** 表单是否已水合：水合前提交按钮禁用，避免原生提交 */
+const FormReadyContext = createContext(true)
+
+/**
+ * 当前页的公开地址（含语言前缀，不含查询串与片段），作为原生提交的兜底 action；
+ * 不在路由内渲染（组件单测）时返回 undefined。
+ */
+function useCurrentPath(): string | undefined {
+  const router = useRouter({ warn: false })
+  const href = router?.state.location.publicHref
+  return href ? new URL(href, 'http://localhost').pathname : undefined
+}
 
 /**
  * 工具页内联表单（视觉规范「布局与组件」）：真实 <label>，单选组用 <fieldset>/<legend>，
  * 所有控件 ≥44px、16px 字号（避免移动端缩放）。提交时上报 tool_submit（不含任何表单值），
  * 再把 FormData 交给工具在浏览器本地计算。
+ *
+ * 隐私：表单含出生日期等个人信息，绝不能以原生 GET 提交（会进入查询串、服务端日志与浏览器历史）。
+ * 因此 method 固定为 post、action 为当前页无查询串地址，且提交按钮在水合前禁用；
+ * 禁用脚本时显示提示（requiresJs）。
  */
 export function ToolForm({
   label,
   onSubmit,
   onChange,
+  requiresJs,
   className,
   children,
 }: {
@@ -18,10 +47,15 @@ export function ToolForm({
   onSubmit: (data: FormData) => void
   /** 任一控件变化时收到整张表单的值（如跨页保留输入、按选项显示字段） */
   onChange?: (data: FormData) => void
+  /** 禁用脚本时的提示，默认通用文案 */
+  requiresJs?: string
   className?: string
   children: ReactNode
 }) {
   const { track } = useTool()
+  const action = useCurrentPath()
+  const [ready, setReady] = useState(false)
+  useEffect(() => setReady(true), [])
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     track('tool_submit')
@@ -30,6 +64,8 @@ export function ToolForm({
   return (
     <form
       aria-label={label}
+      method="post"
+      action={action}
       onSubmit={submit}
       onChange={onChange && ((event) => onChange(new FormData(event.currentTarget)))}
       className={cn(
@@ -37,7 +73,12 @@ export function ToolForm({
         className,
       )}
     >
-      {children}
+      <FormReadyContext value={ready}>{children}</FormReadyContext>
+      <noscript>
+        <p className="m-0 self-center text-brand-ink text-sm">
+          {requiresJs ?? m.tools_requires_js()}
+        </p>
+      </noscript>
     </form>
   )
 }
@@ -161,11 +202,13 @@ export function ChoiceGroup({
 }
 
 export function SubmitButton({ children, className }: { children: ReactNode; className?: string }) {
+  const ready = useContext(FormReadyContext)
   return (
     <button
       type="submit"
+      disabled={!ready}
       className={cn(
-        'min-h-12 self-end rounded-lg bg-brand px-6 font-semibold text-[17px] text-on-brand tracking-wide transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2',
+        'min-h-12 self-end rounded-lg bg-brand px-6 font-semibold text-[17px] text-on-brand tracking-wide transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
         className,
       )}
     >
