@@ -6,7 +6,7 @@
 
 ## 2. Node 运行时删除（Claude worker）
 
-- [ ] 2.1 删除 web/jobs 的 Node 入口、构建脚本、vitest node 配置与 Node 专用测试，packages 中只服务 Node 的适配器及其依赖，CI `node` job；验证：`pnpm install` 后 `pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm check:singletons`、`pnpm test`、`pnpm build` 与 `wrangler deploy --dry-run`（web、jobs）通过
+- [x] 2.1 删除 web/jobs 的 Node 入口、构建脚本、vitest node 配置与 Node 专用测试，packages 中只服务 Node 的适配器及其依赖，CI `node` job；验证：`pnpm install` 后 `pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm check:singletons`、`pnpm test`、`pnpm build` 与 `wrangler deploy --dry-run`（web、jobs）通过
 - [x] 2.2 删除模板生成器与 quick-start 技能，`.agents/skills` 与 `.claude/skills` 保持逐字节一致；验证：`cmp` 两处技能目录，`pnpm check` 通过
 
 ## 3. 文档

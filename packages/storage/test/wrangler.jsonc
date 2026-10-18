@@ -10,5 +10,5 @@
       "localConnectionString": "postgres://app:app@localhost:5433/xuanxue_dev"
     }
   ],
-  "r2_buckets": [{ "binding": "FILES", "bucket_name": "files" }]
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files" }]
 }
