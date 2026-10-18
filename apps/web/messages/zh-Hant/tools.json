@@ -1,0 +1,14 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "tools_disclaimer_label": "聲明",
+  "tools_disclaimer": "本工具為 AI 輔助的傳統命理整理，僅供娛樂參考，不預測未來。健康相關問題請諮詢專業醫師。",
+  "tools_share_label": "分享連結",
+  "tools_share_copy": "複製分享連結",
+  "tools_share_copied": "已複製連結",
+  "tools_share_failed": "無法自動複製，請選取上方連結手動複製。",
+  "tools_share_hint": "打開連結即可看到同一份結果，連結不含你的姓名。",
+  "tools_results_label": "結果",
+  "tools_result_loading": "計算中…",
+  "tools_links_title": "延伸閱讀",
+  "tools_faq_title": "常見問題"
+}

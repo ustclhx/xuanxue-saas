@@ -3,8 +3,15 @@ import { expect, type Page, test } from '@playwright/test'
 
 // 主题切换（openspec add-marketing-i18n-seo tasks.md 2.1）：浅色 / 深色 / 跟随系统三种模式可切换、
 // 刷新后保留；首帧即为所选主题，没有先浅后深的闪烁。
+// 西方站只有深色主题（docs/design/visual-system.md），切换在东方站上验证：
+// `east.localhost` 由浏览器解析到本机，站点识别见 features/site/site.ts。
 
 const html = (page: Page) => page.locator('html')
+const east = (path: string) => {
+  const url = new URL(path, test.info().project.use.baseURL)
+  url.hostname = 'east.localhost'
+  return url.href
+}
 const option = (page: Page, value: string) => page.locator(`[data-theme-option="${value}"]`)
 
 /** 截图中心像素的亮度（0–255）：在页面内用 canvas 解码截图 */
@@ -25,7 +32,7 @@ async function screenshotLuminance(page: Page) {
 
 test('三种模式可切换并在刷新后保留', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' })
-  await page.goto('/')
+  await page.goto(east('/'))
   await expect(option(page, 'system')).toHaveAttribute('aria-pressed', 'true')
   await expect(html(page)).not.toHaveClass(/\bdark\b/)
 
@@ -60,7 +67,7 @@ for (const [name, setup] of [
     '选择深色后刷新',
     async (page: Page) => {
       await page.emulateMedia({ colorScheme: 'light' })
-      await page.goto('/')
+      await page.goto(east('/'))
       await option(page, 'dark').click()
       await expect(html(page)).toHaveClass(/\bdark\b/)
     },
@@ -77,7 +84,7 @@ for (const [name, setup] of [
     await page.route('**/*', (route) =>
       route.request().resourceType() === 'script' ? route.abort() : route.continue(),
     )
-    await page.goto('/')
+    await page.goto(east('/'))
     await expect(html(page)).toHaveClass(/\bdark\b/)
     expect(await screenshotLuminance(page)).toBeLessThan(64)
   })
@@ -85,7 +92,7 @@ for (const [name, setup] of [
 
 test('首帧为浅色：选择浅色后刷新（系统为深色）', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' })
-  await page.goto('/')
+  await page.goto(east('/'))
   await option(page, 'light').click()
   await page.route('**/*', (route) =>
     route.request().resourceType() === 'script' ? route.abort() : route.continue(),
@@ -93,4 +100,18 @@ test('首帧为浅色：选择浅色后刷新（系统为深色）', async ({ pa
   await page.reload()
   await expect(html(page)).not.toHaveClass(/\bdark\b/)
   expect(await screenshotLuminance(page)).toBeGreaterThan(192)
+})
+
+test('西方站始终为深色：浅色偏好与浅色系统下首帧仍为深色，且不显示主题切换', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('theme', 'light'))
+  await page.route('**/*', (route) =>
+    route.request().resourceType() === 'script' ? route.abort() : route.continue(),
+  )
+  await page.reload()
+  await expect(html(page)).toHaveAttribute('data-site', 'west')
+  await expect(html(page)).toHaveClass(/\bdark\b/)
+  await expect(option(page, 'dark')).toHaveCount(0)
+  expect(await screenshotLuminance(page)).toBeLessThan(64)
 })
