@@ -87,8 +87,11 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         expect(canonicals.has(canonical ?? '')).toBe(false)
         titles.add(title ?? '')
         canonicals.add(canonical ?? '')
+        // 中文 / 韩文路径按 URL 规范百分号编码
         expect(canonical).toBe(
-          `${localeOrigin(locale)}${page.siteEntry ? '/' : localizedPath(page.path, locale)}`,
+          new URL(
+            `${localeOrigin(locale)}${page.siteEntry ? '/' : localizedPath(page.path, locale)}`,
+          ).href,
         )
         for (const key of [
           'description',
@@ -106,14 +109,18 @@ describe('公开页面 SEO（4.1–4.3）', () => {
             head.meta.find((meta) => 'property' in meta && meta.property === key)?.content,
           ).toBeTruthy()
         }
-        expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
-          locales.length + 1,
-        )
-        expect(head.links).toContainEqual({
-          rel: 'alternate',
-          hrefLang: 'x-default',
-          href: `${seoSiteOrigin('west')}${page.path}`,
-        })
+        // 注册在 TOOL_ROUTES 的工具页（东方站入口与繁中首页同为 `/`）只与工具各语言版本互指，
+        // 见 features/tools/bazi/bazi.test.tsx
+        if (!page.alternates && !page.siteEntry) {
+          expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
+            locales.length + 1,
+          )
+          expect(head.links).toContainEqual({
+            rel: 'alternate',
+            hrefLang: 'x-default',
+            href: `${seoSiteOrigin('west')}${page.path}`,
+          })
+        }
       }
     }
   })
@@ -244,9 +251,10 @@ it('关闭营销时没有公开页面，单语言只生成默认语言页面', (
     i18n: { ...config.i18n, enabled: false, defaultLocale: 'zh-Hant' },
   })
   expect(new Set(single.map((page) => page.locale))).toEqual(new Set(['zh-Hant']))
+  // 繁中首页注册为八字排盤工具（TOOL_ROUTES）
   expect(single.find((page) => page.path === '/')).toMatchObject({
     locale: 'zh-Hant',
-    title: 'AI 工作空間',
+    title: '八字排盤',
   })
   expect(single.find((page) => page.path === '/blog/published')?.title).toBe('已發布文章')
   if (!templateConfig.i18n.enabled) {

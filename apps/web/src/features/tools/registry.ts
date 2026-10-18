@@ -17,7 +17,42 @@ export interface ToolRoute {
   readonly titles: Readonly<Partial<Record<string, string>>>
 }
 
-export const TOOL_ROUTES: readonly ToolRoute[] = []
+export const TOOL_ROUTES: readonly ToolRoute[] = [
+  // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本
+  {
+    id: 'bazi',
+    site: 'east',
+    paths: { 'zh-Hant': '/', ko: '/' },
+    titles: { 'zh-Hant': '八字排盤', ko: '만세력' },
+    descriptions: {
+      'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
+      ko: '무료 만세력: 사주팔자, 오행 분포, 신강·신약, 용신, 대운·세운, 신살·귀인·공망 조회.',
+    },
+  },
+  {
+    id: 'ziwei',
+    site: 'east',
+    paths: { 'zh-Hant': '/紫微斗數排盤' },
+    titles: { 'zh-Hant': '紫微斗數' },
+    descriptions: { 'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。' },
+  },
+  {
+    id: 'mingpan',
+    site: 'east',
+    paths: { 'zh-Hant': '/命盤查詢' },
+    titles: { 'zh-Hant': '命盤查詢' },
+    descriptions: { 'zh-Hant': '免費命盤查詢：四柱、藏干、十神與大運流年表。' },
+  },
+  {
+    id: 'saju-gunghap',
+    site: 'east',
+    paths: { ko: '/사주궁합' },
+    titles: { ko: '사주궁합' },
+    descriptions: {
+      ko: '무료 사주궁합: 두 사람의 일주 관계와 오행 보완으로 본 참고 점수와 항목별 가감점.',
+    },
+  },
+]
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */
 export function toolsForLocale(

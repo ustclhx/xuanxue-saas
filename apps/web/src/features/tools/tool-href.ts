@@ -7,5 +7,7 @@ export function toolHref(path: string, locale: string): string {
   const site = siteOfLocale(locale, templateConfig)
   const prefix =
     site && templateConfig.sites[site].defaultLocale === locale ? '' : localePrefix(locale)
+  // 路由器去掉末尾 `/`（trailingSlash: never）：语言首页写成 `/zh-hant` 而不是 `/zh-hant/`
+  if (path === '/') return prefix || '/'
   return `${prefix}${encodeURI(path)}`
 }

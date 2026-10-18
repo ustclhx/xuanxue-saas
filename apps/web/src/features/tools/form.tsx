@@ -1,5 +1,5 @@
 import { cn } from '@xuanxue/ui'
-import type { ComponentProps, FormEvent, ReactNode } from 'react'
+import { type ComponentProps, type FormEvent, type ReactNode, useId } from 'react'
 import { useTool } from './context.tsx'
 
 /**
@@ -10,11 +10,14 @@ import { useTool } from './context.tsx'
 export function ToolForm({
   label,
   onSubmit,
+  onChange,
   className,
   children,
 }: {
   label: string
   onSubmit: (data: FormData) => void
+  /** 任一控件变化时收到整张表单的值（如跨页保留输入、按选项显示字段） */
+  onChange?: (data: FormData) => void
   className?: string
   children: ReactNode
 }) {
@@ -28,6 +31,7 @@ export function ToolForm({
     <form
       aria-label={label}
       onSubmit={submit}
+      onChange={onChange && ((event) => onChange(new FormData(event.currentTarget)))}
       className={cn(
         'grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-x-5 gap-y-4 rounded-xl border border-line bg-surface p-4 sm:p-6',
         className,
@@ -41,15 +45,32 @@ export function ToolForm({
 const control =
   'min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-1'
 
+/** 字段级错误：控件标记 aria-invalid，并用 aria-describedby 关联错误文字 */
+function FieldError({ id, error }: { id: string; error?: string | undefined }) {
+  return error ? (
+    <span id={id} className="text-brand-ink text-sm">
+      {error}
+    </span>
+  ) : null
+}
+
 export function TextField({
   label,
+  error,
   className,
   ...props
-}: { label: string } & ComponentProps<'input'>) {
+}: { label: string; error?: string | undefined } & ComponentProps<'input'>) {
+  const errorId = useId()
   return (
     <label className={cn('flex flex-col gap-1.5 text-ink-muted text-sm', className)}>
       {label}
-      <input className={control} {...props} />
+      <input
+        className={cn(control, 'aria-invalid:border-brand disabled:opacity-50')}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        {...props}
+      />
+      <FieldError id={errorId} error={error} />
     </label>
   )
 }
@@ -57,22 +78,31 @@ export function TextField({
 export function SelectField({
   label,
   options,
+  error,
   className,
   ...props
 }: {
   label: string
   options: readonly { value: string; label: string }[]
+  error?: string | undefined
 } & ComponentProps<'select'>) {
+  const errorId = useId()
   return (
     <label className={cn('flex flex-col gap-1.5 text-ink-muted text-sm', className)}>
       {label}
-      <select className={cn(control, 'px-2.5')} {...props}>
+      <select
+        className={cn(control, 'px-2.5 aria-invalid:border-brand')}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        {...props}
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
+      <FieldError id={errorId} error={error} />
     </label>
   )
 }

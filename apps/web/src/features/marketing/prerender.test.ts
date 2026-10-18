@@ -44,7 +44,11 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
     expect(prerenderEntryPages(templateConfig)).toEqual([
       { path: '/_site/east' },
       { path: '/zh-hant' },
+      // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）
+      { path: '/zh-hant/紫微斗數排盤' },
+      { path: '/zh-hant/命盤查詢' },
       { path: '/ko' },
+      { path: '/ko/사주궁합' },
       { path: '/' },
     ])
   })

@@ -278,6 +278,9 @@ importers:
       '@xuanxue/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@xuanxue/bazi':
+        specifier: workspace:*
+        version: link:../../packages/bazi
       '@xuanxue/billing':
         specifier: workspace:*
         version: link:../../packages/billing

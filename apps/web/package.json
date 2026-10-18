@@ -26,6 +26,7 @@
     "@tanstack/react-start": "^1.168.60",
     "@xuanxue/ai": "workspace:*",
     "@xuanxue/auth": "workspace:*",
+    "@xuanxue/bazi": "workspace:*",
     "@xuanxue/billing": "workspace:*",
     "@xuanxue/config": "workspace:*",
     "@xuanxue/credits": "workspace:*",
