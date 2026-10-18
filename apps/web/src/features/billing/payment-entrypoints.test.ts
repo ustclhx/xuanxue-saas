@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   },
   deletion: vi.fn(),
   status: vi.fn(),
+  requestUrl: 'https://app.test',
 }))
 vi.mock('../../server/runtime.ts', () => ({
   getWebRuntime: () => ({
@@ -47,7 +48,7 @@ vi.mock('@tanstack/react-start', () => ({
 }))
 vi.mock('@tanstack/react-start/server', () => ({
   setResponseStatus: mocks.status,
-  getRequest: () => new Request('https://app.test'),
+  getRequest: () => new Request(mocks.requestUrl),
 }))
 vi.mock('../../server/middleware.ts', () => ({ withRealSession: {}, withWorkspace: {} }))
 vi.mock('../admin/admin.functions.ts', () => ({ adminMiddleware: {} }))
@@ -77,6 +78,11 @@ vi.mock('../../server/template-config.ts', () => ({
   templateConfig: {
     credits: { enabled: true },
     billing: { enabled: true, providers: ['stripe', 'paypal'], refundWindowDays: 30 },
+    i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
+    sites: {
+      east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+      west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+    },
   },
 }))
 vi.mock('../marketing/pricing-data.ts', () => ({
@@ -218,6 +224,43 @@ it('checkout audit uses the trusted runtime IP and configured return URL', async
       successUrl: 'https://configured.test/app/team/billing-return?provider=stripe',
     }),
   )
+})
+
+it('checkout started on the east site returns there and then to the originating page', async () => {
+  mocks.env.PAYMENT_MODE = 'test'
+  mocks.env.APP_URL = 'https://xuanxue-west.example'
+  mocks.requestUrl = 'https://xuanxue-east.example/_serverFn/checkout'
+  mocks.checkout.mockResolvedValue({ url: 'https://checkout.test' })
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const checkout = checkoutCustomer as unknown as (input: unknown) => Promise<unknown>
+  const input = (returnTo: string) => ({
+    context: {
+      db: mocks.db,
+      workspaceReadOnly: false,
+      workspace: { id: 'workspace', slug: 'team' },
+      user: { id: 'user' },
+    },
+    data: { provider: 'stripe', planPriceId: 'price', idempotencyKey: 'key', returnTo },
+  })
+  await checkout(input('/ko/manseryeok'))
+  expect(mocks.checkout).toHaveBeenLastCalledWith(
+    expect.anything(),
+    expect.objectContaining({
+      successUrl:
+        'https://xuanxue-east.example/app/team/billing-return?provider=stripe&returnTo=%2Fko%2Fmanseryeok',
+      cancelUrl:
+        'https://xuanxue-east.example/app/team/billing-return?provider=stripe&canceled=true&returnTo=%2Fko%2Fmanseryeok',
+    }),
+  )
+  // 不安全的 returnTo 被丢弃，回到计费页
+  await checkout(input('//evil.example'))
+  expect(mocks.checkout).toHaveBeenLastCalledWith(
+    expect.anything(),
+    expect.objectContaining({
+      successUrl: 'https://xuanxue-east.example/app/team/billing-return?provider=stripe',
+    }),
+  )
+  mocks.requestUrl = 'https://app.test'
 })
 
 it.each(['events', 'email'] as const)(

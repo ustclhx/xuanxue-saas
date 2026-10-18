@@ -134,6 +134,7 @@ export interface SetupOptions {
   readonly rateLimiter?: RateLimiter | undefined
   readonly db?: Database
   readonly maxSeats?: number
+  readonly hosts?: readonly string[]
 }
 
 /**
@@ -151,6 +152,7 @@ export function setup(options: SetupOptions = {}) {
       cache,
       rateLimiter,
       clientIp,
+      hosts: options.hosts,
       config: defineTemplateConfig({ app, ...options.config }),
       resolveMaxSeats: async () => options.maxSeats ?? null,
       sendEmail: async (message) => {

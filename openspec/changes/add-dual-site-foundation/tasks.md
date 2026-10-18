@@ -15,8 +15,8 @@
 
 ## 3. 跨站认证与支付
 
-- [ ] 3.1 Spike：Better Auth 按请求 Host 动态 baseURL + 双 trustedOrigins，结论与选定方案写入本 change 的 design.md 决策 4；验证：本地以两个 Host 分别完成邮箱验证码登录
-- [ ] 3.2 按 3.1 结论实现：两站登录/OAuth 回调/Stripe success&cancel 回跳到发起站点与页面；验证：e2e（Stripe 离线模拟）从东方站 `/ko/` 发起购买后回到同一页面且界面为韩语
+- [x] 3.1 Spike：Better Auth 按请求 Host 动态 baseURL + 双 trustedOrigins，结论与选定方案写入本 change 的 design.md 决策 4；验证：本地以两个 Host 分别完成邮箱验证码登录
+- [x] 3.2 按 3.1 结论实现：两站登录/OAuth 回调/Stripe success&cancel 回跳到发起站点与页面；验证：e2e（Stripe 离线模拟）从东方站 `/ko/` 发起购买后回到同一页面且界面为韩语
 
 ## 4. 工具页外壳与视觉
 

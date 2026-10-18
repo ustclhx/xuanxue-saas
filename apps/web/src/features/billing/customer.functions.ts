@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { setResponseStatus } from '@tanstack/react-start/server'
+import { getRequest, setResponseStatus } from '@tanstack/react-start/server'
 import {
   cancelSubscription,
   changePlan,
@@ -17,6 +17,8 @@ import { withBilling, withCredits } from '../../server/feature-gates.ts'
 import { withRealSession, withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { safeReturnPath } from '../site/return-path.ts'
+import { requestSiteOrigin } from '../site/site.ts'
 import {
   creditPageSchema,
   customerBilling,
@@ -44,13 +46,15 @@ function service(db: Database) {
     enabledProviders: templateConfig.billing.providers,
   }
 }
-function returnUrl(slug: string, id: string, canceled = false) {
-  const url = new URL(
-    `/app/${encodeURIComponent(slug)}/billing-return`,
-    getWebRuntime().config.APP_URL,
-  )
+/** 支付回跳到发起请求的站点（决策 4）；`returnTo` 是 billing-return 之后要回到的本站页面 */
+function siteOrigin() {
+  return requestSiteOrigin(getRequest().url, templateConfig, getWebRuntime().config.APP_URL)
+}
+function returnUrl(slug: string, id: string, canceled = false, returnTo?: string) {
+  const url = new URL(`/app/${encodeURIComponent(slug)}/billing-return`, siteOrigin())
   url.searchParams.set('provider', id)
   if (canceled) url.searchParams.set('canceled', 'true')
+  if (returnTo) url.searchParams.set('returnTo', returnTo)
   return url.toString()
 }
 async function safe<T>(readOnly: boolean, action: () => Promise<T>) {
@@ -115,10 +119,12 @@ export const checkoutCustomer = createServerFn({ method: 'POST' })
       idempotencyKey: z.uuid(),
       confirmSwitch: z.boolean().optional(),
       expectedOldSubscriptionId: z.uuid().optional(),
+      returnTo: z.string().max(1024).optional(),
     }),
   )
   .handler(({ context, data }) =>
     safe(context.workspaceReadOnly, async () => {
+      const returnTo = safeReturnPath(data.returnTo, templateConfig.i18n.locales)
       const result = await createCheckout(service(context.db), {
         ip: getWebRuntime().requestMeta.clientIp,
         provider: data.provider,
@@ -130,8 +136,8 @@ export const checkoutCustomer = createServerFn({ method: 'POST' })
           : {}),
         workspaceId: context.workspace.id,
         userId: context.user.id,
-        successUrl: returnUrl(context.workspace.slug, data.provider),
-        cancelUrl: returnUrl(context.workspace.slug, data.provider, true),
+        successUrl: returnUrl(context.workspace.slug, data.provider, false, returnTo),
+        cancelUrl: returnUrl(context.workspace.slug, data.provider, true, returnTo),
       })
       return { url: result.url }
     }),
@@ -161,7 +167,7 @@ export const manageCustomerSubscription = createServerFn({ method: 'POST' })
             ...input,
             returnUrl: new URL(
               `/app/${encodeURIComponent(context.workspace.slug)}/billing`,
-              getWebRuntime().config.APP_URL,
+              siteOrigin(),
             ).toString(),
           }),
         }

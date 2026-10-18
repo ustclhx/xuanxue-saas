@@ -45,6 +45,11 @@ export interface CreateAuthDeps {
     readonly id: string
     readonly email: string
   }) => Promise<unknown>
+  /**
+   * 同一部署服务的其他 Host（多站点，可带端口）。非空时 baseURL 按请求 Host 取值：
+   * OAuth 回调、邮件链接与可信来源都落在发起请求的站点；其他 Host 回退到 `APP_URL`。
+   */
+  readonly hosts?: readonly string[] | undefined
 }
 
 /**
@@ -65,7 +70,7 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
 
   const auth = betterAuth({
     appName: config.app.name,
-    baseURL: vars.APP_URL,
+    baseURL: baseURLOption(vars.APP_URL, deps.hosts),
     basePath: '/api/auth',
     // 空间绑定与角色校验只经应用管理入口；原生 HTTP 接口不能绕过。
     disabledPaths: [
@@ -260,6 +265,21 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
 }
 
 export type Auth = ReturnType<typeof createAuth>
+
+/**
+ * 多站点各自登录（openspec add-dual-site-foundation 决策 4）：Better Auth 的动态 baseURL
+ * 只接受 allowedHosts 中的 Host，并把这些 Host 一并加入 trustedOrigins。
+ * 协议固定为 APP_URL 的协议，Cookie 的 `__Secure-` 前缀与单站点时一致，也不额外信任 http 来源。
+ */
+export function baseURLOption(appUrl: string, hosts: readonly string[] | undefined) {
+  if (!hosts?.length) return appUrl
+  const url = new URL(appUrl)
+  return {
+    allowedHosts: [...new Set([url.host, ...hosts])],
+    fallback: appUrl,
+    protocol: url.protocol === 'http:' ? ('http' as const) : ('https' as const),
+  }
+}
 
 function socialProviders(config: TemplateConfig, vars: ReturnType<typeof parseAuthEnv>) {
   const providers: {

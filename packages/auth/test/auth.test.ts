@@ -188,6 +188,69 @@ describe('OAuth', () => {
   })
 })
 
+describe('多站点各自登录（openspec add-dual-site-foundation 决策 4）', () => {
+  const EAST = 'https://xuanxue-east.example'
+  const WEST = 'https://xuanxue-west.example'
+  const multi = () =>
+    baseSetup({
+      config: { auth: { oauth: ['google'] } },
+      env: { APP_URL: WEST },
+      hosts: ['xuanxue-east.example', 'xuanxue-west.example'],
+    })
+  const redirectUri = async (res: Response) =>
+    new URL(((await res.json()) as { url: string }).url).searchParams.get('redirect_uri')
+
+  it('Google 回调地址跟随请求 Host，未登记的 Host 回退到 APP_URL', async () => {
+    const { request } = multi()
+    const social = (origin: string) =>
+      request(
+        'POST',
+        `${origin}/api/auth/sign-in/social`,
+        { provider: 'google', disableRedirect: true },
+        { origin },
+      )
+    expect(await redirectUri(await social(EAST))).toBe(`${EAST}/api/auth/callback/google`)
+    expect(await redirectUri(await social(WEST))).toBe(`${WEST}/api/auth/callback/google`)
+    const preview = 'https://web-staging.example.workers.dev'
+    const fallback = await request(
+      'POST',
+      `${preview}/api/auth/sign-in/social`,
+      { provider: 'google', disableRedirect: true },
+      { origin: WEST },
+    )
+    expect(await redirectUri(fallback)).toBe(`${WEST}/api/auth/callback/google`)
+  })
+
+  it('两站分别完成邮箱验证码登录，会话 Cookie 只属于发起的站点；未登记来源被拒绝', async () => {
+    silenceExpectedErrors(/Invalid origin/)
+    const { request, sent } = multi()
+    const address = email('multi-site')
+    for (const origin of [EAST, WEST]) {
+      const post = (path: string, body: unknown) =>
+        request('POST', `${origin}/api/auth${path}`, body, { origin })
+      expect(
+        (await post('/email-otp/send-verification-otp', { email: address, type: 'sign-in' }))
+          .status,
+      ).toBe(200)
+      const otp = sent.at(-1)
+      if (otp?.type !== 'otp') throw new Error('missing otp email')
+      const res = await post('/sign-in/email-otp', { email: address, otp: otp.otp })
+      expect(res.status).toBe(200)
+      // host-only Cookie：不带 Domain，浏览器只把它发回发起登录的站点
+      const cookie = res.headers.get('set-cookie') ?? ''
+      expect(cookie).toContain('__Secure-better-auth.session_token=')
+      expect(cookie).not.toMatch(/domain=/i)
+    }
+    const evil = await request(
+      'POST',
+      `${EAST}/api/auth/email-otp/send-verification-otp`,
+      { email: address, type: 'sign-in' },
+      { origin: 'https://evil.example' },
+    )
+    expect(evil.status).toBe(403)
+  })
+})
+
 describe('两步验证', () => {
   it('关闭时（默认）接口不存在', async () => {
     const { post } = setup()

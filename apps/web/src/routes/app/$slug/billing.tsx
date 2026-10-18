@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
+import { z } from 'zod'
 import {
   checkoutCustomer,
   getCustomerBilling,
@@ -20,6 +21,8 @@ export const Route = createFileRoute('/app/$slug/billing')({
   beforeLoad: () => {
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
+  // 从公开页面发起购买时带上发起页面，支付后回到该页（决策 4；服务端再次校验）
+  validateSearch: z.object({ returnTo: z.string().max(1024).optional() }),
   loader: async ({ params }) => {
     const [billing, refunds] = await Promise.all([
       getCustomerBilling({ data: { slug: params.slug } }),
@@ -39,6 +42,7 @@ const date = (value: Date | null) =>
 function BillingPage() {
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
+  const { returnTo } = Route.useSearch()
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -113,6 +117,7 @@ function BillingPage() {
           ...(replacement && 'id' in replacement && replacement.id
             ? { confirmSwitch: confirmed, expectedOldSubscriptionId: replacement.id }
             : {}),
+          ...(returnTo ? { returnTo } : {}),
         },
       })
       if (result.ok) window.location.assign(result.result.url)
