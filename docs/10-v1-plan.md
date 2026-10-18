@@ -14,20 +14,32 @@
 | `add-reading-monetization` | L1 结果后订阅 + 个性化邮件；L2 付费完整分析（积分 + AI） | 11 |
 | `launch-v1-production` | 法律/免责、生产部署、Lighthouse、GSC/Bing、AI 目录 | 6 |
 
-## 2. 波次（每波最多 3 个 Codex executor，协调者为 Claude）
+## 2. 波次与执行者
+
+按用户全局规则（`~/.claude/CLAUDE.md`「Development workflow for larger projects」）分工：**Claude** 负责复杂开发、UI/视觉与代码审阅；**Codex** 负责简单代码、内容批量页、部署与浏览器操作；协调者（Claude）写 spec、监控、审阅 PR、合并。每波最多 3 个 worker。
 
 记法同 09 §5：每个反引号名称是一个 Orca 任务（worktree / 分支 `wt/<名称>`）；`→` 表示等前一步合并进 main。
 
-| 波次 | 任务（change 编号） | 依赖 |
-|---|---|---|
-| W1 | `fd-sites-i18n`（foundation 1.1–1.3） ∥ `bazi-engine`（bazi 1.1–1.5） ∥ `pkg-num-tarot`（numerology 1.1–1.2、tarot 1.1–1.3） | main |
-| W2 | `fd-seo`（foundation 2.1–2.4） ∥ `fd-shell`（foundation 4.1–4.3） ∥ `fd-auth`（foundation 3.1–3.2） | `fd-sites-i18n` |
-| W3 | `bazi-pages`（bazi 2.1–2.3、3.1–3.2） ∥ `num-pages`（numerology 2.1–2.3） ∥ `tarot-pages`（tarot 2.1–2.3） | W2 全部 + 对应引擎 |
-| W4 | `bazi-longtail`（bazi 4.1–4.3） ∥ `tarot-meanings`（tarot 3.1–3.2） ∥ `readings-core`（monetization 1.1–1.2、2.1–2.3） | W3 对应页面；`readings-core` 需 `fd-auth`、`bazi-engine` |
-| W5 | `readings-ui`（monetization 2.4、3.1–3.2） ∥ `readings-optin`（monetization 4.1–4.2） ∥ `legal-pages`（launch 1.1） | `readings-core` |
-| W6 | 协调者：staging 部署 + monetization 5.1 抽检 → decision gate → launch 2.1–3.2 | 全部 |
+| 波次 | 任务（change 编号） | 执行者 | 依赖 |
+|---|---|---|---|
+| W1 | `fd-sites-i18n`（foundation 1.1–1.3） | Claude | main |
+| W1 | `bazi-engine`（bazi 1.1–1.5） | Claude | main |
+| W1 | `pkg-num-tarot`（numerology 1.1–1.2、tarot 1.1–1.3） | Codex | main |
+| W2 | `fd-shell`（foundation 4.1–4.3） | Claude | `fd-sites-i18n` |
+| W2 | `fd-auth`（foundation 3.1–3.2） | Claude | `fd-sites-i18n` |
+| W2 | `fd-seo`（foundation 2.1–2.4） | Codex | `fd-sites-i18n` |
+| W3 | `bazi-pages`（bazi 2.1–2.3、3.1–3.2） | Claude | W2 + `bazi-engine` |
+| W3 | `num-pages`（numerology 2.1–2.3） | Claude | W2 + `pkg-num-tarot` |
+| W3 | `tarot-pages`（tarot 2.1–2.3） | Claude | W2 + `pkg-num-tarot` |
+| W4 | `readings-core`（monetization 1.1–1.2、2.1–2.3） | Claude | `fd-auth`、`bazi-engine` |
+| W4 | `bazi-longtail`（bazi 4.1–4.3） | Codex | `bazi-pages` |
+| W4 | `tarot-meanings`（tarot 3.1–3.2） | Codex | `tarot-pages` |
+| W5 | `readings-ui`（monetization 2.4、3.1–3.2） | Claude | `readings-core` |
+| W5 | `readings-optin`（monetization 4.1–4.2） | Codex | `readings-core` |
+| W5 | `legal-pages`（launch 1.1） | Codex | W2 |
+| W6 | staging 部署 + monetization 5.1 抽检；decision gate 后 launch 2.1–3.2 | Codex（部署/浏览器），协调者审阅 | 全部 |
 
-季节峰优先级：东方站页面（`bazi-pages` / `bazi-longtail`）在资源冲突时优先排期；`fd-auth` 不阻塞免费工具上线。
+季节峰优先级：东方站页面（`bazi-pages` / `bazi-longtail`）在资源冲突时优先排期；`fd-auth` 不阻塞免费工具上线。AI 详批的模型在骨架完成后由用户选定（高性价比），`readings-core` 先用 fake provider 测试，不写死模型。
 
 ## 3. 共享文件约定（v1 补充）
 
@@ -37,13 +49,18 @@
 - schema：只有 `readings-core` 新增 `packages/db/src/schema/readings.ts` 并修改 growth 列，按 09 §3 不提交迁移。
 - 本地 PG：本项目容器 `xuanxue-pg` 映射宿主机 **5433**（5432 被 `saas-template-pg` 占用）。
 
-## 4. Worker 启动（Codex）
+## 4. Worker 启动
 
-按 09 §6 的步骤，第 2 步终端命令使用本机 Codex 配置的默认模型：
+按 09 §6 的步骤，第 2 步终端命令按执行者选择：
 
 ```
+# Claude worker
+claude --dangerously-skip-permissions --model claude-opus-5-5
+# Codex worker（本机 Codex 配置的默认模型）
 codex --dangerously-bypass-approvals-and-sandbox
 ```
+
+Claude worker 的 spec 第一行用「执行 /opsx:apply <change>」，Codex 用「按 .agents/skills/openspec-apply-change/SKILL.md 的流程实施」。
 
 Task spec 模板：
 
@@ -52,6 +69,7 @@ Task spec 模板：
 先完整阅读该 change 的 proposal/design/specs/tasks、docs/10-v1-plan.md 与 docs/design/visual-system.md（涉及 UI 时同时阅读 docs/design/prototypes/ 中对应原型）。
 遵守 docs/09-parallel-plan.md §3 与 docs/10-v1-plan.md §3 的共享文件规则。
 每个检查点执行 orca worktree set --worktree path:<路径> --workspace-status in-progress --comment "<一句中文进度>"；阻塞时 comment 写「阻塞：<原因>」并停下等待协调者。
+密钥只放本地被忽略的 .dev.vars / .env.local 或 Wrangler/GitHub secrets，绝不提交到仓库（仓库是公开的）；开 PR 前按 .agents/skills/security-scan/SKILL.md 扫描本次变更。
 完成标准：pnpm check、pnpm typecheck、pnpm check:deps、相关测试通过；只勾选上述编号；推送分支 wt/<名称> 并开 PR 到 main（描述含验证结果与未完成验收），然后把状态改为 in-review。
 ```
 
