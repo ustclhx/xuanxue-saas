@@ -10,5 +10,6 @@
   "tools_results_label": "Results",
   "tools_result_loading": "Calculating…",
   "tools_links_title": "Related reading",
-  "tools_faq_title": "Frequently asked questions"
+  "tools_faq_title": "Frequently asked questions",
+  "tools_requires_js": "JavaScript is required to calculate results."
 }

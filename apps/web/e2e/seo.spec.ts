@@ -26,7 +26,9 @@ for (const locale of locales) {
       const response = await page.goto(`${prefix}${path === '/' ? '' : path}` || '/')
       expect(response?.status(), path).toBe(200)
       const title = await page.title()
-      expect(title, path).toContain(templateConfig.app.name)
+      // 东方站语言首页的 Title 按设计文档原文，不追加站名（openspec add-bazi-saju-chart）
+      if (!(path === '/' && ['zh-Hant', 'ko'].includes(locale)))
+        expect(title, path).toContain(templateConfig.app.name)
       expect(titles.has(title), path).toBe(false)
       titles.add(title)
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')

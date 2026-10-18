@@ -7,6 +7,7 @@ import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 const { defaultLocale } = templateConfig.i18n
 const otherLocales = templateConfig.i18n.locales.filter((locale) => locale !== defaultLocale)
 const languages = [defaultLocale, ...otherLocales]
+const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'ko']
 
 for (const lang of languages) {
   const prefix = lang === defaultLocale ? '' : localePrefix(lang)
@@ -16,9 +17,12 @@ for (const lang of languages) {
     expect(response?.status()).toBe(200)
     await expect(page.locator('html')).toHaveAttribute('lang', lang)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    for (const id of ['features', 'pricing', 'testimonials', 'faq']) {
-      await expect(page.locator(`section#${id}`)).toBeVisible()
-    }
+    // 东方站语言首页是排盘工具页（openspec add-bazi-saju-chart，见 e2e/bazi.spec.ts）
+    if (EAST_TOOL_HOMES.includes(lang)) await expect(page.locator('main form')).toBeVisible()
+    else
+      for (const id of ['features', 'pricing', 'testimonials', 'faq']) {
+        await expect(page.locator(`section#${id}`)).toBeVisible()
+      }
     // 页脚的法律页链接带当前语言前缀
     await expect(page.locator(`footer a[href="${prefix}/legal/refund"]`)).toBeVisible()
   })
