@@ -19,10 +19,16 @@ for (const lang of languages) {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     // 东方站语言首页是排盘工具页（openspec add-bazi-saju-chart，见 e2e/bazi.spec.ts）
     if (EAST_TOOL_HOMES.includes(lang)) await expect(page.locator('main form')).toBeVisible()
-    else
-      for (const id of ['features', 'pricing', 'testimonials', 'faq']) {
+    else {
+      // 西方站英语首页为 Life Path 计算器，原营销板块迁往 /pricing（openspec add-numerology-tools 决策 3）
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+        'Life Path Number Calculator',
+      )
+      await page.goto('/pricing')
+      for (const id of ['features', 'testimonials', 'faq']) {
         await expect(page.locator(`section#${id}`)).toBeVisible()
       }
+    }
     // 页脚的法律页链接带当前语言前缀
     await expect(page.locator(`footer a[href="${prefix}/legal/refund"]`)).toBeVisible()
   })

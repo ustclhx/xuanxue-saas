@@ -38,7 +38,15 @@ export function alternateLinks(
   locale = languages[0] ?? defaultLocale,
 ) {
   const tool = TOOL_ROUTES.find((route) => route.paths[locale] === path)
-  const paths = translations ?? tool?.paths ?? Object.fromEntries(languages.map((l) => [l, path]))
+  // 同一路径在其他语言下是另一个工具（如西方站首页 / 为 Life Path 计算器）时内容不同，不互指
+  const paths =
+    translations ??
+    tool?.paths ??
+    Object.fromEntries(
+      languages
+        .filter((l) => l === locale || !TOOL_ROUTES.some((route) => route.paths[l] === path))
+        .map((l) => [l, path]),
+    )
   const links = Object.entries(paths).flatMap(([language, translatedPath]) =>
     translatedPath && locales.some((locale) => locale === language)
       ? [

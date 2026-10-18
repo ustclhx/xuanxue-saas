@@ -43,17 +43,20 @@ async function waitHydrated(page: Page, field: Locator, problems: string[]) {
   }
 }
 
+// 西方站首页为 Life Path 计算器（openspec add-numerology-tools 2.1），只检查标题与日期输入，不提交表单
 test('首页渲染', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.status()).toBe(200)
-  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.locator('section#features')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Life Path Number Calculator')
+  await expect(page.getByLabel('Date of birth')).toBeVisible()
 })
 
+// 原营销首页的功能等板块已迁到定价页
 test('定价页渲染', async ({ page }) => {
   const response = await page.goto('/pricing')
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
+  await expect(page.locator('section#features')).toBeVisible()
 })
 
 test('随机邮箱注册后进入个人空间', async ({ page }) => {

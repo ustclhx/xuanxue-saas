@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
+import { TOOL_ROUTES } from '../tools/registry.ts'
 import { isPrerenderedPath, prerenderEntryPages } from './prerender.ts'
 
 const locales = ['en', 'zh-Hant', 'ko']
@@ -41,7 +43,9 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
   })
 
   it('入口为各语言首页：默认语言无前缀，其他语言使用小写前缀', () => {
-    expect(prerenderEntryPages(templateConfig)).toEqual([
+    // 西方站数字命理页的入口见 features/tools/numerology/seo.test.ts
+    const tools = TOOL_ROUTES.filter((tool) => !NUMEROLOGY_ROUTES.includes(tool))
+    expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/_site/east' },
       { path: '/zh-hant' },
       // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）

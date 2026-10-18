@@ -299,6 +299,9 @@ importers:
       '@xuanxue/entitlements':
         specifier: workspace:*
         version: link:../../packages/entitlements
+      '@xuanxue/numerology':
+        specifier: workspace:*
+        version: link:../../packages/numerology
       '@xuanxue/platform':
         specifier: workspace:*
         version: link:../../packages/platform
