@@ -35,9 +35,11 @@
 
 ## 字体
 
-- 东方站：标题 `Noto Serif TC` / `Noto Serif KR`（Google Fonts，`display=swap`，只加载 500/700 且按语言只加载一种）；正文系统字体栈 `-apple-system, 'PingFang TC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans KR', 'Microsoft JhengHei'|'Malgun Gothic', sans-serif`。
+字体全部自托管（`@fontsource/*`，按 unicode-range 分片、`font-display: swap`），**不请求 Google Fonts 等第三方域名**：e2e smoke 断言页面无外部请求，也避免欧盟站点的第三方字体隐私问题。
+
+- 东方站：标题 `Noto Serif TC` / `Noto Serif KR`（500/700，按语言只引入一种，CJK 分片按需下载）；正文系统字体栈 `-apple-system, 'PingFang TC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans KR', 'Microsoft JhengHei'|'Malgun Gothic', sans-serif`。
 - 西方站：标题 `Cormorant Garamond` 600/700，正文 `Source Sans 3` 400/600。
-- 禁止打包整套 CJK webfont；首屏 LCP 元素（H1）在字体未到时用 fallback 渲染。
+- 首屏 LCP 元素（H1）在字体未到时用 fallback 渲染。
 
 ## 布局与组件
 
