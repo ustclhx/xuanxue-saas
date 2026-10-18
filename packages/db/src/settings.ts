@@ -1,12 +1,31 @@
 import { eq } from 'drizzle-orm'
 import type { Database } from './client.ts'
 import { setting } from './schema/platform.ts'
+import { READING_KINDS, type ReadingKind } from './schema/readings.ts'
+
+/** 每种付费详批的开关、积分价格与模型（ai_model.key；空字符串表示尚未选定，详批不可用）。 */
+type ReadingSettingValues = {
+  [K in ReadingKind as `readings.${K}.enabled`]: boolean
+} & {
+  [K in ReadingKind as `readings.${K}.credits`]: number
+} & {
+  [K in ReadingKind as `readings.${K}.modelKey`]: string
+}
+
+/** 详批价格种子：1 次详批 = 100 积分（design 决策 4），后台可改。 */
+const readingSettingDefaults = Object.fromEntries(
+  READING_KINDS.flatMap((kind) => [
+    [`readings.${kind}.enabled`, true],
+    [`readings.${kind}.credits`, 100],
+    [`readings.${kind}.modelKey`, ''],
+  ]),
+) as ReadingSettingValues
 
 /**
  * 全部运行时设置项及其代码默认值，唯一定义处。
  * `setting` 表中缺失某项时使用这里的值，不读取环境变量或模板配置（specs/runtime-config）。
  */
-export interface SettingValues {
+export interface SettingValues extends ReadingSettingValues {
   /** 是否开放注册 */
   'auth.signupEnabled': boolean
   /** 空字符串表示不显示公告 */
@@ -24,6 +43,7 @@ export const settingDefaults: SettingValues = {
   'operations.telegramBotToken': '',
   'operations.telegramChatId': '',
   'operations.discordWebhookUrl': '',
+  ...readingSettingDefaults,
 }
 
 export type SettingKey = keyof SettingValues

@@ -335,5 +335,20 @@
   "admin_filters": "Filters",
   "admin_pagination": "Pagination",
   "admin_payment_amount": "Amount",
-  "admin_text_schema_defaults": "Text · x-text defaults"
+  "admin_text_schema_defaults": "Text · x-text defaults",
+  "admin_paid_readings": "Paid readings",
+  "admin_paid_readings_description": "Visitors unlock a full reading with credits. A disabled reading or one without a model hides its unlock entry.",
+  "admin_reading_kind_bazi_full": "BaZi full reading (zh-Hant)",
+  "admin_reading_kind_saju_full": "Saju full reading (ko)",
+  "admin_reading_kind_ziwei_full": "Zi Wei full reading",
+  "admin_reading_kind_saju_compat": "Saju compatibility",
+  "admin_reading_kind_numerology_full": "Numerology full reading",
+  "admin_reading_kind_tarot_spread": "Tarot spread reading",
+  "admin_reading_enabled": "Enabled",
+  "admin_reading_credits": "Credits",
+  "admin_reading_model": "Model",
+  "admin_reading_model_unset": "Not selected",
+  "admin_save_paid_readings": "Save paid readings",
+  "admin_paid_readings_saved": "Saved. Changes apply within about 60 seconds.",
+  "admin_paid_readings_unavailable": "Paid reading settings are unavailable. Reload and try again."
 }

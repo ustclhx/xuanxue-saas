@@ -20,7 +20,13 @@ describe('构建期定价快照', () => {
   it('没有构建数据库配置时仍生成含月付、年付和积分包的快照', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     const catalog = await buildPricingSnapshot()
-    expect(catalog.plans.map((p) => p.key)).toEqual(['free', 'pro', 'team', 'credit_pack'])
+    expect(catalog.plans.map((p) => p.key)).toEqual([
+      'free',
+      'pro',
+      'team',
+      'reading_single',
+      'reading_five',
+    ])
     expect(new Set(catalog.prices.map((p) => p.interval))).toEqual(new Set(['month', 'year', null]))
     expect(catalog.prices.every((p) => !p.available)).toBe(true)
   })

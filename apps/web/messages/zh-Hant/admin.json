@@ -335,5 +335,20 @@
   "admin_filters": "篩選",
   "admin_pagination": "分頁",
   "admin_payment_amount": "金額",
-  "admin_text_schema_defaults": "文字 · x-text 預設參數"
+  "admin_text_schema_defaults": "文字 · x-text 預設參數",
+  "admin_paid_readings": "付費詳批",
+  "admin_paid_readings_description": "訪客以積分解鎖完整分析。關閉或尚未選定模型的詳批不顯示解鎖入口。",
+  "admin_reading_kind_bazi_full": "八字詳批（繁中）",
+  "admin_reading_kind_saju_full": "사주 詳批（韓文）",
+  "admin_reading_kind_ziwei_full": "紫微斗數詳批",
+  "admin_reading_kind_saju_compat": "사주 궁합",
+  "admin_reading_kind_numerology_full": "生命靈數詳批",
+  "admin_reading_kind_tarot_spread": "塔羅牌陣詳批",
+  "admin_reading_enabled": "啟用",
+  "admin_reading_credits": "積分",
+  "admin_reading_model": "模型",
+  "admin_reading_model_unset": "未選定",
+  "admin_save_paid_readings": "儲存付費詳批",
+  "admin_paid_readings_saved": "已儲存，約 60 秒內生效。",
+  "admin_paid_readings_unavailable": "無法載入或儲存付費詳批設定，請重新整理後再試。"
 }

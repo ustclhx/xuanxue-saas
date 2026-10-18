@@ -1,9 +1,9 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { aiConversation, aiMessage, type Database, scoped } from '@xuanxue/db'
+import { aiConversation, aiMessage, type Database, reading, scoped } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
-import { and, asc, desc, eq, inArray, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { withBilling } from '../../server/feature-gates.ts'
 import { withWorkspace } from '../../server/middleware.ts'
@@ -76,6 +76,8 @@ export const listConversations = createServerFn({ method: 'GET' })
           where: and(
             ownConversation(context.user.id),
             eq(aiConversation.archived, archived),
+            // 付费详批借用对话消息结算，不出现在对话列表中
+            sql`not exists (select 1 from ${reading} join ${aiMessage} on ${aiMessage.id} = ${reading.messageId} where ${aiMessage.conversationId} = ${aiConversation.id})`,
           ) as SQL,
         })
         .orderBy(desc(aiConversation.id))

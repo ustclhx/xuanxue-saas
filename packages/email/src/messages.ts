@@ -14,6 +14,9 @@ export interface EmailTemplateProps {
     readonly supportEmail: string
   }
 
+  /** 付费详批生成完成，附报告链接 */
+  'reading-ready': { readonly url: string }
+
   /** 注册后的邮箱验证 */
   'verify-email': { readonly url: string }
   /** 邮箱验证码（emailOTP 插件），用途决定文案 */
@@ -129,6 +132,19 @@ const en: CopyBuilders = {
     footer: 'This update remains available by email if you have deleted your account.',
   }),
 
+  'reading-ready': ({ url }, { appName, recipientName }) => ({
+    subject: `Your ${appName} full reading is ready`,
+    preview: 'Your full reading has been saved to your account.',
+    heading: 'Your full reading is ready',
+    greeting: greetingEn(recipientName),
+    paragraphs: [
+      'Your full reading has been generated and saved to your account. You can reopen it at any time from any device after signing in.',
+      'This reading is for reference and self-reflection only. It is not medical, legal or investment advice.',
+    ],
+    action: { label: 'Open my reading', url },
+    linkHint: 'If the button does not work, copy and paste this link into your browser:',
+    footer: `You received this email because you unlocked a reading on ${appName}.`,
+  }),
   'verify-email': ({ url }, { appName, recipientName }) => ({
     subject: `Verify your email for ${appName}`,
     preview: `Confirm your email address to finish setting up your ${appName} account.`,
@@ -258,6 +274,19 @@ const zhHant: CopyBuilders = {
     footer: '刪除帳號後，退款結果仍會傳送至申請時儲存的聯絡電子郵件。',
   }),
 
+  'reading-ready': ({ url }, { appName, recipientName }) => ({
+    subject: `你的 ${appName} 完整分析已完成`,
+    preview: '完整分析已儲存在你的帳號中。',
+    heading: '完整分析已完成',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      '你的完整分析已生成並儲存在帳號中，登入後可隨時在任何裝置重新開啟。',
+      '本報告僅供參考與自我探索，不構成醫療、法律或投資建議。',
+    ],
+    action: { label: '查看我的報告', url },
+    linkHint: '如果按鈕無法點選，請將以下連結複製到瀏覽器中開啟：',
+    footer: `你收到這封郵件，是因為你在 ${appName} 解鎖了一份完整分析。`,
+  }),
   'verify-email': ({ url }, { appName, recipientName }) => ({
     subject: `驗證你的 ${appName} 電子郵件`,
     preview: `確認電子郵件地址，完成 ${appName} 帳號註冊。`,
@@ -383,6 +412,19 @@ const ko: CopyBuilders = {
     footer: '계정을 삭제하더라도 환불 결과는 요청 시 남긴 연락용 이메일로 발송됩니다.',
   }),
 
+  'reading-ready': ({ url }, { appName, recipientName }) => ({
+    subject: `${appName} 상세 풀이가 완성되었습니다`,
+    preview: '상세 풀이가 계정에 저장되었습니다.',
+    heading: '상세 풀이 완성',
+    greeting: greetingKo(recipientName),
+    paragraphs: [
+      '상세 풀이가 생성되어 계정에 저장되었습니다. 로그인하면 어느 기기에서든 다시 열어 볼 수 있습니다.',
+      '이 풀이는 참고와 자기 성찰을 위한 것이며 의료·법률·투자 조언이 아닙니다.',
+    ],
+    action: { label: '내 풀이 보기', url },
+    linkHint: '버튼이 작동하지 않으면 아래 링크를 복사해 브라우저에 붙여 넣으세요:',
+    footer: `${appName}에서 상세 풀이를 잠금 해제하셨기 때문에 이 메일을 받으셨습니다.`,
+  }),
   'verify-email': ({ url }, { appName, recipientName }) => ({
     subject: `${appName} 이메일 주소를 인증해 주세요`,
     preview: `이메일 주소를 확인하고 ${appName} 가입을 완료하세요.`,

@@ -3,6 +3,7 @@ import { Button } from '@xuanxue/ui'
 import { type FormEvent, useEffect, useState } from 'react'
 import { getAdminSettings, saveAdminSettings } from '../../features/admin/settings.functions.ts'
 import { OperationsSettingsForm } from '../../features/admin/settings-operations-form.tsx'
+import { ReadingSettingsForm } from '../../features/admin/settings-readings-form.tsx'
 import { AdminPage, CheckboxField, Field, panelClass, Textarea } from '../../features/admin/ui.tsx'
 import { m } from '../../paraglide/messages.js'
 
@@ -100,6 +101,7 @@ function Settings() {
           {message}
         </p>
       )}
+      <ReadingSettingsForm />
       <OperationsSettingsForm />
     </AdminPage>
   )
