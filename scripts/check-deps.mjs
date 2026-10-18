@@ -158,7 +158,7 @@ export function cloudflareAllowed(file, specifier, rules) {
 }
 
 function platformTargetOf(root, file, specifier) {
-  const named = /^@saas\/platform\/(cloudflare|node)(?:\/|$)/.exec(specifier)
+  const named = /^@xuanxue\/platform\/(cloudflare|node)(?:\/|$)/.exec(specifier)
   if (named) return named[1]
   if (!specifier.startsWith('.') && !specifier.startsWith('/')) return null
   const target = relative(root, resolve(join(file, '..'), specifier))
