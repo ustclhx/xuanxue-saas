@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   defineTemplateConfig,
+  localeUrlSegment,
   type MediaProviderId,
   type PaymentProvider,
   type PricingMode,
@@ -17,7 +18,7 @@ const app = {
 describe('defineTemplateConfig', () => {
   it('fills every omitted option with the documented default', () => {
     const config = defineTemplateConfig({ app })
-    expect(config).toEqual({ app, ...templateConfigDefaults })
+    expect(config).toEqual({ app, ...templateConfigDefaults, sites: expect.any(Object) })
     expect(config.billing.enabled).toBe(true)
     expect(config.credits.enabled).toBe(true)
     expect(config.marketing.enabled).toBe(true)
@@ -142,10 +143,97 @@ describe('defineTemplateConfig', () => {
   })
 })
 
+const sites = {
+  east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+  west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+} as const
+
+describe('sites', () => {
+  const i18n = { locales: ['en', 'zh-Hant', 'ko'] } as const
+
+  it('puts every locale on the west site when no registry is configured', () => {
+    expect(defineTemplateConfig({ app }).sites).toEqual({
+      east: { hosts: [], locales: [], defaultLocale: null, brand: { name: 'xuanxue' } },
+      west: {
+        hosts: ['xuanxue-west.example'],
+        locales: ['en', 'zh-Hant', 'ko'],
+        defaultLocale: 'en',
+        brand: { name: 'xuanxue' },
+      },
+    })
+  })
+
+  it('keeps the configured registry and defaults brand to the app name', () => {
+    const config = defineTemplateConfig({
+      app,
+      i18n,
+      sites: { ...sites, east: { ...sites.east, brand: { name: '玄學' } } },
+    })
+    expect(config.sites.east).toEqual({ ...sites.east, brand: { name: '玄學' } })
+    expect(config.sites.west).toEqual({ ...sites.west, brand: { name: 'xuanxue' } })
+    expectTypeOf(config.sites.east.defaultLocale).toEqualTypeOf<'en' | 'zh-Hant' | 'ko' | null>()
+  })
+
+  it.each([
+    [
+      'a locale on two sites',
+      { west: { ...sites.west, locales: ['en', 'ko'] } },
+      'more than one site',
+    ],
+    [
+      'a locale on no site',
+      { east: { ...sites.east, locales: ['zh-Hant'] } },
+      'ko does not belong',
+    ],
+    [
+      'a foreign default locale',
+      { east: { ...sites.east, defaultLocale: 'en' } },
+      'east.defaultLocale',
+    ],
+    ['a site with locales but no host', { east: { ...sites.east, hosts: [] } }, 'east.hosts'],
+    [
+      'a duplicated host',
+      { east: { ...sites.east, hosts: ['xuanxue-west.example'] } },
+      'listed twice',
+    ],
+    [
+      'an uppercase host',
+      { east: { ...sites.east, hosts: ['Xuanxue-East.example'] } },
+      'lowercase',
+    ],
+    [
+      'an i18n default that no site serves unprefixed',
+      { west: { ...sites.west, defaultLocale: null } },
+      'i18n.defaultLocale',
+    ],
+  ] as const)('rejects %s', (_, override, message) => {
+    expect(() => defineTemplateConfig({ app, i18n, sites: { ...sites, ...override } })).toThrow(
+      message,
+    )
+  })
+
+  it('rejects a site locale missing from i18n.locales', () => {
+    expect(() =>
+      defineTemplateConfig({
+        app,
+        i18n: { locales: ['en', 'zh-Hant'] },
+        sites: sites as never,
+      }),
+    ).toThrow('ko is not in i18n.locales')
+  })
+})
+
+describe('localeUrlSegment', () => {
+  it('lowercases the BCP 47 locale id for the URL prefix', () => {
+    expect(localeUrlSegment('zh-Hant')).toBe('zh-hant')
+    expect(localeUrlSegment('ko')).toBe('ko')
+  })
+})
+
 describe('defineTemplateConfig types', () => {
   it('resolves every option to a non-optional value', () => {
     const config = defineTemplateConfig({ app })
-    expectTypeOf(config).toEqualTypeOf<TemplateConfig<'en' | 'zh'>>()
+    expectTypeOf(config).toEqualTypeOf<TemplateConfig<'en' | 'zh-Hant' | 'ko'>>()
     expectTypeOf(config.billing.overage.maxRatio).toEqualTypeOf<number>()
     expectTypeOf(config.ai.defaultPricingMode.video).toEqualTypeOf<PricingMode>()
     expectTypeOf(config.ai.mediaProviders).toEqualTypeOf<readonly MediaProviderId[]>()
@@ -170,7 +258,13 @@ describe('defineTemplateConfig types', () => {
       // @ts-expect-error 类型错误的取值
       defineTemplateConfig({ app, tenancy: { multiTenant: 'yes' } }),
       // @ts-expect-error defaultLocale 不在 locales 中
-      defineTemplateConfig({ app, i18n: { locales: ['en', 'zh'], defaultLocale: 'fr' } }),
+      defineTemplateConfig({ app, i18n: { locales: ['en', 'ko'], defaultLocale: 'fr' } }),
+      defineTemplateConfig({
+        app,
+        i18n: { locales: ['en'] },
+        // @ts-expect-error 站点语言不在 i18n.locales 中
+        sites: { ...sites, east: { ...sites.east, locales: ['ja'] } },
+      }),
       // @ts-expect-error 省略 locales 时 defaultLocale 只能是默认语言之一
       defineTemplateConfig({ app, i18n: { defaultLocale: 'fr' } }),
       // @ts-expect-error app 必填
