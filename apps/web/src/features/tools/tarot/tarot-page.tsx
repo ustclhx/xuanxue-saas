@@ -24,6 +24,7 @@ import { ToolLinks } from '../tool-links.tsx'
 import { ToolPage } from '../tool-page.tsx'
 import { prefetchCards } from './card.tsx'
 import { answerLabel, orientationLabel, SPREAD_COPY } from './copy.ts'
+import { tarotMeaningPath } from './meaning-routes.ts'
 import { TAROT_SPREADS, type TarotLocale, tarotPath } from './routes.ts'
 import { CutSpread, DeckStack, SpreadTable, type Stage, useShuffleFrames } from './table.tsx'
 
@@ -349,7 +350,8 @@ function TarotResult({
       {reading.cards.map((card, index) => {
         const meaning = CARD_MEANINGS[locale][card.cardId]
         const position = positions[index]
-        if (!meaning || !position || !CARD_BY_ID.has(card.cardId)) return null
+        const cardData = CARD_BY_ID.get(card.cardId)
+        if (!meaning || !position || !cardData) return null
         return (
           <ResultBlock
             key={card.cardId}
@@ -369,6 +371,12 @@ function TarotResult({
               <p className="m-0 text-ink leading-relaxed">
                 {card.reversed ? meaning.reversed : meaning.upright}
               </p>
+              <a
+                href={toolHref(tarotMeaningPath(cardData.slug, locale), locale)}
+                className="flex min-h-11 items-center text-brand-ink underline underline-offset-4"
+              >
+                {m.tarot_meaning_read()}
+              </a>
             </div>
           </ResultBlock>
         )

@@ -5,6 +5,7 @@
 // MDX 在构建期渲染为 HTML（Worker 中不允许 `new Function` 执行 MDX 编译结果），页面直接输出 HTML。
 import { defineCollection, defineConfig, type Meta } from '@content-collections/core'
 import { compileMDX } from '@content-collections/mdx'
+import { CARDS } from '@xuanxue/tarot'
 import * as React from 'react'
 import * as jsxRuntime from 'react/jsx-runtime'
 import * as ReactDOM from 'react-dom'
@@ -158,6 +159,41 @@ const numerology = defineCollection({
   },
 })
 
+/** 牌义长文只在构建期编译；保留可见 FAQ 与文末声明，页面不重复渲染。 */
+const tarot = defineCollection({
+  name: 'tarot',
+  directory: 'content/tarot',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    description: z.string().min(1).max(160),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    locale: z.enum(['en', 'zh-Hant', 'ko']),
+    cardId: z.string(),
+    arcana: z.enum(['major', 'minor']),
+    suit: z.enum(['wands', 'cups', 'swords', 'pentacles']).optional(),
+    updated: isoDate,
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(5),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const path = localeAndSlug(document._meta)
+    const card = CARDS.find((card) => card.id === data.cardId)
+    if (
+      !card ||
+      card.slug !== data.slug ||
+      path.locale !== data.locale ||
+      path.slug !== data.cardId
+    )
+      throw new Error(`Invalid tarot identity: ${document._meta.path}`)
+    return { ...data, html: await renderMdx(context, document) }
+  },
+})
+
 const concepts = defineCollection({
   name: 'concepts',
   directory: 'content/concepts',
@@ -208,4 +244,4 @@ const concepts = defineCollection({
   },
 })
 
-export default defineConfig({ content: [posts, legalPages, docs, numerology, concepts] })
+export default defineConfig({ content: [posts, legalPages, docs, numerology, tarot, concepts] })

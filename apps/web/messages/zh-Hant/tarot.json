@@ -99,5 +99,11 @@
   "tarot_celtic_cross_faq_2_q": "一次凱爾特十字需要多久？",
   "tarot_celtic_cross_faq_2_a": "翻牌約一分鐘，逐張省思十張牌通常需要十到十五分鐘。想一次看完可以按「全部翻開」。",
   "tarot_celtic_cross_faq_3_q": "同一張牌會出現兩次嗎？",
-  "tarot_celtic_cross_faq_3_a": "不會。十張牌都來自同一副洗好的 78 張牌，每張最多出現一次。"
+  "tarot_celtic_cross_faq_3_a": "不會。十張牌都來自同一副洗好的 78 張牌，每張最多出現一次。",
+  "tarot_meaning_related": "延伸牌義",
+  "tarot_meaning_try": "抽一張試試",
+  "tarot_meaning_try_intro": "抽出一張牌，翻開後探索它的牌義。",
+  "tarot_meaning_draw": "抽一張牌",
+  "tarot_meaning_read": "閱讀完整牌義",
+  "tarot_meaning_gallery": "正位與逆位牌面"
 }

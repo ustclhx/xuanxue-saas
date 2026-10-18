@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { CONCEPT_SLUGS, type ConceptKey, conceptPath } from './bazi/eastern-routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
+import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
 /**
@@ -82,6 +83,7 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
     },
   },
   ...TAROT_TOOL_ROUTES,
+  ...TAROT_MEANING_ROUTES,
   // openspec add-numerology-tools：西方站首页、工具内页、12 个数字页与两个枢纽页
   ...NUMEROLOGY_ROUTES,
   ...conceptRoutes,

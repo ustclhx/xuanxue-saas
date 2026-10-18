@@ -52,7 +52,7 @@ describe('塔罗路由', () => {
     const west = publicPages(noContent, new Date(), templateConfig, 'west')
     const east = publicPages(noContent, new Date(), templateConfig, 'east')
     const tarot = (pages: typeof west) =>
-      pages.filter((page) => /^\/(tarot|塔羅|타로)/.test(page.path)).map((p) => p.path)
+      pages.filter((page) => /^\/(tarot|塔羅|타로)(?:\/[^/]+)?$/.test(page.path)).map((p) => p.path)
     expect(tarot(west)).toHaveLength(4)
     expect(tarot(east)).toHaveLength(8)
     expect(tarot(east)).toContain('/타로/켈틱-크로스')

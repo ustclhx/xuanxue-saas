@@ -1,6 +1,74 @@
 import { readdir, readFile } from 'node:fs/promises'
 
-const directory = new URL('../apps/web/content/tarot/en/', import.meta.url)
+const contentRoot = new URL('../apps/web/content/tarot/', import.meta.url)
+const locales = ['en', 'zh-Hant', 'ko']
+const headings = {
+  en: [
+    'Overview and symbolism',
+    'Keywords',
+    'Upright meaning',
+    'Reversed meaning',
+    'Love',
+    'Career',
+    'Advice',
+    'Yes or No',
+    'Related spreads',
+    'FAQ',
+  ],
+  'zh-Hant': [
+    '牌面與象徵',
+    '關鍵詞',
+    '正位牌義',
+    '逆位牌義',
+    '愛情',
+    '事業',
+    '建議',
+    '是或否',
+    '相關牌陣',
+    '常見問題',
+  ],
+  ko: [
+    '그림과 상징',
+    '키워드',
+    '정방향 의미',
+    '역방향 의미',
+    '사랑',
+    '일과 커리어',
+    '조언',
+    '예 또는 아니요',
+    '관련 배열',
+    '자주 묻는 질문',
+  ],
+}
+const disclosures = {
+  en: 'This AI-assisted interpretation is for entertainment only and does not predict the future. It is not medical, legal, or investment advice.',
+  'zh-Hant': '本篇為 AI 輔助解讀，僅供娛樂，不預測未來，也不構成醫療、法律或投資建議。',
+  ko: '이 글은 AI의 도움을 받아 작성한 오락용 해석으로 미래를 예측하지 않으며, 의료·법률·투자 조언이 아닙니다.',
+}
+const spreadLinks = {
+  en: ['/tarot', '/tarot/daily', '/tarot/yes-or-no', '/tarot/celtic-cross'],
+  'zh-Hant': [
+    '/zh-hant/塔羅',
+    '/zh-hant/塔羅/每日一張',
+    '/zh-hant/塔羅/是非',
+    '/zh-hant/塔羅/凱爾特十字',
+  ],
+  ko: ['/ko/타로', '/ko/타로/오늘의-카드', '/ko/타로/예-아니오', '/ko/타로/켈틱-크로스'],
+}
+const englishSlugs = new Map()
+const englishFaqCounts = new Map()
+const glossary = (await readFile(new URL('../packages/tarot/GLOSSARY.md', import.meta.url), 'utf8'))
+  .split('\n')
+  .filter(
+    (line) => line.startsWith('| ') && !line.startsWith('| English') && !line.startsWith('| ---'),
+  )
+  .map((line) =>
+    line
+      .split('|')
+      .slice(1, -1)
+      .map((value) => value.trim()),
+  )
+let total = 0
 const groups = { major: 22, wands: 14, cups: 14, swords: 14, pentacles: 14 }
 const expected = new Map(
   Object.entries(groups).flatMap(([suit, count]) =>
@@ -10,9 +78,8 @@ const expected = new Map(
     }),
   ),
 )
+const names = new Map([...expected.keys()].map((name, index) => [name, glossary[index]]))
 const errors = []
-const titles = new Set()
-const slugs = new Set()
 const counts = []
 
 // 本批内容使用双引号 YAML 标量与 q/a 列表；明确拒绝其他语法，避免引入解析依赖或执行 MDX。
@@ -51,83 +118,126 @@ function wordCount(body) {
   return visible.match(/[A-Za-z0-9]+(?:['’−-][A-Za-z0-9]+)*/g)?.length ?? 0
 }
 
-const files = (await readdir(directory)).filter((name) => name.endsWith('.mdx')).sort()
-for (const name of expected.keys()) {
-  if (!files.includes(name)) errors.push(`${name}: missing file`)
-}
-for (const name of files) {
-  const suit = expected.get(name)
-  if (!suit) {
-    errors.push(`${name}: unexpected card file`)
-    continue
-  }
-  const check = (condition, message) => {
-    if (!condition) errors.push(`${name}: ${message}`)
-  }
-  const source = await readFile(new URL(name, directory), 'utf8')
-  const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(source)
-  if (!match) {
-    errors.push(`${name}: missing frontmatter delimiters`)
-    continue
-  }
-  let fields
-  try {
-    fields = parseFrontmatter(match[1].replaceAll('\r', ''))
-  } catch (error) {
-    errors.push(`${name}: ${error.message}`)
-    continue
-  }
-  for (const key of ['title', 'description', 'slug', 'locale', 'cardId', 'arcana', 'updated']) {
-    check(typeof fields[key] === 'string' && fields[key].trim().length > 0, `missing ${key}`)
-  }
-  check(fields.cardId === name.slice(0, -4), 'cardId must match filename')
-  check(fields.locale === 'en', 'locale must be en')
-  check(fields.updated === '2026-10-19', 'updated must be 2026-10-19')
-  check(fields.arcana === (suit === 'major' ? 'major' : 'minor'), 'incorrect arcana')
-  check(suit === 'major' ? !Object.hasOwn(fields, 'suit') : fields.suit === suit, 'incorrect suit')
-  check(Array.from(fields.description ?? '').length <= 160, 'description exceeds 160 characters')
-  check(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug ?? ''), 'invalid slug')
-  check(!titles.has(fields.title?.toLowerCase()), 'duplicate title')
-  check(!slugs.has(fields.slug), 'duplicate slug')
-  check(/Tarot Card Meaning/i.test(fields.title ?? ''), 'title must contain the main keyword')
-  check(!/\bAI\b/i.test(fields.title ?? ''), 'title must not promote AI')
-  titles.add(fields.title?.toLowerCase())
-  slugs.add(fields.slug)
-  const body = match[2]
-  const faq = fields.faq
-  check(Array.isArray(faq) && faq.length >= 3 && faq.length <= 5, 'faq must contain 3–5 items')
-  for (const item of faq ?? []) {
-    check(typeof item.q === 'string' && item.q.trim().length > 0, 'FAQ question is required')
-    check(typeof item.a === 'string' && item.a.trim().length > 0, 'FAQ answer is required')
-    check(body.includes(`### ${item.q}\n\n${item.a}`), 'FAQ must match its visible body entry')
-  }
-  for (const heading of [
-    'Overview and symbolism',
-    'Keywords',
-    'Upright meaning',
-    'Reversed meaning',
-    'Love',
-    'Career',
-    'Advice',
-    'Yes or No',
-    'Related spreads',
-    'FAQ',
-  ]) {
-    check(body.includes(`## ${heading}\n`), `missing ${heading} section`)
-  }
-  check(
-    !/^(?:import|export)\s|<\/?[A-Za-z]|^# /m.test(body),
-    'body must use Markdown only, without H1',
+for (const locale of locales) {
+  const directory = new URL(`${locale}/`, contentRoot)
+  const titles = new Set()
+  const slugs = new Set()
+  const files = (
+    await readdir(directory).catch((error) => {
+      if (error.code !== 'ENOENT') throw error
+      return []
+    })
   )
-  check(
-    body.includes(
-      'AI-assisted interpretation is for entertainment only and does not predict the future',
-    ),
-    'missing entertainment disclosure',
-  )
-  const count = wordCount(body)
-  counts.push(count)
-  check(count >= 600 && count <= 900, `body has ${count} words; expected 600–900`)
+    .filter((name) => name.endsWith('.mdx'))
+    .sort()
+  total += files.length
+  for (const name of expected.keys()) {
+    if (!files.includes(name)) errors.push(`${locale}/${name}: missing file`)
+  }
+  for (const name of files) {
+    const suit = expected.get(name)
+    if (!suit) {
+      errors.push(`${locale}/${name}: unexpected card file`)
+      continue
+    }
+    const check = (condition, message) => {
+      if (!condition) errors.push(`${locale}/${name}: ${message}`)
+    }
+    const source = await readFile(new URL(name, directory), 'utf8')
+    const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(source)
+    if (!match) {
+      errors.push(`${locale}/${name}: missing frontmatter delimiters`)
+      continue
+    }
+    let fields
+    try {
+      fields = parseFrontmatter(match[1].replaceAll('\r', ''))
+    } catch (error) {
+      errors.push(`${locale}/${name}: ${error.message}`)
+      continue
+    }
+    for (const key of ['title', 'description', 'slug', 'locale', 'cardId', 'arcana', 'updated']) {
+      check(typeof fields[key] === 'string' && fields[key].trim().length > 0, `missing ${key}`)
+    }
+    check(fields.cardId === name.slice(0, -4), 'cardId must match filename')
+    check(fields.locale === locale, `locale must be ${locale}`)
+    if (locale === 'en') englishSlugs.set(name, fields.slug)
+    else check(fields.slug === englishSlugs.get(name), 'slug must match English counterpart')
+    check(fields.updated === '2026-10-19', 'updated must be 2026-10-19')
+    check(fields.arcana === (suit === 'major' ? 'major' : 'minor'), 'incorrect arcana')
+    check(
+      suit === 'major' ? !Object.hasOwn(fields, 'suit') : fields.suit === suit,
+      'incorrect suit',
+    )
+    check(Array.from(fields.description ?? '').length <= 160, 'description exceeds 160 characters')
+    check(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug ?? ''), 'invalid slug')
+    check(!titles.has(fields.title?.toLowerCase()), 'duplicate title')
+    check(!slugs.has(fields.slug), 'duplicate slug')
+    check(
+      { en: /Tarot Card Meaning/i, 'zh-Hant': /塔羅牌義/, ko: /타로 카드 의미/ }[locale].test(
+        fields.title ?? '',
+      ),
+      'title must contain the localized main keyword',
+    )
+    check(!/\bAI\b/i.test(fields.title ?? ''), 'title must not promote AI')
+    check(
+      fields.title?.startsWith(names.get(name)?.[locales.indexOf(locale)] ?? '\0'),
+      'title card name must match GLOSSARY',
+    )
+    titles.add(fields.title?.toLowerCase())
+    slugs.add(fields.slug)
+    const body = match[2]
+    const faq = fields.faq
+    if (locale === 'en') englishFaqCounts.set(name, faq?.length)
+    else {
+      check(faq?.length === englishFaqCounts.get(name), 'FAQ count differs from English')
+      check(!/— (Yes|No|Maybe)[:：]/.test(body), 'Yes/No labels must be localized')
+    }
+    check(Array.isArray(faq) && faq.length >= 3 && faq.length <= 5, 'faq must contain 3–5 items')
+    for (const item of faq ?? []) {
+      check(typeof item.q === 'string' && item.q.trim().length > 0, 'FAQ question is required')
+      check(typeof item.a === 'string' && item.a.trim().length > 0, 'FAQ answer is required')
+      check(body.includes(`### ${item.q}\n\n${item.a}`), 'FAQ must match its visible body entry')
+    }
+    const actualHeadings = [...body.matchAll(/^## (.+)$/gm)].map((match) => match[1])
+    check(
+      JSON.stringify(actualHeadings) === JSON.stringify(headings[locale]),
+      'section order or headings differ',
+    )
+    const links = [...body.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map((match) =>
+      decodeURI(match[1]).replace(/\/+$/, ''),
+    )
+    for (const link of spreadLinks[locale])
+      check(links.includes(link), `missing localized spread link ${link}`)
+    check(
+      links.every((link) => spreadLinks[locale].includes(link)),
+      'unexpected or untranslated link',
+    )
+    check(
+      !/^(?:import|export)\s|<\/?[A-Za-z]|^# /m.test(body),
+      'body must use Markdown only, without H1',
+    )
+    const disclosure = disclosures[locale]
+    check(body.trimEnd().endsWith(disclosure), 'missing final entertainment disclosure')
+    check(body.split(disclosure).length === 2, 'disclosure must appear exactly once')
+    if (locale === 'en') {
+      const count = wordCount(body)
+      counts.push(count)
+      check(count >= 600 && count <= 900, `body has ${count} words; expected 600–900`)
+    } else {
+      // 译文不套用英语词数，但每个正文维度必须有实际文字，不能只复制标题或空壳。
+      for (const [index, section] of body
+        .split(/^## .+$/m)
+        .slice(1)
+        .entries()) {
+        check(section.trim().length >= (index === 1 ? 10 : 30), 'empty or stub translated section')
+      }
+      check(
+        locale === 'ko' ? /[가-힣]/.test(body) : /[\u3400-\u9fff]/.test(body),
+        'missing localized prose',
+      )
+    }
+  }
 }
 
 if (errors.length > 0) {
@@ -136,7 +246,7 @@ if (errors.length > 0) {
   process.exitCode = 1
 } else {
   console.log(
-    `Content check passed: ${files.length}/78 English tarot articles; body words ${Math.min(...counts)}–${Math.max(...counts)}; total ${counts.reduce((sum, count) => sum + count, 0)}.`,
+    `Content check passed: ${total}/234 tarot articles (en / zh-Hant / ko); English body words ${Math.min(...counts)}–${Math.max(...counts)}; total ${counts.reduce((sum, count) => sum + count, 0)}.`,
   )
   console.log(
     'Frontmatter, unique titles/slugs, descriptions, FAQ, sections, and disclosure passed.',

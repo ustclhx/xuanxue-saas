@@ -99,5 +99,11 @@
   "tarot_celtic_cross_faq_2_q": "How long does a Celtic Cross reading take?",
   "tarot_celtic_cross_faq_2_a": "Revealing the cards takes a minute; reflecting on all ten usually takes ten to fifteen minutes. Use \"Reveal all\" if you want to see every card at once.",
   "tarot_celtic_cross_faq_3_q": "Can a card appear twice?",
-  "tarot_celtic_cross_faq_3_a": "No. All ten cards come from one shuffled deck of 78, so each card appears at most once."
+  "tarot_celtic_cross_faq_3_a": "No. All ten cards come from one shuffled deck of 78, so each card appears at most once.",
+  "tarot_meaning_related": "Related card meanings",
+  "tarot_meaning_try": "Try a one-card draw",
+  "tarot_meaning_try_intro": "Draw a card, then turn it over and explore its meaning.",
+  "tarot_meaning_draw": "Draw one card",
+  "tarot_meaning_read": "Read the full card meaning",
+  "tarot_meaning_gallery": "Upright and reversed card"
 }
