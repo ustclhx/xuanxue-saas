@@ -43,7 +43,7 @@ export const Route = createRootRoute({
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),
     ],
     // 全局样式（Tailwind + @xuanxue/ui 主题），SSR 输出的 <head> 中直接引用，避免首屏无样式闪烁
-    // 站点字体（docs/design/visual-system.md「字体」）：只加载本站本语言的一套，display=swap
+    // 站点字体（docs/design/visual-system.md「字体」）：自托管，只加载本站本语言的一套
     links: [
       { rel: 'stylesheet', href: appCss },
       ...siteFontLinks(loaderData?.site.id ?? 'west', getLocale()),
