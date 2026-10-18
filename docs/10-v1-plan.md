@@ -13,6 +13,7 @@
 | `add-tarot-reading` | `@xuanxue/tarot`、四种牌阵三语页、78×3 牌义页 | 8 |
 | `add-reading-monetization` | L1 结果后订阅 + 个性化邮件；L2 付费完整分析（积分 + AI） | 11 |
 | `launch-v1-production` | 法律/免责、生产部署、Lighthouse、GSC/Bing、AI 目录 | 6 |
+| `remove-selfhost-target` | 删除自托管交付层、Node 运行时、模板生成器与旧验收证据，只保留 Cloudflare 路径 | 4 |
 
 ## 2. 波次与执行者
 
@@ -22,7 +23,8 @@
 
 | 波次 | 任务（change 编号） | 执行者 | 依赖 |
 |---|---|---|---|
-| W1 | `fd-sites-i18n`（foundation 1.1–1.3） | Claude | main |
+| W0 | `rm-node-runtime`（remove-selfhost-target 2.1、2.2、3.1；1.1 由协调者完成） | Claude | main |
+| W1 | `fd-sites-i18n`（foundation 1.1–1.3） | Claude | `rm-node-runtime` |
 | W1 | `bazi-engine`（bazi 1.1–1.5） | Claude | main |
 | W1 | `pkg-num-tarot`（numerology 1.1–1.2、tarot 1.1–1.3） | Codex | main |
 | W2 | `fd-shell`（foundation 4.1–4.3） | Claude | `fd-sites-i18n` |
@@ -38,6 +40,8 @@
 | W5 | `readings-optin`（monetization 4.1–4.2） | Codex | `readings-core` |
 | W5 | `legal-pages`（launch 1.1） | Codex | W2 |
 | W6 | staging 部署 + monetization 5.1 抽检；decision gate 后 launch 2.1–3.2 | Codex（部署/浏览器），协调者审阅 | 全部 |
+
+W0 与 W1 的 `bazi-engine`、`pkg-num-tarot` 同时运行（后两者只新增独立包，不冲突）；`fd-sites-i18n` 等 `rm-node-runtime` 合并后再开始。待用户决策的事项统一记录在 [v1-decisions.md](v1-decisions.md)。
 
 季节峰优先级：东方站页面（`bazi-pages` / `bazi-longtail`）在资源冲突时优先排期；`fd-auth` 不阻塞免费工具上线。AI 详批的模型在骨架完成后由用户选定（高性价比），`readings-core` 先用 fake provider 测试，不写死模型。
 

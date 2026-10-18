@@ -169,12 +169,12 @@ importers:
       '@biomejs/biome':
         specifier: 2.5.15
         version: 2.5.15
-      '@xuanxue/config':
-        specifier: workspace:*
-        version: link:packages/config
       '@sentry/cli':
         specifier: ^3.8.0
         version: 3.8.0
+      '@xuanxue/config':
+        specifier: workspace:*
+        version: link:packages/config
       source-map:
         specifier: 0.7.6
         version: 0.7.6
@@ -190,6 +190,12 @@ importers:
       '@dbos-inc/dbos-sdk':
         specifier: 5.2.11
         version: 5.2.11
+      '@sentry/cloudflare':
+        specifier: ^11.6.0
+        version: 11.6.0(@cloudflare/workers-types@5.20261002.1)(wrangler@4.146.0(@cloudflare/workers-types@5.20261002.1)(@types/node@22.20.5))
+      '@sentry/node':
+        specifier: 11.6.0
+        version: 11.6.0(@babel/core@7.29.7(supports-color@10.2.2))
       '@xuanxue/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -220,12 +226,6 @@ importers:
       '@xuanxue/storage':
         specifier: workspace:*
         version: link:../../packages/storage
-      '@sentry/cloudflare':
-        specifier: ^11.6.0
-        version: 11.6.0(@cloudflare/workers-types@5.20261002.1)(wrangler@4.146.0(@cloudflare/workers-types@5.20261002.1)(@types/node@22.20.5))
-      '@sentry/node':
-        specifier: 11.6.0
-        version: 11.6.0(@babel/core@7.29.7(supports-color@10.2.2))
       cron-parser:
         specifier: 5.4.0
         version: 5.4.0
@@ -254,12 +254,12 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^5.20261002.1
         version: 5.20261002.1
-      '@xuanxue/credits':
-        specifier: workspace:*
-        version: link:../../packages/credits
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      '@xuanxue/credits':
+        specifier: workspace:*
+        version: link:../../packages/credits
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
@@ -275,6 +275,21 @@ importers:
       '@ai-sdk/react':
         specifier: ^4.0.130
         version: 4.0.130(react@19.3.0)(zod@4.6.5)
+      '@sentry/cloudflare':
+        specifier: ^11.6.0
+        version: 11.6.0(@cloudflare/workers-types@5.20261002.1)(wrangler@4.146.0(@cloudflare/workers-types@5.20261002.1)(@types/node@22.20.5))
+      '@sentry/node':
+        specifier: 11.6.0
+        version: 11.6.0(@babel/core@7.29.7(supports-color@10.2.2))
+      '@tanstack/react-form':
+        specifier: ^1.33.5
+        version: 1.33.5(@tanstack/react-start@1.168.60(crossws@0.4.15)(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.12)(supports-color@10.2.2)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tanstack/react-router':
+        specifier: ^1.170.41
+        version: 1.170.41(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tanstack/react-start':
+        specifier: ^1.168.60
+        version: 1.168.60(crossws@0.4.15)(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.12)(supports-color@10.2.2)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2))
       '@xuanxue/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -311,21 +326,6 @@ importers:
       '@xuanxue/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@sentry/cloudflare':
-        specifier: ^11.6.0
-        version: 11.6.0(@cloudflare/workers-types@5.20261002.1)(wrangler@4.146.0(@cloudflare/workers-types@5.20261002.1)(@types/node@22.20.5))
-      '@sentry/node':
-        specifier: 11.6.0
-        version: 11.6.0(@babel/core@7.29.7(supports-color@10.2.2))
-      '@tanstack/react-form':
-        specifier: ^1.33.5
-        version: 1.33.5(@tanstack/react-start@1.168.60(crossws@0.4.15)(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.12)(supports-color@10.2.2)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2)))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tanstack/react-router':
-        specifier: ^1.170.41
-        version: 1.170.41(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tanstack/react-start':
-        specifier: ^1.168.60
-        version: 1.168.60(crossws@0.4.15)(esbuild@0.28.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(rolldown@1.2.12)(supports-color@10.2.2)(vite@8.3.2(@types/node@22.20.5)(esbuild@0.28.2))
       ai:
         specifier: ^7.0.127
         version: 7.0.127(zod@4.6.5)
@@ -566,12 +566,12 @@ importers:
         specifier: ^0.45.3
         version: 0.45.3(@cloudflare/workers-types@5.20261002.1)(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(kysely@0.29.6)(pg@8.20.0)(postgres@3.4.9)
     devDependencies:
-      '@xuanxue/shared':
-        specifier: workspace:*
-        version: link:../shared
       '@types/node':
         specifier: ^22.20.5
         version: 22.20.5
+      '@xuanxue/shared':
+        specifier: workspace:*
+        version: link:../shared
       postgres:
         specifier: ^3.4.9
         version: 3.4.9

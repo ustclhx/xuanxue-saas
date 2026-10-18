@@ -53,115 +53,121 @@ describe('apps/jobs', () => {
   })
 
   // 生成项目关闭图片/视频时没有 Workflow 绑定，媒体编排用例随之跳过
-  it.skipIf(!env.AI_MEDIA_WORKFLOW)('AiMediaWorkflow 跨绑定等待媒体事件，并读取落库回调进入转存与结算步骤', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    const id = crypto.randomUUID()
-    const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)
-    const db = createDb(env.HYPERDRIVE)
-    await db
-      .insert(user)
-      .values({ id, name: 'Workflow', email: `${id}@workflow-smoke.example.test` })
-    await db.insert(organization).values({ id, name: 'Workflow', slug: id })
-    await db.insert(aiTask).values({
-      id,
-      workspaceId: id,
-      userId: id,
-      kind: 'image',
-      modelKey: 'fixture',
-      provider: 'fal',
-      providerRequestKey: id,
-      input: {
-        params: {},
-        providerModelId: 'fal-ai/fixture',
-        unitsLimit: 1,
-        fileParams: [],
-        storageBytes: 1000,
-      },
-      pricing: { mode: 'per_call', credits: 1 },
-      deadlineAt: new Date(Date.now() + 7200000),
-    })
-    const result = {
-      outputs: [{ url: 'https://v3.fal.media/files/fixture.png', mime: 'image/png' }],
-    }
-    try {
-      await instance.modify(async (m) => {
-        await m.mockStepResult(
-          { name: 'submit' },
-          { jobId: 'fixture-job', sync: null, stopped: false },
-        )
-        await m.mockEvent({ type: MEDIA_DONE_EVENT, payload: { taskId: id } })
-        await m.mockStepResult({ name: 'recheck-callback' }, { jobId: 'fixture-job', result })
-        await m.mockStepResult({ name: 'persist' }, [{ id, mime: 'image/png', size: 8 }])
-        await m.mockStepResult({ name: 'settle-and-notify' }, 'succeeded')
+  it.skipIf(!env.AI_MEDIA_WORKFLOW)(
+    'AiMediaWorkflow 跨绑定等待媒体事件，并读取落库回调进入转存与结算步骤',
+    async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      const id = crypto.randomUUID()
+      const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)
+      const db = createDb(env.HYPERDRIVE)
+      await db
+        .insert(user)
+        .values({ id, name: 'Workflow', email: `${id}@workflow-smoke.example.test` })
+      await db.insert(organization).values({ id, name: 'Workflow', slug: id })
+      await db.insert(aiTask).values({
+        id,
+        workspaceId: id,
+        userId: id,
+        kind: 'image',
+        modelKey: 'fixture',
+        provider: 'fal',
+        providerRequestKey: id,
+        input: {
+          params: {},
+          providerModelId: 'fal-ai/fixture',
+          unitsLimit: 1,
+          fileParams: [],
+          storageBytes: 1000,
+        },
+        pricing: { mode: 'per_call', credits: 1 },
+        deadlineAt: new Date(Date.now() + 7200000),
       })
+      const result = {
+        outputs: [{ url: 'https://v3.fal.media/files/fixture.png', mime: 'image/png' }],
+      }
+      try {
+        await instance.modify(async (m) => {
+          await m.mockStepResult(
+            { name: 'submit' },
+            { jobId: 'fixture-job', sync: null, stopped: false },
+          )
+          await m.mockEvent({ type: MEDIA_DONE_EVENT, payload: { taskId: id } })
+          await m.mockStepResult({ name: 'recheck-callback' }, { jobId: 'fixture-job', result })
+          await m.mockStepResult({ name: 'persist' }, [{ id, mime: 'image/png', size: 8 }])
+          await m.mockStepResult({ name: 'settle-and-notify' }, 'succeeded')
+        })
 
-      await env.AI_MEDIA_WORKFLOW.create({ id, params: { taskId: id } })
+        await env.AI_MEDIA_WORKFLOW.create({ id, params: { taskId: id } })
 
-      expect(await instance.waitForStepResult({ name: 'submit' })).toEqual({
-        jobId: 'fixture-job',
-        sync: null,
-        stopped: false,
-      })
-      await instance.waitForStatus('complete')
-      expect(await instance.getOutput()).toEqual({
-        taskId: id,
-        status: 'succeeded',
-      })
-    } finally {
-      await instance.dispose()
-      await db.$client`delete from ai_task where id=${id}`
-      await db.$client`delete from organization where id=${id}`
-      await db.$client`delete from "user" where id=${id}`
-    }
-  })
+        expect(await instance.waitForStepResult({ name: 'submit' })).toEqual({
+          jobId: 'fixture-job',
+          sync: null,
+          stopped: false,
+        })
+        await instance.waitForStatus('complete')
+        expect(await instance.getOutput()).toEqual({
+          taskId: id,
+          status: 'succeeded',
+        })
+      } finally {
+        await instance.dispose()
+        await db.$client`delete from ai_task where id=${id}`
+        await db.$client`delete from organization where id=${id}`
+        await db.$client`delete from "user" where id=${id}`
+      }
+    },
+  )
 
-  it.skipIf(!env.AI_MEDIA_WORKFLOW)('取消读到 running 后实例已自行结束：真实绑定 terminate 抛错，中立适配视为已终止', async () => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    const id = crypto.randomUUID()
-    const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)
-    const db = createDb(env.HYPERDRIVE)
-    await db
-      .insert(user)
-      .values({ id, name: 'Cancel', email: `${id}@workflow-cancel.example.test` })
-    await db.insert(organization).values({ id, name: 'Cancel', slug: id })
-    // 与 staging 一致：HTTP 取消先落库，Workflow 的 submit 自检到终态后正常结束
-    await db.insert(aiTask).values({
-      id,
-      workspaceId: id,
-      userId: id,
-      kind: 'video',
-      modelKey: 'fixture',
-      provider: 'fal',
-      providerRequestKey: id,
-      status: 'canceled',
-      input: {
-        params: {},
-        providerModelId: 'fal-ai/fixture',
-        unitsLimit: 1,
-        fileParams: [],
-        storageBytes: 1000,
-      },
-      pricing: { mode: 'per_call', credits: 1 },
-      deadlineAt: new Date(Date.now() + 7200000),
-    })
-    try {
-      await instance.modify(async (m) => {
-        await m.mockStepResult({ name: 'submit' }, { jobId: '', sync: null, stopped: true })
+  it.skipIf(!env.AI_MEDIA_WORKFLOW)(
+    '取消读到 running 后实例已自行结束：真实绑定 terminate 抛错，中立适配视为已终止',
+    async () => {
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+      const id = crypto.randomUUID()
+      const instance = await introspectWorkflowInstance(env.AI_MEDIA_WORKFLOW, id)
+      const db = createDb(env.HYPERDRIVE)
+      await db
+        .insert(user)
+        .values({ id, name: 'Cancel', email: `${id}@workflow-cancel.example.test` })
+      await db.insert(organization).values({ id, name: 'Cancel', slug: id })
+      // 与 staging 一致：HTTP 取消先落库，Workflow 的 submit 自检到终态后正常结束
+      await db.insert(aiTask).values({
+        id,
+        workspaceId: id,
+        userId: id,
+        kind: 'video',
+        modelKey: 'fixture',
+        provider: 'fal',
+        providerRequestKey: id,
+        status: 'canceled',
+        input: {
+          params: {},
+          providerModelId: 'fal-ai/fixture',
+          unitsLimit: 1,
+          fileParams: [],
+          storageBytes: 1000,
+        },
+        pricing: { mode: 'per_call', credits: 1 },
+        deadlineAt: new Date(Date.now() + 7200000),
       })
-      await env.AI_MEDIA_WORKFLOW.create({ id, params: { taskId: id } })
-      const handle = await createCloudflareWorkflow(env.AI_MEDIA_WORKFLOW).get(id)
-      await instance.waitForStatus('complete')
-      const raw = await env.AI_MEDIA_WORKFLOW.get(id)
-      await expect(raw.terminate()).rejects.toThrow('instance.cannot_terminate')
-      await expect(handle.terminate()).resolves.toBeUndefined()
-      expect((await handle.status()).status).toBe('completed')
-    } finally {
-      await instance.dispose()
-      await db.$client`delete from ai_task where id=${id}`
-      await db.$client`delete from organization where id=${id}`
-      await db.$client`delete from "user" where id=${id}`
-    }
-  })
+      try {
+        await instance.modify(async (m) => {
+          await m.mockStepResult({ name: 'submit' }, { jobId: '', sync: null, stopped: true })
+        })
+        await env.AI_MEDIA_WORKFLOW.create({ id, params: { taskId: id } })
+        const handle = await createCloudflareWorkflow(env.AI_MEDIA_WORKFLOW).get(id)
+        await instance.waitForStatus('complete')
+        const raw = await env.AI_MEDIA_WORKFLOW.get(id)
+        await expect(raw.terminate()).rejects.toThrow('instance.cannot_terminate')
+        await expect(handle.terminate()).resolves.toBeUndefined()
+        expect((await handle.status()).status).toBe('completed')
+      } finally {
+        await instance.dispose()
+        await db.$client`delete from ai_task where id=${id}`
+        await db.$client`delete from organization where id=${id}`
+        await db.$client`delete from "user" where id=${id}`
+      }
+    },
+  )
 })
 
 it('heartbeat retries committed deletion invalidation using the shared CACHE binding', async () => {

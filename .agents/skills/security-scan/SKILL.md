@@ -120,7 +120,7 @@ PY
 
 上述短路径 `workspace-context.ts` 相对 `apps/web/src/server/`，`features/admin/` 相对 `apps/web/src/`。新增目标能力也核对 `scripts/check-deps.rules.json`，不扩大平台例外绕过业务边界。
 
-对存在的 `apps/web/dist`、`apps/web/.output`、`apps/jobs/dist` 核对扫描结果和生成来源；未生成的产物写明未覆盖。selfhost release bundle 依照 `docs/runbooks/selfhost-release.md` 的白名单/脱敏约定审查用户指定的本地目录，扫描代码的 artifact_roots 按实际目录追加；本技能不生成发布或读取远端 bundle。
+对存在的 `apps/web/dist`、`apps/web/.output`、`apps/jobs/dist` 核对扫描结果和生成来源；未生成的产物写明未覆盖。扫描代码的 artifact_roots 按实际目录追加；本技能不读取远端产物。
 
 完成标准：每个受影响边界得到 diff/上下文证据，问题按实际可利用性排序，范围外或缺环境的检查保留限制。
 
