@@ -333,7 +333,8 @@ afterAll(async () => {
   await sql`delete from ai_model where key like ${`acceptance-fault-${MODEL_PREFIX}%`}`
 })
 
-describe('media tasks API', () => {
+// 生成项目关闭图片与视频时媒体接口不注册（返回 404），整组用例随之跳过
+describe.skipIf(!templateConfig.ai.image && !templateConfig.ai.video)('media tasks API', () => {
   it.each(['workers-timeout', 'fal-timeout'] as const)(
     '%s 冻结管理员故障策略和 60 秒 deadline，模型停用与并发证明更新不改变输入',
     async (mode) => {
