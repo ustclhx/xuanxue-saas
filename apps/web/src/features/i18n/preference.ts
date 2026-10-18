@@ -1,4 +1,4 @@
-import { baseLocale, cookieName, isLocale, type Locale } from '../../paraglide/runtime.js'
+import { baseLocale, cookieName, type Locale, locales, toLocale } from '../../paraglide/runtime.js'
 import { isAppAreaPath } from './app-area.ts'
 
 // 与 Paraglide 自动同步的 Cookie 分开，只有手动选择 / 关闭建议才记为已选择。
@@ -38,10 +38,12 @@ export function preferredLocale(header: string | null): Locale {
     .filter(({ q }) => Number.isFinite(q) && q > 0 && q <= 1)
     .sort((a, b) => b.q - a.q)
   for (const { tag } of preferences) {
-    if (isLocale(tag)) return tag
-    const language = tag.split('-')[0]
-    if (isLocale(language)) return language
     if (tag === '*') return baseLocale
+    // 先按完整标签匹配，再按主语言匹配：zh-TW / zh-CN 都归入唯一的中文 zh-Hant，ko-KR 归入 ko
+    const language = tag.split('-')[0]
+    const locale =
+      toLocale(tag) ?? locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
+    if (locale) return locale
   }
   return baseLocale
 }

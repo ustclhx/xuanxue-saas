@@ -2,9 +2,9 @@
 
 ## 1. 站点注册表与语言集合
 
-- [ ] 1.1 在 `@xuanxue/config` 增加 `sites` 配置类型、默认值与校验（每种语言恰好属于一个站点、默认语言属于本站），`template.config.ts` 写入占位域名的东西两站；验证：`pnpm --filter @xuanxue/config test` 新增用例通过
-- [ ] 1.2 把 i18n 语言集合改为 `en`/`zh-Hant`/`ko`：Paraglide urlPatterns（`/zh-hant/`、`/ko/`）、OpenCC 转换 `messages/zh` → `messages/zh-Hant`、删除 `zh`、新增 `messages/ko` 全量翻译、`EMAIL_LOCALES` 与邮件模板同步；验证：`pnpm typecheck`、`pnpm test` 通过，构建日志无缺失文案（admin 除外）
-- [ ] 1.3 实现 `resolveSite(host)` 与请求中间件：站点识别、语言归属 301、东方站无前缀路径 302 到入口页、未知 Host noindex；验证：`features/site` 单元测试覆盖 spec `multi-site` 全部场景
+- [x] 1.1 在 `@xuanxue/config` 增加 `sites` 配置类型、默认值与校验（每种语言恰好属于一个站点、默认语言属于本站），`template.config.ts` 写入占位域名的东西两站；验证：`pnpm --filter @xuanxue/config test` 新增用例通过
+- [x] 1.2 把 i18n 语言集合改为 `en`/`zh-Hant`/`ko`：Paraglide urlPatterns（`/zh-hant/`、`/ko/`）、OpenCC 转换 `messages/zh` → `messages/zh-Hant`、删除 `zh`、新增 `messages/ko` 全量翻译、`EMAIL_LOCALES` 与邮件模板同步；验证：`pnpm typecheck`、`pnpm test` 通过，构建日志无缺失文案（admin 除外）
+- [x] 1.3 实现 `resolveSite(host)` 与请求中间件：站点识别、语言归属 301、东方站无前缀路径 302 到入口页、未知 Host noindex；验证：`features/site` 单元测试覆盖 spec `multi-site` 全部场景
 
 ## 2. SEO 与预渲染
 

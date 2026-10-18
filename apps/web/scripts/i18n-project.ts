@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type CompilerOptions, compile, paraglideVitePlugin } from '@inlang/paraglide-js'
+import { localeUrlSegment } from '@xuanxue/config'
 import { EMAIL_LOCALES } from '@xuanxue/email/queue'
 import type { Plugin } from 'vite'
 
@@ -67,21 +68,39 @@ export function writeInlangProject(i18n: I18nConfig, root = WEB_ROOT): void {
 
 /**
  * Paraglide 编译选项（design.md 决策 3）：公开页面按 URL 前缀确定语言（默认语言无前缀），
- * 其他配置语言 `/<locale>/...`；应用区不进入 URL，按 Cookie 取语言、没有时用默认语言。
+ * 其他配置语言 `/<小写语言 id>/...`（`zh-Hant` → `/zh-hant/`，openspec add-dual-site-foundation 决策 2）；
+ * 应用区不进入 URL，按 Cookie 取语言、没有时用默认语言。
  * 两者都不含 preferredLanguage，首次访问不会按浏览器语言自动跳转。
  */
 export function paraglideOptions(
+  i18n: I18nConfig,
   appAreaPrefixes: readonly string[],
   root = WEB_ROOT,
-  enabled = true,
 ): CompilerOptions {
+  const enabled = i18n.enabled !== false
+  const origin = ':protocol://:domain(.*)::port?'
   return {
     project: join(root, 'project.inlang'),
     outdir: join(root, 'src/paraglide'),
     // tsconfig 未开启 allowJs，生成 .d.ts 供类型检查
     emitTsDeclarations: true,
     strategy: enabled ? ['url', 'baseLocale'] : ['baseLocale'],
-    // 与路由器一致：去掉末尾的 `/`（否则 `/zh` 会被本地化为 `/zh/`，再被路由器 307 回来）
+    // 默认 URL 模式直接使用语言 id 作前缀；这里显式映射为小写前缀，默认语言放最后作兜底
+    urlPatterns: [
+      {
+        pattern: `${origin}/:path(.*)?`,
+        localized: [
+          ...activeLocales(i18n)
+            .filter((locale) => locale !== i18n.defaultLocale)
+            .map((locale): [string, string] => [
+              locale,
+              `${origin}/${localeUrlSegment(locale)}/:path(.*)?`,
+            ]),
+          [i18n.defaultLocale, `${origin}/:path(.*)?`],
+        ],
+      },
+    ],
+    // 与路由器一致：去掉末尾的 `/`（否则 `/ko` 会被本地化为 `/ko/`，再被路由器 307 回来）
     trailingSlash: 'never',
     routeStrategies: (enabled ? [...appAreaPrefixes, '/_serverFn'] : []).map((prefix) => ({
       match: `${prefix}/:path(.*)?`,
@@ -144,7 +163,7 @@ export function i18nMessages({
   )
   if (unsupported.length) throw new Error(`[i18n] 邮件模板缺少语言：${unsupported.join(', ')}`)
   writeInlangProject(i18n)
-  const options = paraglideOptions(appAreaPrefixes, WEB_ROOT, i18n.enabled)
+  const options = paraglideOptions(i18n, appAreaPrefixes)
   let reported = false
   return [
     paraglideVitePlugin(options) as Plugin,

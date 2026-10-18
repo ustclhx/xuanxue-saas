@@ -1,0 +1,18 @@
+Acme
+
+
+이메일 인증
+
+Ada 님, 안녕하세요.
+
+Acme에 가입해 주셔서 감사합니다. 아래 버튼을 눌러 이메일 주소를 확인하세요.
+
+이메일 인증 https://acme.test/api/auth/verify-email?token=tok_verify
+
+버튼이 작동하지 않으면 아래 링크를 복사해 브라우저에 붙여 넣으세요:
+
+https://acme.test/api/auth/verify-email?token=tok_verify
+
+----------------------------------------
+
+Acme에 가입한 적이 없다면 이 메일을 무시하세요.

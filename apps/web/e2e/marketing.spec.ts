@@ -1,14 +1,15 @@
 import { expect, test } from '@playwright/test'
 import templateConfig from '../../../template.config.ts'
+import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
 // 营销站（openspec add-marketing-i18n-seo tasks.md 3.1、3.3、3.4、3.5）：首页区块、博客、法律页与文档站，
 // 默认语言与其他语言路径都可访问。数据库停止时的访问与草稿的生产构建检查见 PR 说明与 scripts/content.test.ts。
 const { defaultLocale } = templateConfig.i18n
 const otherLocales = templateConfig.i18n.locales.filter((locale) => locale !== defaultLocale)
-const prefixes = ['', ...otherLocales.map((locale) => `/${locale}`)]
+const languages = [defaultLocale, ...otherLocales]
 
-for (const prefix of prefixes) {
-  const lang = prefix === '' ? defaultLocale : prefix.slice(1)
+for (const lang of languages) {
+  const prefix = lang === defaultLocale ? '' : localePrefix(lang)
 
   test(`首页各区块（${lang}）`, async ({ page }) => {
     const response = await page.goto(prefix || '/')
@@ -46,8 +47,11 @@ for (const prefix of prefixes) {
     }
     // 退款政策说明默认不退款与申请途径（tasks.md 3.5）
     const article = page.locator('article')
-    await expect(article).toContainText(lang === 'zh' ? '默认不退款' : 'not refunded by default')
-    await expect(article).toContainText(lang === 'zh' ? '申请退款' : 'Request refund')
+    // 韩语暂无法律页正文，回退到英语版本（法律页文案由 launch-v1-production 1.1 提供）
+    await expect(article).toContainText(
+      lang === 'zh-Hant' ? '預設不退款' : 'not refunded by default',
+    )
+    await expect(article).toContainText(lang === 'zh-Hant' ? '申請退款' : 'Request refund')
     await expect(article).toContainText(templateConfig.app.supportEmail)
   })
 

@@ -1,0 +1,21 @@
+---
+title: 快速開始
+description: 幾分鐘內在本地執行模板。
+section: 基礎
+order: 1
+---
+
+## 環境要求
+
+- Node.js 22 或更高版本，以及 pnpm
+- Docker，用於本地 Postgres 資料庫
+
+## 執行
+
+```bash
+pnpm install
+pnpm --filter @xuanxue/db db:migrate
+pnpm dev
+```
+
+開啟終端中顯示的地址即可看到行銷站。

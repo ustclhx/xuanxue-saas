@@ -1,7 +1,7 @@
 import { templateConfig } from '../../server/template-config.ts'
 import { listPosts, listTags, localizedEntries } from '../marketing/content.ts'
 import type { SeoPage } from './metadata.ts'
-import { localizedPath, staticPage } from './metadata.ts'
+import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
 
 interface Post {
   slug: string
@@ -55,7 +55,7 @@ export function publicPages(
         ...listTags(posts).map((tag) => ({
           path: `/blog/tags/${encodeURIComponent(tag)}`,
           locale,
-          title: locale === 'zh' ? `标签“${tag}”下的文章` : `Posts tagged “${tag}”`,
+          title: tagPageTitle(tag, locale),
           description: `${staticPage('/blog', locale).description} · ${tag}`,
         })),
       )

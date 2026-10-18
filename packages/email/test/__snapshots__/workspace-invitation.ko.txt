@@ -1,0 +1,20 @@
+Acme
+
+
+Research Lab 참여하기
+
+안녕하세요.
+
+Grace 님이 Acme의 Research Lab 워크스페이스에 관리자(으)로 초대했습니다.
+
+초대는 7일 동안 유효합니다.
+
+초대 수락 https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+버튼이 작동하지 않으면 아래 링크를 복사해 브라우저에 붙여 넣으세요:
+
+https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+----------------------------------------
+
+초대를 예상하지 못했다면 이 메일을 무시하세요.

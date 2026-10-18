@@ -1,0 +1,9 @@
+{
+  "i18n_language": "언어",
+  "i18n_suggestion_label": "언어 추천",
+  "i18n_suggestion": "이 사이트를 {language}(으)로 보시겠어요?",
+  "i18n_switch": "언어 전환",
+  "i18n_dismiss": "현재 언어 유지",
+  "i18n_save_failed": "언어 설정을 저장하지 못했습니다. 다시 시도해 주세요.",
+  "i18n_suggestion_failed": "언어 추천을 불러오지 못했습니다."
+}

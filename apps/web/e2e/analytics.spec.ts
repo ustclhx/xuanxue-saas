@@ -7,7 +7,7 @@ test('默认公开页面 head 不加载 PostHog 或 Cloudflare beacon，保留�
   page.on('request', (request) => {
     if (/posthog|cloudflareinsights/.test(request.url())) analyticsRequests.push(request.url())
   })
-  for (const pathname of ['/', '/zh/pricing', '/legal/privacy']) {
+  for (const pathname of ['/', '/zh-hant/pricing', '/legal/privacy']) {
     const response = await page.goto(pathname)
     expect(response?.status()).toBe(200)
     await expect(page.locator('head script[src*="posthog"]')).toHaveCount(0)

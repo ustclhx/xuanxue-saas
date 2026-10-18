@@ -91,7 +91,7 @@ describe('认证邮件入队', () => {
       name: 'Test User',
     })
     expect(signUp.status).toBe(200)
-    await db.$client`update "user" set locale = 'zh-CN' where email = ${address}`
+    await db.$client`update "user" set locale = 'zh-TW' where email = ${address}`
     queued.length = 0
 
     const res = await post('/request-password-reset', { email: address, redirectTo: '/reset' })
@@ -104,7 +104,7 @@ describe('认证邮件入队', () => {
     expect(message).toMatchObject({
       template: 'reset-password',
       to: address,
-      locale: 'zh-CN',
+      locale: 'zh-TW',
       appName: 'TestApp',
       props: { url: expect.stringContaining(`${APP_URL}/api/auth/reset-password/`) },
     })
@@ -113,10 +113,41 @@ describe('认证邮件入队', () => {
       locale: message.locale,
       appName: message.appName,
     })
-    expect(rendered.locale).toBe('zh')
-    expect(rendered.subject).toBe('重置你的 TestApp 密码')
-    expect(rendered.html).toContain('重置密码')
-    expect(rendered.text).toContain('链接 60 分钟内有效')
+    expect(rendered.locale).toBe('zh-Hant')
+    expect(rendered.subject).toBe('重設你的 TestApp 密碼')
+    expect(rendered.html).toContain('重設密碼')
+    expect(rendered.text).toContain('連結 60 分鐘內有效')
+  })
+
+  // specs/i18n「韩语用户收到验证邮件」
+  it('语言设置为 ko 的用户请求邮箱验证码时收到韩语邮件', async () => {
+    const { db, queued, post } = setup()
+    const address = `otp-ko-${newId()}@${EMAIL_DOMAIN}`
+    const signUp = await post('/sign-up/email', {
+      email: address,
+      password: 'correct-horse-battery-staple',
+      name: 'Test User',
+    })
+    expect(signUp.status).toBe(200)
+    await db.$client`update "user" set locale = 'ko' where email = ${address}`
+    queued.length = 0
+
+    const res = await post('/email-otp/send-verification-otp', {
+      email: address,
+      type: 'email-verification',
+    })
+
+    expect(res.status).toBe(200)
+    const [message] = queued
+    expect(message).toMatchObject({ template: 'otp', to: address, locale: 'ko' })
+    if (message?.template !== 'otp') throw new Error('OTP email missing')
+    const rendered = await renderEmail(message.template, message.props, {
+      locale: message.locale,
+      appName: message.appName,
+    })
+    expect(rendered.locale).toBe('ko')
+    expect(rendered.subject).toBe(`TestApp 인증 코드: ${message.props.otp}`)
+    expect(rendered.text).toContain('TestApp 이메일을 인증하려면')
   })
 
   it('owner 邀请经真实认证端点入队，链接与七天有效期一致', async () => {

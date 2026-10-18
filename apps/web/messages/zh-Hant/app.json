@@ -1,0 +1,13 @@
+{
+  "app_workspace_not_found": "未找到空間",
+  "app_workspace_no_access": "空間不存在，或你沒有存取權限。",
+  "app_go_workspace": "前往我的空間",
+  "app_personal_workspace": "個人空間",
+  "app_team_workspace": "團隊空間",
+  "app_role": "你的角色：{role}",
+  "app_readonly": "團隊功能已關閉，此空間為只讀。",
+  "app_chat": "對話",
+  "app_workspace_settings": "空間設定",
+  "app_billing": "計費",
+  "app_usage": "用量"
+}

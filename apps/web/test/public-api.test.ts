@@ -11,7 +11,7 @@ import { MockLanguageModelV4 } from 'ai/test'
 import OpenAI from 'openai'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import enApiDoc from '../content/docs/en/public-api.mdx?raw'
-import zhApiDoc from '../content/docs/zh/public-api.mdx?raw'
+import zhApiDoc from '../content/docs/zh-Hant/public-api.mdx?raw'
 import { handleCompletions } from '../src/features/api-keys/completions.ts'
 import {
   type ApiKeyDeps,
@@ -440,7 +440,7 @@ describe('官方 OpenAI Node SDK 与共用积分结算', () => {
   // 公开 API 文档（tasks.md 3.4）：文档中的示例请求体原样可用，避免文档与实现脱节
   for (const [locale, doc] of [
     ['en', enApiDoc],
-    ['zh', zhApiDoc],
+    ['zh-Hant', zhApiDoc],
   ] as const) {
     it(`${locale} 文档中的示例请求体可直接调用并返回兼容格式`, async () => {
       const block = /```json\n([\s\S]*?)\n```/.exec(doc)?.[1]

@@ -6,6 +6,8 @@ Cloudflare 默认入口保持 `envSchema` / `loadEnv`：必须提供 HYPERDRIVE�
 
 计费启用要求积分启用；任一 AI 模态启用要求计费和积分同时启用，沿用现有套餐授权与积分结算，不建立替代额度。可以在 AI 全关时单独保留积分并关闭计费。团队工具全关组合应同时关闭三个 AI 模态；认证、空间和邮件配置继续独立生效。关闭计费不要求支付模式或支付凭据，也不应触发计费套餐 seed；入口、任务和 seed 接线由应用负责，不能仅清空 `billing.providers` 来关闭计费。现有显式 `_FILE` 错误规则仍适用。
 
+`sites` 是站点注册表（东方站 / 西方站）：每种语言恰好属于一个站点，站点默认语言属于本站且 `i18n.defaultLocale` 必须是某个站点的默认语言；东方站 `defaultLocale: null` 表示没有无前缀地址。未配置时全部语言属于西方站（`app.url` 的域名）。URL 语言前缀用 `localeUrlSegment`（小写语言 id）。
+
 禁止把配置对象序列化到前端或健康响应；只在服务器显式挑选公开 UI 字段。密钥不得放入 VITE_* 或构建缓存。
 
 验证：`pnpm --filter @xuanxue/config test`、`pnpm --filter @xuanxue/config typecheck`。

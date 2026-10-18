@@ -13,7 +13,25 @@ export type PricingMode = 'per_call' | 'token' | 'per_unit'
 export type AiModality = 'text' | 'image' | 'video'
 export type MediaProviderId = 'fal' | 'workers-ai'
 
-export type DefaultLocale = 'en' | 'zh'
+export type DefaultLocale = 'en' | 'zh-Hant' | 'ko'
+
+/** 东方站（繁中、韩语等）与西方站（英语等），同一个 Worker 按请求 Host 区分（openspec add-dual-site-foundation 决策 1）。 */
+export const SITE_IDS = ['east', 'west'] as const
+export type SiteId = (typeof SITE_IDS)[number]
+
+export interface SiteConfig<L extends string = string> {
+  /** 小写主机名（不含端口）；第一个为规范域名，用于生成绝对地址与跨站跳转 */
+  readonly hosts: readonly string[]
+  readonly locales: readonly L[]
+  /** 无前缀地址使用的语言；null 表示本站没有无前缀的默认语言，根路径为语言入口页 */
+  readonly defaultLocale: L | null
+  readonly brand: { readonly name: string }
+}
+
+/** 语言 id 在 URL 中的前缀段：BCP 47 的 `zh-Hant` 在 URL 中写作小写 `zh-hant`。 */
+export function localeUrlSegment(locale: string): string {
+  return locale.toLowerCase()
+}
 
 export const textConfigSchema = z.strictObject({
   enabled: z.boolean().default(true),
@@ -41,6 +59,8 @@ export interface TemplateConfig<L extends string = string> {
     readonly locales: readonly L[]
     readonly defaultLocale: L
   }
+  /** 每种语言恰好属于一个站点；未配置时全部语言属于西方站（`app.url` 的域名） */
+  readonly sites: { readonly [S in SiteId]: SiteConfig<L> }
   readonly tenancy: {
     /** false = 仅个人空间；true = 允许团队 workspace */
     readonly multiTenant: boolean
@@ -129,6 +149,15 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
     /** 必须是 `locales` 之一；省略时取 `locales[0]` */
     defaultLocale?: NoInfer<L>
   }
+  sites?: {
+    readonly [S in SiteId]: {
+      hosts: readonly string[]
+      locales: readonly NoInfer<L>[]
+      defaultLocale?: NoInfer<L> | null
+      /** 省略时沿用 `app.name` */
+      brand?: { name?: string }
+    }
+  }
   tenancy?: Partial<Section<'tenancy'>>
   auth?: Partial<Section<'auth'>>
   billing?: Partial<Omit<Section<'billing'>, 'overage'>> & {
@@ -146,7 +175,7 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
 
 /** 除 `app` 外的默认值，与 docs/02-project-structure.md §3 草案一致。 */
 export const templateConfigDefaults = {
-  i18n: { enabled: true, locales: ['en', 'zh'], defaultLocale: 'en' },
+  i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
   tenancy: { multiTenant: false, maxWorkspacesPerUser: 5 },
   auth: {
     emailPassword: true,
@@ -190,7 +219,7 @@ export const templateConfigDefaults = {
     newsletter: false,
   },
   analytics: { cloudflareToken: '', posthogKey: '', posthogHost: 'https://us.i.posthog.com' },
-} as const satisfies Omit<TemplateConfig<DefaultLocale>, 'app'>
+} as const satisfies Omit<TemplateConfig<DefaultLocale>, 'app' | 'sites'>
 
 /** 合并用户配置与默认值；数组整体替换，不与默认值合并。 */
 export function defineTemplateConfig<const L extends string = DefaultLocale>(
@@ -210,6 +239,7 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
   const config: TemplateConfig<L> = {
     app: { ...input.app },
     i18n: { enabled: input.i18n?.enabled ?? d.i18n.enabled, locales, defaultLocale },
+    sites: resolveSites(input, locales, defaultLocale),
     tenancy: { ...d.tenancy, ...input.tenancy },
     auth: { ...d.auth, ...input.auth },
     billing: {
@@ -240,4 +270,59 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
   }
 
   return config
+}
+
+function resolveSites<L extends string>(
+  input: TemplateConfigInput<L>,
+  locales: readonly L[],
+  defaultLocale: L,
+): TemplateConfig<L>['sites'] {
+  const brand = { name: input.app.name }
+  const configured = input.sites
+  if (!configured) {
+    // 未配置站点注册表时保持单站形态：全部语言属于西方站
+    return {
+      east: { hosts: [], locales: [], defaultLocale: null, brand },
+      west: { hosts: [new URL(input.app.url).hostname], locales, defaultLocale, brand },
+    }
+  }
+  const site = (id: SiteId): SiteConfig<L> => ({
+    hosts: [...configured[id].hosts],
+    locales: [...configured[id].locales],
+    defaultLocale: configured[id].defaultLocale ?? null,
+    brand: { ...brand, ...configured[id].brand },
+  })
+  const sites = { east: site('east'), west: site('west') }
+
+  const owners = new Map<string, SiteId>()
+  const hosts = new Set<string>()
+  for (const id of SITE_IDS) {
+    const site = sites[id]
+    for (const locale of site.locales) {
+      if (!locales.includes(locale))
+        throw new RangeError(`template config: sites.${id} locale ${locale} is not in i18n.locales`)
+      if (owners.has(locale))
+        throw new RangeError(`template config: locale ${locale} belongs to more than one site`)
+      owners.set(locale, id)
+    }
+    if (site.defaultLocale !== null && !site.locales.includes(site.defaultLocale))
+      throw new RangeError(`template config: sites.${id}.defaultLocale must be one of its locales`)
+    if (site.locales.length > 0 && site.hosts.length === 0)
+      throw new RangeError(`template config: sites.${id}.hosts must not be empty`)
+    for (const host of site.hosts) {
+      if (!/^[a-z0-9.-]+$/.test(host))
+        throw new RangeError(
+          `template config: sites.${id} host ${host} must be a lowercase hostname`,
+        )
+      if (hosts.has(host)) throw new RangeError(`template config: host ${host} is listed twice`)
+      hosts.add(host)
+    }
+  }
+  const orphan = locales.find((locale) => !owners.has(locale))
+  if (orphan !== undefined)
+    throw new RangeError(`template config: locale ${orphan} does not belong to any site`)
+  // 只有站点默认语言使用无前缀地址；i18n.defaultLocale 是 Paraglide 的 baseLocale，必须是其中之一
+  if (!SITE_IDS.some((id) => sites[id].defaultLocale === defaultLocale))
+    throw new RangeError('template config: i18n.defaultLocale must be the defaultLocale of a site')
+  return sites
 }

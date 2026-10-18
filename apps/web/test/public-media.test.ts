@@ -21,7 +21,7 @@ import {
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { runMediaTask } from '../../jobs/src/workflows/media-runner.ts'
 import enApiDoc from '../content/docs/en/public-api.mdx?raw'
-import zhApiDoc from '../content/docs/zh/public-api.mdx?raw'
+import zhApiDoc from '../content/docs/zh-Hant/public-api.mdx?raw'
 import {
   authenticateApiKey,
   createWorkspaceKey,

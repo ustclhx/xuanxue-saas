@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
+import { EMAIL_LOCALES } from './locale.ts'
 import { parseEmailQueueMessage } from './queue.ts'
 import { renderEmail } from './render.tsx'
 import { createResendSender } from './resend.ts'
 
 describe('growth email', () => {
-  it('renders invitation and confirmation links in both languages and validates queue input', async () => {
-    for (const locale of ['en', 'zh'])
+  it('renders invitation and confirmation links in every language and validates queue input', async () => {
+    for (const locale of EMAIL_LOCALES)
       for (const template of ['waitlist-invitation', 'newsletter-confirmation'] as const) {
         const props = { url: 'https://example.test/link?token=signed' }
         const message = {

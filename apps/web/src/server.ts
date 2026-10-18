@@ -1,5 +1,6 @@
 // Worker 入口（wrangler.jsonc 的 main）。
 // 在交给 TanStack Start 处理之前校验环境变量与绑定，缺失或非法时任何请求都返回 500。
+// 先按 Host 识别东方站 / 西方站并校验语言前缀归属，跨站或缺前缀时直接跳转（features/site/gate.ts）。
 // /admin/** 的请求先经角色守卫，非 admin 与不存在的页面得到相同的 404（features/admin/gate.ts）。
 // 之后由 Paraglide 按 URL 前缀 / Cookie 确定本次请求的语言（features/i18n/routing.ts）。
 // 每个请求先建立日志上下文（新生成的 UUIDv7 请求 ID，附 Cloudflare 的 cf-ray 便于对照平台日志），
@@ -35,6 +36,7 @@ import { createBillingDeletionSteps } from './features/billing/deletion.server.t
 import { assertSignupAdmission } from './features/growth/service.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
+import { gateSiteRequest } from './features/site/gate.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
 import { checkEnv, webEnvSchema } from './server/cloudflare/env.ts'
@@ -57,11 +59,14 @@ const worker = instrumentWeb({
     if (invalid) return Promise.resolve(invalid)
     if (new URL(request.url).pathname === SENTRY_TEST_PATH)
       return sentryTest(request, getWebRuntime())
-    return logged(
-      request,
-      async () =>
-        gatePublicApiRequest(request, templateConfig) ??
-        (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
+    return logged(request, () =>
+      gateSiteRequest(
+        request,
+        templateConfig,
+        async () =>
+          gatePublicApiRequest(request, templateConfig) ??
+          (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
+      ),
     )
   },
 } satisfies ExportedHandler<Cloudflare.Env>)

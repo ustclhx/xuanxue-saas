@@ -1,0 +1,265 @@
+---
+title: 公開 API
+description: 用相容 OpenAI 的介面在自己的程式碼中呼叫 {{appName}} 的模型。
+section: API
+order: 10
+requires: publicApi
+---
+
+{{appName}} 提供相容 OpenAI 的 Chat Completions 介面與非同步圖片 / 影片任務。使用現有 OpenAI SDK
+呼叫對話時，只需把 base URL 指向
+`{{appUrl}}/api/v1` 即可使用。呼叫按積分計費，規則與應用內對話相同，從金鑰所屬空間扣除。
+
+## 建立 API Key
+
+1. 登入後進入空間的 **API keys** 頁面。只有空間 owner 與 admin 可以管理金鑰，且目前套餐需包含該功能。
+2. 建立金鑰時可設定到期時間。完整金鑰（`sk_…`）**只顯示一次**，請儲存到金鑰管理工具中。
+3. 可隨時在同一頁面撤銷。被撤銷或過期的金鑰會立即傳回 `401`。
+
+只有當建立者仍是該空間的 owner 或 admin 時，金鑰才繼續有效。
+
+## 驗證
+
+以 Bearer 權杖傳送金鑰。API 驗證不使用 Cookie。
+
+```text
+Authorization: Bearer sk_your_key
+```
+
+## 建立對話補全
+
+`POST {{appUrl}}/api/v1/chat/completions`
+
+請求主體：
+
+```json
+{
+  "model": "your-model-key",
+  "messages": [
+    { "role": "system", "content": "You are a helpful assistant." },
+    { "role": "user", "content": "Say hello in one sentence." }
+  ]
+}
+```
+
+- `model`：模型選擇器中顯示的模型 key（由管理員設定）。
+- `messages`：`system`、`user`、`assistant` 三種角色的文字訊息。介面無狀態，每次需傳送完整對話，且至少包含一條 `user` 訊息。
+- 可選：`stream`、`stream_options.include_usage`、`max_tokens`（或 `max_completion_tokens`）、`temperature`（0–2）、`n`（僅支援 `1`）。未知欄位傳回 `400`。
+
+回應遵循 OpenAI 格式（`object: "chat.completion"`、`choices[0].message.content`、`usage`）。設定
+`"stream": true` 時以 Server-Sent Events 傳回 `chat.completion.chunk`，以 `data: [DONE]` 結束；設定
+`"stream_options": { "include_usage": true }` 可在最後收到包含 token 用量的資料塊。
+
+### curl
+
+```bash
+curl {{appUrl}}/api/v1/chat/completions \
+  -H "Authorization: Bearer $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"your-model-key","messages":[{"role":"user","content":"Say hello in one sentence."}]}'
+```
+
+### Node.js（OpenAI 官方 SDK）
+
+```ts
+import OpenAI from 'openai'
+
+const client = new OpenAI({ apiKey: process.env.API_KEY, baseURL: '{{appUrl}}/api/v1' })
+const completion = await client.chat.completions.create({
+  model: 'your-model-key',
+  messages: [{ role: 'user', content: 'Say hello in one sentence.' }],
+})
+console.log(completion.choices[0]?.message.content)
+```
+
+### Python（OpenAI 官方 SDK）
+
+```python
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ["API_KEY"], base_url="{{appUrl}}/api/v1")
+completion = client.chat.completions.create(
+    model="your-model-key",
+    messages=[{"role": "user", "content": "Say hello in one sentence."}],
+)
+print(completion.choices[0].message.content)
+```
+
+## 建立媒體任務
+
+`POST {{appUrl}}/api/v1/tasks`
+
+提交圖片或影片模型，以及符合該模型參數 schema 的參數：
+
+```json
+{
+  "model": "your-image-model-key",
+  "params": { "prompt": "A red fox in a snowy forest" }
+}
+```
+
+- `model` 是本站設定的模型 key，不是服務商的模型 ID。
+- `params` 必須符合該模型參數 schema 中的必填欄位、類型與範圍。範例使用接受
+  `prompt` 的模型；請按所選模型補充其他必填參數。
+- 頂層只接受 `model` 和 `params`。空間由 API Key 決定，請勿傳入空間 ID。
+- 參數校驗、模型權益、任務併發上限、儲存配額、積分預扣與結算均遵循站內媒體生成的規則。
+  參數非法時傳回 `400 INVALID_PARAMS`，且不會預扣積分。
+
+提交成功傳回 `202 Accepted`：
+
+```json
+{
+  "id": "01950000-0000-7000-8000-000000000001",
+  "object": "media.task",
+  "model": "your-image-model-key",
+  "status": "queued"
+}
+```
+
+## 查詢媒體任務
+
+`GET {{appUrl}}/api/v1/tasks/{id}`
+
+使用相同的 Bearer 驗證。查詢金鑰所屬空間之外的任務傳回 `404 NOT_FOUND`。
+`200 OK` 回應包含：
+
+| 欄位 | 含義 |
+|---|---|
+| `id`、`object`、`model` | 任務 ID、`"media.task"`、本站設定的模型 key |
+| `kind` | `image` 或 `video` |
+| `status` | `queued`、`running`、`succeeded`、`failed` 或 `canceled` |
+| `created`、`finished_at` | UTC Unix 秒數；任務結束前 `finished_at` 為 `null` |
+| `credits_charged` | 目前已扣除的整數積分 |
+| `error` | `null`，或描述任務錯誤的 `{ "code": "...", "message": "..." }` |
+| `files` | `succeeded` 時的產出檔案；其他狀態為空陣列 |
+
+每個檔案包含 `id`、`mime`、`size`（位元組）、`width` 和 `height`（像素）、
+`duration`（秒）、`download_url` 和 `expires_at`（UTC Unix 秒數）。
+未提供的尺寸或時長為 `null`。
+
+`download_url` 是可直接存取的 R2 預簽名地址，有效期為 5 分鐘，下載無需 Cookie 或 API Key。
+地址過期後重新查詢任務即可重新整理。請把這些地址視為臨時金鑰，避免寫入日誌。
+
+### curl：提交並查詢
+
+在環境中安全設定 `API_KEY`，並將 `MEDIA_MODEL` 設為可用的圖片模型 key。
+以下命令使用 Python 3 編碼請求並僅輸出安全的回應欄位：
+
+```bash
+TASK_ID=$(curl --fail-with-body --silent --show-error '{{appUrl}}/api/v1/tasks' \
+  -H "Authorization: Bearer $API_KEY" \
+  -H 'Content-Type: application/json' \
+  --data "$(python3 -c 'import json, os; print(json.dumps({"model": os.environ["MEDIA_MODEL"], "params": {"prompt": "A red fox in a snowy forest"}}))')" \
+  | python3 -c 'import json, sys; print(json.load(sys.stdin)["id"])')
+
+curl --fail-with-body --silent --show-error "{{appUrl}}/api/v1/tasks/$TASK_ID" \
+  -H "Authorization: Bearer $API_KEY" \
+  | python3 -c 'import json, sys; task = json.load(sys.stdin); print(task["id"], task["status"])'
+```
+
+任務為 `queued` 或 `running` 時重複 GET。兩個介面均按金鑰和空間限速；
+遇到 `429` 時按 `Retry-After`（目前為 60 秒）等待後重試。
+
+### Python：提交、輪詢並下載圖片
+
+將以下內容儲存為 `media_task.py`，按上述方式設定 `API_KEY` 和 `MEDIA_MODEL` 後執行
+`python3 media_task.py`。指令碼只使用標準函式庫，初始每 2 秒輪詢一次，逐漸增加到 10 秒，
+遵循 `429 Retry-After`，並在 15 分鐘後停止。只輸出任務狀態與儲存的檔名，
+不輸出金鑰或簽名地址。客戶端逾時不會取消任務。
+
+```python
+import json
+import os
+import time
+from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+base = "{{appUrl}}/api/v1"
+key = os.environ["API_KEY"]
+model = os.environ["MEDIA_MODEL"]
+deadline = time.monotonic() + 15 * 60
+
+
+def remaining():
+    seconds = deadline - time.monotonic()
+    if seconds <= 0:
+        raise TimeoutError("Client deadline reached; query the task before resubmitting.")
+    return seconds
+
+
+def pause(seconds):
+    if seconds >= remaining():
+        raise TimeoutError("Client deadline reached; query the task before resubmitting.")
+    time.sleep(seconds)
+
+
+def request(url, body=None, authenticated=True):
+    data = None if body is None else json.dumps(body).encode()
+    headers = {"Content-Type": "application/json"} if data is not None else {}
+    if authenticated:
+        headers["Authorization"] = f"Bearer {key}"
+    while True:
+        try:
+            with urlopen(Request(url, data=data, headers=headers),
+                         timeout=min(60, remaining())) as response:
+                return response.read()
+        except HTTPError as error:
+            if error.code != 429:
+                raise RuntimeError(f"HTTP {error.code}; check the task before resubmitting.") from None
+            pause(float(error.headers.get("Retry-After", "60")))
+        except URLError:
+            raise RuntimeError("Network request failed; check the task before resubmitting.") from None
+
+
+try:
+    submitted = json.loads(request(base + "/tasks", {
+        "model": model,
+        "params": {"prompt": "A red fox in a snowy forest"},
+    }))
+    task_id = submitted["id"]
+    print("Task:", task_id)
+    interval = 2
+    while True:
+        pause(interval)
+        task = json.loads(request(base + "/tasks/" + task_id))
+        print("Status:", task["status"])
+        if task["status"] == "succeeded":
+            if not task["files"] or not task["files"][0]["mime"].startswith("image/"):
+                raise RuntimeError("The task did not return an image.")
+            file = task["files"][0]
+            extension = {"image/png": ".png", "image/jpeg": ".jpg",
+                         "image/webp": ".webp"}.get(file["mime"], ".bin")
+            path = Path("generated-image" + extension)
+            path.write_bytes(request(file["download_url"], authenticated=False))
+            print("Saved:", path)
+            break
+        if task["status"] in ("failed", "canceled"):
+            raise RuntimeError("Task ended with status: " + task["status"])
+        interval = min(10, interval + 2)
+except (RuntimeError, TimeoutError) as error:
+    raise SystemExit(str(error))
+```
+
+## 計費
+
+每次對話請求先按模型計費方式與餘額預扣積分，回覆結束後按實際用量結算；最大輸出長度受餘額限制。流式輸出中途斷開連線不會取消已生成部分的計費。
+
+媒體任務提交時預扣積分，任務結束時結算；查詢任務狀態不會額外預扣積分。
+
+## 錯誤
+
+錯誤採用 OpenAI 的錯誤結構：`{ "error": { "message", "type", "code", "param" } }`。每個回應都帶
+`x-request-id` 頭，聯絡支援時請提供。
+
+| 狀態碼 | `code` | 含義 |
+|---|---|---|
+| 400 | `INVALID_REQUEST` | 請求主體格式錯誤或不受支援 |
+| 400 | `INVALID_PARAMS` | 媒體參數不符合模型 schema，不預扣積分 |
+| 401 | `INVALID_API_KEY` | 缺少金鑰，或金鑰已撤銷 / 過期 |
+| 402 | `INSUFFICIENT_CREDITS` / `CREDIT_DEBT` | 積分不足，或存在未償還的欠費 |
+| 403 | `UPGRADE_REQUIRED` | 目前套餐不包含 API 或該模型 |
+| 404 | `MODEL_UNAVAILABLE` | 模型不存在或已停用 |
+| 404 | `NOT_FOUND` | 任務不存在或不屬於金鑰所屬空間；公開 API 關閉時也傳回此錯誤 |
+| 429 | `RATE_LIMITED` | 該金鑰或空間請求過多，按 `Retry-After` 秒數後重試 |

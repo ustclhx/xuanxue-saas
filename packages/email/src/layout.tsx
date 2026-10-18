@@ -27,14 +27,13 @@ export function EmailLayout({
   locale: EmailLocale
   appName: string
 }) {
-  const lang = locale === 'zh' ? 'zh-CN' : 'en'
   return (
-    <Html lang={lang}>
+    <Html lang={locale}>
       <Head>
         <title>{copy.subject}</title>
       </Head>
       <Preview useTitleTag={false}>{copy.preview}</Preview>
-      <Body lang={lang} style={styles.body}>
+      <Body lang={locale} style={styles.body}>
         <Container style={styles.container}>
           <Text style={styles.brand}>{appName}</Text>
           <Heading as="h1" style={styles.heading}>

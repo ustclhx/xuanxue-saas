@@ -1,0 +1,9 @@
+{
+  "i18n_language": "語言",
+  "i18n_suggestion_label": "語言建議",
+  "i18n_suggestion": "要使用{language}瀏覽本站嗎？",
+  "i18n_switch": "切換語言",
+  "i18n_dismiss": "保留目前語言",
+  "i18n_save_failed": "無法儲存語言設定，請重試。",
+  "i18n_suggestion_failed": "無法載入語言建議。"
+}

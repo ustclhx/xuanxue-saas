@@ -10,12 +10,22 @@ exports[`templates (en) > 'verify-email' > subject 1`] = `"Verify your email for
 
 exports[`templates (en) > 'workspace-invitation' > subject 1`] = `"Grace invited you to join Research Lab on Acme"`;
 
-exports[`templates (zh) > 'magic-link' > subject 1`] = `"登录 Acme"`;
+exports[`templates (ko) > 'magic-link' > subject 1`] = `"Acme 로그인"`;
 
-exports[`templates (zh) > 'otp' > subject 1`] = `"482913 是你的 Acme 验证码"`;
+exports[`templates (ko) > 'otp' > subject 1`] = `"Acme 인증 코드: 482913"`;
 
-exports[`templates (zh) > 'reset-password' > subject 1`] = `"重置你的 Acme 密码"`;
+exports[`templates (ko) > 'reset-password' > subject 1`] = `"Acme 비밀번호 재설정"`;
 
-exports[`templates (zh) > 'verify-email' > subject 1`] = `"验证你的 Acme 邮箱"`;
+exports[`templates (ko) > 'verify-email' > subject 1`] = `"Acme 이메일 주소를 인증해 주세요"`;
 
-exports[`templates (zh) > 'workspace-invitation' > subject 1`] = `"Grace 邀请你加入 Acme 上的 Research Lab"`;
+exports[`templates (ko) > 'workspace-invitation' > subject 1`] = `"Grace 님이 Acme의 Research Lab에 초대했습니다"`;
+
+exports[`templates (zh-Hant) > 'magic-link' > subject 1`] = `"登入 Acme"`;
+
+exports[`templates (zh-Hant) > 'otp' > subject 1`] = `"482913 是你的 Acme 驗證碼"`;
+
+exports[`templates (zh-Hant) > 'reset-password' > subject 1`] = `"重設你的 Acme 密碼"`;
+
+exports[`templates (zh-Hant) > 'verify-email' > subject 1`] = `"驗證你的 Acme 電子郵件"`;
+
+exports[`templates (zh-Hant) > 'workspace-invitation' > subject 1`] = `"Grace 邀請你加入 Acme 上的 Research Lab"`;

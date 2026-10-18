@@ -1,0 +1,18 @@
+Acme
+
+
+驗證你的電子郵件
+
+Ada，你好：
+
+感謝註冊 Acme。請點選下方按鈕確認你的電子郵件地址。
+
+驗證電子郵件 https://acme.test/api/auth/verify-email?token=tok_verify
+
+如果按鈕無法點選，請將以下連結複製到瀏覽器中開啟：
+
+https://acme.test/api/auth/verify-email?token=tok_verify
+
+----------------------------------------
+
+如果你沒有註冊 Acme 帳號，請忽略這封郵件。
