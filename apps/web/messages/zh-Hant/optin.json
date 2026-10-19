@@ -11,6 +11,7 @@
   "optin_growth": "自我成長",
   "optin_submit": "寄給我",
   "optin_busy": "傳送中…",
+  "optin_loading": "載入中…",
   "optin_success": "請查看信箱；首次訂閱請先點選確認連結。",
   "optin_error": "暫時無法訂閱，請稍後再試。",
   "optin_consent": "訂閱即表示你同意接收解讀郵件，可隨時退訂。"

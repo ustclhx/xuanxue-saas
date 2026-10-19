@@ -22,7 +22,10 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
   const [options, setOptions] = useState<{ siteKey: string | null } | null>(null)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
-  const turnstile = useTurnstile(options?.siteKey ?? null, 'newsletter')
+  const [interacted, setInteracted] = useState(false)
+  // 结果页只在访客使用订阅表单后联系验证服务，避免首屏的第三方请求。
+  const turnstile = useTurnstile(interacted ? (options?.siteKey ?? null) : null, 'newsletter')
+  const loading = !options || (interacted && !turnstile.ready)
   useEffect(() => {
     let active = true
     getGrowthFormOptions({ data: 'newsletter' })
@@ -56,9 +59,15 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
       <p className="m-0 text-sm text-ink-muted">{m.optin_intro()}</p>
       <form
         className="grid gap-4 sm:grid-cols-2"
+        onFocus={(event) => {
+          if (event.target.matches('input, select')) setInteracted(true)
+        }}
+        onInput={() => setInteracted(true)}
+        onChange={() => setInteracted(true)}
         onSubmit={async (event) => {
           event.preventDefault()
-          if (busy || !options || !turnstile.ready) return
+          setInteracted(true)
+          if (busy || !options || (options.siteKey && (!interacted || !turnstile.ready))) return
           const values = new FormData(event.currentTarget)
           const topic = String(values.get('topic'))
           setBusy(true)
@@ -110,10 +119,12 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
         />
         <button
           type="submit"
+          onClick={() => setInteracted(true)}
           className="min-h-12 self-end rounded-lg border border-brand bg-transparent px-5 py-2 font-semibold text-brand-ink disabled:cursor-not-allowed disabled:opacity-50"
-          disabled={busy || !options || !turnstile.ready}
+          disabled={busy || loading}
+          aria-busy={busy || loading}
         >
-          {busy ? m.optin_busy() : m.optin_submit()}
+          {busy ? m.optin_busy() : loading ? m.optin_loading() : m.optin_submit()}
         </button>
         <div className="sm:col-span-2">{turnstile.widget}</div>
         <p className="m-0 text-xs text-ink-subtle sm:col-span-2">{m.optin_consent()}</p>
