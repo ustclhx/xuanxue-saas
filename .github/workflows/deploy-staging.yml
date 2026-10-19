@@ -31,7 +31,7 @@ jobs:
     env:
       DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
       STAGING_URL: https://xuanxue-web-staging.saas-jobs.workers.dev
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ENABLED: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -69,8 +69,9 @@ jobs:
         run: pnpm --filter @xuanxue/web build
 
       - name: Create Sentry release and upload server source maps
-        if: env.SENTRY_AUTH_TOKEN != ''
+        if: env.SENTRY_ENABLED == 'true'
         env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           SENTRY_RELEASE: ${{ env.DEPLOY_SHA }}
@@ -127,8 +128,9 @@ jobs:
           if-no-files-found: ignore
 
       - name: Finalize Sentry release
-        if: env.SENTRY_AUTH_TOKEN != ''
+        if: env.SENTRY_ENABLED == 'true'
         env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         run: pnpm exec sentry-cli releases finalize "$DEPLOY_SHA"
