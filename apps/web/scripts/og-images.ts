@@ -6,6 +6,7 @@ import { ogImagePath } from '../src/features/seo/metadata.ts'
 import { OgCard } from '../src/features/seo/og-card.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
+import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
 
 const root = new URL('..', import.meta.url)
 const font = new CustomFont(
@@ -34,9 +35,10 @@ function pages() {
     posts: read<Content['posts']>('allPosts'),
     legal: read<Content['legal']>('allLegalPages'),
     docs: read<Content['docs']>('allDocs'),
-    toolPages: numerologySeoPages(
-      read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies'),
-    ),
+    toolPages: [
+      ...numerologySeoPages(read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies')),
+      ...tarotMeaningSeoPages(read<Parameters<typeof tarotMeaningSeoPages>[0]>('allTarots')),
+    ],
   })
 }
 

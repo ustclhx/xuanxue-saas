@@ -99,5 +99,11 @@
   "tarot_celtic_cross_faq_2_q": "켈틱 크로스는 시간이 얼마나 걸리나요?",
   "tarot_celtic_cross_faq_2_a": "카드를 여는 데는 1분, 열 장을 차례로 돌아보는 데는 보통 10~15분이 걸립니다. 한 번에 보고 싶다면 ‘모두 열기’를 누르세요.",
   "tarot_celtic_cross_faq_3_q": "같은 카드가 두 번 나올 수 있나요?",
-  "tarot_celtic_cross_faq_3_a": "아니요. 열 장 모두 셔플한 78장 덱 한 벌에서 나오므로 같은 카드는 한 번만 나옵니다."
+  "tarot_celtic_cross_faq_3_a": "아니요. 열 장 모두 셔플한 78장 덱 한 벌에서 나오므로 같은 카드는 한 번만 나옵니다.",
+  "tarot_meaning_related": "함께 읽을 카드 의미",
+  "tarot_meaning_try": "한 장 뽑아 보기",
+  "tarot_meaning_try_intro": "카드 한 장을 뽑아 뒤집고 그 의미를 살펴보세요.",
+  "tarot_meaning_draw": "한 장 뽑기",
+  "tarot_meaning_read": "카드 의미 자세히 읽기",
+  "tarot_meaning_gallery": "정방향과 역방향 카드"
 }
