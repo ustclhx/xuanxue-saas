@@ -17,13 +17,15 @@ concurrency:
 jobs:
   deploy:
     # workflow_run 也可来自 PR；只接受本仓库 main 的 push 检查结果。
+    # staging 资源与 secrets 就绪前（仓库变量 STAGING_ENABLED 未设为 true）直接跳过，避免每次推送 main 都失败。
     if: >-
+      vars.STAGING_ENABLED == 'true' && (
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.event == 'push' &&
        github.event.workflow_run.head_branch == 'main' &&
        github.event.workflow_run.head_repository.full_name == github.repository) ||
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-latest
     environment: staging
     env:

@@ -15,6 +15,8 @@
 
 Cloudflare 账号与 API Token、Neon 生产库、Stripe（测试与 live）、Resend 发件域名、Google OAuth 应用（两站回调）、Turnstile（两站 hostname）、Sentry、GSC / Bing 账号。准备好后只需告诉协调者已就绪；密钥只写入 Wrangler / GitHub secrets，不进仓库。
 
+**staging 自动发布目前关闭**：`.github/workflows/deploy-staging.yml` 只在仓库变量 `STAGING_ENABLED=true` 时运行。启用前需要：Neon staging 库与 `STAGING_MIGRATION_DATABASE_URL`、`CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`、web/jobs 的 Wrangler secrets、`wrangler.jsonc` staging 资源 ID，并把 workflow 中的 `STAGING_URL` 占位改为真实 workers.dev 地址（由 Codex 部署 worker 按 deploy-cloudflare 技能执行）。
+
 ## 运营备注（不阻塞上线，供审阅）
 
 - 付费卡上的当地货币「约」值使用代码内固定参考汇率（KRW 1400、TWD 32.5 / USD），实际扣款以 Stripe Adaptive Pricing 为准；建议每季度人工校准（`features/readings/unlock-card.tsx`）。
