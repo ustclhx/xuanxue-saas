@@ -5,6 +5,7 @@ import { log } from '@xuanxue/shared/log'
 import { z } from 'zod'
 import { getWebRuntime, type WebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { readingOptinSchema } from '../readings/optin-schema.ts'
 import {
   type GrowthContext,
   joinWaitlist,
@@ -69,7 +70,12 @@ export async function submitGrowth(
     const ip = runtime.requestMeta.clientIp
     if (!(await runtime.rateLimiter.limit('auth', `${feature}:ip:${ip ?? 'unknown'}`)).success)
       throw new AppError('RATE_LIMITED', 'Try again later', { status: 429 })
-    const input = z.object({ email: z.string().trim().pipe(z.email()) }).parse(await request.json())
+    const input = z
+      .object({
+        email: z.string().trim().max(254).pipe(z.email()),
+        reading: readingOptinSchema.optional(),
+      })
+      .parse(await request.json())
     const email = normalizeSignupEmail(input.email)
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email))
     const hash = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
@@ -85,7 +91,7 @@ export async function submitGrowth(
         throw new AppError('TURNSTILE_FAILED', 'Human verification failed', { status: 403 })
     }
     if (feature === 'waitlist') await joinWaitlist(ctx, email)
-    else await subscribeNewsletter(ctx, email)
+    else await subscribeNewsletter(ctx, email, input.reading)
     return Response.json({ ok: true })
   })
 }

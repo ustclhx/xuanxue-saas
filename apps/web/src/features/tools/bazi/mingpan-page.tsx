@@ -74,7 +74,17 @@ export function MingpanPage() {
         { question: m.bazi_mingpan_faq_q2(), answer: m.bazi_mingpan_faq_a2() },
       ]}
     >
-      <ReadingSlots tool="mingpan" />
+      <ReadingSlots
+        tool="mingpan"
+        optin={
+          tool.state.status === 'done'
+            ? {
+                result: { kind: 'bazi', dayMaster: tool.state.result.dayMaster },
+                share: toShareInput(tool.submitted ?? tool.values),
+              }
+            : null
+        }
+      />
     </ToolPage>
   )
 }

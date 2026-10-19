@@ -57,7 +57,17 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
         ...page.links,
       ]}
     >
-      <ReadingSlots tool={ko ? 'manseryeok' : 'bazi'} />
+      <ReadingSlots
+        tool={ko ? 'manseryeok' : 'bazi'}
+        optin={
+          tool.state.status === 'done'
+            ? {
+                result: { kind: 'bazi', dayMaster: tool.state.result.dayMaster },
+                share: toShareInput(tool.submitted ?? tool.values),
+              }
+            : null
+        }
+      />
       <article
         lang={page.locale}
         aria-label={page.title}

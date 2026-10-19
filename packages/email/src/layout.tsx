@@ -63,6 +63,13 @@ export function EmailLayout({
               </Link>
             </>
           )}
+          {copy.links?.map((link) => (
+            <Text key={link.label} style={styles.text}>
+              <Link href={link.url} style={styles.link}>
+                {link.label}
+              </Link>
+            </Text>
+          ))}
           <Hr style={styles.hr} />
           <Text style={styles.muted}>{copy.footer}</Text>
         </Container>

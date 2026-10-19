@@ -14,6 +14,9 @@ import { getLogContext, log } from '@xuanxue/shared/log'
 import { and, eq, inArray } from 'drizzle-orm'
 import { userLocaleByEmail } from '../../server/auth-email.ts'
 import type { AdminActionScope } from '../admin/action.ts'
+import { optinToolPath } from '../readings/optin-email.ts'
+import { type ReadingOptin, readingOptinSchema } from '../readings/optin-schema.ts'
+import { deliverReading } from './reading-delivery.ts'
 import { signGrowthToken, verifyGrowthToken } from './tokens.ts'
 
 export interface GrowthContext {
@@ -130,10 +133,18 @@ export async function assertSignupAdmission(
   throw new AppError('SIGNUP_DISABLED', 'Registration is closed', { status: 403 })
 }
 
-export async function subscribeNewsletter(ctx: GrowthContext, email: string) {
+export async function subscribeNewsletter(
+  ctx: GrowthContext,
+  email: string,
+  reading?: ReadingOptin,
+) {
   requireGrowthFeature(ctx.config, 'newsletter')
   // 邮件能力未装配时不创建待确认订阅，也不重置旧订阅凭据。
   const queue = requireCapability(ctx.queue, 'Email queue')
+  if (reading) {
+    reading = readingOptinSchema.parse(reading)
+    optinToolPath(reading, ctx.config)
+  }
   const row = await ctx.db.transaction(async (tx) => {
     const normalized = normalizeSignupEmail(email)
     await tx
@@ -146,16 +157,42 @@ export async function subscribeNewsletter(ctx: GrowthContext, email: string) {
       .where(eq(newsletterSubscriber.email, normalized))
       .for('update')
     if (!found) throw new Error('Subscriber missing')
-    if (found.status !== 'unsubscribed') return found
+    if (found.status !== 'unsubscribed' && !reading) return found
     const [updated] = await tx
       .update(newsletterSubscriber)
-      .set({ status: 'pending', confirmToken: newId(), confirmedAt: null, unsubscribedAt: null })
+      .set({
+        ...(found.status === 'unsubscribed'
+          ? {
+              status: 'pending' as const,
+              confirmToken: newId(),
+              confirmedAt: null,
+              unsubscribedAt: null,
+            }
+          : {}),
+        ...(reading
+          ? {
+              sourceTool: reading.sourceTool,
+              topic: reading.topic,
+              site: reading.site,
+              locale: reading.locale,
+              lastResult: {
+                name: reading.name,
+                result: reading.result,
+                share: reading.share,
+                deliveryId: newId(),
+              },
+            }
+          : {}),
+      })
       .where(eq(newsletterSubscriber.id, found.id))
       .returning()
     if (!updated) throw new Error('Subscriber missing')
     return updated
   })
-  if (row.status === 'confirmed') return
+  if (row.status === 'confirmed') {
+    await deliverReading(ctx, row)
+    return
+  }
   const token = await signGrowthToken(ctx.secret, {
     purpose: 'confirm',
     id: row.id,
@@ -166,6 +203,7 @@ export async function subscribeNewsletter(ctx: GrowthContext, email: string) {
   url.searchParams.set('token', token)
   await queue.send({
     ...(await base(ctx, row.email, `newsletter-confirm:${row.id}:${row.confirmToken}`)),
+    ...(row.locale ? { locale: row.locale } : {}),
     template: 'newsletter-confirmation',
     props: { url: url.href },
   })
@@ -191,11 +229,12 @@ export async function updateNewsletterStatus(
     .set(
       purpose === 'confirm'
         ? { status: 'confirmed', confirmedAt: new Date() }
-        : { status: 'unsubscribed', unsubscribedAt: new Date() },
+        : { status: 'unsubscribed', unsubscribedAt: new Date(), lastResult: null },
     )
     .where(conditions)
-    .returning({ id: newsletterSubscriber.id })
+    .returning()
   if (!row) throw new AppError('INVALID_TOKEN', 'Invalid or expired link', { status: 400 })
+  if (purpose === 'confirm') await deliverReading(ctx, row)
 }
 
 /** 群发导出只允许已确认邮箱；首版群发由运营方管理，不在此实现编辑器或排期。 */
