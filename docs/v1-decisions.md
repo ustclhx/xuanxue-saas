@@ -14,3 +14,10 @@
 ## 上线前需要的账号与凭据（decision gate，见 launch-v1-production §2）
 
 Cloudflare 账号与 API Token、Neon 生产库、Stripe（测试与 live）、Resend 发件域名、Google OAuth 应用（两站回调）、Turnstile（两站 hostname）、Sentry、GSC / Bing 账号。准备好后只需告诉协调者已就绪；密钥只写入 Wrangler / GitHub secrets，不进仓库。
+
+## 运营备注（不阻塞上线，供审阅）
+
+- 付费卡上的当地货币「约」值使用代码内固定参考汇率（KRW 1400、TWD 32.5 / USD），实际扣款以 Stripe Adaptive Pricing 为准；建议每季度人工校准（`features/readings/unlock-card.tsx`）。
+- 积分包种子：Single 100 积分 $0.99、Five 500 积分 $3.99，每次详批 100 积分；可在后台修改。
+- 紫微详批的集成测试使用固定命盘 mock（iztro 在 vitest workers 池中的 CJS 加载问题），真实复算已在 workerd 中验证。
+
