@@ -33,7 +33,8 @@ export function siteOfLocale(locale: string, config: SitesConfig): SiteId | unde
 
 /**
  * 站点的规范地址：生产使用注册表中的第一个 host（https）；本地 `<id>.localhost` 保留协议与端口。
- * `from` 为当前请求地址。
+ * `from` 为当前请求地址；未登记的 Host（`*.workers.dev` 预览/staging）不跨站，保留请求自身 origin，
+ * 避免报告邮件等链接指向尚未上线的规范域名。
  */
 export function siteOrigin(id: SiteId, from: URL, config: SitesConfig): string {
   if (from.hostname.endsWith(LOCAL_SUFFIX)) {
@@ -41,6 +42,7 @@ export function siteOrigin(id: SiteId, from: URL, config: SitesConfig): string {
     url.hostname = `${id}${LOCAL_SUFFIX}`
     return url.origin
   }
+  if (!resolveSite(from.host, config).known) return from.origin
   const [host] = config.sites[id].hosts
   return host ? `https://${host}` : from.origin
 }

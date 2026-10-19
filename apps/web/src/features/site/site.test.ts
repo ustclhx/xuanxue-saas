@@ -91,6 +91,15 @@ describe('语言归属站点', () => {
     expect(route(`${WEST}/pricing`)).toEqual(pass)
   })
 
+  it('未登记的预览 Host 不跳到规范域名，保留请求 origin', () => {
+    const preview = 'https://xuanxue-web-staging.example.workers.dev'
+    expect(siteOrigin('east', new URL(`${preview}/app/x`), config)).toBe(preview)
+    expect(siteOrigin('west', new URL(`${preview}/`), config)).toBe(preview)
+    expect(siteOrigin('east', new URL('https://xuanxue-west.example/'), config)).toBe(
+      'https://xuanxue-east.example',
+    )
+  })
+
   it('本地 <站点>.localhost 跨站跳转保留协议与端口', () => {
     expect(siteOrigin('east', new URL('http://west.localhost:23330/ko/'), config)).toBe(
       'http://east.localhost:23330',
