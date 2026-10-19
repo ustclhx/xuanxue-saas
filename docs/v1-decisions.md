@@ -4,21 +4,22 @@
 
 | # | 事项 | 类型 | 影响 | 临时做法 | 状态 |
 |---|---|---|---|---|---|
-| D1 | AI 详批使用的模型（高性价比） | 决策 | `readings-core` 上线前；后台运行时设置 `readings.<kind>.modelKey` | 测试阶段用 `claude-haiku-5-5`（见下方「D1 测试接入」）；正式上线前再选定模型接入 API | 已决定（测试：Haiku；上线模型待选） |
+| D1 | AI 详批使用的模型（高性价比） | 决策 | `readings-core` 上线前；后台运行时设置 `readings.<kind>.modelKey` | 测试阶段用 DeepSeek `deepseek-flash`（当前即 V4.1-Flash-1017，见下方「D1 测试接入」）；正式上线前再选定模型接入 API | 已决定（测试：deepseek-flash；上线模型待选） |
 | D2 | 东西两站的品牌名与正式域名 | 决策 + 购买 | hreflang 绝对地址、站点地图、OG、Organization 结构化数据、OAuth 回调 | 占位 `xuanxue-east.example` / `xuanxue-west.example`，品牌 `[东方站品牌名]` | 待决定 |
 | D3 | 法国本地搜索量重核（`doc/design.md` §8 方式 B） | 人工 | 是否启动法语站 | v1 不做法语 | 待你在 Keyword Planner 导出 |
 | D5 | 韩语만세력是否默认开启「진태양시」（真太阳时）修正 | 决策 | `/ko/` 时柱：与韩国常见만세력一致（首尔约 −32 分钟） | — | 已决定：默认开启（`KO_TRUE_SOLAR_DEFAULT = true`，访客可关闭） |
 | D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 三语隐私政策/服务条款/退款/免责声明中的 `[公司名称]`、`[联系地址]` 占位，以及支持邮箱 | 占位文本，上线前替换并请法律专业人士审阅 | 待提供 |
 | D4 | 台湾 / 韩国本地官方搜索量 | 人工 | 长尾页优先级 | 按设计文档的第三方口径排期 | 待你在 Keyword Planner 导出 |
 
-## D1 测试接入（claude-haiku-5-5）
+## D1 测试接入（DeepSeek `deepseek-flash`）
 
-不需要 AI Gateway：未配置 `AI_GATEWAY_ACCOUNT_ID` / `AI_GATEWAY_ID` 时，`anthropic` 模型在 `AI_TEXT_EGRESS=direct` 下凭 `ANTHROPIC_API_KEY` 直连官方 API（`packages/ai/src/text/model.ts`）。
+DeepSeek 官方 API 的模型名是 `deepseek-flash`，当前由 DeepSeek-V4.1-Flash-1017 提供（旧名 `deepseek-v4-flash` 也会路由到它）。详批是流式输出，而 AI Gateway 会把 DeepSeek SSE 整段缓冲（docs/06-ai.md），所以用 `AI_TEXT_EGRESS=direct` + `DEEPSEEK_API_KEY` 直连官方端点。
 
-1. 密钥：本地写入 `apps/web/.dev.vars`（已 gitignore）`ANTHROPIC_API_KEY=...` 与 `AI_TEXT_EGRESS=direct`；staging 用 `wrangler secret put ANTHROPIC_API_KEY --env staging`（wrangler 中 staging 已设 `AI_TEXT_EGRESS=direct`）。不进仓库。
-2. 后台 → AI 模型 → 新增文本模型：key `claude-haiku-5-5`，provider `anthropic`，Provider model ID `claude-haiku-5-5`，按 token 计费，启用。
-3. 后台 → 运行时设置：六个 `readings.<kind>.modelKey`（bazi-full、saju-full、ziwei-full、saju-compat、numerology-full、tarot-spread）填 `claude-haiku-5-5`，对应 `enabled` 打开。
-4. 之后即可做 monetization 5.1 的三语抽检；正式上线换模型时只改第 2、3 步，配置 Gateway 后自动回到 Gateway 路径。
+1. 密钥：本地已写入 `apps/web/.dev.vars`（gitignore，值取自 saas-template 本地 `.env.local`）；Cloudflare 上该密钥目前只在 saas-template 的 `web-staging` Worker，本项目的 `xuanxue-web-staging` 尚未部署，启用 staging 时执行 `wrangler secret put DEEPSEEK_API_KEY --env staging`（wrangler 中 staging 已设 `AI_TEXT_EGRESS=direct`）。不进仓库。
+2. 后台 → AI 模型 → 新增文本模型：key `deepseek-flash`，provider `deepseek`，Provider model ID `deepseek-flash`，参数 schema 加 `"x-text": {"thinking": false, "maxOutputTokens": 6000}`（关闭 thinking，首字更快、成本更低），启用。本地库已按此写入。
+3. 后台 → 运行时设置：六个 `readings.<kind>.modelKey`（bazi-full、saju-full、ziwei-full、saju-compat、numerology-full、tarot-spread）填 `deepseek-flash`，`enabled` 默认开启。本地库已写入。
+4. 2026-10-19 本地真实调用抽检（每类 1 份，thinking 关闭）：6 类章节齐全、语言正确；首字 0.6–1.0 s，整份 6–22 s，输出 0.8k–2.8k tokens；合规检查仅八字报告 1 段因「槓桿」命中投资规则并按设计替换。三语各 10 份的正式抽检（monetization 5.1）仍在 staging 做。
+5. 正式上线换模型时只改第 2、3 步。Anthropic 模型也可在未配置 Gateway 时凭 `ANTHROPIC_API_KEY` 直连（PR #23）。
 
 ## 上线前需要的账号与凭据（decision gate，见 launch-v1-production §2）
 
