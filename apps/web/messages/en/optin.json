@@ -11,6 +11,7 @@
   "optin_growth": "Personal growth",
   "optin_submit": "Send it to me",
   "optin_busy": "Sending…",
+  "optin_loading": "Loading…",
   "optin_success": "Check your inbox. New subscribers must confirm their email first.",
   "optin_error": "Unable to subscribe. Please try again.",
   "optin_consent": "By subscribing, you agree to receive reading emails. You can unsubscribe at any time."

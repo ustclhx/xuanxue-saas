@@ -48,6 +48,12 @@ for (const scenario of scenarios)
     await expect(card).toBeVisible()
     await expect(card.locator('option[value="career"]')).toHaveText(scenario.label)
     await expect(card.getByRole('button')).toBeEnabled()
+    await expect(page.locator('script[src*="challenges.cloudflare.com"]')).toHaveCount(0)
+    await expect(card.getByTestId('turnstile')).toHaveCount(0)
+    // 三种字段都能以聚焦启动验证；填写前即可挂载小组件。
+    const firstField = { en: 'name', 'zh-Hant': 'email', ko: 'topic' }[scenario.locale]
+    await card.locator(`[name="${firstField}"]`).focus()
+    await expect(card.getByTestId('turnstile')).toBeVisible()
     await card.locator('input[name="email"]').fill('reader@example.test')
     await card.locator('input[name="name"]').fill('Reader')
     await card.locator('select').selectOption('career')
