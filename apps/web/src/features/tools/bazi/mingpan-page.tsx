@@ -1,6 +1,8 @@
 import type { BaziChart, PillarKey } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
+import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -84,7 +86,12 @@ export function MingpanPage() {
               }
             : null
         }
-      />
+      >
+        <ReadingUnlock
+          kind="bazi-full"
+          request={tool.state.status === 'done' ? birthUnlock(tool.submitted ?? tool.values) : null}
+        />
+      </ReadingSlots>
     </ToolPage>
   )
 }

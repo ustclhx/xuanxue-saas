@@ -8,6 +8,8 @@ import type {
 import { cn } from '@xuanxue/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
+import { compatUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
@@ -204,7 +206,12 @@ export function GunghapPage() {
         { question: m.bazi_gunghap_faq_q2(), answer: m.bazi_gunghap_faq_a2() },
       ]}
     >
-      <ReadingSlots tool="saju-gunghap" />
+      <ReadingSlots tool="saju-gunghap">
+        <ReadingUnlock
+          kind="saju-compat"
+          request={state.status === 'done' ? compatUnlock(submitted, [A, B]) : null}
+        />
+      </ReadingSlots>
     </ToolPage>
   )
 }

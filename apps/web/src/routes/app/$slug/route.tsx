@@ -53,6 +53,15 @@ function WorkspaceLayout() {
               API Keys
             </Link>
           ) : null}
+          {templateConfig.billing.enabled && templateConfig.ai.text.enabled && (
+            <Link
+              to="/app/$slug/readings"
+              params={{ slug: page.workspace.slug }}
+              className="underline"
+            >
+              {m.readings_list_title()}
+            </Link>
+          )}
           {templateConfig.ai.text.enabled && (
             <Link to="/app/$slug/chat" params={{ slug: page.workspace.slug }} className="underline">
               {m.app_chat()}

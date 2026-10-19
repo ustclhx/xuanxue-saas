@@ -23,6 +23,7 @@ export function LifePathHome({ content }: { content: NumerologyPage }) {
     <ToolContext value={context}>
       <div className="mx-auto flex max-w-[1120px] flex-col gap-10 px-4 pt-10 pb-16 sm:px-6 sm:pt-12 sm:pb-[72px]">
         <LifePathCalculator
+          unlock
           heading={
             <h1 className="m-0 font-heading font-semibold text-[40px] text-ink leading-[1.05] sm:text-[56px]">
               {m.numerology_home_title()}

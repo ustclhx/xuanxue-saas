@@ -8,7 +8,7 @@ import { fixtureDb } from './fixtures.ts'
 const require = createRequire(new URL('../package.json', import.meta.url))
 const start = createRequire(require.resolve('@tanstack/react-start/package.json'))
 const client = createRequire(start.resolve('@tanstack/start-client-core/package.json'))
-const serializer = client('seroval') as {
+export const serializer = client('seroval') as {
   fromJSON(value: unknown): { data: Record<string, unknown> }
   fromCrossJSON(
     value: unknown,

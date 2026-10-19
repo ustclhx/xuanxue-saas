@@ -1,6 +1,8 @@
 import { type BirthDate, numerologyChart } from '@xuanxue/numerology'
 import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
+import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
@@ -133,7 +135,16 @@ export function FullCalculator() {
               result: { kind: 'numerology', lifePath: chart.lifePath.value },
               share: { date: formatBirthDate(state.date) },
             }}
-          />
+          >
+            <ReadingUnlock
+              kind="numerology-full"
+              request={numerologyUnlock(
+                state.date,
+                formatBirthDate(state.date),
+                chart.name?.normalized,
+              )}
+            />
+          </ReadingSlots>
         </div>
       )}
     </div>

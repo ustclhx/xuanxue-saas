@@ -15,6 +15,7 @@ import {
 import { cn } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { CheckboxField, SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
@@ -214,7 +215,24 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
               }
             : null
         }
-      />
+      >
+        {(spread === 'three-card' || spread === 'celtic-cross') && (
+          <ReadingUnlock
+            kind="tarot-spread"
+            request={
+              complete && reading
+                ? {
+                    input: {
+                      reading: encodeReading(reading),
+                      ...(question.trim() ? { question: question.trim() } : {}),
+                    },
+                    share: { reading: encodeReading(reading) },
+                  }
+                : null
+            }
+          />
+        )}
+      </ReadingSlots>
       <ToolLinks links={links} title={m.tarot_matrix_title()} />
       <NotToAsk />
       <section aria-labelledby="tarot-positions" className="flex max-w-[720px] flex-col gap-3">

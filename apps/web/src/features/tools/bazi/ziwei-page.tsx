@@ -2,6 +2,8 @@ import type { BirthInput, Branch } from '@xuanxue/bazi'
 import type { MajorStar, Mutagen, PalaceKey, ZiweiChart, ZiweiPalace } from '@xuanxue/bazi/ziwei'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
+import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -139,7 +141,16 @@ export function ZiweiPage() {
         { question: m.bazi_ziwei_faq_q2(), answer: m.bazi_ziwei_faq_a2() },
       ]}
     >
-      <ReadingSlots tool="ziwei" />
+      <ReadingSlots tool="ziwei">
+        <ReadingUnlock
+          kind="ziwei-full"
+          request={
+            tool.state.status === 'done' && tool.state.result.status === 'ok'
+              ? birthUnlock(tool.submitted ?? tool.values)
+              : null
+          }
+        />
+      </ReadingSlots>
     </ToolPage>
   )
 }
