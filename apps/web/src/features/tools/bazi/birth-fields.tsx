@@ -30,7 +30,7 @@ export function BirthFields({
   locale: 'zh-Hant' | 'ko'
   prefix?: string
   issues?: readonly InputIssue[]
-  /** 韩语页：진태양시 开关默认关闭，但用醒目提示说明（决策 D5） */
+  /** 韩语页：진태양시 开关默认开启，并用醒目提示说明可关闭（决策 D5） */
   trueSolarCallout?: boolean
 }) {
   const name = (field: keyof BirthFormValues) => `${prefix}${field}`

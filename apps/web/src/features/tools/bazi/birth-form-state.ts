@@ -27,9 +27,9 @@ export const OTHER_PLACE = 'other'
 
 /**
  * 韩语页진태양시（真太阳时）修正的默认值。韩国常见만세력默认开启（首尔约 −32 分钟），
- * 本站按 spec 默认关闭并醒目提示；用户决策 D5（docs/v1-decisions.md）定案后只需改这一处。
+ * 按用户决策 D5（docs/v1-decisions.md）同样默认开启，访客可关闭改用标准时。
  */
-export const KO_TRUE_SOLAR_DEFAULT = false
+export const KO_TRUE_SOLAR_DEFAULT = true
 
 /** 出生地下拉的内置城市（与引擎 CITIES 同 id）；按语言把常用城市放在前面 */
 export const PLACE_IDS: Record<'zh-Hant' | 'ko', readonly CityId[]> = {

@@ -145,10 +145,12 @@ test('韩语만세력：6 个区块顺序、진태양시提示与韩国夏令时
   await expect(page).toHaveTitle('만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)')
   await expect(page.getByLabel('출생지')).toHaveValue('seoul')
   const trueSolar = page.getByLabel('진태양시 보정')
-  await expect(trueSolar).not.toBeChecked()
-  await expect(page.getByText('많은 국내 만세력은 진태양시 보정을 기본으로 켭니다')).toBeVisible()
+  // 决策 D5：与韩国常见만세력一致，默认开启
+  await expect(trueSolar).toBeChecked()
+  await expect(page.getByText('국내 만세력과 같이 진태양시 보정을 기본으로 켭니다')).toBeVisible()
 
-  // 1987-07-01 10:30 서울：서머타임 기간이라 표준시 09:30으로 계산
+  // 1987-07-01 10:30 서울：关闭진태양시后只按서머타임换算为표준시 09:30
+  await trueSolar.uncheck()
   await fillBirth(page, koLabels, { year: '1987', month: '7', day: '1', time: '10:30' })
   await page.getByRole('button', { name: '즉시 만세력' }).click()
   await expect(page.locator('#shensha')).toBeVisible()
