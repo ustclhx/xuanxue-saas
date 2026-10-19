@@ -175,6 +175,16 @@ export const defaultLanguageModelFactory: LanguageModelFactory = (model, env) =>
     )
   const accountId = env.AI_GATEWAY_ACCOUNT_ID?.trim()
   const gatewayId = env.AI_GATEWAY_ID?.trim()
+  // 未配置 Gateway 时 Anthropic 可凭管理员密钥直连官方端点，便于 staging/本地先用 Haiku 验证（决策 D1）；
+  // 已配置 Gateway 的部署仍走下面的 Gateway 路径。
+  const anthropicKey = env.ANTHROPIC_API_KEY?.trim()
+  if (
+    model.provider === 'anthropic' &&
+    env.AI_TEXT_EGRESS === 'direct' &&
+    anthropicKey &&
+    (!accountId || !gatewayId)
+  )
+    return createAnthropic({ apiKey: anthropicKey })(model.providerModelId)
   if (!accountId || !gatewayId) {
     throw new AppError(AI_PROVIDER_NOT_CONFIGURED, 'AI Gateway is not configured', { status: 503 })
   }

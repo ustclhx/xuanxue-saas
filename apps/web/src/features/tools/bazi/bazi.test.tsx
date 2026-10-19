@@ -114,8 +114,8 @@ describe('出生信息表单状态', () => {
     })
   })
 
-  it('韩语页진태양시默认关闭（决策 D5 的单一常量）', () => {
-    expect(KO_TRUE_SOLAR_DEFAULT).toBe(false)
+  it('韩语页진태양시默认开启（决策 D5 的单一常量）', () => {
+    expect(KO_TRUE_SOLAR_DEFAULT).toBe(true)
     expect(defaultBirthValues('ko').place).toBe('seoul')
   })
 })

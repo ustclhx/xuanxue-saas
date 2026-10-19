@@ -325,4 +325,51 @@ describe('DeepSeek 直连（#152）', () => {
     expect(request?.headers.get('cf-aig-authorization')).toBe('Bearer gateway-token')
     expect(request?.headers.has('authorization')).toBe(false)
   })
+
+  it('direct、有 Anthropic 密钥且未配置 Gateway 时直连官方端点', async () => {
+    let request: Request | undefined
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        request = new Request(input, init)
+        return Response.json(response('anthropic'))
+      }),
+    )
+    await generateText({
+      model: defaultLanguageModelFactory(model('anthropic'), {
+        AI_TEXT_EGRESS: 'direct',
+        ANTHROPIC_API_KEY: ' direct-anthropic-key ',
+      }),
+      prompt: 'hello',
+      maxRetries: 0,
+    })
+    expect(request?.url).toBe('https://api.anthropic.com/v1/messages')
+    expect(request?.headers.get('x-api-key')).toBe('direct-anthropic-key')
+    expect([...(request?.headers.keys() ?? [])].some((key) => key.startsWith('cf-aig-'))).toBe(
+      false,
+    )
+  })
+
+  it('已配置 Gateway 时 Anthropic 即使 direct 也经 Gateway', async () => {
+    let request: Request | undefined
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        request = new Request(input, init)
+        return Response.json(response('anthropic'))
+      }),
+    )
+    await generateText({
+      model: defaultLanguageModelFactory(model('anthropic'), {
+        ...env,
+        AI_TEXT_EGRESS: 'direct',
+        ANTHROPIC_API_KEY: 'provider-key',
+      }),
+      prompt: 'hello',
+      maxRetries: 0,
+    })
+    expect(request?.url).toBe(
+      'https://gateway.ai.cloudflare.com/v1/account/gateway/anthropic/v1/messages',
+    )
+  })
 })
