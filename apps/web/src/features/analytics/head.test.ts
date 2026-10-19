@@ -10,9 +10,10 @@ vi.mock('../admin/impersonation-banner.tsx', () => ({ ImpersonationBanner: () =>
 vi.mock('../admin/settings-announcement-banner.tsx', () => ({ AnnouncementBanner: () => null }))
 vi.mock('../i18n/language-controls.tsx', () => ({ LanguageControls: () => null }))
 
+import { getLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
-import { SITE_THEME_SCRIPT } from '../site/theme.ts'
+import { SITE_THEME_SCRIPT, siteFontScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
 
 describe('分析脚本页面 head', () => {
@@ -24,7 +25,10 @@ describe('分析脚本页面 head', () => {
       expect(result?.scripts).toEqual([
         { children: themeInitScript() },
         { children: SITE_THEME_SCRIPT },
+        { children: siteFontScript('west', getLocale()) },
       ])
+      // 字体样式表由脚本插入，不以阻塞渲染的 <link rel="stylesheet"> 出现
+      expect(result?.links?.filter((link) => link?.rel === 'stylesheet')).toHaveLength(1)
       expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon/i)
     }
   })

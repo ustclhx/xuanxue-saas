@@ -18,7 +18,7 @@ import { privateMeta } from '../features/seo/metadata.ts'
 import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
 import { SiteContext } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
-import { SITE_THEME_SCRIPT, siteFontLinks } from '../features/site/theme.ts'
+import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
 import { ThemeToggle } from '../features/theme/theme-toggle.tsx'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
@@ -43,16 +43,14 @@ export const Route = createRootRoute({
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),
     ],
     // 全局样式（Tailwind + @xuanxue/ui 主题），SSR 输出的 <head> 中直接引用，避免首屏无样式闪烁
-    // 站点字体（docs/design/visual-system.md「字体」）：自托管，只加载本站本语言的一套
-    links: [
-      { rel: 'stylesheet', href: appCss },
-      ...siteFontLinks(loaderData?.site.id ?? 'west', getLocale()),
-    ],
+    links: [{ rel: 'stylesheet', href: appCss }, ...siteIconLinks(loaderData?.site.id ?? 'west')],
     // 首屏前按偏好（未设置时跟随系统）给 <html> 设置 dark 类：<head> 内同步执行，避免刷新时先浅后深的闪烁；
     // 西方站始终为深色（features/site/theme.ts）
+    // 站点字体（docs/design/visual-system.md「字体」）：自托管，只加载本站本语言的一套，由脚本非阻塞插入
     scripts: [
       { children: themeInitScript() },
       { children: SITE_THEME_SCRIPT },
+      { children: siteFontScript(loaderData?.site.id ?? 'west', getLocale()) },
       ...analyticsHeadScripts(matches.at(-1)?.pathname ?? '/', templateConfig),
     ],
   }),

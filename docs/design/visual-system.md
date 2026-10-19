@@ -37,9 +37,12 @@
 
 字体全部自托管（`@fontsource/*`，按 unicode-range 分片、`font-display: swap`），**不请求 Google Fonts 等第三方域名**：e2e smoke 断言页面无外部请求，也避免欧盟站点的第三方字体隐私问题。
 
-- 东方站：标题 `Noto Serif TC` / `Noto Serif KR`（500/700，按语言只引入一种，CJK 分片按需下载）；正文系统字体栈 `-apple-system, 'PingFang TC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans KR', 'Microsoft JhengHei'|'Malgun Gothic', sans-serif`。
-- 西方站：标题 `Cormorant Garamond` 600/700，正文 `Source Sans 3` 400/600。
+- 东方站：标题 `Noto Serif TC` / `Noto Serif KR`（500/700，按语言只引入一种，CJK 分片按需下载），fallback 依次为度量对齐的本机宋体/明朝（`Songti TC` / `AppleMyungjo`）、`Noto Serif CJK TC|KR`、`serif`；正文系统字体栈 `-apple-system, 'PingFang TC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans KR', 'Microsoft JhengHei'|'Malgun Gothic', sans-serif`。
+- 西方站：标题 `Cormorant Garamond` 600/700，正文 `Source Sans 3` 400/600；fallback 为度量匹配的 Times New Roman / Arial（Linux 上为度量兼容的 Liberation），再落到 `Georgia, serif` / 系统无衬线。
+- **字体样式表不阻塞首屏**：根布局 `<head>` 中的内联脚本（`features/site/theme.ts` 的 `siteFontScript`）插入本站本语言的 `@fontsource` 样式表，首屏先用 fallback 渲染，字体到达后按 `font-display: swap` 替换；换语言为整页导航，只在首次加载插入一次。未启用脚本时保持系统字体。
+- **减少替换位移（CLS）**：`styles/site-theme.css` 中的 `* Fallback` `@font-face` 只引用 `local()` 本机字体，用 `size-adjust`、`ascent-override`、`descent-override`、`line-gap-override` 对齐自托管字体的度量（拉丁字体按字宽与纵向度量，CJK 全角字形只对齐纵向度量）。更换字体或字重时须重新计算这些数值。
 - 首屏 LCP 元素（H1）在字体未到时用 fallback 渲染。
+- 站点图标与页头标志一致：东方站阴阳圆（纸色底、墨线、朱砂点），西方站四角星（夜蓝底、星金描边），SVG 与 32px PNG/ICO 放在 `public/images/favicon-<site>.*`，`/favicon.ico` 按 Host 重定向到本站图标。
 
 ## 布局与组件
 

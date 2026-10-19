@@ -74,9 +74,10 @@ export function LanguageControls({
   return (
     <>
       {suggestion && (
+        // 建议在水合后才取得：用固定定位浮层（语言选择上方）呈现，不推挤已渲染的正文，避免布局位移（CLS）
         <aside
           aria-label={m.i18n_suggestion_label()}
-          className="flex flex-wrap items-center justify-center gap-3 border-b bg-muted px-4 py-3"
+          className="fixed inset-x-4 bottom-20 z-50 mx-auto flex max-w-xl flex-wrap items-center justify-center gap-3 rounded-lg border bg-muted px-4 py-3 shadow-md"
         >
           <p>
             {m.i18n_suggestion({

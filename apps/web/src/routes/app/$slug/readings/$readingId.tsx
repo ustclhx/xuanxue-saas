@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { getReading } from '../../../../features/readings/readings.functions.ts'
 import { ReadingReportPage } from '../../../../features/readings/report-page.tsx'
-import { readingTitle } from '../../../../features/readings/unlock-card.tsx'
+import { readingTitle } from '../../../../features/readings/title.ts'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/readings/$readingId')({

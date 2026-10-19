@@ -1,23 +1,13 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { GrowthForm } from '../features/growth/forms.tsx'
+import { createFileRoute, lazyRouteComponent, redirect } from '@tanstack/react-router'
+import { Suspense } from 'react'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
-import { placeholderPlans } from '../features/marketing/pricing-placeholder.ts'
-import { Cta } from '../features/marketing/sections/cta.tsx'
-import { Faq } from '../features/marketing/sections/faq.tsx'
-import { Features } from '../features/marketing/sections/features.tsx'
-import { Hero } from '../features/marketing/sections/hero.tsx'
-import { Pricing } from '../features/marketing/sections/pricing.tsx'
-import { Testimonials } from '../features/marketing/sections/testimonials.tsx'
 import { eastEntryPage, originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
 import { seoSiteOrigin } from '../features/seo/origins.ts'
 import { organizationData, websiteData } from '../features/seo/structured-data.ts'
 import { useSiteId } from '../features/site/context.tsx'
 import { EastEntry } from '../features/site/east-entry.tsx'
-import { BaziHome } from '../features/tools/bazi/bazi-home.tsx'
 import { easternPageCopy, easternToolHead } from '../features/tools/bazi/head.ts'
-import { ManseryeokHome } from '../features/tools/bazi/manseryeok-home.tsx'
 import { getNumerologyPage } from '../features/tools/numerology/content.functions.ts'
-import { LifePathHome } from '../features/tools/numerology/home.tsx'
 import { NUMEROLOGY_LOCALE } from '../features/tools/numerology/routes.ts'
 import { faqItems, faqPageData } from '../features/tools/numerology/seo.ts'
 import { getLocale } from '../paraglide/runtime.js'
@@ -30,14 +20,42 @@ import { templateConfig } from '../server/template-config.ts'
 const EAST_HOME_LOCALES = ['zh-Hant', 'ko'] as const
 const isEastHome = (locale: string) => (EAST_HOME_LOCALES as readonly string[]).includes(locale)
 
+// 各语言首页工具按需加载（docs/runbooks/evidence/perf-audit）：西方站首页不下载八字 / 만세력，
+// 东方站首页不下载生命灵数。loader 先预载当前语言的组件，SSR 与客户端导航都不会挂起；
+// 水合时由 Suspense 保留服务端 HTML，组件就绪后再水合。
+const BaziHome = lazyRouteComponent(
+  () => import('../features/tools/bazi/bazi-home.tsx'),
+  'BaziHome',
+)
+const ManseryeokHome = lazyRouteComponent(
+  () => import('../features/tools/bazi/manseryeok-home.tsx'),
+  'ManseryeokHome',
+)
+const LifePathHome = lazyRouteComponent(
+  () => import('../features/tools/numerology/home.tsx'),
+  'LifePathHome',
+)
+const TemplateHome = lazyRouteComponent(
+  () => import('../features/marketing/template-home.tsx'),
+  'TemplateHome',
+)
+
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
     if (!templateConfig.marketing.enabled) throw redirect({ to: '/app' })
   },
-  loader: () =>
-    getLocale() === NUMEROLOGY_LOCALE
-      ? getNumerologyPage({ data: { slug: 'life-path-number' } })
-      : null,
+  loader: async () => {
+    const locale = getLocale()
+    if (locale === 'zh-Hant') await BaziHome.preload?.()
+    if (locale === 'ko') await ManseryeokHome.preload?.()
+    if (locale !== NUMEROLOGY_LOCALE) return null
+    const [page] = await Promise.all([
+      getNumerologyPage({ data: { slug: 'life-path-number' } }),
+      LifePathHome.preload?.(),
+    ])
+    if (!page) await TemplateHome.preload?.()
+    return page
+  },
   head: ({ matches, loaderData }) => {
     if (!templateConfig.marketing.enabled) return {}
     const locale = getLocale()
@@ -63,13 +81,17 @@ function IndexPage() {
   if (locale === 'zh-Hant')
     return (
       <MarketingShell>
-        <BaziHome />
+        <Suspense>
+          <BaziHome />
+        </Suspense>
       </MarketingShell>
     )
   if (locale === 'ko')
     return (
       <MarketingShell>
-        <ManseryeokHome />
+        <Suspense>
+          <ManseryeokHome />
+        </Suspense>
       </MarketingShell>
     )
   return <HomePage />
@@ -81,20 +103,7 @@ function HomePage() {
   if (site === 'east' && getLocale() === 'en') return <EastEntry />
   return (
     <MarketingShell>
-      {content ? (
-        <LifePathHome content={content} />
-      ) : (
-        <>
-          <Hero />
-          <Features />
-          {templateConfig.billing.enabled && <Pricing plans={placeholderPlans} />}
-          <Testimonials />
-          <Faq />
-          <Cta />
-          {templateConfig.features.waitlist ? <GrowthForm feature="waitlist" /> : null}
-          {templateConfig.features.newsletter ? <GrowthForm feature="newsletter" /> : null}
-        </>
-      )}
+      <Suspense>{content ? <LifePathHome content={content} /> : <TemplateHome />}</Suspense>
       <p data-testid="version" className="sr-only">
         v{__APP_VERSION__}
       </p>

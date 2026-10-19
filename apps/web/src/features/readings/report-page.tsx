@@ -10,7 +10,7 @@ import {
   type ReadingListItem,
   type ReadingView,
 } from './readings.functions.ts'
-import { readingTitle } from './unlock-card.tsx'
+import { readingTitle } from './title.ts'
 
 /**
  * 应用区的详批报告（add-reading-monetization tasks.md 3.2）：列表与阅读页。
