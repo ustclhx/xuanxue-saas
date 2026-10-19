@@ -3,6 +3,20 @@
 需求来源：`doc/design.md`（SEO 交接文档 v1.1）。2026-10-19 用户决定：模板单仓 + 预渲染；v1 范围 = 双站骨架 + 台湾八字 + 韩国만세력 + 英语生命灵数 + 塔罗抽牌 + L1 邮件 + L2 付费详批；生成到本仓库并新建私有 GitHub 仓库；域名暂用占位。
 视觉规范：[design/visual-system.md](design/visual-system.md)。并行规则沿用 [09 §2–§3、§6](09-parallel-plan.md)，本文只给出 v1 的任务拆分与波次。
 
+## 0. 进度（2026-10-19 长任务结束时）
+
+| change | 状态 |
+|---|---|
+| `remove-selfhost-target` | 4/4，已归档 |
+| `add-dual-site-foundation` | 12/12，已归档 |
+| `add-bazi-saju-chart` | 13/13，已归档（含 10 例公开排盘交叉抽查） |
+| `add-numerology-tools` | 5/5，已归档 |
+| `add-tarot-reading` | 8/8，已归档 |
+| `add-reading-monetization` | 10/11：剩 5.1（staging 真实模型抽检），需要先确定 D1 模型并启用 staging |
+| `launch-v1-production` | 1/6：剩 2.1–3.2，需要域名与各平台账号（见 [v1-decisions.md](v1-decisions.md)） |
+
+额外完成：本地 Lighthouse 预检与首屏修复（CLS 全部 < 0.1；LCP 需在生产 Brotli/HTTP2 下复测，见 `docs/runbooks/evidence/perf-audit/2026-10-19.md`）、结果页 Turnstile 懒加载、staging 发布开关。
+
 ## 1. OpenSpec change
 
 | change | 内容 | 任务数 |
