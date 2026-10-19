@@ -54,10 +54,11 @@ describe('博客草稿', () => {
     expect(posts.length).toBeGreaterThan(0)
     expect(posts.filter((post) => post.draft)).toEqual([])
     expect(posts.map((post) => post.slug)).not.toContain('draft-example')
-  })
+    // 整套内容集合（含三语牌义与概念页）真实构建，CI 上超过默认 5 秒
+  }, 60_000)
 
   it('开发环境保留草稿供预览', async () => {
     const posts = await buildPosts('development')
     expect(posts.some((post) => post.draft && post.slug === 'draft-example')).toBe(true)
-  })
+  }, 60_000)
 })
