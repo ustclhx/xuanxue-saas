@@ -30,7 +30,8 @@ jobs:
     environment: staging
     env:
       DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
-      STAGING_URL: https://configure-staging-url.invalid
+      STAGING_URL: https://xuanxue-web-staging.saas-jobs.workers.dev
+      SENTRY_ENABLED: ${{ secrets.SENTRY_AUTH_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -68,6 +69,7 @@ jobs:
         run: pnpm --filter @xuanxue/web build
 
       - name: Create Sentry release and upload server source maps
+        if: env.SENTRY_ENABLED == 'true'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -82,8 +84,10 @@ jobs:
           pnpm exec sentry-cli sourcemaps inject apps/jobs/dist
           pnpm exec sentry-cli sourcemaps upload --release "$SENTRY_RELEASE" --dist web --validate --strict --wait apps/web/dist/server
           pnpm exec sentry-cli sourcemaps upload --release "$SENTRY_RELEASE" --dist jobs --validate --strict --wait apps/jobs/dist
-          # 浏览器暂未接入 SDK，客户端 map 不需要部署；避免被静态 assets 公开。
-          find apps/web/dist/client -type f -name '*.map' -delete
+
+      - name: Remove client source maps
+        # 浏览器暂未接入 SDK，客户端 map 不需要部署；避免被静态 assets 公开。
+        run: find apps/web/dist/client -type f -name '*.map' -delete
 
       - name: Deploy built jobs
         env:
@@ -124,6 +128,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Finalize Sentry release
+        if: env.SENTRY_ENABLED == 'true'
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}

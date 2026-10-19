@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { test } from 'node:test'
-import { checkSecrets, secretRequirements } from './check-secrets.mjs'
+import { checkSecrets, getSecretRequirements, secretRequirements } from './check-secrets.mjs'
 import { waitHealthy } from './wait-healthy.mjs'
 
 test('secret check reports the actual staging payment gaps without printing present secrets', async () => {
   const lines = []
   const missing = {
-    web: ['PAYPAL_CLIENT_SECRET', 'PAYPAL_WEBHOOK_ID'],
+    web: ['GOOGLE_CLIENT_SECRET'],
     jobs: secretRequirements.jobs.required,
   }
   const code = await checkSecrets({
@@ -19,14 +19,40 @@ test('secret check reports the actual staging payment gaps without printing pres
   })
   assert.equal(code, 1)
   assert.deepEqual(lines, [
-    'web required: PAYPAL_CLIENT_SECRET',
-    'web required: PAYPAL_WEBHOOK_ID',
+    'web required: GOOGLE_CLIENT_SECRET',
     'jobs required: STRIPE_SECRET_KEY',
     'jobs required: STRIPE_WEBHOOK_SECRET',
-    'jobs required: PAYPAL_CLIENT_ID',
-    'jobs required: PAYPAL_CLIENT_SECRET',
-    'jobs required: PAYPAL_WEBHOOK_ID',
   ])
+})
+
+test('secret requirements follow enabled billing, OAuth and Turnstile configuration', () => {
+  assert.deepEqual(secretRequirements.web.required, [
+    'BETTER_AUTH_SECRET',
+    'TURNSTILE_SECRET_KEY',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+  ])
+  const paypal = getSecretRequirements({
+    billing: { enabled: true, providers: ['paypal'] },
+    auth: { oauth: ['github'], turnstile: false },
+  })
+  assert.deepEqual(paypal.web.required, [
+    'BETTER_AUTH_SECRET',
+    'GITHUB_CLIENT_ID',
+    'GITHUB_CLIENT_SECRET',
+    'PAYPAL_CLIENT_ID',
+    'PAYPAL_CLIENT_SECRET',
+    'PAYPAL_WEBHOOK_ID',
+  ])
+  assert.deepEqual(
+    getSecretRequirements({
+      billing: { enabled: false, providers: ['stripe', 'paypal'] },
+      auth: { oauth: [], turnstile: false },
+    }).jobs.required,
+    [],
+  )
 })
 
 test('optional secrets do not block an otherwise configured staging environment', async () => {
