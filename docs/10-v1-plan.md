@@ -12,7 +12,7 @@
 | `add-bazi-saju-chart` | 13/13，已归档（含 10 例公开排盘交叉抽查） |
 | `add-numerology-tools` | 5/5，已归档 |
 | `add-tarot-reading` | 8/8，已归档 |
-| `add-reading-monetization` | 10/11：剩 5.1（staging 真实模型抽检），D1 已定测试用 claude-haiku-5-5，待 ANTHROPIC_API_KEY 与 staging 启用 |
+| `add-reading-monetization` | 10/11：剩 5.1（staging 真实模型抽检），D1 已定测试用 DeepSeek `deepseek-flash`（本地已真实调用验证），待 staging 启用 |
 | `launch-v1-production` | 1/6：剩 2.1–3.2，需要域名与各平台账号（见 [v1-decisions.md](v1-decisions.md)） |
 
 额外完成：本地 Lighthouse 预检与首屏修复（CLS 全部 < 0.1；LCP 需在生产 Brotli/HTTP2 下复测，见 `docs/runbooks/evidence/perf-audit/2026-10-19.md`）、结果页 Turnstile 懒加载、staging 发布开关。
