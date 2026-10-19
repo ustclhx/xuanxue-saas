@@ -25,11 +25,11 @@ DeepSeek 官方 API 的模型名是 `deepseek-flash`，当前由 DeepSeek-V4.1-F
 
 Cloudflare 账号与 API Token、Neon 生产库、Stripe（测试与 live）、Resend 发件域名、Google OAuth 应用（两站回调）、Turnstile（两站 hostname）、Sentry、GSC / Bing 账号。准备好后只需告诉协调者已就绪；密钥只写入 Wrangler / GitHub secrets，不进仓库。
 
-**staging 资源与发布配置已准备（2026-10-19），继续首次业务部署，自动发布开关仍关闭**：Neon `xuanxue_staging`（`noisy-fire-19510813`，PG18 / aws-us-east-2）已建库、受限角色、完成 14 条迁移、billing seed 与 Stripe Sandbox 报价同步。Cloudflare 已新建 `xuanxue-files-staging`、`staging-xuanxue-staging-cache`、`xuanxue-email-staging` / `xuanxue-events-staging`、`xuanxue-staging-neon` / `xuanxue-staging-neon-cached`，ID 已回填；两个 Worker 的 secrets 占位版本已创建，`staging:check-secrets` 退出 0。workflow 与 APP_URL 已设为 `https://xuanxue-web-staging.saas-jobs.workers.dev`，GitHub staging 三项发布 secrets 名称齐全。`STAGING_ENABLED` 未设置，由协调者在合并后启用。
+**staging 已启用（2026-10-19 UTC），自动发布开关待合并后开启**：Neon `xuanxue_staging`（`noisy-fire-19510813`，PG18 / aws-us-east-2）已建库、受限角色、完成 14 条迁移、billing seed 与 Stripe Sandbox 报价同步。Cloudflare 已新建 `xuanxue-files-staging`、`staging-xuanxue-staging-cache`、`xuanxue-email-staging` / `xuanxue-events-staging`、`xuanxue-staging-neon` / `xuanxue-staging-neon-cached`，ID 已回填；两个 Worker 的业务产物已部署，`staging:check-secrets` 退出 0。workflow 与 APP_URL 已设为 `https://xuanxue-web-staging.saas-jobs.workers.dev`，GitHub staging 三项发布 secrets 名称齐全。`STAGING_ENABLED` 未设置，由协调者在合并后启用。
 
 Google 两项仍是启动必需项：协调者决定只在 staging secrets 使用明确占位值满足校验，**Google 登录按钮暂不可用**；等 D2 正式域名后再配置真实 OAuth 应用。未启用 PayPal/GitHub OAuth；Sentry 无 token 时跳过 release，仍删除客户端 maps。邮件默认 log，Resend/Sentry/R2 签名凭据尚未配置。
 
-已知 staging 限制：报告邮件在 `features/readings/generate.ts:189–197` 使用 `siteOrigin`，实际函数对 workers.dev 的 west 请求仍返回 `https://xuanxue-west.example`。认证/支付回跳使用的 `requestSiteOrigin` 可正确回退到 APP_URL，但报告邮件不是这一路径。协调者明确决定该项不阻塞（未配 Resend，不发送实际邮件），并将在单独分支修改 siteOrigin；本分支不改认证运行时或站点解析。health、原浏览器冒烟、真实购买与详批待首次部署核验。资源 ID、实际步骤和核验记录见 [本项目 staging runbook](runbooks/staging-xuanxue.md)。
+已知 staging 限制：报告邮件在 `features/readings/generate.ts:189–197` 使用 `siteOrigin`，实际函数对 workers.dev 的 west 请求仍返回 `https://xuanxue-west.example`。认证/支付回跳使用的 `requestSiteOrigin` 可正确回退到 APP_URL，但报告邮件不是这一路径。协调者明确决定该项不阻塞（未配 Resend，不发送实际邮件），并将在单独分支修改 siteOrigin；本分支不改认证运行时或站点解析。首次手动部署 SHA `853a55a6ab408789f3995345f60dd8b530fd5a47` 的 health（200/db.up/完整 SHA）、原有冒烟 3/3、Stripe 4242 购买 Single（99 美分 USD）、DeepSeek numerology-full 真实生成及报告页八章节、积分 +100/−100/余额 0 均已通过。管理员与测试用户凭据仅保存在忽略的 `.env.staging`（600）。资源 ID、实际步骤和核验记录见 [本项目 staging runbook](runbooks/staging-xuanxue.md)。
 
 ## 运营备注（不阻塞上线，供审阅）
 

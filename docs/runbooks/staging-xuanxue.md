@@ -2,7 +2,7 @@
 
 2026-10-19 UTC。本项目使用 Neon + Cloudflare workers.dev；本文只记录本次实际操作，不引用模板历史验收作为本项目证据。
 
-**当前状态：资源、受限角色、迁移、报价与 secrets 已准备；继续首次业务部署。** 报告邮件链接仍指向占位域名，协调者已明确接受该 staging 限制（未配 Resend，不发送实际邮件），会在单独分支修复 siteOrigin。本分支不改站点代码。health、浏览器冒烟及真实详批将在下方记录实际结果。
+**staging 已启用：首次手动部署、完整 SHA/db 探活、原有冒烟与真实购买详批均通过。** 报告邮件占位域名是协调者已接受的 staging 限制（未配 Resend，不发送实际邮件），由协调者在单独分支修复 siteOrigin。本分支不改站点代码。自动发布配置已完成，`STAGING_ENABLED` 仍由协调者在合并后设置；首次 main 自动发布尚待验收。
 
 ## 资源
 
@@ -20,8 +20,8 @@ Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。目标地址：`https:
 | Events Queue | `xuanxue-events-staging` | `733d2af3bcd54aae923858e253997028` |
 | Hyperdrive | `xuanxue-staging-neon` | `997c773bdb46458bab6af316630aad8c`；缓存关闭 |
 | Hyperdrive cached | `xuanxue-staging-neon-cached` | `99d5848802b54b24925d8d5f1dfd5ad3`；创建参数 max_age=60 |
-| Worker | `xuanxue-web-staging` | secrets 占位版本已创建，业务部署待完成 |
-| Worker | `xuanxue-jobs-staging` | secrets 占位版本已创建，业务部署待完成 |
+| Worker | `xuanxue-web-staging` | 业务产物已部署（版本见下方） |
+| Worker | `xuanxue-jobs-staging` | 业务产物已部署（版本见下方） |
 | Web 限流 | RL_AUTH / RL_AI / RL_API | `21002` / `21004` / `21006`，与模板既有 namespace 隔离 |
 | Stripe Sandbox endpoint | 本项目 staging billing webhook | `we_1USIw1L3UTpBAoXoC4Ef0AHA` |
 
@@ -56,11 +56,24 @@ Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。目标地址：`https:
 
 这是源码函数复现证据，不冒充真实购买或邮件投递验收。首次预检曾按原任务暂停，随后协调者明确接受此 staging 限制并要求继续；修复由协调者单独分支处理。本分支未修改站点解析/认证运行时。
 
-## 待完成
+## 首次部署与验收（2026-10-19 UTC）
 
-- 本地验证已全部通过：`pnpm check` 退出 0（Biome 1142 文件；Node 测试共 24/24）、`pnpm typecheck` 退出 0（17/17 任务）、`pnpm test` 退出 0（32/32 任务；1677 用例通过、34 跳过）、独立 `node --test scripts/staging/staging.test.mjs` 退出 0（7/7）。日志为 `/tmp/xuanxue-staging-{check,typecheck,test,staging-test}.log`；测试只使用本地隔离库，未注入 Neon URL。
-- 解决或明确接受上述邮件链接限制后，以部署时 HEAD 完整 SHA 按 workflow 构建、移除客户端 maps、部署 jobs → web。
-- `wait-healthy` 的 HTTP 200、db.up、完整 SHA 匹配；原 staging Playwright 冒烟。
-- 注册/验证管理员与普通测试用户，将测试用户凭据追加到受限 `.env.staging`；用官方 4242 测试卡购买 Single，生成 numerology-full，核对报告、账本与积分 100→0、邮件链接。
-- 提交、推送、PR；合并后协调者设置 `STAGING_ENABLED=true` 并核验首次自动发布。
-- D2 正式域名/真实 Google OAuth；Resend 实际邮件投递与 Sentry 尚未启用，R2 签名凭据未配置。
+- 部署源码 SHA：`853a55a6ab408789f3995345f60dd8b530fd5a47`。后续提交仅补充本文及 decisions 的验收记录，不改变已部署代码。
+- 按 workflow 顺序完成 jobs dry-run bundle、web staging Vite build，再独立删除全部 `dist/client/**/*.map`，最后部署已构建 jobs → web（均 no-bundle）。构建使用两个不可达的本地 Hyperdrive 占位连接，未注入 Neon 凭据；未上传 Sentry release/maps。客户端 map 数量终检为 0。
+- jobs Worker version：`c688da0b-d2bc-421e-853e-41db12dfeea2`；web Worker version：`95fe58b6-5dbf-4828-87f2-5dca22938fa5`。两端 APP_VERSION 均为上述完整 SHA。
+- `pnpm staging:check-secrets` 退出 0；`node scripts/staging/wait-healthy.mjs <workers.dev>/api/health <完整SHA>` 退出 0，独立 Node fetch 返回 HTTP 200、db.status=up、完整 SHA 一致。本机 Python urllib 独立观测返回 403，Node health 及浏览器正常；未因此更改服务配置。
+- 原命令 `STAGING_URL=<workers.dev> APP_VERSION=<完整SHA> pnpm --filter @xuanxue/web exec playwright test --project staging` 退出 0，3 passed（33.3s），覆盖首页、定价、真实随机注册进入个人空间并注销。未修改原测试/断言/超时，也未加入 mock。日志 `/tmp/xuanxue-staging-smoke.log`。
+- 管理员和普通测试用户均经真实英文注册表单创建，注册与密码登录始终留在 workers.dev。因 log 邮件通道无法投递给 `.test` 邮箱，仅对本次 staging 管理员测试数据由 migrator 设置 email_verified=true；随后真实注销、密码登录，bootstrap 产生 `admin.user.bootstrap` / `session.create` 审计，`/admin` 可见。此步骤不声称验证了邮件投递/收信流程，也没有修改认证运行时。
+- 普通用户的邮箱/随机密码追加到主 checkout `.env.staging` 的 `STAGING_TEST_EMAIL` / `STAGING_TEST_PASSWORD`，原管理员凭据保留；文件仍 git 忽略且权限 600。值未输出、提交或写入本文。
+- 普通用户在首页计算后点击解锁，UI 显示 100 credits/$0.99 与 500 credits/$3.99，选择 Single Reading。真实 Stripe Checkout 明确显示 Sandbox，使用官方 4242 测试卡支付 99 美分 USD（关闭额外 Link 信息保存）；成功回到本项目 workers.dev，支付后自动继续原 numerology-full 生成。浏览器会话未切断，没有伪造付款、Webhook、Turnstile 或 AI 响应。
+- Stripe `checkout.session.completed` 事件 `evt_1USJ6nL3UTpBAoXoRyzlFJn5` 为 processed / attempts=1 / API 2026-09-30.endive，processed_at=`2026-10-19T16:08:32.685Z`；付款 `01a154eb-efae-7512-b17a-1c7b1d467ed2` 为 succeeded / 99 USD（整数最小单位）。
+- 唯一 purchase 批次 `01a154eb-f40c-7035-87d8-632d523ebca2` 发放 100，剩余 0；账本正好 grant +100、consume −100，hold 为 captured / amount=100 / captured_amount=100。未直接写入或补造付款、积分、报告。
+- 真实报告 `01a154ec-0da7-7759-a82d-a6bc3fdcb5c9` 为 numerology-full / en / ready / 100 credits / model=deepseek-flash，Markdown 正文 9664 字符；对应 AI 消息 completed，input_tokens=522、output_tokens=2530、credits=100。浏览器通过 Open the saved report 打开 `/app/u-obzo9kcb/readings/01a154ec-0da7-7759-a82d-a6bc3fdcb5c9`，可见报告标题与全部八个英文章节（Overview、Life Path、Core Numbers、Personal Year、Love and Relationships、Career and Money、Wellbeing Habits、Guidance）。辅助脚本最初用宽泛 h1 选择器触发 strict-mode 失败；改为报告的确切标题及八章节定位后通过，未改应用或原有冒烟测试。
+- 本地完整验证全部通过：`pnpm check` 退出 0（Biome 1142 文件；Node 测试共 24/24）、`pnpm typecheck` 退出 0（17/17 任务）、`pnpm test` 退出 0（32/32 任务；1677 用例通过、34 跳过）、独立 `node --test scripts/staging/staging.test.mjs` 退出 0（7/7）。日志为 `/tmp/xuanxue-staging-{check,typecheck,test,staging-test}.log`；测试只使用本地隔离库，未注入 Neon URL。
+
+## 仍待协调者 / 正式域名
+
+- 合并后设置 `STAGING_ENABLED=true`，核验首次 main CI 成功触发的自动发布；本分支没有启用此变量，也未合并 PR。
+- 协调者单独分支修复报告邮件 siteOrigin；当前默认 log 通道未发送实际邮件。
+- D2 正式域名与真实 Google OAuth（当前只有启动占位）；东方站域名访问不在本轮 workers.dev 验收范围。
+- Resend 实际投递、Sentry、R2 签名凭据未配置；这些可选能力不计作已验收。
