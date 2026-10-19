@@ -55,6 +55,9 @@ export function SiteFooter() {
           <Link to="/legal/$slug" params={{ slug: 'refund' }} className={footerLink}>
             {m.marketing_footer_refund()}
           </Link>
+          <Link to="/legal/$slug" params={{ slug: 'disclaimer' }} className={footerLink}>
+            {m.marketing_footer_disclaimer()}
+          </Link>
         </FooterColumn>
       </div>
       <div className="mx-auto grid max-w-[1120px] gap-1 px-4 pb-8 text-ink-subtle text-xs sm:px-6">
