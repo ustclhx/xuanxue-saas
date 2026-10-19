@@ -16,8 +16,8 @@
       "!/tarot/SOURCES.md",
       "!/fonts/*",
       "!/images/*",
+      // 站点图标在 /images/favicon-<site>.*；/favicon.ico 经 Worker 按 Host 重定向到本站图标
       "!/og/*",
-      "!/favicon.ico",
       "!/src/*",
       "!/@*",
       "!/node_modules/*"

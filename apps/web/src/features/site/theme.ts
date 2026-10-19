@@ -13,8 +13,23 @@ export function siteFontHref(site: SiteId, locale: string): string {
   return locale === 'ko' ? eastKoFonts : eastZhHantFonts
 }
 
-export function siteFontLinks(site: SiteId, locale: string) {
-  return [{ rel: 'stylesheet', href: siteFontHref(site, locale) }]
+/** 站点图标（public/images/favicon-<site>.*）：与页头标志一致；/favicon.ico 由同名路由按 Host 指向对应站点 */
+export function siteIconLinks(site: SiteId) {
+  return [
+    { rel: 'icon', href: `/images/favicon-${site}.svg`, type: 'image/svg+xml' },
+    { rel: 'icon', href: `/images/favicon-${site}-32.png`, sizes: '32x32', type: 'image/png' },
+  ]
+}
+
+/**
+ * 字体样式表不阻塞首屏（性能审计：繁中字体 CSS 约 260KB）：<head> 内同步执行的脚本插入 <link>，
+ * 浏览器不会因脚本插入的样式表推迟渲染；字体到达前用 site-theme.css 中度量匹配的本机 fallback。
+ * 换语言是整页导航（页头语言链接与语言选择），因此只需在首次加载时插入一次。
+ * 未启用脚本时不加载站点字体，页面保持系统字体，属可接受的降级。
+ */
+export function siteFontScript(site: SiteId, locale: string): string {
+  const href = JSON.stringify(siteFontHref(site, locale))
+  return `(function(){var l=document.createElement('link');l.rel='stylesheet';l.href=${href};document.head.appendChild(l)})()`
 }
 
 /**

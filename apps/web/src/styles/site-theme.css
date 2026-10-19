@@ -5,6 +5,72 @@
  * 西方站本身为深色，不随浅色偏好变化；东方站在 .dark 下使用视觉规范给出的暗色基准。
  */
 
+/*
+ * 字体替换前的度量匹配 fallback（docs/design/visual-system.md「字体」）：站点字体样式表非阻塞加载，
+ * 首屏先用本机字体渲染；以下 @font-face 只引用 local() 字体，不发请求，按自托管字体的度量调整
+ * size-adjust / ascent-override / descent-override，减少字体到达后的换行与行高位移（CLS）。
+ * 数值由 @fontsource latin 分片与 macOS 本机字体的 hhea/OS2 度量及英文样本平均字宽算出；
+ * Liberation 与 Arial / Times New Roman 度量兼容。本机没有这些字体时落到下一项系统字体。
+ */
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  font-weight: 400;
+  size-adjust: 94.49%;
+  ascent-override: 108.37%;
+  descent-override: 42.33%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  font-weight: 600 700;
+  size-adjust: 90.18%;
+  ascent-override: 113.55%;
+  descent-override: 44.36%;
+  line-gap-override: 0%;
+}
+
+/* 标题只用 600/700，对应本机粗体 */
+@font-face {
+  font-family: "Cormorant Garamond Fallback";
+  src:
+    local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold");
+  font-weight: 600 700;
+  size-adjust: 91.16%;
+  ascent-override: 101.36%;
+  descent-override: 31.48%;
+  line-gap-override: 0%;
+}
+
+/* CJK 字形为全角方块，字宽无需缩放；只把纵向度量对齐 Noto Serif CJK（ascent 1.151、descent 0.286） */
+@font-face {
+  font-family: "Noto Serif TC Fallback";
+  src: local("Songti TC Regular"), local("STSongti-TC-Regular"), local("Noto Serif CJK TC");
+  font-weight: 400 500;
+  ascent-override: 115.1%;
+  descent-override: 28.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Noto Serif TC Fallback";
+  src: local("Songti TC Bold"), local("STSongti-TC-Bold"), local("Noto Serif CJK TC Bold");
+  font-weight: 600 700;
+  ascent-override: 115.1%;
+  descent-override: 28.6%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Noto Serif KR Fallback";
+  src: local("AppleMyungjo"), local("Noto Serif CJK KR");
+  ascent-override: 115.1%;
+  descent-override: 28.6%;
+  line-gap-override: 0%;
+}
+
 :root[data-site="east"] {
   color-scheme: light;
   --bg: #f4efe4;
@@ -20,13 +86,15 @@
   --on-accent: #fffdf8;
   --inverse: #1f1c18;
   --on-inverse: #fffdf8;
-  --site-font-heading: "Noto Serif TC", "Songti TC", serif;
+  --site-font-heading:
+    "Noto Serif TC", "Noto Serif TC Fallback", "Songti TC", "Noto Serif CJK TC", serif;
   --site-font-body: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
 /* 韩语页只加载 Noto Serif KR，正文用韩文系统字体 */
 :root[data-site="east"]:lang(ko) {
-  --site-font-heading: "Noto Serif KR", "AppleMyungjo", serif;
+  --site-font-heading:
+    "Noto Serif KR", "Noto Serif KR Fallback", "AppleMyungjo", "Noto Serif CJK KR", serif;
   --site-font-body:
     -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
@@ -63,8 +131,9 @@
   --on-accent: #11162a;
   --inverse: #ece7da;
   --on-inverse: #11162a;
-  --site-font-heading: "Cormorant Garamond", Georgia, serif;
-  --site-font-body: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+  --site-font-heading: "Cormorant Garamond", "Cormorant Garamond Fallback", Georgia, serif;
+  --site-font-body:
+    "Source Sans 3", "Source Sans 3 Fallback", -apple-system, "Segoe UI", sans-serif;
 }
 
 :root[data-site] {

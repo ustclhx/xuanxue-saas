@@ -1,4 +1,6 @@
-import { CARD_MEANINGS, CARDS, type Card } from '@xuanxue/tarot'
+import type { Card } from '@xuanxue/tarot'
+// 注册表随主入口加载：只引用牌组清单，不引用三语牌义数据
+import { CARDS } from '@xuanxue/tarot/cards'
 import type { ToolRoute } from '../registry.ts'
 import { TAROT_LOCALES, TAROT_ROOTS, type TarotLocale } from './routes.ts'
 
@@ -28,9 +30,8 @@ export const TAROT_MEANING_ROUTES: readonly ToolRoute[] = CARDS.flatMap((card) =
     site,
     nav: false,
     paths: meaningAlternates(card.slug),
-    titles: Object.fromEntries(
-      TAROT_LOCALES.map((locale) => [locale, CARD_MEANINGS[locale][card.id]?.name ?? card.slug]),
-    ),
+    // 牌义页不进导航；站点地图与 head 的标题取正文 frontmatter（tarotMeaningSeoPages）
+    titles: {},
   })),
 )
 

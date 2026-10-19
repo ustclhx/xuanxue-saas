@@ -15,6 +15,7 @@ import {
   type ReadingPack,
 } from './readings.functions.ts'
 import { readReadingStream } from './stream.ts'
+import { readingTitle } from './title.ts'
 import { peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
 
 /**
@@ -90,19 +91,6 @@ function cleanUnlockParams(): URLSearchParams {
   url.searchParams.delete('checkout')
   window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
   return original
-}
-
-const KIND_TITLE: Record<string, () => string> = {
-  'bazi-full': m.readings_kind_bazi_full,
-  'saju-full': m.readings_kind_saju_full,
-  'ziwei-full': m.readings_kind_ziwei_full,
-  'saju-compat': m.readings_kind_saju_compat,
-  'numerology-full': m.readings_kind_numerology_full,
-  'tarot-spread': m.readings_kind_tarot_spread,
-}
-
-export function readingTitle(kind: string): string {
-  return KIND_TITLE[kind]?.() ?? kind
 }
 
 type Phase =
