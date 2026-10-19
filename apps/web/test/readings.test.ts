@@ -325,7 +325,8 @@ describe('POST /api/readings', () => {
         to: who.email,
         locale: 'zh-Hant',
         idempotencyKey: `reading-ready:${readingId}`,
-        props: { url: `https://xuanxue-east.example/app/${who.slug}/readings/${readingId}` },
+        // 测试请求来自未登记的 localhost:3000，链接保留请求 origin（已登记 Host 的跨站规范地址见 site.test.ts）
+        props: { url: `${APP_URL}/app/${who.slug}/readings/${readingId}` },
       }),
     ])
     // 报告关联承载预扣与结算的消息，超时兜底沿用 ai_message 处理器
