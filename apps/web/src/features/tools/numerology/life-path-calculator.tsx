@@ -3,6 +3,7 @@ import { type ReactNode, useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
+import { ReadingSlots } from '../reading-slots.tsx'
 import { ShareLink } from '../share-link.tsx'
 import { formatBirthDate, parseBirthDate } from './calc.ts'
 import { FieldError, LifePathCard } from './parts.tsx'
@@ -88,45 +89,58 @@ export function LifePathCalculator({
   useSharedInput((shared) => shared.date && show(shared.date))
 
   return (
-    <section className="flex flex-wrap items-start gap-8 sm:gap-10">
-      <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-4">
-        {heading}
-        {intro && (
-          <p className="m-0 max-w-[520px] text-[17px] text-ink-muted leading-relaxed sm:text-lg">
-            {intro}
-          </p>
-        )}
-        <ToolForm
-          label={m.numerology_form_label()}
-          onSubmit={(data) => show(data.get('birthDate'))}
-          className="mt-2 flex flex-wrap items-end gap-3 border-0 bg-transparent p-0 sm:p-0"
+    <div className="flex flex-col gap-8">
+      <section className="flex flex-wrap items-start gap-8 sm:gap-10">
+        <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-4">
+          {heading}
+          {intro && (
+            <p className="m-0 max-w-[520px] text-[17px] text-ink-muted leading-relaxed sm:text-lg">
+              {intro}
+            </p>
+          )}
+          <ToolForm
+            label={m.numerology_form_label()}
+            onSubmit={(data) => show(data.get('birthDate'))}
+            className="mt-2 flex flex-wrap items-end gap-3 border-0 bg-transparent p-0 sm:p-0"
+          >
+            <BirthDateField
+              className="min-w-0 flex-[1_1_220px]"
+              errorId={errorId}
+              invalid={invalid}
+            />
+            <SubmitButton className="flex-[0_0_auto] max-[400px]:w-full">
+              {m.numerology_calculate()}
+            </SubmitButton>
+          </ToolForm>
+          <FieldError id={errorId}>{invalid && m.numerology_date_invalid()}</FieldError>
+        </div>
+        <div
+          id="life-path-result"
+          aria-live="polite"
+          className="min-w-0 flex-[1_1_380px] scroll-mt-6"
         >
-          <BirthDateField
-            className="min-w-0 flex-[1_1_220px]"
-            errorId={errorId}
-            invalid={invalid}
-          />
-          <SubmitButton className="flex-[0_0_auto] max-[400px]:w-full">
-            {m.numerology_calculate()}
-          </SubmitButton>
-        </ToolForm>
-        <FieldError id={errorId}>{invalid && m.numerology_date_invalid()}</FieldError>
-      </div>
-      <div
-        id="life-path-result"
-        aria-live="polite"
-        className="min-w-0 flex-[1_1_380px] scroll-mt-6"
-      >
-        {calculated ? (
-          <LifePathCard
-            result={calculated.result}
-            date={calculated.date}
-            footer={<ShareLink input={{ date: formatBirthDate(calculated.date) }} />}
-          />
-        ) : (
-          <LifePathCard result={lifePath(example)} date={example} example />
-        )}
-      </div>
-    </section>
+          {calculated ? (
+            <LifePathCard
+              result={calculated.result}
+              date={calculated.date}
+              footer={<ShareLink input={{ date: formatBirthDate(calculated.date) }} />}
+            />
+          ) : (
+            <LifePathCard result={lifePath(example)} date={example} example />
+          )}
+        </div>
+      </section>
+      <ReadingSlots
+        tool="life-path"
+        optin={
+          calculated
+            ? {
+                result: { kind: 'numerology', lifePath: calculated.result.value },
+                share: { date: formatBirthDate(calculated.date) },
+              }
+            : null
+        }
+      />
+    </div>
   )
 }

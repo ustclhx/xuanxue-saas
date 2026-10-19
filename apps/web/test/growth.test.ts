@@ -20,6 +20,8 @@ import {
   subscribeNewsletter,
   updateNewsletterStatus,
 } from '../src/features/growth/service.ts'
+import type { ReadingOptin } from '../src/features/readings/optin-schema.ts'
+import { templateConfig } from '../src/server/template-config.ts'
 
 const domain = `${newId()}.growth.test`
 const db = createDb(env.HYPERDRIVE)
@@ -420,5 +422,232 @@ describe('Newsletter', () => {
         )
       ).status,
     ).toBe(404)
+  })
+})
+
+const readingCtx: GrowthContext = {
+  ...ctx,
+  config: { ...config, sites: templateConfig.sites, i18n: templateConfig.i18n },
+}
+const baziOptin: ReadingOptin = {
+  name: '小林',
+  sourceTool: 'bazi',
+  topic: 'career',
+  site: 'east',
+  locale: 'zh-Hant',
+  result: { kind: 'bazi', dayMaster: 'geng' },
+  share: { year: '1990', month: '5', day: '15' },
+}
+async function subscriber(address: string) {
+  const [row] = await db
+    .select()
+    .from(newsletterSubscriber)
+    .where(eq(newsletterSubscriber.email, address))
+  if (!row) throw new Error('Missing subscriber')
+  return row
+}
+function confirmationToken(address: string) {
+  const message = messages
+    .filter((message) => message.to === address && message.template === 'newsletter-confirmation')
+    .at(-1)
+  if (message?.template !== 'newsletter-confirmation') throw new Error('Missing confirmation')
+  return new URL(message.props.url).searchParams.get('token') ?? ''
+}
+
+describe('结果订阅与解读投递', () => {
+  it('保存来源与临时结果；确认前仅发确认邮件，并发确认后只入队一封本语言解读并清空结果', async () => {
+    const address = email()
+    const response = await submitGrowth(
+      new Request(`${appUrl}/api/newsletter`, {
+        method: 'POST',
+        body: JSON.stringify({ email: address.toUpperCase(), reading: baziOptin }),
+      }),
+      'newsletter',
+      runtime,
+      readingCtx,
+    )
+    expect(response.status).toBe(200)
+    expect(await subscriber(address)).toMatchObject({
+      status: 'pending',
+      sourceTool: 'bazi',
+      topic: 'career',
+      locale: 'zh-Hant',
+      site: 'east',
+      lastResult: { name: '小林', result: { kind: 'bazi', dayMaster: 'geng' } },
+    })
+    expect(messages.filter((message) => message.to === address)).toMatchObject([
+      { template: 'newsletter-confirmation', locale: 'zh-Hant' },
+    ])
+    const token = confirmationToken(address)
+    await Promise.all([
+      updateNewsletterStatus(readingCtx, token, 'confirm'),
+      updateNewsletterStatus(readingCtx, token, 'confirm'),
+    ])
+    await updateNewsletterStatus(readingCtx, token, 'confirm')
+    const summaries = messages.filter(
+      (message) => message.to === address && message.template === 'reading-summary',
+    )
+    expect(summaries).toHaveLength(1)
+    expect(summaries[0]).toMatchObject({
+      locale: 'zh-Hant',
+      props: {
+        name: '小林',
+        paragraphs: [expect.stringContaining('庚金'), expect.stringContaining('工作')],
+      },
+    })
+    expect((await subscriber(address)).lastResult).toBeNull()
+  })
+
+  it('已确认邮箱从塔罗再次订阅只更新同一记录并直接发送，不重新确认', async () => {
+    const address = email()
+    await subscribeNewsletter(readingCtx, address, baziOptin)
+    await updateNewsletterStatus(readingCtx, confirmationToken(address), 'confirm')
+    const before = await subscriber(address)
+    const start = messages.length
+    await subscribeNewsletter(readingCtx, address.toUpperCase(), {
+      ...baziOptin,
+      sourceTool: 'tarot-daily',
+      site: 'west',
+      locale: 'en',
+      topic: 'love',
+      result: { kind: 'tarot', cards: [{ cardId: 'major-00', reversed: false }] },
+      share: { reading: 'fixture' },
+    })
+    expect(await subscriber(address)).toMatchObject({
+      id: before.id,
+      confirmToken: before.confirmToken,
+      status: 'confirmed',
+      sourceTool: 'tarot-daily',
+      site: 'west',
+      locale: 'en',
+      topic: 'love',
+      lastResult: null,
+    })
+    expect(messages.slice(start)).toMatchObject([
+      { to: address, template: 'reading-summary', locale: 'en' },
+    ])
+    expect(
+      await db.select().from(newsletterSubscriber).where(eq(newsletterSubscriber.email, address)),
+    ).toHaveLength(1)
+  })
+
+  it('解读入队失败保留结果，重试使用同一幂等键', async () => {
+    const address = email()
+    await subscribeNewsletter(readingCtx, address, baziOptin)
+    const token = confirmationToken(address)
+    const keys: string[] = []
+    const failed: GrowthContext = {
+      ...readingCtx,
+      queue: {
+        available: true,
+        value: {
+          send: async (message) => {
+            keys.push(message.idempotencyKey)
+            throw new Error('Queue unavailable')
+          },
+        },
+      },
+    }
+    await expect(updateNewsletterStatus(failed, token, 'confirm')).rejects.toThrow(
+      'Queue unavailable',
+    )
+    const pending = await subscriber(address)
+    expect(pending.lastResult).toMatchObject({ result: baziOptin.result })
+    const recovery: GrowthContext = {
+      ...readingCtx,
+      queue: {
+        available: true,
+        value: {
+          send: async (message) => {
+            keys.push(message.idempotencyKey)
+            messages.push(message)
+          },
+        },
+      },
+    }
+    await updateNewsletterStatus(recovery, token, 'confirm')
+    expect(keys[0]).toBe(keys[1])
+    expect((await subscriber(address)).lastResult).toBeNull()
+  })
+
+  it('未确认者再次提交保存最新偏好，退订会清除结果且重新订阅必须重新确认', async () => {
+    const address = email()
+    await subscribeNewsletter(readingCtx, address, baziOptin)
+    const token = confirmationToken(address)
+    await subscribeNewsletter(readingCtx, address, {
+      ...baziOptin,
+      topic: 'growth',
+      locale: 'ko',
+      sourceTool: 'manseryeok',
+    })
+    await updateNewsletterStatus(readingCtx, token, 'confirm')
+    expect(
+      messages.filter(
+        (message) => message.to === address && message.template === 'reading-summary',
+      ),
+    ).toMatchObject([{ locale: 'ko' }])
+    const row = await subscriber(address)
+    const url = await newsletterUnsubscribeUrl(readingCtx, row.id)
+    await updateNewsletterStatus(
+      readingCtx,
+      new URL(url).searchParams.get('token') ?? '',
+      'unsubscribe',
+    )
+    await subscribeNewsletter(readingCtx, address, baziOptin)
+    await expect(updateNewsletterStatus(readingCtx, token, 'confirm')).rejects.toMatchObject({
+      code: 'INVALID_TOKEN',
+    })
+    expect((await subscriber(address)).status).toBe('pending')
+    expect((await subscriber(address)).lastResult).not.toBeNull()
+  })
+
+  it('拒绝无效工具与模板结果，复用公开入口限流与人机校验', async () => {
+    const address = email()
+    const req = (reading: unknown) =>
+      new Request(`${appUrl}/api/newsletter`, {
+        method: 'POST',
+        body: JSON.stringify({ email: address, reading }),
+      })
+    expect(
+      (
+        await submitGrowth(
+          req({ ...baziOptin, result: { kind: 'bazi', dayMaster: 'invalid' } }),
+          'newsletter',
+          runtime,
+          readingCtx,
+        )
+      ).status,
+    ).toBe(400)
+    expect(
+      (
+        await submitGrowth(
+          req({ ...baziOptin, sourceTool: 'https://evil.test' }),
+          'newsletter',
+          runtime,
+          readingCtx,
+        )
+      ).status,
+    ).toBe(400)
+    expect(
+      (
+        await submitGrowth(
+          req(baziOptin),
+          'newsletter',
+          { ...runtime, rateLimiter: { limit: async () => ({ success: false }) } },
+          readingCtx,
+        )
+      ).status,
+    ).toBe(429)
+    expect(
+      (
+        await submitGrowth(req(baziOptin), 'newsletter', runtime, {
+          ...readingCtx,
+          config: { ...readingCtx.config, auth: { ...readingCtx.config.auth, turnstile: true } },
+        })
+      ).status,
+    ).toBe(403)
+    expect(
+      await db.select().from(newsletterSubscriber).where(eq(newsletterSubscriber.email, address)),
+    ).toHaveLength(0)
   })
 })

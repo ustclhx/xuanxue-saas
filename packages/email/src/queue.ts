@@ -33,6 +33,15 @@ const templatePropsSchemas = {
     supportEmail: z.email(),
   }),
   'reading-ready': z.object({ url }),
+  'reading-summary': z.object({
+    name: z.string().max(80),
+    subject: z.string().min(1).max(200),
+    paragraphs: z.array(z.string().min(1).max(2000)).min(1).max(20),
+    resultUrl: url,
+    unlockUrl: url,
+    unsubscribeUrl: url,
+    disclaimer: z.string().min(1).max(1000),
+  }),
   'verify-email': z.object({ url }),
   otp: z.object({
     otp: z.string().min(1),

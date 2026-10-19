@@ -89,18 +89,7 @@ export function ResultFooter({
   )
 }
 
-/**
- * L1 邮件订阅卡与 L2 完整分析解锁卡的插槽（由 add-reading-monetization 实现）：
- * 位于免费结果与合规声明之后，不得以弹窗出现、不得遮挡结果。目前只占位，不渲染可见内容。
- */
-export function ReadingSlots({ tool }: { tool: string }) {
-  return (
-    <>
-      <div data-slot="reading-optin" data-tool={tool} hidden />
-      <div data-slot="reading-unlock" data-tool={tool} hidden />
-    </>
-  )
-}
+export { ReadingSlots } from '../reading-slots.tsx'
 
 /** 结果区内的两栏网格；最小列宽不超过容器，避免窄屏横向滚动 */
 export const twoColumns = 'grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5'

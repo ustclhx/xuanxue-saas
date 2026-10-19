@@ -16,6 +16,7 @@ import { cn } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { CheckboxField, SubmitButton, TextField, ToolForm } from '../form.tsx'
+import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { readShareFragment } from '../share.ts'
 import { ShareLink } from '../share-link.tsx'
@@ -203,6 +204,17 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
       }
       faq={copy.faq.map(([q, a]) => ({ question: q(), answer: a() }))}
     >
+      <ReadingSlots
+        tool={`tarot-${spread}`}
+        optin={
+          complete && reading
+            ? {
+                result: { kind: 'tarot', cards: [...reading.cards] },
+                share: { reading: encodeReading(reading) },
+              }
+            : null
+        }
+      />
       <ToolLinks links={links} title={m.tarot_matrix_title()} />
       <NotToAsk />
       <section aria-labelledby="tarot-positions" className="flex max-w-[720px] flex-col gap-3">

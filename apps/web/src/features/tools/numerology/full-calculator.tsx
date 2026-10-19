@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
+import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ShareLink } from '../share-link.tsx'
 import { formatBirthDate, parseBirthDate, reductionText } from './calc.ts'
@@ -126,6 +127,13 @@ export function FullCalculator() {
             </ResultBlock>
           </div>
           <ShareLink input={{ date: formatBirthDate(state.date) }} />
+          <ReadingSlots
+            tool="numerology-calculator"
+            optin={{
+              result: { kind: 'numerology', lifePath: chart.lifePath.value },
+              share: { date: formatBirthDate(state.date) },
+            }}
+          />
         </div>
       )}
     </div>
