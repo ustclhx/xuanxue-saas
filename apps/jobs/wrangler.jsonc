@@ -50,7 +50,6 @@
       "name": "xuanxue-jobs-staging",
       "vars": {
         "SENTRY_ENVIRONMENT": "staging",
-        "AI_FAULT_INJECTION": "enabled",
         "PAYMENT_MODE": "test",
         "CRON_PROFILE": "reduced"
       },
@@ -62,11 +61,11 @@
         "head_sampling_rate": 1,
         "traces": { "enabled": false }
       },
-      "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "99fee60cbaca4d71ab280da1056b291e" }],
       "hyperdrive": [
         // Neon xuanxue_staging，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒（docs/07 §2）
-        { "binding": "HYPERDRIVE", "id": "00000000000000000000000000000000" },
-        { "binding": "HYPERDRIVE_CACHED", "id": "00000000000000000000000000000000" }
+        { "binding": "HYPERDRIVE", "id": "997c773bdb46458bab6af316630aad8c" },
+        { "binding": "HYPERDRIVE_CACHED", "id": "99d5848802b54b24925d8d5f1dfd5ad3" }
       ],
 
       "queues": {
