@@ -10,12 +10,12 @@
 - [x] 2.1 `features/readings/catalog.ts` 与 bazi/saju 两种详批的服务端复算、提示词 v1（固定前缀 + prompt caching）与章节校验；验证：单元测试断言篡改的命盘被忽略、章节齐全检查
 - [x] 2.2 `POST /api/readings`：幂等、hold → 流式生成 → capture/release、报告邮件入队，复用 text-stream 检查点；验证：集成测试（模型用 fake provider）覆盖成功、无输出失败退回、连续点击不重复扣费
 - [x] 2.3 生成后的合规规则检查（禁止词表与替换、审计日志）；验证：单元测试覆盖健康、日期预言、投资三类样例
-- [ ] 2.4 其余详批类型：ziwei-full、saju-compat、numerology-full、tarot-spread 的复算与提示词；验证：每种至少一个 fake provider 集成测试
+- [x] 2.4 其余详批类型：ziwei-full、saju-compat、numerology-full、tarot-spread 的复算与提示词；验证：每种至少一个 fake provider 集成测试
 
 ## 3. 前台
 
-- [ ] 3.1 结果页解锁卡片（积分、当地货币估价、章节目录）与意图保留的签名 `unlock` 参数，贯通登录与 Checkout 回跳后自动生成；验证：e2e（Stripe 离线模拟）新访客登录 + 购买后回到原页并开始生成
-- [ ] 3.2 报告阅读页（流式显示、Markdown 白名单渲染、合规声明、noindex）与 `/app/$slug/readings` 列表；验证：e2e 换会话后在列表中打开报告，非成员访问返回 404
+- [x] 3.1 结果页解锁卡片（积分、当地货币估价、章节目录）与意图保留的签名 `unlock` 参数，贯通登录与 Checkout 回跳后自动生成；验证：e2e（Stripe 离线模拟）新访客登录 + 购买后回到原页并开始生成
+- [x] 3.2 报告阅读页（流式显示、Markdown 白名单渲染、合规声明、noindex）与 `/app/$slug/readings` 列表；验证：e2e 换会话后在列表中打开报告，非成员访问返回 404
 
 ## 4. L1 订阅
 

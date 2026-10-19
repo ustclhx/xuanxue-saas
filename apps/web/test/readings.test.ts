@@ -17,7 +17,7 @@ import { newId } from '@xuanxue/shared'
 import { simulateReadableStream } from 'ai'
 import { MockLanguageModelV4 } from 'ai/test'
 import { eq, inArray, like } from 'drizzle-orm'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
 import { runAdminAction } from '../src/features/admin/action.ts'
 import {
   invalidateReadingSettings,
@@ -25,13 +25,42 @@ import {
   readingSettingsInput,
   writeReadingSettings,
 } from '../src/features/admin/settings-readings.ts'
+import { readingDefinition } from '../src/features/readings/catalog.ts'
 import { readingConfig } from '../src/features/readings/config.ts'
 import { handleReadingRequest, type ReadingDeps } from '../src/features/readings/generate.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
 // add-reading-monetization tasks.md 1.2：后台修改详批设置后前台读取到新值。
+// tasks.md 2.4：其余四种详批各一个成功生成的用例。
 // tasks.md 2.2：POST /api/readings 的成功结算、无输出失败退回、连续点击不重复扣费；
 // 模型一律为 AI SDK 的模拟模型（fake provider），不发起真实调用。
+
+// iztro 在 vitest workers 池的 CJS 回退加载下取不到 lunar-typescript 的导出（vite dev 与构建产物正常），
+// 集成测试改用固定的紫微命盘；复算本身由 catalog.test.ts 在 Node 中对照真实引擎验证。
+vi.mock('@xuanxue/bazi/ziwei', () => ({
+  computeZiwei: (input: { time: unknown }) =>
+    input.time === null
+      ? { status: 'requiresHour', engineVersion: '1.0.0' }
+      : {
+          status: 'ok',
+          engineVersion: '1.0.0',
+          used: { year: 1990, month: 5, day: 17, hour: 8, minute: 30 },
+          timeIndex: 4,
+          fiveElementsClass: 'fire6th',
+          soulPalaceBranch: 'chou',
+          bodyPalaceBranch: 'you',
+          palaces: [
+            {
+              key: 'soul',
+              stem: 'ji',
+              branch: 'chou',
+              isBodyPalace: false,
+              majorStars: [{ star: 'ziwei', brightness: 'miao', mutagen: null }],
+            },
+          ],
+          mutagens: [],
+        },
+}))
 
 const db = createAdminTestDb()
 const sql = db.$client
@@ -183,7 +212,7 @@ function settingsFor(modelKey: string, overrides: Partial<Record<SettingKey, unk
   const store: SettingStore = {
     async find(key) {
       if (key in overrides) return overrides[key]
-      if (key === 'readings.bazi-full.modelKey') return modelKey
+      if (key.endsWith('.modelKey')) return modelKey
       return undefined
     },
   }
@@ -381,6 +410,101 @@ describe('POST /api/readings', () => {
     const modelKey = await textModel()
     const run = deps(reportModel(REPORT), modelKey)
     expect((await post({ cookie: '' }, unlock(), run.deps)).status).toBe(401)
+  })
+})
+
+describe('其余详批类型（tasks.md 2.4）', () => {
+  const cases = [
+    { kind: 'ziwei-full', locale: 'zh-Hant', site: 'east', input: BIRTH },
+    {
+      kind: 'saju-compat',
+      locale: 'ko',
+      site: 'east',
+      input: {
+        a: { ...BIRTH, location: { city: 'seoul' } },
+        b: { ...BIRTH, year: 1988, gender: 'male', location: { city: 'busan' } },
+      },
+    },
+    {
+      kind: 'numerology-full',
+      locale: 'en',
+      site: 'west',
+      input: { year: 1987, month: 11, day: 29, name: 'Ada' },
+    },
+    {
+      kind: 'tarot-spread',
+      locale: 'ko',
+      site: 'east',
+      input: { reading: 'three-card:major-00,major-01r,major-02', question: '이직' },
+    },
+  ] as const
+
+  for (const item of cases)
+    it(`${item.kind}（${item.locale}）：复算后生成，按章节保存并结算`, async () => {
+      const definition = readingDefinition(item.kind, item.locale)
+      if (!definition) throw new Error(`${item.kind} missing`)
+      const report = definition.prompt.sections
+        .map((title) => `## ${title}\n\n${title} …`)
+        .join('\n\n')
+      const who = await member(100)
+      const modelKey = await textModel()
+      const model = reportModel(report)
+      const run = deps(model, modelKey)
+      const response = await post(
+        who,
+        { kind: item.kind, input: item.input, locale: item.locale, site: item.site },
+        run.deps,
+      )
+      expect(response.status).toBe(200)
+      const readingId = response.headers.get('x-reading-id')
+      await response.text()
+      await run.settled()
+      const prompt = JSON.stringify(model.doStreamCalls[0]?.prompt ?? [])
+      expect(prompt).toContain(definition.prompt.system.slice(0, 20))
+
+      expect((await getCreditBalance(db, who.workspaceId)).available).toBe(0)
+      const [saved] = await readings(who.workspaceId)
+      expect(saved).toMatchObject({ id: readingId, status: 'ready' })
+      expect(saved?.content.startsWith(`> ${definition.disclaimer}`)).toBe(true)
+      for (const title of definition.prompt.sections)
+        expect(saved?.content).toContain(`## ${title}`)
+      if (definition.healthSection)
+        expect(saved?.content).toContain(definition.healthSection.notice)
+      const [row] = await sql<{ prompt_version: string; locale: string; kind: string }[]>`
+        select prompt_version, locale, kind from reading where id = ${readingId}`
+      expect(row).toEqual({
+        prompt_version: definition.prompt.version,
+        locale: item.locale,
+        kind: item.kind,
+      })
+      expect(run.sent).toHaveLength(1)
+    })
+
+  it('塔罗：牌义来自服务端，问题作为数据传给模型；单张牌阵返回 400', async () => {
+    const who = await member(100)
+    const modelKey = await textModel()
+    const model = reportModel('## Overview\n\nok')
+    const run = deps(model, modelKey)
+    const body = {
+      kind: 'tarot-spread',
+      input: { reading: 'three-card:major-00,major-01r,major-02', meaning: 'fake' },
+      locale: 'en',
+      site: 'west',
+    }
+    const response = await post(who, body, run.deps)
+    await response.text()
+    await run.settled()
+    const prompt = JSON.stringify(model.doStreamCalls[0]?.prompt ?? [])
+    expect(prompt).toContain('The Fool')
+    expect(prompt).not.toContain('fake')
+    const single = await post(
+      who,
+      { ...body, input: { reading: 'daily:major-00' } },
+      deps(reportModel('x'), modelKey).deps,
+    )
+    expect(single.status).toBe(400)
+    // 塔罗报告语言须与站点一致
+    expect((await post(who, { ...body, site: 'east' }, run.deps)).status).toBe(400)
   })
 })
 

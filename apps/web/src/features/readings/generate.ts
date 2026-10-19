@@ -87,12 +87,9 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const parsed = requestSchema.safeParse(await request.json().catch(() => undefined))
   if (!parsed.success) throw new AppError('INVALID_REQUEST', 'Invalid reading request')
   const body = parsed.data
-  const definition = readingDefinition(body.kind)
-  if (!definition) throw notFound()
-  if (
-    !definition.locales.includes(body.locale) ||
-    siteOfLocale(body.locale, templateConfig) !== body.site
-  )
+  if (!readingDefinition(body.kind)) throw notFound()
+  const definition = readingDefinition(body.kind, body.locale)
+  if (!definition || siteOfLocale(body.locale, templateConfig) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
   const config = await readingConfig(deps.settings, definition.kind)
   if (!readingAvailable(config)) throw notFound()

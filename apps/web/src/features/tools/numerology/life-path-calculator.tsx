@@ -1,6 +1,8 @@
 import { type BirthDate, lifePath, type NumberResult } from '@xuanxue/numerology'
 import { type ReactNode, useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ReadingUnlock } from '../../readings/unlock-card.tsx'
+import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
@@ -69,10 +71,13 @@ export function LifePathCalculator({
   heading,
   intro,
   example = EXAMPLE,
+  unlock = false,
 }: {
   heading?: ReactNode
   intro?: ReactNode
   example?: BirthDate
+  /** 显示完整分析解锁卡（只在首页，数字页内嵌时不显示） */
+  unlock?: boolean
 }) {
   const { track } = useTool()
   const errorId = useId()
@@ -140,7 +145,18 @@ export function LifePathCalculator({
               }
             : null
         }
-      />
+      >
+        {unlock && (
+          <ReadingUnlock
+            kind="numerology-full"
+            request={
+              calculated
+                ? numerologyUnlock(calculated.date, formatBirthDate(calculated.date))
+                : null
+            }
+          />
+        )}
+      </ReadingSlots>
     </div>
   )
 }
