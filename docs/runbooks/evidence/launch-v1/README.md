@@ -52,6 +52,8 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 - [发布门禁](v0.1.1-release-gates.json)：c0dc8cf 完整 SHA 的 CI/staging 成功。
 - [Actions](v0.1.1-actions.json)：v0.1.1 生产发布全部成功，9 项只读冒烟通过。
 - [HTTP / Analytics](v0.1.1-http-analytics.json)：两域完整 SHA/db 健康、首页/定价 token 正确；匿名 admin 404 仍含 beacon；匿名 app 的原始响应与跟随登录页分别记录，不混淆。
-- [浏览器](v0.1.1-browser.json)：已认证西方 app/admin 无 beacon；原测试账号密码先前被代理清空，删号复验未执行，账号保留。
+- [浏览器](v0.1.1-browser.json)：已认证西方 app/admin 无 beacon；新测试账号已完成删号及同一原密码登录拒绝；旧账号后台无删除/匿名化入口，按授权保留。
 
 旧 v0.1.0 无公开页 beacon 与删号失败记录保留为历史；本次不以旧报告冒充新版本验收。
+
+2.2 最终验收已通过；匿名 admin 404 beacon 保留真实失败结果，并记录协调者接受为非阻断已知问题，不以修改断言冒充该项通过。

@@ -8,10 +8,10 @@
 | --- | --- |
 | 2.1 Worker 资源 / secrets / dry-run | 已完成；原预检见 [production runbook](production-xuanxue.md) |
 | GitHub production environment | 三项必需 secret 名称齐全；新建独立生产 token，剪贴板写入后清空；已按本轮明确授权在浏览器批准 production |
-| 2.2 迁移 → seed 确认 → jobs → web | v0.1.1 发布成功，双域健康完整 SHA 与 9 项只读冒烟通过；管理员通过；原测试账号密码已清空，删号复验待可用登录方式，暂不勾选 |
+| 2.2 迁移 → seed 确认 → jobs → web | 已完成本轮无支付上线验收：v0.1.1 发布、双域健康完整 SHA、9 项只读冒烟、Google 管理员、新账号删号与原密码登录拒绝通过；已勾选 |
 | 2.3 Lighthouse | 六页移动端 HTML/JSON 已保存；西方首页 LCP 2.85s 未达 2.5s 门槛；未修改性能代码 |
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
-| Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，未完全通过范围验收 |
+| Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，协调者已接受为非阻断已知小问题 |
 | support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
 | Resend | 延后；邮件传输保持 log |
 | 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
@@ -22,9 +22,10 @@
 - 同 SHA [CI 39466361482](https://github.com/ustclhx/xuanxue-saas/actions/runs/39466361482) 与 [Deploy staging 39467310532](https://github.com/ustclhx/xuanxue-saas/actions/runs/39467310532) 全部成功后，创建 annotated tag `v0.1.1` 并推送。浏览器批准 production，`gh run watch --exit-status` 退出 0；[production 39467824210](https://github.com/ustclhx/xuanxue-saas/actions/runs/39467824210) 全部成功，迁移、jobs、web、两站版本健康、东方 6 / 西方 3 冒烟通过。未重跑、未修改代码/工作流、未新增支付/模型密钥或改价格。
 - jobs version：`a626cb32-4bc4-4cea-87b5-6383b8937117`；web version：`4c696e11-9927-4081-9f05-f0630eef40ef`。独立 curl 两站 `/api/health` HTTP 200、db.up、完整 SHA 等于上述版本。
 - 两站 `/`、`/pricing` 各恰好一个 `data-cf-beacon`，分别为 Arcanumber `aa32b146781b4880aa9686d85c3a8f66`、Ganjiday `21bda25feef743088c8ca9fb63b76a36`，均 `spa=false`，没有跨站 token。此前“无 beacon”证据属于 PR #44 发布前的 v0.1.0，不能代表当前公开页。
-- 已登录西方站浏览器 `/admin` 正常显示 Admin/Overview、个人 `/app` 显示 Personal，两处 DOM 均无 beacon。匿名 `/app` 原始响应两站均为 307、空正文、无 beacon；curl 跟随跳转后的 `/login` HTML 含本站 beacon。两站匿名 `/admin` 原始 404 HTML 仍含本站 beacon，后台路径排除验收未全部满足；保留失败证据，交协调者决定修复，不改代码绕过。
-- 删号复验未完成：原测试账号 `launch-test-20261021@example.org` 的随机密码仅存在操作内存，已被代理在前轮清空且未落盘；当前登录表单无可用自动填充。本轮未提交密码登录或删除，账号保留；已询问能否新建一次性测试账号完成密码登录→删号→原密码被拒绝，等待答复，不能以猜测密码或只读冒烟代替验收。
-- Lighthouse 不重跑，旧六页报告明确属于 v0.1.0；LCP 仍只记录。Bing 继续等待用户登录。2.2 因删号复验缺口保持未完成，2.3/3.1 也不提前勾选。
+- 已登录西方站浏览器 `/admin` 正常显示 Admin/Overview、个人 `/app` 显示 Personal，两处 DOM 均无 beacon。匿名 `/app` 原始响应两站均为 307、空正文、无 beacon；curl 跟随跳转后的 `/login` HTML 含本站 beacon。两站匿名 `/admin` 原始 404 HTML 仍含本站 beacon；协调者明确接受为无用户数据的非阻断已知小问题，后续处理。本轮保留原始失败证据、不改代码，也不将此检查改写为通过。
+- 删号复验通过：协调者允许使用新账号 `launch-test-20261020174555043@example.org`。真实注册进入 Personal（`u-n60blmh9`），退出后用密码重新登录成功，账号设置输入 DELETE 删除后跳转 `/login`；使用同一邮箱和同一原密码再次登录，页面显示 `Incorrect email or password.` 并停留登录页。后台随后观察到匿名化 `deleted+…@invalid` 测试用户、状态 Banned。密码只在本轮操作内存，完成后清空，未落盘。
+- 旧账号 `launch-test-20261021@example.org` 保留：用管理员打开其用户详情（ID `01a15a3c-69eb-7092-8436-7568cbe8f06f`），可用操作只有 Impersonate user 与 Ban management，没有删除/匿名化入口。按协调者指示保留原 Active 状态，未封禁、未模拟登录、未写库。
+- 2.2 已完成并勾选，适用已批准的不开支付、不改价格、不启用详批模型范围。Lighthouse 不重跑，旧六页报告明确属于 v0.1.0，LCP 仍只记录；Bing 等待用户登录，2.3/3.1 保持未完成。
 
 证据：[发布门禁](evidence/launch-v1/v0.1.1-release-gates.json)、[生产 Actions](evidence/launch-v1/v0.1.1-actions.json)、[健康与 Analytics curl](evidence/launch-v1/v0.1.1-http-analytics.json)、[浏览器与删号待办](evidence/launch-v1/v0.1.1-browser.json)。
 
@@ -63,7 +64,7 @@ Lighthouse 13.5.0，独立 headless Chrome，默认移动设备与模拟网络/C
 
 两站刚提交时列表显示「无法抓取」，后续刷新均显示成功；记录最终成功状态，不把 sitemap 成功等同网页已收录。公共 TXT 仅新增 Google 验证记录，保留原 MX/SPF/DKIM/业务 DNS。Bing 首次访问服务不可用，稍后恢复为未登录首页；协调者指示先跳过，等待用户登录，未接受条款或授权。
 
-## Web Analytics
+## Web Analytics（配置与 v0.1.0 历史检查）
 
 | 域名 | 手动 JS 站点 | 公开 site token |
 | --- | --- | --- |
@@ -79,3 +80,5 @@ Lighthouse 13.5.0，独立 headless Chrome，默认移动设备与模拟网络/C
 Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。
 
 管理员复验 UTC：`2026-10-20T17:10:49.112970+00:00`；证据见 [浏览器验收记录](evidence/launch-v1/production-browser.json)。测试账号继续保留，等待协调者在删号修复 PR #43 合并部署后下达下一步；本轮没有重试删除。
+
+本轮 2.2 最终验收 UTC：`2026-10-20T17:48:44.452539+00:00`；新账号删除及原密码拒绝、旧账号后台无清理入口、匿名 404 beacon 已知问题接受决定，均见 [v0.1.1 浏览器证据](evidence/launch-v1/v0.1.1-browser.json)。

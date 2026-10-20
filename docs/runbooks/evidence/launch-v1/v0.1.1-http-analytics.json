@@ -205,5 +205,10 @@
       "pass": true
     }
   ],
-  "interpretation": "两站公开首页/定价 token 正确；已认证西方 app/admin 无 beacon。匿名 app 原始响应 307 无 HTML/beacon，跟随至 login 后有 beacon；匿名 admin 原始 404 HTML 有 beacon，排除规则验收未全部满足。"
+  "interpretation": "两站公开首页/定价 token 正确；已认证西方 app/admin 无 beacon。匿名 app 原始响应 307 无 HTML/beacon，跟随至 login 后有 beacon；匿名 admin 原始 404 HTML 有 beacon，排除规则验收未全部满足。",
+  "knownIssueDecision": {
+    "anonymousAdmin404Beacon": "保留原始失败结果；协调者接受为非阻断已知小问题，无用户数据，后续处理",
+    "acceptedBy": "协调者本轮明确决定",
+    "codeChanged": false
+  }
 }

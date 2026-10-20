@@ -152,5 +152,6 @@ support@ 的 Cloudflare 收件与 Resend 发件独立。Routing 规则已有 Act
 
 - SHA `c0dc8cf9cdd075811ead3179b078f19c9fb15661`；同 SHA CI `39466361482`、staging `39467310532` 成功后推送 annotated tag v0.1.1，浏览器 production 审批通过。production `39467824210` 全部成功，gh run watch 退出 0；无重跑或代码/工作流变更。
 - 迁移成功，jobs version `a626cb32-4bc4-4cea-87b5-6383b8937117`，web version `4c696e11-9927-4081-9f05-f0630eef40ef`；两站完整 SHA/db 健康和 9 项只读冒烟通过。未更改套餐价格、支付或详批模型。
-- PR #44 按站手动 beacon 已实际发布：首页/定价的本站 token 与 spa=false 均正确；已认证西方 app/admin 无 beacon。匿名 app 原始 307 空正文、跳转后 login 有 beacon；两站匿名 admin 的 404 HTML 仍有 beacon，范围验收未全通过。
-- PR #43 删号修复已发布，但原测试账号随机密码先前仅存内存且已被代理清空，无法重登录；本轮账号未动，等待新测试账号复验授权或其他安全登录方式，不提前声称删号通过。详见 [最新上线记录](launch-v1.md#v011-发布与复验最新) 及 v0.1.1 证据。
+- PR #44 按站手动 beacon 已实际发布：首页/定价的本站 token 与 spa=false 均正确；已认证西方 app/admin 无 beacon。匿名 app 原始 307 空正文、跳转后 login 有 beacon；两站匿名 admin 的 404 HTML 仍有 beacon，协调者已接受为无用户数据的非阻断已知小问题，后续处理。
+- PR #43 删号修复生产验收通过：协调者允许的新账号 `launch-test-20261020174555043@example.org` 完成注册→个人空间→退出后密码登录→DELETE 删号→同一原密码登录被拒绝（Incorrect email or password.）；后台可见匿名化测试用户、Banned。密码仅本轮内存，验收后清空。
+- 旧账号 `launch-test-20261021@example.org` 的后台详情只有模拟登录/封禁管理，无删除/匿名化操作，按协调者指示保留，未写库或做其他替代清理。2.2 已勾选；LCP 与 Bing 状态不变。详见 [最新上线记录](launch-v1.md#v011-发布与复验最新) 和 v0.1.1 浏览器证据。
