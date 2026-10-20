@@ -37,7 +37,7 @@
 - [production-actions.json](production-actions.json)：完整 SHA、workflow 与各步骤 success，含东方 6 / 西方 3 只读冒烟。
 - [production-heartbeat.json](production-heartbeat.json)：17:05:42 UTC 健康复查为 db.up / 同 SHA，已观察到 17:05:09 UTC Cron 心跳。
 - [production-http.json](production-http.json)：双域 28 个 HTTP 验收，全部通过。
-- [production-browser.json](production-browser.json)：注册/重新登录通过，删号失败；指定 Google 账号注册且邮箱已验证，但 /admin 两次显示 Not Found；GSC 两站成功、Bing 待登录、Analytics 手动模式已完成。
+- [production-browser.json](production-browser.json)：注册/重新登录通过，删号失败；指定 Google 账号注册且邮箱已验证；bootstrap 配置更新后重新登录，/admin 正常打开，管理员验收通过；GSC 两站成功、Bing 待登录、Analytics 手动模式已完成。
 - [lighthouse-summary.json](lighthouse-summary.json)：六页移动端审计条件与指标；[lighthouse/](lighthouse/) 含逐页 ZIP 内原始 HTML/JSON。西方首页 LCP 未达标；无现场 INP，不用 TBT 冒充 INP。
 
 最新待办以 [上线记录](../../launch-v1.md) 为准；上文凭据和部署尚未执行仅为历史记录。此轮只提交运维证据与文档，不修改应用、工作流、支付、价格或模型。

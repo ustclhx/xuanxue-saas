@@ -137,10 +137,12 @@ support@ 的 Cloudflare 收件与 Resend 发件独立。Routing 规则已有 Act
 - 迁移成功；已有 seed 复核沿用准备证据，未执行支付同步或价格/模型修改。jobs 2026-10-20T16:52:00Z 发布，version `29202879-925a-427e-84e1-3960711ccd09`；web 16:52:26Z 发布，version `85ad35de-7283-4bdc-9fa4-6de8aa8d2914`，双 custom domain 生效。
 - 双站 health 200、db.up、完整 SHA 匹配；东方 6 / 西方 3 个现有 production 只读冒烟通过；独立 HTTP 28/28 通过。原始非敏感记录见 [Actions](evidence/launch-v1/production-actions.json)、[HTTP](evidence/launch-v1/production-http.json)、[浏览器验收](evidence/launch-v1/production-browser.json)。
 - 真实测试账号注册、进入个人空间、退出后密码登录通过；应用删号返回 `Payment configuration is unavailable`，账号仍待删除，删除后登录拒绝未验收。据只读源码与配置推断，billing 删除 before 初始化时因未设 PAYMENT_MODE 而校验失败；未补支付密钥、未写库绕过或修改代码。
-- 协调者允许 Google 常规授权后，指定账号已注册并显示邮箱已验证、无密码；但 `/admin` 首次及重新 Google 登录后仍显示 Not Found，管理员权限验收失败，交协调者定位。未设置密码或写库提权。
+- 指定 Google 账号已注册，邮箱已验证、无密码；此前 `/admin` 显示 Not Found。协调者报告重写生产 BOOTSTRAP_ADMIN_EMAILS 后，本轮退出并用同一 Google 账号重新登录，`/admin` 正常显示 Admin / Overview，管理员权限验收通过。未设置密码、未写库提权，未读取或改写该 secret 真值。
 - 六页移动端 Lighthouse 已保存 HTML/JSON；性能 88–99，西方首页 LCP 2.85s 未达标；全部 CLS < 0.1，TBT 为 0，现场 INP 不可得。两站 GSC Domain TXT 验证通过，sitemap 刷新后均显示成功；Bing 等待用户登录。Web Analytics 经本轮授权 Done 后立即切为手动，两站自动注入已关闭；四项匿名 curl 检查无 beacon，公开 token 见上线记录。
 
 详细逐页指标、GSC/Bing 与后续待办见 [上线记录](launch-v1.md)。任务 2.2/2.3/3.1 按未满足的验收继续保留未完成，不将已发布当作全部上线验收通过。
 
 - 续跑更新：两站 Analytics 公开 token 分别为 arcanumber.com=`aa32b146781b4880aa9686d85c3a8f66`、ganjiday.com=`21bda25feef743088c8ca9fb63b76a36`。两个控制台站点均回读 JS Snippet installation，未修改应用代码；[curl 证据](evidence/launch-v1/web-analytics.json) 的 `/app` 跟随匿名登录跳转，未读取认证凭据。
 - 17:05:42 UTC 复查两站 health/db/SHA 通过，首次心跳 `2026-10-20T17:05:09.507Z` 已出现；[心跳证据](evidence/launch-v1/production-heartbeat.json)。测试删号由协调者修复，账号保留，修复部署后再验；Bing 按协调者指示先跳过，LCP 只记录。
+
+- 管理员复验（`2026-10-20T17:10:49.112970+00:00`）：已按协调者要求退出并重新 Google 登录，`/admin` 正常显示完整导航和 Overview；先前 Not Found 阻塞已解除。测试账号与删号验收保持待 PR #43 修复部署后的下一步指示。

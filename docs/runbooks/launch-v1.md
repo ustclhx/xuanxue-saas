@@ -8,7 +8,7 @@
 | --- | --- |
 | 2.1 Worker 资源 / secrets / dry-run | 已完成；原预检见 [production runbook](production-xuanxue.md) |
 | GitHub production environment | 三项必需 secret 名称齐全；新建独立生产 token，剪贴板写入后清空；已按本轮明确授权在浏览器批准 production |
-| 2.2 迁移 → seed 确认 → jobs → web | v0.1.0 发布成功；双站健康与三语只读冒烟通过；测试账号删号失败；指定 Google 账号注册成功且已验证，但 /admin 仍显示 Not Found，整体验收未通过 |
+| 2.2 迁移 → seed 确认 → jobs → web | v0.1.0 发布成功；双站健康与三语只读冒烟通过；测试账号删号失败；指定 Google 账号已验证，bootstrap 配置更新后重新登录可进入 /admin；删号验收仍未通过 |
 | 2.3 Lighthouse | 六页移动端 HTML/JSON 已保存；西方首页 LCP 2.85s 未达 2.5s 门槛；未修改性能代码 |
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
 | Cloudflare Web Analytics | 两站已创建并立即切为手动 JS Snippet installation；四项 curl 无 beacon 检查通过；未改代码 |
@@ -25,7 +25,7 @@
 - 独立 [HTTP 验收](evidence/launch-v1/production-http.json) 28/28 通过：两站 www `/x?y=1` 均 301 到裸域并保留路径/查询；首页、三语定价、英文四法律页、robots 与 sitemap 正常；规范公开页无 noindex，已核对繁中/韩语 privacy 按设计 noindex。
 - 测试邮箱 `launch-test-20261021@example.org` 注册成功，进入个人空间 `u-2uc81072`；经账号设置退出并重新密码登录成功。输入 DELETE 提交删除后，页面返回 `Payment configuration is unavailable`，账号未删，不能宣称删除后登录被拒绝。未直接写库、未补支付密钥；测试密码只在操作内存中使用，不记录。协调者接手修代码，账号先保留，修复部署后再验。
 - 删号原因据只读源码与配置推断：`apps/web/src/features/billing/deletion.server.ts` 的 before 初始化 `createPaymentRuntime`；当前 production 未设置 PAYMENT_MODE，`packages/billing/src/runtime.ts` 将模式校验失败映射为上述 503。此为需另行修复的已知上线风险，本轮不改代码。
-- 管理员：协调者明确允许姓名/头像/邮箱授权后完成指定 Google 账号注册；账号设置显示邮箱已验证，社交账号无密码。旧 OAuth 流程等待后曾返回 `state_mismatch`，新流程登录成功；但首次及退出后重新 Google 登录，两次访问 `/admin` 均显示 `Not Found`，管理员权限验收未通过。未设置密码、未直接写库提权，交协调者定位。
+- 管理员：指定 Google 账号注册后，账号设置显示邮箱已验证、社交账号无密码。此前 `/admin` 曾显示 `Not Found`；协调者报告重写生产 `BOOTSTRAP_ADMIN_EMAILS` 后，本轮从账号设置退出，使用同一 Google 账号重新登录，`https://arcanumber.com/admin` 正常显示 Admin 导航、Overview 与 Shortcuts，管理员权限验收通过。未设置密码、未直接写库提权、未读取或改写 bootstrap secret 真值。旧 OAuth 流程的 `state_mismatch` 为历史记录，新登录正常。
 
 ## Lighthouse 移动端实测
 
@@ -65,3 +65,5 @@ Lighthouse 13.5.0，独立 headless Chrome，默认移动设备与模拟网络/C
 最新 [心跳复查](evidence/launch-v1/production-heartbeat.json)：2026-10-20T17:05:42Z 两站 health 200、db.up、完整部署 SHA 一致，`jobs.lastCronAt=2026-10-20T17:05:09.507Z`；先前初始 null 状态已解除。
 
 Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。
+
+管理员复验 UTC：`2026-10-20T17:10:49.112970+00:00`；证据见 [浏览器验收记录](evidence/launch-v1/production-browser.json)。测试账号继续保留，等待协调者在删号修复 PR #43 合并部署后下达下一步；本轮没有重试删除。

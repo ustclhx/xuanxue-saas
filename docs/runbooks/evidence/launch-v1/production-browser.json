@@ -17,15 +17,18 @@
   "admin": {
     "method": "Google",
     "designatedAccountSelected": true,
-    "status": "指定账号注册及 Google 重新登录成功；/admin 仍显示 Not Found，管理员权限验收失败",
+    "status": "协调者报告重写 BOOTSTRAP_ADMIN_EMAILS 后，退出并用同一 Google 账号重新登录，/admin 正常显示 Admin 导航与 Overview，验收通过",
     "registered": true,
     "emailVerifiedInAccountUI": true,
     "socialAccountHasNoPasswordInUI": true,
-    "adminAccessVerified": false,
-    "adminPageVisibleText": "Not Found",
+    "adminAccessVerified": true,
+    "adminPageVisibleText": "Admin / Admin sections / Overview / Shortcuts",
     "reloginRetested": true,
     "oauthNotes": "等待后沿用旧流程曾返回 state_mismatch；重新发起 OAuth 后注册及登录成功。",
-    "passwordSet": false
+    "passwordSet": false,
+    "adminVerifiedAt": "2026-10-20T17:10:49.112970+00:00",
+    "bootstrapConfigurationChangeSource": "协调者报告已重写生产 secret；本代理未读取或改写真值",
+    "previousAdminAccessFailure": "此前同一 Google 账号已验证但 /admin 显示 Not Found，本次重新登录后已解除"
   },
   "searchConsole": [
     {
@@ -75,5 +78,5 @@
       }
     ]
   },
-  "updatedAt": "2026-10-20T17:06:26.367331+00:00"
+  "updatedAt": "2026-10-20T17:10:49.112970+00:00"
 }
