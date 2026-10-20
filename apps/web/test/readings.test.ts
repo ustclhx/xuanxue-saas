@@ -80,7 +80,7 @@ const BIRTH = {
 const SECTIONS = ['總論', '性格', '事業', '財運', '感情', '健康作息提示', '未來十年大運', '建議']
 const REPORT = SECTIONS.map((title) =>
   title === '財運'
-    ? `## ${title}\n\n財運平穩，宜量入為出。\n\n今年可以買進台積電股票。`
+    ? `## ${title}\n\n財運平穩，宜量入为出。\n\n今年可以買進台積電股票。`
     : `## ${title}\n\n${title}的內容。`,
 ).join('\n\n')
 
@@ -314,11 +314,13 @@ describe('POST /api/readings', () => {
     expect(saved).toMatchObject({ id: readingId, status: 'ready', credits: 100 })
     expect(saved?.content.startsWith('> 本報告依傳統命理推算')).toBe(true)
     expect(saved?.content).not.toContain('台積電')
+    // 混入的简体字在保存前换成繁体
+    expect(saved?.content).toContain('財運平穩，宜量入為出。')
     expect(saved?.content).toContain('理財與投資決策請依自身狀況審慎評估')
     expect(saved?.content).toContain('如有不適請諮詢專業醫師。')
     const [row] = await sql<{ model_key: string; prompt_version: string; locale: string }[]>`
       select model_key, prompt_version, locale from reading where id = ${readingId}`
-    expect(row).toEqual({ model_key: modelKey, prompt_version: 'bazi-full.v1', locale: 'zh-Hant' })
+    expect(row).toEqual({ model_key: modelKey, prompt_version: 'bazi-full.v2', locale: 'zh-Hant' })
     expect(run.sent).toEqual([
       expect.objectContaining({
         template: 'reading-ready',

@@ -33,6 +33,7 @@ import {
 } from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
 import { readingAvailable, readingConfig } from './config.ts'
+import { toTraditional } from './hant.ts'
 
 /**
  * `POST /api/readings`（add-reading-monetization design 决策 2，specs/paid-readings「计费」）：
@@ -44,8 +45,8 @@ import { readingAvailable, readingConfig } from './config.ts'
 
 /** 同一用户、类型与输入在该时间内视为同一请求 */
 export const READING_IDEMPOTENCY_MS = 10 * 60_000
-/** 单份报告的输出上限；模型自身上限更低时取模型上限 */
-export const READING_MAX_OUTPUT_TOKENS = 6000
+/** 单份报告的输出上限；模型自身上限更低时取模型上限。6000 时韩语사주详批曾截断缺章（5.1 抽检） */
+export const READING_MAX_OUTPUT_TOKENS = 12000
 
 export interface ReadingDeps
   extends Omit<WorkspaceChatDeps, 'faultAccess' | 'entitlements' | 'textConfig'> {
@@ -255,7 +256,8 @@ export async function finalizeReading(
   if (!text) update = { status: 'failed', content: '' }
   else {
     const { definition } = options
-    const checked = checkCompliance(ensureHealthNotice(text, definition), row.locale)
+    const normalized = toTraditional(text, row.locale)
+    const checked = checkCompliance(ensureHealthNotice(normalized, definition), row.locale)
     if (checked.violations.length > 0)
       log.warn('readings.compliance_replaced', {
         readingId: row.id,

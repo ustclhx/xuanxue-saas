@@ -7,6 +7,7 @@ import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
+import { toTraditional } from './hant.ts'
 import { Markdown } from './markdown.tsx'
 import { formatPrice, usdCentsFor } from './price.ts'
 import {
@@ -297,7 +298,7 @@ export function ReadingUnlock({
             {phase.name === 'streaming' ? m.readings_generating() : m.readings_report_saved()}
           </p>
         </header>
-        {phase.text && <Markdown source={phase.text} />}
+        {phase.text && <Markdown source={toTraditional(phase.text, locale)} />}
         {href && phase.name === 'done' && (
           <a
             href={href}
