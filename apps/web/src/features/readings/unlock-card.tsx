@@ -12,10 +12,12 @@ import { Markdown } from './markdown.tsx'
 import { formatPrice, usdCentsFor } from './price.ts'
 import {
   createReadingUnlock,
+  getReading,
   getReadingOffer,
   openReadingUnlock,
   type ReadingOffer,
   type ReadingPack,
+  type ReadingView,
 } from './readings.functions.ts'
 import { readReadingStream } from './stream.ts'
 import { readingTitle } from './title.ts'
@@ -107,6 +109,17 @@ type Phase =
   | { readonly name: 'payment-pending' }
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms))
+
+/** 流结束后等待报告同步出最终状态（后台结算可能稍晚于流）；读取失败时返回 null，按流的结果显示 */
+async function settledStatus(slug: string, id: string): Promise<ReadingView['status'] | null> {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const view = await getReading({ data: { slug, id } }).catch(() => null)
+    if (!view) return null
+    if (view.status !== 'generating') return view.status
+    await wait(1000)
+  }
+  return null
+}
 
 export function ReadingUnlock({
   kind,
@@ -200,7 +213,13 @@ export function ReadingUnlock({
     const result = await readReadingStream(response.body, (progress) =>
       setPhase({ name: 'streaming', id, text: progress.text }),
     )
-    if (result.failed && !result.text.trim()) return setPhase({ name: 'failed' })
+    // 章节不全等未完整完成的报告由服务端标记失败并退回积分：流结束后以保存的状态为准
+    const slug = offer?.viewer?.slug
+    const status = slug ? await settledStatus(slug, id) : null
+    if (status === 'failed' || (result.failed && !result.text.trim())) {
+      void refresh()
+      return setPhase({ name: 'failed' })
+    }
     setPhase({ name: 'done', id, text: result.text })
     void refresh()
   }

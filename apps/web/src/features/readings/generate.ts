@@ -170,13 +170,17 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
         workspaceId: workspace.id,
         userId: user.id,
         prompt: messages,
-        // 按次固定价格：完成即收取设置的积分，失败且无可见输出时释放（failedReplyRefund）
+        // 按次固定价格：只有完整报告才收取设置的积分。中断、出错或章节不全（如输出截断）都全额
+        // 释放预扣，报告标记失败，访客可以重新生成（用户决定：优先保证完整体验）
         pricing: {
           mode: 'per_call',
           credits: config.credits,
-          chargeOn: 'any_output',
+          chargeOn: 'success',
           limits: { maxOutputTokens: maxOutputTokens(model) },
         },
+        acceptOutput: (text) =>
+          missingSections(toTraditional(text, body.locale), definition.prompt.sections).length ===
+          0,
       },
       { ...deps, entitlements: readingEntitlements(model.key) },
     )
@@ -253,8 +257,20 @@ export async function finalizeReading(
   if (!message || message.status === 'streaming') return null
   const text = messageText(message.parts).trim()
   let update: Pick<Reading, 'status' | 'content'>
-  if (!text) update = { status: 'failed', content: '' }
-  else {
+  if (!text || message.status !== 'completed') {
+    // 未完整完成的报告（含章节不全被拒收）积分已在结算时释放，不保存残缺正文
+    if (text)
+      log.warn('readings.sections_incomplete', {
+        readingId: row.id,
+        kind: row.kind,
+        messageStatus: message.status,
+        missing: missingSections(
+          toTraditional(text, row.locale),
+          options.definition.prompt.sections,
+        ),
+      })
+    update = { status: 'failed', content: '' }
+  } else {
     const { definition } = options
     const normalized = toTraditional(text, row.locale)
     const checked = checkCompliance(ensureHealthNotice(normalized, definition), row.locale)
@@ -264,14 +280,6 @@ export async function finalizeReading(
         kind: row.kind,
         promptVersion: row.promptVersion,
         violations: checked.violations,
-      })
-    const missing = missingSections(checked.content, definition.prompt.sections)
-    if (missing.length > 0 || message.status !== 'completed')
-      log.warn('readings.sections_incomplete', {
-        readingId: row.id,
-        kind: row.kind,
-        messageStatus: message.status,
-        missing,
       })
     update = { status: 'ready', content: withDisclaimer(checked.content, definition) }
   }

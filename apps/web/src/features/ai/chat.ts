@@ -194,6 +194,8 @@ export async function startWorkspaceChat(
     temperature?: number | undefined
     /** 覆盖模型定价快照（付费详批按次固定价格）；预扣、检查点与兜底结算都读这份快照 */
     pricing?: Pricing
+    /** 正常完成后校验正文（详批章节齐全）；返回 false 时按失败结算并全额退回预扣 */
+    acceptOutput?: (text: string) => boolean
   },
   deps: WorkspaceChatDeps,
 ) {
@@ -440,12 +442,16 @@ export async function startWorkspaceChat(
         failedReplyRefund: textConfig.failedReplyRefund,
       }
       try {
-        if (outcome.status === 'completed') await settleChatMessage(db, usage)
+        const rejected =
+          outcome.status === 'completed' && context.acceptOutput?.(outcome.text) === false
+        if (outcome.status === 'completed' && !rejected) await settleChatMessage(db, usage)
         else
           await settleInterruptedChatMessage(db, {
             ...usage,
-            status: outcome.status,
+            // 走到这里的 completed 只会是被 acceptOutput 拒收的输出
+            status: outcome.status === 'completed' ? 'failed' : outcome.status,
             hasOutput: outcome.text !== '',
+            ...(rejected ? { failedReplyRefund: 'all' as const } : {}),
           })
       } catch (error) {
         log.error('ai.chat.settle_failed', { messageId: assistantId, error })
