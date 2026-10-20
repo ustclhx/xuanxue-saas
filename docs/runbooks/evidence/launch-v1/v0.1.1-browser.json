@@ -1,0 +1,24 @@
+{
+  "recordedAt": "2026-10-20T17:43:17.779366+00:00",
+  "release": "v0.1.1",
+  "sha": "c0dc8cf9cdd075811ead3179b078f19c9fb15661",
+  "testAccount": {
+    "email": "launch-test-20261021@example.org",
+    "retained": true,
+    "passwordLoginAttemptedThisRelease": false,
+    "deleteAttemptedThisRelease": false,
+    "deleteSucceededThisRelease": false,
+    "postDeletionLoginRejectionVerified": false,
+    "blocker": "原密码仅存在操作内存，上一轮被代理清空且未落盘；浏览器登录表单无可用自动填充。已询问能否新建一次性账号完整复验，等待答复。",
+    "passwordPersisted": false
+  },
+  "authenticatedAnalytics": {
+    "site": "arcanumber.com",
+    "adminVisible": ["Admin", "Overview"],
+    "appVisible": ["Personal"],
+    "adminBeaconScripts": [],
+    "appBeaconScripts": [],
+    "passed": true
+  },
+  "anonymousAdminBeaconExclusionPassed": false
+}

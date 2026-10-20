@@ -37,3 +37,11 @@
 - 本轮续跑：Google 常规授权已获协调者确认并完成；账号已注册、邮箱已验证、无密码；协调者重写 bootstrap secret 后重新登录，管理员权限验收通过；2.2 因删号待验收保持未完成。测试账号由协调者修复部署后再验；Bing 先跳过，LCP 只记录。两个 Web Analytics 已创建并立即切为手动，四项匿名 curl HTML 无 beacon，公开 token 已记录；不勾选尚未满足的 2.2/2.3/3.1。
 
 - 管理员复验通过（`2026-10-20T17:10:49.112970+00:00`）：退出后使用同一 Google 账号重新登录，/admin 显示 Admin 导航及 Overview。未读取/重写 secret、未设密码、未写库。删号等待协调者下一步，不提前勾选 2.2。
+
+
+## v0.1.1 复验（c0dc8cf）
+
+- 同 SHA CI/staging 成功后，annotated tag v0.1.1 生产发布成功；两站 /api/health 完整 SHA=`c0dc8cf9cdd075811ead3179b078f19c9fb15661`、db.up，东方 6/西方 3 只读冒烟通过，管理员仍可访问。
+- 2.2 暂不勾选：原测试账号密码仅在操作内存，已被代理于前轮清空，未能完成新版本登录/删号/删除后登录拒绝；账号保留，已询问新账号替代复验，等待答复。
+- 两站首页/定价的本站 beacon token 正确，已认证西方 app/admin 无 beacon；匿名 admin 404 HTML 仍含 beacon，保留失败证据交协调者处理。匿名 app 原始 307 无 beacon，跟随登录页有 beacon，记录两者差异。
+- 2.3 保留旧版本 LCP 实测、不重跑；3.1 Bing 继续等待登录。最新证据与限制见 docs/runbooks/launch-v1.md。

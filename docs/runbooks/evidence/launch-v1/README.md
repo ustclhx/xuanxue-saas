@@ -45,3 +45,13 @@
 Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。
 
 - [web-analytics.json](web-analytics.json)：两个公开 site token、控制台 siteTag、手动模式和两站首页/匿名 app 的四项 curl 无 beacon 验收。
+
+
+## v0.1.1（最新）
+
+- [发布门禁](v0.1.1-release-gates.json)：c0dc8cf 完整 SHA 的 CI/staging 成功。
+- [Actions](v0.1.1-actions.json)：v0.1.1 生产发布全部成功，9 项只读冒烟通过。
+- [HTTP / Analytics](v0.1.1-http-analytics.json)：两域完整 SHA/db 健康、首页/定价 token 正确；匿名 admin 404 仍含 beacon；匿名 app 的原始响应与跟随登录页分别记录，不混淆。
+- [浏览器](v0.1.1-browser.json)：已认证西方 app/admin 无 beacon；原测试账号密码先前被代理清空，删号复验未执行，账号保留。
+
+旧 v0.1.0 无公开页 beacon 与删号失败记录保留为历史；本次不以旧报告冒充新版本验收。

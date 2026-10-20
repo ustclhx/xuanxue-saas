@@ -146,3 +146,11 @@ support@ 的 Cloudflare 收件与 Resend 发件独立。Routing 规则已有 Act
 - 17:05:42 UTC 复查两站 health/db/SHA 通过，首次心跳 `2026-10-20T17:05:09.507Z` 已出现；[心跳证据](evidence/launch-v1/production-heartbeat.json)。测试删号由协调者修复，账号保留，修复部署后再验；Bing 按协调者指示先跳过，LCP 只记录。
 
 - 管理员复验（`2026-10-20T17:10:49.112970+00:00`）：已按协调者要求退出并重新 Google 登录，`/admin` 正常显示完整导航和 Overview；先前 Not Found 阻塞已解除。测试账号与删号验收保持待 PR #43 修复部署后的下一步指示。
+
+
+## v0.1.1 发布（最新，2026-10-20 UTC）
+
+- SHA `c0dc8cf9cdd075811ead3179b078f19c9fb15661`；同 SHA CI `39466361482`、staging `39467310532` 成功后推送 annotated tag v0.1.1，浏览器 production 审批通过。production `39467824210` 全部成功，gh run watch 退出 0；无重跑或代码/工作流变更。
+- 迁移成功，jobs version `a626cb32-4bc4-4cea-87b5-6383b8937117`，web version `4c696e11-9927-4081-9f05-f0630eef40ef`；两站完整 SHA/db 健康和 9 项只读冒烟通过。未更改套餐价格、支付或详批模型。
+- PR #44 按站手动 beacon 已实际发布：首页/定价的本站 token 与 spa=false 均正确；已认证西方 app/admin 无 beacon。匿名 app 原始 307 空正文、跳转后 login 有 beacon；两站匿名 admin 的 404 HTML 仍有 beacon，范围验收未全通过。
+- PR #43 删号修复已发布，但原测试账号随机密码先前仅存内存且已被代理清空，无法重登录；本轮账号未动，等待新测试账号复验授权或其他安全登录方式，不提前声称删号通过。详见 [最新上线记录](launch-v1.md#v011-发布与复验最新) 及 v0.1.1 证据。
