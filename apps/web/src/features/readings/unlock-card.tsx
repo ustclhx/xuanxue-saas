@@ -2,8 +2,10 @@ import { cn } from '@xuanxue/ui'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
+import { templateConfig } from '../../server/template-config.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
+import { siteOfLocale } from '../site/site.ts'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { Markdown } from './markdown.tsx'
 import { formatPrice, usdCentsFor } from './price.ts'
@@ -116,8 +118,11 @@ export function ReadingUnlock({
   /** 仅供本地演示页：使用固定报价，不读取服务端 */
   previewOffer?: ReadingOffer
 }) {
-  const site = useSiteId()
+  const hostSite = useSiteId()
   const locale = getLocale()
+  // 报告站点取语言归属：已登记 Host 上两者一致（gate 跨站重定向）；未登记的 workers.dev
+  // staging 两站页面都按西方站外观渲染，若用 Host 站点，繁中/韩语详批会被服务端拒绝
+  const site = siteOfLocale(locale, templateConfig) ?? hostSite
   const [offer, setOffer] = useState<ReadingOffer | null>(previewOffer ?? null)
   const [phase, setPhase] = useState<Phase>({ name: 'idle' })
   const resumeToken = useRef<string | null>(null)
