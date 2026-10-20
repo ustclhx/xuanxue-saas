@@ -30,7 +30,7 @@ for (const lang of languages) {
       }
     }
     // 页脚的法律页链接带当前语言前缀
-    await expect(page.locator(`footer a[href="${prefix}/legal/refund"]`)).toBeVisible()
+    await expect(page.locator(`footer a[href="${prefix}/refund"]`)).toBeVisible()
   })
 
   test(`博客列表、文章与标签（${lang}）`, async ({ page }) => {

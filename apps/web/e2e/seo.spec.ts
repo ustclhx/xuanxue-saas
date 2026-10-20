@@ -4,7 +4,8 @@ import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
 const { locales, defaultLocale } = templateConfig.i18n
-const publicPaths = ['/', '/pricing', '/privacy', '/terms', '/refund']
+const legalPaths = ['/privacy', '/terms', '/refund']
+const publicPaths = ['/', '/pricing', ...legalPaths]
 if (templateConfig.features.blog)
   publicPaths.push(
     '/blog',
@@ -22,7 +23,10 @@ for (const locale of locales) {
   test(`公开路由 head 与唯一 canonical（${locale}）`, async ({ page }) => {
     const titles = new Set<string>()
     const canonicals = new Set<string>()
-    for (const path of publicPaths) {
+    // 法律页只有英文；其他语言的同一路径显示英文并 noindex（marketing.spec 覆盖）
+    const paths =
+      locale === 'en' ? publicPaths : publicPaths.filter((path) => !legalPaths.includes(path))
+    for (const path of paths) {
       const prefix = locale === defaultLocale ? '' : localePrefix(locale)
       const response = await page.goto(`${prefix}${path === '/' ? '' : path}` || '/')
       expect(response?.status(), path).toBe(200)
