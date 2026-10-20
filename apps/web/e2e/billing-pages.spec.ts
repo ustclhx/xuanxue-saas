@@ -11,11 +11,19 @@ test('public pricing describes unavailable payments without a checkout success',
 }) => {
   await page.goto('/pricing')
   await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-  await expect(
-    page.getByText('Plans shown here are template examples.', { exact: false }),
-  ).toBeVisible()
-  await expect(page.getByRole('status')).toContainText('Payments are currently unavailable')
+  await expect(page.getByRole('status')).toContainText('Online payment is coming soon')
+  const packs = page.getByTestId('pricing-pack')
+  await expect(packs).toHaveCount(2)
+  await expect(packs.first()).toContainText('Single Reading')
+  await expect(packs.first()).toContainText('$0.99')
+  await expect(packs.last()).toContainText('Unlocks 5 full readings')
+  await expect(page.getByRole('link', { name: 'Buy credits' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: /checkout|pay now/i })).toHaveCount(0)
+
+  // 东方站语言版本
+  await page.goto('/ko/pricing')
+  await expect(page.getByRole('heading', { name: '요금 안내', exact: true })).toBeVisible()
+  await expect(page.getByTestId('pricing-pack').first()).toContainText('≈ ₩')
 })
 
 test('billing and usage require a fresh authenticated workspace session', async ({ page }) => {

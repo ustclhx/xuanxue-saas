@@ -25,10 +25,11 @@ for (const lang of languages) {
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(
         'Life Path Number Calculator',
       )
+      // 定价页只卖积分包，不再有模板的功能/评价区块（Stripe 审核不接受虚构评价）
       await page.goto('/pricing')
-      for (const id of ['features', 'testimonials', 'faq']) {
-        await expect(page.locator(`section#${id}`)).toBeVisible()
-      }
+      await expect(page.getByTestId('pricing-pack')).toHaveCount(2)
+      await expect(page.getByText('Loved by builders')).toHaveCount(0)
+      await expect(page.locator('section#testimonials')).toHaveCount(0)
     }
     // 页脚的法律页链接带当前语言前缀
     await expect(page.locator(`footer a[href="${prefix}/refund"]`)).toBeVisible()

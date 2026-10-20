@@ -77,8 +77,8 @@ const staticCopy: Record<string, Record<string, readonly [string, string]>> = {
       'AI conversations, creation and team collaboration in one workspace.',
     ],
     '/pricing': [
-      'Pricing and plans',
-      'Compare subscriptions and credit packs for your AI workspace.',
+      'Pricing: free tools and credit packs',
+      'All numerology and tarot tools are free. Credit packs unlock full AI readings of your own numbers and cards.',
     ],
     '/blog': ['Blog', 'Product updates, practical guides and creation tips.'],
     '/docs': [
@@ -90,7 +90,10 @@ const staticCopy: Record<string, Record<string, readonly [string, string]>> = {
   },
   'zh-Hant': {
     '/': ['AI 工作空間', '在一個工作空間中使用 AI 對話、創作與團隊協作。'],
-    '/pricing': ['定價與方案', '比較訂閱方案與積分包，選擇適合你的 AI 工作空間。'],
+    '/pricing': [
+      '價格方案：免費工具與積分包',
+      '八字、紫微與塔羅工具全部免費；積分包用於解鎖依你命盤撰寫的 AI 完整詳批。',
+    ],
     '/blog': ['部落格', '閱讀產品更新、實用指南與創作技巧。'],
     '/docs': ['文件', '查閱工作空間的入門、設定與內容指南。'],
     '/newsletter': ['訂閱電子報', '訂閱電子報，取得最新產品消息。'],
@@ -98,7 +101,10 @@ const staticCopy: Record<string, Record<string, readonly [string, string]>> = {
   },
   ko: {
     '/': ['AI 워크스페이스', 'AI 대화, 창작, 팀 협업을 하나의 워크스페이스에서.'],
-    '/pricing': ['요금제', 'AI 워크스페이스에 맞는 구독 요금제와 크레딧 팩을 비교해 보세요.'],
+    '/pricing': [
+      '요금 안내: 무료 도구와 크레딧 팩',
+      '만세력·사주·타로 도구는 모두 무료이며, 크레딧 팩으로 내 명식에 맞춘 AI 상세 풀이를 이용할 수 있습니다.',
+    ],
     '/blog': ['블로그', '제품 소식, 실용 가이드와 창작 팁을 읽어 보세요.'],
     '/docs': ['문서', '워크스페이스 시작하기, 설정, 콘텐츠 가이드를 확인하세요.'],
     '/newsletter': ['뉴스레터', '뉴스레터를 구독하고 최신 제품 소식을 받아 보세요.'],

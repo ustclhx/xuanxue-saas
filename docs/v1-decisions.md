@@ -8,7 +8,7 @@
 | D2 | 东西两站的品牌名与正式域名 | 决策 + 购买 | hreflang 绝对地址、站点地图、OG、Organization 结构化数据、OAuth 回调 | — | 已决定（2026-10-20，域名已购买）：东方站 `ganjiday.com`，品牌 繁中「干支日」/ 韩语「간지데이」/ 标识 Ganjiday；西方站 `arcanumber.com`，各语言统一 Arcanumber（副标题本地化）。www 由 Cloudflare 重定向到裸域 |
 | D3 | 法国本地搜索量重核（`doc/design.md` §8 方式 B） | 人工 | 是否启动法语站 | v1 不做法语 | 待你在 Keyword Planner 导出 |
 | D5 | 韩语만세력是否默认开启「진태양시」（真太阳时）修正 | 决策 | `/ko/` 时柱：与韩国常见만세력一致（首尔约 −32 分钟） | — | 已决定：默认开启（`KO_TRUE_SOLAR_DEFAULT = true`，访客可关闭） |
-| D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 法律页运营者、联系方式；支付主体 | — | 已决定（2026-10-20）：个人开发者（税务居住地 CN），法律页以品牌名称呼运营者，不公开姓名与地址，只留各站联系邮箱 `support@arcanumber.com` / `support@ganjiday.com`（Cloudflare Email Routing 转发）。支付先接 Creem（MoR，个人可申请），后续注册美国公司后接 Stripe。法律文本仍需人工审阅 |
+| D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 法律页运营者、联系方式；支付主体 | — | 已决定（2026-10-20）：个人开发者（税务居住地 CN），法律页以品牌名称呼运营者，不公开姓名与地址，只留各站联系邮箱 `support@arcanumber.com` / `support@ganjiday.com`（Cloudflare Email Routing 转发）。支付：不接 Creem；先上线到可通过 Stripe 审核的状态（生产不配置支付密钥，定价页显示「即将开放」、详批解锁入口自动隐藏），注册美国公司后接 Stripe。法律文本仍需人工审阅 |
 | D4 | 台湾 / 韩国本地官方搜索量 | 人工 | 长尾页优先级 | 按设计文档的第三方口径排期 | 待你在 Keyword Planner 导出 |
 
 ## D1 测试接入（DeepSeek `deepseek-flash`）
