@@ -4,8 +4,8 @@ import { authUiOptions } from './options.ts'
 
 const app = {
   name: 'Test',
-  url: 'https://xuanxue-west.example',
-  supportEmail: 'support@xuanxue-west.example',
+  url: 'https://arcanumber.com',
+  supportEmail: 'support@arcanumber.com',
 }
 const credentials = {
   GOOGLE_CLIENT_ID: 'id',

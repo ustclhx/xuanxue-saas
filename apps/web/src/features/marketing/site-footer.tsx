@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { siteBrandName } from '@xuanxue/config'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { SiteLogo } from '../site/brand.tsx'
 import { useSiteId } from '../site/context.tsx'
@@ -10,7 +12,7 @@ const footerLink = 'inline-flex min-h-11 items-center text-ink-subtle text-sm ho
 /** 页脚区块：品牌（按站点）、产品、资源与法律页链接 */
 export function SiteFooter() {
   const siteId = useSiteId()
-  const brand = templateConfig.sites[siteId].brand.name
+  const brand = siteBrandName(templateConfig, siteId, getLocale())
   return (
     <footer className="border-line border-t bg-background">
       <div className="mx-auto grid max-w-[1120px] gap-8 px-4 py-10 sm:grid-cols-4 sm:px-6">

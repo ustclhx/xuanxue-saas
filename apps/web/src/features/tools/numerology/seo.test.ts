@@ -33,7 +33,7 @@ const content: Entry[] = JSON.parse(
     .trim()
     .replace(/;$/, ''),
 )
-const origin = 'https://xuanxue-west.example'
+const origin = 'https://arcanumber.com'
 
 describe('数字命理页 SEO（tasks.md 2.3）', () => {
   const contentPages = content.filter((page) => page.slug !== 'life-path-number')
@@ -117,11 +117,10 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
           link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
         )
         expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual({
-          en: `https://xuanxue-west.example${tarotPath(spread, 'en')}`,
-          'zh-Hant': new URL(`https://xuanxue-east.example/zh-hant${tarotPath(spread, 'zh-Hant')}`)
-            .href,
-          ko: new URL(`https://xuanxue-east.example/ko${tarotPath(spread, 'ko')}`).href,
-          'x-default': `https://xuanxue-west.example${tarotPath(spread, 'en')}`,
+          en: `https://arcanumber.com${tarotPath(spread, 'en')}`,
+          'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`).href,
+          ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
+          'x-default': `https://arcanumber.com${tarotPath(spread, 'en')}`,
         })
       }
   })

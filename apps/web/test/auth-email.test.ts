@@ -36,7 +36,7 @@ function setup() {
           queued.push(body)
         },
       },
-      appName: 'TestApp',
+      appName: () => 'TestApp',
       appUrl: APP_URL,
       resolveLocale: userLocaleByEmail(db),
     }),

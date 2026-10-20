@@ -115,12 +115,15 @@
       "name": "xuanxue-web-production",
       "workers_dev": false,
       "preview_urls": false,
-      "routes": [{ "pattern": "configure-production-domain.invalid", "custom_domain": true }],
+      "routes": [
+        { "pattern": "ganjiday.com", "custom_domain": true },
+        { "pattern": "arcanumber.com", "custom_domain": true }
+      ],
 
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
-        "APP_URL": "https://xuanxue-west.example",
+        "APP_URL": "https://arcanumber.com",
         "TURNSTILE_SITE_KEY": "",
         "AI_TEXT_EGRESS": "direct",
         "R2_ACCOUNT_ID": "",

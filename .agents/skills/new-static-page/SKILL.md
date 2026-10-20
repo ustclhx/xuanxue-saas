@@ -53,7 +53,7 @@ UI 文案写入 `apps/web/messages/<locale>/<feature>.json`，沿用现有键名
 pnpm check
 pnpm --filter @xuanxue/web typecheck
 pnpm --filter @xuanxue/web test --project unit src/features/marketing/content.test.ts src/features/marketing/prerender.test.ts src/features/seo
-APP_URL=https://xuanxue-west.example pnpm --filter @xuanxue/web build
+APP_URL=https://arcanumber.com pnpm --filter @xuanxue/web build
 git diff --check
 ```
 

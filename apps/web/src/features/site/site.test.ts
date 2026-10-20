@@ -3,15 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { gateSiteRequest, routeSite } from './gate.ts'
 import { requestSiteOrigin, resolveSite, siteHosts, siteOfLocale, siteOrigin } from './site.ts'
 
-const EAST = 'https://xuanxue-east.example'
-const WEST = 'https://xuanxue-west.example'
+const EAST = 'https://ganjiday.com'
+const WEST = 'https://arcanumber.com'
 const config = defineTemplateConfig({
-  app: { name: 'xuanxue', url: WEST, supportEmail: 'support@xuanxue-west.example' },
+  app: { name: 'xuanxue', url: WEST, supportEmail: 'support@arcanumber.com' },
   i18n: { locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
   sites: {
-    east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+    east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
     west: {
-      hosts: ['xuanxue-west.example', 'www.xuanxue-west.example'],
+      hosts: ['arcanumber.com', 'www.arcanumber.com'],
       locales: ['en'],
       defaultLocale: 'en',
     },
@@ -22,9 +22,9 @@ const pass = { kind: 'pass', noindex: false }
 
 describe('按域名识别站点（specs/multi-site）', () => {
   it('登记的 Host 识别为对应站点，忽略端口与大小写', () => {
-    expect(resolveSite('xuanxue-east.example', config)).toEqual({ id: 'east', known: true })
-    expect(resolveSite('XUANXUE-EAST.example:443', config)).toEqual({ id: 'east', known: true })
-    expect(resolveSite('www.xuanxue-west.example', config)).toEqual({ id: 'west', known: true })
+    expect(resolveSite('ganjiday.com', config)).toEqual({ id: 'east', known: true })
+    expect(resolveSite('GANJIDAY.COM:443', config)).toEqual({ id: 'east', known: true })
+    expect(resolveSite('www.arcanumber.com', config)).toEqual({ id: 'west', known: true })
   })
 
   it('本地开发用 <站点>.localhost 访问对应站点', () => {
@@ -95,8 +95,8 @@ describe('语言归属站点', () => {
     const preview = 'https://xuanxue-web-staging.example.workers.dev'
     expect(siteOrigin('east', new URL(`${preview}/app/x`), config)).toBe(preview)
     expect(siteOrigin('west', new URL(`${preview}/`), config)).toBe(preview)
-    expect(siteOrigin('east', new URL('https://xuanxue-west.example/'), config)).toBe(
-      'https://xuanxue-east.example',
+    expect(siteOrigin('east', new URL('https://arcanumber.com/'), config)).toBe(
+      'https://ganjiday.com',
     )
   })
 
@@ -202,14 +202,14 @@ describe('gateSiteRequest', () => {
 describe('两站各自登录的 Host 白名单（决策 4）', () => {
   it('生产只接受注册表中的域名；APP_URL 指向本机时加入同端口的 <站点>.localhost', () => {
     expect(siteHosts(config, WEST)).toEqual([
-      'xuanxue-east.example',
-      'xuanxue-west.example',
-      'www.xuanxue-west.example',
+      'ganjiday.com',
+      'arcanumber.com',
+      'www.arcanumber.com',
     ])
     expect(siteHosts(config, 'http://localhost:27070')).toEqual([
-      'xuanxue-east.example',
-      'xuanxue-west.example',
-      'www.xuanxue-west.example',
+      'ganjiday.com',
+      'arcanumber.com',
+      'www.arcanumber.com',
       'east.localhost:27070',
       'west.localhost:27070',
     ])

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { brandName } from '@xuanxue/config'
 import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
@@ -28,7 +29,7 @@ for (const locale of locales) {
       const title = await page.title()
       // 东方站语言首页的 Title 按设计文档原文，不追加站名（openspec add-bazi-saju-chart）
       if (!(path === '/' && ['zh-Hant', 'ko'].includes(locale)))
-        expect(title, path).toContain(templateConfig.app.name)
+        expect(title, path).toContain(brandName(templateConfig, locale))
       expect(titles.has(title), path).toBe(false)
       titles.add(title)
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')

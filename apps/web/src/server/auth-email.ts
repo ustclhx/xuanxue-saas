@@ -53,7 +53,8 @@ export interface QueueAuthEmailSenderOptions {
   /** `env.EMAIL_QUEUE`（测试中可传入记录消息的假实现） */
   readonly queue: Pick<QueueProducer<EmailQueueMessage>, 'send'>
   /** `template.config.ts` 的 `app.name`，随消息带给消费者用于渲染 */
-  readonly appName: string
+  /** 按收件人语言取品牌名（两站品牌不同） */
+  readonly appName: (locale: string | null) => string
   /** `APP_URL`，用于拼接邀请链接 */
   readonly appUrl: string
   /** 按收件人邮箱查语言（`user.locale`）；不提供或查不到时用默认语言 */
@@ -70,7 +71,7 @@ export function createQueueAuthEmailSender(options: QueueAuthEmailSenderOptions)
       props,
       to: email.to,
       locale,
-      appName: options.appName,
+      appName: options.appName(locale),
       // 入队时生成，重试时不变：服务商据此去重
       idempotencyKey: newId(),
     } as EmailQueueMessage

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/api/dev/email')({
           const origin = new URL(request.url).origin
           const sendEmail = createQueueAuthEmailSender({
             queue,
-            appName: 'Dev',
+            appName: () => 'Dev',
             appUrl: origin,
           })
           await sendEmail({ type: 'verify-email', to: 'dev@example.com', url: `${origin}/` })

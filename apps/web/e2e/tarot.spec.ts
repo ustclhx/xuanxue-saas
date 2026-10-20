@@ -119,7 +119,7 @@ for (const { locale, path, shuffle, title, positions } of [
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
       'href',
-      'https://xuanxue-west.example/tarot',
+      'https://arcanumber.com/tarot',
     )
     await draw(page, shuffle)
     await page.getByRole('button', { name: /全部翻開|모두 열기/ }).click()

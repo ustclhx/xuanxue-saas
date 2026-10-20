@@ -7,18 +7,30 @@ import { defineTemplateConfig } from '@xuanxue/config'
  */
 export default defineTemplateConfig({
   app: {
-    name: 'xuanxue',
-    url: 'https://xuanxue-west.example',
-    supportEmail: 'support@xuanxue-west.example',
+    // 未区分站点的场景（如认证库内部、无语言的邮件）使用西方站品牌
+    name: 'Arcanumber',
+    url: 'https://arcanumber.com',
+    supportEmail: 'support@arcanumber.com',
   },
   i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
   // 站点注册表：同一个 Worker 按 Host 区分东方站与西方站，每种语言只属于一个站点。
-  // 域名为占位（真实域名见 launch-v1-production）；第一个 host 为规范域名。
+  // 第一个 host 为规范域名；www 由 Cloudflare 重定向规则跳到裸域（决策 D2，docs/v1-decisions.md）。
+  // 两站品牌分开，搜索引擎不把两站视为同一实体（launch-v1-production design）。
   sites: {
     // 东方站没有无前缀的默认语言，根路径为语言入口页；后续加入 ja
-    east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
-    // 后续加入 fr / de / nl / it
-    west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+    east: {
+      hosts: ['ganjiday.com'],
+      locales: ['zh-Hant', 'ko'],
+      defaultLocale: null,
+      brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日', ko: '간지데이' } },
+    },
+    // 后续加入 fr / de / nl / it，各语言统一使用 Arcanumber
+    west: {
+      hosts: ['arcanumber.com'],
+      locales: ['en'],
+      defaultLocale: 'en',
+      brand: { name: 'Arcanumber' },
+    },
   },
   tenancy: {
     multiTenant: false, // false = 仅个人空间；true = 允许团队 workspace

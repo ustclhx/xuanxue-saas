@@ -57,7 +57,7 @@ describe('文案回退与缺失检查（tasks.md 1.3）', () => {
 
   it('语言前缀使用小写语言 id，默认语言无前缀（add-dual-site-foundation 1.2）', async () => {
     const runtime = await import(join(root, 'src/paraglide/runtime.js'))
-    const url = (path: string) => `https://xuanxue-east.example${path}`
+    const url = (path: string) => `https://ganjiday.com${path}`
     expect(runtime.localizeUrl(url('/pricing'), { locale: 'zh-Hant' }).pathname).toBe(
       '/zh-hant/pricing',
     )
@@ -107,7 +107,7 @@ it('关闭 i18n 后真实编译仅保留默认繁中，账号 Cookie 和语言 U
     expect(m.common_save()).toBe('儲存')
     for (const path of ['/app', '/en/pricing', '/zh-hant/pricing']) {
       const response = await paraglideMiddleware(
-        new Request(`https://xuanxue-west.example${path}`, {
+        new Request(`https://arcanumber.com${path}`, {
           headers: { cookie: 'PARAGLIDE_LOCALE=en' },
         }),
         () => new Response(runtime.getLocale()),

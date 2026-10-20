@@ -13,7 +13,7 @@ function setup(resolveLocale?: (email: string) => Promise<string | null>) {
         sent.push({ body, options })
       },
     },
-    appName: 'xuanxue',
+    appName: () => 'xuanxue',
     appUrl: APP_URL,
     ...(resolveLocale && { resolveLocale }),
   })

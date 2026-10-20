@@ -47,7 +47,7 @@ describe('工具页埋点', () => {
     )
     const { defineTemplateConfig } = await import('@xuanxue/config')
     const config = defineTemplateConfig({
-      app: { name: 'Test', url: 'https://xuanxue-west.example', supportEmail: 't@example.com' },
+      app: { name: 'Test', url: 'https://arcanumber.com', supportEmail: 't@example.com' },
       features: { analytics: 'posthog' },
       analytics: { posthogKey: 'public-key', posthogHost: 'https://eu.i.posthog.com' },
     })
@@ -61,7 +61,7 @@ describe('工具页埋点', () => {
     vi.stubGlobal(
       'window',
       Object.assign(new EventTarget(), {
-        location: { pathname: '/ko/manseryeok/', origin: 'https://xuanxue-east.example' },
+        location: { pathname: '/ko/manseryeok/', origin: 'https://ganjiday.com' },
         posthog,
       }),
     )

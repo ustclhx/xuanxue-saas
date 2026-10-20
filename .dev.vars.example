@@ -1,5 +1,5 @@
 # 密钥为空，APP_URL 为公开默认值；复制到对应 app 的 .dev.vars 后填写。
-APP_URL=https://xuanxue-west.example
+APP_URL=https://arcanumber.com
 EMAIL_TRANSPORT=
 EMAIL_FROM=
 EMAIL_REPLY_TO=

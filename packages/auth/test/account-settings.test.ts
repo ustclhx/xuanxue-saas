@@ -60,7 +60,7 @@ describe('资料、语言与时区', () => {
       '/update-user',
       {
         name: '  New Name  ',
-        image: 'https://xuanxue-west.example/a.png',
+        image: 'https://arcanumber.com/a.png',
         locale: 'zh-Hant',
         timezone: 'Asia/Shanghai',
       },
@@ -69,7 +69,7 @@ describe('资料、语言与时区', () => {
     expect(res.status).toBe(200)
     expect(await userRow(s, u.userId)).toMatchObject({
       name: 'New Name',
-      image: 'https://xuanxue-west.example/a.png',
+      image: 'https://arcanumber.com/a.png',
       locale: 'zh-Hant',
       timezone: 'Asia/Shanghai',
     })

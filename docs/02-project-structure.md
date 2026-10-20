@@ -97,12 +97,16 @@ xuanxue/
 
 ```ts
 export default defineTemplateConfig({
-  app: { name: 'xuanxue', url: 'https://xuanxue-west.example', supportEmail: 'support@xuanxue-west.example' },
+  app: { name: 'Arcanumber', url: 'https://arcanumber.com', supportEmail: 'support@arcanumber.com' },
   i18n: { locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
-  // 站点注册表：同一个 Worker 按 Host 区分站点，每种语言只属于一个站点（第一个 host 为规范域名）
+  // 站点注册表：同一个 Worker 按 Host 区分站点，每种语言只属于一个站点（第一个 host 为规范域名）。
+  // brand.names 为各语言显示名，页面标题、og:site_name、结构化数据与邮件经 brandName() 按语言取用
   sites: {
-    east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
-    west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+    east: {
+      hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null,
+      brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日', ko: '간지데이' } },
+    },
+    west: { hosts: ['arcanumber.com'], locales: ['en'], defaultLocale: 'en', brand: { name: 'Arcanumber' } },
   },
   tenancy: {
     multiTenant: false,          // false = 仅个人空间；true = 允许团队 workspace

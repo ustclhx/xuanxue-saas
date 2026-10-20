@@ -1,3 +1,4 @@
+import { brandName } from '@xuanxue/config'
 import { newsletterSubscriber } from '@xuanxue/db'
 import { EMAIL_QUEUE_MESSAGE_VERSION } from '@xuanxue/email/queue'
 import { requireCapability } from '@xuanxue/platform'
@@ -53,7 +54,7 @@ export async function deliverReading(ctx: GrowthContext, row: Subscriber): Promi
       template: 'reading-summary',
       to: row.email,
       locale: input.locale,
-      appName: ctx.config.app.name,
+      appName: brandName(ctx.config, input.locale),
       idempotencyKey: `reading-summary:${row.id}:${id}`,
       props,
     })

@@ -10,7 +10,7 @@ const otherLocale = locales.find((locale) => locale !== baseLocale) ?? baseLocal
 const otherPrefix = localePrefix(otherLocale)
 const enabled = templateConfig.i18n.enabled
 
-const origin = 'https://xuanxue-west.example'
+const origin = 'https://arcanumber.com'
 const url = (path: string) => new URL(path, origin)
 const gated = (path: string) => new URL(gateLocaleRequest(new Request(url(path))).url).pathname
 const input = (path: string) => new URL(String(localeRewrite.input({ url: url(path) }))).pathname

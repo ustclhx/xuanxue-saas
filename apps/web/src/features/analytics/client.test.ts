@@ -8,7 +8,7 @@ import {
 } from './client.ts'
 
 const config = defineTemplateConfig({
-  app: { name: 'Test', url: 'https://xuanxue-west.example', supportEmail: 'test@example.com' },
+  app: { name: 'Test', url: 'https://arcanumber.com', supportEmail: 'test@example.com' },
   features: { analytics: 'posthog' },
   analytics: { posthogKey: 'public-key', posthogHost: 'https://eu.i.posthog.com' },
 })
@@ -34,7 +34,7 @@ beforeEach(() => {
   }
   scripts = []
   browser = Object.assign(new EventTarget(), {
-    location: { pathname: '/', origin: 'https://xuanxue-west.example' },
+    location: { pathname: '/', origin: 'https://arcanumber.com' },
   })
   const values = new Map<string, string>()
   vi.stubGlobal('window', browser)
@@ -88,7 +88,7 @@ describe('PostHog 同意与路由边界', () => {
       expect.objectContaining({ api_host: 'https://eu.i.posthog.com', respect_dnt: true }),
     )
     expect(posthog.capture).toHaveBeenCalledWith('$pageview', {
-      $current_url: 'https://xuanxue-west.example/',
+      $current_url: 'https://arcanumber.com/',
     })
     const beforeSend = posthog.init.mock.calls[0]?.[1].before_send
     expect(beforeSend({ event: '$pageview' })).toEqual({ event: '$pageview' })
@@ -117,7 +117,7 @@ describe('PostHog 同意与路由边界', () => {
     stop = startPostHog(config)
     expect(posthog.init).toHaveBeenCalledTimes(1)
     expect(posthog.capture).toHaveBeenLastCalledWith('$pageview', {
-      $current_url: 'https://xuanxue-west.example/app/personal/chat',
+      $current_url: 'https://arcanumber.com/app/personal/chat',
     })
     browser.location.pathname = '/admin'
     stop()

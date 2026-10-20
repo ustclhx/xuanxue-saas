@@ -94,13 +94,11 @@ describe('三语牌义内容与 SEO', () => {
         head.links.flatMap((link) => ('hrefLang' in link ? [[link.hrefLang, link.href]] : [])),
       )
       const slug = page.path.split('/').at(-1) ?? ''
-      const en = `https://xuanxue-west.example${tarotMeaningPath(slug, 'en')}`
+      const en = `https://arcanumber.com${tarotMeaningPath(slug, 'en')}`
       expect(alternate).toEqual({
         en,
-        'zh-Hant': new URL(
-          `https://xuanxue-east.example/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
-        ).href,
-        ko: new URL(`https://xuanxue-east.example/ko${tarotMeaningPath(slug, 'ko')}`).href,
+        'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`).href,
+        ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
         'x-default': en,
       })
       expect(xml).toContain(`<loc>${alternate[page.locale]}</loc>`)

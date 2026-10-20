@@ -35,8 +35,8 @@ const refundMail = (send: (message: EmailQueueMessage) => void) => {
   return {
     db,
     queue: { send: async (message: EmailQueueMessage) => send(message) },
-    appName: 'TestApp',
-    supportEmail: 'support@xuanxue-west.example',
+    appName: () => 'TestApp',
+    supportEmail: 'support@arcanumber.com',
   } as unknown as Parameters<typeof notifyRefundRequest>[0]
 }
 const notification = {

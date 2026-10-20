@@ -22,6 +22,7 @@ export {
 export * from './media.ts'
 export {
   type AiModality,
+  brandName,
   type DefaultLocale,
   defineTemplateConfig,
   localeUrlSegment,
@@ -32,6 +33,7 @@ export {
   SITE_IDS,
   type SiteConfig,
   type SiteId,
+  siteBrandName,
   type TemplateConfig,
   type TemplateConfigInput,
   templateConfigDefaults,

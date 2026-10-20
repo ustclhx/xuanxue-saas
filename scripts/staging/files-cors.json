@@ -2,7 +2,7 @@
   "rules": [
     {
       "allowed": {
-        "origins": ["https://xuanxue-west.example"],
+        "origins": ["https://xuanxue-web-staging.saas-jobs.workers.dev"],
         "methods": ["PUT", "GET", "HEAD"],
         "headers": ["Content-Type", "If-None-Match"]
       },

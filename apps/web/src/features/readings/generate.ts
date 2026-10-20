@@ -1,6 +1,6 @@
 import { messageText, textModelConfig } from '@xuanxue/ai'
 import { requireFreshSession } from '@xuanxue/auth'
-import { SITE_IDS } from '@xuanxue/config'
+import { brandName, SITE_IDS } from '@xuanxue/config'
 import {
   type AiModel,
   aiMessage,
@@ -306,7 +306,7 @@ async function sendReadingEmail(
       v: EMAIL_QUEUE_MESSAGE_VERSION,
       to: email.to,
       locale: email.locale,
-      appName: templateConfig.app.name,
+      appName: brandName(templateConfig, email.locale),
       idempotencyKey: `reading-ready:${email.id}`,
       template: 'reading-ready',
       props: { url: email.url },

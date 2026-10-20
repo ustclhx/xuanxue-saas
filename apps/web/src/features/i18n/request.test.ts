@@ -17,7 +17,7 @@ vi.mock('@xuanxue/auth', async (original) => ({
 const runtime = { db: {}, auth: {} } as Pick<WebRuntime, 'db' | 'auth'>
 
 const pause = () => new Promise((resolve) => setTimeout(resolve, 5))
-const origin = 'https://xuanxue-west.example'
+const origin = 'https://arcanumber.com'
 
 describe('请求级语言与只读会话隔离', () => {
   it('并发账号请求各自保留会话与语言，同一请求只读取一次会话', async () => {

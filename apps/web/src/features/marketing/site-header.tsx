@@ -1,4 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { siteBrandName } from '@xuanxue/config'
 import { Button } from '@xuanxue/ui'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
@@ -34,7 +35,7 @@ export function SiteHeader() {
         <Link to="/" className="flex min-h-11 items-center gap-2.5 text-ink">
           <SiteLogo site={siteId} />
           <span className="font-bold font-heading text-xl tracking-wide">
-            {templateConfig.sites[siteId].brand.name}
+            {siteBrandName(templateConfig, siteId, locale)}
           </span>
         </Link>
         <nav

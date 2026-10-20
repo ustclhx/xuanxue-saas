@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { brandName } from '@xuanxue/config'
 import {
   Alert,
   AlertDescription,
@@ -11,6 +12,7 @@ import {
   Separator,
 } from '@xuanxue/ui'
 import { type ReactNode, useEffect, useState } from 'react'
+import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { LanguageControls } from '../i18n/language-controls.tsx'
 import { ThemeToggle } from '../theme/theme-toggle.tsx'
@@ -36,7 +38,7 @@ export function AuthLayout({
         to="/"
         className="rounded-sm font-semibold text-foreground text-lg tracking-tight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
-        {templateConfig.app.name}
+        {brandName(templateConfig, getLocale())}
       </Link>
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">

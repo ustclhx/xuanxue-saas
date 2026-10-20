@@ -1,18 +1,20 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
+  brandName,
   defineTemplateConfig,
   localeUrlSegment,
   type MediaProviderId,
   type PaymentProvider,
   type PricingMode,
+  siteBrandName,
   type TemplateConfig,
   templateConfigDefaults,
 } from './template.ts'
 
 const app = {
   name: 'xuanxue',
-  url: 'https://xuanxue-west.example',
-  supportEmail: 'support@xuanxue-west.example',
+  url: 'https://arcanumber.com',
+  supportEmail: 'support@arcanumber.com',
 }
 
 describe('defineTemplateConfig', () => {
@@ -144,8 +146,8 @@ describe('defineTemplateConfig', () => {
 })
 
 const sites = {
-  east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
-  west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+  east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+  west: { hosts: ['arcanumber.com'], locales: ['en'], defaultLocale: 'en' },
 } as const
 
 describe('sites', () => {
@@ -153,12 +155,12 @@ describe('sites', () => {
 
   it('puts every locale on the west site when no registry is configured', () => {
     expect(defineTemplateConfig({ app }).sites).toEqual({
-      east: { hosts: [], locales: [], defaultLocale: null, brand: { name: 'xuanxue' } },
+      east: { hosts: [], locales: [], defaultLocale: null, brand: { name: 'xuanxue', names: {} } },
       west: {
-        hosts: ['xuanxue-west.example'],
+        hosts: ['arcanumber.com'],
         locales: ['en', 'zh-Hant', 'ko'],
         defaultLocale: 'en',
-        brand: { name: 'xuanxue' },
+        brand: { name: 'xuanxue', names: {} },
       },
     })
   })
@@ -167,11 +169,36 @@ describe('sites', () => {
     const config = defineTemplateConfig({
       app,
       i18n,
-      sites: { ...sites, east: { ...sites.east, brand: { name: '玄學' } } },
+      sites: {
+        ...sites,
+        east: { ...sites.east, brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } } },
+      },
     })
-    expect(config.sites.east).toEqual({ ...sites.east, brand: { name: '玄學' } })
-    expect(config.sites.west).toEqual({ ...sites.west, brand: { name: 'xuanxue' } })
+    expect(config.sites.east).toEqual({
+      ...sites.east,
+      brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } },
+    })
+    expect(config.sites.west).toEqual({ ...sites.west, brand: { name: 'xuanxue', names: {} } })
     expectTypeOf(config.sites.east.defaultLocale).toEqualTypeOf<'en' | 'zh-Hant' | 'ko' | null>()
+  })
+
+  it('resolves the brand name by locale: locale name, then site name, then app name', () => {
+    const config = defineTemplateConfig({
+      app,
+      i18n,
+      sites: {
+        ...sites,
+        east: { ...sites.east, brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } } },
+      },
+    })
+    expect(brandName(config, 'zh-Hant')).toBe('干支日')
+    expect(brandName(config, 'ko')).toBe('Ganjiday')
+    expect(brandName(config, 'en')).toBe('xuanxue')
+    expect(brandName(config, null)).toBe('xuanxue')
+    expect(brandName(config, 'fr')).toBe('xuanxue')
+    expect(brandName(config, 'zh-TW')).toBe('干支日')
+    expect(brandName(config, 'ko-KR')).toBe('Ganjiday')
+    expect(siteBrandName(config, 'east')).toBe('Ganjiday')
   })
 
   it.each([
@@ -192,10 +219,11 @@ describe('sites', () => {
     ],
     ['a site with locales but no host', { east: { ...sites.east, hosts: [] } }, 'east.hosts'],
     [
-      'a duplicated host',
-      { east: { ...sites.east, hosts: ['xuanxue-west.example'] } },
-      'listed twice',
+      'a brand name for a foreign locale',
+      { east: { ...sites.east, brand: { names: { en: 'x' } } } },
+      'brand.names.en',
     ],
+    ['a duplicated host', { east: { ...sites.east, hosts: ['arcanumber.com'] } }, 'listed twice'],
     [
       'an uppercase host',
       { east: { ...sites.east, hosts: ['Xuanxue-East.example'] } },

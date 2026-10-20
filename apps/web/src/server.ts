@@ -8,7 +8,7 @@
 
 import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server'
 import { type AuthEmail, parseAuthEnv, type SendAuthEmail } from '@xuanxue/auth'
-import { loadEnv } from '@xuanxue/config'
+import { brandName, loadEnv } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore, RequestMetadata } from '@xuanxue/platform'
 import {
@@ -184,7 +184,7 @@ function createCloudflareWebRuntime(
   const createAuth = (db: Database, authCache: KeyValueStore = cache) => {
     const queued = createQueueAuthEmailSender({
       queue,
-      appName: templateConfig.app.name,
+      appName: (locale) => brandName(templateConfig, locale),
       appUrl: config.APP_URL,
       resolveLocale: userLocaleByEmail(db),
     })

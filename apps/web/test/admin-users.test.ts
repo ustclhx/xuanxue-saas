@@ -31,7 +31,7 @@ const runtimeConfig = {
 }
 const auth = createAuth({ APP_URL, BETTER_AUTH_SECRET: SECRET }, db, {
   config: defineTemplateConfig({
-    app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@xuanxue-west.example' },
+    app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@arcanumber.com' },
     auth: { oauth: [], turnstile: false },
   }),
   sendEmail: async () => {},

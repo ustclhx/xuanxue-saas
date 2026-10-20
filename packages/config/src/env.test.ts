@@ -77,12 +77,12 @@ describe('loadEnv', () => {
       const env = loadEnv(
         {
           HYPERDRIVE: { connectionString: SECRET },
-          APP_URL: 'https://xuanxue-west.example',
+          APP_URL: 'https://arcanumber.com',
           API_KEY: 'k'.repeat(32),
         },
         schema,
       )
-      expect(env.APP_URL).toBe('https://xuanxue-west.example')
+      expect(env.APP_URL).toBe('https://arcanumber.com')
       expect(env.OPTIONAL_FLAG).toBeUndefined()
       expectTypeOf(env.APP_URL).toEqualTypeOf<string>()
       expectTypeOf(env.OPTIONAL_FLAG).toEqualTypeOf<'on' | 'off' | undefined>()

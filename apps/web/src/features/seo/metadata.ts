@@ -1,5 +1,5 @@
 import type { AnyRouteMatch } from '@tanstack/react-router'
-import type { SiteId } from '@xuanxue/config'
+import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
@@ -142,6 +142,13 @@ export function eastEntryPage(): SeoPage {
   }
 }
 
+/** 页面所属站点在该语言下的品牌名；东方站语言入口页（无语言）用站点品牌名 */
+export function pageBrand(page: Pick<SeoPage, 'locale' | 'siteEntry'>): string {
+  return page.siteEntry
+    ? siteBrandName(templateConfig, page.siteEntry)
+    : brandName(templateConfig, page.locale)
+}
+
 export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale' | 'siteEntry'>): string {
   if (page.siteEntry) return `/og/${page.siteEntry}/index.png`
   const path = page.path.replace(/\/+$/, '') || '/'
@@ -151,7 +158,8 @@ export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale' | 'siteEntry'>
 export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly unknown[] = []) {
   appUrl = page.siteEntry ? seoSiteOrigin(page.siteEntry) : localeOrigin(page.locale)
   const url = absoluteUrl(appUrl, page.siteEntry ? '/' : localizedPath(page.path, page.locale))
-  const title = `${page.title} | ${templateConfig.app.name}`
+  const brand = pageBrand(page)
+  const title = `${page.title} | ${brand}`
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
     : absoluteUrl(appUrl, ogImagePath(page))
@@ -162,7 +170,7 @@ export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly
       { property: 'og:title', content: title },
       { property: 'og:description', content: page.description },
       { property: 'og:url', content: url },
-      { property: 'og:site_name', content: templateConfig.app.name },
+      { property: 'og:site_name', content: brand },
       { property: 'og:type', content: page.date ? 'article' : 'website' },
       { property: 'og:locale', content: page.locale },
       { property: 'og:image', content: image },

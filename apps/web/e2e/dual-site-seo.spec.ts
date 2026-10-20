@@ -18,7 +18,7 @@ test('韩语浏览器停留东方入口并高亮韩语卡片，禁用 JS 仍有�
   await expect(page.getByTestId('entry-zh-Hant')).toHaveAttribute('href', '/zh-hant/')
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    'https://xuanxue-east.example/',
+    'https://ganjiday.com/',
   )
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()
@@ -36,12 +36,12 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   const westOptions = { headers: { host: new URL(localSite(baseURL, 'west')).host } }
   const index = await request.get(`${east}/sitemap.xml`, eastOptions)
   expect(index.status()).toBe(200)
-  expect(await index.text()).toContain('https://xuanxue-east.example/sitemap/ko.xml')
+  expect(await index.text()).toContain('https://ganjiday.com/sitemap/ko.xml')
   expect(await index.text()).not.toContain('/sitemap/en.xml')
   const korean = await request.get(`${east}/sitemap/ko.xml`, eastOptions)
   expect(korean.status()).toBe(200)
-  expect(await korean.text()).toContain('<loc>https://xuanxue-east.example/ko</loc>')
-  expect(await korean.text()).not.toContain('<loc>https://xuanxue-west.example/')
+  expect(await korean.text()).toContain('<loc>https://ganjiday.com/ko</loc>')
+  expect(await korean.text()).not.toContain('<loc>https://arcanumber.com/')
   expect((await request.get(`${west}/sitemap/ko.xml`, westOptions)).status()).toBe(404)
   expect((await request.get(`${east}/_site/east`, eastOptions)).status()).toBe(404)
   expect((await request.get(`${east}/_site/east.html`, eastOptions)).status()).toBe(404)
@@ -49,7 +49,7 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   const rules = await (await request.get(`${east}/robots.txt`, eastOptions)).text()
   for (const path of ['/app', '/admin', '/api', '/*?r=', '/*&r='])
     expect(rules).toContain(`Disallow: ${path}`)
-  expect(rules).toContain('Sitemap: https://xuanxue-east.example/sitemap.xml')
+  expect(rules).toContain('Sitemap: https://ganjiday.com/sitemap.xml')
   expect(
     (await request.get(`${east}/ko/?r=shared`, eastOptions)).headers()['x-robots-tag'],
   ).toContain('noindex')

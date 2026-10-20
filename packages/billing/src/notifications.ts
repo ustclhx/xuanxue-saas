@@ -8,7 +8,8 @@ import type { RefundNotification } from './refunds.ts'
 export interface RefundMailOptions {
   db: Database
   queue: Pick<QueueProducer<EmailQueueMessage>, 'send'>
-  appName: string
+  /** 按收件人语言取品牌名（两站品牌不同） */
+  appName: (locale: string | null) => string
   supportEmail: string
 }
 const action = (status: string) => `billing.refund_email.${status}.queued`
@@ -34,7 +35,7 @@ export async function notifyRefundRequest(
     template: 'refund-update',
     to: request.contactEmail,
     locale: applicant?.locale ?? null,
-    appName: options.appName,
+    appName: options.appName(applicant?.locale ?? null),
     idempotencyKey: `refund-notification:${request.id}:${request.status}`,
     props: {
       status: request.status,

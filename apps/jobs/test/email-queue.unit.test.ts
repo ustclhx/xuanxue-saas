@@ -7,7 +7,7 @@ import { handleEmailBatch } from '../src/queues/email.ts'
 const body: EmailQueueMessage = {
   v: 1,
   template: 'reset-password',
-  props: { url: 'https://xuanxue-west.example/reset?token=private', expiresInMinutes: 60 },
+  props: { url: 'https://arcanumber.com/reset?token=private', expiresInMinutes: 60 },
   to: 'someone@example.com',
   appName: 'Test',
   idempotencyKey: 'stable-mail-key',
