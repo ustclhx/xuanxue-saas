@@ -14,6 +14,7 @@ import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { isAppAreaPath } from './app-area.ts'
 import { getLanguageSuggestion, saveLanguagePreference } from './preference.functions.ts'
 import { rememberLocale } from './preference.ts'
+import { switchLocalePath } from './switch-path.ts'
 
 /**
  * 独立组件，预渲染页只在水合后获取 Accept-Language 建议，不改变 URL。
@@ -60,11 +61,13 @@ export function LanguageControls({
       await saveLanguagePreference({ data: next })
       rememberLocale(next)
       // 完整导航让账号语言、SSR 与客户端同时刷新；营销页始终以目的 URL 为准。
-      window.location.assign(
-        isAppAreaPath(window.location.pathname)
-          ? window.location.href
-          : localizeUrl(window.location.href, { locale: next }).href,
-      )
+      // 工具页各语言路径不同，先按注册表换成目标语言的页面，再加语言前缀
+      if (isAppAreaPath(window.location.pathname)) window.location.assign(window.location.href)
+      else {
+        const url = new URL(window.location.href)
+        url.pathname = encodeURI(switchLocalePath(url.pathname, next, locales))
+        window.location.assign(localizeUrl(url, { locale: next }).href)
+      }
     } catch {
       setError(m.i18n_save_failed())
       setBusy(false)

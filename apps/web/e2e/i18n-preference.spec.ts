@@ -88,3 +88,20 @@ test('换设备登录后应用区跟随账号语言，营销页继续按 URL，�
     await other.close()
   }
 })
+
+test('左下角切换语言时工具页换成目标语言的对应路径，没有对应页面时回到首页', async ({ page }) => {
+  await page.goto('/tarot/daily')
+  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hant')
+  await expect(page).toHaveURL((url) => decodeURI(url.pathname) === '/zh-hant/塔羅/每日一張')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+  await page.goto('/zh-hant/紫微斗數排盤')
+  await page.getByRole('combobox', { name: '語言', exact: true }).selectOption('ko')
+  await expect(page).toHaveURL((url) => url.pathname === '/ko')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
+
+  await page.goto('/pricing')
+  await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('ko')
+  await expect(page).toHaveURL((url) => url.pathname === '/ko/pricing')
+})
