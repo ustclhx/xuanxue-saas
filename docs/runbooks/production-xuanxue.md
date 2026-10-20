@@ -1,6 +1,6 @@
-# xuanxue production 资源准备
+# xuanxue production 资源与发布记录
 
-2026-10-20 UTC。对应 `launch-v1-production` 2.1；只准备资源，不部署业务 Worker，不启用 GitHub 生产开关，任务保持未勾选。
+2026-10-20 UTC。对应 `launch-v1-production` 2.1–2.3。资源准备历史保留；本轮预检与发布状态见文末，尚未部署业务 Worker。
 
 ## 用户决定与边界
 
@@ -64,7 +64,7 @@
     - 公开 DNS 核验：Cloudflare DoH 已分别返回上述 3 条 MX 与正确 SPF；Google DoH 确认两项公共 DKIM 存在、两个 `send` 子域仍为 NXDOMAIN。首次本机 DNS/直接指定 NS 的查询与 Google DoH MX 查询仍无 MX 答案（与启用前的负缓存一致），控制台当时显示 Syncing；未反复改写 DNS。
 17. 已在终端提示用户从不同于目标 Gmail 的另一邮箱，向两个 support 地址各发送主题 `xuanxue-routing-20261020` 的测试邮件，并确认目标 Gmail 收件箱/垃圾邮件收信。遵循 [Cloudflare 测试说明](https://developers.cloudflare.com/email-service/get-started/route-emails/#test-your-configuration)，避免目标邮箱自发自收被去重。当前等待用户实际收信确认，不以公开 DNS 或规则 Active 代替端到端验收。
 
-## 当前阻塞与验证
+## 资源准备阶段的阻塞与验证（历史，以下轮决定为准）
 
 - Email Routing：两个精确 support 规则已 Active，目标 Verified，裸域 DNS 已写入；仍等待同步与两站实际收信确认。Resend 发件验证继续独立待办。
 - 步骤 5 延后（协调者明确允许跳过）：浏览器访问 `https://resend.com/domains` 跳回公开首页，当前 Chrome 会话未登录。已停在 `https://resend.com/login` 并保留页面，请用户登录后续跑。没有新建 Resend 域名、没有写 Resend 子域 DNS 或 API key。没有访问/修改任何既有 Resend 项目。
@@ -73,9 +73,56 @@
 - 最新 production secret list 确认 web 已有 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、TURNSTILE_SECRET_KEY、GOOGLE_CLIENT_ID、GOOGLE_CLIENT_SECRET；仍缺任务要求的 DEEPSEEK_API_KEY，以及已授权延后的 RESEND_API_KEY。Stripe 两项按协调者要求仅记录配置冲突。jobs Worker 尚不存在，先前 secret list 退出 1，不能声称远端 secret 检查通过；尚无邮件 secret 写入需求，因此未为了检查新建 jobs 空壳或部署。
 - `pnpm check` 退出 0（日志 `/tmp/xuanxue-production-check.log`）。只改资源 ID、公开 site key 与运维记录，未新增无业务逻辑测试。上线不开支付配置确认仍由协调者处理，2.1 不勾选。
 
-## 待完成
+## 资源准备阶段的待办（历史，以下轮决定为准）
 
 - 步骤 5：等待用户登录 Resend 后创建并验证两个发件域名、准备仅发送 key。
 - 步骤 7：等待安全输入 staging 同一把 DeepSeek key；Auth secret 与管理员名单已完成。
 - 步骤 8：两个 app 的 production dry-run 已通过；仍需补齐上述非支付 secrets 并复核真实运行时凭据，才能满足完整预检。dry-run 不证明远端认证、邮件或 AI 联通。
 - 协调者确认上线不开支付的配置、发件地址代码与发布前 Cron 策略；本轮不修改这些业务行为。
+
+
+## 本轮发布准备（2026-10-20）
+
+### 本轮决定与预检
+
+- 用户已明确：两站以支付未开通状态上线。不配置 Stripe / PayPal / DeepSeek / Resend / Sentry；不接 Creem；不运行 `billing:sync`。上述历史缺项不再是本轮必需项，Resend 发信单独保持未完成。
+- web production 只读 secret list 确认 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、GOOGLE_CLIENT_ID、GOOGLE_CLIENT_SECRET、TURNSTILE_SECRET_KEY 五项名称齐全；没有打印或读回真值，没有重写/轮换 Worker secret。jobs 邮件默认 log，媒体与支付关闭，本轮没有必需 jobs secret，不为检查创建空壳。证据：[secret 名称预检](evidence/launch-v1/secrets-preflight.json)。
+- `scripts/staging/check-secrets.mjs` 仍是 staging 的支付联通检查器；不能用其 Stripe 要求判断本轮生产缺项。本轮结论只适用于已批准的「无支付、无详批模型、log 邮件」范围，不代表发信/支付/AI 联通通过。
+- 通过 readonly 仅查询 production 的 plan / plan_price / setting / ai_model；迁移记录位于受限 drizzle schema，首次 readonly 查询被 42501 拒绝，随后仅该查询改用 migrator（仍只读）。迁移 14/14 与 journal 一致；reading_single=100 积分 / 99 USD cents、reading_five=500 / 399，全部 provider mapping inactive；没有 ai_model 行、没有 readings.*.modelKey 覆盖，代码默认空。没有执行 seed 写入、支付同步或修改套餐/模型。[数据库证据](evidence/launch-v1/database-preflight.json)。资源准备阶段已执行迁移与 seed，本轮只确认其结果，正式 workflow 在部署前重跑迁移。
+- `.github/workflows/deploy-production.yml` 改为 EAST_URL=`https://ganjiday.com`、WEST_URL/APP_URL=`https://arcanumber.com`；双站各自健康检查与只读冒烟，东方另覆盖繁中/韩语首页和定价，失败 trace 分目录保存。保留 tag/main/staging 门禁。
+- 公开注册前按 docs/07 §0 与决策 D7 恢复 jobs production 默认 Cron：5 分钟心跳、10 分钟维护，小时/每日任务不变，移除 production `CRON_PROFILE=reduced`。staging 保持 reduced。该配置尚未发布。
+- 重新完成 jobs dry-run、web production build 与产物 dry-run；构建仅使用不可达本地 Hyperdrive 占位，未注入 Neon URL、未上传业务产物或 source map。[验证记录](evidence/launch-v1/README.md)。
+
+### GitHub production environment
+
+原先仅有 staging；本轮已新建 production，required reviewer=`ustclhx`、允许本人审批，只允许 `v*` tag。审批必须由用户在 GitHub 点击，代理不代批。实现依据为 [GitHub environment API](https://docs.github.com/en/rest/deployments/environments#create-or-update-an-environment) 与 [tag policy API](https://docs.github.com/en/rest/deployments/branch-policies#create-a-deployment-branch-policy)。
+
+`PRODUCTION_MIGRATION_DATABASE_URL` 已从主 checkout `.env.production-neon` 的 NEON_MIGRATOR_URL 经 stdin 写入；事前确认文件 gitignored / 600、角色 migrator、库名 xuanxue_production、非 pooled TLS。未打印值或将其放进 OS 参数。GitHub secret list 已确认名称。
+
+仍缺 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID`。staging 两项已存在，但 GitHub 不提供原 secret 值的读取；本机进程与本项目受保护输入也没有同源 CI token。本轮没有复用 Wrangler OAuth token、创建替代 token 或读取其他项目凭据。沿用 staging 同值需用户确认；账号目标为本文资源表中的 Cloudflare account。
+
+用户确认沿用后，在**真实终端**逐条执行；交互提示中输入值，命令历史和参数均不包含真值，不在聊天粘贴：
+
+```sh
+gh secret set CLOUDFLARE_API_TOKEN --env production --repo ustclhx/xuanxue-saas
+gh secret set CLOUDFLARE_ACCOUNT_ID --env production --repo ustclhx/xuanxue-saas
+gh secret list --env production --repo ustclhx/xuanxue-saas
+```
+
+GitHub 不可读回 staging token；若用户也没有原值，需用户选择凭据来源后再续跑，不能声称已复制成功。本轮按用户要求在此暂停后续上线操作。
+
+### 发布门禁与后续顺序
+
+本轮工作流修正必须由协调者合入 main，且**同一个完整 SHA** 通过 CI 与 staging，再打未使用的版本 tag。本轮不合并 PR、不绕过 check-release、不推送发布 tag，也不以旧工作流部署模板域名。预检时 main `b6ae303bdbf3f6c099f776d90efae30cedb99be6` 的 [staging run 39420919304](https://github.com/ustclhx/xuanxue-saas/actions/runs/39420919304) 为 failure；协调者正在修复，续跑以最新结果为准。
+
+1. 核对三项 production CI secrets、待发布 SHA 与该 SHA 的成功 CI / staging。确认现存生产迁移与 seed 状态仍满足上节记录（若有新增迁移，须应用后重新确认 seed）。
+2. 由协调者合并本 PR，等待同 SHA staging 成功后，对 main 上该 SHA 推送未使用的 `v*` tag（例如 `v0.1.0`，须先确认不存在）；回滚/重发才使用 `gh workflow run deploy-production.yml --ref <版本tag>`。
+3. 用户在 GitHub 对 production environment 点批准；workflow 执行迁移 → 构建 → jobs → web → 双站完整 SHA/db 健康检查 → 双站只读冒烟。seed 已执行且本轮只读确认，不自动运行 sync。
+4. custom domains 生效后完成 [上线清单](launch-v1.md#发布后的验收)、真实普通账号注册/删号、移动端 Lighthouse，再做 GSC / Bing / Web Analytics。
+5. 首次上线没有可用旧生产版本可回滚；失败时停止后续步骤并诊断，保留数据库与资源。后续版本可对先前成功 tag 重跑 workflow，按向后兼容前提回滚 jobs/web；不执行 down migration，不删除资源。
+
+### 管理员与邮件验收限制
+
+BOOTSTRAP_ADMIN_EMAILS 已有用户指定邮箱，本轮只确认 secret 名称，不读回真值、不替用户注册。用户首次用该邮箱注册后，**现有代码还要求 emailVerified=true 且未封禁，才会在认证事件中提升为管理员**（`packages/auth/src/admin-bootstrap.ts`）。密码注册默认无需验证，故邮件保持 log 时，不能承诺首次密码注册后立即具备 admin。用户应在恢复真实验证邮件后验证邮箱并重新登录；如需其他验证方式，须另行决定，本轮不直接写库跳过验证。Google OAuth 当前仍为 External / Testing，未在本轮验收其登录或管理员提升。
+
+support@ 的 Cloudflare 收件与 Resend 发件独立。Routing 规则已有 Active/Verified 证据，实际双站收信仍等用户确认；Resend 继续未登录/未开通，不发真实邮件。2.2（部署与线上验收）、2.3（六页审计）、3.1（收录成功）仍未完成，详见 [上线记录](launch-v1.md)。

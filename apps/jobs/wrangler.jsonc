@@ -94,14 +94,13 @@
       }
     },
     // launch-v1-production 2.1：本项目独立资源，见 docs/runbooks/production-xuanxue.md。
-    // 测试期沿用 reduced Cron，对外开放注册前改回默认调度（design D7）；不设 PAYMENT_MODE / AI_FAULT_INJECTION。
+    // 公开注册恢复默认 Cron（design D7）；不设 PAYMENT_MODE / AI_FAULT_INJECTION。
     "production": {
       "name": "xuanxue-jobs-production",
       "workers_dev": false,
       "preview_urls": false,
       "vars": {
-        "SENTRY_ENVIRONMENT": "production",
-        "CRON_PROFILE": "reduced"
+        "SENTRY_ENVIRONMENT": "production"
       },
 
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
@@ -132,7 +131,7 @@
         ]
       },
       "triggers": {
-        "crons": ["*/30 * * * *", "0 3 * * *", "0 * * * *", "0 4 * * *"]
+        "crons": ["*/5 * * * *", "0 3 * * *", "0 * * * *", "*/10 * * * *", "0 4 * * *"]
       }
     }
   }

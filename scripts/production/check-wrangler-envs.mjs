@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
  */
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const FORBIDDEN_PRODUCTION_VARS = ['PAYMENT_MODE', 'AI_FAULT_INJECTION']
+const PRODUCTION_ORIGINS = ['https://ganjiday.com', 'https://arcanumber.com']
 
 /** 去掉 JSONC 注释与尾逗号；字符串内的 `//`（如 URL）保持不变 */
 export function parseJsonc(text) {
@@ -80,6 +81,46 @@ export function checkEnvs(app, config) {
   for (const key of FORBIDDEN_PRODUCTION_VARS)
     if (production.vars && key in production.vars)
       problems.push(`${app}: production must not set ${key}`)
+
+  // 绑定集合相同并不能发现模板资源名；生产必须使用本项目已预配的资源。
+  if (production.name !== `xuanxue-${app}-production`)
+    problems.push(`${app}: unexpected production Worker name`)
+  if (production.workers_dev !== false || production.preview_urls !== false)
+    problems.push(`${app}: production workers.dev and preview URLs must be disabled`)
+  for (const bucket of production.r2_buckets ?? [])
+    if (bucket.bucket_name !== 'xuanxue-files-production')
+      problems.push(`${app}: unexpected production R2 bucket ${bucket.bucket_name}`)
+  const queueNames = {
+    EMAIL_QUEUE: 'xuanxue-email-production',
+    EVENTS_QUEUE: 'xuanxue-events-production',
+  }
+  for (const producer of production.queues?.producers ?? [])
+    if (producer.queue !== queueNames[producer.binding])
+      problems.push(`${app}: unexpected production queue for ${producer.binding}`)
+  for (const consumer of production.queues?.consumers ?? [])
+    if (!Object.values(queueNames).includes(consumer.queue))
+      problems.push(`${app}: unexpected production consumer queue ${consumer.queue}`)
+  const stagingRatelimits = new Set((staging.ratelimits ?? []).map((item) => item.namespace_id))
+  for (const limit of production.ratelimits ?? [])
+    if (stagingRatelimits.has(limit.namespace_id))
+      problems.push(`${app}: production reuses staging ratelimit namespace ${limit.name}`)
+
+  if (app === 'web') {
+    if (production.vars?.APP_URL !== PRODUCTION_ORIGINS[1])
+      problems.push('web: production APP_URL must be the western origin')
+    if (production.vars?.R2_FILES_BUCKET !== 'xuanxue-files-production')
+      problems.push('web: production R2_FILES_BUCKET must match the FILES bucket')
+    const expectedDomains = PRODUCTION_ORIGINS.map((origin) => new URL(origin).hostname)
+    const routes = production.routes ?? []
+    if (
+      routes.length !== expectedDomains.length ||
+      expectedDomains.some(
+        (domain) =>
+          !routes.some((route) => route.pattern === domain && route.custom_domain === true),
+      )
+    )
+      problems.push('web: production routes must bind both production custom domains')
+  }
   return problems
 }
 

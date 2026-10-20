@@ -1,0 +1,128 @@
+{
+  "checkedAt": "2026-10-20T12:22:56.573Z",
+  "identity": [
+    {
+      "database": "xuanxue_production",
+      "role": "readonly"
+    }
+  ],
+  "migrations": [
+    {
+      "count": 14
+    }
+  ],
+  "journal": 14,
+  "plans": [
+    {
+      "key": "free",
+      "credits": 0,
+      "provider": null,
+      "amount": null,
+      "currency": null,
+      "active": null
+    },
+    {
+      "key": "pro",
+      "credits": 1000,
+      "provider": "paypal",
+      "amount": 1900,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "pro",
+      "credits": 1000,
+      "provider": "paypal",
+      "amount": 19000,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "pro",
+      "credits": 1000,
+      "provider": "stripe",
+      "amount": 1900,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "pro",
+      "credits": 1000,
+      "provider": "stripe",
+      "amount": 19000,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "reading_five",
+      "credits": 500,
+      "provider": "paypal",
+      "amount": 399,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "reading_five",
+      "credits": 500,
+      "provider": "stripe",
+      "amount": 399,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "reading_single",
+      "credits": 100,
+      "provider": "paypal",
+      "amount": 99,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "reading_single",
+      "credits": 100,
+      "provider": "stripe",
+      "amount": 99,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "team",
+      "credits": 5000,
+      "provider": "paypal",
+      "amount": 4900,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "team",
+      "credits": 5000,
+      "provider": "paypal",
+      "amount": 49000,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "team",
+      "credits": 5000,
+      "provider": "stripe",
+      "amount": 4900,
+      "currency": "USD",
+      "active": false
+    },
+    {
+      "key": "team",
+      "credits": 5000,
+      "provider": "stripe",
+      "amount": 49000,
+      "currency": "USD",
+      "active": false
+    }
+  ],
+  "modelKeys": [],
+  "modelKeyDefault": "",
+  "activeModels": [
+    {
+      "count": 0
+    }
+  ]
+}
