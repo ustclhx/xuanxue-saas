@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-20T17:00:02.301Z",
+  "observedAt": "2026-10-20T17:05:42.690Z",
   "checks": [
     {
       "host": "arcanumber.com",
@@ -9,10 +9,10 @@
         "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
         "db": {
           "status": "up",
-          "latencyMs": 446
+          "latencyMs": 75
         },
         "jobs": {
-          "lastCronAt": null
+          "lastCronAt": "2026-10-20T17:05:09.507Z"
         }
       }
     },
@@ -24,10 +24,10 @@
         "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
         "db": {
           "status": "up",
-          "latencyMs": 225
+          "latencyMs": 73
         },
         "jobs": {
-          "lastCronAt": null
+          "lastCronAt": "2026-10-20T17:05:09.507Z"
         }
       }
     }

@@ -11,14 +11,20 @@
     "deleteSucceeded": false,
     "visibleError": "Payment configuration is unavailable",
     "postDeletionLoginRejection": "未验证：删除失败",
-    "passwordPersisted": false
+    "passwordPersisted": false,
+    "nextAction": "协调者修代码并部署后再验；当前保留账号，不重试删除"
   },
   "admin": {
     "method": "Google",
     "designatedAccountSelected": true,
-    "status": "等待用户确认额外姓名/头像/邮箱授权",
-    "registered": false,
+    "status": "指定账号注册及 Google 重新登录成功；/admin 仍显示 Not Found，管理员权限验收失败",
+    "registered": true,
+    "emailVerifiedInAccountUI": true,
+    "socialAccountHasNoPasswordInUI": true,
     "adminAccessVerified": false,
+    "adminPageVisibleText": "Not Found",
+    "reloginRetested": true,
+    "oauthNotes": "等待后沿用旧流程曾返回 state_mismatch；重新发起 OAuth 后注册及登录成功。",
     "passwordSet": false
   },
   "searchConsole": [
@@ -44,13 +50,30 @@
     }
   ],
   "bing": {
-    "status": "未登录；按用户指示停在 Sign In",
+    "status": "协调者指示先跳过，等待用户登录",
     "imported": false,
     "initialError": "Bing is not available right now; retry recovered to public landing page"
   },
   "webAnalytics": {
-    "created": false,
+    "created": true,
+    "mode": "Enable with JS Snippet installation",
     "autoInjectionEnabled": false,
-    "reason": "已有 Zone 创建页默认自动注入；用户选择待确认"
-  }
+    "creationNote": "按本轮明确授权，Done 创建后立即切换手动；控制台列表两站均显示 JS Snippet installation",
+    "evidence": "web-analytics.json",
+    "sites": [
+      {
+        "hostname": "arcanumber.com",
+        "siteTag": "c390ba28c58141bbac6226825f03eee4",
+        "publicSiteToken": "aa32b146781b4880aa9686d85c3a8f66",
+        "mode": "Enable with JS Snippet installation"
+      },
+      {
+        "hostname": "ganjiday.com",
+        "siteTag": "f6d513f3f7604c09b0a4de81a1da3ea5",
+        "publicSiteToken": "21bda25feef743088c8ca9fb63b76a36",
+        "mode": "Enable with JS Snippet installation"
+      }
+    ]
+  },
+  "updatedAt": "2026-10-20T17:06:26.367331+00:00"
 }

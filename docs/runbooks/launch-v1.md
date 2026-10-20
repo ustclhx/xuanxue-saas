@@ -8,10 +8,10 @@
 | --- | --- |
 | 2.1 Worker 资源 / secrets / dry-run | 已完成；原预检见 [production runbook](production-xuanxue.md) |
 | GitHub production environment | 三项必需 secret 名称齐全；新建独立生产 token，剪贴板写入后清空；已按本轮明确授权在浏览器批准 production |
-| 2.2 迁移 → seed 确认 → jobs → web | v0.1.0 发布成功；双站健康与三语只读冒烟通过；测试账号删号失败，管理员 Google 额外授权待用户确认，整体验收未通过 |
+| 2.2 迁移 → seed 确认 → jobs → web | v0.1.0 发布成功；双站健康与三语只读冒烟通过；测试账号删号失败；指定 Google 账号注册成功且已验证，但 /admin 仍显示 Not Found，整体验收未通过 |
 | 2.3 Lighthouse | 六页移动端 HTML/JSON 已保存；西方首页 LCP 2.85s 未达 2.5s 门槛；未修改性能代码 |
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
-| Cloudflare Web Analytics | 尚未创建；已有 Zone 的创建页默认自动注入，与本轮限制冲突，等待用户选择；没有开启自动注入或改代码 |
+| Cloudflare Web Analytics | 两站已创建并立即切为手动 JS Snippet installation；四项 curl 无 beacon 检查通过；未改代码 |
 | support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
 | Resend | 延后；邮件传输保持 log |
 | 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
@@ -23,9 +23,9 @@
 - jobs version：`29202879-925a-427e-84e1-3960711ccd09`；web version：`85ad35de-7283-4bdc-9fa4-6de8aa8d2914`。
 - 两站 `/api/health` HTTP 200、db.up、完整 SHA 匹配；Actions 东方 6 passed、西方 3 passed，包含繁中/韩语首页与定价。该项目使用现有 `e2e/production` 只读套件；`e2e-live` 是支付联通套件，本轮没有运行支付测试。
 - 独立 [HTTP 验收](evidence/launch-v1/production-http.json) 28/28 通过：两站 www `/x?y=1` 均 301 到裸域并保留路径/查询；首页、三语定价、英文四法律页、robots 与 sitemap 正常；规范公开页无 noindex，已核对繁中/韩语 privacy 按设计 noindex。
-- 测试邮箱 `launch-test-20261021@example.org` 注册成功，进入个人空间 `u-2uc81072`；经账号设置退出并重新密码登录成功。输入 DELETE 提交删除后，页面返回 `Payment configuration is unavailable`，账号未删，不能宣称删除后登录被拒绝。未直接写库、未补支付密钥；测试密码只在操作内存中使用，不记录。
+- 测试邮箱 `launch-test-20261021@example.org` 注册成功，进入个人空间 `u-2uc81072`；经账号设置退出并重新密码登录成功。输入 DELETE 提交删除后，页面返回 `Payment configuration is unavailable`，账号未删，不能宣称删除后登录被拒绝。未直接写库、未补支付密钥；测试密码只在操作内存中使用，不记录。协调者接手修代码，账号先保留，修复部署后再验。
 - 删号原因据只读源码与配置推断：`apps/web/src/features/billing/deletion.server.ts` 的 before 初始化 `createPaymentRuntime`；当前 production 未设置 PAYMENT_MODE，`packages/billing/src/runtime.ts` 将模式校验失败映射为上述 503。此为需另行修复的已知上线风险，本轮不改代码。
-- 管理员：已在 Google 选择指定用户账号；随后出现姓名/头像/邮箱授权页，按用户要求停在“继续”前。尚未完成生产管理员注册或 `/admin` 验收；未设置或记录管理员密码。
+- 管理员：协调者明确允许姓名/头像/邮箱授权后完成指定 Google 账号注册；账号设置显示邮箱已验证，社交账号无密码。旧 OAuth 流程等待后曾返回 `state_mismatch`，新流程登录成功；但首次及退出后重新 Google 登录，两次访问 `/admin` 均显示 `Not Found`，管理员权限验收未通过。未设置密码、未直接写库提权，交协调者定位。
 
 ## Lighthouse 移动端实测
 
@@ -49,15 +49,19 @@ Lighthouse 13.5.0，独立 headless Chrome，默认移动设备与模拟网络/C
 | `sc-domain:arcanumber.com` | 已通过；TXT 保留在本域 Cloudflare zone | `https://arcanumber.com/sitemap.xml`，2026-10-20 UTC 提交；刷新后显示「成功」、类型站点地图索引、发现网页 0 | 未导入，等待登录 |
 | `sc-domain:ganjiday.com` | 已通过；TXT 保留在本域 Cloudflare zone | `https://ganjiday.com/sitemap.xml`，2026-10-20 UTC 提交；刷新后显示「成功」、类型站点地图索引、发现网页 0 | 未导入，等待登录 |
 
-两站刚提交时列表显示「无法抓取」，后续刷新均显示成功；记录最终成功状态，不把 sitemap 成功等同网页已收录。公共 TXT 仅新增 Google 验证记录，保留原 MX/SPF/DKIM/业务 DNS。Bing 首次访问服务不可用，稍后恢复为未登录首页；按用户要求停在 Sign In，未接受条款或授权。
+两站刚提交时列表显示「无法抓取」，后续刷新均显示成功；记录最终成功状态，不把 sitemap 成功等同网页已收录。公共 TXT 仅新增 Google 验证记录，保留原 MX/SPF/DKIM/业务 DNS。Bing 首次访问服务不可用，稍后恢复为未登录首页；协调者指示先跳过，等待用户登录，未接受条款或授权。
 
 ## Web Analytics
 
 | 域名 | 手动 JS 站点 | 公开 site token |
 | --- | --- | --- |
-| `arcanumber.com` | 待处理创建页自动注入限制 | 尚未生成 |
-| `ganjiday.com` | 待处理创建页自动注入限制 | 尚未生成 |
+| `arcanumber.com` | JS Snippet installation，自动注入已关闭 | `aa32b146781b4880aa9686d85c3a8f66` |
+| `ganjiday.com` | JS Snippet installation，自动注入已关闭 | `21bda25feef743088c8ca9fb63b76a36` |
 
-Cloudflare [官方创建说明](https://developers.cloudflare.com/web-analytics/get-started/)明确：选择已在 Cloudflare 的 hostname 后 Done 默认启用自动注入，之后 Manage Site 才可切换 Enable with JS Snippet installation。当前未点击 Done，避免违反用户禁止自动注入的要求；等待明确选择，不改代码。
+按协调者本轮明确授权，两个 hostname 各点 Done 创建后，立即在 Manage Site 切换为 **Enable with JS Snippet installation** 并 Update；列表回读均为 JS Snippet installation，自动注入关闭。公开 site token 来自安装片段，与控制台 siteTag 不同；两者均记录在 [Analytics 证据](evidence/launch-v1/web-analytics.json)。未把片段加入代码。
+
+`curl --location` 检查两站 `/` 与 `/app` 四项最终 HTML，均 HTTP 200，未发现 `beacon.min.js`、`static.cloudflareinsights.com`、`data-cf-beacon`、`/cdn-cgi/rum` 或 `cloudflareinsights.com`。`/app` 为匿名请求，均跳转 `/login`，此检查不冒充已认证空间 HTML 验收；另用已登录浏览器补查西方站个人空间（Personal）DOM 的 script 属性，Cloudflare beacon 列表为空，未导出 Cookie/认证凭据。
+
+最新 [心跳复查](evidence/launch-v1/production-heartbeat.json)：2026-10-20T17:05:42Z 两站 health 200、db.up、完整部署 SHA 一致，`jobs.lastCronAt=2026-10-20T17:05:09.507Z`；先前初始 null 状态已解除。
 
 Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。
