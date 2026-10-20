@@ -25,6 +25,8 @@ export default defineTemplateConfig({
       brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日', ko: '간지데이' } },
       // Cloudflare Email Routing 转发到运营者邮箱（D6：不公开个人邮箱与地址）
       supportEmail: 'support@ganjiday.com',
+      // Cloudflare Web Analytics 手动片段的公开 site token（无 Cookie，仅公开页面加载）
+      analyticsToken: '21bda25feef743088c8ca9fb63b76a36',
     },
     // 后续加入 fr / de / nl / it，各语言统一使用 Arcanumber
     west: {
@@ -32,6 +34,7 @@ export default defineTemplateConfig({
       locales: ['en'],
       defaultLocale: 'en',
       brand: { name: 'Arcanumber' },
+      analyticsToken: 'aa32b146781b4880aa9686d85c3a8f66',
     },
   },
   tenancy: {

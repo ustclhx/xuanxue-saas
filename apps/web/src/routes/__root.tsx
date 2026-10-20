@@ -51,7 +51,11 @@ export const Route = createRootRoute({
       { children: themeInitScript() },
       { children: SITE_THEME_SCRIPT },
       { children: siteFontScript(loaderData?.site.id ?? 'west', getLocale()) },
-      ...analyticsHeadScripts(matches.at(-1)?.pathname ?? '/', templateConfig),
+      ...analyticsHeadScripts(
+        matches.at(-1)?.pathname ?? '/',
+        loaderData?.site ?? { id: 'west', known: false },
+        templateConfig,
+      ),
     ],
   }),
   component: RootComponent,

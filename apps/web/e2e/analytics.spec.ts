@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('默认公开页面 head 不加载 PostHog 或 Cloudflare beacon，保留首屏主题脚本', async ({
+test('未登记 Host 的公开页面 head 不加载 PostHog 或 Cloudflare beacon，保留首屏主题脚本', async ({
   page,
 }) => {
   const analyticsRequests: string[] = []
