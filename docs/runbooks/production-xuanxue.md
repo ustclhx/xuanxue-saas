@@ -10,6 +10,7 @@
 - 邮件使用 Resend，两站分别验证 `send.ganjiday.com`、`send.arcanumber.com`；按站点区分发件地址的代码由协调者处理。
 - 不使用 Sentry。仅操作本轮新建资源；`production-neon.md` 属于模板项目，只参考流程。
 - Google OAuth 同意屏幕按协调者最新决定使用 `https://arcanumber.com/privacy`、`https://arcanumber.com/terms`，不使用旧 `/legal/...` 路径。
+- 协调者随后确认：Google OAuth 支持邮箱与开发者联系邮箱暂用当前登录账号 `lhx960924@gmail.com`。
 - 密钥只进入 Wrangler secrets 或主 checkout 的 gitignored、600 文件；本文不含密钥。
 
 ## 资源
@@ -30,7 +31,7 @@
 | Web 限流 | RL_AUTH / RL_AI / RL_API | `22002` / `22004` / `22006`，独立于 staging `21002/21004/21006` 与模板 `1001–1009` |
 | Turnstile | `xuanxue-production` | site key `0x4AAAAAAFdAs5UkBviOud_w`，managed，hostnames 为两个裸域 |
 | Web Worker | `xuanxue-web-production` | secret put 自动创建的空壳，尚未部署业务产物、routes 或绑定 |
-| Google Cloud 项目 | `xuanxue-production` | project ID 同名，project number `872796655195`，无组织；OAuth 配置待支持邮箱决定 |
+| Google Cloud 项目 | `xuanxue-production` | project ID 同名，project number `872796655195`，无组织；OAuth 初始化待 Google 政策确认 |
 
 ## 执行记录
 
@@ -49,11 +50,12 @@
 11. 步骤 8 的本地构建/dry-run 已完成，源码 SHA=`3f00729eefa7731e0a601d83f674cdfd6edadf0b`（其后仅补运维记录）。jobs `wrangler deploy --env production --dry-run --outdir dist --var APP_VERSION:<完整SHA>` 退出 0。web 构建显式设置 `CLOUDFLARE_ENV=production`、同一 APP_VERSION、APP_URL/WEST_URL=`https://arcanumber.com`、EAST_URL=`https://ganjiday.com`，两个 local Hyperdrive URL 均为不可达的 `127.0.0.1:1/unused` 占位；未加载 Neon URL。web build 退出 0、预渲染 503 页、无 `env.invalid`；公告/定价查询按既有设计降级，Server Function API 弃用警告保留。随后对生成的 `dist/server/wrangler.json` 执行 `wrangler deploy --config ... --dry-run`，退出 0；核对扁平配置的 Worker 名、两条 custom_domain、APP_URL、新 KV/Hyperdrive ID 与公开 Turnstile key 全部对应 production。
     - 日志：`/tmp/xuanxue-production-jobs-dry-run.log`、`/tmp/xuanxue-production-web-build.log`、`/tmp/xuanxue-production-web-dry-run.log`。web gzip 约 2582 KiB，jobs gzip 约 741 KiB。两次均明确 `--dry-run: exiting now`，没有业务产物上传或真实部署；没有上传 Sentry release/source map。私有 SSR dist 可能包含本地预览 dotenv，不提交、不公开分享。
     - 构建用的本地 dotenv 不含 SENTRY_DSN / MIGRATION_DATABASE_URL；没有创建或启用 Sentry。`node scripts/production/check-wrangler-envs.mjs` 退出 0，未改 PAYMENT_MODE、支付 providers、邮件代码或 Cron 策略。
+12. 支持邮箱决定已收到：初始配置已填写 Arcanumber、External、支持邮箱与开发者联系邮箱均为当前登录 Gmail。Google 最后一步要求勾选同意 [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy) 才能创建品牌；Computer Use 的条款接受规则要求当次确认，已向用户请求确认，尚未勾选或提交。Web 客户端和 Google secrets 尚未创建。
 
 ## 当前阻塞与验证
 
 - 步骤 5 延后（协调者明确允许跳过）：浏览器访问 `https://resend.com/domains` 跳回公开首页，当前 Chrome 会话未登录。已停在 `https://resend.com/login` 并保留页面，请用户登录后续跑。没有新建 Resend 域名、没有写邮件 DNS 或 API key。没有访问/修改任何既有 Resend 项目。
-- 步骤 6 暂停 OAuth 保存，等待支持邮箱决定；步骤 7 的 DeepSeek key 等待安全输入。Auth secret 与管理员名单已准备；完整生产预检不能宣称无缺项。
+- 步骤 6 的 Gmail 决定已落实到表单，当前等待用户确认接受 Google API 服务用户数据政策；尚未提交品牌配置。步骤 7 的 DeepSeek key 等待安全输入。Auth secret 与管理员名单已准备；完整生产预检不能宣称无缺项。
 - 静态检查发现后续预检需协调：`template.config.ts` 仍为 billing.enabled=true、providers=['stripe']；`scripts/staging/check-secrets.mjs` 的 `getSecretRequirements()` 因此仍要求 web/jobs 的 `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`，且 CLI 固定检查 staging。当前 production 不设 PAYMENT_MODE，但 checker 不读取它。本轮没有修改支付配置、没有写占位支付 secret，也没有把 Stripe 缺项豁免后声称通过生产门槛。
 - 以现有 `getSecretRequirements(templateConfig)` 对比 production 的 secret 名称：web 已有 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、TURNSTILE_SECRET_KEY；缺 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET、任务要求的 DEEPSEEK_API_KEY，以及已授权延后的 RESEND_API_KEY。Stripe 两项按协调者要求仅记录配置冲突。jobs Worker 尚不存在，secret list 退出 1，不能声称远端 secret 检查通过；尚无邮件 secret 写入需求，因此未为了检查新建 jobs 空壳或部署。
 - `pnpm check` 退出 0（日志 `/tmp/xuanxue-production-check.log`）。只改资源 ID、公开 site key 与运维记录，未新增无业务逻辑测试。上线不开支付配置确认仍由协调者处理，2.1 不勾选。
@@ -61,7 +63,7 @@
 ## 待完成
 
 - 步骤 5：等待用户登录 Resend 后创建并验证两个发件域名、准备仅发送 key。
-- 步骤 6：等待支持邮箱决定后完成 External / Testing 同意屏幕、两个授权域名、`/privacy` / `/terms` 链接和两个 Google 回调，创建 Web 客户端并经 stdin 写 web secrets；当前仅项目创建完成。
+- 步骤 6：用户确认 Google 政策后提交 External / Testing 同意屏幕、两个授权域名、`/privacy` / `/terms` 链接和两个 Google 回调，创建 Web 客户端并经 stdin 写 web secrets；当前已填好初始表单，尚未提交。
 - 步骤 7：等待安全输入 staging 同一把 DeepSeek key；Auth secret 与管理员名单已完成。
 - 步骤 8：两个 app 的 production dry-run 已通过；仍需补齐上述非支付 secrets 并复核真实运行时凭据，才能满足完整预检。dry-run 不证明远端认证、邮件或 AI 联通。
 - 协调者确认上线不开支付的配置、发件地址代码与发布前 Cron 策略；本轮不修改这些业务行为。
