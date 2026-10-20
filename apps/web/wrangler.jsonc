@@ -109,7 +109,7 @@
         ]
       }
     },
-    // add-cloud-production-neon 2.1：生产资源与 staging 一一对应，不复用任何 staging ID（production runbook §8.B）。
+    // launch-v1-production 2.1：本项目独立资源，见 docs/runbooks/production-xuanxue.md。
     // 不设 PAYMENT_MODE（Q9 前支付关闭）与 AI_FAULT_INJECTION（生产禁止）。
     "production": {
       "name": "xuanxue-web-production",
@@ -124,21 +124,21 @@
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
         "APP_URL": "https://arcanumber.com",
-        "TURNSTILE_SITE_KEY": "",
+        "TURNSTILE_SITE_KEY": "0x4AAAAAAFdAs5UkBviOud_w",
         "AI_TEXT_EGRESS": "direct",
         "R2_ACCOUNT_ID": "",
         "R2_FILES_BUCKET": "xuanxue-files-production"
       },
-      "kv_namespaces": [{ "binding": "CACHE", "id": "ffffffffffffffffffffffffffffffff" }],
+      "kv_namespaces": [{ "binding": "CACHE", "id": "b78752af8dc14c749396378288c3e52f" }],
       "ratelimits": [
-        { "name": "RL_AUTH", "namespace_id": "1007", "simple": { "limit": 10, "period": 60 } },
-        { "name": "RL_AI", "namespace_id": "1008", "simple": { "limit": 20, "period": 60 } },
-        { "name": "RL_API", "namespace_id": "1009", "simple": { "limit": 60, "period": 60 } }
+        { "name": "RL_AUTH", "namespace_id": "22002", "simple": { "limit": 10, "period": 60 } },
+        { "name": "RL_AI", "namespace_id": "22004", "simple": { "limit": 20, "period": 60 } },
+        { "name": "RL_API", "namespace_id": "22006", "simple": { "limit": 60, "period": 60 } }
       ],
       "hyperdrive": [
-        // Neon xuanxue_production，app 非 pooled TLS 直连；分别关闭缓存与默认缓存
-        { "binding": "HYPERDRIVE", "id": "ffffffffffffffffffffffffffffffff" },
-        { "binding": "HYPERDRIVE_CACHED", "id": "ffffffffffffffffffffffffffffffff" }
+        // Neon xuanxue_production，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒
+        { "binding": "HYPERDRIVE", "id": "be92ef3d14a94d27bd87ed3a459d32ce" },
+        { "binding": "HYPERDRIVE_CACHED", "id": "91c3e6d0fd5d44ba8f5c0864bb9450d9" }
       ],
 
       "queues": {
