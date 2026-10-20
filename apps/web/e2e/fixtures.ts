@@ -21,6 +21,19 @@ export function fixtureDb() {
   ) => Database['$client']
   return postgres(env.DATABASE_URL, { max: 1 })
 }
+/** 写入模板示例套餐与积分包（与 `pnpm billing:seed` 相同，可重复执行）；定价页只展示积分包 */
+export async function seedBillingCatalog() {
+  // fixtureDb 校验这是隔离的 worktree 库，不写共享库
+  await fixtureDb().end()
+  const { createDb } = await import('@xuanxue/db')
+  const { seedCatalog } = await import('@xuanxue/billing')
+  const db = createDb({ connectionString: env.DATABASE_URL as string })
+  try {
+    await seedCatalog(db)
+  } finally {
+    await db.$client.end()
+  }
+}
 /** Paid-period fixture admits members without contacting a payment platform. */
 export async function seedWorkspaceSeats(slug: string) {
   const sql = fixtureDb()

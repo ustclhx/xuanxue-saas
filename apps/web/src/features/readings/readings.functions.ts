@@ -4,7 +4,14 @@ import { getRequest } from '@tanstack/react-start/server'
 import { messageText } from '@xuanxue/ai'
 import { createPaymentRuntime } from '@xuanxue/billing'
 import { getCreditBalance } from '@xuanxue/credits'
-import { aiMessage, dbSettingStore, type Reading, reading, scoped } from '@xuanxue/db'
+import {
+  aiMessage,
+  dbSettingStore,
+  READING_KINDS,
+  type Reading,
+  reading,
+  scoped,
+} from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { and, desc, eq, lt, ne, type SQL } from 'drizzle-orm'
@@ -127,6 +134,32 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
     } catch (error) {
       log.warn('readings.offer_failed', { kind: data.kind, error })
       return UNAVAILABLE
+    }
+  })
+
+export interface ReadingPricing {
+  /** 本语言可解锁的详批类型与所需积分（只含已开启的类型） */
+  readonly readings: readonly { readonly kind: string; readonly credits: number }[]
+}
+
+/** 定价页：本语言可解锁的详批与积分；读取失败时返回空列表，定价页照常显示积分包 */
+export const getReadingPricing = createServerFn({ method: 'GET' })
+  .validator(z.object({ locale: z.string().min(2).max(35) }))
+  .handler(async ({ data }): Promise<ReadingPricing> => {
+    if (!templateConfig.billing.enabled || !templateConfig.ai.text.enabled) return { readings: [] }
+    try {
+      const runtime = getWebRuntime()
+      const deps = { store: dbSettingStore(runtime.db), cache: runtime.cache }
+      const readings = []
+      for (const kind of READING_KINDS) {
+        if (!readingDefinition(kind, data.locale)) continue
+        const config = await readingConfig(deps, kind)
+        if (readingAvailable(config)) readings.push({ kind, credits: config.credits })
+      }
+      return { readings }
+    } catch (error) {
+      log.warn('readings.pricing_failed', { error })
+      return { readings: [] }
     }
   })
 

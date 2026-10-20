@@ -190,6 +190,8 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
   await enableReading(page)
   const email = `forged-${newId()}@example.com`
   await register(page, email, 'Forged Link')
+  // 本地没有支付凭据：注入积分包，否则解锁卡按「支付未开通」隐藏
+  await offlineStripe(page, email, [])
   let posted = 0
   await page.route('**/api/readings', async (route) => {
     posted++
@@ -210,4 +212,14 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
   await expect(page.getByTestId('reading-unlock')).toBeVisible()
   expect(posted).toBe(0)
   await login(page, email)
+})
+
+test('支付未开通（没有可购买的积分包）时不显示解锁卡，免费结果照常', async ({ page }) => {
+  await stubTurnstile(page)
+  await enableReading(page)
+  await page.goto('/')
+  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await page.getByRole('button', { name: 'Calculate' }).first().click()
+  await expect(page.locator('#life-path-result')).toContainText('11')
+  await expect(page.getByTestId('reading-unlock')).toHaveCount(0)
 })

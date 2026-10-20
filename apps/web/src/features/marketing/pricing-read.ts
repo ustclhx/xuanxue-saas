@@ -3,7 +3,11 @@ import { log } from '@xuanxue/shared/log'
 import { asc, desc, eq } from 'drizzle-orm'
 import type { PricingCatalog } from './pricing-data.ts'
 
-/** 公开展示只保留有效价格；支付可用性由每次请求的运行时配置决定。 */
+/**
+ * 公开展示的价格：有效价格，以及从未同步到支付商的种子价格（支付尚未开通时用于展示金额，标记为
+ * 不可购买，且同一套餐/支付商/周期已有有效价格时不返回）。同步后被替换停用的旧价格不返回。
+ * 支付可用性由每次请求的运行时配置决定。
+ */
 export async function readPricingCatalog(db: Database): Promise<PricingCatalog> {
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
@@ -37,15 +41,27 @@ export async function readPricingCatalog(db: Database): Promise<PricingCatalog> 
     const prices = await db
       .select()
       .from(planPrice)
-      .where(eq(planPrice.active, true))
       .orderBy(desc(planPrice.createdAt), desc(planPrice.id))
     return {
       plans,
       prices: prices
         .filter((price) => plans.some((plan) => plan.id === price.planId))
+        .filter(
+          (price) =>
+            price.active ||
+            (price.providerPriceId.startsWith('unsynced:') &&
+              !prices.some(
+                (other) =>
+                  other.active &&
+                  other.planId === price.planId &&
+                  other.provider === price.provider &&
+                  other.interval === price.interval,
+              )),
+        )
         .map(({ providerPriceId, createdAt: _createdAt, updatedAt: _updatedAt, ...price }) => ({
           ...price,
           available:
+            price.active &&
             Boolean(providerPriceId) &&
             !providerPriceId.startsWith('unsynced:') &&
             price.currency.toUpperCase() === 'USD',
