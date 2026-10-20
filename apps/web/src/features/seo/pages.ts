@@ -73,11 +73,10 @@ export function publicPages(
         )
       }
       pages.push(
-        ...localizedEntries(content.legal, locale, defaultLocale).map((page) => ({
-          ...page,
-          locale,
-          path: `/legal/${encodeURIComponent(page.slug)}`,
-        })),
+        // 法律页只有英文原文；其他语言的同一路径显示英文并 noindex，不进站点地图
+        ...content.legal
+          .filter((page) => page.locale === locale)
+          .map((page) => ({ ...page, locale, path: `/${encodeURIComponent(page.slug)}` })),
       )
       if (config.features.docs) {
         pages.push(staticPage('/docs', locale))

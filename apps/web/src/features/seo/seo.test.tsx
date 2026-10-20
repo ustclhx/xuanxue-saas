@@ -129,7 +129,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
     for (const path of ['/app', '/app/me/chat', '/account', '/admin', '/api/health']) {
       expect(privateMeta(path)).toContainEqual({ name: 'robots', content: 'noindex, nofollow' })
     }
-    for (const path of ['/', '/pricing', '/blog/published', '/legal/terms', '/docs/guide'])
+    for (const path of ['/', '/pricing', '/blog/published', '/terms', '/docs/guide'])
       expect(privateMeta(path)).toEqual([])
   })
 
@@ -267,7 +267,7 @@ it('关闭营销时没有公开页面，单语言只生成默认语言页面', (
 
 describe('分享图与缓存（4.4）', () => {
   it('无封面页面的卡片包含站点名称和页面标题', () => {
-    const page = pages.find((page) => page.path === '/legal/terms' && page.locale === locale)
+    const page = pages.find((page) => page.path === '/terms' && page.locale === locale)
     if (!page) throw new Error('Missing legal page')
     const markup = renderToStaticMarkup(
       <OgCard title={page.title} brand={pageBrand(page)} host="arcanumber.com" />,

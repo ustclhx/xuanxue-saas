@@ -7,6 +7,7 @@ import { withRealSession } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { createBillingDeletionSteps } from '../billing/deletion.server.ts'
+import { workspaceContentDeletionStep } from '../readings/deletion.server.ts'
 
 async function remove(workspaceId?: string) {
   const runtime = getWebRuntime()
@@ -17,7 +18,10 @@ async function remove(workspaceId?: string) {
     headers: getRequest().headers,
     clientIp: runtime.requestMeta.clientIp,
     kv: runtime.cache,
-    additionalSteps: createBillingDeletionSteps(runtime.config, db, runtime.cache),
+    additionalSteps: [
+      ...createBillingDeletionSteps(runtime.config, db, runtime.cache),
+      workspaceContentDeletionStep,
+    ],
   }
   try {
     if (workspaceId)

@@ -48,16 +48,16 @@ export function SiteFooter() {
           </FooterColumn>
         )}
         <FooterColumn title={m.marketing_footer_legal()}>
-          <Link to="/legal/$slug" params={{ slug: 'privacy' }} className={footerLink}>
+          <Link to="/privacy" className={footerLink}>
             {m.marketing_footer_privacy()}
           </Link>
-          <Link to="/legal/$slug" params={{ slug: 'terms' }} className={footerLink}>
+          <Link to="/terms" className={footerLink}>
             {m.marketing_footer_terms()}
           </Link>
-          <Link to="/legal/$slug" params={{ slug: 'refund' }} className={footerLink}>
+          <Link to="/refund" className={footerLink}>
             {m.marketing_footer_refund()}
           </Link>
-          <Link to="/legal/$slug" params={{ slug: 'disclaimer' }} className={footerLink}>
+          <Link to="/disclaimer" className={footerLink}>
             {m.marketing_footer_disclaimer()}
           </Link>
         </FooterColumn>

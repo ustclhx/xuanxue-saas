@@ -125,7 +125,7 @@ describe('东方站入口页与无前缀路径', () => {
   })
 
   it('其他无前缀的公开页面 302 到入口页', () => {
-    for (const path of ['/pricing', '/blog/welcome', '/legal/terms?x=1'])
+    for (const path of ['/pricing', '/blog/welcome', '/terms?x=1'])
       expect(route(`${EAST}${path}`)).toEqual({
         kind: 'redirect',
         status: 302,

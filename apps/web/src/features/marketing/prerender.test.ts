@@ -19,12 +19,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
     ]) {
       expect(isPrerenderedPath(path, locales), path).toBe(true)
     }
-    for (const path of [
-      '/legal/refund',
-      '/ko/legal/privacy',
-      '/docs',
-      '/zh-hant/docs/configuration',
-    ]) {
+    for (const path of ['/refund', '/ko/privacy', '/docs', '/zh-hant/docs/configuration']) {
       expect(isPrerenderedPath(path, locales), path).toBe(true)
     }
   })

@@ -4,7 +4,7 @@ import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
 const { locales, defaultLocale } = templateConfig.i18n
-const publicPaths = ['/', '/pricing', '/legal/privacy', '/legal/terms', '/legal/refund']
+const publicPaths = ['/', '/pricing', '/privacy', '/terms', '/refund']
 if (templateConfig.features.blog)
   publicPaths.push(
     '/blog',
@@ -70,9 +70,7 @@ test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request })
   // 默认 localhost 属于预览 Host，禁止全部抓取；已知 Host 的规则由 dual-site-seo 验证。
   expect(rules).toContain('Disallow: /')
   for (const image of await Promise.all(
-    ['/og/en/legal/terms.png', '/og/zh-hant/legal/terms.png', '/og/ko/legal/terms.png'].map(
-      (path) => request.get(path),
-    ),
+    ['/og/en/terms.png', '/og/en/privacy.png'].map((path) => request.get(path)),
   )) {
     expect(image.status()).toBe(200)
     expect(image.headers()['content-type']).toBe('image/png')

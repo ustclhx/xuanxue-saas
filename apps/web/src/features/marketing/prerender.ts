@@ -3,7 +3,14 @@ import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 
 export const EAST_ENTRY_PATH = '/_site/east'
-export const PRERENDERED_PREFIXES = ['/blog', '/legal', '/docs'] as const
+export const PRERENDERED_PREFIXES = [
+  '/blog',
+  '/docs',
+  '/privacy',
+  '/terms',
+  '/disclaimer',
+  '/refund',
+] as const
 
 export function isPrerenderedPath(
   path: string,

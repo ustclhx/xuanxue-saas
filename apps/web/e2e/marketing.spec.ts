@@ -50,98 +50,74 @@ for (const lang of languages) {
   })
 
   test(`法律页（${lang}）`, async ({ page, request, baseURL }) => {
-    const copy = {
-      en: {
-        titles: {
-          privacy: 'Privacy Policy',
-          terms: 'Terms of Service',
-          refund: 'Refund Policy',
-          disclaimer: 'Disclaimer',
-        },
-        refund: ['not refunded by default', 'Request refund'],
-        privacy: [
-          'locally in your browser',
-          'saved in your account',
-          'delete your saved reports',
-          'unsubscribe at any time',
-        ],
-        disclaimer: [
-          'entertainment',
-          'do not predict the future',
-          'healthcare',
-          'legal',
-          'financial',
-        ],
-      },
-      'zh-Hant': {
-        titles: {
-          privacy: '隱私政策',
-          terms: '服務條款',
-          refund: '退款政策',
-          disclaimer: '免責聲明',
-        },
-        refund: ['預設不退款', '申請退款'],
-        privacy: [
-          '瀏覽器本地計算',
-          '保存在你的帳號中',
-          '刪除已儲存的報告',
-          '隨時透過訂閱郵件中的退訂連結',
-        ],
-        disclaimer: ['僅供娛樂', '不預測未來', '醫療', '法律', '財務'],
-      },
-      ko: {
-        titles: {
-          privacy: '개인정보처리방침',
-          terms: '이용약관',
-          refund: '환불 정책',
-          disclaimer: '면책 고지',
-        },
-        refund: ['기본적으로 환불되지 않습니다', '환불 요청'],
-        privacy: [
-          '브라우저에서 로컬로 계산',
-          '계정에 저장',
-          '보고서는 삭제할 수',
-          '언제든지 구독을 해지',
-        ],
-        disclaimer: ['오락', '미래를 예측하지 않습니다', '의료', '법률', '재무'],
-      },
+    // 法律页只有英文一份；其他语言同一路径显示英文正文并标注、noindex、不进站点地图
+    const titles = {
+      privacy: 'Privacy Policy',
+      terms: 'Terms of Service',
+      refund: 'Refund Policy',
+      disclaimer: 'Disclaimer',
+    } as const
+    const body = {
+      privacy: ['18 and over', 'never sell', 'DeepSeek', 'Cloudflare Web Analytics'],
+      terms: ['at least 18 years old', 'Limitation of liability'],
+      refund: [
+        'returned to your account automatically',
+        'When we do not refund',
+        '5 business days',
+      ],
+      disclaimer: [
+        'entertainment',
+        'Not a substitute for professional advice',
+        'No prediction of the future',
+        'No guarantee of accuracy',
+      ],
+    }
+    const localized = {
+      en: { note: null, footer: 'Disclaimer' },
+      'zh-Hant': { note: '僅提供英文版本', footer: '免責聲明（英文）' },
+      ko: { note: '영어로만 제공', footer: '면책 고지 (영문)' },
     }[lang]
     const site = lang === 'en' ? 'west' : 'east'
     const origin = new URL(baseURL ?? 'http://localhost:3000')
     origin.hostname = `${site}.localhost`
     const slugs = ['privacy', 'terms', 'refund', 'disclaimer'] as const
     for (const slug of slugs) {
-      // 使用真实站点 Host 验证韩语正文，不把默认语言回退误当成翻译成功。
-      const response = await page.goto(`${origin.origin}${prefix}/legal/${slug}`)
+      const response = await page.goto(`${origin.origin}${prefix}/${slug}`)
       expect(response?.status(), slug).toBe(200)
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText(copy.titles[slug])
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(titles[slug])
       const article = page.locator('article')
-      await expect(article).toHaveAttribute('lang', lang)
+      await expect(article).toHaveAttribute('lang', 'en')
+      await expect(article).toContainText('Last updated:')
       await expect(article).toContainText(templateConfig.app.supportEmail)
-      await expect(article).toContainText('[公司名称]')
-      await expect(article).toContainText('[联系地址]')
-      if (slug !== 'terms') {
-        for (const text of copy[slug]) await expect(article).toContainText(text)
+      for (const text of body[slug]) await expect(article).toContainText(text)
+      // 只从页脚进入，页头不出现法律页链接
+      await expect(page.locator(`header a[href="${prefix}/${slug}"]`)).toHaveCount(0)
+      const footerLink = page.locator(`footer a[href="${prefix}/disclaimer"]`)
+      await expect(footerLink).toHaveText(localized.footer)
+      const robots = page.locator('meta[name="robots"]')
+      if (localized.note) {
+        await expect(page.getByRole('note')).toContainText(localized.note)
+        await expect(robots).toHaveAttribute('content', /noindex/)
       } else {
-        await expect(article.locator(`a[href="${prefix}/legal/disclaimer"]`)).toBeVisible()
+        await expect(page.getByRole('note')).toHaveCount(0)
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+          'href',
+          `https://${templateConfig.sites[site].hosts[0]}/${slug}`,
+        )
       }
-      const footerLink = page.locator(`footer a[href="${prefix}/legal/disclaimer"]`)
-      await expect(footerLink).toHaveText(copy.titles.disclaimer)
-      await expect(footerLink).toBeVisible()
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-        'href',
-        `https://${templateConfig.sites[site].hosts[0]}${prefix}/legal/${slug}`,
-      )
     }
+    // Cookie 条款并入隐私政策的一节
+    await page.goto(`${origin.origin}${prefix}/privacy`)
+    await expect(page.getByRole('heading', { name: 'Cookies', level: 2 })).toBeVisible()
     const sitemap = await request.get(`/sitemap/${lang === 'zh-Hant' ? 'zh-hant' : lang}.xml`, {
       headers: { host: origin.host },
     })
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
     for (const slug of slugs) {
-      expect(xml).toContain(
-        `<loc>https://${templateConfig.sites[site].hosts[0]}${prefix}/legal/${slug}</loc>`,
-      )
+      const loc = `<loc>https://${templateConfig.sites[site].hosts[0]}${prefix}/${slug}</loc>`
+      if (lang === 'en') expect(xml).toContain(loc)
+      else expect(xml).not.toContain(loc)
     }
   })
 
