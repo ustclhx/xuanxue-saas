@@ -24,4 +24,4 @@
 
 ## 5. 验收
 
-- [ ] 5.1 三语各抽检 10 份 bazi/saju/numerology/tarot 详批（真实模型，staging），记录合规检查结果到 `docs/runbooks/evidence/readings/`；验证：抽检记录无未处理的违规项
+- [x] 5.1 三语各抽检 10 份 bazi/saju/numerology/tarot 详批（真实模型，staging），记录合规检查结果到 `docs/runbooks/evidence/readings/`；验证：抽检记录无未处理的违规项
