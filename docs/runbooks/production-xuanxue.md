@@ -30,6 +30,7 @@
 | Web 限流 | RL_AUTH / RL_AI / RL_API | `22002` / `22004` / `22006`，独立于 staging `21002/21004/21006` 与模板 `1001–1009` |
 | Turnstile | `xuanxue-production` | site key `0x4AAAAAAFdAs5UkBviOud_w`，managed，hostnames 为两个裸域 |
 | Web Worker | `xuanxue-web-production` | secret put 自动创建的空壳，尚未部署业务产物、routes 或绑定 |
+| Google Cloud 项目 | `xuanxue-production` | project ID 同名，project number `872796655195`，无组织；OAuth 配置待支持邮箱决定 |
 
 ## 执行记录
 
@@ -43,16 +44,24 @@
    - 独立 Node fetch 对两个 www 域名分别执行 HTTP 与 HTTPS 请求 `/production-redirect-check/path?source=prep&v=1`（redirect=manual），四项均返回 301，Location 为对应 HTTPS 裸域，路径和查询串完全一致。
 8. 创建一个 Turnstile widget（事前 list 为空），两个 hostnames、managed、no_clearance。公开 site key 已写 web production vars；secret 从捕获的 CLI JSON 在进程内存中经 stdin 传给 `wrangler secret put TURNSTILE_SECRET_KEY --env production`，退出 0。Wrangler 为此前不存在的 `xuanxue-web-production` 自动建立仅 `export default { fetch() {} }` 的空壳以保存 secret；没有执行非 dry-run deploy，没有上传业务产物或配置 custom domain。备份保存在主 checkout `.env.production-turnstile`（gitignored、600）；create 原始 JSON 与 secret 均未打印。
    - widget list 核对两个域名、managed / no_clearance；web production secret list 仅有 `TURNSTILE_SECRET_KEY`。
+9. 协调者允许跳过 Resend 后继续步骤 6–8。Google Cloud 当前 Chrome 会话已登录；先搜索确认无同名项目，创建独立 `xuanxue-production`，没有绑定结算或修改模板项目。OAuth 初始配置填写 Arcanumber 后，支持邮箱下拉框仅提供当前登录 Gmail，并显示“无群组”，无法选择指定 `support@arcanumber.com`。因此未保存同意屏幕、未创建客户端；已向协调者询问保留指定邮箱还是 Testing 暂用当前登录邮箱。法律链接仍按最新决定为 `/privacy`、`/terms`。
+10. 步骤 7：先 list 生产 web secrets，仅有 Turnstile；随机生成独立 `BETTER_AUTH_SECRET`，与指定 `BOOTSTRAP_ADMIN_EMAILS` 分别通过 stdin `wrangler secret put --env production` 写入，均退出 0；未打印值、未覆盖已存在 secret。Cloudflare secret list 不提供真值读取，不能读回 staging 的 `DEEPSEEK_API_KEY`；已请求用户把同一把 key 通过 600、gitignored 的主 checkout `.env.production-ai` 安全输入，尚未写入生产 DeepSeek key。未擅自搜索其他项目凭据。
+11. 步骤 8 的本地构建/dry-run 已完成，源码 SHA=`3f00729eefa7731e0a601d83f674cdfd6edadf0b`（其后仅补运维记录）。jobs `wrangler deploy --env production --dry-run --outdir dist --var APP_VERSION:<完整SHA>` 退出 0。web 构建显式设置 `CLOUDFLARE_ENV=production`、同一 APP_VERSION、APP_URL/WEST_URL=`https://arcanumber.com`、EAST_URL=`https://ganjiday.com`，两个 local Hyperdrive URL 均为不可达的 `127.0.0.1:1/unused` 占位；未加载 Neon URL。web build 退出 0、预渲染 503 页、无 `env.invalid`；公告/定价查询按既有设计降级，Server Function API 弃用警告保留。随后对生成的 `dist/server/wrangler.json` 执行 `wrangler deploy --config ... --dry-run`，退出 0；核对扁平配置的 Worker 名、两条 custom_domain、APP_URL、新 KV/Hyperdrive ID 与公开 Turnstile key 全部对应 production。
+    - 日志：`/tmp/xuanxue-production-jobs-dry-run.log`、`/tmp/xuanxue-production-web-build.log`、`/tmp/xuanxue-production-web-dry-run.log`。web gzip 约 2582 KiB，jobs gzip 约 741 KiB。两次均明确 `--dry-run: exiting now`，没有业务产物上传或真实部署；没有上传 Sentry release/source map。私有 SSR dist 可能包含本地预览 dotenv，不提交、不公开分享。
+    - 构建用的本地 dotenv 不含 SENTRY_DSN / MIGRATION_DATABASE_URL；没有创建或启用 Sentry。`node scripts/production/check-wrangler-envs.mjs` 退出 0，未改 PAYMENT_MODE、支付 providers、邮件代码或 Cron 策略。
 
 ## 当前阻塞与验证
 
-- 步骤 5 阻塞：浏览器访问 `https://resend.com/domains` 跳回公开首页，当前 Chrome 会话未登录。已停在 `https://resend.com/login` 并保留页面，请用户登录后续跑。没有新建 Resend 域名、没有写邮件 DNS 或 API key。没有访问/修改任何既有 Resend 项目。
-- 按用户要求顺序暂停后续外部操作：步骤 6 Google OAuth、步骤 7 其余 secret、步骤 8 完整生产预检/dry-run 尚未执行。未尝试读出 staging secret；`DEEPSEEK_API_KEY` 来源仍待步骤 7。
+- 步骤 5 延后（协调者明确允许跳过）：浏览器访问 `https://resend.com/domains` 跳回公开首页，当前 Chrome 会话未登录。已停在 `https://resend.com/login` 并保留页面，请用户登录后续跑。没有新建 Resend 域名、没有写邮件 DNS 或 API key。没有访问/修改任何既有 Resend 项目。
+- 步骤 6 暂停 OAuth 保存，等待支持邮箱决定；步骤 7 的 DeepSeek key 等待安全输入。Auth secret 与管理员名单已准备；完整生产预检不能宣称无缺项。
 - 静态检查发现后续预检需协调：`template.config.ts` 仍为 billing.enabled=true、providers=['stripe']；`scripts/staging/check-secrets.mjs` 的 `getSecretRequirements()` 因此仍要求 web/jobs 的 `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`，且 CLI 固定检查 staging。当前 production 不设 PAYMENT_MODE，但 checker 不读取它。本轮没有修改支付配置、没有写占位支付 secret，也没有把 Stripe 缺项豁免后声称通过生产门槛。
-- `pnpm check` 退出 0（日志 `/tmp/xuanxue-production-check.log`）。只改资源 ID、公开 site key 与运维记录，未新增无业务逻辑测试。生产资源检查、dry-run 和上线不开支付配置确认仍未完成，2.1 不勾选。
+- 以现有 `getSecretRequirements(templateConfig)` 对比 production 的 secret 名称：web 已有 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、TURNSTILE_SECRET_KEY；缺 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET、任务要求的 DEEPSEEK_API_KEY，以及已授权延后的 RESEND_API_KEY。Stripe 两项按协调者要求仅记录配置冲突。jobs Worker 尚不存在，secret list 退出 1，不能声称远端 secret 检查通过；尚无邮件 secret 写入需求，因此未为了检查新建 jobs 空壳或部署。
+- `pnpm check` 退出 0（日志 `/tmp/xuanxue-production-check.log`）。只改资源 ID、公开 site key 与运维记录，未新增无业务逻辑测试。上线不开支付配置确认仍由协调者处理，2.1 不勾选。
 
 ## 待完成
 
-- 步骤 5–7：Resend、Google OAuth 与其余生产 secrets。
-- 步骤 8：支付关闭前提下的 secrets 预检与两个 app 的 production dry-run。
+- 步骤 5：等待用户登录 Resend 后创建并验证两个发件域名、准备仅发送 key。
+- 步骤 6：等待支持邮箱决定后完成 External / Testing 同意屏幕、两个授权域名、`/privacy` / `/terms` 链接和两个 Google 回调，创建 Web 客户端并经 stdin 写 web secrets；当前仅项目创建完成。
+- 步骤 7：等待安全输入 staging 同一把 DeepSeek key；Auth secret 与管理员名单已完成。
+- 步骤 8：两个 app 的 production dry-run 已通过；仍需补齐上述非支付 secrets 并复核真实运行时凭据，才能满足完整预检。dry-run 不证明远端认证、邮件或 AI 联通。
 - 协调者确认上线不开支付的配置、发件地址代码与发布前 Cron 策略；本轮不修改这些业务行为。
