@@ -33,19 +33,26 @@ describe('分析脚本页面 head', () => {
     }
   })
 
-  it('有 token 时公开页面输出 defer beacon，应用与后台不输出', () => {
-    const config = {
-      ...templateConfig,
-      analytics: { ...templateConfig.analytics, cloudflareToken: 'public-token' },
-    }
-    expect(analyticsHeadScripts('/zh-hant/pricing', config)).toEqual([
+  it('按站点 token 在已登记域名的公开页面输出 defer beacon，应用、后台与预览域名不输出', () => {
+    const beacon = (token: string) => [
       {
         src: 'https://static.cloudflareinsights.com/beacon.min.js',
         defer: true,
-        'data-cf-beacon': '{"token":"public-token","spa":false}',
+        'data-cf-beacon': `{"token":"${token}","spa":false}`,
       },
-    ])
+    ]
+    const east = { id: 'east', known: true } as const
+    const west = { id: 'west', known: true } as const
+    expect(analyticsHeadScripts('/zh-hant/pricing', east, templateConfig)).toEqual(
+      beacon('21bda25feef743088c8ca9fb63b76a36'),
+    )
+    expect(analyticsHeadScripts('/pricing', west, templateConfig)).toEqual(
+      beacon('aa32b146781b4880aa9686d85c3a8f66'),
+    )
+    expect(analyticsHeadScripts('/pricing', { id: 'west', known: false }, templateConfig)).toEqual(
+      [],
+    )
     for (const pathname of ['/app', '/account', '/admin', '/admin/users', '/api/health'])
-      expect(analyticsHeadScripts(pathname, config)).toEqual([])
+      expect(analyticsHeadScripts(pathname, west, templateConfig)).toEqual([])
   })
 })

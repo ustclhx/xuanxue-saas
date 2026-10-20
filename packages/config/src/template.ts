@@ -29,6 +29,8 @@ export interface SiteConfig<L extends string = string> {
   readonly brand: { readonly name: string; readonly names: Readonly<Record<string, string>> }
   /** 本站对外联系邮箱（法律页、退款邮件等）；省略时沿用 `app.supportEmail` */
   readonly supportEmail: string
+  /** 本站 Cloudflare Web Analytics 公开 site token；省略时沿用 `analytics.cloudflareToken` */
+  readonly analyticsToken?: string
 }
 
 /**
@@ -217,6 +219,8 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
       brand?: { name?: string; names?: Partial<Record<NoInfer<L>, string>> }
       /** 省略时沿用 `app.supportEmail` */
       supportEmail?: string
+      /** 公开值，会发送到浏览器 */
+      analyticsToken?: string
     }
   }
   tenancy?: Partial<Section<'tenancy'>>
@@ -363,6 +367,7 @@ function resolveSites<L extends string>(
       names: { ...(configured[id].brand?.names as Record<string, string> | undefined) },
     },
     supportEmail: configured[id].supportEmail ?? input.app.supportEmail,
+    ...(configured[id].analyticsToken && { analyticsToken: configured[id].analyticsToken }),
   })
   const sites = { east: site('east'), west: site('west') }
 
