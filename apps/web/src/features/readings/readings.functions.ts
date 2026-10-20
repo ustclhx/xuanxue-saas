@@ -18,6 +18,7 @@ import { readRequestSession } from '../i18n/session.server.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 import { readingDefinition } from './catalog.ts'
 import { readingAvailable, readingConfig } from './config.ts'
+import { deleteReadingWithContent } from './delete.ts'
 import { finalizeReading } from './generate.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
@@ -252,9 +253,7 @@ export const deleteReading = createServerFn({ method: 'POST' })
   .handler(async ({ context, data }) => {
     if (context.workspaceReadOnly)
       throw new AppError('WORKSPACE_READ_ONLY', 'Workspace is read-only', { status: 403 })
-    const [deleted] = await scoped(context.db, context.workspace.id)
-      .delete(reading, and(eq(reading.id, data.id), ne(reading.status, 'generating')) as SQL)
-      .returning({ id: reading.id })
+    const deleted = await deleteReadingWithContent(context.db, context.workspace.id, data.id)
     if (!deleted) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
     return { ok: true as const }
   })

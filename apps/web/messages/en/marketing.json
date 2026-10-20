@@ -76,10 +76,10 @@
   "marketing_blog_empty": "No posts yet.",
   "marketing_blog_draft": "Draft",
   "marketing_blog_back": "Back to blog",
-  "marketing_legal_updated": "Last updated: {date}",
   "marketing_docs_title": "Documentation",
   "marketing_docs_nav_label": "Documentation",
   "marketing_docs_search_label": "Search documentation",
   "marketing_docs_search_placeholder": "Search…",
-  "marketing_docs_search_empty": "No results."
+  "marketing_docs_search_empty": "No results.",
+  "marketing_legal_english_only": "This page is currently available in English only."
 }

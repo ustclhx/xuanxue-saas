@@ -64,10 +64,10 @@
   "marketing_footer_product": "제품",
   "marketing_footer_resources": "자료",
   "marketing_footer_legal": "법적 고지",
-  "marketing_footer_privacy": "개인정보처리방침",
-  "marketing_footer_terms": "이용약관",
-  "marketing_footer_refund": "환불 정책",
-  "marketing_footer_disclaimer": "면책 고지",
+  "marketing_footer_privacy": "개인정보처리방침 (영문)",
+  "marketing_footer_terms": "이용약관 (영문)",
+  "marketing_footer_refund": "환불 정책 (영문)",
+  "marketing_footer_disclaimer": "면책 고지 (영문)",
   "marketing_footer_copyright": "© {year} {name}. All rights reserved.",
   "marketing_blog_title": "블로그",
   "marketing_blog_subtitle": "제품 소식, 가이드와 이야기.",
@@ -76,10 +76,10 @@
   "marketing_blog_empty": "아직 글이 없습니다.",
   "marketing_blog_draft": "초안",
   "marketing_blog_back": "블로그로 돌아가기",
-  "marketing_legal_updated": "최종 업데이트: {date}",
   "marketing_docs_title": "문서",
   "marketing_docs_nav_label": "문서 탐색",
   "marketing_docs_search_label": "문서 검색",
   "marketing_docs_search_placeholder": "검색…",
-  "marketing_docs_search_empty": "결과가 없습니다."
+  "marketing_docs_search_empty": "결과가 없습니다.",
+  "marketing_legal_english_only": "이 페이지는 현재 영어로만 제공되며, 아래는 영어 원문입니다."
 }

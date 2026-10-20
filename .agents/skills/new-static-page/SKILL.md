@@ -12,7 +12,7 @@ description: 在本模板新增或修改公开静态页、法律页、博客与�
 确认用户给出的 URL、集合、slug、启用语言、标题/描述、正文和上线时间。检查 `template.config.ts` 的 `marketing.enabled`、`i18n.enabled`、`i18n.locales`、默认语言，以及博客/文档功能开关。
 
 - 法律、博客、文档优先增加 `apps/web/content/<集合>/<locale>/<slug>.mdx`；集合目录是 `legal`、`blog`、`docs`。语言和 slug 从路径解析，不写重复 frontmatter 字段。
-- 法律页由 `apps/web/src/routes/legal/$slug.tsx` 自动承接；博客和文档也已有动态路由。已有集合新增内容无需逐页创建 TSX 路由。
+- 法律页固定为四个英文页 `/privacy` `/terms` `/disclaimer` `/refund`（`routes/<slug>.tsx` + `features/marketing/legal-page.tsx`），只从页脚进入；其他语言显示英文并标注、noindex。不新增法律页，除非用户另行要求。博客和文档已有动态路由，已有集合新增内容无需逐页创建 TSX 路由。
 - 独立页面才在 `apps/web/src/routes/` 添加文件路由，参考法律页的 `MarketingShell`、`loader`、`head`。登录后页面使用 `new-page` 技能。
 
 完成标准：确定一个现有内容集合或一个确需新增的路由；明确哪些启用语言提供译文，哪些按现有默认语言规则回退。
@@ -41,7 +41,7 @@ UI 文案写入 `apps/web/messages/<locale>/<feature>.json`，沿用现有键名
 
 `apps/web/src/features/seo/pages.ts` 的 `publicPages` 是 sitemap 与 OG 的共同清单：现有集合自动收录；新增独立页面须在清单及 `metadata.ts` 的 `staticPage` 中补齐语言元数据。核对 `apps/web/src/routes/sitemap[.]xml.ts` 与 `apps/web/src/features/seo/og-card.ts`，地图和图片不能出现草稿、未来内容或关闭功能的路由。新语言的标题/描述也应补入元数据，当前 `staticPage` 内置文案只区分 zh 与其他语言。
 
-`apps/web/src/features/marketing/prerender.ts` 默认预渲染首页、`/blog`、`/legal`、`/docs`；其他页面根据需求加入匹配范围并提供可爬取链接，入口由各语言首页开始。`/pricing` 有自己的数据策略，保留现有处理。
+`apps/web/src/features/marketing/prerender.ts` 默认预渲染首页、`/blog`、`/docs` 与四个法律页；其他页面根据需求加入匹配范围并提供可爬取链接，入口由各语言首页开始。`/pricing` 有自己的数据策略，保留现有处理。
 
 新增营销路由时同步检查 `apps/web/src/router.tsx` 的营销关闭裁剪规则，以及 `apps/web/vite.config.ts` 的预渲染配置。关闭营销时页面、地图、预渲染都应按现有开关消失；公开页读取失败时维持降级，数据库不可达不应阻止静态构建。导航入口放到现有营销布局的适当位置，使新页可被发现。
 

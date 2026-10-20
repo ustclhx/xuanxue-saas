@@ -20,7 +20,7 @@ describe('根布局页面 head', () => {
       '/admin',
       '/',
       '/blog/welcome',
-      '/legal/terms',
+      '/terms',
       '/docs/content',
     ]) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])

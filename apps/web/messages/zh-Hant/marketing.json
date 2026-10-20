@@ -64,10 +64,10 @@
   "marketing_footer_product": "產品",
   "marketing_footer_resources": "資源",
   "marketing_footer_legal": "法律",
-  "marketing_footer_privacy": "隱私政策",
-  "marketing_footer_terms": "服務條款",
-  "marketing_footer_refund": "退款政策",
-  "marketing_footer_disclaimer": "免責聲明",
+  "marketing_footer_privacy": "隱私政策（英文）",
+  "marketing_footer_terms": "服務條款（英文）",
+  "marketing_footer_refund": "退款政策（英文）",
+  "marketing_footer_disclaimer": "免責聲明（英文）",
   "marketing_footer_copyright": "© {year} {name}。保留所有權利。",
   "marketing_blog_title": "部落格",
   "marketing_blog_subtitle": "產品更新、使用指南與案例。",
@@ -76,10 +76,10 @@
   "marketing_blog_empty": "暫無文章。",
   "marketing_blog_draft": "草稿",
   "marketing_blog_back": "返回部落格",
-  "marketing_legal_updated": "最後更新：{date}",
   "marketing_docs_title": "文件",
   "marketing_docs_nav_label": "文件導航",
   "marketing_docs_search_label": "搜尋文件",
   "marketing_docs_search_placeholder": "搜尋…",
-  "marketing_docs_search_empty": "沒有結果。"
+  "marketing_docs_search_empty": "沒有結果。",
+  "marketing_legal_english_only": "本頁目前僅提供英文版本，以下為英文原文。"
 }

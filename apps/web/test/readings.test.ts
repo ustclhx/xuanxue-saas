@@ -27,6 +27,8 @@ import {
 } from '../src/features/admin/settings-readings.ts'
 import { readingDefinition } from '../src/features/readings/catalog.ts'
 import { readingConfig } from '../src/features/readings/config.ts'
+import { deleteReadingWithContent } from '../src/features/readings/delete.ts'
+import { workspaceContentDeletionStep } from '../src/features/readings/deletion.server.ts'
 import { handleReadingRequest, type ReadingDeps } from '../src/features/readings/generate.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
@@ -430,6 +432,59 @@ describe('POST /api/readings', () => {
     const modelKey = await textModel()
     const run = deps(reportModel(REPORT), modelKey)
     expect((await post({ cookie: '' }, unlock(), run.deps)).status).toBe(401)
+  })
+})
+
+describe('删除（隐私政策「如何删除数据」）', () => {
+  async function generated(who: Awaited<ReturnType<typeof member>>) {
+    const run = deps(reportModel(REPORT), await textModel())
+    const response = await post(who, unlock(), run.deps)
+    const id = response.headers.get('x-reading-id')
+    await response.text()
+    await run.settled()
+    if (!id) throw new Error('reading id missing')
+    return id
+  }
+  const conversationParts = (workspaceId: string) =>
+    sql<{ parts: unknown[]; title: string }[]>`
+      select m.parts, c.title from ai_message m join ai_conversation c on c.id = m.conversation_id
+      where m.workspace_id = ${workspaceId}`
+
+  it('删除一份报告时一并清空其 AI 对话正文与会话标题', async () => {
+    const who = await member(100)
+    const id = await generated(who)
+    expect((await conversationParts(who.workspaceId)).some((row) => row.parts.length > 0)).toBe(
+      true,
+    )
+
+    expect(await deleteReadingWithContent(db, who.workspaceId, id)).toBe(true)
+    expect(await readings(who.workspaceId)).toEqual([])
+    expect(await conversationParts(who.workspaceId)).toEqual([
+      { parts: [], title: '' },
+      { parts: [], title: '' },
+    ])
+    // 其他空间的报告不能删
+    const other = await member(0)
+    expect(await deleteReadingWithContent(db, other.workspaceId, id)).toBe(false)
+  })
+
+  it('删除账号的步骤清除个人空间的报告、AI 正文与订阅记录', async () => {
+    const who = await member(100)
+    await generated(who)
+    await sql`insert into newsletter_subscriber (id, email, confirm_token) values (${newId()}, ${who.email.toUpperCase()}, ${newId()})`
+    await sql.begin((tx) =>
+      workspaceContentDeletionStep.execute?.(
+        { actorUserId: who.userId, workspaceIds: [who.workspaceId], db },
+        tx,
+      ),
+    )
+    expect(await readings(who.workspaceId)).toEqual([])
+    expect((await conversationParts(who.workspaceId)).every((row) => row.parts.length === 0)).toBe(
+      true,
+    )
+    expect(
+      await sql`select 1 from newsletter_subscriber where lower(email) = lower(${who.email})`,
+    ).toHaveLength(0)
   })
 })
 

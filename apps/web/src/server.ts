@@ -36,6 +36,7 @@ import { createBillingDeletionSteps } from './features/billing/deletion.server.t
 import { assertSignupAdmission } from './features/growth/service.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
+import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
 import { siteHosts } from './features/site/site.ts'
 import { prerenderRequest, staticPageResponse } from './features/site/static-pages.ts'
@@ -201,7 +202,10 @@ function createCloudflareWebRuntime(
       clientIp: requestMeta.clientIp,
       hosts: siteHosts(templateConfig, config.APP_URL),
       sendEmail,
-      deletionSteps: createBillingDeletionSteps(config, db, cache),
+      deletionSteps: [
+        ...createBillingDeletionSteps(config, db, cache),
+        workspaceContentDeletionStep,
+      ],
       beforeUserCreate: async (user, headers) => {
         try {
           await assertSignupAdmission(

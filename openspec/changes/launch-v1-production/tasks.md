@@ -3,6 +3,7 @@
 ## 1. 内容
 
 - [x] 1.1 三语免责声明页与隐私政策补充（出生信息的处理方式），服务条款补充娱乐用途条款；验证：e2e 打开三语免责声明页，站点地图包含它们
+- [x] 1.2 法律页按语言收敛为英文四页 `/privacy` `/terms` `/disclaimer` `/refund`（仅页脚入口，其他语言显示英文并标注、noindex），以 Basecamp 政策（CC BY 4.0）改写；删除报告/账号时清除 AI 对话正文与订阅记录；验证：e2e 打开四页与繁中/韩语标注页，集成测试覆盖删除
 
 ## 2. 生产环境（decision gate：域名、Stripe live、Resend、Google OAuth、Turnstile、Neon、Sentry 由用户准备）
 
