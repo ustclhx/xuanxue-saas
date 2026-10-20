@@ -9,7 +9,8 @@
 ## 2. 生产环境（decision gate：域名、Stripe live、Resend、Google OAuth、Turnstile、Neon、Sentry 由用户准备）
 
 - [x] 2.1 按 `deploy-cloudflare` 技能做生产资源与密钥预检，`wrangler.jsonc` 生产环境加两条 custom_domain 路由，构建变量 `EAST_URL`/`WEST_URL`；验证：预检脚本无缺失项，`wrangler deploy --dry-run` 通过
-- [x] 2.2 生产部署（迁移 → seed → jobs → web）与后台配置（模型、详批开关与价格）；验证：两站 `/api/health` 返回部署 SHA，三语冒烟 e2e（`e2e-live`）通过
+- [ ] 2.2 生产部署（迁移 → seed → jobs → web）与后台配置（模型、详批开关与价格）；验证：两站 `/api/health` 返回部署 SHA，三语冒烟 e2e（`e2e-live`）通过
+  - 部署部分已完成（v0.1.1，见 `docs/runbooks/launch-v1.md`）；后台配置（模型、详批开关与价格）待 Stripe 开通与 D1 选定模型后完成
 - [ ] 2.3 Lighthouse 移动端审计两站各 3 个核心页（LCP < 2.5s、CLS < 0.1、INP < 200ms）；验证：报告存入 `docs/runbooks/evidence/launch-v1/`
 
 ## 3. 收录
