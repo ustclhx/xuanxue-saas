@@ -27,6 +27,8 @@ export interface SiteConfig<L extends string = string> {
   readonly defaultLocale: L | null
   /** name 用于结构化数据、未指定语言的场景；names 为各语言的显示名（如东方站繁中「干支日」） */
   readonly brand: { readonly name: string; readonly names: Readonly<Record<string, string>> }
+  /** 本站对外联系邮箱（法律页、退款邮件等）；省略时沿用 `app.supportEmail` */
+  readonly supportEmail: string
 }
 
 /**
@@ -42,10 +44,7 @@ export function siteBrandName(
   return (locale ? brand.names[locale] : undefined) ?? brand.name
 }
 
-/**
- * 语言所属站点的品牌显示名；未指定语言或语言不属于任何站点时用 `app.name`。
- * 用户语言可能是 `zh-TW`、`ko-KR` 这类原始值：精确匹配不到时按主语言标签匹配（与邮件选语言一致）。
- */
+/** 语言所属站点的品牌显示名；未指定语言或语言不属于任何站点时用 `app.name` */
 export function brandName(
   config: {
     readonly app: { readonly name: string }
@@ -53,13 +52,39 @@ export function brandName(
   },
   locale?: string | null,
 ): string {
-  if (!locale) return config.app.name
+  const match = localeSite(config, locale)
+  return match ? siteBrandName(config, match.site, match.locale) : config.app.name
+}
+
+/** 语言所属站点的联系邮箱；未指定语言或语言不属于任何站点时用 `app.supportEmail` */
+export function supportEmail(
+  config: {
+    readonly app: { readonly supportEmail: string }
+    readonly sites: { readonly [S in SiteId]: SiteConfig }
+  },
+  locale?: string | null,
+): string {
+  const match = localeSite(config, locale)
+  return match ? config.sites[match.site].supportEmail : config.app.supportEmail
+}
+
+/**
+ * 语言所属站点。用户语言可能是 `zh-TW`、`ko-KR` 这类原始值：精确匹配不到时按主语言标签匹配
+ * （与邮件选语言一致）。
+ */
+function localeSite(
+  config: { readonly sites: { readonly [S in SiteId]: SiteConfig } },
+  locale?: string | null,
+): { site: SiteId; locale: string } | undefined {
+  if (!locale) return undefined
   const primary = (tag: string) => tag.trim().toLowerCase().split(/[-_]/)[0]
-  const all = SITE_IDS.flatMap((id) => config.sites[id].locales.map((item) => ({ id, item })))
-  const match =
-    all.find(({ item }) => item === locale) ??
-    all.find(({ item }) => primary(item) === primary(locale))
-  return match ? siteBrandName(config, match.id, match.item) : config.app.name
+  const all = SITE_IDS.flatMap((site) =>
+    config.sites[site].locales.map((item) => ({ site, locale: item as string })),
+  )
+  return (
+    all.find((item) => item.locale === locale) ??
+    all.find((item) => primary(item.locale) === primary(locale))
+  )
 }
 
 /** 语言 id 在 URL 中的前缀段：BCP 47 的 `zh-Hant` 在 URL 中写作小写 `zh-hant`。 */
@@ -190,6 +215,8 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
       defaultLocale?: NoInfer<L> | null
       /** name 省略时沿用 `app.name`；names 只能使用本站语言 */
       brand?: { name?: string; names?: Partial<Record<NoInfer<L>, string>> }
+      /** 省略时沿用 `app.supportEmail` */
+      supportEmail?: string
     }
   }
   tenancy?: Partial<Section<'tenancy'>>
@@ -312,12 +339,19 @@ function resolveSites<L extends string>(
   defaultLocale: L,
 ): TemplateConfig<L>['sites'] {
   const brand = { name: input.app.name, names: {} }
+  const supportEmail = input.app.supportEmail
   const configured = input.sites
   if (!configured) {
     // 未配置站点注册表时保持单站形态：全部语言属于西方站
     return {
-      east: { hosts: [], locales: [], defaultLocale: null, brand },
-      west: { hosts: [new URL(input.app.url).hostname], locales, defaultLocale, brand },
+      east: { hosts: [], locales: [], defaultLocale: null, brand, supportEmail },
+      west: {
+        hosts: [new URL(input.app.url).hostname],
+        locales,
+        defaultLocale,
+        brand,
+        supportEmail,
+      },
     }
   }
   const site = (id: SiteId): SiteConfig<L> => ({
@@ -328,6 +362,7 @@ function resolveSites<L extends string>(
       name: configured[id].brand?.name ?? brand.name,
       names: { ...(configured[id].brand?.names as Record<string, string> | undefined) },
     },
+    supportEmail: configured[id].supportEmail ?? input.app.supportEmail,
   })
   const sites = { east: site('east'), west: site('west') }
 

@@ -10,7 +10,8 @@ export interface RefundMailOptions {
   queue: Pick<QueueProducer<EmailQueueMessage>, 'send'>
   /** 按收件人语言取品牌名（两站品牌不同） */
   appName: (locale: string | null) => string
-  supportEmail: string
+  /** 按收件人语言取所属站点的联系邮箱 */
+  supportEmail: (locale: string | null) => string
 }
 const action = (status: string) => `billing.refund_email.${status}.queued`
 
@@ -42,7 +43,7 @@ export async function notifyRefundRequest(
       amount: request.approvedAmount,
       currency: 'USD',
       note: request.reviewNote ?? '',
-      supportEmail: options.supportEmail,
+      supportEmail: options.supportEmail(applicant?.locale ?? null),
     },
   })
   if (!message) throw new Error('Invalid refund notification')

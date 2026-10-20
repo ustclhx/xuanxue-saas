@@ -7,7 +7,7 @@ import { defineTemplateConfig } from '@xuanxue/config'
  */
 export default defineTemplateConfig({
   app: {
-    // 未区分站点的场景（如认证库内部、无语言的邮件）使用西方站品牌
+    // 未区分站点的场景（如认证库内部、无语言的邮件）使用西方站品牌与联系邮箱
     name: 'Arcanumber',
     url: 'https://arcanumber.com',
     supportEmail: 'support@arcanumber.com',
@@ -23,6 +23,8 @@ export default defineTemplateConfig({
       locales: ['zh-Hant', 'ko'],
       defaultLocale: null,
       brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日', ko: '간지데이' } },
+      // Cloudflare Email Routing 转发到运营者邮箱（D6：不公开个人邮箱与地址）
+      supportEmail: 'support@ganjiday.com',
     },
     // 后续加入 fr / de / nl / it，各语言统一使用 Arcanumber
     west: {

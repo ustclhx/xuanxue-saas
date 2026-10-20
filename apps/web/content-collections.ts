@@ -12,6 +12,7 @@ import * as ReactDOM from 'react-dom'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { z } from 'zod'
 import templateConfig from '../../template.config.ts'
+import { SUPPORT_EMAIL_TOKEN } from './src/features/marketing/legal-tokens.ts'
 
 /**
  * 是否保留草稿：`vite dev` 中显示草稿便于预览，生产构建（NODE_ENV=production）直接跳过，
@@ -55,8 +56,11 @@ const legalPlaceholders: Record<string, string> = {
   refundWindowDays: String(templateConfig.billing.refundWindowDays),
 }
 
-export function fillPlaceholders(text: string): string {
-  return text.replace(/\{\{(\w+)\}\}/g, (match, key: string) => legalPlaceholders[key] ?? match)
+export function fillPlaceholders(text: string, overrides: Record<string, string> = {}): string {
+  return text.replace(
+    /\{\{(\w+)\}\}/g,
+    (match, key: string) => overrides[key] ?? legalPlaceholders[key] ?? match,
+  )
 }
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:\d{2}))?$/)
@@ -100,7 +104,11 @@ const legalPages = defineCollection({
       ...localeAndSlug(document._meta),
       title: fillPlaceholders(data.title),
       description: fillPlaceholders(data.description),
-      html: await renderMdx(context, { ...document, content: fillPlaceholders(content) }),
+      // 联系邮箱按站点在渲染时替换（东方站 support@ganjiday.com），这里先换成纯文本标记
+      html: await renderMdx(context, {
+        ...document,
+        content: fillPlaceholders(content, { supportEmail: SUPPORT_EMAIL_TOKEN }),
+      }),
     }
   },
 })

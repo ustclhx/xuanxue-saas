@@ -11,7 +11,7 @@ import {
   runPendingCompensations,
   runSubscriptionReconciliation,
 } from '@xuanxue/billing'
-import { brandName } from '@xuanxue/config'
+import { brandName, supportEmail } from '@xuanxue/config'
 import { auditLog, type Database, webhookEvent } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import type { DatabaseAccess, KeyValueStore, QueueProducer } from '@xuanxue/platform'
@@ -50,7 +50,7 @@ export function createBillingContext(env: BillingEnv) {
         },
       },
       appName: (locale: string | null) => brandName(templateConfig, locale),
-      supportEmail: templateConfig.app.supportEmail,
+      supportEmail: (locale: string | null) => supportEmail(templateConfig, locale),
     },
   }
 }

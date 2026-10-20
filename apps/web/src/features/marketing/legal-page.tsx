@@ -1,9 +1,11 @@
+import { supportEmail } from '@xuanxue/config'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { ogImagePath, originFromMatches, pageHead } from '../seo/metadata.ts'
 import { formatDate } from './blog/post-list.tsx'
 import { getLegalPage } from './content.functions.ts'
+import { type LegalSlug, SUPPORT_EMAIL_TOKEN } from './legal-tokens.ts'
 import { MarketingShell } from './marketing-shell.tsx'
 import { RichContent } from './rich-content.tsx'
 
@@ -11,9 +13,6 @@ import { RichContent } from './rich-content.tsx'
  * 法律页只有四个，路径不带 /legal 前缀，只从页脚进入（launch-v1-production 法律页需求）。
  * 合规按语言而不是国家处理：先只有英文一份，其他语言的同一路径显示英文正文并标注，且不进索引。
  */
-export const LEGAL_SLUGS = ['privacy', 'terms', 'disclaimer', 'refund'] as const
-export type LegalSlug = (typeof LEGAL_SLUGS)[number]
-export const LEGAL_PATHS = LEGAL_SLUGS.map((slug) => `/${slug}` as const)
 
 type LegalPageData = Awaited<ReturnType<typeof getLegalPage>>
 
@@ -52,6 +51,9 @@ export function legalRouteOptions(slug: LegalSlug) {
 
 export function LegalPage({ page }: { page: LegalPageData }) {
   const fallback = page.locale !== getLocale()
+  // 联系邮箱按当前站点替换构建时留下的标记
+  const email = supportEmail(templateConfig, getLocale())
+  const html = page.html.replaceAll(SUPPORT_EMAIL_TOKEN, email)
   return (
     <MarketingShell>
       <div className="mx-auto grid max-w-3xl gap-4 px-4 py-16">
@@ -65,13 +67,13 @@ export function LegalPage({ page }: { page: LegalPageData }) {
         )}
         <article lang={page.locale} className="grid gap-4">
           <h1 className="font-bold text-4xl tracking-tight">{page.title}</h1>
-          <RichContent html={page.html} />
+          <RichContent html={html} />
           <footer className="mt-8 grid gap-1 border-line border-t pt-4 text-muted-foreground text-sm">
             <p className="m-0">Last updated: {formatDate(page.updatedAt, 'en')}</p>
             <p className="m-0">
               Contact:{' '}
-              <a href={`mailto:${templateConfig.app.supportEmail}`} className="underline">
-                {templateConfig.app.supportEmail}
+              <a href={`mailto:${email}`} className="underline">
+                {email}
               </a>
             </p>
           </footer>

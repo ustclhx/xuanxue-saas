@@ -2,7 +2,9 @@ import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { listDeletionRefundReminders } from '@xuanxue/billing'
+import { supportEmail } from '@xuanxue/config'
 import { AppError } from '@xuanxue/shared'
+import { getLocale } from '../../paraglide/runtime.js'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
@@ -36,7 +38,7 @@ export const getAccount = createServerFn({ method: 'GET' }).handler(async () => 
         billingHref: personal ? `/app/${personal.slug}/billing` : '/app',
       },
       ...(await loadAccount(db, user, templateConfig)),
-      supportEmail: templateConfig.app.supportEmail,
+      supportEmail: supportEmail(templateConfig, getLocale()),
       signupBonusCredits: templateConfig.credits.enabled
         ? templateConfig.billing.signupBonusCredits
         : 0,

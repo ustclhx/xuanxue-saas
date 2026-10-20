@@ -6,7 +6,7 @@ import {
   notifyRefundRequest,
   submitRefundRequest,
 } from '@xuanxue/billing'
-import { brandName } from '@xuanxue/config'
+import { brandName, supportEmail } from '@xuanxue/config'
 import { requireCapability } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
 import { z } from 'zod'
@@ -38,7 +38,7 @@ function options(db: Parameters<typeof listRefundablePayments>[0]['db']) {
           db,
           queue: requireCapability(getWebRuntime().emailQueue, 'Email queue'),
           appName: (locale) => brandName(templateConfig, locale),
-          supportEmail: templateConfig.app.supportEmail,
+          supportEmail: (locale) => supportEmail(templateConfig, locale),
         },
         notification,
       ),

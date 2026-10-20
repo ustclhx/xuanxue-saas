@@ -1,7 +1,9 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { listDeletionRefundReminders } from '@xuanxue/billing'
+import { supportEmail } from '@xuanxue/config'
 import { DeletionSection } from '../../../features/deletion/deletion-section.tsx'
+import { getLocale } from '../../../paraglide/runtime.js'
 import { withWorkspace } from '../../../server/middleware.ts'
 import { templateConfig } from '../../../server/template-config.ts'
 
@@ -23,7 +25,7 @@ const getDeletionWorkspace = createServerFn({ method: 'GET' })
         billingHref: `/app/${workspace.slug}/billing`,
       },
       workspace: { id: workspace.id, name: workspace.name },
-      supportEmail: templateConfig.app.supportEmail,
+      supportEmail: supportEmail(templateConfig, getLocale()),
     }
   })
 export const Route = createFileRoute('/app/$slug/delete')({

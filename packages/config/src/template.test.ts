@@ -7,6 +7,7 @@ import {
   type PaymentProvider,
   type PricingMode,
   siteBrandName,
+  supportEmail,
   type TemplateConfig,
   templateConfigDefaults,
 } from './template.ts'
@@ -155,12 +156,19 @@ describe('sites', () => {
 
   it('puts every locale on the west site when no registry is configured', () => {
     expect(defineTemplateConfig({ app }).sites).toEqual({
-      east: { hosts: [], locales: [], defaultLocale: null, brand: { name: 'xuanxue', names: {} } },
+      east: {
+        hosts: [],
+        locales: [],
+        defaultLocale: null,
+        brand: { name: 'xuanxue', names: {} },
+        supportEmail: app.supportEmail,
+      },
       west: {
         hosts: ['arcanumber.com'],
         locales: ['en', 'zh-Hant', 'ko'],
         defaultLocale: 'en',
         brand: { name: 'xuanxue', names: {} },
+        supportEmail: app.supportEmail,
       },
     })
   })
@@ -171,14 +179,26 @@ describe('sites', () => {
       i18n,
       sites: {
         ...sites,
-        east: { ...sites.east, brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } } },
+        east: {
+          ...sites.east,
+          brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } },
+          supportEmail: 'support@ganjiday.com',
+        },
       },
     })
     expect(config.sites.east).toEqual({
       ...sites.east,
       brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } },
+      supportEmail: 'support@ganjiday.com',
     })
-    expect(config.sites.west).toEqual({ ...sites.west, brand: { name: 'xuanxue', names: {} } })
+    expect(config.sites.west).toEqual({
+      ...sites.west,
+      brand: { name: 'xuanxue', names: {} },
+      supportEmail: app.supportEmail,
+    })
+    expect(supportEmail(config, 'zh-TW')).toBe('support@ganjiday.com')
+    expect(supportEmail(config, 'en')).toBe(app.supportEmail)
+    expect(supportEmail(config, null)).toBe(app.supportEmail)
     expectTypeOf(config.sites.east.defaultLocale).toEqualTypeOf<'en' | 'zh-Hant' | 'ko' | null>()
   })
 

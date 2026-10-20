@@ -34,6 +34,7 @@ export {
   type SiteConfig,
   type SiteId,
   siteBrandName,
+  supportEmail,
   type TemplateConfig,
   type TemplateConfigInput,
   templateConfigDefaults,
