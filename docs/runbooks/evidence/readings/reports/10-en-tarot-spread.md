@@ -1,31 +1,27 @@
 > This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.
 
 ## Overview
-This spread frames confidence as something built rather than summoned. The Knight of Pentacles in the Past suggests a foundation of steady effort and reliability; the Five of Swords in the Present points to friction, comparison, or a hollow-feeling struggle that may be draining your creative energy; the Six of Wands in the Future offers a possible direction of earned confidence and visible progress. Together, they suggest that your creative confidence may grow most reliably when you pair patient craft with clear boundaries around conflict and validation.
+All three cards are from the Minor Arcana, which gives this reading a grounded, practical tone: confidence here is less about waiting for a big shift and more about how you work, handle friction, and let progress be seen. The spread moves from steady persistence in the Past, through conflict or hollow competition in the Present, toward recognition and confidence as a possible Future direction. It suggests that confidence can be built through reliable craft, honest choices about which battles to engage, and a willingness to acknowledge progress.
 
 ## The Cards in Position
-- **Past — Knight of Pentacles:** This card highlights reliability, persistence, and the slow accumulation of skill. Your past experiences with this project or with creative work more broadly may include showing up consistently, finishing unglamorous tasks, or building trust in your own process. That grounded history is a real resource, even if it does not feel exciting.
-- **Present — Five of Swords:** In the present position, this card brings attention to conflict and hollow victory. There may be a debate you are trying to win—with a collaborator, a critic, or yourself—that costs more energy than it returns. It can also reflect comparison, perfectionism, or the temptation to prove yourself rather than make the work.
-- **Future — Six of Wands:** This card suggests a possible direction of recognition and confidence. It is not a promise of public acclaim, but an invitation to consider what earned confidence could look like: sharing work after steady effort, accepting constructive feedback, and allowing yourself to be seen without making visibility the only measure of success.
+- **Past — Knight of Pentacles (upright):** This card points to reliability, patience, and persistence as experiences that have shaped your question. You may have approached creative work by putting in steady effort, repeating steps, and honoring commitments—qualities that can become a strong foundation for confidence.
+- **Present — Five of Swords (upright):** What deserves attention now is conflict and the idea of a hollow victory. This may involve tension with collaborators, comparison with others, perfectionism, or an inner critic that turns creative work into a battle to win. The card invites you to notice where winning would cost more than it gives.
+- **Future — Six of Wands (upright):** Recognition and confidence appear as a possible direction to consider, not a prediction. This could mean allowing your work to be seen, accepting encouragement, or recognizing your own progress. It is less about guaranteed applause and more about practicing a visible, earned sense of confidence.
 
 ## How the Cards Interact
-The spread has a useful tension. The Knight of Pentacles is quiet, methodical, and uninterested in drama; the Five of Swords is sharp, mental, and potentially exhausting. The contrast suggests that your creative confidence may be undermined less by lack of ability than by getting pulled into battles that do not serve the work. The Six of Wands then offers a constructive outlet: confidence that comes from visible follow-through and healthy recognition, not from winning every argument or seeking universal approval.
-
-Read together, the cards suggest a progression from steady effort, through a period of sorting out friction, toward a more assured and visible relationship with your creative work. The key is to let the Knight’s patience govern the Five’s friction, so that the Six’s confidence is grounded in real progress rather than external validation alone.
+The Knight of Pentacles shows a history of steady effort, while the Five of Swords reveals where that steadiness may have hardened into overcontrol or unnecessary struggle. The hinge between them is worth examining: persistence is valuable, but if you are grinding through conflict just to prove yourself right, the victory may feel empty. The Six of Wands then offers a different kind of confidence—one that comes from progress being witnessed and acknowledged, rather than from defeating someone else. Read together, the cards suggest that confidence grows when you keep your reliable habits, release the battles that do not serve the work, and let the work be seen in appropriate, low-pressure ways.
 
 ## What to Reflect On
-- Where has your quiet persistence already carried you further than you give yourself credit for?
-- What creative “battle” are you currently fighting that may be a hollow victory—proving a point, pleasing a critic, or winning an argument with yourself?
-- What would confidence feel like if it were based on your own evidence of showing up, rather than on applause or comparison?
-- Who is a trustworthy reader or collaborator who could offer honest, useful feedback without turning the project into a contest?
-- What small piece of work are you ready to let be seen, even in an unfinished form?
+- Where have my dependable habits helped me, and where have they turned into stubbornness or perfectionism?
+- What conflict around this project is actually a “hollow victory” waiting to happen—and what would it look like to step back or renegotiate instead?
+- Am I confusing confidence with winning, being right, or receiving constant approval?
+- What kind of recognition would feel meaningful and grounding, rather than merely impressive?
+- What small piece of progress could I let someone I trust witness?
 
 ## Practical Next Steps
-- Set one small, repeatable work session for this project—short enough that you can keep it consistently, and specific enough that you know when it is done.
-- Identify one current source of creative friction. Ask whether it is worth solving, worth discussing directly, or worth stepping away from so you can protect your making time.
-- Separate generating from judging: draft freely in one session, then evaluate in a later session with clear criteria.
-- Keep a simple evidence log of what you have completed, learned, or moved forward. Use it as a grounded counterweight to self-doubt.
-- Share one modest piece of the project with a trusted person, framing the feedback you want rather than asking for general approval.
-- When recognition or visibility comes, receive it without making it the foundation of your confidence; let it confirm the work you have already done.
+- Use the Knight of Pentacles as a model: define one or two small, repeatable creative actions you can complete consistently this week, and track them without demanding perfection.
+- With the Five of Swords in mind, identify one creative battle—an argument, comparison, or self-critical standard—and ask whether it is worth the energy. Choose to pause, clarify, or step away where the cost is too high.
+- Take one low-stakes step toward the Six of Wands: share a work-in-progress with a trusted person, ask for specific feedback, or write down three signs of progress you can honestly acknowledge.
+- Before seeking external recognition, name what confidence would feel like in your body and your process—then notice the moments you already practice it.
 
 > This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.
