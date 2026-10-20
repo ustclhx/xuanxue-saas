@@ -1,0 +1,296 @@
+{
+  "observedAt": "2026-10-20T16:54:11.533Z",
+  "sha": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+  "checks": [
+    {
+      "url": "https://arcanumber.com/api/health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+        "db": {
+          "status": "up",
+          "latencyMs": 258
+        },
+        "jobs": {
+          "lastCronAt": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "url": "https://www.arcanumber.com/x?y=1",
+      "status": 301,
+      "location": "https://arcanumber.com/x?y=1",
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/",
+      "finalUrl": "https://arcanumber.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/pricing",
+      "finalUrl": "https://arcanumber.com/pricing",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/zh-hant/pricing",
+      "finalUrl": "https://ganjiday.com/zh-hant/pricing",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/ko/pricing",
+      "finalUrl": "https://ganjiday.com/ko/pricing",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/privacy",
+      "finalUrl": "https://arcanumber.com/privacy",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/terms",
+      "finalUrl": "https://arcanumber.com/terms",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/disclaimer",
+      "finalUrl": "https://arcanumber.com/disclaimer",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/refund",
+      "finalUrl": "https://arcanumber.com/refund",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/sitemap.xml",
+      "finalUrl": "https://arcanumber.com/sitemap.xml",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true,
+      "containsOwnDomain": true,
+      "containsLocalizedLegal": false
+    },
+    {
+      "url": "https://arcanumber.com/robots.txt",
+      "finalUrl": "https://arcanumber.com/robots.txt",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true,
+      "body": "User-agent: *\nDisallow: /app\nDisallow: /account\nDisallow: /admin\nDisallow: /api\nDisallow: /en/app\nDisallow: /en/account\nDisallow: /en/admin\nDisallow: /en/api\nDisallow: /zh-hant/app\nDisallow: /zh-hant/account\nDisallow: /zh-hant/admin\nDisallow: /zh-hant/api\nDisallow: /ko/app\nDisallow: /ko/account\nDisallow: /ko/admin\nDisallow: /ko/api\nDisallow: /*?r=\nDisallow: /*&r=\nDisallow: /_site/\nSitemap: https://arcanumber.com/sitemap.xml\n"
+    },
+    {
+      "url": "https://arcanumber.com/zh-hant/privacy",
+      "finalUrl": "https://ganjiday.com/zh-hant/privacy",
+      "status": 200,
+      "robotsMeta": ["<meta name=\"robots\" content=\"noindex, follow\"/>"],
+      "xRobotsTag": null,
+      "noindex": true,
+      "expectedNoindex": true,
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/ko/privacy",
+      "finalUrl": "https://ganjiday.com/ko/privacy",
+      "status": 200,
+      "robotsMeta": ["<meta name=\"robots\" content=\"noindex, follow\"/>"],
+      "xRobotsTag": null,
+      "noindex": true,
+      "expectedNoindex": true,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/api/health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+        "db": {
+          "status": "up",
+          "latencyMs": 75
+        },
+        "jobs": {
+          "lastCronAt": null
+        }
+      },
+      "pass": true
+    },
+    {
+      "url": "https://www.ganjiday.com/x?y=1",
+      "status": 301,
+      "location": "https://ganjiday.com/x?y=1",
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/pricing",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/zh-hant/pricing",
+      "finalUrl": "https://ganjiday.com/zh-hant/pricing",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/ko/pricing",
+      "finalUrl": "https://ganjiday.com/ko/pricing",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/privacy",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/terms",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/disclaimer",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/refund",
+      "finalUrl": "https://ganjiday.com/",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/sitemap.xml",
+      "finalUrl": "https://ganjiday.com/sitemap.xml",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true,
+      "containsOwnDomain": true,
+      "containsLocalizedLegal": false
+    },
+    {
+      "url": "https://ganjiday.com/robots.txt",
+      "finalUrl": "https://ganjiday.com/robots.txt",
+      "status": 200,
+      "robotsMeta": [],
+      "xRobotsTag": null,
+      "noindex": false,
+      "expectedNoindex": false,
+      "pass": true,
+      "body": "User-agent: *\nDisallow: /app\nDisallow: /account\nDisallow: /admin\nDisallow: /api\nDisallow: /en/app\nDisallow: /en/account\nDisallow: /en/admin\nDisallow: /en/api\nDisallow: /zh-hant/app\nDisallow: /zh-hant/account\nDisallow: /zh-hant/admin\nDisallow: /zh-hant/api\nDisallow: /ko/app\nDisallow: /ko/account\nDisallow: /ko/admin\nDisallow: /ko/api\nDisallow: /*?r=\nDisallow: /*&r=\nDisallow: /_site/\nSitemap: https://ganjiday.com/sitemap.xml\n"
+    },
+    {
+      "url": "https://ganjiday.com/zh-hant/privacy",
+      "finalUrl": "https://ganjiday.com/zh-hant/privacy",
+      "status": 200,
+      "robotsMeta": ["<meta name=\"robots\" content=\"noindex, follow\"/>"],
+      "xRobotsTag": null,
+      "noindex": true,
+      "expectedNoindex": true,
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/ko/privacy",
+      "finalUrl": "https://ganjiday.com/ko/privacy",
+      "status": 200,
+      "robotsMeta": ["<meta name=\"robots\" content=\"noindex, follow\"/>"],
+      "xRobotsTag": null,
+      "noindex": true,
+      "expectedNoindex": true,
+      "pass": true
+    }
+  ]
+}

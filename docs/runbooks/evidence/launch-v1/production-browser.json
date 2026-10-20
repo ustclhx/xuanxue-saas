@@ -1,0 +1,56 @@
+{
+  "recordedAt": "2026-10-20T16:59:15.217010+00:00",
+  "sha": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+  "testAccount": {
+    "email": "launch-test-20261021@example.org",
+    "workspaceSlug": "u-2uc81072",
+    "registered": true,
+    "enteredPersonalWorkspace": true,
+    "passwordRelogin": true,
+    "deleteSubmitted": true,
+    "deleteSucceeded": false,
+    "visibleError": "Payment configuration is unavailable",
+    "postDeletionLoginRejection": "未验证：删除失败",
+    "passwordPersisted": false
+  },
+  "admin": {
+    "method": "Google",
+    "designatedAccountSelected": true,
+    "status": "等待用户确认额外姓名/头像/邮箱授权",
+    "registered": false,
+    "adminAccessVerified": false,
+    "passwordSet": false
+  },
+  "searchConsole": [
+    {
+      "resource": "sc-domain:arcanumber.com",
+      "method": "DNS TXT",
+      "ownershipVerified": true,
+      "sitemap": "https://arcanumber.com/sitemap.xml",
+      "listStatus": "成功",
+      "type": "站点地图索引",
+      "discoveredPages": 0,
+      "uiDate": "2026年10月21日"
+    },
+    {
+      "resource": "sc-domain:ganjiday.com",
+      "method": "DNS TXT",
+      "ownershipVerified": true,
+      "sitemap": "https://ganjiday.com/sitemap.xml",
+      "listStatus": "成功",
+      "type": "站点地图索引",
+      "discoveredPages": 0,
+      "uiDate": "2026年10月21日"
+    }
+  ],
+  "bing": {
+    "status": "未登录；按用户指示停在 Sign In",
+    "imported": false,
+    "initialError": "Bing is not available right now; retry recovered to public landing page"
+  },
+  "webAnalytics": {
+    "created": false,
+    "autoInjectionEnabled": false,
+    "reason": "已有 Zone 创建页默认自动注入；用户选择待确认"
+  }
+}

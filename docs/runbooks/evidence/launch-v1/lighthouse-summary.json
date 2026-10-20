@@ -1,0 +1,240 @@
+{
+  "sha": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+  "inpNote": "实验室导航审计未提供现场 INP；TBT 单独记录，不等同 INP。",
+  "reports": [
+    {
+      "file": "east-ko.report.json",
+      "url": "https://ganjiday.com/ko",
+      "finalUrl": "https://ganjiday.com/ko",
+      "fetchTime": "2026-10-20T16:54:18.383Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 97,
+        "accessibility": 96,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 1965.21,
+      "cls": 0,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": true,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    },
+    {
+      "file": "east-zh-hant-tarot.report.json",
+      "url": "https://ganjiday.com/zh-hant/%E5%A1%94%E7%BE%85",
+      "finalUrl": "https://ganjiday.com/zh-hant/%E5%A1%94%E7%BE%85",
+      "fetchTime": "2026-10-20T16:54:32.352Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 95,
+        "accessibility": 96,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 2253.985,
+      "cls": 0,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": true,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    },
+    {
+      "file": "east-zh-hant.report.json",
+      "url": "https://ganjiday.com/zh-hant",
+      "finalUrl": "https://ganjiday.com/zh-hant",
+      "fetchTime": "2026-10-20T16:54:04.800Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 99,
+        "accessibility": 96,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 1560,
+      "cls": 0,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": true,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    },
+    {
+      "file": "west-home.report.json",
+      "url": "https://arcanumber.com/",
+      "finalUrl": "https://arcanumber.com/",
+      "fetchTime": "2026-10-20T16:53:04.473Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 88,
+        "accessibility": 100,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 2852.129,
+      "cls": 0.0021746034626810187,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": false,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    },
+    {
+      "file": "west-pricing.report.json",
+      "url": "https://arcanumber.com/pricing",
+      "finalUrl": "https://arcanumber.com/pricing",
+      "fetchTime": "2026-10-20T16:53:49.762Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 96,
+        "accessibility": 100,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 1999.198,
+      "cls": 0.0001512916339992065,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": true,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    },
+    {
+      "file": "west-tarot.report.json",
+      "url": "https://arcanumber.com/tarot",
+      "finalUrl": "https://arcanumber.com/tarot",
+      "fetchTime": "2026-10-20T16:53:35.127Z",
+      "lighthouseVersion": "13.5.0",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/155.0.0.0 Safari/537.36",
+      "formFactor": "mobile",
+      "throttlingMethod": "simulate",
+      "throttling": {
+        "rttMs": 150,
+        "throughputKbps": 1638.4,
+        "requestLatencyMs": 562.5,
+        "downloadThroughputKbps": 1474.5600000000002,
+        "uploadThroughputKbps": 675,
+        "cpuSlowdownMultiplier": 4
+      },
+      "screenEmulation": {
+        "mobile": true,
+        "width": 412,
+        "height": 823,
+        "deviceScaleFactor": 1.75,
+        "disabled": false
+      },
+      "scores": {
+        "performance": 93,
+        "accessibility": 100,
+        "best-practices": 96,
+        "seo": 100
+      },
+      "lcpMs": 2422.808,
+      "cls": 0.0001512916339992065,
+      "tbtMs": 0,
+      "inpMs": null,
+      "passLcp": true,
+      "passCls": true,
+      "runWarnings": [],
+      "runtimeError": null
+    }
+  ]
+}

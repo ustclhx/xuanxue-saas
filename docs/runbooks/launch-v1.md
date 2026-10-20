@@ -1,59 +1,63 @@
 # v1 上线与收录记录
 
-2026-10-20 UTC。目标：Arcanumber（en）与 Ganjiday（zh-Hant / ko）以「付款即将开放」状态上线。
+2026-10-20 UTC（台北 2026-10-21）。Arcanumber（en）与 Ganjiday（zh-Hant / ko）已部署，付款保持即将开放。
 
 ## 当前状态
 
 | 项目 | 状态与证据 |
 | --- | --- |
-| 2.1 Worker 资源 / secrets / dry-run | 已完成本轮无支付上线配置的预检，见 [production runbook](production-xuanxue.md#本轮发布准备2026-10-20) 与 [证据](evidence/launch-v1/README.md) |
-| GitHub production environment | 已建立；仅 `v*` tag，required reviewer 为 `ustclhx`；迁移 secret 已写入；Cloudflare 两项 CI secret 等待用户终端输入 |
-| 2.2 迁移 → seed 确认 → jobs → web | 未执行本轮发布；已有生产迁移 14/14、seed 价格只读复核通过；等待 CI 凭据与修正工作流合入 main、同 SHA staging 成功 |
-| 2.3 Lighthouse | 未运行；需先有可用生产部署，不以空站或失败请求作为性能审计 |
-| 3.1 GSC / Bing | 未操作；部署暂停，尚无资源验证 / sitemap「成功」证据 |
-| Cloudflare Web Analytics | 未创建；暂无公开 site token，未启用自动注入，未修改应用代码 |
-| support 收件 | 既有两条 Cloudflare Routing Active、目标 Verified；仍需用户从其他邮箱实测两站 support 并确认收信 |
-| Resend | 用户决定延后；邮件传输保持默认 `log`，不发信 |
-| 支付 / 详批 / Sentry | 不配置任何支付、DeepSeek、Sentry secret；modelKey 默认空；不运行 billing:sync、不改价格 |
+| 2.1 Worker 资源 / secrets / dry-run | 已完成；原预检见 [production runbook](production-xuanxue.md) |
+| GitHub production environment | 三项必需 secret 名称齐全；新建独立生产 token，剪贴板写入后清空；已按本轮明确授权在浏览器批准 production |
+| 2.2 迁移 → seed 确认 → jobs → web | v0.1.0 发布成功；双站健康与三语只读冒烟通过；测试账号删号失败，管理员 Google 额外授权待用户确认，整体验收未通过 |
+| 2.3 Lighthouse | 六页移动端 HTML/JSON 已保存；西方首页 LCP 2.85s 未达 2.5s 门槛；未修改性能代码 |
+| 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
+| Cloudflare Web Analytics | 尚未创建；已有 Zone 的创建页默认自动注入，与本轮限制冲突，等待用户选择；没有开启自动注入或改代码 |
+| support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
+| Resend | 延后；邮件传输保持 log |
+| 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
 
-## 发布后的验收
+## 生产部署与验收
 
-- 两站 `/api/health`：HTTP 200、`db.status=up`、`version` 为部署完整 SHA；保存 Actions 链接及 jobs/web 版本。
-- 两站 `https://www.<域名>/x?y=1`：301 到裸域，路径与查询保留。
-- 西站 `/`、`/pricing`；东站 `/`、`/zh-hant`、`/ko`、`/zh-hant/pricing`、`/ko/pricing`；免费工具可计算，支付入口不可用、详批卡隐藏。
-- 两站 `/privacy`、`/terms`、`/disclaimer`、`/refund` 及东方语言前缀法律页；`/sitemap.xml`、`/robots.txt`。普通规范页可索引；非英文法律页按已批准 spec 保留 noindex 且不进入 sitemap。
-- 浏览器在西站用独立测试邮箱真实密码注册、进入个人空间后从应用删除账号；不要使用用户管理员邮箱。
-- 用户本人使用 BOOTSTRAP_ADMIN_EMAILS 中的邮箱注册。当前实现另要求邮箱已验证才授予 admin；log 邮件模式下不能声称首次密码注册即成为管理员，见生产 runbook。
+- annotated tag：`v0.1.0`；完整 SHA：`661e627ea2300b63c7aca22efc771f8ddc1ef8bd`。
+- 同 SHA [CI 39423060081](https://github.com/ustclhx/xuanxue-saas/actions/runs/39423060081) 与 [staging 39424024264](https://github.com/ustclhx/xuanxue-saas/actions/runs/39424024264) 成功后推送 tag；[production 39460843665](https://github.com/ustclhx/xuanxue-saas/actions/runs/39460843665) 全部成功，无重跑、无权限补正、无工作流或代码绕过。迁移成功；既有 seed 采用原只读确认，不改价格、不重新同步平台。
+- jobs version：`29202879-925a-427e-84e1-3960711ccd09`；web version：`85ad35de-7283-4bdc-9fa4-6de8aa8d2914`。
+- 两站 `/api/health` HTTP 200、db.up、完整 SHA 匹配；Actions 东方 6 passed、西方 3 passed，包含繁中/韩语首页与定价。该项目使用现有 `e2e/production` 只读套件；`e2e-live` 是支付联通套件，本轮没有运行支付测试。
+- 独立 [HTTP 验收](evidence/launch-v1/production-http.json) 28/28 通过：两站 www `/x?y=1` 均 301 到裸域并保留路径/查询；首页、三语定价、英文四法律页、robots 与 sitemap 正常；规范公开页无 noindex，已核对繁中/韩语 privacy 按设计 noindex。
+- 测试邮箱 `launch-test-20261021@example.org` 注册成功，进入个人空间 `u-2uc81072`；经账号设置退出并重新密码登录成功。输入 DELETE 提交删除后，页面返回 `Payment configuration is unavailable`，账号未删，不能宣称删除后登录被拒绝。未直接写库、未补支付密钥；测试密码只在操作内存中使用，不记录。
+- 删号原因据只读源码与配置推断：`apps/web/src/features/billing/deletion.server.ts` 的 before 初始化 `createPaymentRuntime`；当前 production 未设置 PAYMENT_MODE，`packages/billing/src/runtime.ts` 将模式校验失败映射为上述 503。此为需另行修复的已知上线风险，本轮不改代码。
+- 管理员：已在 Google 选择指定用户账号；随后出现姓名/头像/邮箱授权页，按用户要求停在“继续”前。尚未完成生产管理员注册或 `/admin` 验收；未设置或记录管理员密码。
 
-## Lighthouse 待执行清单
+## Lighthouse 移动端实测
 
-移动端，逐页保存原始 HTML / JSON 报告到本目录下 `evidence/launch-v1/`，记录测试 UTC、完整部署 SHA、Lighthouse / Chrome 版本、模拟网络与设备、performance 分数、LCP / CLS / TBT。实验室报告没有现场 INP 时，以 TBT 作为替代指标明确标注，不把 TBT 当成实测 INP。
+Lighthouse 13.5.0，独立 headless Chrome，默认移动设备与模拟网络/CPU。逐页测试 UTC、Chrome 版本、设备、网络和原始指标见 [汇总 JSON](evidence/launch-v1/lighthouse-summary.json) 与每页 ZIP 内原始 JSON。部署 SHA 同上。分数顺序为 Performance / Accessibility / Best Practices / SEO。
 
-| 站点 | 页面 | 分数 / LCP / CLS / INP 或 TBT |
-| --- | --- | --- |
-| 西方 | `https://arcanumber.com/` | 待部署 |
-| 西方 | `https://arcanumber.com/tarot` | 待部署 |
-| 西方 | `https://arcanumber.com/pricing` | 待部署 |
-| 东方 | `https://ganjiday.com/zh-hant` | 待部署 |
-| 东方 | `https://ganjiday.com/ko` | 待部署 |
-| 东方 | `https://ganjiday.com/zh-hant/塔羅` | 待部署 |
+| 页面 / 原始报告包 | 分数 | LCP | CLS | TBT | LCP / CLS 门槛 |
+| --- | --- | --- | --- | --- | --- |
+| [https://arcanumber.com/](evidence/launch-v1/lighthouse/west-home.zip) | 88 / 100 / 96 / 100 | 2.85s | 0.00217 | 0ms | LCP 未达标 |
+| [https://arcanumber.com/tarot](evidence/launch-v1/lighthouse/west-tarot.zip) | 93 / 100 / 96 / 100 | 2.42s | 0.00015 | 0ms | 通过 |
+| [https://arcanumber.com/pricing](evidence/launch-v1/lighthouse/west-pricing.zip) | 96 / 100 / 96 / 100 | 2.00s | 0.00015 | 0ms | 通过 |
+| [https://ganjiday.com/zh-hant](evidence/launch-v1/lighthouse/east-zh-hant.zip) | 99 / 96 / 96 / 100 | 1.56s | 0.00000 | 0ms | 通过 |
+| [https://ganjiday.com/ko](evidence/launch-v1/lighthouse/east-ko.zip) | 97 / 96 / 96 / 100 | 1.97s | 0.00000 | 0ms | 通过 |
+| [https://ganjiday.com/zh-hant/%E5%A1%94%E7%BE%85](evidence/launch-v1/lighthouse/east-zh-hant-tarot.zip) | 95 / 96 / 96 / 100 | 2.25s | 0.00000 | 0ms | 通过 |
 
-门槛：LCP < 2.5s、CLS < 0.1、INP < 200ms。未达标只保存结果并暂停报告，不在本轮修改性能代码。
+本次为实验室导航审计，无现场 INP；TBT 不等同 INP，不能据 TBT=0 声称 INP < 200ms。西方首页 LCP 未达标，2.3 保持未完成；按用户要求只记录。
 
-## GSC / Bing 待执行记录
+## GSC / Bing
 
-| 域名 | GSC Domain 资源 / DNS TXT / 验证 | sitemap | Bing 从 GSC 导入 |
+| Domain 资源 | DNS TXT 验证 | sitemap | Bing 从 GSC 导入 |
 | --- | --- | --- | --- |
-| `arcanumber.com` | 未操作 | `https://arcanumber.com/sitemap.xml`，尚未提交 | 未操作 |
-| `ganjiday.com` | 未操作 | `https://ganjiday.com/sitemap.xml`，尚未提交 | 未操作 |
+| `sc-domain:arcanumber.com` | 已通过；TXT 保留在本域 Cloudflare zone | `https://arcanumber.com/sitemap.xml`，2026-10-20 UTC 提交；刷新后显示「成功」、类型站点地图索引、发现网页 0 | 未导入，等待登录 |
+| `sc-domain:ganjiday.com` | 已通过；TXT 保留在本域 Cloudflare zone | `https://ganjiday.com/sitemap.xml`，2026-10-20 UTC 提交；刷新后显示「成功」、类型站点地图索引、发现网页 0 | 未导入，等待登录 |
 
-续跑时通过用户已登录浏览器建立 Domain 资源，只写对应 Cloudflare zone 的验证 TXT；验证后提交上述 sitemap，记录资源名、提交 UTC 与「成功」状态。Bing 从 GSC 导入；出现登录、审批、付费或接受条款时交用户处理。只有实际成功后勾选 3.1。
+两站刚提交时列表显示「无法抓取」，后续刷新均显示成功；记录最终成功状态，不把 sitemap 成功等同网页已收录。公共 TXT 仅新增 Google 验证记录，保留原 MX/SPF/DKIM/业务 DNS。Bing 首次访问服务不可用，稍后恢复为未登录首页；按用户要求停在 Sign In，未接受条款或授权。
 
-## Web Analytics 待执行记录
+## Web Analytics
 
-| 域名 | 手动 JS 片段站点 | 公开 site token |
+| 域名 | 手动 JS 站点 | 公开 site token |
 | --- | --- | --- |
-| `arcanumber.com` | 未创建 | 待创建后回填 |
-| `ganjiday.com` | 未创建 | 待创建后回填 |
+| `arcanumber.com` | 待处理创建页自动注入限制 | 尚未生成 |
+| `ganjiday.com` | 待处理创建页自动注入限制 | 尚未生成 |
 
-只选择手动 JS 片段，关闭自动注入；取得公开 token 后交协调者接入，不在本轮修改代码。
+Cloudflare [官方创建说明](https://developers.cloudflare.com/web-analytics/get-started/)明确：选择已在 Cloudflare 的 hostname 后 Done 默认启用自动注入，之后 Manage Site 才可切换 Enable with JS Snippet installation。当前未点击 Done，避免违反用户禁止自动注入的要求；等待明确选择，不改代码。
+
+Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。

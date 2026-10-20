@@ -25,3 +25,11 @@
 - 2.3 未完成：生产未部署，尚无六页 Lighthouse 报告；不将计划表当作实测结果。
 - 3.1 未完成：GSC/Bing 尚未操作，没有 sitemap「成功」证据。
 - 管理员邮箱 secret 已存在，不代用户注册；当前实现要求邮箱已验证才能提升，log 邮件限制待处理。support Routing 已 Active，实际收信仍待用户确认；Resend 发信按用户决定延后。Cloudflare Web Analytics 手动片段与公开 token 尚未创建。记录见 `docs/runbooks/launch-v1.md`。
+
+
+## 本轮生产实测（2026-10-20 UTC / 台北 2026-10-21）
+
+- 2.2：v0.1.0 已成功部署完整 SHA `661e627ea2300b63c7aca22efc771f8ddc1ef8bd`；双站 health/db/版本与东方 6、西方 3 只读冒烟通过。测试账号注册/重新登录通过，但删号返回 Payment configuration is unavailable，管理员 Google 额外授权待用户确认；整体验收未通过，暂不勾选。不开支付/不改价格/不启用详批模型的边界保持不变。
+- 2.3：六页移动端 HTML/JSON 已存入 evidence/launch-v1/lighthouse；西方首页 LCP 2.85s 超过 2.5s，其他五页 LCP 达标，全部 CLS 达标；无现场 INP。按用户要求只记录，保留未完成。
+- 3.1：两站 GSC Domain DNS TXT 验证通过，sitemap 均显示成功；Bing 未登录，等待用户操作，尚未导入，保留未完成。
+- 管理员、Analytics token 与后续状态见 docs/runbooks/launch-v1.md；本轮没有改代码绕过验收。
