@@ -140,7 +140,8 @@ it('invalid payment configuration leaves marketing prices visible and all provid
   expect(result.prices[0]?.available).toBe(false)
 })
 
-it('ordinary auth creates deletion steps without payment configuration, then deletion rejects before writes', async () => {
+it('ordinary auth creates deletion steps without payment configuration, then invalid mode rejects before writes', async () => {
+  mocks.env.PAYMENT_MODE = 'invalid'
   const db = mocks.db as unknown as Parameters<typeof billingDeletionSteps>[1]
   const [step] = billingDeletionSteps(mocks.env, db, {
     get: vi.fn(),
@@ -153,6 +154,22 @@ it('ordinary auth creates deletion steps without payment configuration, then del
   ).rejects.toMatchObject({ code: 'BILLING_UNAVAILABLE', status: 503 })
   expect(mocks.deletion).not.toHaveBeenCalled()
   expect(mocks.db.transaction).not.toHaveBeenCalled()
+})
+
+it('payments off (no PAYMENT_MODE) still deletes, leaving subscription checks to the step', async () => {
+  mocks.env.SENTRY_ENVIRONMENT = 'production'
+  const before = vi.fn()
+  mocks.deletion.mockReturnValue({ before, execute: vi.fn() })
+  const db = mocks.db as unknown as Parameters<typeof billingDeletionSteps>[1]
+  const [step] = billingDeletionSteps(mocks.env, db, {
+    get: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  })
+  const context = { actorUserId: 'actor', workspaceIds: ['workspace'], db }
+  await step?.before?.(context)
+  expect(mocks.deletion).toHaveBeenCalledWith(expect.objectContaining({ providers: {} }))
+  expect(before).toHaveBeenCalledWith(context)
 })
 
 it.each([checkoutCustomer, replayAdminWebhook])(
