@@ -130,7 +130,7 @@ for (const lang of languages) {
       await expect(footerLink).toBeVisible()
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
         'href',
-        `https://xuanxue-${site}.example${prefix}/legal/${slug}`,
+        `https://${templateConfig.sites[site].hosts[0]}${prefix}/legal/${slug}`,
       )
     }
     const sitemap = await request.get(`/sitemap/${lang === 'zh-Hant' ? 'zh-hant' : lang}.xml`, {
@@ -139,7 +139,9 @@ for (const lang of languages) {
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
     for (const slug of slugs) {
-      expect(xml).toContain(`<loc>https://xuanxue-${site}.example${prefix}/legal/${slug}</loc>`)
+      expect(xml).toContain(
+        `<loc>https://${templateConfig.sites[site].hosts[0]}${prefix}/legal/${slug}</loc>`,
+      )
     }
   })
 
