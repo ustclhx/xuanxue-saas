@@ -5,6 +5,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { ogImagePath, originFromMatches, pageHead } from '../seo/metadata.ts'
 import { formatDate } from './blog/post-list.tsx'
 import { getLegalPage } from './content.functions.ts'
+import { SUPPORT_EMAIL_TOKEN } from './legal-tokens.ts'
 import { MarketingShell } from './marketing-shell.tsx'
 import { RichContent } from './rich-content.tsx'
 
@@ -53,9 +54,9 @@ export function legalRouteOptions(slug: LegalSlug) {
 
 export function LegalPage({ page }: { page: LegalPageData }) {
   const fallback = page.locale !== getLocale()
-  // 联系邮箱按当前站点（构建时保留了 {{supportEmail}} 占位符）
+  // 联系邮箱按当前站点替换构建时留下的标记
   const email = supportEmail(templateConfig, getLocale())
-  const html = page.html.replaceAll('{{supportEmail}}', email)
+  const html = page.html.replaceAll(SUPPORT_EMAIL_TOKEN, email)
   return (
     <MarketingShell>
       <div className="mx-auto grid max-w-3xl gap-4 px-4 py-16">
