@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
+import { toTraditional } from './hant.ts'
 import { Markdown, parseMarkdown, sectionId } from './markdown.tsx'
 import {
   deleteReading,
@@ -56,7 +57,9 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
     return () => window.clearTimeout(timer)
   }, [slug, view])
 
-  const headings = parseMarkdown(view.content).filter(
+  // 生成中轮询到的是模型原文，与保存时同样把简体字换成繁体（已保存的正文不变）
+  const content = toTraditional(view.content, view.locale)
+  const headings = parseMarkdown(content).filter(
     (block): block is Extract<typeof block, { type: 'heading' }> =>
       block.type === 'heading' && block.level === 2,
   )
@@ -111,9 +114,9 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           </ol>
         </nav>
       )}
-      {view.content && (
+      {content && (
         <div className="rounded-xl border border-line bg-surface p-5 sm:p-8">
-          <Markdown source={view.content} />
+          <Markdown source={content} />
         </div>
       )}
       {view.status === 'ready' && (
