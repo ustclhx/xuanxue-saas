@@ -1,0 +1,33 @@
+{
+  "sourceSha": "b6ae303bdbf3f6c099f776d90efae30cedb99be6",
+  "configuration": "launch workflow and production Cron changes present at build time; see PR diff",
+  "webWorker": "xuanxue-web-production",
+  "routes": [
+    {
+      "pattern": "ganjiday.com",
+      "custom_domain": true
+    },
+    {
+      "pattern": "arcanumber.com",
+      "custom_domain": true
+    }
+  ],
+  "appUrl": "https://arcanumber.com",
+  "kv": [
+    {
+      "binding": "CACHE",
+      "id": "b78752af8dc14c749396378288c3e52f"
+    }
+  ],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "be92ef3d14a94d27bd87ed3a459d32ce"
+    },
+    {
+      "binding": "HYPERDRIVE_CACHED",
+      "id": "91c3e6d0fd5d44ba8f5c0864bb9450d9"
+    }
+  ],
+  "secretsIncluded": false
+}

@@ -33,6 +33,54 @@ test('production drift, staging reuse and forbidden vars are reported', () => {
   assert.ok(problems.includes('web: production must not set PAYMENT_MODE'))
 })
 
+test('production rejects template resources and wrong domain bindings', () => {
+  const config = wrangler('web')
+  const production = config.env.production
+  production.name = 'saas-web-production'
+  production.workers_dev = true
+  production.r2_buckets[0].bucket_name = 'saas-files-production'
+  production.queues.producers[0].queue = 'saas-email-production'
+  production.vars.APP_URL = 'https://app.ezarouter.cc'
+  production.vars.R2_FILES_BUCKET = 'saas-files-production'
+  production.routes = [{ pattern: 'app.ezarouter.cc', custom_domain: true }]
+  production.ratelimits[0].namespace_id = config.env.staging.ratelimits[0].namespace_id
+  const problems = checkEnvs('web', config)
+  for (const expected of [
+    'unexpected production Worker name',
+    'production workers.dev and preview URLs must be disabled',
+    'unexpected production R2 bucket',
+    'unexpected production queue for EMAIL_QUEUE',
+    'production APP_URL must be the western origin',
+    'production R2_FILES_BUCKET must match the FILES bucket',
+    'production routes must bind both production custom domains',
+    'production reuses staging ratelimit namespace RL_AUTH',
+  ])
+    assert.ok(
+      problems.some((line) => line.includes(expected)),
+      expected,
+    )
+})
+
+test('release workflow builds with both origins and verifies both sites independently', () => {
+  const workflow = readFileSync(
+    new URL('../../.github/workflows/deploy-production.yml', import.meta.url),
+    'utf8',
+  )
+  assert.match(workflow, /EAST_URL: https:\/\/ganjiday\.com/)
+  assert.match(workflow, /WEST_URL: https:\/\/arcanumber\.com/)
+  assert.doesNotMatch(workflow, /ezarouter/)
+  const build = workflow.split('- name: Build web\n')[1].split('\n      - name:')[0]
+  assert.match(build, /EAST_URL: \$\{\{ env\.EAST_URL }}/)
+  assert.match(build, /WEST_URL: \$\{\{ env\.WEST_URL }}/)
+  assert.match(build, /APP_URL: \$\{\{ env\.WEST_URL }}/)
+  for (const site of ['EAST', 'WEST']) {
+    assert.ok(workflow.includes(`wait-healthy.mjs "$${site}_URL/api/health" "$DEPLOY_SHA"`))
+    assert.ok(workflow.includes(`PRODUCTION_URL: \u0024{{ env.${site}_URL }}`))
+  }
+  assert.ok(workflow.includes('--project production --output test-results/east'))
+  assert.ok(workflow.includes('--project production --output test-results/west'))
+})
+
 const sha = 'a'.repeat(40)
 
 function run(overrides = {}) {
