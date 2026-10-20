@@ -32,7 +32,10 @@ export function creditPacks(catalog: PricingCatalog): Pack[] {
     .filter((plan) => plan.type === 'credit_pack' && plan.credits > 0)
     .map((plan) => {
       const prices = catalog.prices.filter(
-        (price) => price.planId === plan.id && price.interval === null && price.currency === 'usd',
+        (price) =>
+          price.planId === plan.id &&
+          price.interval === null &&
+          price.currency.toUpperCase() === 'USD',
       )
       const price = prices.find((item) => item.available) ?? prices[0]
       return {
