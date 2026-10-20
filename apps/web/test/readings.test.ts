@@ -358,6 +358,23 @@ describe('POST /api/readings', () => {
     expect((await getCreditBalance(db, who.workspaceId)).available).toBe(50)
   })
 
+  it('模型正常结束但章节不全（如输出截断）：预扣全额退回，报告标记失败、不保存残缺正文', async () => {
+    const who = await member(150)
+    const modelKey = await textModel()
+    const partial = deps(reportModel('## 總論\n\n只寫了總論就結束。'), modelKey)
+    const response = await post(who, unlock(), partial.deps)
+    expect(response.status).toBe(200)
+    await response.text()
+    await partial.settled()
+    expect((await getCreditBalance(db, who.workspaceId)).available).toBe(150)
+    expect(await holds(who.workspaceId)).toEqual([
+      { status: 'released', amount: 100, captured_amount: 0 },
+    ])
+    const [saved] = await readings(who.workspaceId)
+    expect(saved).toMatchObject({ status: 'failed', content: '' })
+    expect(partial.sent).toEqual([])
+  })
+
   it('生成过程中再次点击（含携带篡改命盘的请求）：返回同一份报告，不重复扣费', async () => {
     const who = await member(300)
     const modelKey = await textModel()
