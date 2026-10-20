@@ -55,8 +55,10 @@ const legalPlaceholders: Record<string, string> = {
   refundWindowDays: String(templateConfig.billing.refundWindowDays),
 }
 
-export function fillPlaceholders(text: string): string {
-  return text.replace(/\{\{(\w+)\}\}/g, (match, key: string) => legalPlaceholders[key] ?? match)
+export function fillPlaceholders(text: string, keep: readonly string[] = []): string {
+  return text.replace(/\{\{(\w+)\}\}/g, (match, key: string) =>
+    keep.includes(key) ? match : (legalPlaceholders[key] ?? match),
+  )
 }
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:\d{2}))?$/)
@@ -100,7 +102,11 @@ const legalPages = defineCollection({
       ...localeAndSlug(document._meta),
       title: fillPlaceholders(data.title),
       description: fillPlaceholders(data.description),
-      html: await renderMdx(context, { ...document, content: fillPlaceholders(content) }),
+      // 联系邮箱按站点在渲染时替换（东方站 support@ganjiday.com），这里保留占位符
+      html: await renderMdx(context, {
+        ...document,
+        content: fillPlaceholders(content, ['supportEmail']),
+      }),
     }
   },
 })

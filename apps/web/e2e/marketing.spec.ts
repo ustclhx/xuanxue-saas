@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { supportEmail } from '@xuanxue/config'
 import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
@@ -89,7 +90,8 @@ for (const lang of languages) {
       const article = page.locator('article')
       await expect(article).toHaveAttribute('lang', 'en')
       await expect(article).toContainText('Last updated:')
-      await expect(article).toContainText(templateConfig.app.supportEmail)
+      // 联系邮箱按站点（东方站 support@ganjiday.com）
+      await expect(article).toContainText(supportEmail(templateConfig, lang))
       for (const text of body[slug]) await expect(article).toContainText(text)
       // 只从页脚进入，页头不出现法律页链接
       await expect(page.locator(`header a[href="${prefix}/${slug}"]`)).toHaveCount(0)

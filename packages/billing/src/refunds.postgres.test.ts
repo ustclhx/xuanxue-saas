@@ -236,7 +236,7 @@ describe('trusted refund service on PostgreSQL', () => {
       .set({ email: `deleted+${uid}@invalid`, banned: true })
       .where(eq(user.id, uid))
     const queue = { send: vi.fn(async () => {}) }
-    const mail = { db, queue, appName: () => 'Tests', supportEmail: 'support@example.test' }
+    const mail = { db, queue, appName: () => 'Tests', supportEmail: () => 'support@example.test' }
     queue.send.mockRejectedValueOnce(new Error('queue unavailable'))
     const [saved] = await db.select().from(refundRequest).where(eq(refundRequest.id, request.id))
     if (!saved) throw new Error('Missing reviewed fixture')

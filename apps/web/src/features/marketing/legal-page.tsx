@@ -1,3 +1,4 @@
+import { supportEmail } from '@xuanxue/config'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
@@ -52,6 +53,9 @@ export function legalRouteOptions(slug: LegalSlug) {
 
 export function LegalPage({ page }: { page: LegalPageData }) {
   const fallback = page.locale !== getLocale()
+  // 联系邮箱按当前站点（构建时保留了 {{supportEmail}} 占位符）
+  const email = supportEmail(templateConfig, getLocale())
+  const html = page.html.replaceAll('{{supportEmail}}', email)
   return (
     <MarketingShell>
       <div className="mx-auto grid max-w-3xl gap-4 px-4 py-16">
@@ -65,13 +69,13 @@ export function LegalPage({ page }: { page: LegalPageData }) {
         )}
         <article lang={page.locale} className="grid gap-4">
           <h1 className="font-bold text-4xl tracking-tight">{page.title}</h1>
-          <RichContent html={page.html} />
+          <RichContent html={html} />
           <footer className="mt-8 grid gap-1 border-line border-t pt-4 text-muted-foreground text-sm">
             <p className="m-0">Last updated: {formatDate(page.updatedAt, 'en')}</p>
             <p className="m-0">
               Contact:{' '}
-              <a href={`mailto:${templateConfig.app.supportEmail}`} className="underline">
-                {templateConfig.app.supportEmail}
+              <a href={`mailto:${email}`} className="underline">
+                {email}
               </a>
             </p>
           </footer>
