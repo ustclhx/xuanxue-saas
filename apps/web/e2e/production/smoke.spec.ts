@@ -11,12 +11,12 @@ test('首页渲染', async ({ page }) => {
   await expect(page.getByLabel('Date of birth')).toBeVisible()
 })
 
-// 原营销首页的功能等板块已迁到定价页
+// 定价页只展示积分包（launch-v1-production 任务 1.3）
 test('定价页渲染', async ({ page }) => {
   const response = await page.goto('/pricing')
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-  await expect(page.locator('section#features')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Credit packs', exact: true })).toBeVisible()
 })
 
 test('健康接口返回本次版本且数据库可用', async ({ request }) => {
