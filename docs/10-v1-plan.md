@@ -12,7 +12,7 @@
 | `add-bazi-saju-chart` | 13/13，已归档（含 10 例公开排盘交叉抽查） |
 | `add-numerology-tools` | 5/5，已归档 |
 | `add-tarot-reading` | 8/8，已归档 |
-| `add-reading-monetization` | 11/11：staging 已启用；5.1 两轮真实模型抽检通过（[第一轮](runbooks/evidence/readings/2026-10-staging-sampling-r1.md)、[第二轮](runbooks/evidence/readings/2026-10-staging-sampling.md)）；10条品质问题转 [D1 上线模型选型](v1-decisions.md#d1-上线模型选型抽检基线2026-10-20) |
+| `add-reading-monetization` | 11/11，已归档；staging 已启用；5.1 两轮真实模型抽检通过（[第一轮](runbooks/evidence/readings/2026-10-staging-sampling-r1.md)、[第二轮](runbooks/evidence/readings/2026-10-staging-sampling.md)）；10条品质问题转 [D1 上线模型选型](v1-decisions.md#d1-上线模型选型抽检基线2026-10-20) |
 | `launch-v1-production` | 1/6：剩 2.1–3.2，需要域名与各平台账号（见 [v1-decisions.md](v1-decisions.md)） |
 
 额外完成：本地 Lighthouse 预检与首屏修复（CLS 全部 < 0.1；LCP 需在生产 Brotli/HTTP2 下复测，见 `docs/runbooks/evidence/perf-audit/2026-10-19.md`）、结果页 Turnstile 懒加载、staging 发布开关。
