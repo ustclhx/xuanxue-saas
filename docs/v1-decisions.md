@@ -21,6 +21,12 @@ DeepSeek 官方 API 的模型名是 `deepseek-flash`，当前由 DeepSeek-V4.1-F
 4. 2026-10-19 本地真实调用抽检（每类 1 份，thinking 关闭）：6 类章节齐全、语言正确；首字 0.6–1.0 s，整份 6–22 s，输出 0.8k–2.8k tokens；合规检查仅八字报告 1 段因「槓桿」命中投资规则并按设计替换。三语各 10 份的正式抽检（monetization 5.1）仍在 staging 做。
 5. 正式上线换模型时只改第 2、3 步。Anthropic 模型也可在未配置 Gateway 时凭 `ANTHROPIC_API_KEY` 直连（PR #23）。
 
+### D1 上线模型选型抽检基线（2026-10-20）
+
+上线模型选型须使用5.1抽检的同一组30份输入做对比，保留原出生/姓名数据及塔罗牌组、牌序、正逆位和问题。输入摘要、两轮相同请求体核验、报告全文与逐份审读见[第二轮证据](runbooks/evidence/readings/2026-10-staging-sampling.md)和[第一轮证据](runbooks/evidence/readings/2026-10-staging-sampling-r1.md)。重点比较语言纯度（繁中简体/外语混入，韩语混入非术语汉字、日文或中文）与事实准确性（十神的时干/时支位置、神煞名称与次数、五行比例等）。
+
+deepseek-flash第二轮基线为30份中4处语言问题、6处事实错误（R2-01–R2-10）。协调者决定：合规人工发现0、自动替换4处均通顺、R1的13项已解决，5.1合规验收通过；上述10条品质问题全部转入D1上线模型选型，正式上线模型仍待确定。保留原始报告与摘录，用于候选模型的同输入对比。
+
 ## 上线前需要的账号与凭据（decision gate，见 launch-v1-production §2）
 
 Cloudflare 账号与 API Token、Neon 生产库、Stripe（测试与 live）、Resend 发件域名、Google OAuth 应用（两站回调）、Turnstile（两站 hostname）、Sentry、GSC / Bing 账号。准备好后只需告诉协调者已就绪；密钥只写入 Wrangler / GitHub secrets，不进仓库。
