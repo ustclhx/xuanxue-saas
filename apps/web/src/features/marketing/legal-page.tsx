@@ -5,7 +5,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { ogImagePath, originFromMatches, pageHead } from '../seo/metadata.ts'
 import { formatDate } from './blog/post-list.tsx'
 import { getLegalPage } from './content.functions.ts'
-import { SUPPORT_EMAIL_TOKEN } from './legal-tokens.ts'
+import { type LegalSlug, SUPPORT_EMAIL_TOKEN } from './legal-tokens.ts'
 import { MarketingShell } from './marketing-shell.tsx'
 import { RichContent } from './rich-content.tsx'
 
@@ -13,9 +13,6 @@ import { RichContent } from './rich-content.tsx'
  * 法律页只有四个，路径不带 /legal 前缀，只从页脚进入（launch-v1-production 法律页需求）。
  * 合规按语言而不是国家处理：先只有英文一份，其他语言的同一路径显示英文正文并标注，且不进索引。
  */
-export const LEGAL_SLUGS = ['privacy', 'terms', 'disclaimer', 'refund'] as const
-export type LegalSlug = (typeof LEGAL_SLUGS)[number]
-export const LEGAL_PATHS = LEGAL_SLUGS.map((slug) => `/${slug}` as const)
 
 type LegalPageData = Awaited<ReturnType<typeof getLegalPage>>
 
