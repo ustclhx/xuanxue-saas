@@ -31,7 +31,8 @@
 | Web 限流 | RL_AUTH / RL_AI / RL_API | `22002` / `22004` / `22006`，独立于 staging `21002/21004/21006` 与模板 `1001–1009` |
 | Turnstile | `xuanxue-production` | site key `0x4AAAAAAFdAs5UkBviOud_w`，managed，hostnames 为两个裸域 |
 | Web Worker | `xuanxue-web-production` | secret put 自动创建的空壳，尚未部署业务产物、routes 或绑定 |
-| Google Cloud 项目 | `xuanxue-production` | project ID 同名，project number `872796655195`，无组织；OAuth 初始化待 Google 政策确认 |
+| Google Cloud 项目 | `xuanxue-production` | project ID 同名，project number `872796655195`，无组织；OAuth External / Testing |
+| Google OAuth Web 客户端 | `xuanxue-production-web` | 已创建、启用；两项凭据仅存 Wrangler secrets 与受保护本地 JSON，不记录真值 |
 
 ## 执行记录
 
@@ -50,20 +51,22 @@
 11. 步骤 8 的本地构建/dry-run 已完成，源码 SHA=`3f00729eefa7731e0a601d83f674cdfd6edadf0b`（其后仅补运维记录）。jobs `wrangler deploy --env production --dry-run --outdir dist --var APP_VERSION:<完整SHA>` 退出 0。web 构建显式设置 `CLOUDFLARE_ENV=production`、同一 APP_VERSION、APP_URL/WEST_URL=`https://arcanumber.com`、EAST_URL=`https://ganjiday.com`，两个 local Hyperdrive URL 均为不可达的 `127.0.0.1:1/unused` 占位；未加载 Neon URL。web build 退出 0、预渲染 503 页、无 `env.invalid`；公告/定价查询按既有设计降级，Server Function API 弃用警告保留。随后对生成的 `dist/server/wrangler.json` 执行 `wrangler deploy --config ... --dry-run`，退出 0；核对扁平配置的 Worker 名、两条 custom_domain、APP_URL、新 KV/Hyperdrive ID 与公开 Turnstile key 全部对应 production。
     - 日志：`/tmp/xuanxue-production-jobs-dry-run.log`、`/tmp/xuanxue-production-web-build.log`、`/tmp/xuanxue-production-web-dry-run.log`。web gzip 约 2582 KiB，jobs gzip 约 741 KiB。两次均明确 `--dry-run: exiting now`，没有业务产物上传或真实部署；没有上传 Sentry release/source map。私有 SSR dist 可能包含本地预览 dotenv，不提交、不公开分享。
     - 构建用的本地 dotenv 不含 SENTRY_DSN / MIGRATION_DATABASE_URL；没有创建或启用 Sentry。`node scripts/production/check-wrangler-envs.mjs` 退出 0，未改 PAYMENT_MODE、支付 providers、邮件代码或 Cron 策略。
-12. 支持邮箱决定已收到：初始配置已填写 Arcanumber、External、支持邮箱与开发者联系邮箱均为当前登录 Gmail。Google 最后一步要求勾选同意 [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy) 才能创建品牌；Computer Use 的条款接受规则要求当次确认，已向用户请求确认，尚未勾选或提交。Web 客户端和 Google secrets 尚未创建。
+12. 用户本人明确同意 [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy) 后，完成 OAuth 初始配置与品牌保存。应用名 Arcanumber；External；支持邮箱与开发者联系邮箱均为 `lhx960924@gmail.com`；首页 `https://arcanumber.com`，隐私 `https://arcanumber.com/privacy`，条款 `https://arcanumber.com/terms`；授权域名为 `arcanumber.com`、`ganjiday.com`。品牌页面回读确认保存成功；受众页面确认 Testing / External，未发布应用、未提交 Google 验证，测试用户列表仍为空。
+13. 客户端列表事前为空，新建并启用一个 `xuanxue-production-web`（Web 应用），授权重定向 URI **仅** `https://ganjiday.com/api/auth/callback/google` 与 `https://arcanumber.com/api/auth/callback/google`；没有添加 JavaScript origins 或额外范围。一次性 JSON 通过 Chrome 保存对话框存入主 checkout `.env.production-google-download/oauth.json`（目录 700、文件 600、已确认 gitignored），未进入普通 Downloads；临时“下载前询问保存位置”设置已恢复。凭据界面读取在返回工具结果前脱敏；JSON 仅在进程内存解析并核验 project_id 与两条回调。
+14. 通过 stdin 分别执行 web `wrangler secret put GOOGLE_CLIENT_ID --env production`、`GOOGLE_CLIENT_SECRET`，均退出 0；持久日志指向临时 `/dev/null` 符号链接，未将值放入 argv、vars、日志、runbook 或 PR。随后 production secret list 仅核对名称，确认 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET 与原有 Auth、管理员、Turnstile 五项均存在。未执行非 dry-run deploy，未改 staging 或模板 OAuth 项目。此步骤证明资源与 secrets 已准备，不声称已部署环境中的 Google 登录验收通过。
+    - 首次名称回读遇到 Cloudflare authentication error 10000；显式指定目标 account 后一次只读重试退出 0，五项名称齐全，未重写或轮换任何凭据。最终 `pnpm check` 与 `git diff --check` 均退出 0。
 
 ## 当前阻塞与验证
 
 - 步骤 5 延后（协调者明确允许跳过）：浏览器访问 `https://resend.com/domains` 跳回公开首页，当前 Chrome 会话未登录。已停在 `https://resend.com/login` 并保留页面，请用户登录后续跑。没有新建 Resend 域名、没有写邮件 DNS 或 API key。没有访问/修改任何既有 Resend 项目。
-- 步骤 6 的 Gmail 决定已落实到表单，当前等待用户确认接受 Google API 服务用户数据政策；尚未提交品牌配置。步骤 7 的 DeepSeek key 等待安全输入。Auth secret 与管理员名单已准备；完整生产预检不能宣称无缺项。
+- 步骤 6 已完成（External / Testing 品牌、双域名 Web 客户端、两项 production secrets）。步骤 7 的 DeepSeek key 仍等待安全输入；完整生产预检不能宣称无缺项。
 - 静态检查发现后续预检需协调：`template.config.ts` 仍为 billing.enabled=true、providers=['stripe']；`scripts/staging/check-secrets.mjs` 的 `getSecretRequirements()` 因此仍要求 web/jobs 的 `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET`，且 CLI 固定检查 staging。当前 production 不设 PAYMENT_MODE，但 checker 不读取它。本轮没有修改支付配置、没有写占位支付 secret，也没有把 Stripe 缺项豁免后声称通过生产门槛。
-- 以现有 `getSecretRequirements(templateConfig)` 对比 production 的 secret 名称：web 已有 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、TURNSTILE_SECRET_KEY；缺 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET、任务要求的 DEEPSEEK_API_KEY，以及已授权延后的 RESEND_API_KEY。Stripe 两项按协调者要求仅记录配置冲突。jobs Worker 尚不存在，secret list 退出 1，不能声称远端 secret 检查通过；尚无邮件 secret 写入需求，因此未为了检查新建 jobs 空壳或部署。
+- 最新 production secret list 确认 web 已有 BETTER_AUTH_SECRET、BOOTSTRAP_ADMIN_EMAILS、TURNSTILE_SECRET_KEY、GOOGLE_CLIENT_ID、GOOGLE_CLIENT_SECRET；仍缺任务要求的 DEEPSEEK_API_KEY，以及已授权延后的 RESEND_API_KEY。Stripe 两项按协调者要求仅记录配置冲突。jobs Worker 尚不存在，先前 secret list 退出 1，不能声称远端 secret 检查通过；尚无邮件 secret 写入需求，因此未为了检查新建 jobs 空壳或部署。
 - `pnpm check` 退出 0（日志 `/tmp/xuanxue-production-check.log`）。只改资源 ID、公开 site key 与运维记录，未新增无业务逻辑测试。上线不开支付配置确认仍由协调者处理，2.1 不勾选。
 
 ## 待完成
 
 - 步骤 5：等待用户登录 Resend 后创建并验证两个发件域名、准备仅发送 key。
-- 步骤 6：用户确认 Google 政策后提交 External / Testing 同意屏幕、两个授权域名、`/privacy` / `/terms` 链接和两个 Google 回调，创建 Web 客户端并经 stdin 写 web secrets；当前已填好初始表单，尚未提交。
 - 步骤 7：等待安全输入 staging 同一把 DeepSeek key；Auth secret 与管理员名单已完成。
 - 步骤 8：两个 app 的 production dry-run 已通过；仍需补齐上述非支付 secrets 并复核真实运行时凭据，才能满足完整预检。dry-run 不证明远端认证、邮件或 AI 联通。
 - 协调者确认上线不开支付的配置、发件地址代码与发布前 Cron 策略；本轮不修改这些业务行为。
