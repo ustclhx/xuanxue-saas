@@ -74,6 +74,8 @@ test('east site sign-in and checkout return to the originating /ko page', async 
   await context.route('**/*', async (route) => {
     const url = new URL(route.request().url())
     if (url.origin === east.origin) return route.continue()
+    // 东方站公开页按站点 token 加载 Cloudflare Web Analytics；离线冒烟只拦截，不算外部依赖
+    if (url.origin === 'https://static.cloudflareinsights.com') return route.abort()
     externalRequests.push(url.origin)
     await route.abort()
   })
