@@ -2,11 +2,13 @@ import { readFileSync } from 'node:fs'
 import { CustomFont, ImageResponse } from 'cf-workers-og/node'
 import { createElement } from 'react'
 import type { Plugin } from 'vite'
-import { ogImagePath } from '../src/features/seo/metadata.ts'
+import { ogImagePath, pageBrand, type SeoPage } from '../src/features/seo/metadata.ts'
 import { OgCard } from '../src/features/seo/og-card.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
+import { siteOfLocale } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
 import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
+import { templateConfig } from '../src/server/template-config.ts'
 
 const root = new URL('..', import.meta.url)
 const font = new CustomFont(
@@ -42,8 +44,17 @@ function pages() {
   })
 }
 
-export async function renderOgImage(title: string): Promise<Uint8Array> {
-  const response = await ImageResponse.create(createElement(OgCard, { title }), {
+/** 卡片底部显示页面所属站点的规范域名 */
+function pageHost(page: Pick<SeoPage, 'locale' | 'siteEntry'>): string {
+  const site = page.siteEntry ?? siteOfLocale(page.locale, templateConfig) ?? 'west'
+  return templateConfig.sites[site].hosts[0] ?? new URL(templateConfig.app.url).hostname
+}
+
+export async function renderOgImage(
+  page: Pick<SeoPage, 'title' | 'locale' | 'siteEntry'>,
+): Promise<Uint8Array> {
+  const card = { title: page.title, brand: pageBrand(page), host: pageHost(page) }
+  const response = await ImageResponse.create(createElement(OgCard, card), {
     width: 1200,
     height: 630,
     fonts: [font, koreanFont],
@@ -62,7 +73,7 @@ export function ogImages(): Plugin {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),
-          source: await renderOgImage(page.title),
+          source: await renderOgImage(page),
         })
       }
       this.emitFile({
@@ -83,7 +94,7 @@ export function ogImages(): Plugin {
             return
           }
           response.setHeader('Content-Type', 'image/png')
-          response.end(await renderOgImage(page.title))
+          response.end(await renderOgImage(page))
         } catch (error) {
           next(error)
         }

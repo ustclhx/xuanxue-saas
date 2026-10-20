@@ -189,13 +189,13 @@ describe('OAuth', () => {
 })
 
 describe('多站点各自登录（openspec add-dual-site-foundation 决策 4）', () => {
-  const EAST = 'https://xuanxue-east.example'
-  const WEST = 'https://xuanxue-west.example'
+  const EAST = 'https://ganjiday.com'
+  const WEST = 'https://arcanumber.com'
   const multi = () =>
     baseSetup({
       config: { auth: { oauth: ['google'] } },
       env: { APP_URL: WEST },
-      hosts: ['xuanxue-east.example', 'xuanxue-west.example'],
+      hosts: ['ganjiday.com', 'arcanumber.com'],
     })
   const redirectUri = async (res: Response) =>
     new URL(((await res.json()) as { url: string }).url).searchParams.get('redirect_uri')

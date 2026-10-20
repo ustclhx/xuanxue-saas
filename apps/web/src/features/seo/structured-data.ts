@@ -1,23 +1,25 @@
+import { brandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import type { PricingCatalog } from '../marketing/pricing-data.ts'
 import type { SeoPage } from './metadata.ts'
-import { absoluteUrl, localizedPath, ogImagePath } from './metadata.ts'
+import { absoluteUrl, localizedPath, ogImagePath, pageBrand } from './metadata.ts'
 
 const context = 'https://schema.org'
-export function organizationData(appUrl: string) {
+/** 两站各自的 Organization / WebSite（launch-v1-production design：两站品牌分开） */
+export function organizationData(appUrl: string, brand: string) {
   return {
     '@context': context,
     '@type': 'Organization',
     '@id': absoluteUrl(appUrl, '/#organization'),
-    name: templateConfig.app.name,
+    name: brand,
     url: appUrl,
   }
 }
-export function websiteData(appUrl: string) {
+export function websiteData(appUrl: string, brand: string) {
   return {
     '@context': context,
     '@type': 'WebSite',
-    name: templateConfig.app.name,
+    name: brand,
     url: appUrl,
     publisher: { '@id': absoluteUrl(appUrl, '/#organization') },
   }
@@ -34,8 +36,8 @@ export function articleData(page: SeoPage, appUrl: string) {
     description: page.description,
     datePublished: page.date,
     dateModified: page.date,
-    author: { '@type': 'Organization', name: templateConfig.app.name, url: appUrl },
-    publisher: organizationData(appUrl),
+    author: { '@type': 'Organization', name: pageBrand(page), url: appUrl },
+    publisher: organizationData(appUrl, pageBrand(page)),
     mainEntityOfPage: url,
     url,
     image,
@@ -55,7 +57,7 @@ export function pricingData(catalog: PricingCatalog, appUrl: string, locale: str
         name: plan.name,
         description: `${plan.credits} credits`,
         productID: plan.key,
-        brand: { '@type': 'Brand', name: templateConfig.app.name },
+        brand: { '@type': 'Brand', name: brandName(templateConfig, locale) },
         image: absoluteUrl(appUrl, ogImagePath({ path: '/pricing', locale })),
         offers: prices.map((price) => ({
           '@type': 'Offer',

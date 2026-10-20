@@ -1,7 +1,13 @@
 import { createFileRoute, lazyRouteComponent, redirect } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
-import { eastEntryPage, originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
+import {
+  eastEntryPage,
+  originFromMatches,
+  pageBrand,
+  pageHead,
+  staticPage,
+} from '../features/seo/metadata.ts'
 import { seoSiteOrigin } from '../features/seo/origins.ts'
 import { organizationData, websiteData } from '../features/seo/structured-data.ts'
 import { useSiteId } from '../features/site/context.tsx'
@@ -62,9 +68,10 @@ export const Route = createFileRoute('/')({
     const origin = originFromMatches(matches)
     if (isEastHome(locale))
       return easternToolHead({ path: '/', locale, ...easternPageCopy('home') }, origin)
-    const data = [organizationData(origin), websiteData(origin)]
-    if (locale === 'en' && origin === seoSiteOrigin('east'))
-      return pageHead(eastEntryPage(), origin, data)
+    const entry = locale === 'en' && origin === seoSiteOrigin('east')
+    const brand = pageBrand(entry ? eastEntryPage() : { locale })
+    const data = [organizationData(origin, brand), websiteData(origin, brand)]
+    if (entry) return pageHead(eastEntryPage(), origin, data)
     if (!loaderData) return pageHead(staticPage('/', locale), origin, data)
     // Title / description 与站点地图（numerologySeoPages）同用首页长文的 frontmatter
     const { title, description, faq } = loaderData

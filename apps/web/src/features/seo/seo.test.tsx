@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { robots, sitemap, sitemapIndex } from './crawlers.ts'
-import { alternateLinks, localizedPath, pageHead, privateMeta } from './metadata.ts'
+import { alternateLinks, localizedPath, pageBrand, pageHead, privateMeta } from './metadata.ts'
 import { OgCard } from './og-card.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
@@ -208,8 +208,8 @@ describe('公开页面 SEO（4.1–4.3）', () => {
     }
     const products = pricingData(catalog, origin, locale)
     const data = [
-      organizationData(origin),
-      websiteData(origin),
+      organizationData(origin, 'Arcanumber'),
+      websiteData(origin, 'Arcanumber'),
       articleData(article, origin),
       ...products,
     ]
@@ -269,8 +269,11 @@ describe('分享图与缓存（4.4）', () => {
   it('无封面页面的卡片包含站点名称和页面标题', () => {
     const page = pages.find((page) => page.path === '/legal/terms' && page.locale === locale)
     if (!page) throw new Error('Missing legal page')
-    const markup = renderToStaticMarkup(<OgCard title={page.title} />)
-    expect(markup).toContain(templateConfig.app.name)
+    const markup = renderToStaticMarkup(
+      <OgCard title={page.title} brand={pageBrand(page)} host="arcanumber.com" />,
+    )
+    expect(markup).toContain('Arcanumber')
+    expect(markup).toContain('arcanumber.com')
     expect(markup).toContain(page.title)
   })
 })
@@ -287,17 +290,17 @@ it('跨站定价 hreflang 使用 BCP 47 语言码与西方英语 x-default', () 
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'zh-Hant',
-    href: 'https://xuanxue-east.example/zh-hant/pricing',
+    href: 'https://ganjiday.com/zh-hant/pricing',
   })
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'ko',
-    href: 'https://xuanxue-east.example/ko/pricing',
+    href: 'https://ganjiday.com/ko/pricing',
   })
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'x-default',
-    href: 'https://xuanxue-west.example/pricing',
+    href: 'https://arcanumber.com/pricing',
   })
 })
 
@@ -309,23 +312,23 @@ it('异名工具路由互指；无英语版本时 x-default 指向本站入口',
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'ko',
-    href: 'https://xuanxue-east.example/ko',
+    href: 'https://ganjiday.com/ko',
   })
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'x-default',
-    href: 'https://xuanxue-east.example/',
+    href: 'https://ganjiday.com/',
   })
   expect(links.some((link) => 'hrefLang' in link && link.hrefLang === 'en')).toBe(false)
   expect(tools.every((p) => p.locale !== 'en')).toBe(true)
   const xml = sitemap(tools, origin, 'zh-Hant')
   expect(xml).toContain('/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4')
-  expect(xml).toContain('hreflang="ko" href="https://xuanxue-east.example/ko"')
-  expect(xml).not.toContain('<loc>https://xuanxue-east.example/ko')
+  expect(xml).toContain('hreflang="ko" href="https://ganjiday.com/ko"')
+  expect(xml).not.toContain('<loc>https://ganjiday.com/ko')
 })
 
 it('两站地图索引只列本站语言；未知 Host 与分享结果禁止抓取', () => {
-  expect(sitemapIndex('east')).toContain('https://xuanxue-east.example/sitemap/zh-hant.xml')
+  expect(sitemapIndex('east')).toContain('https://ganjiday.com/sitemap/zh-hant.xml')
   expect(sitemapIndex('east')).toContain('/sitemap/ko.xml')
   expect(sitemapIndex('east')).not.toContain('/sitemap/en.xml')
   expect(sitemapIndex('west')).not.toContain('/sitemap/ko.xml')

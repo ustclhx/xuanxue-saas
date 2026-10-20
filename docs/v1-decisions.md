@@ -5,7 +5,7 @@
 | # | 事项 | 类型 | 影响 | 临时做法 | 状态 |
 |---|---|---|---|---|---|
 | D1 | AI 详批使用的模型（高性价比） | 决策 | `readings-core` 上线前；后台运行时设置 `readings.<kind>.modelKey` | 测试阶段用 DeepSeek `deepseek-flash`（当前即 V4.1-Flash-1017，见下方「D1 测试接入」）；正式上线前再选定模型接入 API | 已决定（测试：deepseek-flash；上线模型待选） |
-| D2 | 东西两站的品牌名与正式域名 | 决策 + 购买 | hreflang 绝对地址、站点地图、OG、Organization 结构化数据、OAuth 回调 | 占位 `xuanxue-east.example` / `xuanxue-west.example`，品牌 `[东方站品牌名]` | 待决定 |
+| D2 | 东西两站的品牌名与正式域名 | 决策 + 购买 | hreflang 绝对地址、站点地图、OG、Organization 结构化数据、OAuth 回调 | — | 已决定（2026-10-20，域名已购买）：东方站 `ganjiday.com`，品牌 繁中「干支日」/ 韩语「간지데이」/ 标识 Ganjiday；西方站 `arcanumber.com`，各语言统一 Arcanumber（副标题本地化）。www 由 Cloudflare 重定向到裸域 |
 | D3 | 法国本地搜索量重核（`doc/design.md` §8 方式 B） | 人工 | 是否启动法语站 | v1 不做法语 | 待你在 Keyword Planner 导出 |
 | D5 | 韩语만세력是否默认开启「진태양시」（真太阳时）修正 | 决策 | `/ko/` 时柱：与韩国常见만세력一致（首尔约 −32 分钟） | — | 已决定：默认开启（`KO_TRUE_SOLAR_DEFAULT = true`，访客可关闭） |
 | D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 三语隐私政策/服务条款/退款/免责声明中的 `[公司名称]`、`[联系地址]` 占位，以及支持邮箱 | 占位文本，上线前替换并请法律专业人士审阅 | 待提供 |

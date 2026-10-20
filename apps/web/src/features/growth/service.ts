@@ -1,5 +1,5 @@
 import { normalizeSignupEmail } from '@xuanxue/billing'
-import type { TemplateConfig } from '@xuanxue/config'
+import { brandName, type TemplateConfig } from '@xuanxue/config'
 import {
   type Database,
   dbSettingStore,
@@ -33,11 +33,12 @@ export function requireGrowthFeature(config: TemplateConfig, feature: 'waitlist'
 
 async function base(ctx: GrowthContext, to: string, idempotencyKey: string) {
   const requestId = getLogContext()?.requestId
+  const locale = (await userLocaleByEmail(ctx.db)(to)) ?? ctx.config.i18n.defaultLocale
   return {
     v: EMAIL_QUEUE_MESSAGE_VERSION as typeof EMAIL_QUEUE_MESSAGE_VERSION,
     to,
-    locale: (await userLocaleByEmail(ctx.db)(to)) ?? ctx.config.i18n.defaultLocale,
-    appName: ctx.config.app.name,
+    locale,
+    appName: brandName(ctx.config, locale),
     idempotencyKey,
     ...(requestId ? { requestId } : {}),
   }

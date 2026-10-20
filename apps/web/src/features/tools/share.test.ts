@@ -11,14 +11,14 @@ describe('分享链接', () => {
   })
 
   it('结果放在 #r= 片段，去掉原有查询串', () => {
-    const url = new URL(shareUrl('https://xuanxue-east.example/zh-hant/x/?r=old#top', input))
+    const url = new URL(shareUrl('https://ganjiday.com/zh-hant/x/?r=old#top', input))
     expect(url.search).toBe('')
     expect(url.pathname).toBe('/zh-hant/x/')
     expect(readShareFragment(url.hash)).toEqual(input)
   })
 
   it('姓名、邮箱、电话等字段不进入链接，链接中也没有其明文', () => {
-    const href = shareUrl('https://xuanxue-west.example/life-path/', {
+    const href = shareUrl('https://arcanumber.com/life-path/', {
       ...input,
       name: 'Alice Wang',
       fullName: 'Alice',

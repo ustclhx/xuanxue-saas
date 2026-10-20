@@ -80,8 +80,8 @@ vi.mock('../../server/template-config.ts', () => ({
     billing: { enabled: true, providers: ['stripe', 'paypal'], refundWindowDays: 30 },
     i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
     sites: {
-      east: { hosts: ['xuanxue-east.example'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
-      west: { hosts: ['xuanxue-west.example'], locales: ['en'], defaultLocale: 'en' },
+      east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+      west: { hosts: ['arcanumber.com'], locales: ['en'], defaultLocale: 'en' },
     },
   },
 }))
@@ -228,8 +228,8 @@ it('checkout audit uses the trusted runtime IP and configured return URL', async
 
 it('checkout started on the east site returns there and then to the originating page', async () => {
   mocks.env.PAYMENT_MODE = 'test'
-  mocks.env.APP_URL = 'https://xuanxue-west.example'
-  mocks.requestUrl = 'https://xuanxue-east.example/_serverFn/checkout'
+  mocks.env.APP_URL = 'https://arcanumber.com'
+  mocks.requestUrl = 'https://ganjiday.com/_serverFn/checkout'
   mocks.checkout.mockResolvedValue({ url: 'https://checkout.test' })
   vi.spyOn(console, 'warn').mockImplementation(() => {})
   const checkout = checkoutCustomer as unknown as (input: unknown) => Promise<unknown>
@@ -247,9 +247,9 @@ it('checkout started on the east site returns there and then to the originating 
     expect.anything(),
     expect.objectContaining({
       successUrl:
-        'https://xuanxue-east.example/app/team/billing-return?provider=stripe&returnTo=%2Fko%2Fmanseryeok',
+        'https://ganjiday.com/app/team/billing-return?provider=stripe&returnTo=%2Fko%2Fmanseryeok',
       cancelUrl:
-        'https://xuanxue-east.example/app/team/billing-return?provider=stripe&canceled=true&returnTo=%2Fko%2Fmanseryeok',
+        'https://ganjiday.com/app/team/billing-return?provider=stripe&canceled=true&returnTo=%2Fko%2Fmanseryeok',
     }),
   )
   // 不安全的 returnTo 被丢弃，回到计费页
@@ -257,7 +257,7 @@ it('checkout started on the east site returns there and then to the originating 
   expect(mocks.checkout).toHaveBeenLastCalledWith(
     expect.anything(),
     expect.objectContaining({
-      successUrl: 'https://xuanxue-east.example/app/team/billing-return?provider=stripe',
+      successUrl: 'https://ganjiday.com/app/team/billing-return?provider=stripe',
     }),
   )
   mocks.requestUrl = 'https://app.test'

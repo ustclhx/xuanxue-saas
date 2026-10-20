@@ -25,7 +25,41 @@ export interface SiteConfig<L extends string = string> {
   readonly locales: readonly L[]
   /** 无前缀地址使用的语言；null 表示本站没有无前缀的默认语言，根路径为语言入口页 */
   readonly defaultLocale: L | null
-  readonly brand: { readonly name: string }
+  /** name 用于结构化数据、未指定语言的场景；names 为各语言的显示名（如东方站繁中「干支日」） */
+  readonly brand: { readonly name: string; readonly names: Readonly<Record<string, string>> }
+}
+
+/**
+ * 站点在某语言下的品牌显示名：语言专用名优先，否则用站点品牌名。
+ * 页面标题、og:site_name、邮件主题等用户可见处统一经过这里，两站品牌互不混用。
+ */
+export function siteBrandName(
+  config: { readonly sites: { readonly [S in SiteId]: SiteConfig } },
+  site: SiteId,
+  locale?: string | null,
+): string {
+  const { brand } = config.sites[site]
+  return (locale ? brand.names[locale] : undefined) ?? brand.name
+}
+
+/**
+ * 语言所属站点的品牌显示名；未指定语言或语言不属于任何站点时用 `app.name`。
+ * 用户语言可能是 `zh-TW`、`ko-KR` 这类原始值：精确匹配不到时按主语言标签匹配（与邮件选语言一致）。
+ */
+export function brandName(
+  config: {
+    readonly app: { readonly name: string }
+    readonly sites: { readonly [S in SiteId]: SiteConfig }
+  },
+  locale?: string | null,
+): string {
+  if (!locale) return config.app.name
+  const primary = (tag: string) => tag.trim().toLowerCase().split(/[-_]/)[0]
+  const all = SITE_IDS.flatMap((id) => config.sites[id].locales.map((item) => ({ id, item })))
+  const match =
+    all.find(({ item }) => item === locale) ??
+    all.find(({ item }) => primary(item) === primary(locale))
+  return match ? siteBrandName(config, match.id, match.item) : config.app.name
 }
 
 /** 语言 id 在 URL 中的前缀段：BCP 47 的 `zh-Hant` 在 URL 中写作小写 `zh-hant`。 */
@@ -154,8 +188,8 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
       hosts: readonly string[]
       locales: readonly NoInfer<L>[]
       defaultLocale?: NoInfer<L> | null
-      /** 省略时沿用 `app.name` */
-      brand?: { name?: string }
+      /** name 省略时沿用 `app.name`；names 只能使用本站语言 */
+      brand?: { name?: string; names?: Partial<Record<NoInfer<L>, string>> }
     }
   }
   tenancy?: Partial<Section<'tenancy'>>
@@ -277,7 +311,7 @@ function resolveSites<L extends string>(
   locales: readonly L[],
   defaultLocale: L,
 ): TemplateConfig<L>['sites'] {
-  const brand = { name: input.app.name }
+  const brand = { name: input.app.name, names: {} }
   const configured = input.sites
   if (!configured) {
     // 未配置站点注册表时保持单站形态：全部语言属于西方站
@@ -290,7 +324,10 @@ function resolveSites<L extends string>(
     hosts: [...configured[id].hosts],
     locales: [...configured[id].locales],
     defaultLocale: configured[id].defaultLocale ?? null,
-    brand: { ...brand, ...configured[id].brand },
+    brand: {
+      name: configured[id].brand?.name ?? brand.name,
+      names: { ...(configured[id].brand?.names as Record<string, string> | undefined) },
+    },
   })
   const sites = { east: site('east'), west: site('west') }
 
@@ -305,6 +342,11 @@ function resolveSites<L extends string>(
         throw new RangeError(`template config: locale ${locale} belongs to more than one site`)
       owners.set(locale, id)
     }
+    for (const locale of Object.keys(site.brand.names))
+      if (!site.locales.includes(locale as L))
+        throw new RangeError(
+          `template config: sites.${id}.brand.names.${locale} is not a site locale`,
+        )
     if (site.defaultLocale !== null && !site.locales.includes(site.defaultLocale))
       throw new RangeError(`template config: sites.${id}.defaultLocale must be one of its locales`)
     if (site.locales.length > 0 && site.hosts.length === 0)

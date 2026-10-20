@@ -25,7 +25,7 @@ it('fal 提交与状态查询的 RequestInit 可在 workerd 中发出，3xx 视�
   const provider = createFalMediaProvider({ apiKey: 'test-placeholder', modelId, fetch })
   const input = { modelId, params: { prompt: 'a red square' }, idempotencyKey: 'task-1' }
   await expect(
-    provider.submit({ ...input, webhookUrl: 'https://xuanxue-west.example/hook?task=t&sig=s' }),
+    provider.submit({ ...input, webhookUrl: 'https://arcanumber.com/hook?task=t&sig=s' }),
   ).resolves.toEqual({ jobId: 'req-1' })
   await expect(provider.getStatus('req-1')).resolves.toEqual({ status: 'queued' })
 

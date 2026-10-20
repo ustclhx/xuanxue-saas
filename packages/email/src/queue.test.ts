@@ -4,7 +4,7 @@ import { EMAIL_QUEUE_MESSAGE_VERSION, parseEmailQueueMessage } from './queue.ts'
 const valid = {
   v: EMAIL_QUEUE_MESSAGE_VERSION,
   template: 'reset-password',
-  props: { url: 'https://xuanxue-west.example/reset?token=abc', expiresInMinutes: 60 },
+  props: { url: 'https://arcanumber.com/reset?token=abc', expiresInMinutes: 60 },
   to: 'user@example.com',
   locale: 'zh-CN',
   appName: 'xuanxue',
@@ -37,7 +37,7 @@ describe('parseEmailQueueMessage', () => {
       ...valid,
       template: 'workspace-invitation',
       props: {
-        url: 'https://xuanxue-west.example/accept-invitation?id=1',
+        url: 'https://arcanumber.com/accept-invitation?id=1',
         workspaceName: 'Acme',
         inviterName: 'Alice',
         role: 'owner',

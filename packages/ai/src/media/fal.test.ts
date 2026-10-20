@@ -38,7 +38,7 @@ describe('fal queue（真实录制与未录制分支的文档补充）', () => {
     const { provider, fetch } = setup([recorded.imageSubmit.body], modelId, [
       recorded.imageSubmit.httpStatus,
     ])
-    const webhookUrl = 'https://xuanxue-west.example/webhook?task=task-fixture&sig=test-placeholder'
+    const webhookUrl = 'https://arcanumber.com/webhook?task=task-fixture&sig=test-placeholder'
     expect(await provider.submit({ ...input, webhookUrl })).toEqual({ jobId: recordedJobId })
     expect(provider.capabilities.idempotentSubmit).toBe(false)
     const [url, init] = fetch.mock.calls[0] ?? []
@@ -177,7 +177,7 @@ describe('fal webhook Ed25519 协议（本地临时签名）', () => {
       pair.privateKey,
       encoder.encode([requestId, 'user-fixture', timestamp, hash].join('\n')),
     )
-    const req = new Request('https://xuanxue-west.example/webhook', {
+    const req = new Request('https://arcanumber.com/webhook', {
       method: 'POST',
       headers: {
         'x-fal-webhook-request-id': requestId,

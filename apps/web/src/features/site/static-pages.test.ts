@@ -8,20 +8,20 @@ describe('双站静态 HTML 分流', () => {
     })
     expect(prerenderRequest(request)).toBeNull()
     expect(prerenderRequest(request, 'other')).toBeNull()
-    expect(prerenderRequest(request, 'local-build')?.url).toBe('http://xuanxue-east.example/')
+    expect(prerenderRequest(request, 'local-build')?.url).toBe('http://ganjiday.com/')
     const korean = new Request('http://localhost/ko/blog', { headers: request.headers })
-    expect(prerenderRequest(korean, 'local-build')?.url).toBe('http://xuanxue-east.example/ko/blog')
+    expect(prerenderRequest(korean, 'local-build')?.url).toBe('http://ganjiday.com/ko/blog')
   })
 
   it('两站根路径选择不同文件，内部资源地址不出现在响应 URL', async () => {
     const fetchAsset = vi.fn(async (_request: Request) => new Response('<h1>entry</h1>'))
-    const east = await staticPageResponse(new Request('https://xuanxue-east.example/'), fetchAsset)
+    const east = await staticPageResponse(new Request('https://ganjiday.com/'), fetchAsset)
     expect(east?.status).toBe(200)
-    expect(fetchAsset.mock.calls[0]?.[0].url).toBe('https://xuanxue-east.example/_site/east.html')
-    await staticPageResponse(new Request('https://xuanxue-west.example/'), fetchAsset)
-    expect(fetchAsset.mock.calls[1]?.[0].url).toBe('https://xuanxue-west.example/index.html')
-    await staticPageResponse(new Request('https://xuanxue-east.example/ko/?r=shared'), fetchAsset)
-    expect(fetchAsset.mock.calls[2]?.[0].url).toBe('https://xuanxue-east.example/ko.html')
+    expect(fetchAsset.mock.calls[0]?.[0].url).toBe('https://ganjiday.com/_site/east.html')
+    await staticPageResponse(new Request('https://arcanumber.com/'), fetchAsset)
+    expect(fetchAsset.mock.calls[1]?.[0].url).toBe('https://arcanumber.com/index.html')
+    await staticPageResponse(new Request('https://ganjiday.com/ko/?r=shared'), fetchAsset)
+    expect(fetchAsset.mock.calls[2]?.[0].url).toBe('https://ganjiday.com/ko.html')
   })
 
   it('预览 Host、私有路径与缺失产物继续 SSR，分享查询带 noindex', async () => {
@@ -30,17 +30,17 @@ describe('双站静态 HTML 分流', () => {
       await staticPageResponse(new Request('https://preview.workers.dev/ko/'), fetchAsset),
     ).toBeNull()
     expect(
-      await staticPageResponse(new Request('https://xuanxue-west.example/app'), fetchAsset),
+      await staticPageResponse(new Request('https://arcanumber.com/app'), fetchAsset),
     ).toBeNull()
     expect(fetchAsset).not.toHaveBeenCalled()
     expect(
       await staticPageResponse(
-        new Request('https://xuanxue-west.example/blog/missing'),
+        new Request('https://arcanumber.com/blog/missing'),
         async () => new Response(null, { status: 404 }),
       ),
     ).toBeNull()
     const shared = await staticPageResponse(
-      new Request('https://xuanxue-west.example/?r=shared'),
+      new Request('https://arcanumber.com/?r=shared'),
       fetchAsset,
     )
     expect(shared?.headers.get('x-robots-tag')).toBe('noindex, nofollow')

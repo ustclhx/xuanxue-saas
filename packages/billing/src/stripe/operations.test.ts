@@ -182,7 +182,7 @@ describe('Stripe checkout and transport', () => {
       {
         method: 'POST',
         path: '/v1/checkout/sessions',
-        body: { id: 'cs_test', url: 'https://xuanxue-west.example' },
+        body: { id: 'cs_test', url: 'https://arcanumber.com' },
       },
     ])
     await mock.operations.createCheckout({ ...checkout, providerCustomerId: 'cus_test' })

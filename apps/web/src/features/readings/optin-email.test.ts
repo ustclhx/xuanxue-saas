@@ -16,7 +16,7 @@ const reading = (locale: ReadingOptin['locale']): ReadingOptin => ({
     locale === 'en' ? { kind: 'numerology', lifePath: 11 } : { kind: 'bazi', dayMaster: 'geng' },
   share: locale === 'en' ? { date: '1987-11-29' } : { year: '1990', month: '5', day: '15' },
 })
-const unsubscribe = 'https://xuanxue-west.example/api/newsletter/unsubscribe?token=fixture'
+const unsubscribe = 'https://arcanumber.com/api/newsletter/unsubscribe?token=fixture'
 
 describe('个性化邮件', () => {
   it.each(['en', 'zh-Hant', 'ko'] as const)(

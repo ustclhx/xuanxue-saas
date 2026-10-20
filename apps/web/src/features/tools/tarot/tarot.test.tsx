@@ -37,13 +37,11 @@ describe('塔罗路由', () => {
       for (const locale of ['en', 'zh-Hant', 'ko'] as const) {
         const links = alternateLinks('', tarotPath(spread, locale), undefined, undefined, locale)
         const href = (lang: string) => links.find((link) => link.hrefLang === lang)?.href
-        expect(href('en')).toBe(`https://xuanxue-west.example${encodeURI(tarotPath(spread, 'en'))}`)
+        expect(href('en')).toBe(`https://arcanumber.com${encodeURI(tarotPath(spread, 'en'))}`)
         expect(href('zh-Hant')).toBe(
-          `https://xuanxue-east.example/zh-hant${encodeURI(tarotPath(spread, 'zh-Hant'))}`,
+          `https://ganjiday.com/zh-hant${encodeURI(tarotPath(spread, 'zh-Hant'))}`,
         )
-        expect(href('ko')).toBe(
-          `https://xuanxue-east.example/ko${encodeURI(tarotPath(spread, 'ko'))}`,
-        )
+        expect(href('ko')).toBe(`https://ganjiday.com/ko${encodeURI(tarotPath(spread, 'ko'))}`)
         expect(href('x-default')).toBe(href('en'))
       }
   })
