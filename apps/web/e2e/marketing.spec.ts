@@ -66,7 +66,8 @@ for (const lang of languages) {
         '5 business days',
       ],
       disclaimer: [
-        'entertainment',
+        'Calculation and interpretation',
+        'reflective, not predictive',
         'Not a substitute for professional advice',
         'No prediction of the future',
         'No guarantee of accuracy',
