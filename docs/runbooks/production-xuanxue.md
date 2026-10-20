@@ -1,6 +1,6 @@
 # xuanxue production 资源与发布记录
 
-2026-10-20 UTC。对应 `launch-v1-production` 2.1–2.3。资源准备历史保留；本轮预检与发布状态见文末，尚未部署业务 Worker。
+2026-10-20 UTC。对应 `launch-v1-production` 2.1–2.3。资源准备历史保留；最新发布与验收状态见文末。
 
 ## 用户决定与边界
 
@@ -126,3 +126,32 @@ GitHub 不可读回 staging token；若用户也没有原值，需用户选择�
 BOOTSTRAP_ADMIN_EMAILS 已有用户指定邮箱，本轮只确认 secret 名称，不读回真值、不替用户注册。用户首次用该邮箱注册后，**现有代码还要求 emailVerified=true 且未封禁，才会在认证事件中提升为管理员**（`packages/auth/src/admin-bootstrap.ts`）。密码注册默认无需验证，故邮件保持 log 时，不能承诺首次密码注册后立即具备 admin。用户应在恢复真实验证邮件后验证邮箱并重新登录；如需其他验证方式，须另行决定，本轮不直接写库跳过验证。Google OAuth 当前仍为 External / Testing，未在本轮验收其登录或管理员提升。
 
 support@ 的 Cloudflare 收件与 Resend 发件独立。Routing 规则已有 Active/Verified 证据，实际双站收信仍等用户确认；Resend 继续未登录/未开通，不发真实邮件。2.2（部署与线上验收）、2.3（六页审计）、3.1（收录成功）仍未完成，详见 [上线记录](launch-v1.md)。
+
+
+## v0.1.0 生产发布与验收（2026-10-20 UTC）
+
+本节取代上文待部署/凭据/代理不代批的历史状态。本轮用户明确授权代理创建生产 token、写入 GitHub production secret、浏览器批准发布与使用指定 Google 账号注册管理员。
+
+- 独立 token `xuanxue-production-deploy` 已创建，Account Resources 仅指定账户。Account 权限为 Workers Scripts / Workers KV Storage / Workers R2 Storage / Queues / Hyperdrive Edit、Account Settings Read；Zone 仅 `arcanumber.com`、`ganjiday.com`，Workers Routes / DNS Edit、Zone Read。Cloudflare 一次性页面 Copy → GitHub production `CLOUDFLARE_API_TOKEN` 粘贴保存；立即 `pbcopy < /dev/null` 并关闭生成页。没有输出、落盘或提交 token 真值；`gh secret list --env production --repo ustclhx/xuanxue-saas` 仅按名称确认三项必需 secret。
+- `v0.1.0` annotated tag 指向 origin/main `661e627ea2300b63c7aca22efc771f8ddc1ef8bd`。同 SHA CI / staging 成功后推送；[production run 39460843665](https://github.com/ustclhx/xuanxue-saas/actions/runs/39460843665) 在浏览器审批后全部 success；使用 `gh run watch --exit-status` 跟踪。无 token 权限报错、无 rerun、无代码/工作流修改。
+- 迁移成功；已有 seed 复核沿用准备证据，未执行支付同步或价格/模型修改。jobs 2026-10-20T16:52:00Z 发布，version `29202879-925a-427e-84e1-3960711ccd09`；web 16:52:26Z 发布，version `85ad35de-7283-4bdc-9fa4-6de8aa8d2914`，双 custom domain 生效。
+- 双站 health 200、db.up、完整 SHA 匹配；东方 6 / 西方 3 个现有 production 只读冒烟通过；独立 HTTP 28/28 通过。原始非敏感记录见 [Actions](evidence/launch-v1/production-actions.json)、[HTTP](evidence/launch-v1/production-http.json)、[浏览器验收](evidence/launch-v1/production-browser.json)。
+- 真实测试账号注册、进入个人空间、退出后密码登录通过；应用删号返回 `Payment configuration is unavailable`，账号仍待删除，删除后登录拒绝未验收。据只读源码与配置推断，billing 删除 before 初始化时因未设 PAYMENT_MODE 而校验失败；未补支付密钥、未写库绕过或修改代码。
+- 指定 Google 账号已注册，邮箱已验证、无密码；此前 `/admin` 显示 Not Found。协调者报告重写生产 BOOTSTRAP_ADMIN_EMAILS 后，本轮退出并用同一 Google 账号重新登录，`/admin` 正常显示 Admin / Overview，管理员权限验收通过。未设置密码、未写库提权，未读取或改写该 secret 真值。
+- 六页移动端 Lighthouse 已保存 HTML/JSON；性能 88–99，西方首页 LCP 2.85s 未达标；全部 CLS < 0.1，TBT 为 0，现场 INP 不可得。两站 GSC Domain TXT 验证通过，sitemap 刷新后均显示成功；Bing 等待用户登录。Web Analytics 经本轮授权 Done 后立即切为手动，两站自动注入已关闭；四项匿名 curl 检查无 beacon，公开 token 见上线记录。
+
+详细逐页指标、GSC/Bing 与后续待办见 [上线记录](launch-v1.md)。任务 2.2/2.3/3.1 按未满足的验收继续保留未完成，不将已发布当作全部上线验收通过。
+
+- 续跑更新：两站 Analytics 公开 token 分别为 arcanumber.com=`aa32b146781b4880aa9686d85c3a8f66`、ganjiday.com=`21bda25feef743088c8ca9fb63b76a36`。两个控制台站点均回读 JS Snippet installation，未修改应用代码；[curl 证据](evidence/launch-v1/web-analytics.json) 的 `/app` 跟随匿名登录跳转，未读取认证凭据。
+- 17:05:42 UTC 复查两站 health/db/SHA 通过，首次心跳 `2026-10-20T17:05:09.507Z` 已出现；[心跳证据](evidence/launch-v1/production-heartbeat.json)。测试删号由协调者修复，账号保留，修复部署后再验；Bing 按协调者指示先跳过，LCP 只记录。
+
+- 管理员复验（`2026-10-20T17:10:49.112970+00:00`）：已按协调者要求退出并重新 Google 登录，`/admin` 正常显示完整导航和 Overview；先前 Not Found 阻塞已解除。测试账号与删号验收保持待 PR #43 修复部署后的下一步指示。
+
+
+## v0.1.1 发布（最新，2026-10-20 UTC）
+
+- SHA `c0dc8cf9cdd075811ead3179b078f19c9fb15661`；同 SHA CI `39466361482`、staging `39467310532` 成功后推送 annotated tag v0.1.1，浏览器 production 审批通过。production `39467824210` 全部成功，gh run watch 退出 0；无重跑或代码/工作流变更。
+- 迁移成功，jobs version `a626cb32-4bc4-4cea-87b5-6383b8937117`，web version `4c696e11-9927-4081-9f05-f0630eef40ef`；两站完整 SHA/db 健康和 9 项只读冒烟通过。未更改套餐价格、支付或详批模型。
+- PR #44 按站手动 beacon 已实际发布：首页/定价的本站 token 与 spa=false 均正确；已认证西方 app/admin 无 beacon。匿名 app 原始 307 空正文、跳转后 login 有 beacon；两站匿名 admin 的 404 HTML 仍有 beacon，协调者已接受为无用户数据的非阻断已知小问题，后续处理。
+- PR #43 删号修复生产验收通过：协调者允许的新账号 `launch-test-20261020174555043@example.org` 完成注册→个人空间→退出后密码登录→DELETE 删号→同一原密码登录被拒绝（Incorrect email or password.）；后台可见匿名化测试用户、Banned。密码仅本轮内存，验收后清空。
+- 旧账号 `launch-test-20261021@example.org` 的后台详情只有模拟登录/封禁管理，无删除/匿名化操作，按协调者指示保留，未写库或做其他替代清理。2.2 已勾选；LCP 与 Bing 状态不变。详见 [最新上线记录](launch-v1.md#v011-发布与复验最新) 和 v0.1.1 浏览器证据。

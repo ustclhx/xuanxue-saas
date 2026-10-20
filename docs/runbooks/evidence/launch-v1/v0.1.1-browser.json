@@ -1,0 +1,61 @@
+{
+  "recordedAt": "2026-10-20T17:43:17.779366+00:00",
+  "release": "v0.1.1",
+  "sha": "c0dc8cf9cdd075811ead3179b078f19c9fb15661",
+  "testAccount": {
+    "email": "launch-test-20261021@example.org",
+    "retained": true,
+    "passwordLoginAttemptedThisRelease": false,
+    "deleteAttemptedThisRelease": false,
+    "deleteSucceededThisRelease": false,
+    "postDeletionLoginRejectionVerified": false,
+    "passwordPersisted": false,
+    "priorCredentialLimitation": "原密码仅存在操作内存，上一轮被代理清空且未落盘；浏览器无可用自动填充。协调者随后允许新账号替代，已完成 replacementTestAccount 复验。",
+    "adminCleanupInspection": {
+      "adminLoggedIn": true,
+      "userId": "01a15a3c-69eb-7092-8436-7568cbe8f06f",
+      "visibleStatus": "Active",
+      "availableActions": ["Impersonate user", "Ban management"],
+      "deleteOrAnonymizeAvailable": false,
+      "actionTaken": "按协调者指示保留；未封禁、未模拟登录、未写库"
+    }
+  },
+  "authenticatedAnalytics": {
+    "site": "arcanumber.com",
+    "adminVisible": ["Admin", "Overview"],
+    "appVisible": ["Personal"],
+    "adminBeaconScripts": [],
+    "appBeaconScripts": [],
+    "passed": true
+  },
+  "anonymousAdminBeaconExclusionPassed": false,
+  "updatedAt": "2026-10-20T17:48:44.452539+00:00",
+  "replacementTestAccount": {
+    "email": "launch-test-20261020174555043@example.org",
+    "name": "Launch v0.1.1 acceptance",
+    "workspaceSlug": "u-n60blmh9",
+    "authorizedBy": "协调者允许新测试账号替代完整复验",
+    "registered": true,
+    "enteredPersonalWorkspace": true,
+    "signedOutBeforePasswordLogin": true,
+    "passwordLoginSucceededBeforeDeletion": true,
+    "deletionConfirmation": "DELETE",
+    "deleteSucceeded": true,
+    "redirectAfterDelete": "https://arcanumber.com/login",
+    "sameOriginalPasswordLoginRejected": true,
+    "visibleRejection": "Incorrect email or password.",
+    "remainedOnLoginPage": true,
+    "adminListAfterDelete": "观察到唯一匿名化测试用户 deleted+01a15a6b-85cb-70c0-a312-957cec4d9057@invalid，状态 Banned；另有管理员与保留的旧测试账号",
+    "passwordPersisted": false,
+    "passwordClearedAfterVerification": true,
+    "verifiedAt": "2026-10-20T17:48:44.452539+00:00"
+  },
+  "anonymousAdminBeaconKnownIssue": {
+    "observedFailureRetained": true,
+    "acceptedAsNonBlocking": true,
+    "decisionSource": "协调者本轮明确决定",
+    "reason": "匿名 404 页无用户数据，作为已知小问题后续处理",
+    "codeChanged": false
+  },
+  "task22AcceptanceComplete": true
+}

@@ -1,0 +1,69 @@
+{
+  "observedAt": "2026-10-20T17:04:42.769032+00:00",
+  "note": "/app 使用匿名 curl，跟随跳转后检查登录页 HTML；不声称检查了已认证空间 HTML。",
+  "sites": [
+    {
+      "hostname": "arcanumber.com",
+      "siteTag": "c390ba28c58141bbac6226825f03eee4",
+      "publicSiteToken": "aa32b146781b4880aa9686d85c3a8f66",
+      "mode": "Enable with JS Snippet installation"
+    },
+    {
+      "hostname": "ganjiday.com",
+      "siteTag": "f6d513f3f7604c09b0a4de81a1da3ea5",
+      "publicSiteToken": "21bda25feef743088c8ca9fb63b76a36",
+      "mode": "Enable with JS Snippet installation"
+    }
+  ],
+  "checks": [
+    {
+      "url": "https://arcanumber.com/",
+      "method": "curl --location (anonymous, no cookies)",
+      "httpStatus": 200,
+      "finalUrl": "https://arcanumber.com/",
+      "redirectCount": 0,
+      "htmlBytes": 42662,
+      "cloudflareBeaconMarkers": [],
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/app",
+      "method": "curl --location (anonymous, no cookies)",
+      "httpStatus": 200,
+      "finalUrl": "https://arcanumber.com/login",
+      "redirectCount": 1,
+      "htmlBytes": 16927,
+      "cloudflareBeaconMarkers": [],
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/",
+      "method": "curl --location (anonymous, no cookies)",
+      "httpStatus": 200,
+      "finalUrl": "https://ganjiday.com/",
+      "redirectCount": 0,
+      "htmlBytes": 26658,
+      "cloudflareBeaconMarkers": [],
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/app",
+      "method": "curl --location (anonymous, no cookies)",
+      "httpStatus": 200,
+      "finalUrl": "https://ganjiday.com/login",
+      "redirectCount": 1,
+      "htmlBytes": 19136,
+      "cloudflareBeaconMarkers": [],
+      "pass": true
+    }
+  ],
+  "authenticatedBrowserCheck": {
+    "hostname": "arcanumber.com",
+    "pathPattern": "/app/<personal-workspace>",
+    "heading": "Personal",
+    "method": "只读浏览器 DOM script 属性检查，无认证凭据导出",
+    "cloudflareBeaconScripts": [],
+    "pass": true,
+    "observedAt": "2026-10-20T17:06:58.484941+00:00"
+  }
+}

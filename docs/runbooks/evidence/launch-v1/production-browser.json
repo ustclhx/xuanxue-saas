@@ -1,0 +1,82 @@
+{
+  "recordedAt": "2026-10-20T16:59:15.217010+00:00",
+  "sha": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+  "testAccount": {
+    "email": "launch-test-20261021@example.org",
+    "workspaceSlug": "u-2uc81072",
+    "registered": true,
+    "enteredPersonalWorkspace": true,
+    "passwordRelogin": true,
+    "deleteSubmitted": true,
+    "deleteSucceeded": false,
+    "visibleError": "Payment configuration is unavailable",
+    "postDeletionLoginRejection": "未验证：删除失败",
+    "passwordPersisted": false,
+    "nextAction": "协调者修代码并部署后再验；当前保留账号，不重试删除"
+  },
+  "admin": {
+    "method": "Google",
+    "designatedAccountSelected": true,
+    "status": "协调者报告重写 BOOTSTRAP_ADMIN_EMAILS 后，退出并用同一 Google 账号重新登录，/admin 正常显示 Admin 导航与 Overview，验收通过",
+    "registered": true,
+    "emailVerifiedInAccountUI": true,
+    "socialAccountHasNoPasswordInUI": true,
+    "adminAccessVerified": true,
+    "adminPageVisibleText": "Admin / Admin sections / Overview / Shortcuts",
+    "reloginRetested": true,
+    "oauthNotes": "等待后沿用旧流程曾返回 state_mismatch；重新发起 OAuth 后注册及登录成功。",
+    "passwordSet": false,
+    "adminVerifiedAt": "2026-10-20T17:10:49.112970+00:00",
+    "bootstrapConfigurationChangeSource": "协调者报告已重写生产 secret；本代理未读取或改写真值",
+    "previousAdminAccessFailure": "此前同一 Google 账号已验证但 /admin 显示 Not Found，本次重新登录后已解除"
+  },
+  "searchConsole": [
+    {
+      "resource": "sc-domain:arcanumber.com",
+      "method": "DNS TXT",
+      "ownershipVerified": true,
+      "sitemap": "https://arcanumber.com/sitemap.xml",
+      "listStatus": "成功",
+      "type": "站点地图索引",
+      "discoveredPages": 0,
+      "uiDate": "2026年10月21日"
+    },
+    {
+      "resource": "sc-domain:ganjiday.com",
+      "method": "DNS TXT",
+      "ownershipVerified": true,
+      "sitemap": "https://ganjiday.com/sitemap.xml",
+      "listStatus": "成功",
+      "type": "站点地图索引",
+      "discoveredPages": 0,
+      "uiDate": "2026年10月21日"
+    }
+  ],
+  "bing": {
+    "status": "协调者指示先跳过，等待用户登录",
+    "imported": false,
+    "initialError": "Bing is not available right now; retry recovered to public landing page"
+  },
+  "webAnalytics": {
+    "created": true,
+    "mode": "Enable with JS Snippet installation",
+    "autoInjectionEnabled": false,
+    "creationNote": "按本轮明确授权，Done 创建后立即切换手动；控制台列表两站均显示 JS Snippet installation",
+    "evidence": "web-analytics.json",
+    "sites": [
+      {
+        "hostname": "arcanumber.com",
+        "siteTag": "c390ba28c58141bbac6226825f03eee4",
+        "publicSiteToken": "aa32b146781b4880aa9686d85c3a8f66",
+        "mode": "Enable with JS Snippet installation"
+      },
+      {
+        "hostname": "ganjiday.com",
+        "siteTag": "f6d513f3f7604c09b0a4de81a1da3ea5",
+        "publicSiteToken": "21bda25feef743088c8ca9fb63b76a36",
+        "mode": "Enable with JS Snippet installation"
+      }
+    ]
+  },
+  "updatedAt": "2026-10-20T17:10:49.112970+00:00"
+}

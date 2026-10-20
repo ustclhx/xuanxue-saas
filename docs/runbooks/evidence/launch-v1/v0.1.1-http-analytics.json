@@ -1,0 +1,214 @@
+{
+  "observedAt": "2026-10-20T17:41:22.691992+00:00",
+  "release": "v0.1.1",
+  "sha": "c0dc8cf9cdd075811ead3179b078f19c9fb15661",
+  "note": "匿名 /app 跟随至登录页，/admin 为未授权响应；已认证页面另以浏览器检查。",
+  "checks": [
+    {
+      "url": "https://arcanumber.com/api/health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "c0dc8cf9cdd075811ead3179b078f19c9fb15661",
+        "db": {
+          "status": "up",
+          "latencyMs": 332
+        },
+        "jobs": {
+          "lastCronAt": "2026-10-20T17:40:11.462Z"
+        }
+      },
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/",
+      "finalUrl": "https://arcanumber.com/",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "aa32b146781b4880aa9686d85c3a8f66",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": "aa32b146781b4880aa9686d85c3a8f66",
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/pricing",
+      "finalUrl": "https://arcanumber.com/pricing",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "aa32b146781b4880aa9686d85c3a8f66",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": "aa32b146781b4880aa9686d85c3a8f66",
+      "pass": true
+    },
+    {
+      "url": "https://arcanumber.com/app",
+      "finalUrl": "https://arcanumber.com/login",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "aa32b146781b4880aa9686d85c3a8f66",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": null,
+      "pass": false
+    },
+    {
+      "url": "https://arcanumber.com/admin",
+      "finalUrl": "https://arcanumber.com/admin",
+      "httpStatus": 404,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "aa32b146781b4880aa9686d85c3a8f66",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": null,
+      "pass": false
+    },
+    {
+      "url": "https://ganjiday.com/api/health",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "c0dc8cf9cdd075811ead3179b078f19c9fb15661",
+        "db": {
+          "status": "up",
+          "latencyMs": 288
+        },
+        "jobs": {
+          "lastCronAt": "2026-10-20T17:40:11.462Z"
+        }
+      },
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/",
+      "finalUrl": "https://ganjiday.com/",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "21bda25feef743088c8ca9fb63b76a36",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": "21bda25feef743088c8ca9fb63b76a36",
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/pricing",
+      "finalUrl": "https://ganjiday.com/",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "21bda25feef743088c8ca9fb63b76a36",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": "21bda25feef743088c8ca9fb63b76a36",
+      "pass": true
+    },
+    {
+      "url": "https://ganjiday.com/app",
+      "finalUrl": "https://ganjiday.com/login",
+      "httpStatus": 200,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "21bda25feef743088c8ca9fb63b76a36",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": null,
+      "pass": false
+    },
+    {
+      "url": "https://ganjiday.com/admin",
+      "finalUrl": "https://ganjiday.com/admin",
+      "httpStatus": 404,
+      "method": "anonymous curl --location",
+      "beacons": [
+        {
+          "src": "https://static.cloudflareinsights.com/beacon.min.js",
+          "data": {
+            "token": "21bda25feef743088c8ca9fb63b76a36",
+            "spa": false
+          }
+        }
+      ],
+      "expectedToken": null,
+      "pass": false
+    }
+  ],
+  "directAppResponses": [
+    {
+      "url": "https://arcanumber.com/app",
+      "method": "anonymous curl without --location",
+      "httpStatus": 307,
+      "bodyBytes": 0,
+      "hasBeacon": false
+    },
+    {
+      "url": "https://ganjiday.com/app",
+      "method": "anonymous curl without --location",
+      "httpStatus": 307,
+      "bodyBytes": 0,
+      "hasBeacon": false
+    }
+  ],
+  "authenticatedBrowserChecks": [
+    {
+      "site": "arcanumber.com",
+      "path": "/admin",
+      "heading": ["Admin", "Overview"],
+      "beacons": [],
+      "pass": true
+    },
+    {
+      "site": "arcanumber.com",
+      "path": "/app/<personal-workspace>",
+      "heading": ["Personal"],
+      "beacons": [],
+      "pass": true
+    }
+  ],
+  "interpretation": "两站公开首页/定价 token 正确；已认证西方 app/admin 无 beacon。匿名 app 原始响应 307 无 HTML/beacon，跟随至 login 后有 beacon；匿名 admin 原始 404 HTML 有 beacon，排除规则验收未全部满足。",
+  "knownIssueDecision": {
+    "anonymousAdmin404Beacon": "保留原始失败结果；协调者接受为非阻断已知小问题，无用户数据，后续处理",
+    "acceptedBy": "协调者本轮明确决定",
+    "codeChanged": false
+  }
+}

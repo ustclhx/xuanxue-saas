@@ -1,6 +1,6 @@
 # launch-v1-production 预检证据
 
-2026-10-20 UTC。本目录目前是发布准备证据，尚无生产发布、Lighthouse 或搜索引擎成功结果。
+2026-10-20 UTC。前半为历史发布准备证据；最新生产实测见文末。
 
 ## 目标与范围
 
@@ -30,3 +30,30 @@
 ## 尚未验收
 
 生产发布等待：用户安全输入两项 CI 凭据；协调者合入工作流修正；同 SHA CI 与 staging 成功；tag 发布时由用户审批 production。其后才能记录双站完整 SHA、真实注册/删号、六页 Lighthouse、GSC sitemap「成功」、Bing 导入和 Web Analytics 手动片段 token。不会用 dry-run、用例发现或旧 staging 的结果替代这些验收。
+
+
+## v0.1.0 最新实测（2026-10-20 UTC）
+
+- [production-actions.json](production-actions.json)：完整 SHA、workflow 与各步骤 success，含东方 6 / 西方 3 只读冒烟。
+- [production-heartbeat.json](production-heartbeat.json)：17:05:42 UTC 健康复查为 db.up / 同 SHA，已观察到 17:05:09 UTC Cron 心跳。
+- [production-http.json](production-http.json)：双域 28 个 HTTP 验收，全部通过。
+- [production-browser.json](production-browser.json)：注册/重新登录通过，删号失败；指定 Google 账号注册且邮箱已验证；bootstrap 配置更新后重新登录，/admin 正常打开，管理员验收通过；GSC 两站成功、Bing 待登录、Analytics 手动模式已完成。
+- [lighthouse-summary.json](lighthouse-summary.json)：六页移动端审计条件与指标；[lighthouse/](lighthouse/) 含逐页 ZIP 内原始 HTML/JSON。西方首页 LCP 未达标；无现场 INP，不用 TBT 冒充 INP。
+
+最新待办以 [上线记录](../../launch-v1.md) 为准；上文凭据和部署尚未执行仅为历史记录。此轮只提交运维证据与文档，不修改应用、工作流、支付、价格或模型。
+
+Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`；归档后逐字节核验一致，解压 HTML 可查看完整报告。
+
+- [web-analytics.json](web-analytics.json)：两个公开 site token、控制台 siteTag、手动模式和两站首页/匿名 app 的四项 curl 无 beacon 验收。
+
+
+## v0.1.1（最新）
+
+- [发布门禁](v0.1.1-release-gates.json)：c0dc8cf 完整 SHA 的 CI/staging 成功。
+- [Actions](v0.1.1-actions.json)：v0.1.1 生产发布全部成功，9 项只读冒烟通过。
+- [HTTP / Analytics](v0.1.1-http-analytics.json)：两域完整 SHA/db 健康、首页/定价 token 正确；匿名 admin 404 仍含 beacon；匿名 app 的原始响应与跟随登录页分别记录，不混淆。
+- [浏览器](v0.1.1-browser.json)：已认证西方 app/admin 无 beacon；新测试账号已完成删号及同一原密码登录拒绝；旧账号后台无删除/匿名化入口，按授权保留。
+
+旧 v0.1.0 无公开页 beacon 与删号失败记录保留为历史；本次不以旧报告冒充新版本验收。
+
+2.2 最终验收已通过；匿名 admin 404 beacon 保留真实失败结果，并记录协调者接受为非阻断已知问题，不以修改断言冒充该项通过。

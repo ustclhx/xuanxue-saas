@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-10-20T17:05:42.690Z",
+  "checks": [
+    {
+      "host": "arcanumber.com",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+        "db": {
+          "status": "up",
+          "latencyMs": 75
+        },
+        "jobs": {
+          "lastCronAt": "2026-10-20T17:05:09.507Z"
+        }
+      }
+    },
+    {
+      "host": "ganjiday.com",
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "version": "661e627ea2300b63c7aca22efc771f8ddc1ef8bd",
+        "db": {
+          "status": "up",
+          "latencyMs": 73
+        },
+        "jobs": {
+          "lastCronAt": "2026-10-20T17:05:09.507Z"
+        }
+      }
+    }
+  ]
+}
