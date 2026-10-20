@@ -12,7 +12,6 @@ import * as ReactDOM from 'react-dom'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { z } from 'zod'
 import templateConfig from '../../template.config.ts'
-import { SUPPORT_EMAIL_TOKEN } from './src/features/marketing/legal-tokens.ts'
 
 /**
  * 是否保留草稿：`vite dev` 中显示草稿便于预览，生产构建（NODE_ENV=production）直接跳过，
@@ -49,6 +48,10 @@ function plainText(html: string): string {
  * 法律页与文档中的 `{{key}}` 占位符按模板配置替换（站点名称与地址、支持邮箱、可申请退款的天数），
  * 新站点改配置即可，不必逐页修改文案。
  */
+// 与 src/features/marketing/legal-tokens.ts 的 SUPPORT_EMAIL_TOKEN 相同（legal-pages.test.ts 校验）；
+// 本文件会被测试复制到临时目录运行，因此不引用 src 下的模块
+const SUPPORT_EMAIL_TOKEN = '%SUPPORT_EMAIL%'
+
 const legalPlaceholders: Record<string, string> = {
   appName: templateConfig.app.name,
   appUrl: templateConfig.app.url.replace(/\/+$/, ''),
