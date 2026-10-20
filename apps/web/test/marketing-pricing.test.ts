@@ -69,6 +69,31 @@ describe('公开套餐数据库读取', () => {
         { id: priceId, amount: 1900 },
       ])
       expect(snapshot.prices.some((p) => p.planId === inactivePlanId)).toBe(false)
+      // 从未同步的种子价格（支付未开通）用于展示金额，但不可购买
+      const seedPlanId = newId()
+      await db.insert(plan).values({
+        id: seedPlanId,
+        key: `pricing-test-${seedPlanId}`,
+        name: 'Seed pack',
+        type: 'credit_pack',
+        credits: 100,
+        features: DEFAULT_FREE_FEATURES,
+      })
+      await db.insert(planPrice).values({
+        planId: seedPlanId,
+        provider: 'stripe',
+        providerPriceId: `unsynced:stripe:${seedPlanId}`,
+        interval: null,
+        amount: 99,
+        currency: 'USD',
+        active: false,
+      })
+      const seeded = await readPricingCatalog(db)
+      expect(seeded.prices.filter((p) => p.planId === seedPlanId)).toMatchObject([
+        { amount: 99, available: false },
+      ])
+      await db.delete(planPrice).where(eq(planPrice.planId, seedPlanId))
+      await db.delete(plan).where(eq(plan.id, seedPlanId))
       let now = 1000
       const cached = createPricingCache(snapshot, () => now)
       const read = () => readPricingCatalog(db)
