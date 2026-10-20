@@ -330,6 +330,8 @@ export function ReadingUnlock({
     )
   }
 
+  // 支付未开通（没有可购买的积分包）且余额不够时不显示解锁入口，避免走到无法付款的一步
+  if (offer.packs.length === 0 && (offer.viewer?.balance ?? 0) < offer.credits) return null
   const cents = usdCentsFor(offer.credits, offer.packs)
   const price = cents === null ? null : formatPrice(cents, locale)
   const busy = phase.name === 'busy'

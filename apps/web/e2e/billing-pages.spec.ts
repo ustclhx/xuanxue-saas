@@ -3,15 +3,16 @@ import { expect, test } from '@playwright/test'
 import { capture, grant, hold } from '@xuanxue/credits'
 import { createDb } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
-import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
+import { fixtureDb, register, seedBillingCatalog, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 test('public pricing describes unavailable payments without a checkout success', async ({
   page,
 }) => {
+  await seedBillingCatalog()
   await page.goto('/pricing')
   await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-  await expect(page.getByRole('status')).toContainText('Online payment is coming soon')
+  await expect(page.getByText('Online payment is coming soon', { exact: false })).toBeVisible()
   const packs = page.getByTestId('pricing-pack')
   await expect(packs).toHaveCount(2)
   await expect(packs.first()).toContainText('Single Reading')

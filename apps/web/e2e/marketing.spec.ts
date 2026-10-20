@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import { supportEmail } from '@xuanxue/config'
 import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
+import { seedBillingCatalog } from './fixtures.ts'
 
 // 营销站（openspec add-marketing-i18n-seo tasks.md 3.1、3.3、3.4、3.5）：首页区块、博客、法律页与文档站，
 // 默认语言与其他语言路径都可访问。数据库停止时的访问与草稿的生产构建检查见 PR 说明与 scripts/content.test.ts。
@@ -26,6 +27,7 @@ for (const lang of languages) {
         'Life Path Number Calculator',
       )
       // 定价页只卖积分包，不再有模板的功能/评价区块（Stripe 审核不接受虚构评价）
+      await seedBillingCatalog()
       await page.goto('/pricing')
       await expect(page.getByTestId('pricing-pack')).toHaveCount(2)
       await expect(page.getByText('Loved by builders')).toHaveCount(0)

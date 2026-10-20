@@ -124,8 +124,6 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
       )
       if (!readingAvailable(config)) return UNAVAILABLE
       const [packs, viewer] = await Promise.all([readingPacks(), viewerOf()])
-      // 支付未开通（没有可购买的积分包）且余额不够时不显示解锁入口，避免走到无法付款的一步
-      if (packs.length === 0 && (viewer?.balance ?? 0) < config.credits) return UNAVAILABLE
       return {
         available: true,
         credits: config.credits,
