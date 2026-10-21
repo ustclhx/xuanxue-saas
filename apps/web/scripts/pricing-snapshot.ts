@@ -5,10 +5,11 @@ import { EXAMPLE_CATALOG } from '../../../packages/billing/src/catalog.ts'
 import type { PricingCatalog } from '../src/features/marketing/pricing-data.ts'
 import { readPricingCatalog } from '../src/features/marketing/pricing-read.ts'
 
-/** CI 无数据库时使用同一份仓库示例，示例价格不作为结账凭据。 */
+/** CI 无数据库时使用同一份仓库示例，示例价格不作为结账凭据。只展示当前在售（active）的套餐。 */
 export function examplePricingCatalog(): PricingCatalog {
+  const active = EXAMPLE_CATALOG.filter((plan) => plan.active)
   return {
-    plans: EXAMPLE_CATALOG.map((plan) => ({
+    plans: active.map((plan) => ({
       id: `example:${plan.key}`,
       key: plan.key,
       name: plan.name,
@@ -17,7 +18,7 @@ export function examplePricingCatalog(): PricingCatalog {
       creditExpiryDays: plan.creditExpiryDays,
       features: plan.features,
     })),
-    prices: EXAMPLE_CATALOG.flatMap((plan) =>
+    prices: active.flatMap((plan) =>
       (['stripe', 'paypal'] as const).flatMap((provider) =>
         plan.prices.map((price) => ({
           ...price,

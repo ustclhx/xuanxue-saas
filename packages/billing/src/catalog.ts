@@ -33,11 +33,9 @@ export const EXAMPLE_CATALOG = [
       watermark: false,
     },
     sort: 10,
-    active: true,
-    prices: [
-      { interval: 'month', amount: 1900 },
-      { interval: 'year', amount: 19000 },
-    ],
+    // 暂不销售订阅：停用且不再同步价格；重跑 seed 会把已有行置为停用，结账因 plan.active 被拒绝。
+    active: false,
+    prices: [],
   },
   {
     key: 'team',
@@ -57,11 +55,9 @@ export const EXAMPLE_CATALOG = [
       watermark: false,
     },
     sort: 20,
-    active: true,
-    prices: [
-      { interval: 'month', amount: 4900 },
-      { interval: 'year', amount: 49000 },
-    ],
+    // 同 pro：暂不销售订阅。
+    active: false,
+    prices: [],
   },
   // 详批积分包（add-reading-monetization design 决策 4）：1 次详批 = 100 积分；价格为种子值，后台可改。
   {

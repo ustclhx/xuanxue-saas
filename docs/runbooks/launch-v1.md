@@ -8,7 +8,7 @@
 | --- | --- |
 | 2.1 Worker 资源 / secrets / dry-run | 已完成；原预检见 [production runbook](production-xuanxue.md) |
 | GitHub production environment | 三项必需 secret 名称齐全；新建独立生产 token，剪贴板写入后清空；已按本轮明确授权在浏览器批准 production |
-| 2.2 迁移 → seed 确认 → jobs → web | 已完成本轮无支付上线验收：v0.1.1 发布、双域健康完整 SHA、9 项只读冒烟、Google 管理员、新账号删号与原密码登录拒绝通过；已勾选 |
+| 2.2 迁移 → seed 确认 → jobs → web | 部署与无支付验收完成：v0.1.1 发布、双域健康完整 SHA、9 项只读冒烟、Google 管理员、新账号删号与原密码登录拒绝通过；**未勾选**：后台配置（模型、详批开关与价格）待 PayPal 上线与 D1 选模型后完成，`e2e-live` 三语冒烟未运行（本轮只跑只读 `e2e/production`） |
 | 2.3 Lighthouse | 六页移动端 HTML/JSON 已保存；西方首页 LCP 2.85s 未达 2.5s 门槛；未修改性能代码 |
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
 | Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，协调者已接受为非阻断已知小问题 |
@@ -65,7 +65,7 @@
 - 已登录西方站浏览器 `/admin` 正常显示 Admin/Overview、个人 `/app` 显示 Personal，两处 DOM 均无 beacon。匿名 `/app` 原始响应两站均为 307、空正文、无 beacon；curl 跟随跳转后的 `/login` HTML 含本站 beacon。两站匿名 `/admin` 原始 404 HTML 仍含本站 beacon；协调者明确接受为无用户数据的非阻断已知小问题，后续处理。本轮保留原始失败证据、不改代码，也不将此检查改写为通过。
 - 删号复验通过：协调者允许使用新账号 `launch-test-20261020174555043@example.org`。真实注册进入 Personal（`u-n60blmh9`），退出后用密码重新登录成功，账号设置输入 DELETE 删除后跳转 `/login`；使用同一邮箱和同一原密码再次登录，页面显示 `Incorrect email or password.` 并停留登录页。后台随后观察到匿名化 `deleted+…@invalid` 测试用户、状态 Banned。密码只在本轮操作内存，完成后清空，未落盘。
 - 旧账号 `launch-test-20261021@example.org` 保留：用管理员打开其用户详情（ID `01a15a3c-69eb-7092-8436-7568cbe8f06f`），可用操作只有 Impersonate user 与 Ban management，没有删除/匿名化入口。按协调者指示保留原 Active 状态，未封禁、未模拟登录、未写库。
-- 2.2 已完成并勾选，适用已批准的不开支付、不改价格、不启用详批模型范围。Lighthouse 不重跑，旧六页报告明确属于 v0.1.0，LCP 仍只记录；Bing 等待用户登录，2.3/3.1 保持未完成。
+- 2.2 部署与删号验收已完成，适用已批准的不开支付、不改价格、不启用详批模型范围；但 tasks.md 中 2.2 保持未勾选（后台配置与 `e2e-live` 未完成）。Lighthouse 不重跑，旧六页报告明确属于 v0.1.0，LCP 仍只记录；Bing 等待用户登录，2.3/3.1 保持未完成。
 
 证据：[发布门禁](evidence/launch-v1/v0.1.1-release-gates.json)、[生产 Actions](evidence/launch-v1/v0.1.1-actions.json)、[健康与 Analytics curl](evidence/launch-v1/v0.1.1-http-analytics.json)、[浏览器与删号待办](evidence/launch-v1/v0.1.1-browser.json)。
 
@@ -122,3 +122,22 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 管理员复验 UTC：`2026-10-20T17:10:49.112970+00:00`；证据见 [浏览器验收记录](evidence/launch-v1/production-browser.json)。测试账号继续保留，等待协调者在删号修复 PR #43 合并部署后下达下一步；本轮没有重试删除。
 
 本轮 2.2 最终验收 UTC：`2026-10-20T17:48:44.452539+00:00`；新账号删除及原密码拒绝、旧账号后台无清理入口、匿名 404 beacon 已知问题接受决定，均见 [v0.1.1 浏览器证据](evidence/launch-v1/v0.1.1-browser.json)。
+
+## 2026-10-21 支付与定价调整（代码层面，未上线）
+
+- 支付：先接 PayPal。`template.config.ts` 的 `billing.providers` 改为 `['paypal']` 随 PayPal 上线一并提交（本次未改，仍为 `['stripe']`：e2e 冒烟依赖 Stripe 结账入口，改动会使其失败）；Stripe 代码保留。生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，尚未执行。
+- 订阅：`pro` / `team` 在 `packages/billing/src/catalog.ts` 中停用（`active: false`、无价格）。已有数据库行要在下一次 `billing:seed` 后才会变为停用；结账按 `plan.active` 拒绝。
+- 定价页：只展示一次性积分包。Single 100 积分 $0.99，Five 500 积分 $3.99。
+- 文案：三语 `marketing` 中的副标题与「订阅与积分」类表述已去掉升级、订阅说法。
+
+### 免费积分盘点（按代码与配置）
+
+| 来源 | 当前数量 | 依据 |
+| --- | --- | --- |
+| 注册赠送 | 0 | `template.config.ts` `billing.signupBonusCredits: 0`；`packages/billing/src/signup.ts` 在值 ≤ 0 时返回 disabled |
+| 免费档（`free`） | 0 | `packages/billing/src/catalog.ts` 的 free 计划 `credits: 0`，无价格 |
+| 订阅月度积分（已停用） | 原 pro 1000 / team 5000 每月 | 停用后不再发放 |
+| 管理员后台调整 | 不定 | 后台 `adjust` 流水，需人工操作并留审计 |
+| staging 验收测试积分 | 100（仅 staging） | `docs/runbooks/staging-acceptance.md`，不影响生产 |
+
+注意：`packages/config/src/template.ts` 的 `templateConfigDefaults` 回退值仍为 100，但 `template.config.ts` 已覆盖为 0，实际生效值是 0。`docs/02-project-structure.md`、`docs/05-billing.md` 仍写注册赠送 100，属于过时文档。本轮未查询生产数据库，上表基于代码与配置。

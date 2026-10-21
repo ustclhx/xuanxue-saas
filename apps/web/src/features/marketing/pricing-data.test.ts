@@ -53,13 +53,10 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
     expect(offline).toHaveBeenCalledTimes(3)
   })
 
-  it('区块展示套餐的积分、权益与价格，并合并不同支付渠道的同周期报价', () => {
+  it('区块展示积分包的积分与价格，并合并不同支付渠道的同周期报价', () => {
     const plans = marketingPlans(examplePricingCatalog())
-    const pro = plans.find((plan) => plan.key === 'pro')
-    expect(pro).toMatchObject({ credits: 1000, maxSeats: 1, storageGb: 50 })
-    expect(pro?.prices.map((p) => [p.interval, p.amount])).toEqual([
-      ['month', 1900],
-      ['year', 19000],
-    ])
+    const single = plans.find((plan) => plan.key === 'reading_single')
+    expect(single).toMatchObject({ credits: 100 })
+    expect(single?.prices.map((p) => [p.interval, p.amount])).toEqual([[null, 99]])
   })
 })

@@ -10,7 +10,7 @@
 
 - [x] 2.1 按 `deploy-cloudflare` 技能做生产资源与密钥预检，`wrangler.jsonc` 生产环境加两条 custom_domain 路由，构建变量 `EAST_URL`/`WEST_URL`；验证：预检脚本无缺失项，`wrangler deploy --dry-run` 通过
 - [ ] 2.2 生产部署（迁移 → seed → jobs → web）与后台配置（模型、详批开关与价格）；验证：两站 `/api/health` 返回部署 SHA，三语冒烟 e2e（`e2e-live`）通过
-  - 部署部分已完成（v0.1.1，见 `docs/runbooks/launch-v1.md`）；后台配置（模型、详批开关与价格）待 Stripe 开通与 D1 选定模型后完成
+  - 部署与删号验收已完成（v0.1.1，见 `docs/runbooks/launch-v1.md`）；未完成：后台配置（模型、详批开关与价格）待 PayPal 上线与 D1 选定模型后完成；`e2e-live` 未运行（只跑了只读 `e2e/production`），补跑或改写验证条款后再勾选
 - [ ] 2.3 Lighthouse 移动端审计两站各 3 个核心页（LCP < 2.5s、CLS < 0.1、INP < 200ms）；验证：报告存入 `docs/runbooks/evidence/launch-v1/`
 
 ## 3. 收录
@@ -54,3 +54,7 @@
 - 旧账号后台用户详情无删除/匿名化操作，只有模拟登录和封禁管理，按指示保留并已记 runbook；未用替代动作或直接写库清理。
 - 两站匿名 /admin 404 HTML 的 beacon 经协调者明确接受为无用户数据的非阻断已知小问题；保留原始失败证据，后续处理，本轮不改代码。
 - v0.1.1 发布、完整 SHA/db、三语 9 项只读冒烟、Google 管理员与上述删号均满足本轮已批准的无支付/无详批模型范围，2.2 勾选；历史“未完成”记录保留为当时状态。2.3 / 3.1 仍未完成，LCP 只记录，Bing 等待登录。
+
+## 勾选修正（2026-10-21）
+
+- 2.2 保持未勾选。此前 `launch-v1.md` 写成「已勾选」与本文件不一致，已改为未勾选；部署与删号验收的证据仍有效。
