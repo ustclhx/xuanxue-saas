@@ -125,7 +125,7 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 
 ## 2026-10-21 支付与定价调整（代码层面，未上线）
 
-- 支付：先接 PayPal，`template.config.ts` 的 `billing.providers` 改为 `['paypal']`；Stripe 代码保留，准备好后再加入。生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，尚未执行。
+- 支付：先接 PayPal。`template.config.ts` 的 `billing.providers` 改为 `['paypal']` 随 PayPal 上线一并提交（本次未改，仍为 `['stripe']`：e2e 冒烟依赖 Stripe 结账入口，改动会使其失败）；Stripe 代码保留。生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，尚未执行。
 - 订阅：`pro` / `team` 在 `packages/billing/src/catalog.ts` 中停用（`active: false`、无价格）。已有数据库行要在下一次 `billing:seed` 后才会变为停用；结账按 `plan.active` 拒绝。
 - 定价页：只展示一次性积分包。Single 100 积分 $0.99，Five 500 积分 $3.99。
 - 文案：三语 `marketing` 中的副标题与「订阅与积分」类表述已去掉升级、订阅说法。

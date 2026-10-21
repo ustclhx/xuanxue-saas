@@ -8,7 +8,7 @@
 | D2 | 东西两站的品牌名与正式域名 | 决策 + 购买 | hreflang 绝对地址、站点地图、OG、Organization 结构化数据、OAuth 回调 | — | 已决定（2026-10-20，域名已购买）：东方站 `ganjiday.com`，品牌 繁中「干支日」/ 韩语「간지데이」/ 标识 Ganjiday；西方站 `arcanumber.com`，各语言统一 Arcanumber（副标题本地化）。www 由 Cloudflare 重定向到裸域 |
 | D3 | 法国本地搜索量重核（`doc/design.md` §8 方式 B） | 人工 | 是否启动法语站 | v1 不做法语 | 待你在 Keyword Planner 导出 |
 | D5 | 韩语만세력是否默认开启「진태양시」（真太阳时）修正 | 决策 | `/ko/` 时柱：与韩国常见만세력一致（首尔约 −32 分钟） | — | 已决定：默认开启（`KO_TRUE_SOLAR_DEFAULT = true`，访客可关闭） |
-| D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 法律页运营者、联系方式；支付主体 | — | 已决定（2026-10-20）：个人开发者（税务居住地 CN），法律页以品牌名称呼运营者，不公开姓名与地址，只留各站联系邮箱 `support@arcanumber.com` / `support@ganjiday.com`（Cloudflare Email Routing 转发）。**支付更新（2026-10-21）：先接 PayPal，`template.config.ts` 的 `billing.providers` 改为 `['paypal']`；用户已准备 PayPal 账号。Stripe 准备好后再加入（代码保留）。** 生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，属于需确认的上线动作，未执行。法律文本仍需人工审阅 |
+| D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 法律页运营者、联系方式；支付主体 | — | 已决定（2026-10-20）：个人开发者（税务居住地 CN），法律页以品牌名称呼运营者，不公开姓名与地址，只留各站联系邮箱 `support@arcanumber.com` / `support@ganjiday.com`（Cloudflare Email Routing 转发）。**支付更新（2026-10-21）：先接 PayPal；`billing.providers` 改为 `['paypal']` 随 PayPal 上线一并提交（本次仍为 `['stripe']`）；用户已准备 PayPal 账号。Stripe 准备好后再加入（代码保留）。** 生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，属于需确认的上线动作，未执行。法律文本仍需人工审阅 |
 | D4 | 台湾 / 韩国本地官方搜索量 | 人工 | 长尾页优先级 | 按设计文档的第三方口径排期 | 待你在 Keyword Planner 导出 |
 | D7 | 定价策略 | 决策 | 定价页、积分包价格、订阅 | — | 已决定（2026-10-21）：先开小额一次性积分包（Single 100 积分 $0.99、Five 500 积分 $3.99，每次详批 100 积分），**暂不做订阅制**：`pro` / `team` 在 `packages/billing/src/catalog.ts` 中停用（`active: false`、无价格），重跑 seed 后结账被拒绝。免费积分：注册赠送为 0（`signupBonusCredits: 0`），免费档无积分；见 runbook 同日记录。价格仍为种子值，可在后台调整。 |
 
