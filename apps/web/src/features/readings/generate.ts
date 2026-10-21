@@ -20,6 +20,7 @@ import { and, desc, eq, gt, inArray, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
+import { isPlatformAdmin } from '../admin/guard.ts'
 import { chatAppError, startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
 import { siteOfLocale, siteOrigin } from '../site/site.ts'
 import {
@@ -93,7 +94,7 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   if (!definition || siteOfLocale(body.locale, templateConfig) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
   const config = await readingConfig(deps.settings, definition.kind)
-  if (!readingAvailable(config)) throw notFound()
+  if (!readingAvailable(config, { adminPreview: isPlatformAdmin(user.role) })) throw notFound()
 
   const now = deps.now?.() ?? new Date()
   const recomputed = definition.recompute(body.input, now)
