@@ -20,7 +20,11 @@ export async function readingConfig(
   return { enabled, credits, modelKey }
 }
 
-/** 关闭或未选定模型的详批在前台隐藏解锁入口，接口也拒绝生成 */
-export function readingAvailable(config: ReadingConfig): boolean {
-  return config.enabled && config.modelKey !== '' && config.credits > 0
+/**
+ * 关闭或未选定模型的详批在前台隐藏解锁入口，接口也拒绝生成。
+ * 平台管理员（`adminPreview`）忽略 `enabled` 开关，便于上线前用真实模型实测；未选定模型仍不可用。
+ */
+export function readingAvailable(config: ReadingConfig, options: { adminPreview?: boolean } = {}) {
+  if (config.modelKey === '' || config.credits <= 0) return false
+  return config.enabled || options.adminPreview === true
 }

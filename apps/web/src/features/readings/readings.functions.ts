@@ -20,6 +20,7 @@ import { withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
+import { isPlatformAdmin } from '../admin/guard.ts'
 import { customerCatalog } from '../billing/customer-data.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
 import { safeReturnPath } from '../site/return-path.ts'
@@ -61,6 +62,17 @@ const UNAVAILABLE: ReadingOffer = {
   sections: [],
   packs: [],
   viewer: null,
+}
+
+/** 平台管理员可在 `enabled` 关闭时实测详批；未登录或读取失败一律视为非管理员。 */
+async function viewerIsPlatformAdmin(): Promise<boolean> {
+  const { db, auth } = getWebRuntime()
+  try {
+    const { user } = await readRequestSession({ auth, db, headers: getRequest().headers })
+    return isPlatformAdmin(user.role)
+  } catch {
+    return false
+  }
 }
 
 async function viewerOf(): Promise<ReadingOffer['viewer']> {
@@ -122,7 +134,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         { store: dbSettingStore(runtime.db), cache: runtime.cache },
         definition.kind,
       )
-      if (!readingAvailable(config)) return UNAVAILABLE
+      const adminPreview = await viewerIsPlatformAdmin()
+      if (!readingAvailable(config, { adminPreview })) return UNAVAILABLE
       const [packs, viewer] = await Promise.all([readingPacks(), viewerOf()])
       return {
         available: true,
