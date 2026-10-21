@@ -1,4 +1,4 @@
-import type { EmailTransportConfig } from '@xuanxue/config'
+import { type EmailTransportConfig, emailSender } from '@xuanxue/config'
 import {
   createResendSender,
   EmailSendError,
@@ -64,19 +64,25 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  const sender =
-    injectedSender ??
-    createResendSender({
-      apiKey: transport.apiKey,
-      from: transport.from,
-      ...(transport.replyTo === undefined ? {} : { replyTo: transport.replyTo }),
-    })
+  // 发件人随站点变化（按消息语言取），同一 API key 下按 from 地址复用 sender
+  const senders = new Map<string, EmailSender>()
+  const senderFor = (from: string): EmailSender => {
+    if (injectedSender) return injectedSender
+    let sender = senders.get(from)
+    if (!sender) {
+      sender = createResendSender({ apiKey: transport.apiKey, from })
+      senders.set(from, sender)
+    }
+    return sender
+  }
   return async (message, rendered) => {
-    const result = await sender.send({
+    const { from, replyTo } = emailSender(templateConfig, message.locale)
+    const result = await senderFor(from).send({
       to: message.to,
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      replyTo,
       ...(rendered.headers ? { headers: rendered.headers } : {}),
       idempotencyKey: message.idempotencyKey,
     })

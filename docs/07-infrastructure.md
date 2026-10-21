@@ -256,13 +256,12 @@ AI_TEXT_EGRESS=direct|gateway   # CF 缺省 gateway；DeepSeek 需逐块流式�
 R2_ACCOUNT_ID / R2_FILES_BUCKET   # 拼接 S3 兼容端点
 TURNSTILE_SITE_KEY(前端公开)
 EMAIL_TRANSPORT=log|resend        # jobs 的邮件发送通道，默认 log：只记录收件人与模板名、不调用外部服务（无 Resend 凭据时使用）
-EMAIL_FROM                        # jobs；EMAIL_TRANSPORT=resend 时必填，如 `xuanxue <noreply@example.com>`，域名需在 Resend 验证
-EMAIL_REPLY_TO                    # jobs，可选；默认回复地址（通常为 app.supportEmail）
+# 发件人不再由环境变量配置：按消息语言所属站点取 `<站点品牌> <noreply@mail.<规范域名>>`，回复地址为站点 supportEmail（`emailSender()`）
 SENTRY_ENVIRONMENT=development|staging|production|smoke  # 服务端 SDK 开关；staging 在对应 Wrangler env 声明
 APP_VERSION                      # CI 完整提交 SHA；jobs 通过 --var 注入，web 在 Vite 构建时固化
 ```
 
-jobs 侧的邮件变量由 `@xuanxue/config` 的 `withEmailEnv()` 校验（`apps/jobs/src/env.ts`），`resend` 通道缺少 `RESEND_API_KEY` / `EMAIL_FROM` 时消费者拒绝处理消息（消息留在队列中重试）。
+jobs 侧的邮件变量由 `@xuanxue/config` 的 `withEmailEnv()` 校验（`apps/jobs/src/env.ts`），`resend` 通道缺少 `RESEND_API_KEY` 时消费者拒绝处理消息（消息留在队列中重试）。发件域名 `mail.<站点域名>` 需在 Resend 验证。
 
 ### Bindings
 ```

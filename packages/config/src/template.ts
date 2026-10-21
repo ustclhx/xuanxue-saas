@@ -58,6 +58,32 @@ export function brandName(
   return match ? siteBrandName(config, match.site, match.locale) : config.app.name
 }
 
+/**
+ * 邮件发件人与回复地址，按语言所属站点取值：发件地址为 `<站点品牌> <noreply@mail.<规范域名>>`，
+ * 与 Resend 中为该站添加的发件子域一致（docs/runbooks/launch-v1.md）。未匹配语言时用 app 级配置。
+ */
+export function emailSender(
+  config: {
+    readonly app: { readonly name: string; readonly url: string; readonly supportEmail: string }
+    readonly sites: { readonly [S in SiteId]: SiteConfig }
+  },
+  locale?: string | null,
+): { readonly from: string; readonly replyTo: string } {
+  const match = localeSite(config, locale)
+  if (!match) {
+    const domain = new URL(config.app.url).hostname
+    return {
+      from: `${config.app.name} <noreply@mail.${domain}>`,
+      replyTo: config.app.supportEmail,
+    }
+  }
+  const site = config.sites[match.site]
+  return {
+    from: `${site.brand.name} <noreply@mail.${site.hosts[0]}>`,
+    replyTo: site.supportEmail,
+  }
+}
+
 /** 语言所属站点的联系邮箱；未指定语言或语言不属于任何站点时用 `app.supportEmail` */
 export function supportEmail(
   config: {
