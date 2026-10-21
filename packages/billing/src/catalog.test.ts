@@ -127,7 +127,7 @@ describe('offline catalog', () => {
     })
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe, paypal])
-    expect(state.plans).toHaveLength(5)
+    expect(state.plans).toHaveLength(6)
     expect(state.prices.slice(0, 4)).toEqual(before)
     expect(state.prices).toHaveLength(5)
     for (const adapter of [stripe, paypal]) {

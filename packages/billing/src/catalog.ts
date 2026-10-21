@@ -59,6 +59,25 @@ export const EXAMPLE_CATALOG = [
     active: false,
     prices: [],
   },
+  // 平台管理员自测用内部套餐：不在售（active: false、无价格），仅作为 admin 个人空间的权益基线（packages/entitlements）。
+  {
+    key: 'staff',
+    name: 'Staff (platform admin)',
+    type: 'subscription',
+    credits: 0,
+    creditExpiryDays: null,
+    rollover: false,
+    features: {
+      ...DEFAULT_FREE_FEATURES,
+      models: ['*'],
+      maxConcurrentTasks: 10,
+      storageGb: 50,
+      watermark: false,
+    },
+    sort: 1000,
+    active: false,
+    prices: [],
+  },
   // 详批积分包（add-reading-monetization design 决策 4）：1 次详批 = 100 积分；价格为种子值，后台可改。
   {
     key: 'reading_single',
