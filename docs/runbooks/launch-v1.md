@@ -13,7 +13,7 @@
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
 | Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，协调者已接受为非阻断已知小问题 |
 | support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
-| Resend | 两个 `mail` 发件域名的 8 条 DNS 已写入并通过公共解析核对；两个域名均 Verified；单 key 双域范围受控制台单选限制，尚未写生产 secret；生产邮件仍为 log |
+| Resend | 两个 `mail` 发件域名的 8 条 DNS 已写入并通过公共解析核对；两个域名均 Verified；两把仅限单域的发送 key 已写入生产 jobs secrets；生产邮件仍为 log，未发信验收 |
 | 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
 
 ## Resend 发件域名与 DNS（2026-10-21）
@@ -54,7 +54,20 @@
 | `arcanumber.com` | 2026-10-21 11:35 前 | 11:35:15，`dig +short` 指向 `@1.1.1.1`，四项均解析到上表完整值 | 11:36 点击 Verify DNS Records；最初 Pending；约 5 分钟后（11:41 UTC）回读 Verified，无需重试 |
 | `ganjiday.com` | 2026-10-21 11:36 前后 | 11:36:23，相同公共查询四项均解析到上表完整值 | 11:36 点击 Verify DNS Records；最初 Pending；约 5 分钟后（11:41 UTC）回读 Verified，无需重试 |
 
-生产 `xuanxue-jobs-production` 的 secret list 预检为空，尚未创建新 API key、尚未写入 `RESEND_API_KEY`。原要求为一个 `xuanxue-production-jobs`、Sending access、仅两个 `mail` 子域；域名通过验证后，控制台 Domain 下拉仍为单选，选 `mail.ganjiday.com` 会替换 `mail.arcanumber.com`，无法同时限定两域。`All domains` 还包含既有 `ezarouter.cc`，超出本轮授权，因此取消未提交的创建表单，等待用户决定，不擅自放宽范围或创建两把 key。三个既有 API key 保留。`EMAIL_TRANSPORT` 仍为默认 `log`，未改 `EMAIL_FROM` 或 Wrangler 配置，未部署应用代码、未发送测试邮件。未完成项：API key 域名范围决定与生产 secret、`EMAIL_TRANSPORT` 切换与 per-site 发件人决定；当前不宣称发信联通通过。验证：`pnpm check` 退出 0（4 条既有警告），`git diff --check` 通过。
+生产 `xuanxue-jobs-production` 的 secret list 预检为空，尚未创建新 API key、尚未写入 `RESEND_API_KEY`。原要求为一个 `xuanxue-production-jobs`、Sending access、仅两个 `mail` 子域；域名通过验证后，控制台 Domain 下拉仍为单选，选 `mail.ganjiday.com` 会替换 `mail.arcanumber.com`，无法同时限定两域。`All domains` 还包含既有 `ezarouter.cc`，超出本轮授权，因此取消未提交的创建表单，等待用户决定，不擅自放宽范围或创建两把 key。三个既有 API key 保留。`EMAIL_TRANSPORT` 仍为默认 `log`，未改 `EMAIL_FROM` 或 Wrangler 配置，未部署应用代码、未发送测试邮件。上段中关于 API key 的「未创建、等待决定」结论已被下节取代。未完成项：`EMAIL_TRANSPORT` 切换与发信验收；当前不宣称发信联通通过。验证：`pnpm check` 退出 0（4 条既有警告），`git diff --check` 通过。
+
+## Resend 发件 key（2026-10-21 UTC）
+
+两个 `mail.*` 发件域名已 Verified。本轮分别新建仅发送（Sending access）、只限定对应单个域名的 API key：
+
+| Key 名称 | 限定域名 | 创建时间（UTC） | 生产 secret 名称 | 写入成功时间（UTC） |
+| --- | --- | --- | --- | --- |
+| `xuanxue-production-east` | `mail.ganjiday.com` | `2026-10-21T12:05:19Z` | `RESEND_API_KEY_EAST` | `2026-10-21T12:05:38Z` |
+| `xuanxue-production-west` | `mail.arcanumber.com` | `2026-10-21T12:06:02Z` | `RESEND_API_KEY_WEST` | `2026-10-21T12:06:18Z` |
+
+创建时间按控制台提交操作记录。每个 key 创建后，通过复制按钮进入剪贴板，立即以 `pbpaste` 管道传入 `apps/jobs` 的 `pnpm exec wrangler secret put <上述 secret 名称> --env production`，成功后清空剪贴板；未显示完整值或将值写入文件。目标 Worker 为 `xuanxue-jobs-production`，随后执行 `pnpm exec wrangler secret list --env production`，仅确认上述两个名称均存在。
+
+`EMAIL_TRANSPORT` 保持 `log`，未发送测试邮件、未修改代码、未运行代码部署命令、未修改域名或 Cloudflare DNS，也未操作既有 key。`secret put` 本身即时更新生产 Worker 的 secret；本记录只证明密钥写入完成，邮件发送验收仍未执行。
 
 ## v0.1.1 发布与复验（最新）
 
