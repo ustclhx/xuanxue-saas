@@ -111,7 +111,7 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     const free = state.plans.find((p) => p.key === 'free')
     expect(free?.features).toEqual(DEFAULT_FREE_FEATURES)
-    expect(state.prices).toHaveLength(12)
+    expect(state.prices).toHaveLength(4)
     expect(
       state.prices.every((p) => !p.active && String(p.providerPriceId).startsWith('unsynced:')),
     ).toBe(true)
@@ -128,18 +128,18 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe, paypal])
     expect(state.plans).toHaveLength(5)
-    expect(state.prices.slice(0, 12)).toEqual(before)
-    expect(state.prices).toHaveLength(13)
+    expect(state.prices.slice(0, 4)).toEqual(before)
+    expect(state.prices).toHaveLength(5)
     for (const adapter of [stripe, paypal]) {
       const calls = vi.mocked(adapter.syncPlan).mock.calls
-      expect(calls).toHaveLength(12)
+      expect(calls).toHaveLength(4)
       expect(calls.every(([i]) => i.plan.key !== 'free' && i.price.active)).toBe(true)
       expect(
         calls
-          .slice(6)
+          .slice(2)
           .every(([i]) => i.providerPriceId && !i.providerPriceId.startsWith('unsynced:')),
       ).toBe(true)
-      expect(calls[0]?.[0].idempotencyKey).toBe(calls[6]?.[0].idempotencyKey)
+      expect(calls[0]?.[0].idempotencyKey).toBe(calls[2]?.[0].idempotencyKey)
     }
   })
 
@@ -159,7 +159,7 @@ describe('offline catalog', () => {
     ).toBe(true)
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe])
-    expect(state.prices.filter((p) => p.active)).toHaveLength(6)
+    expect(state.prices.filter((p) => p.active)).toHaveLength(2)
   })
 
   it('propagates immutable remote mismatch without recreating or rewriting the mapping', async () => {

@@ -52,7 +52,7 @@ export default defineTemplateConfig({
   },
   billing: {
     enabled: true, // 计费依赖积分；关闭计费时同时关闭 AI
-    providers: ['stripe'], // 结账页展示顺序
+    providers: ['paypal'], // 结账页展示顺序；当前仅接 PayPal，Stripe 准备好后再加入
     currency: 'usd',
     signupBonusCredits: 0, // 不送注册积分，避免注册即白拿一次详批（add-reading-monetization 决策 4）
     pastDueGraceDays: 7, // past_due 期间保留权益的天数

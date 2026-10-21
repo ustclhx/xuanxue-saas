@@ -85,7 +85,7 @@ describe('catalog on isolated PostgreSQL', () => {
           .from(planPrice)
           .where(inArray(planPrice.planId, catalogIds))
           .orderBy(planPrice.id)
-        expect(prices).toHaveLength(12)
+        expect(prices).toHaveLength(4)
         const first = prices[0]
         if (!first) throw new Error('Missing seeded price')
         const [historical] = await tx
