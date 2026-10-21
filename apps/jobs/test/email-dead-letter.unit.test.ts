@@ -13,9 +13,7 @@ const body: EmailQueueMessage = {
 }
 const transport = {
   transport: 'resend',
-  apiKey: 'fixture-only',
-  from: 'Fixture <fixture@example.com>',
-  replyTo: undefined,
+  apiKeys: { east: 'fixture-only', west: 'fixture-only' },
 } as const
 function batch() {
   const message: QueueMessage<unknown> = {
