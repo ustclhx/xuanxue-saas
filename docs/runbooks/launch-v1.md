@@ -13,8 +13,41 @@
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
 | Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，协调者已接受为非阻断已知小问题 |
 | support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
-| Resend | 延后；邮件传输保持 log |
+| Resend | 已登录；`mail.arcanumber.com` / `mail.ganjiday.com` 已添加，均为 Not Started（待 DNS 写入、未验证）；完整记录见下节；邮件传输保持 log，DNS 与 secret 后续由协调者决定 |
 | 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
+
+## Resend 发件域名准备（非阻断，2026-10-21）
+
+2026-10-21T11:26:27Z 完成准备。此前 11:19:06Z 因未登录停止；用户自行登录后续跑，登录阻塞已解除。已核对当前账号 / 团队标识 `lhx960924` 及其 Gmail（完整邮箱不入文档）。API keys 列表共 3 项，仅记录名称：`saas-production`、`saas-template-staging`、`Onboarding`；未查看 key 详情、复制或记录真值，未新建、修改或轮换 key。
+
+| 站点 | 发件域名 / Resend 控制台 | 区域 | 当前状态 |
+| --- | --- | --- | --- |
+| Arcanumber（`arcanumber.com`） | [mail.arcanumber.com](https://resend.com/domains/6a395056-90c2-4319-bcc3-3af13187659c) | 默认 North Virginia（`us-east-1`） | 已添加；列表回读 Not Started；待 DNS 写入，未验证 |
+| Ganjiday（`ganjiday.com`） | [mail.ganjiday.com](https://resend.com/domains/dbe85701-aa62-45b0-a343-8e4d0163d9af) | 默认 North Virginia（`us-east-1`） | 已添加；列表回读 Not Started；待 DNS 写入，未验证 |
+
+按本次用户要求使用 `mail.*`，取代 [资源准备历史](production-xuanxue.md#用户决定与边界) 中的 `send.*` 发件域名建议。两个域名均选择 Manual setup，保留默认区域与 Return-Path `send`；Enable Sending 为 on、Enable Receiving 为 off。页面 SPF 段实际给出两条 CNAME，未给出独立 SPF TXT 或反馈 MX；下面按控制台原值记录，不补造旧式 SPF/MX。所有记录 TTL 均为 Auto；CNAME 明确要求 DNS Only。名称为控制台显示的相对于各站裸域 zone 的名称。
+
+### Arcanumber DNS 清单（尚未写入）
+
+| 用途 / 必选性 | 类型 | 名称（zone：`arcanumber.com`） | 完整值 | TTL / 代理 |
+| --- | --- | --- | --- | --- |
+| DKIM（Domain Verification） | TXT | `resend._domainkey.mail` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCv6Ay3snFAU3B09VyMmLLq470m4CsYK1qUiJn2d8rF7kGXvLfq/0YPE25xm6st35GLnHQAuDiu0fAPEn66j8c56/I5nJAk5mif0OpW+J92+MpmNRX0f6ts3xwVXknzLhYtP/KtFIB1B4/7aeGfb8xnKGdh/PTZbu7PZQldI2imYQIDAQAB` | Auto |
+| SPF 段 / Enable Sending | CNAME | `rsend.mail` | `rsend.forge.rmta.net` | Auto / DNS Only |
+| SPF 段 / Enable Sending | CNAME | `send.mail` | `send.forge.rmta.net` | Auto / DNS Only |
+| DMARC（Optional，控制台建议） | TXT | `_dmarc` | `v=DMARC1; p=none;` | Auto |
+
+### Ganjiday DNS 清单（尚未写入）
+
+| 用途 / 必选性 | 类型 | 名称（zone：`ganjiday.com`） | 完整值 | TTL / 代理 |
+| --- | --- | --- | --- | --- |
+| DKIM（Domain Verification） | TXT | `resend._domainkey.mail` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDyqMnCPtYw6rK2SQA5q6m4nXIjaEt2F9U26cT2tpvx6jTFaqPOKd/sg3peg6EV1SSbanCB0g4GYyIUczR75epX1bvAV9r+pwMhGOXixfTI7Sc5aHVI/EvwU9AMkQZJX7tWv58JxYNWBMoNmuzTrT73ormS21NmPwkLDiezS8DW5QIDAQAB` | Auto |
+| SPF 段 / Enable Sending | CNAME | `rsend.mail` | `rsend.forge.rmta.net` | Auto / DNS Only |
+| SPF 段 / Enable Sending | CNAME | `send.mail` | `send.forge.rmta.net` | Auto / DNS Only |
+| DMARC（Optional，控制台建议） | TXT | `_dmarc` | `v=DMARC1; p=none;` | Auto |
+
+本轮只在 Resend 添加域名并抄录公开 DNS 值；未授权 Cloudflare Auto configure、未修改 DNS、未点击 Verify 或 “I've already added the records”、未写任何 secret、未发送测试邮件。既有域名与 API keys 保持原状，生产邮件继续使用 log。
+
+下一步由协调者决定是否写入上述 DNS（含可选 DMARC）、何时在 DNS 生效后触发验证，以及是否配置生产 `RESEND_API_KEY` 和切换传输。届时需核对现有 DNS 后再写入，保留裸域 Cloudflare Email Routing 的 MX/SPF/DKIM；Resend 发件与 `support@` 收件分别验收。当前不宣称发信联通通过。
 
 ## v0.1.1 发布与复验（最新）
 
