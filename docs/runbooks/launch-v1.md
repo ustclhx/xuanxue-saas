@@ -13,21 +13,21 @@
 | 3.1 GSC / Bing | 两个 Domain 资源 DNS TXT 验证通过，两个 sitemap 均显示成功；Bing 等待用户登录，尚未导入 |
 | Cloudflare Web Analytics | 手动模式保持；PR #44 已随 v0.1.1 发布，首页/定价含本站 token，已认证 app/admin 无 beacon；匿名 admin 的 404 HTML 仍含 beacon，协调者已接受为非阻断已知小问题 |
 | support 收件 | 两条 Routing Active、目标 Verified；实际收信仍需用户确认 |
-| Resend | 已登录；`mail.arcanumber.com` / `mail.ganjiday.com` 已添加，均为 Not Started（待 DNS 写入、未验证）；完整记录见下节；邮件传输保持 log，DNS 与 secret 后续由协调者决定 |
+| Resend | 两个 `mail` 发件域名的 8 条 DNS 已写入并通过公共解析核对；两个域名均 Verified；单 key 双域范围受控制台单选限制，尚未写生产 secret；生产邮件仍为 log |
 | 支付 / 详批 / Sentry | 未配置新密钥；未运行 billing:sync、未改套餐价格、未启用详批模型 |
 
-## Resend 发件域名准备（非阻断，2026-10-21）
+## Resend 发件域名与 DNS（2026-10-21）
 
-2026-10-21T11:26:27Z 完成准备。此前 11:19:06Z 因未登录停止；用户自行登录后续跑，登录阻塞已解除。已核对当前账号 / 团队标识 `lhx960924` 及其 Gmail（完整邮箱不入文档）。API keys 列表共 3 项，仅记录名称：`saas-production`、`saas-template-staging`、`Onboarding`；未查看 key 详情、复制或记录真值，未新建、修改或轮换 key。
+准备历史（[PR #45](https://github.com/ustclhx/xuanxue-saas/pull/45)）：2026-10-21T11:26:27Z 完成准备。此前 11:19:06Z 因未登录停止；用户自行登录后续跑，登录阻塞已解除。已核对当前账号 / 团队标识 `lhx960924` 及其 Gmail（完整邮箱不入文档）。API keys 列表共 3 项，仅记录名称：`saas-production`、`saas-template-staging`、`Onboarding`；未查看 key 详情、复制或记录真值，未新建、修改或轮换 key。
 
 | 站点 | 发件域名 / Resend 控制台 | 区域 | 当前状态 |
 | --- | --- | --- | --- |
-| Arcanumber（`arcanumber.com`） | [mail.arcanumber.com](https://resend.com/domains/6a395056-90c2-4319-bcc3-3af13187659c) | 默认 North Virginia（`us-east-1`） | 已添加；列表回读 Not Started；待 DNS 写入，未验证 |
-| Ganjiday（`ganjiday.com`） | [mail.ganjiday.com](https://resend.com/domains/dbe85701-aa62-45b0-a343-8e4d0163d9af) | 默认 North Virginia（`us-east-1`） | 已添加；列表回读 Not Started；待 DNS 写入，未验证 |
+| Arcanumber（`arcanumber.com`） | [mail.arcanumber.com](https://resend.com/domains/6a395056-90c2-4319-bcc3-3af13187659c) | 默认 North Virginia（`us-east-1`） | 2026-10-21 11:41 UTC 回读 Verified |
+| Ganjiday（`ganjiday.com`） | [mail.ganjiday.com](https://resend.com/domains/dbe85701-aa62-45b0-a343-8e4d0163d9af) | 默认 North Virginia（`us-east-1`） | 2026-10-21 11:41 UTC 回读 Verified |
 
 按本次用户要求使用 `mail.*`，取代 [资源准备历史](production-xuanxue.md#用户决定与边界) 中的 `send.*` 发件域名建议。两个域名均选择 Manual setup，保留默认区域与 Return-Path `send`；Enable Sending 为 on、Enable Receiving 为 off。页面 SPF 段实际给出两条 CNAME，未给出独立 SPF TXT 或反馈 MX；下面按控制台原值记录，不补造旧式 SPF/MX。所有记录 TTL 均为 Auto；CNAME 明确要求 DNS Only。名称为控制台显示的相对于各站裸域 zone 的名称。
 
-### Arcanumber DNS 清单（尚未写入）
+### Arcanumber DNS 清单（已写入）
 
 | 用途 / 必选性 | 类型 | 名称（zone：`arcanumber.com`） | 完整值 | TTL / 代理 |
 | --- | --- | --- | --- | --- |
@@ -36,7 +36,7 @@
 | SPF 段 / Enable Sending | CNAME | `send.mail` | `send.forge.rmta.net` | Auto / DNS Only |
 | DMARC（Optional，控制台建议） | TXT | `_dmarc` | `v=DMARC1; p=none;` | Auto |
 
-### Ganjiday DNS 清单（尚未写入）
+### Ganjiday DNS 清单（已写入）
 
 | 用途 / 必选性 | 类型 | 名称（zone：`ganjiday.com`） | 完整值 | TTL / 代理 |
 | --- | --- | --- | --- | --- |
@@ -45,9 +45,16 @@
 | SPF 段 / Enable Sending | CNAME | `send.mail` | `send.forge.rmta.net` | Auto / DNS Only |
 | DMARC（Optional，控制台建议） | TXT | `_dmarc` | `v=DMARC1; p=none;` | Auto |
 
-本轮只在 Resend 添加域名并抄录公开 DNS 值；未授权 Cloudflare Auto configure、未修改 DNS、未点击 Verify 或 “I've already added the records”、未写任何 secret、未发送测试邮件。既有域名与 API keys 保持原状，生产邮件继续使用 log。
+### DNS 写入与验证执行
 
-下一步由协调者决定是否写入上述 DNS（含可选 DMARC）、何时在 DNS 生效后触发验证，以及是否配置生产 `RESEND_API_KEY` 和切换传输。届时需核对现有 DNS 后再写入，保留裸域 Cloudflare Email Routing 的 MX/SPF/DKIM；Resend 发件与 `support@` 收件分别验收。当前不宣称发信联通通过。
+本轮经用户明确授权，依据 [PR #45](https://github.com/ustclhx/xuanxue-saas/pull/45) 的完整公开记录执行。写入前分别查看两个 zone 的完整现有记录，无 `resend._domainkey.mail`、`rsend.mail`、`send.mail`、`_dmarc` 同名记录；两份 DKIM 均与 PR #45 和对应 Resend 页面逐字符一致。逐条新增后回读值、DNS only 与 TTL Auto；保留原有 Email Routing、裸域 MX/SPF、`cf2024-1._domainkey` 和其他业务 DNS。
+
+| Zone | DKIM / 两条 CNAME / DMARC 写入完成并回读（UTC） | 公共 DNS 验证 | Resend Verify |
+| --- | --- | --- | --- |
+| `arcanumber.com` | 2026-10-21 11:35 前 | 11:35:15，`dig +short` 指向 `@1.1.1.1`，四项均解析到上表完整值 | 11:36 点击 Verify DNS Records；最初 Pending；约 5 分钟后（11:41 UTC）回读 Verified，无需重试 |
+| `ganjiday.com` | 2026-10-21 11:36 前后 | 11:36:23，相同公共查询四项均解析到上表完整值 | 11:36 点击 Verify DNS Records；最初 Pending；约 5 分钟后（11:41 UTC）回读 Verified，无需重试 |
+
+生产 `xuanxue-jobs-production` 的 secret list 预检为空，尚未创建新 API key、尚未写入 `RESEND_API_KEY`。原要求为一个 `xuanxue-production-jobs`、Sending access、仅两个 `mail` 子域；域名通过验证后，控制台 Domain 下拉仍为单选，选 `mail.ganjiday.com` 会替换 `mail.arcanumber.com`，无法同时限定两域。`All domains` 还包含既有 `ezarouter.cc`，超出本轮授权，因此取消未提交的创建表单，等待用户决定，不擅自放宽范围或创建两把 key。三个既有 API key 保留。`EMAIL_TRANSPORT` 仍为默认 `log`，未改 `EMAIL_FROM` 或 Wrangler 配置，未部署应用代码、未发送测试邮件。未完成项：API key 域名范围决定与生产 secret、`EMAIL_TRANSPORT` 切换与 per-site 发件人决定；当前不宣称发信联通通过。验证：`pnpm check` 退出 0（4 条既有警告），`git diff --check` 通过。
 
 ## v0.1.1 发布与复验（最新）
 
