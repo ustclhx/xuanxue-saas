@@ -226,7 +226,7 @@ BETTER_AUTH_SECRET
 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
 GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET
 TURNSTILE_SECRET_KEY
-RESEND_API_KEY                # jobs；仅 EMAIL_TRANSPORT=resend 时必填
+RESEND_API_KEY_EAST / RESEND_API_KEY_WEST   # jobs；仅 EMAIL_TRANSPORT=resend 时必填，每站一个，各只能发该站 mail.<域名>
 STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET
 PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET / PAYPAL_WEBHOOK_ID
 AI_GATEWAY_TOKEN             # 文本 AI 的 Gateway 鉴权；BYOK 必需
@@ -261,7 +261,7 @@ SENTRY_ENVIRONMENT=development|staging|production|smoke  # 服务端 SDK 开关�
 APP_VERSION                      # CI 完整提交 SHA；jobs 通过 --var 注入，web 在 Vite 构建时固化
 ```
 
-jobs 侧的邮件变量由 `@xuanxue/config` 的 `withEmailEnv()` 校验（`apps/jobs/src/env.ts`），`resend` 通道缺少 `RESEND_API_KEY` 时消费者拒绝处理消息（消息留在队列中重试）。发件域名 `mail.<站点域名>` 需在 Resend 验证。
+jobs 侧的邮件变量由 `@xuanxue/config` 的 `withEmailEnv()` 校验（`apps/jobs/src/env.ts`），`resend` 通道缺少任一站点 key 时消费者拒绝处理消息（消息留在队列中重试）。发件域名 `mail.<站点域名>` 需在 Resend 验证。
 
 ### Bindings
 ```

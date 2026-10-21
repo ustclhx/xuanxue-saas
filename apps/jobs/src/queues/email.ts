@@ -64,20 +64,20 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  // 发件人随站点变化（按消息语言取），同一 API key 下按 from 地址复用 sender
-  const senders = new Map<string, EmailSender>()
-  const senderFor = (from: string): EmailSender => {
+  // 每站一个 key（Resend 只能限定单个域名），发件人随消息语言所属站点变化
+  const senders = new Map<'east' | 'west', EmailSender>()
+  const senderFor = (site: 'east' | 'west', from: string): EmailSender => {
     if (injectedSender) return injectedSender
-    let sender = senders.get(from)
+    let sender = senders.get(site)
     if (!sender) {
-      sender = createResendSender({ apiKey: transport.apiKey, from })
-      senders.set(from, sender)
+      sender = createResendSender({ apiKey: transport.apiKeys[site], from })
+      senders.set(site, sender)
     }
     return sender
   }
   return async (message, rendered) => {
-    const { from, replyTo } = emailSender(templateConfig, message.locale)
-    const result = await senderFor(from).send({
+    const { site, from, replyTo } = emailSender(templateConfig, message.locale)
+    const result = await senderFor(site, from).send({
       to: message.to,
       subject: rendered.subject,
       html: rendered.html,

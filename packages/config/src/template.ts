@@ -68,17 +68,20 @@ export function emailSender(
     readonly sites: { readonly [S in SiteId]: SiteConfig }
   },
   locale?: string | null,
-): { readonly from: string; readonly replyTo: string } {
+): { readonly site: SiteId; readonly from: string; readonly replyTo: string } {
   const match = localeSite(config, locale)
   if (!match) {
+    // 未匹配语言时使用 app 级配置，发件站点为西方站（app.url 的默认站点）
     const domain = new URL(config.app.url).hostname
     return {
+      site: 'west',
       from: `${config.app.name} <noreply@mail.${domain}>`,
       replyTo: config.app.supportEmail,
     }
   }
   const site = config.sites[match.site]
   return {
+    site: match.site,
     from: `${site.brand.name} <noreply@mail.${site.hosts[0]}>`,
     replyTo: site.supportEmail,
   }

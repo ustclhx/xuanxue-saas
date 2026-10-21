@@ -182,7 +182,7 @@ vars：`SENTRY_ENVIRONMENT=production`、`APP_URL=https://<生产域名>`，**�
 | | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | R2 token，仅 `files-production`（与备份 token 分开） |
 | | `DEEPSEEK_API_KEY` | 生产文本 AI 直连（未配 AI Gateway） |
 | | `FAL_KEY`、`MEDIA_WEBHOOK_SECRET` | 与 jobs 相同值（媒体回调 HMAC 需一致） |
-| `jobs-production` | `RESEND_API_KEY` | Resend 发信 key，域名 `<zone>` |
+| `jobs-production` | `RESEND_API_KEY_EAST`、`RESEND_API_KEY_WEST` | Resend 发信 key，每站一个，各仅限 `mail.<站点域名>` |
 | | `EMAIL_TRANSPORT`（`resend`）、`EMAIL_FROM`（`EzaRouter <noreply@<zone>>`） | 用户以 **secret** 写入；运行时与 var 等效。**不要**再在 `wrangler.jsonc` 中声明同名 var，否则部署时绑定名冲突 |
 | | `FAL_KEY`、`MEDIA_WEBHOOK_SECRET` | 与 web 相同 |
 
