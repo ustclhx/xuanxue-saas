@@ -13,16 +13,16 @@ describe('withEmailEnv', () => {
     expect(emailTransportConfig(env)).toEqual({ transport: 'log' })
   })
 
-  it('resend 通道要求 RESEND_API_KEY 与 EMAIL_FROM，错误只含变量名', () => {
+  it('resend 通道要求两站 key，错误只含变量名', () => {
     let error: unknown
     try {
-      loadEnv({ HYPERDRIVE, EMAIL_TRANSPORT: 'resend', EMAIL_REPLY_TO: 'help@example.com' }, schema)
+      loadEnv({ HYPERDRIVE, EMAIL_TRANSPORT: 'resend', RESEND_API_KEY_EAST: 're_east' }, schema)
     } catch (e) {
       error = e
     }
     expect(error).toBeInstanceOf(EnvValidationError)
-    expect((error as EnvValidationError).missing).toEqual(['EMAIL_FROM', 'RESEND_API_KEY'])
-    expect((error as EnvValidationError).message).not.toContain('help@example.com')
+    expect((error as EnvValidationError).missing).toEqual(['RESEND_API_KEY_WEST'])
+    expect((error as Error).message).not.toContain('re_')
   })
 
   it('resend 通道变量齐全时返回发送配置', () => {
@@ -30,16 +30,14 @@ describe('withEmailEnv', () => {
       {
         HYPERDRIVE,
         EMAIL_TRANSPORT: 'resend',
-        RESEND_API_KEY: 're_test_key',
-        EMAIL_FROM: 'xuanxue <noreply@example.com>',
+        RESEND_API_KEY_EAST: 're_east_key',
+        RESEND_API_KEY_WEST: 're_west_key',
       },
       schema,
     )
     expect(emailTransportConfig(env)).toEqual({
       transport: 'resend',
-      apiKey: 're_test_key',
-      from: 'xuanxue <noreply@example.com>',
-      replyTo: undefined,
+      apiKeys: { east: 're_east_key', west: 're_west_key' },
     })
   })
 

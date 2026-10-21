@@ -1,4 +1,4 @@
-import type { EmailTransportConfig } from '@xuanxue/config'
+import { type EmailTransportConfig, emailSender } from '@xuanxue/config'
 import {
   createResendSender,
   EmailSendError,
@@ -64,19 +64,25 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  const sender =
-    injectedSender ??
-    createResendSender({
-      apiKey: transport.apiKey,
-      from: transport.from,
-      ...(transport.replyTo === undefined ? {} : { replyTo: transport.replyTo }),
-    })
+  // 每站一个 key（Resend 只能限定单个域名），发件人随消息语言所属站点变化
+  const senders = new Map<'east' | 'west', EmailSender>()
+  const senderFor = (site: 'east' | 'west', from: string): EmailSender => {
+    if (injectedSender) return injectedSender
+    let sender = senders.get(site)
+    if (!sender) {
+      sender = createResendSender({ apiKey: transport.apiKeys[site], from })
+      senders.set(site, sender)
+    }
+    return sender
+  }
   return async (message, rendered) => {
-    const result = await sender.send({
+    const { site, from, replyTo } = emailSender(templateConfig, message.locale)
+    const result = await senderFor(site, from).send({
       to: message.to,
       subject: rendered.subject,
       html: rendered.html,
       text: rendered.text,
+      replyTo,
       ...(rendered.headers ? { headers: rendered.headers } : {}),
       idempotencyKey: message.idempotencyKey,
     })

@@ -25,6 +25,7 @@ export {
   brandName,
   type DefaultLocale,
   defineTemplateConfig,
+  emailSender,
   localeUrlSegment,
   type MediaProviderId,
   type OAuthProvider,

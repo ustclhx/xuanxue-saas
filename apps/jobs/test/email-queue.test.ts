@@ -23,8 +23,8 @@ const message: EmailQueueMessage = {
 const resendEnv = {
   ...env,
   EMAIL_TRANSPORT: 'resend',
-  RESEND_API_KEY: 're_fake_test_key',
-  EMAIL_FROM: 'TestApp <noreply@example.com>',
+  RESEND_API_KEY_EAST: 're_fake_east_key',
+  RESEND_API_KEY_WEST: 're_fake_west_key',
 } as Cloudflare.Env
 
 async function consume(
@@ -91,9 +91,14 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
       expect(url).toBe(RESEND_API_URL)
       const headers = new Headers(init?.headers)
       expect(headers.get('idempotency-key')).toBe('idem-key-1')
-      expect(headers.get('authorization')).toBe('Bearer re_fake_test_key')
+      expect(headers.get('authorization')).toBe('Bearer re_fake_east_key')
       const body = JSON.parse(String(init?.body))
-      expect(body).toMatchObject({ from: 'TestApp <noreply@example.com>', to: [RECIPIENT] })
+      // zh-CN 属于东方站，发件人与回复地址取站点配置
+      expect(body).toMatchObject({
+        from: 'Ganjiday <noreply@mail.ganjiday.com>',
+        reply_to: 'support@ganjiday.com',
+        to: [RECIPIENT],
+      })
       // 按收件人语言（zh-CN → zh）渲染
       expect(body.subject).toContain('TestApp')
       expect(body.html).toContain('secret-token')
@@ -110,6 +115,29 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
     expect((await consume([legacy], { env: resendEnv })).explicitAcks).toEqual(['m1'])
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))
     expect(body.subject).toBe('Reset your TestApp password')
+  })
+
+  it('发件人与回复地址按消息语言所属站点取值', async () => {
+    fetchMock.mockResolvedValueOnce(resendReply(200, { id: 'west-id' }))
+    fetchMock.mockResolvedValueOnce(resendReply(200, { id: 'east-id' }))
+    const westMessage = { ...message, locale: 'en', idempotencyKey: 'idem-west' }
+    const eastMessage = { ...message, locale: 'ko', idempotencyKey: 'idem-east' }
+    const result = await consume([westMessage, eastMessage], { env: resendEnv })
+    expect(result.explicitAcks.sort()).toEqual(['m1', 'm2'])
+    const bodies = fetchMock.mock.calls.map(([, init]) => JSON.parse(String(init?.body)))
+    // 每站使用自己的 key
+    const auth = fetchMock.mock.calls.map(([, init]) =>
+      new Headers(init?.headers).get('authorization'),
+    )
+    expect(auth).toEqual(['Bearer re_fake_west_key', 'Bearer re_fake_east_key'])
+    expect(bodies[0]).toMatchObject({
+      from: 'Arcanumber <noreply@mail.arcanumber.com>',
+      reply_to: 'support@arcanumber.com',
+    })
+    expect(bodies[1]).toMatchObject({
+      from: 'Ganjiday <noreply@mail.ganjiday.com>',
+      reply_to: 'support@ganjiday.com',
+    })
   })
 
   it('网络错误与 429 同样重试，延迟按投递次数指数增长', async () => {
@@ -173,7 +201,7 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
   it('缺少 Resend 变量时拒绝处理，错误只含变量名', async () => {
     const broken = { ...env, EMAIL_TRANSPORT: 'resend' } as Cloudflare.Env
     await expect(consume([message], { env: broken })).rejects.toThrow(
-      'Invalid environment: missing EMAIL_FROM, RESEND_API_KEY',
+      'Invalid environment: missing RESEND_API_KEY_EAST, RESEND_API_KEY_WEST',
     )
     expect(fetchMock).not.toHaveBeenCalled()
   })

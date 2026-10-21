@@ -15,9 +15,7 @@ const body: EmailQueueMessage = {
 }
 const transport: EmailTransportConfig = {
   transport: 'resend',
-  apiKey: 'fixture-key',
-  from: 'Test <noreply@example.com>',
-  replyTo: undefined,
+  apiKeys: { east: 'fixture-key', west: 'fixture-key' },
 }
 const observer = { captureException: vi.fn(), tagContext: vi.fn() }
 function message(value: unknown = body, attempts = 1): QueueMessage<unknown> {
