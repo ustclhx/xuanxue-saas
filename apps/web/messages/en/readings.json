@@ -9,6 +9,7 @@
   "readings_unlock_label": "Full reading",
   "readings_unlock_contents": "What's inside",
   "readings_unlock_credits": "{credits} credits",
+  "readings_coming_soon": "Coming soon, stay tuned.",
   "readings_unlock_approx": "≈ {price}",
   "readings_unlock_cta": "Unlock the full reading",
   "readings_unlock_note": "No charge if generation fails · Saved to your account",

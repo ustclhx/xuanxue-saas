@@ -48,6 +48,8 @@ export interface ReadingPack {
 
 export interface ReadingOffer {
   readonly available: boolean
+  /** 详批已配置但未对访客开放（运营关闭）：结果页显示「即将开放」，读取失败时为 false */
+  readonly comingSoon: boolean
   readonly credits: number
   /** 报告章节目录（本语言） */
   readonly sections: readonly string[]
@@ -58,6 +60,7 @@ export interface ReadingOffer {
 
 const UNAVAILABLE: ReadingOffer = {
   available: false,
+  comingSoon: false,
   credits: 0,
   sections: [],
   packs: [],
@@ -135,10 +138,11 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         definition.kind,
       )
       const adminPreview = await viewerIsPlatformAdmin()
-      if (!readingAvailable(config, { adminPreview })) return UNAVAILABLE
+      if (!readingAvailable(config, { adminPreview })) return { ...UNAVAILABLE, comingSoon: true }
       const [packs, viewer] = await Promise.all([readingPacks(), viewerOf()])
       return {
         available: true,
+        comingSoon: false,
         credits: config.credits,
         sections: definition.prompt.sections,
         packs,
