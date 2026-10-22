@@ -68,6 +68,7 @@ function ReadingsDemoPage() {
   const { kind, signed, balance } = Route.useSearch()
   const [offer] = useState<ReadingOffer>(() => ({
     available: true,
+    comingSoon: false,
     credits: 100,
     sections: SECTIONS[kind] ?? SECTIONS['numerology-full'] ?? [],
     packs: [

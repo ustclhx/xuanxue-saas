@@ -297,6 +297,7 @@ export function ReadingUnlock({
   }, [])
 
   const generating = phase.name === 'streaming' || phase.name === 'done'
+  if (offer?.comingSoon && request && phase.name === 'idle') return <ComingSoon kind={kind} />
   if (!offer?.available || (!request && !generating && phase.name === 'idle')) return null
 
   if (generating) {
@@ -384,6 +385,25 @@ export function ReadingUnlock({
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />
       <p className="m-0 text-on-inverse/75 text-xs">{m.readings_unlock_note()}</p>
+    </section>
+  )
+}
+
+/** 运营关闭时的占位：只显示名称与「即将开放」，不显示价格、解锁按钮或目录 */
+function ComingSoon({ kind }: { kind: string }) {
+  return (
+    <section
+      aria-labelledby="reading-coming-soon-title"
+      data-testid="reading-coming-soon"
+      className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-5 sm:p-6"
+    >
+      <h2
+        id="reading-coming-soon-title"
+        className="m-0 font-heading font-semibold text-xl text-ink"
+      >
+        {readingTitle(kind)}
+      </h2>
+      <p className="m-0 text-ink-muted text-sm">{m.readings_coming_soon()}</p>
     </section>
   )
 }

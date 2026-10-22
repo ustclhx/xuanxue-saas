@@ -9,6 +9,7 @@
   "readings_unlock_label": "상세 풀이",
   "readings_unlock_contents": "리포트 목차",
   "readings_unlock_credits": "{credits} 크레딧",
+  "readings_coming_soon": "곧 공개됩니다. 기대해 주세요.",
   "readings_unlock_approx": "약 {price}",
   "readings_unlock_cta": "상세 풀이 열기",
   "readings_unlock_note": "생성에 실패하면 크레딧이 차감되지 않습니다 · 리포트는 계정에 보관됩니다",

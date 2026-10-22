@@ -9,6 +9,7 @@
   "readings_unlock_label": "完整分析",
   "readings_unlock_contents": "報告目錄",
   "readings_unlock_credits": "{credits} 積分",
+  "readings_coming_soon": "即將開放，敬請期待",
   "readings_unlock_approx": "約 {price}",
   "readings_unlock_cta": "解鎖完整分析",
   "readings_unlock_note": "生成失敗不扣積分 · 報告永久保存在你的帳戶",
