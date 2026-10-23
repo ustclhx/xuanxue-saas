@@ -53,6 +53,6 @@
 - [x] 7.2 东方站首页 `zh-Hans` 分支（当前 `zh-Hans` 首页不会显示八字工具）
 - [x] 7.3 详批 `zh-Hans` 变体：`bazi-full.v3`、`ziwei-full.v3`、`tarot-spread` 的简体版本，健康章节与免责声明的简体文案，以及 `compliance.ts` 的简体规则
 - [x] 7.4 `readings/optin-email` 与 `optin-schema` 的 `zh-Hans` 文案与枚举
-- [ ] 7.5 `price.ts` 的 `zh-Hans` 本地货币：已加 CNY，参考汇率 7.2 待运营确认
+- [x] 7.5 `price.ts` 的 `zh-Hans` 本地货币：已加 CNY；回退参考汇率更新为 6.7（2026-10-23 实时值约 6.69），实时汇率优先，经用户确认勾选
 - [x] 7.6 `content-collections`、`tarot` 包（`CARD_MEANINGS`）、`marketing` 与 `site` 测试中的 `zh-Hans` 覆盖
 
