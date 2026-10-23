@@ -19,7 +19,7 @@ import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { CheckboxField, SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
-import { readShareFragment } from '../share.ts'
+import { readShareFragment, shareUrl } from '../share.ts'
 import { ShareLink } from '../share-link.tsx'
 import { toolHref } from '../tool-href.ts'
 import { ToolLinks } from '../tool-links.tsx'
@@ -85,6 +85,12 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
     setReading(null)
     setRevealed([])
     setShared('none')
+    // 重新洗牌后去掉旧结果的片段，避免之后返回时恢复上一组牌
+    window.history.replaceState(
+      window.history.state,
+      '',
+      window.location.pathname + window.location.search,
+    )
     // 减少动态效果时跳过洗牌动画，铺开的牌直接淡入
     setStage(prefersReducedMotion() ? 'cut' : 'shuffling')
   }
@@ -115,6 +121,18 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
   }
 
   const complete = reading !== null && revealed.length > 0 && revealed.every(Boolean)
+
+  // 结果写入 `#r=` 片段（与分享链接同格式）：阅读牌义后用浏览器后退返回，页面会恢复同一组牌，
+  // 可以继续翻看其它牌的牌义，而不必重新洗牌抽牌
+  useEffect(() => {
+    if (!complete || !reading) return
+    window.history.replaceState(
+      window.history.state,
+      '',
+      shareUrl(window.location.href, { reading: encodeReading(reading) }),
+    )
+  }, [complete, reading])
+
   const links = TAROT_SPREADS.filter((item) => item !== spread).map((item) => ({
     href: toolHref(tarotPath(item, locale), locale),
     title: SPREAD_COPY[item].link(),
