@@ -11,6 +11,7 @@ import {
   localizeUrl,
 } from '../../paraglide/runtime.js'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
+import { useSiteId } from '../site/context.tsx'
 import { isAppAreaPath } from './app-area.ts'
 import { getLanguageSuggestion, saveLanguagePreference } from './preference.functions.ts'
 import { rememberLocale } from './preference.ts'
@@ -32,6 +33,7 @@ export function LanguageControls({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const locale = getLocale()
+  const siteId = useSiteId()
   useEffect(() => {
     setReady(true)
     setSuggestion(null)
@@ -40,6 +42,9 @@ export function LanguageControls({
       locale !== baseLocale
     )
       return
+    // 东方站根路径的语言入口页已用卡片标出推荐语言，不再弹出建议浮层；
+    // 浮层在水合后才出现，会成为首屏最大文字块，拖慢 LCP（2.3 trace）
+    if (siteId === 'east' && location.pathname === '/') return
     let active = true
     void getLanguageSuggestion().then(
       (value) => {
@@ -52,7 +57,7 @@ export function LanguageControls({
     return () => {
       active = false
     }
-  }, [location.pathname, locale])
+  }, [location.pathname, locale, siteId])
 
   async function select(next: Locale) {
     setBusy(true)
