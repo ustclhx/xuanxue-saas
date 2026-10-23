@@ -39,13 +39,25 @@ export function preferredLocale(header: string | null): Locale {
     .sort((a, b) => b.q - a.q)
   for (const { tag } of preferences) {
     if (tag === '*') return baseLocale
-    // 先按完整标签匹配，再按主语言匹配：zh-TW / zh-CN 都归入唯一的中文 zh-Hant，ko-KR 归入 ko
-    const language = tag.split('-')[0]
-    const locale =
-      toLocale(tag) ?? locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
+    // 先按完整标签匹配，再按主语言匹配：中文按地区归入简体 zh-Hans（zh-CN、zh-SG）或繁体 zh-Hant（其余），ko-KR 归入 ko
+    const language = tag.split('-')[0] ?? ''
+    const locale = toLocale(tag) ?? chineseLocale(tag, language) ?? languageLocale(language)
     if (locale) return locale
   }
   return baseLocale
+}
+
+/** 简体中文的地区标签；其余中文标签（zh、zh-TW、zh-HK）归入繁体 */
+const SIMPLIFIED_TAGS = new Set(['zh-hans', 'zh-cn', 'zh-sg'])
+
+function chineseLocale(tag: string, language: string): Locale | undefined {
+  if (language !== 'zh') return undefined
+  const wanted = SIMPLIFIED_TAGS.has(tag) ? 'zh-Hans' : 'zh-Hant'
+  return locales.find((locale) => locale === wanted)
+}
+
+function languageLocale(language: string): Locale | undefined {
+  return locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
 }
 
 /** Server Functions 复用同源来源页的语言；不接受跨站来源影响本次语言。 */

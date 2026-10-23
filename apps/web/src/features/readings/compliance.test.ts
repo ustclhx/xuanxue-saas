@@ -26,6 +26,14 @@ describe('合规规则检查', () => {
     expect(result.content).not.toContain('2027年3月')
   })
 
+  it('简体报告使用简体替换语，命中同一规则时与繁体一致', () => {
+    const text = ['## 健康作息提示', '命中水弱，日后容易罹患糖尿病，需要特别注意。'].join('\n\n')
+    const result = checkCompliance(text, 'zh-Hans')
+    expect(result.violations).toEqual([{ rule: 'medical', block: 1 }])
+    expect(result.content).not.toContain('糖尿病')
+    expect(result.content).toContain('如有不适请咨询专业医师')
+  })
+
   it('投资：列表中提到具体标的的条目被替换，保留列表符号与其他条目', () => {
     const text = '## 재물운\n\n- 꾸준한 저축이 유리합니다.\n- 올해는 비트코인을 매수하면 좋습니다.'
     const result = checkCompliance(text, 'ko')

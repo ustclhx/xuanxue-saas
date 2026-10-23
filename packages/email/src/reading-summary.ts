@@ -16,6 +16,13 @@ const labels = {
     unsubscribe: '退訂',
     footer: '你收到這封解讀，是因為你已確認訂閱。',
   },
+  'zh-Hans': {
+    greeting: '你好',
+    result: '重新查看这次结果',
+    unlock: '查看完整分析入口',
+    unsubscribe: '退订',
+    footer: '你收到这封解读，是因为你已确认订阅。',
+  },
   ko: {
     greeting: '안녕하세요',
     result: '이번 결과 다시 보기',

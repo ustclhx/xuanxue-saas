@@ -13,6 +13,7 @@ import {
   scoped,
 } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
+import { FX_ATTRIBUTION, loadUsdRates } from '@xuanxue/shared/fx'
 import { log } from '@xuanxue/shared/log'
 import { and, desc, eq, lt, ne, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
@@ -28,6 +29,7 @@ import { readingDefinition } from './catalog.ts'
 import { readingAvailable, readingConfig } from './config.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeReading } from './generate.ts'
+import { FALLBACK_LOCAL_RATES, type LocalRates } from './price.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
 /**
@@ -56,6 +58,8 @@ export interface ReadingOffer {
   readonly packs: readonly ReadingPack[]
   /** 未登录为 null；详批保存在个人空间，余额也取个人空间 */
   readonly viewer: { readonly slug: string; readonly balance: number } | null
+  /** 当地货币估价用的汇率（见 price.ts） */
+  readonly rates: LocalRates
 }
 
 const UNAVAILABLE: ReadingOffer = {
@@ -65,7 +69,45 @@ const UNAVAILABLE: ReadingOffer = {
   sections: [],
   packs: [],
   viewer: null,
+  rates: FALLBACK_LOCAL_RATES,
 }
+
+/** Exchange Rate API 每日更新一次，缓存一天即可；模块默认 12 小时，这里按数据源的更新频率覆盖 */
+const LOCAL_RATES_TTL_SECONDS = 24 * 60 * 60
+
+/**
+ * 当地货币估价的汇率：Exchange Rate API 数据由运行时缓存保存一天（见 `loadUsdRates`），
+ * 只返回本站用到的货币；任何失败都回退到参考值，不影响页面渲染。
+ */
+async function localRates(): Promise<LocalRates> {
+  const runtime = getWebRuntime()
+  try {
+    const fx = await loadUsdRates({
+      store: {
+        get: (key) => runtime.cache.get(key),
+        put: (key, value, ttlSeconds) =>
+          runtime.cache.put(key, value, { expirationTtl: ttlSeconds }),
+      },
+      fallback: FALLBACK_LOCAL_RATES.perUsd,
+      ttlSeconds: LOCAL_RATES_TTL_SECONDS,
+    })
+    const perUsd = Object.fromEntries(
+      Object.entries(FALLBACK_LOCAL_RATES.perUsd).map(([code, fallback]) => [
+        code,
+        fx.rates[code] ?? fallback,
+      ]),
+    )
+    return { perUsd, attribution: fx.source === 'live' ? FX_ATTRIBUTION : null }
+  } catch (error) {
+    log.warn('readings.rates_failed', { error })
+    return FALLBACK_LOCAL_RATES
+  }
+}
+
+/** 定价页在浏览器中读取汇率（页面是预渲染的静态页，构建时的汇率不会随时间更新） */
+export const getLocalRates = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<LocalRates> => localRates(),
+)
 
 /** 平台管理员可在 `enabled` 关闭时实测详批；未登录或读取失败一律视为非管理员。 */
 async function viewerIsPlatformAdmin(): Promise<boolean> {
@@ -147,6 +189,7 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         sections: definition.prompt.sections,
         packs,
         viewer,
+        rates: await localRates(),
       }
     } catch (error) {
       log.warn('readings.offer_failed', { kind: data.kind, error })

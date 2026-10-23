@@ -43,5 +43,6 @@ export const SITE_THEME_SCRIPT =
 export const LOCALE_AUTONYMS: Record<string, string> = {
   en: 'English',
   'zh-Hant': '繁體中文',
+  'zh-Hans': '简体中文',
   ko: '한국어',
 }

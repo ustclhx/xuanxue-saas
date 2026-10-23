@@ -5,7 +5,7 @@ import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
 import { isPrerenderedPath, prerenderEntryPages } from './prerender.ts'
 
-const locales = ['en', 'zh-Hant', 'ko']
+const locales = ['en', 'zh-Hant', 'zh-Hans', 'ko']
 
 describe('预渲染范围（tasks.md 3.1、3.3）', () => {
   it('首页、博客、法律页与文档在各语言下都预渲染', () => {
@@ -62,6 +62,21 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hant/八字/神煞' },
       { path: '/zh-hant/八字/八字重量' },
       { path: '/zh-hant/八字/十神' },
+      { path: '/zh-hans' },
+      { path: '/zh-hans/紫微斗数排盘' },
+      { path: '/zh-hans/命盘查询' },
+      { path: '/zh-hans/塔罗' },
+      { path: '/zh-hans/塔罗/每日一张' },
+      { path: '/zh-hans/塔罗/是非' },
+      { path: '/zh-hans/塔罗/凯尔特十字' },
+      { path: '/zh-hans/八字/大运' },
+      { path: '/zh-hans/八字/喜用神' },
+      { path: '/zh-hans/八字/五行' },
+      { path: '/zh-hans/八字/身强身弱' },
+      { path: '/zh-hans/八字/空亡' },
+      { path: '/zh-hans/八字/神煞' },
+      { path: '/zh-hans/八字/八字重量' },
+      { path: '/zh-hans/八字/十神' },
       { path: '/ko' },
       { path: '/ko/사주궁합' },
       { path: '/ko/타로' },

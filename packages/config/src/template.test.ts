@@ -165,7 +165,7 @@ describe('sites', () => {
       },
       west: {
         hosts: ['arcanumber.com'],
-        locales: ['en', 'zh-Hant', 'ko'],
+        locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
         defaultLocale: 'en',
         brand: { name: 'xuanxue', names: {} },
         supportEmail: app.supportEmail,
@@ -281,7 +281,7 @@ describe('localeUrlSegment', () => {
 describe('defineTemplateConfig types', () => {
   it('resolves every option to a non-optional value', () => {
     const config = defineTemplateConfig({ app })
-    expectTypeOf(config).toEqualTypeOf<TemplateConfig<'en' | 'zh-Hant' | 'ko'>>()
+    expectTypeOf(config).toEqualTypeOf<TemplateConfig<'en' | 'zh-Hant' | 'zh-Hans' | 'ko'>>()
     expectTypeOf(config.billing.overage.maxRatio).toEqualTypeOf<number>()
     expectTypeOf(config.ai.defaultPricingMode.video).toEqualTypeOf<PricingMode>()
     expectTypeOf(config.ai.mediaProviders).toEqualTypeOf<readonly MediaProviderId[]>()

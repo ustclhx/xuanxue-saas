@@ -23,7 +23,7 @@ import { templateConfig } from '../server/template-config.ts'
 // 西方站英语首页为 Life Path Number 计算器（openspec add-numerology-tools tasks.md 2.1、design.md 决策 3），
 // 原营销首页的功能等板块迁往 /pricing 与页脚；东方站根路径为语言入口页。
 // 各首页均为静态文案与内容，构建期预渲染，不依赖数据库（features/marketing/prerender.ts）
-const EAST_HOME_LOCALES = ['zh-Hant', 'ko'] as const
+const EAST_HOME_LOCALES = ['zh-Hant', 'zh-Hans', 'ko'] as const
 const isEastHome = (locale: string) => (EAST_HOME_LOCALES as readonly string[]).includes(locale)
 
 // 各语言首页工具按需加载（docs/runbooks/evidence/perf-audit）：西方站首页不下载八字 / 만세력，
@@ -52,7 +52,7 @@ export const Route = createFileRoute('/')({
   },
   loader: async () => {
     const locale = getLocale()
-    if (locale === 'zh-Hant') await BaziHome.preload?.()
+    if (locale === 'zh-Hant' || locale === 'zh-Hans') await BaziHome.preload?.()
     if (locale === 'ko') await ManseryeokHome.preload?.()
     if (locale !== NUMEROLOGY_LOCALE) return null
     const [page] = await Promise.all([
@@ -85,7 +85,7 @@ export const Route = createFileRoute('/')({
 
 function IndexPage() {
   const locale = getLocale()
-  if (locale === 'zh-Hant')
+  if (locale === 'zh-Hant' || locale === 'zh-Hans')
     return (
       <MarketingShell>
         <Suspense>

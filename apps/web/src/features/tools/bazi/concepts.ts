@@ -6,7 +6,7 @@ export interface ConceptPage {
   title: string
   description: string
   slug: string
-  locale: 'zh-Hant' | 'ko'
+  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   conceptKey: Exclude<ConceptKey, 'base'>
   block: string
   html: string

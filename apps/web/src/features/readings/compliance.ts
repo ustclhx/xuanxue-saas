@@ -41,7 +41,7 @@ const both = (date: RegExp, assert: RegExp): Matcher => ({
   test: (text: string) => date.test(text) && assert.test(text),
 })
 
-const RULES: Record<'zh-Hant' | 'ko' | 'en', LocaleRules> = {
+const RULES: Record<'zh-Hant' | 'zh-Hans' | 'ko' | 'en', LocaleRules> = {
   'zh-Hant': {
     patterns: {
       'date-prediction': [both(ZH_DATE, ZH_ASSERT)],
@@ -57,6 +57,23 @@ const RULES: Record<'zh-Hant' | 'ko' | 'en', LocaleRules> = {
         '命理只能呈現整體傾向，無法斷定具體日期會發生的事件，請以實際生活狀況為準。',
       medical: '請維持規律作息、均衡飲食與適度運動；如有不適請諮詢專業醫師。',
       investment: '理財與投資決策請依自身狀況審慎評估，並諮詢合格的專業人士。',
+    },
+  },
+  'zh-Hans': {
+    patterns: {
+      'date-prediction': [both(ZH_DATE, ZH_ASSERT)],
+      medical: [
+        /癌|腫瘤|肿瘤|糖尿病|高血壓|高血压|心臟病|心脏病|中風|中风|憂鬱症|抑鬱症|抑郁症|肝炎|腎病|肾病|失智|不孕|肺炎|診斷|诊断|罹患/,
+      ],
+      investment: [
+        /股票|個股|个股|基金|期貨|期货|比特幣|比特币|加密貨幣|加密货币|虛擬貨幣|虚拟货币|\bETF\b|買進|买进|槓桿|杠杆|外匯|外汇/i,
+      ],
+    },
+    replacements: {
+      'date-prediction':
+        '命理只能呈现整体倾向，无法断定具体日期会发生的事件，请以实际生活状况为准。',
+      medical: '请保持规律作息、均衡饮食与适度运动；如有不适请咨询专业医师。',
+      investment: '理财与投资决策请依自身状况审慎评估，并咨询合格的专业人士。',
     },
   },
   ko: {
@@ -104,7 +121,7 @@ const LIST_ITEM = /^\s*(?:[-*+]|\d+[.)])\s+/
 const HEADING = /^#{1,6}\s/
 
 function rulesFor(locale: string): LocaleRules {
-  if (locale === 'zh-Hant' || locale === 'ko') return RULES[locale]
+  if (locale === 'zh-Hant' || locale === 'zh-Hans' || locale === 'ko') return RULES[locale]
   return RULES.en
 }
 

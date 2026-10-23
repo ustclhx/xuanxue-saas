@@ -27,7 +27,7 @@ export function BirthFields({
 }: {
   /** 当前值：决定默认值与条件字段（闰月、手选时区） */
   values: BirthFormValues
-  locale: 'zh-Hant' | 'ko'
+  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   prefix?: string
   issues?: readonly InputIssue[]
   /** 韩语页：진태양시 开关默认开启，并用醒目提示说明可关闭（决策 D5） */

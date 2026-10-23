@@ -32,12 +32,14 @@ const bazi = () => {
 
 describe('详批注册表', () => {
   it('每种详批的报告语言；未知类型或不支持的语言返回 undefined', () => {
-    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant'])
+    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans'])
     expect(readingDefinition('saju-full')?.locales).toEqual(['ko'])
-    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant'])
+    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans'])
     expect(readingDefinition('saju-compat')?.locales).toEqual(['ko'])
     expect(readingDefinition('numerology-full')?.locales).toEqual(['en'])
-    expect(readingDefinition('tarot-spread')?.locales).toEqual(['en', 'zh-Hant', 'ko'])
+    expect(readingDefinition('tarot-spread')?.locales).toEqual(['en', 'zh-Hant', 'zh-Hans', 'ko'])
+    expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
+    expect(readingDefinition('tarot-spread', 'zh-Hans')?.prompt.version).toBe('tarot-spread.v3')
     expect(readingDefinition('tarot-spread', 'ko')?.prompt.sections[0]).toBe('전체 흐름')
     expect(readingDefinition('bazi-full', 'ko')).toBeUndefined()
     expect(readingDefinition('__proto__')).toBeUndefined()

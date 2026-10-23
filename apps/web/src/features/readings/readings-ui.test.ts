@@ -25,6 +25,15 @@ describe('当地货币估价', () => {
     expect(formatPrice(99, 'zh-Hant')).toEqual({ text: 'NT$32', approximate: true })
     expect(formatPrice(99, 'en')).toEqual({ text: '$0.99', approximate: false })
   })
+
+  it('优先使用实时汇率，缺少的货币回退到参考值', () => {
+    const live = {
+      perUsd: { KRW: 1300 },
+      attribution: { text: 'Rates By Exchange Rate API', href: 'https://www.exchangerate-api.com' },
+    }
+    expect(formatPrice(99, 'ko', live)).toEqual({ text: '₩1,300', approximate: true })
+    expect(formatPrice(99, 'zh-Hant', live)).toEqual({ text: 'NT$32', approximate: true })
+  })
 })
 
 describe('意图令牌', () => {

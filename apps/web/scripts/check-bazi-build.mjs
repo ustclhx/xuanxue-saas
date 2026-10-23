@@ -12,22 +12,25 @@ const concepts = JSON.parse(
     .trim()
     .replace(/;$/, ''),
 )
-assert.equal(concepts.length, 16, 'Expected 16 concept pages')
+assert.equal(concepts.length, 24, 'Expected 24 concept pages')
 const pathOf = (page) =>
   `/${page.locale.toLowerCase()}/${page.locale === 'ko' ? '사주' : '八字'}/${page.slug}`
 const files = readdirSync(dist, { recursive: true }).filter((file) => file.endsWith('.html'))
 const expected = [
   '/zh-hant',
+  '/zh-hans',
   '/ko',
   '/zh-hant/紫微斗數排盤',
   '/zh-hant/命盤查詢',
+  '/zh-hans/紫微斗数排盘',
+  '/zh-hans/命盘查询',
   '/ko/사주궁합',
   ...concepts.map(pathOf),
 ]
 for (const path of expected)
   assert(files.includes(`${path.slice(1)}.html`), `Missing HTML: ${path}`)
-const conceptFiles = files.filter((file) => /^(zh-hant\/八字|ko\/사주)\//u.test(file))
-assert.equal(conceptFiles.length, 16, 'Unexpected concept HTML count')
+const conceptFiles = files.filter((file) => /^(zh-hant\/八字|zh-hans\/八字|ko\/사주)\//u.test(file))
+assert.equal(conceptFiles.length, 24, 'Unexpected concept HTML count')
 
 function links(html) {
   return [...html.matchAll(/<link\b[^>]*>/g)].map(([tag]) =>

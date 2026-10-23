@@ -42,7 +42,7 @@ export const readingOptinSchema = z.object({
   sourceTool: z.string().max(60),
   topic: z.enum(OPTIN_TOPICS),
   site: z.enum(['east', 'west']),
-  locale: z.enum(['en', 'zh-Hant', 'ko']),
+  locale: z.enum(['en', 'zh-Hant', 'zh-Hans', 'ko']),
   result: optinResultSchema,
   share: shareSchema,
 })

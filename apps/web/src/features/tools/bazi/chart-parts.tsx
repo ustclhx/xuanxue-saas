@@ -32,7 +32,7 @@ import {
  * 八字结果的各区块内容（繁中首页 7 区块与韩语만세력 6 区块共用）。
  * 五行色只作辅助，每处都同时给出文字标签（视觉规范「设计 token」）。
  */
-export type EastLocale = 'zh-Hant' | 'ko'
+export type EastLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
 
 const serif = 'font-heading'
 
@@ -55,7 +55,7 @@ export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
     }),
     m.bazi_lunar_date({
       date:
-        locale === 'zh-Hant'
+        locale !== 'ko'
           ? lunarDateZh(time.lunar)
           : `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`,
     }),

@@ -5,8 +5,8 @@ import type { ToolRoute } from '../registry.ts'
  * 塔罗牌阵页路由（openspec add-tarot-reading 决策 5）：西方站 `/tarot/…`，东方站 `/塔羅/…`、`/타로/…`。
  * 注册表、预渲染与站点地图都从这里读取，因此只引用类型，不引用任何运行时模块。
  */
-export type TarotLocale = 'en' | 'zh-Hant' | 'ko'
-export const TAROT_LOCALES: readonly TarotLocale[] = ['en', 'zh-Hant', 'ko']
+export type TarotLocale = 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
+export const TAROT_LOCALES: readonly TarotLocale[] = ['en', 'zh-Hant', 'zh-Hans', 'ko']
 
 /** 牌阵顺序：三张牌是主牌阵（根路径），其余为子路径；互导矩阵按此顺序排列 */
 export const TAROT_SPREADS: readonly SpreadId[] = [
@@ -19,24 +19,46 @@ export const TAROT_SPREADS: readonly SpreadId[] = [
 export const TAROT_ROOTS: Readonly<Record<TarotLocale, string>> = {
   en: '/tarot',
   'zh-Hant': '/塔羅',
+  'zh-Hans': '/塔罗',
   ko: '/타로',
 }
 
 // 子路径段；三张牌为空，即根路径
 const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
-  'three-card': { en: '', 'zh-Hant': '', ko: '' },
-  daily: { en: 'daily', 'zh-Hant': '每日一張', ko: '오늘의-카드' },
-  'yes-or-no': { en: 'yes-or-no', 'zh-Hant': '是非', ko: '예-아니오' },
-  'celtic-cross': { en: 'celtic-cross', 'zh-Hant': '凱爾特十字', ko: '켈틱-크로스' },
+  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '' },
+  daily: { en: 'daily', 'zh-Hant': '每日一張', 'zh-Hans': '每日一张', ko: '오늘의-카드' },
+  'yes-or-no': { en: 'yes-or-no', 'zh-Hant': '是非', 'zh-Hans': '是非', ko: '예-아니오' },
+  'celtic-cross': {
+    en: 'celtic-cross',
+    'zh-Hant': '凱爾特十字',
+    'zh-Hans': '凯尔特十字',
+    ko: '켈틱-크로스',
+  },
 }
 
 const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
-  'three-card': { en: 'Three-Card Tarot', 'zh-Hant': '三張牌塔羅', ko: '쓰리 카드 타로' },
-  daily: { en: 'Card of the Day', 'zh-Hant': '每日一張塔羅', ko: '오늘의 타로 카드' },
-  'yes-or-no': { en: 'Yes or No Tarot', 'zh-Hant': '是非塔羅', ko: '예/아니오 타로' },
+  'three-card': {
+    en: 'Three-Card Tarot',
+    'zh-Hant': '三張牌塔羅',
+    'zh-Hans': '三张牌塔罗',
+    ko: '쓰리 카드 타로',
+  },
+  daily: {
+    en: 'Card of the Day',
+    'zh-Hant': '每日一張塔羅',
+    'zh-Hans': '每日一张塔罗',
+    ko: '오늘의 타로 카드',
+  },
+  'yes-or-no': {
+    en: 'Yes or No Tarot',
+    'zh-Hant': '是非塔羅',
+    'zh-Hans': '是非塔罗',
+    ko: '예/아니오 타로',
+  },
   'celtic-cross': {
     en: 'Celtic Cross Tarot',
     'zh-Hant': '凱爾特十字塔羅',
+    'zh-Hans': '凯尔特十字塔罗',
     ko: '켈틱 크로스 타로',
   },
 }
@@ -46,21 +68,26 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
     'zh-Hant':
       '免費三張牌塔羅：洗牌、切牌，翻開過去、現在、未來三張偉特塔羅牌，作為自我省思的參考。',
+    'zh-Hans':
+      '免费三张牌塔罗：洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，作为自我省思的参考。',
     ko: '무료 쓰리 카드 타로: 셔플하고 컷한 뒤 과거·현재·미래 세 장의 라이더–웨이트 카드를 펼쳐 보세요. 성찰용입니다.',
   },
   daily: {
     en: 'Draw one free tarot card of the day as a theme to reflect on, with upright and reversed keywords.',
     'zh-Hant': '每天免費抽一張塔羅牌，作為今日省思的主題，附正位與逆位關鍵詞。',
+    'zh-Hans': '每天免费抽一张塔罗牌，作为今日省思的主题，附正位与逆位关键词。',
     ko: '매일 무료로 타로 카드 한 장을 뽑아 오늘 돌아볼 주제로 삼아 보세요. 정방향·역방향 키워드를 함께 보여 줍니다.',
   },
   'yes-or-no': {
     en: 'Free yes or no tarot: draw one card and see Yes, No or Maybe from a fixed, published card mapping.',
     'zh-Hant': '免費是非塔羅：抽一張牌，依公開的固定對照表顯示「是／否／也許」與判定依據。',
+    'zh-Hans': '免费是非塔罗：抽一张牌，依公开的固定对照表显示「是／否／也许」与判定依据。',
     ko: '무료 예/아니오 타로: 카드 한 장을 뽑고 공개된 고정 대응표에 따른 예·아니요·아마도와 그 근거를 확인하세요.',
   },
   'celtic-cross': {
     en: 'Free Celtic Cross tarot: a ten-card spread for exploring a situation in depth, with every position explained.',
     'zh-Hant': '免費凱爾特十字塔羅：十張牌的經典牌陣，逐一說明每個牌位，深入梳理一個處境。',
+    'zh-Hans': '免费凯尔特十字塔罗：十张牌的经典牌阵，逐一说明每个牌位，深入梳理一个处境。',
     ko: '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
   },
 }
@@ -86,7 +113,12 @@ export function tarotDescription(spread: SpreadId, locale: TarotLocale): string 
 }
 
 function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, string> {
-  return { en: value('en'), 'zh-Hant': value('zh-Hant'), ko: value('ko') }
+  return {
+    en: value('en'),
+    'zh-Hant': value('zh-Hant'),
+    'zh-Hans': value('zh-Hans'),
+    ko: value('ko'),
+  }
 }
 
 /**

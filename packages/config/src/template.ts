@@ -13,7 +13,7 @@ export type PricingMode = 'per_call' | 'token' | 'per_unit'
 export type AiModality = 'text' | 'image' | 'video'
 export type MediaProviderId = 'fal' | 'workers-ai'
 
-export type DefaultLocale = 'en' | 'zh-Hant' | 'ko'
+export type DefaultLocale = 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
 
 /** 东方站（繁中、韩语等）与西方站（英语等），同一个 Worker 按请求 Host 区分（openspec add-dual-site-foundation 决策 1）。 */
 export const SITE_IDS = ['east', 'west'] as const
@@ -269,7 +269,7 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
 
 /** 除 `app` 外的默认值，与 docs/02-project-structure.md §3 草案一致。 */
 export const templateConfigDefaults = {
-  i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
+  i18n: { enabled: true, locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'], defaultLocale: 'en' },
   tenancy: { multiTenant: false, maxWorkspacesPerUser: 5 },
   auth: {
     emailPassword: true,

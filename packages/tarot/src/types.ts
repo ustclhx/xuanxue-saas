@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'zh-Hant' | 'ko'
+export type Locale = 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
 export type Suit = 'major' | 'wands' | 'cups' | 'swords' | 'pentacles'
 export type Answer = 'Yes' | 'No' | 'Maybe'
 export interface Card {

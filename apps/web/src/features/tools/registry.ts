@@ -38,7 +38,7 @@ const conceptKeys: readonly Exclude<ConceptKey, 'base'>[] = [
 const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
   const paths: Record<string, string> = {}
   const titles: Record<string, string> = {}
-  for (const locale of ['zh-Hant', 'ko'] as const) {
+  for (const locale of ['zh-Hant', 'zh-Hans', 'ko'] as const) {
     const path = conceptPath(locale, key)
     if (!path) continue
     paths[locale] = path
@@ -52,26 +52,33 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'bazi',
     site: 'east',
-    paths: { 'zh-Hant': '/', ko: '/' },
-    titles: { 'zh-Hant': '八字排盤', ko: '만세력' },
+    paths: { 'zh-Hant': '/', 'zh-Hans': '/', ko: '/' },
+    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력' },
     descriptions: {
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
+      'zh-Hans': '免费八字排盘：四柱命盘、五行强弱、身强身弱、喜用神、大运流年、神煞与八字重量。',
       ko: '무료 만세력: 사주팔자, 오행 분포, 신강·신약, 용신, 대운·세운, 신살·귀인·공망 조회.',
     },
   },
   {
     id: 'ziwei',
     site: 'east',
-    paths: { 'zh-Hant': '/紫微斗數排盤' },
-    titles: { 'zh-Hant': '紫微斗數' },
-    descriptions: { 'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。' },
+    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘' },
+    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数' },
+    descriptions: {
+      'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。',
+      'zh-Hans': '免费紫微斗数排盘：十二宫位、命宫与身宫、十四主星与生年四化。',
+    },
   },
   {
     id: 'mingpan',
     site: 'east',
-    paths: { 'zh-Hant': '/命盤查詢' },
-    titles: { 'zh-Hant': '命盤查詢' },
-    descriptions: { 'zh-Hant': '免費命盤查詢：四柱、藏干、十神與大運流年表。' },
+    paths: { 'zh-Hant': '/命盤查詢', 'zh-Hans': '/命盘查询' },
+    titles: { 'zh-Hant': '命盤查詢', 'zh-Hans': '命盘查询' },
+    descriptions: {
+      'zh-Hant': '免費命盤查詢：四柱、藏干、十神與大運流年表。',
+      'zh-Hans': '免费命盘查询：四柱、藏干、十神与大运流年表。',
+    },
   },
   {
     id: 'saju-gunghap',

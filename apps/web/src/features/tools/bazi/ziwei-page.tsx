@@ -9,12 +9,11 @@ import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
+import { eastChineseLocale } from './chinese-locale.ts'
 import { link, pageHref, ReadingSlots, ResultFooter, ResultStatus, usePrefetch } from './common.tsx'
 import { loadZiwei } from './engine.ts'
 import { BRANCH_HANZI, formatDateTime, STEM_HANZI } from './glyphs.ts'
 import { useBirthTool } from './use-birth-tool.ts'
-
-const LOCALE = 'zh-Hant'
 
 type Message = () => string
 
@@ -104,6 +103,7 @@ async function computeZiweiChart(input: BirthInput): Promise<ZiweiChart> {
 
 /** 繁中 `/zh-hant/紫微斗數排盤`（tasks.md 2.3）：与八字共用表单，只切换引擎 */
 export function ZiweiPage() {
+  const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeZiweiChart })
   usePrefetch(loadZiwei)
   return (

@@ -7,9 +7,10 @@ import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
+import { FxAttribution } from './fx-attribution.tsx'
 import { toTraditional } from './hant.ts'
 import { Markdown } from './markdown.tsx'
-import { formatPrice, usdCentsFor } from './price.ts'
+import { formatPrice, LOCAL_CURRENCY, type LocalRates, usdCentsFor } from './price.ts'
 import {
   createReadingUnlock,
   getReading,
@@ -334,7 +335,7 @@ export function ReadingUnlock({
   // 支付未开通（没有可购买的积分包）且余额不够时不显示解锁入口，避免走到无法付款的一步
   if (offer.packs.length === 0 && (offer.viewer?.balance ?? 0) < offer.credits) return null
   const cents = usdCentsFor(offer.credits, offer.packs)
-  const price = cents === null ? null : formatPrice(cents, locale)
+  const price = cents === null ? null : formatPrice(cents, locale, offer.rates)
   const busy = phase.name === 'busy'
   return (
     <section
@@ -364,11 +365,15 @@ export function ReadingUnlock({
             {price.approximate ? m.readings_unlock_approx({ price: price.text }) : price.text}
           </span>
         )}
+        {price?.approximate && offer.rates.attribution && (
+          <FxAttribution attribution={offer.rates.attribution} />
+        )}
       </p>
       {phase.name === 'packs' ? (
         <PackChooser
           packs={offer.packs}
           locale={locale}
+          rates={offer.rates}
           balance={offer.viewer?.balance ?? 0}
           onPick={buy}
         />
@@ -448,11 +453,13 @@ function PhaseMessage({
 function PackChooser({
   packs,
   locale,
+  rates,
   balance,
   onPick,
 }: {
   packs: readonly ReadingPack[]
   locale: string
+  rates: LocalRates
   balance: number
   onPick: (pack: ReadingPack) => void
 }) {
@@ -466,7 +473,7 @@ function PackChooser({
       </legend>
       {packs.map((pack, index) => {
         const usd = formatPrice(pack.amount, 'en')
-        const local = formatPrice(pack.amount, locale)
+        const local = formatPrice(pack.amount, locale, rates)
         return (
           <button
             key={pack.planPriceId}
@@ -489,6 +496,9 @@ function PackChooser({
         )
       })}
       <p className="m-0 text-on-inverse/75 text-xs">{m.readings_pack_price_note()}</p>
+      {LOCAL_CURRENCY[locale] && rates.attribution && (
+        <FxAttribution attribution={rates.attribution} className="text-on-inverse/75" />
+      )}
     </fieldset>
   )
 }

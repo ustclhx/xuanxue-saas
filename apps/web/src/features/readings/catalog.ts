@@ -13,11 +13,14 @@ import { AppError } from '@xuanxue/shared'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
 import { z } from 'zod'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
+import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { NUMEROLOGY_FULL_V2 } from './prompts/numerology-full.v2.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
+import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
+import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 
 /**
  * 详批注册表（add-reading-monetization design 决策 1）：每种详批的输入校验、服务端复算、
@@ -261,7 +264,7 @@ const tarotInputSchema = z.object({
 
 /** 塔罗不重抽：校验牌与牌阵后按 id 在服务端查牌名、牌位与牌义，客户端的牌义文本一律不用 */
 function recomputeTarot(raw: unknown, _now: Date, locale: string): RecomputedReading {
-  const tarotLocale = locale as 'en' | 'zh-Hant' | 'ko'
+  const tarotLocale = locale as 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
   const parsed = tarotInputSchema.safeParse(raw)
   if (!parsed.success) invalidInput()
   let reading: ReturnType<typeof decodeReading>
@@ -299,6 +302,7 @@ function recomputeTarot(raw: unknown, _now: Date, locale: string): RecomputedRea
 }
 
 const ZH_HEALTH = { title: '健康作息提示', notice: '如有不適請諮詢專業醫師。' }
+const ZH_HEALTH_HANS = { title: '健康作息提示', notice: '如有不适请咨询专业医师。' }
 const KO_HEALTH = {
   title: '건강·생활 습관',
   notice: '불편한 증상이 있으면 전문 의료진과 상담하세요.',
@@ -313,6 +317,12 @@ const entries = {
         disclaimer:
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
+      },
+      'zh-Hans': {
+        prompt: BAZI_FULL_V3,
+        disclaimer:
+          '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
+        healthSection: ZH_HEALTH_HANS,
       },
     },
     recompute: recomputeChart,
@@ -337,6 +347,12 @@ const entries = {
         disclaimer:
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
+      },
+      'zh-Hans': {
+        prompt: ZIWEI_FULL_V3,
+        disclaimer:
+          '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
+        healthSection: ZH_HEALTH_HANS,
       },
     },
     recompute: recomputeZiwei,
@@ -381,6 +397,12 @@ const entries = {
         prompt: TAROT_SPREAD_V2['zh-Hant'],
         disclaimer:
           '本報告依塔羅牌的象徵意義整理，僅供參考與自我反思，不構成醫療、法律或投資建議，也不預言任何具體事件。',
+        healthSection: null,
+      },
+      'zh-Hans': {
+        prompt: TAROT_SPREAD_V3['zh-Hans'],
+        disclaimer:
+          '本报告依塔罗牌的象征意义整理，仅供参考与自我反思，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: null,
       },
       ko: {

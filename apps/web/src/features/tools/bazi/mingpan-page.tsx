@@ -9,6 +9,7 @@ import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
 import { luckAside, usedTimeText } from './chart-parts.tsx'
+import { eastChineseLocale } from './chinese-locale.ts'
 import {
   computeBaziChart,
   conceptHref,
@@ -31,12 +32,12 @@ import {
 import { PILLAR_LABEL, TEN_GOD_LABEL } from './labels.ts'
 import { useBirthTool } from './use-birth-tool.ts'
 
-const LOCALE = 'zh-Hant'
 // 传统命盘表由右至左为年月日時，表格按阅读习惯列为時日月年（与常见万年历一致）
 const ORDER: PillarKey[] = ['hour', 'day', 'month', 'year']
 
 /** 繁中 `/zh-hant/命盤查詢`（tasks.md 2.3）：同一八字引擎，以表格呈现四柱与大运流年 */
 export function MingpanPage() {
+  const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeBaziChart })
   usePrefetch(loadBazi)
   return (
@@ -106,6 +107,7 @@ export function MingpanResult({
   chart: BaziChart
   share: Readonly<Record<string, unknown>>
 }) {
+  const LOCALE = eastChineseLocale()
   const current = chart.currentYear.decadeIndex
   return (
     <>

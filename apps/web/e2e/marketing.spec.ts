@@ -9,7 +9,7 @@ import { seedBillingCatalog } from './fixtures.ts'
 const { defaultLocale } = templateConfig.i18n
 const otherLocales = templateConfig.i18n.locales.filter((locale) => locale !== defaultLocale)
 const languages = [defaultLocale, ...otherLocales]
-const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'ko']
+const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'zh-Hans', 'ko']
 
 for (const lang of languages) {
   const prefix = lang === defaultLocale ? '' : localePrefix(lang)
@@ -80,6 +80,7 @@ for (const lang of languages) {
     const localized = {
       en: { note: null, footer: 'Disclaimer' },
       'zh-Hant': { note: '僅提供英文版本', footer: '免責聲明（英文）' },
+      'zh-Hans': { note: '仅提供英文版本', footer: '免责声明（英文）' },
       ko: { note: '영어로만 제공', footer: '면책 고지 (영문)' },
     }[lang]
     const site = lang === 'en' ? 'west' : 'east'

@@ -119,6 +119,7 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
         expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual({
           en: `https://arcanumber.com${tarotPath(spread, 'en')}`,
           'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`).href,
+          'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotPath(spread, 'zh-Hans')}`).href,
           ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
           'x-default': `https://arcanumber.com${tarotPath(spread, 'en')}`,
         })

@@ -179,7 +179,7 @@ const tarot = defineCollection({
     title: z.string().min(1),
     description: z.string().min(1).max(160),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    locale: z.enum(['en', 'zh-Hant', 'ko']),
+    locale: z.enum(['en', 'zh-Hant', 'zh-Hans', 'ko']),
     cardId: z.string(),
     arcana: z.enum(['major', 'minor']),
     suit: z.enum(['wands', 'cups', 'swords', 'pentacles']).optional(),
@@ -216,7 +216,7 @@ const concepts = defineCollection({
       .string()
       .min(1)
       .regex(/^[^/\s]+$/),
-    locale: z.enum(['zh-Hant', 'ko']),
+    locale: z.enum(['zh-Hant', 'zh-Hans', 'ko']),
     conceptKey: z.enum([
       'luck',
       'useful-god',

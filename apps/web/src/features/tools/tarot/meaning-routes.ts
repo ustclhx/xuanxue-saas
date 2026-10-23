@@ -4,7 +4,7 @@ import { CARDS } from '@xuanxue/tarot/cards'
 import type { ToolRoute } from '../registry.ts'
 import { TAROT_LOCALES, TAROT_ROOTS, type TarotLocale } from './routes.ts'
 
-const SEGMENTS = { en: 'cards', 'zh-Hant': '牌義', ko: '카드' } as const
+const SEGMENTS = { en: 'cards', 'zh-Hant': '牌義', 'zh-Hans': '牌义', ko: '카드' } as const
 
 /** 牌义使用牌组已有的 ASCII slug；语言前缀由 toolHref / SEO 入口统一处理。 */
 export function tarotMeaningPath(slug: string, locale: TarotLocale): string {
