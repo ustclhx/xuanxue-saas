@@ -144,7 +144,7 @@ export function eastEntryPage(): SeoPage {
     locale: 'zh-Hant',
     siteEntry: 'east',
     title: '選擇語言 · 언어 선택',
-    description: '繁體中文 · 한국어',
+    description: '繁體中文 · 简体中文 · 한국어',
   }
 }
 

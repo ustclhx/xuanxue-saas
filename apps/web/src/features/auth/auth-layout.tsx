@@ -32,7 +32,7 @@ export function AuthLayout({
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/40 px-4 py-8">
+    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/40 px-4 py-8 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_button]:min-h-11 [&_button]:min-w-11 [&_input]:min-h-11">
       {/* 应用名取模板配置，作为回到首页的出口；不是标题，页面只保留卡片内一个 h1 */}
       <Link
         to="/"

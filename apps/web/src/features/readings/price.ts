@@ -1,7 +1,7 @@
 /**
  * 解锁卡的当地货币估价（add-reading-monetization design 决策 4）：按能覆盖所需积分的最小积分包
  * 折算美元价格，再按站点语言换成当地货币显示「约」值。汇率优先使用 Exchange Rate API 的实时数据
- * （见 `loadLocalRates`），拉取失败时回退到下方的参考值。实际扣款以 Stripe Checkout（Adaptive Pricing）为准。
+ * （见 `readings.functions.ts` 的 `localRates`），拉取失败时回退到下方的参考值。实际扣款以 Stripe Checkout（Adaptive Pricing）为准。
  */
 interface Pack {
   readonly credits: number
@@ -16,8 +16,8 @@ export const LOCAL_CURRENCY: Readonly<
   ko: { currency: 'KRW', perUsd: 1400, format: 'ko' },
   // zh-Hant 的新台币符号是「$」，与美元无法区分；按 en 格式输出「NT$」
   'zh-Hant': { currency: 'TWD', perUsd: 32.5, format: 'en' },
-  // 简体访客的人民币参考汇率
-  'zh-Hans': { currency: 'CNY', perUsd: 7.2, format: 'zh-Hans' },
+  // 简体访客的人民币回退参考值；优先使用 readings.functions.ts 的 localRates 实时汇率
+  'zh-Hans': { currency: 'CNY', perUsd: 6.7, format: 'zh-Hans' },
 }
 
 export interface LocalRates {

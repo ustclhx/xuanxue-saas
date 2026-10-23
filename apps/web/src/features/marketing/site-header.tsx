@@ -21,7 +21,9 @@ export function SiteHeader() {
   const siteId = useSiteId()
   const locale = getLocale()
   const pathname = useLocation({ select: (location) => location.pathname })
-  const tools = toolsForLocale(locale)
+  // 东方站无前缀入口用 en 渲染壳，但没有英语工具或无前缀营销页；沿用语言入口，避免串到西方导航。
+  const isLanguageEntry = siteId === 'east' && !templateConfig.sites.east.locales.includes(locale)
+  const tools = isLanguageEntry ? [] : toolsForLocale(locale)
   const otherLocales = templateConfig.sites[siteId].locales.filter((item) => item !== locale)
   return (
     <header className="border-line border-b bg-background">
@@ -52,17 +54,17 @@ export function SiteHeader() {
               {tool.title}
             </a>
           ))}
-          {templateConfig.billing.enabled && (
+          {!isLanguageEntry && templateConfig.billing.enabled && (
             <Link to="/pricing" className={navLink} activeProps={{ 'aria-current': 'page' }}>
               {m.marketing_nav_pricing()}
             </Link>
           )}
-          {site.blog && (
+          {!isLanguageEntry && site.blog && (
             <Link to="/blog" className={navLink}>
               {m.marketing_nav_blog()}
             </Link>
           )}
-          {site.docs && (
+          {!isLanguageEntry && site.docs && (
             <Link to="/docs" className={navLink}>
               {m.marketing_nav_docs()}
             </Link>

@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { AFTER_SIGN_IN_PATH } from '../../features/auth/auth-client.ts'
 import { AuthLayout, FormAlert, StatusAlert } from '../../features/auth/auth-layout.tsx'
 import { authErrorMessage } from '../../features/auth/errors.ts'
+import { getEmailVerificationState } from '../../features/auth/options.functions.ts'
 import { m } from '../../paraglide/messages.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
@@ -37,16 +38,18 @@ const COPY = {
  */
 export const Route = createFileRoute('/(auth)/verify-email')({
   validateSearch: z.object({ error: z.string().optional() }),
+  loader: () => getEmailVerificationState(),
   head: () => ({ meta: [{ title: COPY.metaTitle }] }),
   component: VerifyEmailPage,
 })
 
 function VerifyEmailPage() {
   const { error } = Route.useSearch()
-  if (error) {
+  const { verified } = Route.useLoaderData()
+  if (error || !verified) {
     return (
-      <AuthLayout title={COPY.failureTitle}>
-        <FormAlert message={authErrorMessage(error)} />
+      <AuthLayout title={error ? COPY.failureTitle : COPY.metaTitle}>
+        <FormAlert message={error ? authErrorMessage(error) : m.auth_verification_link_invalid()} />
         <p className="text-muted-foreground text-sm">{COPY.failureHint}</p>
         <Button asChild variant="outline">
           <Link to="/login">{COPY.signIn}</Link>
@@ -57,7 +60,6 @@ function VerifyEmailPage() {
   return (
     <AuthLayout title={COPY.successTitle}>
       <StatusAlert>{COPY.success}</StatusAlert>
-      {/* /app 由 p1-workspace 实现，尚不在路由树中，用普通链接整页跳转 */}
       <Button asChild>
         <a href={AFTER_SIGN_IN_PATH}>{COPY.continue}</a>
       </Button>

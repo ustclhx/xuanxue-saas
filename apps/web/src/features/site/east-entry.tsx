@@ -17,7 +17,7 @@ function matchEastLocale(language: string, locales: readonly string[]): string |
   return locales.find((l) => l.toLowerCase().split('-')[0] === primary)
 }
 
-/** 服务器稳定输出双语入口，浏览器语言只用于高亮，绝不自动导航。 */
+/** 服务器稳定输出三语入口，浏览器语言只用于高亮，绝不自动导航。 */
 export function EastEntry() {
   const [preferred, setPreferred] = useState<string>()
   useEffect(() => {

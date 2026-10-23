@@ -23,16 +23,22 @@ describe('当地货币估价', () => {
   it('按站点语言显示约值：韩元取整到百，新台币显示 NT$，英语显示美元标价', () => {
     expect(formatPrice(99, 'ko')).toEqual({ text: '₩1,400', approximate: true })
     expect(formatPrice(99, 'zh-Hant')).toEqual({ text: 'NT$32', approximate: true })
+    expect(formatPrice(1000, 'zh-Hans')).toEqual({ text: '¥67', approximate: true })
     expect(formatPrice(99, 'en')).toEqual({ text: '$0.99', approximate: false })
   })
 
   it('优先使用实时汇率，缺少的货币回退到参考值', () => {
     const live = {
-      perUsd: { KRW: 1300 },
+      perUsd: { KRW: 1300, CNY: 7 },
       attribution: { text: 'Rates By Exchange Rate API', href: 'https://www.exchangerate-api.com' },
     }
     expect(formatPrice(99, 'ko', live)).toEqual({ text: '₩1,300', approximate: true })
     expect(formatPrice(99, 'zh-Hant', live)).toEqual({ text: 'NT$32', approximate: true })
+    expect(formatPrice(1000, 'zh-Hans', live)).toEqual({ text: '¥70', approximate: true })
+    expect(formatPrice(1000, 'zh-Hans', { ...live, perUsd: {} })).toEqual({
+      text: '¥67',
+      approximate: true,
+    })
   })
 })
 

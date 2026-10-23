@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "growth_newsletter_title": "订阅电子报",
+  "growth_newsletter_intro": "不定期收到命理工具更新与自我探索指南。",
+  "growth_waitlist_title": "加入候补名单",
+  "growth_email_label": "电子邮件地址",
+  "growth_newsletter_submit": "订阅",
+  "growth_waitlist_submit": "加入候补名单",
+  "growth_loading": "加载中…",
+  "growth_submitting": "提交中…",
+  "growth_unavailable": "表单暂时无法使用。",
+  "growth_retry": "请再试一次。",
+  "growth_submit_failed": "无法提交，请再试一次。",
+  "growth_newsletter_success": "请查看电子邮件并确认订阅。",
+  "growth_waitlist_success": "你已加入候补名单。",
+  "growth_back_home": "返回首页"
+}
