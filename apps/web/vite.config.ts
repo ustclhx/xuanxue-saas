@@ -46,7 +46,12 @@ export default defineConfig(({ command }) => {
   // 本地 dev 时把根目录 .env.local 的五项测试支付配置同步到 .dev.vars 管理区块（#26）
   if (command === 'serve') syncLocalPaymentEnv(new URL('./', import.meta.url))
   return {
-    build: { sourcemap: 'hidden' },
+    build: {
+      sourcemap: 'hidden',
+      // 关闭模块预加载：首屏 HTML 原本带 60+ 个路由 chunk 的 modulepreload（含后台、账单等首屏不用的代码），
+      // 与阻塞首绘的样式表抢带宽，导致 FCP / LCP 被推迟（docs/runbooks/launch-v1.md 2.3 trace）。
+      modulePreload: false,
+    },
     server: {
       port,
       strictPort: true,
