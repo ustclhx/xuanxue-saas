@@ -154,3 +154,19 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 | staging 验收测试积分 | 100（仅 staging） | `docs/runbooks/staging-acceptance.md`，不影响生产 |
 
 注意：`packages/config/src/template.ts` 的 `templateConfigDefaults` 回退值仍为 100，但 `template.config.ts` 已覆盖为 0，实际生效值是 0。`docs/02-project-structure.md`、`docs/05-billing.md` 仍写注册赠送 100，属于过时文档。本轮未查询生产数据库，上表基于代码与配置。
+
+## Lighthouse 移动端复测（2026-10-23，生产只读）
+
+- 方式：`npx lighthouse <url> --form-factor=mobile --only-categories=performance`，Chrome 本机无头模式；原始 JSON 存于 `docs/runbooks/evidence/launch-v1/lighthouse/2026-10-23-mobile.zip`。
+- 结果（LCP 目标 < 2.5s，CLS 目标 < 0.1）：
+
+| 页面 | LCP | CLS | 性能分 |
+|---|---|---|---|
+| ganjiday.com/ | 2.8s | 0.009 | 91 |
+| ganjiday.com/ko | 2.9s | 0 | 88 |
+| ganjiday.com/塔羅 | 2.3s | 0.01 | 95 |
+| arcanumber.com/ | 3.3s | 0.002 | 86 |
+| arcanumber.com/pricing | 2.8s | 0 | 86 |
+| arcanumber.com/tarot | 2.0s | 0 | 98 |
+
+- 结论：CLS 全部达标；LCP 有 4 页未达标。任务 2.3 保持未勾选，LCP 优化另行跟进。INP 未在本次 Lighthouse 中测得。
