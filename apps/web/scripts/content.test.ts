@@ -10,6 +10,7 @@ const appRoot = new URL('..', import.meta.url).pathname
 // 编译后的配置从这里解析依赖，临时目录需位于 apps/web 下（.content-collections 已 gitignore）
 const tempRoot = new URL('../.content-collections/test', import.meta.url).pathname
 const outputs: string[] = []
+const templateSlugs = ['draft-example', 'scheduled-example', 'welcome', 'writing-posts']
 
 async function buildPosts(nodeEnv: string): Promise<{ slug: string; draft: boolean }[]> {
   mkdirSync(tempRoot, { recursive: true })
@@ -51,14 +52,14 @@ afterAll(() => {
 describe('博客草稿', () => {
   it('生产构建中不包含草稿', async () => {
     const posts = await buildPosts('production')
-    expect(posts.length).toBeGreaterThan(0)
     expect(posts.filter((post) => post.draft)).toEqual([])
-    expect(posts.map((post) => post.slug)).not.toContain('draft-example')
+    expect(posts.filter((post) => templateSlugs.includes(post.slug))).toEqual([])
     // 整套内容集合（含三语牌义与概念页）真实构建，CI 上超过默认 5 秒
   }, 60_000)
 
   it('开发环境保留草稿供预览', async () => {
     const posts = await buildPosts('development')
-    expect(posts.some((post) => post.draft && post.slug === 'draft-example')).toBe(true)
+    for (const slug of templateSlugs)
+      expect(posts.some((post) => post.draft && post.slug === slug)).toBe(true)
   }, 60_000)
 })

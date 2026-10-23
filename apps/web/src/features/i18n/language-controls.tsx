@@ -89,12 +89,18 @@ export function LanguageControls({
                 suggestion,
             })}
           </p>
-          <Button type="button" disabled={busy} onClick={() => void select(suggestion)}>
+          <Button
+            type="button"
+            className="min-h-11"
+            disabled={busy}
+            onClick={() => void select(suggestion)}
+          >
             {m.i18n_switch()}
           </Button>
           <Button
             type="button"
             variant="ghost"
+            className="min-h-11"
             onClick={() => {
               rememberLocale(locale)
               setSuggestion(null)
@@ -107,12 +113,13 @@ export function LanguageControls({
       <label
         className={
           floating
-            ? 'fixed bottom-4 left-4 z-50 rounded-md border bg-background px-3 py-2 text-sm shadow-sm'
-            : 'inline-flex w-fit rounded-md border bg-background px-3 py-1.5 text-sm shadow-xs'
+            ? 'fixed bottom-4 left-4 z-50 inline-flex min-h-11 items-center rounded-md border bg-background px-3 text-sm shadow-sm'
+            : 'inline-flex min-h-11 w-fit items-center rounded-md border bg-background px-3 text-sm shadow-xs'
         }
       >
         <span className="sr-only">{m.i18n_language()}</span>
         <select
+          className="min-h-11 min-w-11"
           aria-label={m.i18n_language()}
           value={locale}
           disabled={!ready || busy}

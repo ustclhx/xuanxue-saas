@@ -16,8 +16,8 @@ export const LOCAL_CURRENCY: Readonly<
   ko: { currency: 'KRW', perUsd: 1400, format: 'ko' },
   // zh-Hant 的新台币符号是「$」，与美元无法区分；按 en 格式输出「NT$」
   'zh-Hant': { currency: 'TWD', perUsd: 32.5, format: 'en' },
-  // 简体访客的人民币参考汇率
-  'zh-Hans': { currency: 'CNY', perUsd: 7.2, format: 'zh-Hans' },
+  // 简体访客的人民币回退参考值；优先使用 loadLocalRates 的实时汇率
+  'zh-Hans': { currency: 'CNY', perUsd: 6.7, format: 'zh-Hans' },
 }
 
 export interface LocalRates {

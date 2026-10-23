@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "growth_newsletter_title": "Subscribe to our newsletter",
+  "growth_newsletter_intro": "Get occasional updates on our divination tools and guides for self-reflection.",
+  "growth_waitlist_title": "Join the waitlist",
+  "growth_email_label": "Email address",
+  "growth_newsletter_submit": "Subscribe",
+  "growth_waitlist_submit": "Join waitlist",
+  "growth_loading": "Loading…",
+  "growth_submitting": "Submitting…",
+  "growth_unavailable": "This form is unavailable.",
+  "growth_retry": "Please try again.",
+  "growth_submit_failed": "Unable to submit. Please try again.",
+  "growth_newsletter_success": "Check your email to confirm your subscription.",
+  "growth_waitlist_success": "You are on the waitlist.",
+  "growth_back_home": "Back to home"
+}

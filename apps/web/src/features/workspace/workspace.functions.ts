@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import { requireFreshSession } from '@xuanxue/auth'
 import { AppError } from '@xuanxue/shared'
-import { z } from 'zod'
 import { withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
@@ -14,6 +13,8 @@ import {
   workspaceInvitations,
   workspaceMembers,
 } from '../../server/workspace-data.ts'
+
+import { invitationSearch } from './invitation-search.ts'
 
 export const getWorkspacePage = createServerFn({ method: 'GET' })
   .middleware([withWorkspace])
@@ -53,8 +54,13 @@ export const getWorkspacePage = createServerFn({ method: 'GET' })
   })
 
 export const getInvitationPage = createServerFn({ method: 'GET' })
-  .validator(z.object({ id: z.uuid() }))
+  .validator(invitationSearch)
   .handler(async ({ data }) => {
+    if (!data.id)
+      return {
+        error: 'INVITATION_INVALID',
+        multiTenant: templateConfig.tenancy.multiTenant,
+      } as const
     const { db } = getWebRuntime()
     try {
       const { user } = await requireFreshSession({

@@ -1,7 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useState } from 'react'
-import { z } from 'zod'
 import { authClient } from '../../features/auth/auth-client.ts'
 import {
   AuthLayout,
@@ -16,11 +15,12 @@ import {
   workspaceAction,
   workspaceError,
 } from '../../features/workspace/client.ts'
+import { invitationSearch } from '../../features/workspace/invitation-search.ts'
 import { getInvitationPage } from '../../features/workspace/workspace.functions.ts'
 import { m } from '../../paraglide/messages.js'
 
 export const Route = createFileRoute('/(auth)/accept-invitation')({
-  validateSearch: z.object({ id: z.uuid() }),
+  validateSearch: invitationSearch,
   beforeLoad: async ({ search }) => ({ invitationPage: await getInvitationPage({ data: search }) }),
   loaderDeps: ({ search }) => search,
   loader: ({ context }) => context.invitationPage,
@@ -43,7 +43,18 @@ function InvitationPage() {
     >
       <FormAlert message={error} />
       {'error' in page ? (
-        <FormAlert message={workspaceError(page.error)} />
+        <>
+          <FormAlert
+            message={
+              page.error === 'INVITATION_INVALID'
+                ? m.auth_invitation_link_invalid()
+                : workspaceError(page.error)
+            }
+          />
+          <Button asChild variant="outline">
+            <Link to="/login">{m.auth_back_to_sign_in()}</Link>
+          </Button>
+        </>
       ) : page.verifyRequired === true ? (
         <>
           <p>{m.auth_verify_before_viewing_and_accepting_this_invitation({ email: page.email })}</p>
