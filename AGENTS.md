@@ -77,3 +77,24 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 只实施获分配的编号；全部验收通过后立即勾选对应项，并刷新 apply instructions 确认进度。
 遇到设计冲突或范围扩大时向协调者询问。change 的同步与归档遵循并行计划，只在全部任务
 合并后由协调者处理。PR 应包含验证结果与未完成验收，不把部署或外部凭据验收提前勾选。
+
+<!-- BEGIN:flow-managed -->
+## Flow 工作区上下文
+
+> 由 `flow agents sync` 生成，请勿手动修改本区块。
+
+- 所属 workspace：`ws/xuanxue-saas`（Xuanxue（Arcanumber / 干支日），产品）
+- 项目卡片：brain 条目 `projects/xuanxue-saas`（`flow kb get projects/xuanxue-saas`）
+- 关键资源：
+  - data-source `resources/data-sources/arcanumber-health`：arcanumber.com 健康检查，GET /api/health，返回数据库状态与版本 SHA
+  - data-source `resources/data-sources/arcanumber-web-analytics`：arcanumber.com Web Analytics，Cloudflare Web Analytics（手动 JS 片段，无 Cookie）
+  - data-source `resources/data-sources/ganjiday-health`：ganjiday.com 健康检查，GET /api/health，返回数据库状态与版本 SHA
+  - data-source `resources/data-sources/ganjiday-web-analytics`：ganjiday.com Web Analytics，Cloudflare Web Analytics（手动 JS 片段，无 Cookie）
+  - domain `resources/domains/arcanumber.com`：arcanumber.com，xuanxue-saas 西方站域名
+  - domain `resources/domains/ganjiday.com`：ganjiday.com，xuanxue-saas 东方站域名
+  - repo `resources/repos/xuanxue-saas`：xuanxue-saas 仓库，xuanxue-saas 的代码仓库
+  - service `resources/services/xuanxue-jobs-production`：xuanxue-jobs-production，生产 jobs Worker：Cron、队列消费
+  - service `resources/services/xuanxue-web-production`：xuanxue-web-production，生产 web Worker，绑定 arcanumber.com 与 ganjiday.com
+- 访问知识库：MCP 工具 `kb_search`、`kb_get`、`kb_query`、`ws_brief`；或 CLI `flow kb search <词>`、`flow ws brief ws/xuanxue-saas`
+- 写入规则：工作日志用 `kb_journal`；随手记用 `capture`；事实类修改用 `kb_propose` 提交提案，必须附出处；不得直接修改 decision 和 personal 条目。
+<!-- END:flow-managed -->
