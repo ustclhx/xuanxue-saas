@@ -421,6 +421,9 @@ function TarotResult({
               </p>
               <a
                 href={toolHref(tarotMeaningPath(cardData.slug, locale), locale)}
+                // 牌义在新标签页打开，抽牌页保留本次结果，切回即可继续翻看其它牌
+                target="_blank"
+                rel="noopener"
                 className="flex min-h-11 items-center text-brand-ink underline underline-offset-4"
               >
                 {m.tarot_meaning_read()}
