@@ -6,6 +6,7 @@ function positions(entries: readonly (readonly [string, string])[]): Position[] 
 const daily = {
   en: positions([['Daily reflection', 'A theme to reflect on today, not a forecast.']]),
   'zh-Hant': positions([['每日省思', '今天可反思的主題，不是預測。']]),
+  'zh-Hans': positions([['每日省思', '今天可反思的主题，不是预测。']]),
   ko: positions([['오늘의 성찰', '예측이 아닌 오늘 돌아볼 주제입니다.']]),
 }
 const yesNo = {
@@ -13,6 +14,7 @@ const yesNo = {
     ['Yes / No / Maybe', 'A symbolic prompt from the fixed card mapping, not a factual answer.'],
   ]),
   'zh-Hant': positions([['是／否／也許', '來自固定牌義對照的象徵提示，不是事實答案。']]),
+  'zh-Hans': positions([['是／否／也许', '来自固定牌义对照的象征提示，不是事实答案。']]),
   ko: positions([
     ['예 / 아니요 / 아마도', '고정 카드 해석의 상징적 안내이며 사실 판단이 아닙니다.'],
   ]),
@@ -27,6 +29,11 @@ const threeCard = {
     ['過去', '影響此問題的經驗。'],
     ['現在', '當下值得留意的事。'],
     ['未來', '可思考的方向，不代表預測。'],
+  ]),
+  'zh-Hans': positions([
+    ['过去', '影响此问题的经验。'],
+    ['现在', '当下值得留意的事。'],
+    ['未来', '可思考的方向，不代表预测。'],
   ]),
   ko: positions([
     ['과거', '질문에 영향을 준 경험입니다.'],
@@ -58,6 +65,18 @@ const celticCross = {
     ['環境', '周遭影響與支持。'],
     ['希望與恐懼', '影響觀點的期待。'],
     ['整合', '選擇下一步時可反思的主題。'],
+  ]),
+  'zh-Hans': positions([
+    ['现况', '当前核心情境。'],
+    ['挑战', '值得探索的张力或阻碍。'],
+    ['根基', '潜在影响。'],
+    ['近因', '延续至今的经验。'],
+    ['意识焦点', '目标或期望。'],
+    ['可能方向', '可思考的路径，不是预测。'],
+    ['自身态度', '你面对问题的立场。'],
+    ['环境', '周遭影响与支持。'],
+    ['希望与恐惧', '影响观点的期待。'],
+    ['整合', '选择下一步时可反思的主题。'],
   ]),
   ko: positions([
     ['현재 상황', '질문의 중심 상황입니다.'],

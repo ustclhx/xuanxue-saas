@@ -367,6 +367,141 @@ const zhHant: CopyBuilders = {
   }),
 }
 
+const zhHans: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('zh-Hans', props),
+  'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
+    subject: `邀请你注册 ${appName}`,
+    preview: '你的注册邀请已就绪。',
+    heading: '注册邀请',
+    greeting: greetingZh(recipientName),
+    paragraphs: ['即使注册尚未开放，你也可以透过此链接建立账号。邀请 7 天内有效。'],
+    action: { label: '建立账号', url },
+    linkHint: '如果按钮无法点选，请复制此链接：',
+    footer: '如果你没有加入等候名单，请忽略这封邮件。',
+  }),
+  'newsletter-confirmation': ({ url }, { appName, recipientName }) => ({
+    subject: `确认订阅 ${appName} 通讯`,
+    preview: '确认后才能收到邮件通讯。',
+    heading: '确认订阅',
+    greeting: greetingZh(recipientName),
+    paragraphs: ['请点选下方按钮确认订阅。确认后才会收到通讯邮件。链接 24 小时内有效。'],
+    action: { label: '确认订阅', url },
+    linkHint: '如果按钮无法点选，请复制此链接：',
+    footer: '如果你没有订阅，请忽略这封邮件。',
+  }),
+  newsletter: ({ subject, body, unsubscribeUrl }, { recipientName }) => ({
+    subject,
+    preview: subject,
+    heading: subject,
+    greeting: greetingZh(recipientName),
+    paragraphs: [body],
+    action: { label: '退订', url: unsubscribeUrl },
+    linkHint: '你可以透过此链接退订：',
+    footer: '你收到此邮件是因为已确认订阅。',
+  }),
+
+  'refund-update': (
+    { status, amount, currency, note, supportEmail },
+    { appName, recipientName },
+  ) => ({
+    subject: `${appName} 退款申请：${{ approved: '已批准', rejected: '已驳回', refunded: '已退款' }[status]}`,
+    preview: `退款申请${{ approved: '已批准，待平台确认', rejected: '已驳回', refunded: '已由平台确认退款' }[status]}。`,
+    heading: '退款申请进度',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      status === 'approved'
+        ? '申请已批准，退款尚待付款平台确认。'
+        : status === 'refunded'
+          ? '付款平台已确认退款。'
+          : '退款申请已驳回。',
+      ...(amount === null ? [] : [`金额：${(amount / 100).toFixed(2)} ${currency}。`]),
+      ...(note ? [note] : []),
+      `如需协助，请联络 ${supportEmail}。`,
+    ],
+    linkHint: '',
+    footer: '删除账号后，退款结果仍会发送至申请时存储的联络电子邮件。',
+  }),
+
+  'reading-ready': ({ url }, { appName, recipientName }) => ({
+    subject: `你的 ${appName} 完整分析已完成`,
+    preview: '完整分析已存储在你的账号中。',
+    heading: '完整分析已完成',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      '你的完整分析已生成并存储在账号中，登录后可随时在任何装置重新打开。',
+      '本报告仅供参考与自我探索，不构成医疗、法律或投资建议。',
+    ],
+    action: { label: '查看我的报告', url },
+    linkHint: '如果按钮无法点选，请将以下链接复制到浏览器中打开：',
+    footer: `你收到这封邮件，是因为你在 ${appName} 解锁了一份完整分析。`,
+  }),
+  'verify-email': ({ url }, { appName, recipientName }) => ({
+    subject: `验证你的 ${appName} 电子邮件`,
+    preview: `确认电子邮件地址，完成 ${appName} 账号注册。`,
+    heading: '验证你的电子邮件',
+    greeting: greetingZh(recipientName),
+    paragraphs: [`感谢注册 ${appName}。请点选下方按钮确认你的电子邮件地址。`],
+    action: { label: '验证电子邮件', url },
+    linkHint: '如果按钮无法点选，请将以下链接复制到浏览器中打开：',
+    footer: `如果你没有注册 ${appName} 账号，请忽略这封邮件。`,
+  }),
+  otp: ({ otp, purpose, expiresInMinutes }, { appName, recipientName }) => {
+    const purposeText = {
+      'sign-in': `登录 ${appName}`,
+      'email-verification': `验证你的 ${appName} 电子邮件`,
+      'forget-password': `重置 ${appName} 密码`,
+    }[purpose]
+    return {
+      subject: `${otp} 是你的 ${appName} 验证码`,
+      preview: `使用此验证码${purposeText}。`,
+      heading: '你的验证码',
+      greeting: greetingZh(recipientName),
+      paragraphs: [`请使用以下验证码${purposeText}，验证码 ${expiresInMinutes} 分钟内有效。`],
+      code: otp,
+      linkHint: '',
+      footer: '请勿将验证码告诉任何人。如果这不是你本人的操作，请忽略这封邮件。',
+    }
+  },
+  'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `登录 ${appName}`,
+    preview: `你的 ${appName} 登录链接。`,
+    heading: `登录 ${appName}`,
+    greeting: greetingZh(recipientName),
+    paragraphs: [`点选下方按钮即可登录。链接 ${expiresInMinutes} 分钟内有效，且只能使用一次。`],
+    action: { label: '登录', url },
+    linkHint: '如果按钮无法点选，请将以下链接复制到浏览器中打开：',
+    footer: '如果这不是你本人的操作，请忽略这封邮件。',
+  }),
+  'reset-password': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `重置你的 ${appName} 密码`,
+    preview: `透过此链接为 ${appName} 账号设置新密码。`,
+    heading: '重置密码',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      `我们收到了重置你 ${appName} 账号密码的请求。请点选下方按钮设置新密码，链接 ${expiresInMinutes} 分钟内有效。`,
+    ],
+    action: { label: '重置密码', url },
+    linkHint: '如果按钮无法点选，请将以下链接复制到浏览器中打开：',
+    footer: '如果这不是你本人的操作，请忽略这封邮件，你的密码不会改变。',
+  }),
+  'workspace-invitation': (
+    { url, workspaceName, inviterName, role, expiresInDays },
+    { appName, recipientName },
+  ) => ({
+    subject: `${inviterName} 邀请你加入 ${appName} 上的 ${workspaceName}`,
+    preview: `加入 ${appName} 上的 ${workspaceName} 空间。`,
+    heading: `加入 ${workspaceName}`,
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      `${inviterName} 邀请你以${{ owner: '所有者', admin: '管理员', member: '成员' }[role]}身份加入 ${appName} 上的 ${workspaceName} 空间。`,
+      `邀请 ${expiresInDays} 天内有效。`,
+    ],
+    action: { label: '接受邀请', url },
+    linkHint: '如果按钮无法点选，请将以下链接复制到浏览器中打开：',
+    footer: '如果你不认识邀请人，请忽略这封邮件。',
+  }),
+}
+
 const ko: CopyBuilders = {
   'reading-summary': (props) => readingSummaryCopy('ko', props),
   'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
@@ -525,4 +660,9 @@ function greetingKo(name: string | undefined): string {
   return name ? `${name} 님, 안녕하세요.` : '안녕하세요.'
 }
 
-export const copies: { readonly [L in EmailLocale]: CopyBuilders } = { en, 'zh-Hant': zhHant, ko }
+export const copies: { readonly [L in EmailLocale]: CopyBuilders } = {
+  en,
+  'zh-Hant': zhHant,
+  'zh-Hans': zhHans,
+  ko,
+}

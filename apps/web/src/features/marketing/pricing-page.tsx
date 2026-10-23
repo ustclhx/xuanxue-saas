@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { GrowthForm } from '../growth/forms.tsx'
-import { formatPrice, LOCAL_CURRENCY } from '../readings/price.ts'
-import type { ReadingPricing } from '../readings/readings.functions.ts'
+import { FxAttribution } from '../readings/fx-attribution.tsx'
+import { formatPrice, LOCAL_CURRENCY, type LocalRates } from '../readings/price.ts'
+import { getLocalRates, type ReadingPricing } from '../readings/readings.functions.ts'
 import { readingTitle } from '../readings/title.ts'
 import { MarketingShell } from './marketing-shell.tsx'
 import type { PricingCatalog } from './pricing-data.ts'
@@ -64,6 +66,11 @@ export function PricingPage({
   readings: ReadingPricing['readings']
 }) {
   const locale = getLocale()
+  // 汇率在浏览器中获取：预渲染时为空，不显示当地货币价格；读取失败时保持为空
+  const [rates, setRates] = useState<LocalRates | null>(null)
+  useEffect(() => {
+    getLocalRates().then(setRates, () => undefined)
+  }, [])
   const packs = creditPacks(catalog)
   const paymentsAvailable = catalog.providers.some((provider) => provider.available)
   const perReading = Math.min(...readings.map((r) => r.credits), DEFAULT_READING_CREDITS)
@@ -93,8 +100,8 @@ export function PricingPage({
               const count = Math.floor(pack.credits / perReading)
               const best = packs.length > 1 && pack === packs.at(-1)
               const local =
-                pack.amount !== null && LOCAL_CURRENCY[locale]
-                  ? formatPrice(pack.amount, locale).text
+                pack.amount !== null && rates && LOCAL_CURRENCY[locale]
+                  ? formatPrice(pack.amount, locale, rates).text
                   : null
               const each =
                 count > 1 && pack.amount !== null ? usd(Math.round(pack.amount / count)) : null
@@ -145,6 +152,9 @@ export function PricingPage({
               )
             })}
           </div>
+          {rates?.attribution && LOCAL_CURRENCY[locale] && (
+            <FxAttribution attribution={rates.attribution} />
+          )}
         </section>
 
         {readings.length > 0 && (

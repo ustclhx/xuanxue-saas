@@ -4,12 +4,18 @@ import { AppError } from '@xuanxue/shared'
 import { CARDS } from '@xuanxue/tarot'
 import en from '../../../messages/en/readings-email.json'
 import ko from '../../../messages/ko/readings-email.json'
+import zhHans from '../../../messages/zh-Hans/readings-email.json'
 import zhHant from '../../../messages/zh-Hant/readings-email.json'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { shareUrl } from '../tools/share.ts'
 import type { ReadingOptin } from './optin-schema.ts'
 
-const copies: Record<ReadingOptin['locale'], Record<string, string>> = { en, ko, 'zh-Hant': zhHant }
+const copies: Record<ReadingOptin['locale'], Record<string, string>> = {
+  en,
+  ko,
+  'zh-Hant': zhHant,
+  'zh-Hans': zhHans,
+}
 
 /** L1 的输入只用于选择固定段落，不进入 AI，也不能指定邮件正文或外部链接。 */
 export function optinToolPath(input: ReadingOptin, config: TemplateConfig): string {

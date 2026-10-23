@@ -43,7 +43,7 @@ export const fixtures: readonly Fixture<EmailTemplateName>[] = [
   },
 ]
 
-export const LOCALES = ['en', 'zh-Hant', 'ko'] as const
+export const LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko'] as const
 
 export function snapshotPath(template: string, locale: string, ext: 'html' | 'txt'): string {
   return `./__snapshots__/${template}.${locale}.${ext}`

@@ -18,10 +18,10 @@ const pages = JSON.parse(
 ) as ConceptPage[]
 
 describe('八字与 사주概念页 SEO', () => {
-  it('16 页正文、唯一标题、FAQ 与首页和概念内链均来自内容集合', () => {
-    expect(pages).toHaveLength(16)
-    expect(new Set(pages.map((page) => page.title)).size).toBe(16)
-    for (const locale of ['zh-Hant', 'ko'])
+  it('24 页正文（繁中、简中、韩语各 8）、唯一标题、FAQ 与首页和概念内链均来自内容集合', () => {
+    expect(pages).toHaveLength(24)
+    expect(new Set(pages.map((page) => page.title)).size).toBe(24)
+    for (const locale of ['zh-Hant', 'zh-Hans', 'ko'])
       expect(pages.filter((page) => page.locale === locale)).toHaveLength(8)
     for (const page of pages) {
       expect(page.html.replace(/<[^>]*>/g, '').replace(/\s/g, '').length).toBeGreaterThanOrEqual(

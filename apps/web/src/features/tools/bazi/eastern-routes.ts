@@ -8,11 +8,13 @@ export type EasternPageId = 'ziwei' | 'mingpan' | 'gunghap'
 
 export const EASTERN_PAGES: readonly {
   readonly id: EasternPageId
-  readonly locale: 'zh-Hant' | 'ko'
+  readonly locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   readonly slug: string
 }[] = [
   { id: 'ziwei', locale: 'zh-Hant', slug: '紫微斗數排盤' },
   { id: 'mingpan', locale: 'zh-Hant', slug: '命盤查詢' },
+  { id: 'ziwei', locale: 'zh-Hans', slug: '紫微斗数排盘' },
+  { id: 'mingpan', locale: 'zh-Hans', slug: '命盘查询' },
   { id: 'gunghap', locale: 'ko', slug: '사주궁합' },
 ]
 
@@ -35,6 +37,17 @@ export const CONCEPT_SLUGS = {
     'useful-god': '喜用神',
     elements: '五行',
     strength: '身強身弱',
+    void: '空亡',
+    shensha: '神煞',
+    weight: '八字重量',
+    'ten-gods': '十神',
+  },
+  'zh-Hans': {
+    base: '八字',
+    luck: '大运',
+    'useful-god': '喜用神',
+    elements: '五行',
+    strength: '身强身弱',
     void: '空亡',
     shensha: '神煞',
     weight: '八字重量',

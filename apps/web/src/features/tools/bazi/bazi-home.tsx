@@ -20,6 +20,7 @@ import {
   usedTimeText,
   WeightBody,
 } from './chart-parts.tsx'
+import { eastChineseLocale } from './chinese-locale.ts'
 import {
   computeBaziChart,
   conceptHref,
@@ -34,13 +35,12 @@ import {
 import { loadBazi } from './engine.ts'
 import { useBirthTool } from './use-birth-tool.ts'
 
-const LOCALE = 'zh-Hant'
-
 /**
  * 繁中 `/zh-hant/` 八字排盤首页（tasks.md 2.2，原型 Main.dc.html）：七个结果区块依次为
  * 四柱、五行强弱、身強身弱、喜用神、大運十年轴、神煞、八字重量。
  */
 export function BaziHome({ focusBlock }: { focusBlock?: string }) {
+  const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeBaziChart, focusBlock })
   usePrefetch(loadBazi)
   return (
@@ -110,6 +110,7 @@ export function BaziResult({
   chart: BaziChart
   share: Readonly<Record<string, unknown>>
 }) {
+  const LOCALE = eastChineseLocale()
   return (
     <>
       <ResultBlock

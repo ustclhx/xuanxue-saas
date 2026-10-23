@@ -32,8 +32,30 @@ export const OTHER_PLACE = 'other'
 export const KO_TRUE_SOLAR_DEFAULT = true
 
 /** 出生地下拉的内置城市（与引擎 CITIES 同 id）；按语言把常用城市放在前面 */
-export const PLACE_IDS: Record<'zh-Hant' | 'ko', readonly CityId[]> = {
+export const PLACE_IDS: Record<'zh-Hant' | 'zh-Hans' | 'ko', readonly CityId[]> = {
   'zh-Hant': [
+    'taipei',
+    'taichung',
+    'kaohsiung',
+    'hongKong',
+    'macau',
+    'beijing',
+    'shanghai',
+    'guangzhou',
+    'seoul',
+    'busan',
+    'daegu',
+    'tokyo',
+    'singapore',
+    'kualaLumpur',
+    'losAngeles',
+    'vancouver',
+    'newYork',
+    'toronto',
+    'london',
+    'sydney',
+  ],
+  'zh-Hans': [
     'taipei',
     'taichung',
     'kaohsiung',

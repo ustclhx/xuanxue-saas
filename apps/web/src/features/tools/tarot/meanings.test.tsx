@@ -67,9 +67,12 @@ describe('三语牌义内容与 SEO', () => {
           const alt = /alt="([^"]+)"/.exec(html)?.[1] ?? ''
           expect(alt).toContain(CARD_MEANINGS[locale][page.cardId]?.name)
           expect(alt).toContain(
-            { en: ['Upright', 'Reversed'], 'zh-Hant': ['正位', '逆位'], ko: ['정방향', '역방향'] }[
-              locale
-            ][Number(reversed)],
+            {
+              en: ['Upright', 'Reversed'],
+              'zh-Hant': ['正位', '逆位'],
+              'zh-Hans': ['正位', '逆位'],
+              ko: ['정방향', '역방향'],
+            }[locale][Number(reversed)],
           )
           expect(html).toContain(
             `srcSet="/tarot/${page.cardId}-240.webp 240w, /tarot/${page.cardId}-480.webp 480w"`,
@@ -98,6 +101,7 @@ describe('三语牌义内容与 SEO', () => {
       expect(alternate).toEqual({
         en,
         'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`).href,
+        'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`).href,
         ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
         'x-default': en,
       })
@@ -112,8 +116,8 @@ describe('三语牌义内容与 SEO', () => {
         new Date(),
         templateConfig,
         site,
-      ).filter((page) => /\/(cards|牌義|카드)\//.test(page.path))
-      expect(selected).toHaveLength(site === 'west' ? 78 : 156)
+      ).filter((page) => /\/(cards|牌義|牌义|카드)\//.test(page.path))
+      expect(selected).toHaveLength(site === 'west' ? 78 : 234)
     }
     expect(
       publicPages({ posts: [], legal: [], docs: [], toolPages }, new Date(), {

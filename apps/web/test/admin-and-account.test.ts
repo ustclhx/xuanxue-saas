@@ -159,7 +159,7 @@ describe('设置页数据', () => {
       },
       hasPassword: true,
       twoFactorAvailable: false,
-      locales: ['en', 'zh-Hant', 'ko'],
+      locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
     })
     expect((await loadAccount(s.db, user, config(true))).twoFactorAvailable).toBe(true)
 

@@ -124,7 +124,9 @@ describe('首次访问建议', () => {
     const zh = isLocale('zh-Hant') ? 'zh-Hant' : baseLocale
     expect(preferredLocale('fr,zh-TW;q=0.8,en;q=0.2')).toBe(zh)
     expect(preferredLocale('zh-hant-tw')).toBe(zh)
-    expect(preferredLocale('zh-CN,zh;q=0.9')).toBe(zh)
+    expect(preferredLocale('zh-CN,zh;q=0.9')).toBe(isLocale('zh-Hans') ? 'zh-Hans' : baseLocale)
+    expect(preferredLocale('zh-SG')).toBe(isLocale('zh-Hans') ? 'zh-Hans' : baseLocale)
+    expect(preferredLocale('zh-TW,zh-CN;q=0.5')).toBe(zh)
     expect(preferredLocale('ko-KR,ko;q=0.9,en;q=0.8')).toBe(isLocale('ko') ? 'ko' : baseLocale)
     expect(preferredLocale('zh;q=0,en;q=0.9')).toBe(isLocale('en') ? 'en' : baseLocale)
     expect(preferredLocale('en-US;q=0.9,zh;q=0.8')).toBe(isLocale('en') ? 'en' : baseLocale)

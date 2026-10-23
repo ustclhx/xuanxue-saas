@@ -6,14 +6,23 @@ import { localePrefix } from '../i18n/url-prefix.ts'
 import { MarketingShell } from '../marketing/marketing-shell.tsx'
 import { LOCALE_AUTONYMS } from './theme.ts'
 
+/** zh-CN、zh-SG 归入简体，其他中文归入繁体（与 `preferredLocale` 一致） */
+const SIMPLIFIED_TAGS = new Set(['zh-hans', 'zh-cn', 'zh-sg'])
+
+function matchEastLocale(language: string, locales: readonly string[]): string | undefined {
+  const tag = language.toLowerCase()
+  const primary = tag.split('-')[0]
+  if (primary === 'zh')
+    return locales.find((l) => l === (SIMPLIFIED_TAGS.has(tag) ? 'zh-Hans' : 'zh-Hant'))
+  return locales.find((l) => l.toLowerCase().split('-')[0] === primary)
+}
+
 /** 服务器稳定输出双语入口，浏览器语言只用于高亮，绝不自动导航。 */
 export function EastEntry() {
   const [preferred, setPreferred] = useState<string>()
   useEffect(() => {
     for (const language of navigator.languages) {
-      const locale = templateConfig.sites.east.locales.find(
-        (l) => language.toLowerCase().split('-')[0] === l.toLowerCase().split('-')[0],
-      )
+      const locale = matchEastLocale(language, templateConfig.sites.east.locales)
       if (locale) {
         setPreferred(locale)
         break

@@ -221,12 +221,12 @@ describe('东方站排盘页 head', () => {
     expect(home.meta).toContainEqual({ title })
     const languages = (links: typeof home.links) =>
       links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
-    expect(languages(home.links)).toEqual(['zh-Hant', 'ko', 'x-default'])
+    expect(languages(home.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'x-default'])
     const ziwei = easternToolHead(
       { path: '/紫微斗數排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',
     )
-    expect(languages(ziwei.links)).toEqual(['zh-Hant', 'x-default'])
+    expect(languages(ziwei.links)).toEqual(['zh-Hant', 'zh-Hans', 'x-default'])
     const canonical = ziwei.links.find((link) => link.rel === 'canonical')?.href ?? ''
     expect(decodeURI(new URL(canonical).pathname)).toBe('/zh-hant/紫微斗數排盤')
   })

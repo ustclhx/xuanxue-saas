@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "tools_disclaimer_label": "声明",
+  "tools_disclaimer": "本工具为 AI 辅助的传统命理整理，仅供娱乐参考，不预测未来。健康相关问题请咨询专业医师。",
+  "tools_share_label": "分享链接",
+  "tools_share_copy": "复制分享链接",
+  "tools_share_copied": "已复制链接",
+  "tools_share_failed": "无法自动复制，请选取上方链接手动复制。",
+  "tools_share_hint": "打开链接即可看到同一份结果，链接不含你的姓名。",
+  "tools_results_label": "结果",
+  "tools_result_loading": "计算中…",
+  "tools_links_title": "延伸阅读",
+  "tools_faq_title": "常见问题",
+  "tools_requires_js": "需要启用 JavaScript 才能计算结果。"
+}

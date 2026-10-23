@@ -18,4 +18,10 @@ describe('toTraditional', () => {
   it('非繁中报告原样返回', () => {
     expect(toTraditional('경금(庚金)과 与', 'ko')).toBe('경금(庚金)과 与')
   })
+
+  it('简体报告不经繁体转换，原样返回', () => {
+    expect(toTraditional('时间与注意力；还在身边，我有点失落', 'zh-Hans')).toBe(
+      '时间与注意力；还在身边，我有点失落',
+    )
+  })
 })

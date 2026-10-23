@@ -1,0 +1,18 @@
+{
+  "optin_title": "收一份你的个人化解读",
+  "optin_intro": "依这次结果与你关心的主题，寄一封整理好的说明到邮箱。",
+  "optin_name": "姓名（选填）",
+  "optin_email": "电子邮件",
+  "optin_topic": "我想了解",
+  "optin_love": "爱情",
+  "optin_career": "事业",
+  "optin_money": "财运",
+  "optin_reunion": "复合",
+  "optin_growth": "自我成长",
+  "optin_submit": "寄给我",
+  "optin_busy": "发送中…",
+  "optin_loading": "载入中…",
+  "optin_success": "请查看邮箱；首次订阅请先点选确认链接。",
+  "optin_error": "暂时无法订阅，请稍后再试。",
+  "optin_consent": "订阅即表示你同意接收解读邮件，可随时退订。"
+}
