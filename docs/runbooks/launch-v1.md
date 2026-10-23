@@ -170,3 +170,21 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 | arcanumber.com/tarot | 2.0s | 0 | 98 |
 
 - 结论：CLS 全部达标；LCP 有 4 页未达标。任务 2.3 保持未勾选，LCP 优化另行跟进。INP 未在本次 Lighthouse 中测得。
+
+## 首屏 LCP 优化复测（v0.1.5，2026-10-24，生产只读）
+
+- 发布：tag `v0.1.5`（commit `4d08400`），两站 `/api/health` 均返回该版本。
+- 方式：`npx lighthouse <url> --form-factor=mobile --only-categories=performance`；原始 JSON 存于 `docs/runbooks/evidence/launch-v1/lighthouse/2026-10-24-v0.1.5-mobile.zip`。
+
+| 页面 | LCP（目标 < 2.5s） | CLS | 性能分 |
+|---|---|---|---|
+| ganjiday.com/ | 1.88s | 0.012 | 79 |
+| ganjiday.com/ko | 2.13s | 0.000 | 87 |
+| ganjiday.com/塔羅 | 1.77s | 0.012 | 98 |
+| arcanumber.com/ | 2.32s | 0.002 | 97 |
+| arcanumber.com/pricing | 1.98s | 0.000 | 98 |
+| arcanumber.com/tarot | 2.19s | 0.000 | 97 |
+
+- LCP 与 CLS 六页全部达标。
+- INP（Playwright 模拟移动端节流，点击一次）：`arcanumber.com/` 点击出生日期输入框 248–304ms，超过 200ms；profile 显示耗时来自浏览器原生日期选择器的渲染（`_shouldUseShortMonth` 等），不是站点脚本。`/tarot` 点击输入框 32–96ms。东方站页面的首次交互未测得有效数据（点击目标为导航链接）。
+- 任务 2.3 保持未勾选，待 INP 决定：是否改用文本日期输入，或以其他典型交互作为验收。
