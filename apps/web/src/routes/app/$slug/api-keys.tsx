@@ -2,6 +2,7 @@ import { createFileRoute, notFound, useRouter } from '@tanstack/react-router'
 import { Button, DataTable, Input, Label } from '@xuanxue/ui'
 import { useState } from 'react'
 import { createKey, editKey, listKeys } from '../../../features/api-keys/functions.ts'
+import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug/api-keys')({
@@ -38,8 +39,7 @@ function ApiKeysPage() {
     }
   }
   return (
-    <section className="grid gap-6">
-      <h2 className="text-xl font-semibold">API Keys</h2>
+    <SpacePage title="API Keys">
       <p>密钥仅在创建时显示完整值，请妥善保存。调用将使用当前空间的积分。</p>
       {error ? <p role="alert">{error}</p> : null}
       {secret ? (
@@ -145,6 +145,6 @@ function ApiKeysPage() {
           },
         ]}
       />
-    </section>
+    </SpacePage>
   )
 }

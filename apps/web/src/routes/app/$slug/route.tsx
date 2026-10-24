@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
+import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
+import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationCenter } from '../../../features/notifications/center.tsx'
-import { WorkspaceSwitcher } from '../../../features/workspace/components.tsx'
 import { getWorkspacePage } from '../../../features/workspace/workspace.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -24,97 +25,153 @@ export const Route = createFileRoute('/app/$slug')({
   ),
 })
 
+// 导航项的激活态：当前分区用品牌色下划线与加粗标出，其余为弱化文字
+const navItemClass =
+  'flex min-h-11 items-center rounded-lg px-3 text-[15px] transition-colors hover:bg-surface-2 hover:text-ink'
+const activeProps = {
+  className: `${navItemClass} bg-surface-2 font-semibold text-ink`,
+  'aria-current': 'page' as const,
+}
+const inactiveProps = { className: `${navItemClass} text-ink-muted` }
+
 function WorkspaceLayout() {
   const page = Route.useLoaderData()
+  const { slug } = Route.useParams()
+  const canManageKeys = page.role === 'owner' || page.role === 'admin'
+  const sections = spaceSections({
+    billing: templateConfig.billing.enabled,
+    credits: templateConfig.credits.enabled,
+    textAi: templateConfig.ai.text.enabled,
+    mediaAi: Boolean(templateConfig.ai.image || templateConfig.ai.video),
+    publicApi: templateConfig.features.publicApi,
+    canManageKeys,
+  })
   return (
-    <div className="mx-auto grid max-w-4xl gap-8 p-6">
-      <header className="grid gap-4">
-        <h1 data-testid="workspace-name" className="text-2xl font-semibold">
-          {page.workspace.name}
-        </h1>
-        <p>{page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}</p>
-        <p>{m.app_role({ role: page.role })}</p>
-        <p data-testid="current-user">
-          {page.user.name} ({page.user.email})
-        </p>
-        {page.readOnly ? <p role="status">{m.app_readonly()}</p> : null}
-        <WorkspaceSwitcher page={page} />
-        <NotificationCenter key={page.workspace.slug} slug={page.workspace.slug} />
-        <nav className="flex flex-wrap gap-4">
-          {templateConfig.billing.enabled &&
-          templateConfig.features.publicApi &&
-          (page.role === 'owner' || page.role === 'admin') ? (
-            <Link
-              to="/app/$slug/api-keys"
-              search={{ page: 0 }}
-              params={{ slug: page.workspace.slug }}
-              className="underline"
-            >
-              API Keys
-            </Link>
-          ) : null}
-          {templateConfig.billing.enabled && templateConfig.ai.text.enabled && (
-            <Link
-              to="/app/$slug/readings"
-              params={{ slug: page.workspace.slug }}
-              className="underline"
-            >
-              {m.readings_list_title()}
-            </Link>
-          )}
-          {templateConfig.ai.text.enabled && (
-            <Link to="/app/$slug/chat" params={{ slug: page.workspace.slug }} className="underline">
-              {m.app_chat()}
-            </Link>
-          )}
-          {templateConfig.ai.image || templateConfig.ai.video ? (
-            <Link
-              to="/app/$slug/tasks"
-              params={{ slug: page.workspace.slug }}
-              className="underline"
-            >
-              {m.media_tasks_title()}
-            </Link>
-          ) : null}
-          {templateConfig.ai.image || templateConfig.ai.video ? (
-            <Link
-              to="/app/$slug/media/new"
-              params={{ slug: page.workspace.slug }}
-              className="underline"
-            >
-              {m.media_title()}
-            </Link>
-          ) : null}
-          <Link
-            to="/app/$slug/settings"
-            params={{ slug: page.workspace.slug }}
-            className="underline"
+    <div className="flex min-h-svh flex-col bg-background text-foreground">
+      <SiteHeader />
+      <div className="mx-auto grid w-full max-w-[1120px] flex-1 items-start gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[232px_minmax(0,1fr)]">
+        <aside className="grid content-start gap-6">
+          <section
+            aria-labelledby="space-summary"
+            className="grid gap-2 rounded-xl border border-line bg-surface p-4"
           >
-            {m.app_workspace_settings()}
-          </Link>
-          {templateConfig.billing.enabled && (
-            <Link
-              to="/app/$slug/billing"
-              params={{ slug: page.workspace.slug }}
-              className="underline"
+            <h2
+              id="space-summary"
+              data-testid="workspace-name"
+              className="m-0 font-semibold text-ink text-base"
             >
-              {m.app_billing()}
-            </Link>
-          )}
-          {templateConfig.credits.enabled && (
+              {page.workspace.name}
+            </h2>
+            <p className="m-0 text-ink-subtle text-sm">
+              {page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
+              {' · '}
+              {m.app_role({ role: page.role })}
+            </p>
+            <p data-testid="current-user" className="m-0 break-all text-ink-muted text-sm">
+              {page.user.name} ({page.user.email})
+            </p>
+            {page.readOnly ? (
+              <p role="status" className="m-0 text-ink-muted text-sm">
+                {m.app_readonly()}
+              </p>
+            ) : null}
+            <NotificationCenter key={page.workspace.slug} slug={page.workspace.slug} />
+          </section>
+          <nav aria-label={m.app_nav_label()} className="grid gap-1">
             <Link
-              to="/app/$slug/usage"
-              params={{ slug: page.workspace.slug }}
-              className="underline"
+              to="/app/$slug"
+              params={{ slug }}
+              activeOptions={{ exact: true }}
+              activeProps={activeProps}
+              inactiveProps={inactiveProps}
             >
-              {m.app_usage()}
+              {m.app_nav_overview()}
             </Link>
-          )}
-        </nav>
-      </header>
-      <main>
-        <Outlet />
-      </main>
+            {sections.readings ? (
+              <Link
+                to="/app/$slug/readings"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.readings_list_title()}
+              </Link>
+            ) : null}
+            {sections.chat ? (
+              <Link
+                to="/app/$slug/chat"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.app_chat()}
+              </Link>
+            ) : null}
+            {sections.tasks ? (
+              <Link
+                to="/app/$slug/tasks"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.media_tasks_title()}
+              </Link>
+            ) : null}
+            {sections.media ? (
+              <Link
+                to="/app/$slug/media/new"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.media_title()}
+              </Link>
+            ) : null}
+            {sections.usage ? (
+              <Link
+                to="/app/$slug/usage"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.app_usage()}
+              </Link>
+            ) : null}
+            {sections.billing ? (
+              <Link
+                to="/app/$slug/billing"
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.app_billing()}
+              </Link>
+            ) : null}
+            {sections.apiKeys ? (
+              <Link
+                to="/app/$slug/api-keys"
+                search={{ page: 0 }}
+                params={{ slug }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                API Keys
+              </Link>
+            ) : null}
+            <Link
+              to="/app/$slug/settings"
+              params={{ slug }}
+              activeProps={activeProps}
+              inactiveProps={inactiveProps}
+            >
+              {m.app_workspace_settings()}
+            </Link>
+          </nav>
+        </aside>
+        <main id="main" className="min-w-0">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

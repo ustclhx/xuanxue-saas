@@ -21,7 +21,7 @@ for (const redirect of [
     await page.goto(`/login?redirect=${encodeURIComponent(redirect)}`)
     await page.getByRole('button', { name: 'Continue with Google' }).click()
     await expect(page).toHaveURL(/error=ACCESS_DENIED/)
-    expect(callback).toBe(redirect === invitation ? invitation : '/app')
+    expect(callback).toBe(redirect === invitation ? invitation : '/')
   })
 }
 

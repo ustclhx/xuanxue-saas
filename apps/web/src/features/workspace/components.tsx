@@ -25,45 +25,7 @@ export function HydratedControls({ children }: { children: ReactNode }) {
   )
 }
 
-export function WorkspaceSwitcher({ page }: { page: WorkspacePage }) {
-  const [error, setError] = useState<string | null>(null)
-  const [pending, setPending] = useState(false)
-  if (!page.multiTenant) return null
-  return (
-    <HydratedControls>
-      <Label htmlFor="workspace-switcher">Switch workspace</Label>
-      <select
-        id="workspace-switcher"
-        className="rounded-md border p-2"
-        value={page.workspace.id}
-        disabled={pending}
-        onChange={async (event) => {
-          const space = page.spaces.find((s) => s.id === event.target.value)
-          if (!space) return
-          setPending(true)
-          setError(null)
-          try {
-            await activateWorkspace(space)
-          } catch (e) {
-            setError(e instanceof Error ? e.message : 'Could not switch workspace.')
-            setPending(false)
-          }
-        }}
-      >
-        {page.spaces.map((space) => (
-          <option key={space.id} value={space.id}>
-            {space.name}
-            {space.isPersonal ? ' (personal)' : ''}
-          </option>
-        ))}
-      </select>
-      <FormAlert message={error} />
-      <CreateTeam />
-    </HydratedControls>
-  )
-}
-
-function CreateTeam() {
+export function CreateTeam() {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const form = useAppForm({

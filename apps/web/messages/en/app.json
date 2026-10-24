@@ -9,5 +9,10 @@
   "app_chat": "Chat",
   "app_workspace_settings": "Workspace settings",
   "app_billing": "Billing",
-  "app_usage": "Usage"
+  "app_usage": "Usage",
+  "app_nav_label": "Space navigation",
+  "app_nav_overview": "Overview",
+  "app_overview_quick": "Quick access",
+  "app_team_spaces": "Team spaces",
+  "app_team_spaces_note": "Create a team workspace to invite members."
 }

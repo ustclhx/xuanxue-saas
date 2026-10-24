@@ -34,6 +34,7 @@ import {
 } from './features/api-keys/gate.ts'
 import { createBillingDeletionSteps } from './features/billing/deletion.server.ts'
 import { assertSignupAdmission } from './features/growth/service.ts'
+import { authLocaleRedirect } from './features/i18n/auth-locale.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
@@ -76,6 +77,7 @@ const worker = instrumentWeb({
             ? await staticPageResponse(request, (asset) => env.ASSETS.fetch(asset))
             : null) ??
           gatePublicApiRequest(request, templateConfig) ??
+          authLocaleRedirect(request, templateConfig) ??
           (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
       ),
     )

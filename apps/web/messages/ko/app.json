@@ -9,5 +9,10 @@
   "app_chat": "채팅",
   "app_workspace_settings": "워크스페이스 설정",
   "app_billing": "결제",
-  "app_usage": "사용량"
+  "app_usage": "사용량",
+  "app_nav_label": "워크스페이스 메뉴",
+  "app_nav_overview": "개요",
+  "app_overview_quick": "빠른 메뉴",
+  "app_team_spaces": "팀 워크스페이스",
+  "app_team_spaces_note": "팀 워크스페이스를 만들어 멤버를 초대하세요."
 }

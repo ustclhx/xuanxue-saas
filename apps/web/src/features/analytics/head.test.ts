@@ -8,7 +8,11 @@ vi.mock('../seo/origin.functions.ts', () => ({
 vi.mock('../admin/settings-announcement.functions.ts', () => ({ getAnnouncement: vi.fn() }))
 vi.mock('../admin/impersonation-banner.tsx', () => ({ ImpersonationBanner: () => null }))
 vi.mock('../admin/settings-announcement-banner.tsx', () => ({ AnnouncementBanner: () => null }))
-vi.mock('../i18n/language-controls.tsx', () => ({ LanguageControls: () => null }))
+vi.mock('../i18n/language-controls.tsx', () => ({
+  LanguageMenu: () => null,
+  LanguageSelect: () => null,
+  LanguageSuggestion: () => null,
+}))
 
 import { getLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'

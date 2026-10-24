@@ -14,6 +14,7 @@ const PASSWORD = 'correct-horse-battery'
 
 /** 跳到 /app（p1-workspace 合并后会再重定向到 /app/<slug>） */
 const APP_URL = /\/app\/u-[a-z0-9]+\/?$/
+const HOME_URL = /^https?:\/\/[^/]+\/?$/
 
 test.beforeEach(async ({ page }) => {
   await stubTurnstile(page)
@@ -58,7 +59,7 @@ test('登录页只显示启用的登录方式', async ({ page }) => {
   }
 })
 
-test('注册 → 进入 /app；退出后登录 → 进入 /app', async ({ page, context }) => {
+test('注册 → 回到首页并进入 /app；退出后登录 → 回到首页', async ({ page, context }) => {
   test.skip(!auth.emailPassword, '模板配置关闭了邮箱密码')
   test.skip(auth.requireEmailVerification, '强制验证邮箱时注册后需先验证，见 8.1 的完整流程')
   const email = uniqueEmail()
@@ -77,6 +78,8 @@ test('注册 → 进入 /app；退出后登录 → 进入 /app', async ({ page, 
       expect(signUpHeaders['x-turnstile-token']).toBe(DUMMY_TURNSTILE_TOKEN)
     }
   }
+  await expect(page).toHaveURL(HOME_URL)
+  await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
   await expect(page.getByTestId('current-user')).toContainText(email)
   await expect(page.getByText('Personal workspace', { exact: true })).toBeVisible()
@@ -87,6 +90,8 @@ test('注册 → 进入 /app；退出后登录 → 进入 /app', async ({ page, 
 
   await context.clearCookies()
   await signIn(page, email, PASSWORD)
+  await expect(page).toHaveURL(HOME_URL)
+  await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
   await expect(page.getByTestId('current-user')).toContainText(email)
   await expect(page.getByText('Personal workspace', { exact: true })).toBeVisible()
@@ -124,6 +129,8 @@ test('注册表单：只显示已失焦字段的错误，修正后一次点击�
   if (!box) throw new Error('提交按钮不可见')
   await submit.click({ position: { x: box.width / 2, y: box.height - 3 } })
   await signUp
+  await expect(page).toHaveURL(HOME_URL)
+  await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
   await expect(page.getByText('Personal workspace', { exact: true })).toBeVisible()
 })

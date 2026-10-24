@@ -6,13 +6,14 @@ import {
   organizationClient,
   twoFactorClient,
 } from 'better-auth/client/plugins'
+import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 
 /**
  * 浏览器端的 Better Auth 客户端（接口挂在同源的 /api/auth/*）。
  * 关闭默认的 redirect 插件：登录接口的 `callbackURL` 同时用作验证邮件中的回跳地址（/verify-email），
- * 登录成功后由页面自己跳转到 /app，而不是跳到 callbackURL。
+ * 登录成功后由页面自己跳转到 signInCallbackURL()（回跳地址或站点首页），而不是跳到 callbackURL。
  */
 function create() {
   return createAuthClient({
@@ -41,14 +42,19 @@ export function authClient() {
   return client
 }
 
-/** 登录成功后的去处；/app 再重定向到当前空间（docs/04-auth-and-tenancy.md §3） */
-export const AFTER_SIGN_IN_PATH = '/app'
+/**
+ * 登录成功后的站点首页（当前语言）。东方站没有无前缀的默认语言，首页必须带语言前缀，
+ * 否则会落到入口页（specs/user-auth「登录后的去向」）。
+ */
+export function homePath(): string {
+  return localizeHref('/', { locale: getLocale() })
+}
 
 /**
- * Only these local destinations may be resumed after authentication: the account page,
- * a validated invitation, or a page on the current site (登录后回到发起页面，决策 4).
+ * 登录成功后的去处：只允许本站可回跳的路径（账户中心、有效的邀请、本站公开页面），
+ * 其余情况（包括回跳地址未通过校验）回到站点首页，不再默认进入 `/app`。
  */
-export function signInDestination(search: string): string {
+export function signInDestination(search: string, home: string = '/'): string {
   const redirect = new URLSearchParams(search).get('redirect')
   if (
     redirect === '/account' ||
@@ -58,11 +64,11 @@ export function signInDestination(search: string): string {
       ))
   )
     return redirect
-  return safeReturnPath(redirect, templateConfig.i18n.locales) ?? AFTER_SIGN_IN_PATH
+  return safeReturnPath(redirect, templateConfig.i18n.locales) ?? home
 }
 
 export function signInCallbackURL() {
-  return signInDestination(window.location.search)
+  return signInDestination(window.location.search, homePath())
 }
 
 /** OAuth 失败时回到当前登录页（保留语言前缀与 redirect），Better Auth 追加 `error` */
@@ -73,6 +79,6 @@ export function signInErrorCallbackURL() {
 }
 
 /** 整页跳转：让服务端以新的会话 Cookie 渲染应用区 */
-export function goToApp() {
+export function goAfterSignIn() {
   window.location.assign(signInCallbackURL())
 }
