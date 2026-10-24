@@ -35,6 +35,7 @@ import {
 import { createBillingDeletionSteps } from './features/billing/deletion.server.ts'
 import { assertSignupAdmission } from './features/growth/service.ts'
 import { authLocaleRedirect } from './features/i18n/auth-locale.ts'
+import { eastHomeRedirect } from './features/i18n/east-home.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
@@ -73,6 +74,8 @@ const worker = instrumentWeb({
         request,
         templateConfig,
         async () =>
+          // 东方站根路径先于静态语言选择页跳到语言首页；构建期预渲染请求不跳转
+          (buildRequest ? null : eastHomeRedirect(request, templateConfig)) ??
           (!import.meta.env.DEV && !buildRequest && env.ASSETS
             ? await staticPageResponse(request, (asset) => env.ASSETS.fetch(asset))
             : null) ??
