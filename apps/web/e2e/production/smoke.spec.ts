@@ -6,13 +6,12 @@ const hostname = new URL(process.env.PRODUCTION_URL ?? 'https://arcanumber.com')
 const isEasternSite = ['ganjiday.com', 'east.localhost'].includes(hostname)
 
 if (isEasternSite) {
-  test('东方站双语入口渲染', async ({ page }) => {
+  test('东方站根路径直接进入语言首页', async ({ page }) => {
+    // 根路径不再展示语言选择页，按浏览器语言 302 到 /zh-hant/、/zh-hans/ 或 /ko/
     const response = await page.goto('/')
     expect(response?.status()).toBe(200)
+    await expect(page).toHaveURL(/\/(zh-hant|zh-hans|ko)\/$/)
     await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('選擇語言 · 언어 선택')
-    await expect(page.getByTestId('entry-zh-Hant')).toHaveAttribute('href', '/zh-hant/')
-    await expect(page.getByTestId('entry-ko')).toHaveAttribute('href', '/ko/')
   })
 
   for (const [prefix, lang, title, birthTime, pricing, packs] of [

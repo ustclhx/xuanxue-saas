@@ -9,8 +9,11 @@ import { loadEnv } from 'vite'
 
 export const PASSWORD = 'correct-horse-battery'
 export const APP_URL = /\/app\/u-[a-z0-9]+\/?$/
-/** 登录或注册成功后的默认去向：站点首页（specs/user-auth「登录后的去向」） */
-export const HOME_URL = /^https?:\/\/[^/]+\/?$/
+/**
+ * 登录或注册成功后的默认去向：站点首页（specs/user-auth「登录后的去向」）。
+ * 东方站的根路径按浏览器语言 302 到语言首页（/zh-hant、/zh-hans、/ko），因此允许这三个前缀。
+ */
+export const HOME_URL = /^https?:\/\/[^/]+(?:\/(?:zh-hant|zh-hans|ko))?\/?$/
 const env = loadEnv('worktree', new URL('../../../', import.meta.url).pathname, '')
 const require = createRequire(new URL('../../../packages/db/package.json', import.meta.url))
 // Never fall back to a shared checkout database.
