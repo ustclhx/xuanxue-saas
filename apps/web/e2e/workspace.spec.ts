@@ -42,7 +42,7 @@ test('workspace creation, invitation entry and personal switching obey tenancy f
   if (!templateConfig.tenancy.multiTenant) {
     await expect(page.getByLabel('Switch workspace')).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Create team workspace' })).toHaveCount(0)
-    await page.getByRole('link', { name: 'Workspace settings' }).click()
+    await page.locator('aside').getByRole('link', { name: 'Workspace settings' }).click()
     await expect(page.getByRole('form', { name: 'Invite member' })).toHaveCount(0)
     const sql = fixtureDb()
     const id = randomUUID()
@@ -74,7 +74,7 @@ test('workspace creation, invitation entry and personal switching obey tenancy f
   await page.getByRole('button', { name: 'Create team', exact: true }).click()
   await expect(page).toHaveURL(new RegExp(`/app/browser-${key}$`))
   await seedWorkspaceSeats(`browser-${key}`)
-  await page.getByRole('link', { name: 'Workspace settings' }).click()
+  await page.locator('aside').getByRole('link', { name: 'Workspace settings' }).click()
   await page.getByLabel('Invite email').fill(`invite-${key}@example.com`)
   let invitationId = ''
   await page.route('**/api/auth/organization/invite-member', async (route) => {
@@ -116,7 +116,7 @@ test('workspace creation, invitation entry and personal switching obey tenancy f
   }
   await page.getByRole('button', { name: 'Accept invitation' }).click()
   await expect(page).toHaveURL(new RegExp(`/app/browser-${key}$`))
-  await page.getByRole('link', { name: 'Workspace settings' }).click()
+  await page.locator('aside').getByRole('link', { name: 'Workspace settings' }).click()
   await expect(page.getByRole('form', { name: 'Invite member' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Remove', exact: true })).toHaveCount(0)
   const teamSettings = page.url()
