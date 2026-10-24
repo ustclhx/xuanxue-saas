@@ -61,7 +61,7 @@ test('定价页渲染', async ({ page }) => {
 
 test('随机邮箱注册后进入个人空间', async ({ page }) => {
   // hydration 重试 + 注册跳转 + 注销各自有独立等待，默认 30 秒总时长不够
-  test.setTimeout(120_000)
+  test.setTimeout(180_000)
   const sha = (process.env.APP_VERSION ?? process.env.GITHUB_SHA ?? 'local').slice(0, 12)
   const email = `smoke+${sha}-${randomUUID()}@example.com`
   // staging 使用真实 Turnstile 脚本和官方测试 key；不依赖本地桩、日志或邮件。
@@ -72,7 +72,11 @@ test('随机邮箱注册后进入个人空间', async ({ page }) => {
   await form.getByLabel('Name').fill('Staging Smoke User')
   await form.getByLabel('Email').fill(email)
   await form.getByLabel('Password').fill('staging-smoke-password')
-  await form.getByRole('button', { name: 'Create account' }).click()
+  // 提交按钮在 Turnstile 令牌就绪前保持 disabled；CI 中曾观察到该令牌超过 20 秒才到达，
+  // 因此等待按钮可点击（超时仍失败，并保留小组件的错误提示），而不是立即点击。
+  const submit = form.getByRole('button', { name: 'Create account' })
+  await expect(submit).toBeEnabled({ timeout: 60_000 })
+  await submit.click()
   // 发布后首个注册请求含冷启动与连接建立，注册→跳转首页可能超过默认 5 秒。
   // 注册后的去向是站点首页（不再直接进入空间），进入空间需要从页头账户入口或直接访问 /app。
   await expect(page).toHaveURL(/^https?:\/\/[^/]+\/?$/, { timeout: 20_000 })
