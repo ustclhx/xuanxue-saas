@@ -9,5 +9,10 @@
   "app_chat": "對話",
   "app_workspace_settings": "空間設定",
   "app_billing": "計費",
-  "app_usage": "用量"
+  "app_usage": "用量",
+  "app_nav_label": "空間導覽",
+  "app_nav_overview": "概覽",
+  "app_overview_quick": "快速入口",
+  "app_team_spaces": "團隊空間",
+  "app_team_spaces_note": "建立團隊空間以邀請成員。"
 }

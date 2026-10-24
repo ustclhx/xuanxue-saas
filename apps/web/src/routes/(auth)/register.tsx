@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAppForm } from '@xuanxue/ui'
 import { useState } from 'react'
 import { z } from 'zod'
-import { authClient, goToApp } from '../../features/auth/auth-client.ts'
+import { authClient, goAfterSignIn } from '../../features/auth/auth-client.ts'
 import {
   AuthLayout,
   authLinkClassName,
@@ -125,7 +125,7 @@ function RegisterForm({ siteKey }: { siteKey: string | null }) {
       )
       if (!data) return
       // 强制验证邮箱时注册不登录（token 为 null），提示去邮箱验证；否则已登录，进入应用区
-      if (data.token) goToApp()
+      if (data.token) goAfterSignIn()
       else setVerifyEmail(value.email)
     },
   })

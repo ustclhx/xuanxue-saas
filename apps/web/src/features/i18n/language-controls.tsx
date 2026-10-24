@@ -2,40 +2,66 @@ import { useLocation } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
-import {
-  baseLocale,
-  getLocale,
-  isLocale,
-  type Locale,
-  locales,
-  localizeUrl,
-} from '../../paraglide/runtime.js'
+import { baseLocale, getLocale, isLocale, type Locale, locales } from '../../paraglide/runtime.js'
+import { templateConfig } from '../../server/template-config.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { useSiteId } from '../site/context.tsx'
-import { isAppAreaPath } from './app-area.ts'
-import { getLanguageSuggestion, saveLanguagePreference } from './preference.functions.ts'
+import { closeHeaderMenu, GlobeIcon, HeaderMenu } from '../site/header-menu.tsx'
+import { LOCALE_AUTONYMS } from '../site/theme.ts'
+import { useLocaleSwitch } from './locale-switch.ts'
+import { getLanguageSuggestion } from './preference.functions.ts'
 import { rememberLocale } from './preference.ts'
-import { switchLocalePath } from './switch-path.ts'
 
 /**
- * 独立组件，预渲染页只在水合后获取 Accept-Language 建议，不改变 URL。
- * 默认固定在左下角；`placement="inline"` 用于后台侧栏等自带位置的容器，避免浮层遮挡内容。
+ * 页头右上角的语言菜单（specs/i18n「语言切换控件位于站点页头右上角」）。
+ * 只列出当前站点的语言，语言名用各语言自己的写法。
  */
-export function LanguageControls({
-  placement = 'floating',
-}: {
-  placement?: 'floating' | 'inline'
-} = {}) {
-  const floating = placement === 'floating'
+export function LanguageMenu() {
+  const locale = getLocale()
+  const siteId = useSiteId()
+  const { busy, error, select } = useLocaleSwitch()
+  const siteLocales = templateConfig.sites[siteId].locales
+  if (!templateConfig.i18n.enabled || siteLocales.length < 2) return null
+  return (
+    <HeaderMenu label={m.i18n_language()} icon={<GlobeIcon />}>
+      {siteLocales.map((item) => (
+        <button
+          key={item}
+          type="button"
+          lang={item}
+          disabled={busy}
+          aria-current={item === locale ? 'true' : undefined}
+          className="flex min-h-11 w-full items-center justify-between gap-6 rounded-lg px-3 text-left text-[15px] text-ink transition-colors hover:bg-surface-2 aria-[current=true]:font-semibold"
+          onClick={(event) => {
+            closeHeaderMenu(event.currentTarget)
+            void select(item)
+          }}
+        >
+          <span>{LOCALE_AUTONYMS[item] ?? item}</span>
+          {item === locale ? <span aria-hidden="true">✓</span> : null}
+        </button>
+      ))}
+      {error ? (
+        <p role="alert" className="px-3 pb-1 text-destructive text-sm">
+          {error}
+        </p>
+      ) : null}
+    </HeaderMenu>
+  )
+}
+
+/**
+ * 营销页的语言建议：水合后按 Accept-Language 提示一次，不改变 URL（specs/i18n「语言选择与记忆」）。
+ * 认证页与应用区不展示；语言的手动切换在页头菜单中完成。
+ */
+export function LanguageSuggestion() {
   const location = useLocation()
   const [suggestion, setSuggestion] = useState<Locale | null>(null)
-  const [ready, setReady] = useState(false)
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const locale = getLocale()
   const siteId = useSiteId()
+  const { busy, select } = useLocaleSwitch()
   useEffect(() => {
-    setReady(true)
     setSuggestion(null)
     if (
       !(isPrerenderedPath(location.pathname, locales) || location.pathname === '/pricing') ||
@@ -59,30 +85,11 @@ export function LanguageControls({
     }
   }, [location.pathname, locale, siteId])
 
-  async function select(next: Locale) {
-    setBusy(true)
-    setError(null)
-    try {
-      await saveLanguagePreference({ data: next })
-      rememberLocale(next)
-      // 完整导航让账号语言、SSR 与客户端同时刷新；营销页始终以目的 URL 为准。
-      // 工具页各语言路径不同，先按注册表换成目标语言的页面，再加语言前缀
-      if (isAppAreaPath(window.location.pathname)) window.location.assign(window.location.href)
-      else {
-        const url = new URL(window.location.href)
-        url.pathname = encodeURI(switchLocalePath(url.pathname, next, locales))
-        window.location.assign(localizeUrl(url, { locale: next }).href)
-      }
-    } catch {
-      setError(m.i18n_save_failed())
-      setBusy(false)
-    }
-  }
-
+  if (!suggestion && !error) return null
   return (
     <>
       {suggestion && (
-        // 建议在水合后才取得：用固定定位浮层（语言选择上方）呈现，不推挤已渲染的正文，避免布局位移（CLS）
+        // 建议在水合后才取得：用固定定位浮层呈现，不推挤已渲染的正文，避免布局位移（CLS）
         <aside
           aria-label={m.i18n_suggestion_label()}
           className="fixed inset-x-4 bottom-20 z-50 mx-auto flex max-w-xl flex-wrap items-center justify-center gap-3 rounded-lg border bg-muted px-4 py-3 shadow-md"
@@ -115,13 +122,24 @@ export function LanguageControls({
           </Button>
         </aside>
       )}
-      <label
-        className={
-          floating
-            ? 'fixed bottom-4 left-4 z-50 inline-flex min-h-11 items-center rounded-md border bg-background px-3 text-sm shadow-sm'
-            : 'inline-flex min-h-11 w-fit items-center rounded-md border bg-background px-3 text-sm shadow-xs'
-        }
-      >
+      {error && (
+        <p role="alert" className="fixed bottom-16 left-4 z-50">
+          {error}
+        </p>
+      )}
+    </>
+  )
+}
+
+/** 后台侧栏使用的语言下拉（自带位置，不做浮层） */
+export function LanguageSelect() {
+  const locale = getLocale()
+  const { busy, error, select } = useLocaleSwitch()
+  const [ready, setReady] = useState(false)
+  useEffect(() => setReady(true), [])
+  return (
+    <>
+      <label className="inline-flex min-h-11 w-fit items-center rounded-md border bg-background px-3 text-sm shadow-xs">
         <span className="sr-only">{m.i18n_language()}</span>
         <select
           className="min-h-11 min-w-11"
@@ -134,16 +152,13 @@ export function LanguageControls({
         >
           {locales.map((value) => (
             <option key={value} value={value}>
-              {new Intl.DisplayNames([value], { type: 'language' }).of(value) ?? value}
+              {LOCALE_AUTONYMS[value] ?? value}
             </option>
           ))}
         </select>
       </label>
       {error && (
-        <p
-          role="alert"
-          className={floating ? 'fixed bottom-16 left-4' : 'text-destructive text-sm'}
-        >
+        <p role="alert" className="text-destructive text-sm">
           {error}
         </p>
       )}

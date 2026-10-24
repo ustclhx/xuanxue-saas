@@ -1,6 +1,7 @@
 import { createFileRoute, notFound as featureNotFound } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
+import { SpacePage, SpacePanel } from '../../../features/app-shell/space-frame.tsx'
 import { getCustomerUsage } from '../../../features/billing/customer.functions.ts'
 import { templateConfig } from '../../../server/template-config.ts'
 
@@ -40,20 +41,17 @@ function UsagePage() {
     }
   }
   return (
-    <div className="grid gap-6">
-      <h2 className="text-2xl font-semibold">Credit usage</h2>
-      {page.balance ? (
-        <p>
-          Available: {page.balance.available} · Held: {page.balance.held} · Debt:{' '}
-          {page.balance.debt}
-        </p>
-      ) : (
-        <p>Your own credit activity is shown below.</p>
-      )}
+    <SpacePage
+      title="Credit usage"
+      description={
+        page.balance
+          ? `Available: ${page.balance.available} · Held: ${page.balance.held} · Debt: ${page.balance.debt}`
+          : 'Your own credit activity is shown below.'
+      }
+    >
       {page.batches && (
-        <section className="grid gap-3">
-          <h3 className="font-semibold">Credit batches</h3>
-          <table>
+        <SpacePanel title="Credit batches">
+          <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
             <thead>
               <tr>
                 <th>Source</th>
@@ -86,11 +84,10 @@ function UsagePage() {
           >
             Older batches
           </Button>
-        </section>
+        </SpacePanel>
       )}
-      <section className="grid gap-3">
-        <h3 className="font-semibold">Credit ledger</h3>
-        <table>
+      <SpacePanel title="Credit ledger">
+        <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
           <thead>
             <tr>
               <th>Date</th>
@@ -125,8 +122,8 @@ function UsagePage() {
         >
           Older activity
         </Button>
-      </section>
+      </SpacePanel>
       {message && <p role="status">{message}</p>}
-    </div>
+    </SpacePage>
   )
 }

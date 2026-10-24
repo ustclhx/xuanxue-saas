@@ -36,7 +36,7 @@ test('register, sign out/in, and buy a credit pack through the local provider', 
   await expect(page).toHaveURL(APP_URL)
   await expect(page.getByTestId('current-user')).toContainText(email)
 
-  await page.getByRole('link', { name: 'Billing', exact: true }).click()
+  await page.locator('aside').getByRole('link', { name: 'Billing', exact: true }).click()
   await expect(page.getByText('Available credits: 0', { exact: false })).toBeVisible()
   await page.getByLabel('Payment method').selectOption('stripe')
   await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)

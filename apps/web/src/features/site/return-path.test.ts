@@ -36,13 +36,15 @@ describe('登录与支付后的回跳地址（specs/multi-site「账号与付费
       expect(safeReturnPath(path, locales)).toBeUndefined()
   })
 
-  it('登录页 redirect：保留账号页与邀请规则，新增本站页面，其余回到 /app', () => {
+  it('登录页 redirect：保留账号页与邀请规则，新增本站页面，其余回到当前语言的首页', () => {
     const search = (redirect: string) => `?redirect=${encodeURIComponent(redirect)}`
-    expect(signInDestination(search('/account'))).toBe('/account')
-    expect(signInDestination(search('/ko/manseryeok'))).toBe('/ko/manseryeok')
-    expect(signInDestination(search('/app?returnTo=%2Fko%2F'))).toBe('/app?returnTo=%2Fko%2F')
-    expect(signInDestination(search('/accept-invitation?id=nope'))).toBe('/app')
-    expect(signInDestination(search('//evil.example'))).toBe('/app')
-    expect(signInDestination('')).toBe('/app')
+    const home = '/ko'
+    expect(signInDestination(search('/account'), home)).toBe('/account')
+    expect(signInDestination(search('/ko/manseryeok'), home)).toBe('/ko/manseryeok')
+    expect(signInDestination(search('/app?returnTo=%2Fko%2F'), home)).toBe('/app?returnTo=%2Fko%2F')
+    expect(signInDestination(search('/accept-invitation?id=nope'), home)).toBe('/ko')
+    expect(signInDestination(search('//evil.example'), home)).toBe('/ko')
+    expect(signInDestination('', home)).toBe('/ko')
+    expect(signInDestination('')).toBe('/')
   })
 })

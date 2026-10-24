@@ -7,6 +7,7 @@ import {
 import { Button } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
+import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import {
   checkoutCustomer,
   getCustomerBilling,
@@ -129,8 +130,7 @@ function BillingPage() {
     }
   }
   return (
-    <div className="grid gap-6">
-      <h2 className="text-2xl font-semibold">Billing</h2>
+    <SpacePage title="Billing">
       <p>Current plan: {page.entitlements.key}</p>
       {page.credits && (
         <p>
@@ -153,7 +153,7 @@ function BillingPage() {
         </p>
       )}
       {page.subscriptions.map((sub) => (
-        <section key={sub.id} className="grid gap-3 rounded-xl border p-6">
+        <section key={sub.id} className="grid gap-3 rounded-xl border border-line bg-surface p-6">
           <h3 className="font-semibold">{sub.name}</h3>
           <p>
             {sub.provider} · {sub.status}
@@ -189,7 +189,7 @@ function BillingPage() {
         </section>
       ))}
       {owner && (
-        <section className="grid gap-3 rounded-xl border p-6">
+        <section className="grid gap-3 rounded-xl border border-line bg-surface p-6">
           <h3 className="font-semibold">Choose a plan or credit pack</h3>
           <label>
             Payment method{' '}
@@ -306,7 +306,7 @@ function BillingPage() {
           {page.refunds.length === 0 && <p>No refund requests.</p>}
         </section>
       )}
-    </div>
+    </SpacePage>
   )
 }
 function errorMessage(code: string) {

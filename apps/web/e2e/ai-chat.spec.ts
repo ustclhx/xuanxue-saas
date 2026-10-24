@@ -35,7 +35,7 @@ test('creates, renames and archives own conversations', async ({ page }) => {
   const email = `chat-list-${randomUUID()}@example.com`
   await register(page, email)
   const slug = slugOf(page)
-  await page.getByRole('link', { name: 'Chat', exact: true }).click()
+  await page.locator('aside').getByRole('link', { name: 'Chat', exact: true }).click()
   await expect(page.getByText('No conversations yet.')).toBeVisible()
 
   const id = await newConversation(page, slug)

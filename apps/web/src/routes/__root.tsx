@@ -13,7 +13,7 @@ import { getAnnouncement } from '../features/admin/settings-announcement.functio
 import { AnnouncementBanner } from '../features/admin/settings-announcement-banner.tsx'
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
-import { LanguageControls } from '../features/i18n/language-controls.tsx'
+import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
 import { privateMeta } from '../features/seo/metadata.ts'
 import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
 import { SiteContext } from '../features/site/context.tsx'
@@ -74,7 +74,7 @@ function RootComponent() {
       <ProductAnalytics />
       <ImpersonationBanner viewer={impersonation} />
       <AnnouncementBanner initial={announcement} />
-      {templateConfig.i18n.enabled && !hasInlineControls && <LanguageControls />}
+      {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion />}
       <Outlet />
     </RootDocument>
   )

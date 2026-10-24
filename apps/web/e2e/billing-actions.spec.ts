@@ -108,7 +108,7 @@ for (const realSubmission of [true, false])
           amount: 100,
         })
         if (realSubmission) {
-          await page.getByRole('link', { name: 'Billing', exact: true }).click()
+          await page.locator('aside').getByRole('link', { name: 'Billing', exact: true }).click()
           const form = page.getByRole('form', { name: 'Request a refund' })
           await form.getByRole('combobox', { name: 'Payment', exact: true }).selectOption(paymentId)
           await form
@@ -333,7 +333,7 @@ test('offline browser cancel and resume call real services without minting credi
       }
       return { ok: true, result: { status: 'updated' } }
     })
-    await page.getByRole('link', { name: 'Billing', exact: true }).click()
+    await page.locator('aside').getByRole('link', { name: 'Billing', exact: true }).click()
     await page.getByRole('button', { name: 'Cancel at period end' }).click()
     await expect(page.getByRole('button', { name: 'Resume subscription' })).toBeEnabled()
     expect((await db.select().from(subscription).where(eq(subscription.id, id)))[0]).toMatchObject({

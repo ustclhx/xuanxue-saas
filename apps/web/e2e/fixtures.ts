@@ -9,6 +9,8 @@ import { loadEnv } from 'vite'
 
 export const PASSWORD = 'correct-horse-battery'
 export const APP_URL = /\/app\/u-[a-z0-9]+\/?$/
+/** 登录或注册成功后的默认去向：站点首页（specs/user-auth「登录后的去向」） */
+export const HOME_URL = /^https?:\/\/[^/]+\/?$/
 const env = loadEnv('worktree', new URL('../../../', import.meta.url).pathname, '')
 const require = createRequire(new URL('../../../packages/db/package.json', import.meta.url))
 // Never fall back to a shared checkout database.
@@ -65,6 +67,8 @@ export async function register(page: Page, email: string, name = 'Workspace Owne
   await form.getByLabel('Email', { exact: true }).fill(email)
   await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: 'Create account' }).click()
+  await expect(page).toHaveURL(HOME_URL)
+  await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
 }
 export async function login(page: Page, email: string, path = '/login') {
@@ -74,6 +78,11 @@ export async function login(page: Page, email: string, path = '/login') {
   await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page).not.toHaveURL(/\/login(?:\?|$)/)
+  // 直接登录的默认去向是首页；需要空间页的用例显式进入 /app
+  if (path === '/login') {
+    await page.goto('/app')
+    await expect(page).toHaveURL(APP_URL)
+  }
 }
 /** Local workerd honors this header; separate simulated clients retain real 10/min limits. */
 export async function simulateClientIp(page: Page) {
@@ -115,6 +124,11 @@ export async function loginOtp(page: Page, email: string, path = '/login') {
   await page.getByLabel('Verification code').fill(await emailCode(email))
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await expect(page).not.toHaveURL(/\/login(?:\?|$)/)
+  // 直接登录的默认去向是首页；需要空间页的用例显式进入 /app
+  if (path === '/login') {
+    await page.goto('/app')
+    await expect(page).toHaveURL(APP_URL)
+  }
 }
 /**
  * Auth emails printed by the local-development logger. The dev server may colorize

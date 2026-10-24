@@ -5,7 +5,7 @@ import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'
 import { authClient } from '../../features/auth/auth-client.ts'
-import { LanguageControls } from '../../features/i18n/language-controls.tsx'
+import { LanguageSelect } from '../../features/i18n/language-controls.tsx'
 import { ThemeToggle } from '../../features/theme/theme-toggle.tsx'
 import { templateConfig } from '../../server/template-config.ts'
 
@@ -56,7 +56,7 @@ function AdminLayout() {
           <div className="mt-auto flex flex-col gap-3">
             <Separator />
             <div className="flex flex-wrap items-center gap-2">
-              {templateConfig.i18n.enabled && <LanguageControls placement="inline" />}
+              {templateConfig.i18n.enabled && <LanguageSelect />}
               <ThemeToggle />
             </div>
             <div className="flex flex-wrap items-center gap-2">

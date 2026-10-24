@@ -4,7 +4,7 @@ import { type ReactNode, useState } from 'react'
 import { z } from 'zod'
 import {
   authClient,
-  goToApp,
+  goAfterSignIn,
   signInCallbackURL,
   signInErrorCallbackURL,
 } from '../../features/auth/auth-client.ts'
@@ -208,7 +208,7 @@ function PasswordSignIn({ siteKey }: { siteKey: string | null }) {
           fetchOptions: { headers },
         }),
       )
-      if (data) goToApp()
+      if (data) goAfterSignIn()
     },
   })
   return (
@@ -311,7 +311,7 @@ function OtpVerify({
       const data = await run((headers) =>
         authClient().signIn.emailOtp({ email, otp: value.otp, fetchOptions: { headers } }),
       )
-      if (data) goToApp()
+      if (data) goAfterSignIn()
     },
   })
   return (

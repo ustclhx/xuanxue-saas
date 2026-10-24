@@ -9,5 +9,10 @@
   "app_chat": "对话",
   "app_workspace_settings": "空间设置",
   "app_billing": "计费",
-  "app_usage": "用量"
+  "app_usage": "用量",
+  "app_nav_label": "空间导航",
+  "app_nav_overview": "概览",
+  "app_overview_quick": "快捷入口",
+  "app_team_spaces": "团队空间",
+  "app_team_spaces_note": "创建团队空间以邀请成员。"
 }
