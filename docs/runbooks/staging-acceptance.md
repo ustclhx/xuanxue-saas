@@ -196,3 +196,18 @@ refund 分录。原 media 7.1/7.2 还包含 fal 视频成功产出；本套件�
 脚本以管理员浏览器同源 POST `/api/admin/observability/sentry-test`，仅记录500状态和 `x-request-id`。503为未启用Sentry，403/404为同源/权限问题，都不是成功发送证据。测试异常可明确再次触发。
 
 按 [Sentry runbook](sentry.md) 等 main 自动发布成功，记录 health 完整SHA。在指定项目查询 `environment:staging release:<SHA> requestId:<ID>`；确认 event ID、dist=web、release、TypeScript函数/文件/行号与源码上下文，并确认事件没有凭据或对话内容。jobs仍需现有Workflow/Queue/Cron真实失败事件核对dist=jobs与源码映射。保存脱敏事件链接/ID及堆栈位置，只有真实上报与source map要求全部通过后由协调者勾选1.2。
+
+## login-return-and-header 验收（2026-10-25）
+
+staging 健康检查通过，数据库 up，版本为 `7b4d6c6c509cde828f713424a3d68fbf1d45d3fd`：
+<https://xuanxue-web-staging.saas-jobs.workers.dev/api/health>。
+
+| 验收项 | 结论 | 实际 URL |
+|---|---|---|
+| 1. 工具页登录回原页 | 通过。未登录时从页头账户图标进入登录页，登录后回到原工具页，保留 `/ko` 前缀。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/ko/사주궁합> |
+| 2. 直接登录回首页 | 通过。新上下文直接打开 `/login`，登录后进入首页。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/> |
+| 3. 首次访问认证页语言 | 东方站生产域名 https://ganjiday.com 实测：无 Cookie 的 Accept-Language ko-KR 请求 /login 返回 302 到 /ko/login；带 locale-preference Cookie 时返回 200。 | <https://ganjiday.com/login> |
+| 4. 页头切换语言 | 东方站生产域名 https://ganjiday.com 实测：/ko/login 页头右上角地球菜单列出繁體中文、简体中文、한국어；选择繁體中文后跳转到 /zh-hant/login，保存偏好接口返回 200。 | <https://ganjiday.com/ko/login> |
+| 5. 空间下拉进入个人空间 | 通过。已登录的账户下拉列出个人空间，点击后进入空间，左侧导航与概览可见。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/app/u-dc7l2fsz> |
+
+结论：五项全部通过。第 1、2、5 项在 staging 通过；第 3、4 项在东方站生产域名通过（staging 只有西方站，语言仅 `en`，无法验证东方站行为）。4.3 已勾选。

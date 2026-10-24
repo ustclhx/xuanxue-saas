@@ -21,4 +21,4 @@
 
 - [x] 4.1 更新 `docs/04-auth-and-tenancy.md` §3，补充登录后的去向与空间入口。验证：文档与 `specs/user-auth` 的规则一致。`docs/runbooks/` 的验收步骤未改，随 4.3 一并更新。
 - [x] 4.2 `pnpm check`、`pnpm typecheck`、`pnpm test` 通过；`openspec validate login-return-and-header` 通过。验证：命令输出无新增错误。
-- [ ] 4.3 线上（staging）手工验收：工具页登录回原页、直接登录回首页、首次访问认证页语言、页头切换语言、空间下拉进入个人空间。验证：记录到 `docs/runbooks/` 的验收条目中。
+- [x] 4.3 线上（staging）手工验收：工具页登录回原页、直接登录回首页、首次访问认证页语言、页头切换语言、空间下拉进入个人空间。验证：记录到 `docs/runbooks/` 的验收条目中。
