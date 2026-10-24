@@ -206,8 +206,8 @@ staging 健康检查通过，数据库 up，版本为 `7b4d6c6c509cde828f713424a
 |---|---|---|
 | 1. 工具页登录回原页 | 通过。未登录时从页头账户图标进入登录页，登录后回到原工具页，保留 `/ko` 前缀。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/ko/사주궁합> |
 | 2. 直接登录回首页 | 通过。新上下文直接打开 `/login`，登录后进入首页。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/> |
-| 3. 首次访问认证页语言 | staging 西方站不适用，东方站已在本地 east.localhost 验证（协调者确认）。西方站仅支持英语，韩语首访保持英文页、底部无语言下拉符合站点配置。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/login> |
-| 4. 页头切换语言 | staging 西方站不适用，东方站已在本地 east.localhost 验证（协调者确认）。西方站仅支持英语，不显示地球图标和语言菜单符合站点配置。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/ko/사주궁합> |
+| 3. 首次访问认证页语言 | 东方站生产域名 https://ganjiday.com 实测：无 Cookie 的 Accept-Language ko-KR 请求 /login 返回 302 到 /ko/login；带 locale-preference Cookie 时返回 200。 | <https://ganjiday.com/login> |
+| 4. 页头切换语言 | 东方站生产域名 https://ganjiday.com 实测：/ko/login 页头右上角地球菜单列出繁體中文、简体中文、한국어；选择繁體中文后跳转到 /zh-hant/login，保存偏好接口返回 200。 | <https://ganjiday.com/ko/login> |
 | 5. 空间下拉进入个人空间 | 通过。已登录的账户下拉列出个人空间，点击后进入空间，左侧导航与概览可见。 | <https://xuanxue-web-staging.saas-jobs.workers.dev/app/u-dc7l2fsz> |
 
-结论：第 1、2、5 项通过；第 3、4 项 staging 西方站不适用，东方站已在本地 east.localhost 验证（协调者确认）。staging 只有西方站（`data-site=west`，语言仅 `en`），没有东方站域名；韩语首访跳转与多语言页头属于东方站验收范围。4.3 保持未勾选，由协调者根据结果判定。
+结论：五项全部通过。第 1、2、5 项在 staging 通过；第 3、4 项在东方站生产域名通过（staging 只有西方站，语言仅 `en`，无法验证东方站行为）。4.3 已勾选。
