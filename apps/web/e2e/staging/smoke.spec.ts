@@ -73,7 +73,10 @@ test('随机邮箱注册后进入个人空间', async ({ page }) => {
   await form.getByLabel('Email').fill(email)
   await form.getByLabel('Password').fill('staging-smoke-password')
   await form.getByRole('button', { name: 'Create account' }).click()
-  // 发布后首个注册请求含冷启动与连接建立，注册→建个人空间→跳转可能超过默认 5 秒。
+  // 发布后首个注册请求含冷启动与连接建立，注册→跳转首页可能超过默认 5 秒。
+  // 注册后的去向是站点首页（不再直接进入空间），进入空间需要从页头账户入口或直接访问 /app。
+  await expect(page).toHaveURL(/^https?:\/\/[^/]+\/?$/, { timeout: 20_000 })
+  await page.goto('/app')
   await expect(page).toHaveURL(/\/app\/u-[a-z0-9]+\/?$/, { timeout: 20_000 })
   await expect(page.getByTestId('current-user')).toContainText(email)
   await expect(page.getByText('Personal workspace', { exact: true })).toBeVisible()
