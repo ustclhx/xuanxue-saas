@@ -89,9 +89,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         canonicals.add(canonical ?? '')
         // 中文 / 韩文路径按 URL 规范百分号编码
         expect(canonical).toBe(
-          new URL(
-            `${localeOrigin(locale)}${page.siteEntry ? '/' : localizedPath(page.path, locale)}`,
-          ).href,
+          new URL(`${localeOrigin(locale)}${localizedPath(page.path, locale)}`).href,
         )
         for (const key of [
           'description',
@@ -109,9 +107,9 @@ describe('公开页面 SEO（4.1–4.3）', () => {
             head.meta.find((meta) => 'property' in meta && meta.property === key)?.content,
           ).toBeTruthy()
         }
-        // 注册在 TOOL_ROUTES 的工具页（东方站入口与繁中首页同为 `/`）只与工具各语言版本互指，
+        // 注册在 TOOL_ROUTES 的工具页（繁中首页同为 `/`）只与工具各语言版本互指，
         // 见 features/tools/bazi/bazi.test.tsx
-        if (!page.alternates && !page.siteEntry) {
+        if (!page.alternates) {
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
             locales.length + 1,
           )

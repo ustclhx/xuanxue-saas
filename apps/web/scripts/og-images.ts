@@ -45,14 +45,12 @@ function pages() {
 }
 
 /** 卡片底部显示页面所属站点的规范域名 */
-function pageHost(page: Pick<SeoPage, 'locale' | 'siteEntry'>): string {
-  const site = page.siteEntry ?? siteOfLocale(page.locale, templateConfig) ?? 'west'
+function pageHost(page: Pick<SeoPage, 'locale'>): string {
+  const site = siteOfLocale(page.locale, templateConfig) ?? 'west'
   return templateConfig.sites[site].hosts[0] ?? new URL(templateConfig.app.url).hostname
 }
 
-export async function renderOgImage(
-  page: Pick<SeoPage, 'title' | 'locale' | 'siteEntry'>,
-): Promise<Uint8Array> {
+export async function renderOgImage(page: Pick<SeoPage, 'title' | 'locale'>): Promise<Uint8Array> {
   const card = { title: page.title, brand: pageBrand(page), host: pageHost(page) }
   const response = await ImageResponse.create(createElement(OgCard, card), {
     width: 1200,

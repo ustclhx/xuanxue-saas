@@ -26,7 +26,7 @@ export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: stri
             `<xhtml:link rel="alternate" hreflang="${escapeXml(link.hrefLang)}" href="${escapeXml(link.href)}"/>`,
         )
         .join('')
-      return `<url><loc>${escapeXml(absoluteUrl(page.siteEntry ? seoSiteOrigin(page.siteEntry) : localeOrigin(page.locale), page.siteEntry ? '/' : localizedPath(page.path, page.locale)))}</loc>${links}</url>`
+      return `<url><loc>${escapeXml(absoluteUrl(localeOrigin(page.locale), localizedPath(page.path, page.locale)))}</loc>${links}</url>`
     })
     .join('')
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`
