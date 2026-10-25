@@ -44,7 +44,6 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       (tool) => !NUMEROLOGY_ROUTES.includes(tool) && !TAROT_MEANING_ROUTES.includes(tool),
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
-      { path: '/_site/east' },
       { path: '/zh-hant' },
       // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）
       { path: '/zh-hant/紫微斗數排盤' },
@@ -111,5 +110,5 @@ it('工具注册点支持异名与编码路径，并按站点注册入口', () =
   expect(isPrerenderedPath('/ko/八字排盤', locales, tools)).toBe(false)
   expect(isPrerenderedPath('/zh-hant/八字排盤/guide', locales, tools)).toBe(true)
   expect(isPrerenderedPath('/ko/login', locales, tools)).toBe(false)
-  expect(isPrerenderedPath('/_site/east', locales)).toBe(true)
+  expect(isPrerenderedPath('/_site/east', locales)).toBe(false)
 })

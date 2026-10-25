@@ -138,16 +138,6 @@ export function originFromMatches(
   return (root.loaderData as { appUrl: string }).appUrl
 }
 
-export function eastEntryPage(): SeoPage {
-  return {
-    path: '/',
-    locale: 'zh-Hant',
-    siteEntry: 'east',
-    title: '選擇語言 · 언어 선택',
-    description: '繁體中文 · 简体中文 · 한국어',
-  }
-}
-
 /** 页面所属站点在该语言下的品牌名；东方站语言入口页（无语言）用站点品牌名 */
 export function pageBrand(page: Pick<SeoPage, 'locale' | 'siteEntry'>): string {
   return page.siteEntry

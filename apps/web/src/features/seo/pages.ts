@@ -3,7 +3,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { listPosts, listTags, localizedEntries } from '../marketing/content.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import type { SeoPage } from './metadata.ts'
-import { eastEntryPage, localizedPath, staticPage, tagPageTitle } from './metadata.ts'
+import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
 
 interface Post {
   slug: string
@@ -111,7 +111,6 @@ export function publicPages(
       }
       return pages
     })
-  if (config.i18n.enabled && (!site || site === 'east')) result.push(eastEntryPage())
   return result
 }
 

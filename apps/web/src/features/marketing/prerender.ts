@@ -2,7 +2,6 @@ import { SITE_IDS, type TemplateConfig } from '@xuanxue/config'
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 
-export const EAST_ENTRY_PATH = '/_site/east'
 export const PRERENDERED_PREFIXES = [
   '/blog',
   '/docs',
@@ -18,7 +17,6 @@ export function isPrerenderedPath(
   tools: readonly ToolRoute[] = TOOL_ROUTES,
 ): boolean {
   const pathname = decodeURI(path.split(/[?#]/)[0] ?? '').replace(/\/+$/, '') || '/'
-  if (pathname === EAST_ENTRY_PATH) return true
   const locale = prefixLocale(pathname, locales)
   const delocalized = locale ? pathname.slice(localePrefix(locale).length) || '/' : pathname
   if (delocalized === '/') return true
@@ -44,7 +42,6 @@ export function prerenderEntryPages(
   const paths = new Set<string>()
   for (const id of SITE_IDS) {
     const site = config.sites[id]
-    if (site.defaultLocale === null && config.i18n.enabled) paths.add(EAST_ENTRY_PATH)
     for (const locale of site.locales) {
       if (!config.i18n.enabled && locale !== config.i18n.defaultLocale) continue
       const prefix =

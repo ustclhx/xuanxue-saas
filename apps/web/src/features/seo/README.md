@@ -18,8 +18,8 @@ EAST_URL=https://east.example.com WEST_URL=https://west.example.com pnpm build
 每个语言首页与 `TOOL_ROUTES` 注册页均作为爬取入口，其余公开内容通过链接发现；定价仍使用既有快照策略。
 注册工具时沿用 `{ id, site, paths, titles, descriptions? }`，paths 为不含语言前缀的路径；异名翻译通过同一条记录互指，没有英语版本时 x-default 指向所属站点 `/`。
 
-东方入口保存为 `dist/client/_site/east.html`，西方入口为 `dist/client/index.html`。构建 preview 通过仅写入本地 `.dev.vars` 的随机令牌识别爬取请求，将各语言请求改写成所属站点 Host，确保 `data-site`、主题和 SEO 一致。该令牌不进入 Worker vars 或客户端产物。
-生产 HTML 请求先执行站点守卫，再经 ASSETS 绑定读取对应 HTML；东方 `/` 内部取东方入口，浏览器 URL 保持 `/`；直接访问 `/_site/*` 返回 404。JS、字体、图片、OG 等资源走 assets 直通。
+西方入口保存为 `dist/client/index.html`；东方站根路径不再有静态入口，GET/HEAD 直接 302 到语言首页（`features/i18n/east-home.ts`）。构建 preview 通过仅写入本地 `.dev.vars` 的随机令牌识别爬取请求，将各语言请求改写成所属站点 Host，确保 `data-site`、主题和 SEO 一致。该令牌不进入 Worker vars 或客户端产物。
+生产 HTML 请求先执行站点守卫，再经 ASSETS 绑定读取对应 HTML；东方 `/` 先跳转（不经静态文件）；直接访问 `/_site/*` 返回 404。JS、字体、图片、OG 等资源走 assets 直通。
 未知 Host 走 SSR 并保持西方品牌、noindex；`?r=` 分享兼容链接带 X-Robots-Tag，robots 同时禁止抓取分享查询。`#r=` 不发送到服务端。
 数据库不可达时公告/会话装饰降级，套餐沿用现有构建快照与运行时缓存。
 
