@@ -50,6 +50,15 @@ describe('东方站根路径直接进入语言首页', () => {
     expect(response?.headers.get('location')).toBe('/zh-hans/?from=share')
   })
 
+  it('HEAD 请求与 GET 一样跳转', () => {
+    const head = eastHomeRedirect(
+      new Request(`${EAST}/`, { method: 'HEAD', headers: { 'accept-language': 'ko' } }),
+      templateConfig,
+    )
+    expect(head?.status).toBe(302)
+    expect(head?.headers.get('location')).toBe('/ko/')
+  })
+
   it('其他路径、西方站与非 GET 请求不处理', () => {
     expect(
       eastHomeRedirect(visit(EAST, '/pricing', { 'accept-language': 'ko' }), templateConfig),

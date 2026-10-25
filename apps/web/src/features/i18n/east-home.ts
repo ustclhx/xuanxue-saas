@@ -7,10 +7,11 @@ import { PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
  * - 已有手动选择（`locale-preference` Cookie）且属于东方站语言时优先采用；
  * - 否则按浏览器语言在东方站语言内选择（zh-CN 归简体，其余中文归繁体）；
  * - 都不匹配时用东方站第一个语言（繁体中文）。
- * 只处理东方站的 `/`；西方站与带语言前缀的地址保持原样。不写 Cookie，因此不记为用户选择。
+ * 只处理东方站的 `/`（GET 与 HEAD，HEAD 不能落到西方站静态首页）；西方站与带语言前缀的地址保持原样。
+ * 不写 Cookie，因此不记为用户选择。
  */
 export function eastHomeRedirect(request: Request, config: SitesConfig): Response | null {
-  if (request.method !== 'GET' || !config.i18n.enabled) return null
+  if (!['GET', 'HEAD'].includes(request.method) || !config.i18n.enabled) return null
   const url = new URL(request.url)
   if (url.pathname !== '/') return null
   if (resolveSite(url.host, config).id !== 'east') return null

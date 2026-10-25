@@ -6,29 +6,21 @@ const localSite = (baseURL: string | undefined, site: string) => {
   return url.origin
 }
 
-test('韩语浏览器停留东方入口并高亮韩语卡片，禁用 JS 仍有三语入口', async ({ browser, baseURL }) => {
+test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS 同样跳转', async ({ browser, baseURL }) => {
   const east = localSite(baseURL, 'east')
   const context = await browser.newContext({ locale: 'ko-KR' })
   const page = await context.newPage()
-  const response = await page.goto(`${east}/`)
-  expect(response?.status()).toBe(200)
-  await expect(page).toHaveURL(`${east}/`)
+  await page.goto(`${east}/`)
+  await expect(page).toHaveURL(`${east}/ko/`)
   await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
-  // 语言入口只提供本站语言，不能把英语工具或无前缀营销地址带到东方站。
+  // 东方站只提供本站语言，不能把英语工具或无前缀营销地址带到东方站。
   const navigation = page.getByRole('navigation', { name: 'Tools', exact: true })
   await expect(navigation.getByRole('link')).toHaveText(['繁體中文', '简体中文', '한국어'])
-  await expect(page.getByTestId('entry-ko')).toContainText('간체 중국어')
-  await expect(page.getByTestId('entry-ko')).toHaveAttribute('data-recommended', 'true')
-  await expect(page.getByTestId('entry-zh-Hant')).toHaveAttribute('href', '/zh-hant/')
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-    'href',
-    'https://ganjiday.com/',
-  )
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()
+  // 302 由服务端完成，禁用 JS 时也应落在语言首页
   await staticPage.goto(`${east}/`)
-  await expect(staticPage.getByTestId('entry-ko')).toBeVisible()
-  await expect(staticPage.getByTestId('entry-zh-Hant')).toBeVisible()
+  await expect(staticPage).toHaveURL(`${east}/ko/`)
   await noJs.close()
   await context.close()
 })
