@@ -1,5 +1,5 @@
 import type { AnyRouteMatch } from '@tanstack/react-router'
-import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
+import { brandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
@@ -8,7 +8,6 @@ import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
 export interface SeoPage {
   path: string
-  siteEntry?: SiteId
   title: string
   description: string
   locale: string
@@ -138,22 +137,19 @@ export function originFromMatches(
   return (root.loaderData as { appUrl: string }).appUrl
 }
 
-/** 页面所属站点在该语言下的品牌名；东方站语言入口页（无语言）用站点品牌名 */
-export function pageBrand(page: Pick<SeoPage, 'locale' | 'siteEntry'>): string {
-  return page.siteEntry
-    ? siteBrandName(templateConfig, page.siteEntry)
-    : brandName(templateConfig, page.locale)
+/** 页面所属站点在该语言下的品牌名 */
+export function pageBrand(page: Pick<SeoPage, 'locale'>): string {
+  return brandName(templateConfig, page.locale)
 }
 
-export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale' | 'siteEntry'>): string {
-  if (page.siteEntry) return `/og/${page.siteEntry}/index.png`
+export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
   const path = page.path.replace(/\/+$/, '') || '/'
   return `/og${localePrefix(page.locale)}${path === '/' ? '/index' : path}.png`
 }
 
 export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly unknown[] = []) {
-  appUrl = page.siteEntry ? seoSiteOrigin(page.siteEntry) : localeOrigin(page.locale)
-  const url = absoluteUrl(appUrl, page.siteEntry ? '/' : localizedPath(page.path, page.locale))
+  appUrl = localeOrigin(page.locale)
+  const url = absoluteUrl(appUrl, localizedPath(page.path, page.locale))
   const brand = pageBrand(page)
   const title = `${page.title} | ${brand}`
   const image = page.cover
