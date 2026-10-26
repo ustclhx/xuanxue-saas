@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "repository": "https://github.com/ustclhx/saas-template",
-  "commit": "b5970a9f950458b92699f7f6b905cd9c6f7ade2d",
-  "version": null,
+  "commit": "79292926839539ea202c05b91aa4c876c39c7e9f",
+  "version": "0.2.0",
   "clean": true,
   "params": {
     "ai": [
@@ -51,6 +51,9 @@
     "0012_thick_maginty",
     "0013_node_job_engine",
     "0014_node_job_engine_events",
-    "0015_node_job_scheduling"
+    "0015_node_job_scheduling",
+    "0016_job_engine_app_dead_letter",
+    "0017_audit_meta_remove_personal_data",
+    "0018_ai_task_cancel_billing"
   ]
 }
