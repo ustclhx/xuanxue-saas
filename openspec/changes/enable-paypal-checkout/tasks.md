@@ -25,9 +25,9 @@
 
 > 复用约束：保留回跳页现有的 `needsConfirm`、`returnHref` 与 `safeReturnPath` 逻辑，只把按钮触发改为挂载后自动触发。capture 仍调用现有 Server Function `confirmCustomerCheckout`，不新增接口。成功后交给解锁卡现有的 `checkout=success` 轮询与自动生成（`unlock-card.tsx`），不在回跳页重复实现生成或轮询。文案使用现有 paraglide `m.*` 机制。
 
-- [ ] 2.1 回跳页挂载后自动 capture，用 ref 防重复调用；成功后 `location.replace` 回到 `returnTo?checkout=success`（无 `returnTo` 时进入账单页）；收到 `BILLING_PAYMENT_DECLINED` 时跳转 `retryUrl`；其他错误显示重试按钮；取消路径保持直接重定向。验证：`billing-pages.spec.ts` 改为断言无确认按钮、自动调用一次、成功跳转、拒付跳转、错误可重试、订阅回跳不触发 capture
-- [ ] 2.2 回跳页文案新增 `messages/<locale>/billing.json`（en、zh-Hant、zh-Hans、ko），语言优先取 `returnTo` 的语言前缀。验证：e2e 以 `/ko/...` 的 `returnTo` 打开回跳页，显示韩语；`pnpm typecheck` 生成文案无缺项
-- [ ] 2.3 账单页只有一个可用 provider 时不渲染支付方式下拉，直接用该 provider 结账。验证：组件或 e2e 覆盖单一 provider 与多个 provider 两种情况
+- [x] 2.1 回跳页挂载后自动 capture，用 ref 防重复调用；成功后 `location.replace` 回到 `returnTo?checkout=success`（无 `returnTo` 时进入账单页）；收到 `BILLING_PAYMENT_DECLINED` 时跳转 `retryUrl`；其他错误显示重试按钮；取消路径保持直接重定向。验证：`billing-pages.spec.ts` 改为断言无确认按钮、自动调用一次、成功跳转、拒付跳转、错误可重试、订阅回跳不触发 capture
+- [x] 2.2 回跳页文案新增 `messages/<locale>/billing.json`（en、zh-Hant、zh-Hans、ko），语言优先取 `returnTo` 的语言前缀。验证：e2e 以 `/ko/...` 的 `returnTo` 打开回跳页，显示韩语；`pnpm typecheck` 生成文案无缺项
+- [x] 2.3 账单页只有一个可用 provider 时不渲染支付方式下拉，直接用该 provider 结账。验证：组件或 e2e 覆盖单一 provider 与多个 provider 两种情况
 - [ ] 2.4 （A 合并后）rebase 并联调：解锁卡 → 回跳页 → 自动生成的本地完整流程（使用本地 PayPal 模拟）。验证：本地 e2e 解锁流程通过
 
 ## 3. C：配置、脚本与 e2e（Codex）

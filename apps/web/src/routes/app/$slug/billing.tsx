@@ -55,6 +55,7 @@ function BillingPage() {
   const [confirmed, setConfirmed] = useState(false)
   const intent = useRef<{ key: string; uuid: string } | null>(null)
   useEffect(() => setReady(true), [])
+  const availableProviders = page.catalog.providers.filter((p) => p.available).length
   const owner = page.role === 'owner'
   const disabled = !ready || busy || page.readOnly || !owner
   const renewing = page.subscriptions.find(
@@ -191,26 +192,29 @@ function BillingPage() {
       {owner && (
         <section className="grid gap-3 rounded-xl border border-line bg-surface p-6">
           <h3 className="font-semibold">Choose a plan or credit pack</h3>
-          <label>
-            Payment method{' '}
-            <select
-              value={provider}
-              disabled={disabled}
-              onChange={(event) => {
-                setProvider(event.target.value)
-                setPriceId('')
-                setConfirmed(false)
-                intent.current = null
-              }}
-            >
-              {page.catalog.providers.map((p) => (
-                <option key={p.id} value={p.id} disabled={!p.available}>
-                  {p.id}
-                  {p.available ? '' : ' — unavailable'}
-                </option>
-              ))}
-            </select>
-          </label>
+          {/* 只有一个可用支付方式时不显示选择器，直接用它结账（design D5） */}
+          {availableProviders > 1 && (
+            <label>
+              Payment method{' '}
+              <select
+                value={provider}
+                disabled={disabled}
+                onChange={(event) => {
+                  setProvider(event.target.value)
+                  setPriceId('')
+                  setConfirmed(false)
+                  intent.current = null
+                }}
+              >
+                {page.catalog.providers.map((p) => (
+                  <option key={p.id} value={p.id} disabled={!p.available}>
+                    {p.id}
+                    {p.available ? '' : ' — unavailable'}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label>
             Plan{' '}
             <select

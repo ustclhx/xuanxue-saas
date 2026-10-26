@@ -1,0 +1,12 @@
+{
+  "billing_return_title": "付款",
+  "billing_return_confirming": "正在確認你的 PayPal 付款，請勿關閉此頁面。",
+  "billing_return_redirecting": "付款已提交，正在返回…",
+  "billing_return_declined": "你的付款方式遭拒，正在返回 PayPal 改選其他付款方式…",
+  "billing_return_error": "暫時無法確認付款。不會重複扣款，可以放心重試。",
+  "billing_return_retry": "重試",
+  "billing_return_canceled": "已取消結帳，可返回帳單頁重新購買。",
+  "billing_return_pending": "付款核實後才會更新積分。回到本頁並不代表付款已成功。",
+  "billing_return_back": "返回上一頁",
+  "billing_return_billing": "返回帳單"
+}
