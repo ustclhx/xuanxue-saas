@@ -40,13 +40,16 @@ export default async function setup() {
       .values({
         id: SMOKE_PRICE_ID,
         planId,
-        provider: 'stripe',
+        provider: 'paypal',
         providerPriceId: 'smoke-credit-pack',
         amount: 1000,
         currency: 'usd',
         active: true,
       })
-      .onConflictDoNothing()
+      .onConflictDoUpdate({
+        target: planPrice.id,
+        set: { provider: 'paypal' },
+      })
   } finally {
     await db.$client.end()
   }

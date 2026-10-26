@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url'
 
 /**
  * add-cloud-production-neon 2.1：web / jobs 的 env.production 与 env.staging 绑定名集合一致，
- * production 不含任何 staging 资源 ID 或名称，且不设 PAYMENT_MODE（Q9 前关闭支付）与 AI_FAULT_INJECTION（生产禁止）。
+ * production 不含任何 staging 资源 ID 或名称，支付显式使用 live，且禁止 AI_FAULT_INJECTION。
  */
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
-const FORBIDDEN_PRODUCTION_VARS = ['PAYMENT_MODE', 'AI_FAULT_INJECTION']
+const FORBIDDEN_PRODUCTION_VARS = ['AI_FAULT_INJECTION']
 const PRODUCTION_ORIGINS = ['https://ganjiday.com', 'https://arcanumber.com']
 
 /** 去掉 JSONC 注释与尾逗号；字符串内的 `//`（如 URL）保持不变 */
@@ -81,6 +81,8 @@ export function checkEnvs(app, config) {
   for (const key of FORBIDDEN_PRODUCTION_VARS)
     if (production.vars && key in production.vars)
       problems.push(`${app}: production must not set ${key}`)
+  if (production.vars?.PAYMENT_MODE !== 'live')
+    problems.push(`${app}: production PAYMENT_MODE must be live`)
 
   // 绑定集合相同并不能发现模板资源名；生产必须使用本项目已预配的资源。
   if (production.name !== `xuanxue-${app}-production`)

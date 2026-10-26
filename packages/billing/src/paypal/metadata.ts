@@ -1,5 +1,9 @@
 import type { CheckoutMetadata } from '../provider.ts'
 
+export function creditPackId(priceId: string): string {
+  return `paypal:credit_pack:${priceId}`
+}
+
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /** Versioned array fits three UUIDs into 120 ASCII characters (PayPal limit: 127). */

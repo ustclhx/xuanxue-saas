@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
+import { completeOfflineCheckout } from './billing-actions-helper.ts'
 import { APP_URL, login, register, simulateClientIp } from './fixtures.ts'
 import { SMOKE_PRICE_ID } from './smoke-setup.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -38,17 +39,22 @@ test('register, sign out/in, and buy a credit pack through the local provider', 
 
   await page.locator('aside').getByRole('link', { name: 'Billing', exact: true }).click()
   await expect(page.getByText('Available credits: 0', { exact: false })).toBeVisible()
-  await page.getByLabel('Payment method').selectOption('stripe')
+  const paymentMethod = page.getByLabel('Payment method')
+  if (await paymentMethod.count()) await paymentMethod.selectOption('paypal')
   await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)
-  await page.getByRole('button', { name: 'Continue to checkout' }).click()
-  await expect(page).toHaveURL(/\/billing-return\?/)
-  const providerRef = new URL(page.url()).searchParams.get('providerRef')
+  const returned = page.waitForRequest((request) =>
+    new URL(request.url()).pathname.endsWith('/billing-return'),
+  )
+  await completeOfflineCheckout(page, () =>
+    page.getByRole('button', { name: 'Continue to checkout' }).click(),
+  )
+  const providerRef = new URL((await returned).url()).searchParams.get('token')
   expect(providerRef?.startsWith('smoke:')).toBe(true)
-  await page.getByRole('link', { name: 'Return to billing' }).click()
+  await expect(page).toHaveURL(/\/billing(?:\?|$)/)
   // 回跳不能发积分，必须经过真实 Webhook 管线确认付款。
   await expect(page.getByText('Available credits: 0', { exact: false })).toBeVisible()
   for (let delivery = 0; delivery < 2; delivery++) {
-    const response = await context.request.post('/api/billing/webhooks/stripe', {
+    const response = await context.request.post('/api/billing/webhooks/paypal', {
       headers: { 'x-smoke-payment': 'local-fixture' },
       data: { providerRef },
     })
@@ -104,9 +110,12 @@ test('east site sign-in and checkout return to the originating /ko page', async 
   // 公开页面的购买入口：/app?returnTo= 进入计费页，支付回跳经 billing-return 回到发起页面
   await page.goto(`/app?returnTo=${encodeURIComponent('/ko')}`)
   await expect(page).toHaveURL(/\/billing\?returnTo=/)
-  await page.getByLabel('Payment method').selectOption('stripe')
+  const paymentMethod = page.getByLabel('Payment method')
+  if (await paymentMethod.count()) await paymentMethod.selectOption('paypal')
   await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)
-  await page.getByRole('button', { name: 'Continue to checkout' }).click()
+  await completeOfflineCheckout(page, () =>
+    page.getByRole('button', { name: 'Continue to checkout' }).click(),
+  )
   await korean(new RegExp(`^${east.origin}/ko/?\\?checkout=success$`))
   expect(externalRequests).toEqual([])
   await context.close()

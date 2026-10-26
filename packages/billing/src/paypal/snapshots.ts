@@ -7,7 +7,7 @@ import type {
   PaymentSnapshot,
   SubscriptionSnapshot,
 } from '../provider.ts'
-import { decodePayPalMetadata } from './metadata.ts'
+import { creditPackId, decodePayPalMetadata } from './metadata.ts'
 import { fromPayPalDecimal } from './money.ts'
 import type { PayPalTransport } from './transport.ts'
 
@@ -292,7 +292,7 @@ function orderSnapshot(value: PayPalOrderPayload): OrderSnapshot {
   return {
     providerOrderId: value.id,
     providerCustomerId: customer(value.payer?.payer_id ?? value.payment_source?.paypal?.account_id),
-    providerPriceId: meta ? `paypal:credit_pack:${meta.planPriceId}` : null,
+    providerPriceId: meta ? creditPackId(meta.planPriceId) : null,
     status,
     amount,
     currency: 'USD',

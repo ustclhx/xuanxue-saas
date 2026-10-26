@@ -1,12 +1,19 @@
 import { expect, type Page, test } from '@playwright/test'
 import { grant } from '@xuanxue/credits'
 import { newId } from '@xuanxue/shared'
-import { actionDb, actor, reply, requestData, serializer } from './billing-actions-helper.ts'
+import {
+  actionDb,
+  actor,
+  completeOfflineCheckout,
+  reply,
+  requestData,
+  serializer,
+} from './billing-actions-helper.ts'
 import { fixtureDb, login, PASSWORD, register } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // add-reading-monetization tasks.md 3.1：新访客在结果页点击解锁 → 登录 → 积分不足时购买积分包
-// （Stripe 离线模拟：拦截 Checkout 的 Server Function，直接按已付款入账积分并走真实的 billing-return
+// （PayPal 离线模拟：拦截 Checkout 的 Server Function，在 capture 时模拟入账积分并走真实的 billing-return
 // 回跳）→ 回到原结果页，输入从 `unlock` 令牌恢复，自动开始生成。
 // 本地没有真实模型：POST /api/readings 被拦截并返回模拟的 UI message 流（生成管线由
 // test/readings.test.ts 以 fake provider 覆盖），这里断言请求体是恢复后的原始输入。
@@ -24,7 +31,7 @@ test.beforeAll(async () => {
       values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 100,
         '{}'::jsonb, 1000, false)`
     await sql`insert into plan_price (id, plan_id, provider, provider_price_id, interval, amount, currency, active)
-      values (${PACK_PRICE}, ${PACK_PLAN}, 'stripe', ${`e2e:${PACK_PRICE}`}, null, 99, 'usd', false)`
+      values (${PACK_PRICE}, ${PACK_PLAN}, 'paypal', ${`e2e:${PACK_PRICE}`}, null, 99, 'usd', false)`
   } finally {
     await sql.end()
   }
@@ -81,26 +88,34 @@ function serverFnId(url: string): string {
 }
 
 /**
- * 离线 Stripe：报价中注入本测试的积分包（本地没有 Stripe 凭据，readiness 为不可用）；
- * Checkout 调用改为直接入账后返回 billing-return 地址。其余 Server Function 照常访问真实服务。
+ * 离线 PayPal：报价中注入本测试的积分包（本地没有 PayPal 凭据，readiness 为不可用）；
+ * Checkout 返回 billing-return 地址，自动 capture 时模拟入账。其余 Server Function 照常访问真实服务。
  */
-async function offlineStripe(page: Page, email: string, purchases: string[]) {
+async function offlinePayPal(page: Page, email: string, purchases: string[]) {
   await page.route('**/_serverFn/**', async (route) => {
     const request = route.request()
     if (request.method() === 'POST') {
       const data = requestData(route)
+      if (data.providerRef && String(data.providerRef).startsWith('e2e-reading:')) {
+        const owner = await actor(email)
+        const db = actionDb()
+        try {
+          await grant(db, {
+            workspaceId: owner.workspaceId,
+            source: 'purchase',
+            sourceRef: String(data.providerRef),
+            amount: 100,
+          })
+        } finally {
+          await db.$client.end()
+        }
+        return reply(route, { ok: true })
+      }
       if (data.planPriceId !== PACK_PRICE) return route.continue()
       purchases.push(String(data.returnTo))
       const owner = await actor(email)
-      const db = actionDb()
-      await grant(db, {
-        workspaceId: owner.workspaceId,
-        source: 'purchase',
-        sourceRef: `e2e:${newId()}`,
-        amount: 100,
-      })
-      await db.$client.end()
-      const url = `/app/${owner.slug}/billing-return?provider=stripe&returnTo=${encodeURIComponent(String(data.returnTo))}`
+      const ref = `e2e-reading:${newId()}`
+      const url = `/app/${owner.slug}/billing-return?provider=paypal&token=${ref}&returnTo=${encodeURIComponent(String(data.returnTo))}`
       return reply(route, { ok: true, result: { url } })
     }
     // 只改写解锁卡的报价；其余 GET 照常
@@ -111,7 +126,7 @@ async function offlineStripe(page: Page, email: string, purchases: string[]) {
     const result = envelope.result as { packs?: unknown[]; available?: boolean } | undefined
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
-    result.packs = [{ planPriceId: PACK_PRICE, provider: 'stripe', credits: 100, amount: 99 }]
+    result.packs = [{ planPriceId: PACK_PRICE, provider: 'paypal', credits: 100, amount: 99 }]
     await route.fulfill({
       status: response.status(),
       headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
@@ -127,7 +142,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await register(page, email, 'Unlock Visitor')
   await page.context().clearCookies()
   const purchases: string[] = []
-  await offlineStripe(page, email, purchases)
+  await offlinePayPal(page, email, purchases)
   const generated: unknown[] = []
   await page.route('**/api/readings', async (route) => {
     generated.push(route.request().postDataJSON())
@@ -162,7 +177,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   const pack = page.getByTestId('reading-pack')
   await expect(pack).toContainText('100 credits')
   expect(generated).toEqual([])
-  await pack.click()
+  await completeOfflineCheckout(page, () => pack.click())
 
   // 付款回跳：billing-return → 原页 ?unlock=…&checkout=success → 自动生成
   const stream = page.getByTestId('reading-stream')
@@ -191,7 +206,7 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
   const email = `forged-${newId()}@example.com`
   await register(page, email, 'Forged Link')
   // 本地没有支付凭据：注入积分包，否则解锁卡按「支付未开通」隐藏
-  await offlineStripe(page, email, [])
+  await offlinePayPal(page, email, [])
   let posted = 0
   await page.route('**/api/readings', async (route) => {
     posted++

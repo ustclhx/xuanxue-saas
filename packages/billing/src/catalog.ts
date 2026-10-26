@@ -2,6 +2,7 @@ import { type Database, type Plan, type PlanPrice, plan, planPrice } from '@xuan
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { newId } from '@xuanxue/shared'
 import { and, eq, isNull, sql } from 'drizzle-orm'
+import { creditPackId } from './paypal/metadata.ts'
 import type { PaymentProvider } from './provider.ts'
 
 /** Template examples in USD cents, not approved business prices. Model permissions are managed in the admin console. */
@@ -162,6 +163,51 @@ export async function seedCatalog(db: Database): Promise<void> {
         }
       }
     }
+  })
+}
+
+/** Database-only activation: never constructs a provider or changes subscription prices. */
+export async function activateCreditPackMappings(
+  db: Database,
+  provider: 'paypal',
+): Promise<number> {
+  return db.transaction(async (tx) => {
+    let changed = 0
+    const packs = await tx.select().from(plan).where(eq(plan.type, 'credit_pack')).for('update')
+    for (const pack of packs) {
+      const example = EXAMPLE_CATALOG.find(
+        (entry) => entry.type === 'credit_pack' && entry.key === pack.key,
+      )
+      const currentIds = new Set<string>()
+      for (const intended of example?.prices ?? []) {
+        const prices = await tx
+          .select()
+          .from(planPrice)
+          .where(tuple(pack.id, provider, intended.interval, intended.amount))
+        if (prices.length !== 1)
+          throw new Error(`Expected one seeded price for ${pack.key}/${provider}`)
+        const price = prices[0] as PlanPrice
+        currentIds.add(price.id)
+        const mapping = creditPackId(price.id)
+        if (price.providerPriceId === mapping && price.active === pack.active) continue
+        await tx
+          .update(planPrice)
+          .set({ providerPriceId: mapping, active: pack.active })
+          .where(eq(planPrice.id, price.id))
+        changed++
+      }
+      // 旧金额、币种或已移出目录的积分包保留映射，只停止售卖。
+      const prices = await tx
+        .select()
+        .from(planPrice)
+        .where(and(eq(planPrice.planId, pack.id), eq(planPrice.provider, provider)))
+      for (const price of prices) {
+        if (currentIds.has(price.id) || !price.active) continue
+        await tx.update(planPrice).set({ active: false }).where(eq(planPrice.id, price.id))
+        changed++
+      }
+    }
+    return changed
   })
 }
 

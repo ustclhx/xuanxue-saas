@@ -50,7 +50,7 @@ async function catalog(db: ReturnType<typeof actionDb>, subscriptionPlan = false
   await db.insert(planPrice).values({
     id: priceId,
     planId,
-    provider: 'stripe',
+    provider: 'paypal',
     providerPriceId: `offline:${priceId}`,
     amount: 1000,
     currency: 'USD',
@@ -82,7 +82,7 @@ for (const realSubmission of [true, false])
           userId: owner.userId,
           planId,
           planPriceId: priceId,
-          provider: 'stripe',
+          provider: 'paypal',
           providerOrderId: purchaseId,
           status: 'paid',
           amount: 1000,
@@ -91,7 +91,7 @@ for (const realSubmission of [true, false])
         await db.insert(payment).values({
           id: paymentId,
           workspaceId: owner.workspaceId,
-          provider: 'stripe',
+          provider: 'paypal',
           providerPaymentId: paymentId,
           purchaseId,
           planPriceId: priceId,
@@ -163,7 +163,7 @@ for (const realSubmission of [true, false])
         await page.waitForLoadState('networkidle')
         const calls: RefundInput[] = []
         const provider = {
-          id: 'stripe',
+          id: 'paypal',
           capabilities: { refundsViaApi: true },
           refund: async (input: RefundInput) => {
             calls.push(input)
@@ -172,7 +172,7 @@ for (const realSubmission of [true, false])
         } as unknown as PaymentProvider
         const options = {
           db,
-          providers: { stripe: provider },
+          providers: { paypal: provider },
           config: { refundWindowDays: 30 },
           notify: async () => {},
         }
@@ -226,7 +226,7 @@ for (const realSubmission of [true, false])
             ?.remaining,
         ).toBe(100)
         const callback: NormalizedEvent = {
-          provider: 'stripe',
+          provider: 'paypal',
           type: 'payment.refunded',
           occurredAt: new Date(),
           raw: {},
@@ -279,7 +279,7 @@ test('offline browser cancel and resume call real services without minting credi
       workspaceId: owner.workspaceId,
       planId,
       planPriceId: priceId,
-      provider: 'stripe',
+      provider: 'paypal',
       providerSubscriptionId: id,
       status: 'active',
       currentPeriodStart: start,
@@ -303,19 +303,19 @@ test('offline browser cancel and resume call real services without minting credi
     }
     const actions: string[] = []
     const provider = {
-      id: 'stripe',
+      id: 'paypal',
       cancelSubscription: async (remoteId: string, opts: { atPeriodEnd: boolean }) => {
         expect(remoteId).toBe(id)
         expect(opts).toEqual({ atPeriodEnd: true })
-        snapshot = { ...snapshot, cancelAtPeriodEnd: true }
+        snapshot = { ...snapshot, status: 'canceled', cancelAtPeriodEnd: true }
       },
       resumeSubscription: async (remoteId: string) => {
         expect(remoteId).toBe(id)
-        snapshot = { ...snapshot, cancelAtPeriodEnd: false }
+        snapshot = { ...snapshot, status: 'active', cancelAtPeriodEnd: false }
       },
       getSubscription: async () => snapshot,
     } as unknown as PaymentProvider
-    const ctx = { db, providers: { stripe: provider }, enabledProviders: ['stripe'] as const }
+    const ctx = { db, providers: { paypal: provider }, enabledProviders: ['paypal'] as const }
     const before = await getCreditBalance(db, owner.workspaceId)
     const grants = await db
       .select()
@@ -337,7 +337,7 @@ test('offline browser cancel and resume call real services without minting credi
     await page.getByRole('button', { name: 'Cancel at period end' }).click()
     await expect(page.getByRole('button', { name: 'Resume subscription' })).toBeEnabled()
     expect((await db.select().from(subscription).where(eq(subscription.id, id)))[0]).toMatchObject({
-      status: 'active',
+      status: 'canceled',
       cancelAtPeriodEnd: true,
       currentPeriodEnd: end,
     })

@@ -110,7 +110,7 @@
       }
     },
     // launch-v1-production 2.1：本项目独立资源，见 docs/runbooks/production-xuanxue.md。
-    // 不设 PAYMENT_MODE（Q9 前支付关闭）与 AI_FAULT_INJECTION（生产禁止）。
+    // 支付使用 live；先配置 PayPal secrets 再发布，禁止 AI_FAULT_INJECTION。
     "production": {
       "name": "xuanxue-web-production",
       "workers_dev": false,
@@ -123,6 +123,7 @@
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
+        "PAYMENT_MODE": "live",
         "APP_URL": "https://arcanumber.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFdAs5UkBviOud_w",
         "AI_TEXT_EGRESS": "direct",

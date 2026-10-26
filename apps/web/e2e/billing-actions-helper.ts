@@ -77,15 +77,48 @@ export async function offlineProviderTransport(
     if (result && 'catalog' in result) {
       const catalog = result.catalog as { providers: { id: string; available: boolean }[] }
       for (const provider of catalog.providers)
-        if (provider.id === 'stripe') provider.available = true
+        if (provider.id === 'paypal') provider.available = true
     }
     if (result && 'rows' in result)
       for (const row of result.rows as { provider: string; providerAvailable: boolean }[])
-        if (row.provider === 'stripe') row.providerAvailable = true
+        if (row.provider === 'paypal') row.providerAvailable = true
     await route.fulfill({
       status: response.status(),
       headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
       body: JSON.stringify(await serializer.toCrossJSONAsync(envelope, { refs: new Map() })),
     })
   })
+}
+
+/** 兼容合并前的手动 capture 和合并后的自动 capture，共用同一离线流程。 */
+export async function completeOfflineCheckout(page: Page, checkout: () => Promise<void>) {
+  let captured = false
+  const capture = page.waitForResponse((response) => {
+    const request = response.request()
+    if (request.method() !== 'POST' || !request.url().includes('/_serverFn/')) return false
+    const data = serializer.fromJSON(request.postDataJSON()).data
+    return data.provider === 'paypal' && typeof data.providerRef === 'string'
+  })
+  void capture.then(
+    () => {
+      captured = true
+    },
+    () => {},
+  )
+  await checkout()
+  const confirm = page.getByRole('button', { name: 'Confirm payment', exact: true })
+  await expect
+    .poll(
+      async () => {
+        if ((await confirm.isVisible()) && (await confirm.isEnabled())) await confirm.click()
+        return captured
+      },
+      { timeout: 15_000 },
+    )
+    .toBe(true)
+  await capture
+  if (await confirm.count()) {
+    await expect(confirm).toBeDisabled()
+    await page.getByRole('link', { name: /^Return to (billing|previous page)$/ }).click()
+  }
 }
