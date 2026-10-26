@@ -45,8 +45,8 @@
 
 > 复用约束：在 `apps/web/content/legal/en/` 现有页面上修改，保持现有结构与 Basecamp 改写来源说明。文档更新现有 `docs/05-billing.md` 的 PayPal 章节，不另起一份 PayPal 设计文档；新 runbook 只写本站上线步骤，引用 05-billing 的实现说明。
 
-- [ ] 4.1 `terms.mdx`、`privacy.mdx`（付款段落、第三方表格、更新日期）、`refund.mdx` 改为 PayPal 表述，PR 中注明需人工审阅。验证：`pnpm check`（含 content 检查）通过，全站 grep 法律页不再出现 Stripe
-- [ ] 4.2 更新 `docs/05-billing.md`（本站启用 PayPal、自动 capture、补 capture、activate-packs）、`docs/v1-decisions.md` D6、`docs/runbooks/production-xuanxue.md`，新增 `docs/runbooks/paypal-launch.md`：Sandbox/Live App 与 webhook 事件清单、secrets 写入顺序、activate-packs、回滚 SQL、验收清单。验证：文档中的命令与脚本名和代码一致，不含任何密钥值
+- [x] 4.1 `terms.mdx`、`privacy.mdx`（付款段落、第三方表格、更新日期）、`refund.mdx` 改为 PayPal 表述，PR 中注明需人工审阅。验证：`pnpm check`（含 content 检查）通过，全站 grep 法律页不再出现 Stripe
+- [x] 4.2 更新 `docs/05-billing.md`（本站启用 PayPal、自动 capture、补 capture、activate-packs）、`docs/v1-decisions.md` D6、`docs/runbooks/production-xuanxue.md`，新增 `docs/runbooks/paypal-launch.md`：Sandbox/Live App 与 webhook 事件清单、secrets 写入顺序、activate-packs、回滚 SQL、验收清单。验证：文档中的命令与脚本名和代码一致，不含任何密钥值
 
 ## 5. E：staging Sandbox 验收（依赖 1–4 合并；用户创建 Sandbox App 与 webhook）
 

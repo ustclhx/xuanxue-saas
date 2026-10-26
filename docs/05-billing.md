@@ -104,12 +104,34 @@ type NormalizedEvent =
 
 ### PayPal 实现要点
 - 直接使用 REST（`fetch`），自封装：OAuth token（缓存到 KV，按 `expires_in` 过期）、Orders v2、Subscriptions v1、Webhook 验签。
-- 一次性付款：`POST /v2/checkout/orders`（intent=CAPTURE，`custom_id`=workspaceId）→ 用户批准后回到 `successUrl` → 服务端 `capture`（`confirmCheckout`）→ 以 `PAYMENT.CAPTURE.COMPLETED` Webhook 作为最终入账依据（capture 接口与 webhook 谁先到都要幂等）。
+- 一次性付款：`POST /v2/checkout/orders`（intent=CAPTURE，`custom_id`=workspaceId）→ 用户批准后回到 `successUrl` → 服务端 `capture`（`confirmCheckout`）→ 以 `PAYMENT.CAPTURE.COMPLETED` Webhook 作为最终入账依据（capture 接口与 webhook 谁先到都要幂等）。本站的自动 capture、拒付恢复与后台补 capture 见下方「本站启用 PayPal 一次性积分包」。
 - 订阅：预先在 PayPal 创建 Product + Plan（脚本 `pnpm billing:sync` 从 `plan` 表同步），`POST /v1/billing/subscriptions`（`custom_id`=workspaceId）。
 - Sale 周期：新付款必须匹配当前 `last_payment`，结束时间取实际 `next_billing_time`，不能用 `start_time + 月数` 推算。首付从 `start_time` 开始，续费从紧邻上一笔已入账付款的 `period_end` 开始。已入账 Sale 重放或退款核验复用原付款的不可变周期；竞争订阅尚未入账时可复用补偿任务保存的收据。缺少历史证据时明确失败，不用当前订阅快照猜测旧账期。HTTP、后台重放、退款与 jobs 入口使用同一数据库查询器。
 - 2026-10-11 沙箱首付发现账期推算偏差：订阅开始 `07:17:44 UTC`，实际下次扣款为次月 `10:00 UTC`；旧算法让月度积分宽限少 `2h42m16s`。修复不重写已有付款或积分记录；新收据按实际周期计算完整宽限。离线 API 夹具与隔离 PostgreSQL 联合回归覆盖首付、续费、重放及实际账期末加 24 小时，不能替代自然续费的沙箱验收。
 - 验签：调用 `POST /v1/notifications/verify-webhook-signature`（需 `webhook_id`），失败即拒绝。
 - 无客户门户：账单页周期末取消调用 `suspend`，恢复调用 `activate`；立即取消调用 `cancel`。Subscriptions v1 没有本实现使用的远端周期末取消字段，因此本地保留已付权益至周期末，SUSPENDED 回调不能覆盖本地取消意图；终止后的订阅不能恢复。首版 `capabilities.changePlan=false`，换套餐使用「取消后重新订阅」，重叠处理见 §6。
+
+### 本站启用 PayPal 一次性积分包（change `enable-paypal-checkout`）
+
+本站只启用 PayPal（`template.config.ts` 中 `billing.providers: ['paypal']`），只售卖一次性积分包；`pro` / `team` 订阅保持停用，Stripe 代码保留但不启用。以下是在模板 PayPal 实现上的扩展，回调入账、去重、退款与对账规则不变；设计取舍见 change 的 design.md D1–D7，上线步骤见 [PayPal 上线 runbook](./runbooks/paypal-launch.md)。
+
+- **结账入口**：解锁卡（`features/readings/unlock-card.tsx`）与账单页都调用 `checkoutCustomer`；`createCheckout` 写入 `purchase(status='pending', providerOrderId=<order id>)`。只有一个可用 provider 时，账单页不显示支付方式下拉，直接使用该 provider。
+- **订单展示**：`CheckoutInput.presentation`（品牌、语言、商品说明）由 `customer.functions.ts` 在服务端按请求站点与 `returnTo` 的语言生成，不接受客户端文本。PayPal 订单写入 `experience_context.brand_name`（Arcanumber / Ganjiday·干支日 等本地名）、`experience_context.locale`（`en-US` / `zh-TW` / `zh-CN` / `ko-KR`）、`purchase_units[0].description`（如「100 credits · Ganjiday」，截断到 127 字符）和一项 `DIGITAL_GOODS` item（含 `amount.breakdown.item_total`）。不设置 `soft_descriptor`。
+- **回跳页自动 capture**：`/app/$slug/billing-return` 在客户端挂载后自动调用 `confirmCustomerCheckout` 一次（ref 防重复），不再需要用户点击确认。GET 请求本身不扣款：capture 只在客户端挂载后经 Server Function 发起。结果处理：
+  - 成功（含已 paid 的幂等返回）：`location.replace` 回到 `returnTo?checkout=success`，无 `returnTo` 时进入账单页；解锁卡沿用现有轮询，到账后自动生成；
+  - `BILLING_PAYMENT_DECLINED` 带 `retryUrl`：`location.assign(retryUrl)` 回到 PayPal 重新选择付款方式；
+  - 其他错误：显示本地化错误与重试按钮，重试沿用同一幂等键；
+  - `canceled=true`：直接重定向回发起页。
+  文案在 `apps/web/messages/<locale>/billing.json`（en、zh-Hant、zh-Hans、ko），语言优先取 `returnTo` 的语言前缀，其次按应用区现有解析。
+- **拒付恢复（retryUrl）**：capture 返回 `422` 且 issue 为 `INSTRUMENT_DECLINED` 时，`PayPalHttpError` 只解析 issue 名称（不携带响应正文），`confirmCheckout` 转为带 `retryUrl` 的领域错误；`retryUrl` 是同一订单的 approve 链接 `https://www.paypal.com/checkoutnow?token=<order id>`（Sandbox 为 `www.sandbox.paypal.com`）。服务层转成 `AppError('BILLING_PAYMENT_DECLINED')`，`safe()` 只对该错误码在 `ok:false` 结果中返回 `retryUrl`。其他 PayPal 错误仍统一为 `BILLING_UNAVAILABLE` 并记录脱敏日志。
+- **后台补 capture**：`runPendingCaptures(ctx, now)` 挂在 jobs `BILLING_RETRY_CRON`（生产 `*/10 * * * *`；staging 的 reduced 档并入 `*/30 * * * *`），与回调通知恢复、订阅补偿并列。扫描 `provider='paypal'`、`status='pending'`、创建于 `[now-72h, now-10min]` 的购买，每轮最多 50 条，先经 provider 现有的 `getOrder` 读取订单：
+  - `APPROVED`：调用不依赖用户身份的 `capturePurchase`，幂等键与回跳页相同（`capture:${purchase.id}`，透传为 `PayPal-Request-Id`），因此回跳页与后台并发也只扣一次；
+  - `COMPLETED`：跳过，由回调或补偿入账；
+  - `CREATED` / `PAYER_ACTION_REQUIRED` 超过 3 小时、`VOIDED` 或订单 404：条件更新（`WHERE status='pending'`）为 `failed`；
+  - 超过 72 小时仍 pending：一律标记 `failed`。
+  阈值集中定义为常量，Sandbox 验收后按实际过期行为调整。`CHECKOUT.ORDER.APPROVED` 回调仍只做关联（`checkout.completed`），不在事务内发起远端 capture。不新增迁移。
+- **live 积分包激活**：`billing:sync` 仍只允许 `BILLING_SYNC_MODE=test`。生产用 `pnpm billing:activate-packs`（`packages/billing/scripts/activate-credit-packs.ts`，调用 `catalog.ts` 的 `activateCreditPackMappings(db, 'paypal')`）：只在数据库内把当前目录中每个 `credit_pack` 的 PayPal 价格设为 `paypal:credit_pack:{priceId}`（复用 PayPal 模块导出的 `creditPackId`），`active` 取 `plan.active`；不在当前目录元组中的旧 PayPal 积分包价格设为 inactive 并保留映射；跳过订阅价格；不构造 PayPal transport、不发起网络请求。目标库 URL 由进程环境显式注入（同 seed），且必须设置 `BILLING_ACTIVATE_CONFIRM=<数据库名>` 与目标库名一致，输出变更条数、不输出连接串；重复执行报告 0 处变更。脚本名以 C 组实现合并后的 `package.json` 为准。
+- **生产配置**：web 与 jobs 的 production `vars` 设置 `PAYMENT_MODE: "live"`，`check-wrangler-envs.mjs` 断言之；生产 secret 检查复用 `getSecretRequirements()`，只启用 PayPal 时 web 与 jobs 各要求 `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID`，不要求 Stripe。只有 live 模式而缺凭据时 provider 不可用，定价页降级为「即将开放」。
 
 ### PayPal Sandbox 实测与录制（2026-10-15，Asia/Taipei）
 
@@ -348,7 +370,7 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 ## 7. 页面
 
-- `/pricing`：订阅套餐 + 积分包，选择支付方式（按 `billing.providers` 展示）。
+- `/pricing`：订阅套餐 + 积分包，选择支付方式（按 `billing.providers` 展示；本站只有 PayPal 积分包）。
 - `/app/$slug/billing`：当前套餐、下次扣费、积分余额与批次明细、账单记录、取消/恢复、（Stripe）打开门户。
 - `/app/$slug/usage`：积分流水、按模型/成员的用量统计。
 - `/admin/billing`：付款、订阅、Webhook 事件（可重放）；手动调积分和完整管理能力在 P5。
@@ -370,7 +392,7 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 ## 8. 支付模式与生产切换清单
 
-`createPaymentRuntime` 是 Web、Jobs 和认证删除步骤共用的支付工厂。非敏感 Worker var `PAYMENT_MODE` 只接受 `test` / `live`，两端 Wrangler 顶层与 `env.staging` 均显式设为 `test`；仓库不提供 production 环境配置。只有 `SENTRY_ENVIRONMENT=development` 缺少模式时默认 test，staging、production 和未知环境缺失模式时关闭支付：HTTP 支付入口返回 503，Jobs 事件失败并交给既有重试机制。结构化日志 `billing.runtime_invalid` 只包含安全字段名与模式，公开营销定价降级为支付不可用。
+`createPaymentRuntime` 是 Web、Jobs 和认证删除步骤共用的支付工厂。非敏感 Worker var `PAYMENT_MODE` 只接受 `test` / `live`，两端 Wrangler 顶层与 `env.staging` 均显式设为 `test`；本站 `env.production` 显式设为 `live`（change `enable-paypal-checkout`，`check-wrangler-envs.mjs` 断言）。只有 `SENTRY_ENVIRONMENT=development` 缺少模式时默认 test，staging、production 和未知环境缺失模式时关闭支付：HTTP 支付入口返回 503，Jobs 事件失败并交给既有重试机制。结构化日志 `billing.runtime_invalid` 只包含安全字段名与模式，公开营销定价降级为支付不可用。
 
 | 模式 | Stripe Secret Key | PayPal API origin |
 |---|---|---|
@@ -379,7 +401,7 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 模式与 Stripe key 错配时在远端请求前返回 503，绝不自动切换；后台显示实际模式。Stripe 已验签事件和后台重放的 `livemode` 也必须匹配当前模式，在平台快照查询和账务写入前拒绝跨模式事件。`STRIPE_WEBHOOK_SECRET` 与 PayPal Client ID / Secret / webhook ID 本身无法通过前缀判断 test/live，必须由部署配置提供同一模式的完整一组；PayPal OAuth、业务请求及验签始终只访问选定 origin，失败不重试另一环境。
 
-生产切换前逐项完成以下清单；本 change 只交付代码与离线验证，未配置 live 凭据或执行真实收款：
+以下是模板的通用生产切换清单。本站只启用 PayPal，实际执行顺序、事件清单与验收以 [PayPal 上线 runbook](./runbooks/paypal-launch.md) 为准，Stripe 相关项暂不适用：
 
 - [ ] 解决 [路线图 Q9](./08-roadmap.md#待决事项)：确认 Stripe 正式收款主体及支持地区、账户归属；若选择仅 PayPal 或 MoR，按最终方案配置启用的 provider。代码支持 live 不代表主体已获批准。
 - [ ] 为生产配置独立数据库、KV、队列、域名与价格对象。不要复用测试数据库的 customer、subscription、payment、price ID；现有 `billing:sync` 仍要求 `BILLING_SYNC_MODE=test`，不能用它创建 live 价格。
