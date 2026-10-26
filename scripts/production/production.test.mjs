@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
+import { getSecretRequirements } from '../staging/check-secrets.mjs'
 import { checkRelease } from './check-release.mjs'
+import { checkProductionSecrets } from './check-secrets.mjs'
 import { checkEnvs, parseJsonc } from './check-wrangler-envs.mjs'
 import { buildChecks, keyTables, migrationCount, pgEnv, verifyRestore } from './verify-restore.mjs'
 
@@ -25,12 +27,64 @@ test('production drift, staging reuse and forbidden vars are reported', () => {
   production.kv_namespaces = []
   production.hyperdrive[0].id = config.env.staging.hyperdrive[0].id
   production.queues.producers[0].queue = 'email-staging'
-  production.vars.PAYMENT_MODE = 'live'
+  production.vars.AI_FAULT_INJECTION = 'true'
   const problems = checkEnvs('web', config)
   assert.ok(problems.includes('web: production is missing binding kv:CACHE'))
   assert.ok(problems.some((line) => line.includes('reuses staging resource id')))
   assert.ok(problems.includes('web: production references staging value email-staging'))
-  assert.ok(problems.includes('web: production must not set PAYMENT_MODE'))
+  assert.ok(problems.includes('web: production must not set AI_FAULT_INJECTION'))
+})
+
+test('production requires explicit live payment mode for web and jobs', () => {
+  for (const app of ['web', 'jobs']) {
+    for (const mode of [undefined, 'test']) {
+      const config = wrangler(app)
+      if (mode === undefined) delete config.env.production.vars.PAYMENT_MODE
+      else config.env.production.vars.PAYMENT_MODE = mode
+      assert.ok(checkEnvs(app, config).includes(`${app}: production PAYMENT_MODE must be live`))
+    }
+  }
+})
+
+const paypalConfig = {
+  billing: { enabled: true, providers: ['paypal'] },
+  auth: { oauth: [], turnstile: false },
+}
+const paypalRequirements = getSecretRequirements(paypalConfig)
+
+test('production secret check rejects missing PayPal credentials in either Worker and only prints names', async () => {
+  const lines = []
+  const calls = []
+  const code = await checkProductionSecrets({
+    config: paypalConfig,
+    list: async (worker, environment) => {
+      calls.push([worker, environment])
+      return [...paypalRequirements[worker].required, ...paypalRequirements[worker].optional]
+        .filter((name) => name !== 'PAYPAL_WEBHOOK_ID')
+        .map((name) => ({ name, value: 'private-secret-value' }))
+    },
+    write: (line) => lines.push(line),
+  })
+  assert.equal(code, 1)
+  assert.deepEqual(calls, [
+    ['web', 'production'],
+    ['jobs', 'production'],
+  ])
+  assert.deepEqual(lines, ['web required: PAYPAL_WEBHOOK_ID', 'jobs required: PAYPAL_WEBHOOK_ID'])
+})
+
+test('PayPal-only production does not require Stripe credentials', async () => {
+  const lines = []
+  const code = await checkProductionSecrets({
+    config: paypalConfig,
+    list: async (worker) =>
+      [...paypalRequirements[worker].required, ...paypalRequirements[worker].optional].map(
+        (name) => ({ name }),
+      ),
+    write: (line) => lines.push(line),
+  })
+  assert.equal(code, 0)
+  assert.deepEqual(lines, [])
 })
 
 test('production rejects template resources and wrong domain bindings', () => {

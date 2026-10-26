@@ -37,7 +37,7 @@ export function getSecretRequirements(config) {
 
 export const secretRequirements = getSecretRequirements(templateConfig)
 
-async function listSecrets(worker) {
+async function listSecrets(worker, environment) {
   const { stdout } = await execFileAsync(
     'pnpm',
     [
@@ -48,7 +48,7 @@ async function listSecrets(worker) {
       'secret',
       'list',
       '--env',
-      'staging',
+      environment,
       '--format',
       'json',
     ],
@@ -62,15 +62,17 @@ async function listSecrets(worker) {
 }
 
 export async function checkSecrets({
+  environment = 'staging',
+  config = templateConfig,
   list = listSecrets,
   write = console.log,
   error = console.error,
 } = {}) {
   let exitCode = 0
-  for (const [worker, requirements] of Object.entries(secretRequirements)) {
+  for (const [worker, requirements] of Object.entries(getSecretRequirements(config))) {
     let names
     try {
-      const secrets = await list(worker)
+      const secrets = await list(worker, environment)
       if (!Array.isArray(secrets) || secrets.some((secret) => typeof secret?.name !== 'string')) {
         throw new Error('Invalid secret list')
       }

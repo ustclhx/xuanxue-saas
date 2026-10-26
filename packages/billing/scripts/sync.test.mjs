@@ -4,10 +4,13 @@ import { createSyncProviders } from './sync.ts'
 
 test('configured Stripe sync succeeds without reading disabled PayPal credentials', () => {
   const env = { BILLING_SYNC_MODE: 'test', STRIPE_SECRET_KEY: 'sk_test_offline' }
-  const providers = createSyncProviders((name) => {
-    assert.ok(name in env, `Unexpected credential read: ${name}`)
-    return env[name]
-  })
+  const providers = createSyncProviders(
+    (name) => {
+      assert.ok(name in env, `Unexpected credential read: ${name}`)
+      return env[name]
+    },
+    { enabled: true, providers: ['stripe'] },
+  )
   assert.deepEqual(
     providers.map((provider) => provider.id),
     ['stripe'],
@@ -44,7 +47,11 @@ test('sync rejects non-test modes and live or missing Stripe credentials', () =>
   }
   for (const key of [undefined, 'sk_live_offline']) {
     assert.throws(
-      () => createSyncProviders((name) => (name === 'BILLING_SYNC_MODE' ? 'test' : key)),
+      () =>
+        createSyncProviders((name) => (name === 'BILLING_SYNC_MODE' ? 'test' : key), {
+          enabled: true,
+          providers: ['stripe'],
+        }),
       /Stripe test credentials are required/,
     )
   }

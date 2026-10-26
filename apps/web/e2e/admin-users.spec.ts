@@ -16,7 +16,7 @@ async function checkout(page: Page, slug: string) {
         return {
           rejected: false,
           value: await checkoutCustomer({
-            data: { slug, provider: 'stripe', planPriceId: priceId, idempotencyKey },
+            data: { slug, provider: 'paypal', planPriceId: priceId, idempotencyKey },
           }),
         }
       } catch (error) {

@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "seed": "node --env-file-if-exists=../../.env.local --experimental-strip-types scripts/seed.ts",
-    "sync": "node --env-file-if-exists=../../.env.local --experimental-strip-types scripts/sync.ts"
+    "sync": "node --env-file-if-exists=../../.env.local --experimental-strip-types scripts/sync.ts",
+    "activate-packs": "node --experimental-strip-types scripts/activate-credit-packs.ts"
   },
   "dependencies": {
     "@xuanxue/db": "workspace:*",

@@ -37,15 +37,18 @@ async function unsupported(): Promise<never> {
   throw new Error('Operation outside the smoke credit-pack fixture')
 }
 const provider: PaymentProvider = {
-  id: 'stripe',
+  id: 'paypal',
   capabilities: { portal: false, changePlan: false, refundsViaApi: false, merchantOfRecord: false },
   async createCheckout(input) {
     if (input.mode !== 'one_time') return unsupported()
     const ref = `smoke:${input.idempotencyKey}`
     checkouts.set(ref, input)
     const url = new URL(input.successUrl)
-    url.searchParams.set('providerRef', ref)
+    url.searchParams.set('token', ref)
     return { url: url.toString(), providerRef: ref }
+  },
+  async confirmCheckout(ref) {
+    checkout(ref)
   },
   async getOrder(ref): Promise<OrderSnapshot> {
     const input = checkout(ref)
@@ -72,7 +75,7 @@ const provider: PaymentProvider = {
       type: 'smoke.payment.succeeded',
       events: [
         {
-          provider: 'stripe',
+          provider: 'paypal',
           type: 'payment.succeeded',
           occurredAt,
           raw,
@@ -106,7 +109,7 @@ export function createPaymentRuntime(
   enabled: TemplateConfig['billing']['providers'],
   _options?: unknown,
 ) {
-  const providers: BillingProviders = enabled.includes('stripe') ? { stripe: provider } : {}
+  const providers: BillingProviders = enabled.includes('paypal') ? { paypal: provider } : {}
   return {
     mode: 'test' as const,
     providers,

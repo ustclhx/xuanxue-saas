@@ -1,5 +1,5 @@
 import type { CheckoutInput, PaymentProvider, PlanSyncInput, RefundInput } from '../provider.ts'
-import { encodePayPalMetadata } from './metadata.ts'
+import { creditPackId, encodePayPalMetadata } from './metadata.ts'
 import { fromPayPalDecimal, paypalCurrency, toPayPalDecimal } from './money.ts'
 import type { PayPalTransport } from './transport.ts'
 
@@ -38,9 +38,6 @@ function remoteId(id: string): string {
   return id
 }
 
-function creditPackId(priceId: string): string {
-  return `paypal:credit_pack:${priceId}`
-}
 function planMarker(input: PlanSyncInput): string {
   return `saas:v1:${input.plan.id}:${input.price.id}`
 }

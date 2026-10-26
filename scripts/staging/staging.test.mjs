@@ -20,8 +20,9 @@ test('secret check reports the actual staging payment gaps without printing pres
   assert.equal(code, 1)
   assert.deepEqual(lines, [
     'web required: GOOGLE_CLIENT_SECRET',
-    'jobs required: STRIPE_SECRET_KEY',
-    'jobs required: STRIPE_WEBHOOK_SECRET',
+    'jobs required: PAYPAL_CLIENT_ID',
+    'jobs required: PAYPAL_CLIENT_SECRET',
+    'jobs required: PAYPAL_WEBHOOK_ID',
   ])
 })
 
@@ -31,8 +32,9 @@ test('secret requirements follow enabled billing, OAuth and Turnstile configurat
     'TURNSTILE_SECRET_KEY',
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
-    'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET',
+    'PAYPAL_CLIENT_ID',
+    'PAYPAL_CLIENT_SECRET',
+    'PAYPAL_WEBHOOK_ID',
   ])
   const paypal = getSecretRequirements({
     billing: { enabled: true, providers: ['paypal'] },
@@ -42,6 +44,11 @@ test('secret requirements follow enabled billing, OAuth and Turnstile configurat
     'BETTER_AUTH_SECRET',
     'GITHUB_CLIENT_ID',
     'GITHUB_CLIENT_SECRET',
+    'PAYPAL_CLIENT_ID',
+    'PAYPAL_CLIENT_SECRET',
+    'PAYPAL_WEBHOOK_ID',
+  ])
+  assert.deepEqual(paypal.jobs.required, [
     'PAYPAL_CLIENT_ID',
     'PAYPAL_CLIENT_SECRET',
     'PAYPAL_WEBHOOK_ID',
@@ -58,7 +65,10 @@ test('secret requirements follow enabled billing, OAuth and Turnstile configurat
 test('optional secrets do not block an otherwise configured staging environment', async () => {
   const lines = []
   const code = await checkSecrets({
-    list: async (worker) => secretRequirements[worker].required.map((name) => ({ name })),
+    list: async (worker, environment) => {
+      assert.equal(environment, 'staging')
+      return secretRequirements[worker].required.map((name) => ({ name }))
+    },
     write: (line) => lines.push(line),
   })
   assert.equal(code, 0)
