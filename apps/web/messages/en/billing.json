@@ -8,5 +8,7 @@
   "billing_return_canceled": "Checkout was canceled. You can return to billing to try again.",
   "billing_return_pending": "Your credits update after the payment is verified. Returning here does not confirm that the payment succeeded.",
   "billing_return_back": "Return to previous page",
-  "billing_return_billing": "Return to billing"
+  "billing_return_billing": "Return to billing",
+  "billing_change_interval_notice": "Switching between monthly and annual billing takes effect at the end of your current billing period ({date}). Your current plan stays active until then, and the new billing period is charged when it starts.",
+  "billing_change_scheduled": "Plan change scheduled for the end of your current billing period."
 }

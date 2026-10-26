@@ -13,7 +13,8 @@
       "!.agents",
       "!.omp",
       "!packages/db/lint/fixtures",
-      "!docs/design/prototypes"
+      "!docs/design/prototypes",
+      "!.template-base.json"
     ]
   },
   "formatter": {

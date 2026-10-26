@@ -8,5 +8,7 @@
   "billing_return_canceled": "已取消结账，可返回账单页重新购买。",
   "billing_return_pending": "付款核实后才会更新积分。回到本页并不代表付款已成功。",
   "billing_return_back": "返回上一页",
-  "billing_return_billing": "返回账单"
+  "billing_return_billing": "返回账单",
+  "billing_change_interval_notice": "月付与年付之间的切换在当前计费周期结束时生效（{date}）。在此之前当前套餐保持不变，新周期开始时按新的计费周期扣款。",
+  "billing_change_scheduled": "套餐变更已安排在当前计费周期结束时生效。"
 }

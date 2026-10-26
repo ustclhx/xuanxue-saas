@@ -95,6 +95,8 @@ export function checkEnvs(app, config) {
   const queueNames = {
     EMAIL_QUEUE: 'xuanxue-email-production',
     EVENTS_QUEUE: 'xuanxue-events-production',
+    // 模板 0.2.0：events 死信队列（producer EVENTS_DLQ + 死信消费者）
+    EVENTS_DLQ: 'xuanxue-events-dlq-production',
   }
   for (const producer of production.queues?.producers ?? [])
     if (producer.queue !== queueNames[producer.binding])

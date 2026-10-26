@@ -9,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
 import { user } from './auth.ts'
@@ -37,6 +38,8 @@ export interface AiTextUsage {
   absorbed?: { inputTokens: number; outputTokens: number; reasoningTokens?: number }
   /** 所有上游 attempt 的累计成本用量，与用户结算用量分开。 */
   total?: { inputTokens: number; outputTokens: number; reasoningTokens: number }
+  /** 最后一次上游尝试的用量：超出免费失败次数的无正文失败按它结算，每次尝试整体替换。 */
+  lastAttempt?: { inputTokens: number; outputTokens: number; reasoningTokens: number }
 }
 
 /** 生成过程中定期写入的累计用量估算，结算丢失时兜底按它结算（docs/06-ai.md §3） */
@@ -168,6 +171,8 @@ export const aiTask = pgTable(
     creditsCharged: integer('credits_charged').notNull().default(0),
     errorCode: text('error_code'),
     errorMessage: text('error_message'),
+    /** 取消时的计费类型；null 表示未取消。free_started 每个工作区终身最多一行（部分唯一索引）。 */
+    cancelBilling: text('cancel_billing', { enum: ['free_unstarted', 'free_started', 'charged'] }),
     startedAt: timestamp('started_at', { withTimezone: true }),
     finishedAt: timestamp('finished_at', { withTimezone: true }),
     deadlineAt: timestamp('deadline_at', { withTimezone: true }).notNull(),
@@ -182,6 +187,14 @@ export const aiTask = pgTable(
       sql`${t.status} in ('queued', 'running', 'succeeded', 'failed', 'canceled')`,
     ),
     check('ai_task_credits_charged_nonnegative', sql`${t.creditsCharged} >= 0`),
+    check(
+      'ai_task_cancel_billing_valid',
+      sql`${t.cancelBilling} in ('free_unstarted', 'free_started', 'charged')`,
+    ),
+    // 已开始生成的免费取消在数据库层保证每个工作区终身一次。
+    uniqueIndex('ai_task_workspace_free_started_cancel_idx')
+      .on(t.workspaceId)
+      .where(sql`${t.cancelBilling} = 'free_started'`),
   ],
 )
 

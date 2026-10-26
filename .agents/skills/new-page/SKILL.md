@@ -9,7 +9,7 @@ description: 为本模板新增需要登录的 app 空间页面或 admin 后台�
 
 ## 1. 确定边界与参考
 
-先读 `AGENTS.md`、`docs/01-architecture.md`、`docs/02-project-structure.md`；并行修改导航或文案时读 `docs/09-parallel-plan.md` §3/§6。记录路由、角色、读写行为、数据来源、启用语言和开关，寻找同类页面后再创建文件：
+先读 `AGENTS.md`、`docs/01-architecture.md`、`docs/02-project-structure.md`；并行开发先明确文件所有权与数据库隔离。记录路由、角色、读写行为、数据来源、启用语言和开关，寻找同类页面后再创建文件：
 
 ```sh
 rg --files apps/web/src/routes apps/web/src/features packages/ui/src

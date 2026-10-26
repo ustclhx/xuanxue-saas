@@ -76,7 +76,7 @@ SDK envelope，并确认 Sentry 接收端 HTTP 状态；应用使用 SDK 的默�
 显式命令（凭据值不出现在参数中）：
 
 ```sh
-node --env-file=/Users/hxlee/workspace/xuanxue/.env.local scripts/sentry-probe.mjs
+node --env-file=.env.local scripts/sentry-probe.mjs
 ```
 
 2026-10-11T18:26:46.456Z 实测：Sentry 接收端 200；发送前 SDK envelope 不含测试

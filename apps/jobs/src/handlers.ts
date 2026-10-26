@@ -24,6 +24,7 @@ import { runWorkspaceCleanup, WORKSPACE_CLEANUP_CRON } from './cron/workspace-cl
 import { type JobObserver, withJobObserver } from './observer.ts'
 import { handleBillingBatch } from './queues/billing.ts'
 import { handleEmailBatch, type JobsEmailTransport } from './queues/email.ts'
+import { handleEventsDeadLetterBatch } from './queues/events-dead-letter.ts'
 
 export interface JobsContext extends BillingEnv {
   config: BillingEnv['config'] & AiFaultInjectionEnv
@@ -55,6 +56,13 @@ async function consumeBatch(batch: QueueBatch<unknown>, context: JobsContext) {
       ...(context.emailSender && { sender: context.emailSender }),
       ...(context.emailDeadLetters && { deadLetters: context.emailDeadLetters }),
     })
+  }
+  if (
+    ['xuanxue-events-dlq', 'xuanxue-events-dlq-staging', 'xuanxue-events-dlq-production'].includes(
+      batch.queue,
+    )
+  ) {
+    return handleEventsDeadLetterBatch(batch, context.db.business())
   }
   if (EVENTS_QUEUES.has(batch.queue)) {
     return handleBillingBatch(batch, context, context.observer, {

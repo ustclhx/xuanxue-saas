@@ -350,5 +350,9 @@
   "admin_reading_model_unset": "未選定",
   "admin_save_paid_readings": "儲存付費詳批",
   "admin_paid_readings_saved": "已儲存，約 60 秒內生效。",
-  "admin_paid_readings_unavailable": "無法載入或儲存付費詳批設定，請重新整理後再試。"
+  "admin_paid_readings_unavailable": "無法載入或儲存付費詳批設定，請重新整理後再試。",
+  "admin_ai_free_failure_count": "每個空間的 AI 免費失敗次數",
+  "admin_ai_free_failure_count_description": "對話回覆沒有可見正文就失敗時，視窗內前這麼多次全額退回預扣；之後按最後一次上游嘗試的用量結算（不超過預扣）。填 0 表示每次都結算。",
+  "admin_ai_free_failure_window_minutes": "免費失敗計數視窗（分鐘）",
+  "admin_ai_free_failure_window_description": "統計免費失敗次數的滾動視窗，預設 60 分鐘。"
 }

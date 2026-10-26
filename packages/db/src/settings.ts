@@ -28,22 +28,31 @@ const readingSettingDefaults = Object.fromEntries(
 export interface SettingValues extends ReadingSettingValues {
   /** 是否开放注册 */
   'auth.signupEnabled': boolean
+  /** 媒体提交结果不确定时保留预扣、等待已验签回调的秒数；仍受任务 2 小时期限约束（specs/ai-media-tasks）。 */
+  'ai.mediaUncertainWaitSeconds': number
   /** 空字符串表示不显示公告 */
   'site.announcement': string
   'billing.signupBonusDomainBlacklist': string[]
   'operations.telegramBotToken': string
   'operations.telegramChatId': string
   'operations.discordWebhookUrl': string
+  /**
+   * 对话无可见正文失败的免费次数：同一工作区在最近 `windowSeconds` 秒内的前 `count` 次全额退回，
+   * 超出后按最后一次上游尝试的用量结算（specs/ai-text-reasoning）。
+   */
+  'ai.freeFailures': { count: number; windowSeconds: number }
 }
 
 export const settingDefaults: SettingValues = {
   'auth.signupEnabled': true,
+  'ai.mediaUncertainWaitSeconds': 3600,
   'site.announcement': '',
   'billing.signupBonusDomainBlacklist': [],
   'operations.telegramBotToken': '',
   'operations.telegramChatId': '',
   'operations.discordWebhookUrl': '',
   ...readingSettingDefaults,
+  'ai.freeFailures': { count: 3, windowSeconds: 3600 },
 }
 
 export type SettingKey = keyof SettingValues

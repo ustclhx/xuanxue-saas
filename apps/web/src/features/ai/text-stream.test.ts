@@ -1,4 +1,5 @@
 import { type AvailableModel, defaultLanguageModelFactory } from '@xuanxue/ai'
+import { AppError } from '@xuanxue/shared'
 import {
   type LanguageModel,
   readUIMessageStream,
@@ -9,6 +10,11 @@ import { MockLanguageModelV4 } from 'ai/test'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type ChatUIMessage, messageReasoning } from './conversation.ts'
 import { createChatStream } from './text-stream.ts'
+
+type UpstreamPart =
+  Awaited<ReturnType<MockLanguageModelV4['doStream']>>['stream'] extends ReadableStream<infer T>
+    ? T
+    : never
 
 const finish = {
   type: 'finish' as const,
@@ -190,6 +196,336 @@ describe('single reply stream', () => {
       },
     })
     expect(await result.done).toMatchObject({ status: 'aborted', text: '' })
+    expect(model.doStreamCalls).toHaveLength(1)
+  })
+})
+
+/** 上游流由测试逐块推送，模拟推理模型长时间只产生隐藏 reasoning。 */
+function controlledModel() {
+  let upstream!: ReadableStreamDefaultController<UpstreamPart>
+  const model = new MockLanguageModelV4({
+    doStream: async () => ({
+      stream: new ReadableStream<UpstreamPart>({
+        start(controller) {
+          upstream = controller
+        },
+      }),
+    }),
+  })
+  return {
+    model,
+    push: (...parts: UpstreamPart[]) => {
+      for (const part of parts) upstream.enqueue(part)
+    },
+    end: () => {
+      upstream.enqueue(finish)
+      upstream.close()
+    },
+  }
+}
+
+const silentThinking: UpstreamPart[] = [
+  { type: 'reasoning-start', id: 'r' },
+  { type: 'reasoning-delta', id: 'r', delta: 'hidden thought' },
+]
+
+describe('idle heartbeat', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('hidden reasoning longer than the interval emits keepalives; real output resets the timer', async () => {
+    vi.useFakeTimers()
+    const upstream = controlledModel()
+    const result = start(upstream.model, { displayReasoning: false, heartbeatMs: 1000 })
+    const parts: string[] = []
+    const reading = (async () => {
+      for await (const part of result.fullStream) parts.push(part.type)
+    })()
+    await vi.advanceTimersByTimeAsync(0)
+    upstream.push(...silentThinking)
+    await vi.advanceTimersByTimeAsync(2500)
+    expect(parts).toEqual(['keepalive', 'keepalive'])
+    upstream.push(
+      { type: 'reasoning-end', id: 'r' },
+      { type: 'text-start', id: 't' },
+      { type: 'text-delta', id: 't', delta: 'answer' },
+    )
+    // 2500ms 时有正文：未重置会在 3000ms 补发，重置后要到 3500ms。
+    await vi.advanceTimersByTimeAsync(900)
+    expect(parts).toEqual(['keepalive', 'keepalive', 'text-delta'])
+    await vi.advanceTimersByTimeAsync(100)
+    expect(parts).toEqual(['keepalive', 'keepalive', 'text-delta', 'keepalive'])
+    upstream.push({ type: 'text-end', id: 't' })
+    upstream.end()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(await result.done).toMatchObject({ text: 'answer', reasoning: '', status: 'completed' })
+    await reading
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('UI stream starts before the first upstream token and keepalives never reach message parts', async () => {
+    vi.useFakeTimers()
+    const upstream = controlledModel()
+    const result = start(upstream.model, { displayReasoning: false, heartbeatMs: 1000 })
+    const response = result.toUIMessageStreamResponse({
+      metadata: { messageId: 'reply', conversationId: 'conversation' },
+      headers: {},
+    })
+    const reader = (response.body as ReadableStream<Uint8Array>).getReader()
+    const decoder = new TextDecoder()
+    let body = ''
+    const reading = (async () => {
+      for (;;) {
+        const { done, value } = await reader.read()
+        if (done) return
+        body += decoder.decode(value, { stream: true })
+      }
+    })()
+    await vi.advanceTimersByTimeAsync(0)
+    // 上游尚未产出任何 token，start 片段已写出，响应头随之发送。
+    expect(body).toContain('"type":"start"')
+    upstream.push(...silentThinking)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(body).toContain('{"type":"data-keepalive","data":null,"transient":true}')
+    upstream.push(
+      { type: 'reasoning-end', id: 'r' },
+      { type: 'text-start', id: 't' },
+      { type: 'text-delta', id: 't', delta: 'answer' },
+      { type: 'text-end', id: 't' },
+    )
+    upstream.end()
+    await vi.advanceTimersByTimeAsync(0)
+    await result.done
+    await reading
+    expect(vi.getTimerCount()).toBe(0)
+    vi.useRealTimers()
+    const chunks = body
+      .split('\n')
+      .filter((line) => line.startsWith('data: {'))
+      .map((line) => JSON.parse(line.slice(6)) as UIMessageChunk)
+    const stream = new ReadableStream<UIMessageChunk>({
+      start(controller) {
+        for (const chunk of chunks) controller.enqueue(chunk)
+        controller.close()
+      },
+    })
+    let last: ChatUIMessage | undefined
+    for await (const message of readUIMessageStream<ChatUIMessage>({ stream })) last = message
+    expect(last?.parts).toEqual([{ type: 'text', text: 'answer', state: 'done' }])
+  })
+
+  it('consumer cancel stops the heartbeat while the provider stream drains', async () => {
+    vi.useFakeTimers()
+    const upstream = controlledModel()
+    const result = start(upstream.model, { displayReasoning: false, heartbeatMs: 1000 })
+    const reader = result.fullStream.getReader()
+    await vi.advanceTimersByTimeAsync(0)
+    upstream.push(...silentThinking)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(await reader.read()).toMatchObject({ value: { type: 'keepalive' } })
+    await reader.cancel()
+    // 心跳已停；仅剩上游仍在读取时的空闲与截止计时。
+    expect(vi.getTimerCount()).toBe(2)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(vi.getTimerCount()).toBe(2)
+    upstream.push(
+      { type: 'reasoning-end', id: 'r' },
+      { type: 'text-start', id: 't' },
+      { type: 'text-delta', id: 't', delta: 'answer' },
+      { type: 'text-end', id: 't' },
+    )
+    upstream.end()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(await result.done).toMatchObject({ text: 'answer', status: 'completed' })
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('failed reply clears the heartbeat after the error part', async () => {
+    vi.useFakeTimers()
+    const upstream = controlledModel()
+    const result = start(upstream.model, { displayReasoning: false, heartbeatMs: 1000 })
+    const parts: string[] = []
+    const reading = (async () => {
+      for await (const part of result.fullStream) parts.push(part.type)
+    })()
+    await vi.advanceTimersByTimeAsync(0)
+    // 确定业务拒绝不重试，回复直接失败。
+    upstream.push({ type: 'error', error: new AppError('UPSTREAM_REJECTED', 'boom') })
+    upstream.end()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(await result.done).toMatchObject({ status: 'failed' })
+    await reading
+    expect(parts.at(-1)).toBe('error')
+    expect(vi.getTimerCount()).toBe(0)
+  })
+})
+
+const usageFinish = (input: number, output: number, reasoning: number) => ({
+  type: 'finish' as const,
+  finishReason: { unified: 'stop' as const, raw: undefined },
+  usage: {
+    inputTokens: { total: input, noCache: input, cacheRead: undefined, cacheWrite: undefined },
+    outputTokens: { total: output, text: output - reasoning, reasoning },
+  },
+})
+
+describe('last attempt usage', () => {
+  it('重试后检查点与结果只保留最后一次尝试的用量', async () => {
+    const usages = [
+      [10, 40, 40],
+      [12, 30, 30],
+      [14, 20, 20],
+    ] as const
+    let n = 0
+    const model = new MockLanguageModelV4({
+      doStream: async () => {
+        const [input, output, reasoning] = usages[n++] ?? [0, 0, 0]
+        return {
+          stream: simulateReadableStream({
+            initialDelayInMs: 0,
+            chunkDelayInMs: 0,
+            chunks: [
+              { type: 'reasoning-start', id: 'r' },
+              { type: 'reasoning-delta', id: 'r', delta: 'thinking' },
+              { type: 'reasoning-end', id: 'r' },
+              usageFinish(input, output, reasoning),
+            ],
+          }),
+        }
+      },
+    })
+    const snapshots: { lastAttempt?: unknown; outputTokens: number }[] = []
+    const result = start(model, {
+      checkpoint: (snapshot) => snapshots.push(structuredClone(snapshot)),
+    })
+    const outcome = await result.done
+    expect(model.doStreamCalls).toHaveLength(3)
+    expect(outcome).toMatchObject({
+      status: 'failed',
+      lastAttempt: { inputTokens: 14, outputTokens: 20, reasoningTokens: 20 },
+      absorbed: { inputTokens: 36, outputTokens: 90, reasoningTokens: 90 },
+    })
+    // 重试前写入的检查点替换为刚结束的那一次尝试，不累加此前的尝试。
+    const retries = snapshots.filter((snapshot) => snapshot.outputTokens === 0)
+    expect(retries.map((snapshot) => snapshot.lastAttempt)).toEqual([
+      { inputTokens: 10, outputTokens: 40, reasoningTokens: 40 },
+      { inputTokens: 12, outputTokens: 30, reasoningTokens: 30 },
+    ])
+  })
+})
+
+describe('upstream timeouts', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  /** 返回响应头后不再输出、也不响应中止信号的上游 */
+  function silentModel(before: UpstreamPart[] = []) {
+    const signals: (AbortSignal | undefined)[] = []
+    const model = new MockLanguageModelV4({
+      doStream: async (options) => {
+        signals.push(options.abortSignal)
+        return {
+          stream: new ReadableStream<UpstreamPart>({
+            start(controller) {
+              for (const part of before) controller.enqueue(part)
+            },
+          }),
+        }
+      },
+    })
+    return { model, signals }
+  }
+
+  it('空闲超时中止每次尝试，重试耗尽后失败结算，心跳不推迟超时且最终停止', async () => {
+    vi.useFakeTimers()
+    const { model, signals } = silentModel()
+    const settle = vi.fn(async () => {})
+    const result = start(model, {
+      displayReasoning: false,
+      heartbeatMs: 300,
+      idleTimeoutMs: 1000,
+      settle,
+    })
+    const parts: string[] = []
+    const reading = (async () => {
+      for await (const part of result.fullStream) parts.push(part.type)
+    })()
+    await vi.advanceTimersByTimeAsync(999)
+    expect(parts.filter((type) => type === 'keepalive').length).toBeGreaterThan(0)
+    expect(model.doStreamCalls).toHaveLength(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(signals[0]?.aborted).toBe(true)
+    await vi.advanceTimersByTimeAsync(5000)
+    const outcome = await result.done
+    await reading
+    expect(model.doStreamCalls).toHaveLength(3)
+    expect(outcome).toMatchObject({ status: 'failed', text: '' })
+    expect(settle).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }))
+    expect(parts.filter((type) => type === 'data-retry')).toHaveLength(2)
+    expect(parts.at(-1)).toBe('error')
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('已有正文后上游停滞：中止本次尝试并原生续写', async () => {
+    vi.useFakeTimers()
+    let n = 0
+    const model = new MockLanguageModelV4({
+      doStream: async () =>
+        n++ === 0
+          ? {
+              stream: new ReadableStream<UpstreamPart>({
+                start(controller) {
+                  controller.enqueue({ type: 'text-start', id: 't' })
+                  controller.enqueue({ type: 'text-delta', id: 't', delta: 'first ' })
+                },
+              }),
+            }
+          : {
+              stream: simulateReadableStream({
+                initialDelayInMs: 0,
+                chunkDelayInMs: 0,
+                chunks: [
+                  { type: 'text-start', id: 't' },
+                  { type: 'text-delta', id: 't', delta: 'second' },
+                  { type: 'text-end', id: 't' },
+                  finish,
+                ],
+              }),
+            },
+    })
+    const result = start(model, { idleTimeoutMs: 1000 })
+    await vi.advanceTimersByTimeAsync(1000)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(await result.done).toMatchObject({ status: 'completed', text: 'first second' })
+    expect(model.doStreamCalls).toHaveLength(2)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('总超时不晚于回复截止时间', async () => {
+    vi.useFakeTimers()
+    const { model, signals } = silentModel()
+    // 空闲超时长于截止时间，只有截止时间可以结束本次尝试；截止后不再重试。
+    const result = start(model, { deadline: Date.now() + 2500, idleTimeoutMs: 10_000 })
+    await vi.advanceTimersByTimeAsync(2499)
+    expect(signals[0]?.aborted).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+    const outcome = await result.done
+    expect(signals[0]?.aborted).toBe(true)
+    expect(outcome.status).toBe('failed')
+    expect(model.doStreamCalls).toHaveLength(1)
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('用户停止经合并信号立即结束不响应中止的上游', async () => {
+    const controller = new AbortController()
+    const { model, signals } = silentModel()
+    const result = start(model, { controller })
+    await vi.waitFor(() => expect(model.doStreamCalls).toHaveLength(1))
+    controller.abort('stop')
+    expect(await result.done).toMatchObject({ status: 'aborted' })
+    expect(signals[0]?.aborted).toBe(true)
     expect(model.doStreamCalls).toHaveLength(1)
   })
 })

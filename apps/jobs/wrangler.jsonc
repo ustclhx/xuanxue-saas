@@ -27,15 +27,28 @@
 
   // web 投递业务事件，jobs 消费并从 Cron 投递对账告警。
   // max_retries 与 src/queues/email.ts 的 EMAIL_MAX_ATTEMPTS（首次 + 5 次重试）一致；
-  // 不配置死信队列：最后一次投递仍失败时由消费者确认并记录 email.dropped（原因见该文件注释）。
+  // 邮件不配置死信队列：最后一次投递仍失败时由消费者确认并记录 email.dropped（原因见该文件注释）。
   "queues": {
     "producers": [
       { "queue": "xuanxue-email", "binding": "EMAIL_QUEUE" },
-      { "queue": "xuanxue-events", "binding": "EVENTS_QUEUE" }
+      { "queue": "xuanxue-events", "binding": "EVENTS_QUEUE" },
+      { "queue": "xuanxue-events-dlq", "binding": "EVENTS_DLQ" }
     ],
     "consumers": [
       { "queue": "xuanxue-email", "max_batch_size": 10, "max_batch_timeout": 5, "max_retries": 5 },
-      { "queue": "xuanxue-events", "max_batch_size": 10, "max_batch_timeout": 5, "max_retries": 5 }
+      {
+        "queue": "xuanxue-events",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "dead_letter_queue": "xuanxue-events-dlq"
+      },
+      {
+        "queue": "xuanxue-events-dlq",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 100
+      }
     ]
   },
   "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
@@ -55,7 +68,7 @@
       },
 
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-staging" }],
-      // 计费 Cron 验收需要查询一小时内的完整日志，仅 staging 开启日志采集。
+      // 计费 Cron 验收需要查询一小时内的完整日志，staging 开启日志采集。
       "observability": {
         "enabled": true,
         "head_sampling_rate": 1,
@@ -71,7 +84,8 @@
       "queues": {
         "producers": [
           { "queue": "xuanxue-email-staging", "binding": "EMAIL_QUEUE" },
-          { "queue": "xuanxue-events-staging", "binding": "EVENTS_QUEUE" }
+          { "queue": "xuanxue-events-staging", "binding": "EVENTS_QUEUE" },
+          { "queue": "xuanxue-events-dlq-staging", "binding": "EVENTS_DLQ" }
         ],
         "consumers": [
           {
@@ -84,7 +98,14 @@
             "queue": "xuanxue-events-staging",
             "max_batch_size": 10,
             "max_batch_timeout": 5,
-            "max_retries": 5
+            "max_retries": 5,
+            "dead_letter_queue": "xuanxue-events-dlq-staging"
+          },
+          {
+            "queue": "xuanxue-events-dlq-staging",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 100
           }
         ]
       },
@@ -98,6 +119,7 @@
     // 生产禁止 AI_FAULT_INJECTION。
     "production": {
       "name": "xuanxue-jobs-production",
+      "observability": { "enabled": true, "head_sampling_rate": 1, "traces": { "enabled": false } },
       "workers_dev": false,
       "preview_urls": false,
       "vars": {
@@ -115,7 +137,8 @@
       "queues": {
         "producers": [
           { "queue": "xuanxue-email-production", "binding": "EMAIL_QUEUE" },
-          { "queue": "xuanxue-events-production", "binding": "EVENTS_QUEUE" }
+          { "queue": "xuanxue-events-production", "binding": "EVENTS_QUEUE" },
+          { "queue": "xuanxue-events-dlq-production", "binding": "EVENTS_DLQ" }
         ],
         "consumers": [
           {
@@ -128,7 +151,14 @@
             "queue": "xuanxue-events-production",
             "max_batch_size": 10,
             "max_batch_timeout": 5,
-            "max_retries": 5
+            "max_retries": 5,
+            "dead_letter_queue": "xuanxue-events-dlq-production"
+          },
+          {
+            "queue": "xuanxue-events-dlq-production",
+            "max_batch_size": 10,
+            "max_batch_timeout": 5,
+            "max_retries": 100
           }
         ]
       },

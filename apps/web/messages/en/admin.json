@@ -350,5 +350,9 @@
   "admin_reading_model_unset": "Not selected",
   "admin_save_paid_readings": "Save paid readings",
   "admin_paid_readings_saved": "Saved. Changes apply within about 60 seconds.",
-  "admin_paid_readings_unavailable": "Paid reading settings are unavailable. Reload and try again."
+  "admin_paid_readings_unavailable": "Paid reading settings are unavailable. Reload and try again.",
+  "admin_ai_free_failure_count": "Free failed AI replies per workspace",
+  "admin_ai_free_failure_count_description": "Chat replies that fail without visible text are refunded in full up to this many times per window. Later failures are charged for the last upstream attempt (never more than the hold). 0 charges every such failure.",
+  "admin_ai_free_failure_window_minutes": "Free failure window (minutes)",
+  "admin_ai_free_failure_window_description": "Rolling window for counting free failures. Default 60 minutes."
 }

@@ -18,6 +18,7 @@ declare global {
         | import('@xuanxue/billing').BillingQueueMessage
         | import('./notifications/operations.ts').OperationsQueueMessage
       >
+      EVENTS_DLQ: Queue<import('./queues/events-dead-letter.ts').EventsDeadLetter>
       EMAIL_QUEUE: Queue<import('@xuanxue/email/queue').EmailQueueMessage>
       /** 不带查询缓存（app-db）：Cron 写库 */
       HYPERDRIVE: Hyperdrive

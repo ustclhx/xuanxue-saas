@@ -102,7 +102,7 @@ main 分支 CI 通过后自动发布 staging；见 [基础设施文档](docs/07-
 
 ## Agent Skills
 
-项目内提供 6 个技能，Codex 使用 `.agents/skills/`，Claude 使用 `.claude/skills/`：
+项目内提供 7 个技能，Codex 使用 `.agents/skills/`，Claude 使用 `.claude/skills/`：
 
 | 技能 | 用途 |
 | --- | --- |
@@ -112,6 +112,7 @@ main 分支 CI 通过后自动发布 staging；见 [基础设施文档](docs/07-
 | [new-static-page](.agents/skills/new-static-page/SKILL.md) | 多语言营销/法务 MDX 或静态路由、SEO、sitemap 与预渲染 |
 | [add-ai-model](.agents/skills/add-ai-model/SKILL.md) | 后台模型编辑器、参数 schema/定价/套餐授权；必要时新增 Provider |
 | [security-scan](.agents/skills/security-scan/SKILL.md) | 工程检查、敏感路径与凭据扫描、鉴权/注入/账本等 diff 审查 |
+| [template-sync](.agents/skills/template-sync/SKILL.md) | 按模板版本采纳更新，含升级说明待办、迁移移植与基准推断 |
 
 在项目根按技能名发起请求（Codex `$new-page`、Claude `/new-page`），或直接要求 agent 阅读对应 `SKILL.md` 执行。
 部署默认只读预检与 dry-run；具体写入清单确认后才操作，缺外部凭据的环节明确标记待验收。
@@ -119,7 +120,7 @@ main 分支 CI 通过后自动发布 staging；见 [基础设施文档](docs/07-
 维护时编辑 `.agents/skills/<name>/SKILL.md` 后复制到 `.claude` 同名路径，两份逐字节一致（不用符号链接）。提交前核对：
 
 ```sh
-for skill in deploy-cloudflare new-page new-module new-static-page add-ai-model security-scan; do
+for skill in deploy-cloudflare new-page new-module new-static-page add-ai-model security-scan template-sync; do
   cmp ".agents/skills/$skill/SKILL.md" ".claude/skills/$skill/SKILL.md" || exit 1
 done
 ```

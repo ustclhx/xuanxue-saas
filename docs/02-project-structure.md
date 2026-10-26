@@ -46,6 +46,7 @@ xuanxue/
 ├─ infra/
 │  └─ local/                      # 本地开发 docker-compose
 ├─ docs/
+├─ .template-base.json          # 生成副本的模板提交、版本、参数与已包含迁移；需提交
 ├─ .env.example                 # 本地支付配置模板（只含键与占位符）
 ├─ .env.local                   # 本地真值，已 gitignore
 ├─ biome.json  package.json  pnpm-workspace.yaml  turbo.json
@@ -151,6 +152,9 @@ export default defineTemplateConfig({
 
 ## 4. 编码约定
 
+模板版本与逐版本升级动作见 [升级说明](upgrades/README.md)：`template-v*` 是模板发布，
+`v*` 是演示站及衍生项目自身的生产发布，会触发生产部署。
+
 - **ID**：主键统一用 UUIDv7（时间有序，利于索引），列类型为 PG 原生 `uuid`（16 字节，比 `text` 存储的 36 字符更省空间、索引更小）。Better Auth 通过 `advanced.database.generateId` 生成 UUIDv7，其表的 id 与外键列也改为 `uuid`（Better Auth CLI 生成的 Drizzle schema 默认是 `text`，在 `packages/db/src/schema/{auth,tenancy}.ts` 中手动调整；已验证 better-auth 1.7.7 的核心、organization、admin 等插件在 `uuid` 列上可用，无需例外，见 `packages/auth/test/auth.test.ts`）。对外暴露的 ID 与内部一致，不另设公开 ID。
 - **时间**：数据库一律 `timestamptz`，服务端只处理 UTC；展示层用 `Intl.DateTimeFormat` + 用户时区。
 - **金额**：整数最小货币单位（cents）+ `currency` 字段；**积分**：整数。
@@ -160,3 +164,7 @@ export default defineTemplateConfig({
 - **外部调用**：一律经过对应 package 的接口（PaymentProvider / MediaProvider / EmailSender），不在 feature 代码里直接用第三方 SDK。
 - **Webhook**：一律「验签 → 去重 → 事务处理 → 异步副作用」四步。
 - **迁移**：只通过 drizzle-kit 生成的 SQL 迁移变更 schema，迁移文件纳入版本控制。
+  - drizzle-orm（0.45.3 实测）只执行 journal 中 `when` 大于库中最后一条已应用迁移 `created_at` 的迁移；`when` 更早的新迁移会被**静默跳过**，不报错，也不留记录。
+  - 已发布的迁移不再修改，修复改用新迁移；迁移不得依赖固定的 idx 或文件名序号。
+  - 衍生项目中，自有迁移沿用 drizzle-kit 默认命名；模板同步移植的迁移命名为 `<idx>_tpl_<原名>`，追加在序列末尾，`when` 晚于已有的全部迁移，原 tag 登记在 `.template-base.json` 的 `migrations` 中。
+  - 先扩展后收缩：每个版本的 schema 必须让上一版本的代码仍可运行。删除、重命名、改类型、加约束等收缩变更至少晚一个版本发布，语句带 `-- template-contract: <原因>` 注释，升级说明声明 `requiresDeployed`，详见 [升级说明](upgrades/README.md)。
