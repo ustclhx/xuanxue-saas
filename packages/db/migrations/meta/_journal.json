@@ -106,6 +106,27 @@
       "when": 1793011479707,
       "tag": "0014_restore_job_engine",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1793011479708,
+      "tag": "0015_tpl_job_engine_app_dead_letter",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793011479709,
+      "tag": "0016_tpl_audit_meta_remove_personal_data",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793011479710,
+      "tag": "0017_tpl_ai_task_cancel_billing",
+      "breakpoints": true
     }
   ]
 }
