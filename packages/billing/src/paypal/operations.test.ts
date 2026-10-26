@@ -1,6 +1,6 @@
 import type { PlanPrice } from '@xuanxue/db/schema'
 import { describe, expect, it } from 'vitest'
-import type { CheckoutInput, PlanSyncInput } from '../provider.ts'
+import { type CheckoutInput, PaymentDeclinedError, type PlanSyncInput } from '../provider.ts'
 import { decodePayPalMetadata, encodePayPalMetadata } from './metadata.ts'
 import { fromPayPalDecimal, toPayPalDecimal } from './money.ts'
 import { createPayPalOperations } from './operations.ts'
@@ -318,6 +318,147 @@ describe('PayPal checkout and management', () => {
     )
     expect(requestIds[0]).toMatch(/^[0-9a-f]{32}$/)
     expect(requestIds[1]).toBe(requestIds[0])
+    h.done()
+  })
+
+  it.each([
+    ['en', 'Arcanumber', '500 credits · Arcanumber', 'en-US'],
+    ['zh-Hant', '干支日', '100 積分 · 干支日', 'zh-TW'],
+    ['zh-Hans', '干支日', '100 积分 · 干支日', 'zh-CN'],
+    ['ko', '간지데이', '100 크레딧 · 간지데이', 'ko-KR'],
+  ])(
+    'writes %s site presentation into the Orders body',
+    async (locale, brandName, description, payPalLocale) => {
+      const h = harness([
+        token(),
+        {
+          path: '/v2/checkout/orders',
+          response: { id: 'ORDER-TEST', links: [{ rel: 'payer-action', href: 'https://pp.test' }] },
+          inspect: (body) => {
+            const money = { currency_code: 'USD', value: '12.34' }
+            expect(body.purchase_units).toEqual([
+              {
+                custom_id: encodePayPalMetadata(metadata),
+                amount: { ...money, breakdown: { item_total: money } },
+                description,
+                items: [
+                  {
+                    name: description,
+                    quantity: '1',
+                    category: 'DIGITAL_GOODS',
+                    unit_amount: money,
+                  },
+                ],
+              },
+            ])
+            expect(body.payment_source).toEqual({
+              paypal: {
+                experience_context: {
+                  brand_name: brandName,
+                  locale: payPalLocale,
+                  shipping_preference: 'NO_SHIPPING',
+                  user_action: 'PAY_NOW',
+                  return_url: checkout.successUrl,
+                  cancel_url: checkout.cancelUrl,
+                },
+              },
+            })
+          },
+        },
+      ])
+      await h.operations.createCheckout({
+        ...checkout,
+        mode: 'one_time',
+        price: { ...price, interval: null, providerPriceId: `paypal:credit_pack:${priceId}` },
+        presentation: { brandName, locale, description },
+      })
+      h.done()
+    },
+  )
+
+  it('truncates presentation text to PayPal limits by code point and omits unknown locales', async () => {
+    const long = `${'积'.repeat(126)}😀tail`
+    const h = harness([
+      token(),
+      {
+        path: '/v2/checkout/orders',
+        response: { id: 'ORDER-TEST', links: [{ rel: 'payer-action', href: 'https://pp.test' }] },
+        inspect: (body) => {
+          const unit = (body.purchase_units as Record<string, unknown>[])[0] ?? {}
+          const items = unit.items as { name: string }[]
+          const context = (body.payment_source as { paypal: { experience_context: object } }).paypal
+            .experience_context as Record<string, unknown>
+          const expected = `${'积'.repeat(126)}😀`
+          expect(Array.from(String(unit.description))).toHaveLength(127)
+          expect(unit.description).toBe(expected)
+          expect(items[0]?.name).toBe(expected)
+          expect(context.brand_name).toBe('B'.repeat(127))
+          expect(context).not.toHaveProperty('locale')
+        },
+      },
+    ])
+    await h.operations.createCheckout({
+      ...checkout,
+      mode: 'one_time',
+      price: { ...price, interval: null, providerPriceId: `paypal:credit_pack:${priceId}` },
+      presentation: { brandName: 'B'.repeat(200), locale: 'fr', description: long },
+    })
+    h.done()
+  })
+
+  it.each([
+    ['sandbox', 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-TEST'],
+    ['live', 'https://www.paypal.com/checkoutnow?token=ORDER-TEST'],
+  ] as const)(
+    'turns a %s 422 INSTRUMENT_DECLINED capture into a retry link without the body',
+    async (environment, retryUrl) => {
+      const h = harness(
+        [
+          token(),
+          {
+            path: '/v2/checkout/orders/ORDER-TEST/capture',
+            status: 422,
+            response: {
+              name: 'UNPROCESSABLE_ENTITY',
+              details: [{ issue: 'INSTRUMENT_DECLINED', description: 'card 4111 secret detail' }],
+              debug_id: 'debug-secret',
+            },
+          },
+        ],
+        { environment },
+      )
+      const error = await h.operations
+        .confirmCheckout('ORDER-TEST', { idempotencyKey: 'capture:p' })
+        .catch((caught: unknown) => caught)
+      expect(error).toBeInstanceOf(PaymentDeclinedError)
+      expect(error).toMatchObject({ retryUrl })
+      expect(JSON.stringify(error)).not.toMatch(/secret|4111/)
+      expect(String((error as Error).message)).not.toMatch(/secret|4111/)
+      h.done()
+    },
+  )
+
+  it.each([
+    [
+      422,
+      { details: [{ issue: 'ORDER_NOT_APPROVED', description: 'secret' }] },
+      'ORDER_NOT_APPROVED',
+    ],
+    [400, { details: [{ issue: 'instrument declined; secret' }] }, undefined],
+    [500, 'not json secret', undefined],
+  ])('keeps other %i capture failures as safe HTTP errors', async (status, response, issue) => {
+    const h = harness([
+      token(),
+      { path: '/v2/checkout/orders/ORDER-TEST/capture', status, response },
+    ])
+    const error = await h.operations
+      .confirmCheckout('ORDER-TEST', { idempotencyKey: 'capture:p' })
+      .catch((caught: unknown) => caught)
+    expect(error).toBeInstanceOf(PayPalHttpError)
+    expect(error).not.toBeInstanceOf(PaymentDeclinedError)
+    expect(error).toMatchObject({ status, issue })
+    expect(String((error as Error).message)).toBe(`PayPal HTTP request failed (${status})`)
+    expect(JSON.stringify(error)).not.toContain('secret')
     h.done()
   })
 

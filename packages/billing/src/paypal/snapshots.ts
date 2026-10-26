@@ -294,6 +294,7 @@ function orderSnapshot(value: PayPalOrderPayload): OrderSnapshot {
     providerCustomerId: customer(value.payer?.payer_id ?? value.payment_source?.paypal?.account_id),
     providerPriceId: meta ? creditPackId(meta.planPriceId) : null,
     status,
+    remoteStatus: value.status,
     amount,
     currency: 'USD',
     metadata: meta,

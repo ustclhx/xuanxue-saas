@@ -13,12 +13,15 @@ import type { Database } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { z } from 'zod'
+import { m } from '../../paraglide/messages.js'
+import { getLocale, type Locale } from '../../paraglide/runtime.js'
 import { withBilling, withCredits } from '../../server/feature-gates.ts'
 import { withRealSession, withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 import { requestSiteOrigin } from '../site/site.ts'
+import { checkoutPresentation } from './checkout-presentation.ts'
 import {
   creditPageSchema,
   customerBilling,
@@ -66,6 +69,13 @@ async function safe<T>(readOnly: boolean, action: () => Promise<T>) {
     if (error instanceof AppError && error.status === 503) setResponseStatus(503)
     // 非业务错误（服务商拒绝、网络等）对用户只显示 BILLING_UNAVAILABLE，原因需留在日志中排查
     if (!(error instanceof AppError)) log.error('billing.action_failed', { error })
+    // 只有可恢复的拒付带回 PayPal 重新选择付款方式的链接（enable-paypal-checkout D2）
+    const retryUrl =
+      error instanceof AppError && error.code === 'BILLING_PAYMENT_DECLINED'
+        ? error.details?.retryUrl
+        : undefined
+    if (typeof retryUrl === 'string')
+      return { ok: false as const, error: 'BILLING_PAYMENT_DECLINED', retryUrl }
     return {
       ok: false as const,
       error: error instanceof AppError ? error.code : 'BILLING_UNAVAILABLE',
@@ -138,6 +148,16 @@ export const checkoutCustomer = createServerFn({ method: 'POST' })
         userId: context.user.id,
         successUrl: returnUrl(context.workspace.slug, data.provider, false, returnTo),
         cancelUrl: returnUrl(context.workspace.slug, data.provider, true, returnTo),
+        presentation: checkoutPresentation(
+          {
+            requestUrl: getRequest().url,
+            returnTo,
+            currentLocale: getLocale(),
+            credits: (count, locale) =>
+              m.marketing_pricing_credits_pack({ count }, { locale: locale as Locale }),
+          },
+          templateConfig,
+        ),
       })
       return { url: result.url }
     }),

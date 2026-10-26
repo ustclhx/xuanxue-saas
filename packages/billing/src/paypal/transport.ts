@@ -31,11 +31,32 @@ export interface PayPalTransport {
 /** Do not attach response bodies: OAuth errors can contain sensitive input. */
 export class PayPalHttpError extends Error {
   readonly status: number
+  /** 仅 PayPal 的 issue 名称（如 INSTRUMENT_DECLINED），供调用方分类；不携带响应正文 */
+  readonly issue: string | undefined
 
-  constructor(status: number) {
+  constructor(status: number, issue?: string) {
     super(`PayPal HTTP request failed (${status})`)
     this.status = status
+    this.issue = issue
     this.name = 'PayPalHttpError'
+  }
+}
+
+// issue 名称是 PayPal 定义的大写常量；其余内容（description、debug_id、链接）一律丢弃
+const ISSUE_NAME = /^[A-Z][A-Z0-9_]{0,63}$/
+
+/** 只解析业务接口错误体中第一项 `details[].issue`；正文无法解析或格式不符时返回 undefined。 */
+async function responseIssue(response: Response): Promise<string | undefined> {
+  try {
+    const body: unknown = await response.json()
+    if (typeof body !== 'object' || body === null || !('details' in body)) return undefined
+    const { details } = body
+    if (!Array.isArray(details)) return undefined
+    const first: unknown = details[0]
+    if (typeof first !== 'object' || first === null || !('issue' in first)) return undefined
+    return typeof first.issue === 'string' && ISSUE_NAME.test(first.issue) ? first.issue : undefined
+  } catch {
+    return undefined
   }
 }
 
@@ -157,7 +178,7 @@ export function createPayPalTransport(options: PayPalTransportOptions): PayPalTr
         headers,
         ...(request.body === undefined ? {} : { body: JSON.stringify(request.body) }),
       })
-      if (!response.ok) throw new PayPalHttpError(response.status)
+      if (!response.ok) throw new PayPalHttpError(response.status, await responseIssue(response))
       if (response.status === 204) return undefined as T
       return (await response.json()) as T
     },

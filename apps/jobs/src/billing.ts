@@ -8,6 +8,7 @@ import {
   runCreditExpiration,
   runCreditReconciliation,
   runHoldSweep,
+  runPendingCaptures,
   runPendingCompensations,
   runSubscriptionReconciliation,
 } from '@xuanxue/billing'
@@ -191,6 +192,15 @@ export async function runBillingSchedule(
         jobs.push(
           ['delivery_recovery', () => recoverBillingDeliveries(context)],
           ['compensation', () => runPendingCompensations(context)],
+          // 已批准但买家未回到站点的 PayPal 订单补 capture（enable-paypal-checkout D4）
+          [
+            'pending_captures',
+            () =>
+              runPendingCaptures(
+                { ...context, enabledProviders: templateConfig.billing.providers },
+                now,
+              ),
+          ],
           ['refund_notifications', () => flushRefundNotifications(context.mail)],
         )
       break

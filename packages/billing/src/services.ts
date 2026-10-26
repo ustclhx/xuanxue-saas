@@ -4,6 +4,7 @@ import {
   member,
   organization,
   type PaymentProviderId,
+  type Purchase,
   plan,
   planPrice,
   purchase,
@@ -15,7 +16,11 @@ import { AppError } from '@xuanxue/shared'
 import { and, eq, inArray, isNull, or } from 'drizzle-orm'
 import { type BillingProviders, lockWorkspaceBilling } from './events.ts'
 import type { WebhookTransaction } from './pipeline.ts'
-import type { SubscriptionSnapshot } from './provider.ts'
+import {
+  type CheckoutPresentation,
+  PaymentDeclinedError,
+  type SubscriptionSnapshot,
+} from './provider.ts'
 import { auditSubscriptionChange } from './subscription-audit.ts'
 
 export interface BillingServiceContext {
@@ -41,6 +46,13 @@ export interface CreateCheckoutInput extends BillingActor {
   cancelUrl: string
   confirmSwitch?: boolean
   expectedOldSubscriptionId?: string
+  /**
+   * 一次性订单在支付页上的站点展示：路由按请求站点与语言生成品牌和语言，
+   * 商品说明由这里按所选积分包的积分数生成，不接受客户端文本。
+   */
+  presentation?: Omit<CheckoutPresentation, 'description'> & {
+    describe(plan: { credits: number }): string
+  }
 }
 function fail(code: string, message: string, status = 409): never {
   throw new AppError(code, message, { status })
@@ -241,6 +253,15 @@ export async function createCheckout(ctx: BillingServiceContext, input: CreateCh
     customerEmail: account.email,
     ...(customer?.providerCustomerId ? { providerCustomerId: customer.providerCustomerId } : {}),
     idempotencyKey: `checkout:${input.workspaceId}:${input.idempotencyKey}`,
+    ...(input.presentation && mode === 'one_time'
+      ? {
+          presentation: {
+            brandName: input.presentation.brandName,
+            locale: input.presentation.locale,
+            description: input.presentation.describe({ credits: selected.credits }),
+          },
+        }
+      : {}),
   })
   // PayPal returns an order ID; Stripe returns a session ID and is associated by webhook.
   if (mode === 'one_time' && provider.confirmCheckout) {
@@ -394,6 +415,36 @@ export async function getPortalUrl(
   return provider.getPortalUrl(customer.providerCustomerId, input.returnUrl)
 }
 
+/**
+ * 不依赖用户身份的 capture：返回页（已校验 owner）与后台补 capture 共用。
+ * 两处使用同一幂等键 `capture:${purchase.id}`，并发或重复触发时 PayPal 只扣款一次；
+ * 积分只由验签后的付款回调发放，这里不写账务。
+ */
+export async function capturePurchase(
+  ctx: BillingServiceContext,
+  pending: Pick<Purchase, 'id' | 'provider' | 'providerOrderId' | 'status'>,
+) {
+  const provider = providerFor(ctx, pending.provider)
+  if (!provider.confirmCheckout)
+    fail('BILLING_CONFIRM_UNAVAILABLE', 'Provider has no capture operation', 400)
+  if (pending.status === 'paid') return
+  if (pending.status !== 'pending')
+    fail('BILLING_PURCHASE_NOT_PENDING', 'Purchase cannot be captured')
+  try {
+    await provider.confirmCheckout(pending.providerOrderId, {
+      idempotencyKey: `capture:${pending.id}`,
+    })
+  } catch (error) {
+    // 可恢复的拒付转为业务错误，retryUrl 只含订单 ID 与环境，不含平台响应正文
+    if (error instanceof PaymentDeclinedError)
+      throw new AppError('BILLING_PAYMENT_DECLINED', 'Payment method declined', {
+        status: 402,
+        details: { retryUrl: error.retryUrl },
+      })
+    throw error
+  }
+}
+
 export async function confirmCheckout(
   ctx: BillingServiceContext,
   input: BillingActor & { provider: PaymentProviderId; providerRef: string },
@@ -414,8 +465,5 @@ export async function confirmCheckout(
       ),
     )
   if (!owned) fail('BILLING_PURCHASE_NOT_FOUND', 'Purchase unavailable', 404)
-  if (owned.status === 'paid') return
-  if (owned.status !== 'pending')
-    fail('BILLING_PURCHASE_NOT_PENDING', 'Purchase cannot be captured')
-  await provider.confirmCheckout(input.providerRef, { idempotencyKey: `capture:${owned.id}` })
+  await capturePurchase(ctx, owned)
 }

@@ -1,9 +1,11 @@
+import { AppError } from '@xuanxue/shared'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   env: {} as Record<string, unknown>,
   process: vi.fn(),
   checkout: vi.fn(),
+  confirm: vi.fn(),
   eventsAvailable: true,
   emailAvailable: true,
   refund: vi.fn(),
@@ -71,6 +73,7 @@ vi.mock('@xuanxue/billing', async (original) => ({
   ...(await original<typeof import('@xuanxue/billing')>()),
   processWebhook: mocks.process,
   createCheckout: mocks.checkout,
+  confirmCheckout: mocks.confirm,
   submitRefundRequest: mocks.refund,
   createBillingDeletionStep: mocks.deletion,
 }))
@@ -80,8 +83,18 @@ vi.mock('../../server/template-config.ts', () => ({
     billing: { enabled: true, providers: ['stripe', 'paypal'], refundWindowDays: 30 },
     i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
     sites: {
-      east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
-      west: { hosts: ['arcanumber.com'], locales: ['en'], defaultLocale: 'en' },
+      east: {
+        hosts: ['ganjiday.com'],
+        locales: ['zh-Hant', 'ko'],
+        defaultLocale: null,
+        brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日', ko: '간지데이' } },
+      },
+      west: {
+        hosts: ['arcanumber.com'],
+        locales: ['en'],
+        defaultLocale: 'en',
+        brand: { name: 'Arcanumber', names: {} },
+      },
     },
   },
 }))
@@ -93,7 +106,7 @@ vi.mock('../marketing/pricing-snapshot.ts', () => ({ pricingSnapshot: {} }))
 import { handlePaymentWebhook } from '../../routes/api/billing/webhooks/$provider.ts'
 import { getMarketingPricing } from '../marketing/pricing.functions.ts'
 import { getAdminBilling, replayAdminWebhook } from './admin.functions.ts'
-import { checkoutCustomer } from './customer.functions.ts'
+import { checkoutCustomer, confirmCustomerCheckout } from './customer.functions.ts'
 import { createBillingDeletionSteps as billingDeletionSteps } from './deletion.server.ts'
 import { requestCustomerRefund } from './refund.functions.ts'
 
@@ -269,6 +282,10 @@ it('checkout started on the east site returns there and then to the originating 
         'https://ganjiday.com/app/team/billing-return?provider=stripe&canceled=true&returnTo=%2Fko%2Fmanseryeok',
     }),
   )
+  // PayPal 页面展示按请求站点与 returnTo 语言在服务端生成，商品说明只含积分数与品牌
+  const presentation = mocks.checkout.mock.lastCall?.[1].presentation
+  expect(presentation).toMatchObject({ brandName: '간지데이', locale: 'ko' })
+  expect(presentation.describe({ credits: 100 })).toBe('100 크레딧 · 간지데이')
   // 不安全的 returnTo 被丢弃，回到计费页
   await checkout(input('//evil.example'))
   expect(mocks.checkout).toHaveBeenLastCalledWith(
@@ -278,6 +295,40 @@ it('checkout started on the east site returns there and then to the originating 
     }),
   )
   mocks.requestUrl = 'https://app.test'
+})
+
+it('capture failures return retryUrl only for a declined payment method', async () => {
+  mocks.env.PAYMENT_MODE = 'test'
+  vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const confirm = confirmCustomerCheckout as unknown as (input: unknown) => Promise<unknown>
+  const input = {
+    context: {
+      db: mocks.db,
+      workspaceReadOnly: false,
+      workspace: { id: 'workspace', slug: 'team' },
+      user: { id: 'user' },
+    },
+    data: { provider: 'paypal', providerRef: 'ORDER' },
+  }
+  const retryUrl = 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER'
+  mocks.confirm.mockRejectedValueOnce(
+    new AppError('BILLING_PAYMENT_DECLINED', 'Payment method declined', {
+      status: 402,
+      details: { retryUrl },
+    }),
+  )
+  expect(await confirm(input)).toEqual({ ok: false, error: 'BILLING_PAYMENT_DECLINED', retryUrl })
+  mocks.confirm.mockRejectedValueOnce(
+    new AppError('BILLING_PURCHASE_NOT_PENDING', 'Purchase cannot be captured', {
+      details: { retryUrl },
+    }),
+  )
+  expect(await confirm(input)).toEqual({ ok: false, error: 'BILLING_PURCHASE_NOT_PENDING' })
+  // 平台错误不向用户透出原文，只记日志
+  mocks.confirm.mockRejectedValueOnce(new Error('PayPal HTTP request failed (500)'))
+  expect(await confirm(input)).toEqual({ ok: false, error: 'BILLING_UNAVAILABLE' })
+  mocks.confirm.mockResolvedValueOnce(undefined)
+  expect(await confirm(input)).toEqual({ ok: true, result: { status: 'awaiting_payment' } })
 })
 
 it.each(['events', 'email'] as const)(
