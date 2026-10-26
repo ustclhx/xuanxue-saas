@@ -6,7 +6,7 @@
 
 - Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。
 - 东方站 `ganjiday.com`，西方站 `arcanumber.com`，一个 web Worker 绑定两个 custom domain。
-- 暂不开支付：不配置 Stripe live / PayPal，不写支付密钥，不运行 `billing:sync`。
+- 暂不开支付（v0.1.x 现状）：不配置 Stripe live / PayPal，不写支付密钥，不运行 `billing:sync`。后续只接 PayPal（change `enable-paypal-checkout`）：生产 `PAYMENT_MODE=live`、`PAYPAL_*` secrets、`billing:activate-packs` 与验收步骤见 [PayPal 上线 runbook](paypal-launch.md)；本文历史记录保持原样，以该 runbook 为准。
 - 邮件使用 Resend，两站分别验证 `send.ganjiday.com`、`send.arcanumber.com`；按站点区分发件地址的代码由协调者处理。
 - 收件使用 Cloudflare Email Routing：两个裸域的 `support@` 均转发到用户确认的同一 Gmail；目标地址不写入文档。Routing 使用裸域 MX/SPF，Resend 继续使用独立 `send` 子域。
 - 不使用 Sentry。仅操作本轮新建资源；`production-neon.md` 属于模板项目，只参考流程。
