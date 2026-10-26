@@ -17,9 +17,9 @@
 > - 1.3 的 capture 必须走 provider 现有的 `confirmCheckout` 和幂等键 `capture:${purchase.id}`。订单状态用 provider 现有的 `getOrder`（`paypal/snapshots.ts`）读取。它目前把 APPROVED 合并为 `pending`，需要区分时在 `OrderSnapshot` 上扩展字段，不另发 GET 请求。定时入口加到 `apps/jobs/src/billing.ts` 现有 `BILLING_RETRY_CRON` 的 jobs 列表，与 `runPendingCompensations` 并列。
 > - `paypal:credit_pack:` 前缀的收敛由 C 组 3.2 负责，本组不改动这部分，避免冲突。
 
-- [ ] 1.1 `CheckoutInput` 增加可选 `presentation`（品牌、语言、商品说明），PayPal 订单写入 `brand_name`、`locale`（en-US/zh-TW/zh-CN/ko-KR）、`description` 和一项 `DIGITAL_GOODS` items（含 `item_total` breakdown）；`customer.functions.ts` 按请求站点和 `returnTo` 语言在服务端生成 presentation，不使用客户端文本。验证：operations 单测断言两站和四种语言的请求体，并断言超长截断；Stripe 请求体不变
-- [ ] 1.2 capture 拒付恢复：`PayPalHttpError` 只解析 issue 名称（不携带响应正文）；`INSTRUMENT_DECLINED` 转为带 `retryUrl`（按环境拼接 checkoutnow 链接）的 `BILLING_PAYMENT_DECLINED`；`safe()` 只对该错误码返回 `retryUrl`。验证：单测覆盖 422 拒付、其他 4xx/5xx 仍为 `BILLING_UNAVAILABLE`，日志与返回值都不含 PayPal 响应正文
-- [ ] 1.3 拆出不依赖用户身份的 `capturePurchase`，新增 `runPendingCaptures` 并挂到 jobs 的 `BILLING_RETRY_CRON`：处理 72h 内、超过 10 分钟的 pending PayPal 购买，每轮上限 50；APPROVED 用同一幂等键 capture，COMPLETED 跳过，VOIDED/404/超时则条件更新为 failed。验证：隔离 PostgreSQL 集成测试覆盖 APPROVED capture、与返回页并发时只有一个幂等键、已 paid 不被覆盖、超时标记 failed、上限分批；jobs 单测断言注册到 retry cron
+- [x] 1.1 `CheckoutInput` 增加可选 `presentation`（品牌、语言、商品说明），PayPal 订单写入 `brand_name`、`locale`（en-US/zh-TW/zh-CN/ko-KR）、`description` 和一项 `DIGITAL_GOODS` items（含 `item_total` breakdown）；`customer.functions.ts` 按请求站点和 `returnTo` 语言在服务端生成 presentation，不使用客户端文本。验证：operations 单测断言两站和四种语言的请求体，并断言超长截断；Stripe 请求体不变
+- [x] 1.2 capture 拒付恢复：`PayPalHttpError` 只解析 issue 名称（不携带响应正文）；`INSTRUMENT_DECLINED` 转为带 `retryUrl`（按环境拼接 checkoutnow 链接）的 `BILLING_PAYMENT_DECLINED`；`safe()` 只对该错误码返回 `retryUrl`。验证：单测覆盖 422 拒付、其他 4xx/5xx 仍为 `BILLING_UNAVAILABLE`，日志与返回值都不含 PayPal 响应正文
+- [x] 1.3 拆出不依赖用户身份的 `capturePurchase`，新增 `runPendingCaptures` 并挂到 jobs 的 `BILLING_RETRY_CRON`：处理 72h 内、超过 10 分钟的 pending PayPal 购买，每轮上限 50；APPROVED 用同一幂等键 capture，COMPLETED 跳过，VOIDED/404/超时则条件更新为 failed。验证：隔离 PostgreSQL 集成测试覆盖 APPROVED capture、与返回页并发时只有一个幂等键、已 paid 不被覆盖、超时标记 failed、上限分批；jobs 单测断言注册到 retry cron
 
 ## 2. B：回跳页与账单页 UI（`apps/web/src/routes/app/$slug/billing-return.tsx`、`billing.tsx`、`apps/web/messages/*/billing.json`）
 

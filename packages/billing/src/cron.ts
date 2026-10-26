@@ -14,10 +14,12 @@ import {
   payment,
   plan,
   planPrice,
+  purchase,
   refundRequest,
   subscription,
 } from '@xuanxue/db'
-import { and, eq, inArray, isNotNull, isNull, lt, lte, or, sql } from 'drizzle-orm'
+import { AppError } from '@xuanxue/shared'
+import { and, asc, eq, gte, inArray, isNotNull, isNull, lt, lte, or, sql } from 'drizzle-orm'
 import { billingErrorMessage } from './errors.ts'
 import {
   applyBillingEvent,
@@ -27,7 +29,9 @@ import {
   prepareBillingEvents,
   subscriptionMonthAnchor,
 } from './events.ts'
+import { PayPalHttpError } from './paypal/transport.ts'
 import type { NormalizedEvent } from './provider.ts'
+import { type BillingServiceContext, capturePurchase } from './services.ts'
 
 export interface CronFailure {
   job: string
@@ -356,4 +360,113 @@ export async function clearResolvedRefundContacts(db: Database, now = new Date()
     )
     .returning({ id: refundRequest.id })
   return { cleared: cleared.length }
+}
+
+/** 补 capture 的时间阈值（design D4），Sandbox 验收确认订单实际过期行为后在此调整 */
+export const PENDING_CAPTURE_MIN_AGE_MS = 10 * 60_000
+export const PENDING_CAPTURE_UNAPPROVED_MS = 3 * 3_600_000
+export const PENDING_CAPTURE_MAX_AGE_MS = 72 * 3_600_000
+export const PENDING_CAPTURE_LIMIT = 50
+
+export interface PendingCaptureResult extends CronResult {
+  captured: number
+  failedPurchases: number
+}
+
+/**
+ * 已批准未 capture 的 PayPal 一次性订单由后台补 capture（design D4）。
+ * 远端调用都在事务外；标记 failed 一律带 `status='pending'` 条件，不覆盖已入账的购买。
+ * 每轮按 updated_at 轮转，已检查的行刷新 updated_at，等待回调的订单不会挤占后续批次。
+ */
+export async function runPendingCaptures(
+  ctx: BillingServiceContext,
+  now = new Date(),
+  options: CronOptions & { limit?: number } = {},
+): Promise<PendingCaptureResult> {
+  const result: PendingCaptureResult = {
+    processed: 0,
+    failures: [],
+    captured: 0,
+    failedPurchases: 0,
+  }
+  const provider = ctx.providers.paypal
+  if (!ctx.enabledProviders.includes('paypal') || provider?.id !== 'paypal') return result
+  const limit = options.limit ?? PENDING_CAPTURE_LIMIT
+  const oldest = new Date(now.getTime() - PENDING_CAPTURE_MAX_AGE_MS)
+  const markFailed = async (id: string) => {
+    const updated = await ctx.db
+      .update(purchase)
+      .set({ status: 'failed' })
+      .where(and(eq(purchase.id, id), eq(purchase.status, 'pending')))
+      .returning({ id: purchase.id })
+    result.failedPurchases += updated.length
+  }
+  // 超过 72 小时仍待付款的订单不再查询远端，直接标记失败
+  const expired = await ctx.db
+    .update(purchase)
+    .set({ status: 'failed' })
+    .where(
+      and(
+        eq(purchase.provider, 'paypal'),
+        eq(purchase.status, 'pending'),
+        lt(purchase.createdAt, oldest),
+      ),
+    )
+    .returning({ id: purchase.id })
+  result.failedPurchases += expired.length
+  const rows = await ctx.db
+    .select()
+    .from(purchase)
+    .where(
+      and(
+        eq(purchase.provider, 'paypal'),
+        eq(purchase.status, 'pending'),
+        gte(purchase.createdAt, oldest),
+        lte(purchase.createdAt, new Date(now.getTime() - PENDING_CAPTURE_MIN_AGE_MS)),
+      ),
+    )
+    .orderBy(asc(purchase.updatedAt), asc(purchase.id))
+    .limit(limit)
+  for (const row of rows) {
+    try {
+      let remoteStatus: string | undefined
+      try {
+        remoteStatus = (await provider.getOrder(row.providerOrderId)).remoteStatus
+      } catch (error) {
+        if (error instanceof PayPalHttpError && error.status === 404) {
+          await markFailed(row.id)
+          result.processed++
+          continue
+        }
+        throw error
+      }
+      const age = now.getTime() - row.createdAt.getTime()
+      if (remoteStatus === 'APPROVED') {
+        try {
+          await capturePurchase(ctx, row)
+          result.captured++
+        } catch (error) {
+          // 拒付由买家在返回页按 retryUrl 处理；后台不重复报警，下一轮订单状态变化后再处理
+          if (!(error instanceof AppError && error.code === 'BILLING_PAYMENT_DECLINED')) throw error
+        }
+      } else if (
+        remoteStatus === 'VOIDED' ||
+        (age > PENDING_CAPTURE_UNAPPROVED_MS &&
+          (remoteStatus === 'CREATED' || remoteStatus === 'PAYER_ACTION_REQUIRED'))
+      ) {
+        await markFailed(row.id)
+        result.processed++
+        continue
+      }
+      // COMPLETED 等状态由付款回调或补偿入账；只刷新轮转时间
+      await ctx.db
+        .update(purchase)
+        .set({ updatedAt: now })
+        .where(and(eq(purchase.id, row.id), eq(purchase.status, 'pending')))
+      result.processed++
+    } catch (error) {
+      await failed(ctx.db, result, options, 'pending_capture', row.workspaceId, row.id, error)
+    }
+  }
+  return result
 }

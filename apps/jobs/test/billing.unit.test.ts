@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   runtime: vi.fn(),
   flush: vi.fn(),
   compensation: vi.fn(),
+  captures: vi.fn(),
   expiration: vi.fn(),
   annual: vi.fn(),
   hold: vi.fn(),
@@ -27,6 +28,7 @@ vi.mock('@xuanxue/billing', async (original) => ({
   createPaymentRuntime: mocks.runtime,
   flushRefundNotifications: mocks.flush,
   runPendingCompensations: mocks.compensation,
+  runPendingCaptures: mocks.captures,
   runCreditExpiration: mocks.expiration,
   runAnnualGrants: mocks.annual,
   runHoldSweep: mocks.hold,
@@ -112,7 +114,14 @@ beforeEach(() => {
   mocks.runtime.mockReturnValue({ providers: {} })
   mocks.flush.mockResolvedValue({ queued: 0, failures: [] })
   mocks.compensation.mockResolvedValue({ claimed: 0, completed: 0, failed: 0 })
-  for (const run of [mocks.expiration, mocks.annual, mocks.hold, mocks.subscription, mocks.credits])
+  for (const run of [
+    mocks.expiration,
+    mocks.annual,
+    mocks.hold,
+    mocks.subscription,
+    mocks.credits,
+    mocks.captures,
+  ])
     run.mockResolvedValue({ processed: 0, failures: [] })
   mocks.cleanup.mockResolvedValue({ cleared: 0 })
   vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -128,6 +137,7 @@ describe('billing jobs', () => {
     expect(mocks.runtime).not.toHaveBeenCalled()
     expect(mocks.annual).not.toHaveBeenCalled()
     expect(mocks.compensation).not.toHaveBeenCalled()
+    expect(mocks.captures).not.toHaveBeenCalled()
     expect(mocks.subscription).not.toHaveBeenCalled()
   })
   it('routes hourly, ten-minute and daily jobs and propagates service failures without secrets', async () => {
@@ -137,6 +147,12 @@ describe('billing jobs', () => {
     await runBillingSchedule(BILLING_RETRY_CRON, env)
     expect(mocks.hold).toHaveBeenCalledOnce()
     expect(mocks.compensation).toHaveBeenCalledOnce()
+    // 补 capture 挂在十分钟一轮的 retry cron，只处理模板启用的 provider
+    expect(mocks.captures).toHaveBeenCalledOnce()
+    expect(mocks.captures).toHaveBeenCalledWith(
+      expect.objectContaining({ db, providers: {}, enabledProviders: ['stripe', 'paypal'] }),
+      expect.any(Date),
+    )
     expect(mocks.flush).toHaveBeenCalledOnce()
     mocks.subscription.mockResolvedValue({ processed: 0, failures: [{ error: 'secret=unsafe' }] })
     await expect(runBillingSchedule(BILLING_DAILY_CRON, env)).rejects.toThrow(

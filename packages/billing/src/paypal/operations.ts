@@ -1,7 +1,14 @@
-import type { CheckoutInput, PaymentProvider, PlanSyncInput, RefundInput } from '../provider.ts'
+import {
+  type CheckoutInput,
+  type CheckoutPresentation,
+  PaymentDeclinedError,
+  type PaymentProvider,
+  type PlanSyncInput,
+  type RefundInput,
+} from '../provider.ts'
 import { creditPackId, encodePayPalMetadata } from './metadata.ts'
 import { fromPayPalDecimal, paypalCurrency, toPayPalDecimal } from './money.ts'
-import type { PayPalTransport } from './transport.ts'
+import { PayPalHttpError, type PayPalTransport } from './transport.ts'
 
 export type PayPalOperations = Required<
   Pick<
@@ -42,6 +49,53 @@ function planMarker(input: PlanSyncInput): string {
   return `saas:v1:${input.plan.id}:${input.price.id}`
 }
 
+// PayPal Orders v2 的 brand_name、description 与 item name 上限均为 127 字符
+const PAYPAL_TEXT_LIMIT = 127
+// 应用语言 → PayPal experience_context.locale；未列出的语言不传，由 PayPal 按买家偏好显示
+const PAYPAL_LOCALES: Record<string, string> = {
+  en: 'en-US',
+  'zh-Hant': 'zh-TW',
+  'zh-Hans': 'zh-CN',
+  ko: 'ko-KR',
+}
+
+/** 按码点截断，避免切开中文以外的代理对字符（如 emoji） */
+function truncate(value: string): string {
+  const chars = Array.from(value.trim())
+  return chars.length > PAYPAL_TEXT_LIMIT
+    ? chars.slice(0, PAYPAL_TEXT_LIMIT).join('')
+    : chars.join('')
+}
+
+/** 一次性订单的站点展示字段：品牌与语言进 experience_context，商品说明进 purchase unit 与单项 item */
+function orderPresentation(presentation: CheckoutPresentation | undefined, value: string) {
+  if (!presentation) return { experience: {}, unit: {}, amount: {} }
+  const description = truncate(presentation.description)
+  const brandName = truncate(presentation.brandName)
+  const locale = PAYPAL_LOCALES[presentation.locale]
+  const money = { currency_code: 'USD', value }
+  return {
+    experience: { ...(brandName ? { brand_name: brandName } : {}), ...(locale ? { locale } : {}) },
+    unit: description
+      ? {
+          description,
+          items: [
+            { name: description, quantity: '1', category: 'DIGITAL_GOODS', unit_amount: money },
+          ],
+        }
+      : {},
+    // items 存在时 PayPal 要求 amount.breakdown.item_total 与之相符
+    amount: description ? { breakdown: { item_total: money } } : {},
+  }
+}
+
+/** 买家在同一订单的付款页重新选择付款方式（PayPal 对 INSTRUMENT_DECLINED 的推荐恢复方式） */
+function retryUrl(transport: PayPalTransport, orderId: string): string {
+  const host =
+    transport.apiOrigin === 'https://api-m.paypal.com' ? 'www.paypal.com' : 'www.sandbox.paypal.com'
+  return `https://${host}/checkoutnow?token=${encodeURIComponent(orderId)}`
+}
+
 function checkoutMapping(input: CheckoutInput) {
   const { price } = input
   if (
@@ -66,6 +120,7 @@ async function createCheckout(transport: PayPalTransport, input: CheckoutInput) 
     userId: input.userId,
   })
   const subscription = input.mode === 'subscription'
+  const shown = orderPresentation(input.presentation, value)
   const resource = await transport.request<RemoteResource>(
     'POST',
     subscription ? '/v1/billing/subscriptions' : '/v2/checkout/orders',
@@ -85,10 +140,17 @@ async function createCheckout(transport: PayPalTransport, input: CheckoutInput) 
           }
         : {
             intent: 'CAPTURE',
-            purchase_units: [{ custom_id: customId, amount: { currency_code: 'USD', value } }],
+            purchase_units: [
+              {
+                custom_id: customId,
+                amount: { currency_code: 'USD', value, ...shown.amount },
+                ...shown.unit,
+              },
+            ],
             payment_source: {
               paypal: {
                 experience_context: {
+                  ...shown.experience,
                   shipping_preference: 'NO_SHIPPING',
                   user_action: 'PAY_NOW',
                   return_url: input.successUrl,
@@ -225,10 +287,21 @@ export function createPayPalOperations(transport: PayPalTransport): PayPalOperat
     createCheckout: (input) => createCheckout(transport, input),
     confirmCheckout: async (id, options) => {
       if (id.startsWith('I-')) throw new Error('Subscription approval does not use Orders capture')
-      await transport.request('POST', `/v2/checkout/orders/${remoteId(id)}/capture`, {
-        body: {},
-        idempotencyKey: options.idempotencyKey,
-      })
+      try {
+        await transport.request('POST', `/v2/checkout/orders/${remoteId(id)}/capture`, {
+          body: {},
+          idempotencyKey: options.idempotencyKey,
+        })
+      } catch (error) {
+        // 只有付款方式被拒可恢复：引导买家回到同一订单重新选择，其他错误原样抛出
+        if (
+          error instanceof PayPalHttpError &&
+          error.status === 422 &&
+          error.issue === 'INSTRUMENT_DECLINED'
+        )
+          throw new PaymentDeclinedError(retryUrl(transport, id))
+        throw error
+      }
       // Never grant credits: only the verified payment event consumer can do that.
     },
     cancelSubscription: async (id, options) => {

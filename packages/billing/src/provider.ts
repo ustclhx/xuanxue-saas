@@ -10,6 +10,20 @@ import type {
 /** Invalid delivery authentication; transport/enrichment failures remain retryable errors. */
 export class WebhookVerificationError extends Error {}
 
+/**
+ * 付款方式被平台拒绝（PayPal INSTRUMENT_DECLINED）：买家可在同一订单的付款页重新选择方式。
+ * `retryUrl` 由订单 ID 与环境拼出，不含平台响应正文。
+ */
+export class PaymentDeclinedError extends Error {
+  readonly retryUrl: string
+
+  constructor(retryUrl: string) {
+    super('Payment instrument declined')
+    this.retryUrl = retryUrl
+    this.name = 'PaymentDeclinedError'
+  }
+}
+
 export type { PaymentProviderId } from '@xuanxue/db/schema'
 
 export interface ProviderCapabilities {
@@ -26,6 +40,16 @@ export interface CheckoutMetadata {
   userId: string
 }
 
+/**
+ * 支付页上的站点展示，由服务端按请求站点与语言生成，不接受客户端文本（避免写入出生信息等输入）。
+ * `locale` 为应用语言 id（如 `zh-Hant`），由各适配器映射为平台格式；不支持的适配器忽略。
+ */
+export interface CheckoutPresentation {
+  brandName: string
+  locale: string
+  description: string
+}
+
 export interface CheckoutInput {
   workspaceId: string
   userId: string
@@ -36,6 +60,7 @@ export interface CheckoutInput {
   customerEmail: string
   providerCustomerId?: string
   idempotencyKey: string
+  presentation?: CheckoutPresentation
 }
 
 export interface SubscriptionSnapshot {
@@ -61,6 +86,8 @@ export interface OrderSnapshot {
   providerCustomerId: string | null
   providerPriceId: string | null
   status: 'pending' | 'paid' | 'refunded' | 'failed'
+  /** 平台原始订单状态（如 PayPal APPROVED），供补 capture 区分已批准与未批准；status 映射不变 */
+  remoteStatus?: string
   amount: number
   currency: string
   metadata: CheckoutMetadata | null

@@ -191,6 +191,24 @@ describe('Stripe checkout and transport', () => {
     expect(mock.requests[0]?.body.has('customer_creation')).toBe(false)
   })
 
+  it('ignores PayPal-only site presentation and keeps the Checkout Session body unchanged', async () => {
+    const reply = {
+      method: 'POST',
+      path: '/v1/checkout/sessions',
+      body: { id: 'cs_test', url: 'https://checkout.stripe.com/offline' },
+    }
+    const mock = mockStripe([reply, reply])
+    const input = { ...checkout, mode: 'one_time' as const, price: { ...price, interval: null } }
+    await mock.operations.createCheckout(input)
+    await mock.operations.createCheckout({
+      ...input,
+      presentation: { brandName: 'Ganjiday', locale: 'ko', description: '100 크레딧 · 간지데이' },
+    })
+    const [plain, presented] = mock.requests.map((request) => request.body.toString())
+    expect(presented).toBe(plain)
+    mock.complete()
+  })
+
   it('rejects invalid source UUIDs and mode mismatches before making requests', async () => {
     const mock = mockStripe([])
     await expect(
