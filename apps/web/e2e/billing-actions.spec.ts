@@ -28,8 +28,7 @@ import { actionDb, actor, offlineProviderTransport } from './billing-actions-hel
 import { register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
-async function catalog(db: ReturnType<typeof actionDb>, subscriptionPlan = false) {
-  const planId = randomUUID()
+async function catalog(db: ReturnType<typeof actionDb>, planId: string, subscriptionPlan = false) {
   const priceId = randomUUID()
   await db.insert(plan).values({
     id: planId,
@@ -59,6 +58,18 @@ async function catalog(db: ReturnType<typeof actionDb>, subscriptionPlan = false
   return { planId, priceId }
 }
 
+async function closeCatalog(db: ReturnType<typeof actionDb>, planId: string) {
+  try {
+    // 金融历史继续引用这些行；按本用例的 ID 撤下商品，不影响其他目录。
+    await db.transaction(async (tx) => {
+      await tx.update(planPrice).set({ active: false }).where(eq(planPrice.planId, planId))
+      await tx.update(plan).set({ active: false }).where(eq(plan.id, planId))
+    })
+  } finally {
+    await db.$client.end()
+  }
+}
+
 for (const realSubmission of [true, false])
   test(
     realSubmission
@@ -66,6 +77,7 @@ for (const realSubmission of [true, false])
       : 'offline partial admin approval preserves money until callback',
     async ({ page }) => {
       const db = actionDb()
+      const planId = randomUUID()
       try {
         const email = `refund-actions-${randomUUID()}@example.com`
         await simulateClientIp(page)
@@ -73,7 +85,7 @@ for (const realSubmission of [true, false])
         await register(page, email)
         await page.waitForLoadState('networkidle')
         const owner = await actor(email)
-        const { planId, priceId } = await catalog(db)
+        const { priceId } = await catalog(db, planId)
         const purchaseId = randomUUID()
         const paymentId = randomUUID()
         await db.insert(purchase).values({
@@ -252,9 +264,9 @@ for (const realSubmission of [true, false])
         expect(
           (await db.select().from(creditGrant).where(eq(creditGrant.paymentId, paymentId)))[0]
             ?.remaining,
-        ).toBe(0)
+        ).toBe(60) // 部分退款 40%：按现有 Q6 规则保留未退款份额，回调重放不重复扣减。
       } finally {
-        await db.$client.end()
+        await closeCatalog(db, planId)
       }
     },
   )
@@ -263,6 +275,7 @@ test('offline browser cancel and resume call real services without minting credi
   page,
 }) => {
   const db = actionDb()
+  const planId = randomUUID()
   try {
     const email = `subscription-actions-${randomUUID()}@example.com`
     await simulateClientIp(page)
@@ -270,7 +283,7 @@ test('offline browser cancel and resume call real services without minting credi
     await register(page, email)
     await page.waitForLoadState('networkidle')
     const owner = await actor(email)
-    const { planId, priceId } = await catalog(db, true)
+    const { priceId } = await catalog(db, planId, true)
     const id = randomUUID()
     const start = new Date()
     const end = new Date(start.getTime() + 86400000 * 20)
@@ -354,6 +367,6 @@ test('offline browser cancel and resume call real services without minting credi
       await db.select().from(creditGrant).where(eq(creditGrant.workspaceId, owner.workspaceId)),
     ).toEqual(grants)
   } finally {
-    await db.$client.end()
+    await closeCatalog(db, planId)
   }
 })

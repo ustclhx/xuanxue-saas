@@ -37,7 +37,7 @@
 > - 3.3 生产 secret 检查复用 `scripts/staging/check-secrets.mjs` 的 `getSecretRequirements()`，不另写一份 provider→变量名的映射。
 > - 3.1 的 e2e 沿用 `apps/web/e2e/billing-actions-helper.ts` 现有的序列化与 actor 工具，以及 `billing-pages.spec.ts` 的 PayPal 回跳用例写法。
 
-- [ ] 3.1 `template.config.ts` 改为 `providers: ['paypal']`；`smoke.spec.ts`、`billing-actions-helper.ts` 及其他写死 Stripe 的本地 e2e 改为不绑定 provider，或改用 PayPal 模拟。验证：`pnpm test` 与本地 e2e（smoke、billing-pages）通过
+- [x] 3.1 `template.config.ts` 改为 `providers: ['paypal']`；`smoke.spec.ts`、`billing-actions-helper.ts` 及其他写死 Stripe 的本地 e2e 改为不绑定 provider，或改用 PayPal 模拟。验证：`pnpm test` 与本地 e2e（smoke、billing-pages）通过
 - [x] 3.2 `catalog.ts` 新增 `activateCreditPackMappings`（只处理 credit_pack，复用 `creditPackId`，旧元组设为 inactive，不构造 transport），并新增 `billing:activate-packs` CLI（显式注入库 URL，`BILLING_ACTIVATE_CONFIRM` 必须与库名一致，不输出连接串）。验证：隔离 PostgreSQL 测试覆盖首次激活、重复执行 0 变更、订阅价格不受影响、调价后旧价格变为 inactive；CLI 测试断言确认不匹配时拒绝执行、全程无网络调用；`billing:sync` 仍拒绝非 test
 - [x] 3.3 web 与 jobs 的 production `vars` 设置 `PAYMENT_MODE: "live"` 并更新注释；`check-wrangler-envs.mjs` 断言生产为 live；生产 secret 检查复用按 provider 派生的规则，要求 web 和 jobs 都有 `PAYPAL_CLIENT_ID/SECRET/WEBHOOK_ID`，只输出名称。验证：`scripts/production/production.test.mjs` 与 check-secrets 测试覆盖缺项失败、只启用 PayPal 时不要求 Stripe；`wrangler deploy --dry-run --env production` 通过
 

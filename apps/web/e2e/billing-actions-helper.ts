@@ -74,6 +74,8 @@ export async function offlineProviderTransport(
     expect(response.headers()['x-tss-serialized']).toBe('true')
     const envelope = serializer.fromCrossJSON(await response.json(), { refs: new Map() })
     const result = envelope.result
+    // 同一路径也承载返回站点 URL 等标量的函数，保持这些响应原样透传。
+    if (!result || typeof result !== 'object') return route.fulfill({ response })
     if (result && 'catalog' in result) {
       const catalog = result.catalog as { providers: { id: string; available: boolean }[] }
       for (const provider of catalog.providers)

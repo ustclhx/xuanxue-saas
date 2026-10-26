@@ -1,6 +1,7 @@
 import { createDb, plan, planPrice } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
+import { eq } from 'drizzle-orm'
 
 export const SMOKE_PRICE_ID = '019a0000-0000-7000-8000-000000000002'
 const planId = '019a0000-0000-7000-8000-000000000001'
@@ -34,7 +35,7 @@ export default async function setup() {
         features: DEFAULT_FREE_FEATURES,
         active: true,
       })
-      .onConflictDoNothing()
+      .onConflictDoUpdate({ target: plan.id, set: { active: true } })
     await db
       .insert(planPrice)
       .values({
@@ -48,9 +49,21 @@ export default async function setup() {
       })
       .onConflictDoUpdate({
         target: planPrice.id,
-        set: { provider: 'paypal' },
+        set: { provider: 'paypal', active: true },
       })
   } finally {
     await db.$client.end()
+  }
+  return async () => {
+    const db = createDb({ connectionString })
+    try {
+      // 保留购买记录引用的目录，只撤下本轮 smoke 拥有的测试商品。
+      await db.transaction(async (tx) => {
+        await tx.update(planPrice).set({ active: false }).where(eq(planPrice.id, SMOKE_PRICE_ID))
+        await tx.update(plan).set({ active: false }).where(eq(plan.id, planId))
+      })
+    } finally {
+      await db.$client.end()
+    }
   }
 }
