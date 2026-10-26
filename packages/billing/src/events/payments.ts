@@ -1,6 +1,6 @@
 import { grant, reducePaymentCredits, revokePaymentCredits } from '@xuanxue/credits'
 import { payment, purchase, subscription } from '@xuanxue/db'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import type { WebhookTransaction } from '../pipeline.ts'
 import type { NormalizedEvent } from '../provider.ts'
 import { grantSubscriptionMonth } from './grants.ts'
@@ -83,6 +83,8 @@ export async function applyPaymentSucceeded(
       .update(payment)
       .set({ refundedAmount: refunded, status })
       .where(eq(payment.id, paid.id))
+  // 补 capture 扫描可能把实际已付款的订单标记 failed（超时不查远端、VOIDED/404）；
+  // 验签后的付款到达时以平台为准恢复为 paid，已退款的购买不变
   if (purchaseId && status === 'succeeded')
     await tx
       .update(purchase)
@@ -91,7 +93,7 @@ export async function applyPaymentSucceeded(
         and(
           eq(purchase.id, purchaseId),
           eq(purchase.workspaceId, a.workspaceId),
-          eq(purchase.status, 'pending'),
+          inArray(purchase.status, ['pending', 'failed']),
         ),
       )
   if (

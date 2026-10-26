@@ -1,17 +1,25 @@
 import {
   auditLog,
+  billingCustomer,
   createDb,
+  creditGrant,
+  creditLedger,
   member,
   organization,
+  payment,
   plan,
   planPrice,
   purchase,
   user,
+  webhookEvent,
 } from '@xuanxue/db'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { PENDING_CAPTURE_LIMIT, runPendingCaptures } from './cron.ts'
+import { createBillingEventHandler } from './events.ts'
 import { createPayPalProvider } from './paypal/index.ts'
+import { processWebhook } from './pipeline.ts'
+import type { NormalizedEvent } from './provider.ts'
 import { type BillingServiceContext, confirmCheckout } from './services.ts'
 
 const url = process.env.BILLING_TEST_DATABASE_URL
@@ -168,7 +176,11 @@ beforeEach(async () => {
   await db.update(purchase).set({ status: 'failed' }).where(eq(purchase.status, 'pending'))
 })
 afterEach(async () => {
+  await db.delete(creditLedger).where(eq(creditLedger.workspaceId, ws))
+  await db.delete(creditGrant).where(eq(creditGrant.workspaceId, ws))
+  await db.delete(payment).where(eq(payment.workspaceId, ws))
   await db.delete(purchase).where(eq(purchase.workspaceId, ws))
+  await db.delete(billingCustomer).where(eq(billingCustomer.workspaceId, ws))
   await db.delete(member).where(eq(member.organizationId, ws))
   await migrator.delete(auditLog).where(eq(auditLog.workspaceId, ws))
   await db.delete(organization).where(eq(organization.id, ws))
@@ -282,6 +294,59 @@ describe('pending PayPal captures on PostgreSQL', () => {
     const result = await runPendingCaptures(ctx, now)
     expect(result.failures).toEqual([])
     expect(await statusOf(declined.purchaseId)).toBe('pending')
+  })
+
+  it('restores a scan-failed purchase to paid when the verified capture arrives, granting once', async () => {
+    const late = await seedPurchase(minutes(73 * 60), 'COMPLETED')
+    await runPendingCaptures(ctx, now)
+    expect(await statusOf(late.purchaseId)).toBe('failed')
+    const event: NormalizedEvent = {
+      provider: 'paypal',
+      type: 'payment.succeeded',
+      occurredAt: now,
+      raw: {},
+      payment: {
+        providerPaymentId: `CAP${late.orderId}`,
+        providerOrderId: late.orderId,
+        providerPriceId: `paypal:credit_pack:${pp}`,
+        kind: 'one_time',
+        period: null,
+        providerCustomerId: null,
+        amount: 99,
+        currency: 'USD',
+        paidAt: now,
+        refundedAmount: 0,
+        status: 'succeeded',
+        metadata: { workspaceId: ws, userId: uid, planPriceId: pp },
+        raw: {},
+      },
+    }
+    const deliveries = [id(), id()]
+    try {
+      // 迟到的 PAYMENT.CAPTURE.COMPLETED 及其重复投递
+      for (const delivery of deliveries) {
+        const verified = {
+          providerEventId: delivery,
+          type: 'PAYMENT.CAPTURE.COMPLETED',
+          events: [event],
+        }
+        const result = await processWebhook({
+          db,
+          provider: { ...ctx.providers.paypal!, verifyWebhook: async () => verified },
+          request: new Request('https://example.test'),
+          rawBody: '{}',
+          ...createBillingEventHandler({ db, providers: ctx.providers, now: () => now }),
+        })
+        expect(result.status).toBe('processed')
+      }
+      expect(await statusOf(late.purchaseId)).toBe('paid')
+      expect(await db.select().from(payment).where(eq(payment.workspaceId, ws))).toHaveLength(1)
+      const grants = await db.select().from(creditGrant).where(eq(creditGrant.workspaceId, ws))
+      expect(grants).toHaveLength(1)
+      expect(grants[0]?.amount).toBe(100)
+    } finally {
+      await db.delete(webhookEvent).where(inArray(webhookEvent.providerEventId, deliveries))
+    }
   })
 
   it('does nothing when PayPal is not an enabled provider', async () => {
