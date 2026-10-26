@@ -28,7 +28,8 @@
 - [x] 2.1 回跳页挂载后自动 capture，用 ref 防重复调用；成功后 `location.replace` 回到 `returnTo?checkout=success`（无 `returnTo` 时进入账单页）；收到 `BILLING_PAYMENT_DECLINED` 时跳转 `retryUrl`；其他错误显示重试按钮；取消路径保持直接重定向。验证：`billing-pages.spec.ts` 改为断言无确认按钮、自动调用一次、成功跳转、拒付跳转、错误可重试、订阅回跳不触发 capture
 - [x] 2.2 回跳页文案新增 `messages/<locale>/billing.json`（en、zh-Hant、zh-Hans、ko），语言优先取 `returnTo` 的语言前缀。验证：e2e 以 `/ko/...` 的 `returnTo` 打开回跳页，显示韩语；`pnpm typecheck` 生成文案无缺项
 - [x] 2.3 账单页只有一个可用 provider 时不渲染支付方式下拉，直接用该 provider 结账。验证：组件或 e2e 覆盖单一 provider 与多个 provider 两种情况
-- [ ] 2.4 （A 合并后）rebase 并联调：解锁卡 → 回跳页 → 自动生成的本地完整流程（使用本地 PayPal 模拟）。验证：本地 e2e 解锁流程通过
+- [x] 2.4 （A 合并后）rebase 并联调：解锁卡 → 回跳页 → 自动生成的本地完整流程（使用本地 PayPal 模拟）。验证：本地 e2e 解锁流程通过
+  - 2026-10-26 验收（main `a373ec4`）：#77 rebase 后 CI e2e-smoke 通过；`smoke.spec.ts` 经真实 Server Function 走「下单 → 回跳页自动 capture → webhook 两次投递只入账 100 积分」，并覆盖东方站 `/ko` 回跳；`reading-unlock.spec.ts`、`billing-pages.spec.ts`、`billing-actions.spec.ts` 本地 11/11 通过。拒付 `retryUrl` 的服务端返回由 `payment-entrypoints.test.ts` 断言，真实拒付链路留给 5.2 Sandbox 验收。
 
 ## 3. C：配置、脚本与 e2e（Codex）
 
