@@ -61,7 +61,12 @@
     - 批准后关页（订单 `9RA850405K177310L`，11:47 拦截回跳）：12:00:21 的 retry cron 补 capture，12:00:25 purchase paid，12:01:49 发放 100 积分。
     - 重复回调：用户在 PayPal 后台重投 S1 的 `PAYMENT.CAPTURE.COMPLETED` 与 `CHECKOUT.ORDER.APPROVED`，投递均显示成功；webhook_event 仍各一行（attempts 1），已退款购买未被改回 paid，积分流水无新增。
     - 数据库：4 笔 PayPal 付款各对应 1 条 grant，所有 webhook_event 为 processed。真实拒付（`INSTRUMENT_DECLINED` → `retryUrl`）Sandbox 买家无法触发，仍只由单测覆盖。
-- [ ] 5.3 退款申请 → 后台审批 → PayPal 退款 → 积分回收；在启用 PayPal 的配置下删号。验证：对账差额为 0，删号后原密码登录被拒；同时记录未批准订单实际过期行为，必要时回调 D4 阈值
+- [x] 5.3 退款申请 → 后台审批 → PayPal 退款 → 积分回收；在启用 PayPal 的配置下删号。验证：对账差额为 0，删号后原密码登录被拒；同时记录未批准订单实际过期行为，必要时回调 D4 阈值
+  - 2026-10-28 验收（staging `7a21da7` / `76d450d`）：
+    - 退款：用户对 S1（`4ET25630S5504370K`）申请 → 管理员在 `/admin/billing/refunds` 审批 → PayPal 退款 $0.99，`PAYMENT.CAPTURE.REFUNDED` processed，payment `refunded_amount` 99 与退款行一致。该笔积分已被详批消耗，按比例规则回收 0，余额、预扣、欠额均为 0。
+    - 删号：新账号付款到账 100 积分后删号，回收 100（revoke），原邮箱与密码登录被拒。
+    - 对账：协调者以只读查询核对，4 笔 PayPal 付款各对应 1 条 grant，退款金额一致，差额 0；每日 `credit_reconciliation`（04:00 UTC）尚未覆盖这批数据。
+    - 未批准订单过期：Sandbox 取消后 PayPal 订单不变为 VOIDED，仍按 D4 处理。订单 `3CN54220L4553223F` 11:44 创建，11:45 取消；10 分钟后每轮只刷新轮转时间，15:00 的 retry cron（超过 3h）标记为 failed，无积分。行为与 D4 一致，阈值不调整。
 
 ## 6. F：生产上线（依赖 E；用户完成 PayPal Business 认证、Live App 与 webhook、积分包定价决定）
 
