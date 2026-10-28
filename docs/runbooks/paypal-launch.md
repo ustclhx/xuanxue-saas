@@ -82,6 +82,9 @@ pnpm --filter @xuanxue/jobs exec wrangler secret put PAYPAL_WEBHOOK_ID --env <en
    - `BILLING_SYNC_MODE=test pnpm billing:sync`：Sandbox 的 `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` 从进程
      环境或 gitignored 的根 `.env.local` 读取，不写在命令行里；只同步启用的 provider，PayPal 积分包映射为本地
      `paypal:credit_pack:{priceId}` 并激活，不在 PayPal 创建积分包 Plan。
+   - 本地没有 Sandbox 凭据时（凭据只在 Wrangler secrets 中），可改用
+     `BILLING_ACTIVATE_CONFIRM=xuanxue_staging pnpm billing:activate-packs`：本站只启用积分包，两者效果相同，
+     且不需要凭据、不调用 PayPal。2026-10-28 staging 按此执行，激活 2 处。
 3. 发布 staging（main 自动发布或手动 jobs → web），`/api/health` 返回完整 SHA 与 `db.up`。
 4. 验收（5.2、5.3），逐项保存脱敏证据到 `docs/runbooks/evidence/`：
    - 两站各选一种语言（如 Arcanumber en、Ganjiday ko）：解锁卡 → PayPal 付款 → 回跳页自动 capture → 回到发起页 →
