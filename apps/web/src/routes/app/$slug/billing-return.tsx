@@ -53,12 +53,15 @@ function paypalRetryUrl(result: object): string | undefined {
 }
 
 export const Route = createFileRoute('/app/$slug/billing-return')({
-  beforeLoad: ({ search }) => {
+  beforeLoad: ({ params, search }) => {
     if (!templateConfig.billing.enabled) throw featureNotFound()
     // 无需在本页确认的回跳直接回到发起页面；PayPal 一次性订单先在本页确认
     const returnTo = safeReturnPath(search.returnTo, templateConfig.i18n.locales)
     if (returnTo && !needsConfirm(search))
       throw redirect({ href: returnHref(returnTo, search.canceled === 'true') })
+    // 从账单页发起（无发起页面）时取消也直接回到账单页，不停留在本页
+    if (search.canceled === 'true')
+      throw redirect({ href: returnHref(`/app/${params.slug}/billing`, true) })
   },
   validateSearch: z.object({
     provider: z.enum(['stripe', 'paypal', 'creem', 'paddle', 'polar']).optional(),

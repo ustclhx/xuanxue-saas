@@ -23,7 +23,10 @@ export const Route = createFileRoute('/app/$slug/billing')({
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
   // 从公开页面发起购买时带上发起页面，支付后回到该页（决策 4；服务端再次校验）
-  validateSearch: z.object({ returnTo: z.string().max(1024).optional() }),
+  validateSearch: z.object({
+    returnTo: z.string().max(1024).optional(),
+    checkout: z.enum(['success', 'canceled']).optional(),
+  }),
   loader: async ({ params }) => {
     const [billing, refunds] = await Promise.all([
       getCustomerBilling({ data: { slug: params.slug } }),
@@ -43,11 +46,14 @@ const date = (value: Date | null) =>
 function BillingPage() {
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
-  const { returnTo } = Route.useSearch()
+  const { returnTo, checkout: checkoutResult } = Route.useSearch()
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(false)
-  const [message, setMessage] = useState('')
+  // PayPal 取消后回到本页时提示一次；成功回跳由下方付款记录体现
+  const [message, setMessage] = useState(
+    checkoutResult === 'canceled' ? 'Checkout was canceled.' : '',
+  )
   const [provider, setProvider] = useState(
     page.catalog.providers.find((p) => p.available)?.id ?? page.catalog.providers[0]?.id ?? '',
   )
