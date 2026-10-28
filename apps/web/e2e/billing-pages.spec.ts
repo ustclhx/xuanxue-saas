@@ -72,12 +72,17 @@ test('PayPal return captures once automatically and routes each result', async (
         'provider=paypal&subscription_id=I-SUBSCRIPTION&ba_token=BA-TOKEN&token=8F-TOKEN',
         'Your credits update after the payment is verified.',
       ],
-      ['provider=paypal&token=ORDER-TOKEN&canceled=true', 'Checkout was canceled.'],
     ] as const) {
       await page.goto(`${workspacePath}/billing-return?${query}`)
       await expect(page.getByRole('status')).toContainText(text)
       await page.waitForLoadState('networkidle')
     }
+    // 从账单页发起（无 returnTo）的取消直接回到账单页并提示
+    await page.goto(
+      `${workspacePath}/billing-return?provider=paypal&token=ORDER-TOKEN&canceled=true`,
+    )
+    await expect(page).toHaveURL(/\/billing\?checkout=canceled$/)
+    await expect(page.getByRole('status')).toContainText('Checkout was canceled.')
     await page.goto(
       `${workspacePath}/billing-return?provider=paypal&token=ORDER-TOKEN&canceled=true&returnTo=${encodeURIComponent('/ko/pricing')}`,
     )
