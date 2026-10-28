@@ -51,9 +51,22 @@
 
 ## 5. E：staging Sandbox 验收（依赖 1–4 合并；用户创建 Sandbox App 与 webhook）
 
-- [ ] 5.1 写入 staging web 和 jobs 的 `PAYPAL_*` secrets，执行 `billing:seed` 与 `BILLING_SYNC_MODE=test billing:sync`，发布 staging。验证：check-secrets 通过；定价页与解锁卡显示可购买的 PayPal 积分包
-- [ ] 5.2 两站各选一种语言（如 en、ko），用 Sandbox 买家完成解锁 → 付款 → 自动 capture → 回调入账 → 自动生成；另测取消、批准后关闭页面（等待补 capture 入账）、重复回调幂等。验证：证据记录 webhook_event processed、purchase paid、积分只发放一次，以及 PayPal 页面的品牌与语言
-- [ ] 5.3 退款申请 → 后台审批 → PayPal 退款 → 积分回收；在启用 PayPal 的配置下删号。验证：对账差额为 0，删号后原密码登录被拒；同时记录未批准订单实际过期行为，必要时回调 D4 阈值
+- [x] 5.1 写入 staging web 和 jobs 的 `PAYPAL_*` secrets，执行 `billing:seed` 与 `BILLING_SYNC_MODE=test billing:sync`，发布 staging。验证：check-secrets 通过；定价页与解锁卡显示可购买的 PayPal 积分包
+  - 2026-10-28 验收（staging `162ed16`）：用户写入 web / jobs 三项 `PAYPAL_*`，`pnpm staging:check-secrets` 退出 0；对 `xuanxue_staging` 执行 `billing:seed` 后，以 `billing:activate-packs` 代替 `billing:sync`（本地无 Sandbox 凭据；只启用积分包时两者效果相同，且不调用 PayPal），激活 2 处。定价页显示 $0.99 / $3.99 与「Buy credits」，不再显示即将开放。
+- [x] 5.2 两站各选一种语言（如 en、ko），用 Sandbox 买家完成解锁 → 付款 → 自动 capture → 回调入账 → 自动生成；另测取消、批准后关闭页面（等待补 capture 入账）、重复回调幂等。验证：证据记录 webhook_event processed、purchase paid、积分只发放一次，以及 PayPal 页面的品牌与语言
+  - 2026-10-28 验收（staging `7a21da7`，取消复验 `76d450d`；证据在仓库外的私有验收记录 `paypal-staging-20261028`）：
+    - 西方站 en（订单 `4ET25630S5504370K`）：PayPal 页品牌 Arcanumber、英文；回跳页无点击自动 capture，回到发起页 `checkout=success` 并自动生成详批。
+    - 东方站 `/ko`（订单 `9LU992632C4095040`）：品牌 간지데이，回跳页韩语，回到 `/ko` 自动生成韩语详批。PayPal 登录前为韩语，Sandbox 买家登录后按买家账号偏好显示英文，属 PayPal 行为，`locale` 只影响登录前页面。
+    - 取消：从账单页（无 `returnTo`）发起时首次验收停在回跳页，不符合规格；#80 修复后复验（订单 `5KW50238KC477732R`）约 5 秒自动回到 `billing?checkout=canceled` 并提示，无扣款。
+    - 批准后关页（订单 `9RA850405K177310L`，11:47 拦截回跳）：12:00:21 的 retry cron 补 capture，12:00:25 purchase paid，12:01:49 发放 100 积分。
+    - 重复回调：用户在 PayPal 后台重投 S1 的 `PAYMENT.CAPTURE.COMPLETED` 与 `CHECKOUT.ORDER.APPROVED`，投递均显示成功；webhook_event 仍各一行（attempts 1），已退款购买未被改回 paid，积分流水无新增。
+    - 数据库：4 笔 PayPal 付款各对应 1 条 grant，所有 webhook_event 为 processed。真实拒付（`INSTRUMENT_DECLINED` → `retryUrl`）Sandbox 买家无法触发，仍只由单测覆盖。
+- [x] 5.3 退款申请 → 后台审批 → PayPal 退款 → 积分回收；在启用 PayPal 的配置下删号。验证：对账差额为 0，删号后原密码登录被拒；同时记录未批准订单实际过期行为，必要时回调 D4 阈值
+  - 2026-10-28 验收（staging `7a21da7` / `76d450d`）：
+    - 退款：用户对 S1（`4ET25630S5504370K`）申请 → 管理员在 `/admin/billing/refunds` 审批 → PayPal 退款 $0.99，`PAYMENT.CAPTURE.REFUNDED` processed，payment `refunded_amount` 99 与退款行一致。该笔积分已被详批消耗，按比例规则回收 0，余额、预扣、欠额均为 0。
+    - 删号：新账号付款到账 100 积分后删号，回收 100（revoke），原邮箱与密码登录被拒。
+    - 对账：协调者以只读查询核对，4 笔 PayPal 付款各对应 1 条 grant，退款金额一致，差额 0；每日 `credit_reconciliation`（04:00 UTC）尚未覆盖这批数据。
+    - 未批准订单过期：Sandbox 取消后 PayPal 订单不变为 VOIDED，仍按 D4 处理。订单 `3CN54220L4553223F` 11:44 创建，11:45 取消；10 分钟后每轮只刷新轮转时间，15:00 的 retry cron（超过 3h）标记为 failed，无积分。行为与 D4 一致，阈值不调整。
 
 ## 6. F：生产上线（依赖 E；用户完成 PayPal Business 认证、Live App 与 webhook、积分包定价决定）
 
