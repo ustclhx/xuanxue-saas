@@ -1,5 +1,5 @@
+import { env } from 'cloudflare:workers'
 import { createDb, jobDeadLetter, jobMessage } from '@xuanxue/db'
-import { readLocalEnv } from '@xuanxue/db/worktree-env'
 import type { QueueBatch, QueueMessage } from '@xuanxue/platform'
 import { eq } from 'drizzle-orm'
 import { expect, it, vi } from 'vitest'
@@ -9,11 +9,9 @@ import {
 } from '../src/queues/events-dead-letter.ts'
 
 it('records CF terminal failure with app permissions and deduplicates redelivery in Postgres', async () => {
-  const url = readLocalEnv('DATABASE_URL')
-  if (!url || !new URL(url).pathname.startsWith('/xuanxue_wt_'))
-    throw new Error('Isolated worktree database required')
-  const db = createDb(url)
-  const cleanup = createDb(readLocalEnv('MIGRATION_DATABASE_URL') ?? '')
+  // 模板的 Node 运行时套件改为 workerd 集成项目：app 权限经 HYPERDRIVE 写入，清理走 migrator
+  const db = createDb(env.HYPERDRIVE)
+  const cleanup = createDb(env.HYPERDRIVE_MIGRATOR)
   const sourceId = `cf-${crypto.randomUUID()}`
   const timestamp = new Date('2026-10-24T00:00:00Z')
   const source: QueueMessage<unknown> = {
