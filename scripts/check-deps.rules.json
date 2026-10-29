@@ -12,6 +12,7 @@
     "apps/web/test/admin-test-resources.ts": ["cloudflare:workers"],
     "apps/jobs/test/ai-hold-sweep.test.ts": ["cloudflare:test", "cloudflare:workers"],
     "apps/jobs/test/email-queue.test.ts": ["cloudflare:test", "cloudflare:workers"],
+    "apps/jobs/test/events-dead-letter.integration.test.ts": ["cloudflare:workers"],
     "apps/jobs/test/jobs.test.ts": ["cloudflare:test", "cloudflare:workers"],
     "apps/jobs/test/media-hold-sweep.test.ts": ["cloudflare:workers"],
     "apps/jobs/test/media-settlement.test.ts": ["cloudflare:workers"],
