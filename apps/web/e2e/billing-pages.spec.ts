@@ -17,7 +17,7 @@ test('public pricing describes unavailable payments without a checkout success',
   const packs = page.getByTestId('pricing-pack')
   await expect(packs).toHaveCount(2)
   await expect(packs.first()).toContainText('Single Reading')
-  await expect(packs.first()).toContainText('$0.99')
+  await expect(packs.first()).toContainText('$1.99')
   await expect(packs.last()).toContainText('Unlocks 5 full readings')
   await expect(page.getByRole('link', { name: 'Buy credits' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: /checkout|pay now/i })).toHaveCount(0)

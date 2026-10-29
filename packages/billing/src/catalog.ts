@@ -90,7 +90,7 @@ export const EXAMPLE_CATALOG = [
     features: DEFAULT_FREE_FEATURES,
     sort: 0,
     active: true,
-    prices: [{ interval: null, amount: 99 }],
+    prices: [{ interval: null, amount: 199 }],
   },
   {
     key: 'reading_five',
@@ -102,7 +102,7 @@ export const EXAMPLE_CATALOG = [
     features: DEFAULT_FREE_FEATURES,
     sort: 10,
     active: true,
-    prices: [{ interval: null, amount: 399 }],
+    prices: [{ interval: null, amount: 699 }],
   },
 ] satisfies (Omit<typeof plan.$inferInsert, 'id'> & {
   prices: { interval: PlanPrice['interval']; amount: number }[]
