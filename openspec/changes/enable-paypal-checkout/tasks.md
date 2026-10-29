@@ -70,6 +70,7 @@
 
 ## 6. F：生产上线（依赖 E；用户完成 PayPal Business 认证、Live App 与 webhook、积分包定价决定）
 
-- [ ] 6.1 （decision gate）用户确认积分包价格档位；如有变化，修改目录与定价文案，并在 staging 复验 5.2。验证：定价页、解锁卡与目录一致
+- [x] 6.1 （decision gate）用户确认积分包价格档位；如有变化，修改目录与定价文案，并在 staging 复验 5.2。验证：定价页、解锁卡与目录一致
+  - 2026-10-29 验收（staging `ddd95d7`）：用户选定 Single 100 积分 $1.99、Five 500 积分 $6.99（#82）。对 `xuanxue_staging` 执行 `billing:seed` 与 `billing:activate-packs`（4 处变更：新价格启用、旧 PayPal 价格 99 / 399 停用）。两站定价页与解锁卡显示 $1.99 / $6.99，不再出现旧价格；Sandbox 购买 `5RP47401MC2110244`：PayPal 页显示 $1.99 USD、品牌 Arcanumber，自动回跳后 purchase paid 199，ORDER.APPROVED 与 CAPTURE.COMPLETED 各 processed 一次，grant +100 一条，详批自动生成。
 - [ ] 6.2 写入生产 web 和 jobs 的 `PAYPAL_*` secrets，通过生产 secret 检查；打 tag 经审批发布；执行 `billing:activate-packs`；同一窗口完成 D1 模型、`DEEPSEEK_API_KEY` 与后台详批开关（launch-v1-production 2.2）。验证：两站 `/api/health` 返回完整 SHA，定价页显示可购买
 - [ ] 6.3 两站各完成一笔真实小额购买，并生成一份详批，随后后台退款。验证：webhook processed、积分入账后被回收、PayPal 后台交易显示正确品牌；证据存入 `docs/runbooks/evidence/`，再按条件补跑 `e2e-live`
