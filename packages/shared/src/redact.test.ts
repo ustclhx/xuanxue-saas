@@ -82,7 +82,9 @@ it('运营通知密钥的普通与 setting 键名均被脱敏', () => {
     discordWebhookUrl: 'discord-secret',
     'operations.telegramBotToken': 'telegram-secret',
     'operations.discordWebhookUrl': 'discord-secret',
+    'operations.webhookUrl': 'webhook-secret',
+    'operations.webhookSecret': 'webhook-secret',
   }
-  expect(JSON.stringify(redact(value))).not.toMatch(/telegram-secret|discord-secret/)
-  expect(Object.values(redact(value) as Record<string, unknown>)).toEqual(Array(4).fill(REDACTED))
+  expect(JSON.stringify(redact(value))).not.toMatch(/telegram-secret|discord-secret|webhook-secret/)
+  expect(Object.values(redact(value) as Record<string, unknown>)).toEqual(Array(6).fill(REDACTED))
 })

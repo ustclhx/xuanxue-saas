@@ -102,6 +102,8 @@ it('Cloudflare 媒体转存与运维通知的 RequestInit 可在 workerd 中发�
         telegramBotToken: '',
         telegramChatId: '',
         discordWebhookUrl: 'https://discord.com/api/webhooks/1/test-placeholder',
+        webhookUrl: '',
+        webhookSecret: '',
       },
       { event: 'webhook.failed', sourceId: 'delivery-1' },
     ),

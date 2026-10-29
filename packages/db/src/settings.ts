@@ -36,6 +36,9 @@ export interface SettingValues extends ReadingSettingValues {
   'operations.telegramBotToken': string
   'operations.telegramChatId': string
   'operations.discordWebhookUrl': string
+  /** 通用 HTTPS webhook（如 Grok Bot routine）；与密钥同时配置才投递，密钥以 Bearer 发送。 */
+  'operations.webhookUrl': string
+  'operations.webhookSecret': string
   /**
    * 对话无可见正文失败的免费次数：同一工作区在最近 `windowSeconds` 秒内的前 `count` 次全额退回，
    * 超出后按最后一次上游尝试的用量结算（specs/ai-text-reasoning）。
@@ -51,6 +54,8 @@ export const settingDefaults: SettingValues = {
   'operations.telegramBotToken': '',
   'operations.telegramChatId': '',
   'operations.discordWebhookUrl': '',
+  'operations.webhookUrl': '',
+  'operations.webhookSecret': '',
   ...readingSettingDefaults,
   'ai.freeFailures': { count: 3, windowSeconds: 3600 },
 }

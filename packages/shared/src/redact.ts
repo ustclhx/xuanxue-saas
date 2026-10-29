@@ -11,6 +11,8 @@ const SENSITIVE_KEYS = new Set([
   'authorization',
   'discordwebhookurl',
   'operations.discordwebhookurl',
+  // 通用 webhook 地址的路径或查询串可能内嵌接收端令牌，按密钥处理。
+  'operations.webhookurl',
   'telegrambottoken',
   'operations.telegrambottoken',
   'proxyauthorization',

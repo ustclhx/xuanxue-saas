@@ -43,6 +43,8 @@ it('treats Telegram API rejection and Discord HTTP failure as retryable without 
     telegramBotToken: 'private-token',
     telegramChatId: '-1',
     discordWebhookUrl: 'https://discord.com/api/webhooks/1/private-webhook',
+    webhookUrl: '',
+    webhookSecret: '',
   }
   const event = { event: 'webhook.failed' as const, sourceId: 'delivery-1' }
   const http = vi
