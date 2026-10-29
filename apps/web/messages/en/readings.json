@@ -21,7 +21,7 @@
   "readings_unlock_redirecting": "Redirecting…",
   "readings_unlock_confirming": "Confirming your payment…",
   "readings_unlock_error": "Something went wrong. Please try again in a moment.",
-  "readings_unlock_payment_pending": "Your payment is still being confirmed. The reading will start once the credits arrive — refresh this page in a minute.",
+  "readings_unlock_payment_pending": "Payment received — click to generate",
   "readings_generating": "Writing your reading…",
   "readings_generate_failed": "The reading could not be generated. Your credits were returned — you can try again.",
   "readings_retry": "Try again",

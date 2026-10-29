@@ -21,7 +21,7 @@
   "readings_unlock_redirecting": "正在前往…",
   "readings_unlock_confirming": "正在确认付款…",
   "readings_unlock_error": "暂时无法处理，请稍后再试。",
-  "readings_unlock_payment_pending": "付款仍在确认中，积分入账后即可生成，请稍候重新整理此页。",
+  "readings_unlock_payment_pending": "付款已收到，点此生成",
   "readings_generating": "正在生成报告…",
   "readings_generate_failed": "报告生成失败，积分已退回，可以重试。",
   "readings_retry": "重试",

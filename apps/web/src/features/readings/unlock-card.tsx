@@ -22,7 +22,7 @@ import {
 } from './readings.functions.ts'
 import { readReadingStream } from './stream.ts'
 import { readingTitle } from './title.ts'
-import { peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
+import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
 
 /**
  * 结果页的「完整分析」解锁卡（add-reading-monetization tasks.md 3.1，原型 Main.dc.html 付费卡）：
@@ -45,8 +45,6 @@ export interface UnlockRequest {
 }
 
 const PENDING_KEY = 'xuanxue.readings.pending-unlock'
-const PAYMENT_POLL_MS = 2000
-const PAYMENT_POLL_TIMES = 15
 
 interface Pending {
   readonly token: string
@@ -239,7 +237,9 @@ export function ReadingUnlock({
       setPhase({ name: 'busy', label: m.readings_generating() })
       const current = await refresh()
       if (!current.viewer) return goLogin(request.input, request.share)
-      if (current.viewer.balance < current.credits) return setPhase({ name: 'packs' })
+      // 付款确认超时后点击：仍未到账时留在当前提示，不回到积分包选择，避免重复付款
+      if (current.viewer.balance < current.credits)
+        return setPhase(phase.name === 'payment-pending' ? phase : { name: 'packs' })
       return generate(request.input)
     })
 
@@ -277,18 +277,14 @@ export function ReadingUnlock({
       if (!current.available || !current.viewer) return setPhase({ name: 'idle' })
       const checkout = params.get('checkout')
       if (checkout === 'canceled') return setPhase({ name: 'packs' })
-      // 积分由支付 webhook 异步入账：付款成功回跳后短暂轮询余额
-      for (
-        let attempt = 0;
-        checkout === 'success' &&
-        current.viewer &&
-        current.viewer.balance < current.credits &&
-        attempt < PAYMENT_POLL_TIMES;
-        attempt++
-      ) {
+      // 积分由支付 webhook 异步入账：付款成功回跳后按 PAYMENT_POLL_DELAYS 轮询余额，
+      // 单次读取失败沿用上一次结果继续等待
+      for (const delay of checkout === 'success' ? PAYMENT_POLL_DELAYS : []) {
+        if (!current.viewer || current.viewer.balance >= current.credits) break
         setPhase({ name: 'busy', label: m.readings_unlock_confirming() })
-        await wait(PAYMENT_POLL_MS)
-        current = await refresh()
+        await wait(delay)
+        const previous = current
+        current = await refresh().catch(() => previous)
       }
       if (!current.viewer) return setPhase({ name: 'idle' })
       if (current.viewer.balance < current.credits)
@@ -385,7 +381,11 @@ export function ReadingUnlock({
           data-testid="reading-unlock-button"
           className="min-h-12 rounded-lg bg-brand px-6 font-semibold text-[17px] text-on-brand transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-on-inverse focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {busy ? phase.label : m.readings_unlock_cta()}
+          {busy
+            ? phase.label
+            : phase.name === 'payment-pending'
+              ? m.readings_unlock_payment_pending()
+              : m.readings_unlock_cta()}
         </button>
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />
@@ -427,22 +427,18 @@ function PhaseMessage({
       ? m.readings_generate_failed()
       : phase.name === 'error'
         ? m.readings_unlock_error()
-        : phase.name === 'payment-pending'
-          ? m.readings_unlock_payment_pending()
-          : null
+        : null
   if (text)
     return (
       <div role="alert" className="flex flex-wrap items-center gap-3 text-sm">
         <span>{text}</span>
-        {phase.name !== 'payment-pending' && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="min-h-11 rounded-lg border border-on-inverse/40 px-4 text-on-inverse"
-          >
-            {m.readings_retry()}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={onRetry}
+          className="min-h-11 rounded-lg border border-on-inverse/40 px-4 text-on-inverse"
+        >
+          {m.readings_retry()}
+        </button>
       </div>
     )
   if (!signedIn && phase.name === 'idle')
