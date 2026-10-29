@@ -46,6 +46,8 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
       mode: input.mode === 'one_time' ? 'payment' : 'subscription',
       // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
       managed_payments: { enabled: false },
+      // 平台价格只有 USD：关闭 Adaptive Pricing，避免 Stripe 按买家所在地换算成其他币种扣款。
+      adaptive_pricing: { enabled: false },
       line_items: [{ price: priceId(input.price), quantity: 1 }],
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
@@ -203,6 +205,7 @@ export async function changeStripePlan(
   if (subscription.cancel_at_period_end)
     throw new Error('Resume the subscription before changing plan')
   const metadata = { ...subscription.metadata, planPriceId: newPrice.id }
+  const intervalChange = item.price.recurring?.interval !== newPrice.interval
   if (!opts.atPeriodEnd) {
     await releaseSchedule(stripe, subscription)
     await stripe.subscriptions.update(subId, {
@@ -271,6 +274,9 @@ export async function changeStripePlan(
         items: [{ ...itemSettings, price: target }],
         metadata,
         proration_behavior: 'none',
+        // 月付↔年付：默认锚点在不按比例结算时沿用原锚点、把当前周期直接延长为新周期且不开票；
+        // 从新阶段起点重置锚点，周期末才会按新价格开出整周期发票（同周期降级保持原锚点）。
+        ...(intervalChange ? { billing_cycle_anchor: 'phase_start' as const } : {}),
       },
     ],
   })

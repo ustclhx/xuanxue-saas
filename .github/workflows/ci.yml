@@ -37,6 +37,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # 与 infra/local/docker-compose.yml 的容器初始化相同：集群级账号 + 单库权限
       - name: Initialize database roles
@@ -55,6 +57,14 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+      - name: Lint added migration SQL
+        env:
+          MIGRATION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$MIGRATION_BASE" ] || [[ "$MIGRATION_BASE" =~ ^0+$ ]]; then
+            MIGRATION_BASE=$(git hash-object -t tree /dev/null)
+          fi
+          node scripts/production/lint-migrations.mjs "$MIGRATION_BASE"
       # lockfile 必须已去重，且 drizzle-orm / react 只有一个实例（scripts/check-singletons.mjs 说明了原因）
       - run: pnpm dedupe --check
       - run: pnpm check:singletons
@@ -70,7 +80,7 @@ jobs:
   e2e-smoke:
     runs-on: ubuntu-latest
     # 正常约 2–3 分钟；留出 apt 镜像偶发缓慢的余量，单步再设上限避免挂死占满整个 job。
-    timeout-minutes: 12
+    timeout-minutes: 16
     permissions:
       contents: read
     services:
@@ -115,13 +125,25 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ runner.arch }}-${{ steps.playwright.outputs.version }}-chromium-shell
+      # apt 镜像偶发卡死（曾整步挂满 5 分钟）：给 apt 单次请求加超时，并对整次安装限时重试。
+      - name: Configure apt timeouts
+        run: printf 'Acquire::Retries "3";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' | sudo tee /etc/apt/apt.conf.d/99ci-timeouts >/dev/null
       - name: Install Chromium
         if: steps.browsers.outputs.cache-hit != 'true'
+        timeout-minutes: 10
         run: pnpm --filter @xuanxue/web exec playwright install --with-deps --only-shell chromium
       - name: Install Chromium system dependencies
         if: steps.browsers.outputs.cache-hit == 'true'
-        timeout-minutes: 5
-        run: pnpm --filter @xuanxue/web exec playwright install-deps chromium
+        timeout-minutes: 9
+        run: |
+          for attempt in 1 2 3; do
+            if timeout -k 10 150 pnpm --filter @xuanxue/web exec playwright install-deps chromium; then exit 0; fi
+            echo "::warning::playwright install-deps 第 ${attempt} 次失败或超时，重试"
+            # 被中断的 dpkg 会留下半配置状态，下一次安装前先修复。
+            sudo dpkg --configure -a || true
+            sleep 5
+          done
+          exit 1
       - name: Prepare local authentication and migrate
         run: |
           node --input-type=module <<'NODE'

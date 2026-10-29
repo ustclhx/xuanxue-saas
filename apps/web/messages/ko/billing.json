@@ -8,5 +8,7 @@
   "billing_return_canceled": "결제가 취소되었습니다. 결제 페이지로 돌아가 다시 시도할 수 있습니다.",
   "billing_return_pending": "결제가 확인된 후 크레딧이 반영됩니다. 이 페이지로 돌아온 것만으로 결제가 완료된 것은 아닙니다.",
   "billing_return_back": "이전 페이지로 돌아가기",
-  "billing_return_billing": "결제 페이지로 돌아가기"
+  "billing_return_billing": "결제 페이지로 돌아가기",
+  "billing_change_interval_notice": "월간 결제와 연간 결제 간 전환은 현재 결제 기간이 끝나는 시점({date})에 적용됩니다. 그때까지 현재 요금제가 유지되며, 새 결제 기간이 시작될 때 새 주기로 청구됩니다.",
+  "billing_change_scheduled": "요금제 변경이 현재 결제 기간 종료 시점으로 예약되었습니다."
 }

@@ -6,6 +6,8 @@
 - **积分包**（`plan.type='credit_pack'`）：一次性购买，发放一批有效期较长的积分，不改变权益（或只附加少量权益）。
 - **免费档**：`plan.key='free'`，无需支付记录；注册赠送积分 `signupBonusCredits`（用户领取时触发邮箱验证，验证完成后才发放，见 §4「注册赠送防刷」）。
 - 币种：模板默认单币种（`billing.currency`），多币种作为后续扩展（`plan_price` 已按 currency 建模）。
+  Stripe Checkout 显式传 `adaptive_pricing: { enabled: false }`，买家所在地不会改变扣款币种；
+  回调中出现非 USD 金额时 `money()` 抛出 `BILLING_CURRENCY_MISMATCH`，见 §3「不可重试的失败」。
 
 ## 2. 支付 Provider 抽象
 
@@ -72,7 +74,7 @@ type NormalizedEvent =
 | subscription.activated | `customer.subscription.created`（status=active/trialing） | `BILLING.SUBSCRIPTION.ACTIVATED` |
 | subscription.updated | `customer.subscription.updated` | `BILLING.SUBSCRIPTION.UPDATED` |
 | payment.succeeded(initial) | `invoice.paid`（billing_reason=`subscription_create`） | 订阅的首笔 `PAYMENT.SALE.COMPLETED` |
-| subscription.renewed / payment.succeeded(renewal) | `invoice.paid`（billing_reason=`subscription_cycle`） | 后续 `PAYMENT.SALE.COMPLETED`（带 billing_agreement_id） |
+| subscription.renewed / payment.succeeded(renewal) | `invoice.paid`（billing_reason=`subscription_cycle`；月付↔年付周期末切换的新周期首期为 `subscription_update`，见下文） | 后续 `PAYMENT.SALE.COMPLETED`（带 billing_agreement_id） |
 | subscription.past_due | `invoice.payment_failed` | `BILLING.SUBSCRIPTION.PAYMENT.FAILED` / `SUSPENDED` |
 | subscription.canceled | `customer.subscription.deleted` | `BILLING.SUBSCRIPTION.CANCELLED` / `EXPIRED` |
 | payment.succeeded(one_time) | `checkout.session.completed`（mode=payment, paid） | `PAYMENT.CAPTURE.COMPLETED` |
@@ -81,7 +83,7 @@ type NormalizedEvent =
 
 > Stripe 的真实录制见 `packages/billing/src/stripe/fixtures/recorded`。PayPal 已提交此前 8 条及 2026-10-18 新增 4 条真实 Sandbox 回调（Sale 月付/年付首付、部分/全额退款）；自然续费、争议和其他终态事件尚无真实录制，不能视为这些场景已通过。
 
-**订阅积分只由「付款成功」事件发放**：首付与续费都走 `payment.succeeded(initial|renewal)`，`checkout.session.completed` 只负责关联 workspace 与平台客户/订阅，从而避免首付被发两次积分。Stripe 中 `billing_reason=subscription_update`（升级按比例补差价）记为 `payment.kind='adjustment'`，关联原订阅并保留实际付款和退款记录，不发积分；只有 `initial` / `renewal` 付款发放订阅积分，见 §6。
+**订阅积分只由「付款成功」事件发放**：首付与续费都走 `payment.succeeded(initial|renewal)`，`checkout.session.completed` 只负责关联 workspace 与平台客户/订阅，从而避免首付被发两次积分。Stripe 中 `billing_reason=subscription_update`（升级按比例补差价）记为 `payment.kind='adjustment'`，关联原订阅并保留实际付款和退款记录，不发积分；只有 `initial` / `renewal` 付款发放订阅积分，见 §6。例外是月付↔年付在周期末以 `billing_cycle_anchor=phase_start` 切换时开出的新周期首期：Stripe 同样标为 `subscription_update`，但发票的订阅行只有一条非按比例的整周期行、没有任何按比例行，`classifyStripeBillingReason` 据此归为 `renewal`，按发票行的周期入账并按新价格所属套餐发放该周期首月积分（真实录制 `interval-change-renewal-*`）。含按比例行的 `subscription_update` 仍是 adjustment。
 
 **`payment.provider_payment_id` 的取值**（退款/争议事件靠它找回原付款）：
 
@@ -189,10 +191,15 @@ Creem / Paddle / Polar 各实现一个 Provider，`capabilities.merchantOfRecord
 6. 事务 B 异常：ROLLBACK 后另起事务
      UPDATE webhook_event SET status='failed', error=?, attempts=attempts+1
    返回 500，让平台重试（重试时从第 4 步继续）
+   不可重试的错误码（当前为 BILLING_CURRENCY_MISMATCH）：同样记 failed 并发运营告警，但返回 200
 ```
 
 - 失败记录必须在**独立事务**中写入：事务 B 回滚会撤销其内部的所有写入，若登记与处理放在同一事务里，`failed` 状态和错误信息永远写不进去。
 - 管理后台的「重放」= 对 `failed` 的记录用保存的 `payload` 重新执行第 4 步。
+- **不可重试的失败**：重投无法修复的错误（`NON_RETRYABLE_BILLING_ERRORS`，当前只有币种不符
+  `BILLING_CURRENCY_MISMATCH`）在 `webhook_event.error` 中以错误码开头记录，整笔回滚、不入账也不发积分；
+  `processWebhook` 返回 `retryable: false`，HTTP 入口经运营通知队列发 `webhook.failed` 告警后返回 200，
+  平台不再重投。运营人工核实（如退款或修正配置）后，可在后台重放。
 
 **乱序处理**：订阅状态更新以 `occurredAt` / 平台对象的最新状态为准；收到较旧事件时不覆盖较新状态。必要时通过 API 拉取最新对象（`reconcile`）。
 
@@ -339,6 +346,9 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 - 「生效中」在**读取时计算**，不依赖定时任务改状态：
   - `trialing` / `active`：生效。
   - `past_due`：在 `past_due_since + billing.pastDueGraceDays` 之前生效，之后视为 free。
+    `past_due_since` 由 `nextPastDueSince()` 统一计算：取本次进入欠费（`past_due`，含 PayPal 挂起的
+    `paused`）的首个时间点；保持欠费期间的订阅更新、每日对账与扣款重试失败都不清空或推后它
+    （Stripe 订阅快照不带欠费时间，不能直接覆盖）；离开欠费状态时清空，再次欠费时重新记录。
   - `canceled` / `expired`：`now() < current_period_end` 时生效（周期内取消保留权益）。
   - `paused`：不生效。
 
@@ -346,10 +356,10 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 | 场景 | 行为 |
 |---|---|
-| 升级（Stripe） | 立即生效，平台按比例计费；权益立即切换；积分在下一次 `invoice.paid` 按新套餐发放，当前实现不提供立即补发差额开关（Q5） |
-| 降级（Stripe） | 周期结束时生效（schedule） |
+| 升级（Stripe，同一计费周期） | 立即生效，平台按比例计费；权益立即切换；积分在下一次 `invoice.paid` 按新套餐发放，当前实现不提供立即补发差额开关（Q5） |
+| 降级（Stripe，同一计费周期） | 周期结束时生效（schedule） |
+| 月付 ↔ 年付（Stripe） | 无论档位升降，一律在当前周期结束时生效（复用降级的 schedule，第二段设 `billing_cycle_anchor=phase_start`）：当前周期照常到期，周期末重置锚点并开出新价格的整周期发票，该笔付款按续费入账并发放积分（年付仍按月发放）。未重置锚点时 Stripe 在 `proration_behavior=none` 下会把当前周期直接延长为新周期且不开票（2026-10-24 测试时钟实测）；同周期降级保持原锚点。立即切换会产生按比例的调整账单，年付款无法按续费入账。账单页在确认前提示该生效时间 |
 | PayPal | 首版不支持订阅内升降级：取消当前（周期末生效）+ 新订阅，重叠期见下 |
-| 月付 ↔ 年付 | 同升降级 |
 
 ### 「一个空间一个订阅」约束与重叠期
 
@@ -375,21 +385,6 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 - `/app/$slug/usage`：积分流水、按模型/成员的用量统计。
 - `/admin/billing`：付款、订阅、Webhook 事件（可重放）；手动调积分和完整管理能力在 P5。
 
-## P2 离线开发与联通边界（2026-10-04）
-
-当前离线开发不需要支付密钥。缺失凭据或未同步价格时，定价和账单页面显示支付不可用，不能伪装支付成功。Stripe 使用 SDK 23.0.0 与固定 API 版本 `2026-09-30.endive`；支付工厂按 `PAYMENT_MODE` 选择 test/live，本地与 staging 保持 test（PayPal Sandbox），token 缓存到 CACHE KV 并按环境隔离。Stripe 3.2 已有真实 Test 录制；PayPal 的 12 条真实 Sandbox 回调录制及补充矩阵见 §2。自然时间和真实收款主体验收移交派生项目。
-
-- 公开入口：`POST /api/billing/webhooks/{stripe|paypal}` 保留原始请求体验签；无效签名返回 400，业务或远端暂时失败返回 500，已提交的付款在队列投递失败时仍返回 200，由 Jobs 扫描持久化记录恢复通知。错误诊断会去除凭据、URL 与控制字符。
-- 后台：`/admin/billing` 列表与 failed 回调重放，`/admin/billing/refunds` 全额/部分审核、驳回与独立邮件重试。所有 server function 均重新验证平台 admin。审批或平台 API 响应不等于退款最终入账，只有匹配的已验证退款 ID 才完成申请和积分回收。
-- 并发订阅：事务回滚后持久化 `billing_compensation`，取消后到订阅并退款，租约/稳定幂等键允许重试。删除后的迟到订阅回调写入取消任务，保留真实付款凭据、禁止积分和权益恢复，并且不自动退款。
-- 删除：认证每次请求注入 billing 删除步骤；取消已知订阅在数据库事务外执行，剩余积分收回与账号/空间匿名化共享原事务。退款使用申请时保存的联系邮箱，删号后仍可审核和通知；驳回或已确认退款 30 天后清理，pending/approved 不清理。
-- Jobs：每小时过期和年付发放，每 10 分钟预扣回收框架、回调通知恢复、订阅补偿及退款邮件恢复，每日订阅/积分对账与联系邮箱清理。未注册的 AI 预扣处理器明确告警并保留预扣，P3/P4 注册相应处理器。
-- 队列：web 为 EVENTS_QUEUE producer，jobs 消费 events（staging 为 events-staging），仅发送持久化回调 UUID，不传原始载荷或支付密钥。失败重试和 Cron 从库恢复不重新入账。
-
-`pnpm billing:seed` 只写当前数据库的示例套餐，未同步价格保持 inactive。示例金额与积分量并非最终商业定价；AI 模型价格仍由 P3 定义。`pnpm billing:sync` 要求显式 `BILLING_SYNC_MODE=test`、Stripe 测试凭据与 PayPal 沙箱凭据，仅在下一联通阶段执行。Web/Jobs 与同步脚本共用根目录 `.env.local` 的五项支付变量名，参照已提交的 `.env.example`；`seed` / `sync` 自动读取该文件，进程环境优先、未指定数据库时回退到 `.env.worktree`。本地 dev 入口生成 app `.dev.vars` 支付管理区块，线上仍使用 Cloudflare secrets。离线 Playwright 会清空五项支付绑定并启动独立服务，不使用真实支付凭据。密钥不进入模板配置、Git 或日志；完整配置与联通步骤见 [支付联通 runbook](./runbooks/p2-payment-integration.md)。
-
-已完成两平台价格同步与幂等复验（1.3）、Stripe 真实录制与 Provider 验收（3.2）、规定页面验收（10.1–10.3）。本文与路线图的策略及实测证据更新归 10.4；后续 change `add-cloud-acceptance-followups` 承接 PayPal Sale 录制和 staging 沙箱矩阵，并单列自然时间与真实主体移交，范围及逐项证据以其 tasks 为准。
-
 ## 8. 支付模式与生产切换清单
 
 `createPaymentRuntime` 是 Web、Jobs 和认证删除步骤共用的支付工厂。非敏感 Worker var `PAYMENT_MODE` 只接受 `test` / `live`，两端 Wrangler 顶层与 `env.staging` 均显式设为 `test`；本站 `env.production` 显式设为 `live`（change `enable-paypal-checkout`，`check-wrangler-envs.mjs` 断言）。只有 `SENTRY_ENVIRONMENT=development` 缺少模式时默认 test，staging、production 和未知环境缺失模式时关闭支付：HTTP 支付入口返回 503，Jobs 事件失败并交给既有重试机制。结构化日志 `billing.runtime_invalid` 只包含安全字段名与模式，公开营销定价降级为支付不可用。
@@ -403,7 +398,7 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 以下是模板的通用生产切换清单。本站只启用 PayPal，实际执行顺序、事件清单与验收以 [PayPal 上线 runbook](./runbooks/paypal-launch.md) 为准，Stripe 相关项暂不适用：
 
-- [ ] 解决 [路线图 Q9](./08-roadmap.md#待决事项)：确认 Stripe 正式收款主体及支持地区、账户归属；若选择仅 PayPal 或 MoR，按最终方案配置启用的 provider。代码支持 live 不代表主体已获批准。
+- [ ] 解决 路线图 Q9（模板维护资料；请为本项目建立相应记录）：确认 Stripe 正式收款主体及支持地区、账户归属；若选择仅 PayPal 或 MoR，按最终方案配置启用的 provider。代码支持 live 不代表主体已获批准。
 - [ ] 为生产配置独立数据库、KV、队列、域名与价格对象。不要复用测试数据库的 customer、subscription、payment、price ID；现有 `billing:sync` 仍要求 `BILLING_SYNC_MODE=test`，不能用它创建 live 价格。
 - [ ] 在生产 web **和** jobs 配置 `SENTRY_ENVIRONMENT=production`、`PAYMENT_MODE=live`；staging 继续 `PAYMENT_MODE=test`，不修改 staging secrets。生产配置由上线任务单独建立。
 - [ ] 分别为两个 Worker 配置生产 `STRIPE_SECRET_KEY`（优先有足够业务权限的 `rk_live_`）与 `STRIPE_WEBHOOK_SECRET`。密钥通过 Wrangler secrets 安全写入，不写模板、Git、PR 或日志。

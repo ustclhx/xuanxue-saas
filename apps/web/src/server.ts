@@ -42,6 +42,8 @@ import { workspaceContentDeletionStep } from './features/readings/deletion.serve
 import { gateSiteRequest } from './features/site/gate.ts'
 import { siteHosts } from './features/site/site.ts'
 import { prerenderRequest, staticPageResponse } from './features/site/static-pages.ts'
+import { withSecurityNonce } from './security-context.server.ts'
+import { withSecurityHeaders, withStaticSecurityHeaders } from './security-headers.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
 import { checkEnv, webEnvSchema } from './server/cloudflare/env.ts'
@@ -77,7 +79,12 @@ const worker = instrumentWeb({
           // 东方站根路径先于静态语言选择页跳到语言首页；构建期预渲染请求不跳转
           (buildRequest ? null : eastHomeRedirect(request, templateConfig)) ??
           (!import.meta.env.DEV && !buildRequest && env.ASSETS
-            ? await staticPageResponse(request, (asset) => env.ASSETS.fetch(asset))
+            ? await staticPageResponse(request, async (asset) =>
+                withStaticSecurityHeaders(
+                  await env.ASSETS.fetch(asset),
+                  staticSecurity(request, env),
+                ),
+              )
             : null) ??
           gatePublicApiRequest(request, templateConfig) ??
           authLocaleRedirect(request, templateConfig) ??
@@ -92,40 +99,55 @@ export default {
     // 不信任入站的 x-request-id：可被客户端伪造，且会混入他人的检索结果
     const requestMeta = createCloudflareRequestMetadata(request)
     const context = { requestId: requestMeta.requestId, cfRay: requestMeta.cfRay }
-    return withLogContext(context, async () => {
-      try {
-        const invalid = checkEnv(env)
-        const response =
-          invalid ??
-          (await withWebRuntime(createCloudflareWebRuntime(env, requestMeta, ctx), () =>
-            worker.fetch(request, env, ctx),
-          ))
-        // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
-        const headers = new Headers(response.headers)
-        headers.set('x-request-id', context.requestId)
-        if (new URL(request.url).searchParams.has('r'))
-          headers.set('x-robots-tag', 'noindex, nofollow')
-        return new Response(response.body, {
-          status: response.status,
-          statusText: response.statusText,
-          headers,
-        })
-      } catch (error) {
-        // 包装器已经捕获异常；返回无敏感细节的响应与请求 ID，便于管理员验收定位。
-        log.error('http.unhandled', { error })
-        if (error instanceof AppError)
-          return Response.json(error.toJSON(), {
-            status: error.status,
-            headers: { 'x-request-id': context.requestId },
+    const nonce = crypto.randomUUID()
+    const security = { ...staticSecurity(request, env), nonce }
+    return withSecurityNonce(nonce, () =>
+      withLogContext(context, async () => {
+        try {
+          // 不在站点守卫之前直接返回 ASSETS：run_worker_first 覆盖的预渲染 HTML（含 /tarot 工具页）
+          // 必须先经过 gateSiteRequest 与东方站跳转；预渲染页由 staticPageResponse 读取并按脚本哈希补头。
+          const invalid = checkEnv(env)
+          const response =
+            invalid ??
+            (await withWebRuntime(createCloudflareWebRuntime(env, requestMeta, ctx), () =>
+              worker.fetch(request, env, ctx),
+            ))
+          // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
+          const headers = withSecurityHeaders(response.headers, security)
+          headers.set('x-request-id', context.requestId)
+          if (new URL(request.url).searchParams.has('r'))
+            headers.set('x-robots-tag', 'noindex, nofollow')
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers,
           })
-        return new Response('Internal Server Error', {
-          status: 500,
-          headers: { 'x-request-id': context.requestId },
-        })
-      }
-    })
+        } catch (error) {
+          // 包装器已经捕获异常；返回无敏感细节的响应与请求 ID，便于管理员验收定位。
+          log.error('http.unhandled', { error })
+          if (error instanceof AppError)
+            return Response.json(error.toJSON(), {
+              status: error.status,
+              headers: withSecurityHeaders({ 'x-request-id': context.requestId }, security),
+            })
+          return new Response('Internal Server Error', {
+            status: 500,
+            headers: withSecurityHeaders({ 'x-request-id': context.requestId }, security),
+          })
+        }
+      }),
+    )
   },
 } satisfies ExportedHandler<Cloudflare.Env>
+
+// 构建生成的静态 HTML 不带本次请求的 nonce，由 withStaticSecurityHeaders 按内联脚本哈希授权。
+function staticSecurity(request: Request, env: Cloudflare.Env) {
+  return {
+    https: new URL(request.url).protocol === 'https:',
+    r2AccountId: env.R2_ACCOUNT_ID,
+    sentryDsn: env.SENTRY_DSN,
+  }
+}
 
 // 只记录方法与路径：查询串可能带令牌（魔法链接、重置密码等）
 async function logged(request: Request, handle: () => Promise<Response>): Promise<Response> {

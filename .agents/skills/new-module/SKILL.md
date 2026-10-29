@@ -9,7 +9,7 @@ description: 为本模板增加后端业务能力或领域模块，复用现有�
 
 ## 1. 确定最小业务切片
 
-先完整读 `AGENTS.md`、`docs/01-architecture.md`、`docs/02-project-structure.md` 和对应领域文档；并行开发读 `docs/09-parallel-plan.md` §3/§6。明确一个可观察的业务行为、输入、角色、租户、写入/返回结果和幂等需求，再查现有实现：
+先完整读 `AGENTS.md`、`docs/01-architecture.md`、`docs/02-project-structure.md` 和对应领域文档；并行开发先明确文件所有权与数据库隔离。明确一个可观察的业务行为、输入、角色、租户、写入/返回结果和幂等需求，再查现有实现：
 
 ```sh
 rg --files apps/web/src/features packages

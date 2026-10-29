@@ -48,6 +48,11 @@ describe('getSetting', () => {
     expect(settingDefaults['auth.signupEnabled']).toBe(true)
   })
 
+  it('媒体不确定提交默认等待 1 小时', async () => {
+    const { store } = memoryStore({})
+    expect(await getSetting({ store }, 'ai.mediaUncertainWaitSeconds')).toBe(3600)
+  })
+
   it('表中存在时写入缓存，之后命中缓存不再查表', async () => {
     const { store, calls } = memoryStore({ 'auth.signupEnabled': false })
     const { cache, data, ttls } = memoryCache()
@@ -73,5 +78,20 @@ describe('详批运行时设置', () => {
     expect(settingDefaults['readings.bazi-full.enabled']).toBe(true)
     expect(settingDefaults['readings.saju-full.credits']).toBe(100)
     expect(settingDefaults['readings.tarot-spread.modelKey']).toBe('')
+  })
+})
+
+describe('ai.freeFailures', () => {
+  it('默认每小时 3 次免费失败', async () => {
+    const { store } = memoryStore({})
+    expect(await getSetting({ store }, 'ai.freeFailures')).toEqual({
+      count: 3,
+      windowSeconds: 3600,
+    })
+  })
+
+  it('表中保存的值覆盖默认值', async () => {
+    const { store } = memoryStore({ 'ai.freeFailures': { count: 0, windowSeconds: 600 } })
+    expect(await getSetting({ store }, 'ai.freeFailures')).toEqual({ count: 0, windowSeconds: 600 })
   })
 })

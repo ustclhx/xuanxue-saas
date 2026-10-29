@@ -350,5 +350,9 @@
   "admin_reading_model_unset": "未选定",
   "admin_save_paid_readings": "存储付费详批",
   "admin_paid_readings_saved": "已存储，约 60 秒内生效。",
-  "admin_paid_readings_unavailable": "无法载入或存储付费详批设置，请重新整理后再试。"
+  "admin_paid_readings_unavailable": "无法载入或存储付费详批设置，请重新整理后再试。",
+  "admin_ai_free_failure_count": "每个空间的 AI 免费失败次数",
+  "admin_ai_free_failure_count_description": "对话回复没有可见正文就失败时，窗口内前这么多次全额退回预扣；之后按最后一次上游尝试的用量结算（不超过预扣）。填 0 表示每次都结算。",
+  "admin_ai_free_failure_window_minutes": "免费失败计数窗口（分钟）",
+  "admin_ai_free_failure_window_description": "统计免费失败次数的滚动窗口，默认 60 分钟。"
 }

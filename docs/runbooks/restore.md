@@ -68,10 +68,4 @@ RESTORE_DATABASE_URL=<只在环境变量中> node scripts/production/verify-rest
 
 ## 5. 演练记录
 
-上线前及之后每季度各演练一次两条路径，证据写入 `docs/runbooks/evidence/production/restore-<YYYY-MM-DD>.md`：目标时间点、备份对象键与 sha256、开始 / 可查询 / 校验完成的 UTC 时间、RTO（开始到校验通过）、RPO（目标时间与实际数据最新时间之差）、各项校验结果与行数对比、临时资源已删除。演练时同时验证 age 私钥离线副本可解密。
-
-## 6. 本地验证记录（2026-10-15）
-
-- 备份脚本 `BACKUP_DRY_RUN=1` 对本地 `xuanxue_dev` 生成加密 dump（PG17 容器 `pg_dump` → age，116,701 字节，age 头正确），未上传。
-- 用临时 age 密钥解密后 `pg_restore` 到本地临时库，`verify-restore.mjs` 五项全部通过；删除一条迁移记录后 `migrations` 判定失败，证明校验能发现差异。临时库与文件已删除。
-- 以 `readonly` 执行 `pg_dump` 会因 `permission denied for schema drizzle` 失败；临时角色授予 `pg_read_all_data` 后可完整导出（含 `drizzle` 与 `job_engine` 共 45 张表数据）且写入仍被拒绝。生产需由 owner 执行 `GRANT pg_read_all_data TO readonly`（待用户批准，见 production runbook）。
+上线前及之后每季度各演练一次两条路径，证据写入 `EVIDENCE_DIR/production/restore-<YYYY-MM-DD>.md`（未设置时使用 `test-results/evidence/`，归档到私有证据库）：目标时间点、备份对象键与 sha256、开始 / 可查询 / 校验完成的 UTC 时间、RTO（开始到校验通过）、RPO（目标时间与实际数据最新时间之差）、各项校验结果与行数对比、临时资源已删除。演练时同时验证 age 私钥离线副本可解密。
