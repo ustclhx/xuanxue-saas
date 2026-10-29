@@ -57,6 +57,6 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
     const plans = marketingPlans(examplePricingCatalog())
     const single = plans.find((plan) => plan.key === 'reading_single')
     expect(single).toMatchObject({ credits: 100 })
-    expect(single?.prices.map((p) => [p.interval, p.amount])).toEqual([[null, 99]])
+    expect(single?.prices.map((p) => [p.interval, p.amount])).toEqual([[null, 199]])
   })
 })

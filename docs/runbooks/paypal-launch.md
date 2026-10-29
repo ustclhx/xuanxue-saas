@@ -15,7 +15,7 @@
 - 合并到 main 不等于上线。生产仍由版本 tag 加 GitHub production 审批触发，审批由用户点击。
 - 生产开放付款必须与 D1 上线模型、生产 `DEEPSEEK_API_KEY`、后台详批开关在**同一窗口**完成
   （launch-v1-production 2.2），否则用户买到的积分无法使用。
-- 积分包价格沿用种子值（Single 100 积分 $0.99、Five 500 积分 $3.99），由用户核实 PayPal 费率后在 6.1 决定。
+- 积分包价格（6.1，2026-10-29 决定）：Single 100 积分 $1.99、Five 500 积分 $6.99。按 PayPal 中国跨境标准费率 4.4% + $0.30，手续费约占 19.5% / 8.7%；小额费率 6% + $0.05 获批后约 8.5% / 6.7%（用户申请中）。改价步骤：改 `catalog.ts` → 各环境 `billing:seed` → `billing:activate-packs`（旧价格映射自动设为 inactive）。
 - 上线前由用户确认：PayPal Business 账号可收款（税务居住地 CN 的商家账号不支持高级信用卡 ACDC，买家只在
   PayPal 托管页付款，可用账户或按 PayPal 规则以访客身份刷卡），业务类目无审查问题。
 - 法律页（terms / privacy / refund）已改为 PayPal，但需人工审阅后再开放生产付款。

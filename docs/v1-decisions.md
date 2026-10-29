@@ -10,7 +10,7 @@
 | D5 | 韩语만세력是否默认开启「진태양시」（真太阳时）修正 | 决策 | `/ko/` 时柱：与韩国常见만세력一致（首尔约 −32 分钟） | — | 已决定：默认开启（`KO_TRUE_SOLAR_DEFAULT = true`，访客可关闭） |
 | D6 | 运营主体信息与法律审阅 | 决策 + 人工 | 法律页运营者、联系方式；支付主体 | — | 已决定（2026-10-20）：个人开发者（税务居住地 CN），法律页以品牌名称呼运营者，不公开姓名与地址，只留各站联系邮箱 `support@arcanumber.com` / `support@ganjiday.com`（Cloudflare Email Routing 转发）。**支付更新（2026-10-21）：先接 PayPal；`billing.providers` 改为 `['paypal']` 随 PayPal 上线一并提交（本次仍为 `['stripe']`）；用户已准备 PayPal 账号。Stripe 准备好后再加入（代码保留）。** 生产 PayPal 上线需设置 `PAYMENT_MODE` 与 `PAYPAL_*` 密钥，属于需确认的上线动作，未执行。法律文本仍需人工审阅。**PayPal 收款（change `enable-paypal-checkout`）：** `providers` 改为 `['paypal']`，回跳页自动 capture 并支持拒付重选，已批准未 capture 的订单由 jobs 补 capture；生产 web / jobs 显式 `PAYMENT_MODE=live`，积分包用 `billing:activate-packs` 激活（`billing:sync` 仍只允许 test）；terms / privacy / refund 的付款处理方改为 PayPal（待人工审阅）。上线步骤与回滚见 [PayPal 上线 runbook](runbooks/paypal-launch.md)；生产开放付款须与 D1 上线模型、`DEEPSEEK_API_KEY`、后台详批开关同一窗口完成，积分包价格仍沿用 D7 种子值，待核实 PayPal 费率后决定 |
 | D4 | 台湾 / 韩国本地官方搜索量 | 人工 | 长尾页优先级 | 按设计文档的第三方口径排期 | 待你在 Keyword Planner 导出 |
-| D7 | 定价策略 | 决策 | 定价页、积分包价格、订阅 | — | 已决定（2026-10-21）：先开小额一次性积分包（Single 100 积分 $0.99、Five 500 积分 $3.99，每次详批 100 积分），**暂不做订阅制**：`pro` / `team` 在 `packages/billing/src/catalog.ts` 中停用（`active: false`、无价格），重跑 seed 后结账被拒绝。免费积分：注册赠送为 0（`signupBonusCredits: 0`），免费档无积分；见 runbook 同日记录。价格仍为种子值，可在后台调整。 |
+| D7 | 定价策略 | 决策 | 定价页、积分包价格、订阅 | — | 已决定（2026-10-21，2026-10-29 调价）：先开小额一次性积分包（Single 100 积分 $1.99、Five 500 积分 $6.99，每次详批 100 积分；原 $0.99 / $3.99 在 PayPal 标准费率下 Single 手续费约 35%，故上调），**暂不做订阅制**：`pro` / `team` 在 `packages/billing/src/catalog.ts` 中停用（`active: false`、无价格），重跑 seed 后结账被拒绝。免费积分：注册赠送为 0（`signupBonusCredits: 0`），免费档无积分；见 runbook 同日记录。价格仍为种子值，可在后台调整。 |
 
 ## D1 测试接入（DeepSeek `deepseek-flash`）
 
@@ -42,7 +42,7 @@ Google 两项仍是启动必需项：协调者决定只在 staging secrets 使�
 
 - 性能：本地预检 CLS 已全部达标；LCP（本地未压缩 6.8–12.2s）需要上线 staging/生产后在 Brotli + HTTP/2 下复测。若仍超 2.5s，下一轮优化方向已列出：zod 移出入口、排盘引擎改为提交时加载、概念页与塔罗页拆分数据（报告「修复后复测」小节）。
 
-- 付费卡上的当地货币「约」值使用代码内固定参考汇率（KRW 1400、TWD 32.5 / USD），实际扣款以 Stripe Adaptive Pricing 为准；建议每季度人工校准（`features/readings/unlock-card.tsx`）。
-- 积分包种子：Single 100 积分 $0.99、Five 500 积分 $3.99，每次详批 100 积分；可在后台修改。
+- 付费卡上的当地货币「约」值使用代码内固定参考汇率（KRW 1400、TWD 32.5 / USD），实际扣款以 PayPal 美元标价及买家侧换汇为准；建议每季度人工校准（`features/readings/unlock-card.tsx`）。
+- 积分包种子：Single 100 积分 $1.99、Five 500 积分 $6.99（2026-10-29 由 $0.99 / $3.99 上调，见 D7），每次详批 100 积分；可在后台修改。
 - 紫微详批的集成测试使用固定命盘 mock（iztro 在 vitest workers 池中的 CJS 加载问题），真实复算已在 workerd 中验证。
 
