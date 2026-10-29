@@ -1,5 +1,8 @@
 -- rollback-safe: 只新建 job_engine schema 与表，旧代码不读写它们
 -- 恢复 2026-10-19 删除的模板迁移 0013–0015（语句集合一致），供模板 0.2.0 的事件死信与 0016 授权使用
+-- squawk-ignore-file prefer-bigint-over-int, prefer-identity -- reason: 列类型须与模板 job_engine schema 及 drizzle 定义一致，改类型会产生 schema 差异；均为新建空表
+SET lock_timeout = '5s';--> statement-breakpoint
+SET statement_timeout = '15min';--> statement-breakpoint
 CREATE SCHEMA "job_engine";
 --> statement-breakpoint
 CREATE TABLE "job_engine"."batch" (
