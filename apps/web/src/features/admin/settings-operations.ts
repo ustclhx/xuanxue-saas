@@ -15,6 +15,8 @@ export const OPERATIONS_SETTING_KEYS = [
   'operations.telegramBotToken',
   'operations.telegramChatId',
   'operations.discordWebhookUrl',
+  'operations.webhookUrl',
+  'operations.webhookSecret',
 ] as const satisfies readonly SettingKey[]
 
 // 远程地址限制在服务商域名，后台输入不成为 SSRF 出口。
@@ -46,20 +48,50 @@ export const operationsSettingsInput = z.object({
     })
     .nullable()
     .optional(),
+  // 通用 webhook 无法限定服务商域名：只允许公网 HTTPS 域名的默认端口，拒绝 IP 字面量、本机与内网后缀。
+  webhookUrl: z
+    .url()
+    .max(2048)
+    .refine((v) => {
+      const url = new URL(v)
+      const host = url.hostname.toLowerCase()
+      return (
+        url.protocol === 'https:' &&
+        !url.port &&
+        !url.username &&
+        !url.password &&
+        !url.hash &&
+        /^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(host) &&
+        !/(^|\.)(localhost|local|internal|localdomain|home|lan|corp|intranet)$/.test(host)
+      )
+    })
+    .nullable()
+    .optional(),
+  // 作为 Bearer 放入请求头，只接受可见 ASCII。
+  webhookSecret: z
+    .string()
+    .regex(/^[\x21-\x7E]{8,512}$/)
+    .nullable()
+    .optional(),
 })
 
 export async function readOperationsSettings(db: Database) {
   const ctx = { store: dbSettingStore(db) }
-  const [token, telegramChatId, webhook] = await Promise.all([
+  const [token, telegramChatId, webhook, webhookUrl, webhookSecret] = await Promise.all([
     getSetting(ctx, 'operations.telegramBotToken'),
     getSetting(ctx, 'operations.telegramChatId'),
     getSetting(ctx, 'operations.discordWebhookUrl'),
+    getSetting(ctx, 'operations.webhookUrl'),
+    getSetting(ctx, 'operations.webhookSecret'),
   ])
   // jsonb 驱动可能把数字形式的字符串再次解析成 number；chat ID 的对外契约仍为字符串。
   return {
     telegramConfigured: Boolean(token),
     telegramChatId: String(telegramChatId),
     discordConfigured: Boolean(webhook),
+    // 地址与密钥同时存在才投递；分别返回状态，便于后台提示缺哪一项。
+    webhookUrlConfigured: Boolean(webhookUrl),
+    webhookSecretConfigured: Boolean(webhookSecret),
   }
 }
 
@@ -71,6 +103,8 @@ export async function writeOperationsSettings(
     'operations.telegramBotToken': input.telegramBotToken,
     'operations.telegramChatId': input.telegramChatId,
     'operations.discordWebhookUrl': input.discordWebhookUrl,
+    'operations.webhookUrl': input.webhookUrl,
+    'operations.webhookSecret': input.webhookSecret,
   }
   for (const key of OPERATIONS_SETTING_KEYS) {
     if (values[key] === undefined) continue // 空表单保留已配置密钥；null 显式清除。

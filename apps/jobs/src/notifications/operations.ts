@@ -76,17 +76,28 @@ export interface OperationsChannels {
   telegramBotToken: string
   telegramChatId: string
   discordWebhookUrl: string
+  webhookUrl: string
+  webhookSecret: string
 }
 export async function readOperationsChannels(db: Database): Promise<OperationsChannels> {
   // 密钥不写 KV，只有发送端持有明文。
   const ctx = { store: dbSettingStore(db) }
-  const [telegramBotToken, telegramChatId, discordWebhookUrl] = await Promise.all([
-    getSetting(ctx, 'operations.telegramBotToken'),
-    getSetting(ctx, 'operations.telegramChatId'),
-    getSetting(ctx, 'operations.discordWebhookUrl'),
-  ])
+  const [telegramBotToken, telegramChatId, discordWebhookUrl, webhookUrl, webhookSecret] =
+    await Promise.all([
+      getSetting(ctx, 'operations.telegramBotToken'),
+      getSetting(ctx, 'operations.telegramChatId'),
+      getSetting(ctx, 'operations.discordWebhookUrl'),
+      getSetting(ctx, 'operations.webhookUrl'),
+      getSetting(ctx, 'operations.webhookSecret'),
+    ])
   // 与后台读取一致，保留数字形式 chat ID 的字符串契约。
-  return { telegramBotToken, telegramChatId: String(telegramChatId), discordWebhookUrl }
+  return {
+    telegramBotToken,
+    telegramChatId: String(telegramChatId),
+    discordWebhookUrl,
+    webhookUrl,
+    webhookSecret,
+  }
 }
 const labels = {
   'payment.succeeded': 'New payment',
@@ -96,9 +107,32 @@ const labels = {
   'queue.dead_letter': 'Events queue dead letter',
 }
 
+export type OperationsChannel = 'telegram' | 'discord' | 'webhook'
+
+const configured = (channel: OperationsChannel, channels: OperationsChannels) =>
+  channel === 'telegram'
+    ? Boolean(channels.telegramBotToken && channels.telegramChatId)
+    : channel === 'discord'
+      ? Boolean(channels.discordWebhookUrl)
+      : Boolean(channels.webhookUrl && channels.webhookSecret)
+
+/** 通用 webhook 的 JSON 契约：结构化字段供接收端解析，text 与聊天渠道文案一致；id 供接收端去重。 */
+function webhookRequest(channels: OperationsChannels, event: OperationsEvent, text: string) {
+  const id = `${event.event}:${event.sourceId}`
+  return {
+    url: channels.webhookUrl,
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${channels.webhookSecret}`,
+      'idempotency-key': id,
+    },
+    body: { v: 1, id, ...event, text },
+  }
+}
+
 /** 网络异常只暴露渠道和状态；异常文本可能带含 token 的请求 URL，不能透传。 */
 export async function sendOperationsChannel(
-  channel: 'telegram' | 'discord',
+  channel: OperationsChannel,
   channels: OperationsChannels,
   event: OperationsEvent,
   timeoutMs = 5000,
@@ -111,24 +145,30 @@ export async function sendOperationsChannel(
       ? [`Amount: ${event.amount} ${event.currency ?? ''} (minor units)`]
       : []),
   ].join('\n')
-  const url =
-    channel === 'telegram'
-      ? `https://api.telegram.org/bot${channels.telegramBotToken}/sendMessage`
-      : `${channels.discordWebhookUrl}?wait=true`
+  const request =
+    channel === 'webhook'
+      ? webhookRequest(channels, event, text)
+      : {
+          url:
+            channel === 'telegram'
+              ? `https://api.telegram.org/bot${channels.telegramBotToken}/sendMessage`
+              : `${channels.discordWebhookUrl}?wait=true`,
+          headers: { 'content-type': 'application/json' },
+          body:
+            channel === 'telegram'
+              ? { chat_id: channels.telegramChatId, text }
+              : { content: text, allowed_mentions: { parse: [] } },
+        }
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const response = await fetch(url, {
+    const response = await fetch(request.url, {
       method: 'POST',
       // workerd 不支持 redirect: 'error'；manual 下 3xx 由 !response.ok 视为失败。
       redirect: 'manual',
       signal: controller.signal,
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(
-        channel === 'telegram'
-          ? { chat_id: channels.telegramChatId, text }
-          : { content: text, allowed_mentions: { parse: [] } },
-      ),
+      headers: request.headers,
+      body: JSON.stringify(request.body),
     })
     if (!response.ok) throw new Error('HTTP failure')
     if (channel === 'telegram' && !((await response.json()) as { ok?: boolean }).ok)
@@ -147,13 +187,8 @@ export async function sendOperationsChannel(
 /** 各渠道分别记录成功，重试只重发尚未成功的渠道；终态失败进入持久死信；告警本身的失败由死信消费者独立重试。 */
 export async function deliverOperations(db: Database, event: OperationsEvent) {
   const channels = await readOperationsChannels(db)
-  for (const channel of ['telegram', 'discord'] as const) {
-    if (
-      channel === 'telegram'
-        ? !(channels.telegramBotToken && channels.telegramChatId)
-        : !channels.discordWebhookUrl
-    )
-      continue
+  for (const channel of ['telegram', 'discord', 'webhook'] as const) {
+    if (!configured(channel, channels)) continue
     const action = `operations.sent.${channel}`
     const targetId = `${event.event}:${event.sourceId}`
     const [sent] = await db

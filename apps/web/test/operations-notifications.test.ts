@@ -107,6 +107,8 @@ it('退款已提交成功，Telegram HTTP 超时只让消息重试，重投成�
       telegramConfigured: true,
       telegramChatId: '-123',
       discordConfigured: true,
+      webhookUrlConfigured: false,
+      webhookSecretConfigured: false,
     })
     // 省略输入不会覆盖密钥；后台读接口始终只返回配置状态。
     await runAdminAction(
@@ -230,6 +232,8 @@ it('退款已提交成功，Telegram HTTP 超时只让消息重试，重投成�
       telegramConfigured: false,
       telegramChatId: '',
       discordConfigured: false,
+      webhookUrlConfigured: false,
+      webhookSecretConfigured: false,
     })
   } finally {
     vi.restoreAllMocks()
@@ -247,3 +251,66 @@ it('退款已提交成功，Telegram HTTP 超时只让消息重试，重投成�
     await db.delete(user).where(eq(user.id, uid))
   }
 }, 15000)
+
+it('通用 webhook 设置：拒绝非公网 HTTPS 地址，保存后只返回状态，审计脱敏且可清除', async () => {
+  const db = createDb(env.HYPERDRIVE)
+  const migrator = createDb(env.HYPERDRIVE_MIGRATOR)
+  const uid = newId()
+  const url = 'https://hooks.example.com/routines/private-routine?key=private-query'
+  const secret = 'grok-sender-key-private'
+  const original = await db
+    .select()
+    .from(setting)
+    .where(inArray(setting.key, [...OPERATIONS_SETTING_KEYS]))
+  const parse = (webhookUrl: string) =>
+    operationsSettingsInput.safeParse({ telegramChatId: '', webhookUrl }).success
+  for (const bad of [
+    'http://hooks.example.com/x',
+    'https://127.0.0.1/x',
+    'https://[::1]/x',
+    'https://localhost/x',
+    'https://svc.internal/x',
+    'https://hooks.example.com:8443/x',
+    'https://user:pass@hooks.example.com/x',
+  ])
+    expect(parse(bad), bad).toBe(false)
+  expect(parse(url)).toBe(true)
+  expect(
+    operationsSettingsInput.safeParse({ telegramChatId: '', webhookSecret: 'has space key' })
+      .success,
+  ).toBe(false)
+  try {
+    await db
+      .insert(user)
+      .values({ id: uid, name: 'Ops webhook', email: `${uid}@ops.test`, role: 'admin' })
+    const save = (input: Parameters<typeof writeOperationsSettings>[1]) =>
+      runAdminAction({ db, admin: { id: uid }, ip: null }, 'setting.operations.update', (scope) =>
+        writeOperationsSettings(scope, input),
+      )
+    await save(operationsSettingsInput.parse({ telegramChatId: '', webhookUrl: url }))
+    expect(await readOperationsSettings(db)).toMatchObject({
+      webhookUrlConfigured: true,
+      webhookSecretConfigured: false,
+    })
+    await save(operationsSettingsInput.parse({ telegramChatId: '', webhookSecret: secret }))
+    expect(await readOperationsSettings(db)).toMatchObject({
+      webhookUrlConfigured: true,
+      webhookSecretConfigured: true,
+    })
+    await save({ telegramChatId: '', webhookUrl: null, webhookSecret: null })
+    expect(await readOperationsSettings(db)).toMatchObject({
+      webhookUrlConfigured: false,
+      webhookSecretConfigured: false,
+    })
+    const audit = await db.select().from(auditLog).where(eq(auditLog.actorUserId, uid))
+    expect(audit.map((row) => row.targetId)).toEqual(
+      expect.arrayContaining(['operations.webhookUrl', 'operations.webhookSecret']),
+    )
+    expect(JSON.stringify(audit)).not.toMatch(/private/)
+  } finally {
+    await db.delete(setting).where(inArray(setting.key, [...OPERATIONS_SETTING_KEYS]))
+    if (original.length) await db.insert(setting).values(original)
+    await migrator.delete(auditLog).where(eq(auditLog.actorUserId, uid))
+    await db.delete(user).where(eq(user.id, uid))
+  }
+})
