@@ -108,5 +108,11 @@
   "pricing_faq_pay_q": "How will I pay?",
   "pricing_faq_pay_a": "Payments will be processed securely by our payment provider. We never see or store your card details.",
   "pricing_pack_readings_one": "Unlocks 1 full reading",
-  "pricing_pack_readings_other": "Unlocks {count} full readings"
+  "pricing_pack_readings_other": "Unlocks {count} full readings",
+  "marketing_nav_faq": "FAQ",
+  "marketing_faq_page_intro": "Answers about free tools, credits and refunds, failed readings, privacy and how results are calculated.",
+  "marketing_faq_section_credits": "Credits, payments and refunds",
+  "marketing_faq_section_methods": "Privacy and calculation methods",
+  "marketing_faq_privacy_q": "Are my birth details or name uploaded?",
+  "marketing_faq_privacy_a": "Not by the free tools. Charts, calculators and tarot draws are calculated in your browser. Your details reach our servers only when you sign in and choose to unlock a full reading, which needs them to write it."
 }

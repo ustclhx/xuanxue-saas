@@ -3,6 +3,8 @@
 公开页面通过 `pageHead` 输出标题、描述、canonical、Open Graph、Twitter 与 hreflang。
 构建时从站点注册表及 `EAST_URL` / `WEST_URL` 固化站点地址；`/app`、`/account`、`/admin`、`/api` 禁止索引。
 `/sitemap.xml` 按 Host 输出本站的语言子地图（`/sitemap/zh-hant.xml`、`/sitemap/ko.xml` 或 `/sitemap/en.xml`）。
+robots 对 `AI_CRAWLERS` 中的 AI 爬虫逐个输出 `Allow: /` 分组，并在每组重复私有路径的 Disallow；`/llms.txt` 按 Host 列出站点简介与本站核心工具、定价、`/faq` 的规范地址，未知 Host 返回 404。
+静态页标题与描述在 `metadata.ts` 的 `staticCopy` 中按全部语言必填，缺少语言时类型检查报错。
 站点地图与 OG 接口共用 `publicPages`，只收录功能开关已开启的页面、已发布的文章，排除草稿与未来文章。
 默认语言无前缀，其他语言使用 `/<locale>`，缺少译文时沿用内容模块已有的默认语言回退。
 

@@ -50,3 +50,25 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
     (await request.get(`${east}/ko/?r=shared`, eastOptions)).headers()['x-robots-tag'],
   ).toContain('noindex')
 })
+
+test('两站 FAQ 汇总页与 llms.txt 按 Host 输出', async ({ request, baseURL }) => {
+  const origin = baseURL ?? 'http://localhost:3000'
+  const eastOptions = { headers: { host: new URL(localSite(baseURL, 'east')).host } }
+  const westOptions = { headers: { host: new URL(localSite(baseURL, 'west')).host } }
+  for (const [path, options] of [
+    ['/zh-hant/faq', eastOptions],
+    ['/faq', westOptions],
+  ] as const) {
+    const response = await request.get(`${origin}${path}`, options)
+    expect(response.status(), path).toBe(200)
+    expect(await response.text()).toContain('"@type":"FAQPage"')
+  }
+  const east = await request.get(`${origin}/llms.txt`, eastOptions)
+  expect(east.status()).toBe(200)
+  expect(east.headers()['content-type']).toContain('text/plain')
+  const text = await east.text()
+  expect(text).toContain('https://ganjiday.com/zh-hant')
+  expect(text).not.toContain('arcanumber.com')
+  const rules = await (await request.get(`${origin}/robots.txt`, eastOptions)).text()
+  expect(rules).toContain('User-agent: GPTBot\nAllow: /\nDisallow: /app')
+})
