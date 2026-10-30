@@ -4,9 +4,13 @@ import { estimateInputTokens } from '@xuanxue/ai/client'
 import { Button, Label } from '@xuanxue/ui'
 import { DefaultChatTransport } from 'ai'
 import { useMemo, useRef, useState } from 'react'
+import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { FormAlert } from '../auth/auth-layout.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
+import { type ChatContext, contextSystemText } from './chat-context.ts'
+import { ChatContextSummary } from './chat-context-start.tsx'
+import { ChatUnavailable } from './chat-unavailable.tsx'
 import {
   type ChatMessageStatus,
   type ChatUIMessage,
@@ -25,7 +29,7 @@ import {
 } from './conversation.ts'
 import { renameConversation } from './conversations.functions.ts'
 import type { PickerModel } from './model-picker.ts'
-import { CreditEstimateText, ModelPicker } from './model-picker.tsx'
+import { ChatCostHint, ModelPicker } from './model-picker.tsx'
 
 const BILLING_CODES = new Set(['INSUFFICIENT_CREDITS', 'CREDIT_DEBT', 'UPGRADE_REQUIRED'])
 
@@ -39,12 +43,15 @@ export function ChatPage({
   conversation,
   storedMessages,
   models,
+  chatContext = null,
   readOnly,
 }: {
   slug: string
   conversation: { id: string; title: string }
   storedMessages: readonly StoredMessage[]
   models: readonly PickerModel[]
+  /** 从结果页带入的命盘上下文；每轮请求由服务端从对话的 system 消息带上 */
+  chatContext?: ChatContext | null
   readOnly: boolean
 }) {
   const [modelId, setModelId] = useState(models[0]?.id)
@@ -100,6 +107,7 @@ export function ChatPage({
 
   const busy = status === 'submitted' || status === 'streaming'
   const inputTokens = estimateInputTokens([
+    ...(chatContext ? [{ text: contextSystemText(chatContext) }] : []),
     ...messages.map((message) => ({ text: messageText(message) })),
     { text: input },
   ])
@@ -148,6 +156,7 @@ export function ChatPage({
           All chats
         </Link>
       </div>
+      {chatContext ? <ChatContextSummary context={chatContext} /> : null}
       <ol aria-label="Messages" className="grid gap-4">
         {messages.map((message) => (
           <ChatMessage
@@ -158,7 +167,7 @@ export function ChatPage({
           />
         ))}
       </ol>
-      {messages.length === 0 ? <p>Send a message to start the conversation.</p> : null}
+      {messages.length === 0 ? <p>{m.ai_chat_empty_conversation()}</p> : null}
       {error ? (
         <div className="grid gap-2">
           <FormAlert message={chatErrorMessage(errorCode)} />
@@ -171,57 +180,62 @@ export function ChatPage({
       ) : null}
       <FormAlert message={stopError} />
       {readOnly ? <p role="status">This workspace is read-only.</p> : null}
-      <form
-        aria-label="Send a message"
-        className="grid gap-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          submit()
-        }}
-      >
-        <HydratedControls>
-          <ModelPicker models={models} value={modelId} onChange={setModelId} disabled={busy} />
-          {canToggleThinking ? (
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={thinking}
-                disabled={busy || readOnly}
-                onChange={(event) => setThinking(event.target.checked)}
+      {models.length === 0 ? (
+        // 空间没有可用模型：保留历史消息，以多语言空态与购买积分入口取代输入框
+        <ChatUnavailable slug={slug} />
+      ) : (
+        <form
+          aria-label="Send a message"
+          className="grid gap-3"
+          onSubmit={(event) => {
+            event.preventDefault()
+            submit()
+          }}
+        >
+          <HydratedControls>
+            <ModelPicker models={models} value={modelId} onChange={setModelId} disabled={busy} />
+            {canToggleThinking ? (
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={thinking}
+                  disabled={busy || readOnly}
+                  onChange={(event) => setThinking(event.target.checked)}
+                />
+                Thinking
+              </label>
+            ) : null}
+            <p className="grid gap-1">
+              <Label htmlFor="chat-input">Message</Label>
+              <textarea
+                id="chat-input"
+                className="min-h-24 rounded-md border p-2"
+                value={input}
+                disabled={readOnly}
+                onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                    event.preventDefault()
+                    submit()
+                  }
+                }}
               />
-              Thinking
-            </label>
-          ) : null}
-          <p className="grid gap-1">
-            <Label htmlFor="chat-input">Message</Label>
-            <textarea
-              id="chat-input"
-              className="min-h-24 rounded-md border p-2"
-              value={input}
-              disabled={readOnly}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                  event.preventDefault()
-                  submit()
-                }
-              }}
-            />
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            {busy ? (
-              <Button type="button" variant="outline" onClick={() => void stopReply()}>
-                Stop
-              </Button>
-            ) : (
-              <Button type="submit" disabled={readOnly || !model || !input.trim()}>
-                Send
-              </Button>
-            )}
-            <CreditEstimateText model={model} inputTokens={inputTokens} />
-          </div>
-        </HydratedControls>
-      </form>
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              {busy ? (
+                <Button type="button" variant="outline" onClick={() => void stopReply()}>
+                  Stop
+                </Button>
+              ) : (
+                <Button type="submit" disabled={readOnly || !model || !input.trim()}>
+                  Send
+                </Button>
+              )}
+              <ChatCostHint model={model} inputTokens={inputTokens} />
+            </div>
+          </HydratedControls>
+        </form>
+      )}
     </div>
   )
 }

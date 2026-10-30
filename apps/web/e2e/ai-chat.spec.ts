@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { expect, type Page, test } from '@playwright/test'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { newId } from '@xuanxue/shared'
-import { fixtureDb, login, register, simulateClientIp } from './fixtures.ts'
+import { fixtureDb, login, PASSWORD, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // 对话列表与对话页（tasks.md 3.1）。本地没有真实模型：发送消息时拦截 POST /api/ai/chat，
@@ -23,50 +23,77 @@ test.afterEach(async ({ page }, info) => {
 
 const slugOf = (page: Page) => new URL(page.url()).pathname.split('/')[2] ?? ''
 
+/** 模型列表经 KV 缓存（TTL 60 秒）：空间没有可用模型时列表页只显示空态，刷新直到出现「New chat」 */
 async function newConversation(page: Page, slug: string) {
-  await page.goto(`/app/${slug}/chat`)
+  const create = page.getByRole('button', { name: 'New chat' })
+  await expect
+    .poll(
+      async () => {
+        await page.goto(`/app/${slug}/chat`)
+        return create.count()
+      },
+      { timeout: 90_000, intervals: [2_000, 5_000] },
+    )
+    .toBe(1)
   await expect(page.getByRole('heading', { name: 'Chats' })).toBeVisible()
-  await page.getByRole('button', { name: 'New chat' }).click()
+  await create.click()
   await expect(page).toHaveURL(new RegExp(`/app/${slug}/chat/${UUID}$`))
   return new URL(page.url()).pathname.split('/').at(-1) ?? ''
 }
 
 test('creates, renames and archives own conversations', async ({ page }) => {
+  test.setTimeout(150_000)
   const email = `chat-list-${randomUUID()}@example.com`
   await register(page, email)
   const slug = slugOf(page)
-  await page.locator('aside').getByRole('link', { name: 'Chat', exact: true }).click()
-  await expect(page.getByText('No conversations yet.')).toBeVisible()
-
-  const id = await newConversation(page, slug)
-  await expect(page.getByTestId('conversation-title')).toHaveText('New chat')
-  await page.getByRole('link', { name: 'All chats' }).click()
-
-  const list = page.getByRole('region', { name: 'Conversations', exact: true })
-  const row = list.getByRole('listitem', { name: 'New chat' })
-  await expect(row).toBeVisible()
-  await row.getByRole('button', { name: 'Rename' }).click()
-  await list.getByLabel('Conversation title').fill('Trip planning')
-  await list.getByRole('button', { name: 'Save' }).click()
-  const renamed = list.getByRole('listitem', { name: 'Trip planning' })
-  await expect(renamed).toBeVisible()
-
-  await renamed.getByRole('button', { name: 'Archive' }).click()
-  const archived = page.getByRole('region', { name: 'Archived conversations' })
-  await expect(archived.getByRole('listitem', { name: 'Trip planning' })).toBeVisible()
-  await expect(list.getByRole('listitem', { name: 'Trip planning' })).toHaveCount(0)
-
-  const sql = fixtureDb()
+  const model = await seedChatModel(slug)
   try {
-    const [row] = await sql`select c.title, c.archived, u.email from ai_conversation c
-      join "user" u on u.id = c.user_id where c.id = ${id}`
-    expect(row).toMatchObject({ title: 'Trip planning', archived: true, email })
-  } finally {
-    await sql.end()
-  }
+    // 空间有可用模型后导航才显示对话入口（specs/ai-chat「无可用模型时隐藏对话入口」）
+    const nav = page.locator('aside').getByRole('link', { name: 'Chat', exact: true })
+    await expect
+      .poll(
+        async () => {
+          await page.goto(`/app/${slug}`)
+          return nav.count()
+        },
+        { timeout: 90_000, intervals: [2_000, 5_000] },
+      )
+      .toBe(1)
+    await nav.click()
+    await expect(page.getByText('No conversations yet.')).toBeVisible()
 
-  await archived.getByRole('button', { name: 'Unarchive' }).click()
-  await expect(list.getByRole('listitem', { name: 'Trip planning' })).toBeVisible()
+    const id = await newConversation(page, slug)
+    await expect(page.getByTestId('conversation-title')).toHaveText('New chat')
+    await page.getByRole('link', { name: 'All chats' }).click()
+
+    const list = page.getByRole('region', { name: 'Conversations', exact: true })
+    const row = list.getByRole('listitem', { name: 'New chat' })
+    await expect(row).toBeVisible()
+    await row.getByRole('button', { name: 'Rename' }).click()
+    await list.getByLabel('Conversation title').fill('Trip planning')
+    await list.getByRole('button', { name: 'Save' }).click()
+    const renamed = list.getByRole('listitem', { name: 'Trip planning' })
+    await expect(renamed).toBeVisible()
+
+    await renamed.getByRole('button', { name: 'Archive' }).click()
+    const archived = page.getByRole('region', { name: 'Archived conversations' })
+    await expect(archived.getByRole('listitem', { name: 'Trip planning' })).toBeVisible()
+    await expect(list.getByRole('listitem', { name: 'Trip planning' })).toHaveCount(0)
+
+    const sql = fixtureDb()
+    try {
+      const [row] = await sql`select c.title, c.archived, u.email from ai_conversation c
+        join "user" u on u.id = c.user_id where c.id = ${id}`
+      expect(row).toMatchObject({ title: 'Trip planning', archived: true, email })
+    } finally {
+      await sql.end()
+    }
+
+    await archived.getByRole('button', { name: 'Unarchive' }).click()
+    await expect(list.getByRole('listitem', { name: 'Trip planning' })).toBeVisible()
+  } finally {
+    await removeModel(model.modelId)
+  }
 })
 
 test('another member of the workspace gets 404 for a conversation', async ({ page }) => {
@@ -105,8 +132,9 @@ test('another member of the workspace gets 404 for a conversation', async ({ pag
     expect(response?.status()).toBe(404)
     await expect(page.getByRole('heading', { name: 'Conversation not found' })).toBeVisible()
     await expect(page.getByText('private question')).toHaveCount(0)
+    // 团队空间没有可用模型：列表页只显示空态，不列出任何对话
     await page.goto(`/app/${slug}/chat`)
-    await expect(page.getByText('No conversations yet.')).toBeVisible()
+    await expect(page.getByTestId('chat-unavailable')).toBeVisible()
     await expect(page.getByText('Owner secrets')).toHaveCount(0)
   } finally {
     await sql`delete from ai_message where conversation_id = ${conversationId}`
@@ -196,7 +224,8 @@ test('chat page picks a model, streams replies, stops and explains errors', asyn
       )
       .toBe(1)
     await page.getByLabel('Model').selectOption(model.modelId)
-    await expect(page.getByTestId('credit-estimate')).toHaveText(/2 credits/)
+    await expect(page.getByTestId('chat-cost-model')).toHaveText(model.key)
+    await expect(page.getByTestId('chat-cost-estimate')).toHaveText('2 credits per message')
 
     // 1. 正常回复：只提交本轮用户消息，逐段渲染模拟流
     const messageId = newId()
@@ -357,6 +386,73 @@ test('stop button calls the stop endpoint with the streaming message id', async 
     await expect.poll(() => stopRequests).toHaveLength(3)
     expect(stopRequests[2]).toEqual({ path: `/api/ai/chat/${messageIds[2]}/stop`, body: { slug } })
     await expect(replies.nth(2)).toContainText('Stopped')
+  } finally {
+    await removeModel(model.modelId)
+  }
+})
+
+test('result page “Ask AI” opens a chat with the recomputed result as context', async ({
+  page,
+}) => {
+  test.setTimeout(180_000)
+  const email = `chat-context-${randomUUID()}@example.com`
+  await register(page, email)
+  const slug = slugOf(page)
+  const model = await seedChatModel(slug)
+  const visited: string[] = []
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) visited.push(frame.url())
+  })
+  try {
+    // 等模型出现在空间中（KV 缓存 60 秒），之后以未登录访客身份从结果页进入
+    await newConversation(page, slug)
+    await page.context().clearCookies()
+    await page.goto('/')
+    await page.getByLabel('Date of birth').fill('1987-11-29')
+    await page.getByRole('button', { name: 'Calculate' }).first().click()
+    await expect(page.locator('#life-path-result')).toContainText('11')
+    await page.getByTestId('ask-ai-button').click()
+
+    // 未登录：登录后回到结果页并自动继续，进入带上下文的新对话
+    await expect(page).toHaveURL(/\/login\?redirect=%2F%3Funlock%3D/)
+    const form = page.getByRole('form', { name: 'Sign in with password' })
+    await form.getByLabel('Email', { exact: true }).fill(email)
+    await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
+    await form.getByRole('button', { name: 'Sign in', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/app/${slug}/chat/${UUID}$`), { timeout: 30_000 })
+    const summary = page.getByTestId('chat-context-summary')
+    await expect(summary).toContainText('Life Path')
+    await expect(summary).toContainText('11')
+
+    // 入口地址只带签名令牌，不含出生日期
+    const contextUrl = visited.find((url) => url.includes('/chat?context='))
+    expect(contextUrl).toBeTruthy()
+    expect(contextUrl).not.toMatch(/1987|11-29/)
+    const conversationId = new URL(page.url()).pathname.split('/').at(-1) ?? ''
+    const sql = fixtureDb()
+    try {
+      const rows = await sql<{ role: string; parts: { type: string; text?: string }[] }[]>`
+        select role, parts from ai_message where conversation_id = ${conversationId}`
+      expect(rows).toHaveLength(1)
+      expect(rows[0]?.role).toBe('system')
+      expect(rows[0]?.parts[0]?.text).toContain('"lifePath":{"value":11')
+    } finally {
+      await sql.end()
+    }
+
+    // 他人使用同一入口地址被拒，不建对话
+    await page.context().clearCookies()
+    await register(page, `chat-context-other-${randomUUID()}@example.com`)
+    const otherSlug = slugOf(page)
+    const other = await seedChatModel(otherSlug)
+    try {
+      await newConversation(page, otherSlug)
+      const search = new URL(contextUrl ?? '').search
+      await page.goto(`/app/${otherSlug}/chat${search}`)
+      await expect(page.getByRole('alert')).toContainText('not valid for your account')
+    } finally {
+      await removeModel(other.modelId)
+    }
   } finally {
     await removeModel(model.modelId)
   }
