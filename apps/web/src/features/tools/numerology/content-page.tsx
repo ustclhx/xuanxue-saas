@@ -1,9 +1,13 @@
 import type { ReactNode } from 'react'
+import { m } from '../../../paraglide/messages.js'
 import { MarketingShell } from '../../marketing/marketing-shell.tsx'
+import { ContentFunnel } from '../reading-guide.tsx'
+import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import type { NumerologyPage } from './content.functions.ts'
 import { numerologyLinks } from './copy.ts'
 import { NumberGrid, NumerologyArticle } from './parts.tsx'
+import { NUMEROLOGY_LOCALE, NUMEROLOGY_TOOLS } from './routes.ts'
 import { faqItems } from './seo.ts'
 
 /**
@@ -19,6 +23,7 @@ export function NumerologyContentPage({
   content: NumerologyPage
   calculator: ReactNode
 }) {
+  const fullCalculator = toolHref(NUMEROLOGY_TOOLS['numerology-calculator'].path, NUMEROLOGY_LOCALE)
   return (
     <MarketingShell>
       <ToolPage
@@ -31,6 +36,22 @@ export function NumerologyContentPage({
       >
         <NumerologyArticle html={content.html} />
         <NumberGrid current={content.number ?? undefined} />
+        {/* 只有 12 个生命灵数含义页加入口；枢纽页本身就是姓名计算器 */}
+        {content.number != null && (
+          <ContentFunnel
+            tool={{
+              href: fullCalculator,
+              label: m.funnel_content_life_path_tool(),
+              target: 'numerology-calculator',
+            }}
+            reading={{
+              kind: 'numerology-full',
+              href: fullCalculator,
+              label: m.funnel_content_reading(),
+              target: 'reading-numerology-full',
+            }}
+          />
+        )}
       </ToolPage>
     </MarketingShell>
   )

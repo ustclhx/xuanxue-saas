@@ -1,5 +1,20 @@
 import { expect, test } from '@playwright/test'
 
+test('简体路径的繁体别名 301 到可正常访问的简体规范页', async ({ request }) => {
+  for (const [alias, slug] of [
+    ['大運', '大运'],
+    ['身強身弱', '身强身弱'],
+  ]) {
+    const response = await request.get(`/zh-hans/${encodeURI(`八字/${alias}`)}`, {
+      maxRedirects: 0,
+    })
+    expect(response.status()).toBe(301)
+    expect(decodeURI(response.headers().location ?? '')).toBe(`/zh-hans/八字/${slug}`)
+    const canonical = await request.get(`/zh-hans/${encodeURI(`八字/${slug}`)}`)
+    expect(canonical.status()).toBe(200)
+  }
+})
+
 for (const [locale, base, slug, title, submit] of [
   ['zh-hant', '八字', '空亡', '空亡是什麼：日空、年空與所在柱的查閱方式', '立即排盤'],
   ['ko', '사주', '공망', '공망 뜻과 확인 방법: 일공과 연공 구분하기', '즉시 만세력'],

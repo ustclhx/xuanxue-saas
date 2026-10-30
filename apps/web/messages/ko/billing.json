@@ -10,5 +10,6 @@
   "billing_return_back": "이전 페이지로 돌아가기",
   "billing_return_billing": "결제 페이지로 돌아가기",
   "billing_change_interval_notice": "월간 결제와 연간 결제 간 전환은 현재 결제 기간이 끝나는 시점({date})에 적용됩니다. 그때까지 현재 요금제가 유지되며, 새 결제 기간이 시작될 때 새 주기로 청구됩니다.",
-  "billing_change_scheduled": "요금제 변경이 현재 결제 기간 종료 시점으로 예약되었습니다."
+  "billing_change_scheduled": "요금제 변경이 현재 결제 기간 종료 시점으로 예약되었습니다.",
+  "billing_unavailable": "현재 구매 불가"
 }

@@ -10,5 +10,6 @@
   "billing_return_back": "返回上一頁",
   "billing_return_billing": "返回帳單",
   "billing_change_interval_notice": "月付與年付之間的切換在目前計費週期結束時生效（{date}）。在此之前目前方案維持不變，新週期開始時按新的計費週期扣款。",
-  "billing_change_scheduled": "方案變更已安排在目前計費週期結束時生效。"
+  "billing_change_scheduled": "方案變更已安排在目前計費週期結束時生效。",
+  "billing_unavailable": "目前無法購買"
 }

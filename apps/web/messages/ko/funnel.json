@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "funnel_guide_title": "상세 풀이가 궁금하신가요?",
+  "funnel_guide_numerology": "이 계산기에는 따로 상세 풀이가 없습니다. 수비학 계산기는 이름과 생년월일로 전체 차트를 계산하며, 무료 결과 아래에서 그 차트의 상세 풀이를 열 수 있습니다.",
+  "funnel_guide_numerology_cta": "수비학 계산기로 가기",
+  "funnel_guide_tarot": "이 배열에는 따로 상세 풀이가 없습니다. 쓰리 카드를 뽑으면 무료 결과 아래에서 그 세 장의 상세 풀이를 열 수 있습니다.",
+  "funnel_guide_tarot_cta": "쓰리 카드 타로로 가기",
+  "funnel_content_title": "내 명식으로 직접 보기",
+  "funnel_content_tarot_tool": "나만의 쓰리 카드 뽑기",
+  "funnel_content_life_path_tool": "내 수비학 전체 차트 계산하기",
+  "funnel_content_bazi_tool": "내 사주 만세력 뽑기",
+  "funnel_content_reading": "내 명식에 맞춘 AI 보조 상세 풀이 열기",
+  "funnel_content_reading_tarot": "내가 뽑은 카드에 맞춘 AI 보조 상세 풀이 열기",
+  "funnel_content_reading_note": "먼저 무료 결과를 확인하면, 그 아래에서 상세 풀이를 열 수 있습니다."
+}

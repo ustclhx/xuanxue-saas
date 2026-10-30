@@ -4,14 +4,7 @@ import { getRequest } from '@tanstack/react-start/server'
 import { messageText } from '@xuanxue/ai'
 import { createPaymentRuntime } from '@xuanxue/billing'
 import { getCreditBalance } from '@xuanxue/credits'
-import {
-  aiMessage,
-  dbSettingStore,
-  READING_KINDS,
-  type Reading,
-  reading,
-  scoped,
-} from '@xuanxue/db'
+import { aiMessage, dbSettingStore, type Reading, reading, scoped } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { FX_ATTRIBUTION, loadUsdRates } from '@xuanxue/shared/fx'
 import { log } from '@xuanxue/shared/log'
@@ -24,7 +17,9 @@ import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { customerCatalog } from '../billing/customer-data.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
+import { siteReadingPricing } from '../marketing/reading-pricing.server.ts'
 import { safeReturnPath } from '../site/return-path.ts'
+import { resolveSite } from '../site/site.ts'
 import { readingDefinition } from './catalog.ts'
 import { readingAvailable, readingConfig } from './config.ts'
 import { deleteReadingWithContent } from './delete.ts'
@@ -206,7 +201,7 @@ export interface ReadingPricing {
   readonly readings: readonly { readonly kind: string; readonly credits: number }[]
 }
 
-/** 定价页：本语言可解锁的详批与积分；读取失败时返回空列表，定价页照常显示积分包 */
+/** 定价页：本站、本语言可解锁的详批与积分；读取失败时返回空列表，定价页照常显示积分包 */
 export const getReadingPricing = createServerFn({ method: 'GET' })
   .validator(z.object({ locale: z.string().min(2).max(35) }))
   .handler(async ({ data }): Promise<ReadingPricing> => {
@@ -214,13 +209,8 @@ export const getReadingPricing = createServerFn({ method: 'GET' })
     try {
       const runtime = getWebRuntime()
       const deps = { store: dbSettingStore(runtime.db), cache: runtime.cache }
-      const readings = []
-      for (const kind of READING_KINDS) {
-        if (!readingDefinition(kind, data.locale)) continue
-        const config = await readingConfig(deps, kind)
-        if (readingAvailable(config)) readings.push({ kind, credits: config.credits })
-      }
-      return { readings }
+      const site = resolveSite(new URL(getRequest().url).host, templateConfig).id
+      return { readings: await siteReadingPricing(site, data.locale, deps) }
     } catch (error) {
       log.warn('readings.pricing_failed', { error })
       return { readings: [] }

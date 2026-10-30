@@ -16,7 +16,7 @@ export interface EmailTemplateProps {
   }
 
   /** 付费详批生成完成，附报告链接 */
-  'reading-ready': { readonly url: string }
+  'reading-ready': { readonly url: string; readonly title?: string | undefined }
   'reading-summary': {
     readonly name: string
     readonly subject: string
@@ -144,10 +144,10 @@ const en: CopyBuilders = {
     footer: 'This update remains available by email if you have deleted your account.',
   }),
 
-  'reading-ready': ({ url }, { appName, recipientName }) => ({
-    subject: `Your ${appName} full reading is ready`,
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `Your ${appName} full reading is ready`,
     preview: 'Your full reading has been saved to your account.',
-    heading: 'Your full reading is ready',
+    heading: title ?? 'Your full reading is ready',
     greeting: greetingEn(recipientName),
     paragraphs: [
       'Your full reading has been generated and saved to your account. You can reopen it at any time from any device after signing in.',
@@ -287,10 +287,10 @@ const zhHant: CopyBuilders = {
     footer: '刪除帳號後，退款結果仍會傳送至申請時儲存的聯絡電子郵件。',
   }),
 
-  'reading-ready': ({ url }, { appName, recipientName }) => ({
-    subject: `你的 ${appName} 完整分析已完成`,
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `你的 ${appName} 完整分析已完成`,
     preview: '完整分析已儲存在你的帳號中。',
-    heading: '完整分析已完成',
+    heading: title ?? '完整分析已完成',
     greeting: greetingZh(recipientName),
     paragraphs: [
       '你的完整分析已生成並儲存在帳號中，登入後可隨時在任何裝置重新開啟。',
@@ -422,10 +422,10 @@ const zhHans: CopyBuilders = {
     footer: '删除账号后，退款结果仍会发送至申请时存储的联络电子邮件。',
   }),
 
-  'reading-ready': ({ url }, { appName, recipientName }) => ({
-    subject: `你的 ${appName} 完整分析已完成`,
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `你的 ${appName} 完整分析已完成`,
     preview: '完整分析已存储在你的账号中。',
-    heading: '完整分析已完成',
+    heading: title ?? '完整分析已完成',
     greeting: greetingZh(recipientName),
     paragraphs: [
       '你的完整分析已生成并存储在账号中，登录后可随时在任何装置重新打开。',
@@ -561,10 +561,10 @@ const ko: CopyBuilders = {
     footer: '계정을 삭제하더라도 환불 결과는 요청 시 남긴 연락용 이메일로 발송됩니다.',
   }),
 
-  'reading-ready': ({ url }, { appName, recipientName }) => ({
-    subject: `${appName} 상세 풀이가 완성되었습니다`,
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `${appName} 상세 풀이가 완성되었습니다`,
     preview: '상세 풀이가 계정에 저장되었습니다.',
-    heading: '상세 풀이 완성',
+    heading: title ?? '상세 풀이 완성',
     greeting: greetingKo(recipientName),
     paragraphs: [
       '상세 풀이가 생성되어 계정에 저장되었습니다. 로그인하면 어느 기기에서든 다시 열어 볼 수 있습니다.',

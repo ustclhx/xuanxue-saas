@@ -11,6 +11,7 @@ import { m } from '../../../paraglide/messages.js'
 import { MarketingShell } from '../../marketing/marketing-shell.tsx'
 import { RichContent } from '../../marketing/rich-content.tsx'
 import { ToolContext, useTool } from '../context.tsx'
+import { ContentFunnel } from '../reading-guide.tsx'
 import { toolHref } from '../tool-href.ts'
 import { ToolLinks } from '../tool-links.tsx'
 import { useToolEvents } from '../use-tool-events.ts'
@@ -18,7 +19,7 @@ import { CardFace, prefetchCards } from './card.tsx'
 import { orientationLabel } from './copy.ts'
 import type { TarotMeaningPage } from './meaning.functions.ts'
 import { relatedCards, tarotMeaningPath } from './meaning-routes.ts'
-import type { TarotLocale } from './routes.ts'
+import { type TarotLocale, tarotPath } from './routes.ts'
 import { SpreadTable } from './table.tsx'
 
 /** 复用牌阵的加密抽牌、预取、键盘翻牌与 reduced-motion 展示。 */
@@ -103,6 +104,7 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
   const track = useToolEvents(tool)
   const context = useMemo(() => ({ tool, track }), [tool, track])
   if (!card) return null
+  const threeCard = toolHref(tarotPath('three-card', locale), locale)
   return (
     <MarketingShell>
       <ToolContext value={context}>
@@ -150,6 +152,19 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
               />
             </aside>
           </div>
+          <ContentFunnel
+            tool={{
+              href: threeCard,
+              label: m.funnel_content_tarot_tool(),
+              target: 'tarot-three-card',
+            }}
+            reading={{
+              kind: 'tarot-spread',
+              href: threeCard,
+              label: m.funnel_content_reading_tarot(),
+              target: 'reading-tarot-spread',
+            }}
+          />
         </div>
       </ToolContext>
     </MarketingShell>

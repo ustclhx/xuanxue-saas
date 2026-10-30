@@ -178,6 +178,21 @@ describe('其余详批的服务端复算（tasks.md 2.4）', () => {
     )
   })
 
+  it('个人年详批保留分别归约后的大师数，提示词与引擎版本同步', () => {
+    const definition = kind('numerology-full')
+    const recomputed = definition.recompute(
+      { year: 1987, month: 9, day: 9, personalYear: { value: 4 } },
+      new Date('2029-01-01T00:00:00Z'),
+    )
+    expect(recomputed.engineVersion).toBe('numerology@2')
+    expect(definition.prompt.version).toBe('numerology-full.v3')
+    const [, user] = readingMessages(definition, recomputed)
+    expect(JSON.parse(user?.text ?? '').chart).toMatchObject({
+      personalYear: { value: 22, master: true },
+      currentYear: 2029,
+    })
+  })
+
   it('塔罗：按牌 id 在服务端查本语言牌义，单张牌阵与非法牌组拒绝', () => {
     const tarot = kind('tarot-spread', 'zh-Hant')
     const recomputed = tarot.recompute(

@@ -36,6 +36,7 @@ import { checkCompliance } from './compliance.ts'
 import { readingAvailable, readingConfig } from './config.ts'
 import { toTraditional } from './hant.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
+import { readingTitle } from './title.ts'
 
 /**
  * `POST /api/readings`（add-reading-monetization design 决策 2，specs/paid-readings「计费」）：
@@ -318,13 +319,14 @@ export async function finalizeReading(
       ...options.email,
       locale: saved.locale,
       id: saved.id,
+      title: readingTitle(saved.kind, saved.locale),
     })
   return saved
 }
 
 async function sendReadingEmail(
   queue: ReadingDeps['emailQueue'],
-  email: { to: string; url: string; locale: string; id: string },
+  email: { to: string; url: string; locale: string; id: string; title: string },
 ) {
   const requestId = getLogContext()?.requestId
   try {
@@ -335,7 +337,7 @@ async function sendReadingEmail(
       appName: brandName(templateConfig, email.locale),
       idempotencyKey: `reading-ready:${email.id}`,
       template: 'reading-ready',
-      props: { url: email.url },
+      props: { url: email.url, title: email.title },
       ...(requestId ? { requestId } : {}),
     })
   } catch (error) {

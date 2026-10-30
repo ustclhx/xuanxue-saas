@@ -14,6 +14,21 @@ vi.mock('../i18n/language-controls.tsx', () => ({
 import { Route } from '../../routes/__root.tsx'
 
 describe('根布局页面 head', () => {
+  it.each([
+    ['east', '干支日'],
+    ['west', 'Arcanumber'],
+  ])('使用 %s 站点品牌作为默认标题', async (id, brand) => {
+    const head = Route.options.head
+    if (!head) throw new Error('Root head is missing')
+    const result = await head({
+      matches: [{ pathname: '/' }],
+      loaderData: { site: { id, known: true } },
+    } as Parameters<typeof head>[0])
+    const title = result?.meta?.find((meta) => meta && 'title' in meta)?.title
+    expect(title).toBe(brand)
+    expect(title).not.toContain('xuanxue')
+  })
+
   it('应用、账号与后台页面输出 noindex，公开营销和内容页面可索引', async () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
