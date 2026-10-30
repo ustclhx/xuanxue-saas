@@ -4,6 +4,7 @@ import { AppError } from '@xuanxue/shared'
 import { baseLocale, isLocale } from '../../paraglide/runtime.js'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { resolveSite } from '../site/site.ts'
 import { languageUrl, PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
 import { readRequestSession } from './session.server.ts'
 import { prefixLocale } from './url-prefix.ts'
@@ -15,6 +16,10 @@ export const getLanguageSuggestion = createServerFn({ method: 'GET' }).handler((
   const prefixed = prefixLocale(languageUrl(request).pathname, templateConfig.i18n.locales)
   if (prefixed || readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE)) return null
   const preferred = preferredLocale(request.headers.get('accept-language'))
+  // 两站分开经营（D5）：已登记站点只建议本站语言，否则切换后会落到本站的 404
+  const site = resolveSite(new URL(request.url).host, templateConfig)
+  if (site.known && !templateConfig.sites[site.id].locales.some((item) => item === preferred))
+    return null
   return preferred === baseLocale ? null : preferred
 })
 

@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { siteOfLocale } from '../site/site.ts'
 import { AI_CRAWLERS, llmsTxt, robots, sitemap, sitemapIndex } from './crawlers.ts'
 import {
   alternateLinks,
@@ -116,14 +117,20 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         }
         // 注册在 TOOL_ROUTES 的工具页（繁中首页同为 `/`）只与工具各语言版本互指，
         // 见 features/tools/bazi/bazi.test.tsx
+        // 两站分开经营（D5）：只与同站语言互指，x-default 为西方站英语同页或东方站根路径
         if (!page.alternates) {
+          const site = siteOfLocale(locale, config) ?? 'west'
+          const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
-            locales.length + 1,
+            siteLocales.length + 1,
           )
           expect(head.links).toContainEqual({
             rel: 'alternate',
             hrefLang: 'x-default',
-            href: `${seoSiteOrigin('west')}${page.path}`,
+            href:
+              site === 'west'
+                ? `${seoSiteOrigin('west')}${page.path}`
+                : `${seoSiteOrigin('east')}/`,
           })
         }
       }
@@ -143,7 +150,10 @@ describe('公开页面 SEO（4.1–4.3）', () => {
     for (const locale of locales) {
       const prefix =
         !config.i18n.enabled || locale === config.i18n.defaultLocale ? '' : localePrefix(locale)
-      expect(xml).toContain(`<loc>${localeOrigin(locale)}${prefix}/blog/published</loc>`)
+      // 只有自己有已发布文章的语言收录博客（en 与 zh-Hant）；其他语言不显示博客入口，也不进地图
+      const own = ['en', 'zh-Hant'].includes(locale)
+      expect(xml.includes(`<loc>${localeOrigin(locale)}${prefix}/blog/published</loc>`)).toBe(own)
+      expect(xml.includes(`<loc>${localeOrigin(locale)}${prefix}/blog</loc>`)).toBe(own)
     }
     for (const path of [
       '/app',
@@ -290,23 +300,42 @@ const bazi = {
   titles: { 'zh-Hant': '八字排盤', ko: '만세력' },
 }
 
-it('跨站定价 hreflang 使用 BCP 47 语言码与西方英语 x-default', () => {
-  const links = alternateLinks(origin, '/pricing')
-  expect(links).toContainEqual({
-    rel: 'alternate',
-    hrefLang: 'zh-Hant',
-    href: 'https://ganjiday.com/zh-hant/pricing',
-  })
-  expect(links).toContainEqual({
-    rel: 'alternate',
-    hrefLang: 'ko',
-    href: 'https://ganjiday.com/ko/pricing',
-  })
-  expect(links).toContainEqual({
-    rel: 'alternate',
-    hrefLang: 'x-default',
-    href: 'https://arcanumber.com/pricing',
-  })
+it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', () => {
+  const hreflangs = (locale: string) =>
+    alternateLinks(origin, '/pricing', undefined, undefined, locale).map((link) => [
+      link.hrefLang,
+      link.href,
+    ])
+  // 西方站英文定价页：只有自身与 x-default，不出现东方站地址
+  expect(hreflangs('en')).toEqual([
+    ['en', 'https://arcanumber.com/pricing'],
+    ['x-default', 'https://arcanumber.com/pricing'],
+  ])
+  // 东方站三种语言互指，x-default 为东方站入口，不出现西方站地址
+  expect(hreflangs('zh-Hant')).toEqual([
+    ['zh-Hant', 'https://ganjiday.com/zh-hant/pricing'],
+    ['zh-Hans', 'https://ganjiday.com/zh-hans/pricing'],
+    ['ko', 'https://ganjiday.com/ko/pricing'],
+    ['x-default', 'https://ganjiday.com/'],
+  ])
+  for (const page of pages.filter((page) => page.locale === 'en'))
+    expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
+  for (const page of pages.filter((page) => page.locale !== 'en'))
+    expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('arcanumber.com')
+})
+
+it('博客为空时站点地图不收录博客列表（specs/marketing-site「博客为空时隐藏入口」）', () => {
+  const empty = publicPages({ ...content, posts: [] }, new Date('2026-10-01'), config)
+  expect(empty.some((page) => page.path.startsWith('/blog'))).toBe(false)
+  expect(sitemap(empty, origin)).not.toContain('/blog')
+  // 加一篇已发布文章后恢复
+  const one = publicPages(
+    { ...content, posts: content.posts.filter((post) => post.slug === 'published').slice(0, 1) },
+    new Date('2026-10-01'),
+    config,
+  )
+  expect(sitemap(one, origin, 'en')).toContain('<loc>https://arcanumber.com/blog</loc>')
+  expect(sitemap(one, origin, 'zh-Hant')).not.toContain('/blog')
 })
 
 it('异名工具路由互指；无英语版本时 x-default 指向本站入口', () => {
@@ -335,7 +364,9 @@ it('异名工具路由互指；无英语版本时 x-default 指向本站入口',
 it('两站地图索引只列本站语言；未知 Host 与分享结果禁止抓取', () => {
   expect(sitemapIndex('east')).toContain('https://ganjiday.com/sitemap/zh-hant.xml')
   expect(sitemapIndex('east')).toContain('/sitemap/ko.xml')
-  expect(sitemapIndex('east')).not.toContain('/sitemap/en.xml')
+  // 东方站另有只含英文入口页的 en 子图（D5）
+  expect(sitemapIndex('east')).toContain('https://ganjiday.com/sitemap/en.xml')
+  expect(sitemapIndex('west')).toContain('https://arcanumber.com/sitemap/en.xml')
   expect(sitemapIndex('west')).not.toContain('/sitemap/ko.xml')
   expect(robots(origin)).toContain('Disallow: /*?r=')
   expect(robots(origin)).toContain('Disallow: /*&r=')
@@ -382,6 +413,8 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
     `https://ganjiday.com/zh-hans${encodeURI('/紫微斗数排盘')})`,
     'https://ganjiday.com/ko)',
     'https://ganjiday.com/zh-hant/faq)',
+    // 东方站英文入口页（D5）
+    'https://ganjiday.com/en)',
   ])
     expect(east).toContain(url)
   expect(east).toMatch(/\(https:\/\/ganjiday\.com\/zh-hant\/[^)]+\): .*塔羅/)
@@ -391,6 +424,7 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
   expect(west).toContain('https://arcanumber.com/numerology-calculator)')
   expect(west).toContain('https://arcanumber.com/faq)')
   expect(west).not.toContain('ganjiday.com')
+  expect(west).not.toContain('/en)')
   expect(llmsTxt('west', false, config)).toBeNull()
 })
 

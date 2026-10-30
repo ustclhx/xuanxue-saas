@@ -3,7 +3,14 @@ import { createServerFn } from '@tanstack/react-start'
 import { allDocs, allLegalPages, allPosts } from 'content-collections'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
-import { findLocalized, findPost, listPosts, listTags, loadDocsPage } from './content.ts'
+import {
+  findLocalized,
+  findPost,
+  listPosts,
+  listTags,
+  loadDocsPage,
+  publishedPostLocales,
+} from './content.ts'
 
 /**
  * 博客、法律页与文档的数据（tasks.md 3.3、3.4）。内容在构建期生成，不访问数据库；
@@ -34,6 +41,11 @@ export const getBlogIndex = createServerFn({ method: 'GET' })
     if (data.tag !== undefined && posts.length === 0) throw notFound()
     return { posts, tags: listTags(listPosts(allPosts, options)) }
   })
+
+/** 页头与页脚的博客入口按语言显示（根布局 loader 读取一次）；内容在构建期生成，不访问数据库 */
+export const getBlogLocales = createServerFn({ method: 'GET' }).handler(() =>
+  templateConfig.features.blog ? publishedPostLocales(allPosts, new Date()) : [],
+)
 
 export const getBlogPost = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ locale, slug }))

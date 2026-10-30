@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
+import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts'
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationCenter } from '../../../features/notifications/center.tsx'
@@ -7,10 +8,17 @@ import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug')({
-  beforeLoad: async ({ params }) => ({
-    workspacePage: await getWorkspacePage({ data: { slug: params.slug } }),
-  }),
-  loader: ({ context }) => context.workspacePage,
+  beforeLoad: async ({ params }) => {
+    const [workspacePage, chatAvailable] = await Promise.all([
+      getWorkspacePage({ data: { slug: params.slug } }),
+      // 对话入口只在空间有可用模型时显示；读取失败按不可用处理，不影响其他页面
+      templateConfig.ai.text.enabled
+        ? getChatAvailable({ data: { slug: params.slug } }).catch(() => false)
+        : false,
+    ])
+    return { workspacePage, chatAvailable }
+  },
+  loader: ({ context }) => ({ ...context.workspacePage, chatAvailable: context.chatAvailable }),
   staleTime: 0,
   head: ({ loaderData }) => ({
     meta: loaderData ? [{ title: `${loaderData.workspace.name} · Workspace` }] : [],
@@ -42,6 +50,7 @@ function WorkspaceLayout() {
     billing: templateConfig.billing.enabled,
     credits: templateConfig.credits.enabled,
     textAi: templateConfig.ai.text.enabled,
+    chatAvailable: page.chatAvailable,
     mediaAi: Boolean(templateConfig.ai.image || templateConfig.ai.video),
     publicApi: templateConfig.features.publicApi,
     canManageKeys,

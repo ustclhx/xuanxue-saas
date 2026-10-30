@@ -1,6 +1,6 @@
 // Worker 入口（wrangler.jsonc 的 main）。
 // 在交给 TanStack Start 处理之前校验环境变量与绑定，缺失或非法时任何请求都返回 500。
-// 先按 Host 识别东方站 / 西方站并校验语言前缀归属，跨站或缺前缀时直接跳转（features/site/gate.ts）。
+// 先按 Host 识别东方站 / 西方站并校验语言前缀归属：不属于本站的语言返回 404，缺前缀时跳转（features/site/gate.ts）。
 // /admin/** 的请求先经角色守卫，非 admin 与不存在的页面得到相同的 404（features/admin/gate.ts）。
 // 之后由 Paraglide 按 URL 前缀 / Cookie 确定本次请求的语言（features/i18n/routing.ts）。
 // 每个请求先建立日志上下文（新生成的 UUIDv7 请求 ID，附 Cloudflare 的 cf-ray 便于对照平台日志），
@@ -75,7 +75,8 @@ const worker = instrumentWeb({
       gateSiteRequest(
         request,
         templateConfig,
-        async () =>
+        // 不属于本站的语言前缀已被改写到 404 路径，后续一律使用守卫传入的请求
+        async (request) =>
           // 东方站根路径先于静态语言选择页跳到语言首页；构建期预渲染请求不跳转
           (buildRequest ? null : eastHomeRedirect(request, templateConfig)) ??
           (!import.meta.env.DEV && !buildRequest && env.ASSETS

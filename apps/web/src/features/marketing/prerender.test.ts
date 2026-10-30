@@ -97,6 +97,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ko/사주/신살' },
       { path: '/ko/사주/십신' },
       { path: '/ko/사주/일주' },
+      // 东方站英文入口页（D5）
+      { path: '/en' },
       { path: '/' },
       { path: '/tarot' },
       { path: '/tarot/daily' },
