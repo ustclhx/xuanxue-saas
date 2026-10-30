@@ -262,6 +262,8 @@ function createCloudflareWebRuntime(
     observability: { enabled: sentryEnabled(env), captureError: captureServerError },
     files: { available: true, value: files },
     emailQueue: { available: true, value: queue },
+    // 与 apps/jobs 的 EMAIL_TRANSPORT 保持一致；未设置或取值不认识时按 log 处理，宁可不提邮件
+    emailTransport: env.EMAIL_TRANSPORT === 'resend' ? 'resend' : 'log',
     eventsQueue: env.EVENTS_QUEUE
       ? { available: true, value: createCloudflareQueue(env.EVENTS_QUEUE) }
       : { available: false },

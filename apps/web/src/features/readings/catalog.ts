@@ -52,6 +52,11 @@ export interface ReadingVariant {
   readonly disclaimer: string
   /** 健康章节必须出现的就医提示，缺失时生成后补上；没有健康章节的详批为 null */
   readonly healthSection: { readonly title: string; readonly notice: string } | null
+  /**
+   * 解锁卡的样例段落（product-improve-ai-content design 决策 5、D11）：人工撰写、基于虚构命盘或牌阵，
+   * 不调用模型、不引用访客数据；须通过 `checkCompliance`，由 catalog.test.ts 检查。
+   */
+  readonly sample: string
 }
 
 export interface ReadingDefinition extends ReadingVariant {
@@ -317,12 +322,16 @@ const entries = {
         disclaimer:
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
+        sample:
+          '以一張虛構命盤為例：日主丙火生於卯月，木火相生，屬身強格局。這類命盤的人通常表達直接、做事投入，重視節奏與成就感；火勢偏旺時，容易急於求成、忽略休息。完整報告會結合喜用神與大運，說明哪些環境較能發揮所長，並提供可以落實的調整方向。',
       },
       'zh-Hans': {
         prompt: BAZI_FULL_V3,
         disclaimer:
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
+        sample:
+          '以一张虚构命盘为例：日主丙火生于卯月，木火相生，属身强格局。这类命盘的人通常表达直接、做事投入，重视节奏与成就感；火势偏旺时，容易急于求成、忽略休息。完整报告会结合喜用神与大运，说明哪些环境较能发挥所长，并提供可以落实的调整方向。',
       },
     },
     recompute: recomputeChart,
@@ -335,6 +344,8 @@ const entries = {
         disclaimer:
           '이 풀이는 전통 명리학에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: KO_HEALTH,
+        sample:
+          '가상의 명식을 예로 들면, 갑목 일간이 유월에 태어나 관성이 뚜렷한 구조입니다. 원칙과 책임감을 중시하고 맡은 일을 끝까지 해내려는 성향으로 풀이되지만, 스스로에게 엄격해 쉼을 놓치기 쉽습니다. 상세 풀이에서는 용신과 대운의 흐름을 바탕으로 강점을 살릴 수 있는 환경과 생활 속 조언을 정리합니다.',
       },
     },
     recompute: recomputeChart,
@@ -347,12 +358,16 @@ const entries = {
         disclaimer:
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
+        sample:
+          '以一張虛構命盤為例：命宮坐紫微、天府，身宮落在官祿宮。這樣的格局重視秩序與責任，習慣先規劃再行動，在團隊中常被期待擔任統籌的角色；不足之處是對自己要求偏高，壓力不易說出口。完整報告會逐宮說明主星與四化的作用，並整理可在生活中練習的建議。',
       },
       'zh-Hans': {
         prompt: ZIWEI_FULL_V3,
         disclaimer:
           '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
+        sample:
+          '以一张虚构命盘为例：命宫坐紫微、天府，身宫落在官禄宫。这样的格局重视秩序与责任，习惯先规划再行动，在团队中常被期待担任统筹的角色；不足之处是对自己要求偏高，压力不易说出口。完整报告会逐宫说明主星与四化的作用，并整理可在生活中练习的建议。',
       },
     },
     recompute: recomputeZiwei,
@@ -365,6 +380,8 @@ const entries = {
         disclaimer:
           '이 궁합 풀이는 전통 명리학에 따른 참고 자료로 관계에 대한 결정을 대신하지 않으며, 의료·법률·투자 조언이 아니고 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
+        sample:
+          '가상의 두 사람을 예로 들면, 병화 일간과 임수 일간은 물과 불이 마주하는 관계라 서로 다른 속도와 표현 방식이 먼저 눈에 띕니다. 한쪽은 감정을 바로 드러내고, 다른 쪽은 생각을 정리한 뒤 말하는 편입니다. 상세 풀이에서는 이런 차이를 갈등보다 보완의 관점에서 살피고, 두 사람에게 맞는 대화 방법을 제안합니다.',
       },
     },
     recompute: recomputeCompat,
@@ -380,6 +397,8 @@ const entries = {
           title: 'Wellbeing Habits',
           notice: 'If you feel unwell, please consult a qualified healthcare professional.',
         },
+        sample:
+          'Take a fictional profile with Life Path 7 and Expression 3. This pairing often describes someone who thinks deeply and values time alone, yet expresses ideas warmly once they feel at ease. The pull between reflection and sociability can become a strength: quiet preparation tends to make their conversations more meaningful. The full reading walks through each core number and the Personal Year, with practical ways to balance focus and connection.',
       },
     },
     recompute: recomputeNumerology,
@@ -392,24 +411,32 @@ const entries = {
         disclaimer:
           'This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: null,
+        sample:
+          'Take a fictional three-card spread: Four of Cups (Past), The Star (Present) and Eight of Pentacles (Future). Read together, the cards move from withdrawal toward renewed hope, then to patient, hands-on effort. The Star suggests that rest has restored some perspective, while the Eight of Pentacles invites turning that hope into small, steady practice. The full reading looks at each position, how the cards interact and what is worth reflecting on.',
       },
       'zh-Hant': {
         prompt: TAROT_SPREAD_V2['zh-Hant'],
         disclaimer:
           '本報告依塔羅牌的象徵意義整理，僅供參考與自我反思，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: null,
+        sample:
+          '以一組虛構的三張牌為例：過去是聖杯四、現在是星星、未來是錢幣八。三張牌連起來，呈現從退縮、重拾希望到踏實投入的過程。星星象徵休息後重新看見方向，錢幣八則提醒把這份希望化為日常的小步練習。完整報告會逐一解讀牌位、牌與牌的關聯，以及值得反思的課題。',
       },
       'zh-Hans': {
         prompt: TAROT_SPREAD_V3['zh-Hans'],
         disclaimer:
           '本报告依塔罗牌的象征意义整理，仅供参考与自我反思，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: null,
+        sample:
+          '以一组虚构的三张牌为例：过去是圣杯四、现在是星星、未来是钱币八。三张牌连起来，呈现从退缩、重拾希望到踏实投入的过程。星星象征休息后重新看见方向，钱币八则提醒把这份希望化为日常的小步练习。完整报告会逐一解读牌位、牌与牌的关联，以及值得反思的课题。',
       },
       ko: {
         prompt: TAROT_SPREAD_V2.ko,
         disclaimer:
           '이 리딩은 타로 카드의 상징에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
+        sample:
+          '가상의 쓰리 카드를 예로 들면, 과거는 컵 4, 현재는 별, 미래는 펜타클 8입니다. 세 장을 이어 보면 움츠러든 마음이 다시 희망을 찾고, 차근차근 노력으로 옮겨 가는 흐름이 보입니다. 별은 쉼을 통해 방향을 되찾는 모습을, 펜타클 8은 그 희망을 작은 실천으로 이어 가라는 뜻을 담고 있습니다.',
       },
     },
     recompute: recomputeTarot,

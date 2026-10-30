@@ -1,6 +1,6 @@
 import { messageText, textModelConfig } from '@xuanxue/ai'
 import { requireFreshSession } from '@xuanxue/auth'
-import { brandName, SITE_IDS } from '@xuanxue/config'
+import { brandName, type EmailTransport, SITE_IDS } from '@xuanxue/config'
 import {
   type AiModel,
   aiMessage,
@@ -35,6 +35,7 @@ import {
 import { checkCompliance } from './compliance.ts'
 import { readingAvailable, readingConfig } from './config.ts'
 import { toTraditional } from './hant.ts'
+import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 
 /**
  * `POST /api/readings`（add-reading-monetization design 决策 2，specs/paid-readings「计费」）：
@@ -55,7 +56,25 @@ export interface ReadingDeps
   /** 运行时设置（生产经 KV 缓存） */
   readonly settings: SettingsContext
   readonly emailQueue: Capability<Pick<QueueProducer<EmailQueueMessage>, 'send'>>
+  /** apps/jobs 消费邮件队列时使用的发信通道（web 侧同名变量），缺省视为 `log` */
+  readonly emailTransport?: EmailTransport
   readonly now?: () => Date
+}
+
+/**
+ * 报告邮件是否会交给真实发信通道（product-improve-ai-content design 决策 1）：
+ * `log` 通道只记日志、不发信，此时前台只能说「已保存」。邮件本身照常投递到队列
+ * （log 通道下记录收件人便于排查），这里只决定前台是否提及邮件。
+ */
+export function readingEmailDelivery(options: {
+  readonly transport: EmailTransport | undefined
+  readonly queueAvailable: boolean
+  readonly email: string | null | undefined
+  readonly emailVerified: boolean
+}): EmailDelivery {
+  if ((options.transport ?? 'log') === 'log' || !options.queueAvailable) return 'none'
+  // 未验证的邮箱可能填错，不向访客承诺「已寄到信箱」
+  return options.email && options.emailVerified ? 'queued' : 'none'
 }
 
 const requestSchema = z.object({
@@ -208,9 +227,15 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
         log.error('readings.finalize_failed', { readingId: created.id, error }),
       ),
   )
+  const emailDelivery = readingEmailDelivery({
+    transport: deps.emailTransport,
+    queueAvailable: deps.emailQueue.available,
+    email: user.email,
+    emailVerified: user.emailVerified,
+  })
   return started.result.toUIMessageStreamResponse({
     metadata: started.metadata,
-    headers: { 'x-reading-id': created.id },
+    headers: { 'x-reading-id': created.id, [EMAIL_DELIVERY_HEADER]: emailDelivery },
   })
 }
 

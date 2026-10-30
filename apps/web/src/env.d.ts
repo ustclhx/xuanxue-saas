@@ -33,6 +33,8 @@ declare namespace Cloudflare {
     RL_API: RateLimit
     /** 站点地址（vars；`vite dev` 时由 vite.config.ts 按端口覆盖） */
     APP_URL: string
+    /** 邮件发信通道（vars，log | resend）；须与 apps/jobs 一致，web 只据此决定是否提示「已寄信」 */
+    EMAIL_TRANSPORT?: string
     /** Turnstile site key（vars，前端公开）；模板配置启用 Turnstile 时必填 */
     TURNSTILE_SITE_KEY?: string
     // 以下为 secrets（wrangler secret / .dev.vars），按模板配置在 checkEnv 中校验

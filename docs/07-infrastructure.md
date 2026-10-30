@@ -156,6 +156,7 @@ AI_TEXT_EGRESS=direct|gateway   # CF 缺省 gateway；DeepSeek 需逐块流式�
 R2_ACCOUNT_ID / R2_FILES_BUCKET   # 拼接 S3 兼容端点
 TURNSTILE_SITE_KEY(前端公开)
 EMAIL_TRANSPORT=log|resend        # jobs 的邮件发送通道，默认 log：只记录收件人与模板名、不调用外部服务（无 Resend 凭据时使用）
+                                  # web 也需设置同值：只有 resend 时详批完成提示才提及「已寄信」，缺省按 log
 # 发件人不再由环境变量配置：按消息语言所属站点取 `<站点品牌> <noreply@mail.<规范域名>>`，回复地址为站点 supportEmail（`emailSender()`）
 SENTRY_ENVIRONMENT=development|staging|production|smoke  # 服务端 SDK 开关；staging 在对应 Wrangler env 声明
 APP_VERSION                      # CI 完整提交 SHA；jobs 通过 --var 注入，web 在 Vite 构建时固化

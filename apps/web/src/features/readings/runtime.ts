@@ -10,5 +10,6 @@ export function getReadingHttpDeps(): ReadingDeps {
     ...getAiHttpDeps(),
     settings: { store: dbSettingStore(runtime.db), cache: runtime.cache },
     emailQueue: runtime.emailQueue,
+    emailTransport: runtime.emailTransport ?? 'log',
   }
 }
