@@ -330,7 +330,10 @@ describe('POST /api/readings', () => {
         locale: 'zh-Hant',
         idempotencyKey: `reading-ready:${readingId}`,
         // 测试请求来自未登记的 localhost:3000，链接保留请求 origin（已登记 Host 的跨站规范地址见 site.test.ts）
-        props: { url: `${APP_URL}/app/${who.slug}/readings/${readingId}` },
+        props: {
+          url: `${APP_URL}/app/${who.slug}/readings/${readingId}`,
+          title: '完整命盤分析',
+        },
       }),
     ])
     // 报告关联承载预扣与结算的消息，超时兜底沿用 ai_message 处理器

@@ -32,6 +32,16 @@ const conceptBlocks = {
     八字重量: 'weight',
     十神: 'ten-gods',
   },
+  'zh-Hans': {
+    大运: 'luck',
+    喜用神: 'useful-god',
+    五行: 'elements',
+    身强身弱: 'strength',
+    空亡: 'shensha',
+    神煞: 'shensha',
+    八字重量: 'weight',
+    十神: 'ten-gods',
+  },
   ko: {
     대운: 'luck',
     용신: 'useful-god',
@@ -45,10 +55,10 @@ const conceptBlocks = {
 }
 // 跨语言共用 ASCII 文件标识，原语言 slug 继续用于 URL 与展示。
 const conceptKeys = {
-  luck: ['大運', '대운'],
+  luck: ['大運', '大运', '대운'],
   'useful-god': ['喜用神', '용신'],
   elements: ['五行', '오행'],
-  strength: ['身強身弱', '신강신약'],
+  strength: ['身強身弱', '身强身弱', '신강신약'],
   void: ['空亡', '공망'],
   shensha: ['神煞', '신살'],
   weight: ['八字重量'],
@@ -64,7 +74,10 @@ function conceptFilename(slug) {
 
 const titles = new Set()
 const descriptions = new Set()
-const totals = { 'zh-Hant': [], ko: [], en: [] }
+const internalIds = new RegExp(
+  `\\b(?:${[...new Set([...Object.keys(conceptKeys), ...Object.values(conceptBlocks.ko)])].join('|')})\\b`,
+)
+const totals = { 'zh-Hant': [], 'zh-Hans': [], ko: [], en: [] }
 let dateExamples = 0
 let nameExamples = 0
 let compatibilityExamples = 0
@@ -176,6 +189,7 @@ async function checkFile(collection, locale, slug) {
       'faq',
       'updated',
       ...(isConcept ? ['block', 'conceptKey'] : ['number']),
+      ...(isConcept && locale === 'zh-Hans' ? ['aliases'] : []),
     ].sort(),
   )
   for (const field of ['title', 'description', 'slug', 'locale', 'updated']) {
@@ -223,28 +237,69 @@ async function checkFile(collection, locale, slug) {
   })
   // 完整跑 MDX 编译管线；只解析源码，不执行生成的 JavaScript。
   await processor.process(content)
-  const prose = content.split(/^## (?:延伸閱讀|함께 읽기|Explore the other numbers)$/m)[0]
+  const prose = content.split(/^## (?:延伸閱讀|延伸阅读|함께 읽기|Explore the other numbers)$/m)[0]
   const plain = visibleText(processor.parse(prose))
   let count
   if (isConcept) {
     assert.equal(data.conceptKey, filename, 'conceptKey must match the shared ASCII filename')
     assert.equal(data.block, conceptBlocks[locale][slug])
     assert.ok(data.title.includes(slug), 'concept title keyword')
-    const heading = locale === 'ko' ? '만세력 결과에서 보는 법' : '在排盤結果中怎麼看'
+    assert.ok(!internalIds.test(content), 'body must not expose internal concept or block IDs')
+    const heading =
+      locale === 'ko'
+        ? '만세력 결과에서 보는 법'
+        : locale === 'zh-Hans'
+          ? '在排盘结果中怎么看'
+          : '在排盤結果中怎麼看'
     assert.ok(content.includes(`## ${heading}\n`), 'result-reading section')
-    assert.ok(content.includes(`\`${data.block}\``), 'document result block identifier')
-    const languagePath = locale === 'ko' ? 'ko/사주' : 'zh-hant/八字'
+    const languagePrefix = locale.toLowerCase()
+    const languagePath = `${languagePrefix}/${locale === 'ko' ? '사주' : '八字'}`
     for (const other of Object.keys(conceptBlocks[locale]).filter((value) => value !== slug)) {
       assert.ok(links.includes(`/${languagePath}/${other}/`), `missing sibling link: ${other}`)
     }
-    assert.ok(links.includes(locale === 'ko' ? '/ko/' : '/zh-hant/'), 'home link')
-    if (locale === 'zh-Hant') {
+    assert.ok(links.includes(`/${languagePrefix}/`), 'home link')
+    if (locale === 'zh-Hans') {
+      assert.ok(Array.isArray(data.aliases), 'simplified concepts require aliases')
+      assert.ok(
+        data.aliases.every((alias) => typeof alias === 'string' && alias.trim() === alias && alias),
+        'aliases must be nonempty, trimmed strings',
+      )
+      assert.equal(new Set(data.aliases).size, data.aliases.length, 'duplicate aliases')
+      assert.ok(!data.aliases.includes(slug), 'canonical slug must not be an alias')
+      const traditionalSlug = Object.keys(conceptBlocks['zh-Hant']).find(
+        (value) => conceptFilename(value) === filename,
+      )
+      assert.deepEqual(
+        data.aliases,
+        traditionalSlug === slug ? [] : [traditionalSlug],
+        'aliases must cover the corresponding traditional slug',
+      )
+      assert.ok(
+        !content.includes('/zh-hant/'),
+        'simplified body must not link to traditional pages',
+      )
+      assert.ok(
+        links.filter((link) => link.startsWith('/')).every((link) => link.startsWith('/zh-hans/')),
+        'simplified internal links must stay in the same locale',
+      )
+      assert.ok(
+        !/国历|栏位|区块|纪录|机率|透过|群组|顺位|考量|语汇|品质|转职|证照|画面|标示|(?:急|接|沿)著|[運強體盤]/u.test(
+          `${data.title}\n${data.description}\n${JSON.stringify(data.faq)}\n${content}`,
+        ),
+        'simplified copy must use simplified characters and terms',
+      )
+    }
+    if (locale !== 'ko') {
       count = (plain.match(/\p{Script=Han}/gu) ?? []).length
       assert.ok(count >= 1200, `Chinese body: ${count} Han characters, expected >= 1200`)
       assert.ok(
-        content.includes('人工審定') &&
-          content.includes('僅供娛樂') &&
-          content.includes('不預測未來'),
+        locale === 'zh-Hans'
+          ? content.includes('人工审定') &&
+              content.includes('仅供娱乐') &&
+              content.includes('不预测未来')
+          : content.includes('人工審定') &&
+              content.includes('僅供娛樂') &&
+              content.includes('不預測未來'),
       )
     } else {
       count = [...plain.replace(/\s/g, '')].length
@@ -332,7 +387,13 @@ for (const [collection, locale, slugs] of [
   ],
 ]) {
   const directory = new URL(`${collection}/${locale}/`, root)
-  const files = (await readdir(directory)).filter((file) => file.endsWith('.mdx')).sort()
+  // 计算器汇总页有独立正文结构，不属于这批含计算样例的长文。
+  const files = (await readdir(directory))
+    .filter(
+      (file) =>
+        file.endsWith('.mdx') && !(collection === 'numerology' && file === 'life-path-number.mdx'),
+    )
+    .sort()
   assert.deepEqual(
     files,
     slugs.map((slug) => `${collection === 'concepts' ? conceptFilename(slug) : slug}.mdx`).sort(),
@@ -359,7 +420,7 @@ if (failures.length) {
   process.exitCode = 1
 } else {
   console.log(
-    'PASS: 30 pages; schema, visible FAQ, links, length, Markdown-only MDX, and calculation examples',
+    `PASS: ${Object.values(totals).reduce((sum, counts) => sum + counts.length, 0)} pages; schema, aliases, visible FAQ, locale links, hidden internal IDs, length, Markdown-only MDX, and calculation examples`,
   )
   console.log(
     'Not covered: route integration, canonical/hreflang/JSON-LD, browser anchors, factual/editorial review, deployment',

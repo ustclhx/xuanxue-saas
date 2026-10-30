@@ -8,7 +8,7 @@ const birthDate = { year: 1987, month: 11, day: 29 }
 const chart = numerologyChart(birthDate, 2027, 'Hélène Dupont')
 // chart.lifePath.value === 11
 // total 步骤：11 + 11 + 7 → 29 → 11
-// chart.personalYear.value === 6：11 + 29 + 2027 → 2067 → 15 → 6
+// chart.personalYear.value === 33：月 11、日 29 → 11、当前年 2027 → 11，11 + 11 + 11 = 33
 ```
 
 `lifePath`、`birthdayNumber`、`personalYear`、`reduceNumber` 返回 `{ value, master, steps }`，步骤包含阶段、操作数与结果；11/22/33 在归约中保留。姓名数字返回 expression / soulUrge / personality，Y 仅在同一词内前后都没有 A/E/I/O/U 时作元音；没有该类字母时相应数字为 0。NFD 去重音后仅接受 A–Z、空白、连字符和撇号，未能规范化成 A–Z 的字母也报告姓名字段错误。
