@@ -14,6 +14,7 @@ import { AnnouncementBanner } from '../features/admin/settings-announcement-bann
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
+import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { privateMeta } from '../features/seo/metadata.ts'
 import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
 import { SiteContext } from '../features/site/context.tsx'
@@ -27,13 +28,14 @@ import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
   loader: async () => {
-    const [impersonation, announcement, appUrl, site] = await Promise.all([
+    const [impersonation, announcement, appUrl, site, blogLocales] = await Promise.all([
       getSafeImpersonation(),
       getAnnouncement(),
       getSeoOrigin(),
       getCurrentSite(),
+      getBlogLocales(),
     ])
-    return { impersonation, announcement, appUrl, site }
+    return { impersonation, announcement, appUrl, site, blogLocales }
   },
   staleTime: Infinity,
   head: ({ matches, loaderData }) => ({

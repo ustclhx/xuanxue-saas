@@ -117,9 +117,11 @@ for (const { locale, path, shuffle, title, positions } of [
     await page.goto(`${east}/${locale}${encodeURI(path)}`)
     await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
-    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+    // 两站分开经营（D5）：东方站塔罗页不声明西方站英语页
+    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(0)
+    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
       'href',
-      'https://arcanumber.com/tarot',
+      'https://ganjiday.com/',
     )
     await draw(page, shuffle)
     await page.getByRole('button', { name: /全部翻開|모두 열기/ }).click()

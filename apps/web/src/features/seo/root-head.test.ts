@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./origin.functions.ts', () => ({ getSafeImpersonation: vi.fn(), getSeoOrigin: vi.fn() }))
 vi.mock('../admin/settings-announcement.functions.ts', () => ({ getAnnouncement: vi.fn() }))
+vi.mock('../marketing/content.functions.ts', () => ({ getBlogLocales: vi.fn() }))
 
 vi.mock('../admin/impersonation-banner.tsx', () => ({ ImpersonationBanner: () => null }))
 vi.mock('../admin/settings-announcement-banner.tsx', () => ({ AnnouncementBanner: () => null }))
