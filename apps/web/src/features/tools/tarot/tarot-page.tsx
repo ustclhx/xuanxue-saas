@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { CheckboxField, SubmitButton, TextField, ToolForm } from '../form.tsx'
+import { ReadingGuide } from '../reading-guide.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { readShareFragment, shareUrl } from '../share.ts'
@@ -248,6 +249,17 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
                   }
                 : null
             }
+          />
+        )}
+        {(spread === 'daily' || spread === 'yes-or-no') && complete && reading && (
+          <ReadingGuide
+            kind="tarot-spread"
+            body={m.funnel_guide_tarot()}
+            to={{
+              href: toolHref(tarotPath('three-card', locale), locale),
+              label: m.funnel_guide_tarot_cta(),
+              target: 'tarot-three-card',
+            }}
           />
         )}
       </ReadingSlots>
