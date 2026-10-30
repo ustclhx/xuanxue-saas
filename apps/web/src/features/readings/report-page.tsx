@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { toTraditional } from './hant.ts'
 import { Markdown, parseMarkdown, sectionId } from './markdown.tsx'
 import {
@@ -128,12 +129,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           {m.readings_report_print()}
         </button>
       )}
-      <p
-        role="note"
-        className="m-0 rounded-lg bg-surface-2 px-4 py-3.5 text-ink-muted text-sm leading-relaxed"
-      >
-        {m.tools_disclaimer()}
-      </p>
+      <AiDisclaimer />
     </article>
   )
 }

@@ -242,7 +242,7 @@ async function checkFile(collection, locale, slug) {
       count = (plain.match(/\p{Script=Han}/gu) ?? []).length
       assert.ok(count >= 1200, `Chinese body: ${count} Han characters, expected >= 1200`)
       assert.ok(
-        content.includes('AI 輔助') &&
+        content.includes('人工審定') &&
           content.includes('僅供娛樂') &&
           content.includes('不預測未來'),
       )
@@ -254,7 +254,7 @@ async function checkFile(collection, locale, slug) {
         'Korean language coverage',
       )
       assert.ok(
-        content.includes('AI의 도움') &&
+        content.includes('사람이 검토') &&
           content.includes('오락용') &&
           content.includes('미래를 예측하지 않습니다'),
       )
@@ -286,7 +286,7 @@ async function checkFile(collection, locale, slug) {
     }
     assert.ok(links.includes('/'), 'calculator home link')
     assert.ok(
-      content.includes('AI-assisted') &&
+      content.includes('reviewed by a person') &&
         content.includes('for entertainment') &&
         content.includes('does not predict the future'),
     )

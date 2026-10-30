@@ -6,6 +6,7 @@ import { DefaultChatTransport } from 'ai'
 import { useMemo, useRef, useState } from 'react'
 import { templateConfig } from '../../server/template-config.ts'
 import { FormAlert } from '../auth/auth-layout.tsx'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
 import {
   type ChatMessageStatus,
@@ -222,6 +223,7 @@ export function ChatPage({
           </div>
         </HydratedControls>
       </form>
+      <AiDisclaimer />
     </div>
   )
 }
