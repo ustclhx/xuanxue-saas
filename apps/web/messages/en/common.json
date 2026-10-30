@@ -1,4 +1,6 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "common_site_tagline": "Explore divination traditions through tools and guides for self-reflection."
+  "common_site_tagline": "Explore divination traditions through tools and guides for self-reflection.",
+  "common_not_found_title": "Page not found",
+  "common_not_found_body": "The page you are looking for does not exist."
 }

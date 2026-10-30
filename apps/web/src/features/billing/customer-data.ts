@@ -59,6 +59,7 @@ export async function customerCatalog(
       synced: planPrice.providerPriceId,
     })
     .from(planPrice)
+    .where(eq(planPrice.active, true))
   return {
     plans,
     prices: prices.map(({ synced, ...price }) => ({
@@ -91,12 +92,17 @@ export async function customerBilling(
         provider: subscription.provider,
         planPriceId: subscription.planPriceId,
         name: plan.name,
+        amount: planPrice.amount,
+        currency: planPrice.currency,
+        interval: planPrice.interval,
+        priceActive: planPrice.active,
         status: subscription.status,
         currentPeriodEnd: subscription.currentPeriodEnd,
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
       },
     })
     .innerJoin(plan, eq(subscription.planId, plan.id))
+    .innerJoin(planPrice, eq(subscription.planPriceId, planPrice.id))
     .orderBy(desc(subscription.createdAt))
     .limit(50)
   if (role !== 'owner')

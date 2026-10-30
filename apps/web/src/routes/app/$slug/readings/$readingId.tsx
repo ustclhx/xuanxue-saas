@@ -10,7 +10,7 @@ export const Route = createFileRoute('/app/$slug/readings/$readingId')({
   // 报告含个人命盘解读：不进索引（specs/paid-readings「报告保存与查看」）
   head: ({ loaderData }) => ({
     meta: [
-      ...(loaderData ? [{ title: readingTitle(loaderData.kind) }] : []),
+      ...(loaderData ? [{ title: readingTitle(loaderData.kind, loaderData.locale) }] : []),
       { name: 'robots', content: 'noindex, nofollow' },
     ],
   }),

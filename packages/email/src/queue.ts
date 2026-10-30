@@ -32,7 +32,7 @@ const templatePropsSchemas = {
     note: z.string().max(2000),
     supportEmail: z.email(),
   }),
-  'reading-ready': z.object({ url }),
+  'reading-ready': z.object({ url, title: z.string().min(1).max(200).optional() }),
   'reading-summary': z.object({
     name: z.string().max(80),
     subject: z.string().min(1).max(200),
