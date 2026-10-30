@@ -6,6 +6,7 @@ import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { nameLetters, rawTotal, reductionText } from './calc.ts'
 import { FieldError, NumberHeadline, StepLines } from './parts.tsx'
+import { NumerologyReadingGuide } from './reading-guide.tsx'
 
 export type NameNumberKey = 'expression' | 'soulUrge' | 'personality'
 type NameResult = ReturnType<typeof nameNumbers>
@@ -126,6 +127,7 @@ export function NameCalculator({ focus = 'expression' }: { focus?: NameNumberKey
             ))}
           </div>
           <LetterTable normalized={result.normalized} />
+          <NumerologyReadingGuide />
         </div>
       )}
     </div>

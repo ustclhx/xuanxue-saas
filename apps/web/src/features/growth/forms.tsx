@@ -13,12 +13,21 @@ export function GrowthForm({
   headingLevel?: 1 | 2
 }) {
   const Heading = headingLevel === 1 ? 'h1' : 'h2'
+  // 表单在服务端直接输出，爬虫与无脚本访客也能看到；Turnstile 配置在水合后补充。
   const [options, setOptions] = useState<{ siteKey: string | null } | null>(null)
-  const [message, setMessage] = useState('')
+  const [unavailable, setUnavailable] = useState(false)
   useEffect(() => {
+    let active = true
     getGrowthFormOptions({ data: feature })
-      .then(setOptions)
-      .catch(() => setMessage(m.growth_unavailable()))
+      .then((value) => {
+        if (active) setOptions(value)
+      })
+      .catch(() => {
+        if (active) setUnavailable(true)
+      })
+    return () => {
+      active = false
+    }
   }, [feature])
   return (
     <section className="mx-auto grid w-full max-w-lg gap-4 px-4 py-8 sm:px-6">
@@ -30,11 +39,12 @@ export function GrowthForm({
       {feature === 'newsletter' && (
         <p className="m-0 text-ink-muted leading-relaxed">{m.growth_newsletter_intro()}</p>
       )}
-      {options ? (
-        <EmailForm feature={feature} siteKey={options.siteKey} />
-      ) : (
-        <p role="status">{message || m.growth_loading()}</p>
-      )}
+      <EmailForm
+        feature={feature}
+        siteKey={options?.siteKey ?? null}
+        configured={options !== null}
+        unavailable={unavailable}
+      />
     </section>
   )
 }
@@ -42,9 +52,14 @@ export function GrowthForm({
 function EmailForm({
   feature,
   siteKey,
+  configured,
+  unavailable,
 }: {
   feature: 'waitlist' | 'newsletter'
   siteKey: string | null
+  /** 配置已读取；此前按钮可见但不可提交，避免绕过人机验证 */
+  configured: boolean
+  unavailable: boolean
 }) {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
@@ -92,14 +107,14 @@ function EmailForm({
         />
       </label>
       {turnstile.widget}
-      <Button type="submit" className="min-h-11" disabled={busy || !turnstile.ready}>
+      <Button type="submit" className="min-h-11" disabled={busy || !configured || !turnstile.ready}>
         {busy
           ? m.growth_submitting()
           : feature === 'waitlist'
             ? m.growth_waitlist_submit()
             : m.growth_newsletter_submit()}
       </Button>
-      <p role="status">{message}</p>
+      <p role="status">{message || (unavailable ? m.growth_unavailable() : '')}</p>
     </form>
   )
 }

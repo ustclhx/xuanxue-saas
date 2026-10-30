@@ -5,7 +5,7 @@ import {
   Scripts,
   useRouterState,
 } from '@tanstack/react-router'
-import type { SiteId } from '@xuanxue/config'
+import { type SiteId, siteBrandName } from '@xuanxue/config'
 import { themeInitScript } from '@xuanxue/ui'
 import type { ReactNode } from 'react'
 import { ImpersonationBanner } from '../features/admin/impersonation-banner.tsx'
@@ -14,32 +14,39 @@ import { AnnouncementBanner } from '../features/admin/settings-announcement-bann
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
+import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { privateMeta } from '../features/seo/metadata.ts'
 import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
 import { SiteContext } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
 import { ThemeToggle } from '../features/theme/theme-toggle.tsx'
+import { m } from '../paraglide/messages.js'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
   loader: async () => {
-    const [impersonation, announcement, appUrl, site] = await Promise.all([
+    const [impersonation, announcement, appUrl, site, blogLocales] = await Promise.all([
       getSafeImpersonation(),
       getAnnouncement(),
       getSeoOrigin(),
       getCurrentSite(),
+      getBlogLocales(),
     ])
-    return { impersonation, announcement, appUrl, site }
+    return { impersonation, announcement, appUrl, site, blogLocales }
   },
   staleTime: Infinity,
   head: ({ matches, loaderData }) => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'xuanxue' },
+      {
+        title: matches.some((match) => match.status === 'notFound' || match._notFound)
+          ? `${m.common_not_found_title()} | ${rootBrand(loaderData?.site.id ?? 'west')}`
+          : rootBrand(loaderData?.site.id ?? 'west'),
+      },
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),
     ],
     // 全局样式（Tailwind + @xuanxue/ui 主题），SSR 输出的 <head> 中直接引用，避免首屏无样式闪烁
@@ -59,7 +66,28 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
+  notFoundComponent: NotFoundPage,
 })
+
+function rootBrand(site: SiteId): string {
+  const config = templateConfig.sites[site]
+  const locale = getLocale()
+  // 无语言入口页也使用本站品牌，不能由跨站语言偏好决定站点名。
+  return siteBrandName(
+    templateConfig,
+    site,
+    config.locales.some((value) => value === locale) ? locale : config.locales[0],
+  )
+}
+
+function NotFoundPage() {
+  return (
+    <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-24 text-center">
+      <h1 className="font-heading text-3xl font-semibold">{m.common_not_found_title()}</h1>
+      <p className="text-ink-muted">{m.common_not_found_body()}</p>
+    </main>
+  )
+}
 
 function RootComponent() {
   const { impersonation, announcement, site } = Route.useLoaderData()

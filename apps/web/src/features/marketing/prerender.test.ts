@@ -19,7 +19,14 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
     ]) {
       expect(isPrerenderedPath(path, locales), path).toBe(true)
     }
-    for (const path of ['/refund', '/ko/privacy', '/docs', '/zh-hant/docs/configuration']) {
+    for (const path of [
+      '/refund',
+      '/ko/privacy',
+      '/docs',
+      '/zh-hant/docs/configuration',
+      '/faq',
+      '/zh-hans/faq',
+    ]) {
       expect(isPrerenderedPath(path, locales), path).toBe(true)
     }
   })
@@ -90,6 +97,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ko/사주/신살' },
       { path: '/ko/사주/십신' },
       { path: '/ko/사주/일주' },
+      // 东方站英文入口页（D5）
+      { path: '/en' },
       { path: '/' },
       { path: '/tarot' },
       { path: '/tarot/daily' },

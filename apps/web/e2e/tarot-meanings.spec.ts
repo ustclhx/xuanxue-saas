@@ -11,7 +11,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     'Upright',
     'Draw one card',
     'Read the full card meaning',
-    'AI-assisted interpretation',
+    'drafted with AI and reviewed by a person',
   ],
   [
     'zh-Hant',
@@ -21,7 +21,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     '正位',
     '抽一張牌',
     '閱讀完整牌義',
-    '本篇為 AI 輔助解讀',
+    '本篇由 AI 起草、經人工審定',
   ],
   [
     'ko',
@@ -31,7 +31,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     '정방향',
     '한 장 뽑기',
     '카드 의미 자세히 읽기',
-    '이 글은 AI의 도움',
+    'AI가 초안을 작성하고 사람이 검토한',
   ],
 ] as const) {
   test(`${locale} 牌义正文、跨站 SEO、相邻王牌与键盘单张抽牌`, async ({ page, baseURL }) => {
@@ -47,8 +47,12 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     )
     await expect(page.locator('article img').first()).toHaveAttribute('srcset', /240w, .*480w$/)
     await expect(page.locator('article p').filter({ hasText: disclaimer })).toHaveCount(1)
-    for (const lang of ['en', 'zh-Hant', 'ko', 'x-default'])
+    // 两站分开经营（D5）：hreflang 只在同站内互指
+    for (const lang of host === 'west' ? ['en', 'x-default'] : ['zh-Hant', 'ko', 'x-default'])
       await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`)).toHaveCount(1)
+    await expect(
+      page.locator(`link[rel="alternate"][hreflang="${host === 'west' ? 'ko' : 'en'}"]`),
+    ).toHaveCount(0)
     for (const slug of ['two-of-wands', 'ace-of-cups', 'ace-of-swords', 'ace-of-pentacles'])
       await expect(page.locator(`aside a[href$="/${slug}"]`)).toHaveCount(1)
     await expect(page.getByTestId('tarot-meaning-draw')).toHaveAttribute('data-hydrated', 'true')

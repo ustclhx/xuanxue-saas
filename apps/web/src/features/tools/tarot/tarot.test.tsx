@@ -32,17 +32,24 @@ describe('塔罗路由', () => {
       ])
   })
 
-  it('三语 hreflang 跨站互指，x-default 指向西方站英语页', () => {
+  it('hreflang 只在同站内互指（D5）：西方站英语页自指，东方站繁中与韩语互指', () => {
     for (const spread of TAROT_SPREADS)
       for (const locale of ['en', 'zh-Hant', 'ko'] as const) {
         const links = alternateLinks('', tarotPath(spread, locale), undefined, undefined, locale)
         const href = (lang: string) => links.find((link) => link.hrefLang === lang)?.href
-        expect(href('en')).toBe(`https://arcanumber.com${encodeURI(tarotPath(spread, 'en'))}`)
+        const en = `https://arcanumber.com${encodeURI(tarotPath(spread, 'en'))}`
+        if (locale === 'en') {
+          expect(href('en')).toBe(en)
+          expect(href('zh-Hant')).toBeUndefined()
+          expect(href('x-default')).toBe(en)
+          continue
+        }
+        expect(href('en')).toBeUndefined()
         expect(href('zh-Hant')).toBe(
           `https://ganjiday.com/zh-hant${encodeURI(tarotPath(spread, 'zh-Hant'))}`,
         )
         expect(href('ko')).toBe(`https://ganjiday.com/ko${encodeURI(tarotPath(spread, 'ko'))}`)
-        expect(href('x-default')).toBe(href('en'))
+        expect(href('x-default')).toBe('https://ganjiday.com/')
       }
   })
 

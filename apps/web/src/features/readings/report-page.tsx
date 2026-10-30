@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { toTraditional } from './hant.ts'
 import { Markdown, parseMarkdown, sectionId } from './markdown.tsx'
 import {
@@ -78,7 +79,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
       </Link>
       <header className="flex flex-col gap-2.5">
         <h1 className="m-0 font-heading font-bold text-[28px] text-ink leading-tight sm:text-[36px]">
-          {readingTitle(view.kind)}
+          {readingTitle(view.kind, view.locale)}
         </h1>
         <p className="m-0 flex flex-wrap items-center gap-3 text-ink-subtle text-sm">
           <StatusLabel status={view.status} />
@@ -128,12 +129,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           {m.readings_report_print()}
         </button>
       )}
-      <p
-        role="note"
-        className="m-0 rounded-lg bg-surface-2 px-4 py-3.5 text-ink-muted text-sm leading-relaxed"
-      >
-        {m.tools_disclaimer()}
-      </p>
+      <AiDisclaimer />
     </article>
   )
 }
@@ -191,7 +187,7 @@ export function ReadingsListPage({
                   params={{ slug, readingId: item.id }}
                   className="font-semibold text-ink"
                 >
-                  {readingTitle(item.kind)}
+                  {readingTitle(item.kind, item.locale)}
                 </Link>
                 <span className="flex flex-wrap items-center gap-2 text-ink-subtle text-xs">
                   <StatusLabel status={item.status} />

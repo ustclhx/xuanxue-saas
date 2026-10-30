@@ -244,7 +244,7 @@ export async function startWorkspaceChat(
 
   // 3. 对话与历史：只读创建者自己的对话
   let conversationId = input.conversationId
-  let history: { role: 'user' | 'assistant'; text: string }[] = []
+  let history: { role: 'system' | 'user' | 'assistant'; text: string }[] = []
   if (conversationId !== undefined) {
     const [conversation] = await s
       .select(aiConversation, {
@@ -252,18 +252,19 @@ export async function startWorkspaceChat(
       })
       .limit(1)
     if (!conversation) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
+    // system 消息是从结果页带入的命盘上下文（chat-context.ts），建对话时写入，排在最前
     const rows = await s
       .select(aiMessage, {
         where: and(
           eq(aiMessage.conversationId, conversationId),
-          inArray(aiMessage.role, ['user', 'assistant']),
+          inArray(aiMessage.role, ['system', 'user', 'assistant']),
           inArray(aiMessage.status, ['completed', 'aborted', 'failed']),
         ) as SQL,
       })
       .orderBy(asc(aiMessage.id))
     history = rows.flatMap((row) => {
       const text = messageText(row.parts)
-      return text && (row.role === 'user' || row.role === 'assistant')
+      return text && (row.role === 'system' || row.role === 'user' || row.role === 'assistant')
         ? [{ role: row.role, text }]
         : []
     })

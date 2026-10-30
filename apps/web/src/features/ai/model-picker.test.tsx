@@ -1,8 +1,16 @@
 import type { Pricing } from '@xuanxue/ai'
-import { renderToString } from 'react-dom/server'
+import { renderToStaticMarkup, renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { creditEstimate, DEFAULT_MAX_OUTPUT_TOKENS, type PickerModel } from './model-picker.ts'
-import { CreditEstimateText, ModelPicker } from './model-picker.tsx'
+import { m } from '../../paraglide/messages.js'
+import {
+  creditEstimate,
+  DEFAULT_MAX_OUTPUT_TOKENS,
+  formatEstimate,
+  type PickerModel,
+  TYPICAL_REPLY_TOKENS,
+  typicalMessageEstimate,
+} from './model-picker.ts'
+import { ChatCostHint, CreditEstimateText, ModelPicker } from './model-picker.tsx'
 
 const perCall: PickerModel = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -86,7 +94,43 @@ describe('ModelPicker', () => {
 
   it('没有可用模型时显示提示', () => {
     const html = renderToString(<ModelPicker models={[]} value={undefined} onChange={() => {}} />)
-    expect(html).toContain('No models are available')
+    expect(html).toContain(m.ai_chat_no_models())
     expect(html).not.toContain('<select')
+  })
+
+  it.each(['en', 'zh-Hant', 'zh-Hans', 'ko'] as const)(
+    '%s 有选择器文案（不再写死英文）',
+    (locale) => {
+      expect(m.ai_chat_model_label({}, { locale })).toBeTruthy()
+      expect(m.ai_chat_no_models({}, { locale })).toBeTruthy()
+      expect(m.ai_chat_estimate_label({}, { locale })).toBeTruthy()
+    },
+  )
+})
+
+describe('ChatCostHint（specs/ai-chat「发送前显示预计消耗」）', () => {
+  it('显示当前模型名称与每条消息的典型消耗区间', () => {
+    const html = renderToStaticMarkup(<ChatCostHint model={perToken} inputTokens={1500} />)
+    expect(html).toContain('data-testid="chat-cost-model">smart-chat</span>')
+    // 输入 1500 → 3 积分；典型回复 150–800 token → +2 / +8 积分
+    const estimate = formatEstimate({ kind: 'range', min: 5, max: 11 })
+    expect(html).toContain(m.ai_chat_per_message({ estimate }))
+    expect(html).toContain('~5–11 credits per message')
+  })
+
+  it('按次计费显示确定值', () => {
+    const html = renderToStaticMarkup(<ChatCostHint model={perCall} inputTokens={10} />)
+    expect(html).toContain('5 credits per message')
+  })
+
+  it('典型回复不超过模型的最大输出', () => {
+    expect(
+      typicalMessageEstimate(perToken.pricing, { inputTokens: 0, maxOutputTokens: 100 }),
+    ).toEqual({ kind: 'range', min: 1, max: 1 })
+    expect(TYPICAL_REPLY_TOKENS.min).toBeLessThan(TYPICAL_REPLY_TOKENS.max)
+  })
+
+  it('未选择模型时不渲染', () => {
+    expect(renderToStaticMarkup(<ChatCostHint model={undefined} inputTokens={0} />)).toBe('')
   })
 })

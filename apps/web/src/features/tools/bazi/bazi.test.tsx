@@ -212,7 +212,7 @@ describe('东方站路径', () => {
 })
 
 describe('东方站排盘页 head', () => {
-  it('Title 按设计文档原文；八字排盤与만세력互指 hreflang，紫微页只有繁中', () => {
+  it('Title 按设计文档原文；八字排盤与만세력、东方站英文入口互指 hreflang，紫微页只有繁中', () => {
     const title = '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析'
     const home = easternToolHead(
       { path: '/', locale: 'zh-Hant', title, description: 'd' },
@@ -221,7 +221,13 @@ describe('东方站排盘页 head', () => {
     expect(home.meta).toContainEqual({ title })
     const languages = (links: typeof home.links) =>
       links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
-    expect(languages(home.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'x-default'])
+    expect(languages(home.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en', 'x-default'])
+    // 东方站首页的 en 指向东方站自己的英文入口页，不指向西方站（D5）
+    expect(home.links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'en',
+      href: 'https://ganjiday.com/en',
+    })
     const ziwei = easternToolHead(
       { path: '/紫微斗數排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',

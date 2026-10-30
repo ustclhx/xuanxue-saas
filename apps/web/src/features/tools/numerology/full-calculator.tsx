@@ -123,9 +123,10 @@ export function FullCalculator() {
               description={m.numerology_desc_personal_year()}
             >
               <NumberHeadline result={chart.personalYear} size="sm" />
-              <StepLines>
-                <div>{reductionText(chart.personalYear)}</div>
-              </StepLines>
+              <LifePathSteps
+                result={chart.personalYear}
+                date={{ ...state.date, year: state.year }}
+              />
             </ResultBlock>
           </div>
           <ShareLink input={{ date: formatBirthDate(state.date) }} />

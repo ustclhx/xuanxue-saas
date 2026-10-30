@@ -7,21 +7,27 @@ import { templateConfig } from '../../server/template-config.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { useSiteId } from '../site/context.tsx'
 import { closeHeaderMenu, GlobeIcon, HeaderMenu } from '../site/header-menu.tsx'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { LOCALE_AUTONYMS } from '../site/theme.ts'
 import { useLocaleSwitch } from './locale-switch.ts'
 import { getLanguageSuggestion } from './preference.functions.ts'
 import { rememberLocale } from './preference.ts'
 
+const languageItem =
+  'flex min-h-11 w-full items-center justify-between gap-6 rounded-lg px-3 text-left text-[15px] text-ink transition-colors hover:bg-surface-2 aria-[current=true]:font-semibold aria-[current=page]:font-semibold'
+
 /**
  * 页头右上角的语言菜单（specs/i18n「语言切换控件位于站点页头右上角」）。
- * 只列出当前站点的语言，语言名用各语言自己的写法。
+ * 只列出当前站点的语言，语言名用各语言自己的写法（specs/multi-site「语言控件只列本站语言」）：
+ * 西方站只有英语，不显示菜单；东方站另有 English，指向东方站英文入口页 `/en`，不跳到西方站。
  */
 export function LanguageMenu() {
   const locale = getLocale()
   const siteId = useSiteId()
   const { busy, error, select } = useLocaleSwitch()
   const siteLocales = templateConfig.sites[siteId].locales
-  if (!templateConfig.i18n.enabled || siteLocales.length < 2) return null
+  const englishEntry = siteId === 'east' && locales.some((item) => item === EAST_ENGLISH_LOCALE)
+  if (!templateConfig.i18n.enabled || siteLocales.length + (englishEntry ? 1 : 0) < 2) return null
   return (
     <HeaderMenu label={m.i18n_language()} icon={<GlobeIcon />}>
       {siteLocales.map((item) => (
@@ -31,7 +37,7 @@ export function LanguageMenu() {
           lang={item}
           disabled={busy}
           aria-current={item === locale ? 'true' : undefined}
-          className="flex min-h-11 w-full items-center justify-between gap-6 rounded-lg px-3 text-left text-[15px] text-ink transition-colors hover:bg-surface-2 aria-[current=true]:font-semibold"
+          className={languageItem}
           onClick={(event) => {
             closeHeaderMenu(event.currentTarget)
             void select(item)
@@ -41,6 +47,19 @@ export function LanguageMenu() {
           {item === locale ? <span aria-hidden="true">✓</span> : null}
         </button>
       ))}
+      {englishEntry && (
+        // 英文入口页只有一页，是普通链接：不改账号语言，应用区仍按原语言显示
+        <a
+          href={EAST_ENGLISH_PATH}
+          lang={EAST_ENGLISH_LOCALE}
+          hrefLang={EAST_ENGLISH_LOCALE}
+          aria-current={locale === EAST_ENGLISH_LOCALE ? 'page' : undefined}
+          className={languageItem}
+        >
+          <span>{LOCALE_AUTONYMS[EAST_ENGLISH_LOCALE] ?? EAST_ENGLISH_LOCALE}</span>
+          {locale === EAST_ENGLISH_LOCALE ? <span aria-hidden="true">✓</span> : null}
+        </a>
+      )}
       {error ? (
         <p role="alert" className="px-3 pb-1 text-destructive text-sm">
           {error}

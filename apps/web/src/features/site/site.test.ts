@@ -1,15 +1,23 @@
 import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
+import { NOT_FOUND_PATH } from '../admin/gate.ts'
 import { gateSiteRequest, routeSite } from './gate.ts'
-import { requestSiteOrigin, resolveSite, siteHosts, siteOfLocale, siteOrigin } from './site.ts'
+import {
+  requestSiteOrigin,
+  resolveSite,
+  siteHosts,
+  siteNavLocale,
+  siteOfLocale,
+  siteOrigin,
+} from './site.ts'
 
 const EAST = 'https://ganjiday.com'
 const WEST = 'https://arcanumber.com'
 const config = defineTemplateConfig({
   app: { name: 'xuanxue', url: WEST, supportEmail: 'support@arcanumber.com' },
-  i18n: { locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
+  i18n: { locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'], defaultLocale: 'en' },
   sites: {
-    east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'ko'], defaultLocale: null },
+    east: { hosts: ['ganjiday.com'], locales: ['zh-Hant', 'zh-Hans', 'ko'], defaultLocale: null },
     west: {
       hosts: ['arcanumber.com', 'www.arcanumber.com'],
       locales: ['en'],
@@ -60,25 +68,33 @@ describe('语言归属站点', () => {
     expect(siteOfLocale('fr', config)).toBeUndefined()
   })
 
-  it('在西方站访问韩语路径：301 到东方站的同一路径，保留查询串', () => {
-    expect(route(`${WEST}/ko/manseryeok/`)).toEqual({
-      kind: 'redirect',
-      status: 301,
-      location: `${EAST}/ko/manseryeok/`,
-    })
-    expect(route(`${WEST}/zh-hant/pricing?ref=nav`)).toEqual({
-      kind: 'redirect',
-      status: 301,
-      location: `${EAST}/zh-hant/pricing?ref=nav`,
-    })
+  it('两站分开经营（D5）：西方站的中文与韩语前缀返回 404，不跳到东方站', () => {
+    for (const path of [
+      '/zh-hant',
+      '/zh-hant/',
+      '/zh-hant/pricing?ref=nav',
+      '/zh-hans',
+      '/zh-hans/pricing',
+      '/zh-hant/faq',
+      '/ko',
+      '/ko/manseryeok/',
+    ])
+      expect(route(`${WEST}${path}`), path).toEqual({ kind: 'not-found' })
   })
 
-  it('在东方站访问英语前缀：301 到西方站的无前缀地址', () => {
-    expect(route(`${EAST}/en/pricing`)).toEqual({
-      kind: 'redirect',
-      status: 301,
-      location: `${WEST}/pricing`,
-    })
+  it('东方站只有 /en 英文入口页，其他英语路径返回 404', () => {
+    expect(route(`${EAST}/en`)).toEqual(pass)
+    expect(route(`${EAST}/en/`)).toEqual(pass)
+    expect(route(`${EAST}/en?utm=x`)).toEqual(pass)
+    for (const path of ['/en/pricing', '/en/faq', '/en/tarot', '/en/blog/welcome'])
+      expect(route(`${EAST}${path}`), path).toEqual({ kind: 'not-found' })
+  })
+
+  it('导航语言：不属于本站的语言改用本站默认语言（东方站取第一个语言）', () => {
+    expect(siteNavLocale('west', 'zh-Hant', config)).toBe('en')
+    expect(siteNavLocale('west', 'en', config)).toBe('en')
+    expect(siteNavLocale('east', 'en', config)).toBe('zh-Hant')
+    expect(siteNavLocale('east', 'ko', config)).toBe('ko')
   })
 
   it('西方站的默认语言前缀 307 到无前缀地址', () => {
@@ -100,15 +116,12 @@ describe('语言归属站点', () => {
     )
   })
 
-  it('本地 <站点>.localhost 跨站跳转保留协议与端口', () => {
+  it('本地 <站点>.localhost 同样按站点返回 404', () => {
     expect(siteOrigin('east', new URL('http://west.localhost:23330/ko/'), config)).toBe(
       'http://east.localhost:23330',
     )
-    expect(route('http://west.localhost:23330/ko/manseryeok')).toEqual({
-      kind: 'redirect',
-      status: 301,
-      location: 'http://east.localhost:23330/ko/manseryeok',
-    })
+    expect(route('http://west.localhost:23330/ko/manseryeok')).toEqual({ kind: 'not-found' })
+    expect(route('http://east.localhost:23330/en')).toEqual(pass)
   })
 })
 
@@ -174,13 +187,25 @@ describe('东方站入口页与无前缀路径', () => {
 describe('gateSiteRequest', () => {
   it('跳转直接返回，不进入后续处理', async () => {
     let called = false
-    const response = await gateSiteRequest(new Request(`${WEST}/ko/`), config, () => {
+    const response = await gateSiteRequest(new Request(`${WEST}/en/pricing`), config, () => {
       called = true
       return new Response('page')
     })
     expect(called).toBe(false)
-    expect(response.status).toBe(301)
-    expect(response.headers.get('location')).toBe(`${EAST}/ko/`)
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toBe(`${WEST}/pricing`)
+  })
+
+  it('不属于本站的语言改写到 404 路径，由应用渲染本站风格的 404', async () => {
+    for (const url of [`${WEST}/zh-hant/pricing`, `${WEST}/ko/`, `${EAST}/en/pricing`]) {
+      let seen = ''
+      const response = await gateSiteRequest(new Request(url), config, (request) => {
+        seen = new URL(request.url).href
+        return new Response('not found', { status: 404 })
+      })
+      expect(response.status, url).toBe(404)
+      expect(seen, url).toBe(new URL(NOT_FOUND_PATH, url).href)
+    }
   })
 
   it('未登记 Host 的响应带 X-Robots-Tag: noindex，登记的 Host 不带', async () => {

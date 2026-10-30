@@ -55,19 +55,21 @@ export function SpacePanel({
 
 /**
  * 空间的导航分区是否显示，按站点功能开关与成员角色决定。
- * 概览与设置始终显示；其余与原导航保持相同条件，只是集中在一处。
+ * 概览与设置始终显示；对话另需空间有可用模型，其余与原导航保持相同条件，只是集中在一处。
  */
 export function spaceSections(options: {
   billing: boolean
   credits: boolean
   textAi: boolean
+  /** 当前空间至少有一个可用文本模型（getChatAvailable）；没有时不显示对话入口 */
+  chatAvailable: boolean
   mediaAi: boolean
   publicApi: boolean
   canManageKeys: boolean
 }) {
   return {
     readings: options.billing && options.textAi,
-    chat: options.textAi,
+    chat: options.textAi && options.chatAvailable,
     tasks: options.mediaAi,
     media: options.mediaAi,
     usage: options.credits,

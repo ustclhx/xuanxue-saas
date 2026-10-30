@@ -1,8 +1,10 @@
 import { SITE_IDS, type TemplateConfig } from '@xuanxue/config'
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 
 export const PRERENDERED_PREFIXES = [
+  '/faq',
   '/blog',
   '/docs',
   '/privacy',
@@ -52,6 +54,13 @@ export function prerenderEntryPages(
         if (tool.site === id && path) paths.add(`${prefix}${path === '/' ? '' : path}` || '/')
       }
     }
+    // 东方站英文入口页（D5）：语言 en 归西方站，页面单独登记
+    if (
+      id === 'east' &&
+      config.i18n.enabled &&
+      config.i18n.locales.some((l) => l === EAST_ENGLISH_LOCALE)
+    )
+      paths.add(EAST_ENGLISH_PATH)
   }
   return [...paths].map((path) => ({ path }))
 }

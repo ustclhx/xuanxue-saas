@@ -76,6 +76,14 @@ export function listPosts<T extends PostLike>(
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
+/**
+ * 自己有已发布文章的语言（specs/marketing-site「博客为空时隐藏入口」）：只计该语言本身的文章，
+ * 不计默认语言的回退文章——两站分开经营，东方站不因西方站的英文文章显示博客入口。
+ */
+export function publishedPostLocales(posts: readonly PostLike[], now: Date): string[] {
+  return [...new Set(posts.filter((post) => isPublished(post, now)).map((post) => post.locale))]
+}
+
 /** 已发布文章中出现过的标签，按名称排序 */
 export function listTags(posts: readonly PostLike[]): string[] {
   return [...new Set(posts.flatMap((post) => post.tags))].sort()

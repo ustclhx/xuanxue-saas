@@ -8,6 +8,7 @@ import { FxAttribution } from '../readings/fx-attribution.tsx'
 import { formatPrice, LOCAL_CURRENCY, type LocalRates } from '../readings/price.ts'
 import { getLocalRates, type ReadingPricing } from '../readings/readings.functions.ts'
 import { readingTitle } from '../readings/title.ts'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { MarketingShell } from './marketing-shell.tsx'
 import type { PricingCatalog } from './pricing-data.ts'
 
@@ -201,6 +202,7 @@ export function PricingPage({
               {m.marketing_footer_disclaimer()}
             </Link>
           </p>
+          <AiDisclaimer />
         </section>
       </div>
       {templateConfig.features.newsletter ? <GrowthForm feature="newsletter" /> : null}

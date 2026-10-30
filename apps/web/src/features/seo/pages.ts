@@ -1,9 +1,14 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
-import { listPosts, listTags, localizedEntries } from '../marketing/content.ts'
+import {
+  listPosts,
+  listTags,
+  localizedEntries,
+  publishedPostLocales,
+} from '../marketing/content.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
-import type { SeoPage } from './metadata.ts'
+import type { SeoPage, StaticPath } from './metadata.ts'
 import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
 
 interface Post {
@@ -47,17 +52,19 @@ export function publicPages(
     .filter((locale) => !site || config.sites[site].locales.some((l) => l === locale))
     .flatMap((locale) => {
       const { defaultLocale } = config.i18n
-      const pages = ['/', ...(config.billing.enabled ? ['/pricing'] : [])].map((path) =>
-        staticPage(path, locale),
-      )
+      const paths: StaticPath[] = [
+        '/',
+        ...(config.billing.enabled ? ['/pricing' as const] : []),
+        '/faq',
+      ]
+      const pages = paths.map((path) => staticPage(path, locale))
       if (config.features.newsletter) pages.push(staticPage('/newsletter', locale))
       if (config.features.waitlist) pages.push(staticPage('/waitlist', locale))
-      if (config.features.blog) {
+      const published = content.posts.filter((post) => !post.draft)
+      // 该语言自己没有已发布文章时，博客列表不进站点地图（specs/marketing-site「博客为空时隐藏入口」）
+      if (config.features.blog && publishedPostLocales(published, now).includes(locale)) {
         pages.push(staticPage('/blog', locale))
-        const posts = listPosts(
-          content.posts.filter((post) => !post.draft),
-          { locale, defaultLocale, now },
-        )
+        const posts = listPosts(published, { locale, defaultLocale, now })
         pages.push(
           ...posts.map((post) => ({
             path: `/blog/${encodeURIComponent(post.slug)}`,
