@@ -1,4 +1,6 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "common_site_tagline": "운세 도구와 가이드로 전통의 지혜를 살펴보고 나를 알아가세요."
+  "common_site_tagline": "운세 도구와 가이드로 전통의 지혜를 살펴보고 나를 알아가세요.",
+  "common_not_found_title": "페이지를 찾을 수 없습니다",
+  "common_not_found_body": "요청하신 페이지가 존재하지 않습니다."
 }
