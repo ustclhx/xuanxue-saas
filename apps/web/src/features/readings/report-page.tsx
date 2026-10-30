@@ -1,8 +1,13 @@
 import { Link } from '@tanstack/react-router'
+import type { SiteId } from '@xuanxue/config'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
+import { templateConfig } from '../../server/template-config.ts'
+import { useSiteId } from '../site/context.tsx'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
+import { TOOL_ROUTES, toolsForLocale } from '../tools/registry.ts'
+import { toolHref } from '../tools/tool-href.ts'
 import { toTraditional } from './hant.ts'
 import { Markdown, parseMarkdown, sectionId } from './markdown.tsx'
 import {
@@ -134,12 +139,69 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
   )
 }
 
+/**
+ * 报告列表空态的免费工具链接：只取当前站点的工具；当前语言不属于本站（应用区语言来自用户偏好）时
+ * 退回本站默认语言，避免链到另一站。
+ */
+export function freeToolLinks(locale: string, site: SiteId) {
+  const routes = TOOL_ROUTES.filter((route) => route.site === site)
+  let linkLocale = locale
+  let tools = toolsForLocale(linkLocale, routes)
+  const fallback = templateConfig.sites[site].defaultLocale
+  if (tools.length === 0 && fallback) {
+    linkLocale = fallback
+    tools = toolsForLocale(linkLocale, routes)
+  }
+  return tools.map((tool) => ({
+    id: tool.id,
+    title: tool.title,
+    href: toolHref(tool.path, linkLocale),
+  }))
+}
+
+/**
+ * 空列表的提示（product-improve-ai-content tasks.md 2.6）：本站本语言至少一种详批可用时才说
+ * 「可在免费结果下方解锁」，否则只给中性说明与免费工具链接，不承诺可解锁。
+ */
+function EmptyReadings({ unlockable }: { unlockable: boolean }) {
+  const site = useSiteId()
+  if (unlockable)
+    return (
+      <p data-testid="readings-empty" className="m-0 text-ink-muted">
+        {m.readings_list_empty()}
+      </p>
+    )
+  const links = freeToolLinks(getLocale(), site)
+  return (
+    <div data-testid="readings-empty" className="flex flex-col gap-3">
+      <p className="m-0 text-ink-muted">{m.readings_list_empty_neutral()}</p>
+      {links.length > 0 && (
+        <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                className="inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4 text-ink text-sm no-underline hover:bg-surface-2"
+              >
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export function ReadingsListPage({
   slug,
   initial,
+  unlockable,
 }: {
   slug: string
   initial: { items: readonly ReadingListItem[]; nextCursor: string | null }
+  /** 当前站点与语言下至少一种详批可用；读取失败按不可用处理 */
+  unlockable: boolean
 }) {
   const [items, setItems] = useState(initial.items)
   const [cursor, setCursor] = useState(initial.nextCursor)
@@ -172,7 +234,7 @@ export function ReadingsListPage({
         {m.readings_list_title()}
       </h2>
       {items.length === 0 ? (
-        <p className="m-0 text-ink-muted">{m.readings_list_empty()}</p>
+        <EmptyReadings unlockable={unlockable} />
       ) : (
         <ul data-testid="readings-list" className="m-0 flex list-none flex-col gap-3 p-0">
           {items.map((item) => (

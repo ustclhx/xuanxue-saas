@@ -304,6 +304,8 @@ describe('POST /api/readings', () => {
     expect(response.status).toBe(200)
     const readingId = response.headers.get('x-reading-id')
     expect(readingId).toBeTruthy()
+    // 未配置发信通道（log）：邮件照常入队（jobs 只记录），但前台不提「已寄信」
+    expect(response.headers.get('x-reading-email')).toBe('none')
     const stream = await response.text()
     expect(stream).toContain('總論')
     await run.settled()
@@ -338,6 +340,26 @@ describe('POST /api/readings', () => {
     ])
     // 报告关联承载预扣与结算的消息，超时兜底沿用 ai_message 处理器
     expect(saved?.message_id).toBeTruthy()
+  })
+
+  it('发信通道为 resend 且邮箱已验证时，响应标明报告邮件已入队；未验证时不提邮件', async () => {
+    const modelKey = await textModel()
+    const unverified = await member(300)
+    const first = deps(reportModel(REPORT), modelKey)
+    const plain = await post(unverified, unlock(), { ...first.deps, emailTransport: 'resend' })
+    expect(plain.headers.get('x-reading-email')).toBe('none')
+    await plain.text()
+    await first.settled()
+
+    const verified = await member(300)
+    await sql`update "user" set email_verified = true where id = ${verified.userId}`
+    const second = deps(reportModel(REPORT), modelKey)
+    const response = await post(verified, unlock(), { ...second.deps, emailTransport: 'resend' })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('x-reading-email')).toBe('queued')
+    await response.text()
+    await second.settled()
+    expect(second.sent).toEqual([expect.objectContaining({ to: verified.email })])
   })
 
   it('模型在输出任何内容前失败：预扣全额退回，报告标记失败且可以重试', async () => {

@@ -22,13 +22,13 @@ import {
   type ReadingPack,
   type ReadingView,
 } from './readings.functions.ts'
-import { readReadingStream } from './stream.ts'
+import { EMAIL_DELIVERY_HEADER, readReadingStream } from './stream.ts'
 import { readingTitle } from './title.ts'
 import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
 
 /**
  * 结果页的「完整分析」解锁卡（add-reading-monetization tasks.md 3.1，原型 Main.dc.html 付费卡）：
- * 反色块显示所需积分、当地货币估价与章节目录，位于免费结果与订阅卡之后，不以弹窗出现。
+ * 反色块依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与当地货币估价，位于免费结果与订阅卡之后，不以弹窗出现。
  *
  * 点击后：未登录 → 本语言登录页；积分不足 → 选择积分包并跳转 Checkout；否则直接生成并流式显示。
  * 登录与 Checkout 的回跳地址带签名的 `unlock` 参数（design 决策 5）。回到本页时：
@@ -104,7 +104,13 @@ type Phase =
   | { readonly name: 'busy'; readonly label: string }
   | { readonly name: 'packs' }
   | { readonly name: 'streaming'; readonly id: string | null; readonly text: string }
-  | { readonly name: 'done'; readonly id: string | null; readonly text: string }
+  | {
+      readonly name: 'done'
+      readonly id: string | null
+      readonly text: string
+      /** 报告邮件已交给真实发信通道（响应头为 queued）；否则只提示已保存 */
+      readonly emailed: boolean
+    }
   | { readonly name: 'failed' }
   | { readonly name: 'error' }
   | { readonly name: 'payment-pending' }
@@ -224,6 +230,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
         return window.location.assign(`/app/${slug}/readings/${existing.reading.id}`)
       return setPhase({ name: 'error' })
     }
+    const emailed = response.headers.get(EMAIL_DELIVERY_HEADER) === 'queued'
     setPhase({ name: 'streaming', id, text: '' })
     const result = await readReadingStream(response.body, (progress) =>
       setPhase({ name: 'streaming', id, text: progress.text }),
@@ -235,7 +242,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
       void refresh()
       return setPhase({ name: 'failed' })
     }
-    setPhase({ name: 'done', id, text: result.text })
+    setPhase({ name: 'done', id, text: result.text, emailed })
     void refresh()
   }
 
@@ -328,7 +335,11 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
             {readingTitle(kind)}
           </h2>
           <p role="status" className="m-0 text-ink-muted text-sm">
-            {phase.name === 'streaming' ? m.readings_generating() : m.readings_report_saved()}
+            {phase.name === 'streaming'
+              ? m.readings_generating()
+              : phase.emailed
+                ? m.readings_report_saved_emailed()
+                : m.readings_report_saved()}
           </p>
         </header>
         {phase.text && <Markdown source={toTraditional(phase.text, locale)} />}
@@ -368,6 +379,16 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
           ))}
         </ol>
       </div>
+      {offer.sample && (
+        <figure data-testid="reading-sample" className="m-0 flex flex-col gap-1">
+          <figcaption className="text-on-inverse/75 text-sm">
+            {m.readings_unlock_sample()}
+          </figcaption>
+          <blockquote className="m-0 border-on-inverse/30 border-l-2 pl-3 text-[15px] text-on-inverse/90 leading-relaxed">
+            {offer.sample}
+          </blockquote>
+        </figure>
+      )}
       <p className="m-0 flex flex-wrap items-baseline gap-x-2.5" data-testid="reading-price">
         <span className="font-bold text-[28px]">
           {m.readings_unlock_credits({ credits: String(offer.credits) })}

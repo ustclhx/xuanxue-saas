@@ -1,5 +1,6 @@
 import { computeChart, computeCompatibility } from '@xuanxue/bazi'
 import { computeZiwei } from '@xuanxue/bazi/ziwei'
+import { READING_KINDS } from '@xuanxue/db'
 import { describe, expect, it } from 'vitest'
 import {
   chartSummary,
@@ -11,6 +12,7 @@ import {
   withDisclaimer,
   ziweiSummary,
 } from './catalog.ts'
+import { checkCompliance } from './compliance.ts'
 
 // tasks.md 2.1：服务端复算忽略篡改的命盘、章节齐全检查、提示词结构。
 const NOW = new Date('2026-10-19T00:00:00Z')
@@ -218,5 +220,47 @@ describe('其余详批的服务端复算（tasks.md 2.4）', () => {
   it('没有健康章节的详批不补就医提示', () => {
     const text = '## 총평\n\n내용'
     expect(ensureHealthNotice(text, kind('saju-compat'))).toBe(text)
+  })
+})
+
+// product-improve-ai-content tasks.md 3.2：解锁卡样例段落（D11 人工撰写，用户审定）
+describe('样例段落', () => {
+  const variants = READING_KINDS.flatMap((kind) =>
+    (readingDefinition(kind)?.locales ?? []).map((locale) => ({
+      kind,
+      locale,
+      sample: readingDefinition(kind, locale)?.sample ?? '',
+    })),
+  )
+
+  it('六种详批的每种报告语言都有样例，且声明为虚构案例', () => {
+    expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
+    expect(variants).toHaveLength(11)
+    for (const { locale, sample } of variants) {
+      const fictional = { en: /fictional/, ko: /가상/, 'zh-Hant': /虛構/, 'zh-Hans': /虚构/ }[
+        locale as 'en'
+      ]
+      expect(sample).toMatch(fictional)
+    }
+  })
+
+  it('长度：中韩 80–150 字（不计空白），英文 50–90 词', () => {
+    for (const { locale, sample } of variants) {
+      if (locale === 'en') {
+        const words = sample.split(/\s+/).length
+        expect(words).toBeGreaterThanOrEqual(50)
+        expect(words).toBeLessThanOrEqual(90)
+      } else {
+        const chars = sample.replace(/\s/g, '').length
+        expect(chars).toBeGreaterThanOrEqual(80)
+        expect(chars).toBeLessThanOrEqual(150)
+      }
+    }
+  })
+
+  it('通过合规检查：不含日期预言、病名或投资标的', () => {
+    for (const { locale, sample } of variants) {
+      expect(checkCompliance(sample, locale)).toEqual({ content: sample, violations: [] })
+    }
   })
 })
