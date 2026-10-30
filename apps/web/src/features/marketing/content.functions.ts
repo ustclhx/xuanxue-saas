@@ -3,7 +3,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { allDocs, allLegalPages, allPosts } from 'content-collections'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
-import { findLocalized, findPost, listPosts, listTags, loadDocsPage } from './content.ts'
+import { siteOfLocale } from '../site/site.ts'
+import { findLegalPage, findPost, listPosts, listTags, loadDocsPage } from './content.ts'
 
 /**
  * 博客、法律页与文档的数据（tasks.md 3.3、3.4）。内容在构建期生成，不访问数据库；
@@ -47,7 +48,9 @@ export const getBlogPost = createServerFn({ method: 'GET' })
 export const getLegalPage = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ locale, slug }))
   .handler(({ data }) => {
-    const page = findLocalized(allLegalPages, data.slug, data.locale, defaultLocale)
+    // 站点由语言决定（两站语言不重叠）；正文只取该站点的版本
+    const site = siteOfLocale(data.locale, templateConfig) ?? 'west'
+    const page = findLegalPage(allLegalPages, { ...data, site, defaultLocale })
     if (!page) throw notFound()
     return page
   })

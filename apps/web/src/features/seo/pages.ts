@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { listPosts, listTags, localizedEntries } from '../marketing/content.ts'
+import { siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import type { SeoPage } from './metadata.ts'
 import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
@@ -21,12 +22,16 @@ interface Page {
   title: string
   description: string
 }
+interface LegalPage extends Page {
+  /** 法律页按站点分开（content/legal/<site>/<locale>/） */
+  site?: string
+}
 
 /** 地图与 OG 共用公开页面清单，始终排除草稿、未来文章和关闭的功能。 */
 export function publicPages(
   content: {
     posts: readonly Post[]
-    legal: readonly Page[]
+    legal: readonly LegalPage[]
     docs: readonly Page[]
     /** 工具自带 SEO 文案的页面（如 numerology 的工具内页与内容页），按自身 locale 收录并按路径去重 */
     toolPages?: readonly SeoPage[]
@@ -73,9 +78,12 @@ export function publicPages(
         )
       }
       pages.push(
-        // 法律页只有英文原文；其他语言的同一路径显示英文并 noindex，不进站点地图
+        // 只收录语言所属站点有原文的法律页；回退显示其他语言原文的页面 noindex，不进站点地图
         ...content.legal
-          .filter((page) => page.locale === locale)
+          .filter(
+            (page) =>
+              page.locale === locale && (!page.site || page.site === siteOfLocale(locale, config)),
+          )
           .map((page) => ({ ...page, locale, path: `/${encodeURIComponent(page.slug)}` })),
       )
       if (config.features.docs) {
