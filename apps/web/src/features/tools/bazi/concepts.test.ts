@@ -72,4 +72,20 @@ describe('八字与 사주概念页 SEO', () => {
       expect(isPrerenderedPath(localized, templateConfig.i18n.locales)).toBe(true)
     }
   })
+
+  it('所有语言正文隐藏内部标识，简体正文与生成内链始终指向简体页面', () => {
+    for (const page of pages) {
+      const text = page.html.replace(/<[^>]*>/g, '')
+      expect(text).not.toMatch(
+        /\b(?:luck|useful-god|elements|strength|void|shensha|weight|ten-gods|day-pillar|pillars)\b/,
+      )
+      if (page.locale !== 'zh-Hans') continue
+      expect(page.html).not.toContain('/zh-hant/')
+      const links = conceptPageData(pages, page).links
+      expect(links.every((link) => link.href.startsWith('/zh-hans/'))).toBe(true)
+      for (const link of links) expect(decodeURI(link.href)).not.toMatch(/大運|身強身弱/)
+      // 简体 FAQ 由页面组件统一渲染，正文中不再重复显示。
+      expect(page.html).not.toContain('<h2>常见问题</h2>')
+    }
+  })
 })

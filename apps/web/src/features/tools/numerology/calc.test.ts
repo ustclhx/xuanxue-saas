@@ -35,7 +35,7 @@ describe('数字命理页面计算整理', () => {
 
   it('个人年与姓名数字的合计和归约', () => {
     const year = personalYear({ year: 1987, month: 11, day: 29 }, 2027)
-    expect(reductionText(year)).toBe('11 + 29 + 2027 = 2067 → 2 + 0 + 6 + 7 = 15 → 1 + 5 = 6')
+    expect(reductionText(year)).toBe('2 + 9 = 11 → 2 + 0 + 2 + 7 = 11 → 11 + 11 + 11 = 33')
     const name = nameNumbers('Maya Chen')
     expect(rawTotal(name.soulUrge)).toBe(7)
     expect(rawTotal(name.expression)).toBe(

@@ -80,10 +80,22 @@ export function personalYear(date: BirthDate, localYear: number): NumberResult {
   validateDate(date)
   if (!Number.isInteger(localYear) || localYear < 1 || localYear > 9999)
     throw new AppError('INVALID_YEAR', 'Enter a valid local year')
-  const operands = [date.month, date.day, localYear]
+  const parts = [
+    reduceNumber(date.month, 'month'),
+    reduceNumber(date.day, 'day'),
+    reduceNumber(localYear, 'year'),
+  ]
+  const operands = parts.map((part) => part.value)
   const sum = operands.reduce((a, b) => a + b, 0)
-  const result = reduceNumber(sum)
-  return { ...result, steps: [{ phase: 'total', operands, result: sum }, ...result.steps] }
+  const result = reduceNumber(sum, 'total')
+  return {
+    ...result,
+    steps: [
+      ...parts.flatMap((part) => part.steps),
+      { phase: 'total', operands, result: sum },
+      ...result.steps,
+    ],
+  }
 }
 
 export function normalizeName(name: string): string {
