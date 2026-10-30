@@ -98,16 +98,25 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     expect(isPrerenderedPath('/ko/numerology-calculator', templateConfig.i18n.locales)).toBe(false)
   })
 
-  it('西方站首页 hreflang 只含 en 与 x-default，东方站各语言首页不再指向它', () => {
+  it('西方站首页 hreflang 只含 en 与 x-default，东方站各语言首页不指向它', () => {
     const hreflangs = (locale: string) =>
       pageHead({ path: '/', title: 'Home', description: 'Home', locale }, origin).links.flatMap(
         (link) => (link.rel === 'alternate' && 'hrefLang' in link ? [link.hrefLang] : []),
       )
     expect(hreflangs('en')).toEqual(['en', 'x-default'])
-    for (const locale of ['zh-Hant', 'ko']) expect(hreflangs(locale)).not.toContain('en')
+    // 东方站首页的 en 是东方站自己的英文入口页（D5），不是西方站首页
+    for (const locale of ['zh-Hant', 'ko']) {
+      const head = pageHead({ path: '/', title: 'Home', description: 'Home', locale }, origin)
+      expect(JSON.stringify(head.links)).not.toContain('arcanumber.com')
+      expect(head.links).toContainEqual({
+        rel: 'alternate',
+        hrefLang: 'en',
+        href: 'https://ganjiday.com/en',
+      })
+    }
   })
 
-  it('跨站登记的塔罗页三语仍互指（同路径排除规则只作用于未登记的页面）', () => {
+  it('两站各自登记的塔罗页只与同站语言互指（D5，同路径排除规则只作用于未登记的页面）', () => {
     for (const spread of TAROT_SPREADS)
       for (const locale of TAROT_LOCALES) {
         const links = pageHead(
@@ -116,13 +125,19 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
         ).links.flatMap((link) =>
           link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
         )
-        expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual({
-          en: `https://arcanumber.com${tarotPath(spread, 'en')}`,
-          'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`).href,
-          'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotPath(spread, 'zh-Hans')}`).href,
-          ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
-          'x-default': `https://arcanumber.com${tarotPath(spread, 'en')}`,
-        })
+        const en = `https://arcanumber.com${tarotPath(spread, 'en')}`
+        expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual(
+          locale === 'en'
+            ? { en, 'x-default': en }
+            : {
+                'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`)
+                  .href,
+                'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotPath(spread, 'zh-Hans')}`)
+                  .href,
+                ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
+                'x-default': 'https://ganjiday.com/',
+              },
+        )
       }
   })
 })

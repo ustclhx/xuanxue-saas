@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { EAST_ENGLISH_LOCALE } from '../site/site.ts'
 import type { SeoPage } from './metadata.ts'
 import { absoluteUrl, alternateLinks, localizedPath } from './metadata.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
@@ -33,14 +34,24 @@ export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: stri
 }
 
 export function sitemapIndex(site: SiteId): string {
-  const urls = templateConfig.sites[site].locales
-    .filter((locale) => templateConfig.i18n.enabled || locale === templateConfig.i18n.defaultLocale)
+  const urls = sitemapLocales(site)
     .map(
       (locale) =>
         `<sitemap><loc>${escapeXml(absoluteUrl(seoSiteOrigin(site), `/sitemap/${locale.toLowerCase()}.xml`))}</loc></sitemap>`,
     )
     .join('')
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</sitemapindex>`
+}
+
+/** 站点地图索引中的子图语言；东方站另有只含英文入口页的 en 子图（D5） */
+export function sitemapLocales(site: SiteId): string[] {
+  const { enabled, defaultLocale, locales } = templateConfig.i18n
+  const own: string[] = templateConfig.sites[site].locales.filter(
+    (locale) => enabled || locale === defaultLocale,
+  )
+  if (site === 'east' && enabled && locales.some((locale) => locale === EAST_ENGLISH_LOCALE))
+    own.push(EAST_ENGLISH_LOCALE)
+  return own
 }
 
 export function robots(appUrl: string, known = true): string {

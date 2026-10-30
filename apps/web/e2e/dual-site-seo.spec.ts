@@ -33,7 +33,11 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   const index = await request.get(`${east}/sitemap.xml`, eastOptions)
   expect(index.status()).toBe(200)
   expect(await index.text()).toContain('https://ganjiday.com/sitemap/ko.xml')
-  expect(await index.text()).not.toContain('/sitemap/en.xml')
+  // 东方站 en 子图只有英文入口页（D5）
+  expect(await index.text()).toContain('https://ganjiday.com/sitemap/en.xml')
+  const english = await (await request.get(`${east}/sitemap/en.xml`, eastOptions)).text()
+  expect(english.match(/<loc>/g)).toHaveLength(1)
+  expect(english).toContain('<loc>https://ganjiday.com/en</loc>')
   const korean = await request.get(`${east}/sitemap/ko.xml`, eastOptions)
   expect(korean.status()).toBe(200)
   expect(await korean.text()).toContain('<loc>https://ganjiday.com/ko</loc>')
@@ -49,4 +53,37 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   expect(
     (await request.get(`${east}/ko/?r=shared`, eastOptions)).headers()['x-robots-tag'],
   ).toContain('noindex')
+})
+
+test('两站分开经营：不属于本站的语言返回本站 404，东方站 /en 为英文入口页', async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  // APIRequestContext 不解析 *.localhost，按 Host 头区分站点（同上一个用例）
+  const local = baseURL ?? 'http://localhost:3000'
+  const as = (site: string) => ({
+    maxRedirects: 0,
+    headers: { host: new URL(localSite(baseURL, site)).host },
+  })
+  for (const path of ['/zh-hant', '/zh-hans/pricing', '/ko/'])
+    expect((await request.get(`${local}${path}`, as('west'))).status(), path).toBe(404)
+  expect((await request.get(`${local}/en/pricing`, as('east'))).status()).toBe(404)
+  const east = localSite(baseURL, 'east')
+
+  const response = await page.goto(`${east}/en`)
+  expect(response?.status()).toBe(200)
+  await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.getByRole('heading', { level: 1 })).not.toContainText('AI')
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    'https://ganjiday.com/en',
+  )
+  await expect(page.locator('link[rel="alternate"][hreflang="ko"]')).toHaveAttribute(
+    'href',
+    'https://ganjiday.com/ko',
+  )
+  await expect(page.locator('main a[href="/zh-hans"]').first()).toBeVisible()
+  await expect(page.locator('a[href*="arcanumber"]')).toHaveCount(0)
 })

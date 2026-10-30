@@ -1,15 +1,18 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { useLocation } from '@tanstack/react-router'
 import { siteBrandName } from '@xuanxue/config'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { isAppAreaPath } from '../i18n/app-area.ts'
 import { LanguageMenu } from '../i18n/language-controls.tsx'
 import { AccountMenu } from '../site/account-menu.tsx'
 import { SiteLogo } from '../site/brand.tsx'
 import { useSiteId } from '../site/context.tsx'
-import { toolsForLocale } from '../tools/registry.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteNavLocale } from '../site/site.ts'
+import { toolsForSite } from '../tools/registry.ts'
 import { toolHref } from '../tools/tool-href.ts'
-import { site } from './site.ts'
+import { blogHasPosts, site, useBlogLocales } from './site.ts'
+import { SiteLink } from './site-link.tsx'
 
 // 视觉规范：可点元素 ≥44px；当前页用品牌色下划线标记
 const navLink =
@@ -18,14 +21,21 @@ const navLink =
 /**
  * 站点页头（specs/marketing-site「站点页头」）：左侧品牌与导航，右上角是语言菜单与账户控件。
  * 公共页面与空间页面共用，语言切换不再放在页面角落的浮层里。
+ *
+ * 两站分开经营（openspec product-improve-ai-content-20261030 D5，specs/multi-site「应用区导航按站点生成」）：
+ * 导航只列当前站点的工具；应用区按账号语言渲染，语言不属于本站时改用本站默认语言的工具与链接，
+ * 不生成跨站或本站不存在的地址。
  */
 export function SiteHeader() {
   const siteId = useSiteId()
   const locale = getLocale()
   const pathname = useLocation({ select: (location) => location.pathname })
-  // 东方站无前缀入口用 en 渲染壳，但没有英语工具或无前缀营销页；沿用语言入口，避免串到西方导航。
-  const isLanguageEntry = siteId === 'east' && !templateConfig.sites.east.locales.includes(locale)
-  const tools = isLanguageEntry ? [] : toolsForLocale(locale)
+  // 东方站英文入口页没有英语工具：只保留品牌与语言菜单，入口页正文链接到各语言工具
+  const englishEntry =
+    siteId === 'east' && locale === EAST_ENGLISH_LOCALE && !isAppAreaPath(pathname)
+  const navLocale = siteNavLocale(siteId, locale, templateConfig)
+  const tools = englishEntry ? [] : toolsForSite(siteId, navLocale)
+  const blog = blogHasPosts(useBlogLocales(), navLocale)
   return (
     <header className="border-line border-b bg-background">
       <a
@@ -35,12 +45,17 @@ export function SiteHeader() {
         {m.site_skip_to_content()}
       </a>
       <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-2 sm:px-6">
-        <Link to="/" className="flex min-h-11 items-center gap-2.5 text-ink">
+        <SiteLink
+          path={englishEntry ? EAST_ENGLISH_PATH : '/'}
+          locale={locale}
+          navLocale={englishEntry ? locale : navLocale}
+          className="flex min-h-11 items-center gap-2.5 text-ink"
+        >
           <SiteLogo site={siteId} />
           <span className="font-bold font-heading text-xl tracking-wide">
             {siteBrandName(templateConfig, siteId, locale)}
           </span>
-        </Link>
+        </SiteLink>
         <nav
           aria-label={m.site_nav_tools()}
           className="order-last flex basis-full flex-wrap items-center gap-x-5 sm:order-none sm:flex-1 sm:basis-auto sm:justify-end"
@@ -48,27 +63,27 @@ export function SiteHeader() {
           {tools.map((tool) => (
             <a
               key={tool.id}
-              href={toolHref(tool.path, locale)}
+              href={toolHref(tool.path, navLocale)}
               className={navLink}
               aria-current={pathname === tool.path ? 'page' : undefined}
             >
               {tool.title}
             </a>
           ))}
-          {!isLanguageEntry && templateConfig.billing.enabled && (
-            <Link to="/pricing" className={navLink} activeProps={{ 'aria-current': 'page' }}>
+          {!englishEntry && templateConfig.billing.enabled && (
+            <SiteLink path="/pricing" locale={locale} navLocale={navLocale} className={navLink}>
               {m.marketing_nav_pricing()}
-            </Link>
+            </SiteLink>
           )}
-          {!isLanguageEntry && site.blog && (
-            <Link to="/blog" className={navLink}>
+          {!englishEntry && blog && (
+            <SiteLink path="/blog" locale={locale} navLocale={navLocale} className={navLink}>
               {m.marketing_nav_blog()}
-            </Link>
+            </SiteLink>
           )}
-          {!isLanguageEntry && site.docs && (
-            <Link to="/docs" className={navLink}>
+          {!englishEntry && site.docs && (
+            <SiteLink path="/docs" locale={locale} navLocale={navLocale} className={navLink}>
               {m.marketing_nav_docs()}
-            </Link>
+            </SiteLink>
           )}
         </nav>
         <div className="flex items-center gap-2">

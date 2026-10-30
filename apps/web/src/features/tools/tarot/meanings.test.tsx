@@ -86,7 +86,7 @@ describe('三语牌义内容与 SEO', () => {
     }
   })
 
-  it('每张牌的三语 hreflang 跨站互指，站点地图与预渲染收录全部 234 页', () => {
+  it('每张牌的 hreflang 只在同站内互指（D5），站点地图与预渲染收录全部牌义页', () => {
     const toolPages = tarotMeaningSeoPages(content)
     const entries = new Set(prerenderEntryPages(templateConfig).map((entry) => entry.path))
     const pages = publicPages({ posts: [], legal: [], docs: [], toolPages })
@@ -98,13 +98,18 @@ describe('三语牌义内容与 SEO', () => {
       )
       const slug = page.path.split('/').at(-1) ?? ''
       const en = `https://arcanumber.com${tarotMeaningPath(slug, 'en')}`
-      expect(alternate).toEqual({
-        en,
-        'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`).href,
-        'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`).href,
-        ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
-        'x-default': en,
-      })
+      expect(alternate).toEqual(
+        page.locale === 'en'
+          ? { en, 'x-default': en }
+          : {
+              'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`)
+                .href,
+              'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`)
+                .href,
+              ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
+              'x-default': 'https://ganjiday.com/',
+            },
+      )
       expect(xml).toContain(`<loc>${alternate[page.locale]}</loc>`)
       expect(
         entries.has(`${page.locale === 'en' ? '' : `/${page.locale.toLowerCase()}`}${page.path}`),

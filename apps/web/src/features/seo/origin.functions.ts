@@ -9,8 +9,11 @@ import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
 export const getSeoOrigin = createServerFn({ method: 'GET' }).handler(() => {
   const url = new URL(getRequest().url)
+  const site = resolveSite(url.host, templateConfig)
+  // 已登记的站点只提供本站语言（东方站 `/en` 入口页也属于东方站，D5）；预览地址按语言归属
+  if (site.known) return seoSiteOrigin(site.id)
   const locale = prefixLocale(url.pathname, templateConfig.i18n.locales)
-  return locale ? localeOrigin(locale) : seoSiteOrigin(resolveSite(url.host, templateConfig).id)
+  return locale ? localeOrigin(locale) : seoSiteOrigin(site.id)
 })
 
 /** 根布局中的会话装饰读取失败不能阻断公开页（无数据库预渲染）。 */
