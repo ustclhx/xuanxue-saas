@@ -10,12 +10,13 @@ export const Route = createFileRoute('/app/$slug/')({
 
 /** 空间概览：进入空间后的第一屏，列出快捷入口；团队空间的创建入口也放在这里 */
 function SpaceOverviewPage() {
-  const { workspacePage: page } = Route.useRouteContext()
+  const { workspacePage: page, chatAvailable } = Route.useRouteContext()
   const { slug } = Route.useParams()
   const sections = spaceSections({
     billing: templateConfig.billing.enabled,
     credits: templateConfig.credits.enabled,
     textAi: templateConfig.ai.text.enabled,
+    chatAvailable,
     mediaAi: Boolean(templateConfig.ai.image || templateConfig.ai.video),
     publicApi: templateConfig.features.publicApi,
     canManageKeys: page.role === 'owner' || page.role === 'admin',

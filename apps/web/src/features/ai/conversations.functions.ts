@@ -7,7 +7,9 @@ import { and, asc, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { withBilling } from '../../server/feature-gates.ts'
 import { withWorkspace } from '../../server/middleware.ts'
+import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { contextFromParts, contextMessageParts, openChatContext } from './chat-context.ts'
 import { conversationTitleSchema, messageDisplayParts } from './conversation.ts'
 
 // 对话列表与对话页的数据（tasks.md 3.1，specs/ai-chat「会话管理」）。
@@ -102,6 +104,18 @@ export const getConversation = createServerFn({ method: 'GET' })
       })
       .limit(1)
     if (!conversation) throw notFound()
+    // 从结果页带入的命盘上下文保存为 system 消息（chat-context.ts），页面在首条消息前显示摘要
+    const [system] = await s
+      .select(aiMessage, {
+        fields: { parts: aiMessage.parts },
+        where: and(
+          eq(aiMessage.conversationId, conversation.id),
+          eq(aiMessage.role, 'system'),
+        ) as SQL,
+      })
+      .orderBy(asc(aiMessage.id))
+      .limit(1)
+    const chatContext = system ? contextFromParts(system.parts) : null
     const messages = await s
       .select(aiMessage, {
         fields: {
@@ -125,21 +139,43 @@ export const getConversation = createServerFn({ method: 'GET' })
           message.role === 'assistant' && templateConfig.ai.text.reasoning.display,
         ),
       })),
+      chatContext,
       readOnly: context.workspaceReadOnly,
     }
   })
 
-/** 新建空对话；标题在首轮回复完成后由对话页按首条消息填入，模型在发送时选择 */
+/**
+ * 新建空对话；标题在首轮回复完成后由对话页按首条消息填入，模型在发送时选择。
+ * 带 `context` 令牌时（结果页「用这个结果问 AI」）验签、核对用户与有效期后，把复算结果写成
+ * 对话的 system 消息，之后每轮请求都会带上它；令牌无效或过期时不建对话。
+ */
 export const createConversation = createServerFn({ method: 'POST' })
   .middleware([withBilling, withWorkspace])
-  .inputValidator(workspace)
-  .handler(({ context }) =>
+  .inputValidator(workspace.extend({ context: z.string().min(1).max(1024).optional() }))
+  .handler(({ context, data }) =>
     mutation(context.workspaceReadOnly, async () => {
-      const [row] = await scoped(context.db, context.workspace.id)
-        .insert(aiConversation, { userId: context.user.id, title: '', modelKey: '' })
-        .returning({ id: aiConversation.id })
-      if (!row) throw new AppError('CONVERSATION_FAILED', 'Conversation was not created')
-      return row
+      let parts: unknown[] | null = null
+      if (data.context !== undefined) {
+        const runtime = getWebRuntime()
+        const opened = await openChatContext(
+          { secret: runtime.config.BETTER_AUTH_SECRET, cache: runtime.cache },
+          { userId: context.user.id, token: data.context },
+        )
+        if (opened.status !== 'ok')
+          throw new AppError('CHAT_CONTEXT_EXPIRED', 'Chat context is invalid or expired', {
+            status: 410,
+          })
+        parts = contextMessageParts(opened.context)
+      }
+      return context.db.transaction(async (tx) => {
+        const t = scoped(tx, context.workspace.id)
+        const [row] = await t
+          .insert(aiConversation, { userId: context.user.id, title: '', modelKey: '' })
+          .returning({ id: aiConversation.id })
+        if (!row) throw new AppError('CONVERSATION_FAILED', 'Conversation was not created')
+        if (parts) await t.insert(aiMessage, { conversationId: row.id, role: 'system', parts })
+        return row
+      })
     }),
   )
 

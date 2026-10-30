@@ -3,6 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { AskAiEntry } from '../ai/ask-ai-entry.tsx'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
@@ -121,17 +122,31 @@ async function settledStatus(slug: string, id: string): Promise<ReadingView['sta
   return null
 }
 
-export function ReadingUnlock({
-  kind,
-  request,
-  previewOffer,
-}: {
+type ReadingUnlockProps = {
   kind: string
   /** 结果出现前为 null，卡片不显示 */
   request: UnlockRequest | null
   /** 仅供本地演示页：使用固定报价，不读取服务端 */
   previewOffer?: ReadingOffer
-}) {
+}
+
+/**
+ * 解锁卡之后附上「用这个结果问 AI」（product-improve-ai-content 5.1）：与详批是否开放无关，
+ * 有结果且站点开启计费与文本 AI 就显示；对话是否有可用模型由对话页处理。
+ */
+export function ReadingUnlock(props: ReadingUnlockProps) {
+  // 随解锁卡一起在首次渲染时挂载，登录回跳才能读到 `?unlock=`；结果出现前入口自身不显示
+  const askAi =
+    !props.previewOffer && templateConfig.billing.enabled && templateConfig.ai.text.enabled
+  return (
+    <>
+      <ReadingUnlockCard {...props} />
+      {askAi ? <AskAiEntry kind={props.kind} request={props.request} /> : null}
+    </>
+  )
+}
+
+function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) {
   const hostSite = useSiteId()
   const locale = getLocale()
   // 报告站点取语言归属：已登记 Host 上两者一致（gate 跨站重定向）；未登记的 workers.dev

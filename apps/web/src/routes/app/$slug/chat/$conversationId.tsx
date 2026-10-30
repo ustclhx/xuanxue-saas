@@ -1,16 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChatPage } from '../../../../features/ai/chat-page.tsx'
 import { getConversation } from '../../../../features/ai/conversations.functions.ts'
-import { getPickerModels } from '../../../../features/ai/model-picker.functions.ts'
 
 export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
-  loader: async ({ params }) => {
+  // 模型列表由对话区布局（chat/route.tsx）读取，这里沿用
+  loader: async ({ params, context }) => {
     const input = { slug: params.slug, conversationId: params.conversationId }
-    const [page, models] = await Promise.all([
-      getConversation({ data: input }),
-      getPickerModels({ data: { slug: params.slug, kind: 'text' } }),
-    ])
-    return { ...page, models }
+    const page = await getConversation({ data: input })
+    return { ...page, models: context.chatModels }
   },
   staleTime: 0,
   head: ({ loaderData }) => ({
@@ -41,6 +38,7 @@ function ConversationPage() {
       conversation={page.conversation}
       storedMessages={page.messages}
       models={page.models}
+      chatContext={page.chatContext}
       readOnly={page.readOnly}
     />
   )

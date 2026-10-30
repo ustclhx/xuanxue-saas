@@ -57,8 +57,18 @@ async function prepare(page: Page, kind: 'short' | 'long') {
     await sql`insert into ai_model (id,key,kind,provider,provider_model_id,pricing,params_schema,min_plan_features,sort)
       values (${modelId},${tag},'text','mock',${`disconnect-${kind}`},${sql.json(PRICING)},
         ${sql.json({ 'x-text': { maxOutputTokens: 1000 } })},${sql.json([tag])},-1000)`
-    await page.goto(`/app/${slug}/chat`)
-    await page.getByRole('button', { name: 'New chat' }).click()
+    // 模型列表经 KV 缓存（TTL 60 秒）：没有可用模型时列表页只显示空态，刷新直到出现「New chat」
+    const create = page.getByRole('button', { name: 'New chat' })
+    await expect
+      .poll(
+        async () => {
+          await page.goto(`/app/${slug}/chat`)
+          return create.count()
+        },
+        { timeout: 90_000, intervals: [2_000, 5_000] },
+      )
+      .toBe(1)
+    await create.click()
     await expect(page).toHaveURL(/\/chat\/[0-9a-f-]{36}$/)
     const conversationId = new URL(page.url()).pathname.split('/').at(-1) ?? ''
     await expect

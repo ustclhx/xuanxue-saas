@@ -27,6 +27,7 @@ vi.mock('../../server/template-config.ts', () => ({ templateConfig: { ai: { text
 vi.mock('./conversations.functions.ts', () => ({ renameConversation: vi.fn() }))
 vi.mock('@tanstack/react-router', () => ({ Link: () => null }))
 
+import { m } from '../../paraglide/messages.js'
 import { ChatPage } from './chat-page.tsx'
 
 const model: PickerModel = {
@@ -56,6 +57,15 @@ beforeEach(() => {
 })
 
 afterEach(() => vi.unstubAllGlobals())
+
+describe('chat page without models', () => {
+  it('没有可用模型时以多语言空态取代输入框', () => {
+    const html = render([])
+    expect(html).toContain(m.ai_chat_unavailable_title())
+    expect(html).not.toContain('<textarea')
+    expect(render()).toContain('<textarea')
+  })
+})
 
 describe('chat reasoning controls', () => {
   it('仅模板允许时显示 thinking 开关，初始值遵循模板默认', () => {
