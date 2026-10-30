@@ -14,7 +14,7 @@ import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/t
 import { z } from 'zod'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
-import { NUMEROLOGY_FULL_V2 } from './prompts/numerology-full.v2.ts'
+import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
@@ -210,7 +210,7 @@ function recomputeCompat(raw: unknown, now: Date): RecomputedReading {
 }
 
 /** 数字命理与塔罗引擎没有版本号导出，算法变化时在这里递增 */
-export const NUMEROLOGY_ENGINE_VERSION = 'numerology@1'
+export const NUMEROLOGY_ENGINE_VERSION = 'numerology@2'
 // tarot@2：牌数据加入 arcana，避免模型自行判断大/小阿尔克那（5.1 抽检）
 export const TAROT_ENGINE_VERSION = 'tarot@2'
 
@@ -373,7 +373,7 @@ const entries = {
     kind: 'numerology-full',
     variants: {
       en: {
-        prompt: NUMEROLOGY_FULL_V2,
+        prompt: NUMEROLOGY_FULL_V3,
         disclaimer:
           'This report is based on traditional numerology and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: {

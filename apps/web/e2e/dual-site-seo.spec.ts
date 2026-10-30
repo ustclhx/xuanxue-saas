@@ -69,6 +69,11 @@ test('两站分开经营：不属于本站的语言返回本站 404，东方站 
   for (const path of ['/zh-hant', '/zh-hans/pricing', '/ko/'])
     expect((await request.get(`${local}${path}`, as('west'))).status(), path).toBe(404)
   expect((await request.get(`${local}/en/pricing`, as('east'))).status()).toBe(404)
+  expect((await request.get(`${local}/en/faq`, as('east'))).status()).toBe(404)
+  // 404 使用根布局的本站品牌标题
+  const missing = await request.get(`${local}/zh-hant/faq`, as('west'))
+  expect(missing.status()).toBe(404)
+  expect(await missing.text()).toMatch(/<title>[^<]*\| Arcanumber<\/title>/)
   const east = localSite(baseURL, 'east')
 
   const response = await page.goto(`${east}/en`)
@@ -86,4 +91,26 @@ test('两站分开经营：不属于本站的语言返回本站 404，东方站 
   )
   await expect(page.locator('main a[href="/zh-hans"]').first()).toBeVisible()
   await expect(page.locator('a[href*="arcanumber"]')).toHaveCount(0)
+})
+
+test('两站 FAQ 汇总页与 llms.txt 按 Host 输出', async ({ request, baseURL }) => {
+  const origin = baseURL ?? 'http://localhost:3000'
+  const eastOptions = { headers: { host: new URL(localSite(baseURL, 'east')).host } }
+  const westOptions = { headers: { host: new URL(localSite(baseURL, 'west')).host } }
+  for (const [path, options] of [
+    ['/zh-hant/faq', eastOptions],
+    ['/faq', westOptions],
+  ] as const) {
+    const response = await request.get(`${origin}${path}`, options)
+    expect(response.status(), path).toBe(200)
+    expect(await response.text()).toContain('"@type":"FAQPage"')
+  }
+  const east = await request.get(`${origin}/llms.txt`, eastOptions)
+  expect(east.status()).toBe(200)
+  expect(east.headers()['content-type']).toContain('text/plain')
+  const text = await east.text()
+  expect(text).toContain('https://ganjiday.com/zh-hant')
+  expect(text).not.toContain('arcanumber.com')
+  const rules = await (await request.get(`${origin}/robots.txt`, eastOptions)).text()
+  expect(rules).toContain('User-agent: GPTBot\nAllow: /\nDisallow: /app')
 })

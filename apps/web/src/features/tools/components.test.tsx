@@ -4,7 +4,7 @@ import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { SiteContext } from '../site/context.tsx'
 import { ToolContext } from './context.tsx'
-import { Disclaimer } from './disclaimer.tsx'
+import { AiDisclaimer, Disclaimer } from './disclaimer.tsx'
 import { ToolFaq } from './faq.tsx'
 import { ChoiceGroup, SubmitButton, TextField, ToolForm } from './form.tsx'
 import { toolsForLocale } from './registry.ts'
@@ -69,15 +69,20 @@ describe('ToolPage', () => {
 })
 
 describe('Disclaimer', () => {
+  // 合规声明按场景拆分：免费工具写规则引擎，不出现 AI 表述；AI 声明只用于 AI 产物
   it.each([
-    ['en', 'consult a qualified medical professional'],
-    ['zh-Hant', '僅供娛樂參考，不預測未來'],
-    ['ko', '미래를 예측하지 않습니다'],
-  ])('%s 文案', async (locale, text) => {
+    ['en', 'traditional rules', 'AI-assisted'],
+    ['zh-Hant', '依傳統規則計算，僅供娛樂參考，不預測未來', 'AI 輔助'],
+    ['zh-Hans', '依传统规则计算，仅供娱乐参考，不预测未来', 'AI 辅助'],
+    ['ko', '전통 규칙에 따라 계산', 'AI의 도움'],
+  ])('%s 文案', async (locale, rules, ai) => {
     const { setLocale } = await import('../../paraglide/runtime.js')
     messages.locale = locale
     setLocale(locale as never, { reload: false })
-    expect(render(<Disclaimer />)).toContain(text)
+    const free = render(<Disclaimer />)
+    expect(free).toContain(rules)
+    expect(free).not.toContain('AI')
+    expect(render(<AiDisclaimer />)).toContain(ai)
     messages.locale = 'en'
     setLocale('en', { reload: false })
   })

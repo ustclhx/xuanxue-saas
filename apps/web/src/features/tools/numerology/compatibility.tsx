@@ -21,6 +21,7 @@ import {
 } from './copy.ts'
 import { BirthDateField } from './life-path-calculator.tsx'
 import { FieldError, LifePathSteps, NumberHeadline } from './parts.tsx'
+import { NumerologyReadingGuide } from './reading-guide.tsx'
 import { lifePathPath } from './routes.ts'
 import { useSharedInput } from './use-shared-input.ts'
 
@@ -178,6 +179,7 @@ export function CompatibilityCalculator() {
           <ShareLink
             input={{ first: formatBirthDate(state.first), second: formatBirthDate(state.second) }}
           />
+          <NumerologyReadingGuide />
         </div>
       )}
     </div>

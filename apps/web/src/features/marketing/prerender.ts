@@ -4,6 +4,7 @@ import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 
 export const PRERENDERED_PREFIXES = [
+  '/faq',
   '/blog',
   '/docs',
   '/privacy',

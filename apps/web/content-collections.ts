@@ -217,6 +217,14 @@ const concepts = defineCollection({
       .min(1)
       .regex(/^[^/\s]+$/),
     locale: z.enum(['zh-Hant', 'zh-Hans', 'ko']),
+    aliases: z
+      .array(
+        z
+          .string()
+          .min(1)
+          .regex(/^[^/\s]+$/),
+      )
+      .default([]),
     conceptKey: z.enum([
       'luck',
       'useful-god',
@@ -247,7 +255,7 @@ const concepts = defineCollection({
     if (localeAndSlug(document._meta).locale !== data.locale)
       throw new Error(`Concept locale does not match directory: ${document._meta.path}`)
     // FAQ 和内链由 ToolPage 统一展示；正文沿用仓库内容，不重复尾部模板。
-    const body = content.split(/^## (?:常見問題|자주 묻는 질문)\s*$/m)[0] ?? content
+    const body = content.split(/^## (?:常見問題|常见问题|자주 묻는 질문)\s*$/m)[0] ?? content
     const html = await renderMdx(context, { ...document, content: body })
     if (plainText(html).replace(/\s/g, '').length < 600)
       throw new Error(`Concept body must contain at least 600 characters: ${document._meta.path}`)

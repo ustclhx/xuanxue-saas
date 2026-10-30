@@ -75,6 +75,7 @@ describe('语言归属站点', () => {
       '/zh-hant/pricing?ref=nav',
       '/zh-hans',
       '/zh-hans/pricing',
+      '/zh-hant/faq',
       '/ko',
       '/ko/manseryeok/',
     ])
@@ -85,7 +86,7 @@ describe('语言归属站点', () => {
     expect(route(`${EAST}/en`)).toEqual(pass)
     expect(route(`${EAST}/en/`)).toEqual(pass)
     expect(route(`${EAST}/en?utm=x`)).toEqual(pass)
-    for (const path of ['/en/pricing', '/en/tarot', '/en/blog/welcome'])
+    for (const path of ['/en/pricing', '/en/faq', '/en/tarot', '/en/blog/welcome'])
       expect(route(`${EAST}${path}`), path).toEqual({ kind: 'not-found' })
   })
 

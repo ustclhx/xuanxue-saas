@@ -108,5 +108,11 @@
   "pricing_faq_pay_q": "如何付款？",
   "pricing_faq_pay_a": "付款將由我們的支付服務商安全處理，我們不會取得或保存你的卡片資料。",
   "pricing_pack_readings_one": "可解鎖 1 份完整詳批",
-  "pricing_pack_readings_other": "可解鎖 {count} 份完整詳批"
+  "pricing_pack_readings_other": "可解鎖 {count} 份完整詳批",
+  "marketing_nav_faq": "常見問題",
+  "marketing_faq_page_intro": "關於免費工具、積分與退款、詳批失敗、隱私與計算方式的常見問題。",
+  "marketing_faq_section_credits": "積分、付款與退款",
+  "marketing_faq_section_methods": "隱私與計算方式",
+  "marketing_faq_privacy_q": "我的出生資料會上傳嗎？",
+  "marketing_faq_privacy_a": "免費工具不會。排盤、計算與塔羅抽牌都在你的瀏覽器中完成；只有在你登入並選擇解鎖完整詳批時，撰寫詳批所需的資料才會傳到我們的伺服器。"
 }

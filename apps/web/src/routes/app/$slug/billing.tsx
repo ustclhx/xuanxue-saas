@@ -78,21 +78,21 @@ function BillingPage() {
   // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
   const packPrices = page.catalog.prices.filter(
     (price) =>
+      price.available &&
       price.provider === provider &&
       price.interval === null &&
       planType(price.planId) === 'credit_pack',
   )
   const planPrices = page.catalog.prices.filter(
-    (price) => price.provider === provider && planType(price.planId) === 'subscription',
+    (price) =>
+      price.available && price.provider === provider && planType(price.planId) === 'subscription',
   )
-  const selected = page.catalog.prices.find((price) => price.id === priceId)
+  const selected = planPrices.find((price) => price.id === priceId)
   const isSubscription =
     page.catalog.plans.find((plan) => plan.id === selected?.planId)?.type === 'subscription'
   const change = isSubscription && renewing?.provider === 'stripe' && provider === 'stripe'
   const replacement = isSubscription && !change ? renewing : undefined
-  const currentInterval = page.catalog.prices.find(
-    (price) => price.id === renewing?.planPriceId,
-  )?.interval
+  const currentInterval = renewing?.interval
   // 月付与年付互换由服务端安排在当前周期结束时生效，确认前先说明生效时间
   const intervalChange =
     change &&
@@ -206,6 +206,11 @@ function BillingPage() {
             {sub.provider} · {sub.status}
           </p>
           <p>
+            {money(sub.amount, sub.currency)}
+            {sub.interval ? ` / ${sub.interval}` : ''}
+            {sub.priceActive ? '' : ` · ${m.billing_unavailable()}`}
+          </p>
+          <p>
             {sub.cancelAtPeriodEnd ? 'Paid access ends' : 'Next billing'}:{' '}
             {date(sub.currentPeriodEnd)}
           </p>
@@ -255,7 +260,7 @@ function BillingPage() {
                 {page.catalog.providers.map((p) => (
                   <option key={p.id} value={p.id} disabled={!p.available}>
                     {p.id}
-                    {p.available ? '' : ' — unavailable'}
+                    {p.available ? '' : ` — ${m.billing_unavailable()}`}
                   </option>
                 ))}
               </select>
@@ -271,7 +276,6 @@ function BillingPage() {
                 >
                   Buy {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
                   {money(price.amount, price.currency)}
-                  {price.available ? '' : ' · unavailable'}
                 </Button>
               ))}
             </div>
@@ -294,7 +298,6 @@ function BillingPage() {
                     {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
                     {money(price.amount, price.currency)}
                     {price.interval ? ` / ${price.interval}` : ''}
-                    {price.available ? '' : ' · unavailable'}
                   </option>
                 ))}
               </select>

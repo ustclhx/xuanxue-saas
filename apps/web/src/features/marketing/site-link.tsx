@@ -8,6 +8,7 @@ type SitePath =
   | '/pricing'
   | '/blog'
   | '/docs'
+  | '/faq'
   | '/privacy'
   | '/terms'
   | '/refund'

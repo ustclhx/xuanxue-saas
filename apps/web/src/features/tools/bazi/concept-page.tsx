@@ -1,6 +1,7 @@
 import { m } from '../../../paraglide/messages.js'
 import { RichContent } from '../../marketing/rich-content.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
+import { ContentFunnel } from '../reading-guide.tsx'
 import { ToolPage } from '../tool-page.tsx'
 import { BaziResult } from './bazi-home.tsx'
 import { BirthFields } from './birth-fields.tsx'
@@ -20,6 +21,8 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
     initial: ko ? { trueSolar: KO_TRUE_SOLAR_DEFAULT } : {},
   })
   const Result = ko ? SajuResult : BaziResult
+  // 韩语首页是万岁历（saju-full），中文首页是八字排盘（bazi-full）
+  const home = pageHref('home', page.locale)
   return (
     <ToolPage
       tool={`bazi-concept-${page.conceptKey}`}
@@ -75,6 +78,19 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
       >
         <RichContent html={page.html} />
       </article>
+      <ContentFunnel
+        tool={{
+          href: home,
+          label: m.funnel_content_bazi_tool(),
+          target: ko ? 'manseryeok' : 'bazi',
+        }}
+        reading={{
+          kind: ko ? 'saju-full' : 'bazi-full',
+          href: home,
+          label: m.funnel_content_reading(),
+          target: ko ? 'reading-saju-full' : 'reading-bazi-full',
+        }}
+      />
     </ToolPage>
   )
 }

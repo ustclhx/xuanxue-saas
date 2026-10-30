@@ -3,8 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { siteOfLocale } from '../site/site.ts'
-import { robots, sitemap, sitemapIndex } from './crawlers.ts'
-import { alternateLinks, localizedPath, pageBrand, pageHead, privateMeta } from './metadata.ts'
+import { AI_CRAWLERS, llmsTxt, robots, sitemap, sitemapIndex } from './crawlers.ts'
+import {
+  alternateLinks,
+  localizedPath,
+  pageBrand,
+  pageHead,
+  privateMeta,
+  staticPage,
+} from './metadata.ts'
 import { OgCard } from './og-card.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
@@ -364,4 +371,64 @@ it('两站地图索引只列本站语言；未知 Host 与分享结果禁止抓�
   expect(robots(origin)).toContain('Disallow: /*?r=')
   expect(robots(origin)).toContain('Disallow: /*&r=')
   expect(robots(origin, false)).toBe('User-agent: *\nDisallow: /\n')
+})
+
+it('静态页元数据按语言提供：简体定价页为简体中文并描述东方站体系', () => {
+  const pricing = staticPage('/pricing', 'zh-Hans')
+  expect(pricing.title).toBe('价格方案：免费工具与积分包')
+  for (const word of ['八字', '紫微', '塔罗', '积分包']) expect(pricing.description).toContain(word)
+  // 繁体字形不得出现在简体文案中
+  expect(`${pricing.title}${pricing.description}`).not.toMatch(/[價積羅鎖寫詳]/)
+  for (const locale of ['zh-Hant', 'zh-Hans', 'ko']) {
+    for (const path of ['/', '/pricing', '/blog', '/newsletter', '/waitlist', '/faq'] as const) {
+      const page = staticPage(path, locale)
+      expect(page.title, `${locale} ${path}`).not.toBe(staticPage(path, 'en').title)
+      expect(`${page.title}${page.description}`, `${locale} ${path}`).not.toMatch(
+        /numerology|[a-z]{5,}/i,
+      )
+    }
+  }
+})
+
+it('robots 逐个允许主流 AI 爬虫，私有路径对它们仍禁止', () => {
+  const rules = robots(origin)
+  const groups = rules.split('\n\n')
+  for (const bot of ['GPTBot', 'ClaudeBot', 'Google-Extended', 'OAI-SearchBot', 'PerplexityBot']) {
+    expect(AI_CRAWLERS).toContain(bot)
+    const group = groups.find((g) => g.startsWith(`User-agent: ${bot}\n`))
+    expect(group, bot).toBeDefined()
+    expect(group).toContain('Allow: /\n')
+    for (const path of ['/app', '/admin', '/api', '/account', '/zh-hant/app', '/*?r='])
+      expect(group).toContain(`Disallow: ${path}\n`)
+  }
+  expect(rules.match(/^Sitemap:/gm)).toHaveLength(1)
+})
+
+it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 Host 不提供', () => {
+  const east = llmsTxt('east', true, config)
+  expect(east).toContain('# Ganjiday')
+  expect(east).toContain('BaZi')
+  for (const url of [
+    'https://ganjiday.com/zh-hant)',
+    `https://ganjiday.com/zh-hans${encodeURI('/紫微斗数排盘')})`,
+    'https://ganjiday.com/ko)',
+    'https://ganjiday.com/zh-hant/faq)',
+    // 东方站英文入口页（D5）
+    'https://ganjiday.com/en)',
+  ])
+    expect(east).toContain(url)
+  expect(east).toMatch(/\(https:\/\/ganjiday\.com\/zh-hant\/[^)]+\): .*塔羅/)
+  expect(east).not.toContain('arcanumber.com')
+  expect(east).not.toMatch(/tarot-card|%E5%A4%A7%E9%81%8B/)
+  const west = llmsTxt('west', true, config)
+  expect(west).toContain('https://arcanumber.com/numerology-calculator)')
+  expect(west).toContain('https://arcanumber.com/faq)')
+  expect(west).not.toContain('ganjiday.com')
+  expect(west).not.toContain('/en)')
+  expect(llmsTxt('west', false, config)).toBeNull()
+})
+
+it('FAQ 汇总页按语言收录在本站地图', () => {
+  expect(sitemap(pages, origin, 'zh-Hant')).toContain('<loc>https://ganjiday.com/zh-hant/faq</loc>')
+  expect(sitemap(pages, origin, 'en')).toContain('<loc>https://arcanumber.com/faq</loc>')
 })

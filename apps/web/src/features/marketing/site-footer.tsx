@@ -36,6 +36,7 @@ export function SiteFooter() {
         </div>
         <FooterColumn title={m.marketing_footer_product()}>
           {templateConfig.billing.enabled && link('/pricing', m.marketing_nav_pricing())}
+          {link('/faq', m.marketing_nav_faq())}
           <Link to="/register" className={footerLink}>
             {m.marketing_nav_get_started()}
           </Link>

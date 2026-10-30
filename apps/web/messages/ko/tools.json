@@ -1,7 +1,8 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "tools_disclaimer_label": "고지",
-  "tools_disclaimer": "이 도구는 AI의 도움을 받아 전통 명리를 정리한 것으로, 오락용 참고 자료이며 미래를 예측하지 않습니다. 건강 관련 문제는 전문 의료진과 상담하세요.",
+  "tools_disclaimer": "이 도구는 전통 규칙에 따라 계산하며, 오락용 참고 자료로 미래를 예측하지 않습니다. 건강 관련 문제는 전문 의료진과 상담하세요.",
+  "tools_ai_disclaimer": "AI의 도움을 받은 오락용 참고 자료이며 미래를 예측하지 않습니다. 건강 관련 문제는 전문 의료진과 상담하세요.",
   "tools_share_label": "공유 링크",
   "tools_share_copy": "공유 링크 복사",
   "tools_share_copied": "링크를 복사했습니다",

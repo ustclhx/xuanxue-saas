@@ -7,7 +7,7 @@ import {
   publishedPostLocales,
 } from '../marketing/content.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
-import type { SeoPage } from './metadata.ts'
+import type { SeoPage, StaticPath } from './metadata.ts'
 import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
 
 interface Post {
@@ -47,9 +47,12 @@ export function publicPages(
     .filter((locale) => !site || config.sites[site].locales.some((l) => l === locale))
     .flatMap((locale) => {
       const { defaultLocale } = config.i18n
-      const pages = ['/', ...(config.billing.enabled ? ['/pricing'] : [])].map((path) =>
-        staticPage(path, locale),
-      )
+      const paths: StaticPath[] = [
+        '/',
+        ...(config.billing.enabled ? ['/pricing' as const] : []),
+        '/faq',
+      ]
+      const pages = paths.map((path) => staticPage(path, locale))
       if (config.features.newsletter) pages.push(staticPage('/newsletter', locale))
       if (config.features.waitlist) pages.push(staticPage('/waitlist', locale))
       const published = content.posts.filter((post) => !post.draft)
