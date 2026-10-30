@@ -26,6 +26,23 @@ export function resolveSite(host: string, config: SitesConfig): ResolvedSite {
   return { id: 'west', known: false }
 }
 
+/**
+ * 东方站的英文入口页（openspec product-improve-ai-content-20261030 D5，specs/multi-site「东方站英文入口页」）：
+ * en 归西方站，东方站只有 `/en` 这一页英文介绍，其他 `/en/*` 返回 404。
+ */
+export const EAST_ENGLISH_LOCALE = 'en'
+export const EAST_ENGLISH_PATH = '/en'
+
+/**
+ * 站点导航（页头工具、定价链接）使用的语言：当前语言属于该站点时原样使用，否则取站点默认语言；
+ * 东方站没有无前缀默认语言，取它的第一个语言（繁体中文）。两站分开经营，导航不跨站（D5）。
+ */
+export function siteNavLocale(site: SiteId, locale: string, config: SitesConfig): string {
+  const { locales, defaultLocale } = config.sites[site]
+  if (locales.some((item) => item === locale)) return locale
+  return defaultLocale ?? locales[0] ?? config.i18n.defaultLocale
+}
+
 /** 语言所属的站点；未配置的语言返回 undefined */
 export function siteOfLocale(locale: string, config: SitesConfig): SiteId | undefined {
   return SITE_IDS.find((id) => config.sites[id].locales.some((item) => item === locale))

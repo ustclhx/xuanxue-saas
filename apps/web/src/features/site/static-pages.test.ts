@@ -9,6 +9,11 @@ describe('双站静态 HTML 分流', () => {
     expect(prerenderRequest(request)).toBeNull()
     expect(prerenderRequest(request, 'other')).toBeNull()
     expect(prerenderRequest(request, 'local-build')?.url).toBe('http://ganjiday.com/ko/blog')
+    // 东方站英文入口页的语言归西方站，页面按东方站预渲染（D5）
+    const english = new Request('http://localhost/en', {
+      headers: { 'x-site-prerender': 'local-build' },
+    })
+    expect(prerenderRequest(english, 'local-build')?.url).toBe('http://ganjiday.com/en')
   })
 
   it('两站根路径取各自的 index.html，内部资源地址不出现在响应 URL', async () => {

@@ -1,6 +1,8 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { EAST_ENGLISH_COPY } from '../marketing/east-english/content.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import type { SeoPage } from './metadata.ts'
 import { absoluteUrl, alternateLinks, localizedPath, staticPage } from './metadata.ts'
@@ -34,8 +36,7 @@ export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: stri
 }
 
 export function sitemapIndex(site: SiteId): string {
-  const urls = templateConfig.sites[site].locales
-    .filter((locale) => templateConfig.i18n.enabled || locale === templateConfig.i18n.defaultLocale)
+  const urls = sitemapLocales(site)
     .map(
       (locale) =>
         `<sitemap><loc>${escapeXml(absoluteUrl(seoSiteOrigin(site), `/sitemap/${locale.toLowerCase()}.xml`))}</loc></sitemap>`,
@@ -44,6 +45,16 @@ export function sitemapIndex(site: SiteId): string {
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</sitemapindex>`
 }
 
+/** 站点地图索引中的子图语言；东方站另有只含英文入口页的 en 子图（D5） */
+export function sitemapLocales(site: SiteId): string[] {
+  const { enabled, defaultLocale, locales } = templateConfig.i18n
+  const own: string[] = templateConfig.sites[site].locales.filter(
+    (locale) => enabled || locale === defaultLocale,
+  )
+  if (site === 'east' && enabled && locales.some((locale) => locale === EAST_ENGLISH_LOCALE))
+    own.push(EAST_ENGLISH_LOCALE)
+  return own
+}
 /**
  * 显式允许的 AI 爬虫（product-improve-ai-content D10）。爬虫命中自己名字的分组后会忽略 `*` 分组，
  * 所以每组都重复私有路径的 Disallow；`Allow: /` 比 Disallow 短，按最长匹配仍禁止私有路径。
@@ -134,6 +145,19 @@ export function llmsTxt(
       }
       return [`## ${LOCALE_NAMES[locale] ?? locale}`, '', ...lines].join('\n')
     })
+  // 东方站英文入口页（D5）：en 归西方站，东方站只有这一页英文
+  if (
+    site === 'east' &&
+    config.i18n.enabled &&
+    config.i18n.locales.some((l) => l === EAST_ENGLISH_LOCALE)
+  )
+    sections.push(
+      [
+        `## ${LOCALE_NAMES[EAST_ENGLISH_LOCALE] ?? EAST_ENGLISH_LOCALE}`,
+        '',
+        `- [${EAST_ENGLISH_COPY.title}](${absoluteUrl(origin, EAST_ENGLISH_PATH)}): ${EAST_ENGLISH_COPY.description}`,
+      ].join('\n'),
+    )
   const brand = config.sites[site].brand
   const names = [...new Set([brand.name, ...Object.values(brand.names)])].join(' / ')
   return [

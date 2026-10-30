@@ -14,6 +14,7 @@ vi.mock('./origin.functions.ts', () => ({
   getSeoOrigin: async () => 'https://arcanumber.com',
 }))
 vi.mock('../site/site.functions.ts', () => ({ getCurrentSite: vi.fn() }))
+vi.mock('../marketing/content.functions.ts', () => ({ getBlogLocales: async () => [] }))
 vi.mock('../admin/settings-announcement.functions.ts', () => ({
   getAnnouncement: async () => null,
 }))

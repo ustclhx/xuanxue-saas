@@ -111,3 +111,18 @@ export function toolsForLocale(
     return [{ id: route.id, path, title }]
   })
 }
+
+/**
+ * 某站点在某语言下的页头工具（openspec product-improve-ai-content-20261030 D5）：只取登记在该站点的工具。
+ * 调用方先用 siteNavLocale 把不属于本站的语言换成本站默认语言，链接因此不会跨站。
+ */
+export function toolsForSite(
+  site: SiteId,
+  locale: string,
+  routes: readonly ToolRoute[] = TOOL_ROUTES,
+): { id: string; path: string; title: string }[] {
+  return toolsForLocale(
+    locale,
+    routes.filter((route) => route.site === site),
+  )
+}

@@ -4,6 +4,7 @@ import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
@@ -30,6 +31,11 @@ export function absoluteUrl(appUrl: string, path: string): string {
   return new URL(path, appUrl).href
 }
 
+/**
+ * hreflang（specs/seo「多语言关联」）：两站分开经营（D5），只声明同一站点内的语言版本，
+ * x-default 指向本站入口——有无前缀默认语言的站点（西方站）为该语言的同一页面，否则为站点根路径。
+ * 东方站各语言首页另与东方站英文入口页 `/en` 互指。
+ */
 export function alternateLinks(
   _appUrl: string,
   path: string,
@@ -37,6 +43,8 @@ export function alternateLinks(
   translations?: Readonly<Partial<Record<string, string>>>,
   locale = languages[0] ?? defaultLocale,
 ) {
+  const site = siteOfLocale(locale, templateConfig) ?? 'west'
+  const sameSite = (language: string) => siteOfLocale(language, templateConfig) === site
   const tool = TOOL_ROUTES.find((route) => route.paths[locale] === path)
   // 同一路径在其他语言下是另一个工具（如西方站首页 / 为 Life Path 计算器）时内容不同，不互指
   const paths =
@@ -48,7 +56,7 @@ export function alternateLinks(
         .map((l) => [l, path]),
     )
   const links = Object.entries(paths).flatMap(([language, translatedPath]) =>
-    translatedPath && locales.some((locale) => locale === language)
+    translatedPath && locales.some((locale) => locale === language) && sameSite(language)
       ? [
           {
             rel: 'alternate',
@@ -58,14 +66,24 @@ export function alternateLinks(
         ]
       : [],
   )
+  const origin = seoSiteOrigin(site)
+  if (site === 'east' && path === '/' && enabled)
+    links.push({
+      rel: 'alternate',
+      hrefLang: EAST_ENGLISH_LOCALE,
+      href: absoluteUrl(origin, EAST_ENGLISH_PATH),
+    })
+  const siteDefault = templateConfig.sites[site].defaultLocale
+  const defaultPath = siteDefault ? paths[siteDefault] : undefined
   return [
     ...links,
     {
       rel: 'alternate',
       hrefLang: 'x-default',
-      href: paths.en
-        ? absoluteUrl(seoSiteOrigin('west'), localizedPath(paths.en, 'en'))
-        : absoluteUrl(localeOrigin(locale), '/'),
+      href:
+        siteDefault && defaultPath
+          ? absoluteUrl(origin, localizedPath(defaultPath, siteDefault))
+          : absoluteUrl(origin, '/'),
     },
   ]
 }

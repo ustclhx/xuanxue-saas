@@ -47,8 +47,12 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     )
     await expect(page.locator('article img').first()).toHaveAttribute('srcset', /240w, .*480w$/)
     await expect(page.locator('article p').filter({ hasText: disclaimer })).toHaveCount(1)
-    for (const lang of ['en', 'zh-Hant', 'ko', 'x-default'])
+    // 两站分开经营（D5）：hreflang 只在同站内互指
+    for (const lang of host === 'west' ? ['en', 'x-default'] : ['zh-Hant', 'ko', 'x-default'])
       await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`)).toHaveCount(1)
+    await expect(
+      page.locator(`link[rel="alternate"][hreflang="${host === 'west' ? 'ko' : 'en'}"]`),
+    ).toHaveCount(0)
     for (const slug of ['two-of-wands', 'ace-of-cups', 'ace-of-swords', 'ace-of-pentacles'])
       await expect(page.locator(`aside a[href$="/${slug}"]`)).toHaveCount(1)
     await expect(page.getByTestId('tarot-meaning-draw')).toHaveAttribute('data-hydrated', 'true')

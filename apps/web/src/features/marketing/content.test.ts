@@ -6,6 +6,7 @@ import {
   listTags,
   loadDocsPage,
   type PostLike,
+  publishedPostLocales,
   searchDocs,
 } from './content.ts'
 
@@ -34,6 +35,12 @@ describe('博客（tasks.md 3.3）', () => {
     expect(
       findPost(posts, { slug: 'scheduled', locale: 'en', defaultLocale: 'en', now: later }),
     ).toBeDefined()
+  })
+
+  it('博客入口只看该语言自己的已发布文章，不计回退与定时文章', () => {
+    expect(publishedPostLocales(posts, now).sort()).toEqual(['en', 'zh-Hant'])
+    expect(publishedPostLocales([post('ko', 'later', '2099-01-01')], now)).toEqual([])
+    expect(publishedPostLocales([], now)).toEqual([])
   })
 
   it('优先当前语言的版本，缺少翻译时回退到默认语言', () => {

@@ -1,18 +1,21 @@
 import { templateConfig } from '../../server/template-config.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
-import { resolveSite, siteOfLocale } from './site.ts'
+import { EAST_ENGLISH_PATH, resolveSite, siteOfLocale } from './site.ts'
 
 /** 构建期用仅存在于本地 preview 的随机令牌授权内部入口，并按语言还原真实站点 Host。 */
 export function prerenderRequest(request: Request, token?: string): Request | null {
   if (!token || request.headers.get('x-site-prerender') !== token) return null
   const url = new URL(request.url)
   const path = url.pathname.replace(/\/+$/, '') || '/'
+  // 东方站英文入口页 `/en` 的语言归西方站，但页面属于东方站（D5）
   const site =
-    siteOfLocale(
-      prefixLocale(path, templateConfig.i18n.locales) ?? templateConfig.i18n.defaultLocale,
-      templateConfig,
-    ) ?? 'west'
+    path === EAST_ENGLISH_PATH
+      ? 'east'
+      : (siteOfLocale(
+          prefixLocale(path, templateConfig.i18n.locales) ?? templateConfig.i18n.defaultLocale,
+          templateConfig,
+        ) ?? 'west')
   url.host = templateConfig.sites[site].hosts[0] ?? url.host
   return new Request(url, request)
 }
