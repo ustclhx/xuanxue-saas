@@ -41,9 +41,9 @@ const headings = {
   ],
 }
 const disclosures = {
-  en: 'This AI-assisted interpretation is for entertainment only and does not predict the future. It is not medical, legal, or investment advice.',
-  'zh-Hant': '本篇為 AI 輔助解讀，僅供娛樂，不預測未來，也不構成醫療、法律或投資建議。',
-  ko: '이 글은 AI의 도움을 받아 작성한 오락용 해석으로 미래를 예측하지 않으며, 의료·법률·투자 조언이 아닙니다.',
+  en: 'This interpretation was drafted with AI and reviewed by a person. It is for entertainment only and does not predict the future. It is not medical, legal, or investment advice.',
+  'zh-Hant': '本篇由 AI 起草、經人工審定，僅供娛樂，不預測未來，也不構成醫療、法律或投資建議。',
+  ko: '이 글은 AI가 초안을 작성하고 사람이 검토한 오락용 해석으로 미래를 예측하지 않으며, 의료·법률·투자 조언이 아닙니다.',
 }
 const spreadLinks = {
   en: ['/tarot', '/tarot/daily', '/tarot/yes-or-no', '/tarot/celtic-cross'],

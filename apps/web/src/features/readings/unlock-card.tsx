@@ -6,6 +6,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { FxAttribution } from './fx-attribution.tsx'
 import { toTraditional } from './hant.ts'
@@ -390,6 +391,7 @@ export function ReadingUnlock({
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />
       <p className="m-0 text-on-inverse/75 text-xs">{m.readings_unlock_note()}</p>
+      <AiDisclaimer className="bg-transparent p-0 text-on-inverse/75 text-xs" />
     </section>
   )
 }
