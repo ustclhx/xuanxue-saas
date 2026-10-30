@@ -70,3 +70,12 @@ export async function verifyUnlockToken(
   const payload = await verifyHmacToken(secret, SCOPE, token, unlockPayloadSchema)
   return payload && payload.exp > now ? payload : null
 }
+
+/**
+ * 付款回跳后等待 webhook 入账的轮询间隔（毫秒）：前 30 秒每 2 秒，之后每 5 秒，共约 5 分钟。
+ * PayPal 的 capture 回调可能晚到数分钟，只轮询 30 秒会让已付款的用户停在「确认中」。
+ */
+export const PAYMENT_POLL_DELAYS: readonly number[] = [
+  ...Array<number>(15).fill(2000),
+  ...Array<number>(54).fill(5000),
+]

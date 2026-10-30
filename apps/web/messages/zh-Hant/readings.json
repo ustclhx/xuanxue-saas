@@ -21,7 +21,7 @@
   "readings_unlock_redirecting": "正在前往…",
   "readings_unlock_confirming": "正在確認付款…",
   "readings_unlock_error": "暫時無法處理，請稍後再試。",
-  "readings_unlock_payment_pending": "付款仍在確認中，積分入帳後即可生成，請稍候重新整理此頁。",
+  "readings_unlock_payment_pending": "付款已收到，點此生成",
   "readings_generating": "正在生成報告…",
   "readings_generate_failed": "報告生成失敗，積分已退回，可以重試。",
   "readings_retry": "重試",
