@@ -29,11 +29,22 @@ describe('numerology', () => {
     expect(birthdayNumber({ ...birthday, day: 22 }).value).toBe(22)
   })
   it('uses the caller-provided local year across New Year and validates calendar dates', () => {
-    expect(personalYear(birthday, 2026).value).toBe(5) // 11 + 29 + 2026 = 2066 → 14 → 5
-    expect(personalYear(birthday, 2027).value).toBe(6) // 11 + 29 + 2027 = 2067 → 15 → 6
+    expect(personalYear(birthday, 2026).value).toBe(5) // 11 + 11 + 1 = 23 → 5
+    expect(personalYear(birthday, 2027)).toMatchObject({ value: 33, master: true }) // 11 + 11 + 11
     expect(() => lifePath({ year: 1900, month: 2, day: 29 })).toThrow()
     expect(lifePath({ year: 2000, month: 2, day: 29 }).value).toBe(6)
     expect(() => reduceNumber(-1)).toThrow()
+  })
+  it('reduces personal year components separately and preserves the master total', () => {
+    expect(personalYear({ year: 1987, month: 9, day: 9 }, 2029)).toEqual({
+      value: 22,
+      master: true,
+      steps: [
+        { phase: 'year', operands: [2, 0, 2, 9], result: 13 },
+        { phase: 'year', operands: [1, 3], result: 4 },
+        { phase: 'total', operands: [9, 9, 4], result: 22 },
+      ],
+    })
   })
   it('normalizes accents and applies Pythagorean letter values', () => {
     expect(normalizeName('Hélène Dupont')).toBe('HELENE DUPONT')

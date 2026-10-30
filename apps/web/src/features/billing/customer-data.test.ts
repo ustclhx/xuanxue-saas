@@ -53,7 +53,9 @@ describe('customer data visibility', () => {
   })
   it.each(['member', 'admin'])('does not query payment or refund history for %s', async (role) => {
     const select = vi.fn(() => ({
-      innerJoin: () => ({ orderBy: () => ({ limit: async () => [] }) }),
+      innerJoin: () => ({
+        innerJoin: () => ({ orderBy: () => ({ limit: async () => [] }) }),
+      }),
     }))
     vi.mocked(scoped).mockReturnValue({ select } as unknown as ReturnType<typeof scoped>)
     const page = await customerBilling(db, 'workspace', role, 3)

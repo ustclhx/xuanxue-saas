@@ -2,7 +2,8 @@ schema: spec-driven
 
 context: |
   所有 OpenSpec 产物使用中文。产品需求来源是 doc/design.md；v1 范围与波次见 docs/10-v1-plan.md。
-  合规表述统一为「AI 辅助、仅供娱乐、不预测未来」，AI 不作为标题卖点。
+  合规表述按场景拆分：免费工具与免费结果写「依传统规则计算、仅供娱乐、不预测未来」，不得声称 AI 生成或 AI 辅助；
+  AI 详批（解锁卡、报告）、定价页与 Chat 写「AI 辅助、仅供娱乐、不预测未来」；AI 不作为标题卖点。
 
 # Project context (optional)
 # Add only constraints that should guide OpenSpec artifacts and workflows.

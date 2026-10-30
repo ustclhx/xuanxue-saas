@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { FormAlert } from '../auth/auth-layout.tsx'
+import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
 import { type ChatContext, contextSystemText } from './chat-context.ts'
 import { ChatContextSummary } from './chat-context-start.tsx'
@@ -236,6 +237,7 @@ export function ChatPage({
           </HydratedControls>
         </form>
       )}
+      <AiDisclaimer />
     </div>
   )
 }

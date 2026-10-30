@@ -11,7 +11,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     'Upright',
     'Draw one card',
     'Read the full card meaning',
-    'AI-assisted interpretation',
+    'drafted with AI and reviewed by a person',
   ],
   [
     'zh-Hant',
@@ -21,7 +21,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     '正位',
     '抽一張牌',
     '閱讀完整牌義',
-    '本篇為 AI 輔助解讀',
+    '本篇由 AI 起草、經人工審定',
   ],
   [
     'ko',
@@ -31,7 +31,7 @@ for (const [locale, host, path, title, orientation, draw, read, disclaimer] of [
     '정방향',
     '한 장 뽑기',
     '카드 의미 자세히 읽기',
-    '이 글은 AI의 도움',
+    'AI가 초안을 작성하고 사람이 검토한',
   ],
 ] as const) {
   test(`${locale} 牌义正文、跨站 SEO、相邻王牌与键盘单张抽牌`, async ({ page, baseURL }) => {

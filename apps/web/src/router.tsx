@@ -15,7 +15,7 @@ export function getRouter() {
     routeTree.addChildren(
       Object.values(routeTree.children ?? {}).filter(
         (route) =>
-          !/^\/(?:pricing|blog|docs|privacy|terms|disclaimer|refund|newsletter|waitlist|api\/(?:newsletter|waitlist)|sitemap|sitemap\.xml|robots\.txt)(?:\/|$)/.test(
+          !/^\/(?:pricing|faq|blog|docs|privacy|terms|disclaimer|refund|newsletter|waitlist|api\/(?:newsletter|waitlist)|sitemap|sitemap\.xml|robots\.txt|llms\.txt)(?:\/|$)/.test(
             route.options.path ?? '',
           ),
       ),

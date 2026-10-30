@@ -29,6 +29,9 @@ export function SiteFooter() {
               {m.marketing_nav_pricing()}
             </Link>
           )}
+          <Link to="/faq" className={footerLink}>
+            {m.marketing_nav_faq()}
+          </Link>
           <Link to="/register" className={footerLink}>
             {m.marketing_nav_get_started()}
           </Link>

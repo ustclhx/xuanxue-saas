@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const marketing = vi.hoisted(() => ({ enabled: true }))
 const publicPaths = [
   '/pricing',
+  '/faq',
   '/blog/',
   '/blog/$slug',
   '/docs/',
@@ -18,6 +19,7 @@ const publicPaths = [
   '/sitemap/$file',
   '/sitemap.xml',
   '/robots.txt',
+  '/llms.txt',
 ]
 
 vi.mock('../../server/template-config.ts', async (original) => {
@@ -38,6 +40,7 @@ function mockRouteTree() {
       '/api/auth/$',
       '/api/health',
       '/pricing',
+      '/faq',
       '/blog/',
       '/blog/$slug',
       '/docs/',
@@ -53,6 +56,7 @@ function mockRouteTree() {
       '/sitemap/$file',
       '/sitemap.xml',
       '/robots.txt',
+      '/llms.txt',
     ]
     return {
       routeTree: root.addChildren(

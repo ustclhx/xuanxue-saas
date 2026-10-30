@@ -1,4 +1,6 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "common_site_tagline": "透過命理工具與指南，認識傳統智慧，探索自己。"
+  "common_site_tagline": "透過命理工具與指南，認識傳統智慧，探索自己。",
+  "common_not_found_title": "頁面不存在",
+  "common_not_found_body": "找不到你要查看的頁面。"
 }

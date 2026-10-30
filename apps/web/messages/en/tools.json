@@ -1,7 +1,8 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "tools_disclaimer_label": "Disclaimer",
-  "tools_disclaimer": "This tool is an AI-assisted summary of traditional practices, for entertainment only. It does not predict the future. For health concerns, please consult a qualified medical professional.",
+  "tools_disclaimer": "This tool calculates results using traditional rules, for entertainment only. It does not predict the future. For health concerns, please consult a qualified medical professional.",
+  "tools_ai_disclaimer": "AI-assisted, for entertainment only. It does not predict the future. For health concerns, please consult a qualified medical professional.",
   "tools_share_label": "Share link",
   "tools_share_copy": "Copy share link",
   "tools_share_copied": "Link copied",
