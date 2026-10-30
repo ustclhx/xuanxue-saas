@@ -143,6 +143,7 @@ export function PricingPage({
                   {paymentsAvailable && (
                     <Link
                       to="/app"
+                      search={{ buy: pack.key }}
                       className="mt-auto inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 font-semibold text-on-brand"
                     >
                       {m.pricing_buy()}

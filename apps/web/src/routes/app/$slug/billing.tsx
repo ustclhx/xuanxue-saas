@@ -26,6 +26,11 @@ export const Route = createFileRoute('/app/$slug/billing')({
   validateSearch: z.object({
     returnTo: z.string().max(1024).optional(),
     checkout: z.enum(['success', 'canceled']).optional(),
+    // 定价页「购买」带上积分包 key：进入本页后直接跳转支付页
+    buy: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,64}$/)
+      .optional(),
   }),
   loader: async ({ params }) => {
     const [billing, refunds] = await Promise.all([
@@ -46,7 +51,7 @@ const date = (value: Date | null) =>
 function BillingPage() {
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
-  const { returnTo, checkout: checkoutResult } = Route.useSearch()
+  const { returnTo, checkout: checkoutResult, buy } = Route.useSearch()
   const router = useRouter()
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -60,6 +65,7 @@ function BillingPage() {
   const [priceId, setPriceId] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const intent = useRef<{ key: string; uuid: string } | null>(null)
+  const autoBuy = useRef(false)
   useEffect(() => setReady(true), [])
   const availableProviders = page.catalog.providers.filter((p) => p.available).length
   const owner = page.role === 'owner'
@@ -67,6 +73,17 @@ function BillingPage() {
   const renewing = page.subscriptions.find(
     (sub) =>
       !sub.cancelAtPeriodEnd && ['active', 'trialing', 'past_due', 'paused'].includes(sub.status),
+  )
+  const planType = (planId: string) => page.catalog.plans.find((plan) => plan.id === planId)?.type
+  // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
+  const packPrices = page.catalog.prices.filter(
+    (price) =>
+      price.provider === provider &&
+      price.interval === null &&
+      planType(price.planId) === 'credit_pack',
+  )
+  const planPrices = page.catalog.prices.filter(
+    (price) => price.provider === provider && planType(price.planId) === 'subscription',
   )
   const selected = page.catalog.prices.find((price) => price.id === priceId)
   const isSubscription =
@@ -113,13 +130,14 @@ function BillingPage() {
       setBusy(false)
     }
   }
-  async function checkout() {
-    if (change && renewing && 'id' in renewing && renewing.id) {
+  async function checkout(target = selected) {
+    if (target === selected && change && renewing && 'id' in renewing && renewing.id) {
       await manage(renewing.id, 'change')
       return
     }
-    if (!selected) return
-    const key = `${slug}:${provider}:${priceId}:${replacement && 'id' in replacement ? replacement.id : ''}`
+    if (!target) return
+    const switching = target === selected ? replacement : undefined
+    const key = `${slug}:${provider}:${target.id}:${switching && 'id' in switching ? switching.id : ''}`
     if (intent.current?.key !== key) intent.current = { key, uuid: crypto.randomUUID() }
     setBusy(true)
     setMessage('')
@@ -127,23 +145,37 @@ function BillingPage() {
       const result = await checkoutCustomer({
         data: {
           slug,
-          provider: selected.provider,
-          planPriceId: priceId,
+          provider: target.provider,
+          planPriceId: target.id,
           idempotencyKey: intent.current.uuid,
-          ...(replacement && 'id' in replacement && replacement.id
-            ? { confirmSwitch: confirmed, expectedOldSubscriptionId: replacement.id }
+          ...(switching && 'id' in switching && switching.id
+            ? { confirmSwitch: confirmed, expectedOldSubscriptionId: switching.id }
             : {}),
           ...(returnTo ? { returnTo } : {}),
         },
       })
-      if (result.ok) window.location.assign(result.result.url)
-      else setMessage(errorMessage(result.error))
+      if (result.ok) {
+        setMessage('Redirecting to checkout…')
+        window.location.assign(result.result.url)
+      } else setMessage(errorMessage(result.error))
     } catch {
       setMessage('Unable to start checkout. Please try again.')
     } finally {
       setBusy(false)
     }
   }
+  // 从定价页带 `buy` 进入：去掉参数（返回本页时不再触发），可购买时直接结账
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 只在首次可交互时处理一次
+  useEffect(() => {
+    if (!ready || !buy || autoBuy.current) return
+    autoBuy.current = true
+    const url = new URL(window.location.href)
+    url.searchParams.delete('buy')
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+    const plan = page.catalog.plans.find((item) => item.key === buy)
+    const price = packPrices.find((item) => item.planId === plan?.id && item.available)
+    if (price && !disabled) void checkout(price)
+  }, [ready])
   return (
     <SpacePage title="Billing">
       <p>Current plan: {page.entitlements.key}</p>
@@ -229,25 +261,35 @@ function BillingPage() {
               </select>
             </label>
           )}
-          <label>
-            Plan{' '}
-            <select
-              value={priceId}
-              disabled={disabled}
-              onChange={(event) => {
-                setPriceId(event.target.value)
-                setConfirmed(false)
-                intent.current = null
-              }}
-            >
-              <option value="">Choose a plan</option>
-              {page.catalog.prices
-                .filter(
-                  (price) =>
-                    price.provider === provider &&
-                    page.catalog.plans.some((plan) => plan.id === price.planId),
-                )
-                .map((price) => (
+          {packPrices.length > 0 && (
+            <div className="flex flex-wrap gap-3">
+              {packPrices.map((price) => (
+                <Button
+                  key={price.id}
+                  disabled={disabled || !price.available}
+                  onClick={() => void checkout(price)}
+                >
+                  Buy {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
+                  {money(price.amount, price.currency)}
+                  {price.available ? '' : ' · unavailable'}
+                </Button>
+              ))}
+            </div>
+          )}
+          {planPrices.length > 0 && (
+            <label>
+              Plan{' '}
+              <select
+                value={priceId}
+                disabled={disabled}
+                onChange={(event) => {
+                  setPriceId(event.target.value)
+                  setConfirmed(false)
+                  intent.current = null
+                }}
+              >
+                <option value="">Choose a plan</option>
+                {planPrices.map((price) => (
                   <option key={price.id} value={price.id} disabled={!price.available}>
                     {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
                     {money(price.amount, price.currency)}
@@ -255,8 +297,9 @@ function BillingPage() {
                     {price.available ? '' : ' · unavailable'}
                   </option>
                 ))}
-            </select>
-          </label>
+              </select>
+            </label>
+          )}
           {!page.catalog.providers.some((p) => p.available) && (
             <p>Payments are currently unavailable.</p>
           )}
@@ -276,12 +319,14 @@ function BillingPage() {
           {intervalChange && renewing && (
             <p>{m.billing_change_interval_notice({ date: date(renewing.currentPeriodEnd) })}</p>
           )}
-          <Button
-            disabled={disabled || !selected?.available || Boolean(replacement && !confirmed)}
-            onClick={() => void checkout()}
-          >
-            {change ? 'Change plan' : 'Continue to checkout'}
-          </Button>
+          {planPrices.length > 0 && (
+            <Button
+              disabled={disabled || !selected?.available || Boolean(replacement && !confirmed)}
+              onClick={() => void checkout()}
+            >
+              {change ? 'Change plan' : 'Continue to checkout'}
+            </Button>
+          )}
         </section>
       )}
       {message && <p role="status">{message}</p>}

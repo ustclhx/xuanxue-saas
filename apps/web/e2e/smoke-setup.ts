@@ -4,6 +4,7 @@ import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { eq } from 'drizzle-orm'
 
 export const SMOKE_PRICE_ID = '019a0000-0000-7000-8000-000000000002'
+export const SMOKE_PACK_KEY = 'ci-smoke-credit-pack'
 const planId = '019a0000-0000-7000-8000-000000000001'
 
 export default async function setup() {
@@ -28,7 +29,7 @@ export default async function setup() {
       .insert(plan)
       .values({
         id: planId,
-        key: 'ci-smoke-credit-pack',
+        key: SMOKE_PACK_KEY,
         name: 'CI smoke credits',
         type: 'credit_pack',
         credits: 100,

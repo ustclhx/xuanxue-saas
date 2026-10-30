@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import { completeOfflineCheckout } from './billing-actions-helper.ts'
 import { APP_URL, login, register, simulateClientIp } from './fixtures.ts'
-import { SMOKE_PRICE_ID } from './smoke-setup.ts'
+import { SMOKE_PACK_KEY } from './smoke-setup.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 test('register, sign out/in, and buy a credit pack through the local provider', async ({
@@ -41,12 +41,12 @@ test('register, sign out/in, and buy a credit pack through the local provider', 
   await expect(page.getByText('Available credits: 0', { exact: false })).toBeVisible()
   const paymentMethod = page.getByLabel('Payment method')
   if (await paymentMethod.count()) await paymentMethod.selectOption('paypal')
-  await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)
   const returned = page.waitForRequest((request) =>
     new URL(request.url()).pathname.endsWith('/billing-return'),
   )
+  // 积分包一键结账：点击即跳转支付页，没有额外的确认步骤
   await completeOfflineCheckout(page, () =>
-    page.getByRole('button', { name: 'Continue to checkout' }).click(),
+    page.getByRole('button', { name: /^Buy CI smoke credits · / }).click(),
   )
   const providerRef = new URL((await returned).url()).searchParams.get('token')
   expect(providerRef?.startsWith('smoke:')).toBe(true)
@@ -107,16 +107,41 @@ test('east site sign-in and checkout return to the originating /ko page', async 
   await login(page, email, `/login?redirect=${encodeURIComponent('/ko')}`)
   await korean(new RegExp(`^${east.origin}/ko/?$`))
 
-  // 公开页面的购买入口：/app?returnTo= 进入计费页，支付回跳经 billing-return 回到发起页面
-  await page.goto(`/app?returnTo=${encodeURIComponent('/ko')}`)
-  await expect(page).toHaveURL(/\/billing\?returnTo=/)
-  const paymentMethod = page.getByLabel('Payment method')
-  if (await paymentMethod.count()) await paymentMethod.selectOption('paypal')
-  await page.getByRole('combobox', { name: 'Plan', exact: true }).selectOption(SMOKE_PRICE_ID)
-  await completeOfflineCheckout(page, () =>
-    page.getByRole('button', { name: 'Continue to checkout' }).click(),
-  )
+  // 公开页面的购买入口：/app?returnTo=&buy= 进入计费页后直接跳转支付页，
+  // 支付回跳经 billing-return 回到发起页面
+  await completeOfflineCheckout(page, async () => {
+    await page.goto(`/app?returnTo=${encodeURIComponent('/ko')}&buy=${SMOKE_PACK_KEY}`)
+  })
   await korean(new RegExp(`^${east.origin}/ko/?\\?checkout=success$`))
   expect(externalRequests).toEqual([])
   await context.close()
+})
+
+test('signed-out pricing purchase signs in and goes straight to checkout', async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await stubTurnstile(page)
+  await simulateClientIp(page)
+  const email = `ci-smoke-pricing-${randomUUID()}@example.com`
+  await register(page, email)
+  const signedOut = await context.request.post('/api/auth/sign-out', {
+    headers: { origin: baseURL ?? '' },
+    data: {},
+  })
+  expect(signedOut.ok()).toBe(true)
+
+  await page.goto('/pricing')
+  await page
+    .getByRole('article')
+    .filter({ hasText: 'CI smoke credits' })
+    .getByRole('link', { name: 'Buy credits' })
+    .click()
+  await expect(page).toHaveURL(/\/login\?redirect=%2Fapp%3Fbuy%3D/)
+  // 登录后回到 /app?buy=，进入计费页即跳转支付页，不需要再选择积分包
+  await completeOfflineCheckout(page, () =>
+    login(page, email, new URL(page.url()).pathname + new URL(page.url()).search),
+  )
+  await expect(page).toHaveURL(/\/billing(?:\?|$)/)
 })
