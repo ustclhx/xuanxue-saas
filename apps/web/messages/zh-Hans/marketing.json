@@ -108,5 +108,11 @@
   "pricing_faq_pay_q": "如何付款？",
   "pricing_faq_pay_a": "付款将由我们的支付服务商安全处理，我们不会取得或保存你的卡片资料。",
   "pricing_pack_readings_one": "可解锁 1 份完整详批",
-  "pricing_pack_readings_other": "可解锁 {count} 份完整详批"
+  "pricing_pack_readings_other": "可解锁 {count} 份完整详批",
+  "marketing_nav_faq": "常见问题",
+  "marketing_faq_page_intro": "关于免费工具、积分与退款、详批失败、隐私与计算方式的常见问题。",
+  "marketing_faq_section_credits": "积分、付款与退款",
+  "marketing_faq_section_methods": "隐私与计算方式",
+  "marketing_faq_privacy_q": "我的出生资料会上传吗？",
+  "marketing_faq_privacy_a": "免费工具不会。排盘、计算与塔罗抽牌都在你的浏览器中完成；只有在你登录并选择解锁完整详批时，撰写详批所需的资料才会传到我们的服务器。"
 }

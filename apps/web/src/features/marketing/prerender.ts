@@ -3,6 +3,7 @@ import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 
 export const PRERENDERED_PREFIXES = [
+  '/faq',
   '/blog',
   '/docs',
   '/privacy',
