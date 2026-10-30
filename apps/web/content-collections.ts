@@ -90,10 +90,25 @@ const posts = defineCollection({
   },
 })
 
+/**
+ * 两站共用的「运营主体与共享账户」段落（product-improve-ai-content D4）：每种语言只写一份，
+ * 法律页正文中的 `{{operatorNotice}}` 在构建期替换为它，两站引用同一来源。
+ */
+const legalShared = defineCollection({
+  name: 'legalShared',
+  directory: 'content/legal/shared',
+  include: '*/*.mdx',
+  schema: z.object({ content: z.string() }),
+})
+
+/**
+ * 法律页按站点分开（content/legal/<site>/<locale>/<slug>.mdx）：东方站只描述八字、四柱、紫微与塔罗，
+ * 西方站只描述数字命理与塔罗；运营主体段落来自 legalShared。
+ */
 const legalPages = defineCollection({
   name: 'legalPages',
   directory: 'content/legal',
-  include: '*/*.mdx',
+  include: ['east/*/*.mdx', 'west/*/*.mdx'],
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -102,15 +117,25 @@ const legalPages = defineCollection({
   }),
   transform: async (document, context) => {
     const { content, ...data } = document
+    const [site = '', ...rest] = document._meta.path.split('/')
+    const { locale, slug } = localeAndSlug({ ...document._meta, path: rest.join('/') })
+    const shared = context
+      .documents(legalShared)
+      .find((entry) => localeAndSlug(entry._meta).locale === locale)
+    if (content.includes('{{operatorNotice}}') && !shared)
+      throw new Error(`Missing shared operator notice for ${locale}: ${document._meta.path}`)
+    const body = content.replaceAll('{{operatorNotice}}', shared?.content.trim() ?? '')
     return {
       ...data,
-      ...localeAndSlug(document._meta),
+      site,
+      locale,
+      slug,
       title: fillPlaceholders(data.title),
       description: fillPlaceholders(data.description),
       // 联系邮箱按站点在渲染时替换（东方站 support@ganjiday.com），这里先换成纯文本标记
       html: await renderMdx(context, {
         ...document,
-        content: fillPlaceholders(content, { supportEmail: SUPPORT_EMAIL_TOKEN }),
+        content: fillPlaceholders(body, { supportEmail: SUPPORT_EMAIL_TOKEN }),
       }),
     }
   },
@@ -263,4 +288,6 @@ const concepts = defineCollection({
   },
 })
 
-export default defineConfig({ content: [posts, legalPages, docs, numerology, tarot, concepts] })
+export default defineConfig({
+  content: [posts, legalShared, legalPages, docs, numerology, tarot, concepts],
+})

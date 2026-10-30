@@ -53,6 +53,18 @@ export function findLocalized<T extends Localized>(
   )
 }
 
+/**
+ * 法律页按站点分开（product-improve-ai-content D4）：只在语言所属站点的正文中查找，
+ * 该站点缺少这种语言时回退到同站点的默认语言版本（页面标注并 noindex），不借用另一站点的正文。
+ */
+export function findLegalPage<T extends Localized & { readonly site: string }>(
+  pages: readonly T[],
+  options: { slug: string; locale: string; site: string; defaultLocale: string },
+): T | undefined {
+  const own = pages.filter((page) => page.site === options.site)
+  return findLocalized(own, options.slug, options.locale, options.defaultLocale)
+}
+
 /** 博客列表：已发布、可按标签筛选，按发布时间倒序 */
 export function listPosts<T extends PostLike>(
   posts: readonly T[],

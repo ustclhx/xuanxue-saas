@@ -54,78 +54,98 @@ for (const lang of languages) {
   })
 
   test(`法律页（${lang}）`, async ({ page, request, baseURL }) => {
-    // 法律页只有英文一份；其他语言同一路径显示英文正文并标注、noindex、不进站点地图
-    const titles = {
-      privacy: 'Privacy Policy',
-      terms: 'Terms of Service',
-      refund: 'Refund Policy',
-      disclaimer: 'Disclaimer',
-    } as const
-    const body = {
-      privacy: ['18 and over', 'never sell', 'DeepSeek', 'Cloudflare Web Analytics'],
-      terms: ['at least 18 years old', 'Limitation of liability'],
-      refund: [
-        'returned to your account automatically',
-        'When we do not refund',
-        '5 business days',
-      ],
-      disclaimer: [
-        'Calculation and interpretation',
-        'reflective, not predictive',
-        'Not a substitute for professional advice',
-        'No prediction of the future',
-        'No guarantee of accuracy',
-      ],
-    }
-    const localized = {
-      en: { note: null, footer: 'Disclaimer' },
-      'zh-Hant': { note: '僅提供英文版本', footer: '免責聲明（英文）' },
-      'zh-Hans': { note: '仅提供英文版本', footer: '免责声明（英文）' },
-      ko: { note: '영어로만 제공', footer: '면책 고지 (영문)' },
+    // 法律页按站点分开（product-improve-ai-content D4）：东方站三种语言、西方站英文各有原文，
+    // 隐私、条款与退款页含两站共用的运营主体段落；有原文的页面可索引并进入本语言站点地图
+    const copy = {
+      en: {
+        titles: ['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Disclaimer'],
+        footer: 'Disclaimer',
+        cookies: 'Cookies',
+        operator: 'operated by the same independent developer',
+        body: {
+          privacy: ['18 and over', 'never sell', 'DeepSeek', 'numerology and tarot'],
+          terms: ['at least 18 years old', 'Limitation of liability'],
+          refund: ['returned to your account automatically', 'When we do not refund'],
+          disclaimer: ['reflective, not predictive', 'No prediction of the future'],
+        },
+      },
+      'zh-Hant': {
+        titles: ['隱私政策', '服務條款', '退款政策', '免責聲明'],
+        footer: '免責聲明',
+        cookies: 'Cookie',
+        operator: '由同一位獨立開發者',
+        body: {
+          privacy: ['18 歲以上', '絕不出售', 'DeepSeek', '紫微斗數'],
+          terms: ['年滿 18 歲', '責任限制'],
+          refund: ['自動退回你的帳戶', '不予退款的情況'],
+          disclaimer: ['反思性的，而非預測性的', '不預測未來'],
+        },
+      },
+      'zh-Hans': {
+        titles: ['隐私政策', '服务条款', '退款政策', '免责声明'],
+        footer: '免责声明',
+        cookies: 'Cookie',
+        operator: '由同一位独立开发者',
+        body: {
+          privacy: ['18 岁以上', '绝不出售', 'DeepSeek', '紫微斗数'],
+          terms: ['年满 18 岁', '责任限制'],
+          refund: ['自动退回你的账户', '不予退款的情况'],
+          disclaimer: ['反思性的，而非预测性的', '不预测未来'],
+        },
+      },
+      ko: {
+        titles: ['개인정보처리방침', '이용약관', '환불 정책', '면책 고지'],
+        footer: '면책 고지',
+        cookies: '쿠키',
+        operator: '동일한 개인 개발자',
+        body: {
+          privacy: ['만 18세 이상', '절대 판매하지 않습니다', 'DeepSeek', '자미두수'],
+          terms: ['만 18세 이상', '책임의 제한'],
+          refund: ['자동으로 계정에 반환', '환불하지 않는 경우'],
+          disclaimer: ['예측이 아니라 성찰', '미래를 예측하지 않음'],
+        },
+      },
     }[lang]
+    if (!copy) throw new Error(`Missing legal copy for ${lang}`)
     const site = lang === 'en' ? 'west' : 'east'
     const origin = new URL(baseURL ?? 'http://localhost:3000')
     origin.hostname = `${site}.localhost`
     const slugs = ['privacy', 'terms', 'refund', 'disclaimer'] as const
-    for (const slug of slugs) {
+    for (const [index, slug] of slugs.entries()) {
       const response = await page.goto(`${origin.origin}${prefix}/${slug}`)
       expect(response?.status(), slug).toBe(200)
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText(titles[slug])
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(copy.titles[index] ?? '')
       const article = page.locator('article')
-      await expect(article).toHaveAttribute('lang', 'en')
-      await expect(article).toContainText('Last updated:')
+      await expect(article).toHaveAttribute('lang', lang)
       // 联系邮箱按站点（东方站 support@ganjiday.com）
       await expect(article).toContainText(supportEmail(templateConfig, lang))
-      for (const text of body[slug]) await expect(article).toContainText(text)
+      for (const text of copy.body[slug]) await expect(article).toContainText(text)
+      if (slug !== 'disclaimer') await expect(article).toContainText(copy.operator)
+      // 西方站只描述数字命理与塔罗
+      if (site === 'west') await expect(article).not.toContainText(/Bazi|Saju|Ziwei/)
       // 只从页脚进入，页头不出现法律页链接
       await expect(page.locator(`header a[href="${prefix}/${slug}"]`)).toHaveCount(0)
       const footerLink = page.locator(`footer a[href="${prefix}/disclaimer"]`)
-      await expect(footerLink).toHaveText(localized.footer)
-      const robots = page.locator('meta[name="robots"]')
-      if (localized.note) {
-        await expect(page.getByRole('note')).toContainText(localized.note)
-        await expect(robots).toHaveAttribute('content', /noindex/)
-      } else {
-        await expect(page.getByRole('note')).toHaveCount(0)
-        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-          'href',
-          `https://${templateConfig.sites[site].hosts[0]}/${slug}`,
-        )
-      }
+      await expect(footerLink).toHaveText(copy.footer)
+      await expect(page.getByRole('note')).toHaveCount(0)
+      await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0)
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        `https://${templateConfig.sites[site].hosts[0]}${prefix}/${slug}`,
+      )
     }
     // Cookie 条款并入隐私政策的一节
     await page.goto(`${origin.origin}${prefix}/privacy`)
-    await expect(page.getByRole('heading', { name: 'Cookies', level: 2 })).toBeVisible()
-    const sitemap = await request.get(`/sitemap/${lang === 'zh-Hant' ? 'zh-hant' : lang}.xml`, {
+    await expect(page.getByRole('heading', { name: copy.cookies, level: 2 })).toBeVisible()
+    const sitemap = await request.get(`/sitemap/${lang === 'en' ? 'en' : lang.toLowerCase()}.xml`, {
       headers: { host: origin.host },
     })
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
-    for (const slug of slugs) {
-      const loc = `<loc>https://${templateConfig.sites[site].hosts[0]}${prefix}/${slug}</loc>`
-      if (lang === 'en') expect(xml).toContain(loc)
-      else expect(xml).not.toContain(loc)
-    }
+    for (const slug of slugs)
+      expect(xml).toContain(
+        `<loc>https://${templateConfig.sites[site].hosts[0]}${prefix}/${slug}</loc>`,
+      )
   })
 
   test(`文档站按 features.docs 开关（${lang}，当前 ${templateConfig.features.docs}）`, async ({
