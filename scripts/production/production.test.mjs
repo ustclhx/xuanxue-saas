@@ -46,6 +46,23 @@ test('production requires explicit live payment mode for web and jobs', () => {
   }
 })
 
+test('production jobs must declare a Cron profile that matches its triggers', () => {
+  const missing = wrangler('jobs')
+  delete missing.env.production.vars.CRON_PROFILE
+  assert.ok(
+    checkEnvs('jobs', missing).includes(
+      'jobs: production CRON_PROFILE must be declared as reduced or default',
+    ),
+  )
+  const mismatch = wrangler('jobs')
+  mismatch.env.production.triggers.crons = ['*/5 * * * *']
+  assert.ok(
+    checkEnvs('jobs', mismatch).includes(
+      'jobs: production crons do not match CRON_PROFILE=reduced',
+    ),
+  )
+})
+
 const paypalConfig = {
   billing: { enabled: true, providers: ['paypal'] },
   auth: { oauth: [], turnstile: false },

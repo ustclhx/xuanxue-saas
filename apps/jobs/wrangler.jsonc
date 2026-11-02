@@ -115,7 +115,8 @@
       }
     },
     // launch-v1-production 2.1：本项目独立资源，见 docs/runbooks/production-xuanxue.md。
-    // 公开注册恢复默认 Cron（design D7）；支付使用 live，先配置 PayPal secrets 再发布。
+    // 无真实用户期间用 reduced Cron（2026-11-02 用户决定），开放支付前改回默认档，见 production-xuanxue.md。
+    // 支付使用 live，先配置 PayPal secrets 再发布。
     // 生产禁止 AI_FAULT_INJECTION。
     "production": {
       "name": "xuanxue-jobs-production",
@@ -124,7 +125,8 @@
       "preview_urls": false,
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
-        "PAYMENT_MODE": "live"
+        "PAYMENT_MODE": "live",
+        "CRON_PROFILE": "reduced"
       },
 
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
@@ -163,7 +165,7 @@
         ]
       },
       "triggers": {
-        "crons": ["*/5 * * * *", "0 3 * * *", "0 * * * *", "*/10 * * * *", "0 4 * * *"]
+        "crons": ["*/30 * * * *", "0 3 * * *", "0 * * * *", "0 4 * * *"]
       }
     }
   }
