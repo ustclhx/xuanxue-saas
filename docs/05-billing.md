@@ -126,7 +126,7 @@ type NormalizedEvent =
   - `canceled=true`：直接重定向回发起页。
   文案在 `apps/web/messages/<locale>/billing.json`（en、zh-Hant、zh-Hans、ko），语言优先取 `returnTo` 的语言前缀，其次按应用区现有解析。
 - **拒付恢复（retryUrl）**：capture 返回 `422` 且 issue 为 `INSTRUMENT_DECLINED` 时，`PayPalHttpError` 只解析 issue 名称（不携带响应正文），`confirmCheckout` 转为带 `retryUrl` 的领域错误；`retryUrl` 是同一订单的 approve 链接 `https://www.paypal.com/checkoutnow?token=<order id>`（Sandbox 为 `www.sandbox.paypal.com`）。服务层转成 `AppError('BILLING_PAYMENT_DECLINED')`，`safe()` 只对该错误码在 `ok:false` 结果中返回 `retryUrl`。其他 PayPal 错误仍统一为 `BILLING_UNAVAILABLE` 并记录脱敏日志。
-- **后台补 capture**：`runPendingCaptures(ctx, now)` 挂在 jobs `BILLING_RETRY_CRON`（生产 `*/10 * * * *`；staging 的 reduced 档并入 `*/30 * * * *`），与回调通知恢复、订阅补偿并列。扫描 `provider='paypal'`、`status='pending'`、创建于 `[now-72h, now-10min]` 的购买，每轮最多 50 条，先经 provider 现有的 `getOrder` 读取订单：
+- **后台补 capture**：`runPendingCaptures(ctx, now)` 挂在 jobs `BILLING_RETRY_CRON`（默认档 `*/10 * * * *`；staging 与当前生产的 reduced 档并入 `*/30 * * * *`，见 [生产记录](runbooks/production-xuanxue.md)），与回调通知恢复、订阅补偿并列。扫描 `provider='paypal'`、`status='pending'`、创建于 `[now-72h, now-10min]` 的购买，每轮最多 50 条，先经 provider 现有的 `getOrder` 读取订单：
   - `APPROVED`：调用不依赖用户身份的 `capturePurchase`，幂等键与回跳页相同（`capture:${purchase.id}`，透传为 `PayPal-Request-Id`），因此回跳页与后台并发也只扣一次；
   - `COMPLETED`：跳过，由回调或补偿入账；
   - `CREATED` / `PAYER_ACTION_REQUIRED` 超过 3 小时、`VOIDED` 或订单 404：条件更新（`WHERE status='pending'`）为 `failed`；
