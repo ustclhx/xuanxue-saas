@@ -1,5 +1,5 @@
 import { apiKey } from '@better-auth/api-key'
-import type { TemplateConfig } from '@xuanxue/config'
+import type { SiteId, TemplateConfig } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import * as schema from '@xuanxue/db/schema'
 import type { KeyValueStore, RateLimiter } from '@xuanxue/platform'
@@ -19,6 +19,7 @@ import { passwordHasher } from './password.ts'
 import { personalWorkspaceHooks } from './personal-workspace.ts'
 import { authProtection } from './protection.ts'
 import { sessionStorageOptions } from './session.ts'
+import { siteFields, siteScopedAdapter } from './site-adapter.ts'
 import { type ResolveMaxSeats, teamWorkspaces } from './team-workspaces.ts'
 import { verificationReservation } from './verification-reservation.ts'
 import { workspaceLifecyclePlugin } from './workspace-lifecycle.ts'
@@ -50,6 +51,12 @@ export interface CreateAuthDeps {
    * OAuth 回调、邮件链接与可信来源都落在发起请求的站点；其他 Host 回退到 `APP_URL`。
    */
   readonly hosts?: readonly string[] | undefined
+  /**
+   * 账户站点（openspec split-site-accounts 决策 1、2）。设置后 user / account / verification
+   * 的读写都按站点隔离（site-adapter.ts）。spike 1.1 阶段为可选，数据库尚未有 site 列时不得传入；
+   * 2.1 迁移与 2.2 接线后改为必填。
+   */
+  readonly site?: SiteId | undefined
 }
 
 /**
@@ -68,6 +75,9 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
   const workspaceHooks = personalWorkspaceHooks(db)
   const bootstrapAdmin = adminBootstrap(db, vars.BOOTSTRAP_ADMIN_EMAILS)
 
+  const adapter = drizzleAdapter(db, { provider: 'pg', schema })
+  const site = deps.site
+  const storage = sessionStorageOptions(deps.cache)
   const auth = betterAuth({
     appName: config.app.name,
     baseURL: baseURLOption(vars.APP_URL, deps.hosts),
@@ -82,9 +92,14 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
       '/api-key/list',
     ],
     secret: vars.BETTER_AUTH_SECRET,
-    database: drizzleAdapter(db, { provider: 'pg', schema }),
+    database: site ? siteScopedAdapter(adapter, site) : adapter,
     // 会话三层：Cookie 缓存 → KV → 数据库（session.ts）
-    ...sessionStorageOptions(deps.cache),
+    ...storage,
+    // 站点列需在 Better Auth schema 中声明，adapter 才能在 where 与 create 中使用它
+    ...(site && {
+      account: { additionalFields: siteFields(site) },
+      verification: { ...storage.verification, additionalFields: siteFields(site) },
+    }),
     advanced: {
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
       // 主键统一为 UUIDv7（design.md 决策 2），列类型为 uuid
@@ -140,7 +155,12 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
     user: {
       deleteUser: { enabled: false },
       // 用户设置中的语言与时区（tasks.md 5.2），取值由校验器限定
-      additionalFields: userSettingsFields(config),
+      // 站点字段 input: false，不进入 updateUser 等入参；条件展开会让字段类型变成联合，
+      // 破坏 Better Auth 对 body 的推断，所以对外只暴露设置字段的类型
+      additionalFields: {
+        ...userSettingsFields(config),
+        ...(site && siteFields(site)),
+      } as ReturnType<typeof userSettingsFields>,
     },
     emailAndPassword: {
       enabled: config.auth.emailPassword,

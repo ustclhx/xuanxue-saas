@@ -8,7 +8,7 @@
 
 ## 1. 前置验证
 
-- [ ] 1.1 【Claude】Better Auth 1.7.7 adapter 包装 spike（design 决策 2）：在测试中用包装后的 drizzle adapter 跑通邮箱注册、密码登录、OTP、找回密码、Google OAuth（mock），确认以下三点：
+- [x] 1.1 【Claude】Better Auth 1.7.7 adapter 包装 spike（design 决策 2）：在测试中用包装后的 drizzle adapter 跑通邮箱注册、密码登录、OTP、找回密码、Google OAuth（mock），确认以下三点：
   - `user`、`account`、`verification` 的 `additionalFields` 可以声明 `site`；
   - `where` 能使用 `site` 条件；
   - 事务路径也被包装覆盖。

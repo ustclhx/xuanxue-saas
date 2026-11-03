@@ -15,16 +15,25 @@ import type { BetterAuthOptions, SecondaryStorage } from 'better-auth'
 export const SESSION_COOKIE_CACHE_MAX_AGE = 5 * 60
 
 const KEY_PREFIX = 'auth:'
+const VERIFICATION_PREFIX = 'verification:'
 
 /**
  * 把 KV 适配为 Better Auth 的 `secondaryStorage`；键统一加 `auth:` 前缀，与 CACHE 中的其他用途区分。
  * KV 没有原子操作：`getAndDelete` 只在验证值不写库时用于一次性消费（这里写库，由数据库原子消费），
  * `increment` 只在内置限流存 secondaryStorage 时使用（这里改为内存），二者都不会被调用。
+ *
+ * 验证值（`verification:` 键）一律不读写 KV，只以数据库为准：
+ * - Better Auth 1.7.7 的 findVerificationValue 先读 KV，KV 不经过 adapter，按站点隔离（site-adapter.ts）
+ *   会被绕过——东方站发起的 OAuth state 能在西方站回调中命中（spike 1.1 实测）；
+ * - deletionPlugin 的 init 想用同样的方式关闭验证值 KV，但 runPluginInit 以 `defu(options, 插件 options)`
+ *   合并，已有的 secondaryStorage 优先，插件的覆盖不生效（better-auth dist/context/helpers.mjs）。
  */
 export function kvSecondaryStorage(kv: KeyValueStore): SecondaryStorage {
+  const skip = (key: string) => key.startsWith(VERIFICATION_PREFIX)
   return {
-    get: (key) => kv.get(KEY_PREFIX + key),
+    get: (key) => (skip(key) ? Promise.resolve(null) : kv.get(KEY_PREFIX + key)),
     getAndDelete: async (key) => {
+      if (skip(key)) return null
       const value = await kv.get(KEY_PREFIX + key)
       if (value !== null) await kv.delete(KEY_PREFIX + key)
       return value
@@ -33,13 +42,14 @@ export function kvSecondaryStorage(kv: KeyValueStore): SecondaryStorage {
       throw new Error('KV secondaryStorage does not support atomic increment')
     },
     set: async (key, value, ttl) => {
+      if (skip(key)) return
       await kv.put(
         KEY_PREFIX + key,
         value,
         ttl === undefined ? {} : { expirationTtl: Math.max(Math.ceil(ttl), 1) },
       )
     },
-    delete: (key) => kv.delete(KEY_PREFIX + key),
+    delete: (key) => (skip(key) ? Promise.resolve() : kv.delete(KEY_PREFIX + key)),
   }
 }
 
