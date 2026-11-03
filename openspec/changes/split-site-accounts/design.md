@@ -40,9 +40,11 @@
 ### 决策 2：在 adapter 层按站点隔离 Better Auth 的读写
 
 - `createAuth` 接收 `site`，把 drizzle adapter 包一层：
-  - 对 `user`、`account`、`verification` 三个模型，`findOne`、`findMany`、`count`、`update`、`updateMany`、`delete`、`deleteMany` 的 `where` 自动追加 `site = 当前站点`；
-  - `create` 自动写入 `site`；
-  - `transaction` 返回的事务 adapter 也同样包装。
+  - 对 `user`、`account`、`verification` 三个模型，`findOne`、`findMany`、`count`、`update`、`updateMany`、`delete`、`deleteMany`、`consumeOne`、`incrementOne` 的 `where` 自动追加 `site = 当前站点`；
+  - `create` 自动写入 `site`；`update`、`updateMany`、`incrementOne` 不允许修改 `site`；
+  - `transaction` 交给回调的 adapter 也同样包装。本项目的 drizzle adapter 没有开启真实事务，Better Auth 会把未包装的内层 adapter 交给回调，注册、OTP 与重置都走这条路径，所以必须显式包装；
+  - `advanced.database.joins` 保持关闭：关闭时关联行在包装层之外读取，包装层在结果中剔除其他站点的关联行；
+  - 1.7.7 的 adapter 成员以外的方法，在构建包装时直接报错。
 - 三张表增加 `site` 列，并在 Better Auth 中声明为 `additionalFields`（`input: false`），让 adapter 的字段映射认得这一列，客户端也不能写入。
 - `session`、`twoFactor`、`apikey` 通过 `userId` 关联到已经按站点隔离的用户，因此不需要 `site` 列。读会话时取到的用户不属于当前站点，就视为未登录（见决策 3）。
 
@@ -59,11 +61,18 @@
 
 如果 `verification` 不支持 `additionalFields`，降级方案是在包装层给 `identifier` 加 `<site>:` 前缀：写入时加上，查询时把条件里的值也加上前缀。这条路径只在包装层里出现，而且要有测试覆盖。
 
+**spike 结论（1.1，PR #103）**：三个模型都支持 `additionalFields`（`required` 字段必须有 `defaultValue`，取当前站点，create 时由包装层覆盖），`where` 与事务路径均可覆盖，不需要 identifier 前缀降级。另有三点：
+
+- **验证值不走 KV**：Better Auth 读验证值时先查 KV，KV 不经过 adapter，spike 中东方站发起的 OAuth state 能被西方站回调接受。`kvSecondaryStorage` 对 `verification:` 键一律不读写，验证值只以数据库为准。`deletion.ts` 原本想以插件 `init` 达到同样效果，但 Better Auth 合并插件 options 时已有配置优先，那段代码不生效，在 2.2 中删除。
+- **原生 SQL 写验证值**：`verification-reservation.ts`（插入与加锁）和 `deletion.ts`（清理时的插入与查询）绕过 adapter，2.2 中要补上 `site`，预约的唯一性判断也要带站点。
+- Better Auth 的 drizzle schema 校验挂在内层 adapter 上，包装后不执行；目前未开启运行时 schema 校验，暂不处理。
+
 ### 决策 3：会话读取再校验一次站点
 
 - Cookie 缓存与 KV 二级存储可能不经过 adapter，直接返回会话和用户。
 - 在 web 侧取会话的统一入口（`getSession` 封装）中校验：`session.user.site !== 当前站点` 时按未登录处理，并写一条 `auth.cross_site_session` 日志。
 - 这层校验是兜底。正常情况下，Cookie 按域名隔离，跨站请求根本带不上对方的会话。
+- spike 证实这层不能省：Cookie 缓存与 KV 会话不经过 adapter，带着东方站缓存 Cookie 的请求在西方站仍会读到东方站用户；从数据库读取时，包装层剔除关联行后会按未登录处理。
 
 ### 决策 4：邮箱唯一改为 `(site, email)`
 
