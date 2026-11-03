@@ -112,7 +112,7 @@ test('team deletion is owner-only, blocks sole-owner account deletion and revoke
     try {
       const [owner] = await sql`select id from "user" where email = ${ownerEmail}`
       if (!owner) throw new Error('Registered owner missing from isolated database')
-      await sql`insert into organization (id, name, slug, created_at, is_personal) values (${id}, ${teamName}, ${slug}, now(), false)`
+      await sql`insert into organization (id, name, slug, created_at, is_personal, site) values (${id}, ${teamName}, ${slug}, now(), false, 'west')`
       await sql`insert into member (id, organization_id, user_id, role, created_at) values (${randomUUID()}, ${id}, ${owner.id}, 'owner', now())`
       await page.goto(`/app/${slug}/settings`)
       await expect(page.getByRole('link', { name: 'Delete team workspace' })).toHaveCount(0)

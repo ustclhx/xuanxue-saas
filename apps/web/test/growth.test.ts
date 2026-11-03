@@ -71,6 +71,7 @@ function auth() {
     },
     db,
     {
+      site: 'west',
       config,
       sendEmail: async () => {},
       beforeUserCreate: async (account, headers) => {
@@ -289,7 +290,7 @@ describe('增长邮件收件人语言', () => {
     const address = email()
     await db
       .insert(user)
-      .values({ id: newId(), name: '中文订阅者', email: address, locale: 'zh-Hant' })
+      .values({ site: 'west', id: newId(), name: '中文订阅者', email: address, locale: 'zh-Hant' })
     await invite(address)
     expect(messages.at(-1)).toMatchObject({
       template: 'waitlist-invitation',

@@ -90,6 +90,7 @@ const auth = createAuth(
   { BETTER_AUTH_SECRET: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL },
   db,
   {
+    site: 'west',
     config: defineTemplateConfig({
       app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@example.test' },
       auth: { oauth: [], turnstile: false },
@@ -629,6 +630,7 @@ describe('详批运行时设置', () => {
     const ctx = { store: dbSettingStore(db), cache }
     try {
       await db.insert(user).values({
+        site: 'west',
         ...admin,
         name: 'Readings admin',
         email: `${admin.id}@readings-settings.test`,

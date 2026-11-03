@@ -1,12 +1,16 @@
+import type { SiteId } from '@xuanxue/config'
 import type { Database, Session, User } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import type { BetterAuthPlugin } from 'better-auth'
 import { APIError, createAuthMiddleware } from 'better-auth/api'
+import { logCrossSiteSession } from './session.ts'
 
 /**
  * 敏感操作的实时会话校验（design.md 决策 3，specs/user-auth「敏感操作实时校验会话」）：
  * 只从签名 Cookie 中取会话 token（校验签名），会话与用户一律直接查库，不读 Cookie 缓存与 KV。
  * 被吊销的会话（数据库行已删除或已过期）与被封禁的用户立即被拒绝，不受缓存时长影响。
+ * 会话所属用户不属于当前站点时同样按未登录处理（openspec split-site-accounts 决策 3）：
+ * 这里直接查库、不经过 site-adapter，所以必须自己核对。
  */
 
 export interface FreshSession {
@@ -26,8 +30,12 @@ type FreshCheck =
   | { readonly ok: true; readonly value: FreshSession }
   | { readonly ok: false; readonly code: typeof SESSION_REQUIRED | typeof USER_BANNED }
 
-/** 按会话 token 直接查库，校验会话未过期、用户未被封禁。 */
-export async function checkSessionInDatabase(db: Database, token: string): Promise<FreshCheck> {
+/** 按会话 token 直接查库，校验会话未过期、属于当前站点的用户、用户未被封禁。 */
+export async function checkSessionInDatabase(
+  db: Database,
+  token: string,
+  site: SiteId,
+): Promise<FreshCheck> {
   const row = await db.query.session.findFirst({
     where: (s, { eq }) => eq(s.token, token),
     with: { user: true },
@@ -35,6 +43,11 @@ export async function checkSessionInDatabase(db: Database, token: string): Promi
   const now = new Date()
   if (!row || row.expiresAt <= now) return { ok: false, code: SESSION_REQUIRED }
   const { user, ...session } = row
+  // 另一站的会话与「没有会话」不可区分，不透露该会话在别处有效
+  if (user.site !== site) {
+    logCrossSiteSession('database', site, user.site)
+    return { ok: false, code: SESSION_REQUIRED }
+  }
   if (isBanned(user, now)) return { ok: false, code: USER_BANNED }
   return { ok: true, value: { session, user } }
 }
@@ -74,6 +87,8 @@ function readCookie(headers: Headers, name: string): string | null {
 
 /** `requireFreshSession` 需要的 auth 实例部分（`createAuth` 的返回值满足） */
 export interface AuthContextSource {
+  /** 本实例服务的站点（来自请求 Host，决策 1） */
+  readonly site: SiteId
   readonly $context: Promise<{
     readonly secret: string
     readonly authCookies: { readonly sessionToken: { readonly name: string } }
@@ -95,7 +110,7 @@ export async function requireFreshSession(options: {
   const raw = readCookie(options.headers, context.authCookies.sessionToken.name)
   const token = raw && (await verifySignedCookie(raw, context.secret))
   if (!token) throw new AppError(SESSION_REQUIRED, 'Sign in required', { status: 401 })
-  const result = await checkSessionInDatabase(options.db, token)
+  const result = await checkSessionInDatabase(options.db, token, options.auth.site)
   if (result.ok) return result.value
   if (result.code === USER_BANNED) {
     throw new AppError(USER_BANNED, 'Account suspended', { status: 403 })
@@ -141,7 +156,7 @@ export function isSensitivePath(path: string): boolean {
 }
 
 /** 把实时校验接到 Better Auth 的敏感接口上（只拦截带会话 Cookie 的 HTTP 请求，其余交给接口自身处理）。 */
-export function freshSessionGuard(db: Database) {
+export function freshSessionGuard(db: Database, site: SiteId) {
   return {
     id: 'fresh-session-guard',
     hooks: {
@@ -155,7 +170,7 @@ export function freshSessionGuard(db: Database) {
             )
             // 没有会话 Cookie 时由接口自己返回 401
             if (!token) return
-            const result = await checkSessionInDatabase(db, token)
+            const result = await checkSessionInDatabase(db, token, site)
             if (result.ok) return
             if (result.code === USER_BANNED) {
               throw APIError.from('FORBIDDEN', { code: USER_BANNED, message: 'Account suspended' })

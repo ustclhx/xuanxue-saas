@@ -120,7 +120,7 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const recomputed = definition.recompute(body.input, now)
   const inputHash = await readingInputHash(recomputed.input)
   // 详批保存在个人空间（specs/paid-readings「报告保存与查看」）
-  const resolved = await resolveDefaultWorkspace(db, user, null)
+  const resolved = await resolveDefaultWorkspace(db, user, null, deps.auth.site)
   if (!resolved) throw notFound()
   const { workspace } = resolved
   setLogContext({ workspaceId: workspace.id, userId: user.id })

@@ -112,8 +112,8 @@ test('another member of the workspace gets 404 for a conversation', async ({ pag
     const [owner] = await sql`select id from "user" where email = ${ownerEmail}`
     const [other] = await sql`select id from "user" where email = ${otherEmail}`
     if (!owner || !other) throw new Error('Registered users missing from isolated database')
-    await sql`insert into organization (id, name, slug, created_at, is_personal)
-      values (${workspaceId}, 'Chat Team', ${slug}, now(), false)`
+    await sql`insert into organization (id, name, slug, created_at, is_personal, site)
+      values (${workspaceId}, 'Chat Team', ${slug}, now(), false, 'west')`
     await sql`insert into member (id, organization_id, user_id, role, created_at) values
       (${randomUUID()}, ${workspaceId}, ${owner.id}, 'owner', now()),
       (${randomUUID()}, ${workspaceId}, ${other.id}, 'admin', now())`

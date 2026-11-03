@@ -1,4 +1,4 @@
-import { templateConfigDefaults } from '@xuanxue/config'
+import { type SiteId, templateConfigDefaults } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import { AppError, newId } from '@xuanxue/shared'
 import type { BetterAuthPlugin } from 'better-auth'
@@ -154,6 +154,7 @@ async function lockExpired(sql: Transaction, workspaceId: string) {
 /** Mount separately in createAuth; all authorization comes from the current database session. */
 export function workspaceLifecyclePlugin(
   db: Database,
+  site: SiteId,
   maxWorkspacesPerUser = templateConfigDefaults.tenancy.maxWorkspacesPerUser as number,
   clientIp?: string | null,
 ) {
@@ -176,7 +177,7 @@ export function workspaceLifecyclePlugin(
                 maxWorkspacesPerUser,
                 workspaceId: ctx.body.workspaceId,
                 headers: ctx.headers,
-                auth: { $context: Promise.resolve(ctx.context) },
+                auth: { site, $context: Promise.resolve(ctx.context) },
               }),
             )
           } catch (error) {

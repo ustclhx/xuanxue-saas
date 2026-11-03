@@ -37,7 +37,8 @@ async function deletedTeam(a: ReturnType<typeof app>, formerMemberId?: string) {
   const owner = await actor(a)
   const id = newId()
   users.createdOrgs.push(id)
-  await a.db.$client`insert into organization (id,name,slug) values (${id},'Lifecycle',${id})`
+  await a.db
+    .$client`insert into organization (id,name,slug,site) values (${id},'Lifecycle',${id},'west')`
   await a.db
     .$client`insert into member (id,organization_id,user_id,role) values (${newId()},${id},${owner.id},'owner')`
   if (formerMemberId)

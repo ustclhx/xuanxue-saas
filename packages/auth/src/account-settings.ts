@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@xuanxue/config'
+import type { SiteId, TemplateConfig } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import { newId } from '@xuanxue/shared'
 import type { BetterAuthPlugin } from 'better-auth'
@@ -41,7 +41,12 @@ const profileBody = z.looseObject({
   image: profileImageSchema.optional(),
 })
 
-export function accountSettings(db: Database, config: TemplateConfig, clientIp?: string | null) {
+export function accountSettings(
+  db: Database,
+  config: TemplateConfig,
+  site: SiteId,
+  clientIp?: string | null,
+) {
   return {
     id: 'account-settings',
     hooks: {
@@ -60,7 +65,7 @@ export function accountSettings(db: Database, config: TemplateConfig, clientIp?:
               ctx.context.authCookies.sessionToken.name,
               ctx.context.secret,
             )
-            const fresh = token ? await checkSessionInDatabase(db, token) : null
+            const fresh = token ? await checkSessionInDatabase(db, token, site) : null
             if (fresh?.ok && fresh.value.session.impersonatedBy) {
               const parsed = profileBody
                 .extend({

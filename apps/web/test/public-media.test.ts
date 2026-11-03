@@ -49,7 +49,7 @@ const config = defineTemplateConfig({
 const auth = createAuth(
   { BETTER_AUTH_SECRET: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL: url },
   db,
-  { config, sendEmail: async () => {} },
+  { site: 'west', config, sendEmail: async () => {} },
 )
 const entitlement = {
   key: 'fixture',

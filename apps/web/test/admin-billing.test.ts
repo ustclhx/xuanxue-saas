@@ -22,9 +22,9 @@ const context = { db, admin: { id: adminId }, ip: '203.0.113.7' }
 let initialized = false
 async function fixture() {
   if (initialized) return
-  await db.$client`insert into "user"(id,name,email,role) values(${adminId},'Admin',${`${adminId}@admin-billing.example`},'admin')`
+  await db.$client`insert into "user"(id,name,email,role,site) values(${adminId},'Admin',${`${adminId}@admin-billing.example`},'admin','west')`
   for (const ws of spaces) {
-    await db.$client`insert into organization(id,name,slug) values(${ws},'Admin billing',${ws})`
+    await db.$client`insert into organization(id,name,slug,site) values(${ws},'Admin billing',${ws},'west')`
     const plan = newId(),
       price = newId(),
       order = newId(),

@@ -38,7 +38,7 @@ it('keeps authentication configured and skips default credit grants after email 
   const deps = createWebAuth(
     { APP_URL: 'https://example.test', BETTER_AUTH_SECRET: 'fixture' },
     {} as Database,
-    { sendEmail: vi.fn() },
+    { site: 'west', sendEmail: vi.fn() },
   ) as unknown as CreateAuthDeps
   expect(deps.config).toBe(mocks.template)
   await deps.onEmailVerified?.({ id: 'user', email: 'user@example.test' })

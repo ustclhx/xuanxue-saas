@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers'
-import { defineTemplateConfig, type TemplateConfigInput } from '@xuanxue/config'
+import { defineTemplateConfig, type SiteId, type TemplateConfigInput } from '@xuanxue/config'
 import { createDb, type Database } from '@xuanxue/db'
 import type { KeyValueStore, RateLimiter } from '@xuanxue/platform'
 import {
@@ -135,6 +135,8 @@ export interface SetupOptions {
   readonly db?: Database
   readonly maxSeats?: number
   readonly hosts?: readonly string[]
+  /** 认证实例的站点；APP_URL 是未登记的 localhost，与生产入口一样按西方站处理（决策 1） */
+  readonly site?: SiteId
 }
 
 /**
@@ -153,6 +155,7 @@ export function setup(options: SetupOptions = {}) {
       rateLimiter,
       clientIp,
       hosts: options.hosts,
+      site: options.site ?? 'west',
       config: defineTemplateConfig({ app, ...options.config }),
       resolveMaxSeats: async () => options.maxSeats ?? null,
       sendEmail: async (message) => {

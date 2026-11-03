@@ -53,8 +53,10 @@ beforeEach(async () => {
   // The previous month is elapsed in both injected and PostgreSQL clocks.
   start = subscriptionMonthAnchor(now, -2)
   end = subscriptionMonthAnchor(start, 12)
-  await db.insert(user).values({ id: uid, name: 'Cron', email: `${uid}@example.test` })
-  await db.insert(organization).values({ id: ws, name: 'Cron', slug: ws })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: uid, name: 'Cron', email: `${uid}@example.test` })
+  await db.insert(organization).values({ site: 'west', id: ws, name: 'Cron', slug: ws })
   await db.insert(member).values({ id: id(), userId: uid, organizationId: ws, role: 'owner' })
   await db.insert(plan).values({
     id: pid,

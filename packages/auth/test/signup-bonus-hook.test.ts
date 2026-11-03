@@ -25,6 +25,7 @@ function setup(callback: NonNullable<CreateAuthDeps['onEmailVerified']>) {
   const db = createDb(env.HYPERDRIVE)
   const sent: AuthEmail[] = []
   const auth = createAuth(testEnv, db, {
+    site: 'west',
     cache: createCloudflareKv(env.CACHE),
     config: defineTemplateConfig({ app, auth: { turnstile: false } }),
     sendEmail: async (message) => {

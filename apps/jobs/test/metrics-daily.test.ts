@@ -22,9 +22,9 @@ const holds = [newId(), newId()]
 beforeAll(async () => {
   const sql = db.$client
   for (const [index, id] of users.entries())
-    await sql`insert into "user" (id,name,email,created_at) values (${id},'Metrics',${`${id}@metrics.test`},${index === 0 ? old : index === 1 ? at : next})`
+    await sql`insert into "user" (id,name,email,created_at,site) values (${id},'Metrics',${`${id}@metrics.test`},${index === 0 ? old : index === 1 ? at : next},'west')`
   for (const id of spaces)
-    await sql`insert into organization (id,name,slug,created_at) values (${id},'Metrics',${id},${old})`
+    await sql`insert into organization (id,name,slug,created_at,site) values (${id},'Metrics',${id},${old},'west')`
   await sql`insert into plan (id,key,name,type,credits,features) values (${planId},${planId},'Metrics','subscription',100,'{}')`
   for (const [index, id] of prices.entries())
     await sql`insert into plan_price (id,plan_id,provider,provider_price_id,interval,amount,currency) values (${id},${planId},'stripe',${id},${index === 1 ? 'year' : 'month'},${index === 1 ? 12000 : 1200},${index === 2 ? 'EUR' : 'USD'})`

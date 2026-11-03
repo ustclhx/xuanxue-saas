@@ -53,8 +53,8 @@ it('退款已提交成功，Telegram HTTP 超时只让消息重试，重投成�
   try {
     await db
       .insert(user)
-      .values({ id: uid, name: 'Ops test', email: `${uid}@ops.test`, role: 'admin' })
-    await db.insert(organization).values({ id: ws, name: 'Ops test', slug: ws })
+      .values({ site: 'west', id: uid, name: 'Ops test', email: `${uid}@ops.test`, role: 'admin' })
+    await db.insert(organization).values({ site: 'west', id: ws, name: 'Ops test', slug: ws })
     await db.insert(member).values({ id: newId(), userId: uid, organizationId: ws, role: 'owner' })
     await db.insert(plan).values({
       id: planId,
@@ -280,9 +280,13 @@ it('通用 webhook 设置：拒绝非公网 HTTPS 地址，保存后只返回状
       .success,
   ).toBe(false)
   try {
-    await db
-      .insert(user)
-      .values({ id: uid, name: 'Ops webhook', email: `${uid}@ops.test`, role: 'admin' })
+    await db.insert(user).values({
+      site: 'west',
+      id: uid,
+      name: 'Ops webhook',
+      email: `${uid}@ops.test`,
+      role: 'admin',
+    })
     const save = (input: Parameters<typeof writeOperationsSettings>[1]) =>
       runAdminAction({ db, admin: { id: uid }, ip: null }, 'setting.operations.update', (scope) =>
         writeOperationsSettings(scope, input),

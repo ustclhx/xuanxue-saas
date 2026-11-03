@@ -18,11 +18,17 @@ it('通知按空间和接收者隔离，单条与全部已读不影响其他用�
   const space = spaces[0] as string
   const other = spaces[1] as string
   try {
-    await db
-      .insert(user)
-      .values(users.map((id) => ({ id, name: 'Notification test', email: `${id}@notify.test` })))
+    await db.insert(user).values(
+      users.map((id) => ({
+        site: 'west' as const,
+        id,
+        name: 'Notification test',
+        email: `${id}@notify.test`,
+      })),
+    )
     await db.insert(organization).values(
       spaces.map((id) => ({
+        site: 'west' as const,
         id,
         name: 'Notify test',
         slug: `notify-${id}`,

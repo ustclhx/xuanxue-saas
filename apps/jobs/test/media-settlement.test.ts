@@ -15,8 +15,8 @@ async function fixture(pricing: AiPricingJson = { mode: 'per_call', credits: 15 
   workspaces.push(ws)
   await db
     .insert(user)
-    .values({ id: ws, name: 'Media', email: `${ws}@media-settlement.example.test` })
-  await db.insert(organization).values({ id: ws, name: 'Media', slug: ws })
+    .values({ site: 'west', id: ws, name: 'Media', email: `${ws}@media-settlement.example.test` })
+  await db.insert(organization).values({ site: 'west', id: ws, name: 'Media', slug: ws })
   await db.insert(member).values({ id: id(), userId: ws, organizationId: ws, role: 'owner' })
   await grant(db, { workspaceId: ws, source: 'admin', sourceRef: id(), amount: 100 })
   const reservation = await hold(db, {

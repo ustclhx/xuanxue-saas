@@ -83,10 +83,12 @@ beforeEach(async () => {
   cancel.mockReset().mockResolvedValue(undefined)
   refund.mockReset().mockResolvedValue({ providerRefundId: id() })
   await db.insert(user).values([
-    { id: uid, name: 'Applicant', email: `${uid}@example.test` },
-    { id: adminId, name: 'Admin', email: `${adminId}@example.test`, role: 'admin' },
+    { site: 'west', id: uid, name: 'Applicant', email: `${uid}@example.test` },
+    { site: 'west', id: adminId, name: 'Admin', email: `${adminId}@example.test`, role: 'admin' },
   ])
-  await db.insert(organization).values({ id: ws, name: 'Deletion', slug: ws, isPersonal: true })
+  await db
+    .insert(organization)
+    .values({ site: 'west', id: ws, name: 'Deletion', slug: ws, isPersonal: true })
   await db.insert(member).values({ id: id(), userId: uid, organizationId: ws, role: 'owner' })
   await db.insert(plan).values({
     id: planId,

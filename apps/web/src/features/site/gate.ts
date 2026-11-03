@@ -1,5 +1,5 @@
 import { localeUrlSegment } from '@xuanxue/config'
-import { NOT_FOUND_PATH } from '../admin/gate.ts'
+import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, resolveSite, type SitesConfig, siteOfLocale } from './site.ts'

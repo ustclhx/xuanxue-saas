@@ -12,6 +12,7 @@ import type { BetterAuthOptions } from 'better-auth'
  * - 幂等：个人空间的 id 取用户 id（同为 UUIDv7），organization 主键与 member 的
  *   `(organization_id, user_id)` 唯一约束保证并发补建不会产生第二个个人空间或重复的成员行。
  * - slug 为 `u-` + 8 位随机 base36，与已有 slug 冲突时换一个重试。
+ * - 站点与用户一致（openspec split-site-accounts 决策 5）：从加锁读取的用户行取 `site`，不由调用方传入。
  */
 
 export const PERSONAL_SLUG_PREFIX = 'u-'
@@ -53,19 +54,19 @@ export async function ensurePersonalWorkspace(
 ): Promise<Organization> {
   return db.$client.begin(async (sql) => {
     await sql`select pg_advisory_xact_lock(hashtextextended(${`owner:${user.id}`}, 0))`
-    const [available] = await sql`select id from "user" where id=${user.id}
+    const [available] = await sql<{ site: string }[]>`select site from "user" where id=${user.id}
       and not (coalesce(banned,false) and (ban_expires is null or ban_expires>now()))`
     if (!available) throw new AppError('USER_BANNED', 'Account unavailable', { status: 403 })
     const read = async () => {
       const [workspace] = await sql<Organization[]>`select id,name,slug,logo,metadata,
-        created_at as "createdAt",updated_at as "updatedAt",is_personal as "isPersonal",deleted_at as "deletedAt"
-        from organization where id=${user.id} and is_personal=true`
+        created_at as "createdAt",updated_at as "updatedAt",is_personal as "isPersonal",deleted_at as "deletedAt",
+        site from organization where id=${user.id} and is_personal=true`
       return workspace
     }
     let workspace = await read()
     for (let attempt = 0; !workspace && attempt < SLUG_ATTEMPTS; attempt++) {
-      await sql`insert into organization (id,name,slug,is_personal)
-        values (${user.id},${PERSONAL_WORKSPACE_NAME},${personalSlug()},true) on conflict do nothing`
+      await sql`insert into organization (id,name,slug,is_personal,site)
+        values (${user.id},${PERSONAL_WORKSPACE_NAME},${personalSlug()},true,${available.site}) on conflict do nothing`
       workspace = await read()
     }
     if (!workspace) throw new Error('Unable to create personal workspace')

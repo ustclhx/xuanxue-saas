@@ -1,4 +1,5 @@
 import type { ResolveMaxSeats } from '@xuanxue/auth'
+import type { SiteId } from '@xuanxue/config'
 import { type Database, invitation, member, scoped, user } from '@xuanxue/db'
 import {
   type EntitlementSubscription,
@@ -56,23 +57,29 @@ export async function userWorkspaces(db: Database, userId: string) {
     o && !o.deletedAt ? [{ id: o.id, name: o.name, slug: o.slug, isPersonal: o.isPersonal }] : [],
   )
 }
+/**
+ * 邀请只在空间所在站点有效（openspec split-site-accounts「团队成员限同站用户」）：
+ * 在另一站打开时与不存在的邀请相同，不比对邮箱，也不透露空间名称。
+ */
 export async function recipientInvitation(
   db: Database,
   id: string,
   email: string,
   emailVerified: boolean,
+  site: SiteId,
 ) {
   const invite = await db.query.invitation.findFirst({ where: (i, { eq }) => eq(i.id, id) })
   if (!invite) return { error: 'INVITATION_INVALID' } as const
+  const workspace = await db.query.organization.findFirst({
+    where: (o, { eq }) => eq(o.id, invite.organizationId),
+  })
+  if (!workspace || workspace.site !== site) return { error: 'INVITATION_INVALID' } as const
   if (invite.email.toLowerCase() !== email.toLowerCase())
     return { error: 'INVITATION_RECIPIENT' } as const
   if (invite.status !== 'pending' || invite.expiresAt <= new Date())
     return { error: 'INVITATION_INVALID' } as const
   if (!emailVerified) return { verifyRequired: true, email, id: invite.id } as const
-  const workspace = await db.query.organization.findFirst({
-    where: (o, { eq }) => eq(o.id, invite.organizationId),
-  })
-  if (!workspace || workspace.deletedAt) return { error: 'INVITATION_INVALID' } as const
+  if (workspace.deletedAt) return { error: 'INVITATION_INVALID' } as const
   return {
     invitation: { id: invite.id, role: invite.role },
     workspace: { id: workspace.id, name: workspace.name, slug: workspace.slug },

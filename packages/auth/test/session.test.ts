@@ -48,7 +48,7 @@ describe('会话三层', () => {
     const { cookie, token } = await signIn(s, address)
 
     expect(cookie).toContain('session_data=')
-    expect(await env.CACHE.get(`auth:${token}`)).toContain(token)
+    expect(await env.CACHE.get(`auth:west:${token}`)).toContain(token)
     const row = await s.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, token) })
     expect(row).toBeDefined()
   })
@@ -111,7 +111,7 @@ describe('会话三层', () => {
     expect(
       await s.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, victim.token) }),
     ).toBeUndefined()
-    expect(await env.CACHE.get(`auth:${victim.token}`)).toBeNull()
+    expect(await env.CACHE.get(`auth:west:${victim.token}`)).toBeNull()
 
     // Cookie 缓存有效期内旧 Cookie 仍被接受（spec 允许的吊销延迟）
     vi.useFakeTimers({ toFake: ['Date'], now: Date.now() })

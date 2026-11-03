@@ -33,8 +33,10 @@ async function staleReply(options: {
 }) {
   const ws = id()
   workspaces.push(ws)
-  await db.insert(user).values({ id: ws, name: 'Sweep', email: `${ws}@ai-sweep.example.test` })
-  await db.insert(organization).values({ id: ws, name: 'Sweep', slug: ws })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: ws, name: 'Sweep', email: `${ws}@ai-sweep.example.test` })
+  await db.insert(organization).values({ site: 'west', id: ws, name: 'Sweep', slug: ws })
   await db.insert(member).values({ id: id(), userId: ws, organizationId: ws, role: 'owner' })
   await grant(db, { workspaceId: ws, source: 'admin', sourceRef: id(), amount: 1000 })
   const messageId = id()

@@ -21,10 +21,16 @@ const claim = (userId: string) => grantSignupBonus({ db, userId, config })
 async function account(email?: string, verified = true) {
   const id = newId()
   ids.push(id)
+  await db.insert(user).values({
+    site: 'west',
+    id,
+    name: 'Signup',
+    email: email ?? `${id}@example.test`,
+    emailVerified: verified,
+  })
   await db
-    .insert(user)
-    .values({ id, name: 'Signup', email: email ?? `${id}@example.test`, emailVerified: verified })
-  await db.insert(organization).values({ id, name: 'Personal', slug: id, isPersonal: true })
+    .insert(organization)
+    .values({ site: 'west', id, name: 'Personal', slug: id, isPersonal: true })
   await db.insert(member).values({ id: newId(), organizationId: id, userId: id, role: 'owner' })
   return id
 }
