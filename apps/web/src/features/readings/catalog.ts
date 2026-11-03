@@ -323,7 +323,7 @@ const entries = {
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample:
-          '以一張虛構命盤為例：日主丙火生於卯月，木火相生，屬身強格局。這類命盤的人通常表達直接、做事投入，重視節奏與成就感；火勢偏旺時，容易急於求成、忽略休息。完整報告會結合喜用神與大運，說明哪些環境較能發揮所長，並提供可以落實的調整方向。',
+          '日主乙木，生於卯月，木氣當令，本來有根有氣。不過四柱之中金氣偏旺，整體判斷為身弱。年干庚金為正官、時干辛金為七殺，形成官殺混雜、壓力偏重的格局。這樣的組合，人生的主軸往往是「如何在要求與規範之中，穩住自己的節奏」。',
       },
       'zh-Hans': {
         prompt: BAZI_FULL_V3,
@@ -331,7 +331,7 @@ const entries = {
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
         sample:
-          '以一张虚构命盘为例：日主丙火生于卯月，木火相生，属身强格局。这类命盘的人通常表达直接、做事投入，重视节奏与成就感；火势偏旺时，容易急于求成、忽略休息。完整报告会结合喜用神与大运，说明哪些环境较能发挥所长，并提供可以落实的调整方向。',
+          '日主乙木，生于卯月。乙木如藤萝花草，看似柔软，实则韧性很强。天干庚金正官与辛金七杀并见，对日主形成持续的约束、雕琢之力，综合判为身弱，属于“有根但压力不小”的结构。喜用取水、木：水能化金之锐而生木，木能帮身自立。',
       },
     },
     recompute: recomputeChart,
@@ -345,7 +345,7 @@ const entries = {
           '이 풀이는 전통 명리학에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: KO_HEALTH,
         sample:
-          '가상의 명식을 예로 들면, 갑목 일간이 유월에 태어나 관성이 뚜렷한 구조입니다. 원칙과 책임감을 중시하고 맡은 일을 끝까지 해내려는 성향으로 풀이되지만, 스스로에게 엄격해 쉼을 놓치기 쉽습니다. 상세 풀이에서는 용신과 대운의 흐름을 바탕으로 강점을 살릴 수 있는 환경과 생활 속 조언을 정리합니다.',
+          '일간 기토가 월지와 일지의 유금, 그리고 시간의 신금까지 마주해 식신의 기운이 대단히 두터운 것이 이 명식의 가장 큰 특징입니다. 여기에 계수 편재가 더해져 식신생재의 흐름이 자연스럽게 이어집니다. 다만 일간을 받쳐 주는 토의 힘이 넉넉하지 않아, 재능은 풍부하지만 중심을 잡는 힘이 아쉬울 수 있습니다.',
       },
     },
     recompute: recomputeChart,
@@ -359,7 +359,7 @@ const entries = {
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample:
-          '以一張虛構命盤為例：命宮坐紫微、天府，身宮落在官祿宮。這樣的格局重視秩序與責任，習慣先規劃再行動，在團隊中常被期待擔任統籌的角色；不足之處是對自己要求偏高，壓力不易說出口。完整報告會逐宮說明主星與四化的作用，並整理可在生活中練習的建議。',
+          '命宮在卯，天府得地坐命；身宮落在遷移宮酉位，由武曲、七殺同宮。命宮天府重視安全感、善於統籌與守成，身宮武曲七殺則帶著實事求是與敢於承擔的衝勁。兩者並不衝突，只要懂得分工，就能形成先想清楚、再快速執行的節奏。',
       },
       'zh-Hans': {
         prompt: ZIWEI_FULL_V3,
@@ -367,7 +367,7 @@ const entries = {
           '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
         sample:
-          '以一张虚构命盘为例：命宫坐紫微、天府，身宫落在官禄宫。这样的格局重视秩序与责任，习惯先规划再行动，在团队中常被期待担任统筹的角色；不足之处是对自己要求偏高，压力不易说出口。完整报告会逐宫说明主星与四化的作用，并整理可在生活中练习的建议。',
+          '命宫坐卯宫，主星为天府，性稳能容，重信用讲章法，做事喜欢有把握、有次序。身宫落在迁移宫（酉），主星武曲与七杀，代表行动风格偏向务实、果断、敢往外走。命宫与身宫一静一动，形成“底子求稳、对外敢闯”的基本格局。',
       },
     },
     recompute: recomputeZiwei,
@@ -381,7 +381,7 @@ const entries = {
           '이 궁합 풀이는 전통 명리학에 따른 참고 자료로 관계에 대한 결정을 대신하지 않으며, 의료·법률·투자 조언이 아니고 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
         sample:
-          '가상의 두 사람을 예로 들면, 병화 일간과 임수 일간은 물과 불이 마주하는 관계라 서로 다른 속도와 표현 방식이 먼저 눈에 띕니다. 한쪽은 감정을 바로 드러내고, 다른 쪽은 생각을 정리한 뒤 말하는 편입니다. 상세 풀이에서는 이런 차이를 갈등보다 보완의 관점에서 살피고, 두 사람에게 맞는 대화 방법을 제안합니다.',
+          '한 사람은 병화 일간으로 화 기운이 중심이고, 다른 사람은 갑목 일간으로 목 기운이 중심입니다. 목생화의 흐름이라 상대의 기운이 이쪽을 북돋아 주는 방향으로 작동합니다. 서로에게 부족한 것을 이미 서로가 갖고 있는 셈이니, 이 관계의 힘은 화려한 사건보다 일상에서 쌓이는 온기와 안정에 있습니다.',
       },
     },
     recompute: recomputeCompat,
@@ -398,7 +398,7 @@ const entries = {
           notice: 'If you feel unwell, please consult a qualified healthcare professional.',
         },
         sample:
-          'Take a fictional profile with Life Path 7 and Expression 3. This pairing often describes someone who thinks deeply and values time alone, yet expresses ideas warmly once they feel at ease. The pull between reflection and sociability can become a strength: quiet preparation tends to make their conversations more meaningful. The full reading walks through each core number and the Personal Year, with practical ways to balance focus and connection.',
+          "This chart centers on a Life Path 9, a number of compassion, perspective and quiet completion. It gives a wide-angle view of people, seeing the story behind someone's behaviour rather than just the behaviour itself. Alongside it sits a Birthday number 7, adding thoughtfulness and a habit of looking beneath the surface, and an Expression number 11, a master number that brings unusual sensitivity and intuition.",
       },
     },
     recompute: recomputeNumerology,
@@ -412,7 +412,7 @@ const entries = {
           'This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: null,
         sample:
-          'Take a fictional three-card spread: Four of Cups (Past), The Star (Present) and Eight of Pentacles (Future). Read together, the cards move from withdrawal toward renewed hope, then to patient, hands-on effort. The Star suggests that rest has restored some perspective, while the Eight of Pentacles invites turning that hope into small, steady practice. The full reading looks at each position, how the cards interact and what is worth reflecting on.',
+          'In this three-card spread, The Hanged Man in the Past suggests that a period of pause or letting go has influenced the question. In the Present, the Five of Cups brings disappointment and grief into focus, not to trap anyone there, but to acknowledge what has felt lost. The Hermit reversed in the Future is a direction to consider: solitude and insight matter, yet withdrawal may become too enclosed if it keeps one from returning to connection.',
       },
       'zh-Hant': {
         prompt: TAROT_SPREAD_V2['zh-Hant'],
@@ -420,7 +420,7 @@ const entries = {
           '本報告依塔羅牌的象徵意義整理，僅供參考與自我反思，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: null,
         sample:
-          '以一組虛構的三張牌為例：過去是聖杯四、現在是星星、未來是錢幣八。三張牌連起來，呈現從退縮、重拾希望到踏實投入的過程。星星象徵休息後重新看見方向，錢幣八則提醒把這份希望化為日常的小步練習。完整報告會逐一解讀牌位、牌與牌的關聯，以及值得反思的課題。',
+          '過去位置的隱者逆位、現在位置的惡魔正位、未來位置的星星逆位。三張牌放在一起看，有一條很清楚的線：從「把自己收得太緊」到「被熟悉的慣性牽著走」，再到「與心裡的期待之間出現距離」。這不是命運的宣告，而是一組很溫和的提醒。',
       },
       'zh-Hans': {
         prompt: TAROT_SPREAD_V3['zh-Hans'],
@@ -428,7 +428,7 @@ const entries = {
           '本报告依塔罗牌的象征意义整理，仅供参考与自我反思，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: null,
         sample:
-          '以一组虚构的三张牌为例：过去是圣杯四、现在是星星、未来是钱币八。三张牌连起来，呈现从退缩、重拾希望到踏实投入的过程。星星象征休息后重新看见方向，钱币八则提醒把这份希望化为日常的小步练习。完整报告会逐一解读牌位、牌与牌的关联，以及值得反思的课题。',
+          '权杖四、逆位的权杖五与权杖王牌都来自权杖牌组，共同指向同一条线索：行动、热情，以及在人群中的位置。三张牌依序从“庆祝与归属”走到“摩擦被按下不表”，再到“灵感与起步”，像是一段由外而内的收束，再由内而外重新开始的历程。',
       },
       ko: {
         prompt: TAROT_SPREAD_V2.ko,
@@ -436,7 +436,7 @@ const entries = {
           '이 리딩은 타로 카드의 상징에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
         sample:
-          '가상의 쓰리 카드를 예로 들면, 과거는 컵 4, 현재는 별, 미래는 펜타클 8입니다. 세 장을 이어 보면 움츠러든 마음이 다시 희망을 찾고, 차근차근 노력으로 옮겨 가는 흐름이 보입니다. 별은 쉼을 통해 방향을 되찾는 모습을, 펜타클 8은 그 희망을 작은 실천으로 이어 가라는 뜻을 담고 있습니다.',
+          '소드 8과 펜타클 5가 모두 역방향으로 놓였습니다. 두 카드 모두 "무언가에 묶여 있던 상태"를 담고 있는데, 뒤집혀 있다는 것은 그 묶임이 이미 힘을 잃기 시작했다는 뜻으로 읽을 수 있습니다. 마지막의 별 역방향은 회복의 방향은 분명하지만 마음의 확신이 아직 그 속도를 따라오지 못하는 상태로 볼 수 있습니다.',
       },
     },
     recompute: recomputeTarot,

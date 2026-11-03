@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { computeChart, computeCompatibility } from '@xuanxue/bazi'
 import { computeZiwei } from '@xuanxue/bazi/ziwei'
 import { READING_KINDS } from '@xuanxue/db'
@@ -233,14 +234,19 @@ describe('样例段落', () => {
     })),
   )
 
-  it('六种详批的每种报告语言都有样例，且声明为虚构案例', () => {
+  it('六种详批的每种报告语言都有样例；解锁卡标题声明为虚构案例', () => {
     expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
     expect(variants).toHaveLength(11)
     for (const { locale, sample } of variants) {
+      expect(sample.length).toBeGreaterThan(0)
+      // 样例正文摘自真实生成的报告，「虚构」声明由解锁卡的标题承担（readings_unlock_sample）
+      const caption = JSON.parse(
+        readFileSync(new URL(`../../../messages/${locale}/readings.json`, import.meta.url), 'utf8'),
+      ).readings_unlock_sample as string
       const fictional = { en: /fictional/, ko: /가상/, 'zh-Hant': /虛構/, 'zh-Hans': /虚构/ }[
         locale as 'en'
       ]
-      expect(sample).toMatch(fictional)
+      expect(caption).toMatch(fictional)
     }
   })
 
