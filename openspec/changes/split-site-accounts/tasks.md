@@ -24,14 +24,14 @@
 
 ## 2. 数据层与认证隔离
 
-- [ ] 2.1 【Claude】迁移：
+- [x] 2.1 【Claude】迁移：
   - `user`、`account`、`verification`、`organization` 增加 `site` 列，回填后设为 `not null`；
   - `user` 的唯一约束改为 `(site, email)`；
   - 删除现有 `verification` 行；
   - 按决策 9 判定主站点并回填；为每个原用户在另一站新建副本用户、复制 `account` 行（及两步验证），并新建空的个人空间（决策 8）。
 
   验证：迁移在本地对构造数据（两站活动、仅 locale、无依据、密码与 Google 两种登录）回填结果正确，用户数翻倍，副本空间余额为 0，原有数据不变，两站都能用原密码登录；`pnpm --filter @xuanxue/db db:migrate` 在空库与已有数据库上都能通过。
-- [ ] 2.2 【Claude】`createAuth` 接收 `site`，并包装 adapter（决策 2）：
+- [x] 2.2 【Claude】`createAuth` 接收 `site`，并包装 adapter（决策 2）：
   - 未包装的 adapter 方法直接报错，不透传；
   - `site` 声明为 `additionalFields`，并设 `input: false`。
 
@@ -41,14 +41,14 @@
   - 另一站的 OTP、magic link、重置链接无效；
   - Google 账号在两站各自关联；
   - 改邮箱只在本站校验唯一。
-- [ ] 2.3 【Claude】会话读取校验站点（决策 3）：会话所属用户的站点与当前站点不一致时视为未登录，并记录 `auth.cross_site_session`。验证：单测覆盖 Cookie 缓存、KV 与数据库三条路径。
-- [ ] 2.4 【Claude】空间归属站点（决策 5）：
+- [x] 2.3 【Claude】会话读取校验站点（决策 3）：会话所属用户的站点与当前站点不一致时视为未登录，并记录 `auth.cross_site_session`。验证：单测覆盖 Cookie 缓存、KV 与数据库三条路径。
+- [x] 2.4 【Claude】空间归属站点（决策 5）：
   - 个人空间与团队空间写入 `site`；
   - `withWorkspace` 与 `/app/<slug>` 校验站点，不一致时返回 404；
   - 团队邀请只匹配同站账户。
 
   验证：测试覆盖「另一站访问空间返回 404」「邀请另一站的邮箱不会把那一站的账户加入团队」。
-- [ ] 2.5 【Claude】server 入口解析站点并传给 auth（决策 1），预览 Host 按西方站处理；jobs 中需要站点的地方从 `user.site` 或 `organization.site` 读取。验证：单测断言 staging 预览 Host 解析为 `west`，且客户端无法通过请求参数覆盖站点。
+- [x] 2.5 【Claude】server 入口解析站点并传给 auth（决策 1），预览 Host 按西方站处理；jobs 中需要站点的地方从 `user.site` 或 `organization.site` 读取。验证：单测断言 staging 预览 Host 解析为 `west`，且客户端无法通过请求参数覆盖站点。
 
 ## 3. 应用层按邮箱查询与后台
 
