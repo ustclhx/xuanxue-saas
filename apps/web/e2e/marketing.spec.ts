@@ -55,13 +55,13 @@ for (const lang of languages) {
 
   test(`法律页（${lang}）`, async ({ page, request, baseURL }) => {
     // 法律页按站点分开（product-improve-ai-content D4）：东方站三种语言、西方站英文各有原文，
-    // 隐私、条款与退款页含两站共用的运营主体段落；有原文的页面可索引并进入本语言站点地图
+    // 隐私、条款与退款页含两站共用的运营主体段落（Lucinum LLC，两站账户各自独立）；有原文的页面可索引并进入本语言站点地图
     const copy = {
       en: {
         titles: ['Privacy Policy', 'Terms of Service', 'Refund Policy', 'Disclaimer'],
         footer: 'Disclaimer',
         cookies: 'Cookies',
-        operator: 'operated by the same independent developer',
+        operator: 'operated by Lucinum LLC',
         body: {
           privacy: ['18 and over', 'never sell', 'DeepSeek', 'numerology and tarot'],
           terms: ['at least 18 years old', 'Limitation of liability'],
@@ -73,7 +73,7 @@ for (const lang of languages) {
         titles: ['隱私政策', '服務條款', '退款政策', '免責聲明'],
         footer: '免責聲明',
         cookies: 'Cookie',
-        operator: '由同一位獨立開發者',
+        operator: '由 Lucinum LLC',
         body: {
           privacy: ['18 歲以上', '絕不出售', 'DeepSeek', '紫微斗數'],
           terms: ['年滿 18 歲', '責任限制'],
@@ -85,7 +85,7 @@ for (const lang of languages) {
         titles: ['隐私政策', '服务条款', '退款政策', '免责声明'],
         footer: '免责声明',
         cookies: 'Cookie',
-        operator: '由同一位独立开发者',
+        operator: '由 Lucinum LLC',
         body: {
           privacy: ['18 岁以上', '绝不出售', 'DeepSeek', '紫微斗数'],
           terms: ['年满 18 岁', '责任限制'],
@@ -97,7 +97,7 @@ for (const lang of languages) {
         titles: ['개인정보처리방침', '이용약관', '환불 정책', '면책 고지'],
         footer: '면책 고지',
         cookies: '쿠키',
-        operator: '동일한 개인 개발자',
+        operator: '유한책임회사 Lucinum LLC',
         body: {
           privacy: ['만 18세 이상', '절대 판매하지 않습니다', 'DeepSeek', '자미두수'],
           terms: ['만 18세 이상', '책임의 제한'],

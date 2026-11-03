@@ -72,8 +72,23 @@ describe('法律页内容（按站点）', () => {
           expect(text(page(site, locale, slug).html)).toContain(expected)
       }
     expect(text(page('west', 'en', 'privacy').html)).toMatch(
-      /Ganjiday \(ganjiday\.com\) and Arcanumber \(arcanumber\.com\) are two sites operated by the same/,
+      /Ganjiday \(ganjiday\.com\) and Arcanumber \(arcanumber\.com\) are operated by Lucinum LLC, a Wyoming/,
     )
+  })
+
+  it('运营主体为 Lucinum LLC，两站账户与积分各自独立，不再出现个人开发者或共享账户的说法', () => {
+    const banned =
+      /independent developer|獨立開發者|独立开发者|개인 개발자|share one account|共用同一套|하나의 계정 시스템을 공유/
+    for (const site of SITE_IDS)
+      for (const locale of templateConfig.sites[site].locales)
+        for (const slug of LEGAL_SLUGS) {
+          const html = text(page(site, locale, slug).html)
+          expect(html, `${site}/${locale}/${slug}`).not.toMatch(banned)
+          if (slug !== 'disclaimer')
+            expect(html, `${site}/${locale}/${slug}`).toContain('Lucinum LLC')
+        }
+    expect(text(page('west', 'en', 'refund').html)).toContain('applies only to purchases made on')
+    expect(text(page('east', 'zh-Hant', 'refund').html)).toContain('僅適用於在干支日')
   })
 
   it('站点缺少某种语言时回退到同站点默认语言，不借用另一站点的正文', () => {
