@@ -155,7 +155,12 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
     user: {
       deleteUser: { enabled: false },
       // 用户设置中的语言与时区（tasks.md 5.2），取值由校验器限定
-      additionalFields: { ...userSettingsFields(config), ...(site && siteFields(site)) },
+      // 站点字段 input: false，不进入 updateUser 等入参；条件展开会让字段类型变成联合，
+      // 破坏 Better Auth 对 body 的推断，所以对外只暴露设置字段的类型
+      additionalFields: {
+        ...userSettingsFields(config),
+        ...(site && siteFields(site)),
+      } as ReturnType<typeof userSettingsFields>,
     },
     emailAndPassword: {
       enabled: config.auth.emailPassword,
