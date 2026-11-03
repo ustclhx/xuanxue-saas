@@ -50,6 +50,8 @@ export interface ReadingOffer {
   readonly credits: number
   /** 报告章节目录（本语言） */
   readonly sections: readonly string[]
+  /** 本语言的样例段落（虚构命盘，人工撰写）；不可用时为空字符串 */
+  readonly sample: string
   readonly packs: readonly ReadingPack[]
   /** 未登录为 null；详批保存在个人空间，余额也取个人空间 */
   readonly viewer: { readonly slug: string; readonly balance: number } | null
@@ -62,6 +64,7 @@ const UNAVAILABLE: ReadingOffer = {
   comingSoon: false,
   credits: 0,
   sections: [],
+  sample: '',
   packs: [],
   viewer: null,
   rates: FALLBACK_LOCAL_RATES,
@@ -182,6 +185,7 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         comingSoon: false,
         credits: config.credits,
         sections: definition.prompt.sections,
+        sample: definition.sample,
         packs,
         viewer,
         rates: await localRates(),

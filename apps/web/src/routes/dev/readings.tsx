@@ -72,6 +72,8 @@ function ReadingsDemoPage() {
     comingSoon: false,
     credits: 100,
     sections: SECTIONS[kind] ?? SECTIONS['numerology-full'] ?? [],
+    // 演示页不读取目录，样例段落用固定文本占位
+    sample: 'Take a fictional profile with Life Path 7 and Expression 3 …',
     packs: [
       {
         planPriceId: '00000000-0000-7000-8000-000000000001',

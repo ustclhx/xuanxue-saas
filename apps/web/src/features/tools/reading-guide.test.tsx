@@ -20,6 +20,7 @@ const offer = (available: boolean): ReadingOffer => ({
   comingSoon: !available,
   credits: available ? 100 : 0,
   sections: [],
+  sample: '',
   packs: [],
   viewer: null,
   rates: FALLBACK_LOCAL_RATES,

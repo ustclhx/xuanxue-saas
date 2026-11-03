@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import type { MediaProviderEnv, TextModelEnv } from '@xuanxue/ai'
 import type { Auth, parseAuthEnv } from '@xuanxue/auth'
 import type { PaymentRuntimeEnv } from '@xuanxue/billing'
-import type { AiFaultInjectionEnv } from '@xuanxue/config'
+import type { AiFaultInjectionEnv, EmailTransport } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import type {
@@ -50,6 +50,8 @@ export interface WebRuntime {
     captureError(error: unknown): void
   }
   readonly emailQueue: Capability<QueueProducer<EmailQueueMessage>>
+  /** apps/jobs 的邮件发信通道；只用于决定前台是否提示「已寄信」，未装配视为 `log` */
+  readonly emailTransport?: EmailTransport
   readonly eventsQueue: Capability<QueueProducer<unknown>>
   /** C 接入前 Node 不装配文件能力；在任何文件副作用之前拒绝。 */
   readonly files?: Capability<Storage>
