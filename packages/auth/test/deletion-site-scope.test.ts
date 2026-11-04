@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers'
 import type { SiteId } from '@xuanxue/config'
 import { createDb } from '@xuanxue/db'
-import { newId } from '@xuanxue/shared'
+import { newId, normalizeSignupEmail } from '@xuanxue/shared'
 import { afterAll, describe, expect, it } from 'vitest'
 import { cookieHeader, PASSWORD, setup, signUpBody, testUsers } from './helpers.ts'
 
@@ -77,8 +77,32 @@ describe('删号的邮箱清理按站点隔离', () => {
         { site: string }[]
       >`select site from newsletter_subscriber where email=${email}`
       expect(subscribers).toEqual(subscriberSite === 'west' ? [] : [{ site: 'east' }])
-      expect(await sql`select id from waitlist where id=${waitlistId}`).toHaveLength(1)
+      expect(await sql`select id from waitlist where id=${waitlistId}`).toHaveLength(0)
       expect((await east.post('/sign-in/email', { email, password: PASSWORD })).status).toBe(200)
     },
   )
+
+  it('删号时删除 waitlist 中的原邮箱与 Gmail 规范化邮箱', async () => {
+    const west = setup({
+      site: 'west',
+      cache: undefined,
+      rateLimiter: undefined,
+      config: { auth: { turnstile: false } },
+    })
+    const email = `privacy.${newId()}+waitlist@googlemail.com`
+    const normalized = normalizeSignupEmail(email)
+    emails.push(email, normalized)
+    const signup = await west.post('/sign-up/email', signUpBody(email))
+    expect(signup.status).toBe(200)
+    deleted.push(((await signup.json()) as { user: { id: string } }).user.id)
+    await sql`insert into waitlist (id,email) values (${newId()},${email}),(${newId()},${normalized})`
+
+    expect(
+      (await west.post('/deletion/account', {}, { cookie: cookieHeader(signup) })).status,
+    ).toBe(200)
+
+    expect(
+      await sql`select id from waitlist where email in ${sql([email, normalized])}`,
+    ).toHaveLength(0)
+  })
 })

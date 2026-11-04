@@ -299,7 +299,8 @@ export async function deleteAccount(options: Options) {
     // 原邮箱被替换前只删除本站订阅；另一站同邮箱的订阅不属于当前账户。
     const emails = growthEmails(current.email)
     await sql`delete from newsletter_subscriber where site=${site} and email in ${sql(emails)}`
-    // waitlist 没有站点归属且全局按邮箱去重，保留记录，避免误删另一站的等候资格。
+    // waitlist 邮箱属于同一人的个人数据，删号的隐私删除优先于另一站的等候资格。
+    await sql`delete from waitlist where email in ${sql(emails)}`
     await sql`delete from notification where user_id=${current.id}`
     await sql`update "user" set email=${`deleted+${current.id}@invalid`},name='',image=null,locale=null,timezone=null,email_verified=false,two_factor_enabled=false,banned=true,ban_reason='Account deleted',ban_expires=null,updated_at=now() where id=${current.id}`
     await sql`insert into audit_log (id,actor_user_id,action,target_type,target_id,ip,meta) values (${newId()},${current.id},'account.deleted','user',${current.id},${options.clientIp ?? null},${JSON.stringify({ anonymized: true, deletedPersonalWorkspaceIds: personal.map((workspace) => workspace.id) })}::jsonb)`

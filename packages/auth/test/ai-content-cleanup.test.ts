@@ -254,7 +254,7 @@ describe('AI content deletion in workerd', () => {
     expect(await finance(a, id)).toEqual(before)
   })
 
-  it('removes site subscriptions and notifications, preserving global waitlist and email-free audit rows', async () => {
+  it('removes site subscriptions, global waitlist entries and notifications, keeping audit rows free of the email', async () => {
     const a = app()
     const target = await actor(a, 'growth')
     const other = await actor(a, 'growth-other')
@@ -286,7 +286,7 @@ describe('AI content deletion in workerd', () => {
     ).toEqual([other.email])
     expect(
       (await sql`select email from waitlist where email in ${emails}`).map((r) => r.email).sort(),
-    ).toEqual([target.email, other.email].sort())
+    ).toEqual([other.email])
     expect(await sql`select id from notification where user_id=${target.id}`).toHaveLength(0)
     expect(await sql`select id from notification where user_id=${other.id}`).toHaveLength(1)
     // 审计行保留，但不再含原邮箱（用户行已匿名化，审计页显示为已删除用户）
