@@ -75,7 +75,7 @@
 
 ## 4. 集成测试
 
-- [ ] 4.1 【Claude】e2e：在 `east.localhost` 与 `west.localhost` 下，同一邮箱各注册一次，依次验证：
+- [x] 4.1 【Claude】e2e：在 `east.localhost` 与 `west.localhost` 下，同一邮箱各注册一次，依次验证：
   - 余额独立（后台给东方站发放积分后，西方站余额仍为 0）；
   - 一站的会话 Cookie 换到另一站无效；
   - 西方站删号后，东方站仍能登录。

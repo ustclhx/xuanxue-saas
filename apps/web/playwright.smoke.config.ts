@@ -6,11 +6,13 @@ if (process.env.STAGING_URL || process.env.E2E_REAL_TURNSTILE === '1' || process
 
 export default defineConfig({
   ...base,
-  testMatch: 'smoke.spec.ts',
+  // split-site-accounts 4.1：两站账户隔离的双 Host 流程同样只依赖本地服务与隔离库，随冒烟进入 CI。
+  testMatch: ['smoke.spec.ts', 'split-site-accounts.spec.ts'],
   testIgnore: '**/staging/**',
   globalSetup: './e2e/smoke-setup.ts',
   timeout: 60_000,
-  globalTimeout: 240_000,
+  // 含 split-site-accounts 双 Host 流程（本地约 25–60 秒），总时限相应放宽
+  globalTimeout: 300_000,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: { ...base.use, trace: 'off', video: 'off', screenshot: 'off', serviceWorkers: 'block' },
   webServer: {
