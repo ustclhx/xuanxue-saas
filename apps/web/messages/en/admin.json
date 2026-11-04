@@ -366,6 +366,7 @@
   "admin_site_filter_all": "All sites (read-only)",
   "admin_all_sites_read_only": "Showing both sites. Records from the other site are read-only here; manage them from that site's admin.",
   "admin_other_site_record": "This record belongs to {site}. It is read-only here; ban, impersonate, credit and restore actions are only available in the {site} admin.",
+  "admin_other_site_billing_record": "This record belongs to {site}. It is read-only here; refund and webhook replay actions are only available in the {site} admin.",
   "admin_metrics_by_site": "By site",
   "admin_metrics_by_site_description": "Computed live for the selected range: registrations within the range; users, workspaces and paid workspaces as of the end of the last day (UTC).",
   "admin_total_users": "Users",

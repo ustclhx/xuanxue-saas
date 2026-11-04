@@ -161,27 +161,29 @@ describe('后台积分调整与账务列表', () => {
   ] as const)('%s 按空间筛选发生在服务端分页之前', async (_name, list) => {
     await fixture()
     for (const workspaceId of spaces) {
-      const result = await list(db, { workspaceId, offset: 0 })
+      const result = await list(db, { workspaceId, offset: 0 }, 'west')
       expect(result.rows).toHaveLength(1)
       expect(result.rows[0]?.workspaceId).toBe(workspaceId)
       expect(result.hasMore).toBe(false)
-      expect((await list(db, { workspaceId, offset: 1 })).rows).toHaveLength(0)
+      expect((await list(db, { workspaceId, offset: 1 }, 'west')).rows).toHaveLength(0)
     }
   })
 
   it('回调按 Stripe 元数据、账务 ID 和 PayPal custom_id 关联空间，并排除未关联事件', async () => {
     await fixture()
     for (let i = 0; i < spaces.length; i++) {
-      const filtered = await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 0 })
+      const filtered = await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 0 }, 'west')
       expect(filtered.rows.map((row) => row.id).sort()).toEqual(
         webhookIds.slice(i * 5, i * 5 + 5).sort(),
       )
       expect(
-        (await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 5 })).rows,
+        (await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 5 }, 'west')).rows,
       ).toHaveLength(0)
     }
     expect(
-      (await listAdminWebhooks(db, { offset: 0 })).rows.some((row) => row.id === webhookIds.at(-1)),
+      (await listAdminWebhooks(db, { offset: 0 }, 'west')).rows.some(
+        (row) => row.id === webhookIds.at(-1),
+      ),
     ).toBe(true)
   })
 })

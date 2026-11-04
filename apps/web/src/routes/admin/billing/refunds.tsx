@@ -12,6 +12,7 @@ import {
   filtersToSearch,
   offsetOfPage,
 } from '../../../features/admin/list.ts'
+import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
 import {
   AdminPage,
   adminTableLabels,
@@ -29,13 +30,15 @@ import { adminMoney } from '../../../features/billing/admin-display.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
+const filters = ['workspaceId', 'site'] as const
 export const Route = createFileRoute('/admin/billing/refunds')({
   beforeLoad: () => {
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
-  validateSearch: (search: Record<string, unknown>) => adminListSearch(['workspaceId'])(search),
+  validateSearch: (search: Record<string, unknown>) => adminListSearch(filters)(search),
   loaderDeps: ({ search }) => search,
-  loader: ({ deps }) => getAdminRefunds({ data: deps }),
+  loader: ({ deps }) =>
+    getAdminRefunds({ data: { ...deps, site: deps.site === 'all' ? 'all' : undefined } }),
   errorComponent: () => <p role="alert">{m.admin_refund_data_is_unavailable_please_reload()}</p>,
   component: Refunds,
 })
@@ -43,6 +46,7 @@ function Refunds() {
   const { rows, hasMore } = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { admin } = Route.useRouteContext()
   return (
     <AdminPage
       title={m.admin_refund_reviews()}
@@ -53,6 +57,7 @@ function Refunds() {
         </>
       }
     >
+      <AllSitesNotice site={search.site} />
       <DataTable
         labels={adminTableLabels()}
         label={m.admin_refund_requests()}
@@ -62,14 +67,12 @@ function Refunds() {
           { id: 'review', header: m.admin_refund_review(), cell: (row) => <Refund row={row} /> },
         ]}
         page={adminListPage(search.offset, { hasMore })}
-        filters={[{ id: 'workspaceId', label: m.admin_workspace_id() }]}
-        filterValues={{ workspaceId: search.workspaceId }}
+        filters={[{ id: 'workspaceId', label: m.admin_workspace_id() }, siteFilter(admin.site)]}
+        filterValues={{ workspaceId: search.workspaceId, site: search.site }}
         onPageChange={(page) =>
           void navigate({ search: { ...search, offset: offsetOfPage(page) } })
         }
-        onFiltersChange={(values) =>
-          void navigate({ search: filtersToSearch(['workspaceId'], values) })
-        }
+        onFiltersChange={(values) => void navigate({ search: filtersToSearch(filters, values) })}
       />
     </AdminPage>
   )
@@ -77,6 +80,8 @@ function Refunds() {
 type RefundRow = Awaited<ReturnType<typeof getAdminRefunds>>['rows'][number]
 function Refund({ row }: { row: RefundRow }) {
   const router = useRouter()
+  const { admin } = Route.useRouteContext()
+  const otherSite = row.site !== admin.site
   const [note, setNote] = useState('')
   const [cents, setCents] = useState('')
   const [refundId, setRefundId] = useState('')
@@ -124,7 +129,7 @@ function Refund({ row }: { row: RefundRow }) {
           <Link to="/admin/workspaces/$id" params={{ id: row.workspaceId }} className="underline">
             {row.workspaceId}
           </Link>{' '}
-          · {row.provider} {m.admin_status_inline()} {row.status}
+          · {siteLabel(row.site)} · {row.provider} {m.admin_status_inline()} {row.status}
         </p>
         <p>
           {m.admin_reason_label()} {row.reason}
@@ -148,12 +153,17 @@ function Refund({ row }: { row: RefundRow }) {
           {row.remainingCredits}
         </p>
       </div>
-      {!row.providerAvailable && (
+      {otherSite && (
+        <p className="text-muted-foreground text-sm">
+          {m.admin_other_site_billing_record({ site: siteLabel(row.site) })}
+        </p>
+      )}
+      {!otherSite && !row.providerAvailable && (
         <p className="text-muted-foreground text-sm">
           {m.admin_provider_not_configured_approval_manual_completion_and_api()}
         </p>
       )}
-      {row.status === 'pending' && (
+      {!otherSite && row.status === 'pending' && (
         <fieldset disabled={busy} className={panelClass('default', 'max-w-2xl')}>
           <legend className="px-1 font-medium text-sm">{m.admin_review_decision()}</legend>
           <Field label={m.admin_review_note_field()} htmlFor={`${row.id}-note`}>
@@ -210,7 +220,7 @@ function Refund({ row }: { row: RefundRow }) {
           </div>
         </fieldset>
       )}
-      {row.status === 'approved' && row.providerAvailable && !row.manualAvailable && (
+      {!otherSite && row.status === 'approved' && row.providerAvailable && !row.manualAvailable && (
         <Button
           type="button"
           className="w-fit"
@@ -231,7 +241,7 @@ function Refund({ row }: { row: RefundRow }) {
           {m.admin_retry_approved_refund_api()}
         </Button>
       )}
-      {row.status === 'approved' && row.manualAvailable && (
+      {!otherSite && row.status === 'approved' && row.manualAvailable && (
         <fieldset disabled={busy} className={panelClass('default', 'max-w-2xl')}>
           <legend className="px-1 font-medium text-sm">
             {m.admin_manual_platform_completion()}
@@ -268,7 +278,7 @@ function Refund({ row }: { row: RefundRow }) {
           </Button>
         </fieldset>
       )}
-      {row.status !== 'pending' && (
+      {!otherSite && row.status !== 'pending' && (
         <Button
           type="button"
           variant="outline"
