@@ -14,7 +14,7 @@
   - 事务路径也被包装覆盖。
 
   验证：spike 测试通过，结论写进 PR 描述。若 `verification` 不支持，按决策 2 的降级方案（identifier 加前缀）记录，并更新 design。
-- [ ] 1.2 【Codex】生产只读预检（design 决策 8、9）：编写并运行 `scripts/production/split-accounts-preflight.mjs`，只使用 readonly 连接，输出以下内容：
+- [x] 1.2 【Codex】生产只读预检（design 决策 8、9）：编写并运行 `scripts/production/split-accounts-preflight.mjs`，只使用 readonly 连接，输出以下内容：
   - 按决策 9 得出的主站点汇总（各站用户数、空间数）；
   - 将新建的副本账户数；
   - 「两站都有活动」清单（仅供核对）；
@@ -84,8 +84,8 @@
 
 ## 5. 上线（依赖组 2–4 合并）
 
-- [ ] 5.1 【Codex】staging 隔离验收：迁移在 staging 执行后，按 4.1 的流程用真实 Host 走查，staging 只有预览 Host 时以预览 Host 加本地双 Host 代替，并记录限制。验证：证据存放在仓库外。
-- [ ] 5.2 【用户】核对 1.2 的预检报告（主站点分布与副本数量）。验证：Owner 确认后进入 5.3。
+- [x] 5.1 【Codex】staging 隔离验收：迁移在 staging 执行后，按 4.1 的流程用真实 Host 走查，staging 只有预览 Host 时以预览 Host 加本地双 Host 代替，并记录限制。验证：证据存放在仓库外。
+- [x] 5.2 【用户】核对 1.2 的预检报告（主站点分布与副本数量）。验证：Owner 确认后进入 5.3。
 - [ ] 5.3 【Codex，需用户批准】在生产的 Neon 分支上预演迁移，计数与预检一致（用户数翻倍，原有数据计数不变）。验证：对比表存放在仓库外。
 - [ ] 5.4 【用户批准发版 / Codex】生产发版（迁移 → jobs → web），然后复核：
   - 两站 `/api/health` 返回新的 SHA；
