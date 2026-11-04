@@ -254,15 +254,15 @@ describe('AI content deletion in workerd', () => {
     expect(await finance(a, id)).toEqual(before)
   })
 
-  it('removes growth records and notifications, keeping audit rows free of the email', async () => {
+  it('removes site subscriptions and notifications, preserving global waitlist and email-free audit rows', async () => {
     const a = app()
     const target = await actor(a, 'growth')
     const other = await actor(a, 'growth-other')
     deletedIds.push(target.id)
     const sql = a.db.$client
     growthEmails.push(target.email, other.email)
-    await sql`insert into newsletter_subscriber (id,email,confirm_token)
-      values (${newId()},${target.email},${newId()}),(${newId()},${other.email},${newId()})`
+    await sql`insert into newsletter_subscriber (id,email,confirm_token,site)
+      values (${newId()},${target.email},${newId()},'west'),(${newId()},${other.email},${newId()},'west')`
     await sql`insert into waitlist (id,email) values (${newId()},${target.email}),(${newId()},${other.email})`
     const workspace = await team(a, [{ id: other.id, role: 'owner' }])
     // 邀请会写入 workspace.member_invited 审计；审计行永久保留，不得包含受邀邮箱
@@ -285,8 +285,8 @@ describe('AI content deletion in workerd', () => {
       ),
     ).toEqual([other.email])
     expect(
-      (await sql`select email from waitlist where email in ${emails}`).map((r) => r.email),
-    ).toEqual([other.email])
+      (await sql`select email from waitlist where email in ${emails}`).map((r) => r.email).sort(),
+    ).toEqual([target.email, other.email].sort())
     expect(await sql`select id from notification where user_id=${target.id}`).toHaveLength(0)
     expect(await sql`select id from notification where user_id=${other.id}`).toHaveLength(1)
     // 审计行保留，但不再含原邮箱（用户行已匿名化，审计页显示为已删除用户）

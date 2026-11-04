@@ -61,6 +61,8 @@ const templatePropsSchemas = {
 
 const base = {
   v: z.literal(EMAIL_QUEUE_MESSAGE_VERSION),
+  /** 由请求 Host 或持久化归属提供；旧消息缺失时消费端拒收，不按语言猜测。 */
+  site: z.enum(['east', 'west']).optional(),
   /** 收件人（单个地址） */
   to: z.email(),
   /** 收件人的 `user.locale`；未知时为 null，渲染时回退到默认语言 */

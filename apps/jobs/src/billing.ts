@@ -12,7 +12,7 @@ import {
   runPendingCompensations,
   runSubscriptionReconciliation,
 } from '@xuanxue/billing'
-import { brandName, supportEmail } from '@xuanxue/config'
+import { type SiteId, siteBrandName } from '@xuanxue/config'
 import { auditLog, type Database, webhookEvent } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import type { DatabaseAccess, KeyValueStore, QueueProducer } from '@xuanxue/platform'
@@ -50,8 +50,9 @@ export function createBillingContext(env: BillingEnv) {
           await env.emailQueue.send(message)
         },
       },
-      appName: (locale: string | null) => brandName(templateConfig, locale),
-      supportEmail: (locale: string | null) => supportEmail(templateConfig, locale),
+      appName: (locale: string | null, site: SiteId) => siteBrandName(templateConfig, site, locale),
+      supportEmail: (_locale: string | null, site: SiteId) =>
+        templateConfig.sites[site].supportEmail,
     },
   }
 }

@@ -6,6 +6,7 @@ import { handleEmailBatch } from '../src/queues/email.ts'
 
 const body: EmailQueueMessage = {
   v: 1,
+  site: 'west',
   template: 'reset-password',
   props: { url: 'https://arcanumber.com/reset?token=private', expiresInMinutes: 60 },
   to: 'someone@example.com',
@@ -86,4 +87,32 @@ it('acks malformed messages and retries temporary failures with the original req
   expect(vi.mocked(console.warn).mock.calls.flat().join('\n')).toContain(
     '"requestId":"original-request"',
   )
+})
+
+it.each([
+  ['east', 'en', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['west', 'ko', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+] as const)(
+  'routes %s mail by site even when locale is %s',
+  async (site, locale, from, replyTo) => {
+    const remote = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(200))
+    const entry = message({ ...body, site, locale })
+    await handleEmailBatch(batch([entry]), transport, { observer })
+    expect(JSON.parse(String(remote.mock.calls[0]?.[1]?.body))).toMatchObject({
+      from,
+      reply_to: replyTo,
+    })
+    expect(entry.ack).toHaveBeenCalledOnce()
+  },
+)
+
+it('rejects legacy messages without site instead of guessing from locale', async () => {
+  const { site: _site, ...legacy } = body
+  const remote = vi.spyOn(globalThis, 'fetch')
+  const entry = message({ ...legacy, locale: 'ko' })
+  await handleEmailBatch(batch([entry]), transport, { observer })
+  expect(remote).not.toHaveBeenCalled()
+  expect(entry.ack).toHaveBeenCalledOnce()
+  expect(entry.retry).not.toHaveBeenCalled()
+  expect(vi.mocked(console.warn).mock.calls.flat().join('')).toContain('email.site_missing')
 })

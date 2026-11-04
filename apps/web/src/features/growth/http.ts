@@ -17,7 +17,7 @@ import { verifyGrowthToken } from './tokens.ts'
 
 export type GrowthRuntime = Pick<
   WebRuntime,
-  'db' | 'emailQueue' | 'rateLimiter' | 'requestMeta'
+  'site' | 'db' | 'emailQueue' | 'rateLimiter' | 'requestMeta'
 > & {
   readonly config: Pick<
     WebRuntime['config'],
@@ -27,6 +27,7 @@ export type GrowthRuntime = Pick<
 
 export function growthContext(runtime: GrowthRuntime = getWebRuntime()): GrowthContext {
   return {
+    site: runtime.site,
     db: runtime.db,
     config: templateConfig,
     secret: runtime.config.BETTER_AUTH_SECRET,
@@ -91,7 +92,12 @@ export async function submitGrowth(
         throw new AppError('TURNSTILE_FAILED', 'Human verification failed', { status: 403 })
     }
     if (feature === 'waitlist') await joinWaitlist(ctx, email)
-    else await subscribeNewsletter(ctx, email, input.reading)
+    else
+      await subscribeNewsletter(
+        ctx,
+        email,
+        input.reading ? { ...input.reading, site: ctx.site } : undefined,
+      )
     return Response.json({ ok: true })
   })
 }

@@ -1,7 +1,6 @@
-import { type EmailTransportConfig, emailSender } from '@xuanxue/config'
+import { type EmailTransportConfig, emailSender, type SiteId } from '@xuanxue/config'
 import {
   createResendSender,
-  EmailSendError,
   type EmailSender,
   type EmailTemplateName,
   type EmailTemplateProps,
@@ -47,7 +46,8 @@ export function emailRetryDelaySeconds(attempts: number): number {
 }
 
 /** 一次投递：发送渲染好的邮件，返回服务商的邮件 ID（log 通道为 null）。 */
-type Deliver = (message: EmailQueueMessage, rendered: RenderedEmail) => Promise<string | null>
+type SiteEmailMessage = EmailQueueMessage & { readonly site: SiteId }
+type Deliver = (message: SiteEmailMessage, rendered: RenderedEmail) => Promise<string | null>
 
 export type JobsEmailTransport = EmailTransportConfig
 
@@ -64,7 +64,7 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  // 每站一个 key（Resend 只能限定单个域名），发件人随消息语言所属站点变化
+  // 每站一个 key（Resend 只能限定单个域名），发件人由消息携带的可信站点决定
   const senders = new Map<'east' | 'west', EmailSender>()
   const senderFor = (site: 'east' | 'west', from: string): EmailSender => {
     if (injectedSender) return injectedSender
@@ -76,7 +76,7 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
     return sender
   }
   return async (message, rendered) => {
-    const { site, from, replyTo } = emailSender(templateConfig, message.locale)
+    const { site, from, replyTo } = emailSender(templateConfig, message.site)
     const result = await senderFor(site, from).send({
       to: message.to,
       subject: rendered.subject,
@@ -132,16 +132,24 @@ async function handleMessage(
     return
   }
 
+  if (!email.site) {
+    // 旧消息没有账户归属，不能用语言推断；认证链接可由用户重新申请。
+    log.warn('email.site_missing', meta)
+    message.ack()
+    return
+  }
+
+  const site = email.site
   await withLogContext({ requestId: email.requestId ?? newRequestId() }, () =>
     withJobObserver(options.observer ?? logJobObserver, () =>
-      deliverMessage(message, email, deliver, transport, options),
+      deliverMessage(message, { ...email, site }, deliver, transport, options),
     ),
   )
 }
 
 async function deliverMessage(
   message: QueueMessage<unknown>,
-  email: EmailQueueMessage,
+  email: SiteEmailMessage,
   deliver: Deliver,
   transport: JobsEmailTransport,
   options: EmailBatchOptions,

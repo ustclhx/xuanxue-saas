@@ -4,7 +4,7 @@ import { z } from 'zod'
  * 邮件发送通道的环境变量（apps/jobs 的 EMAIL_QUEUE 消费者，docs/07-infrastructure.md §4）：
  * - `EMAIL_TRANSPORT=log`（默认）：不调用外部服务，只记录收件人与模板名；没有 Resend 凭据时使用；
  * - `EMAIL_TRANSPORT=resend`：经 Resend 发送，每站一个 key（只能限定单个域名），两站 key 都必填。
- *   发件人与回复地址由消息语言所属站点决定（`emailSender`），不再使用环境变量。
+ *   发件人与回复地址由消息的可信站点决定（`emailSender`），不再使用环境变量。
  */
 export const EMAIL_TRANSPORTS = ['log', 'resend'] as const
 export type EmailTransport = (typeof EMAIL_TRANSPORTS)[number]

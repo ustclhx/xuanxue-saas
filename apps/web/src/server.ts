@@ -9,7 +9,7 @@
 
 import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server'
 import { type AuthEmail, parseAuthEnv, type SendAuthEmail } from '@xuanxue/auth'
-import { brandName, loadEnv, type SiteId } from '@xuanxue/config'
+import { loadEnv, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore, RequestMetadata } from '@xuanxue/platform'
 import {
@@ -221,9 +221,10 @@ function createCloudflareWebRuntime(
   const createAuth = (db: Database, authCache: KeyValueStore = cache) => {
     const queued = createQueueAuthEmailSender({
       queue,
-      appName: (locale) => brandName(templateConfig, locale),
+      site,
+      appName: (locale) => siteBrandName(templateConfig, site, locale),
       appUrl: config.APP_URL,
-      resolveLocale: userLocaleByEmail(db),
+      resolveLocale: userLocaleByEmail(db, site),
     })
     // 本地调试行为与旧接线一致；生产队列消息不写入日志。
     const sendEmail: SendAuthEmail = import.meta.env.DEV

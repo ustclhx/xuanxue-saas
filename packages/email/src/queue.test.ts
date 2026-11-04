@@ -22,6 +22,13 @@ describe('parseEmailQueueMessage', () => {
     expect(parseEmailQueueMessage(legacy)).toEqual(legacy)
   })
 
+  it('保留可信站点，兼容缺少站点的旧消息并拒绝未知站点', () => {
+    expect(parseEmailQueueMessage({ ...valid, site: 'east' })?.site).toBe('east')
+    expect(parseEmailQueueMessage({ ...valid, site: 'west' })?.site).toBe('west')
+    expect(parseEmailQueueMessage(valid)).not.toHaveProperty('site')
+    expect(parseEmailQueueMessage({ ...valid, site: 'unknown' })).toBeNull()
+  })
+
   it('请求 ID 可选：保留合法值，旧消息不带该键，格式不对时只丢弃该字段', () => {
     const requestId = '01890a5d-ac96-774b-bcce-b302099a8057'
     expect(parseEmailQueueMessage({ ...valid, requestId })).toEqual({ ...valid, requestId })

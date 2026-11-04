@@ -58,32 +58,16 @@ export function brandName(
   return match ? siteBrandName(config, match.site, match.locale) : config.app.name
 }
 
-/**
- * 邮件发件人与回复地址，按语言所属站点取值：发件地址为 `<站点品牌> <noreply@mail.<规范域名>>`，
- * 与 Resend 中为该站添加的发件子域一致（docs/runbooks/launch-v1.md）。未匹配语言时用 app 级配置。
- */
+/** 邮件发件人与回复地址由可信站点决定，语言只影响邮件文案。 */
 export function emailSender(
-  config: {
-    readonly app: { readonly name: string; readonly url: string; readonly supportEmail: string }
-    readonly sites: { readonly [S in SiteId]: SiteConfig }
-  },
-  locale?: string | null,
+  config: { readonly sites: { readonly [S in SiteId]: SiteConfig } },
+  site: SiteId,
 ): { readonly site: SiteId; readonly from: string; readonly replyTo: string } {
-  const match = localeSite(config, locale)
-  if (!match) {
-    // 未匹配语言时使用 app 级配置，发件站点为西方站（app.url 的默认站点）
-    const domain = new URL(config.app.url).hostname
-    return {
-      site: 'west',
-      from: `${config.app.name} <noreply@mail.${domain}>`,
-      replyTo: config.app.supportEmail,
-    }
-  }
-  const site = config.sites[match.site]
+  const settings = config.sites[site]
   return {
-    site: match.site,
-    from: `${site.brand.name} <noreply@mail.${site.hosts[0]}>`,
-    replyTo: site.supportEmail,
+    site,
+    from: `${settings.brand.name} <noreply@mail.${settings.hosts[0]}>`,
+    replyTo: settings.supportEmail,
   }
 }
 

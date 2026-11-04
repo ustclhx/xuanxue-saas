@@ -12,6 +12,7 @@ import { EMAIL_MAX_ATTEMPTS, emailRetryDelaySeconds } from '../src/queues/email.
 const RECIPIENT = 'someone@example.com'
 const message: EmailQueueMessage = {
   v: EMAIL_QUEUE_MESSAGE_VERSION,
+  site: 'east',
   template: 'reset-password',
   props: { url: 'https://app.example.com/reset?token=secret-token', expiresInMinutes: 60 },
   to: RECIPIENT,
@@ -93,7 +94,7 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
       expect(headers.get('idempotency-key')).toBe('idem-key-1')
       expect(headers.get('authorization')).toBe('Bearer re_fake_east_key')
       const body = JSON.parse(String(init?.body))
-      // zh-CN 属于东方站，发件人与回复地址取站点配置
+      // 发件人与回复地址取消息中的东方站配置
       expect(body).toMatchObject({
         from: 'Ganjiday <noreply@mail.ganjiday.com>',
         reply_to: 'support@ganjiday.com',
@@ -117,11 +118,11 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
     expect(body.subject).toBe('Reset your TestApp password')
   })
 
-  it('发件人与回复地址按消息语言所属站点取值', async () => {
+  it('发件人与回复地址按站点取值，即使语言属于另一站', async () => {
     fetchMock.mockResolvedValueOnce(resendReply(200, { id: 'west-id' }))
     fetchMock.mockResolvedValueOnce(resendReply(200, { id: 'east-id' }))
-    const westMessage = { ...message, locale: 'en', idempotencyKey: 'idem-west' }
-    const eastMessage = { ...message, locale: 'ko', idempotencyKey: 'idem-east' }
+    const westMessage = { ...message, site: 'west', locale: 'ko', idempotencyKey: 'idem-west' }
+    const eastMessage = { ...message, site: 'east', locale: 'en', idempotencyKey: 'idem-east' }
     const result = await consume([westMessage, eastMessage], { env: resendEnv })
     expect(result.explicitAcks.sort()).toEqual(['m1', 'm2'])
     const bodies = fetchMock.mock.calls.map(([, init]) => JSON.parse(String(init?.body)))
