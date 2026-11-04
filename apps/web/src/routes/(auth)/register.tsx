@@ -10,6 +10,7 @@ import {
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
 import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
+import { SiteAccountsHint } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
 import { m } from '../../paraglide/messages.js'
@@ -97,6 +98,8 @@ function RegisterPage() {
         </p>
       }
     >
+      {/* 两站账户分开（split-site-accounts D3）：另一站的用户在这里需要另外注册 */}
+      <SiteAccountsHint kind="signup" />
       {options.emailPassword ? (
         <RegisterForm siteKey={options.turnstileSiteKey} />
       ) : (

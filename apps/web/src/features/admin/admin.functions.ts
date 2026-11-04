@@ -14,8 +14,11 @@ export const adminMiddleware = createMiddleware({ type: 'function' }).server(asy
   const { db, auth } = runtime
   const headers = getRequest().headers
   const admin = await requireAdmin({ auth, db, headers }).catch(rethrowNotFound)
-  // IP 只使用入口完成信任校验后的请求元数据。
-  return next({ context: { admin: admin.user, db, ip: runtime.requestMeta.clientIp } })
+  // IP 只使用入口完成信任校验后的请求元数据；site 为按 Host 解析的当前站点（split-site-accounts 决策 7），
+  // 列表默认筛选与写操作的站点校验都以它为准，客户端不能指定。
+  return next({
+    context: { admin: admin.user, db, ip: runtime.requestMeta.clientIp, site: runtime.site },
+  })
 })
 
 function rethrowNotFound(error: unknown): never {
@@ -30,4 +33,5 @@ export const getAdminViewer = createServerFn({ method: 'GET' })
     id: context.admin.id,
     name: context.admin.name,
     email: context.admin.email,
+    site: context.site,
   }))

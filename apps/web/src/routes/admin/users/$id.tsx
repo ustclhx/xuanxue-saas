@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { Button, DetailList, Input } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { ADMIN_COPY } from '../../../features/admin/copy.ts'
+import { OtherSiteNotice, siteLabel } from '../../../features/admin/site-ui.tsx'
 import {
   AdminPage,
   AdminSection,
@@ -53,6 +54,8 @@ function UserDetail() {
     }
   }
   const isAdminUser = (data.user.role ?? '').split(',').some((role) => role.trim() === 'admin')
+  // 另一站的账户在这里只读：封禁与模拟登录须到该站后台（服务端同样拒绝，split-site-accounts 决策 7）
+  const otherSite = data.user.site !== admin.site
   return (
     <AdminPage
       title={m.admin_user_details()}
@@ -67,6 +70,7 @@ function UserDetail() {
       <DetailList
         fields={[
           { label: m.admin_email(), value: data.user.email },
+          { label: m.admin_site(), value: siteLabel(data.user.site) },
           { label: m.admin_name(), value: data.user.name },
           { label: m.admin_id(), value: data.user.id },
           { label: m.admin_registered(), value: formatDateTime(data.user.createdAt) },
@@ -98,7 +102,7 @@ function UserDetail() {
                   </Link>{' '}
                   · {ws.role}
                 </span>
-                {templateConfig.credits.enabled && (
+                {templateConfig.credits.enabled && ws.site === admin.site && (
                   <Button asChild variant="outline" size="sm">
                     <Link
                       to="/admin/credits"
@@ -116,70 +120,76 @@ function UserDetail() {
           <EmptyState />
         )}
       </AdminSection>
-      <AdminSection title={m.admin_impersonation()}>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button
-            variant="outline"
-            disabled={!ready || busy || isAdminUser || Boolean(data.user.banned)}
-            onClick={() => void action(true)}
+      {otherSite ? (
+        <OtherSiteNotice site={data.user.site} />
+      ) : (
+        <>
+          <AdminSection title={m.admin_impersonation()}>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                variant="outline"
+                disabled={!ready || busy || isAdminUser || Boolean(data.user.banned)}
+                onClick={() => void action(true)}
+              >
+                {m.admin_impersonate_user()}
+              </Button>
+              <p className="text-muted-foreground text-sm">
+                {m.admin_administrators_and_banned_users_cannot_be_impersonated()}
+              </p>
+            </div>
+          </AdminSection>
+          <form
+            className={panelClass('danger', 'max-w-xl')}
+            aria-label={m.admin_ban_management()}
+            onSubmit={(event) => {
+              event.preventDefault()
+              void action()
+            }}
           >
-            {m.admin_impersonate_user()}
-          </Button>
-          <p className="text-muted-foreground text-sm">
-            {m.admin_administrators_and_banned_users_cannot_be_impersonated()}
-          </p>
-        </div>
-      </AdminSection>
-      <form
-        className={panelClass('danger', 'max-w-xl')}
-        aria-label={m.admin_ban_management()}
-        onSubmit={(event) => {
-          event.preventDefault()
-          void action()
-        }}
-      >
-        <div className="grid gap-1">
-          <h3 className="font-semibold text-destructive text-lg">{m.admin_ban_management()}</h3>
-          <p className="text-muted-foreground text-sm">
-            {data.user.banned
-              ? m.admin_restores_sign_in_for_this_user_the_reason()
-              : m.admin_signs_the_user_out_and_blocks_sign_in()}
-          </p>
-        </div>
-        <Field label={m.admin_reason()} htmlFor="ban-reason">
-          <Input
-            disabled={!ready}
-            id="ban-reason"
-            value={reason}
-            maxLength={2000}
-            onChange={(event) => setReason(event.target.value)}
-            required
-          />
-        </Field>
-        <CheckboxField
-          label={m.admin_i_confirm_this_user_status_change()}
-          disabled={!ready}
-          checked={confirm}
-          onChange={(event) => setConfirm(event.target.checked)}
-        />
-        <Button
-          type="submit"
-          className="w-fit"
-          variant={data.user.banned ? 'default' : 'destructive'}
-          disabled={
-            !ready ||
-            busy ||
-            !reason.trim() ||
-            !confirm ||
-            (!data.user.banned && data.user.id === admin.id)
-          }
-        >
-          {data.user.banned ? m.admin_unban_user() : m.admin_ban_user()}
-        </Button>
-        {data.user.id === admin.id && (
-          <p className="text-muted-foreground text-sm">{m.admin_you_cannot_ban_yourself()}</p>
-        )}
-      </form>
+            <div className="grid gap-1">
+              <h3 className="font-semibold text-destructive text-lg">{m.admin_ban_management()}</h3>
+              <p className="text-muted-foreground text-sm">
+                {data.user.banned
+                  ? m.admin_restores_sign_in_for_this_user_the_reason()
+                  : m.admin_signs_the_user_out_and_blocks_sign_in()}
+              </p>
+            </div>
+            <Field label={m.admin_reason()} htmlFor="ban-reason">
+              <Input
+                disabled={!ready}
+                id="ban-reason"
+                value={reason}
+                maxLength={2000}
+                onChange={(event) => setReason(event.target.value)}
+                required
+              />
+            </Field>
+            <CheckboxField
+              label={m.admin_i_confirm_this_user_status_change()}
+              disabled={!ready}
+              checked={confirm}
+              onChange={(event) => setConfirm(event.target.checked)}
+            />
+            <Button
+              type="submit"
+              className="w-fit"
+              variant={data.user.banned ? 'default' : 'destructive'}
+              disabled={
+                !ready ||
+                busy ||
+                !reason.trim() ||
+                !confirm ||
+                (!data.user.banned && data.user.id === admin.id)
+              }
+            >
+              {data.user.banned ? m.admin_unban_user() : m.admin_ban_user()}
+            </Button>
+            {data.user.id === admin.id && (
+              <p className="text-muted-foreground text-sm">{m.admin_you_cannot_ban_yourself()}</p>
+            )}
+          </form>
+        </>
+      )}
       <p role="status" className="min-h-5 text-sm">
         {message}
       </p>

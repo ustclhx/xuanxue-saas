@@ -1,9 +1,11 @@
+import type { SiteId } from '@xuanxue/config'
 import { grant, revokeGrant } from '@xuanxue/credits'
 import { auditLog, organization } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import type { AdminActionScope } from './action.ts'
+import { assertAdminSite } from './site.ts'
 
 export const creditAdjustmentInput = z.discriminatedUnion('kind', [
   z.object({
@@ -27,6 +29,7 @@ export const creditAdjustmentInput = z.discriminatedUnion('kind', [
 export async function adjustAdminCredits(
   { tx, audit }: AdminActionScope,
   data: z.infer<typeof creditAdjustmentInput>,
+  currentSite: SiteId,
 ) {
   await tx.execute(
     sql`select pg_advisory_xact_lock(hashtextextended(${`admin-credit:${data.adjustmentId}`}, 0))`,
@@ -49,10 +52,12 @@ export async function adjustAdminCredits(
     return { replayed: true }
   }
   const [workspace] = await tx
-    .select({ id: organization.id })
+    .select({ id: organization.id, site: organization.site })
     .from(organization)
     .where(eq(organization.id, data.workspaceId))
   if (!workspace) throw new AppError('WORKSPACE_NOT_FOUND', 'Workspace not found', { status: 404 })
+  // 只调整当前站点的空间（split-site-accounts 决策 7）；重放分支已绑定原调整的空间与输入。
+  assertAdminSite(workspace.site, currentSite)
   const result =
     data.kind === 'grant'
       ? await grant(tx, {

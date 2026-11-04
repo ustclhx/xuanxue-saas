@@ -92,7 +92,9 @@ describe('后台积分调整与账务列表', () => {
     })
     const results = await Promise.all(
       [0, 1].map(() =>
-        runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, input)),
+        runAdminAction(context, 'credits.adjust', (scope) =>
+          adjustAdminCredits(scope, input, 'west'),
+        ),
       ),
     )
     expect(results.filter((result) => !result.replayed)).toHaveLength(1)
@@ -107,7 +109,7 @@ describe('后台积分调整与账务列表', () => {
     expect(audits[0]).toMatchObject({ actor_user_id: adminId, ip: context.ip, meta: { input } })
     await expect(
       runAdminAction(context, 'credits.adjust', (scope) =>
-        adjustAdminCredits(scope, { ...input, workspaceId: spaces[1] as string }),
+        adjustAdminCredits(scope, { ...input, workspaceId: spaces[1] as string }, 'west'),
       ),
     ).rejects.toMatchObject({ code: 'ADJUSTMENT_ID_CONFLICT' })
     expect(await reconcileWorkspaceCredits(db, workspaceId)).toMatchObject({ consistent: true })
@@ -124,7 +126,9 @@ describe('后台积分调整与账务列表', () => {
       expiresAt: null,
       reason: '测试补偿',
     })
-    await runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, input))
+    await runAdminAction(context, 'credits.adjust', (scope) =>
+      adjustAdminCredits(scope, input, 'west'),
+    )
     const [batch] =
       await db.$client`select id from credit_grant where source_ref=${input.adjustmentId}`
     const revoke = creditAdjustmentInput.parse({
@@ -136,7 +140,9 @@ describe('后台积分调整与账务列表', () => {
     })
     const results = await Promise.all(
       [0, 1].map(() =>
-        runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, revoke)),
+        runAdminAction(context, 'credits.adjust', (scope) =>
+          adjustAdminCredits(scope, revoke, 'west'),
+        ),
       ),
     )
     expect(results.filter((result) => !result.replayed)).toHaveLength(1)
