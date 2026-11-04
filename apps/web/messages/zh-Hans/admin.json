@@ -366,6 +366,7 @@
   "admin_site_filter_all": "全部站点（只读）",
   "admin_all_sites_read_only": "正在显示两个站点的记录。另一站的记录在这里只读，请到该站后台操作。",
   "admin_other_site_record": "此记录属于 {site}，在这里只读；封禁、模拟登录、调整积分与恢复工作空间只能在 {site} 的后台操作。",
+  "admin_other_site_billing_record": "此记录属于 {site}，在这里只读；退款与 Webhook 事件重放只能在 {site} 的后台操作。",
   "admin_metrics_by_site": "按站点",
   "admin_metrics_by_site_description": "按所选区间实时计算：注册数为区间内新增；用户数、工作空间数与付费工作空间数为区间最后一日日末（UTC）的存量。",
   "admin_total_users": "用户数",
