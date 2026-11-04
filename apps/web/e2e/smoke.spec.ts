@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import { completeOfflineCheckout } from './billing-actions-helper.ts'
-import { APP_URL, login, register, simulateClientIp } from './fixtures.ts'
+import { APP_URL, AUTH_FORM_COPY, login, register, simulateClientIp } from './fixtures.ts'
 import { SMOKE_PACK_KEY } from './smoke-setup.ts'
 import { stubTurnstile } from './turnstile.ts'
 
@@ -93,7 +93,8 @@ test('east site sign-in and checkout return to the originating /ko page', async 
   }
 
   const email = `ci-smoke-east-${randomUUID()}@example.com`
-  await register(page, email)
+  // 东方站无前缀认证页跳到繁体中文（auth-locale.ts），表单按繁体文案填写
+  await register(page, email, undefined, AUTH_FORM_COPY['zh-Hant'])
   // Node 的请求上下文不解析 *.localhost，改在页面内退出登录
   const signedOut = await page.evaluate(async () => {
     const response = await fetch('/api/auth/sign-out', {
@@ -104,7 +105,12 @@ test('east site sign-in and checkout return to the originating /ko page', async 
     return response.ok
   })
   expect(signedOut).toBe(true)
-  await login(page, email, `/login?redirect=${encodeURIComponent('/ko')}`)
+  await login(
+    page,
+    email,
+    `/login?redirect=${encodeURIComponent('/ko')}`,
+    AUTH_FORM_COPY['zh-Hant'],
+  )
   await korean(new RegExp(`^${east.origin}/ko/?$`))
 
   // 公开页面的购买入口：/app?returnTo=&buy= 进入计费页后直接跳转支付页，
