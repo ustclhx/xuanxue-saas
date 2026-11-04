@@ -58,11 +58,27 @@ export function brandName(
   return match ? siteBrandName(config, match.site, match.locale) : config.app.name
 }
 
-/** 邮件发件人与回复地址由可信站点决定，语言只影响邮件文案。 */
+/** 优先使用可信站点；兼容旧队列消息时沿用按语言选择站点的规则。 */
 export function emailSender(
-  config: { readonly sites: { readonly [S in SiteId]: SiteConfig } },
-  site: SiteId,
+  config: {
+    readonly app: { readonly name: string; readonly url: string; readonly supportEmail: string }
+    readonly sites: { readonly [S in SiteId]: SiteConfig }
+  },
+  site: SiteId | undefined,
+  locale?: string | null,
 ): { readonly site: SiteId; readonly from: string; readonly replyTo: string } {
+  if (!site) {
+    const match = localeSite(config, locale)
+    if (!match) {
+      const domain = new URL(config.app.url).hostname
+      return {
+        site: 'west',
+        from: `${config.app.name} <noreply@mail.${domain}>`,
+        replyTo: config.app.supportEmail,
+      }
+    }
+    site = match.site
+  }
   const settings = config.sites[site]
   return {
     site,

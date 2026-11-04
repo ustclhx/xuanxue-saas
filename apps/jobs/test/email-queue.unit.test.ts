@@ -106,13 +106,25 @@ it.each([
   },
 )
 
-it('rejects legacy messages without site instead of guessing from locale', async () => {
-  const { site: _site, ...legacy } = body
-  const remote = vi.spyOn(globalThis, 'fetch')
-  const entry = message({ ...legacy, locale: 'ko' })
-  await handleEmailBatch(batch([entry]), transport, { observer })
-  expect(remote).not.toHaveBeenCalled()
-  expect(entry.ack).toHaveBeenCalledOnce()
-  expect(entry.retry).not.toHaveBeenCalled()
-  expect(vi.mocked(console.warn).mock.calls.flat().join('')).toContain('email.site_missing')
-})
+it.each([
+  ['ko', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['en', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+  ['zh-TW', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  [null, 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+] as const)(
+  'sends legacy mail without site using locale %s and warns',
+  async (locale, from, replyTo) => {
+    const { site: _site, ...legacy } = body
+    const remote = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(200))
+    const entry = message({ ...legacy, locale })
+    await handleEmailBatch(batch([entry]), transport, { observer })
+    expect(remote).toHaveBeenCalledOnce()
+    expect(JSON.parse(String(remote.mock.calls[0]?.[1]?.body))).toMatchObject({
+      from,
+      reply_to: replyTo,
+    })
+    expect(entry.ack).toHaveBeenCalledOnce()
+    expect(entry.retry).not.toHaveBeenCalled()
+    expect(vi.mocked(console.warn).mock.calls.flat().join('')).toContain('email.site_missing')
+  },
+)

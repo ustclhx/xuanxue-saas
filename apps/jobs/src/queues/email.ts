@@ -1,4 +1,4 @@
-import { type EmailTransportConfig, emailSender, type SiteId } from '@xuanxue/config'
+import { type EmailTransportConfig, emailSender } from '@xuanxue/config'
 import {
   createResendSender,
   type EmailSender,
@@ -46,8 +46,7 @@ export function emailRetryDelaySeconds(attempts: number): number {
 }
 
 /** 一次投递：发送渲染好的邮件，返回服务商的邮件 ID（log 通道为 null）。 */
-type SiteEmailMessage = EmailQueueMessage & { readonly site: SiteId }
-type Deliver = (message: SiteEmailMessage, rendered: RenderedEmail) => Promise<string | null>
+type Deliver = (message: EmailQueueMessage, rendered: RenderedEmail) => Promise<string | null>
 
 export type JobsEmailTransport = EmailTransportConfig
 
@@ -76,7 +75,7 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
     return sender
   }
   return async (message, rendered) => {
-    const { site, from, replyTo } = emailSender(templateConfig, message.site)
+    const { site, from, replyTo } = emailSender(templateConfig, message.site, message.locale)
     const result = await senderFor(site, from).send({
       to: message.to,
       subject: rendered.subject,
@@ -133,23 +132,20 @@ async function handleMessage(
   }
 
   if (!email.site) {
-    // 旧消息没有账户归属，不能用语言推断；认证链接可由用户重新申请。
+    // jobs 先于 web 发布，旧生产者仍会投递无 site 消息；沿用语言规则发送并观察告警。
     log.warn('email.site_missing', meta)
-    message.ack()
-    return
   }
 
-  const site = email.site
   await withLogContext({ requestId: email.requestId ?? newRequestId() }, () =>
     withJobObserver(options.observer ?? logJobObserver, () =>
-      deliverMessage(message, { ...email, site }, deliver, transport, options),
+      deliverMessage(message, email, deliver, transport, options),
     ),
   )
 }
 
 async function deliverMessage(
   message: QueueMessage<unknown>,
-  email: SiteEmailMessage,
+  email: EmailQueueMessage,
   deliver: Deliver,
   transport: JobsEmailTransport,
   options: EmailBatchOptions,
