@@ -64,6 +64,7 @@ function Refunds() {
         rows={rows}
         getRowId={(row) => row.id}
         columns={[
+          { id: 'site', header: m.admin_site(), cell: (row) => siteLabel(row.site) },
           { id: 'review', header: m.admin_refund_review(), cell: (row) => <Refund row={row} /> },
         ]}
         page={adminListPage(search.offset, { hasMore })}
@@ -129,7 +130,7 @@ function Refund({ row }: { row: RefundRow }) {
           <Link to="/admin/workspaces/$id" params={{ id: row.workspaceId }} className="underline">
             {row.workspaceId}
           </Link>{' '}
-          · {siteLabel(row.site)} · {row.provider} {m.admin_status_inline()} {row.status}
+          · {row.provider} {m.admin_status_inline()} {row.status}
         </p>
         <p>
           {m.admin_reason_label()} {row.reason}
