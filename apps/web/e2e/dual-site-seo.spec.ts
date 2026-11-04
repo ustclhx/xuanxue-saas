@@ -116,3 +116,38 @@ test('两站 FAQ 汇总页与 llms.txt 按 Host 输出', async ({ request, baseU
   const rules = await (await request.get(`${origin}/robots.txt`, eastOptions)).text()
   expect(rules).toContain('User-agent: GPTBot\nAllow: /\nDisallow: /app')
 })
+
+// 回归：东方站没有无前缀默认语言，英文浏览器访问无前缀认证页曾按 baseLocale 渲染成英文 + Arcanumber
+test('东方站无前缀认证页跳到东方站语言与品牌，西方站保持英文原地渲染', async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({ locale: 'en-US' })
+  const page = await context.newPage()
+  const east = localSite(baseURL, 'east')
+  for (const [path, title] of [
+    ['/login', '登入'],
+    ['/register', '建立帳號'],
+  ] as const) {
+    await page.goto(`${east}${path}`)
+    await expect(page).toHaveURL(`${east}/zh-hant${path}`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
+    await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+    // 页头品牌为东方站品牌（注册页的分站提示会提到 Arcanumber，因此只断言品牌元素）
+    await expect(page.getByText('干支日', { exact: true })).toBeVisible()
+    await expect(page.getByText('Arcanumber', { exact: true })).toHaveCount(0)
+  }
+  const west = localSite(baseURL, 'west')
+  for (const [path, title] of [
+    ['/login', 'Sign in'],
+    ['/register', 'Create an account'],
+  ] as const) {
+    await page.goto(`${west}${path}`)
+    await expect(page).toHaveURL(`${west}${path}`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+    await expect(page.getByText('Arcanumber', { exact: true })).toBeVisible()
+  }
+  await context.close()
+})

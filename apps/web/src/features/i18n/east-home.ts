@@ -15,18 +15,25 @@ export function eastHomeRedirect(request: Request, config: SitesConfig): Respons
   const url = new URL(request.url)
   if (url.pathname !== '/') return null
   if (resolveSite(url.host, config).id !== 'east') return null
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: `/${localeUrlSegment(eastLocale(request, config))}/${url.search}`,
+      vary: 'accept-language, cookie',
+    },
+  })
+}
+
+/**
+ * 东方站无前缀地址要落到的语言（根路径与认证页共用）：属于东方站的手动选择优先，
+ * 其次是东方站语言内的浏览器语言，都不匹配时取东方站第一个语言（繁体中文）。
+ */
+export function eastLocale(request: Request, config: SitesConfig): string {
   const east: readonly string[] = config.sites.east.locales
   const cookie = readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE)
   const preferred: string =
     cookie !== undefined && east.includes(cookie)
       ? cookie
       : preferredLocale(request.headers.get('accept-language'))
-  const locale = east.includes(preferred) ? preferred : (east[0] ?? config.i18n.defaultLocale)
-  return new Response(null, {
-    status: 302,
-    headers: {
-      location: `/${localeUrlSegment(locale)}/${url.search}`,
-      vary: 'accept-language, cookie',
-    },
-  })
+  return east.includes(preferred) ? preferred : (east[0] ?? config.i18n.defaultLocale)
 }

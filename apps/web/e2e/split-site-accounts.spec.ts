@@ -8,11 +8,11 @@ import {
 } from '@playwright/test'
 import { createDb } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
-import { APP_URL, login, register, simulateClientIp } from './fixtures.ts'
+import { APP_URL, AUTH_FORM_COPY, login, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // openspec split-site-accounts 4.1：两站账户按站点独立。同一邮箱在 east.localhost 与 west.localhost
-// 各注册一次，依次验证余额独立、会话 Cookie 不跨站、西方站删号不影响东方站。
+// 各注册一次（东方站无前缀认证页跳到繁体中文，表单用 zh-Hant 文案），依次验证余额独立、会话 Cookie 不跨站、西方站删号不影响东方站。
 // 本地按 Host 识别站点（features/site/site.ts）；CI 随 smoke 配置运行，库为 xuanxue_ci_e2e。
 
 /** 与 smoke-setup 相同的隔离库校验：只连本机 worktree 库或 CI 的 e2e 库，绝不写共享库。 */
@@ -81,7 +81,7 @@ test('same email on east and west: independent balances, sessions and deletion',
   try {
     // 1. 同一邮箱两站各注册一次（不同姓名，便于在后台区分），得到两个用户与两个个人空间
     const eastUser = await open(east)
-    await register(eastUser.page, email, `Split East ${suffix}`)
+    await register(eastUser.page, email, `Split East ${suffix}`, AUTH_FORM_COPY['zh-Hant'])
     const westUser = await open(west)
     await register(westUser.page, email, `Split West ${suffix}`)
     const accounts =
@@ -101,7 +101,7 @@ test('same email on east and west: independent balances, sessions and deletion',
     // 2. 东方站管理员在后台给东方站账户发放积分；西方站同邮箱账户余额仍为 0。
     //    目标空间按东方站账户的 workspaceId 定位，不依赖后台用户搜索是否按站点过滤。
     const admin = await open(east)
-    await register(admin.page, adminEmail, `Split Admin ${suffix}`)
+    await register(admin.page, adminEmail, `Split Admin ${suffix}`, AUTH_FORM_COPY['zh-Hant'])
     const promoted =
       await sql`update "user" set role = 'admin' where email = ${adminEmail} and site = 'east' returning id`
     expect(promoted).toHaveLength(1)
@@ -173,7 +173,7 @@ test('same email on east and west: independent balances, sessions and deletion',
     expect(westAfter?.deleted_at).not.toBeNull()
 
     const eastAgain = await open(east)
-    await login(eastAgain.page, email)
+    await login(eastAgain.page, email, '/login', AUTH_FORM_COPY['zh-Hant'])
     await expect(eastAgain.page.getByTestId('current-user')).toContainText(email)
     await expectAvailableCredits(eastAgain.page, 100)
     const [eastAfter] = await sql`select u.id, o.deleted_at from "user" u
