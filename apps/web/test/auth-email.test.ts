@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers'
 import { createAuth } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
-import { createDb } from '@xuanxue/db'
+import { createDb, user } from '@xuanxue/db'
 import { renderEmail } from '@xuanxue/email'
 import { type EmailQueueMessage, parseEmailQueueMessage } from '@xuanxue/email/queue'
 import { newId } from '@xuanxue/shared'
@@ -32,6 +32,7 @@ function setup() {
       tenancy: { multiTenant: true },
     }),
     sendEmail: createQueueAuthEmailSender({
+      site: 'west',
       queue: {
         send: async (body) => {
           queued.push(body)
@@ -39,7 +40,7 @@ function setup() {
       },
       appName: () => 'TestApp',
       appUrl: APP_URL,
-      resolveLocale: userLocaleByEmail(db),
+      resolveLocale: userLocaleByEmail(db, 'west'),
     }),
   })
   const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
@@ -204,8 +205,19 @@ describe('认证邮件入队', () => {
     expect(expiry).toBeLessThanOrEqual(after + lifetime)
   })
 
+  it('同邮箱两站的邮件语言各自独立，查询会规范化邮箱', async () => {
+    const { db } = setup()
+    const address = `sites-${newId()}@${EMAIL_DOMAIN}`
+    await db.insert(user).values([
+      { id: newId(), name: 'East', email: address, site: 'east', locale: 'zh-Hant' },
+      { id: newId(), name: 'West', email: address, site: 'west', locale: 'en' },
+    ])
+    expect(await userLocaleByEmail(db, 'east')(address.toUpperCase())).toBe('zh-Hant')
+    expect(await userLocaleByEmail(db, 'west')(address)).toBe('en')
+  })
+
   it('未注册的收件人语言为 null', async () => {
     const { db } = setup()
-    expect(await userLocaleByEmail(db)(`nobody-${newId()}@${EMAIL_DOMAIN}`)).toBeNull()
+    expect(await userLocaleByEmail(db, 'west')(`nobody-${newId()}@${EMAIL_DOMAIN}`)).toBeNull()
   })
 })

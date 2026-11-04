@@ -24,9 +24,10 @@ const requestId = '01890a5d-ac96-774b-bcce-b302099a8057'
 
 /** 退款结果邮件：真实的 notifyRefundRequest，数据库查询返回空（未发送过、用户语言未知） */
 const refundMail = (send: (message: EmailQueueMessage) => void) => {
+  let queries = 0
   const query = {
     from: () => query,
-    where: () => Promise.resolve([]),
+    where: () => Promise.resolve(queries++ === 0 ? [] : [{ site: 'west', locale: null }]),
   }
   const db = {
     select: () => query,

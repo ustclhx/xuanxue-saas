@@ -12,7 +12,7 @@ import {
   retryRefundNotification,
   reviewRefundRequest,
 } from '@xuanxue/billing'
-import { brandName, supportEmail } from '@xuanxue/config'
+import { siteBrandName } from '@xuanxue/config'
 import { type Database, refundRequest, webhookEvent } from '@xuanxue/db'
 import { requireCapability } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
@@ -64,8 +64,8 @@ function refundOptions(db: Database): RefundServiceOptions {
               await queue.send(withRequestId(message))
             },
           },
-          appName: (locale) => brandName(templateConfig, locale),
-          supportEmail: (locale) => supportEmail(templateConfig, locale),
+          appName: (locale, site) => siteBrandName(templateConfig, site, locale),
+          supportEmail: (_locale, site) => templateConfig.sites[site].supportEmail,
         },
         notification,
       ),

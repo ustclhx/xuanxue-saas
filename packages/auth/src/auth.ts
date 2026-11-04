@@ -73,9 +73,8 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
   const { config, sendEmail } = deps
   const vars = parseAuthEnv(env, config)
   const workspaceHooks = personalWorkspaceHooks(db)
-  const bootstrapAdmin = adminBootstrap(db, vars.BOOTSTRAP_ADMIN_EMAILS)
-
   const { site } = deps
+  const bootstrapAdmin = adminBootstrap(db, vars.BOOTSTRAP_ADMIN_EMAILS, site)
   // 始终包装：没有不按站点隔离的认证实例（未知的 adapter 成员在这里直接报错）
   const adapter = siteScopedAdapter(drizzleAdapter(db, { provider: 'pg', schema }), site)
   const storage = sessionStorageOptions(deps.cache, site)

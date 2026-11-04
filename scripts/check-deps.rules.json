@@ -37,6 +37,7 @@
     "packages/auth/test/account-settings.test.ts": ["cloudflare:workers"],
     "packages/auth/test/admin-bootstrap.test.ts": ["cloudflare:workers"],
     "packages/auth/test/auth.test.ts": ["cloudflare:workers"],
+    "packages/auth/test/deletion-site-scope.test.ts": ["cloudflare:workers"],
     "packages/auth/test/deletion.test.ts": ["cloudflare:workers"],
     "packages/auth/test/fresh-session.test.ts": ["cloudflare:workers"],
     "packages/auth/test/helpers.ts": ["cloudflare:workers"],
