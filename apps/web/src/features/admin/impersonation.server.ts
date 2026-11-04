@@ -10,6 +10,7 @@ import type { WebRuntime } from '../../server/runtime.ts'
 import { withAdminAction } from './action.server.ts'
 import { isPlatformAdmin, requireAdmin } from './guard.ts'
 import { assertRealSession } from './impersonation.ts'
+import { assertAdminSite } from './site.ts'
 
 const bodySchema = (body: unknown) => {
   const parsed = z
@@ -96,6 +97,9 @@ export async function executeAdminAuthAction(options: {
         throw new AppError('SESSION_REQUIRED', 'Session expired', { status: 401 })
       const [target] = await tx.select().from(user).where(eq(user.id, input.userId)).for('update')
       if (!target) throw new AppError('NOT_FOUND', 'User not found', { status: 404 })
+      // 封禁与模拟登录只作用于当前站点的账户：模拟会话的 Cookie 写在当前域名下，
+      // 另一站用户的会话会被会话站点校验立即拦截（split-site-accounts 决策 3、7）。
+      if (!stopping) assertAdminSite(target.site, runtime.site)
       if (path === '/admin/impersonate-user' && isPlatformAdmin(target.role))
         throw new AppError('IMPERSONATE_ADMIN_FORBIDDEN', 'Cannot impersonate administrators', {
           status: 403,

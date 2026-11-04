@@ -18,6 +18,7 @@ import {
 import { authErrorMessage } from '../../features/auth/errors.ts'
 import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
 import type { AuthUiOptions } from '../../features/auth/options.ts'
+import { SignInFailure } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
 import { m } from '../../paraglide/messages.js'
@@ -190,7 +191,7 @@ const emailSchema = () => z.email(COPY.invalidEmail)
 
 function PasswordSignIn({ siteKey }: { siteKey: string | null }) {
   const turnstile = useTurnstile(siteKey, 'sign-in')
-  const { error, run } = useAuthRequest(turnstile)
+  const { error, failure, run } = useAuthRequest(turnstile)
   const form = useAppForm({
     defaultValues: { email: '', password: '' },
     validators: {
@@ -214,7 +215,7 @@ function PasswordSignIn({ siteKey }: { siteKey: string | null }) {
   return (
     <form.AppForm>
       <form.Form aria-label={COPY.modes.password}>
-        <FormAlert message={error} />
+        <SignInFailure message={error} failure={failure} />
         <form.AppField name="email">
           {(field) => <field.TextField label={COPY.email} type="email" autoComplete="email" />}
         </form.AppField>

@@ -6,18 +6,21 @@ import {
   filtersToSearch,
   offsetOfPage,
 } from '../../../features/admin/list.ts'
+import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
 import { AdminPage, adminTableLabels } from '../../../features/admin/ui.tsx'
 import { getAdminWorkspaces } from '../../../features/admin/workspaces.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 
+const filters = ['q', 'status', 'site'] as const
 export const Route = createFileRoute('/admin/workspaces/')({
-  validateSearch: (search: Record<string, unknown>) => adminListSearch(['q', 'status'])(search),
+  validateSearch: (search: Record<string, unknown>) => adminListSearch(filters)(search),
   loaderDeps: ({ search }) => search,
   loader: ({ deps }) =>
     getAdminWorkspaces({
       data: {
         ...deps,
         status: deps.status === 'active' || deps.status === 'deleted' ? deps.status : undefined,
+        site: deps.site === 'all' ? 'all' : undefined,
       },
     }),
   component: Workspaces,
@@ -26,8 +29,10 @@ function Workspaces() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { admin } = Route.useRouteContext()
   return (
     <AdminPage title={m.admin_workspaces()}>
+      <AllSitesNotice site={search.site} />
       <DataTable
         labels={adminTableLabels()}
         label={m.admin_workspaces()}
@@ -43,6 +48,7 @@ function Workspaces() {
               </Link>
             ),
           },
+          { id: 'site', header: m.admin_site(), cell: (row) => siteLabel(row.site) },
           { id: 'id', header: m.admin_id(), cell: (row) => row.id },
           { id: 'slug', header: m.admin_slug(), cell: (row) => row.slug },
           {
@@ -57,7 +63,7 @@ function Workspaces() {
           },
         ]}
         page={adminListPage(search.offset, data)}
-        filterValues={{ q: search.q, status: search.status }}
+        filterValues={{ q: search.q, status: search.status, site: search.site }}
         filters={[
           { id: 'q', label: m.admin_search_workspaces(), placeholder: m.admin_name_slug_or_id() },
           {
@@ -70,13 +76,12 @@ function Workspaces() {
               { value: 'deleted', label: m.admin_deleted() },
             ],
           },
+          siteFilter(admin.site),
         ]}
         onPageChange={(page) =>
           void navigate({ search: { ...search, offset: offsetOfPage(page) } })
         }
-        onFiltersChange={(values) =>
-          void navigate({ search: filtersToSearch(['q', 'status'], values) })
-        }
+        onFiltersChange={(values) => void navigate({ search: filtersToSearch(filters, values) })}
       />
     </AdminPage>
   )

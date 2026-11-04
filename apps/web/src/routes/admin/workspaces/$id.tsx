@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { Button, DetailList } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { ADMIN_COPY } from '../../../features/admin/copy.ts'
+import { OtherSiteNotice, siteLabel } from '../../../features/admin/site-ui.tsx'
 import {
   AdminPage,
   AdminSection,
@@ -24,6 +25,9 @@ export const Route = createFileRoute('/admin/workspaces/$id')({
 })
 function WorkspaceDetail() {
   const data = Route.useLoaderData()
+  const { admin } = Route.useRouteContext()
+  // 另一站的空间在这里只读：调整积分与恢复须到该站后台（服务端同样拒绝，split-site-accounts 决策 7）
+  const otherSite = data.workspace.site !== admin.site
   const router = useRouter()
   const [confirmed, setConfirmed] = useState(false)
   const [ready, setReady] = useState(false)
@@ -81,7 +85,7 @@ function WorkspaceDetail() {
       title={m.admin_workspace_details()}
       actions={
         <>
-          {templateConfig.credits.enabled && (
+          {templateConfig.credits.enabled && !otherSite && (
             <Button asChild size="sm">
               <Link to="/admin/credits" search={{ offset: 0, workspaceId: data.workspace.id }}>
                 {ADMIN_COPY.adjustCredits}
@@ -99,6 +103,7 @@ function WorkspaceDetail() {
       <DetailList
         fields={[
           { label: m.admin_name(), value: data.workspace.name },
+          { label: m.admin_site(), value: siteLabel(data.workspace.site) },
           { label: m.admin_id(), value: data.workspace.id },
           { label: m.admin_slug(), value: data.workspace.slug },
           {
@@ -121,7 +126,8 @@ function WorkspaceDetail() {
             : []),
         ]}
       />
-      {data.workspace.deletedAt && (
+      {otherSite && <OtherSiteNotice site={data.workspace.site} />}
+      {data.workspace.deletedAt && !otherSite && (
         <div className={panelClass('danger', 'max-w-xl')}>
           <p className="text-sm">{m.admin_restore_within_the_30_day_retention_period_only()} </p>
           <CheckboxField

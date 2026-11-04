@@ -44,7 +44,7 @@ export const adjustCredits = createServerFn({ method: 'POST' })
           ...scope
         }: Parameters<typeof adjustAdminCredits>[0] & {
           data: z.infer<typeof creditAdjustmentInput>
-        }) => adjustAdminCredits(scope, data),
+        }) => adjustAdminCredits(scope, data, input.context.site),
       )(input)
       return { ok: true as const, ...result }
     } catch (error) {

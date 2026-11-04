@@ -11,6 +11,8 @@ type AuthResult<T> = { data: T | null; error: AuthErrorLike | null }
  */
 export function useAuthRequest(turnstile: TurnstileState) {
   const [error, setError] = useState<string | null>(null)
+  // 接口返回的原始错误（错误码 / 状态），供需要按错误类型调整展示的表单使用（如登录失败的两站账户提示）
+  const [failure, setFailure] = useState<AuthErrorLike | null>(null)
 
   const run = useCallback(
     async <T>(request: (headers: Record<string, string>) => Promise<AuthResult<T>>) => {
@@ -19,9 +21,11 @@ export function useAuthRequest(turnstile: TurnstileState) {
         return null
       }
       setError(null)
+      setFailure(null)
       try {
         const result = await request(turnstile.headers())
         if (result.error) {
+          setFailure(result.error)
           setError(authErrorMessage(result.error))
           return null
         }
@@ -36,5 +40,5 @@ export function useAuthRequest(turnstile: TurnstileState) {
     [turnstile],
   )
 
-  return { error, setError, run }
+  return { error, failure, setError, run }
 }

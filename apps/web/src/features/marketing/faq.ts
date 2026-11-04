@@ -1,6 +1,8 @@
 import { m } from '../../paraglide/messages.js'
 import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { siteAccountNames } from '../auth/site-account-names.ts'
+import { siteOfLocale } from '../site/site.ts'
 import type { QA } from '../tools/numerology/seo.ts'
 
 export interface FaqSection {
@@ -38,7 +40,7 @@ const METHODS: Record<Locale, readonly Pair[]> = {
   ],
 }
 
-/** /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式两组问答 */
+/** /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式、账号三组问答 */
 export function faqSections(locale: Locale): FaqSection[] {
   const options = { locale }
   const qa = ([question, answer]: Pair): QA => ({
@@ -46,6 +48,7 @@ export function faqSections(locale: Locale): FaqSection[] {
     answer: answer({}, options),
   })
   const days = String(templateConfig.billing.refundWindowDays)
+  const names = siteAccountNames(siteOfLocale(locale, templateConfig) ?? 'west', locale)
   const credits: FaqSection[] = templateConfig.billing.enabled
     ? [
         {
@@ -71,6 +74,16 @@ export function faqSections(locale: Locale): FaqSection[] {
         ...METHODS[locale].map(qa),
         qa([m.tarot_three_card_faq_2_q, m.tarot_three_card_faq_2_a]),
         qa([m.pricing_faq_accuracy_q, m.pricing_faq_accuracy_a]),
+      ],
+    },
+    {
+      // 两站账户分开（split-site-accounts D3）：语言只属于一个站点，按语言取本站与另一站的品牌名
+      title: m.marketing_faq_section_account({}, options),
+      items: [
+        {
+          question: m.marketing_faq_accounts_q(names, options),
+          answer: m.marketing_faq_accounts_a(names, options),
+        },
       ],
     },
   ]

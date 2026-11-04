@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'
+import { siteLabel } from '../../features/admin/site-ui.tsx'
 import { authClient } from '../../features/auth/auth-client.ts'
 import { LanguageSelect } from '../../features/i18n/language-controls.tsx'
 import { ThemeToggle } from '../../features/theme/theme-toggle.tsx'
+import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
 
 // 后台布局：守卫在 server function 中执行（requireFreshSession + admin 角色），
@@ -29,6 +31,9 @@ function AdminLayout() {
             <h1 className="font-semibold text-lg">{ADMIN_COPY.heading}</h1>
             <p className="break-all text-muted-foreground text-xs">
               {ADMIN_COPY.signedInAs} {admin.email}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {m.admin_current_site({ site: siteLabel(admin.site) })}
             </p>
           </header>
           <nav aria-label={ADMIN_COPY.nav.label} className="flex flex-col gap-3 md:gap-4">

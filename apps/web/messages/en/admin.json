@@ -359,5 +359,15 @@
   "admin_ai_free_failure_count": "Free failed AI replies per workspace",
   "admin_ai_free_failure_count_description": "Chat replies that fail without visible text are refunded in full up to this many times per window. Later failures are charged for the last upstream attempt (never more than the hold). 0 charges every such failure.",
   "admin_ai_free_failure_window_minutes": "Free failure window (minutes)",
-  "admin_ai_free_failure_window_description": "Rolling window for counting free failures. Default 60 minutes."
+  "admin_ai_free_failure_window_description": "Rolling window for counting free failures. Default 60 minutes.",
+  "admin_site": "Site",
+  "admin_current_site": "Current site: {site}",
+  "admin_site_filter_current": "Current site ({site})",
+  "admin_site_filter_all": "All sites (read-only)",
+  "admin_all_sites_read_only": "Showing both sites. Records from the other site are read-only here; manage them from that site's admin.",
+  "admin_other_site_record": "This record belongs to {site}. It is read-only here; ban, impersonate, credit and restore actions are only available in the {site} admin.",
+  "admin_metrics_by_site": "By site",
+  "admin_metrics_by_site_description": "Computed live for the selected range: registrations within the range; users, workspaces and paid workspaces as of the end of the last day (UTC).",
+  "admin_total_users": "Users",
+  "admin_total_workspaces": "Active workspaces"
 }
