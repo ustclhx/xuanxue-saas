@@ -14,7 +14,9 @@ const configured = (emails?: string, magicLink = false) =>
     rateLimiter: undefined,
   })
 const readUser = async (s: ReturnType<typeof setup>, email: string) => {
-  const user = await s.db.query.user.findFirst({ where: (u, { eq }) => eq(u.email, email) })
+  const user = await s.db.query.user.findFirst({
+    where: (u, { and, eq }) => and(eq(u.email, email), eq(u.site, s.auth.site)),
+  })
   if (!user) throw new Error('Expected test user missing')
   return user
 }
@@ -32,6 +34,26 @@ async function oauth(s: ReturnType<typeof setup>, email: string, verified = true
 }
 
 describe('first-run administrator bootstrap', () => {
+  it('promotes only the current site when both verified accounts share an email', async () => {
+    const address = users.email('same-email')
+    const east = setup({ site: 'east', rateLimiter: undefined })
+    const west = configured()
+    const { user: eastUser } = await oauth(east, address)
+    const { user: westUser } = await oauth(west, address)
+    const bootstrapWest = adminBootstrap(west.db, address, 'west')
+
+    // 即使调用方误传另一站的 id，也不能借本站引导提升它。
+    await bootstrapWest(eastUser.id, 'session.create')
+    expect(await readUser(east, address)).toMatchObject({ role: 'user' })
+    expect(await audits(east, eastUser.id)).toEqual([])
+
+    const current = configured(address)
+    await (await current.auth.$context).internalAdapter.createSession(westUser.id)
+    expect(await readUser(current, address)).toMatchObject({ role: 'admin' })
+    expect(await readUser(east, address)).toMatchObject({ role: 'user' })
+    expect(await audits(current, westUser.id)).toHaveLength(1)
+  })
+
   it('promotes a verified OAuth creation with normalized configuration and keeps its personal workspace', async () => {
     const address = users.email('oauth')
     const s = configured(` , ${address.toUpperCase()} , ${address} , `)
@@ -236,12 +258,12 @@ describe('first-run administrator bootstrap', () => {
           )
       },
     })
-    await expect(adminBootstrap(failingDb, address)(user.id, 'session.create')).rejects.toThrow(
-      'Audit write failed',
-    )
+    await expect(
+      adminBootstrap(failingDb, address, 'west')(user.id, 'session.create'),
+    ).rejects.toThrow('Audit write failed')
     expect(await readUser(s, address)).toMatchObject({ role: 'user' })
     expect(await audits(s, user.id)).toEqual([])
-    await adminBootstrap(createDb(env.HYPERDRIVE), address)(user.id, 'session.create')
+    await adminBootstrap(createDb(env.HYPERDRIVE), address, 'west')(user.id, 'session.create')
     expect(await readUser(s, address)).toMatchObject({ role: 'admin' })
   })
 })

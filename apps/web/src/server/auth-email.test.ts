@@ -8,6 +8,7 @@ const APP_URL = 'https://app.example.com'
 function setup(resolveLocale?: (email: string) => Promise<string | null>) {
   const sent: { body: EmailQueueMessage; options: unknown }[] = []
   const sendEmail = createQueueAuthEmailSender({
+    site: 'west',
     queue: {
       send: async (body, options) => {
         sent.push({ body, options })
@@ -31,6 +32,7 @@ describe('createQueueAuthEmailSender', () => {
     expect(options).toBeUndefined()
     expect(body).toEqual({
       v: 1,
+      site: 'west',
       template: 'reset-password',
       props: { url: `${APP_URL}/reset`, expiresInMinutes: 60 },
       to: 'user@example.com',

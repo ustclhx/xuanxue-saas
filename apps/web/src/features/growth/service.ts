@@ -1,5 +1,5 @@
 import { normalizeSignupEmail } from '@xuanxue/billing'
-import { brandName, type TemplateConfig } from '@xuanxue/config'
+import { type SiteId, siteBrandName, type TemplateConfig } from '@xuanxue/config'
 import {
   type Database,
   dbSettingStore,
@@ -20,6 +20,7 @@ import { deliverReading } from './reading-delivery.ts'
 import { signGrowthToken, verifyGrowthToken } from './tokens.ts'
 
 export interface GrowthContext {
+  site: SiteId
   db: Database
   config: TemplateConfig
   secret: string
@@ -33,12 +34,13 @@ export function requireGrowthFeature(config: TemplateConfig, feature: 'waitlist'
 
 async function base(ctx: GrowthContext, to: string, idempotencyKey: string) {
   const requestId = getLogContext()?.requestId
-  const locale = (await userLocaleByEmail(ctx.db)(to)) ?? ctx.config.i18n.defaultLocale
+  const locale = (await userLocaleByEmail(ctx.db, ctx.site)(to)) ?? ctx.config.i18n.defaultLocale
   return {
     v: EMAIL_QUEUE_MESSAGE_VERSION as typeof EMAIL_QUEUE_MESSAGE_VERSION,
     to,
+    site: ctx.site,
     locale,
-    appName: brandName(ctx.config, locale),
+    appName: siteBrandName(ctx.config, ctx.site, locale),
     idempotencyKey,
     ...(requestId ? { requestId } : {}),
   }
@@ -150,7 +152,7 @@ export async function subscribeNewsletter(
     const normalized = normalizeSignupEmail(email)
     await tx
       .insert(newsletterSubscriber)
-      .values({ email: normalized })
+      .values({ email: normalized, site: ctx.site })
       .onConflictDoNothing({ target: newsletterSubscriber.email })
     const [found] = await tx
       .select()
@@ -168,6 +170,7 @@ export async function subscribeNewsletter(
               confirmToken: newId(),
               confirmedAt: null,
               unsubscribedAt: null,
+              site: ctx.site,
             }
           : {}),
         ...(reading

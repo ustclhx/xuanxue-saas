@@ -1,4 +1,5 @@
 import type { AuthEmail, SendAuthEmail } from '@xuanxue/auth'
+import type { SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import {
   EMAIL_QUEUE_MESSAGE_VERSION,
@@ -22,9 +23,10 @@ import { withRequestId } from '@xuanxue/shared/log'
  *   config,
  *   sendEmail: createQueueAuthEmailSender({
  *     queue: env.EMAIL_QUEUE,
+ *     site,
  *     appName: config.app.name,
  *     appUrl: env.APP_URL,
- *     resolveLocale: userLocaleByEmail(db),
+ *     resolveLocale: userLocaleByEmail(db, site),
  *   }),
  * })
  * ```
@@ -50,10 +52,12 @@ export function invitationUrl(appUrl: string, invitationId: string): string {
 }
 
 export interface QueueAuthEmailSenderOptions {
+  /** 由入口 Host 解析，不接受客户端提供的站点。 */
+  readonly site: SiteId
   /** `env.EMAIL_QUEUE`（测试中可传入记录消息的假实现） */
   readonly queue: Pick<QueueProducer<EmailQueueMessage>, 'send'>
   /** `template.config.ts` 的 `app.name`，随消息带给消费者用于渲染 */
-  /** 按收件人语言取品牌名（两站品牌不同） */
+  /** 当前站点的品牌名，语言只决定品牌的显示文字 */
   readonly appName: (locale: string | null) => string
   /** `APP_URL`，用于拼接邀请链接 */
   readonly appUrl: string
@@ -67,6 +71,7 @@ export function createQueueAuthEmailSender(options: QueueAuthEmailSenderOptions)
     const locale = (await options.resolveLocale?.(email.to)) ?? null
     const message = {
       v: EMAIL_QUEUE_MESSAGE_VERSION,
+      site: options.site,
       template,
       props,
       to: email.to,
@@ -132,12 +137,12 @@ export function toTemplate(email: AuthEmail, appUrl: string): TemplateMessage {
 }
 
 /** 按邮箱查已注册用户的 `user.locale`；未注册（如被邀请人）返回 null。 */
-export function userLocaleByEmail(db: Database) {
+export function userLocaleByEmail(db: Database, site: SiteId) {
   return async (email: string): Promise<string | null> => {
     const row = await db.query.user.findFirst({
       columns: { locale: true },
       // Better Auth 存储小写邮箱
-      where: (user, { eq }) => eq(user.email, email.toLowerCase()),
+      where: (user, { and, eq }) => and(eq(user.email, email.toLowerCase()), eq(user.site, site)),
     })
     return row?.locale ?? null
   }

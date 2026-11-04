@@ -5,6 +5,7 @@ import { EMAIL_MAX_ATTEMPTS, handleEmailBatch } from '../src/queues/email.ts'
 
 const body: EmailQueueMessage = {
   v: 1,
+  site: 'west',
   template: 'reset-password',
   props: { url: 'https://app.example.com/reset?token=fixture', expiresInMinutes: 60 },
   to: 'fixture@example.com',

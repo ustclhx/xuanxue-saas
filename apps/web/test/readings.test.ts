@@ -329,6 +329,8 @@ describe('POST /api/readings', () => {
     expect(run.sent).toEqual([
       expect.objectContaining({
         template: 'reading-ready',
+        site: 'west',
+        appName: 'Arcanumber',
         to: who.email,
         locale: 'zh-Hant',
         idempotencyKey: `reading-ready:${readingId}`,
@@ -497,7 +499,7 @@ describe('删除（隐私政策「如何删除数据」）', () => {
   it('删除账号的步骤清除个人空间的报告、AI 正文与订阅记录', async () => {
     const who = await member(100)
     await generated(who)
-    await sql`insert into newsletter_subscriber (id, email, confirm_token) values (${newId()}, ${who.email.toUpperCase()}, ${newId()})`
+    await sql`insert into newsletter_subscriber (id, email, site, confirm_token) values (${newId()}, ${who.email.toUpperCase()}, 'west', ${newId()})`
     await sql.begin((tx) =>
       workspaceContentDeletionStep.execute?.(
         { actorUserId: who.userId, workspaceIds: [who.workspaceId], db },

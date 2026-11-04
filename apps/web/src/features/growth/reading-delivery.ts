@@ -1,4 +1,4 @@
-import { brandName } from '@xuanxue/config'
+import { siteBrandName } from '@xuanxue/config'
 import { newsletterSubscriber } from '@xuanxue/db'
 import { EMAIL_QUEUE_MESSAGE_VERSION } from '@xuanxue/email/queue'
 import { requireCapability } from '@xuanxue/platform'
@@ -52,9 +52,10 @@ export async function deliverReading(ctx: GrowthContext, row: Subscriber): Promi
     await queue.send({
       v: EMAIL_QUEUE_MESSAGE_VERSION,
       template: 'reading-summary',
+      site: input.site,
       to: row.email,
       locale: input.locale,
-      appName: brandName(ctx.config, input.locale),
+      appName: siteBrandName(ctx.config, input.site, input.locale),
       idempotencyKey: `reading-summary:${row.id}:${id}`,
       props,
     })

@@ -293,10 +293,13 @@ export async function deleteAccount(options: Options) {
       await sql`insert into audit_log (id,actor_user_id,workspace_id,action,target_type,target_id,ip,meta)
       values (${newId()},${current.id},${membership.organization_id},'workspace.member_removed','member',${membership.id},
       ${options.clientIp ?? null},${JSON.stringify({ targetUserId: current.id, oldRole: membership.role, newRole: null, reason: 'account_deleted' })}::jsonb)`
-    await sql`update invitation set status='canceled',updated_at=now() where status='pending' and (inviter_id=${current.id} or lower(email)=lower(${current.email}))`
-    // 原邮箱被替换前删除增长名单记录；两张表按 normalizeSignupEmail 规范化存储。
+    await sql`update invitation i set status='canceled',updated_at=now() from organization o
+      where i.organization_id=o.id and o.site=${site} and i.status='pending'
+      and (i.inviter_id=${current.id} or lower(i.email)=lower(${current.email}))`
+    // 原邮箱被替换前只删除本站订阅；另一站同邮箱的订阅不属于当前账户。
     const emails = growthEmails(current.email)
-    await sql`delete from newsletter_subscriber where email in ${sql(emails)}`
+    await sql`delete from newsletter_subscriber where site=${site} and email in ${sql(emails)}`
+    // waitlist 邮箱属于同一人的个人数据，删号的隐私删除优先于另一站的等候资格。
     await sql`delete from waitlist where email in ${sql(emails)}`
     await sql`delete from notification where user_id=${current.id}`
     await sql`update "user" set email=${`deleted+${current.id}@invalid`},name='',image=null,locale=null,timezone=null,email_verified=false,two_factor_enabled=false,banned=true,ban_reason='Account deleted',ban_expires=null,updated_at=now() where id=${current.id}`

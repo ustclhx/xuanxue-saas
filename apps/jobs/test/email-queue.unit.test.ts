@@ -6,6 +6,7 @@ import { handleEmailBatch } from '../src/queues/email.ts'
 
 const body: EmailQueueMessage = {
   v: 1,
+  site: 'west',
   template: 'reset-password',
   props: { url: 'https://arcanumber.com/reset?token=private', expiresInMinutes: 60 },
   to: 'someone@example.com',
@@ -87,3 +88,43 @@ it('acks malformed messages and retries temporary failures with the original req
     '"requestId":"original-request"',
   )
 })
+
+it.each([
+  ['east', 'en', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['west', 'ko', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+] as const)(
+  'routes %s mail by site even when locale is %s',
+  async (site, locale, from, replyTo) => {
+    const remote = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(200))
+    const entry = message({ ...body, site, locale })
+    await handleEmailBatch(batch([entry]), transport, { observer })
+    expect(JSON.parse(String(remote.mock.calls[0]?.[1]?.body))).toMatchObject({
+      from,
+      reply_to: replyTo,
+    })
+    expect(entry.ack).toHaveBeenCalledOnce()
+  },
+)
+
+it.each([
+  ['ko', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['en', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+  ['zh-TW', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  [null, 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
+] as const)(
+  'sends legacy mail without site using locale %s and warns',
+  async (locale, from, replyTo) => {
+    const { site: _site, ...legacy } = body
+    const remote = vi.spyOn(globalThis, 'fetch').mockResolvedValue(reply(200))
+    const entry = message({ ...legacy, locale })
+    await handleEmailBatch(batch([entry]), transport, { observer })
+    expect(remote).toHaveBeenCalledOnce()
+    expect(JSON.parse(String(remote.mock.calls[0]?.[1]?.body))).toMatchObject({
+      from,
+      reply_to: replyTo,
+    })
+    expect(entry.ack).toHaveBeenCalledOnce()
+    expect(entry.retry).not.toHaveBeenCalled()
+    expect(vi.mocked(console.warn).mock.calls.flat().join('')).toContain('email.site_missing')
+  },
+)

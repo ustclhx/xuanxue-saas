@@ -1,6 +1,6 @@
 import { messageText, textModelConfig } from '@xuanxue/ai'
 import { requireFreshSession } from '@xuanxue/auth'
-import { brandName, type EmailTransport, SITE_IDS } from '@xuanxue/config'
+import { type EmailTransport, SITE_IDS, type SiteId, siteBrandName } from '@xuanxue/config'
 import {
   type AiModel,
   aiMessage,
@@ -212,7 +212,7 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   }
   const messageId = started.metadata.messageId
   await scoped(db, workspace.id).updateById(reading, created.id, { messageId })
-  const origin = siteOrigin(body.site, new URL(request.url), templateConfig)
+  const origin = siteOrigin(user.site, new URL(request.url), templateConfig)
   deps.waitUntil(
     started.done
       .then(() =>
@@ -220,7 +220,11 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
           workspaceId: workspace.id,
           readingId: created.id,
           definition,
-          email: { to: user.email, url: `${origin}/app/${workspace.slug}/readings/${created.id}` },
+          email: {
+            to: user.email,
+            site: user.site,
+            url: `${origin}/app/${workspace.slug}/readings/${created.id}`,
+          },
           emailQueue: deps.emailQueue,
         }),
       )
@@ -268,7 +272,7 @@ export async function finalizeReading(
     workspaceId: string
     readingId: string
     definition: ReadingDefinition
-    email?: { to: string; url: string }
+    email?: { to: string; site: SiteId; url: string }
     emailQueue?: ReadingDeps['emailQueue']
   },
 ): Promise<Reading | null> {
@@ -326,15 +330,16 @@ export async function finalizeReading(
 
 async function sendReadingEmail(
   queue: ReadingDeps['emailQueue'],
-  email: { to: string; url: string; locale: string; id: string; title: string },
+  email: { to: string; site: SiteId; url: string; locale: string; id: string; title: string },
 ) {
   const requestId = getLogContext()?.requestId
   try {
     await requireCapability(queue, 'Email queue').send({
       v: EMAIL_QUEUE_MESSAGE_VERSION,
       to: email.to,
+      site: email.site,
       locale: email.locale,
-      appName: brandName(templateConfig, email.locale),
+      appName: siteBrandName(templateConfig, email.site, email.locale),
       idempotencyKey: `reading-ready:${email.id}`,
       template: 'reading-ready',
       props: { url: email.url, title: email.title },

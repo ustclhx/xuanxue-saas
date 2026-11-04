@@ -15,6 +15,7 @@ export const Route = createFileRoute('/api/dev/email')({
           const origin = new URL(request.url).origin
           const sendEmail = createQueueAuthEmailSender({
             queue,
+            site: getWebRuntime().site,
             appName: () => 'Dev',
             appUrl: origin,
           })

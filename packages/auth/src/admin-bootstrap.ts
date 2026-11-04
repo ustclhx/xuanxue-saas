@@ -1,3 +1,4 @@
+import type { SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import { auditLog, user } from '@xuanxue/db/schema'
 import { newId } from '@xuanxue/shared'
@@ -6,7 +7,7 @@ import { and, eq, inArray, isNull, sql } from 'drizzle-orm'
 type BootstrapTrigger = 'user.create' | 'user.update' | 'email.verify' | 'session.create'
 
 /** 认证事件只提供用户 id；授权条件必须以已提交的数据库状态为准。 */
-export function adminBootstrap(db: Database, configuredEmails: string | undefined) {
+export function adminBootstrap(db: Database, configuredEmails: string | undefined, site: SiteId) {
   const emails = [
     ...new Set(
       (configuredEmails ?? '')
@@ -22,6 +23,7 @@ export function adminBootstrap(db: Database, configuredEmails: string | undefine
     await db.transaction(async (tx) => {
       const eligible = and(
         eq(user.id, userId),
+        eq(user.site, site),
         eq(user.emailVerified, true),
         sql`${user.banned} is not true`,
         inArray(sql<string>`lower(trim(${user.email}))`, emails),
