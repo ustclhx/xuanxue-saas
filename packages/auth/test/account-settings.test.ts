@@ -130,7 +130,7 @@ describe('修改密码后其他会话失效', () => {
     expect(
       await s.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, other.token) }),
     ).toBeUndefined()
-    expect(await env.CACHE.get(`auth:${other.token}`)).toBeNull()
+    expect(await env.CACHE.get(`auth:west:${other.token}`)).toBeNull()
 
     // 敏感操作立即被拒：requireFreshSession 与 Better Auth 自带的敏感接口
     await expect(

@@ -22,7 +22,7 @@ it.skipIf(!url)(
     try {
       await db.$client
         .begin(async (tx) => {
-          await tx`insert into organization (id, name, slug) values (${ws}, 'Entitlements', ${ws})`
+          await tx`insert into organization (id, name, slug, site) values (${ws}, 'Entitlements', ${ws}, 'west')`
           await tx`insert into plan (id, key, name, type, credits, features) values (${newId()}, 'free', 'Free', 'subscription', 0, ${JSON.stringify(DEFAULT_FREE_FEATURES)}::jsonb) on conflict (key) do update set features=excluded.features`
           expect(await resolveWorkspaceMaxSeats(ws, tx)).toBe(1)
           await tx`insert into plan (id, key, name, type, credits, sort, features) values (${planId}, ${key}, 'Pro', 'subscription', 0, 10, ${JSON.stringify({ ...DEFAULT_FREE_FEATURES, maxSeats: 5 })}::jsonb)`
@@ -53,7 +53,9 @@ it.skipIf(!url)(
     try {
       await db
         .transaction(async (tx) => {
-          await tx.insert(schema.organization).values({ id: ws, name: 'Entitlements', slug: ws })
+          await tx
+            .insert(schema.organization)
+            .values({ site: 'west', id: ws, name: 'Entitlements', slug: ws })
           const [plan] = await tx
             .insert(schema.plan)
             .values({

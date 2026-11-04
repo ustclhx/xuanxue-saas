@@ -91,7 +91,7 @@ describe('requireFreshSession', () => {
     const sql = s.db.$client
     await sql`delete from session where token = ${u.token}`
     // 缓存层仍认为会话有效
-    expect(await env.CACHE.get(`auth:${u.token}`)).not.toBeNull()
+    expect(await env.CACHE.get(`auth:west:${u.token}`)).not.toBeNull()
     const cached = await s.get('/get-session', { cookie: u.cookie })
     expect(((await cached.json()) as { session?: unknown } | null)?.session).toBeDefined()
 

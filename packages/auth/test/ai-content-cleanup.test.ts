@@ -65,7 +65,8 @@ async function actor(a: App, name: string) {
 async function team(a: App, members: { id: string; role: string }[]) {
   const id = newId()
   users.createdOrgs.push(id)
-  await a.db.$client`insert into organization (id,name,slug) values (${id},'AI cleanup',${id})`
+  await a.db
+    .$client`insert into organization (id,name,slug,site) values (${id},'AI cleanup',${id},'west')`
   for (const member of members)
     await a.db
       .$client`insert into member (id,organization_id,user_id,role) values (${newId()},${id},${member.id},${member.role})`

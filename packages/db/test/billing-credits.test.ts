@@ -50,10 +50,12 @@ async function seed() {
   const ws = newId()
   const otherWs = newId()
   const userId = newId()
-  await db.insert(user).values({ id: userId, name: 'Billing', email: `${userId}@example.test` })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: userId, name: 'Billing', email: `${userId}@example.test` })
   await db.insert(organization).values([
-    { id: ws, name: 'Billing', slug: ws },
-    { id: otherWs, name: 'Other', slug: otherWs },
+    { site: 'west', id: ws, name: 'Billing', slug: ws },
+    { site: 'west', id: otherWs, name: 'Other', slug: otherWs },
   ])
   const [p] = await db
     .insert(plan)

@@ -1,4 +1,5 @@
-import { requireFreshSession } from '@xuanxue/auth'
+import { authCacheKey, requireFreshSession } from '@xuanxue/auth'
+import type { SiteId } from '@xuanxue/config'
 import { type Database, session, user } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
@@ -20,12 +21,14 @@ const bodySchema = (body: unknown) => {
 }
 
 /** KV 写入在数据库提交后执行；失败仍由实时数据库守卫阻止失效会话。 */
-function stagedCache(cache: KeyValueStore) {
+function stagedCache(cache: KeyValueStore, site: SiteId) {
   const pending: (() => Promise<void>)[] = []
+  // 认证 KV 键按站点命名（@xuanxue/auth 的 authCacheKey），只放行本站的会话列表读取
+  const activeSessions = authCacheKey(site, 'active-sessions-')
   function get(key: string): Promise<string | null>
   function get<T>(key: string, type: 'json'): Promise<T | null>
   async function get<T>(key: string, type?: 'json'): Promise<T | string | null> {
-    const value = key.startsWith('auth:active-sessions-') ? await cache.get(key) : null
+    const value = key.startsWith(activeSessions) ? await cache.get(key) : null
     return value === null || type !== 'json' ? value : (JSON.parse(value) as T)
   }
   const staged: KeyValueStore = {
@@ -79,7 +82,7 @@ export async function executeAdminAuthAction(options: {
   const adminId = stopping ? fresh.session.impersonatedBy : fresh.user.id
   if (!adminId) throw new AppError('NOT_FOUND', 'Not Found', { status: 404 })
   const input = stopping ? { userId: fresh.user.id, reason: '' } : bodySchema(options.body)
-  const cache = stagedCache(sourceCache)
+  const cache = stagedCache(sourceCache, runtime.site)
   const response = await withAdminAction(
     { db, admin: { id: adminId }, ip },
     path,

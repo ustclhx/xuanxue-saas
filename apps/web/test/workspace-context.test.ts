@@ -23,6 +23,7 @@ const auth = createAuth(
   { BETTER_AUTH_SECRET: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL },
   db,
   {
+    site: 'west',
     config: defineTemplateConfig({
       app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@example.test' },
       auth: { oauth: [], turnstile: false },
@@ -74,7 +75,7 @@ async function sessionOf(cookie: string) {
 /** 由 owner 创建一个团队空间（直接写库：本测试不依赖 multiTenant 开关与邀请流程） */
 async function createTeam(ownerId: string) {
   const id = newId()
-  await db.insert(organization).values({ id, name: 'Team', slug: `t-${id}` })
+  await db.insert(organization).values({ site: 'west', id, name: 'Team', slug: `t-${id}` })
   await scoped(db, id).insert(member, { id: newId(), userId: ownerId, role: 'owner' })
   teamIds.push(id)
   return { id, slug: `t-${id}` }
@@ -104,7 +105,7 @@ describe('/app 的默认空间', () => {
   it('新用户注册后解析到自己的个人空间（/app → /app/<slug>）', async () => {
     const u = await signUp('fresh')
     const { user, session } = await sessionOf(u.cookie)
-    const resolved = await resolveDefaultWorkspace(db, user, session.activeOrganizationId)
+    const resolved = await resolveDefaultWorkspace(db, user, session.activeOrganizationId, 'west')
     expect(resolved?.workspace).toMatchObject({ id: u.id, isPersonal: true })
     expect(resolved?.workspace.slug).toMatch(SLUG_RE)
     expect(resolved?.member).toMatchObject({ userId: u.id, role: 'owner' })
@@ -122,7 +123,7 @@ describe('/app 的默认空间', () => {
     const before = await sessionOf(cookie)
     expect(before.session.activeOrganizationId).toBe(team.id)
     expect(
-      (await resolveDefaultWorkspace(db, before.user, before.session.activeOrganizationId))
+      (await resolveDefaultWorkspace(db, before.user, before.session.activeOrganizationId, 'west'))
         ?.workspace.id,
     ).toBe(team.id)
 
@@ -134,6 +135,7 @@ describe('/app 的默认空间', () => {
       db,
       after.user,
       after.session.activeOrganizationId,
+      'west',
     )
     expect(resolved?.workspace.id).toBe(u.id)
   })
@@ -144,7 +146,7 @@ describe('/app 的默认空间', () => {
     await scoped(db, u.id).delete(member, undefined)
     await db.delete(organization).where(eq(organization.id, u.id))
 
-    const resolved = await resolveDefaultWorkspace(db, { id: u.id }, null)
+    const resolved = await resolveDefaultWorkspace(db, { id: u.id }, null, 'west')
     expect(resolved?.workspace).toMatchObject({ id: u.id, isPersonal: true })
     expect(resolved?.member.role).toBe('owner')
   })
@@ -153,17 +155,18 @@ describe('/app 的默认空间', () => {
 describe('按 slug 解析（/app/$slug）', () => {
   it('成员可访问自己的空间', async () => {
     const u = await signUp('own')
-    const personal = await resolveDefaultWorkspace(db, { id: u.id }, null)
+    const personal = await resolveDefaultWorkspace(db, { id: u.id }, null, 'west')
     const slug = personal?.workspace.slug ?? ''
-    expect((await resolveWorkspaceBySlug(db, u.id, slug))?.workspace.id).toBe(u.id)
+    expect((await resolveWorkspaceBySlug(db, u.id, slug, 'west'))?.workspace.id).toBe(u.id)
   })
 
   it('跨空间访问与不存在的空间一样返回空（404）', async () => {
     const a = await signUp('a')
     const b = await signUp('b')
-    const bSlug = (await resolveDefaultWorkspace(db, { id: b.id }, null))?.workspace.slug ?? ''
-    expect(await resolveWorkspaceBySlug(db, a.id, bSlug)).toBeNull()
-    expect(await resolveWorkspaceBySlug(db, a.id, 'u-doesnotx')).toBeNull()
+    const bSlug =
+      (await resolveDefaultWorkspace(db, { id: b.id }, null, 'west'))?.workspace.slug ?? ''
+    expect(await resolveWorkspaceBySlug(db, a.id, bSlug, 'west')).toBeNull()
+    expect(await resolveWorkspaceBySlug(db, a.id, 'u-doesnotx', 'west')).toBeNull()
   })
 
   it('被移出的成员立即无法访问', async () => {
@@ -171,17 +174,32 @@ describe('按 slug 解析（/app/$slug）', () => {
     const u = await signUp('removed')
     const team = await createTeam(owner.id)
     await scoped(db, team.id).insert(member, { id: newId(), userId: u.id, role: 'member' })
-    expect((await resolveWorkspaceBySlug(db, u.id, team.slug))?.member.role).toBe('member')
+    expect((await resolveWorkspaceBySlug(db, u.id, team.slug, 'west'))?.member.role).toBe('member')
 
     await scoped(db, team.id).delete(member, eq(member.userId, u.id))
-    expect(await resolveWorkspaceBySlug(db, u.id, team.slug)).toBeNull()
-    expect((await resolveWorkspaceBySlug(db, owner.id, team.slug))?.member.role).toBe('owner')
+    expect(await resolveWorkspaceBySlug(db, u.id, team.slug, 'west')).toBeNull()
+    expect((await resolveWorkspaceBySlug(db, owner.id, team.slug, 'west'))?.member.role).toBe(
+      'owner',
+    )
+  })
+
+  it('另一站访问空间与不存在一样返回空（404，openspec split-site-accounts 决策 5）', async () => {
+    const u = await signUp('cross-site')
+    const personal = await resolveDefaultWorkspace(db, { id: u.id }, null, 'west')
+    const slug = personal?.workspace.slug ?? ''
+    expect(personal?.workspace.site).toBe('west')
+    expect(await resolveWorkspaceBySlug(db, u.id, slug, 'east')).toBeNull()
+    // 会话里的活跃空间属于另一站时也不放行，且不会补建出另一站的个人空间
+    expect(await resolveDefaultWorkspace(db, { id: u.id }, u.id, 'east')).toBeNull()
+    const team = await createTeam(u.id)
+    expect(await resolveWorkspaceBySlug(db, u.id, team.slug, 'east')).toBeNull()
+    expect((await resolveWorkspaceBySlug(db, u.id, team.slug, 'west'))?.member.role).toBe('owner')
   })
 
   it('已软删的空间对成员也不可访问', async () => {
     const owner = await signUp('owner3')
     const team = await createTeam(owner.id)
     await db.update(organization).set({ deletedAt: new Date() }).where(eq(organization.id, team.id))
-    expect(await resolveWorkspaceBySlug(db, owner.id, team.slug)).toBeNull()
+    expect(await resolveWorkspaceBySlug(db, owner.id, team.slug, 'west')).toBeNull()
   })
 })

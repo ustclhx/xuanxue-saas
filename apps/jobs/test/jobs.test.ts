@@ -62,8 +62,8 @@ describe('apps/jobs', () => {
       const db = createDb(env.HYPERDRIVE)
       await db
         .insert(user)
-        .values({ id, name: 'Workflow', email: `${id}@workflow-smoke.example.test` })
-      await db.insert(organization).values({ id, name: 'Workflow', slug: id })
+        .values({ site: 'west', id, name: 'Workflow', email: `${id}@workflow-smoke.example.test` })
+      await db.insert(organization).values({ site: 'west', id, name: 'Workflow', slug: id })
       await db.insert(aiTask).values({
         id,
         workspaceId: id,
@@ -127,8 +127,8 @@ describe('apps/jobs', () => {
       const db = createDb(env.HYPERDRIVE)
       await db
         .insert(user)
-        .values({ id, name: 'Cancel', email: `${id}@workflow-cancel.example.test` })
-      await db.insert(organization).values({ id, name: 'Cancel', slug: id })
+        .values({ site: 'west', id, name: 'Cancel', email: `${id}@workflow-cancel.example.test` })
+      await db.insert(organization).values({ site: 'west', id, name: 'Cancel', slug: id })
       // 与 staging 一致：HTTP 取消先落库，Workflow 的 submit 自检到终态后正常结束
       await db.insert(aiTask).values({
         id,
@@ -175,17 +175,21 @@ it('heartbeat retries committed deletion invalidation using the shared CACHE bin
   const id = crypto.randomUUID()
   const key = `revoked-${id}`
   vi.spyOn(console, 'log').mockImplementation(() => {})
-  await env.CACHE.put(`auth:${key}`, 'stale-session')
-  await db.$client`insert into verification (id,identifier,value,expires_at,created_at,updated_at)
-    values (${id},${`deletion-cleanup:${id}`},${JSON.stringify([key])},now()+interval '1 hour',now(),now())`
+  // jobs 没有请求 Host：按清单行记录的站点删除对应命名空间的键，另一站同名键不受影响
+  await env.CACHE.put(`auth:east:${key}`, 'stale-session')
+  await env.CACHE.put(`auth:west:${key}`, 'other-site-session')
+  await db.$client`insert into verification (id,identifier,value,expires_at,site,created_at,updated_at)
+    values (${id},${`deletion-cleanup:${id}`},${JSON.stringify([key])},now()+interval '1 hour','east',now(),now())`
   try {
     await worker.scheduled(createScheduledController({ cron: HEARTBEAT_CRON }), env)
-    expect(await env.CACHE.get(`auth:${key}`)).toBeNull()
+    expect(await env.CACHE.get(`auth:east:${key}`)).toBeNull()
+    expect(await env.CACHE.get(`auth:west:${key}`)).toBe('other-site-session')
     expect(
       await db.query.verification.findFirst({ where: (v, { eq }) => eq(v.id, id) }),
     ).toBeUndefined()
   } finally {
-    await env.CACHE.delete(`auth:${key}`)
+    await env.CACHE.delete(`auth:east:${key}`)
+    await env.CACHE.delete(`auth:west:${key}`)
     await db.$client`delete from verification where id=${id}`
   }
 })

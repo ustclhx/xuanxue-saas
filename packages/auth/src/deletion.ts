@@ -1,3 +1,4 @@
+import type { SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError, newId, normalizeSignupEmail } from '@xuanxue/shared'
@@ -5,6 +6,7 @@ import type { BetterAuthPlugin } from 'better-auth'
 import { APIError, createAuthEndpoint } from 'better-auth/api'
 import { z } from 'zod'
 import { type AuthContextSource, requireFreshSession } from './fresh-session.ts'
+import { authCacheKey } from './session.ts'
 
 export type DeletionKind = 'account' | 'workspace'
 export type DeletionTransaction = Parameters<Parameters<Database['$client']['begin']>[1]>[0]
@@ -45,12 +47,17 @@ function fail(
 ): never {
   throw new AppError(code, message, { status, ...(details ? { details } : {}) })
 }
-async function freshInTransaction(sql: DeletionTransaction, token: string, recent: boolean) {
+async function freshInTransaction(
+  sql: DeletionTransaction,
+  token: string,
+  site: SiteId,
+  recent: boolean,
+) {
   const [row] = await sql<
     { id: string; email: string; created_at: string; impersonated_by: string | null }[]
   >`
     select u.id,u.email,s.created_at,s.impersonated_by from session s join "user" u on u.id=s.user_id
-    where s.token=${token} and s.expires_at>now() and not coalesce(u.banned,false)`
+    where s.token=${token} and s.expires_at>now() and u.site=${site} and not coalesce(u.banned,false)`
   if (!row) fail('SESSION_REQUIRED', 'Sign in required', 401)
   if (recent && (row.impersonated_by || Date.now() - new Date(row.created_at).getTime() > 600000))
     fail('REAUTHENTICATION_REQUIRED', 'Sign out and sign in again within ten minutes')
@@ -58,24 +65,30 @@ async function freshInTransaction(sql: DeletionTransaction, token: string, recen
 }
 /** Reserved exclusively for short-lived deletion credentials; never audit storage. */
 export const DELETION_CLEANUP_PREFIX = 'deletion-cleanup:'
+/**
+ * 清单行记录所属站点：KV 键按站点命名（session.ts 的 authCacheKey），jobs 重试时没有请求 Host，
+ * 从这一列得知应删除哪一站的键（决策 1）。
+ */
 async function saveCleanup(
   sql: DeletionTransaction,
   keys: readonly string[],
+  site: SiteId,
   kv?: Pick<KeyValueStore, 'delete'>,
 ) {
   if (!kv || !keys.length) return null
   const id = newId()
-  await sql`insert into verification (id,identifier,value,expires_at,created_at,updated_at)
-    values (${id},${DELETION_CLEANUP_PREFIX + id},${JSON.stringify([...new Set(keys)])},now()+interval '24 hours',now(),now())`
+  await sql`insert into verification (id,identifier,value,expires_at,site,created_at,updated_at)
+    values (${id},${DELETION_CLEANUP_PREFIX + id},${JSON.stringify([...new Set(keys)])},now()+interval '24 hours',${site},now(),now())`
   return id
 }
 async function runCleanup(
   db: Database,
   kv: Pick<KeyValueStore, 'delete'>,
   id: string,
+  site: SiteId,
   keys: readonly string[],
 ) {
-  const results = await Promise.allSettled(keys.map((key) => kv.delete(`auth:${key}`)))
+  const results = await Promise.allSettled(keys.map((key) => kv.delete(authCacheKey(site, key))))
   if (results.some((result) => result.status === 'rejected')) return false
   await db.$client`delete from verification where id=${id} and identifier=${DELETION_CLEANUP_PREFIX + id}`
   return true
@@ -83,12 +96,12 @@ async function runCleanup(
 /** Retry only reserved manifests. No KV/network operations occur inside a DB transaction. */
 export async function retryDeletionCleanup(db: Database, kv: Pick<KeyValueStore, 'delete'>) {
   await db.$client`delete from verification where identifier like ${`${DELETION_CLEANUP_PREFIX}%`} and expires_at<=now()`
-  const rows = await db.$client<{ id: string; value: string }[]>`
-    select id,value from verification where identifier like ${`${DELETION_CLEANUP_PREFIX}%`} and expires_at>now()`
+  const rows = await db.$client<{ id: string; value: string; site: SiteId }[]>`
+    select id,value,site from verification where identifier like ${`${DELETION_CLEANUP_PREFIX}%`} and expires_at>now()`
   let completed = 0
   let failed = 0
   for (const row of rows) {
-    if (await runCleanup(db, kv, row.id, JSON.parse(row.value))) completed++
+    if (await runCleanup(db, kv, row.id, row.site, JSON.parse(row.value))) completed++
     else failed++
   }
   return { completed, failed }
@@ -101,9 +114,9 @@ async function finishCleanup(
   if (!kv || !id) return
   try {
     const [row] = await db.$client<
-      { value: string }[]
-    >`select value from verification where id=${id}`
-    if (!row || (await runCleanup(db, kv, id, JSON.parse(row.value)))) return
+      { value: string; site: SiteId }[]
+    >`select value,site from verification where id=${id}`
+    if (!row || (await runCleanup(db, kv, id, row.site, JSON.parse(row.value)))) return
   } catch {
     // The deletion transaction already committed; storage failure cannot undo it.
   }
@@ -152,8 +165,11 @@ export async function deleteTeamWorkspace(
   if (options.multiTenant === false)
     fail('TEAM_WORKSPACES_DISABLED', 'Team workspaces are read-only')
   const workspaceId = z.uuid().parse(options.workspaceId)
+  const { site } = options.auth
+  // 另一站的空间与不存在的空间不可区分（决策 5）
   const workspace = await options.db.query.organization.findFirst({
-    where: (o, { eq, and, isNull }) => and(eq(o.id, workspaceId), isNull(o.deletedAt)),
+    where: (o, { eq, and, isNull }) =>
+      and(eq(o.id, workspaceId), eq(o.site, site), isNull(o.deletedAt)),
     with: { members: true },
   })
   if (!workspace) fail('WORKSPACE_NOT_FOUND', 'Workspace not found', 404)
@@ -174,10 +190,10 @@ export async function deleteTeamWorkspace(
   const keys = await options.db.$client.begin(async (sql) => {
     await sql`select pg_advisory_xact_lock(hashtextextended(${`owner:${fresh.user.id}`},0))`
     await sql`select pg_advisory_xact_lock(hashtextextended(${`ws:${workspaceId}`},0))`
-    await freshInTransaction(sql, fresh.session.token, false)
+    await freshInTransaction(sql, fresh.session.token, site, false)
     const [workspace] = await sql<{ is_personal: boolean; role: string }[]>`
       select o.is_personal,m.role from organization o join member m on m.organization_id=o.id
-      where o.id=${workspaceId} and o.deleted_at is null and m.user_id=${fresh.user.id}`
+      where o.id=${workspaceId} and o.site=${site} and o.deleted_at is null and m.user_id=${fresh.user.id}`
     if (!workspace) fail('WORKSPACE_NOT_FOUND', 'Workspace not found', 404)
     if (workspace.is_personal)
       fail('PERSONAL_WORKSPACE', 'Delete your account to delete the personal workspace')
@@ -185,7 +201,7 @@ export async function deleteTeamWorkspace(
       fail('WORKSPACE_PERMISSION', 'Only owners can delete a team workspace')
     for (const step of registered) await step.execute?.(context, sql)
     const keys = await softDelete(sql, workspaceId, fresh.user.id, options.clientIp ?? null)
-    return saveCleanup(sql, keys, options.kv)
+    return saveCleanup(sql, keys, site, options.kv)
   })
   await finishCleanup(options.db, options.kv, keys)
   return { deleted: true }
@@ -230,9 +246,10 @@ export async function deleteAccount(options: Options) {
   }
   const registered = [...steps.account, ...(options.additionalSteps ?? [])]
   for (const step of registered) await step.before?.(context)
+  const { site } = options.auth
   const keys = await options.db.$client.begin(async (sql) => {
     await sql`select pg_advisory_xact_lock(hashtextextended(${`owner:${fresh.user.id}`},0))`
-    const current = await freshInTransaction(sql, fresh.session.token, true)
+    const current = await freshInTransaction(sql, fresh.session.token, site, true)
     const workspaces = await sql<
       { id: string }[]
     >`select organization_id as id from member where user_id=${current.id} order by organization_id`
@@ -257,9 +274,10 @@ export async function deleteAccount(options: Options) {
       { token: string }[]
     >`delete from session where user_id=${current.id} returning token`
     cacheKeys.push(...sessions.map((session) => session.token))
+    // 只清理本站的验证值：另一站同邮箱账户的验证码与链接属于那个账户（account-deletion「删号不影响另一站」）
     const verification = await sql<
       { id: string; identifier: string; value: string }[]
-    >`select id,identifier,value from verification`
+    >`select id,identifier,value from verification where site=${site}`
     const owned = verification.filter((row) => belongsToUser(row, current.id, current.email))
     for (const row of owned) {
       await sql`delete from verification where id=${row.id}`
@@ -283,7 +301,7 @@ export async function deleteAccount(options: Options) {
     await sql`delete from notification where user_id=${current.id}`
     await sql`update "user" set email=${`deleted+${current.id}@invalid`},name='',image=null,locale=null,timezone=null,email_verified=false,two_factor_enabled=false,banned=true,ban_reason='Account deleted',ban_expires=null,updated_at=now() where id=${current.id}`
     await sql`insert into audit_log (id,actor_user_id,action,target_type,target_id,ip,meta) values (${newId()},${current.id},'account.deleted','user',${current.id},${options.clientIp ?? null},${JSON.stringify({ anonymized: true, deletedPersonalWorkspaceIds: personal.map((workspace) => workspace.id) })}::jsonb)`
-    return saveCleanup(sql, cacheKeys, options.kv)
+    return saveCleanup(sql, cacheKeys, site, options.kv)
   })
   await finishCleanup(options.db, options.kv, keys)
   return { deleted: true }
@@ -291,6 +309,7 @@ export async function deleteAccount(options: Options) {
 /** Mount before the native organization plugin. The HTTP endpoints validate signed cookies in DB. */
 export function deletionPlugin(
   db: Database,
+  site: SiteId,
   kv?: Pick<KeyValueStore, 'delete'>,
   multiTenant = true,
   additionalSteps?: readonly DeletionStep[],
@@ -312,7 +331,7 @@ export function deletionPlugin(
             clientIp,
             ...(additionalSteps ? { additionalSteps } : {}),
             headers: ctx.headers,
-            auth: { $context: Promise.resolve(ctx.context) },
+            auth: { site, $context: Promise.resolve(ctx.context) },
           }
           return ctx.json(
             kind === 'account'
@@ -342,28 +361,6 @@ export function deletionPlugin(
     )
   return {
     id: 'deletion',
-    init(ctx) {
-      const storage = ctx.options.secondaryStorage
-      if (!storage) return
-      // Installed Better Auth reads some OTP challenges cache-first. DB-only verification
-      // prevents stale challenges being rebound to a new account with the same email.
-      // KV has no compare-and-delete, so do not touch reusable verification cache keys.
-      return {
-        options: {
-          secondaryStorage: {
-            ...storage,
-            get: (key) =>
-              key.startsWith('verification:') ? Promise.resolve(null) : storage.get(key),
-            getAndDelete: (key) =>
-              key.startsWith('verification:') ? Promise.resolve(null) : storage.getAndDelete(key),
-            set: (key, value, ttl) =>
-              key.startsWith('verification:') ? Promise.resolve() : storage.set(key, value, ttl),
-            delete: (key) =>
-              key.startsWith('verification:') ? Promise.resolve() : storage.delete(key),
-          },
-        },
-      }
-    },
     endpoints: { deleteAccount: endpoint('account'), deleteWorkspace: endpoint('workspace') },
   } satisfies BetterAuthPlugin
 }

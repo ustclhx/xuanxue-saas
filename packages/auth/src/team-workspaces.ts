@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@xuanxue/config'
+import type { SiteId, TemplateConfig } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import { newId } from '@xuanxue/shared'
 import type { BetterAuthPlugin } from 'better-auth'
@@ -67,10 +67,17 @@ const transferInput = z.object({ organizationId: uuid, memberId: uuid })
 const readPosts = new Set(['check-slug', 'has-permission'])
 const addInput = z.object({ organizationId: uuid, userId: uuid, role: roles.default('member') })
 
-/** Native organization HTTP writes use the same admission checks and SQL transaction. */
+/**
+ * Native organization HTTP writes use the same admission checks and SQL transaction.
+ *
+ * 团队空间属于创建者所在站点（openspec split-site-accounts 决策 5）：会话已按当前站点校验，
+ * 新建空间写入该站点；其他操作只认当前站点的空间，另一站的空间与不存在一样返回 404；
+ * 被加入的成员也必须是本站账户。邀请按邮箱发出，接受时由收件人在本站登录，因此只会匹配本站账户。
+ */
 export function teamWorkspaces(
   db: Database,
   config: TemplateConfig,
+  site: SiteId,
   sendEmail: SendAuthEmail,
   resolveMaxSeats: ResolveMaxSeats = async () => null,
   clientIp?: string | null,
@@ -96,6 +103,18 @@ export function teamWorkspaces(
           handler: createAuthMiddleware(async (ctx) => {
             const action = (ctx.path ?? '').slice('/organization/'.length)
             if (action === 'check-slug') validSlug(ctx.body?.slug)
+            // 原生的邀请读取只按收件邮箱匹配、不知道站点：同一邮箱在另一站的账户不能读到本站以外的邀请
+            if (action === 'list-user-invitations')
+              deny('WORKSPACE_OPERATION_DISABLED', 'Use the invitation page')
+            if (action === 'get-invitation') {
+              const id = uuid.safeParse(ctx.query?.id)
+              const [owner] = id.success
+                ? await db.$client<
+                    { site: string }[]
+                  >`select o.site from invitation i join organization o on o.id=i.organization_id where i.id=${id.data}`
+                : []
+              if (owner?.site !== site) missing()
+            }
             const write = ctx.method === 'POST' && !readPosts.has(action)
             if (!write) return
             if (!config.tenancy.multiTenant && action !== 'update' && action !== 'set-active')
@@ -104,7 +123,7 @@ export function teamWorkspaces(
               ctx.context.authCookies.sessionToken.name,
               ctx.context.secret,
             )
-            const fresh = token ? await checkSessionInDatabase(db, token) : null
+            const fresh = token ? await checkSessionInDatabase(db, token, site) : null
             if (!fresh?.ok)
               throw APIError.from('UNAUTHORIZED', {
                 code: 'SESSION_REQUIRED',
@@ -168,7 +187,7 @@ export function teamWorkspaces(
                   })
                 const id = newId()
                 const [org] =
-                  await sql`insert into organization (id,name,slug,is_personal) values (${id},${input.name},${requestedSlug},false) returning id,name,slug,logo,metadata,is_personal as "isPersonal",deleted_at as "deletedAt",created_at as "createdAt",updated_at as "updatedAt"`
+                  await sql`insert into organization (id,name,slug,is_personal,site) values (${id},${input.name},${requestedSlug},false,${site}) returning id,name,slug,logo,metadata,is_personal as "isPersonal",deleted_at as "deletedAt",created_at as "createdAt",updated_at as "updatedAt"`
                 const [member] =
                   await sql`insert into member (id,organization_id,user_id,role) values (${newId()},${id},${user.id},'owner') returning id,organization_id as "organizationId",user_id as "userId",role,created_at as "createdAt"`
                 await auditMember(sql, id, 'workspace.member_added', String(member?.id), {
@@ -204,7 +223,7 @@ export function teamWorkspaces(
             }
             if (action === 'set-active' && body.organizationSlug && !body.organizationId) {
               const org = await db.query.organization.findFirst({
-                where: (o, { eq }) => eq(o.slug, body.organizationSlug),
+                where: (o, { and, eq }) => and(eq(o.slug, body.organizationSlug), eq(o.site, site)),
               })
               if (!org) missing()
               workspaceId = org.id
@@ -234,7 +253,7 @@ export function teamWorkspaces(
               await checkFresh(sql)
               const [workspace] = await sql<
                 { id: string; name: string; isPersonal: boolean; deletedAt: string | null }[]
-              >`select id,name,is_personal as "isPersonal",deleted_at as "deletedAt" from organization where id=${workspaceId}`
+              >`select id,name,is_personal as "isPersonal",deleted_at as "deletedAt" from organization where id=${workspaceId} and site=${site}`
               if (!workspace || workspace.deletedAt) missing()
               const [actor] = await sql<
                 { id: string; role: string }[]
@@ -344,7 +363,7 @@ export function teamWorkspaces(
                 if (input.role === 'owner' && actor?.role !== 'owner')
                   deny('WORKSPACE_PERMISSION', 'Only owners can grant ownership')
                 const [target] =
-                  await sql`select id from "user" where id=${input.userId} and not coalesce(banned,false)`
+                  await sql`select id from "user" where id=${input.userId} and site=${site} and not coalesce(banned,false)`
                 if (!target) deny('INVALID_MEMBER', 'User unavailable')
                 if (
                   (

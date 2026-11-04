@@ -152,7 +152,7 @@ async function startChat(request: Request, deps: ChatDeps): Promise<Response> {
   const fresh = await requireFreshSession({ auth: deps.auth, db, headers: request.headers })
   const { user } = fresh
   const input = await readRequest(request)
-  const resolved = await resolveWorkspaceBySlug(db, user.id, input.slug)
+  const resolved = await resolveWorkspaceBySlug(db, user.id, input.slug, deps.auth.site)
   if (!resolved) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
   const workspaceId = resolved.workspace.id
   setLogContext({ workspaceId, userId: user.id })
@@ -517,7 +517,7 @@ async function stopChat(
   const parsed = stopRequestSchema.safeParse(await request.json().catch(() => undefined))
   if (!parsed.success) throw new AppError('INVALID_REQUEST', 'Invalid stop request')
   const notFound = () => new AppError('NOT_FOUND', 'Not found', { status: 404 })
-  const resolved = await resolveWorkspaceBySlug(db, user.id, parsed.data.slug)
+  const resolved = await resolveWorkspaceBySlug(db, user.id, parsed.data.slug, deps.auth.site)
   if (!resolved || !z.uuid().safeParse(messageId).success) throw notFound()
   setLogContext({ workspaceId: resolved.workspace.id, userId: user.id })
   const s = scoped(db, resolved.workspace.id)

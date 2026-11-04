@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm'
 import { boolean, index, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
 import { user } from './auth.ts'
+import { siteCheck, siteColumn } from './site.ts'
 
 /**
  * 租户（docs/03-data-model.md §2）：Better Auth organization 插件的表 + 扩展字段。
@@ -17,17 +18,24 @@ const timestamps = {
     .$onUpdate(() => new Date()),
 }
 
-export const organization = pgTable('organization', {
-  id: uuid('id').primaryKey(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull().unique(),
-  logo: text('logo'),
-  metadata: text('metadata'),
-  // 扩展字段：个人空间标记与软删时间
-  isPersonal: boolean('is_personal').notNull().default(false),
-  deletedAt: timestamp('deleted_at', { withTimezone: true }),
-  ...timestamps,
-})
+export const organization = pgTable(
+  'organization',
+  {
+    id: uuid('id').primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    logo: text('logo'),
+    metadata: text('metadata'),
+    // 扩展字段：个人空间标记与软删时间
+    isPersonal: boolean('is_personal').notNull().default(false),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    // 空间所属站点（openspec split-site-accounts 决策 5）：个人空间取用户站点，团队空间取创建者站点；
+    // 按空间限定的积分、计费、报告等数据因此随空间按站点隔离，不再单独加站点列
+    site: siteColumn(),
+    ...timestamps,
+  },
+  (t) => [siteCheck('organization_site_valid', t.site)],
+)
 
 export const member = pgTable(
   'member',

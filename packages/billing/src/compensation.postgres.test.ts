@@ -88,10 +88,12 @@ beforeEach(async () => {
   priceId = id()
   subId = `sub-${id()}`
   orderId = `order-${id()}`
-  await db.insert(user).values({ id: uid, name: 'Events', email: `${uid}@example.test` })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: uid, name: 'Events', email: `${uid}@example.test` })
   await db.insert(organization).values([
-    { id: ws, name: 'Events', slug: ws },
-    { id: otherWs, name: 'Other', slug: otherWs },
+    { site: 'west', id: ws, name: 'Events', slug: ws },
+    { site: 'west', id: otherWs, name: 'Other', slug: otherWs },
   ])
   await db.insert(member).values({ id: id(), organizationId: ws, userId: uid, role: 'owner' })
   await db.insert(plan).values({

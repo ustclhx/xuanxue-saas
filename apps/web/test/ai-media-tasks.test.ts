@@ -43,6 +43,7 @@ const auth = createAuth(
   { BETTER_AUTH_SECRET: 'fixture-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL },
   db,
   {
+    site: 'west',
     config: defineTemplateConfig({
       app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@example.test' },
       auth: { oauth: [], turnstile: false },

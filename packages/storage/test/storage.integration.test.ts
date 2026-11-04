@@ -43,10 +43,12 @@ beforeEach(async () => {
   otherWs = newId()
   userId = newId()
   objectKeys = []
-  await db.insert(user).values({ id: userId, name: 'Storage', email: `${userId}@example.test` })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: userId, name: 'Storage', email: `${userId}@example.test` })
   await db.insert(organization).values([
-    { id: ws, name: 'Storage', slug: ws },
-    { id: otherWs, name: 'Other', slug: otherWs },
+    { site: 'west', id: ws, name: 'Storage', slug: ws },
+    { site: 'west', id: otherWs, name: 'Other', slug: otherWs },
   ])
   await db.insert(member).values({ id: newId(), organizationId: ws, userId, role: 'owner' })
 })

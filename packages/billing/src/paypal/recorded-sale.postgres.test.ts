@@ -28,7 +28,7 @@ beforeEach(async () => {
   saleId = crypto.randomUUID()
   await db
     .insert(organization)
-    .values([ws, otherWs].map((id) => ({ id, name: 'Lookup', slug: id })))
+    .values([ws, otherWs].map((id) => ({ site: 'west' as const, id, name: 'Lookup', slug: id })))
   await db.insert(plan).values({
     id: planId,
     key: planId,

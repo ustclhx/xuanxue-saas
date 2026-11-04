@@ -52,11 +52,11 @@ export interface CreateAuthDeps {
    */
   readonly hosts?: readonly string[] | undefined
   /**
-   * 账户站点（openspec split-site-accounts 决策 1、2）。设置后 user / account / verification
-   * 的读写都按站点隔离（site-adapter.ts）。spike 1.1 阶段为可选，数据库尚未有 site 列时不得传入；
-   * 2.1 迁移与 2.2 接线后改为必填。
+   * 账户站点（openspec split-site-accounts 决策 1、2）：只来自可信入口按请求 Host 解析的结果，
+   * 不接受请求体、查询参数或 Cookie。user / account / verification 的读写都按站点隔离（site-adapter.ts），
+   * 会话三层读取也按站点校验（session.ts、fresh-session.ts）。
    */
-  readonly site?: SiteId | undefined
+  readonly site: SiteId
 }
 
 /**
@@ -75,9 +75,10 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
   const workspaceHooks = personalWorkspaceHooks(db)
   const bootstrapAdmin = adminBootstrap(db, vars.BOOTSTRAP_ADMIN_EMAILS)
 
-  const adapter = drizzleAdapter(db, { provider: 'pg', schema })
-  const site = deps.site
-  const storage = sessionStorageOptions(deps.cache)
+  const { site } = deps
+  // 始终包装：没有不按站点隔离的认证实例（未知的 adapter 成员在这里直接报错）
+  const adapter = siteScopedAdapter(drizzleAdapter(db, { provider: 'pg', schema }), site)
+  const storage = sessionStorageOptions(deps.cache, site)
   const auth = betterAuth({
     appName: config.app.name,
     baseURL: baseURLOption(vars.APP_URL, deps.hosts),
@@ -92,14 +93,12 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
       '/api-key/list',
     ],
     secret: vars.BETTER_AUTH_SECRET,
-    database: site ? siteScopedAdapter(adapter, site) : adapter,
+    database: adapter,
     // 会话三层：Cookie 缓存 → KV → 数据库（session.ts）
     ...storage,
     // 站点列需在 Better Auth schema 中声明，adapter 才能在 where 与 create 中使用它
-    ...(site && {
-      account: { additionalFields: siteFields(site) },
-      verification: { ...storage.verification, additionalFields: siteFields(site) },
-    }),
+    account: { additionalFields: siteFields(site) },
+    verification: { ...storage.verification, additionalFields: siteFields(site) },
     advanced: {
       ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
       // 主键统一为 UUIDv7（design.md 决策 2），列类型为 uuid
@@ -155,11 +154,11 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
     user: {
       deleteUser: { enabled: false },
       // 用户设置中的语言与时区（tasks.md 5.2），取值由校验器限定
-      // 站点字段 input: false，不进入 updateUser 等入参；条件展开会让字段类型变成联合，
-      // 破坏 Better Auth 对 body 的推断，所以对外只暴露设置字段的类型
+      // 站点字段 input: false，不进入 updateUser 等入参，客户端无法写入；
+      // 对外只暴露设置字段的类型，避免 Better Auth 把站点推断进 body 类型
       additionalFields: {
         ...userSettingsFields(config),
-        ...(site && siteFields(site)),
+        ...siteFields(site),
       } as ReturnType<typeof userSettingsFields>,
     },
     emailAndPassword: {
@@ -194,13 +193,20 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
         turnstileSecret: config.auth.turnstile ? (vars.TURNSTILE_SECRET_KEY ?? null) : null,
       }),
       // 敏感接口按数据库实时校验会话与封禁（fresh-session.ts）
-      freshSessionGuard(db),
-      deletionPlugin(db, deps.cache, config.tenancy.multiTenant, deps.deletionSteps, deps.clientIp),
-      verificationReservation(db),
-      workspaceLifecyclePlugin(db, config.tenancy.maxWorkspacesPerUser, deps.clientIp),
-      teamWorkspaces(db, config, sendEmail, deps.resolveMaxSeats, deps.clientIp),
+      freshSessionGuard(db, site),
+      deletionPlugin(
+        db,
+        site,
+        deps.cache,
+        config.tenancy.multiTenant,
+        deps.deletionSteps,
+        deps.clientIp,
+      ),
+      verificationReservation(db, site),
+      workspaceLifecyclePlugin(db, site, config.tenancy.maxWorkspacesPerUser, deps.clientIp),
+      teamWorkspaces(db, config, site, sendEmail, deps.resolveMaxSeats, deps.clientIp),
       // 用户设置：资料校验、修改密码时吊销其他会话（account-settings.ts）
-      accountSettings(db, config, deps.clientIp),
+      accountSettings(db, config, site, deps.clientIp),
       organization({
         // 团队空间的创建准入由 multiTenant 决定；个人空间由服务端创建（tasks.md 4.1）
         allowUserToCreateOrganization: config.tenancy.multiTenant,
@@ -275,6 +281,8 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
   })
   return {
     ...auth,
+    /** 本实例服务的站点；requireFreshSession 等直接查库的入口据此校验会话（AuthContextSource） */
+    site,
     handler: (request: Request) => {
       // 在 Better Auth 内置限流之前覆盖内部头；插件 onRequest 执行顺序太晚。
       const headers = new Headers(request.headers)

@@ -12,8 +12,8 @@ const email = `${uid}@audit-query.test`
 const days = ['2002-03-01', '2002-03-02', '2002-03-03']
 beforeAll(async () => {
   const sql = db.$client
-  await sql`insert into "user" (id,name,email) values (${uid},'Audit',${email})`
-  await sql`insert into organization (id,name,slug) values (${workspaceId},'Audit',${workspaceId})`
+  await sql`insert into "user" (id,name,email,site) values (${uid},'Audit',${email},'west')`
+  await sql`insert into organization (id,name,slug,site) values (${workspaceId},'Audit',${workspaceId},'west')`
   for (let i = 0; i < 52; i++)
     await sql`insert into audit_log (id,actor_user_id,workspace_id,action,created_at) values (${newId()},${uid},${workspaceId},${action},${new Date(Date.parse('2002-03-02T00:00:00Z') + i * 1000).toISOString()})`
   for (const day of ['2002-03-01T23:59:59Z', '2002-03-03T00:00:00Z'])

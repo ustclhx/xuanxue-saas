@@ -28,7 +28,7 @@ export {
   personalSlug,
 } from './personal-workspace.ts'
 export { TURNSTILE_TOKEN_HEADER, verifyTurnstile } from './protection.ts'
-export { SESSION_COOKIE_CACHE_MAX_AGE } from './session.ts'
+export { authCacheKey, CROSS_SITE_SESSION_EVENT, SESSION_COOKIE_CACHE_MAX_AGE } from './session.ts'
 export type { ResolveMaxSeats } from './team-workspaces.ts'
 export {
   cleanupExpiredWorkspaces,

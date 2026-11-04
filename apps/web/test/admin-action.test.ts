@@ -27,6 +27,7 @@ function setup() {
     { BETTER_AUTH_SECRET: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL },
     db,
     {
+      site: 'west',
       config: defineTemplateConfig({
         app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@example.test' },
         auth: { oauth: [], turnstile: false },

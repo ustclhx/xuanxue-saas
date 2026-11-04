@@ -200,7 +200,7 @@ test('ordinary members see their own ledger without workspace credits or billing
     await register(page, email)
     const [account] = await sql`select id from "user" where email=${email}`
     if (!account) throw new Error('Missing registered fixture')
-    await sql`insert into organization (id,name,slug) values (${workspaceId},'Billing privacy fixture',${slug})`
+    await sql`insert into organization (id,name,slug,site) values (${workspaceId},'Billing privacy fixture',${slug},'west')`
     await sql`insert into member (id,organization_id,user_id,role) values (${randomUUID()},${workspaceId},${account.id},'member')`
     const url = readLocalEnv('DATABASE_URL')
     if (!url) throw new Error('Missing isolated worktree database')

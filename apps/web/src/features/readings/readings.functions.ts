@@ -119,7 +119,7 @@ async function viewerIsPlatformAdmin(): Promise<boolean> {
 }
 
 async function viewerOf(): Promise<ReadingOffer['viewer']> {
-  const { db, auth } = getWebRuntime()
+  const { db, auth, site } = getWebRuntime()
   let user: { id: string }
   try {
     ;({ user } = await readRequestSession({ auth, db, headers: getRequest().headers }))
@@ -127,7 +127,7 @@ async function viewerOf(): Promise<ReadingOffer['viewer']> {
     if (error instanceof AppError && (error.status === 401 || error.status === 403)) return null
     throw error
   }
-  const resolved = await resolveDefaultWorkspace(db, user, null)
+  const resolved = await resolveDefaultWorkspace(db, user, null, site)
   if (!resolved) return null
   const balance = await getCreditBalance(db, resolved.workspace.id)
   return { slug: resolved.workspace.slug, balance: balance.available }

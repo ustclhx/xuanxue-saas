@@ -37,6 +37,7 @@ const findWorkspace = vi.fn()
 const deps = {
   db: { query: { organization: { findFirst: findWorkspace } } } as unknown as Database,
   auth: {
+    site: 'west' as const,
     $context: Promise.resolve({ secret: 'fixture', authCookies: { sessionToken: { name: 's' } } }),
   },
   files: { available: true as const, value: {} as Storage },

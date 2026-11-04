@@ -27,12 +27,16 @@ async function seedWorkspace(db: Database, label: string) {
   const otherId = newId()
   const wsId = newId()
   await db.insert(user).values([
-    { id: ownerId, name: `${label} owner`, email: `${ownerId}@example.test` },
-    { id: otherId, name: `${label} member`, email: `${otherId}@example.test` },
+    { site: 'west', id: ownerId, name: `${label} owner`, email: `${ownerId}@example.test` },
+    { site: 'west', id: otherId, name: `${label} member`, email: `${otherId}@example.test` },
   ])
-  await db
-    .insert(organization)
-    .values({ id: wsId, name: label, slug: `t-${wsId.slice(-12)}`, isPersonal: false })
+  await db.insert(organization).values({
+    site: 'west',
+    id: wsId,
+    name: label,
+    slug: `t-${wsId.slice(-12)}`,
+    isPersonal: false,
+  })
   const ownerMemberId = newId()
   const otherMemberId = newId()
   await db.insert(member).values([

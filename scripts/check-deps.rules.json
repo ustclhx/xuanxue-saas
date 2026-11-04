@@ -43,7 +43,7 @@
     "packages/auth/test/personal-workspace.test.ts": ["cloudflare:workers"],
     "packages/auth/test/session.test.ts": ["cloudflare:workers"],
     "packages/auth/test/signup-bonus-hook.test.ts": ["cloudflare:workers"],
-    "packages/auth/test/site-adapter.spike.test.ts": ["cloudflare:workers"],
+    "packages/auth/test/site-isolation.test.ts": ["cloudflare:workers"],
     "packages/auth/test/workspace-lifecycle.test.ts": ["cloudflare:workers"],
     "packages/db/test/audit-log-grants.test.ts": ["cloudflare:workers"],
     "packages/db/test/billing-credits.test.ts": ["cloudflare:workers"],
@@ -73,7 +73,7 @@
     "packages/auth/test/session.test.ts": ["cloudflare"],
     "packages/auth/test/deletion.test.ts": ["cloudflare"],
     "packages/auth/test/signup-bonus-hook.test.ts": ["cloudflare"],
-    "packages/auth/test/site-adapter.spike.test.ts": ["cloudflare"],
+    "packages/auth/test/site-isolation.test.ts": ["cloudflare"],
     "apps/web/test/ai-chat.test.ts": ["cloudflare"],
     "apps/web/test/ai-media-tasks.test.ts": ["cloudflare"],
     "apps/web/src/server/cloudflare/sentry.test.ts": ["cloudflare"]

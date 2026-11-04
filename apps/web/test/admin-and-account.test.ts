@@ -26,7 +26,7 @@ function setup() {
   const auth = createAuth(
     { BETTER_AUTH_SECRET: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz', APP_URL },
     db,
-    { config: config(), sendEmail: async () => {} },
+    { site: 'west', config: config(), sendEmail: async () => {} },
   )
   const post = (path: string, body: unknown) =>
     auth.handler(

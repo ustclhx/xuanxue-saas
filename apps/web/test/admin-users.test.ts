@@ -30,6 +30,7 @@ const runtimeConfig = {
   GITHUB_CLIENT_SECRET: 'test',
 }
 const auth = createAuth({ APP_URL, BETTER_AUTH_SECRET: SECRET }, db, {
+  site: 'west',
   config: defineTemplateConfig({
     app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@arcanumber.com' },
     auth: { oauth: [], turnstile: false },
@@ -41,6 +42,7 @@ function createRuntime() {
   const requestMeta = { clientIp: '203.0.113.9', requestId: newId() }
   const createAuth = (database: typeof db, cache: KeyValueStore = adminCache) =>
     createWebAuth(runtimeConfig, database, {
+      site: 'west',
       cache,
       rateLimiter,
       clientIp: requestMeta.clientIp,
@@ -48,6 +50,7 @@ function createRuntime() {
     })
   const runtime: WebRuntime = {
     config: parseAuthEnv(runtimeConfig, templateConfig),
+    site: 'west',
     db,
     publicDb: db,
     cache: adminCache,

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { NOT_FOUND_PATH } from '../admin/gate.ts'
 import { gateSiteRequest, routeSite } from './gate.ts'
 import {
+  accountSiteOf,
   requestSiteOrigin,
   resolveSite,
   siteHosts,
@@ -27,6 +28,41 @@ const config = defineTemplateConfig({
 })
 const route = (url: string) => routeSite(new URL(url), config)
 const pass = { kind: 'pass', noindex: false }
+
+describe('账户站点只来自 Host（openspec split-site-accounts 决策 1）', () => {
+  it('staging / 预览 Host 与未知 localhost 解析为西方站', () => {
+    for (const url of [
+      'https://xuanxue-web-staging.example.workers.dev/login',
+      'https://abc123-xuanxue-web.example.workers.dev/api/auth/sign-in/email',
+      'http://localhost:3000/app',
+    ])
+      expect(accountSiteOf(new Request(url), config)).toBe('west')
+    expect(accountSiteOf(new Request(`${EAST}/login`), config)).toBe('east')
+    expect(accountSiteOf(new Request('http://east.localhost:26990/login'), config)).toBe('east')
+  })
+
+  it('请求参数、请求体、Cookie 与其他请求头都不能覆盖站点', () => {
+    const forged = (url: string) =>
+      new Request(`${url}/api/auth/sign-up/email?site=east&siteId=east`, {
+        method: 'POST',
+        headers: {
+          cookie: 'site=east; xuanxue-site=east',
+          'x-site': 'east',
+          'x-forwarded-host': 'ganjiday.com',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email: 'a@example.test', site: 'east' }),
+      })
+    expect(accountSiteOf(forged(WEST), config)).toBe('west')
+    expect(accountSiteOf(forged('https://preview.example.workers.dev'), config)).toBe('west')
+    expect(
+      accountSiteOf(
+        new Request(`${EAST}/login?site=west`, { headers: { 'x-site': 'west' } }),
+        config,
+      ),
+    ).toBe('east')
+  })
+})
 
 describe('按域名识别站点（specs/multi-site）', () => {
   it('登记的 Host 识别为对应站点，忽略端口与大小写', () => {

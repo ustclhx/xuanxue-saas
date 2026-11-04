@@ -31,8 +31,10 @@ beforeEach(async () => {
   ws = newId()
   userId = newId()
   taskId = newId()
-  await db.insert(user).values({ id: userId, name: 'Media', email: `${userId}@example.test` })
-  await db.insert(organization).values({ id: ws, name: 'Media', slug: ws })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: userId, name: 'Media', email: `${userId}@example.test` })
+  await db.insert(organization).values({ site: 'west', id: ws, name: 'Media', slug: ws })
   await scoped(db, ws).insert(aiTask, {
     id: taskId,
     userId,

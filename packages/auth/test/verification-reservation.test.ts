@@ -25,8 +25,8 @@ describe('UUID verification reservations in workerd', () => {
         (await a.db.query.user.findFirst({ where: (u, { eq }) => eq(u.id, user.id) }))
           ?.emailVerified,
       ).toBe(false)
-      await a.db.$client`insert into account (id,user_id,account_id,provider_id)
-        values (${newId()},${user.id},${email},'google')`
+      await a.db.$client`insert into account (id,user_id,account_id,provider_id,site)
+        values (${newId()},${user.id},${email},'google','west')`
       let response: Response
       if (method === 'otp') {
         expect(

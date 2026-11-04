@@ -1,5 +1,15 @@
 import { relations } from 'drizzle-orm'
-import { boolean, index, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  unique,
+  uuid,
+} from 'drizzle-orm/pg-core'
+import { siteCheck, siteColumn } from './site.ts'
 import { invitation, member, organization } from './tenancy.ts'
 
 /**
@@ -9,7 +19,9 @@ import { invitation, member, organization } from './tenancy.ts'
  * - id 与外键列改为 `uuid`，主键由 `advanced.database.generateId` 生成 UUIDv7（design.md 决策 2）；
  * - 时间列改为 `timestamptz`，各表补 `created_at` / `updated_at` 默认值；
  * - 外键一律 `on delete restrict`（docs/03-data-model.md §7）：user 只匿名化、从不物理删除；
- * - 扩展字段 `user.locale` / `user.timezone`。
+ * - 扩展字段 `user.locale` / `user.timezone`；
+ * - 账户站点 `site`（openspec split-site-accounts 决策 2、4）：`user`、`account`、`verification`
+ *   按站点隔离，邮箱唯一改为 `(site, email)`；读写条件由 packages/auth 的 site-adapter 统一追加。
  * 字段名（TS 属性名）必须与 Better Auth 的模型字段一致，否则 drizzle adapter 的 schema 校验会失败；
  * 升级 Better Auth 后重新运行 CLI 对比差异。
  */
@@ -22,24 +34,34 @@ const timestamps = {
     .$onUpdate(() => new Date()),
 }
 
-export const user = pgTable('user', {
-  id: uuid('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  emailVerified: boolean('email_verified').notNull().default(false),
-  image: text('image'),
-  // admin 插件：平台角色（user / admin）与封禁
-  role: text('role'),
-  banned: boolean('banned').default(false),
-  banReason: text('ban_reason'),
-  banExpires: timestamp('ban_expires', { withTimezone: true }),
-  // twoFactor 插件
-  twoFactorEnabled: boolean('two_factor_enabled').default(false),
-  // 扩展字段
-  locale: text('locale'),
-  timezone: text('timezone'),
-  ...timestamps,
-})
+export type { AccountSite } from './site.ts'
+
+export const user = pgTable(
+  'user',
+  {
+    id: uuid('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    emailVerified: boolean('email_verified').notNull().default(false),
+    image: text('image'),
+    // admin 插件：平台角色（user / admin）与封禁
+    role: text('role'),
+    banned: boolean('banned').default(false),
+    banReason: text('ban_reason'),
+    banExpires: timestamp('ban_expires', { withTimezone: true }),
+    // twoFactor 插件
+    twoFactorEnabled: boolean('two_factor_enabled').default(false),
+    // 扩展字段
+    locale: text('locale'),
+    timezone: text('timezone'),
+    site: siteColumn(),
+    ...timestamps,
+  },
+  (t) => [
+    unique('user_site_email_unique').on(t.site, t.email),
+    siteCheck('user_site_valid', t.site),
+  ],
+)
 
 export const session = pgTable(
   'session',
@@ -79,9 +101,10 @@ export const account = pgTable(
     refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
     scope: text('scope'),
     password: text('password'),
+    site: siteColumn(),
     ...timestamps,
   },
-  (t) => [index('account_user_id_idx').on(t.userId)],
+  (t) => [index('account_user_id_idx').on(t.userId), siteCheck('account_site_valid', t.site)],
 )
 
 export const verification = pgTable(
@@ -91,9 +114,13 @@ export const verification = pgTable(
     identifier: text('identifier').notNull(),
     value: text('value').notNull(),
     expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    site: siteColumn(),
     ...timestamps,
   },
-  (t) => [index('verification_identifier_idx').on(t.identifier)],
+  (t) => [
+    index('verification_identifier_idx').on(t.identifier),
+    siteCheck('verification_site_valid', t.site),
+  ],
 )
 
 export const twoFactor = pgTable(

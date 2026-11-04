@@ -73,6 +73,10 @@
 - 在 web 侧取会话的统一入口（`getSession` 封装）中校验：`session.user.site !== 当前站点` 时按未登录处理，并写一条 `auth.cross_site_session` 日志。
 - 这层校验是兜底。正常情况下，Cookie 按域名隔离，跨站请求根本带不上对方的会话。
 - spike 证实这层不能省：Cookie 缓存与 KV 会话不经过 adapter，带着东方站缓存 Cookie 的请求在西方站仍会读到东方站用户；从数据库读取时，包装层剔除关联行后会按未登录处理。
+- **实施（2.2 / 2.3）**：三层各自校验，不一致时按未登录处理并记录 `auth.cross_site_session`（字段 `layer` 为 `cookie` / `kv` / `database`）：
+  - **KV 键带站点命名空间**：`kvSecondaryStorage` 把所有键写成 `auth:<site>:<key>`（`authCacheKey`），一个站点写入的会话副本在另一站根本读不到；读出的会话副本再核对一次 `user.site`。验证值（`verification:` 键）仍然只存数据库，删号依赖这一点。删号清理清单（`verification` 行）记录站点，jobs 重试时按该列删除对应命名空间的键。上线前写入的旧键（`auth:<key>`）不再被读取：读会话时 KV 未命中，回退数据库后按新键重建，旧键随 TTL 过期，不需要迁移。
+  - **Cookie 缓存**：Cookie 本来按域名隔离；兜底用 Better Auth 的 `session.cookieCache.version`：本站用户的版本为 `site:<site>`，另一站用户的版本每次随机，缓存因版本不符被丢弃，改读 KV / 数据库。
+  - **数据库**：Better Auth 经 site-adapter 读取（关联行被剔除即未登录）；应用侧直接查库的 `requireFreshSession` / `checkSessionInDatabase` 带上站点核对。web 没有单独的 `getSession` 封装，服务端页面与接口都经 `requireFreshSession`，因此核对放在这里。
 
 ### 决策 4：邮箱唯一改为 `(site, email)`
 
@@ -126,6 +130,13 @@ Owner 已定（2026-11-03）：现有用户都是测试用户，全部拆成两�
    - 改为 `not null`；
    - 去掉旧的唯一约束，建立 `(site, email)` 唯一约束；
    - 删除全部 `verification` 行：作废现有的验证码与重置链接，用户重新申请即可。
+   - **实施（2.1，`0018_split_site_accounts.sql`）**：
+     - 副本主键在 SQL 中按 RFC 9562 生成 UUIDv7（`clock_timestamp()` 毫秒 + `gen_random_uuid()` 随机位，版本位改为 7），与 `newId()` 同为时间有序；PG 17 没有 `uuidv7()`，也不在迁移中建函数。副本与原用户的对应关系在同一条语句的 CTE 中完成；
+     - 密码账户的 `account_id` 改为副本用户 id（Better Auth 以用户 id 作为密码账户的 account_id），第三方账户保留提供方标识；
+     - 已删号（匿名化）的账户也生成副本以保持「用户数翻倍」，副本同样匿名、封禁，不建空间；
+     - 团队空间取最早的 owner 成员（创建者）所在站点；已软删、没有成员的团队取删除审计中的原 owner；原用户在另一站团队中的成员关系转给该站的副本，保证团队成员同站；
+     - 付款证据同时指向两站的用户（预检的 `unresolvedUsers`）会让迁移报错中止，等 Owner 决定后再执行，不自行猜测；
+     - 迁移不标注 `rollback-safe`：迁移完成即出现两站同邮箱账户，下文「回滚」的窗口实际为零，只能向前修复；迁移与 web 发布之间旧 web 写入不带站点会失败，需放在发版窗口内。
 3. **会话**：现有会话保留，属于原用户。原用户在主站点继续登录；另一站的旧会话会因为决策 3 失效，用户在另一站用原来的密码或 Google 重新登录，进入副本账户。
 
 **预演**：先在 staging 上执行，再在生产的 Neon 分支（从生产复制的临时分支）上预演一次，对比预检报告和迁移后的计数：用户数应为原来的两倍，副本空间余额为 0，原有空间与数据计数不变。生产执行要等 Owner 批准，并放在发版窗口内。

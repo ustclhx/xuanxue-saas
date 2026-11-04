@@ -5,9 +5,10 @@ import * as schema from '@xuanxue/db/schema'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { createCloudflareKv } from '@xuanxue/platform/cloudflare'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
-import { type AuthEmail, createAuth } from '../src/index.ts'
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
+import { type AuthEmail, createAuth, requireFreshSession } from '../src/index.ts'
 import { siteScopedAdapter } from '../src/site-adapter.ts'
+import { verificationReserver } from '../src/verification-reservation.ts'
 import {
   app,
   cookieHeader,
@@ -21,125 +22,29 @@ import {
   withoutCookieCache,
 } from './helpers.ts'
 
-// Spike 1.1（openspec split-site-accounts 决策 2）：在 Better Auth 1.7.7 上验证按站点包装 adapter。
-//
-// 不新增迁移（迁移只有 2.1 一份）：
-// - 数据库：beforeAll 以 migrator 给 user / account / verification 加可空的 site 列，并把
-//   user_email_unique 换成 (site, email) 唯一索引；afterAll 还原。列可空，其他并行测试文件不受影响。
-// - drizzle schema：只在本文件内把三张表替换为带 site 列的定义（vi.mock），其他文件仍用原 schema。
-vi.mock('@xuanxue/db/schema', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@xuanxue/db/schema')>()
-  const { boolean, pgTable, text, timestamp, uuid } = await import('drizzle-orm/pg-core')
-  const timestamps = {
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true })
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  }
-  // 与 packages/db/src/schema/auth.ts 一致，只多一个 site 列（外键与索引不影响查询，省略）
-  const user = pgTable('user', {
-    id: uuid('id').primaryKey(),
-    name: text('name').notNull(),
-    email: text('email').notNull(),
-    emailVerified: boolean('email_verified').notNull().default(false),
-    image: text('image'),
-    role: text('role'),
-    banned: boolean('banned').default(false),
-    banReason: text('ban_reason'),
-    banExpires: timestamp('ban_expires', { withTimezone: true }),
-    twoFactorEnabled: boolean('two_factor_enabled').default(false),
-    locale: text('locale'),
-    timezone: text('timezone'),
-    site: text('site'),
-    ...timestamps,
-  })
-  const account = pgTable('account', {
-    id: uuid('id').primaryKey(),
-    accountId: text('account_id').notNull(),
-    providerId: text('provider_id').notNull(),
-    userId: uuid('user_id').notNull(),
-    accessToken: text('access_token'),
-    refreshToken: text('refresh_token'),
-    idToken: text('id_token'),
-    accessTokenExpiresAt: timestamp('access_token_expires_at', { withTimezone: true }),
-    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', { withTimezone: true }),
-    scope: text('scope'),
-    password: text('password'),
-    site: text('site'),
-    ...timestamps,
-  })
-  const verification = pgTable('verification', {
-    id: uuid('id').primaryKey(),
-    identifier: text('identifier').notNull(),
-    value: text('value').notNull(),
-    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-    site: text('site'),
-    ...timestamps,
-  })
-  return { ...original, user, account, verification }
-})
+// 两站账户隔离（openspec split-site-accounts 决策 2、3，tasks 2.2 / 2.3）：同一个数据库，两站各自按请求创建 auth，
+// 站点只来自入口。spike 1.1 的验证在 2.1 迁移落地后改为常规隔离测试；升级 Better Auth 后必须重跑本文件。
 
 const EAST = 'https://ganjiday.com'
 const WEST = 'https://arcanumber.com'
 const ORIGIN: Record<SiteId, string> = { east: EAST, west: WEST }
 
-const SPIKE_PREFIX = 'site-spike'
-const SPIKE_DOMAIN = `${SPIKE_PREFIX}.auth-test.example`
-const users = testUsers(SPIKE_PREFIX)
+const users = testUsers('site-isolation')
 const { email } = users
 // 整个文件共用一个连接池：每次 createDb 都会新建最多 5 个连接，本地 PG 的连接数有限
 const db = createDb(env.HYPERDRIVE)
 const raw = () => db.$client
-/** DDL 用 migrator，用完即关，不占用并行测试的连接 */
-async function migrator(run: (sql: ReturnType<typeof createDb>['$client']) => Promise<void>) {
-  const sql = createDb(env.HYPERDRIVE_MIGRATOR, { max: 1 }).$client
-  try {
-    await run(sql)
-  } finally {
-    await sql.end({ timeout: 5 })
-  }
-}
 
-beforeAll(() =>
-  migrator(async (sql) => {
-    await sql`alter table "user" add column if not exists site text`
-    await sql`alter table account add column if not exists site text`
-    await sql`alter table verification add column if not exists site text`
-    await sql`alter table "user" drop constraint if exists user_email_unique`
-    await sql`create unique index if not exists spike_user_site_email_unique on "user" (site, email)`
-  }),
-)
 afterEach(() => {
   vi.restoreAllMocks()
 })
-afterAll(async () => {
-  await users.cleanup()
-  await migrator(async (sql) => {
-    // 之前中断的运行可能留下同邮箱的两站账户，恢复全局唯一约束前一并清掉
-    const stale = (
-      await sql<{ id: string }[]>`select id from "user" where email like ${`%.${SPIKE_DOMAIN}`}`
-    ).map((u) => u.id)
-    if (stale.length) {
-      await sql`delete from audit_log where actor_user_id in ${sql(stale)} or workspace_id in ${sql(stale)}
-        or (target_type = 'user' and target_id in ${sql(stale)})`
-      await sql`delete from session where user_id in ${sql(stale)}`
-      await sql`delete from member where organization_id in ${sql(stale)} or user_id in ${sql(stale)}`
-      await sql`delete from organization where id in ${sql(stale)}`
-      await sql`delete from account where user_id in ${sql(stale)}`
-      await sql`delete from "user" where id in ${sql(stale)}`
-    }
-    await sql`delete from verification where site is not null`
-    await sql`drop index if exists spike_user_site_email_unique`
-    await sql`alter table "user" add constraint user_email_unique unique (email)`
-    await sql`alter table verification drop column if exists site`
-    await sql`alter table account drop column if exists site`
-    await sql`alter table "user" drop column if exists site`
-  })
-})
+afterAll(() => users.cleanup())
 
 /** 一个站点的入口：与生产一样按请求创建 auth，站点只来自入口（决策 1） */
-function siteClient(site: SiteId, options: { kv?: boolean } = {}) {
+function siteClient(
+  site: SiteId,
+  options: { kv?: boolean; magicLink?: boolean; multiTenant?: boolean } = {},
+) {
   const cache: KeyValueStore | undefined =
     options.kv === false ? undefined : createCloudflareKv(env.CACHE)
   const sent: AuthEmail[] = []
@@ -153,7 +58,11 @@ function siteClient(site: SiteId, options: { kv?: boolean } = {}) {
       clientIp: ip,
       hosts: ['ganjiday.com', 'arcanumber.com'],
       site,
-      config: defineTemplateConfig({ app, auth: { oauth: ['google'], turnstile: false } }),
+      config: defineTemplateConfig({
+        app,
+        auth: { oauth: ['google'], turnstile: false, magicLink: options.magicLink ?? false },
+        tenancy: { multiTenant: options.multiTenant ?? false },
+      }),
       sendEmail: async (message) => {
         sent.push(message)
       },
@@ -186,12 +95,24 @@ function siteClient(site: SiteId, options: { kv?: boolean } = {}) {
   }
 }
 
+/** 收集 `auth.cross_site_session` 日志的层次（cookie / kv / database） */
+function crossSiteWarnings() {
+  const layers: string[] = []
+  const original = console.warn
+  vi.spyOn(console, 'warn').mockImplementation((...args: unknown[]) => {
+    const line = String(args[0])
+    if (line.includes('auth.cross_site_session')) layers.push(JSON.parse(line).layer)
+    else original(...args)
+  })
+  return { layers: () => [...layers] }
+}
+
 const usersByEmail = (address: string) =>
   raw()<
     { id: string; site: string | null }[]
   >`select id, site from "user" where email = ${address} order by site`
 
-describe('Better Auth 1.7.7 adapter 按站点包装（spike 1.1）', () => {
+describe('两站账户隔离（Better Auth 1.7.7 adapter 按站点包装）', () => {
   it('同一邮箱可在两站各注册一个账户；user 与 account 都写入各自站点', async () => {
     const address = email('both')
     const east = siteClient('east')
@@ -335,22 +256,48 @@ describe('Better Auth 1.7.7 adapter 按站点包装（spike 1.1）', () => {
     expect(res.headers.get('location')).toMatch(/error/)
   })
 
-  it('数据库路径读会话时，另一站用户的会话视为未登录（Cookie 缓存层仍需决策 3 兜底）', async () => {
+  it('会话不能跨站使用：Cookie 缓存、KV 与数据库三条路径都按未登录处理并记录日志（决策 3）', async () => {
+    const warnings = crossSiteWarnings()
     const address = email('session')
-    // 不用 KV：会话只在 Cookie 缓存与数据库中，便于分别观察两层
-    const east = siteClient('east', { kv: false })
-    const west = siteClient('west', { kv: false })
+    const east = siteClient('east')
+    const west = siteClient('west')
     const signUp = await east.post('/sign-up/email', signUpBody(address))
     const cookie = cookieHeader(signUp)
-    const dbOnly = withoutCookieCache(cookie)
-
-    const own = await east.get('/get-session', { cookie: dbOnly })
+    const token = (
+      await raw()<{ token: string }[]>`
+      select s.token from session s join "user" u on u.id=s.user_id where u.email=${address}`
+    )[0]?.token
+    if (!token) throw new Error('missing session')
+    const own = await east.get('/get-session', { cookie })
     expect(((await own.json()) as { user: { site: string } }).user.site).toBe('east')
-    const cross = await west.get('/get-session', { cookie: dbOnly })
-    expect(await cross.json()).toBeNull()
-    // Cookie 缓存不经过 adapter：同一密钥签名的缓存会话在另一站仍被接受，所以 web 侧必须再校验 user.site
-    const cached = await west.get('/get-session', { cookie })
-    expect(((await cached.json()) as { user: { site: string } } | null)?.user.site).toBe('east')
+
+    // Cookie 缓存：同一密钥签名的东方站缓存 Cookie 在西方站版本不符，被丢弃后 KV 与数据库也读不到
+    expect(await (await west.get('/get-session', { cookie })).json()).toBeNull()
+    expect(warnings.layers()).toContain('cookie')
+    // KV：键按站点命名，东方站的会话副本只在 auth:east: 下；把它搬到西方站命名空间也会被拒绝
+    expect(await env.CACHE.get(`auth:east:${token}`)).toContain(token)
+    expect(await env.CACHE.get(`auth:west:${token}`)).toBeNull()
+    await env.CACHE.put(`auth:west:${token}`, (await env.CACHE.get(`auth:east:${token}`)) ?? '')
+    try {
+      const kvOnly = withoutCookieCache(cookie)
+      expect(await (await west.get('/get-session', { cookie: kvOnly })).json()).toBeNull()
+      expect(warnings.layers()).toContain('kv')
+    } finally {
+      await env.CACHE.delete(`auth:west:${token}`)
+    }
+    // 数据库：没有 KV 时 Better Auth 经 site-adapter 读取，关联的东方站用户被剔除
+    const westDbOnly = siteClient('west', { kv: false })
+    expect(
+      await (await westDbOnly.get('/get-session', { cookie: withoutCookieCache(cookie) })).json(),
+    ).toBeNull()
+    // 应用侧直接查库的 requireFreshSession 同样拒绝，错误与「没有会话」相同
+    await expect(
+      requireFreshSession({ auth: west.makeAuth(), db, headers: new Headers({ cookie }) }),
+    ).rejects.toMatchObject({ code: 'SESSION_REQUIRED', status: 401 })
+    expect(warnings.layers()).toContain('database')
+    await expect(
+      requireFreshSession({ auth: east.makeAuth(), db, headers: new Headers({ cookie }) }),
+    ).resolves.toMatchObject({ user: { email: address, site: 'east' } })
   })
 
   it('verification 不写入共享 KV，另一站读不到（KV 不经过 adapter）', async () => {
@@ -362,7 +309,8 @@ describe('Better Auth 1.7.7 adapter 按站点包装（spike 1.1）', () => {
       value: 'v',
       expiresAt: new Date(Date.now() + 60_000),
     })
-    expect(await env.CACHE.get(`auth:verification:${identifier}`)).toBeNull()
+    for (const site of ['east', 'west'])
+      expect(await env.CACHE.get(`auth:${site}:verification:${identifier}`)).toBeNull()
     expect(await east.internalAdapter.findVerificationValue(identifier)).toMatchObject({
       value: 'v',
     })
@@ -397,6 +345,187 @@ describe('Better Auth 1.7.7 adapter 按站点包装（spike 1.1）', () => {
       trx.findOne({ model: 'user', where: [{ field: 'email', value: address }] }),
     )
     expect(seen).toBeNull()
+  })
+
+  it('magic link 只在本站有效：西方站打开东方站的链接不登录也不建号', async () => {
+    silenceExpectedErrors(/invalid token/i, /INVALID_TOKEN/)
+    const address = email('magic')
+    const east = siteClient('east', { magicLink: true })
+    const west = siteClient('west', { magicLink: true })
+    expect((await east.post('/sign-in/magic-link', { email: address })).status).toBe(200)
+    const mail = east.sent.at(-1)
+    if (mail?.type !== 'magic-link') throw new Error('missing magic link')
+    const link = new URL(mail.url)
+    const cross = await west.get(`${link.pathname.replace('/api/auth', '')}${link.search}`)
+    expect(cross.headers.get('location')).toMatch(/error/)
+    expect(await usersByEmail(address)).toEqual([])
+    const ok = await east.get(`${link.pathname.replace('/api/auth', '')}${link.search}`)
+    expect(ok.headers.get('location')).not.toMatch(/error/)
+    expect((await usersByEmail(address)).map((r) => r.site)).toEqual(['east'])
+  })
+
+  it('改邮箱的唯一校验只看本站：可改成另一站已有的邮箱，不能改成本站已有的邮箱', async () => {
+    // 本应用未开启改邮箱接口；Better Auth 改邮箱时以 findUserByEmail 判重，数据库以 (site, email) 收口
+    const taken = email('taken')
+    const east = siteClient('east')
+    const west = siteClient('west')
+    expect((await west.post('/sign-up/email', signUpBody(taken))).status).toBe(200)
+    const mover = email('mover')
+    expect((await east.post('/sign-up/email', signUpBody(mover))).status).toBe(200)
+    const eastCtx = await east.makeAuth().$context
+    expect(await eastCtx.internalAdapter.findUserByEmail(taken)).toBeNull()
+    const moverUser = await eastCtx.internalAdapter.findUserByEmail(mover)
+    if (!moverUser) throw new Error('missing east user')
+    await eastCtx.internalAdapter.updateUser(moverUser.user.id, { email: taken })
+    expect((await usersByEmail(taken)).map((r) => r.site)).toEqual(['east', 'west'])
+    // 同站重复：西方站再把另一个账户改成同一邮箱时被 (site, email) 唯一约束拒绝
+    const other = email('other')
+    expect((await west.post('/sign-up/email', signUpBody(other))).status).toBe(200)
+    const westCtx = await west.makeAuth().$context
+    expect((await westCtx.internalAdapter.findUserByEmail(taken))?.user).toMatchObject({
+      site: 'west',
+    })
+    const otherUser = await westCtx.internalAdapter.findUserByEmail(other)
+    if (!otherUser) throw new Error('missing west user')
+    await expect(
+      westCtx.internalAdapter.updateUser(otherUser.user.id, { email: taken }),
+    ).rejects.toThrow()
+  })
+
+  it('站点只来自入口：请求体与查询参数中的 site 不会改变账户站点', async () => {
+    const address = email('forged')
+    const east = siteClient('east')
+    const res = await east.post('/sign-up/email?site=west', {
+      ...signUpBody(address),
+      site: 'west',
+    })
+    expect(res.status).toBeLessThan(500)
+    // input: false 的字段要么被拒绝，要么被忽略；无论哪种都不会写成西方站
+    expect((await usersByEmail(address)).every((r) => r.site === 'east')).toBe(true)
+  })
+
+  it('验证值预约按站点：同一 identifier 两站各自预约，同站重复预约被拒绝', async () => {
+    const identifier = `reserve-${crypto.randomUUID()}@${email('reserve').split('@')[1]}`
+    const data = { identifier, value: 'proof', expiresAt: new Date(Date.now() + 60_000) }
+    expect(await verificationReserver(db, 'east')(data)).toBe(true)
+    expect(await verificationReserver(db, 'east')(data)).toBe(false)
+    expect(await verificationReserver(db, 'west')(data)).toBe(true)
+    expect(
+      await raw()<
+        { site: string }[]
+      >`select site from verification where identifier=${identifier} order by site`,
+    ).toEqual([{ site: 'east' }, { site: 'west' }])
+  })
+
+  it('个人空间属于注册所在站点', async () => {
+    const address = email('personal')
+    expect((await siteClient('east').post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    const [row] = await raw()<{ site: string; is_personal: boolean }[]>`
+      select o.site, o.is_personal from organization o join "user" u on u.id=o.id where u.email=${address}`
+    expect(row).toEqual({ site: 'east', is_personal: true })
+  })
+
+  it('删号只影响本站：西方站删号后东方站账户、验证码与登录不受影响', async () => {
+    const address = email('delete')
+    const east = siteClient('east')
+    const west = siteClient('west')
+    expect((await east.post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    const westSignUp = await west.post('/sign-up/email', signUpBody(address))
+    expect(westSignUp.status).toBe(200)
+    expect(
+      (await east.post('/email-otp/send-verification-otp', { email: address, type: 'sign-in' }))
+        .status,
+    ).toBe(200)
+    expect(
+      (await west.post('/deletion/account', {}, { cookie: cookieHeader(westSignUp) })).status,
+    ).toBe(200)
+    // 西方站账户已匿名化，东方站账户原样保留
+    expect((await usersByEmail(address)).map((r) => r.site)).toEqual(['east'])
+    expect(
+      await raw()<
+        { site: string }[]
+      >`select site from verification where identifier=${`sign-in-otp-${address}`}`,
+    ).toEqual([{ site: 'east' }])
+    expect((await east.post('/sign-in/email', { email: address, password: PASSWORD })).status).toBe(
+      200,
+    )
+    // 本站可用同一邮箱重新注册
+    expect((await west.post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    expect((await usersByEmail(address)).map((r) => r.site)).toEqual(['east', 'west'])
+  })
+
+  it('团队空间按站点：另一站访问返回 404，邀请只能由本站账户接受，也不能加入另一站账户', async () => {
+    silenceExpectedErrors(/WORKSPACE_NOT_FOUND/, /INVALID_MEMBER/, /not found/i)
+    const east = siteClient('east', { multiTenant: true })
+    const west = siteClient('west', { multiTenant: true })
+    const owner = await east.post('/sign-up/email', signUpBody(email('team-owner')))
+    const ownerCookie = cookieHeader(owner)
+    const created = await east.post(
+      '/organization/create',
+      { name: 'East team', slug: `east-team-${Date.now()}` },
+      { cookie: ownerCookie },
+    )
+    expect(created.status).toBe(200)
+    const team = (await created.json()) as { id: string }
+    users.createdOrgs.push(team.id)
+    expect(
+      (await raw()<{ site: string }[]>`select site from organization where id=${team.id}`)[0],
+    ).toEqual({ site: 'east' })
+
+    // 只在西方站注册过的邮箱：邀请照常发出，但西方站账户读不到、也接受不了
+    const invitee = email('team-invitee')
+    const westInvitee = await west.post('/sign-up/email', signUpBody(invitee))
+    const westCookie = cookieHeader(westInvitee)
+    const { user: westUser } = (await westInvitee.json()) as { user: { id: string } }
+    await raw()`update "user" set email_verified=true where id=${westUser.id}`
+    const invited = await east.post(
+      '/organization/invite-member',
+      { organizationId: team.id, email: invitee, role: 'member' },
+      { cookie: ownerCookie },
+    )
+    expect(invited.status).toBe(200)
+    const invitation = (await invited.json()) as { id: string }
+    expect(
+      (await west.get(`/organization/get-invitation?id=${invitation.id}`, { cookie: westCookie }))
+        .status,
+    ).toBe(404)
+    expect(
+      (await west.get('/organization/list-user-invitations', { cookie: westCookie })).status,
+    ).toBe(403)
+    expect(
+      (
+        await west.post(
+          '/organization/accept-invitation',
+          { invitationId: invitation.id },
+          { cookie: westCookie },
+        )
+      ).status,
+    ).toBe(404)
+    // 直接按 id 加入另一站账户被拒绝
+    expect(
+      (
+        await east.post(
+          '/organization/add-member',
+          { organizationId: team.id, userId: westUser.id, role: 'member' },
+          { cookie: ownerCookie },
+        )
+      ).status,
+    ).toBe(403)
+    // 西方站账户对东方站空间的写操作一律 404
+    expect(
+      (
+        await west.post(
+          '/organization/set-active',
+          { organizationId: team.id },
+          { cookie: westCookie },
+        )
+      ).status,
+    ).toBe(404)
+    const members = await raw()<
+      { user_id: string }[]
+    >`select user_id from member where organization_id=${team.id}`
+    expect(members.map((m) => m.user_id)).not.toContain(westUser.id)
+    expect(members).toHaveLength(1)
   })
 
   it('经 Better Auth 的 adapter 修改 site 直接报错', async () => {
