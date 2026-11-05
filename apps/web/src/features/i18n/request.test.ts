@@ -18,13 +18,14 @@ const runtime = { db: {}, auth: {} } as Pick<WebRuntime, 'db' | 'auth'>
 
 const pause = () => new Promise((resolve) => setTimeout(resolve, 5))
 const origin = 'https://arcanumber.com'
+const east = 'https://ganjiday.com'
 
 describe('请求级语言与只读会话隔离', () => {
   it('并发账号请求各自保留会话与语言，同一请求只读取一次会话', async () => {
     const { requireFreshSession } = await import('@xuanxue/auth')
     vi.mocked(requireFreshSession).mockClear()
-    const run = (locale: string) => {
-      const request = new Request(`${origin}/account`, {
+    const run = (locale: string, site = origin) => {
+      const request = new Request(`${site}/account`, {
         headers: { 'x-user': locale, 'x-locale': locale },
       })
       const handle = async () => {
@@ -43,7 +44,7 @@ describe('请求级语言与只读会话隔离', () => {
         templateConfig.i18n.enabled ? handle() : withSessionCache(handle),
       )
     }
-    const responses = await Promise.all([run('ko'), run('en')])
+    const responses = await Promise.all([run('ko', east), run('en')])
     expect(await Promise.all(responses.map((response) => response.json()))).toEqual([
       {
         locale: templateConfig.i18n.enabled && isLocale('ko') ? 'ko' : baseLocale,
@@ -105,7 +106,7 @@ describe('请求级语言与只读会话隔离', () => {
 it('账号语言只在多语言模式读取，单语言忽略 Cookie 和账号偏好', async () => {
   const { requireFreshSession } = await import('@xuanxue/auth')
   vi.mocked(requireFreshSession).mockClear()
-  const request = new Request(`${origin}/account`, {
+  const request = new Request(`${east}/account`, {
     headers: { 'x-user': 'one', 'x-locale': 'zh-Hant', cookie: 'PARAGLIDE_LOCALE=en' },
   })
   const response = await localizeRequest(request, runtime, async () => new Response(getLocale()))
@@ -117,6 +118,40 @@ it('账号语言只在多语言模式读取，单语言忽略 Cookie 和账号�
     expect(response.headers.get('set-cookie')).toBeNull()
     expect(response.headers.get('location')).toBeNull()
   }
+})
+
+describe.runIf(templateConfig.i18n.enabled)('应用区按本站语言回退', () => {
+  const localeOf = async (url: string, headers: Record<string, string>) => {
+    const response = await localizeRequest(
+      new Request(url, { headers: { 'x-user': 'one', ...headers } }),
+      runtime,
+      async () => new Response(getLocale()),
+    )
+    return response.text()
+  }
+
+  it('东方站未保存语言时按浏览器语言选东方站语言，都不匹配时用繁体中文', async () => {
+    expect(await localeOf(`${east}/app`, { 'accept-language': 'ko-KR,ko;q=0.9' })).toBe('ko')
+    expect(await localeOf(`${east}/app`, { 'accept-language': 'zh-CN' })).toBe('zh-Hans')
+    expect(await localeOf(`${east}/app`, { 'accept-language': 'en-US' })).toBe('zh-Hant')
+    expect(await localeOf(`${east}/app`, {})).toBe('zh-Hant')
+  })
+
+  it('东方站保存了另一站语言时不显示英文，东方站内的手动选择优先', async () => {
+    expect(await localeOf(`${east}/app`, { 'x-locale': 'en' })).toBe('zh-Hant')
+    expect(
+      await localeOf(`${east}/app`, { 'x-locale': 'en', cookie: 'locale-preference=ko' }),
+    ).toBe('ko')
+    expect(await localeOf(`${east}/app`, { 'x-locale': 'zh-Hans' })).toBe('zh-Hans')
+  })
+
+  it('西方站只用英文；未登记的预览 Host 沿用账号语言', async () => {
+    expect(await localeOf(`${origin}/app`, { 'x-locale': 'ko' })).toBe('en')
+    expect(await localeOf(`${origin}/app`, {})).toBe('en')
+    expect(
+      await localeOf('https://xuanxue-web-staging.saas-jobs.workers.dev/app', { 'x-locale': 'ko' }),
+    ).toBe('ko')
+  })
 })
 
 describe('首次访问建议', () => {
