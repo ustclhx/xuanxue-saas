@@ -1,3 +1,4 @@
+import { attributeWebhookEvent } from '@xuanxue/billing'
 import { getCreditBalance, reconcileWorkspaceCredits } from '@xuanxue/credits'
 import { newId } from '@xuanxue/shared'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -51,11 +52,13 @@ async function fixture() {
       const id = newId()
       webhookIds.push(id)
       await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${id},${item.provider},${id},'fixture',${JSON.stringify(item.payload)}::jsonb,'failed')`
+      await db.transaction((tx) => attributeWebhookEvent(tx, id))
     }
   }
   const unknown = newId()
   webhookIds.push(unknown)
   await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload) values(${unknown},'stripe',${unknown},'unknown','{}'::jsonb)`
+  await db.transaction((tx) => attributeWebhookEvent(tx, unknown))
   initialized = true
 }
 

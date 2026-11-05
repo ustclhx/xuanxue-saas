@@ -9,7 +9,7 @@ import {
   subscription,
   webhookEvent,
 } from '@xuanxue/db'
-import { and, desc, eq, inArray, sql } from 'drizzle-orm'
+import { and, arrayContained, arrayContains, desc, eq, inArray, sql } from 'drizzle-orm'
 import { ADMIN_PAGE_SIZE } from '../admin/list.ts'
 import { adminSiteFilter } from '../admin/site.ts'
 
@@ -119,58 +119,13 @@ export async function listAdminPurchases(
   return pageResult(rows)
 }
 
-const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
-const webhookStrings = sql`select v #>> '{}' from jsonb_path_query(${webhookEvent.payload}, '$.** ? (@.type() == "string")') v`
-
 /**
- * 回调事件关联到的站点（升序去重，split-site-accounts 决策 7）。回调表没有空间与站点列，
- * 两站共用同一个支付回调入口，因此沿用下方空间筛选的关联规则：载荷中的结账元数据
- * `workspaceId`、PayPal `custom_id` 中的空间 ID，以及与本地订阅 / 付款 / 订单平台 ID 相同的字符串，
- * 取这些空间的 `organization.site`。无法关联任何空间时为空数组。
- * 引用外层查询的 `webhook_event` 行，只能用在 from webhook_event 的查询中。
- */
-const webhookSiteArray = sql`array(
-  select distinct ${organization.site} from ${organization} where ${organization.id} in (
-    select case when m.v ~* ${`^${UUID}$`} then m.v::uuid end from (
-      select w #>> '{}' as v from jsonb_path_query(${webhookEvent.payload}, '$.**.workspaceId') w
-      union all
-      select (regexp_matches(c #>> '{}', ${UUID}, 'gi'))[1] from jsonb_path_query(${webhookEvent.payload}, '$.**.custom_id') c
-    ) m
-    union all
-    select ${subscription.workspaceId} from ${subscription} where ${subscription.provider} = ${webhookEvent.provider} and ${subscription.providerSubscriptionId} in (${webhookStrings})
-    union all
-    select ${payment.workspaceId} from ${payment} where ${payment.provider} = ${webhookEvent.provider} and ${payment.providerPaymentId} in (${webhookStrings})
-    union all
-    select ${purchase.workspaceId} from ${purchase} where ${purchase.provider} = ${webhookEvent.provider} and ${purchase.providerOrderId} in (${webhookStrings})
-  ) order by 1
-)`
-/** 同上，以 jsonb 数组返回（驱动不解析 text[]） */
-export const webhookEventSites = sql<SiteId[]>`to_jsonb(${webhookSiteArray})`
-
-/**
- * 回调表没有空间列：按已验证载荷中的结账元数据或本地账务的平台 ID 关联，筛选先于分页。
- * 当前站点视图列出只关联当前站点的事件与无法关联任何站点的事件（两站后台都可重放后者，
- * 见 admin-writes.ts）；关联到另一站的事件只在只读的全部站点视图中出现。
+ * 回调表保存了事件关联的空间与站点（`workspace_ids` / `sites`，由回调管线写入，openspec webhook-event-site），
+ * 筛选走 GIN 索引并先于分页。当前站点视图列出只关联当前站点的事件与无法关联任何站点的事件（空数组；
+ * 两站后台都可重放后者，见 admin-writes.ts）；关联到另一站的事件只在只读的全部站点视图中出现。
  */
 export async function listAdminWebhooks(db: Database, data: BillingListInput, currentSite: SiteId) {
   const scope = adminSiteFilter(data.site, currentSite)
-  const workspace = data.workspaceId
-  const hasIdentity = (
-    id:
-      | typeof subscription.providerSubscriptionId
-      | typeof payment.providerPaymentId
-      | typeof purchase.providerOrderId,
-  ) =>
-    sql`jsonb_path_exists(${webhookEvent.payload}, '$.** ? (@ == $id)', jsonb_build_object('id', ${id}))`
-  const association = workspace
-    ? sql`(
-    jsonb_path_exists(${webhookEvent.payload}, '$.**.workspaceId ? (@ == $id)', jsonb_build_object('id', ${workspace}::text))
-    or jsonb_path_exists(${webhookEvent.payload}, ${`$.**.custom_id ? (@ like_regex "${workspace}" flag "i")`}::jsonpath)
-    or exists (select 1 from ${subscription} where ${subscription.workspaceId} = ${workspace} and ${subscription.provider} = ${webhookEvent.provider} and ${hasIdentity(subscription.providerSubscriptionId)})
-    or exists (select 1 from ${payment} where ${payment.workspaceId} = ${workspace} and ${payment.provider} = ${webhookEvent.provider} and ${hasIdentity(payment.providerPaymentId)})
-    or exists (select 1 from ${purchase} where ${purchase.workspaceId} = ${workspace} and ${purchase.provider} = ${webhookEvent.provider} and ${hasIdentity(purchase.providerOrderId)})
-  )`
-    : undefined
   const rows = await db
     .select({
       id: webhookEvent.id,
@@ -179,11 +134,14 @@ export async function listAdminWebhooks(db: Database, data: BillingListInput, cu
       type: webhookEvent.type,
       status: webhookEvent.status,
       attempts: webhookEvent.attempts,
-      sites: webhookEventSites,
+      sites: webhookEvent.sites,
     })
     .from(webhookEvent)
     .where(
-      and(association, scope ? sql`${webhookSiteArray} <@ array[${scope}]::text[]` : undefined),
+      and(
+        data.workspaceId ? arrayContains(webhookEvent.workspaceIds, [data.workspaceId]) : undefined,
+        scope ? arrayContained(webhookEvent.sites, [scope]) : undefined,
+      ),
     )
     .orderBy(desc(webhookEvent.receivedAt), desc(webhookEvent.id))
     .limit(ADMIN_PAGE_SIZE + 1)

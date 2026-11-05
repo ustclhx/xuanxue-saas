@@ -40,3 +40,4 @@ export {
   createStripeWebhookNormalizer,
   type StripeProviderOptions,
 } from './stripe/adapter.ts'
+export { attributeWebhookEvent } from './webhook-attribution.ts'

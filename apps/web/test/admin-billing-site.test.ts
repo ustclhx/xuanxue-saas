@@ -1,4 +1,5 @@
 import {
+  attributeWebhookEvent,
   markManualRefund,
   type PaymentProvider,
   type RefundServiceOptions,
@@ -91,8 +92,10 @@ beforeAll(async () => {
         ? { data: { object: { payment_intent: row.payment } } }
         : { data: { object: { metadata: { workspaceId: row.ws } } } }
     await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${row.webhook},'stripe',${row.webhook},'fixture',${JSON.stringify(payload)}::jsonb,'failed')`
+    await db.transaction((tx) => attributeWebhookEvent(tx, row.webhook))
   }
   await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${unresolved},'stripe',${unresolved},'fixture','{}'::jsonb,'failed')`
+  await db.transaction((tx) => attributeWebhookEvent(tx, unresolved))
 })
 
 afterAll(async () => {
@@ -151,6 +154,29 @@ describe('账务后台列表按站点', () => {
       expect(rows.some((row) => row.id === f[site === 'east' ? 'west' : 'east'].webhook)).toBe(
         false,
       )
+    }
+  })
+
+  it('回调按保存的归属显示：本地账务记录删除后站点不变，不会变成两站可重放的未知事件', async () => {
+    const order = newId()
+    const event = newId()
+    await db.$client`insert into purchase(id,workspace_id,user_id,plan_id,plan_price_id,provider,provider_order_id,status,amount,currency) values(${order},${f.west.ws},${f.west.applicant},${plan},${price},'stripe',${order},'paid',1234,'USD')`
+    await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${event},'stripe',${event},'fixture',${JSON.stringify({ data: { object: { id: order } } })}::jsonb,'failed')`
+    try {
+      await db.transaction((tx) => attributeWebhookEvent(tx, event))
+      await db.$client`delete from purchase where id=${order}`
+      const all = await listAdminWebhooks(
+        db,
+        { workspaceId: f.west.ws, offset: 0, site: 'all' },
+        'east',
+      )
+      expect(all.rows.find((row) => row.id === event)?.sites).toEqual(['west'])
+      expect(
+        (await listAdminWebhooks(db, { offset: 0 }, 'east')).rows.some((row) => row.id === event),
+      ).toBe(false)
+    } finally {
+      await db.$client`delete from webhook_event where id=${event}`
+      await db.$client`delete from purchase where id=${order}`
     }
   })
 })
@@ -266,6 +292,27 @@ describe('账务后台写操作按站点', () => {
       expect((await auditsFor(id)).map((row) => row.action)).toEqual([
         'billing.webhook_replay_requested',
       ])
+    }
+  })
+
+  it('回调重放：失败时无法关联、之后本地账务补齐到另一站的事件，重放前按最新记录重算并拒绝', async () => {
+    const sub = newId()
+    const event = newId()
+    await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${event},'stripe',${event},'fixture',${JSON.stringify({ data: { object: { id: sub } } })}::jsonb,'failed')`
+    try {
+      await db.transaction((tx) => attributeWebhookEvent(tx, event))
+      const all = await listAdminWebhooks(db, { offset: 0, site: 'all' }, 'east')
+      expect(all.rows.find((row) => row.id === event)?.sites).toEqual([])
+      await db.$client`insert into subscription(id,workspace_id,plan_id,plan_price_id,provider,provider_subscription_id,status,last_event_at) values(${newId()},${f.west.ws},${plan},${price},'stripe',${sub},'canceled',now())`
+      await expect(
+        runAdminAction(context(), 'billing.webhook_replay', (scope) =>
+          requestWebhookReplay(scope, event, 'east', () => true),
+        ),
+      ).rejects.toMatchObject(otherSite)
+      expect(await auditsFor(event)).toHaveLength(0)
+    } finally {
+      await db.$client`delete from subscription where provider_subscription_id=${sub}`
+      await db.$client`delete from webhook_event where id=${event}`
     }
   })
 })
