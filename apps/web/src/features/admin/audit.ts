@@ -2,22 +2,32 @@ import type { SiteId } from '@xuanxue/config'
 import { auditLog, type Database, type JsonValue, organization, user } from '@xuanxue/db'
 import { and, desc, eq, gte, lt, or, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { ADMIN_PAGE_SIZE } from './list.ts'
+import { ADMIN_PAGE_SIZE, adminWorkspaceIdFilter } from './list.ts'
 import { ADMIN_ALL_SITES, adminSiteFilter } from './site.ts'
 
-export const auditSearchSchema = z
-  .object({
-    offset: z.number().int().min(0).max(100_000),
-    actor: z.string().max(200).optional(),
-    workspaceId: z.uuid().optional(),
-    action: z.string().max(200).optional(),
-    from: z.iso.date().optional(),
-    to: z.iso.date().optional(),
-    site: z.literal(ADMIN_ALL_SITES).optional(),
+/**
+ * 审计日期筛选来自自由文本框（YYYY-MM-DD）：不是合法日期时按「没有匹配」处理（远未来日期），
+ * 开始晚于结束时查询自然为空；都不让 Server Function 校验失败、整页报错。
+ */
+const NO_MATCH_DATE = '9999-12-31'
+const auditDateFilter = z
+  .string()
+  .transform((value) => {
+    const text = value.trim()
+    if (!text) return undefined
+    return z.iso.date().safeParse(text).success ? text : NO_MATCH_DATE
   })
-  .refine((value) => !value.from || !value.to || value.from <= value.to, {
-    message: 'Start date must precede end date',
-  })
+  .optional()
+
+export const auditSearchSchema = z.object({
+  offset: z.number().int().min(0).max(100_000),
+  actor: z.string().max(200).optional(),
+  workspaceId: adminWorkspaceIdFilter,
+  action: z.string().max(200).optional(),
+  from: auditDateFilter,
+  to: auditDateFilter,
+  site: z.literal(ADMIN_ALL_SITES).optional(),
+})
 export type AuditSearch = z.infer<typeof auditSearchSchema>
 
 /**
@@ -48,6 +58,8 @@ export async function listAuditLogs(db: Database, input: AuditSearch, currentSit
     data.workspaceId ? eq(auditLog.workspaceId, data.workspaceId) : undefined,
     data.action ? eq(auditLog.action, data.action) : undefined,
     data.from ? gte(auditLog.createdAt, new Date(`${data.from}T00:00:00Z`)) : undefined,
+    // 结束日期非法时不能只放宽为「到远未来」，直接无匹配
+    data.to === NO_MATCH_DATE ? sql`false` : undefined,
     data.to
       ? lt(auditLog.createdAt, new Date(Date.parse(`${data.to}T00:00:00Z`) + 86_400_000))
       : undefined,
