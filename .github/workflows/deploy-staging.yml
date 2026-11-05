@@ -138,9 +138,8 @@ jobs:
       - name: Confirm deployment health and version
         run: node scripts/staging/wait-healthy.mjs "$STAGING_URL/api/health" "$DEPLOY_SHA"
 
-      # P0 门禁：sitemap / canonical / 分析脚本不得指向他站（docs/analytics.md）
-      - name: Check site isolation
-        run: node scripts/staging/check-site-isolation.mjs staging "$STAGING_URL"
+      # 模板 0.2.1 的 Check site isolation 不在 staging 运行（2026-11-06 用户决定）：两站 SEO 源在构建期固定为
+      # 正式域名，workers.dev 上的 canonical / sitemap 必然指向 arcanumber.com；生产发布后仍运行该门禁。
 
       - name: Install Chromium
         run: pnpm --filter @xuanxue/web exec playwright install --with-deps chromium
