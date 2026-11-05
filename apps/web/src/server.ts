@@ -43,7 +43,11 @@ import { localizeRequest } from './features/i18n/request.server.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
 import { accountSiteOf, siteHosts } from './features/site/site.ts'
-import { prerenderRequest, staticPageResponse } from './features/site/static-pages.ts'
+import {
+  prerenderRequest,
+  siteFaviconResponse,
+  staticPageResponse,
+} from './features/site/static-pages.ts'
 import { withSecurityNonce } from './security-context.server.ts'
 import { withSecurityHeaders, withStaticSecurityHeaders } from './security-headers.ts'
 import { createWebAuth } from './server/auth.ts'
@@ -81,6 +85,9 @@ const worker = instrumentWeb({
         async (request) =>
           // 东方站根路径先于静态语言选择页跳到语言首页；构建期预渲染请求不跳转
           (buildRequest ? null : eastHomeRedirect(request, templateConfig)) ??
+          (!import.meta.env.DEV && !buildRequest && env.ASSETS
+            ? await siteFaviconResponse(request, (asset) => env.ASSETS.fetch(asset))
+            : null) ??
           (!import.meta.env.DEV && !buildRequest && env.ASSETS
             ? await staticPageResponse(request, async (asset) =>
                 withStaticSecurityHeaders(

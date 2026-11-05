@@ -20,6 +20,26 @@ export function prerenderRequest(request: Request, token?: string): Request | nu
   return new Request(url, request)
 }
 
+/**
+ * /favicon.ico 按 Host 直接返回本站图标（200），不再重定向：发布门禁 check-site-isolation 要求 200，
+ * 部分爬虫也不跟随图标重定向。本地开发没有 ASSETS 时由 routes/favicon[.]ico.ts 重定向兜底。
+ */
+export async function siteFaviconResponse(
+  request: Request,
+  fetchAsset: (request: Request) => Promise<Response>,
+): Promise<Response | null> {
+  const url = new URL(request.url)
+  if (url.pathname !== '/favicon.ico' || !['GET', 'HEAD'].includes(request.method)) return null
+  const site = resolveSite(url.host, templateConfig)
+  const response = await fetchAsset(
+    new Request(new URL(`/images/favicon-${site.id}.ico`, url), request),
+  )
+  if (!response.ok) return null
+  const result = new Response(response.body, response)
+  result.headers.set('cache-control', 'public, max-age=86400')
+  return result
+}
+
 /** 只读取已知站点的公开 HTML；预览 Host 走 SSR，保留西方品牌与 noindex。 */
 export async function staticPageResponse(
   request: Request,

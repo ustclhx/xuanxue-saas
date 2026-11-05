@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { prerenderRequest, staticPageResponse } from './static-pages.ts'
+import { prerenderRequest, siteFaviconResponse, staticPageResponse } from './static-pages.ts'
 
 describe('双站静态 HTML 分流', () => {
   it('只有构建期令牌能将语言页面映射到所属站点请求', () => {
@@ -44,5 +44,20 @@ describe('双站静态 HTML 分流', () => {
       fetchAsset,
     )
     expect(shared?.headers.get('x-robots-tag')).toBe('noindex, nofollow')
+  })
+
+  it('/favicon.ico 按 Host 直接返回本站图标，不重定向', async () => {
+    const fetchAsset = vi.fn(async (_request: Request) => new Response('ico'))
+    const east = await siteFaviconResponse(
+      new Request('https://ganjiday.com/favicon.ico'),
+      fetchAsset,
+    )
+    expect(east?.status).toBe(200)
+    expect(fetchAsset.mock.calls[0]?.[0].url).toBe('https://ganjiday.com/images/favicon-east.ico')
+    await siteFaviconResponse(new Request('https://preview.workers.dev/favicon.ico'), fetchAsset)
+    expect(fetchAsset.mock.calls[1]?.[0].url).toBe(
+      'https://preview.workers.dev/images/favicon-west.ico',
+    )
+    expect(await siteFaviconResponse(new Request('https://ganjiday.com/'), fetchAsset)).toBeNull()
   })
 })

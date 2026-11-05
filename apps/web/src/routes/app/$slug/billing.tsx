@@ -144,7 +144,7 @@ function BillingPage() {
     setBusy(true)
     setMessage('')
     trackEvent('checkout_start', {
-      plan: page.catalog.plans.find((plan) => plan.id === selected.planId)?.key ?? '',
+      plan: page.catalog.plans.find((plan) => plan.id === target.planId)?.key ?? '',
     })
     try {
       const result = await checkoutCustomer({

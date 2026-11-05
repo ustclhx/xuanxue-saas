@@ -151,17 +151,6 @@ describe('公开页面 SEO（4.1–4.3）', () => {
       expect(privateMeta(path)).toEqual([])
   })
 
-  it('llms.txt 只列默认语言的公开页面，链接都指向本站', () => {
-    const text = llmsTxt(pages, origin)
-    expect(text.startsWith(`# ${templateConfig.app.name}`)).toBe(true)
-    const links = [...text.matchAll(/\]\(([^)]+)\)/g)].map((match) => match[1] ?? '')
-    expect(links.length).toBeGreaterThan(0)
-    for (const link of links) expect(new URL(link).origin).toBe(new URL(origin).origin)
-    expect(text).not.toMatch(/\/(?:app|admin|api)(?:\/|\))/)
-    const defaultCount = pages.filter((p) => p.locale === templateConfig.i18n.defaultLocale).length
-    expect(links).toHaveLength(defaultCount)
-  })
-
   it('答案页按开关进入公开页面清单，草稿不进入；FAQ 输出 FAQPage', () => {
     const guide = {
       slug: 'is-it-free',

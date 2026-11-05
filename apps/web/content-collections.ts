@@ -163,7 +163,7 @@ const docs = defineCollection({
     const { content, requires: _requires, ...data } = document
     const html = await renderMdx(context, {
       ...document,
-      content: fillPlaceholders(content, localeAndSlug(document._meta).locale),
+      content: fillPlaceholders(content),
     })
     // 构建期生成的搜索文本，客户端按它做全文匹配（design.md 决策 1）
     return { ...data, ...localeAndSlug(document._meta), html, searchText: plainText(html) }
