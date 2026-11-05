@@ -7,7 +7,7 @@ if (process.env.STAGING_URL || process.env.E2E_REAL_TURNSTILE === '1' || process
 export default defineConfig({
   ...base,
   // split-site-accounts 4.1：两站账户隔离的双 Host 流程同样只依赖本地服务与隔离库，随冒烟进入 CI。
-  testMatch: ['smoke.spec.ts', 'split-site-accounts.spec.ts'],
+  testMatch: ['smoke.spec.ts', 'split-site-accounts.spec.ts', 'i18n-preference.spec.ts'],
   testIgnore: '**/staging/**',
   globalSetup: './e2e/smoke-setup.ts',
   timeout: 60_000,

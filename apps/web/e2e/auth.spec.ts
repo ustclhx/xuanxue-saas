@@ -163,8 +163,12 @@ test('邮箱验证结果页与重置密码页按错误码提示', async ({ page 
   await expect(page.getByRole('heading', { name: 'Verification failed' })).toBeVisible()
   await expect(page.getByRole('alert')).toHaveText('This link has expired.')
 
+  // 未登录或邮箱未验证时直接打开结果页不显示「已验证」，提示链接无效
   await page.goto('/verify-email')
-  await expect(page.getByRole('heading', { name: 'Email verified' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Email verification' })).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveText(
+    'This verification link is invalid or has expired.',
+  )
 
   await page.goto('/reset-password?error=INVALID_TOKEN')
   await expect(page.getByRole('alert')).toHaveText('This link is invalid or has already been used.')
