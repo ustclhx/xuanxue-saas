@@ -3,6 +3,8 @@ import { baseLocale, cookieName, isLocale, type Locale } from '../../paraglide/r
 import { paraglideMiddleware } from '../../paraglide/server.js'
 import type { WebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { resolveSite } from '../site/site.ts'
+import { eastLocale } from './east-home.ts'
 import { languageUrl, localeCookie, readCookie, usesAccountLocale } from './preference.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
 
@@ -28,7 +30,7 @@ export function localizeRequest(
           db: runtime.db,
           headers: request.headers,
         })
-        locale = isLocale(fresh.user.locale) ? fresh.user.locale : baseLocale
+        locale = accountLocale(fresh.user.locale, request)
       } catch (error) {
         if (!(error instanceof AppError && [401, 403].includes(error.status))) throw error
       }
@@ -53,4 +55,22 @@ export function localizeRequest(
     }
     return response
   })
+}
+
+/**
+ * 应用区语言：账号保存的语言属于本站时采用；否则按本站规则回退。
+ * 东方站没有英文应用区，未保存语言（或保存了另一站语言，如迁移出的副本账户）时
+ * 与东方站无前缀页相同按 eastLocale 选择，不能落到 baseLocale（西方站英文）。
+ * 未登记的 Host（staging / 预览）不限制站点语言。
+ */
+function accountLocale(saved: string | null | undefined, request: Request): Locale {
+  const site = resolveSite(new URL(request.url).host, templateConfig)
+  const own: readonly string[] = templateConfig.sites[site.id].locales
+  if (isLocale(saved) && (!site.known || own.includes(saved))) return saved
+  if (site.id === 'east') {
+    const east = eastLocale(request, templateConfig)
+    if (isLocale(east)) return east
+  }
+  const fallback = templateConfig.sites[site.id].defaultLocale
+  return isLocale(fallback) ? fallback : baseLocale
 }

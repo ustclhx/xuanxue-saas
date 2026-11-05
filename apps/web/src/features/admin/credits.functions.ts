@@ -8,12 +8,18 @@ import { withCredits } from '../../server/feature-gates.ts'
 import { adminAction } from './action.server.ts'
 import { adminMiddleware } from './admin.functions.ts'
 import { adjustAdminCredits, creditAdjustmentInput } from './credits.ts'
-import { ADMIN_PAGE_SIZE } from './list.ts'
+import { ADMIN_PAGE_SIZE, adminWorkspaceIdFilter, NO_MATCH_WORKSPACE_ID } from './list.ts'
 
 export const getAdminCredits = createServerFn({ method: 'GET' })
   .middleware([withCredits, adminMiddleware])
   .inputValidator(
-    z.object({ workspaceId: z.uuid().optional(), offset: z.number().int().min(0).max(100_000) }),
+    z.object({
+      // 不是 UUID 的输入与未填写相同：显示「请输入空间 ID」的空状态，不对不存在的空间显示余额与发放表单
+      workspaceId: adminWorkspaceIdFilter.transform((id) =>
+        id === NO_MATCH_WORKSPACE_ID ? undefined : id,
+      ),
+      offset: z.number().int().min(0).max(100_000),
+    }),
   )
   .handler(async ({ context, data }) => {
     if (!data.workspaceId) return { rows: [], hasMore: false, balance: null }

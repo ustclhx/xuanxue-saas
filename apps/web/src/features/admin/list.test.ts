@@ -3,9 +3,22 @@ import {
   ADMIN_PAGE_SIZE,
   adminListPage,
   adminListSearch,
+  adminWorkspaceIdFilter,
   filtersToSearch,
+  NO_MATCH_WORKSPACE_ID,
   offsetOfPage,
 } from './list.ts'
+
+describe('后台空间 ID 筛选', () => {
+  it('UUID 原样使用，空值视为未筛选，其他输入按无匹配处理而不报错', () => {
+    const id = '01a15a45-20dc-753a-9b7c-ea6f635193f2'
+    expect(adminWorkspaceIdFilter.parse(` ${id} `)).toBe(id)
+    expect(adminWorkspaceIdFilter.parse(undefined)).toBeUndefined()
+    expect(adminWorkspaceIdFilter.parse('  ')).toBeUndefined()
+    expect(adminWorkspaceIdFilter.parse('someone@example.com')).toBe(NO_MATCH_WORKSPACE_ID)
+    expect(adminWorkspaceIdFilter.parse('01a15a45')).toBe(NO_MATCH_WORKSPACE_ID)
+  })
+})
 
 describe('后台列表的 search 参数', () => {
   const parse = adminListSearch(['q', 'status'])

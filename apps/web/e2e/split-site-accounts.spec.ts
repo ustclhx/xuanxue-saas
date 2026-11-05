@@ -105,22 +105,23 @@ test('same email on east and west: independent balances, sessions and deletion',
     const promoted =
       await sql`update "user" set role = 'admin' where email = ${adminEmail} and site = 'east' returning id`
     expect(promoted).toHaveLength(1)
+    // 东方站应用区（含后台）没有保存语言时按东方站语言显示，这里为繁体中文
     await admin.page.goto(`/admin/credits?workspaceId=${eastAccount.workspace_id}`)
-    await expect(admin.page.getByRole('heading', { name: 'Credit adjustments' })).toBeVisible()
-    const amount = admin.page.getByLabel('Amount', { exact: true })
-    const addCredits = admin.page.getByRole('button', { name: 'Add credits', exact: true })
+    await expect(admin.page.getByRole('heading', { name: '積分調整' })).toBeVisible()
+    const amount = admin.page.getByLabel('數量', { exact: true })
+    const addCredits = admin.page.getByRole('button', { name: '新增積分', exact: true })
     // 等 hydration 后表单可用再填写（不使用 networkidle）
     await expect
       .poll(async () => {
         await amount.fill('')
         await amount.fill('100')
-        await admin.page.getByLabel('Reason', { exact: true }).fill('')
-        await admin.page.getByLabel('Reason', { exact: true }).fill('split-site-accounts e2e')
+        await admin.page.getByLabel('原因', { exact: true }).fill('')
+        await admin.page.getByLabel('原因', { exact: true }).fill('split-site-accounts e2e')
         return addCredits.isEnabled()
       })
       .toBe(true)
     await addCredits.click()
-    await expect(admin.page.getByText('Adjustment applied.', { exact: true })).toBeVisible()
+    await expect(admin.page.getByText('調整已生效。', { exact: true })).toBeVisible()
     await expectAvailableCredits(eastUser.page, 100)
     await expectAvailableCredits(westUser.page, 0)
     const grants = await sql`select workspace_id, amount from credit_grant
