@@ -14,5 +14,14 @@
   "app_nav_overview": "Overview",
   "app_overview_quick": "Quick access",
   "app_team_spaces": "Team spaces",
-  "app_team_spaces_note": "Create a team workspace to invite members."
+  "app_team_spaces_note": "Create a team workspace to invite members.",
+  "app_table_previous": "Previous",
+  "app_table_next": "Next",
+  "app_table_page": "Page {page}",
+  "app_table_page_of": "Page {page} of {pageCount}",
+  "app_table_empty": "No records found.",
+  "app_table_apply": "Apply",
+  "app_table_reset": "Reset",
+  "app_table_filters": "Filters",
+  "app_table_pagination": "Pagination"
 }

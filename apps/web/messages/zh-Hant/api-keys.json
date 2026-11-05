@@ -1,0 +1,21 @@
+{
+  "api_keys_title": "API 金鑰",
+  "api_keys_description": "金鑰僅在建立時顯示完整值，請妥善保存。呼叫將使用目前空間的積分。",
+  "api_keys_error": "操作失敗",
+  "api_keys_save_secret": "請立即保存，關閉後無法再次查看：",
+  "api_keys_close_secret": "已保存，關閉",
+  "api_keys_name": "名稱",
+  "api_keys_expires_label": "到期時間（選填，本地時間）",
+  "api_keys_create": "建立金鑰",
+  "api_keys_key_name": "金鑰名稱",
+  "api_keys_save": "儲存",
+  "api_keys_prefix": "前綴",
+  "api_keys_expiry": "到期",
+  "api_keys_never_expires": "永不到期",
+  "api_keys_status": "狀態",
+  "api_keys_revoked": "已撤銷",
+  "api_keys_expired": "已到期",
+  "api_keys_active": "有效",
+  "api_keys_actions": "操作",
+  "api_keys_revoke": "撤銷"
+}

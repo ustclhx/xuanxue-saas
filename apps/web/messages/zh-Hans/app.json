@@ -14,5 +14,14 @@
   "app_nav_overview": "概览",
   "app_overview_quick": "快捷入口",
   "app_team_spaces": "团队空间",
-  "app_team_spaces_note": "创建团队空间以邀请成员。"
+  "app_team_spaces_note": "创建团队空间以邀请成员。",
+  "app_table_previous": "上一页",
+  "app_table_next": "下一页",
+  "app_table_page": "第 {page} 页",
+  "app_table_page_of": "第 {page} 页，共 {pageCount} 页",
+  "app_table_empty": "找不到记录。",
+  "app_table_apply": "应用",
+  "app_table_reset": "重置",
+  "app_table_filters": "筛选",
+  "app_table_pagination": "分页"
 }

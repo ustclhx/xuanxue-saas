@@ -1,0 +1,12 @@
+{
+  "notifications_title": "Notifications",
+  "notifications_unread_label": "Notifications ({count} unread)",
+  "notifications_center": "Notification center",
+  "notifications_mark_all_read": "Mark all read",
+  "notifications_unavailable": "Notifications unavailable. Try refreshing.",
+  "notifications_read_error": "Could not mark notifications read. Please retry.",
+  "notifications_notification": "Notification",
+  "notifications_status": "Status",
+  "notifications_read": "Read",
+  "notifications_unread": "Unread"
+}

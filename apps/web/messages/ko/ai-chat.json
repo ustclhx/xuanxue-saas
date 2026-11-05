@@ -54,5 +54,17 @@
   "ai_chat_reasoning": "추론 과정",
   "ai_chat_retrying": "재시도 중…",
   "ai_chat_role_you": "나",
-  "ai_chat_role_assistant": "어시스턴트"
+  "ai_chat_role_assistant": "어시스턴트",
+  "ai_chat_list_title": "채팅 목록",
+  "ai_chat_conversations_label": "채팅",
+  "ai_chat_empty_list": "아직 채팅이 없습니다.",
+  "ai_chat_archived_conversations_label": "보관된 채팅",
+  "ai_chat_archived": "보관됨",
+  "ai_chat_rename_label": "{name} 이름 변경",
+  "ai_chat_title_label": "채팅 제목",
+  "ai_chat_save": "저장",
+  "ai_chat_cancel": "취소",
+  "ai_chat_rename": "이름 변경",
+  "ai_chat_unarchive": "보관 해제",
+  "ai_chat_archive": "보관"
 }

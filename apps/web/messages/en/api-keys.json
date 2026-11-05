@@ -1,0 +1,21 @@
+{
+  "api_keys_title": "API Keys",
+  "api_keys_description": "The full key is only shown when created. Keep it safe. Calls use credits from the current workspace.",
+  "api_keys_error": "Operation failed",
+  "api_keys_save_secret": "Save it now. You cannot view it again after closing:",
+  "api_keys_close_secret": "Saved, close",
+  "api_keys_name": "Name",
+  "api_keys_expires_label": "Expiration time (optional, local time)",
+  "api_keys_create": "Create key",
+  "api_keys_key_name": "Key name",
+  "api_keys_save": "Save",
+  "api_keys_prefix": "Prefix",
+  "api_keys_expiry": "Expiry",
+  "api_keys_never_expires": "Never expires",
+  "api_keys_status": "Status",
+  "api_keys_revoked": "Revoked",
+  "api_keys_expired": "Expired",
+  "api_keys_active": "Active",
+  "api_keys_actions": "Actions",
+  "api_keys_revoke": "Revoke"
+}

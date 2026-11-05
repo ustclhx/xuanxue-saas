@@ -54,5 +54,17 @@
   "ai_chat_reasoning": "推理過程",
   "ai_chat_retrying": "正在重試…",
   "ai_chat_role_you": "你",
-  "ai_chat_role_assistant": "助理"
+  "ai_chat_role_assistant": "助理",
+  "ai_chat_list_title": "對話列表",
+  "ai_chat_conversations_label": "對話",
+  "ai_chat_empty_list": "尚無對話。",
+  "ai_chat_archived_conversations_label": "已封存的對話",
+  "ai_chat_archived": "已封存",
+  "ai_chat_rename_label": "重新命名 {name}",
+  "ai_chat_title_label": "對話標題",
+  "ai_chat_save": "儲存",
+  "ai_chat_cancel": "取消",
+  "ai_chat_rename": "重新命名",
+  "ai_chat_unarchive": "取消封存",
+  "ai_chat_archive": "封存"
 }

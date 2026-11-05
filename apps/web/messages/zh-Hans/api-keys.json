@@ -1,0 +1,21 @@
+{
+  "api_keys_title": "API 密钥",
+  "api_keys_description": "密钥仅在创建时显示完整值，请妥善保存。调用将使用当前空间的积分。",
+  "api_keys_error": "操作失败",
+  "api_keys_save_secret": "请立即保存，关闭后无法再次查看：",
+  "api_keys_close_secret": "已保存，关闭",
+  "api_keys_name": "名称",
+  "api_keys_expires_label": "过期时间（可选，本地时间）",
+  "api_keys_create": "创建密钥",
+  "api_keys_key_name": "密钥名称",
+  "api_keys_save": "保存",
+  "api_keys_prefix": "前缀",
+  "api_keys_expiry": "过期",
+  "api_keys_never_expires": "永不过期",
+  "api_keys_status": "状态",
+  "api_keys_revoked": "已撤销",
+  "api_keys_expired": "已过期",
+  "api_keys_active": "有效",
+  "api_keys_actions": "操作",
+  "api_keys_revoke": "撤销"
+}

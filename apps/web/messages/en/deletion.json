@@ -1,0 +1,22 @@
+{
+  "deletion_danger_zone": "Danger zone",
+  "deletion_team_warning": "Deleting a team workspace removes its content. This cannot be undone.",
+  "deletion_team_title": "Delete team workspace",
+  "deletion_account_title": "Delete account",
+  "deletion_team_description": "All members will lose access immediately. Workspace content is retained for 30 days before cleanup.",
+  "deletion_account_description": "Your personal workspace will be deleted and your identity and sign-in credentials removed. Sign out and sign in again within ten minutes before deleting.",
+  "deletion_refund_notice": "Deletion cancels subscriptions immediately without issuing a refund. Review refundable payments before deleting; pending requests remain reviewable using their saved contact email.",
+  "deletion_contact_support": "contact support",
+  "deletion_support_suffix": " before deleting if you need help with a payment.",
+  "deletion_refund_reminder": "{eligibleCount} payments in the refund window; {pendingCount} pending requests.",
+  "deletion_review_billing": "Review billing and refund requests",
+  "deletion_signin_again": "Sign out and sign in again",
+  "deletion_confirmation": "Type {confirmation} to confirm",
+  "deletion_continue": "Continue",
+  "deletion_blocked_team_suffix": ": transfer ownership or delete this team first.",
+  "deletion_submitting": "Deleting…",
+  "deletion_workspace_submit": "Delete workspace",
+  "deletion_completed_cleanup_pending": "Deletion completed. Access has been removed; cached credentials are awaiting automatic cleanup.",
+  "deletion_error_unknown": "Deletion could not be completed. Please try again.",
+  "deletion_signout_error": "Could not sign out. Please try again before signing in."
+}

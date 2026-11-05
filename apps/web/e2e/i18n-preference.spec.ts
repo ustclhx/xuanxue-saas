@@ -100,9 +100,19 @@ test('东方站换设备登录后应用区跟随账号语言，营销页继续�
     // 未保存语言且浏览器为 en-US（不属于东方站）：应用区按东方站第一个语言繁体中文显示，不落到英文
     await page.goto('/app')
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
+    // 通知中心与共用表格控件也应跟随应用区语言，不能回退为英文。
+    await page.getByLabel('通知（0 則未讀）', { exact: true }).click()
+    const notifications = page.getByRole('region', { name: '通知中心', exact: true })
+    await expect(notifications.getByRole('table', { name: '通知', exact: true })).toBeVisible()
+    await expect(notifications.getByText('找不到記錄。', { exact: true })).toBeVisible()
+    await expect(notifications.getByRole('navigation', { name: '分頁' })).toBeVisible()
+    await expect(notifications.getByRole('status')).toHaveText('第 1 頁')
+    await expect(notifications.getByRole('button', { name: '上一頁' })).toBeDisabled()
+    await expect(notifications.getByRole('button', { name: '下一頁' })).toBeDisabled()
     await saveAccountLocale(page, 'ko')
     await page.goto('/app')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
+    await expect(page.getByLabel('알림 (읽지 않음 0개)', { exact: true })).toBeVisible()
 
     // 新设备已有相反的匿名 Cookie，账号设置仍优先。
     await second.context.addCookies([

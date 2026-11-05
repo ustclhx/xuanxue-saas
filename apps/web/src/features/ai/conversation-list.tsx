@@ -45,14 +45,14 @@ export function ConversationList({ slug, page }: { slug: string; page: Conversat
   return (
     <HydratedControls>
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold">Chats</h2>
+        <h2 className="text-2xl font-semibold">{m.ai_chat_list_title()}</h2>
         <Button disabled={pending || page.readOnly} onClick={() => void create()}>
-          New chat
+          {m.ai_chat_new_chat()}
         </Button>
       </div>
       <FormAlert message={error} />
-      <section className="grid gap-3" aria-label="Conversations">
-        {page.active.length === 0 ? <p>No conversations yet.</p> : null}
+      <section className="grid gap-3" aria-label={m.ai_chat_conversations_label()}>
+        {page.active.length === 0 ? <p>{m.ai_chat_empty_list()}</p> : null}
         <ul className="grid gap-2">
           {page.active.map((item) => (
             <ConversationRow
@@ -66,8 +66,8 @@ export function ConversationList({ slug, page }: { slug: string; page: Conversat
         </ul>
       </section>
       {page.archived.length > 0 ? (
-        <section className="grid gap-3" aria-label="Archived conversations">
-          <h3 className="font-semibold">Archived</h3>
+        <section className="grid gap-3" aria-label={m.ai_chat_archived_conversations_label()}>
+          <h3 className="font-semibold">{m.ai_chat_archived()}</h3>
           <ul className="grid gap-2">
             {page.archived.map((item) => (
               <ConversationRow
@@ -117,7 +117,7 @@ function ConversationRow({
     return (
       <li>
         <form
-          aria-label={`Rename ${name}`}
+          aria-label={m.ai_chat_rename_label({ name })}
           className="flex flex-wrap items-end gap-2"
           onSubmit={(event) => {
             event.preventDefault()
@@ -129,7 +129,7 @@ function ConversationRow({
           }}
         >
           <p className="grid gap-1">
-            <Label htmlFor={`title-${item.id}`}>Conversation title</Label>
+            <Label htmlFor={`title-${item.id}`}>{m.ai_chat_title_label()}</Label>
             <Input
               id={`title-${item.id}`}
               value={title}
@@ -138,10 +138,10 @@ function ConversationRow({
             />
           </p>
           <Button type="submit" disabled={pending || !title.trim()}>
-            Save
+            {m.ai_chat_save()}
           </Button>
           <Button type="button" variant="ghost" onClick={() => setEditing(false)}>
-            Cancel
+            {m.ai_chat_cancel()}
           </Button>
         </form>
       </li>
@@ -166,7 +166,7 @@ function ConversationRow({
             setEditing(true)
           }}
         >
-          Rename
+          {m.ai_chat_rename()}
         </Button>
       )}
       <Button
@@ -181,7 +181,7 @@ function ConversationRow({
           )
         }
       >
-        {item.archived ? 'Unarchive' : 'Archive'}
+        {item.archived ? m.ai_chat_unarchive() : m.ai_chat_archive()}
       </Button>
     </li>
   )

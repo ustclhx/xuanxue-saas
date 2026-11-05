@@ -19,15 +19,13 @@ function WorkspaceSettingsPage() {
     <SpacePage title={m.app_workspace_settings()}>
       <WorkspaceSettings page={page} />
       {!page.workspace.isPersonal && !page.readOnly && page.role === 'owner' ? (
-        <SpacePanel title="Danger zone" className="border-destructive/40">
-          <p className="m-0 text-ink-muted text-sm">
-            Deleting a team workspace removes its content. This cannot be undone.
-          </p>
+        <SpacePanel title={m.deletion_danger_zone()} className="border-destructive/40">
+          <p className="m-0 text-ink-muted text-sm">{m.deletion_team_warning()}</p>
           <a
             className="inline-flex min-h-11 w-fit items-center rounded-lg border border-destructive px-4 font-semibold text-destructive"
             href={`/app/${page.workspace.slug}/delete`}
           >
-            Delete team workspace
+            {m.deletion_team_title()}
           </a>
         </SpacePanel>
       ) : null}
