@@ -2,14 +2,14 @@ import type { SiteId } from '@xuanxue/config'
 import { auditLog, type Database, type JsonValue, organization, user } from '@xuanxue/db'
 import { and, desc, eq, gte, lt, or, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { ADMIN_PAGE_SIZE } from './list.ts'
+import { ADMIN_PAGE_SIZE, adminWorkspaceIdFilter } from './list.ts'
 import { ADMIN_ALL_SITES, adminSiteFilter } from './site.ts'
 
 export const auditSearchSchema = z
   .object({
     offset: z.number().int().min(0).max(100_000),
     actor: z.string().max(200).optional(),
-    workspaceId: z.uuid().optional(),
+    workspaceId: adminWorkspaceIdFilter,
     action: z.string().max(200).optional(),
     from: z.iso.date().optional(),
     to: z.iso.date().optional(),

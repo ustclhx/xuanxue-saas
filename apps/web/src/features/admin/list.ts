@@ -1,4 +1,5 @@
 import type { DataTablePage } from '@xuanxue/ui'
+import { z } from 'zod'
 
 /**
  * 后台列表页的分页与筛选参数（add-admin-console tasks.md 1.3）：状态放在路由 search 中，
@@ -51,3 +52,19 @@ export function filtersToSearch<TFilter extends string>(
 ): AdminListSearch<TFilter> {
   return adminListSearch(filters)({ ...values, offset: 0 })
 }
+
+/** 不会存在的空间 ID：筛选值不是 UUID 时用它查询，结果自然为空 */
+export const NO_MATCH_WORKSPACE_ID = '00000000-0000-0000-0000-000000000000'
+
+/**
+ * 后台列表的空间 ID 筛选：输入来自自由文本框（可能是邮箱、半截 ID），不是 UUID 时
+ * 按「没有匹配」处理返回空列表，而不是让 Server Function 校验失败、整页报错。
+ */
+export const adminWorkspaceIdFilter = z
+  .string()
+  .transform((value) => {
+    const text = value.trim()
+    if (!text) return undefined
+    return z.uuid().safeParse(text).success ? text : NO_MATCH_WORKSPACE_ID
+  })
+  .optional()

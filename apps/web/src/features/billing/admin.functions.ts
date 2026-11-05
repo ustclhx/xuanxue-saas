@@ -23,6 +23,7 @@ import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { withAdminAction, withDelegatedAdminAction } from '../admin/action.server.ts'
 import { adminMiddleware } from '../admin/admin.functions.ts'
+import { adminWorkspaceIdFilter } from '../admin/list.ts'
 import { ADMIN_ALL_SITES, ADMIN_OTHER_SITE, assertAdminSite } from '../admin/site.ts'
 
 import {
@@ -36,7 +37,7 @@ import { requestRefundNotificationRetry, requestWebhookReplay } from './admin-wr
 
 const page = z.object({
   offset: z.number().int().min(0).max(100_000).default(0),
-  workspaceId: z.uuid().optional(),
+  workspaceId: adminWorkspaceIdFilter,
   // 列表默认当前站点；`all` 为只读的全部站点视图（split-site-accounts 决策 7）
   site: z.literal(ADMIN_ALL_SITES).optional(),
 })
