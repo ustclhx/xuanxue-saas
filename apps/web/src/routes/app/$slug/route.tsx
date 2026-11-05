@@ -3,6 +3,7 @@ import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationCenter } from '../../../features/notifications/center.tsx'
+import { roleLabel, workspaceDisplayName } from '../../../features/workspace/labels.ts'
 import { getWorkspacePage } from '../../../features/workspace/workspace.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -21,7 +22,9 @@ export const Route = createFileRoute('/app/$slug')({
   loader: ({ context }) => ({ ...context.workspacePage, chatAvailable: context.chatAvailable }),
   staleTime: 0,
   head: ({ loaderData }) => ({
-    meta: loaderData ? [{ title: `${loaderData.workspace.name} · Workspace` }] : [],
+    meta: loaderData
+      ? [{ title: m.app_document_title({ name: workspaceDisplayName(loaderData.workspace) }) }]
+      : [],
   }),
   component: WorkspaceLayout,
   notFoundComponent: () => (
@@ -69,12 +72,12 @@ function WorkspaceLayout() {
               data-testid="workspace-name"
               className="m-0 font-semibold text-ink text-base"
             >
-              {page.workspace.name}
+              {workspaceDisplayName(page.workspace)}
             </h2>
             <p className="m-0 text-ink-subtle text-sm">
               {page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
               {' · '}
-              {m.app_role({ role: page.role })}
+              {m.app_role({ role: roleLabel(page.role) })}
             </p>
             <p data-testid="current-user" className="m-0 break-all text-ink-muted text-sm">
               {page.user.name} ({page.user.email})

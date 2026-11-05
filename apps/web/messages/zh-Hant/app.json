@@ -23,5 +23,7 @@
   "app_table_apply": "套用",
   "app_table_reset": "重設",
   "app_table_filters": "篩選",
-  "app_table_pagination": "分頁"
+  "app_table_pagination": "分頁",
+  "app_personal_workspace_name": "我的空間",
+  "app_document_title": "{name} · 空間"
 }

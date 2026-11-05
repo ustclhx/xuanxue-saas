@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { SpacePage, SpacePanel, spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { CreateTeam, HydratedControls } from '../../../features/workspace/components.tsx'
+import { workspaceDisplayName } from '../../../features/workspace/labels.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
@@ -32,7 +33,7 @@ function SpaceOverviewPage() {
   const shortcuts = candidates.filter((item) => item.show)
   return (
     <SpacePage
-      title={page.workspace.name}
+      title={workspaceDisplayName(page.workspace)}
       description={page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
     >
       <SpacePanel title={m.app_overview_quick()}>

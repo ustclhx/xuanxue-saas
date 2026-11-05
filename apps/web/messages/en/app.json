@@ -23,5 +23,7 @@
   "app_table_apply": "Apply",
   "app_table_reset": "Reset",
   "app_table_filters": "Filters",
-  "app_table_pagination": "Pagination"
+  "app_table_pagination": "Pagination",
+  "app_personal_workspace_name": "Personal",
+  "app_document_title": "{name} · Workspace"
 }
