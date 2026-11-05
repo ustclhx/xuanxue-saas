@@ -27,7 +27,7 @@ description: 在本模板新增或修改公开静态页、法律页、博客与�
 | blog | `title`、`summary`、`date`；可选 `cover`、`tags`、`draft` |
 | docs | `title`、`description`、`section`；可选 `order`、`requires: publicApi` |
 
-可从 `apps/web/content/legal/en/privacy.mdx` 复制结构；法律与文档可复用 `{{appName}}`、`{{appUrl}}`、`{{supportEmail}}`、`{{refundWindowDays}}` 占位符。保留用户提供的条款与授权范围，法律内容审核和发布仍由用户决定。
+法律页按站点放在 `apps/web/content/legal/<site>/<locale>/`，可从 `apps/web/content/legal/west/en/privacy.mdx` 复制结构；两站共用的运营主体段落在 `content/legal/shared/<locale>/operator.mdx`，正文用 `{{operatorNotice}}` 引用。法律与文档可复用 `{{appName}}`、`{{appUrl}}`、`{{supportEmail}}`、`{{refundWindowDays}}` 占位符。保留用户提供的条款与授权范围，法律内容审核和发布仍由用户决定。
 
 MDX 在 Node 构建期渲染 HTML，Worker 页面读取静态结果。正文仅接受可信仓库作者内容；不要把用户提交的 MDX 或 HTML直接交给此链路。博客草稿生产构建排除，未来日期到期前不可见；到期后需要重新构建才能更新预渲染、地图和图片。
 

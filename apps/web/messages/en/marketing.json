@@ -82,6 +82,8 @@
   "marketing_docs_search_placeholder": "Search…",
   "marketing_docs_search_empty": "No results.",
   "marketing_legal_english_only": "This page is currently available in English only.",
+  "marketing_legal_updated": "Last updated: {date}",
+  "marketing_legal_contact": "Contact:",
   "pricing_h1": "Pricing",
   "pricing_intro": "Every chart, calculator and tarot spread on this site is free. Credits are only for full AI readings — an in-depth written interpretation of your own chart or cards.",
   "pricing_payments_soon": "Online payment is coming soon. You can use all free tools now; credit packs will be available to buy shortly.",

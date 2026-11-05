@@ -11,7 +11,8 @@ import { RichContent } from './rich-content.tsx'
 
 /**
  * 法律页只有四个，路径不带 /legal 前缀，只从页脚进入（launch-v1-production 法律页需求）。
- * 合规按语言而不是国家处理：先只有英文一份，其他语言的同一路径显示英文正文并标注，且不进索引。
+ * 正文按站点分开（product-improve-ai-content D4），两站共用一段运营主体说明；站点缺少某种语言时
+ * 显示同站点默认语言的正文并标注，且不进索引。
  */
 
 type LegalPageData = Awaited<ReturnType<typeof getLegalPage>>
@@ -35,14 +36,14 @@ export function legalRouteOptions(slug: LegalSlug) {
           locale,
           title: loaderData.title,
           description: loaderData.description,
-          // 分享图只为英文页生成
+          // 分享图只为有原文的语言生成
           ...(fallback
             ? { cover: ogImagePath({ path: `/${slug}`, locale: loaderData.locale }) }
             : {}),
         },
         originFromMatches(matches),
       )
-      // 其他语言显示的是英文原文：不进索引，避免与英文页重复
+      // 回退显示的是另一语言的原文：不进索引，避免与原文页重复
       if (!fallback) return head
       return { ...head, meta: [...head.meta, { name: 'robots', content: 'noindex, follow' }] }
     },
@@ -69,9 +70,11 @@ export function LegalPage({ page }: { page: LegalPageData }) {
           <h1 className="font-bold text-4xl tracking-tight">{page.title}</h1>
           <RichContent html={html} />
           <footer className="mt-8 grid gap-1 border-line border-t pt-4 text-muted-foreground text-sm">
-            <p className="m-0">Last updated: {formatDate(page.updatedAt, 'en')}</p>
             <p className="m-0">
-              Contact:{' '}
+              {m.marketing_legal_updated({ date: formatDate(page.updatedAt, page.locale) })}
+            </p>
+            <p className="m-0">
+              {m.marketing_legal_contact()}{' '}
               <a href={`mailto:${email}`} className="underline">
                 {email}
               </a>
