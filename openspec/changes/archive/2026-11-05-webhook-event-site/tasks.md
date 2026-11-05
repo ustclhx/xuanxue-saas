@@ -19,4 +19,4 @@
 ## 4. 集成验证
 
 - [x] 4.1 `pnpm check`、`pnpm check:deps`、`pnpm typecheck`、`pnpm test`、`pnpm build` 通过，`apps/web` 下 `pnpm test:e2e:smoke` 通过
-- [ ] 4.2 合并后 staging 部署成功（迁移执行），在 staging 后台打开回调列表，站点列显示与筛选正常；结果记入仓库外证据目录
+- [x] 4.2 合并后 staging 部署成功（迁移执行），在 staging 后台打开回调列表，站点列显示与筛选正常；结果记入仓库外证据目录
