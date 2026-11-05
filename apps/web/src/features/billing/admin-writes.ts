@@ -1,3 +1,4 @@
+import { attributeWebhookEvent } from '@xuanxue/billing'
 import type { SiteId } from '@xuanxue/config'
 import { organization, type PaymentProviderId, refundRequest, webhookEvent } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
@@ -19,14 +20,22 @@ export async function requestWebhookReplay(
   currentSite: SiteId,
   providerAvailable: (provider: PaymentProviderId) => boolean,
 ) {
-  const [found] = await tx
-    .select({
-      provider: webhookEvent.provider,
-      status: webhookEvent.status,
-      sites: webhookEvent.sites,
-    })
-    .from(webhookEvent)
-    .where(eq(webhookEvent.id, webhookEventId))
+  const select = () =>
+    tx
+      .select({
+        provider: webhookEvent.provider,
+        status: webhookEvent.status,
+        sites: webhookEvent.sites,
+      })
+      .from(webhookEvent)
+      .where(eq(webhookEvent.id, webhookEventId))
+  const [current] = await select()
+  if (current?.status !== 'failed')
+    throw new AppError('WEBHOOK_NOT_REPLAYABLE', 'Only failed records can be replayed')
+  // 失败事件的归属可能早于后来补齐的本地账务（如订阅由另一事件建立）：校验前按最新记录重算，
+  // 避免以过期的「未知站点」放行另一站的重放；已处理事件的归属保持不变
+  await attributeWebhookEvent(tx, webhookEventId)
+  const [found] = await select()
   if (found?.status !== 'failed')
     throw new AppError('WEBHOOK_NOT_REPLAYABLE', 'Only failed records can be replayed')
   const other = found.sites.find((site) => site !== currentSite)

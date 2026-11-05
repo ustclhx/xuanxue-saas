@@ -294,4 +294,25 @@ describe('账务后台写操作按站点', () => {
       ])
     }
   })
+
+  it('回调重放：失败时无法关联、之后本地账务补齐到另一站的事件，重放前按最新记录重算并拒绝', async () => {
+    const sub = newId()
+    const event = newId()
+    await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${event},'stripe',${event},'fixture',${JSON.stringify({ data: { object: { id: sub } } })}::jsonb,'failed')`
+    try {
+      await db.transaction((tx) => attributeWebhookEvent(tx, event))
+      const all = await listAdminWebhooks(db, { offset: 0, site: 'all' }, 'east')
+      expect(all.rows.find((row) => row.id === event)?.sites).toEqual([])
+      await db.$client`insert into subscription(id,workspace_id,plan_id,plan_price_id,provider,provider_subscription_id,status,last_event_at) values(${newId()},${f.west.ws},${plan},${price},'stripe',${sub},'canceled',now())`
+      await expect(
+        runAdminAction(context(), 'billing.webhook_replay', (scope) =>
+          requestWebhookReplay(scope, event, 'east', () => true),
+        ),
+      ).rejects.toMatchObject(otherSite)
+      expect(await auditsFor(event)).toHaveLength(0)
+    } finally {
+      await db.$client`delete from subscription where provider_subscription_id=${sub}`
+      await db.$client`delete from webhook_event where id=${event}`
+    }
+  })
 })

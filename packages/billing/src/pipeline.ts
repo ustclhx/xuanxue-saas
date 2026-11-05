@@ -5,6 +5,7 @@ import {
   type WebhookEvent,
   webhookEvent,
 } from '@xuanxue/db'
+import { log } from '@xuanxue/shared/log'
 import { and, eq, sql } from 'drizzle-orm'
 import { billingErrorMessage, isRetryableBillingError } from './errors.ts'
 import type { NormalizedEvent, PaymentProvider, VerifiedWebhook } from './provider.ts'
@@ -137,8 +138,13 @@ async function markFailed(db: Database, id: string, error: string) {
       .where(eq(webhookEvent.id, id))
       .for('update')
     if (!current) throw new Error('Webhook delivery not found')
-    // 业务事务已回滚：按载荷与现有本地账务重算归属，失败事件也能按站点显示与校验重放
-    await attributeWebhookEvent(tx, id)
+    // 业务事务已回滚：按载荷与现有本地账务重算归属，失败事件也能按站点显示与校验重放。
+    // 放在保存点内：归属计算出错只保留原归属，失败状态仍须落库，否则事件无法重放
+    await tx
+      .transaction((savepoint) => attributeWebhookEvent(savepoint, id))
+      .catch((cause) => {
+        log.warn('billing.webhook_attribution_failed', { deliveryId: id, error: cause })
+      })
     // Every actual failed attempt counts, even if a newer attempt committed while this marker waited.
     const terminal = current.status === 'processed' || current.status === 'ignored'
     const [delivery] = await tx
