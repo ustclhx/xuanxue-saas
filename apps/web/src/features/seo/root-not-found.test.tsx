@@ -12,6 +12,7 @@ vi.mock('../../styles/app.css?url', () => ({ default: '/app.css' }))
 vi.mock('./origin.functions.ts', () => ({
   getSafeImpersonation: async () => null,
   getSeoOrigin: async () => 'https://arcanumber.com',
+  getPlausibleSite: async () => null,
 }))
 vi.mock('../site/site.functions.ts', () => ({ getCurrentSite: vi.fn() }))
 vi.mock('../marketing/content.functions.ts', () => ({ getBlogLocales: async () => [] }))

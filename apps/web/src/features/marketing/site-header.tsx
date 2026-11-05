@@ -1,4 +1,4 @@
-import { useLocation } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { siteBrandName } from '@xuanxue/config'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
@@ -79,6 +79,11 @@ export function SiteHeader() {
             <SiteLink path="/blog" locale={locale} navLocale={navLocale} className={navLink}>
               {m.marketing_nav_blog()}
             </SiteLink>
+          )}
+          {!englishEntry && site.guides && (
+            <Link to="/guides" className={navLink}>
+              {m.marketing_nav_guides()}
+            </Link>
           )}
           {!englishEntry && site.docs && (
             <SiteLink path="/docs" locale={locale} navLocale={navLocale} className={navLink}>

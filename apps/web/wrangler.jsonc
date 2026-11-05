@@ -81,6 +81,9 @@
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-staging" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "staging",
+        // 2026-11-06 用户决定：staging 不接入 Plausible（两项为空即不注入脚本、不发服务端事件）
+        "PLAUSIBLE_DOMAIN": "",
+        "PLAUSIBLE_HOST": "",
         "PAYMENT_MODE": "test",
         "APP_URL": "https://xuanxue-web-staging.saas-jobs.workers.dev",
         "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
@@ -125,6 +128,10 @@
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
+        // 多站：按访问域名选择 site，未登记域名不统计（PLAUSIBLE_DOMAIN 留空，docs/analytics.md §4）；与 jobs 一致
+        "PLAUSIBLE_DOMAIN": "",
+        "PLAUSIBLE_HOST": "https://stats.ganjiday.com",
+        "PLAUSIBLE_SITES": "ganjiday.com=ganjiday.com,arcanumber.com=arcanumber.com",
         "PAYMENT_MODE": "live",
         "APP_URL": "https://arcanumber.com",
         "TURNSTILE_SITE_KEY": "0x4AAAAAAFdAs5UkBviOud_w",

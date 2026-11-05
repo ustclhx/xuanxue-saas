@@ -161,7 +161,10 @@ const docs = defineCollection({
     if (document.requires && !templateConfig.features[document.requires])
       return context.skip(`features.${document.requires}=false`)
     const { content, requires: _requires, ...data } = document
-    const html = await renderMdx(context, { ...document, content: fillPlaceholders(content) })
+    const html = await renderMdx(context, {
+      ...document,
+      content: fillPlaceholders(content),
+    })
     // 构建期生成的搜索文本，客户端按它做全文匹配（design.md 决策 1）
     return { ...data, ...localeAndSlug(document._meta), html, searchText: plainText(html) }
   },
@@ -288,6 +291,29 @@ const concepts = defineCollection({
   },
 })
 
+const guides = defineCollection({
+  name: 'guides',
+  directory: 'content/guides',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    /** 结论：页面置顶显示，也是 meta description */
+    answer_summary: z.string().min(1),
+    /** 同时渲染为页面 FAQ 与 FAQPage JSON-LD */
+    faq: z.array(z.object({ q: z.string().min(1), a: z.string().min(1) })).min(1),
+    kind: z.enum(['how-to', 'is-it-free', 'trends']),
+    updatedAt: isoDate,
+    draft: z.boolean().default(false),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    if (!templateConfig.features.guides) return context.skip('features.guides=false')
+    if (document.draft && !includeDrafts) return context.skip('draft')
+    const { content, ...data } = document
+    return { ...data, ...localeAndSlug(document._meta), html: await renderMdx(context, document) }
+  },
+})
+
 export default defineConfig({
-  content: [posts, legalShared, legalPages, docs, numerology, tarot, concepts],
+  content: [posts, legalShared, legalPages, docs, numerology, tarot, concepts, guides],
 })

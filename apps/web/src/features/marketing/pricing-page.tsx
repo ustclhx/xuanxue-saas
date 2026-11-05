@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { trackEvent } from '../analytics/track.ts'
 import { GrowthForm } from '../growth/forms.tsx'
 import { FxAttribution } from '../readings/fx-attribution.tsx'
 import { formatPrice, LOCAL_CURRENCY, type LocalRates } from '../readings/price.ts'
@@ -68,6 +69,7 @@ export function PricingPage({
 }) {
   const locale = getLocale()
   // 汇率在浏览器中获取：预渲染时为空，不显示当地货币价格；读取失败时保持为空
+  useEffect(() => trackEvent('paywall_view'), [])
   const [rates, setRates] = useState<LocalRates | null>(null)
   useEffect(() => {
     getLocalRates().then(setRates, () => undefined)

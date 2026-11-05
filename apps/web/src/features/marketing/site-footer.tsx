@@ -41,9 +41,14 @@ export function SiteFooter() {
             {m.marketing_nav_get_started()}
           </Link>
         </FooterColumn>
-        {(blog || site.docs) && (
+        {(blog || site.docs || site.guides) && (
           <FooterColumn title={m.marketing_footer_resources()}>
             {blog && link('/blog', m.marketing_nav_blog())}
+            {site.guides && (
+              <Link to="/guides" className={footerLink}>
+                {m.marketing_nav_guides()}
+              </Link>
+            )}
             {site.docs && link('/docs', m.marketing_nav_docs())}
           </FooterColumn>
         )}

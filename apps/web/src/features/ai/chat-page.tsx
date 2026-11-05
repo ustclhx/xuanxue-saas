@@ -3,9 +3,10 @@ import { Link } from '@tanstack/react-router'
 import { estimateInputTokens } from '@xuanxue/ai/client'
 import { Button, Label } from '@xuanxue/ui'
 import { DefaultChatTransport } from 'ai'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { trackEvent } from '../analytics/track.ts'
 import { FormAlert } from '../auth/auth-layout.tsx'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
@@ -94,6 +95,7 @@ export function ChatPage({
     messages: initialMessages,
     transport,
     onFinish: ({ messages, isError, isAbort }) => {
+      if (!isAbort) trackEvent(isError ? 'generate_fail' : 'generate_success')
       // 新建的对话标题为空：首轮回复完成后取首条消息作为标题
       if (isError || isAbort || titleRef.current) return
       const first = messages.find((message) => message.role === 'user')
@@ -112,6 +114,10 @@ export function ChatPage({
     { text: input },
   ])
   const errorCode = error ? chatErrorCode(error) : undefined
+  const blockedByPaywall = errorCode !== undefined && BILLING_CODES.has(errorCode)
+  useEffect(() => {
+    if (blockedByPaywall) trackEvent('paywall_view')
+  }, [blockedByPaywall])
 
   function submit() {
     const text = input.trim()
@@ -119,6 +125,7 @@ export function ChatPage({
     setStopError(null)
     clearError()
     setInput('')
+    trackEvent('generate_start')
     void sendMessage({ text })
   }
 

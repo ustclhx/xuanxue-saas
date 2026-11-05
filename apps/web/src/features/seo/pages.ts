@@ -27,6 +27,14 @@ interface Page {
   title: string
   description: string
 }
+interface Guide {
+  slug: string
+  locale: string
+  title: string
+  answer_summary: string
+  draft: boolean
+}
+
 interface LegalPage extends Page {
   /** 法律页按站点分开（content/legal/<site>/<locale>/） */
   site?: string
@@ -38,6 +46,7 @@ export function publicPages(
     posts: readonly Post[]
     legal: readonly LegalPage[]
     docs: readonly Page[]
+    guides?: readonly Guide[]
     /** 工具自带 SEO 文案的页面（如 numerology 的工具内页与内容页），按自身 locale 收录并按路径去重 */
     toolPages?: readonly SeoPage[]
   },
@@ -93,6 +102,21 @@ export function publicPages(
           )
           .map((page) => ({ ...page, locale, path: `/${encodeURIComponent(page.slug)}` })),
       )
+      if (config.features.guides) {
+        pages.push(staticPage('/guides', locale))
+        pages.push(
+          ...localizedEntries(
+            (content.guides ?? []).filter((guide) => !guide.draft),
+            locale,
+            defaultLocale,
+          ).map((guide) => ({
+            locale,
+            path: `/guides/${encodeURIComponent(guide.slug)}`,
+            title: guide.title,
+            description: guide.answer_summary,
+          })),
+        )
+      }
       if (config.features.docs) {
         pages.push(staticPage('/docs', locale))
         pages.push(

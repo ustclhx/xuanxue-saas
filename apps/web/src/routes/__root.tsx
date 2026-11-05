@@ -16,7 +16,11 @@ import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { privateMeta } from '../features/seo/metadata.ts'
-import { getSafeImpersonation, getSeoOrigin } from '../features/seo/origin.functions.ts'
+import {
+  getPlausibleSite,
+  getSafeImpersonation,
+  getSeoOrigin,
+} from '../features/seo/origin.functions.ts'
 import { SiteContext } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
@@ -28,14 +32,15 @@ import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
   loader: async () => {
-    const [impersonation, announcement, appUrl, site, blogLocales] = await Promise.all([
+    const [impersonation, announcement, appUrl, site, blogLocales, plausible] = await Promise.all([
       getSafeImpersonation(),
       getAnnouncement(),
       getSeoOrigin(),
       getCurrentSite(),
       getBlogLocales(),
+      getPlausibleSite(),
     ])
-    return { impersonation, announcement, appUrl, site, blogLocales }
+    return { impersonation, announcement, appUrl, site, blogLocales, plausible }
   },
   staleTime: Infinity,
   head: ({ matches, loaderData }) => ({
@@ -62,6 +67,7 @@ export const Route = createRootRoute({
         matches.at(-1)?.pathname ?? '/',
         loaderData?.site ?? { id: 'west', known: false },
         templateConfig,
+        loaderData?.plausible,
       ),
     ],
   }),

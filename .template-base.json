@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "repository": "https://github.com/ustclhx/saas-template",
-  "commit": "79292926839539ea202c05b91aa4c876c39c7e9f",
-  "version": "0.2.0",
+  "commit": "9235e90ca2f06818076a93aab47db0618e57d56c",
+  "version": "0.2.1",
   "clean": true,
   "params": {
     "ai": [
@@ -54,6 +54,8 @@
     "0015_node_job_scheduling",
     "0016_job_engine_app_dead_letter",
     "0017_audit_meta_remove_personal_data",
-    "0018_ai_task_cancel_billing"
+    "0018_ai_task_cancel_billing",
+    "0019_user_attribution",
+    "0020_user_attribution_signup_host"
   ]
 }
