@@ -23,7 +23,5 @@
   "app_table_apply": "적용",
   "app_table_reset": "초기화",
   "app_table_filters": "필터",
-  "app_table_pagination": "페이지 탐색",
-  "app_personal_workspace_name": "내 워크스페이스",
-  "app_document_title": "{name} · 워크스페이스"
+  "app_table_pagination": "페이지 탐색"
 }

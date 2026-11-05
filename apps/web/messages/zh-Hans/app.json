@@ -23,7 +23,5 @@
   "app_table_apply": "应用",
   "app_table_reset": "重置",
   "app_table_filters": "筛选",
-  "app_table_pagination": "分页",
-  "app_personal_workspace_name": "我的空间",
-  "app_document_title": "{name} · 空间"
+  "app_table_pagination": "分页"
 }

@@ -13,14 +13,21 @@ import { z } from 'zod'
 import { m } from '../../paraglide/messages.js'
 import { FormAlert } from '../auth/auth-layout.tsx'
 import { actionResult, activateWorkspace, workspaceAction } from './client.ts'
-import { roleLabel } from './labels.ts'
 import type { getWorkspacePage } from './workspace.functions.ts'
 
+const roleLabels: Record<string, () => string> = {
+  owner: () => m.workspace_role_owner(),
+  admin: () => m.workspace_role_admin(),
+  member: () => m.workspace_role_member(),
+}
 const invitationStatusLabels: Record<string, () => string> = {
   pending: () => m.workspace_invitation_pending(),
   accepted: () => m.workspace_invitation_accepted(),
   rejected: () => m.workspace_invitation_rejected(),
   canceled: () => m.workspace_invitation_canceled(),
+}
+function roleLabel(role: string) {
+  return roleLabels[role]?.() ?? role
 }
 function invitationStatusLabel(status: string) {
   return invitationStatusLabels[status]?.() ?? status

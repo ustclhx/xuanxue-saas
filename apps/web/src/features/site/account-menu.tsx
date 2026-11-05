@@ -2,7 +2,6 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
-import { workspaceDisplayName } from '../workspace/labels.ts'
 import { getViewerSpaces } from '../workspace/viewer.functions.ts'
 import { closeHeaderMenu, HeaderMenu, UserIcon } from './header-menu.tsx'
 
@@ -60,7 +59,7 @@ export function AccountMenu() {
           onClick={(event) => closeHeaderMenu(event.currentTarget)}
           className="flex min-h-11 items-center justify-between gap-6 rounded-lg px-3 text-[15px] text-ink transition-colors hover:bg-surface-2"
         >
-          <span>{workspaceDisplayName(space)}</span>
+          <span>{space.name}</span>
           {space.isPersonal ? (
             <span className="text-ink-subtle text-xs">{m.app_personal_workspace()}</span>
           ) : null}
