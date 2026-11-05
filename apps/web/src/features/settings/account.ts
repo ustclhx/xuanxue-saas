@@ -17,7 +17,7 @@ export interface AccountView {
   readonly hasPassword: boolean
   /** 模板配置 `auth.twoFactor` */
   readonly twoFactorAvailable: boolean
-  /** 可选的界面语言（模板配置 `i18n.locales`） */
+  /** 可选的界面语言：只列账户所属站点的语言（specs/multi-site「应用区…以访客当前站点的语言显示」） */
   readonly locales: readonly string[]
 }
 
@@ -44,6 +44,6 @@ export async function loadAccount(
     },
     hasPassword: Boolean(credential?.password),
     twoFactorAvailable: config.auth.twoFactor,
-    locales: config.i18n.locales,
+    locales: config.sites[user.site].locales,
   }
 }
