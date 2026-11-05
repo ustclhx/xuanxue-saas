@@ -76,7 +76,7 @@ async function hash(schema: unknown) {
 }
 
 beforeAll(async () => {
-  await db.$client`insert into "user"(id,name,email,role) values(${adminId},'Admin',${`${adminId}@admin-model-test.example`},'admin')`
+  await db.$client`insert into "user"(id,name,email,role,site) values(${adminId},'Admin',${`${adminId}@admin-model-test.example`},'admin','west')`
 })
 beforeEach(() => {
   runtime.env = { SENTRY_ENVIRONMENT: 'staging', AI_FAULT_INJECTION: 'enabled' }

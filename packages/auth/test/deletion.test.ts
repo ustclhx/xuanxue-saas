@@ -154,7 +154,7 @@ describe('atomic deletion in workerd', () => {
     await expect(requireFreshSession(owner.options)).rejects.toMatchObject({
       code: 'SESSION_REQUIRED',
     })
-    expect(await env.CACHE.get(`auth:active-sessions-${owner.id}`)).toBeNull()
+    expect(await env.CACHE.get(`auth:west:active-sessions-${owner.id}`)).toBeNull()
     expect(
       await a.db.query.account.findFirst({ where: (u, { eq }) => eq(u.userId, owner.id) }),
     ).toBeUndefined()
@@ -290,7 +290,7 @@ describe('atomic deletion in workerd', () => {
     expect(reset?.type).toBe('reset-password')
     const oldRows = await a.db.query.verification.findMany()
     for (const row of oldRows)
-      await env.CACHE.put(`auth:verification:${row.identifier}`, JSON.stringify(row))
+      await env.CACHE.put(`auth:west:verification:${row.identifier}`, JSON.stringify(row))
     deleted.push(owner)
     fail = true
     const response = await a.post('/deletion/account', {}, { cookie: owner.cookie })
@@ -329,10 +329,10 @@ describe('atomic deletion in workerd', () => {
     })
     expect(row).toBeTruthy()
     // Simulate a newer cached value. Retry must never delete this reusable email key.
-    await env.CACHE.put(`auth:verification:${row?.identifier}`, JSON.stringify(row))
+    await env.CACHE.put(`auth:west:verification:${row?.identifier}`, JSON.stringify(row))
     fail = false
     expect(await retryDeletionCleanup(a.db, kv)).toEqual({ completed: 1, failed: 0 })
-    expect(await env.CACHE.get(`auth:verification:${row?.identifier}`)).not.toBeNull()
+    expect(await env.CACHE.get(`auth:west:verification:${row?.identifier}`)).not.toBeNull()
     expect(await retryDeletionCleanup(a.db, kv)).toEqual({ completed: 0, failed: 0 })
     if (replacement?.type === 'otp')
       expect(

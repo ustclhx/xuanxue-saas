@@ -1,5 +1,6 @@
 import type { WebRuntime } from '../../server/runtime.ts'
 import { isAdminNotFound, requireAdmin } from './guard.ts'
+import { NOT_FOUND_PATH } from './not-found-path.ts'
 
 /**
  * `/admin/**` 页面请求在交给 TanStack Start 之前的守卫（tasks.md 5.1）。
@@ -13,8 +14,7 @@ import { isAdminNotFound, requireAdmin } from './guard.ts'
  */
 
 export const ADMIN_PATH = '/admin'
-/** 保证不存在的路径（不要为它新增路由） */
-export const NOT_FOUND_PATH = '/__not-found'
+export { NOT_FOUND_PATH }
 
 export function isGatedAdminPath(pathname: string): boolean {
   if (pathname.length > 1 && pathname.endsWith('/')) return false

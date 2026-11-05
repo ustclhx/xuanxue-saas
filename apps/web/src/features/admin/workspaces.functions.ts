@@ -7,6 +7,7 @@ import { withCredits } from '../../server/feature-gates.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { adminMiddleware } from './admin.functions.ts'
+import { ADMIN_ALL_SITES } from './site.ts'
 import { executeAdminWorkspaceRestore } from './workspaces.server.ts'
 import { adminWorkspaceDetail, listAdminWorkspaces } from './workspaces.ts'
 
@@ -17,9 +18,10 @@ export const getAdminWorkspaces = createServerFn({ method: 'GET' })
       offset: z.number().int().min(0).max(100_000),
       q: z.string().max(200).optional(),
       status: z.enum(['active', 'deleted']).optional(),
+      site: z.literal(ADMIN_ALL_SITES).optional(),
     }),
   )
-  .handler(({ context, data }) => listAdminWorkspaces(context.db, data))
+  .handler(({ context, data }) => listAdminWorkspaces(context.db, data, context.site))
 
 export const getAdminWorkspace = createServerFn({ method: 'GET' })
   .middleware([adminMiddleware])

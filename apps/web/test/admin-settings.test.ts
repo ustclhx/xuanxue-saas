@@ -34,6 +34,7 @@ it('保存设置后清除旧 KV 值，拒绝未受邀注册，并审计每项的
   const ctx = { store: dbSettingStore(db), cache }
   try {
     await db.insert(user).values({
+      site: 'west',
       ...admin,
       name: 'Settings admin',
       email: `${admin.id}@settings.test`,

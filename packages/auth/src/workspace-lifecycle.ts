@@ -1,4 +1,4 @@
-import { templateConfigDefaults } from '@xuanxue/config'
+import { type SiteId, templateConfigDefaults } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import { AppError, newId } from '@xuanxue/shared'
 import type { BetterAuthPlugin } from 'better-auth'
@@ -55,9 +55,11 @@ export async function restoreWorkspace(options: {
       where s.token=${fresh.session.token} and s.expires_at>clock_timestamp() and s.impersonated_by is null
       and u.role='admin' and not (coalesce(u.banned,false) and (u.ban_expires is null or u.ban_expires>clock_timestamp())) for update of u,s`
     if (!admin) refuse('ADMIN_REQUIRED', 'Active platform administrator session required')
+    // 只恢复当前站点的空间（split-site-accounts 决策 7）：另一站的空间与不存在的空间同样 404，
+    // 原 owner 也只认同站账户（成员与空间同站，见决策 5）。
     const [workspace] = await sql<{ is_personal: boolean; eligible: boolean }[]>`
       select is_personal,deleted_at>clock_timestamp()-(${WORKSPACE_RETENTION_DAYS} * interval '1 day') as eligible
-      from organization where id=${workspaceId} and deleted_at is not null for update`
+      from organization where id=${workspaceId} and site=${options.auth.site} and deleted_at is not null for update`
     if (!workspace) refuse('WORKSPACE_NOT_FOUND', 'Deleted workspace not found', 404)
     const current = await latestDeletion(sql, workspaceId)
     if (current?.id !== deletion.id)
@@ -66,7 +68,7 @@ export async function restoreWorkspace(options: {
       refuse('WORKSPACE_RETENTION_EXPIRED', 'Workspace retention period has ended', 409)
     const valid: string[] = []
     for (const id of owners) {
-      const [owner] = await sql`select id from "user" where id=${id}
+      const [owner] = await sql`select id from "user" where id=${id} and site=${options.auth.site}
         and email<>${`deleted+${id}@invalid`}
         and not (coalesce(banned,false) and (ban_expires is null or ban_expires>clock_timestamp())) for update`
       if (!owner) continue
@@ -154,6 +156,7 @@ async function lockExpired(sql: Transaction, workspaceId: string) {
 /** Mount separately in createAuth; all authorization comes from the current database session. */
 export function workspaceLifecyclePlugin(
   db: Database,
+  site: SiteId,
   maxWorkspacesPerUser = templateConfigDefaults.tenancy.maxWorkspacesPerUser as number,
   clientIp?: string | null,
 ) {
@@ -176,7 +179,7 @@ export function workspaceLifecyclePlugin(
                 maxWorkspacesPerUser,
                 workspaceId: ctx.body.workspaceId,
                 headers: ctx.headers,
-                auth: { $context: Promise.resolve(ctx.context) },
+                auth: { site, $context: Promise.resolve(ctx.context) },
               }),
             )
           } catch (error) {

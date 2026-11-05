@@ -33,8 +33,11 @@ async function pgError(
 async function seed(db: Database) {
   const userId = newId()
   const orgId = newId()
-  await db.insert(user).values({ id: userId, name: 'Test', email: `${userId}@example.test` })
+  await db
+    .insert(user)
+    .values({ site: 'west', id: userId, name: 'Test', email: `${userId}@example.test` })
   await db.insert(organization).values({
+    site: 'west',
     id: orgId,
     name: 'Personal',
     slug: `u-${orgId.slice(-12)}`,
@@ -85,7 +88,9 @@ describe('认证与租户表（Hyperdrive → 本地 Postgres）', () => {
   it('id 列拒绝非 UUID 的字符串', async () => {
     const db = open()
     const error = await pgError(
-      db.insert(user).values({ id: 'not-a-uuid', name: 'x', email: `${newId()}@example.test` }),
+      db
+        .insert(user)
+        .values({ site: 'west', id: 'not-a-uuid', name: 'x', email: `${newId()}@example.test` }),
     )
     expect(error.code).toBe('22P02') // invalid_text_representation
   })
@@ -173,7 +178,7 @@ describe('认证与租户表（Hyperdrive → 本地 Postgres）', () => {
     const otherOrg = newId()
     try {
       const error = await pgError(
-        db.insert(organization).values({ id: otherOrg, name: 'Other', slug }),
+        db.insert(organization).values({ site: 'west', id: otherOrg, name: 'Other', slug }),
       )
       expect(error).toEqual({ code: '23505', constraint: 'organization_slug_unique' })
     } finally {

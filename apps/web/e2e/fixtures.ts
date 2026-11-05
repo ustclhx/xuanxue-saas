@@ -63,23 +63,56 @@ export async function seedWorkspaceSeats(slug: string) {
   }
 }
 
-export async function register(page: Page, email: string, name = 'Workspace Owner') {
+/** 认证表单的可访问名称；东方站无前缀认证页跳到繁体中文（features/i18n/auth-locale.ts），用 zh-Hant 文案 */
+export const AUTH_FORM_COPY = {
+  en: {
+    registerForm: 'Create an account',
+    registerButton: 'Create account',
+    name: 'Name',
+    email: 'Email',
+    password: 'Password',
+    signInForm: 'Sign in with password',
+    signInButton: 'Sign in',
+  },
+  'zh-Hant': {
+    registerForm: '建立帳號',
+    registerButton: '建立帳號',
+    name: '姓名',
+    email: '電子郵件',
+    password: '密碼',
+    signInForm: '使用密碼登入',
+    signInButton: '登入',
+  },
+} as const
+type AuthFormCopy = (typeof AUTH_FORM_COPY)[keyof typeof AUTH_FORM_COPY]
+
+export async function register(
+  page: Page,
+  email: string,
+  name = 'Workspace Owner',
+  copy: AuthFormCopy = AUTH_FORM_COPY.en,
+) {
   await page.goto('/register')
-  const form = page.getByRole('form', { name: 'Create an account' })
-  await form.getByLabel('Name', { exact: true }).fill(name)
-  await form.getByLabel('Email', { exact: true }).fill(email)
-  await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
-  await form.getByRole('button', { name: 'Create account' }).click()
+  const form = page.getByRole('form', { name: copy.registerForm })
+  await form.getByLabel(copy.name, { exact: true }).fill(name)
+  await form.getByLabel(copy.email, { exact: true }).fill(email)
+  await form.getByLabel(copy.password, { exact: true }).fill(PASSWORD)
+  await form.getByRole('button', { name: copy.registerButton }).click()
   await expect(page).toHaveURL(HOME_URL)
   await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
 }
-export async function login(page: Page, email: string, path = '/login') {
+export async function login(
+  page: Page,
+  email: string,
+  path = '/login',
+  copy: AuthFormCopy = AUTH_FORM_COPY.en,
+) {
   await page.goto(path)
-  const form = page.getByRole('form', { name: 'Sign in with password' })
-  await form.getByLabel('Email', { exact: true }).fill(email)
-  await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
-  await form.getByRole('button', { name: 'Sign in', exact: true }).click()
+  const form = page.getByRole('form', { name: copy.signInForm })
+  await form.getByLabel(copy.email, { exact: true }).fill(email)
+  await form.getByLabel(copy.password, { exact: true }).fill(PASSWORD)
+  await form.getByRole('button', { name: copy.signInButton, exact: true }).click()
   await expect(page).not.toHaveURL(/\/login(?:\?|$)/)
   // 直接登录的默认去向是首页；需要空间页的用例显式进入 /app
   if (path === '/login') {

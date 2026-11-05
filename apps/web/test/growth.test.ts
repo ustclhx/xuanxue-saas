@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers'
 import { createAuth } from '@xuanxue/auth'
-import { defineTemplateConfig } from '@xuanxue/config'
+import { defineTemplateConfig, siteBrandName } from '@xuanxue/config'
 import { auditLog, createDb, newsletterSubscriber, setting, user, waitlist } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import { AppError, newId } from '@xuanxue/shared'
@@ -33,6 +33,7 @@ const config = defineTemplateConfig({
 })
 const messages: EmailQueueMessage[] = []
 const ctx: GrowthContext = {
+  site: 'west',
   db,
   config,
   secret: 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz',
@@ -48,6 +49,7 @@ const ctx: GrowthContext = {
 }
 const email = () => `${newId()}@${domain}`
 const runtime: GrowthRuntime = {
+  site: 'west',
   config: { APP_URL: appUrl, BETTER_AUTH_SECRET: ctx.secret, TURNSTILE_SECRET_KEY: undefined },
   db,
   emailQueue: { available: false },
@@ -71,6 +73,7 @@ function auth() {
     },
     db,
     {
+      site: 'west',
       config,
       sendEmail: async () => {},
       beforeUserCreate: async (account, headers) => {
@@ -287,18 +290,23 @@ describe('Waitlist', () => {
 describe('增长邮件收件人语言', () => {
   it('已注册中文收件人的 waitlist 邀请和 newsletter 确认均以账号语言入队', async () => {
     const address = email()
-    await db
-      .insert(user)
-      .values({ id: newId(), name: '中文订阅者', email: address, locale: 'zh-Hant' })
+    await db.insert(user).values([
+      { site: 'east', id: newId(), name: 'East', email: address, locale: 'en' },
+      { site: 'west', id: newId(), name: '中文订阅者', email: address, locale: 'zh-Hant' },
+    ])
     await invite(address)
     expect(messages.at(-1)).toMatchObject({
       template: 'waitlist-invitation',
+      site: 'west',
+      appName: siteBrandName(config, 'west', 'zh-Hant'),
       locale: 'zh-Hant',
       to: address,
     })
     await subscribeNewsletter(ctx, address)
     expect(messages.at(-1)).toMatchObject({
       template: 'newsletter-confirmation',
+      site: 'west',
+      appName: siteBrandName(config, 'west', 'zh-Hant'),
       locale: 'zh-Hant',
       to: address,
     })
@@ -322,6 +330,7 @@ describe('Newsletter', () => {
       .from(newsletterSubscriber)
       .where(eq(newsletterSubscriber.email, address))
     if (!row) throw new Error('Missing subscriber')
+    expect(row.site).toBe('west')
     expect(await newsletterSendingList(ctx)).toEqual(
       expect.arrayContaining([expect.objectContaining({ email: address })]),
     )
@@ -338,7 +347,8 @@ describe('Newsletter', () => {
     await expect(updateNewsletterStatus(ctx, token, 'confirm')).rejects.toMatchObject({
       code: 'INVALID_TOKEN',
     })
-    await subscribeNewsletter(ctx, address)
+    await subscribeNewsletter({ ...ctx, site: 'east' }, address)
+    expect(await subscriber(address)).toMatchObject({ site: 'east' })
     await expect(updateNewsletterStatus(ctx, token, 'confirm')).rejects.toMatchObject({
       code: 'INVALID_TOKEN',
     })
@@ -427,6 +437,7 @@ describe('Newsletter', () => {
 
 const readingCtx: GrowthContext = {
   ...ctx,
+  site: 'east',
   config: { ...config, sites: templateConfig.sites, i18n: templateConfig.i18n },
 }
 const baziOptin: ReadingOptin = {
@@ -460,7 +471,10 @@ describe('结果订阅与解读投递', () => {
     const response = await submitGrowth(
       new Request(`${appUrl}/api/newsletter`, {
         method: 'POST',
-        body: JSON.stringify({ email: address.toUpperCase(), reading: baziOptin }),
+        body: JSON.stringify({
+          email: address.toUpperCase(),
+          reading: { ...baziOptin, site: 'west' },
+        }),
       }),
       'newsletter',
       runtime,

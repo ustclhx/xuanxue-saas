@@ -1,3 +1,4 @@
+import type { SiteId } from '@xuanxue/config'
 import { auditLog, type Database, refundRequest, user } from '@xuanxue/db'
 import { type EmailQueueMessage, parseEmailQueueMessage } from '@xuanxue/email/queue'
 import type { QueueProducer } from '@xuanxue/platform'
@@ -8,10 +9,10 @@ import type { RefundNotification } from './refunds.ts'
 export interface RefundMailOptions {
   db: Database
   queue: Pick<QueueProducer<EmailQueueMessage>, 'send'>
-  /** 按收件人语言取品牌名（两站品牌不同） */
-  appName: (locale: string | null) => string
-  /** 按收件人语言取所属站点的联系邮箱 */
-  supportEmail: (locale: string | null) => string
+  /** 按用户归属站点与语言取品牌名 */
+  appName: (locale: string | null, site: SiteId) => string
+  /** 按用户归属站点取联系邮箱 */
+  supportEmail: (locale: string | null, site: SiteId) => string
 }
 const action = (status: string) => `billing.refund_email.${status}.queued`
 
@@ -28,22 +29,24 @@ export async function notifyRefundRequest(
     .where(and(eq(auditLog.targetId, request.id), eq(auditLog.action, action(request.status))))
   if (sent) return
   const [applicant] = await options.db
-    .select({ locale: user.locale })
+    .select({ locale: user.locale, site: user.site })
     .from(user)
     .where(eq(user.id, request.userId))
+  if (!applicant) throw new Error('Refund applicant missing')
   const message = parseEmailQueueMessage({
     v: 1,
+    site: applicant.site,
     template: 'refund-update',
     to: request.contactEmail,
-    locale: applicant?.locale ?? null,
-    appName: options.appName(applicant?.locale ?? null),
+    locale: applicant.locale,
+    appName: options.appName(applicant.locale, applicant.site),
     idempotencyKey: `refund-notification:${request.id}:${request.status}`,
     props: {
       status: request.status,
       amount: request.approvedAmount,
       currency: 'USD',
       note: request.reviewNote ?? '',
-      supportEmail: options.supportEmail(applicant?.locale ?? null),
+      supportEmail: options.supportEmail(applicant.locale, applicant.site),
     },
   })
   if (!message) throw new Error('Invalid refund notification')

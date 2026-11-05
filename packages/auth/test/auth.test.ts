@@ -181,6 +181,7 @@ describe('OAuth', () => {
   it('启用的提供方缺少凭据时 createAuth 直接报错（只列变量名）', () => {
     expect(() =>
       createAuth({ ...testEnv, GITHUB_CLIENT_SECRET: undefined }, createDb(env.HYPERDRIVE), {
+        site: 'west',
         config: defineTemplateConfig({ app, auth: { oauth: ['github'] } }),
         sendEmail: async () => {},
       }),

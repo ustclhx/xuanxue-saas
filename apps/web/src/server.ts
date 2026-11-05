@@ -3,12 +3,13 @@
 // 先按 Host 识别东方站 / 西方站并校验语言前缀归属：不属于本站的语言返回 404，缺前缀时跳转（features/site/gate.ts）。
 // /admin/** 的请求先经角色守卫，非 admin 与不存在的页面得到相同的 404（features/admin/gate.ts）。
 // 之后由 Paraglide 按 URL 前缀 / Cookie 确定本次请求的语言（features/i18n/routing.ts）。
+// 账户站点同样只取自 Host（accountSiteOf），传给认证实例与空间解析，客户端无法指定（openspec split-site-accounts 决策 1）。
 // 每个请求先建立日志上下文（新生成的 UUIDv7 请求 ID，附 Cloudflare 的 cf-ray 便于对照平台日志），
 // 结束时输出一行 `http.request`（@xuanxue/shared/log）。
 
 import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server'
 import { type AuthEmail, parseAuthEnv, type SendAuthEmail } from '@xuanxue/auth'
-import { brandName, loadEnv } from '@xuanxue/config'
+import { loadEnv, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore, RequestMetadata } from '@xuanxue/platform'
 import {
@@ -40,7 +41,7 @@ import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
-import { siteHosts } from './features/site/site.ts'
+import { accountSiteOf, siteHosts } from './features/site/site.ts'
 import { prerenderRequest, staticPageResponse } from './features/site/static-pages.ts'
 import { withSecurityNonce } from './security-context.server.ts'
 import { withSecurityHeaders, withStaticSecurityHeaders } from './security-headers.ts'
@@ -110,8 +111,14 @@ export default {
           const invalid = checkEnv(env)
           const response =
             invalid ??
-            (await withWebRuntime(createCloudflareWebRuntime(env, requestMeta, ctx), () =>
-              worker.fetch(request, env, ctx),
+            (await withWebRuntime(
+              createCloudflareWebRuntime(
+                env,
+                requestMeta,
+                ctx,
+                accountSiteOf(request, templateConfig),
+              ),
+              () => worker.fetch(request, env, ctx),
             ))
           // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
           const headers = withSecurityHeaders(response.headers, security)
@@ -187,6 +194,7 @@ function createCloudflareWebRuntime(
   env: Cloudflare.Env,
   requestMeta: RequestMetadata,
   ctx: ExecutionContext,
+  site: SiteId,
 ): WebRuntime {
   const config = {
     ...parseAuthEnv(env, templateConfig),
@@ -213,9 +221,10 @@ function createCloudflareWebRuntime(
   const createAuth = (db: Database, authCache: KeyValueStore = cache) => {
     const queued = createQueueAuthEmailSender({
       queue,
-      appName: (locale) => brandName(templateConfig, locale),
+      site,
+      appName: (locale) => siteBrandName(templateConfig, site, locale),
       appUrl: config.APP_URL,
-      resolveLocale: userLocaleByEmail(db),
+      resolveLocale: userLocaleByEmail(db, site),
     })
     // 本地调试行为与旧接线一致；生产队列消息不写入日志。
     const sendEmail: SendAuthEmail = import.meta.env.DEV
@@ -225,6 +234,7 @@ function createCloudflareWebRuntime(
         }
       : queued
     return createWebAuth(config, db, {
+      site,
       cache: authCache,
       rateLimiter,
       clientIp: requestMeta.clientIp,
@@ -257,12 +267,15 @@ function createCloudflareWebRuntime(
   const textConfig = loadEnv(env, webEnvSchema)
   const runtime: WebRuntime = {
     config,
+    site,
     cache,
     rateLimiter,
     requestMeta,
     observability: { enabled: sentryEnabled(env), captureError: captureServerError },
     files: { available: true, value: files },
     emailQueue: { available: true, value: queue },
+    // 与 apps/jobs 的 EMAIL_TRANSPORT 保持一致；未设置或取值不认识时按 log 处理，宁可不提邮件
+    emailTransport: env.EMAIL_TRANSPORT === 'resend' ? 'resend' : 'log',
     eventsQueue: env.EVENTS_QUEUE
       ? { available: true, value: createCloudflareQueue(env.EVENTS_QUEUE) }
       : { available: false },

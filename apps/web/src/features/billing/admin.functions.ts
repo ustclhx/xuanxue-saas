@@ -12,18 +12,18 @@ import {
   retryRefundNotification,
   reviewRefundRequest,
 } from '@xuanxue/billing'
-import { brandName, supportEmail } from '@xuanxue/config'
-import { type Database, refundRequest, webhookEvent } from '@xuanxue/db'
+import { siteBrandName } from '@xuanxue/config'
+import type { Database } from '@xuanxue/db'
 import { requireCapability } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
 import { withRequestId } from '@xuanxue/shared/log'
-import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { withBilling } from '../../server/feature-gates.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { withAdminAction, withDelegatedAdminAction } from '../admin/action.server.ts'
 import { adminMiddleware } from '../admin/admin.functions.ts'
+import { ADMIN_ALL_SITES, ADMIN_OTHER_SITE, assertAdminSite } from '../admin/site.ts'
 
 import {
   listAdminPayments,
@@ -32,10 +32,13 @@ import {
   listAdminSubscriptions,
   listAdminWebhooks,
 } from './admin-data.ts'
+import { requestRefundNotificationRetry, requestWebhookReplay } from './admin-writes.ts'
 
 const page = z.object({
   offset: z.number().int().min(0).max(100_000).default(0),
   workspaceId: z.uuid().optional(),
+  // 列表默认当前站点；`all` 为只读的全部站点视图（split-site-accounts 决策 7）
+  site: z.literal(ADMIN_ALL_SITES).optional(),
 })
 const request = z.object({ requestId: z.uuid() })
 function runtime(db: Database) {
@@ -64,8 +67,8 @@ function refundOptions(db: Database): RefundServiceOptions {
               await queue.send(withRequestId(message))
             },
           },
-          appName: (locale) => brandName(templateConfig, locale),
-          supportEmail: (locale) => supportEmail(templateConfig, locale),
+          appName: (locale, site) => siteBrandName(templateConfig, site, locale),
+          supportEmail: (_locale, site) => templateConfig.sites[site].supportEmail,
         },
         notification,
       ),
@@ -77,7 +80,8 @@ async function safe(action: () => Promise<string>) {
   } catch (error) {
     // 写事务内发现管理员已失效：与守卫一样返回 404，不当作业务失败
     if (isNotFound(error)) throw error
-    if (error instanceof AppError && error.status === 503) setResponseStatus(503)
+    if (error instanceof AppError && (error.status === 503 || error.code === ADMIN_OTHER_SITE))
+      setResponseStatus(error.status)
     return {
       ok: false as const,
       error: error instanceof AppError ? error.code : 'BILLING_UNAVAILABLE',
@@ -91,7 +95,7 @@ export const getAdminBilling = createServerFn({ method: 'GET' })
   .handler(async ({ context, data }) => {
     const current = runtime(context.db)
     return {
-      ...(await listAdminPayments(context.db, data)),
+      ...(await listAdminPayments(context.db, data, context.site)),
       mode: current.mode,
       readiness: current.readiness,
     }
@@ -100,18 +104,18 @@ export const getAdminBilling = createServerFn({ method: 'GET' })
 export const getAdminSubscriptions = createServerFn({ method: 'GET' })
   .middleware([withBilling, adminMiddleware])
   .inputValidator(page)
-  .handler(({ context, data }) => listAdminSubscriptions(context.db, data))
+  .handler(({ context, data }) => listAdminSubscriptions(context.db, data, context.site))
 
 export const getAdminPurchases = createServerFn({ method: 'GET' })
   .middleware([withBilling, adminMiddleware])
   .inputValidator(page)
-  .handler(({ context, data }) => listAdminPurchases(context.db, data))
+  .handler(({ context, data }) => listAdminPurchases(context.db, data, context.site))
 
 export const getAdminWebhooks = createServerFn({ method: 'GET' })
   .middleware([withBilling, adminMiddleware])
   .inputValidator(page)
   .handler(async ({ context, data }) => {
-    const result = await listAdminWebhooks(context.db, data)
+    const result = await listAdminWebhooks(context.db, data, context.site)
     const current = runtime(context.db)
     return {
       ...result,
@@ -126,7 +130,7 @@ export const getAdminRefunds = createServerFn({ method: 'GET' })
   .middleware([withBilling, adminMiddleware])
   .inputValidator(page)
   .handler(async ({ context, data }) => {
-    const result = await listAdminRefunds(context.db, data)
+    const result = await listAdminRefunds(context.db, data, context.site)
     const providers = runtime(context.db).providers
     return {
       ...result,
@@ -147,27 +151,12 @@ export const replayAdminWebhook = createServerFn({ method: 'POST' })
     safe(async () => {
       const current = runtime(context.db)
       const queue = requireCapability(getWebRuntime().eventsQueue, 'Events queue')
-      // 校验与「已请求重放」审计同事务提交；重放本身在提交后执行（自行管理事务与队列通知），
+      // 校验（含站点）与「已请求重放」审计同事务提交；重放本身在提交后执行（自行管理事务与队列通知），
       // 重放失败记录在回调事件上，可再次重试
-      const delivery = await withAdminAction(
-        context,
-        'billing.webhook_replay',
-        async ({ tx, audit }) => {
-          const [found] = await tx
-            .select({ provider: webhookEvent.provider, status: webhookEvent.status })
-            .from(webhookEvent)
-            .where(eq(webhookEvent.id, data.webhookEventId))
-          if (found?.status !== 'failed')
-            throw new AppError('WEBHOOK_NOT_REPLAYABLE', 'Only failed records can be replayed')
-          if (!current.normalizers[found.provider])
-            throw new AppError('BILLING_PROVIDER_UNAVAILABLE', 'Provider unavailable')
-          await audit({
-            action: 'billing.webhook_replay_requested',
-            targetType: 'webhook_event',
-            targetId: data.webhookEventId,
-          })
-          return found
-        },
+      const delivery = await withAdminAction(context, 'billing.webhook_replay', (scope) =>
+        requestWebhookReplay(scope, data.webhookEventId, context.site, (provider) =>
+          Boolean(current.normalizers[provider]),
+        ),
       )
       const normalize = current.normalizers[delivery.provider]
       if (!normalize) throw new AppError('BILLING_PROVIDER_UNAVAILABLE', 'Provider unavailable')
@@ -195,7 +184,8 @@ export const replayAdminWebhook = createServerFn({ method: 'POST' })
   )
 
 // 退款审核 / 手动退款 / 重发通知：@xuanxue/billing 在自己的决策事务内写审计，并在提交后才调用支付平台与邮件队列，
-// 因此只经 adminAction 的实时角色校验（withDelegatedAdminAction），不包进外层事务
+// 因此只经 adminAction 的实时角色校验（withDelegatedAdminAction），不包进外层事务；
+// 站点校验以 assertSite 传入，在其决策事务内持锁执行（split-site-accounts 决策 7）
 export const reviewAdminRefund = createServerFn({ method: 'POST' })
   .middleware([withBilling, adminMiddleware])
   .inputValidator(
@@ -218,6 +208,7 @@ export const reviewAdminRefund = createServerFn({ method: 'POST' })
               reviewNote: data.reviewNote,
               ...(data.approvedAmount === undefined ? {} : { approvedAmount: data.approvedAmount }),
               userId: context.admin.id,
+              assertSite: (site) => assertAdminSite(site, context.site),
             })
           ).status,
       ),
@@ -242,6 +233,7 @@ export const completeAdminRefund = createServerFn({ method: 'POST' })
               ...data,
               userId: context.admin.id,
               ip: context.ip,
+              assertSite: (site) => assertAdminSite(site, context.site),
             })
           ).status,
       ),
@@ -255,27 +247,14 @@ export const retryAdminRefundEmail = createServerFn({ method: 'POST' })
     safe(async () =>
       withDelegatedAdminAction(context, async (db) => {
         const options = refundOptions(db)
-        await withAdminAction(
-          context,
-          'billing.refund_notification_retry_requested',
-          async ({ tx, audit }) => {
-            const [request] = await tx
-              .select()
-              // biome-ignore lint/plugin: 实时管理员守卫已通过，按退款申请 ID 获取明确空间再记录重试审计。
-              .from(refundRequest)
-              .where(eq(refundRequest.id, data.requestId))
-            if (!request)
-              throw new AppError('NOT_FOUND', 'Refund request unavailable', { status: 404 })
-            await audit({
-              workspaceId: request.workspaceId,
-              action: 'billing.refund_notification_retry_requested',
-              targetType: 'refund_request',
-              targetId: request.id,
-              meta: { status: request.status },
-            })
-          },
+        await withAdminAction(context, 'billing.refund_notification_retry_requested', (scope) =>
+          requestRefundNotificationRetry(scope, data.requestId, context.site),
         )
-        await retryRefundNotification(options, { ...data, userId: context.admin.id })
+        await retryRefundNotification(options, {
+          ...data,
+          userId: context.admin.id,
+          assertSite: (site) => assertAdminSite(site, context.site),
+        })
         return 'Email queued or already delivered'
       }),
     ),

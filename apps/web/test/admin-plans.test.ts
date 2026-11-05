@@ -37,8 +37,8 @@ const saved = async () => (await db.select().from(plan).where(eq(plan.id, planId
 const audits = () => db.select().from(auditLog).where(eq(auditLog.targetId, planId))
 
 beforeAll(async () => {
-  await db.$client`insert into "user"(id,name,email,role) values(${adminId},'Admin',${`${adminId}@plan-test.example`},'admin'),(${memberId},'Member',${`${memberId}@plan-test.example`},'user')`
-  await db.$client`insert into organization(id,name,slug) values(${workspaceId},'Plan fixture',${workspaceId})`
+  await db.$client`insert into "user"(id,name,email,role,site) values(${adminId},'Admin',${`${adminId}@plan-test.example`},'admin','west'),(${memberId},'Member',${`${memberId}@plan-test.example`},'user','west')`
+  await db.$client`insert into organization(id,name,slug,site) values(${workspaceId},'Plan fixture',${workspaceId},'west')`
   await db.$client`insert into plan(id,key,name,type,credits,features,active) values(${planId},${planKey},'Plan fixture','subscription',100,${JSON.stringify(features)}::jsonb,false)`
   await db.$client`insert into plan_price(id,plan_id,provider,provider_price_id,interval,amount,currency) values(${priceId},${planId},'stripe',${priceId},'month',1234,'usd')`
   await db.$client`insert into subscription(id,workspace_id,plan_id,plan_price_id,provider,provider_subscription_id,status,current_period_end,last_event_at) values(${newId()},${workspaceId},${planId},${priceId},'stripe',${planId},'active',now()+interval '1 day',now())`
@@ -121,6 +121,7 @@ describe('后台套餐模型权限', () => {
       },
       db,
       {
+        site: 'west',
         config: defineTemplateConfig({
           app: { name: 'Test', url: 'http://localhost:3000', supportEmail: 'support@example.test' },
           auth: { oauth: [], turnstile: false },

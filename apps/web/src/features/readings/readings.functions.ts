@@ -50,6 +50,8 @@ export interface ReadingOffer {
   readonly credits: number
   /** 报告章节目录（本语言） */
   readonly sections: readonly string[]
+  /** 本语言的样例段落（虚构命盘，人工撰写）；不可用时为空字符串 */
+  readonly sample: string
   readonly packs: readonly ReadingPack[]
   /** 未登录为 null；详批保存在个人空间，余额也取个人空间 */
   readonly viewer: { readonly slug: string; readonly balance: number } | null
@@ -62,6 +64,7 @@ const UNAVAILABLE: ReadingOffer = {
   comingSoon: false,
   credits: 0,
   sections: [],
+  sample: '',
   packs: [],
   viewer: null,
   rates: FALLBACK_LOCAL_RATES,
@@ -116,7 +119,7 @@ async function viewerIsPlatformAdmin(): Promise<boolean> {
 }
 
 async function viewerOf(): Promise<ReadingOffer['viewer']> {
-  const { db, auth } = getWebRuntime()
+  const { db, auth, site } = getWebRuntime()
   let user: { id: string }
   try {
     ;({ user } = await readRequestSession({ auth, db, headers: getRequest().headers }))
@@ -124,7 +127,7 @@ async function viewerOf(): Promise<ReadingOffer['viewer']> {
     if (error instanceof AppError && (error.status === 401 || error.status === 403)) return null
     throw error
   }
-  const resolved = await resolveDefaultWorkspace(db, user, null)
+  const resolved = await resolveDefaultWorkspace(db, user, null, site)
   if (!resolved) return null
   const balance = await getCreditBalance(db, resolved.workspace.id)
   return { slug: resolved.workspace.slug, balance: balance.available }
@@ -182,6 +185,7 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         comingSoon: false,
         credits: config.credits,
         sections: definition.prompt.sections,
+        sample: definition.sample,
         packs,
         viewer,
         rates: await localRates(),

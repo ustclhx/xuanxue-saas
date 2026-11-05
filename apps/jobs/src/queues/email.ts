@@ -1,7 +1,6 @@
 import { type EmailTransportConfig, emailSender } from '@xuanxue/config'
 import {
   createResendSender,
-  EmailSendError,
   type EmailSender,
   type EmailTemplateName,
   type EmailTemplateProps,
@@ -64,7 +63,7 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  // 每站一个 key（Resend 只能限定单个域名），发件人随消息语言所属站点变化
+  // 每站一个 key（Resend 只能限定单个域名），发件人由消息携带的可信站点决定
   const senders = new Map<'east' | 'west', EmailSender>()
   const senderFor = (site: 'east' | 'west', from: string): EmailSender => {
     if (injectedSender) return injectedSender
@@ -76,7 +75,7 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
     return sender
   }
   return async (message, rendered) => {
-    const { site, from, replyTo } = emailSender(templateConfig, message.locale)
+    const { site, from, replyTo } = emailSender(templateConfig, message.site, message.locale)
     const result = await senderFor(site, from).send({
       to: message.to,
       subject: rendered.subject,
@@ -130,6 +129,11 @@ async function handleMessage(
     log.warn('email.invalid', meta)
     message.ack()
     return
+  }
+
+  if (!email.site) {
+    // jobs 先于 web 发布，旧生产者仍会投递无 site 消息；沿用语言规则发送并观察告警。
+    log.warn('email.site_missing', meta)
   }
 
   await withLogContext({ requestId: email.requestId ?? newRequestId() }, () =>

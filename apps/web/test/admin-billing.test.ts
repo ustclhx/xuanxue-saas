@@ -22,9 +22,9 @@ const context = { db, admin: { id: adminId }, ip: '203.0.113.7' }
 let initialized = false
 async function fixture() {
   if (initialized) return
-  await db.$client`insert into "user"(id,name,email,role) values(${adminId},'Admin',${`${adminId}@admin-billing.example`},'admin')`
+  await db.$client`insert into "user"(id,name,email,role,site) values(${adminId},'Admin',${`${adminId}@admin-billing.example`},'admin','west')`
   for (const ws of spaces) {
-    await db.$client`insert into organization(id,name,slug) values(${ws},'Admin billing',${ws})`
+    await db.$client`insert into organization(id,name,slug,site) values(${ws},'Admin billing',${ws},'west')`
     const plan = newId(),
       price = newId(),
       order = newId(),
@@ -92,7 +92,9 @@ describe('后台积分调整与账务列表', () => {
     })
     const results = await Promise.all(
       [0, 1].map(() =>
-        runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, input)),
+        runAdminAction(context, 'credits.adjust', (scope) =>
+          adjustAdminCredits(scope, input, 'west'),
+        ),
       ),
     )
     expect(results.filter((result) => !result.replayed)).toHaveLength(1)
@@ -107,7 +109,7 @@ describe('后台积分调整与账务列表', () => {
     expect(audits[0]).toMatchObject({ actor_user_id: adminId, ip: context.ip, meta: { input } })
     await expect(
       runAdminAction(context, 'credits.adjust', (scope) =>
-        adjustAdminCredits(scope, { ...input, workspaceId: spaces[1] as string }),
+        adjustAdminCredits(scope, { ...input, workspaceId: spaces[1] as string }, 'west'),
       ),
     ).rejects.toMatchObject({ code: 'ADJUSTMENT_ID_CONFLICT' })
     expect(await reconcileWorkspaceCredits(db, workspaceId)).toMatchObject({ consistent: true })
@@ -124,7 +126,9 @@ describe('后台积分调整与账务列表', () => {
       expiresAt: null,
       reason: '测试补偿',
     })
-    await runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, input))
+    await runAdminAction(context, 'credits.adjust', (scope) =>
+      adjustAdminCredits(scope, input, 'west'),
+    )
     const [batch] =
       await db.$client`select id from credit_grant where source_ref=${input.adjustmentId}`
     const revoke = creditAdjustmentInput.parse({
@@ -136,7 +140,9 @@ describe('后台积分调整与账务列表', () => {
     })
     const results = await Promise.all(
       [0, 1].map(() =>
-        runAdminAction(context, 'credits.adjust', (scope) => adjustAdminCredits(scope, revoke)),
+        runAdminAction(context, 'credits.adjust', (scope) =>
+          adjustAdminCredits(scope, revoke, 'west'),
+        ),
       ),
     )
     expect(results.filter((result) => !result.replayed)).toHaveLength(1)
@@ -155,27 +161,29 @@ describe('后台积分调整与账务列表', () => {
   ] as const)('%s 按空间筛选发生在服务端分页之前', async (_name, list) => {
     await fixture()
     for (const workspaceId of spaces) {
-      const result = await list(db, { workspaceId, offset: 0 })
+      const result = await list(db, { workspaceId, offset: 0 }, 'west')
       expect(result.rows).toHaveLength(1)
       expect(result.rows[0]?.workspaceId).toBe(workspaceId)
       expect(result.hasMore).toBe(false)
-      expect((await list(db, { workspaceId, offset: 1 })).rows).toHaveLength(0)
+      expect((await list(db, { workspaceId, offset: 1 }, 'west')).rows).toHaveLength(0)
     }
   })
 
   it('回调按 Stripe 元数据、账务 ID 和 PayPal custom_id 关联空间，并排除未关联事件', async () => {
     await fixture()
     for (let i = 0; i < spaces.length; i++) {
-      const filtered = await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 0 })
+      const filtered = await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 0 }, 'west')
       expect(filtered.rows.map((row) => row.id).sort()).toEqual(
         webhookIds.slice(i * 5, i * 5 + 5).sort(),
       )
       expect(
-        (await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 5 })).rows,
+        (await listAdminWebhooks(db, { workspaceId: spaces[i], offset: 5 }, 'west')).rows,
       ).toHaveLength(0)
     }
     expect(
-      (await listAdminWebhooks(db, { offset: 0 })).rows.some((row) => row.id === webhookIds.at(-1)),
+      (await listAdminWebhooks(db, { offset: 0 }, 'west')).rows.some(
+        (row) => row.id === webhookIds.at(-1),
+      ),
     ).toBe(true)
   })
 })

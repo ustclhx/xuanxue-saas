@@ -54,7 +54,7 @@ export const createChatContextLink = createServerFn({ method: 'POST' })
       throw error
     }
     const recomputed = definition.recompute(data.input, new Date())
-    const resolved = await resolveDefaultWorkspace(runtime.db, user, null)
+    const resolved = await resolveDefaultWorkspace(runtime.db, user, null, runtime.site)
     if (!resolved) return { status: 'unavailable' }
     const token = await issueChatContext(
       { secret: runtime.config.BETTER_AUTH_SECRET, cache: runtime.cache },

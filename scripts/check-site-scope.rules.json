@@ -1,0 +1,27 @@
+[
+  {
+    "path": "packages/auth/src/ai-content-cleanup.ts",
+    "query": "db.$client<{ id: string }[]>` select u.id from \"user\" u where u.email='deleted+'||u.id::text||'@invalid' and ( exists(select 1 from ai_conversation c join organization o on o.id=c.workspace_id where c.user_id=u.id and not o.is_personal) or exists(select 1 from ai_task t join organization o on o.id=t.workspace_id where t.user_id=u.id and not o.is_personal)) order by u.id`",
+    "reason": "按匿名化占位邮箱扫描已删除账户，全站清理其遗留 AI 内容；不按真实邮箱寻找账户。"
+  },
+  {
+    "path": "packages/auth/src/team-workspaces.ts",
+    "query": "db.$client< { user_id: string }[] >`select m.user_id from member m join \"user\" u on u.id=m.user_id where m.organization_id=${workspaceId} and (m.id::text=${targetKey ?? ''} or lower(u.email)=lower(${targetKey ?? ''}))`",
+    "reason": "只在已通过本站鉴权的 workspaceId 内定位现有成员；团队空间的成员必须属于本站。"
+  },
+  {
+    "path": "packages/auth/src/team-workspaces.ts",
+    "query": "sql`select m.id from member m join \"user\" u on u.id=m.user_id where m.organization_id=${workspaceId} and lower(u.email)=lower(${input.email})`",
+    "reason": "只在已通过本站鉴权的 workspaceId 内定位现有成员；团队空间的成员必须属于本站。"
+  },
+  {
+    "path": "packages/auth/src/team-workspaces.ts",
+    "query": "sql< { id: string; role: string; user_id: string }[] >`select m.id,m.role,m.user_id from member m join \"user\" u on u.id=m.user_id where m.organization_id=${workspaceId} and (m.id::text=${targetId ?? ''} or lower(u.email)=lower(${targetId ?? ''}))`",
+    "reason": "只在已通过本站鉴权的 workspaceId 内定位现有成员；团队空间的成员必须属于本站。"
+  },
+  {
+    "path": "packages/billing/src/deletion.ts",
+    "query": "client`update refund_request r set contact_email=u.email from \"user\" u where r.user_id=u.id and r.user_id=${context.actorUserId} and r.status='pending' and r.contact_email is null and u.email<>${`deleted+${context.actorUserId}@invalid`}`",
+    "reason": "按 actorUserId 定位退款申请并保存联系邮箱；邮箱不等条件只排除匿名化占位邮箱，不按邮箱寻找账户。"
+  }
+]

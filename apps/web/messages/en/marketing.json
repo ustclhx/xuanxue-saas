@@ -116,5 +116,8 @@
   "marketing_faq_section_credits": "Credits, payments and refunds",
   "marketing_faq_section_methods": "Privacy and calculation methods",
   "marketing_faq_privacy_q": "Are my birth details or name uploaded?",
-  "marketing_faq_privacy_a": "Not by the free tools. Charts, calculators and tarot draws are calculated in your browser. Your details reach our servers only when you sign in and choose to unlock a full reading, which needs them to write it."
+  "marketing_faq_privacy_a": "Not by the free tools. Charts, calculators and tarot draws are calculated in your browser. Your details reach our servers only when you sign in and choose to unlock a full reading, which needs them to write it.",
+  "marketing_faq_section_account": "Accounts",
+  "marketing_faq_accounts_q": "Can I use my {otherSite} account here?",
+  "marketing_faq_accounts_a": "No. {site} and {otherSite} are separate sites with separate accounts. Sign-ins, credits, purchases and saved readings on one site don't carry over to the other. You can sign up here with the same email; it creates a new, independent {site} account."
 }

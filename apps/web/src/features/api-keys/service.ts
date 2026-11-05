@@ -37,7 +37,7 @@ async function manager(headers: Headers, slug: string, deps: ApiKeyDeps) {
   requirePublicApi(deps.config)
   const fresh = await requireFreshSession({ db: deps.db, auth: deps.auth, headers })
   assertRealSession(fresh.session)
-  const resolved = await resolveWorkspaceBySlug(deps.db, fresh.user.id, slug)
+  const resolved = await resolveWorkspaceBySlug(deps.db, fresh.user.id, slug, deps.auth.site)
   if (!resolved) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
   if (!['owner', 'admin'].includes(resolved.member.role))
     throw new AppError('FORBIDDEN', 'Workspace administrator required', { status: 403 })

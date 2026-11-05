@@ -3,6 +3,7 @@ import { Button, Input, Label } from '@xuanxue/ui'
 import { type FormEvent, useEffect, useState } from 'react'
 import { adminListSearch } from '../../features/admin/list.ts'
 import { getAdminMetrics } from '../../features/admin/metrics.functions.ts'
+import { siteLabel } from '../../features/admin/site-ui.tsx'
 import { AdminPage, EmptyState } from '../../features/admin/ui.tsx'
 import { m } from '../../paraglide/messages.js'
 
@@ -83,6 +84,44 @@ function Metrics() {
           </div>
         ))}
       </dl>
+      <section className="grid gap-2" aria-labelledby="metrics-by-site">
+        <h3 id="metrics-by-site" className="font-semibold text-lg">
+          {m.admin_metrics_by_site()}
+        </h3>
+        <p className="text-muted-foreground text-sm">{m.admin_metrics_by_site_description()}</p>
+        <div className="overflow-x-auto rounded-md border">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-muted/50">
+              <tr className="border-b">
+                {[
+                  m.admin_site(),
+                  m.admin_registrations(),
+                  m.admin_total_users(),
+                  m.admin_total_workspaces(),
+                  m.admin_paid_workspaces(),
+                  m.admin_paid_conversion(),
+                ].map((label) => (
+                  <th key={label} className="h-10 px-3 font-medium text-muted-foreground">
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.bySite.map((row) => (
+                <tr key={row.site} className="border-b last:border-0">
+                  <td className="px-3 py-2">{siteLabel(row.site)}</td>
+                  <td className="px-3 py-2">{row.registrations}</td>
+                  <td className="px-3 py-2">{row.totalUsers}</td>
+                  <td className="px-3 py-2">{row.totalWorkspaces}</td>
+                  <td className="px-3 py-2">{row.paidWorkspaces}</td>
+                  <td className="px-3 py-2">{percent(row.paidConversion)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
       <h3 className="font-semibold text-lg">{m.admin_mrr_monthly_latest_snapshot()}</h3>
       {data.latest && Object.entries(data.latest.mrrByCurrency).length ? (
         <ul className="grid gap-1 text-sm">

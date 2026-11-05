@@ -1,4 +1,5 @@
-import { requireFreshSession } from '@xuanxue/auth'
+import { authCacheKey, requireFreshSession } from '@xuanxue/auth'
+import type { SiteId } from '@xuanxue/config'
 import { type Database, session, user } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
@@ -9,6 +10,7 @@ import type { WebRuntime } from '../../server/runtime.ts'
 import { withAdminAction } from './action.server.ts'
 import { isPlatformAdmin, requireAdmin } from './guard.ts'
 import { assertRealSession } from './impersonation.ts'
+import { assertAdminSite } from './site.ts'
 
 const bodySchema = (body: unknown) => {
   const parsed = z
@@ -20,12 +22,14 @@ const bodySchema = (body: unknown) => {
 }
 
 /** KV 写入在数据库提交后执行；失败仍由实时数据库守卫阻止失效会话。 */
-function stagedCache(cache: KeyValueStore) {
+function stagedCache(cache: KeyValueStore, site: SiteId) {
   const pending: (() => Promise<void>)[] = []
+  // 认证 KV 键按站点命名（@xuanxue/auth 的 authCacheKey），只放行本站的会话列表读取
+  const activeSessions = authCacheKey(site, 'active-sessions-')
   function get(key: string): Promise<string | null>
   function get<T>(key: string, type: 'json'): Promise<T | null>
   async function get<T>(key: string, type?: 'json'): Promise<T | string | null> {
-    const value = key.startsWith('auth:active-sessions-') ? await cache.get(key) : null
+    const value = key.startsWith(activeSessions) ? await cache.get(key) : null
     return value === null || type !== 'json' ? value : (JSON.parse(value) as T)
   }
   const staged: KeyValueStore = {
@@ -79,7 +83,7 @@ export async function executeAdminAuthAction(options: {
   const adminId = stopping ? fresh.session.impersonatedBy : fresh.user.id
   if (!adminId) throw new AppError('NOT_FOUND', 'Not Found', { status: 404 })
   const input = stopping ? { userId: fresh.user.id, reason: '' } : bodySchema(options.body)
-  const cache = stagedCache(sourceCache)
+  const cache = stagedCache(sourceCache, runtime.site)
   const response = await withAdminAction(
     { db, admin: { id: adminId }, ip },
     path,
@@ -93,6 +97,9 @@ export async function executeAdminAuthAction(options: {
         throw new AppError('SESSION_REQUIRED', 'Session expired', { status: 401 })
       const [target] = await tx.select().from(user).where(eq(user.id, input.userId)).for('update')
       if (!target) throw new AppError('NOT_FOUND', 'User not found', { status: 404 })
+      // 封禁与模拟登录只作用于当前站点的账户：模拟会话的 Cookie 写在当前域名下，
+      // 另一站用户的会话会被会话站点校验立即拦截（split-site-accounts 决策 3、7）。
+      if (!stopping) assertAdminSite(target.site, runtime.site)
       if (path === '/admin/impersonate-user' && isPlatformAdmin(target.role))
         throw new AppError('IMPERSONATE_ADMIN_FORBIDDEN', 'Cannot impersonate administrators', {
           status: 403,

@@ -36,11 +36,14 @@ async function fixture() {
   const taskId = id()
   workspaces.push(workspaceId)
   await db.insert(user).values({
+    site: 'west',
     id: workspaceId,
     name: 'Media sweep',
     email: `${workspaceId}@media-sweep.example.test`,
   })
-  await db.insert(organization).values({ id: workspaceId, name: 'Media sweep', slug: workspaceId })
+  await db
+    .insert(organization)
+    .values({ site: 'west', id: workspaceId, name: 'Media sweep', slug: workspaceId })
   await db
     .insert(member)
     .values({ id: id(), userId: workspaceId, organizationId: workspaceId, role: 'owner' })

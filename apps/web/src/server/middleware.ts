@@ -81,10 +81,11 @@ export const withWorkspace = createMiddleware({ type: 'function' })
   .validator(workspaceInput)
   .server(async ({ next, data, context }) => {
     const { db, user, session } = context
+    const { site } = getWebRuntime()
     const resolved =
       data.slug === undefined
-        ? await resolveDefaultWorkspace(db, user, session.activeOrganizationId)
-        : await resolveWorkspaceBySlug(db, user.id, data.slug)
+        ? await resolveDefaultWorkspace(db, user, session.activeOrganizationId, site)
+        : await resolveWorkspaceBySlug(db, user.id, data.slug, site)
     if (!resolved) throw notFound()
     return next({
       context: {

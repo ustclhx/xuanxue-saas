@@ -8,14 +8,16 @@ import {
   filtersToSearch,
   offsetOfPage,
 } from '../../features/admin/list.ts'
+import { AllSitesNotice, siteFilter, siteLabel } from '../../features/admin/site-ui.tsx'
 import { AdminPage, adminTableLabels } from '../../features/admin/ui.tsx'
 import { m } from '../../paraglide/messages.js'
 
-const filters = ['actor', 'workspaceId', 'action', 'from', 'to'] as const
+const filters = ['actor', 'workspaceId', 'action', 'from', 'to', 'site'] as const
 export const Route = createFileRoute('/admin/audit')({
   validateSearch: (search: Record<string, unknown>) => adminListSearch(filters)(search),
   loaderDeps: ({ search }) => search,
-  loader: ({ deps }) => getAdminAuditLogs({ data: deps }),
+  loader: ({ deps }) =>
+    getAdminAuditLogs({ data: { ...deps, site: deps.site === 'all' ? 'all' : undefined } }),
   component: Audit,
 })
 function Audit() {
@@ -25,11 +27,13 @@ function Audit() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { admin } = Route.useRouteContext()
   return (
     <AdminPage
       title={m.admin_audit_log()}
       description={m.admin_dates_use_utc_and_include_both_selected_days()}
     >
+      <AllSitesNotice site={search.site} />
       <fieldset disabled={!ready} className="min-w-0">
         <DataTable
           labels={adminTableLabels()}
@@ -53,6 +57,7 @@ function Audit() {
                 </span>
               ),
             },
+            { id: 'site', header: m.admin_site(), cell: (row) => siteLabel(row.site) },
             { id: 'space', header: m.admin_workspace(), cell: ({ log }) => log.workspaceId ?? '—' },
             { id: 'action', header: m.admin_action(), cell: ({ log }) => log.action },
             {
@@ -85,6 +90,7 @@ function Audit() {
             { id: 'action', label: m.admin_action() },
             { id: 'from', label: m.admin_from_utc(), placeholder: 'YYYY-MM-DD' },
             { id: 'to', label: m.admin_to_utc(), placeholder: 'YYYY-MM-DD' },
+            siteFilter(admin.site),
           ]}
           filterValues={{
             actor: search.actor,
@@ -92,6 +98,7 @@ function Audit() {
             action: search.action,
             from: search.from,
             to: search.to,
+            site: search.site,
           }}
           onPageChange={(page) =>
             void navigate({ search: { ...search, offset: offsetOfPage(page) } })

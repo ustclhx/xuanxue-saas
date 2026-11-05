@@ -27,6 +27,15 @@ export function resolveSite(host: string, config: SitesConfig): ResolvedSite {
 }
 
 /**
+ * 账户站点（openspec split-site-accounts 决策 1）：只取请求地址的 Host，忽略查询参数、请求体、Cookie 与其他请求头，
+ * 客户端无法指定；未登记的 Host（staging / 预览 `*.workers.dev`、未知 localhost）一律为西方站。
+ * 由 Worker 入口在每个请求开始时调用一次，结果传给认证实例与空间解析。
+ */
+export function accountSiteOf(request: Pick<Request, 'url'>, config: SitesConfig): SiteId {
+  return resolveSite(new URL(request.url).host, config).id
+}
+
+/**
  * 东方站的英文入口页（openspec product-improve-ai-content-20261030 D5，specs/multi-site「东方站英文入口页」）：
  * en 归西方站，东方站只有 `/en` 这一页英文介绍，其他 `/en/*` 返回 404。
  */

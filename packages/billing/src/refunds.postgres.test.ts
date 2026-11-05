@@ -76,12 +76,12 @@ beforeEach(async () => {
   remote.mockReset().mockResolvedValue({ providerRefundId: `refund-${pid}` })
   notify.mockReset().mockResolvedValue(undefined)
   await db.insert(user).values([
-    { id: uid, name: 'Applicant', email: `${uid}@example.test` },
-    { id: adminId, name: 'Admin', email: `${adminId}@example.test`, role: 'admin' },
+    { site: 'west', id: uid, name: 'Applicant', email: `${uid}@example.test` },
+    { site: 'west', id: adminId, name: 'Admin', email: `${adminId}@example.test`, role: 'admin' },
   ])
   await db.insert(organization).values([
-    { id: ws, name: 'Refunds', slug: ws },
-    { id: other, name: 'Other', slug: other },
+    { site: 'west', id: ws, name: 'Refunds', slug: ws },
+    { site: 'west', id: other, name: 'Other', slug: other },
   ])
   await db.insert(member).values({ id: id(), userId: uid, organizationId: ws, role: 'owner' })
   await db.insert(plan).values({

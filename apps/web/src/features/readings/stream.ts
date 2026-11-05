@@ -3,6 +3,13 @@
  * 只累积正文 `text-delta`；`error` chunk 视为生成失败。报告页不需要会话历史与工具调用，
  * 因此不引入 useChat。
  */
+/**
+ * 报告邮件是否交给了真实发信通道（`POST /api/readings` 新报告响应头）：`queued` 时解锁卡才提示
+ * 「链接已寄到信箱」，`none`（log 通道、无可用邮箱）只提示已保存。
+ */
+export type EmailDelivery = 'queued' | 'none'
+export const EMAIL_DELIVERY_HEADER = 'x-reading-email'
+
 export interface StreamProgress {
   readonly text: string
   readonly done: boolean

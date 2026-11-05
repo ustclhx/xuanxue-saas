@@ -359,5 +359,16 @@
   "admin_ai_free_failure_count": "每个空间的 AI 免费失败次数",
   "admin_ai_free_failure_count_description": "对话回复没有可见正文就失败时，窗口内前这么多次全额退回预扣；之后按最后一次上游尝试的用量结算（不超过预扣）。填 0 表示每次都结算。",
   "admin_ai_free_failure_window_minutes": "免费失败计数窗口（分钟）",
-  "admin_ai_free_failure_window_description": "统计免费失败次数的滚动窗口，默认 60 分钟。"
+  "admin_ai_free_failure_window_description": "统计免费失败次数的滚动窗口，默认 60 分钟。",
+  "admin_site": "站点",
+  "admin_current_site": "当前站点：{site}",
+  "admin_site_filter_current": "当前站点（{site}）",
+  "admin_site_filter_all": "全部站点（只读）",
+  "admin_all_sites_read_only": "正在显示两个站点的记录。另一站的记录在这里只读，请到该站后台操作。",
+  "admin_other_site_record": "此记录属于 {site}，在这里只读；封禁、模拟登录、调整积分与恢复工作空间只能在 {site} 的后台操作。",
+  "admin_other_site_billing_record": "此记录属于 {site}，在这里只读；退款与 Webhook 事件重放只能在 {site} 的后台操作。",
+  "admin_metrics_by_site": "按站点",
+  "admin_metrics_by_site_description": "按所选区间实时计算：注册数为区间内新增；用户数、工作空间数与付费工作空间数为区间最后一日日末（UTC）的存量。",
+  "admin_total_users": "用户数",
+  "admin_total_workspaces": "有效工作空间数"
 }

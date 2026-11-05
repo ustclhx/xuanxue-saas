@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@xuanxue/config'
+import type { SiteId, TemplateConfig } from '@xuanxue/config'
 import { getCreditBalance, getCreditBatches, getCreditLedger } from '@xuanxue/credits'
 import { type Database, member, organization, plan, scoped, subscription, user } from '@xuanxue/db'
 import { getEntitlements } from '@xuanxue/entitlements'
@@ -6,17 +6,27 @@ import { AppError } from '@xuanxue/shared'
 import { and, desc, eq, ilike, isNotNull, isNull, or, sql } from 'drizzle-orm'
 import { templateConfig } from '../../server/template-config.ts'
 import { ADMIN_PAGE_SIZE, adminListSearch } from './list.ts'
+import { adminSiteFilter } from './site.ts'
 
+/** 空间列表默认只列当前站点；`site: 'all'` 为只读的全部站点视图（split-site-accounts 决策 7） */
 export async function listAdminWorkspaces(
   db: Database,
-  input: { offset?: number; q?: string | undefined; status?: string | undefined },
+  input: {
+    offset?: number
+    q?: string | undefined
+    status?: string | undefined
+    site?: string | undefined
+  },
+  currentSite: SiteId,
 ) {
-  const { offset, q, status } = adminListSearch(['q', 'status'])(input)
+  const { offset, q, status, site } = adminListSearch(['q', 'status', 'site'])(input)
+  const scope = adminSiteFilter(site, currentSite)
   const rows = await db
     .select()
     .from(organization)
     .where(
       and(
+        scope ? eq(organization.site, scope) : undefined,
         q
           ? or(
               ilike(organization.name, `%${q}%`),

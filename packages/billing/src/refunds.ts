@@ -1,4 +1,4 @@
-import type { TemplateConfig } from '@xuanxue/config'
+import type { SiteId, TemplateConfig } from '@xuanxue/config'
 import {
   auditLog,
   creditGrant,
@@ -30,6 +30,11 @@ export interface RefundServiceOptions {
   notify: (notification: RefundNotification) => Promise<void>
   now?: () => Date
 }
+/**
+ * 后台按站点（split-site-accounts 决策 7）：管理端传入的站点校验，收到退款申请所属空间的站点，
+ * 属于另一站时抛错。在持有空间账务锁与申请行锁的同一决策事务内执行，拒绝时事务整体回滚。
+ */
+export type RefundSiteCheck = (site: SiteId) => void
 function fail(code: string, message: string, status = 400): never {
   throw new AppError(code, message, { status })
 }
@@ -80,10 +85,19 @@ async function admin(tx: WebhookTransaction, userId: string) {
   )
     fail('ADMIN_REQUIRED', 'An active administrator is required', 403)
 }
-async function lockedRequest(tx: WebhookTransaction, id: string) {
+async function lockedRequest(tx: WebhookTransaction, id: string, assertSite?: RefundSiteCheck) {
   const [found] = await tx.select().from(refundRequest).where(eq(refundRequest.id, id))
   if (!found) fail('REFUND_REQUEST_NOT_FOUND', 'Refund request not found', 404)
   await lockWorkspaceBilling(tx, found.workspaceId)
+  if (assertSite) {
+    // 空间外键为 restrict，申请存在时空间行必然存在；站点不会变更
+    const [workspace] = await tx
+      .select({ site: organization.site })
+      .from(organization)
+      .where(eq(organization.id, found.workspaceId))
+    if (!workspace) fail('REFUND_REQUEST_NOT_FOUND', 'Refund workspace not found', 404)
+    assertSite(workspace.site)
+  }
   const [request] = await tx
     .select()
     .from(refundRequest)
@@ -266,12 +280,13 @@ export async function reviewRefundRequest(
     decision: 'approve' | 'reject'
     approvedAmount?: number
     reviewNote?: string
+    assertSite?: RefundSiteCheck
   },
 ): Promise<RefundRequest> {
   const note = text(input.reviewNote ?? '', 'Review note', input.decision === 'reject')
   const saved = await options.db.transaction(async (tx) => {
     await admin(tx, input.userId)
-    const { request, paid } = await lockedRequest(tx, input.requestId)
+    const { request, paid } = await lockedRequest(tx, input.requestId, input.assertSite)
     const status = input.decision === 'approve' ? 'approved' : 'rejected'
     if (request.status !== 'pending') {
       if (
@@ -409,11 +424,11 @@ export async function reviewRefundRequest(
 /** Retry delivery independently of money movement after an observable mail failure. */
 export async function retryRefundNotification(
   options: RefundServiceOptions,
-  input: { userId: string; requestId: string },
+  input: { userId: string; requestId: string; assertSite?: RefundSiteCheck },
 ): Promise<void> {
   const request = await options.db.transaction(async (tx) => {
     await admin(tx, input.userId)
-    const { request } = await lockedRequest(tx, input.requestId)
+    const { request } = await lockedRequest(tx, input.requestId, input.assertSite)
     if (request.status === 'pending')
       fail('REFUND_NOT_REVIEWED', 'Refund has not been reviewed', 409)
     return request
@@ -430,13 +445,14 @@ export async function markManualRefund(
     requestId: string
     providerRefundId: string
     proof: string
+    assertSite?: RefundSiteCheck
   },
 ): Promise<RefundRequest> {
   const providerRefundId = text(input.providerRefundId, 'Platform refund identity')
   const proof = text(input.proof, 'Platform refund proof')
   const request = await options.db.transaction(async (tx) => {
     await admin(tx, input.userId)
-    const { request, paid } = await lockedRequest(tx, input.requestId)
+    const { request, paid } = await lockedRequest(tx, input.requestId, input.assertSite)
     if (providerFor(options, paid).capabilities.refundsViaApi)
       fail('MANUAL_REFUND_NOT_ALLOWED', 'This provider requires API refunds', 409)
     if (!['approved', 'refunded'].includes(request.status) || !request.approvedAmount)

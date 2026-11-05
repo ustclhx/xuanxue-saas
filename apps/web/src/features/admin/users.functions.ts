@@ -4,14 +4,19 @@ import { z } from 'zod'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { adminMiddleware } from './admin.functions.ts'
 import { executeAdminAuthAction } from './impersonation.server.ts'
+import { ADMIN_ALL_SITES } from './site.ts'
 import { adminUserDetail, listAdminUsers } from './users.ts'
 
 export const getAdminUsers = createServerFn({ method: 'GET' })
   .middleware([adminMiddleware])
   .validator(
-    z.object({ offset: z.number().int().min(0).max(100_000), q: z.string().max(200).optional() }),
+    z.object({
+      offset: z.number().int().min(0).max(100_000),
+      q: z.string().max(200).optional(),
+      site: z.literal(ADMIN_ALL_SITES).optional(),
+    }),
   )
-  .handler(({ context, data }) => listAdminUsers(context.db, data))
+  .handler(({ context, data }) => listAdminUsers(context.db, data, context.site))
 
 export const getAdminUser = createServerFn({ method: 'GET' })
   .middleware([adminMiddleware])

@@ -1,5 +1,5 @@
 import { templateConfig } from '../../server/template-config.ts'
-import { NOT_FOUND_PATH } from '../admin/gate.ts'
+import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from './app-area.ts'
 import { prefixLocale } from './url-prefix.ts'
 

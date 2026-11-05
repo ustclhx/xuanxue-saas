@@ -359,5 +359,16 @@
   "admin_ai_free_failure_count": "每個空間的 AI 免費失敗次數",
   "admin_ai_free_failure_count_description": "對話回覆沒有可見正文就失敗時，視窗內前這麼多次全額退回預扣；之後按最後一次上游嘗試的用量結算（不超過預扣）。填 0 表示每次都結算。",
   "admin_ai_free_failure_window_minutes": "免費失敗計數視窗（分鐘）",
-  "admin_ai_free_failure_window_description": "統計免費失敗次數的滾動視窗，預設 60 分鐘。"
+  "admin_ai_free_failure_window_description": "統計免費失敗次數的滾動視窗，預設 60 分鐘。",
+  "admin_site": "站點",
+  "admin_current_site": "目前站點：{site}",
+  "admin_site_filter_current": "目前站點（{site}）",
+  "admin_site_filter_all": "全部站點（唯讀）",
+  "admin_all_sites_read_only": "正在顯示兩個站點的紀錄。另一站的紀錄在這裡唯讀，請到該站後台操作。",
+  "admin_other_site_record": "此紀錄屬於 {site}，在這裡唯讀；封禁、模擬登入、調整積分與恢復工作空間只能在 {site} 的後台操作。",
+  "admin_other_site_billing_record": "此紀錄屬於 {site}，在這裡唯讀；退款與 Webhook 事件重放只能在 {site} 的後台操作。",
+  "admin_metrics_by_site": "依站點",
+  "admin_metrics_by_site_description": "依所選區間即時計算：註冊數為區間內新增；使用者數、工作空間數與付費工作空間數為區間最後一日日終（UTC）的存量。",
+  "admin_total_users": "使用者數",
+  "admin_total_workspaces": "有效工作空間數"
 }

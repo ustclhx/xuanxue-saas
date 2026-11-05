@@ -1,9 +1,11 @@
 import { createAuth, parseAuthEnv, requireFreshSession } from '@xuanxue/auth'
-import { defineTemplateConfig } from '@xuanxue/config'
+import { defineTemplateConfig, type SiteId } from '@xuanxue/config'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { newId } from '@xuanxue/shared'
 import { afterAll, describe, expect, it } from 'vitest'
+import { runAdminAction } from '../src/features/admin/action.ts'
 import { listAuditLogs } from '../src/features/admin/audit.ts'
+import { adjustAdminCredits } from '../src/features/admin/credits.ts'
 import { requireAdmin } from '../src/features/admin/guard.ts'
 import { executeAdminAuthAction } from '../src/features/admin/impersonation.server.ts'
 import { assertRealSession } from '../src/features/admin/impersonation.ts'
@@ -29,18 +31,23 @@ const runtimeConfig = {
   GITHUB_CLIENT_ID: 'test',
   GITHUB_CLIENT_SECRET: 'test',
 }
-const auth = createAuth({ APP_URL, BETTER_AUTH_SECRET: SECRET }, db, {
-  config: defineTemplateConfig({
-    app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@arcanumber.com' },
-    auth: { oauth: [], turnstile: false },
-  }),
-  sendEmail: async () => {},
-})
+const siteAuth = (site: SiteId) =>
+  createAuth({ APP_URL, BETTER_AUTH_SECRET: SECRET }, db, {
+    site,
+    config: defineTemplateConfig({
+      app: { name: 'TestApp', url: APP_URL, supportEmail: 'support@arcanumber.com' },
+      auth: { oauth: [], turnstile: false },
+    }),
+    sendEmail: async () => {},
+  })
+const auth = siteAuth('west')
+const eastAuth = siteAuth('east')
 // 测试资源由目标夹具装配，HTTP 权限仍经过生产包装器。
-function createRuntime() {
+function createRuntime(site: SiteId = 'west') {
   const requestMeta = { clientIp: '203.0.113.9', requestId: newId() }
   const createAuth = (database: typeof db, cache: KeyValueStore = adminCache) =>
     createWebAuth(runtimeConfig, database, {
+      site,
       cache,
       rateLimiter,
       clientIp: requestMeta.clientIp,
@@ -48,6 +55,7 @@ function createRuntime() {
     })
   const runtime: WebRuntime = {
     config: parseAuthEnv(runtimeConfig, templateConfig),
+    site,
     db,
     publicDb: db,
     cache: adminCache,
@@ -74,9 +82,8 @@ function cookies(response: Response, previous = '') {
   }
   return [...values.values()].join('; ')
 }
-async function actor(role = 'user') {
-  const email = `${newId()}@${domain}`
-  const response = await auth.handler(
+async function actor(role = 'user', site: SiteId = 'west', email = `${newId()}@${domain}`) {
+  const response = await (site === 'east' ? eastAuth : auth).handler(
     new Request(`${APP_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: { origin: APP_URL, 'content-type': 'application/json' },
@@ -96,10 +103,10 @@ async function actor(role = 'user') {
     }),
   }
 }
-function action(headers: Headers, path: string, body?: unknown) {
+function action(headers: Headers, path: string, body?: unknown, site: SiteId = 'west') {
   return executeAdminAuthAction({
     db,
-    runtime: createRuntime(),
+    runtime: createRuntime(site),
     headers,
     path,
     ...(body ? { body } : {}),
@@ -113,6 +120,8 @@ afterAll(async () => {
   if (!ids.length) return
   await sql`delete from audit_log where actor_user_id in ${sql(ids)} or workspace_id in ${sql(ids)}`
   await sql`delete from member where user_id in ${sql(ids)}`
+  await sql`delete from credit_ledger where workspace_id in ${sql(ids)}`
+  await sql`delete from credit_grant where workspace_id in ${sql(ids)}`
   await sql`delete from session where user_id in ${sql(ids)}`
   await sql`delete from account where user_id in ${sql(ids)}`
   await sql`delete from organization where id in ${sql(ids)}`
@@ -158,16 +167,16 @@ describe('用户与空间后台', () => {
     const target = await actor()
     for (const q of [target.email, 'Searchable user', target.id])
       expect(
-        (await listAdminUsers(db, { offset: 0, q })).rows.some((u) => u.id === target.id),
+        (await listAdminUsers(db, { offset: 0, q }, 'west')).rows.some((u) => u.id === target.id),
       ).toBe(true)
     expect(await adminUserDetail(db, target.id)).toMatchObject({
       user: { id: target.id },
       methods: ['credential'],
       workspaces: [expect.objectContaining({ id: target.id, role: 'owner' })],
     })
-    expect((await listAdminWorkspaces(db, { q: target.id })).rows.map((w) => w.id)).toContain(
-      target.id,
-    )
+    expect(
+      (await listAdminWorkspaces(db, { q: target.id }, 'west')).rows.map((w) => w.id),
+    ).toContain(target.id)
     expect(await adminWorkspaceDetail(db, target.id, 7)).toMatchObject({
       members: [expect.objectContaining({ userId: target.id })],
       balance: { available: 0, held: 0, debt: 0 },
@@ -270,11 +279,11 @@ describe('用户与空间后台', () => {
       }),
     )
     expect(updated.status).toBe(200)
-    const profileAudit = await listAuditLogs(db, {
-      offset: 0,
-      actor: admin.id,
-      action: 'user.profile_updated',
-    })
+    const profileAudit = await listAuditLogs(
+      db,
+      { offset: 0, actor: admin.id, action: 'user.profile_updated' },
+      'west',
+    )
     expect(profileAudit.rows).toMatchObject([
       {
         log: {
@@ -320,7 +329,9 @@ describe('用户与空间后台', () => {
     await db.$client`update organization set deleted_at=now() where id=${owner.id}`
     await db.$client`delete from member where organization_id=${owner.id}`
     await db.$client`insert into audit_log (id,actor_user_id,workspace_id,action,target_type,target_id,meta) values (${newId()},${owner.id},${owner.id},'workspace.deleted','organization',${owner.id},${JSON.stringify({ originalOwnerUserIds: [owner.id] })}::jsonb)`
-    expect((await listAdminWorkspaces(db, { status: 'deleted', q: owner.id })).rows).toHaveLength(1)
+    expect(
+      (await listAdminWorkspaces(db, { status: 'deleted', q: owner.id }, 'west')).rows,
+    ).toHaveLength(1)
     const restored = await handleAuthRequest(
       new Request(`${APP_URL}/api/auth/admin/restore-workspace`, {
         method: 'POST',
@@ -336,5 +347,151 @@ describe('用户与空间后台', () => {
     const [audit] =
       await db.$client`select actor_user_id from audit_log where workspace_id=${owner.id} and action='workspace.restored'`
     expect(audit?.actor_user_id).toBe(admin.id)
+  })
+})
+
+describe('后台按站点（split-site-accounts 决策 7）', () => {
+  it('同邮箱两站账户分别显示并标明站点，默认只列当前站点；封禁一个不影响另一个', async () => {
+    const admin = await actor('admin')
+    const email = `${newId()}@${domain}`
+    const west = await actor('user', 'west', email)
+    const east = await actor('user', 'east', email)
+    expect(west.id).not.toBe(east.id)
+    const ids = (rows: { id: string; site: SiteId }[]) =>
+      rows.map((row) => [row.id, row.site]).sort()
+    expect(ids((await listAdminUsers(db, { offset: 0, q: email }, 'west')).rows)).toEqual([
+      [west.id, 'west'],
+    ])
+    expect(ids((await listAdminUsers(db, { offset: 0, q: email }, 'east')).rows)).toEqual([
+      [east.id, 'east'],
+    ])
+    expect(
+      ids((await listAdminUsers(db, { offset: 0, q: email, site: 'all' }, 'west')).rows),
+    ).toEqual(
+      [
+        [west.id, 'west'],
+        [east.id, 'east'],
+      ].sort(),
+    )
+    // 只有 all 能跨站；其他取值（包括另一站的站点名）一律按当前站点
+    expect(
+      ids((await listAdminUsers(db, { offset: 0, q: email, site: 'east' }, 'west')).rows),
+    ).toEqual([[west.id, 'west']])
+    expect(
+      (await listAdminWorkspaces(db, { q: east.id, site: 'all' }, 'west')).rows.map((w) => w.site),
+    ).toEqual(['east'])
+    expect((await listAdminWorkspaces(db, { q: east.id }, 'west')).rows).toEqual([])
+
+    await action(admin.headers, '/admin/ban-user', { userId: west.id, banReason: 'Site test' })
+    const rows = await db.$client`select id,banned from "user" where email=${email} order by site`
+    expect(rows).toEqual([
+      { id: east.id, banned: false },
+      { id: west.id, banned: true },
+    ])
+    expect((await requireFreshSession({ db, auth: eastAuth, headers: east.headers })).user.id).toBe(
+      east.id,
+    )
+  })
+
+  it('模拟登录与封禁另一站用户被拒，提示到该站后台，不写审计', async () => {
+    const admin = await actor('admin')
+    const east = await actor('user', 'east')
+    for (const path of ['/admin/impersonate-user', '/admin/ban-user', '/admin/unban-user'])
+      await expect(
+        action(admin.headers, path, { userId: east.id, banReason: 'Other site' }),
+      ).rejects.toMatchObject({ code: 'ADMIN_OTHER_SITE', status: 403 })
+    expect(
+      await db.$client`select id from session where user_id=${east.id} and impersonated_by is not null`,
+    ).toHaveLength(0)
+    const [row] = await db.$client`select banned from "user" where id=${east.id}`
+    expect(row?.banned).toBe(false)
+    expect(await db.$client`select id from audit_log where target_id=${east.id}`).toHaveLength(0)
+    // 经 HTTP 入口同样被拒
+    const response = await handleAuthRequest(
+      new Request(`${APP_URL}/api/auth/admin/impersonate-user`, {
+        method: 'POST',
+        headers: admin.headers,
+        body: JSON.stringify({ userId: east.id }),
+      }),
+    )
+    expect(response.status).toBe(403)
+    expect(await response.json()).toMatchObject({ code: 'ADMIN_OTHER_SITE' })
+  })
+
+  it('调整另一站空间的积分被拒，当前站点的空间正常', async () => {
+    const admin = await actor('admin')
+    const east = await actor('user', 'east')
+    const west = await actor()
+    const input = (workspaceId: string) => ({
+      kind: 'grant' as const,
+      adjustmentId: newId(),
+      workspaceId,
+      amount: 5,
+      expiresAt: null,
+      reason: 'Site test',
+    })
+    const context = { db, admin: { id: admin.id }, ip: null }
+    await expect(
+      runAdminAction(context, 'credits.adjust', (scope) =>
+        adjustAdminCredits(scope, input(east.id), 'west'),
+      ),
+    ).rejects.toMatchObject({ code: 'ADMIN_OTHER_SITE' })
+    expect(
+      await db.$client`select id from credit_grant where workspace_id=${east.id}`,
+    ).toHaveLength(0)
+    await expect(
+      runAdminAction(context, 'credits.adjust', (scope) =>
+        adjustAdminCredits(scope, input(west.id), 'west'),
+      ),
+    ).resolves.toEqual({ replayed: false })
+  })
+
+  it('恢复另一站的软删空间被拒（与不存在一样 404），空间保持删除', async () => {
+    const admin = await actor('admin')
+    const owner = await actor('user', 'east')
+    await db.$client`update organization set deleted_at=now() where id=${owner.id}`
+    await db.$client`delete from member where organization_id=${owner.id}`
+    await db.$client`insert into audit_log (id,actor_user_id,workspace_id,action,target_type,target_id,meta) values (${newId()},${owner.id},${owner.id},'workspace.deleted','organization',${owner.id},${JSON.stringify({ originalOwnerUserIds: [owner.id] })}::jsonb)`
+    const restored = await handleAuthRequest(
+      new Request(`${APP_URL}/api/auth/admin/restore-workspace`, {
+        method: 'POST',
+        headers: admin.headers,
+        body: JSON.stringify({ workspaceId: owner.id }),
+      }),
+    )
+    expect(restored.status).toBe(404)
+    expect(await restored.json()).toMatchObject({ code: 'WORKSPACE_NOT_FOUND' })
+    const [workspace] = await db.$client`select deleted_at from organization where id=${owner.id}`
+    expect(workspace?.deleted_at).not.toBeNull()
+    expect(await db.$client`select id from member where organization_id=${owner.id}`).toHaveLength(
+      0,
+    )
+  })
+
+  it('审计默认只列当前站点，按邮箱筛选操作人只匹配当前站点的账户', async () => {
+    const email = `${newId()}@${domain}`
+    const west = await actor('user', 'west', email)
+    const east = await actor('user', 'east', email)
+    const action = `test.site.${newId()}`
+    for (const user of [west, east])
+      await db.$client`insert into audit_log (id,actor_user_id,action) values (${newId()},${user.id},${action})`
+    const actors = async (site: SiteId, all?: boolean) =>
+      (
+        await listAuditLogs(
+          db,
+          { offset: 0, actor: email, action, ...(all ? { site: 'all' as const } : {}) },
+          site,
+        )
+      ).rows
+        .map((row) => [row.log.actorUserId, row.site])
+        .sort()
+    expect(await actors('west')).toEqual([[west.id, 'west']])
+    expect(await actors('east')).toEqual([[east.id, 'east']])
+    expect(await actors('west', true)).toEqual(
+      [
+        [west.id, 'west'],
+        [east.id, 'east'],
+      ].sort(),
+    )
   })
 })

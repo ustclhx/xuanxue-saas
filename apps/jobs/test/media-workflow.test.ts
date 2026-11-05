@@ -57,11 +57,14 @@ async function fixture(pricing: AiPricingJson = { mode: 'per_call', credits: 15 
   const workspaceId = id()
   const taskId = id()
   await db.insert(user).values({
+    site: 'west',
     id: workspaceId,
     name: 'Workflow',
     email: `${workspaceId}@media-workflow.example.test`,
   })
-  await db.insert(organization).values({ id: workspaceId, name: 'Workflow', slug: workspaceId })
+  await db
+    .insert(organization)
+    .values({ site: 'west', id: workspaceId, name: 'Workflow', slug: workspaceId })
   await db
     .insert(member)
     .values({ id: id(), userId: workspaceId, organizationId: workspaceId, role: 'owner' })

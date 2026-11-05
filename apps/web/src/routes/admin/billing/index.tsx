@@ -6,19 +6,22 @@ import {
   filtersToSearch,
   offsetOfPage,
 } from '../../../features/admin/list.ts'
+import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
 import { AdminPage, adminTableLabels } from '../../../features/admin/ui.tsx'
 import { getAdminBilling } from '../../../features/billing/admin.functions.ts'
 import { adminMoney } from '../../../features/billing/admin-display.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
+const filters = ['workspaceId', 'site'] as const
 export const Route = createFileRoute('/admin/billing/')({
   beforeLoad: () => {
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
-  validateSearch: (search: Record<string, unknown>) => adminListSearch(['workspaceId'])(search),
+  validateSearch: (search: Record<string, unknown>) => adminListSearch(filters)(search),
   loaderDeps: ({ search }) => search,
-  loader: ({ deps }) => getAdminBilling({ data: deps }),
+  loader: ({ deps }) =>
+    getAdminBilling({ data: { ...deps, site: deps.site === 'all' ? 'all' : undefined } }),
   errorComponent: () => <p role="alert">{m.admin_billing_data_is_unavailable_please_reload()}</p>,
   component: BillingAdmin,
 })
@@ -26,6 +29,7 @@ function BillingAdmin() {
   const data = Route.useLoaderData()
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { admin } = Route.useRouteContext()
   return (
     <AdminPage title={m.admin_billing_administration()}>
       <div className="grid gap-2 rounded-lg border bg-card p-4 text-sm">
@@ -46,6 +50,7 @@ function BillingAdmin() {
           ))}
         </ul>
       </div>
+      <AllSitesNotice site={search.site} />
       <DataTable
         labels={adminTableLabels()}
         label={m.admin_payments()}
@@ -53,6 +58,7 @@ function BillingAdmin() {
         getRowId={(row) => row.id}
         columns={[
           { id: 'workspace', header: m.admin_workspace(), cell: (row) => row.workspaceId },
+          { id: 'site', header: m.admin_site(), cell: (row) => siteLabel(row.site) },
           { id: 'provider', header: m.admin_provider(), cell: (row) => row.provider },
           {
             id: 'amount',
@@ -68,14 +74,12 @@ function BillingAdmin() {
           { id: 'kind', header: m.admin_kind(), cell: (row) => row.kind },
         ]}
         page={adminListPage(search.offset, data)}
-        filters={[{ id: 'workspaceId', label: m.admin_workspace_id() }]}
-        filterValues={{ workspaceId: search.workspaceId }}
+        filters={[{ id: 'workspaceId', label: m.admin_workspace_id() }, siteFilter(admin.site)]}
+        filterValues={{ workspaceId: search.workspaceId, site: search.site }}
         onPageChange={(page) =>
           void navigate({ search: { ...search, offset: offsetOfPage(page) } })
         }
-        onFiltersChange={(values) =>
-          void navigate({ search: filtersToSearch(['workspaceId'], values) })
-        }
+        onFiltersChange={(values) => void navigate({ search: filtersToSearch(filters, values) })}
       />
     </AdminPage>
   )

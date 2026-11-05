@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import type { MediaProviderEnv, TextModelEnv } from '@xuanxue/ai'
 import type { Auth, parseAuthEnv } from '@xuanxue/auth'
 import type { PaymentRuntimeEnv } from '@xuanxue/billing'
-import type { AiFaultInjectionEnv } from '@xuanxue/config'
+import type { AiFaultInjectionEnv, EmailTransport, SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import type {
@@ -36,6 +36,11 @@ export interface WebRuntime {
     AuthUiEnv &
     PaymentRuntimeEnv &
     AiFaultInjectionEnv
+  /**
+   * 本请求的账户站点（openspec split-site-accounts 决策 1）：入口按 Host 解析一次，认证实例与空间解析都用它；
+   * 业务代码不要再从请求参数推断站点。
+   */
+  readonly site: SiteId
   readonly db: Database
   /** 公开读取保留目标自身的缓存策略，不拥有连接池。 */
   readonly publicDb: Database
@@ -50,6 +55,8 @@ export interface WebRuntime {
     captureError(error: unknown): void
   }
   readonly emailQueue: Capability<QueueProducer<EmailQueueMessage>>
+  /** apps/jobs 的邮件发信通道；只用于决定前台是否提示「已寄信」，未装配视为 `log` */
+  readonly emailTransport?: EmailTransport
   readonly eventsQueue: Capability<QueueProducer<unknown>>
   /** C 接入前 Node 不装配文件能力；在任何文件副作用之前拒绝。 */
   readonly files?: Capability<Storage>

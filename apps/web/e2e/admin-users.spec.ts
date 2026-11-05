@@ -207,7 +207,7 @@ test('空间详情展示积分、重叠订阅，并恢复原 owner 的访问', a
     const email = `restore-owner-${randomUUID()}@example.com`
     await register(ownerPage, email)
     const owner = await actor(email)
-    await sql`insert into organization(id,name,slug) values(${workspaceId},'Recoverable workspace',${slug})`
+    await sql`insert into organization(id,name,slug,site) values(${workspaceId},'Recoverable workspace',${slug},'west')`
     await sql`insert into member(id,organization_id,user_id,role) values(${randomUUID()},${workspaceId},${owner.userId},'owner')`
     await sql`insert into audit_log(id,actor_user_id,workspace_id,action,target_type,target_id,meta) values(${randomUUID()},${owner.userId},${workspaceId},'workspace.deleted','organization',${workspaceId},${sql.json({ originalOwnerUserIds: [owner.userId] })}::jsonb)`
     const planId = randomUUID()

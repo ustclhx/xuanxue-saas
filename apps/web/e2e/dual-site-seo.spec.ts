@@ -11,16 +11,18 @@ test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS �
   const context = await browser.newContext({ locale: 'ko-KR' })
   const page = await context.newPage()
   await page.goto(`${east}/`)
-  await expect(page).toHaveURL(`${east}/ko/`)
+  await expect(page).toHaveURL(`${east}/ko`)
   await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
   // 东方站只提供本站语言，不能把英语工具或无前缀营销地址带到东方站。
-  const navigation = page.getByRole('navigation', { name: 'Tools', exact: true })
-  await expect(navigation.getByRole('link')).toHaveText(['繁體中文', '简体中文', '한국어'])
+  const navigation = page.getByRole('navigation', { name: '도구', exact: true })
+  const links = navigation.getByRole('link')
+  await expect(links).toHaveText(['만세력', '사주궁합', '쓰리 카드 타로', '요금제'])
+  for (const link of await links.all()) await expect(link).toHaveAttribute('href', /^\/ko(?:\/|$)/)
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()
   // 302 由服务端完成，禁用 JS 时也应落在语言首页
   await staticPage.goto(`${east}/`)
-  await expect(staticPage).toHaveURL(`${east}/ko/`)
+  await expect(staticPage).toHaveURL(`${east}/ko`)
   await noJs.close()
   await context.close()
 })
@@ -113,4 +115,39 @@ test('两站 FAQ 汇总页与 llms.txt 按 Host 输出', async ({ request, baseU
   expect(text).not.toContain('arcanumber.com')
   const rules = await (await request.get(`${origin}/robots.txt`, eastOptions)).text()
   expect(rules).toContain('User-agent: GPTBot\nAllow: /\nDisallow: /app')
+})
+
+// 回归：东方站没有无前缀默认语言，英文浏览器访问无前缀认证页曾按 baseLocale 渲染成英文 + Arcanumber
+test('东方站无前缀认证页跳到东方站语言与品牌，西方站保持英文原地渲染', async ({
+  browser,
+  baseURL,
+}) => {
+  const context = await browser.newContext({ locale: 'en-US' })
+  const page = await context.newPage()
+  const east = localSite(baseURL, 'east')
+  for (const [path, title] of [
+    ['/login', '登入'],
+    ['/register', '建立帳號'],
+  ] as const) {
+    await page.goto(`${east}${path}`)
+    await expect(page).toHaveURL(`${east}/zh-hant${path}`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
+    await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+    // 页头品牌为东方站品牌（注册页的分站提示会提到 Arcanumber，因此只断言品牌元素）
+    await expect(page.getByText('干支日', { exact: true })).toBeVisible()
+    await expect(page.getByText('Arcanumber', { exact: true })).toHaveCount(0)
+  }
+  const west = localSite(baseURL, 'west')
+  for (const [path, title] of [
+    ['/login', 'Sign in'],
+    ['/register', 'Create an account'],
+  ] as const) {
+    await page.goto(`${west}${path}`)
+    await expect(page).toHaveURL(`${west}${path}`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
+    await expect(page.getByText('Arcanumber', { exact: true })).toBeVisible()
+  }
+  await context.close()
 })

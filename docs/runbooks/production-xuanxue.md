@@ -13,6 +13,7 @@
 - Google OAuth 同意屏幕按协调者最新决定使用 `https://arcanumber.com/privacy`、`https://arcanumber.com/terms`，不使用旧 `/legal/...` 路径。
 - 协调者随后确认：Google OAuth 支持邮箱与开发者联系邮箱暂用用户确认的当前 Google 账号 Gmail（地址不入文档）。
 - 密钥只进入 Wrangler secrets 或主 checkout 的 gitignored、600 文件；本文不含密钥。
+- 成本基线（2026-11-02 用户决定，规则见 [production-neon §4](production-neon.md#4-项目设置与预算)）：生产算力改为 0.25–1 CU；无真实用户期间 production 使用 `CRON_PROFILE=reduced`，开放支付或有真实用户依赖定时任务前改回 `CRON_PROFILE=default` 与默认 triggers；两个 zone 配扫描路径 WAF 规则。reduced 期间 PayPal 补 capture 等补偿任务最长延迟约 30 分钟。实际生效状态以 Neon、Cloudflare 回读为准。
 
 ## 资源
 
@@ -90,7 +91,7 @@
 - `scripts/staging/check-secrets.mjs` 仍是 staging 的支付联通检查器；不能用其 Stripe 要求判断本轮生产缺项。本轮结论只适用于已批准的「无支付、无详批模型、log 邮件」范围，不代表发信/支付/AI 联通通过。
 - 通过 readonly 仅查询 production 的 plan / plan_price / setting / ai_model；迁移记录位于受限 drizzle schema，首次 readonly 查询被 42501 拒绝，随后仅该查询改用 migrator（仍只读）。迁移 14/14 与 journal 一致；reading_single=100 积分 / 99 USD cents、reading_five=500 / 399，全部 provider mapping inactive；没有 ai_model 行、没有 readings.*.modelKey 覆盖，代码默认空。没有执行 seed 写入、支付同步或修改套餐/模型。[数据库证据](evidence/launch-v1/database-preflight.json)。资源准备阶段已执行迁移与 seed，本轮只确认其结果，正式 workflow 在部署前重跑迁移。
 - `.github/workflows/deploy-production.yml` 改为 EAST_URL=`https://ganjiday.com`、WEST_URL/APP_URL=`https://arcanumber.com`；双站各自健康检查与只读冒烟，东方另覆盖繁中/韩语首页和定价，失败 trace 分目录保存。保留 tag/main/staging 门禁。
-- 公开注册前按 docs/07 §0 与决策 D7 恢复 jobs production 默认 Cron：5 分钟心跳、10 分钟维护，小时/每日任务不变，移除 production `CRON_PROFILE=reduced`。staging 保持 reduced。该配置尚未发布。
+- 公开注册前按 docs/07 §0 与决策 D7 恢复 jobs production 默认 Cron：5 分钟心跳、10 分钟维护，小时/每日任务不变，移除 production `CRON_PROFILE=reduced`。staging 保持 reduced。（已被 2026-11-02 的成本决定取代，见「用户决定与边界」。）
 - 重新完成 jobs dry-run、web production build 与产物 dry-run；构建仅使用不可达本地 Hyperdrive 占位，未注入 Neon URL、未上传业务产物或 source map。[验证记录](evidence/launch-v1/README.md)。
 
 ### GitHub production environment
