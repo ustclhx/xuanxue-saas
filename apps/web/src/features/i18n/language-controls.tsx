@@ -153,9 +153,12 @@ export function LanguageSuggestion() {
 /** 后台侧栏使用的语言下拉（自带位置，不做浮层） */
 export function LanguageSelect() {
   const locale = getLocale()
+  // 与页头菜单相同只列本站语言；另一站语言在本站应用区不生效（request.server.ts accountLocale）
+  const siteLocales = templateConfig.sites[useSiteId()].locales
   const { busy, error, select } = useLocaleSwitch()
   const [ready, setReady] = useState(false)
   useEffect(() => setReady(true), [])
+  if (siteLocales.length < 2) return null
   return (
     <>
       <label className="inline-flex min-h-11 w-fit items-center rounded-md border bg-background px-3 text-sm shadow-xs">
@@ -169,7 +172,7 @@ export function LanguageSelect() {
             if (isLocale(event.target.value)) void select(event.target.value)
           }}
         >
-          {locales.map((value) => (
+          {siteLocales.map((value) => (
             <option key={value} value={value}>
               {LOCALE_AUTONYMS[value] ?? value}
             </option>

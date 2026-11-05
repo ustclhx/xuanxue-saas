@@ -159,8 +159,13 @@ describe('设置页数据', () => {
       },
       hasPassword: true,
       twoFactorAvailable: false,
-      locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
+      // 只列账户所属站点的语言：测试 Host 未登记，账户归西方站
+      locales: config(false).sites[user.site].locales,
     })
+    expect(user.site).toBe('west')
+    expect((await loadAccount(s.db, { ...user, site: 'east' }, config(false))).locales).toEqual(
+      config(false).sites.east.locales,
+    )
     expect((await loadAccount(s.db, user, config(true))).twoFactorAvailable).toBe(true)
 
     // 只有 OAuth 账号（没有密码凭据）

@@ -5,6 +5,7 @@ import { baseLocale, isLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { authClient } from '../auth/auth-client.ts'
 import { rememberLocale } from '../i18n/preference.ts'
+import { LOCALE_AUTONYMS } from '../site/theme.ts'
 import type { AccountView } from './account.ts'
 import { ACCOUNT_COPY, errorMessage } from './copy.ts'
 import {
@@ -146,7 +147,11 @@ export function PreferencesSection({
 }) {
   const [status, setStatus] = useState<Status>(null)
   const form = useAppForm({
-    defaultValues: { locale: user.locale ?? '', timezone: user.timezone ?? '' },
+    // 保存过另一站语言（如迁移出的副本账户）时按「默认」显示，避免选项里没有、提交时校验失败
+    defaultValues: {
+      locale: user.locale && locales.includes(user.locale) ? user.locale : '',
+      timezone: user.timezone ?? '',
+    },
     validators: { onSubmit: preferencesFormSchema(locales) },
     onSubmit: async ({ value }) => {
       setStatus(null)
@@ -178,8 +183,8 @@ export function PreferencesSection({
                 >
                   <option value="">{copy.localeDefault}</option>
                   {locales.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
+                    <option key={l} value={l} lang={l}>
+                      {LOCALE_AUTONYMS[l] ?? l}
                     </option>
                   ))}
                 </select>
