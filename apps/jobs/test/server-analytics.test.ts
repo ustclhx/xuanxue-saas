@@ -36,15 +36,13 @@ afterAll(() => db.$client.end())
 async function paidWorkspace(signupHost: string | null = null) {
   const ws = id()
   const key = `analytics-${ws}`
-  await db
-    .insert(user)
-    .values({
-      site: 'west',
-      id: ws,
-      name: 'Payer',
-      email: `${ws}@analytics.example.test`,
-      locale: 'zh',
-    })
+  await db.insert(user).values({
+    site: 'west',
+    id: ws,
+    name: 'Payer',
+    email: `${ws}@analytics.example.test`,
+    locale: 'zh',
+  })
   await db.insert(organization).values({ site: 'west', id: ws, name: 'Payer', slug: ws })
   await db.insert(member).values({ id: id(), userId: ws, organizationId: ws, role: 'owner' })
   await db.insert(userAttribution).values({

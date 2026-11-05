@@ -286,6 +286,9 @@ test('testing CI bypass still requires main ancestry and staging success', async
   assert.equal((await run({ phase: 'testing', stagingRuns: async () => [] })).code, 1)
 })
 
+// 这些用例只覆盖站点变量；最小配置会命中项目自有的生产资源规则，这里只看站点相关问题。
+const siteProblems = (problems) => problems.filter((line) => /share|PLAUSIBLE/.test(line))
+
 test('site vars: staging must not share production site settings, web and jobs must agree', () => {
   const env = (vars) => ({
     env: {
@@ -299,7 +302,9 @@ test('site vars: staging must not share production site settings, web and jobs m
     /share PLAUSIBLE_DOMAIN/,
   )
   assert.deepEqual(
-    checkEnvs('web', env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a-staging' })),
+    siteProblems(
+      checkEnvs('web', env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a-staging' })),
+    ),
     [],
   )
   const web = env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a-staging' })
@@ -337,9 +342,11 @@ test('site vars: PLAUSIBLE_SITES must parse, stay apart across environments and 
     },
   })
   const production = { PLAUSIBLE_SITES: 'a.example=a,b.example=b' }
-  assert.deepEqual(checkEnvs('web', config({}, production)), [])
+  assert.deepEqual(siteProblems(checkEnvs('web', config({}, production))), [])
   assert.deepEqual(
-    checkEnvs('web', config({ PLAUSIBLE_SITES: 's.a.example=a-staging' }, production)),
+    siteProblems(
+      checkEnvs('web', config({ PLAUSIBLE_SITES: 's.a.example=a-staging' }, production)),
+    ),
     [],
   )
   assert.match(

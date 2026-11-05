@@ -12,7 +12,9 @@ afterAll(() => db.$client.end())
 
 async function newUser() {
   const id = newId()
-  await db.insert(user).values({ site: 'west', id, name: 'Signup', email: `${id}@signup-host.example.test` })
+  await db
+    .insert(user)
+    .values({ site: 'west', id, name: 'Signup', email: `${id}@signup-host.example.test` })
   return id
 }
 

@@ -1,7 +1,6 @@
 import { createRouter } from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { localeRewrite } from './features/i18n/routing.ts'
-import { NotFoundPage } from './features/marketing/not-found.tsx'
 import { routeTree } from './routeTree.gen'
 import { securityNonce } from './security-context.server.ts'
 import { templateConfig } from './server/template-config.ts'
@@ -27,7 +26,6 @@ export function getRouter() {
     routeTree,
     ...(nonce ? { ssr: { nonce } } : {}),
     scrollRestoration: true,
-    defaultNotFoundComponent: NotFoundPage,
     rewrite: localeRewrite,
   })
 }
