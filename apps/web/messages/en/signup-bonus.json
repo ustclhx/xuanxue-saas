@@ -1,0 +1,15 @@
+{
+  "billing_signup_title": "Signup credits",
+  "billing_signup_verified_notice": "Claim your signup credits, or retry if verification completed without adding them.",
+  "billing_signup_verification_notice": "Verify your email to receive {credits} credits in your personal workspace.",
+  "billing_signup_wait": "Please wait…",
+  "billing_signup_claim": "Claim signup credits",
+  "billing_signup_verify": "Verify email to claim {credits} credits",
+  "billing_signup_verification_sent": "Verification email sent. Your credits will be added after verification.",
+  "billing_signup_granted": "Added {credits} credits to your personal workspace.",
+  "billing_signup_already_claimed": "This email has already received its signup credits.",
+  "billing_signup_blacklisted": "This email domain is not eligible for signup credits.",
+  "billing_signup_unverified": "Verify your email to receive signup credits.",
+  "billing_signup_unavailable": "Signup credits are unavailable.",
+  "billing_signup_error": "Unable to claim signup credits. Please try again."
+}

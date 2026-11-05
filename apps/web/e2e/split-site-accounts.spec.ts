@@ -53,11 +53,12 @@ async function siteContext(browser: Browser, origin: string) {
   return { context, page }
 }
 
-async function expectAvailableCredits(page: Page, amount: number) {
+async function expectAvailableCredits(page: Page, amount: number, site: 'east' | 'west') {
   await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
   await page.goto(`${new URL(page.url()).pathname.replace(/\/$/, '')}/billing`)
-  await expect(page.getByText(`Available credits: ${amount} ·`, { exact: false })).toBeVisible()
+  const balance = site === 'east' ? `可用積分：${amount} ·` : `Available credits: ${amount} ·`
+  await expect(page.getByText(balance, { exact: false })).toBeVisible()
 }
 
 test('same email on east and west: independent balances, sessions and deletion', async ({
@@ -122,8 +123,8 @@ test('same email on east and west: independent balances, sessions and deletion',
       .toBe(true)
     await addCredits.click()
     await expect(admin.page.getByText('調整已生效。', { exact: true })).toBeVisible()
-    await expectAvailableCredits(eastUser.page, 100)
-    await expectAvailableCredits(westUser.page, 0)
+    await expectAvailableCredits(eastUser.page, 100, 'east')
+    await expectAvailableCredits(westUser.page, 0, 'west')
     const grants = await sql`select workspace_id, amount from credit_grant
       where workspace_id in (${eastAccount.workspace_id}, ${westAccount.workspace_id})`
     expect(grants.map((row) => [row.workspace_id, row.amount])).toEqual([
@@ -176,7 +177,7 @@ test('same email on east and west: independent balances, sessions and deletion',
     const eastAgain = await open(east)
     await login(eastAgain.page, email, '/login', AUTH_FORM_COPY['zh-Hant'])
     await expect(eastAgain.page.getByTestId('current-user')).toContainText(email)
-    await expectAvailableCredits(eastAgain.page, 100)
+    await expectAvailableCredits(eastAgain.page, 100, 'east')
     const [eastAfter] = await sql`select u.id, o.deleted_at from "user" u
       join organization o on o.id = ${eastAccount.workspace_id}
       where u.id = ${eastAccount.user_id}`

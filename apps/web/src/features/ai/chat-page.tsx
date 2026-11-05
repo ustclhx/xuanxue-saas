@@ -18,7 +18,6 @@ import {
   chatErrorCode,
   chatErrorMessage,
   chatRequestBody,
-  conversationTitle,
   messageReasoning,
   messageRetrying,
   messageText,
@@ -143,7 +142,7 @@ export function ChatPage({
       const status = parsed.data.status
       setEnded((old) => ({ ...old, [messageId]: status }))
     } catch {
-      setStopError('Could not stop the reply on the server. It may continue in the background.')
+      setStopError(m.ai_chat_stop_error())
     }
   }
 
@@ -151,14 +150,14 @@ export function ChatPage({
     <div className="grid gap-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold" data-testid="conversation-title">
-          {conversationTitle(title)}
+          {title || m.ai_chat_new_chat()}
         </h2>
         <Link to="/app/$slug/chat" params={{ slug }} className="underline">
-          All chats
+          {m.ai_chat_all_chats()}
         </Link>
       </div>
       {chatContext ? <ChatContextSummary context={chatContext} /> : null}
-      <ol aria-label="Messages" className="grid gap-4">
+      <ol aria-label={m.ai_chat_messages_label()} className="grid gap-4">
         {messages.map((message) => (
           <ChatMessage
             key={message.id}
@@ -174,19 +173,19 @@ export function ChatPage({
           <FormAlert message={chatErrorMessage(errorCode)} />
           {errorCode && BILLING_CODES.has(errorCode) ? (
             <Link to="/app/$slug/billing" params={{ slug }} className="underline">
-              Go to billing
+              {m.ai_chat_go_to_billing()}
             </Link>
           ) : null}
         </div>
       ) : null}
       <FormAlert message={stopError} />
-      {readOnly ? <p role="status">This workspace is read-only.</p> : null}
+      {readOnly ? <p role="status">{m.ai_chat_readonly()}</p> : null}
       {models.length === 0 ? (
         // 空间没有可用模型：保留历史消息，以多语言空态与购买积分入口取代输入框
         <ChatUnavailable slug={slug} />
       ) : (
         <form
-          aria-label="Send a message"
+          aria-label={m.ai_chat_send_message_label()}
           className="grid gap-3"
           onSubmit={(event) => {
             event.preventDefault()
@@ -203,11 +202,11 @@ export function ChatPage({
                   disabled={busy || readOnly}
                   onChange={(event) => setThinking(event.target.checked)}
                 />
-                Thinking
+                {m.ai_chat_thinking()}
               </label>
             ) : null}
             <p className="grid gap-1">
-              <Label htmlFor="chat-input">Message</Label>
+              <Label htmlFor="chat-input">{m.ai_chat_message_label()}</Label>
               <textarea
                 id="chat-input"
                 className="min-h-24 rounded-md border p-2"
@@ -225,11 +224,11 @@ export function ChatPage({
             <div className="flex flex-wrap items-center gap-3">
               {busy ? (
                 <Button type="button" variant="outline" onClick={() => void stopReply()}>
-                  Stop
+                  {m.ai_chat_stop()}
                 </Button>
               ) : (
                 <Button type="submit" disabled={readOnly || !model || !input.trim()}>
-                  Send
+                  {m.ai_chat_send()}
                 </Button>
               )}
               <ChatCostHint model={model} inputTokens={inputTokens} />
@@ -255,26 +254,27 @@ function ChatMessage({
   const retrying = live && messageRetrying(message)
   const note =
     status === 'aborted'
-      ? 'Stopped'
+      ? m.ai_chat_stopped()
       : status === 'failed'
-        ? 'This reply failed. Please try again.'
+        ? m.ai_chat_reply_failed()
         : status === 'streaming' && !live
-          ? 'Incomplete'
+          ? m.ai_chat_incomplete()
           : null
   return (
     <li className="grid gap-1" data-role={message.role} aria-label={roleName(message.role)}>
       <span className="text-muted-foreground text-sm">{roleName(message.role)}</span>
       {reasoning ? (
         <details className="text-muted-foreground text-sm">
-          <summary>Reasoning</summary>
+          <summary>{m.ai_chat_reasoning()}</summary>
           <p className="whitespace-pre-wrap">{reasoning}</p>
         </details>
       ) : null}
       <p className="whitespace-pre-wrap">{messageText(message)}</p>
-      {retrying ? <span role="status">Retrying…</span> : null}
+      {retrying ? <span role="status">{m.ai_chat_retrying()}</span> : null}
       {note ? <span className="text-muted-foreground text-sm">{note}</span> : null}
     </li>
   )
 }
 
-const roleName = (role: string) => (role === 'user' ? 'You' : 'Assistant')
+const roleName = (role: string) =>
+  role === 'user' ? m.ai_chat_role_you() : m.ai_chat_role_assistant()

@@ -1,0 +1,15 @@
+{
+  "billing_signup_title": "註冊積分",
+  "billing_signup_verified_notice": "領取註冊積分；若完成驗證後未收到積分，可再次嘗試領取。",
+  "billing_signup_verification_notice": "驗證電子郵件，即可在個人空間獲得 {credits} 積分。",
+  "billing_signup_wait": "請稍候…",
+  "billing_signup_claim": "領取註冊積分",
+  "billing_signup_verify": "驗證電子郵件以領取 {credits} 積分",
+  "billing_signup_verification_sent": "驗證郵件已傳送，完成驗證後將發放積分。",
+  "billing_signup_granted": "已為你的個人空間新增 {credits} 積分。",
+  "billing_signup_already_claimed": "此電子郵件已領取過註冊積分。",
+  "billing_signup_blacklisted": "此電子郵件網域不符合領取註冊積分的條件。",
+  "billing_signup_unverified": "請驗證電子郵件以領取註冊積分。",
+  "billing_signup_unavailable": "目前無法領取註冊積分。",
+  "billing_signup_error": "無法領取註冊積分，請重試。"
+}

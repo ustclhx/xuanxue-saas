@@ -45,9 +45,9 @@ export const Route = createFileRoute('/app/$slug/billing')({
 const money = (amount: number, currency: string) =>
   currency.toUpperCase() === 'USD'
     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount / 100)
-    : 'Amount unavailable'
+    : m.billing_amount_unavailable()
 const date = (value: Date | null) =>
-  value ? new Date(value).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Pending'
+  value ? new Date(value).toLocaleDateString('en-US', { timeZone: 'UTC' }) : m.billing_pending()
 function BillingPage() {
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
@@ -57,7 +57,7 @@ function BillingPage() {
   const [busy, setBusy] = useState(false)
   // PayPal 取消后回到本页时提示一次；成功回跳由下方付款记录体现
   const [message, setMessage] = useState(
-    checkoutResult === 'canceled' ? 'Checkout was canceled.' : '',
+    checkoutResult === 'canceled' ? m.billing_checkout_canceled() : '',
   )
   const [provider, setProvider] = useState(
     page.catalog.providers.find((p) => p.available)?.id ?? page.catalog.providers[0]?.id ?? '',
@@ -121,11 +121,11 @@ function BillingPage() {
       setMessage(
         result.result.status === 'scheduled'
           ? m.billing_change_scheduled()
-          : 'Subscription updated.',
+          : m.billing_subscription_updated(),
       )
       await router.invalidate()
     } catch {
-      setMessage('Unable to update billing. Please try again.')
+      setMessage(m.billing_error_unknown())
     } finally {
       setBusy(false)
     }
@@ -155,11 +155,11 @@ function BillingPage() {
         },
       })
       if (result.ok) {
-        setMessage('Redirecting to checkout…')
+        setMessage(m.billing_checkout_redirecting())
         window.location.assign(result.result.url)
       } else setMessage(errorMessage(result.error))
     } catch {
-      setMessage('Unable to start checkout. Please try again.')
+      setMessage(m.billing_checkout_error())
     } finally {
       setBusy(false)
     }
@@ -177,28 +177,26 @@ function BillingPage() {
     if (price && !disabled) void checkout(price)
   }, [ready])
   return (
-    <SpacePage title="Billing">
-      <p>Current plan: {page.entitlements.key}</p>
+    <SpacePage title={m.app_billing()}>
+      <p>{m.billing_current_plan({ plan: page.entitlements.key })}</p>
       {page.credits && (
         <p>
-          Available credits: {page.credits.available} · Held: {page.credits.held} · Debt:{' '}
-          {page.credits.debt}
+          {m.billing_credit_balance({
+            available: page.credits.available,
+            held: page.credits.held,
+            debt: page.credits.debt,
+          })}
         </p>
       )}
       <Link to="/app/$slug/usage" params={{ slug }} className="underline">
-        Credit balance and usage
+        {m.billing_credit_usage_link()}
       </Link>
       {page.subscriptions.filter(
         (sub) =>
           sub.currentPeriodEnd &&
           new Date(sub.currentPeriodEnd) > new Date() &&
           ['active', 'trialing', 'canceled', 'expired', 'past_due'].includes(sub.status),
-      ).length > 1 && (
-        <p>
-          Paid subscription periods overlap. Your access uses the highest eligible plan; each paid
-          subscription grants its own credits until its paid period ends.
-        </p>
-      )}
+      ).length > 1 && <p>{m.billing_overlap_notice()}</p>}
       {page.subscriptions.map((sub) => (
         <section key={sub.id} className="grid gap-3 rounded-xl border border-line bg-surface p-6">
           <h3 className="font-semibold">{sub.name}</h3>
@@ -211,8 +209,9 @@ function BillingPage() {
             {sub.priceActive ? '' : ` · ${m.billing_unavailable()}`}
           </p>
           <p>
-            {sub.cancelAtPeriodEnd ? 'Paid access ends' : 'Next billing'}:{' '}
-            {date(sub.currentPeriodEnd)}
+            {sub.cancelAtPeriodEnd
+              ? m.billing_paid_access_ends({ date: date(sub.currentPeriodEnd) })
+              : m.billing_next_billing({ date: date(sub.currentPeriodEnd) })}
           </p>
           {owner && 'id' in sub && sub.id && (
             <div className="flex gap-3">
@@ -223,7 +222,9 @@ function BillingPage() {
                 }
                 onClick={() => void manage(sub.id, sub.cancelAtPeriodEnd ? 'resume' : 'cancel')}
               >
-                {sub.cancelAtPeriodEnd ? 'Resume subscription' : 'Cancel at period end'}
+                {sub.cancelAtPeriodEnd
+                  ? m.billing_resume_subscription()
+                  : m.billing_cancel_at_period_end()}
               </Button>
               {sub.provider === 'stripe' && (
                 <Button
@@ -233,7 +234,7 @@ function BillingPage() {
                   }
                   onClick={() => void manage(sub.id, 'portal')}
                 >
-                  Open billing portal
+                  {m.billing_open_portal()}
                 </Button>
               )}
             </div>
@@ -242,11 +243,11 @@ function BillingPage() {
       ))}
       {owner && (
         <section className="grid gap-3 rounded-xl border border-line bg-surface p-6">
-          <h3 className="font-semibold">Choose a plan or credit pack</h3>
+          <h3 className="font-semibold">{m.billing_choose_plan_or_pack()}</h3>
           {/* 只有一个可用支付方式时不显示选择器，直接用它结账（design D5） */}
           {availableProviders > 1 && (
             <label>
-              Payment method{' '}
+              {m.billing_payment_method()}{' '}
               <select
                 value={provider}
                 disabled={disabled}
@@ -274,15 +275,17 @@ function BillingPage() {
                   disabled={disabled || !price.available}
                   onClick={() => void checkout(price)}
                 >
-                  Buy {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
-                  {money(price.amount, price.currency)}
+                  {m.billing_buy_pack({
+                    name: page.catalog.plans.find((plan) => plan.id === price.planId)?.name ?? '',
+                    amount: money(price.amount, price.currency),
+                  })}
                 </Button>
               ))}
             </div>
           )}
           {planPrices.length > 0 && (
             <label>
-              Plan{' '}
+              {m.billing_plan()}{' '}
               <select
                 value={priceId}
                 disabled={disabled}
@@ -292,7 +295,7 @@ function BillingPage() {
                   intent.current = null
                 }}
               >
-                <option value="">Choose a plan</option>
+                <option value="">{m.billing_choose_plan()}</option>
                 {planPrices.map((price) => (
                   <option key={price.id} value={price.id} disabled={!price.available}>
                     {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
@@ -304,7 +307,7 @@ function BillingPage() {
             </label>
           )}
           {!page.catalog.providers.some((p) => p.available) && (
-            <p>Payments are currently unavailable.</p>
+            <p>{m.billing_payments_unavailable()}</p>
           )}
           {replacement && (
             <label>
@@ -314,9 +317,7 @@ function BillingPage() {
                 checked={confirmed}
                 onChange={(event) => setConfirmed(event.target.checked)}
               />{' '}
-              I agree to cancel renewal of my current subscription and pay for the new plan
-              immediately. My old paid access lasts until {date(replacement.currentPeriodEnd)}; the
-              paid periods may overlap.
+              {m.billing_switch_confirmation({ date: date(replacement.currentPeriodEnd) })}
             </label>
           )}
           {intervalChange && renewing && (
@@ -327,7 +328,7 @@ function BillingPage() {
               disabled={disabled || !selected?.available || Boolean(replacement && !confirmed)}
               onClick={() => void checkout()}
             >
-              {change ? 'Change plan' : 'Continue to checkout'}
+              {change ? m.billing_change_plan() : m.billing_continue_checkout()}
             </Button>
           )}
         </section>
@@ -341,16 +342,16 @@ function BillingPage() {
       />
       {owner && (
         <section className="grid gap-3">
-          <h3 className="font-semibold">Payment history</h3>
-          <p>Canceling a subscription does not automatically refund previous payments.</p>
+          <h3 className="font-semibold">{m.billing_payment_history()}</h3>
+          <p>{m.billing_cancel_refund_notice()}</p>
           <table>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Provider</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Refunded</th>
+                <th>{m.billing_date()}</th>
+                <th>{m.billing_provider()}</th>
+                <th>{m.billing_amount()}</th>
+                <th>{m.billing_status()}</th>
+                <th>{m.billing_refunded()}</th>
               </tr>
             </thead>
             <tbody>
@@ -365,14 +366,14 @@ function BillingPage() {
               ))}
             </tbody>
           </table>
-          {page.payments.length === 0 && <p>No payments yet.</p>}
-          <h3 className="font-semibold">Refund requests</h3>
+          {page.payments.length === 0 && <p>{m.billing_no_payments()}</p>}
+          <h3 className="font-semibold">{m.billing_refund_requests()}</h3>
           {page.refunds.map((refund) => (
             <p key={refund.id}>
               {date(refund.createdAt)} · {refund.status}
             </p>
           ))}
-          {page.refunds.length === 0 && <p>No refund requests.</p>}
+          {page.refunds.length === 0 && <p>{m.billing_no_refund_requests()}</p>}
         </section>
       )}
     </SpacePage>

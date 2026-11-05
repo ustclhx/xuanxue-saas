@@ -1,0 +1,15 @@
+{
+  "billing_signup_title": "注册积分",
+  "billing_signup_verified_notice": "领取注册积分；若完成验证后未收到积分，可再次尝试领取。",
+  "billing_signup_verification_notice": "验证电子邮件，即可在个人空间获得 {credits} 积分。",
+  "billing_signup_wait": "请稍候…",
+  "billing_signup_claim": "领取注册积分",
+  "billing_signup_verify": "验证电子邮件以领取 {credits} 积分",
+  "billing_signup_verification_sent": "验证邮件已发送，完成验证后将发放积分。",
+  "billing_signup_granted": "已为你的个人空间添加 {credits} 积分。",
+  "billing_signup_already_claimed": "此电子邮件已领取过注册积分。",
+  "billing_signup_blacklisted": "此电子邮件域名不符合领取注册积分的条件。",
+  "billing_signup_unverified": "请验证电子邮件以领取注册积分。",
+  "billing_signup_unavailable": "当前无法领取注册积分。",
+  "billing_signup_error": "无法领取注册积分，请重试。"
+}
