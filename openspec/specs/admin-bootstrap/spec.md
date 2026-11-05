@@ -7,7 +7,7 @@
 ## Requirements
 
 ### Requirement: 已验证邮箱名单提升
-系统 SHALL 将可选 BOOTSTRAP_ADMIN_EMAILS 按逗号分割、去除两侧空白并忽略大小写；仅名单内、emailVerified=true 且未封禁用户 MUST 被提升为平台 admin。未配置或空名单 MUST 禁用引导。
+系统 SHALL 将可选 BOOTSTRAP_ADMIN_EMAILS 按逗号分割、去除两侧空白并忽略大小写；名单对两个站点都适用，但只作用于各站点内名单内、emailVerified=true 且未封禁的账户，这些账户 MUST 被提升为平台 admin。一个站点的账户被提升，MUST NOT 使另一站点的同邮箱账户获得 admin。未配置或空名单 MUST 禁用引导。
 
 #### Scenario: 已验证名单账号
 - **WHEN** 用户邮箱匹配含空白及大小写变化的名单且已验证、未封禁
@@ -16,6 +16,10 @@
 #### Scenario: 不符合信任条件
 - **WHEN** 用户邮箱未验证、未在名单、已封禁，或名单为空
 - **THEN** 用户角色不因引导改变
+
+#### Scenario: 只在一站验证
+- **WHEN** 名单内的邮箱只在东方站注册并验证
+- **THEN** 只有东方站账户成为 admin；该邮箱在西方站注册并验证前，西方站没有对应的 admin
 
 ### Requirement: 认证事件覆盖与幂等审计
 系统 SHALL 在用户创建后、邮箱验证持久化后及会话创建后检查引导规则。成功提升 MUST 同时追加 admin.user.bootstrap 审计，actor 为系统或用户本人，meta 包含触发来源；已为 admin 的用户 MUST 不重复更新或记录审计。
