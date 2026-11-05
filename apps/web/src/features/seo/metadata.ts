@@ -89,7 +89,15 @@ export function alternateLinks(
 }
 
 /** 由 staticPage 提供元数据的静态页；新增静态页须在每种语言下补齐文案 */
-export type StaticPath = '/' | '/pricing' | '/blog' | '/docs' | '/newsletter' | '/waitlist' | '/faq'
+export type StaticPath =
+  | '/'
+  | '/pricing'
+  | '/blog'
+  | '/docs'
+  | '/newsletter'
+  | '/waitlist'
+  | '/faq'
+  | '/guides'
 
 // 按全部语言必填：缺少任一语言或页面都会在类型检查时报错，避免再次回退到英语或另一站点的描述。
 // 东方站（zh-Hant / zh-Hans / ko）描述八字、紫微、塔罗等本站体系，不写 numerology。
@@ -104,6 +112,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
       'All numerology and tarot tools are free. Credit packs unlock full AI readings of your own numbers and cards.',
     ],
     '/blog': ['Blog', 'Guides to numerology, tarot and reading your own results.'],
+    '/guides': ['Guides', 'Short answers to common questions.'],
     '/docs': ['Documentation', 'Help and guides for using Arcanumber.'],
     '/newsletter': [
       'Newsletter',
@@ -125,6 +134,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
       '八字、紫微與塔羅工具全部免費；積分包用於解鎖依你命盤撰寫的 AI 完整詳批。',
     ],
     '/blog': ['部落格', '八字、紫微與塔羅的入門指南與結果解讀。'],
+    '/guides': ['指南', '常見問題的簡明解答。'],
     '/docs': ['文件', '本站使用說明與指南。'],
     '/newsletter': ['訂閱電子報', '訂閱電子報，取得八字、紫微與塔羅的新文章與產品消息。'],
     '/waitlist': ['加入候補名單', '登記候補名單，第一時間收到產品開放通知。'],
@@ -143,6 +153,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
       '八字、紫微与塔罗工具全部免费；积分包用于解锁依你命盘撰写的 AI 完整详批。',
     ],
     '/blog': ['博客', '八字、紫微与塔罗的入门指南与结果解读。'],
+    '/guides': ['指南', '常见问题的简明答案。'],
     '/docs': ['文档', '本站使用说明与指南。'],
     '/newsletter': ['订阅电子报', '订阅电子报，获取八字、紫微与塔罗的新文章与产品消息。'],
     '/waitlist': ['加入候补名单', '登记候补名单，第一时间收到产品开放通知。'],
@@ -161,6 +172,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
       '만세력·사주·타로 도구는 모두 무료이며, 크레딧 팩으로 내 명식에 맞춘 AI 상세 풀이를 이용할 수 있습니다.',
     ],
     '/blog': ['블로그', '사주, 만세력, 타로 입문 가이드와 결과 읽는 법.'],
+    '/guides': ['가이드', '자주 묻는 질문에 대한 짧은 답변입니다.'],
     '/docs': ['문서', '사이트 이용 안내와 가이드.'],
     '/newsletter': ['뉴스레터', '뉴스레터를 구독하고 사주·타로 새 글과 제품 소식을 받아 보세요.'],
     '/waitlist': ['대기자 명단 등록', '대기자 명단에 등록하고 출시 소식을 가장 먼저 받아 보세요.'],

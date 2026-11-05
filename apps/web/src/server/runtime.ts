@@ -34,8 +34,12 @@ export interface WebAiRuntime {
 export interface WebRuntime {
   readonly config: ReturnType<typeof parseAuthEnv> &
     AuthUiEnv &
-    PaymentRuntimeEnv &
-    AiFaultInjectionEnv
+    PaymentRuntimeEnv & {
+      readonly PLAUSIBLE_DOMAIN?: string | undefined
+      readonly PLAUSIBLE_HOST?: string | undefined
+      readonly PLAUSIBLE_SITES?: string | undefined
+      readonly INDEXNOW_KEY?: string | undefined
+    } & AiFaultInjectionEnv
   /**
    * 本请求的账户站点（openspec split-site-accounts 决策 1）：入口按 Host 解析一次，认证实例与空间解析都用它；
    * 业务代码不要再从请求参数推断站点。

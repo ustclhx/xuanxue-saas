@@ -9,7 +9,7 @@
 
 import { createStartHandler, defaultStreamHandler } from '@tanstack/react-start/server'
 import { type AuthEmail, parseAuthEnv, type SendAuthEmail } from '@xuanxue/auth'
-import { loadEnv, type SiteId, siteBrandName } from '@xuanxue/config'
+import { loadEnv, plausibleSite, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore, RequestMetadata } from '@xuanxue/platform'
 import {
@@ -28,6 +28,7 @@ import { createCloudflareStorage } from '@xuanxue/storage/cloudflare'
 import { APIError } from 'better-auth/api'
 import { gateAdminRequest } from './features/admin/gate.ts'
 import { handleAuthRequest } from './features/admin/impersonation-http.ts'
+import { createSignUpRecorder } from './features/analytics/server.ts'
 import {
   gatePublicApiRequest,
   isPublicApiPath,
@@ -154,6 +155,8 @@ function staticSecurity(request: Request, env: Cloudflare.Env) {
     https: new URL(request.url).protocol === 'https:',
     r2AccountId: env.R2_ACCOUNT_ID,
     sentryDsn: env.SENTRY_DSN,
+    analyticsOrigin: plausibleSite(templateConfig.features.analytics, env)?.origin,
+    clarity: Boolean(templateConfig.analytics.clarityProjectId.trim()),
   }
 }
 
@@ -199,6 +202,10 @@ function createCloudflareWebRuntime(
   const config = {
     ...parseAuthEnv(env, templateConfig),
     TURNSTILE_SITE_KEY: env.TURNSTILE_SITE_KEY,
+    PLAUSIBLE_DOMAIN: env.PLAUSIBLE_DOMAIN,
+    PLAUSIBLE_HOST: env.PLAUSIBLE_HOST,
+    PLAUSIBLE_SITES: env.PLAUSIBLE_SITES,
+    INDEXNOW_KEY: env.INDEXNOW_KEY,
     PAYMENT_MODE: env.PAYMENT_MODE,
     SENTRY_ENVIRONMENT: env.SENTRY_ENVIRONMENT,
     AI_FAULT_INJECTION: env.AI_FAULT_INJECTION,
@@ -244,6 +251,11 @@ function createCloudflareWebRuntime(
         ...createBillingDeletionSteps(config, db, cache),
         workspaceContentDeletionStep,
       ],
+      onUserSignedUp: createSignUpRecorder({
+        db,
+        queue: env.EVENTS_QUEUE && createCloudflareQueue(env.EVENTS_QUEUE),
+        clientIp: requestMeta.clientIp,
+      }),
       beforeUserCreate: async (user, headers) => {
         try {
           await assertSignupAdmission(

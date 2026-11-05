@@ -179,6 +179,10 @@ jobs:
       - name: Confirm western site health and version
         run: node scripts/staging/wait-healthy.mjs "$WEST_URL/api/health" "$DEPLOY_SHA"
 
+      # P0 门禁：sitemap / canonical / 分析脚本不得指向他站（docs/analytics.md）
+      - name: Check site isolation
+        run: node scripts/staging/check-site-isolation.mjs production "$PRODUCTION_URL"
+
       - name: Install Chromium
         run: pnpm --filter @xuanxue/web exec playwright install --with-deps chromium
 
@@ -193,6 +197,12 @@ jobs:
           PRODUCTION_URL: ${{ env.WEST_URL }}
           APP_VERSION: ${{ env.DEPLOY_SHA }}
         run: pnpm --filter @xuanxue/web exec playwright test --project production --output test-results/west
+
+      # 收录加速，脚本内部吞掉失败；未配置 INDEXNOW_KEY 时跳过（docs/analytics.md）
+      - name: Submit URLs to IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: node scripts/production/submit-indexnow.mjs "$PRODUCTION_URL"
 
       - name: Upload smoke traces
         if: failure()

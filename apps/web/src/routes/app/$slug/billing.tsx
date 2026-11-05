@@ -7,6 +7,7 @@ import {
 import { Button } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
+import { trackEvent } from '../../../features/analytics/track.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import {
   checkoutCustomer,
@@ -67,6 +68,7 @@ function BillingPage() {
   const intent = useRef<{ key: string; uuid: string } | null>(null)
   const autoBuy = useRef(false)
   useEffect(() => setReady(true), [])
+  useEffect(() => trackEvent('paywall_view'), [])
   const availableProviders = page.catalog.providers.filter((p) => p.available).length
   const owner = page.role === 'owner'
   const disabled = !ready || busy || page.readOnly || !owner
@@ -141,6 +143,9 @@ function BillingPage() {
     if (intent.current?.key !== key) intent.current = { key, uuid: crypto.randomUUID() }
     setBusy(true)
     setMessage('')
+    trackEvent('checkout_start', {
+      plan: page.catalog.plans.find((plan) => plan.id === selected.planId)?.key ?? '',
+    })
     try {
       const result = await checkoutCustomer({
         data: {

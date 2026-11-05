@@ -119,5 +119,13 @@
   "marketing_faq_privacy_a": "免費工具不會。排盤、計算與塔羅抽牌都在你的瀏覽器中完成；只有在你登入並選擇解鎖完整詳批時，撰寫詳批所需的資料才會傳到我們的伺服器。",
   "marketing_faq_section_account": "帳號",
   "marketing_faq_accounts_q": "可以用{otherSite}的帳號登入這裡嗎？",
-  "marketing_faq_accounts_a": "不可以。{site}與{otherSite}是兩個獨立的網站，帳號互相獨立：登入狀態、積分、購買紀錄與已儲存的詳批都不互通。你可以用同一個電子郵件在這裡註冊，得到的是一個全新、獨立的{site}帳號。"
+  "marketing_faq_accounts_a": "不可以。{site}與{otherSite}是兩個獨立的網站，帳號互相獨立：登入狀態、積分、購買紀錄與已儲存的詳批都不互通。你可以用同一個電子郵件在這裡註冊，得到的是一個全新、獨立的{site}帳號。",
+  "marketing_nav_guides": "指南",
+  "marketing_guides_title": "指南",
+  "marketing_guides_subtitle": "常見問題的簡明解答。",
+  "marketing_guides_back": "全部指南",
+  "marketing_guides_faq": "常見問題",
+  "marketing_not_found_title": "找不到頁面",
+  "marketing_not_found_body": "這個頁面不存在或已移動。",
+  "marketing_not_found_home": "返回首頁"
 }

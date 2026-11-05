@@ -63,6 +63,10 @@
       "name": "xuanxue-jobs-staging",
       "vars": {
         "SENTRY_ENVIRONMENT": "staging",
+        // 与 web 一致：服务端事件 URL 用 APP_URL；staging 不接入 Plausible
+        "APP_URL": "https://xuanxue-web-staging.saas-jobs.workers.dev",
+        "PLAUSIBLE_DOMAIN": "",
+        "PLAUSIBLE_HOST": "",
         "PAYMENT_MODE": "test",
         "CRON_PROFILE": "reduced"
       },
@@ -126,6 +130,11 @@
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
         "PAYMENT_MODE": "live",
+        // 与 web 一致：多站 Plausible 映射与西方站 APP_URL（未登记 Host 的事件兜底）
+        "APP_URL": "https://arcanumber.com",
+        "PLAUSIBLE_DOMAIN": "",
+        "PLAUSIBLE_HOST": "https://stats.ganjiday.com",
+        "PLAUSIBLE_SITES": "ganjiday.com=ganjiday.com,arcanumber.com=arcanumber.com",
         "CRON_PROFILE": "reduced"
       },
 

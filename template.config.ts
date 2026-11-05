@@ -83,5 +83,14 @@ export default defineTemplateConfig({
     // 新建模型时的默认计费方式，后台可逐个模型修改：'per_call' 按次 | 'token' 按 token | 'per_unit' 按张/秒
     defaultPricingMode: { text: 'token', image: 'per_call', video: 'per_call' },
   },
-  features: { publicApi: false, blog: true, docs: false, waitlist: false, newsletter: true },
+  features: {
+    analytics: 'plausible',
+    publicApi: false,
+    blog: true,
+    docs: false,
+    waitlist: false,
+    newsletter: true,
+    guides: false,
+  },
+  analytics: { plausibleDomain: '', plausibleHost: '', plausibleSites: '' },
 })

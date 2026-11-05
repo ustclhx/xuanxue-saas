@@ -119,5 +119,13 @@
   "marketing_faq_privacy_a": "免费工具不会。排盘、计算与塔罗抽牌都在你的浏览器中完成；只有在你登录并选择解锁完整详批时，撰写详批所需的资料才会传到我们的服务器。",
   "marketing_faq_section_account": "账号",
   "marketing_faq_accounts_q": "可以用{otherSite}的账号登录这里吗？",
-  "marketing_faq_accounts_a": "不可以。{site}与{otherSite}是两个独立的网站，账号互相独立：登录状态、积分、购买记录与已保存的详批都不互通。你可以用同一个电子邮件在这里注册，得到的是一个全新、独立的{site}账号。"
+  "marketing_faq_accounts_a": "不可以。{site}与{otherSite}是两个独立的网站，账号互相独立：登录状态、积分、购买记录与已保存的详批都不互通。你可以用同一个电子邮件在这里注册，得到的是一个全新、独立的{site}账号。",
+  "marketing_nav_guides": "指南",
+  "marketing_guides_title": "指南",
+  "marketing_guides_subtitle": "常见问题的简明答案。",
+  "marketing_guides_back": "全部指南",
+  "marketing_guides_faq": "常见问题",
+  "marketing_not_found_title": "页面不存在",
+  "marketing_not_found_body": "这个页面不存在或已移动。",
+  "marketing_not_found_home": "返回首页"
 }

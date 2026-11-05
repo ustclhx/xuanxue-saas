@@ -47,14 +47,16 @@ const list = (items, render) => (items.length ? items.map(render).join('\n') : '
  * @typedef {object} SyncReport
  * @property {string} template Template source as given.
  * @property {{commit: string, version: string | null}} base
- * @property {{ref: string, commit: string, version: string | null}} target
+ * @property {{ref: string, defaulted?: boolean, commit: string, version: string | null}} target
  * @property {string} branch Sync branch.
  * @property {boolean} resumed True when the file merge was already done on the branch.
  * @property {string[]} applied
  * @property {{path: string, reason: string}[]} conflicts
  * @property {string} setupDiff PROJECT_SETUP.md diff between the copies.
+ * @property {{path: string, modified: boolean}[]} [retained] Files the template deleted, kept in the project.
  * @property {{source: string, tag: string}[]} ported
  * @property {string[]} skippedMigrations
+ * @property {string[]} [commentOnlyMigrations] Published template migrations whose change is whole-line comments only.
  * @property {{name: string, before: string[], after: string[]}[]} lockChanges
  * @property {{name: string, command: string, status: 'pass' | 'fail' | 'skip', detail?: string}[]} checks
  * @property {boolean} baseUpdated
@@ -76,7 +78,7 @@ export function renderReport(report) {
     '',
     `- 模板：${report.template}`,
     `- 基准：${report.base.commit}${version(report.base.version)}`,
-    `- 目标：${report.target.commit}${version(report.target.version)}（--to ${report.target.ref}${report.target.version ? '' : '，目标未发布'}）`,
+    `- 目标：${report.target.commit}${version(report.target.version)}（--to ${report.target.ref}${report.target.defaulted ? '，默认' : ''}${report.target.version ? '' : '，目标未发布'}）`,
     `- 同步分支：${report.branch}${report.resumed ? '（继续：文件合并已在本分支完成）' : ''}`,
     `- 基准记录：${report.baseUpdated ? '已更新到目标提交' : '未更新'}`,
     ...(report.notes ?? []).map((note) => `- 注意：${note}`),
@@ -111,6 +113,12 @@ export function renderReport(report) {
       ? `${report.conflicts.map((item) => `- \`${item.path}\`：${item.reason}`).join('\n')}\n\n解决冲突并提交后，在同步分支上用相同的 --to 重新运行同步，继续迁移移植与验证。`
       : '- 无',
     '',
+    `## 模板已删除、项目中保留的文件（${report.retained?.length ?? 0}）`,
+    '',
+    report.retained?.length
+      ? `${report.retained.map((item) => `- \`${item.path}\`${item.modified ? '（项目改过）' : ''}`).join('\n')}\n\n同步不删除这些文件。确认项目不再使用后自行删除并提交；仍在使用的文件今后由项目自己维护。`
+      : '- 无',
+    '',
     `## 已应用的模板变更（${report.applied.length}）`,
     '',
     list(report.applied, (path) => `- \`${path}\``),
@@ -123,6 +131,12 @@ export function renderReport(report) {
     '',
     report.skippedMigrations.length
       ? `${report.skippedMigrations.map((tag) => `- \`${tag}\``).join('\n')}\n\n这些迁移未移植，但已登记为已处理，以后不会再出现。请自行确认项目代码不依赖它们。`
+      : '- 无',
+    '',
+    '## 仅注释变化的已发布迁移',
+    '',
+    report.commentOnlyMigrations?.length
+      ? `${report.commentOnlyMigrations.map((tag) => `- \`${tag}\``).join('\n')}\n\n模板只改了这些迁移的整行注释，语义不变；项目中的文件保持原样，不重新执行。`
       : '- 无',
     '',
     '## 锁文件中版本变化的包',

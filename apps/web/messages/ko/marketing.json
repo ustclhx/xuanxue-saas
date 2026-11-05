@@ -119,5 +119,13 @@
   "marketing_faq_privacy_a": "무료 도구는 전송하지 않습니다. 만세력 계산과 타로 뽑기는 모두 브라우저에서 처리됩니다. 로그인한 뒤 상세 풀이를 직접 잠금 해제할 때에만 풀이 작성에 필요한 정보가 서버로 전송됩니다.",
   "marketing_faq_section_account": "계정",
   "marketing_faq_accounts_q": "{otherSite} 계정으로 여기에 로그인할 수 있나요?",
-  "marketing_faq_accounts_a": "아니요. {site}와 {otherSite}는 서로 다른 사이트이며 계정도 별개입니다. 로그인 상태, 크레딧, 구매 내역과 저장된 풀이는 다른 사이트로 이어지지 않습니다. 같은 이메일로 여기에서 가입할 수 있으며, 새로운 별도의 {site} 계정이 만들어집니다."
+  "marketing_faq_accounts_a": "아니요. {site}와 {otherSite}는 서로 다른 사이트이며 계정도 별개입니다. 로그인 상태, 크레딧, 구매 내역과 저장된 풀이는 다른 사이트로 이어지지 않습니다. 같은 이메일로 여기에서 가입할 수 있으며, 새로운 별도의 {site} 계정이 만들어집니다.",
+  "marketing_nav_guides": "가이드",
+  "marketing_guides_title": "가이드",
+  "marketing_guides_subtitle": "자주 묻는 질문에 대한 짧은 답변입니다.",
+  "marketing_guides_back": "모든 가이드",
+  "marketing_guides_faq": "자주 묻는 질문",
+  "marketing_not_found_title": "페이지를 찾을 수 없습니다",
+  "marketing_not_found_body": "이 페이지는 존재하지 않거나 이동되었습니다.",
+  "marketing_not_found_home": "홈으로 돌아가기"
 }

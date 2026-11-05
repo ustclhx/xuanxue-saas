@@ -15,6 +15,7 @@ import {
   applyTemplateChanges,
   commitCopies,
   fetchCopies,
+  retainedDeletions,
   setupDiff,
   shortSha,
   syncBranchName,
@@ -239,6 +240,7 @@ export async function runSync(options) {
       base: { commit: base, version: record.version },
       target: {
         ref: target === requested ? ref : `template-v${upgrades.boundary.version}`,
+        defaulted: !options.to && target === requested,
         commit: target,
         version: releases.findLast((release) => release.commit === target)?.version ?? null,
       },
@@ -247,8 +249,10 @@ export async function runSync(options) {
       applied: [],
       conflicts: [],
       setupDiff: setupDiff(project),
+      retained: [],
       ported: [],
       skippedMigrations: plan.skipped,
+      commentOnlyMigrations: plan.commentOnly,
       lockChanges: [],
       checks: [],
       baseUpdated: false,
@@ -271,6 +275,7 @@ export async function runSync(options) {
       return { status, branch, reportPath, report }
     }
 
+    report.retained = retainedDeletions(project, changes)
     if (!resumed) {
       git(project, ['switch', '--quiet', '--create', branch])
       Object.assign(report, applyTemplateChanges(project, changes))
@@ -346,13 +351,16 @@ export async function runSync(options) {
           report.ported,
           await drizzleGenerate(project, migrationsDir, runner),
         )
-        // 项目的 biome check 覆盖迁移 meta，写回后按项目格式化规则整理。
-        if (written.length) {
-          const format = runner('pnpm', ['exec', 'biome', 'format', '--write', ...written], {
+        // 项目的 biome check 覆盖迁移 meta：中间 snapshot 由移植复制写出，最后一个由 drizzle-kit 生成，
+        // 都要按项目格式化规则整理，只格式化最后一个会让衍生项目 pnpm check 失败。
+        const format = runner(
+          'pnpm',
+          ['exec', 'biome', 'format', '--write', `${migrationsPath}/meta`],
+          {
             cwd: project,
-          })
-          if (format.status !== 0) throw new Error(`biome format 失败：${lastLine(format.output)}`)
-        }
+          },
+        )
+        if (format.status !== 0) throw new Error(`biome format 失败：${lastLine(format.output)}`)
         return written.length ? undefined : '模板迁移未改变 schema，沿用上一个 snapshot'
       })
     }

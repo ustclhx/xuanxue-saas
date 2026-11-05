@@ -4,7 +4,13 @@ import { test } from 'node:test'
 import { getSecretRequirements } from '../staging/check-secrets.mjs'
 import { checkRelease } from './check-release.mjs'
 import { checkProductionSecrets } from './check-secrets.mjs'
-import { checkEnvs, parseJsonc } from './check-wrangler-envs.mjs'
+import {
+  checkEnvs,
+  checkSiteVars,
+  parseJsonc,
+  parsePlausibleSites,
+  resolvePlausibleSite,
+} from './check-wrangler-envs.mjs'
 import { buildChecks, keyTables, migrationCount, pgEnv, verifyRestore } from './verify-restore.mjs'
 
 const wrangler = (app) =>
@@ -152,6 +158,23 @@ test('release workflow builds with both origins and verifies both sites independ
   assert.ok(workflow.includes('--project production --output test-results/west'))
 })
 
+test('production jobs must declare a Cron profile that matches its triggers', () => {
+  const missing = wrangler('jobs')
+  delete missing.env.production.vars.CRON_PROFILE
+  assert.ok(
+    checkEnvs('jobs', missing).includes(
+      'jobs: production CRON_PROFILE must be declared as reduced or default',
+    ),
+  )
+  const mismatch = wrangler('jobs')
+  mismatch.env.production.triggers.crons = ['*/5 * * * *']
+  assert.ok(
+    checkEnvs('jobs', mismatch).includes(
+      'jobs: production crons do not match CRON_PROFILE=reduced',
+    ),
+  )
+})
+
 const sha = 'a'.repeat(40)
 
 function run(overrides = {}) {
@@ -261,4 +284,86 @@ test('production requires successful main push CI in addition to staging', async
 test('testing CI bypass still requires main ancestry and staging success', async () => {
   assert.equal((await run({ phase: 'testing', isOnMain: async () => false })).code, 1)
   assert.equal((await run({ phase: 'testing', stagingRuns: async () => [] })).code, 1)
+})
+
+test('site vars: staging must not share production site settings, web and jobs must agree', () => {
+  const env = (vars) => ({
+    env: {
+      staging: { vars },
+      production: { vars: { APP_URL: 'https://a.example', PLAUSIBLE_DOMAIN: 'a' } },
+    },
+  })
+  assert.match(checkEnvs('web', env({ APP_URL: 'https://a.example' })).join(), /share APP_URL/)
+  assert.match(
+    checkEnvs('web', env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a' })).join(),
+    /share PLAUSIBLE_DOMAIN/,
+  )
+  assert.deepEqual(
+    checkEnvs('web', env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a-staging' })),
+    [],
+  )
+  const web = env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'a-staging' })
+  assert.deepEqual(checkSiteVars(web, web), [])
+  assert.match(
+    checkSiteVars(web, env({ APP_URL: 'https://s.example', PLAUSIBLE_DOMAIN: 'other' })).join(),
+    /disagree on PLAUSIBLE_DOMAIN/,
+  )
+})
+
+// 与 @xuanxue/config 的 analytics.test.ts 读取同一份用例，门禁与运行时解析不能各自漂移。
+const sitesCases = JSON.parse(
+  readFileSync(
+    new URL('../../packages/config/src/plausible-sites.cases.json', import.meta.url),
+    'utf8',
+  ),
+).cases
+for (const item of sitesCases)
+  test(`PLAUSIBLE_SITES shared case: ${item.name}`, () => {
+    const parsed = parsePlausibleSites(item.raw)
+    if (item.error) {
+      assert.ok(parsed.error)
+      return
+    }
+    assert.deepEqual(parsed, { sites: item.sites })
+    for (const [host, fallback, expected] of item.resolve ?? [])
+      assert.equal(resolvePlausibleSite(parsed.sites, fallback, host), expected)
+  })
+
+test('site vars: PLAUSIBLE_SITES must parse, stay apart across environments and match in web/jobs', () => {
+  const config = (staging, production) => ({
+    env: {
+      staging: { vars: { APP_URL: 'https://s.example', ...staging } },
+      production: { vars: { APP_URL: 'https://a.example', ...production } },
+    },
+  })
+  const production = { PLAUSIBLE_SITES: 'a.example=a,b.example=b' }
+  assert.deepEqual(checkEnvs('web', config({}, production)), [])
+  assert.deepEqual(
+    checkEnvs('web', config({ PLAUSIBLE_SITES: 's.a.example=a-staging' }, production)),
+    [],
+  )
+  assert.match(
+    checkEnvs('web', config({ PLAUSIBLE_SITES: 's.example=b' }, production)).join(),
+    /share Plausible site b/,
+  )
+  // staging 兜底等于生产映射里的 site，同样串站。
+  assert.match(
+    checkEnvs('web', config({ PLAUSIBLE_DOMAIN: 'a' }, production)).join(),
+    /share Plausible site a/,
+  )
+  assert.match(
+    checkEnvs('web', config({ PLAUSIBLE_SITES: 'x.example=a' }, { PLAUSIBLE_DOMAIN: 'a' })).join(),
+    /share Plausible site a/,
+  )
+  for (const bad of ['a.example', '=a', 'a.example=a,'])
+    assert.match(
+      checkEnvs('web', config({}, { PLAUSIBLE_SITES: bad })).join(),
+      /env\.production PLAUSIBLE_SITES/,
+    )
+  const web = config({}, production)
+  assert.deepEqual(checkSiteVars(web, web), [])
+  assert.match(
+    checkSiteVars(web, config({}, { PLAUSIBLE_SITES: 'a.example=a' })).join(),
+    /production: web and jobs disagree on PLAUSIBLE_SITES/,
+  )
 })
