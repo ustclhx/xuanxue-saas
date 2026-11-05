@@ -1,0 +1,12 @@
+{
+  "refund_title": "申请退款",
+  "refund_window_notice": "{days} 天内的付款可申请审核。退款须经批准；取消订阅或删除账号不会自动退还付款。",
+  "refund_contact_retention_notice": "联系电子邮件会保留，以便在你删除账号后发送审核结果，并于最终决定后 30 天清除。",
+  "refund_payment": "付款",
+  "refund_choose_payment": "选择付款",
+  "refund_reason": "原因",
+  "refund_contact_email": "联系电子邮件",
+  "refund_submit": "提交退款申请",
+  "refund_no_eligible_payments": "没有符合条件且尚无待处理退款申请的付款。",
+  "refund_submitted": "退款申请已提交，审核结果将发送至你的联系电子邮件。"
+}

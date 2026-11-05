@@ -1,0 +1,12 @@
+{
+  "refund_title": "Request a refund",
+  "refund_window_notice": "Payments within {days} days can be reviewed. Refunds require approval; canceling or deleting an account does not automatically refund payments.",
+  "refund_contact_retention_notice": "The contact email is retained so you can receive the decision after deleting your account. It is cleared 30 days after a final decision.",
+  "refund_payment": "Payment",
+  "refund_choose_payment": "Choose a payment",
+  "refund_reason": "Reason",
+  "refund_contact_email": "Contact email",
+  "refund_submit": "Submit refund request",
+  "refund_no_eligible_payments": "No eligible payments without a pending request.",
+  "refund_submitted": "Refund request submitted. The decision will be sent to your contact email."
+}

@@ -79,11 +79,13 @@ it.each(locales)(
     overwriteGetLocale(() => locale)
     const Component = Route.options.component as ComponentType
     const html = renderToStaticMarkup(<Component />)
-    const purchases = html.slice(html.indexOf('Choose a plan or credit pack'))
+    const purchases = html.slice(html.indexOf(m.billing_choose_plan_or_pack()))
     expect(purchases).toContain('$1.99')
     expect(purchases).toContain('$6.99')
     expect(purchases).not.toContain('$0.99')
     expect(purchases).not.toContain('$3.99')
     expect(html).toContain(`$3.99 / month · ${m.billing_unavailable()}`)
+    expect(html).toContain(m.billing_next_billing({ date: m.billing_pending() }))
+    expect(html).toContain(m.billing_credit_usage_link())
   },
 )

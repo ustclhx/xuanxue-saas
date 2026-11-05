@@ -3,6 +3,7 @@ import { Button } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { SpacePage, SpacePanel } from '../../../features/app-shell/space-frame.tsx'
 import { getCustomerUsage } from '../../../features/billing/customer.functions.ts'
+import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug/usage')({
@@ -35,30 +36,34 @@ function UsagePage() {
           : { ...old, batches: result.batches, balance: result.balance },
       )
     } catch {
-      setMessage('Unable to load usage. Please try again.')
+      setMessage(m.billing_usage_error())
     } finally {
       setBusy(false)
     }
   }
   return (
     <SpacePage
-      title="Credit usage"
+      title={m.billing_usage_title()}
       description={
         page.balance
-          ? `Available: ${page.balance.available} · Held: ${page.balance.held} · Debt: ${page.balance.debt}`
-          : 'Your own credit activity is shown below.'
+          ? m.billing_usage_balance({
+              available: page.balance.available,
+              held: page.balance.held,
+              debt: page.balance.debt,
+            })
+          : m.billing_usage_own_activity()
       }
     >
       {page.batches && (
-        <SpacePanel title="Credit batches">
+        <SpacePanel title={m.billing_usage_batches()}>
           <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
             <thead>
               <tr>
-                <th>Source</th>
-                <th>Granted</th>
-                <th>Remaining</th>
-                <th>Status</th>
-                <th>Expiry</th>
+                <th>{m.billing_usage_source()}</th>
+                <th>{m.billing_usage_granted()}</th>
+                <th>{m.billing_usage_remaining()}</th>
+                <th>{m.billing_status()}</th>
+                <th>{m.billing_usage_expiry()}</th>
               </tr>
             </thead>
             <tbody>
@@ -71,30 +76,30 @@ function UsagePage() {
                   <td>
                     {batch.expiresAt
                       ? new Date(batch.expiresAt).toLocaleDateString('en-US', { timeZone: 'UTC' })
-                      : 'No expiry'}
+                      : m.billing_usage_no_expiry()}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {page.batches.items.length === 0 && <p>No credit batches yet.</p>}
+          {page.batches.items.length === 0 && <p>{m.billing_usage_no_batches()}</p>}
           <Button
             disabled={!ready || busy || !page.batches.nextCursor}
             onClick={() => void next('batches')}
           >
-            Older batches
+            {m.billing_usage_older_batches()}
           </Button>
         </SpacePanel>
       )}
-      <SpacePanel title="Credit ledger">
+      <SpacePanel title={m.billing_usage_ledger()}>
         <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Credits</th>
-              <th>Reference</th>
-              <th>Batch</th>
+              <th>{m.billing_date()}</th>
+              <th>{m.billing_usage_type()}</th>
+              <th>{m.billing_usage_credits()}</th>
+              <th>{m.billing_usage_reference()}</th>
+              <th>{m.billing_usage_batch()}</th>
             </tr>
           </thead>
           <tbody>
@@ -115,12 +120,12 @@ function UsagePage() {
             ))}
           </tbody>
         </table>
-        {page.ledger.items.length === 0 && <p>No credit activity yet.</p>}
+        {page.ledger.items.length === 0 && <p>{m.billing_usage_no_activity()}</p>}
         <Button
           disabled={!ready || busy || !page.ledger.nextCursor}
           onClick={() => void next('ledger')}
         >
-          Older activity
+          {m.billing_usage_older_activity()}
         </Button>
       </SpacePanel>
       {message && <p role="status">{message}</p>}

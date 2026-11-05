@@ -35,7 +35,7 @@ export function RefundSection({
       })
       setMessage(
         result.ok
-          ? 'Refund request submitted. The decision will be sent to your contact email.'
+          ? m.refund_submitted()
           : result.error === 'REFUND_ALREADY_PENDING'
             ? m.refund_error_pending()
             : m.refund_error_reload(),
@@ -53,26 +53,20 @@ export function RefundSection({
   }
   return (
     <section className="grid gap-3 rounded-xl border p-6">
-      <h3 className="font-semibold">Request a refund</h3>
-      <p>
-        Payments within {page.windowDays} days can be reviewed. Refunds require approval; canceling
-        or deleting an account does not automatically refund payments.
-      </p>
-      <p>
-        The contact email is retained so you can receive the decision after deleting your account.
-        It is cleared 30 days after a final decision.
-      </p>
+      <h3 className="font-semibold">{m.refund_title()}</h3>
+      <p>{m.refund_window_notice({ days: page.windowDays })}</p>
+      <p>{m.refund_contact_retention_notice()}</p>
       {payments.length > 0 ? (
-        <form onSubmit={(e) => void submit(e)} aria-label="Request a refund" className="grid gap-3">
+        <form onSubmit={(e) => void submit(e)} aria-label={m.refund_title()} className="grid gap-3">
           <label>
-            Payment{' '}
+            {m.refund_payment()}{' '}
             <select
               required
               value={paymentId}
               onChange={(e) => setPaymentId(e.target.value)}
               disabled={readOnly || busy}
             >
-              <option value="">Choose a payment</option>
+              <option value="">{m.refund_choose_payment()}</option>
               {payments.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.provider} ·{' '}
@@ -85,7 +79,7 @@ export function RefundSection({
             </select>
           </label>
           <label>
-            Reason{' '}
+            {m.refund_reason()}{' '}
             <textarea
               required
               maxLength={2000}
@@ -95,7 +89,7 @@ export function RefundSection({
             />
           </label>
           <label>
-            Contact email{' '}
+            {m.refund_contact_email()}{' '}
             <input
               required
               type="email"
@@ -109,11 +103,11 @@ export function RefundSection({
             type="submit"
             disabled={!ready || busy || readOnly || !paymentId || !reason.trim() || !contactEmail}
           >
-            Submit refund request
+            {m.refund_submit()}
           </Button>
         </form>
       ) : (
-        <p>No eligible payments without a pending request.</p>
+        <p>{m.refund_no_eligible_payments()}</p>
       )}
       {message && <p role="status">{message}</p>}
     </section>

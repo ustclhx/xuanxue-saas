@@ -1,0 +1,12 @@
+{
+  "refund_title": "申請退款",
+  "refund_window_notice": "{days} 天內的付款可申請審核。退款須經核准；取消訂閱或刪除帳號不會自動退還付款。",
+  "refund_contact_retention_notice": "聯絡電子郵件會保留，以便在你刪除帳號後寄送審核結果，並於最終決定後 30 天清除。",
+  "refund_payment": "付款",
+  "refund_choose_payment": "選擇付款",
+  "refund_reason": "原因",
+  "refund_contact_email": "聯絡電子郵件",
+  "refund_submit": "提交退款申請",
+  "refund_no_eligible_payments": "沒有符合條件且尚無待處理退款申請的付款。",
+  "refund_submitted": "退款申請已提交，審核結果將寄送至你的聯絡電子郵件。"
+}
