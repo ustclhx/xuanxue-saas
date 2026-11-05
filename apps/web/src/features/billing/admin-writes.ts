@@ -4,7 +4,6 @@ import { AppError } from '@xuanxue/shared'
 import { eq } from 'drizzle-orm'
 import type { AdminActionScope } from '../admin/action.ts'
 import { assertAdminSite } from '../admin/site.ts'
-import { webhookEventSites } from './admin-data.ts'
 
 // 账务后台写操作在 adminAction 事务内的校验与审计（split-site-accounts 决策 7）：
 // 站点校验与审计同一事务，拒绝时整体回滚，不留下审计或状态变化。
@@ -24,7 +23,7 @@ export async function requestWebhookReplay(
     .select({
       provider: webhookEvent.provider,
       status: webhookEvent.status,
-      sites: webhookEventSites,
+      sites: webhookEvent.sites,
     })
     .from(webhookEvent)
     .where(eq(webhookEvent.id, webhookEventId))

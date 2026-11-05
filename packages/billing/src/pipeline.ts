@@ -8,6 +8,7 @@ import {
 import { and, eq, sql } from 'drizzle-orm'
 import { billingErrorMessage, isRetryableBillingError } from './errors.ts'
 import type { NormalizedEvent, PaymentProvider, VerifiedWebhook } from './provider.ts'
+import { attributeWebhookEvent } from './webhook-attribution.ts'
 
 export type WebhookTransaction = Parameters<Parameters<Database['transaction']>[0]>[0]
 
@@ -136,6 +137,8 @@ async function markFailed(db: Database, id: string, error: string) {
       .where(eq(webhookEvent.id, id))
       .for('update')
     if (!current) throw new Error('Webhook delivery not found')
+    // 业务事务已回滚：按载荷与现有本地账务重算归属，失败事件也能按站点显示与校验重放
+    await attributeWebhookEvent(tx, id)
     // Every actual failed attempt counts, even if a newer attempt committed while this marker waited.
     const terminal = current.status === 'processed' || current.status === 'ignored'
     const [delivery] = await tx
@@ -181,6 +184,8 @@ async function processRegistered<Prepared>(
         return { status: 'not_replayable' as const, delivery: current }
       for (const event of normalized.events)
         await options.handler(tx, event, { delivery: current, prepared: prepared as Prepared })
+      // handler 刚写入的订阅 / 付款 / 购买在本事务内可见，与状态一并提交
+      await attributeWebhookEvent(tx, current.id)
       const [updated] = await tx
         .update(webhookEvent)
         .set({
@@ -234,7 +239,7 @@ export async function processWebhook<Prepared = undefined>(
     throw new Error('Webhook event raw payload mismatch')
   }
   const delivery = await options.db.transaction(async (tx) => {
-    await tx
+    const [inserted] = await tx
       .insert(webhookEvent)
       .values({
         provider: options.provider.id,
@@ -243,6 +248,9 @@ export async function processWebhook<Prepared = undefined>(
         payload,
       })
       .onConflictDoNothing({ target: [webhookEvent.provider, webhookEvent.providerEventId] })
+      .returning({ id: webhookEvent.id })
+    // 只在首次登记时写入；重复投递不改已保存的归属，之后由处理提交或失败重算
+    if (inserted) await attributeWebhookEvent(tx, inserted.id)
     const [row] = await tx
       .select()
       .from(webhookEvent)

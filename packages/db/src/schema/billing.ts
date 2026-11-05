@@ -14,6 +14,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 import { user } from './auth.ts'
+import type { AccountSite } from './site.ts'
 import { organization } from './tenancy.ts'
 
 export type PaymentProviderId = 'stripe' | 'paypal' | 'creem' | 'paddle' | 'polar'
@@ -302,6 +303,10 @@ export const webhookEvent = pgTable(
     attempts: integer('attempts').notNull().default(0),
     error: text('error'),
     payload: jsonb('payload').$type<JsonValue>().notNull(),
+    // 事件关联到的空间与站点（升序去重），回调管线在登记、提交与失败时写入（openspec webhook-event-site）；
+    // 两站共用回调入口，归属只能由载荷与本地账务推出。数组而非单值：保留关联多站时只读不可重放的语义
+    workspaceIds: uuid('workspace_ids').array().notNull().default(sql`'{}'::uuid[]`),
+    sites: text('sites').array().$type<AccountSite[]>().notNull().default(sql`'{}'::text[]`),
     receivedAt: timestamp('received_at', { withTimezone: true }).notNull().defaultNow(),
     processedAt: timestamp('processed_at', { withTimezone: true }),
     ...timestamps,
@@ -309,6 +314,9 @@ export const webhookEvent = pgTable(
   (t) => [
     unique('webhook_event_provider_event_unique').on(t.provider, t.providerEventId),
     check('webhook_event_attempts_nonnegative', sql`${t.attempts} >= 0`),
+    check('webhook_event_sites_known', sql`${t.sites} <@ array['east', 'west']::text[]`),
+    index('webhook_event_workspace_ids_idx').using('gin', t.workspaceIds),
+    index('webhook_event_sites_idx').using('gin', t.sites),
   ],
 )
 
