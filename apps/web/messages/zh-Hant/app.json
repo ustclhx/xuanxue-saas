@@ -14,5 +14,14 @@
   "app_nav_overview": "概覽",
   "app_overview_quick": "快速入口",
   "app_team_spaces": "團隊空間",
-  "app_team_spaces_note": "建立團隊空間以邀請成員。"
+  "app_team_spaces_note": "建立團隊空間以邀請成員。",
+  "app_table_previous": "上一頁",
+  "app_table_next": "下一頁",
+  "app_table_page": "第 {page} 頁",
+  "app_table_page_of": "第 {page} 頁，共 {pageCount} 頁",
+  "app_table_empty": "找不到記錄。",
+  "app_table_apply": "套用",
+  "app_table_reset": "重設",
+  "app_table_filters": "篩選",
+  "app_table_pagination": "分頁"
 }

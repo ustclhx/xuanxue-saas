@@ -54,5 +54,17 @@
   "ai_chat_reasoning": "Reasoning",
   "ai_chat_retrying": "Retrying…",
   "ai_chat_role_you": "You",
-  "ai_chat_role_assistant": "Assistant"
+  "ai_chat_role_assistant": "Assistant",
+  "ai_chat_list_title": "Chats",
+  "ai_chat_conversations_label": "Conversations",
+  "ai_chat_empty_list": "No conversations yet.",
+  "ai_chat_archived_conversations_label": "Archived conversations",
+  "ai_chat_archived": "Archived",
+  "ai_chat_rename_label": "Rename {name}",
+  "ai_chat_title_label": "Conversation title",
+  "ai_chat_save": "Save",
+  "ai_chat_cancel": "Cancel",
+  "ai_chat_rename": "Rename",
+  "ai_chat_unarchive": "Unarchive",
+  "ai_chat_archive": "Archive"
 }

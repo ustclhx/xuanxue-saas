@@ -6,6 +6,8 @@ import { ChatUnavailable } from '../../../../features/ai/chat-unavailable.tsx'
 import { ConversationList } from '../../../../features/ai/conversation-list.tsx'
 import { listConversations } from '../../../../features/ai/conversations.functions.ts'
 
+import { m } from '../../../../paraglide/messages.js'
+
 export const Route = createFileRoute('/app/$slug/chat/')({
   // `?context=` 来自结果页「用这个结果问 AI」：签名令牌，不含出生信息（chat-context.ts）
   validateSearch: z.object({ context: z.string().min(1).max(1024).optional() }),
@@ -21,7 +23,7 @@ export const Route = createFileRoute('/app/$slug/chat/')({
     return { kind: 'list' as const, page: await listConversations({ data: { slug: params.slug } }) }
   },
   staleTime: 0,
-  head: () => ({ meta: [{ title: 'Chats' }] }),
+  head: () => ({ meta: [{ title: m.ai_chat_list_title() }] }),
   component: ConversationsPage,
 })
 

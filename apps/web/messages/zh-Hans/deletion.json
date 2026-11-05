@@ -1,0 +1,22 @@
+{
+  "deletion_danger_zone": "危险区域",
+  "deletion_team_warning": "删除团队空间会移除其中的内容，此操作无法恢复。",
+  "deletion_team_title": "删除团队空间",
+  "deletion_account_title": "删除账号",
+  "deletion_team_description": "所有成员将立即失去访问权限。空间内容会保留 30 天后清除。",
+  "deletion_account_description": "你的个人空间将被删除，身份资料与登录凭据也会移除。请在删除前十分钟内退出登录并重新登录。",
+  "deletion_refund_notice": "删除会立即取消订阅，但不会退款。请先查看可退款的付款；待处理的申请仍可通过已保存的联系电子邮件审核。如需付款协助，请在删除前",
+  "deletion_contact_support": "联系客服",
+  "deletion_support_suffix": "。",
+  "deletion_refund_reminder": "{eligibleCount} 笔付款仍在退款期限内；{pendingCount} 笔申请待处理。",
+  "deletion_review_billing": "查看账单与退款申请",
+  "deletion_signin_again": "退出登录并重新登录",
+  "deletion_confirmation": "输入 {confirmation} 以确认",
+  "deletion_continue": "继续",
+  "deletion_blocked_team_suffix": "：请先转移所有权或删除此团队。",
+  "deletion_submitting": "删除中…",
+  "deletion_workspace_submit": "删除空间",
+  "deletion_completed_cleanup_pending": "删除已完成。访问权限已移除，缓存的凭据正等待自动清除。",
+  "deletion_error_unknown": "无法完成删除，请重试。",
+  "deletion_signout_error": "无法退出登录，请先重试，再重新登录。"
+}

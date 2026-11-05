@@ -14,5 +14,14 @@
   "app_nav_overview": "개요",
   "app_overview_quick": "빠른 메뉴",
   "app_team_spaces": "팀 워크스페이스",
-  "app_team_spaces_note": "팀 워크스페이스를 만들어 멤버를 초대하세요."
+  "app_team_spaces_note": "팀 워크스페이스를 만들어 멤버를 초대하세요.",
+  "app_table_previous": "이전",
+  "app_table_next": "다음",
+  "app_table_page": "{page}페이지",
+  "app_table_page_of": "{page} / {pageCount}페이지",
+  "app_table_empty": "기록이 없습니다.",
+  "app_table_apply": "적용",
+  "app_table_reset": "초기화",
+  "app_table_filters": "필터",
+  "app_table_pagination": "페이지 탐색"
 }

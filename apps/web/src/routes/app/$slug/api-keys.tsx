@@ -3,6 +3,8 @@ import { Button, DataTable, Input, Label } from '@xuanxue/ui'
 import { useState } from 'react'
 import { createKey, editKey, listKeys } from '../../../features/api-keys/functions.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
+import { appTableLabels } from '../../../features/app-shell/table-labels.ts'
+import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug/api-keys')({
@@ -33,20 +35,20 @@ function ApiKeysPage() {
       await run()
       await router.invalidate()
     } catch (error) {
-      setError(error instanceof Error ? error.message : '操作失败')
+      setError(error instanceof Error ? error.message : m.api_keys_error())
     } finally {
       setPending(false)
     }
   }
   return (
-    <SpacePage title="API Keys">
-      <p>密钥仅在创建时显示完整值，请妥善保存。调用将使用当前空间的积分。</p>
+    <SpacePage title={m.api_keys_title()}>
+      <p>{m.api_keys_description()}</p>
       {error ? <p role="alert">{error}</p> : null}
       {secret ? (
         <div role="status" className="grid gap-2 rounded border p-4">
-          <p>请立即保存，关闭后无法再次查看：</p>
+          <p>{m.api_keys_save_secret()}</p>
           <code className="break-all">{secret}</code>
-          <Button onClick={() => setSecret(null)}>已保存，关闭</Button>
+          <Button onClick={() => setSecret(null)}>{m.api_keys_close_secret()}</Button>
         </div>
       ) : null}
       <form
@@ -70,16 +72,17 @@ function ApiKeysPage() {
           })
         }}
       >
-        <Label htmlFor="key-name">名称</Label>
+        <Label htmlFor="key-name">{m.api_keys_name()}</Label>
         <Input id="key-name" name="name" required maxLength={80} />
-        <Label htmlFor="key-expires">过期时间（可选，本地时间）</Label>
+        <Label htmlFor="key-expires">{m.api_keys_expires_label()}</Label>
         <Input id="key-expires" name="expires" type="datetime-local" />
         <Button disabled={pending} type="submit">
-          创建密钥
+          {m.api_keys_create()}
         </Button>
       </form>
       <DataTable
-        label="API Keys"
+        label={m.api_keys_title()}
+        labels={appTableLabels()}
         rows={data.rows}
         getRowId={(row) => row.id}
         page={{ pageIndex: page, pageSize: 20, hasMore: data.hasMore }}
@@ -89,7 +92,7 @@ function ApiKeysPage() {
         columns={[
           {
             id: 'name',
-            header: '名称',
+            header: m.api_keys_name(),
             cell: (row) => (
               <form
                 className="flex gap-2"
@@ -101,36 +104,37 @@ function ApiKeysPage() {
               >
                 <Input
                   name="name"
-                  aria-label="密钥名称"
+                  aria-label={m.api_keys_key_name()}
                   defaultValue={row.name ?? ''}
                   required
                   maxLength={80}
                 />
                 <Button disabled={pending} type="submit">
-                  保存
+                  {m.api_keys_save()}
                 </Button>
               </form>
             ),
           },
-          { id: 'prefix', header: '前缀', cell: (row) => <code>{row.start}…</code> },
+          { id: 'prefix', header: m.api_keys_prefix(), cell: (row) => <code>{row.start}…</code> },
           {
             id: 'expiry',
-            header: '过期',
-            cell: (row) => (row.expiresAt ? new Date(row.expiresAt).toLocaleString() : '永不过期'),
+            header: m.api_keys_expiry(),
+            cell: (row) =>
+              row.expiresAt ? new Date(row.expiresAt).toLocaleString() : m.api_keys_never_expires(),
           },
           {
             id: 'status',
-            header: '状态',
+            header: m.api_keys_status(),
             cell: (row) =>
               !row.enabled
-                ? '已撤销'
+                ? m.api_keys_revoked()
                 : row.expiresAt && new Date(row.expiresAt) <= new Date()
-                  ? '已过期'
-                  : '有效',
+                  ? m.api_keys_expired()
+                  : m.api_keys_active(),
           },
           {
             id: 'revoke',
-            header: '操作',
+            header: m.api_keys_actions(),
             cell: (row) => (
               <Button
                 disabled={pending || !row.enabled}
@@ -139,7 +143,7 @@ function ApiKeysPage() {
                   void action(() => editKey({ data: { slug, id: row.id, revoke: true } }))
                 }}
               >
-                撤销
+                {m.api_keys_revoke()}
               </Button>
             ),
           },

@@ -6,6 +6,7 @@ import {
   chatErrorCode,
   chatErrorMessage,
   chatRequestBody,
+  conversationTitle,
   messageDisplayParts,
   messageReasoning,
   messageRetrying,
@@ -174,7 +175,21 @@ describe('chat errors', () => {
   })
 })
 
-describe('titleFromText', () => {
+describe('conversation titles', () => {
+  it('未命名对话按调用时的语言显示默认标题，已命名标题保持原文', () => {
+    const titles: Record<string, string> = {
+      en: 'New chat',
+      'zh-Hant': '新對話',
+      'zh-Hans': '新对话',
+      ko: '새 채팅',
+    }
+    for (const locale of locales) {
+      overwriteGetLocale(() => locale)
+      expect(conversationTitle('')).toBe(titles[locale])
+      expect(conversationTitle('Trip planning')).toBe('Trip planning')
+    }
+  })
+
   it('合并空白并截断到标题长度', () => {
     expect(titleFromText('  hello\n\n world ')).toBe('hello world')
     expect(titleFromText('x'.repeat(200))).toHaveLength(80)

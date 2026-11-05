@@ -23,7 +23,7 @@ export type ChatUIMessage = UIMessage<ChatUIMetadata, { retry: { n: number } }>
 export const CONVERSATION_TITLE_LENGTH = 80
 export const conversationTitleSchema = z.string().trim().min(1).max(CONVERSATION_TITLE_LENGTH)
 
-export const conversationTitle = (title: string) => title || 'New chat'
+export const conversationTitle = (title: string) => title || m.ai_chat_new_chat()
 
 export const titleFromText = (text: string) =>
   text.trim().replace(/\s+/g, ' ').slice(0, CONVERSATION_TITLE_LENGTH)

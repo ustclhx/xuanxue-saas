@@ -1,0 +1,12 @@
+{
+  "notifications_title": "通知",
+  "notifications_unread_label": "通知（{count} 条未读）",
+  "notifications_center": "通知中心",
+  "notifications_mark_all_read": "全部标为已读",
+  "notifications_unavailable": "无法加载通知，请刷新。",
+  "notifications_read_error": "无法将通知标为已读，请重试。",
+  "notifications_notification": "通知",
+  "notifications_status": "状态",
+  "notifications_read": "已读",
+  "notifications_unread": "未读"
+}

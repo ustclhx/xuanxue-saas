@@ -1,0 +1,22 @@
+{
+  "deletion_danger_zone": "위험 구역",
+  "deletion_team_warning": "팀 워크스페이스를 삭제하면 내부 콘텐츠가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "deletion_team_title": "팀 워크스페이스 삭제",
+  "deletion_account_title": "계정 삭제",
+  "deletion_team_description": "모든 멤버의 접근 권한이 즉시 사라집니다. 워크스페이스 콘텐츠는 30일 동안 보관된 후 정리됩니다.",
+  "deletion_account_description": "개인 워크스페이스가 삭제되며 신원 정보와 로그인 자격 증명이 제거됩니다. 삭제하기 전 10분 이내에 로그아웃한 후 다시 로그인하시기 바랍니다.",
+  "deletion_refund_notice": "삭제 시 구독은 즉시 취소되며 환불은 이루어지지 않습니다. 삭제하기 전에 환불 가능한 결제를 확인하시기 바랍니다. 대기 중인 요청은 저장된 연락 이메일을 통해 계속 검토할 수 있습니다. 결제 관련 도움이 필요하면 삭제하기 전에",
+  "deletion_contact_support": "고객 지원팀에 문의",
+  "deletion_support_suffix": "하시기 바랍니다.",
+  "deletion_refund_reminder": "환불 가능 기간 내 결제 {eligibleCount}건, 대기 중인 요청 {pendingCount}건이 있습니다.",
+  "deletion_review_billing": "결제 및 환불 요청 확인",
+  "deletion_signin_again": "로그아웃 후 다시 로그인",
+  "deletion_confirmation": "확인하려면 {confirmation}을(를) 입력하시기 바랍니다",
+  "deletion_continue": "계속",
+  "deletion_blocked_team_suffix": ": 먼저 소유권을 이전하거나 이 팀을 삭제하시기 바랍니다.",
+  "deletion_submitting": "삭제 중…",
+  "deletion_workspace_submit": "워크스페이스 삭제",
+  "deletion_completed_cleanup_pending": "삭제가 완료되었습니다. 접근 권한이 제거되었으며 캐시된 자격 증명은 자동 정리를 기다리고 있습니다.",
+  "deletion_error_unknown": "삭제를 완료하지 못했습니다. 다시 시도해 주시기 바랍니다.",
+  "deletion_signout_error": "로그아웃하지 못했습니다. 로그인하기 전에 다시 시도해 주시기 바랍니다."
+}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { m } from '../../paraglide/messages.js'
 import { authClient } from '../auth/auth-client.ts'
 import { removeAccount, removeWorkspace } from './deletion.functions.ts'
 
@@ -31,14 +32,10 @@ export function DeletionSection({
         return
       }
       setCompleted(result.deletionCompleted)
-      setError(
-        result.deletionCompleted
-          ? 'Deletion completed. Access has been removed; cached credentials are awaiting automatic cleanup.'
-          : result.message,
-      )
+      setError(result.deletionCompleted ? m.deletion_completed_cleanup_pending() : result.message)
       setBlocked(result.workspaces)
     } catch {
-      setError('Deletion could not be completed. Please try again.')
+      setError(m.deletion_error_unknown())
     } finally {
       setBusy(false)
     }
@@ -50,35 +47,31 @@ export function DeletionSection({
       if (result.error) throw new Error(result.error.message)
       window.location.assign('/login?redirect=%2Faccount')
     } catch {
-      setError('Could not sign out. Please try again before signing in.')
+      setError(m.deletion_signout_error())
       setBusy(false)
     }
   }
   return (
     <section className="grid gap-3 rounded-lg border border-destructive p-6">
       <h2 className="font-semibold text-xl">
-        {workspace ? 'Delete team workspace' : 'Delete account'}
+        {workspace ? m.deletion_team_title() : m.deletion_account_title()}
       </h2>
+      <p>{workspace ? m.deletion_team_description() : m.deletion_account_description()}</p>
       <p>
-        {workspace
-          ? 'All members will lose access immediately. Workspace content is retained for 30 days before cleanup.'
-          : 'Your personal workspace will be deleted and your identity and sign-in credentials removed. Sign out and sign in again within ten minutes before deleting.'}
-      </p>
-      <p>
-        Deletion cancels subscriptions immediately without issuing a refund. Review refundable
-        payments before deleting; pending requests remain reviewable using their saved contact
-        email.
+        {m.deletion_refund_notice()}{' '}
         <a className="underline" href={`mailto:${supportEmail}`}>
-          contact support
-        </a>{' '}
-        before deleting if you need help with a payment.
+          {m.deletion_contact_support()}
+        </a>
+        {m.deletion_support_suffix()}
       </p>
       {refundReminder && (
         <p>
-          {refundReminder.eligibleCount} payments in the refund window;{' '}
-          {refundReminder.pendingCount} pending requests.{' '}
+          {m.deletion_refund_reminder({
+            eligibleCount: refundReminder.eligibleCount,
+            pendingCount: refundReminder.pendingCount,
+          })}{' '}
           <a className="underline" href={refundReminder.billingHref}>
-            Review billing and refund requests
+            {m.deletion_review_billing()}
           </a>
         </p>
       )}
@@ -89,11 +82,11 @@ export function DeletionSection({
           disabled={!hydrated || busy || completed}
           onClick={signInAgain}
         >
-          Sign out and sign in again
+          {m.deletion_signin_again()}
         </button>
       )}
       <label className="grid gap-2">
-        Type {label} to confirm
+        {m.deletion_confirmation({ confirmation: label })}
         <input
           className="rounded border p-2"
           value={confirmation}
@@ -105,7 +98,7 @@ export function DeletionSection({
       {error && <p role="alert">{error}</p>}
       {completed && (
         <a className="underline" href={workspace ? '/app' : '/login'}>
-          Continue
+          {m.deletion_continue()}
         </a>
       )}
       {blocked.length > 0 && (
@@ -115,7 +108,7 @@ export function DeletionSection({
               <a className="underline" href={`/app/${item.slug}`}>
                 {item.name}
               </a>
-              : transfer ownership or delete this team first.
+              {m.deletion_blocked_team_suffix()}
             </li>
           ))}
         </ul>
@@ -126,7 +119,11 @@ export function DeletionSection({
         disabled={!hydrated || busy || completed || confirmation !== label}
         onClick={() => void submit()}
       >
-        {busy ? 'Deleting…' : workspace ? 'Delete workspace' : 'Delete account'}
+        {busy
+          ? m.deletion_submitting()
+          : workspace
+            ? m.deletion_workspace_submit()
+            : m.deletion_account_title()}
       </button>
     </section>
   )

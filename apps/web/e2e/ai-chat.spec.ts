@@ -70,8 +70,10 @@ test('creates, renames and archives own conversations', async ({ page }) => {
     const row = list.getByRole('listitem', { name: 'New chat' })
     await expect(row).toBeVisible()
     await row.getByRole('button', { name: 'Rename' }).click()
-    await list.getByLabel('Conversation title').fill('Trip planning')
-    await list.getByRole('button', { name: 'Save' }).click()
+    const rename = list.getByRole('form', { name: 'Rename New chat', exact: true })
+    await expect(rename).toBeVisible()
+    await rename.getByLabel('Conversation title').fill('Trip planning')
+    await rename.getByRole('button', { name: 'Save', exact: true }).click()
     const renamed = list.getByRole('listitem', { name: 'Trip planning' })
     await expect(renamed).toBeVisible()
 

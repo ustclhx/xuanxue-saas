@@ -1,7 +1,9 @@
 import { useRouter } from '@tanstack/react-router'
 import { Button, DataTable } from '@xuanxue/ui'
 import { useCallback, useEffect, useState } from 'react'
+import { m } from '../../paraglide/messages.js'
 import { adminListPage, offsetOfPage } from '../admin/list.ts'
+import { appTableLabels } from '../app-shell/table-labels.ts'
 import { getNotifications, readNotifications } from './notifications.functions.ts'
 
 type NotificationPage = Awaited<ReturnType<typeof getNotifications>>
@@ -18,7 +20,7 @@ export function NotificationCenter({ slug }: { slug: string }) {
       setError('')
     } catch {
       // 通知读取失败只降级入口，不阻止应用布局使用。
-      setError('Notifications unavailable. Try refreshing.')
+      setError(m.notifications_unavailable())
     }
   }, [slug, offset])
   useEffect(() => {
@@ -34,7 +36,7 @@ export function NotificationCenter({ slug }: { slug: string }) {
       await refresh()
       if (link) await router.navigate({ href: link })
     } catch {
-      setError('Could not mark notifications read. Please retry.')
+      setError(m.notifications_read_error())
     } finally {
       setBusy(false)
     }
@@ -46,16 +48,20 @@ export function NotificationCenter({ slug }: { slug: string }) {
         if (event.currentTarget.open) void refresh()
       }}
     >
-      <summary className="cursor-pointer" aria-label={`Notifications (${page.unread} unread)`}>
-        Notifications <span data-testid="notification-unread">{page.unread}</span>
+      <summary
+        className="cursor-pointer"
+        aria-label={m.notifications_unread_label({ count: page.unread })}
+      >
+        {m.notifications_title()} <span data-testid="notification-unread">{page.unread}</span>
       </summary>
-      <section className="mt-3 grid gap-3" aria-label="Notification center">
+      <section className="mt-3 grid gap-3" aria-label={m.notifications_center()}>
         <Button disabled={busy || page.unread === 0} onClick={() => void read()}>
-          Mark all read
+          {m.notifications_mark_all_read()}
         </Button>
         {error ? <p role="alert">{error}</p> : null}
         <DataTable
-          label="Notifications"
+          label={m.notifications_title()}
+          labels={appTableLabels()}
           rows={page.rows}
           getRowId={(row) => row.id}
           page={adminListPage(offset, page)}
@@ -63,7 +69,7 @@ export function NotificationCenter({ slug }: { slug: string }) {
           columns={[
             {
               id: 'notification',
-              header: 'Notification',
+              header: m.notifications_notification(),
               cell: (row) => (
                 <div>
                   <button
@@ -78,7 +84,11 @@ export function NotificationCenter({ slug }: { slug: string }) {
                 </div>
               ),
             },
-            { id: 'read', header: 'Status', cell: (row) => (row.readAt ? 'Read' : 'Unread') },
+            {
+              id: 'read',
+              header: m.notifications_status(),
+              cell: (row) => (row.readAt ? m.notifications_read() : m.notifications_unread()),
+            },
           ]}
         />
       </section>
