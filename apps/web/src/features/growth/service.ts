@@ -16,6 +16,7 @@ import { userLocaleByEmail } from '../../server/auth-email.ts'
 import type { AdminActionScope } from '../admin/action.ts'
 import { optinToolPath } from '../readings/optin-email.ts'
 import { type ReadingOptin, readingOptinSchema } from '../readings/optin-schema.ts'
+import { growthLink } from './links.ts'
 import { deliverReading } from './reading-delivery.ts'
 import { signGrowthToken, verifyGrowthToken } from './tokens.ts'
 
@@ -91,7 +92,7 @@ export async function sendWaitlistInvitations(
       nonce: row.invitationNonce,
       expires: row.invitationExpiresAt.getTime(),
     })
-    const url = new URL('/api/waitlist/invitation', ctx.appUrl)
+    const url = growthLink(ctx, '/api/waitlist/invitation')
     url.searchParams.set('token', token)
     await queue.send({
       ...(await base(ctx, row.email, `waitlist:${row.id}:${row.invitationNonce}`)),
@@ -203,7 +204,7 @@ export async function subscribeNewsletter(
     nonce: row.confirmToken,
     expires: Date.now() + 86400_000,
   })
-  const url = new URL('/api/newsletter/confirm', ctx.appUrl)
+  const url = growthLink(ctx, '/api/newsletter/confirm', row.site)
   url.searchParams.set('token', token)
   await queue.send({
     ...(await base(ctx, row.email, `newsletter-confirm:${row.id}:${row.confirmToken}`)),
@@ -263,7 +264,7 @@ export async function newsletterUnsubscribeUrl(ctx: GrowthContext, id: string) {
     nonce: row.confirmToken,
     expires: null,
   })
-  const url = new URL('/api/newsletter/unsubscribe', ctx.appUrl)
+  const url = growthLink(ctx, '/api/newsletter/unsubscribe', row.site)
   url.searchParams.set('token', token)
   return url.href
 }

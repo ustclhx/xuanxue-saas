@@ -11,6 +11,7 @@ import {
 /**
  * 发布门禁（docs/analytics.md §门禁）：公开 SEO / 站点地图 / canonical / 分析脚本
  * 必须指向当前环境自己的 APP_URL 与 Plausible site，防止串到衍生站或生产站。
+ * 一个 Worker 绑定多个自定义域名（多站）时，被检查的域名只要是其中之一，就按该域名自身校验。
  */
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 
@@ -24,7 +25,12 @@ export function expectedFromWrangler(environment, root = repoRoot) {
     template,
   )?.[1]
   const plausible = analytics === undefined || analytics === 'plausible'
+  // 多站：Worker 的自定义域名都是本环境的站点，各自的 SEO 地址应指向自己。
+  const siteOrigins = (config.env?.[environment]?.routes ?? [])
+    .filter((route) => route?.custom_domain && typeof route.pattern === 'string')
+    .map((route) => `https://${route.pattern}`)
   return {
+    siteOrigins,
     marketing: !/marketing:\s*\{\s*enabled:\s*false/.test(template),
     appUrl: vars.APP_URL,
     plausibleDomain: plausible ? (vars.PLAUSIBLE_DOMAIN ?? '') : '',
@@ -79,6 +85,7 @@ export function sitemapUrls(xml) {
 export async function checkSiteIsolation({
   baseUrl,
   appUrl,
+  siteOrigins = [],
   plausibleDomain = '',
   plausibleHost = '',
   plausibleSites = '',
@@ -88,9 +95,11 @@ export async function checkSiteIsolation({
   retryDelayMs = 3_000,
 }) {
   const problems = []
-  const origin = new URL(appUrl).origin
-  if (new URL(baseUrl).origin !== origin)
-    problems.push(`deploy URL ${new URL(baseUrl).origin} differs from APP_URL ${origin}`)
+  const deployOrigin = new URL(baseUrl).origin
+  const allowed = [appUrl, ...siteOrigins].map((url) => new URL(url).origin)
+  const origin = allowed.includes(deployOrigin) ? deployOrigin : new URL(appUrl).origin
+  if (deployOrigin !== origin)
+    problems.push(`deploy URL ${deployOrigin} differs from APP_URL ${origin}`)
   const base = baseUrl.replace(/\/$/, '')
   // 网络抖动不等于串扰：重试后仍失败才记为问题（状态 0），不让脚本崩溃。
   const get = async (url) => {
@@ -137,7 +146,14 @@ export async function checkSiteIsolation({
   }
 
   const entry = marketing ? '/' : '/login'
-  const home = await get(`${base}${entry}`)
+  let home = await get(`${base}${entry}`)
+  // 没有默认语言的站点根路径跳到语言入口（如 / → /zh-hant/）：只跟随一次同源跳转，他站跳转照常报错。
+  const location = home.headers.get('location')
+  if ([301, 302, 307, 308].includes(home.status) && location) {
+    own(`${entry} redirect`, location)
+    if (URL.canParse(location, origin) && new URL(location, origin).origin === origin)
+      home = await get(`${base}${new URL(location, origin).pathname}`)
+  }
   if (home.status !== 200) problems.push(`${entry}: status ${home.status}`)
   else {
     const html = inspectHtml(await home.text())

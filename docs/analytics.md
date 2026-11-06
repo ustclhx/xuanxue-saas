@@ -142,7 +142,9 @@ order by payments desc;
 | 检查 | 时机 | 内容 |
 |---|---|---|
 | `scripts/production/check-wrangler-envs.mjs` | `pnpm check` | staging 与生产不得共用 `APP_URL` / `PLAUSIBLE_DOMAIN`，也不得共用 `PLAUSIBLE_SITES` 映射中的任一 site（含对方的兜底）；映射必须能解析；web 与 jobs 的站点变量（含 `PLAUSIBLE_SITES`）一致 |
-| `scripts/staging/check-site-isolation.mjs <环境> <URL>` | 部署后，失败则阻断发布 | sitemap（含子地图）、robots、canonical、hreflang、`og:url`、favicon 都属于本环境 `APP_URL` 且可访问；期望的 site 按被检查 URL 的域名在映射中查找，未登记时取 `PLAUSIBLE_DOMAIN`。单站页面比较脚本的 `data-domain`；多站页面读取内联配置 `#xuanxue-plausible`，校验它为本域名解析出的 site 与 `scriptUrl` 的实例地址。期望为空时页面不得出现脚本或内联配置 |
+| `scripts/staging/check-site-isolation.mjs <环境> <URL>` | 部署后，失败则阻断发布 | sitemap（含子地图）、robots、canonical、hreflang、`og:url`、favicon 都属于本环境 `APP_URL` 且可访问（被检查的域名是 web Worker 的自定义域名之一时，改为属于该域名自身；根路径的同源跳转跟随一次）；期望的 site 按被检查 URL 的域名在映射中查找，未登记时取 `PLAUSIBLE_DOMAIN`。单站页面比较脚本的 `data-domain`；多站页面读取内联配置 `#xuanxue-plausible`，校验它为本域名解析出的 site 与 `scriptUrl` 的实例地址。期望为空时页面不得出现脚本或内联配置 |
+
+xuanxue 生产发布对 ganjiday.com 与 arcanumber.com 各运行一次。
 
 新项目的 staging `APP_URL` 默认是 `https://staging.<域名>`，部署前改成实际地址，否则门禁会失败。selfhost 的部署流程尚未接入这个脚本（它从 `wrangler.jsonc` 读取期望值）。
 
