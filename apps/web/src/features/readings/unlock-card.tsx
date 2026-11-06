@@ -288,7 +288,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
       const result = await checkoutCustomer({
         data: {
           slug: offer.viewer.slug,
-          provider: pack.provider as 'stripe',
+          provider: pack.provider as 'stripe' | 'paypal',
           planPriceId: pack.planPriceId,
           idempotencyKey: crypto.randomUUID(),
           returnTo,
@@ -511,6 +511,10 @@ function PackChooser({
   balance: number
   onPick: (pack: ReadingPack) => void
 }) {
+  // 同一积分包有多个付款方式时先选方式；只有一种时不显示切换
+  const providers = [...new Set(packs.map((pack) => pack.provider))]
+  const [provider, setProvider] = useState(providers[0])
+  const shown = packs.filter((pack) => pack.provider === (provider ?? providers[0]))
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0">
       <legend className="mb-2 p-0 text-sm">
@@ -519,7 +523,32 @@ function PackChooser({
           {m.readings_unlock_balance({ balance: String(balance) })}
         </span>
       </legend>
-      {packs.map((pack, index) => {
+      {providers.length > 1 && (
+        <div className="flex gap-1 rounded-lg border border-on-inverse/40 p-1">
+          {providers.map((id) => (
+            <label
+              key={id}
+              className={cn(
+                'flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold text-sm transition-colors has-focus-visible:outline-2 has-focus-visible:outline-on-inverse has-focus-visible:outline-offset-2',
+                id === provider ? 'bg-on-inverse/20 text-on-inverse' : 'text-on-inverse/75',
+              )}
+            >
+              <input
+                type="radio"
+                name="reading-pay-method"
+                value={id}
+                checked={id === provider}
+                onChange={() => setProvider(id)}
+                aria-label={`${m.readings_pay_method()}: ${id === 'paypal' ? m.readings_pay_paypal() : m.readings_pay_card()}`}
+                data-testid="reading-pay-method"
+                className="sr-only"
+              />
+              {id === 'paypal' ? m.readings_pay_paypal() : m.readings_pay_card()}
+            </label>
+          ))}
+        </div>
+      )}
+      {shown.map((pack, index) => {
         const usd = formatPrice(pack.amount, 'en')
         const local = formatPrice(pack.amount, locale, rates)
         return (

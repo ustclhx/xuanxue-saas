@@ -387,6 +387,16 @@ describe('Stripe adapter with cryptographically signed synthetic fixtures', () =
     expect(result.events.map((event) => event.type)).toEqual(['checkout.completed'])
     mock.complete()
   })
+  it('failed delayed payment records the association and fails the order without a payment', async () => {
+    const mock = mockProvider()
+    const result = await mock.verify('checkout.session.async_payment_failed', {
+      ...session,
+      payment_status: 'unpaid',
+    })
+    expect(result.events.map((event) => event.type)).toEqual(['checkout.completed', 'order.failed'])
+    expect(result.events[1]).toMatchObject({ providerOrderId: 'cs_test' })
+    mock.complete()
+  })
   it.each([
     ['subscription_create', 'initial', ['payment.succeeded']],
     ['subscription_cycle', 'renewal', ['payment.succeeded', 'subscription.renewed']],

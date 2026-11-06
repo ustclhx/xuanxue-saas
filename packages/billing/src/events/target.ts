@@ -23,10 +23,10 @@ import {
   validateMetadata,
 } from './shared.ts'
 
-/** Every event except payment reversals targets a prepared purchase or subscription. */
+/** Every event except payment reversals and order failures targets a prepared purchase or subscription. */
 export type BillingTargetEvent = Exclude<
   NormalizedEvent,
-  { type: 'payment.refunded' | 'payment.disputed' }
+  { type: 'payment.refunded' | 'payment.disputed' | 'order.failed' }
 >
 export interface BillingTarget {
   a: Association

@@ -56,3 +56,23 @@ test('sync rejects non-test modes and live or missing Stripe credentials', () =>
     )
   }
 })
+
+test('live Stripe sync requires live credentials and a confirmed target database, and defaults to dry run', async () => {
+  const { liveSyncConfig } = await import('./sync-stripe-live.ts')
+  const base = {
+    STRIPE_SECRET_KEY: 'rk_live_offline',
+    CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE: 'postgres://app@db.example/xuanxue',
+    BILLING_SYNC_DATABASE_CONFIRM: 'xuanxue',
+  }
+  assert.equal(liveSyncConfig(base).apply, false)
+  assert.equal(liveSyncConfig({ ...base, BILLING_SYNC_CONFIRM: 'stripe-live' }).apply, true)
+  for (const key of [undefined, 'sk_test_offline'])
+    assert.throws(
+      () => liveSyncConfig({ ...base, STRIPE_SECRET_KEY: key }),
+      /Stripe live credentials are required/,
+    )
+  assert.throws(
+    () => liveSyncConfig({ ...base, BILLING_SYNC_DATABASE_CONFIRM: 'other' }),
+    /must match the target database name/,
+  )
+})

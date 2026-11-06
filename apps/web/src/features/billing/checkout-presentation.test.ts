@@ -6,7 +6,7 @@ const credits = (count: number, locale: string) => `${count} credits[${locale}]`
 const present = (requestUrl: string, returnTo?: string, currentLocale?: string) =>
   checkoutPresentation({ requestUrl, returnTo, currentLocale, credits }, templateConfig)
 
-describe('PayPal checkout presentation', () => {
+describe('checkout presentation (PayPal / Stripe)', () => {
   it.each([
     ['https://arcanumber.com/_serverFn/x', '/reading', 'en', 'Arcanumber', 'en'],
     ['https://ganjiday.com/_serverFn/x', '/zh-hant/bazi', 'en', '干支日', 'zh-Hant'],
@@ -37,5 +37,14 @@ describe('PayPal checkout presentation', () => {
       brandName: 'Arcanumber',
       locale: 'en',
     })
+  })
+
+  it.each([
+    ['https://ganjiday.com/x', '/ko/x', 'east', 'GANJIDAY'],
+    ['https://arcanumber.com/x', '/reading', 'west', 'ARCANUMBER'],
+    // 未登记 Host 按语言所属站点，不会把东方站订单记到西方站
+    ['https://web.example.workers.dev/x', '/zh-hant/bazi', 'east', 'GANJIDAY'],
+  ])('%s %s tags the order site and Latin card statement suffix', (url, returnTo, site, suffix) => {
+    expect(present(url, returnTo, 'en')).toMatchObject({ site, statementDescriptorSuffix: suffix })
   })
 })

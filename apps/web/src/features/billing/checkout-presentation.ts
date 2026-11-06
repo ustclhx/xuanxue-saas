@@ -10,6 +10,19 @@ function pathLocale(returnTo: string | undefined, config: PresentationConfig) {
 }
 
 /**
+ * 卡账单描述后缀只能用拉丁字母数字与空格（Stripe 限制），取站点英文品牌名大写；
+ * 账户前缀加分隔符后总长不超过 22，后缀留 10 个字符。
+ */
+function statementSuffix(name: string) {
+  return name
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, '')
+    .trim()
+    .slice(0, 10)
+    .trim()
+}
+
+/**
  * 支付页展示（openspec enable-paypal-checkout D3）：品牌按请求 Host 所属站点；语言依次取
  * `returnTo` 的语言前缀、当前语言，二者都不属于该站点时取站点默认语言。
  * 未登记的 Host（staging / 预览）按语言所属站点取品牌。商品说明只由积分数与品牌拼成，
@@ -38,6 +51,8 @@ export function checkoutPresentation(
   return {
     brandName,
     locale,
+    site,
+    statementDescriptorSuffix: statementSuffix(siteBrandName(config, site)),
     describe: (plan: { credits: number }) =>
       `${input.credits(plan.credits, locale)} · ${brandName}`,
   }

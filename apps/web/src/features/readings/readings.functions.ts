@@ -141,24 +141,21 @@ async function readingPacks(): Promise<ReadingPack[]> {
     db: runtime.db,
   })
   const catalog = await customerCatalog(runtime.db, payments.readiness)
+  // 每个可用付款方式各一项，按积分数、再按 template.config 的付款方式顺序排列，解锁卡据此提供切换
+  const order: readonly string[] = templateConfig.billing.providers
   return catalog.plans
     .filter((plan) => plan.type === 'credit_pack' && plan.credits > 0)
-    .flatMap((plan) => {
-      const price = catalog.prices.find(
-        (item) => item.planId === plan.id && item.available && item.interval === null,
-      )
-      return price
-        ? [
-            {
-              planPriceId: price.id,
-              provider: price.provider,
-              credits: plan.credits,
-              amount: price.amount,
-            },
-          ]
-        : []
-    })
-    .sort((a, b) => a.credits - b.credits)
+    .flatMap((plan) =>
+      catalog.prices
+        .filter((item) => item.planId === plan.id && item.available && item.interval === null)
+        .map((price) => ({
+          planPriceId: price.id,
+          provider: price.provider,
+          credits: plan.credits,
+          amount: price.amount,
+        })),
+    )
+    .sort((a, b) => a.credits - b.credits || order.indexOf(a.provider) - order.indexOf(b.provider))
 }
 
 /**

@@ -44,6 +44,9 @@ function narrowEvent(event: NormalizedEvent) {
     case 'payment.disputed':
       expectTypeOf(event.providerDisputeId).toEqualTypeOf<string>()
       break
+    case 'order.failed':
+      expectTypeOf(event.providerOrderId).toEqualTypeOf<string>()
+      break
     default:
       expectTypeOf(event).toEqualTypeOf<never>()
   }

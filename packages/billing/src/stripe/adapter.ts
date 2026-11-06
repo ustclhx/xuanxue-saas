@@ -47,7 +47,8 @@ async function normalizeStripeEvent(
   const snapshots = createStripeSnapshots(stripe)
   switch (event.type) {
     case 'checkout.session.completed':
-    case 'checkout.session.async_payment_succeeded': {
+    case 'checkout.session.async_payment_succeeded':
+    case 'checkout.session.async_payment_failed': {
       const session = event.data.object
       if (session.mode !== 'subscription' && session.mode !== 'payment') break
       const metadata = parseStripeMetadata(session.metadata)
@@ -68,8 +69,11 @@ async function normalizeStripeEvent(
           providerSubscriptionId: subscriptionId,
         })
       } else {
+        // 失败事件也先登记订单关联：与 completed 乱序到达时仍能落到同一笔待付款订单
         events.push({ ...association, mode: 'one_time', providerOrderId: session.id })
-        if (session.payment_status === 'paid') {
+        if (event.type === 'checkout.session.async_payment_failed')
+          events.push({ ...base, type: 'order.failed', providerOrderId: session.id })
+        else if (session.payment_status === 'paid') {
           const intentId = stripeObjectId(session.payment_intent)
           if (!intentId) throw new Error('Paid Checkout has no PaymentIntent')
           const payment = await snapshots.getPayment({

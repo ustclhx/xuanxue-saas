@@ -8,7 +8,7 @@ import {
   subscription,
 } from '@xuanxue/db'
 import { and, eq, sql } from 'drizzle-orm'
-import { applyPaymentSucceeded } from './events/payments.ts'
+import { applyOrderFailed, applyPaymentSucceeded } from './events/payments.ts'
 import { applyPaymentDisputed, applyPaymentRefunded } from './events/refunds.ts'
 import {
   type BillingEventOptions,
@@ -225,6 +225,7 @@ export async function applyBillingEvent(
   options: Pick<BillingEventOptions, 'subscriptionCreditGraceHours' | 'now'> = {},
 ): Promise<void> {
   if (event.type === 'payment.disputed') return applyPaymentDisputed(tx, event)
+  if (event.type === 'order.failed') return applyOrderFailed(tx, event)
   if (event.type === 'payment.refunded') return applyPaymentRefunded(tx, event, options)
   const association = prepared.associations.get(event)
   if (association) await lockWorkspaceBilling(tx, association.workspaceId)

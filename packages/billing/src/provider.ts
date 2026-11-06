@@ -48,6 +48,10 @@ export interface CheckoutPresentation {
   brandName: string
   locale: string
   description: string
+  /** 购买所在站点 id，写入平台元数据便于后台按站对账；不参与本地归属判断 */
+  site?: string
+  /** 卡账单描述后缀（拉丁字母），拼在账户级前缀之后区分站点；不支持的适配器忽略 */
+  statementDescriptorSuffix?: string
 }
 
 export interface CheckoutInput {
@@ -186,6 +190,11 @@ export type NormalizedEvent = EventBase &
         currency: string
         /** Cumulative refunded amount, not this refund's delta. */
         refundedAmount: number | null
+      }
+    | {
+        /** 一次性订单付款失败（如延迟到账的付款方式最终失败）；只把未入账的订单标记 failed */
+        type: 'order.failed'
+        providerOrderId: string
       }
     | {
         type: 'payment.disputed'
