@@ -198,11 +198,14 @@ jobs:
           APP_VERSION: ${{ env.DEPLOY_SHA }}
         run: pnpm --filter @xuanxue/web exec playwright test --project production --output test-results/west
 
-      # 收录加速，脚本内部吞掉失败；未配置 INDEXNOW_KEY 时跳过（docs/analytics.md）
+      # 收录加速，脚本内部吞掉失败；未配置 INDEXNOW_KEY 时跳过（docs/analytics.md）。
+      # 脚本只提交与传入地址同源的站点地图条目，两站各提交一次。
       - name: Submit URLs to IndexNow
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-        run: node scripts/production/submit-indexnow.mjs "$PRODUCTION_URL"
+        run: |
+          node scripts/production/submit-indexnow.mjs "$EAST_URL"
+          node scripts/production/submit-indexnow.mjs "$WEST_URL"
 
       - name: Upload smoke traces
         if: failure()

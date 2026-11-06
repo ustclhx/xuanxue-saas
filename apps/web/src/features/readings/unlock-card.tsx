@@ -4,11 +4,13 @@ import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { AskAiEntry } from '../ai/ask-ai-entry.tsx'
+import { trackEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
+import { useToolEvents } from '../tools/use-tool-events.ts'
 import { FxAttribution } from './fx-attribution.tsx'
 import { toTraditional } from './hant.ts'
 import { Markdown } from './markdown.tsx'
@@ -161,6 +163,12 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
   const [offer, setOffer] = useState<ReadingOffer | null>(previewOffer ?? null)
   const [phase, setPhase] = useState<Phase>({ name: 'idle' })
   const resumeToken = useRef<string | null>(null)
+  const track = useToolEvents(kind)
+
+  // 积分不足、展示积分包即为付费墙曝光（含登录 / 支付回跳后直接进入该步骤）
+  useEffect(() => {
+    if (phase.name === 'packs') trackEvent('paywall_view')
+  }, [phase.name])
 
   // 第 1 步：回跳地址只有 `?unlock=`，把其中的分享输入写成 `#r=`，早于工具页读取片段
   useLayoutEffect(() => {
@@ -231,6 +239,8 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
       return setPhase({ name: 'error' })
     }
     const emailed = response.headers.get(EMAIL_DELIVERY_HEADER) === 'queued'
+    // 拿到报告 id 才算开始生成：401 / 402 与重复请求不计入
+    trackEvent('generate_start')
     setPhase({ name: 'streaming', id, text: '' })
     const result = await readReadingStream(response.body, (progress) =>
       setPhase({ name: 'streaming', id, text: progress.text }),
@@ -240,8 +250,10 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
     const status = slug ? await settledStatus(slug, id) : null
     if (status === 'failed' || (result.failed && !result.text.trim())) {
       void refresh()
+      trackEvent('generate_fail')
       return setPhase({ name: 'failed' })
     }
+    trackEvent('generate_success')
     setPhase({ name: 'done', id, text: result.text, emailed })
     void refresh()
   }
@@ -257,6 +269,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
   const unlock = () =>
     run(async () => {
       if (!request) return
+      track('unlock_click')
       setPhase({ name: 'busy', label: m.readings_generating() })
       const current = await refresh()
       if (!current.viewer) return goLogin(request.input, request.share)
@@ -269,6 +282,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
   const buy = (pack: ReadingPack) =>
     run(async () => {
       if (!request || !offer?.viewer) return
+      trackEvent('checkout_start', { plan: `credits-${pack.credits}` })
       setPhase({ name: 'busy', label: m.readings_unlock_redirecting() })
       const returnTo = await issueToken(request.input, request.share)
       const result = await checkoutCustomer({

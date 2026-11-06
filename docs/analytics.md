@@ -32,6 +32,10 @@
 
 浏览器统一调用 `trackEvent`（`apps/web/src/features/analytics/track.ts`），类型上不接受 `sign_up` 与 `payment_success`。
 
+xuanxue 详批解锁卡（`features/readings/unlock-card.tsx`）也上报字典事件：显示积分包时记 `paywall_view`，选积分包时记 `checkout_start`（`plan` 为 `credits-<积分数>`），拿到报告 id 时记 `generate_start`，报告完成或失败时记 `generate_success` / `generate_fail`。
+
+工具页另有项目自有事件 `tool_submit`、`result_view`、`block_open`、`tool_link_click`、`optin_submit`、`unlock_click`（`features/tools/events.ts`，载荷只含工具标识、站点、语言与白名单 slug）。它们经 `trackProductEvent` 与字典事件走同一通道和隐私边界；Plausible 下还附带上面五个归因属性。
+
 媒体任务的终态只在用户停留在详情页时才记录，离开页面后结束的任务不计入 `generate_success` / `generate_fail`。
 
 服务端事件经 `EVENTS_QUEUE` 交给 jobs（`apps/jobs/src/notifications/analytics.ts`）：消息只带身份标识，消费者从数据库读取归因与套餐，发送前在 `analytics_delivery` 用主键占位，并发或重复的 Webhook 只发送一次，发送失败时释放占位并重试。占位后进程崩溃会少计一次，不会多计。实例长时间不可用时，事件重试到上限后丢弃并记日志 `analytics.dropped`，不进死信、不触发运营告警。`sign_up` 消息带 IP 与 UA，用于串联同一访客。
@@ -146,7 +150,7 @@ order by payments desc;
 
 - `/llms.txt`：由公开页面清单生成，只列默认语言，门禁校验其中链接属于本站。关闭营销站时不存在。
 - IndexNow：`INDEXNOW_KEY` 配置在 web 运行环境（Cloudflare 用 `wrangler secret put`，selfhost 写 `.env`）和生产部署的 GitHub secret，两处相同。协议要求密钥可公开访问，站点从 `/indexnow.txt` 返回；不要写进仓库。
-- 提交时机：生产发布成功后，`scripts/production/submit-indexnow.mjs` 提交站点地图中的本站地址，未配置时跳过，失败只告警。staging 不提交。重要页面单独更新后，可手动运行 `INDEXNOW_KEY=... node scripts/production/submit-indexnow.mjs <站点地址>`。selfhost 发布流程未接入，请手动运行。
+- 提交时机：生产发布成功后，`scripts/production/submit-indexnow.mjs` 提交站点地图中的本站地址（xuanxue 两站各提交一次），未配置时跳过，失败只告警。staging 不提交。重要页面单独更新后，可手动运行 `INDEXNOW_KEY=... node scripts/production/submit-indexnow.mjs <站点地址>`。selfhost 发布流程未接入，请手动运行。
 - 答案页：`features.guides` 开启后，`apps/web/content/guides/<locale>/<slug>.mdx` 自动预渲染并进入站点地图和 `llms.txt`。frontmatter 必填 `title`、`answer_summary`（置顶结论）、`faq[]`（`q`、`a`，同时生成 FAQ JSON-LD）、`kind`（`how-to` / `is-it-free` / `trends`）、`updatedAt`。示例都是占位文案，上线前替换。
 
 ## 7. Clarity（默认关闭）

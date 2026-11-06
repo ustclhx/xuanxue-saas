@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 vi.mock('../../paraglide/runtime.js', () => ({ getLocale: () => 'zh' }))
 
 import { templateConfig } from '../../server/template-config.ts'
-import { ensureFirstTouch, startClarity, trackEvent } from './track.ts'
+import { ensureFirstTouch, startClarity, trackEvent, trackProductEvent } from './track.ts'
 
 type Queued = ((...args: unknown[]) => void) & { q?: unknown[][] }
 let browser: { location: URL; plausible?: Queued }
@@ -150,6 +150,34 @@ describe('trackEvent 多站', () => {
     trackEvent('paywall_view')
     expect(loaded).toHaveBeenCalledWith('paywall_view', expect.anything())
     expect(plausibleScripts()).toHaveLength(1)
+  })
+
+  it('工具页等产品事件走同一通道：插入本站脚本，附带归因属性，DNT 时不上报', () => {
+    scripts.push(config())
+    browser.location = new URL('https://ganjiday.com/zh-hant/bazi')
+    trackProductEvent('unlock_click', { tool: 'bazi-full', site: 'east', locale: 'zh-Hant' })
+    expect(plausibleScripts()[0]?.['data-domain']).toBe('ganjiday.com')
+    expect(queue()).toEqual([
+      [
+        'unlock_click',
+        {
+          u: 'https://ganjiday.com/zh-hant/bazi',
+          props: {
+            source: '(none)',
+            landing_path: '(none)',
+            locale: 'zh-Hant',
+            plan: '(none)',
+            device: 'desktop',
+            tool: 'bazi-full',
+            site: 'east',
+          },
+        },
+      ],
+    ])
+
+    nav.doNotTrack = '1'
+    trackProductEvent('tool_submit', { tool: 'bazi' })
+    expect(queue()).toHaveLength(1)
   })
 
   it('另一个访问域名得到自己的 site', () => {
