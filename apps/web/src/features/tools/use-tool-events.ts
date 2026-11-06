@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { getLocale } from '../../paraglide/runtime.js'
-import { templateConfig } from '../../server/template-config.ts'
-import { captureProductEvent } from '../analytics/client.ts'
+import { trackProductEvent } from '../analytics/track.ts'
 import { useSiteId } from '../site/context.tsx'
 import { type ToolEvent, type ToolEventDetail, toolEventPayload } from './events.ts'
 
@@ -10,11 +9,7 @@ export function useToolEvents(tool: string) {
   const site = useSiteId()
   return useCallback(
     (event: ToolEvent, detail?: ToolEventDetail) =>
-      captureProductEvent(
-        templateConfig,
-        event,
-        toolEventPayload({ tool, site, locale: getLocale() }, detail),
-      ),
+      trackProductEvent(event, toolEventPayload({ tool, site, locale: getLocale() }, detail)),
     [tool, site],
   )
 }

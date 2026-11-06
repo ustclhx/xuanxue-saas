@@ -2,6 +2,8 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { trackEvent, trackProductEvent } from '../analytics/track.ts'
+import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { FALLBACK_LOCAL_RATES } from './price.ts'
 import {
   getReading,
@@ -25,6 +27,7 @@ vi.mock('./readings.functions.ts', () => ({
   openReadingUnlock: vi.fn(),
 }))
 vi.mock('../billing/customer.functions.ts', () => ({ checkoutCustomer: vi.fn() }))
+vi.mock('../analytics/track.ts', () => ({ trackEvent: vi.fn(), trackProductEvent: vi.fn() }))
 
 const KIND = 'numerology-full'
 const INPUT = { year: 1987, month: 11, day: 29 }
@@ -175,5 +178,30 @@ describe('解锁卡内容与完成提示', () => {
 
   it('报告邮件已交给发信通道（queued）时提示已寄出链接', async () => {
     expect(await finish('queued')).toBe("Saved to your account. We've also emailed you a link.")
+  })
+})
+
+describe('解锁卡埋点', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    window.sessionStorage.clear()
+    vi.mocked(trackEvent).mockClear()
+    vi.mocked(trackProductEvent).mockClear()
+  })
+
+  it('积分不足时点击解锁记录 unlock_click 与付费墙曝光，选积分包记录 checkout_start', async () => {
+    vi.mocked(checkoutCustomer).mockResolvedValue({ ok: false } as never)
+    await mount()
+    await act(async () => button().click())
+    expect(trackProductEvent).toHaveBeenCalledWith(
+      'unlock_click',
+      expect.objectContaining({ tool: KIND, locale: 'en' }),
+    )
+    expect(trackEvent).toHaveBeenCalledWith('paywall_view')
+    expect(trackEvent).not.toHaveBeenCalledWith('generate_start')
+
+    const pack = container.querySelector('[data-testid="reading-pack"]') as HTMLButtonElement
+    await act(async () => pack.click())
+    expect(trackEvent).toHaveBeenCalledWith('checkout_start', { plan: 'credits-100' })
   })
 })

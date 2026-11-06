@@ -15,7 +15,7 @@ import {
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
-import { mayCapture } from './client.ts'
+import { captureProductEvent, mayCapture } from './client.ts'
 import { type MultiSiteConfig, PLAUSIBLE_CONFIG_ID } from './head.ts'
 
 interface PlausibleQueue {
@@ -118,26 +118,19 @@ export function startClarity(pathname: string) {
   document.head.appendChild(script)
 }
 
-/**
- * 统一埋点入口。注册与付款事件由服务端上报，类型上不接受；
- * 脚本未注入（未配置或本环境关闭）时静默跳过。
- */
-export function trackEvent(event: ClientAnalyticsEvent, input: { plan?: string } = {}) {
-  if (!trackingAllowed() || !providerAllowed()) return
+function baseProps(input: { plan?: string } = {}) {
   const touch = parseFirstTouch(firstTouchCookie())
-  const props = analyticsProps({
+  return analyticsProps({
     source: touch?.source,
     landing_path: touch?.landingPath,
     locale: getLocale(),
     plan: input.plan,
     device: analyticsDevice(navigator.userAgent),
   })
+}
+
+function sendPlausible(name: string, props: Record<string, string>) {
   const target = window as AnalyticsWindow
-  if (templateConfig.features.analytics === 'posthog') {
-    // 页面浏览由 startPostHog 负责，避免重复计数。
-    if (event !== 'page_view') target.posthog?.capture(event, { ...props })
-    return
-  }
   const multi = multiSiteConfig()
   if (multi) {
     const domain = resolvePlausibleSite(multi.sites, multi.fallback, window.location.hostname)
@@ -160,8 +153,33 @@ export function trackEvent(event: ClientAnalyticsEvent, input: { plan?: string }
       { q: [] as unknown[] },
     )
   target.plausible = plausible
-  plausible(plausibleEventName(event), {
-    u: analyticsUrl(new URL(window.location.href)),
-    props: { ...props },
-  })
+  plausible(name, { u: analyticsUrl(new URL(window.location.href)), props })
+}
+
+/**
+ * 统一埋点入口。注册与付款事件由服务端上报，类型上不接受；
+ * 脚本未注入（未配置或本环境关闭）时静默跳过。
+ */
+export function trackEvent(event: ClientAnalyticsEvent, input: { plan?: string } = {}) {
+  if (!trackingAllowed() || !providerAllowed()) return
+  const props = baseProps(input)
+  if (templateConfig.features.analytics === 'posthog') {
+    // 页面浏览由 startPostHog 负责，避免重复计数。
+    if (event !== 'page_view') (window as AnalyticsWindow).posthog?.capture(event, { ...props })
+    return
+  }
+  sendPlausible(plausibleEventName(event), { ...props })
+}
+
+/**
+ * 项目自有的产品事件（工具页与详批解锁，features/tools/events.ts）：与字典事件走同一通道与隐私边界，
+ * Plausible 下附带同一组归因属性；载荷由调用方按白名单构造。
+ */
+export function trackProductEvent(event: string, payload: Record<string, string>) {
+  if (!trackingAllowed() || !providerAllowed()) return
+  if (templateConfig.features.analytics === 'posthog') {
+    captureProductEvent(templateConfig, event, payload)
+    return
+  }
+  sendPlausible(event, { ...baseProps(), ...payload })
 }
