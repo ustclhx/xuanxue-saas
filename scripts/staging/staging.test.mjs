@@ -471,3 +471,27 @@ test('gate expectations follow the template analytics switch, not just the env v
   assert.equal(await expected("features: { analytics: 'posthog' }"), '')
   assert.equal(expectedFromWrangler('staging', root).plausibleSites, '')
 })
+
+test('site isolation checks each custom domain of a multi-site worker against itself', async () => {
+  const EAST = 'https://east.example'
+  const eastHead = `<link rel="canonical" href="${EAST}/zh"/><link rel="icon" href="/favicon.ico"/>`
+  const routes = {
+    '/sitemap.xml': [200, `<urlset><url><loc>${EAST}/zh</loc></url></urlset>`],
+    '/robots.txt': [200, `Sitemap: ${EAST}/sitemap.xml\n`],
+    '/': [302, '', { location: '/zh/' }],
+    '/zh/': [200, page(eastHead)],
+    '/favicon.ico': [200, 'icon'],
+  }
+  const fetchImpl = async (url) => {
+    const [status, body, headers] = routes[new URL(url).pathname] ?? [404, 'missing']
+    return new Response(body, { status, headers })
+  }
+  const check = (siteOrigins) =>
+    checkSiteIsolation({ baseUrl: EAST, appUrl: SITE, siteOrigins, fetchImpl, write: () => {} })
+  assert.deepEqual(await check([EAST]), [])
+  // 未绑定的域名仍按 APP_URL 校验，串扰照常报错
+  assert.ok((await check([])).some((line) => /differs from APP_URL/.test(line)))
+
+  routes['/'] = [302, '', { location: 'https://other.example/' }]
+  assert.ok((await check([EAST])).some((line) => /redirect: https:\/\/other\.example/.test(line)))
+})

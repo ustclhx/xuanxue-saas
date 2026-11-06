@@ -1,5 +1,5 @@
 // biome-ignore-all lint/plugin: 跨空间的付款与归因读取没有单一租户归属。
-import { normalizeSiteHost, type PlausibleSite } from '@xuanxue/config'
+import { normalizeSiteHost, type PlausibleSite, type SiteId } from '@xuanxue/config'
 import {
   analyticsDelivery,
   type Database,
@@ -19,6 +19,7 @@ import {
 } from '@xuanxue/shared/analytics'
 import { log } from '@xuanxue/shared/log'
 import { and, asc, eq } from 'drizzle-orm'
+import templateConfig from '../../../../template.config.ts'
 
 /**
  * site 携带映射（sites）与兜底（domain）：单站时没有映射，一律发往兜底 site。
@@ -59,6 +60,7 @@ async function attributionOf(db: Database, userId: string) {
       landingPath: userAttribution.landingPath,
       device: userAttribution.device,
       signupHost: userAttribution.signupHost,
+      site: user.site,
       locale: user.locale,
     })
     .from(user)
@@ -66,6 +68,14 @@ async function attributionOf(db: Database, userId: string) {
     .where(eq(user.id, userId))
     .limit(1)
   return row
+}
+
+/**
+ * 注册域名缺失时（0.2.1 之前注册、没有归因行的用户）按账号站点取规范域名：两站账号分开，
+ * 站点即注册所在的站；否则这些用户的付款会因没有兜底 site 而被丢弃。
+ */
+function accountHost(row: { signupHost: string | null; site: SiteId } | undefined) {
+  return row?.signupHost ?? (row ? (templateConfig.sites[row.site]?.hosts[0] ?? null) : null)
 }
 
 async function resolve(db: Database, event: ServerAnalyticsEvent): Promise<ResolvedEvent | null> {
@@ -127,7 +137,7 @@ async function resolve(db: Database, event: ServerAnalyticsEvent): Promise<Resol
       device: row?.device ?? undefined,
     }),
     revenue: { currency: paid.currency, amount: (paid.amount / 100).toFixed(2) },
-    host: row?.signupHost ?? null,
+    host: accountHost(row),
   }
 }
 

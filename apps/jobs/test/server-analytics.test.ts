@@ -158,3 +158,30 @@ it('多站付款读取真实归因行的 signup_host，归到注册时所在的 
     url: 'https://arcanumber.com/app/billing',
   })
 })
+
+it('没有归因行的老用户付款按账号站点归到对应 site', async () => {
+  const fetchMock = vi.fn(async () => new Response('ok', { status: 202 }))
+  vi.stubGlobal('fetch', fetchMock)
+  const { ws, key } = await paidWorkspace()
+  await db.delete(userAttribution).where(eq(userAttribution.userId, ws))
+  await db.update(user).set({ site: 'east' }).where(eq(user.id, ws))
+  const multi = {
+    appUrl: 'https://arcanumber.com',
+    site: {
+      ...target.site,
+      domain: '',
+      sites: { 'ganjiday.com': 'ganjiday.com', 'arcanumber.com': 'arcanumber.com' },
+    },
+  }
+  await deliverServerAnalytics(db, multi, {
+    event: 'payment_success',
+    provider: 'stripe',
+    providerPaymentId: key,
+  })
+  const init = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1]
+  expect(JSON.parse(String(init.body))).toMatchObject({
+    domain: 'ganjiday.com',
+    url: 'https://ganjiday.com/app/billing',
+    props: { source: '(none)' },
+  })
+})

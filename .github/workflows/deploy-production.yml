@@ -179,9 +179,11 @@ jobs:
       - name: Confirm western site health and version
         run: node scripts/staging/wait-healthy.mjs "$WEST_URL/api/health" "$DEPLOY_SHA"
 
-      # P0 门禁：sitemap / canonical / 分析脚本不得指向他站（docs/analytics.md）
+      # P0 门禁：sitemap / canonical / 分析脚本不得指向他站（docs/analytics.md），两站各自检查
       - name: Check site isolation
-        run: node scripts/staging/check-site-isolation.mjs production "$PRODUCTION_URL"
+        run: |
+          node scripts/staging/check-site-isolation.mjs production "$EAST_URL"
+          node scripts/staging/check-site-isolation.mjs production "$WEST_URL"
 
       - name: Install Chromium
         run: pnpm --filter @xuanxue/web exec playwright install --with-deps chromium

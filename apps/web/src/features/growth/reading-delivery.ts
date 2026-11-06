@@ -5,6 +5,7 @@ import { requireCapability } from '@xuanxue/platform'
 import { and, eq, sql } from 'drizzle-orm'
 import { optinEmailProps } from '../readings/optin-email.ts'
 import { type ReadingOptin, readingOptinSchema } from '../readings/optin-schema.ts'
+import { growthLink } from './links.ts'
 import type { GrowthContext } from './service.ts'
 import { signGrowthToken } from './tokens.ts'
 
@@ -32,7 +33,7 @@ export async function deliverReading(ctx: GrowthContext, row: Subscriber): Promi
     nonce: row.confirmToken,
     expires: null,
   })
-  const unsubscribe = new URL('/api/newsletter/unsubscribe', ctx.appUrl)
+  const unsubscribe = growthLink(ctx, '/api/newsletter/unsubscribe', row.site)
   unsubscribe.searchParams.set('token', token)
   const props = optinEmailProps(input, ctx.config, unsubscribe.href)
   const claimed = { ...pending, deliveryStartedAt: Date.now() }
