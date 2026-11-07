@@ -972,6 +972,37 @@ describe('billing event consumer on PostgreSQL', () => {
       ).toBe('paid')
     },
   )
+  it('failed delayed one time payment marks the pending order failed without credits; paid orders stay paid', async () => {
+    await db
+      .update(plan)
+      .set({ type: 'credit_pack', creditExpiryDays: 365 })
+      .where(eq(plan.id, planId))
+    await db.update(planPrice).set({ interval: null }).where(eq(planPrice.id, priceId))
+    const failed: NormalizedEvent = {
+      provider: 'stripe',
+      type: 'order.failed',
+      occurredAt: now,
+      raw: {},
+      providerOrderId: orderId,
+    }
+    const orders = () => db.select().from(purchase).where(eq(purchase.workspaceId, ws))
+    // 未登记的订单：无副作用
+    await apply([failed])
+    expect(await orders()).toHaveLength(0)
+    await apply([await checkout(true), failed])
+    await apply([failed])
+    expect((await orders()).map((row) => row.status)).toEqual(['failed'])
+    expect(await grants()).toHaveLength(0)
+    // 平台之后报告付款成功时以平台为准恢复为 paid，再次失败事件不覆盖
+    await apply([paid({ kind: 'one_time', providerOrderId: orderId, period: null })])
+    await apply([failed])
+    expect((await orders()).map((row) => row.status)).toEqual(['paid'])
+    expect(await grants()).toHaveLength(1)
+    // 同一平台订单号不会落到其他空间
+    expect(await db.select().from(purchase).where(eq(purchase.workspaceId, otherWs))).toHaveLength(
+      0,
+    )
+  })
   it('caller rollback undoes association payment credit and ledger together', async () => {
     const event = paid()
     const prepared = await prepareBillingEvents([event], db, { stripe: provider })

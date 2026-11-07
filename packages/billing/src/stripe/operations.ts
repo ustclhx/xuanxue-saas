@@ -30,6 +30,36 @@ function requestOptions(idempotencyKey: string): Stripe.RequestOptions {
   return { idempotencyKey }
 }
 
+const STRIPE_LOCALES: Record<string, Stripe.Checkout.SessionCreateParams.Locale> = {
+  en: 'en',
+  'zh-Hant': 'zh-TW',
+  'zh-Hans': 'zh',
+  ko: 'ko',
+}
+
+/**
+ * 一次性付款的站点展示：两站共用一个 Stripe 账户与同一组价格，页头名称、语言、付款说明、
+ * 卡账单后缀与站点元数据按请求站点区分；订阅不使用（商品名与发票由 Price 决定）。
+ */
+function stripePresentation(input: CheckoutInput) {
+  const shown = input.mode === 'one_time' ? input.presentation : undefined
+  if (!shown) return { session: {}, intent: {}, metadata: {} }
+  const locale = STRIPE_LOCALES[shown.locale]
+  return {
+    session: {
+      ...(shown.brandName ? { branding_settings: { display_name: shown.brandName } } : {}),
+      ...(locale ? { locale } : {}),
+    },
+    intent: {
+      ...(shown.description ? { description: shown.description } : {}),
+      ...(shown.statementDescriptorSuffix
+        ? { statement_descriptor_suffix: shown.statementDescriptorSuffix }
+        : {}),
+    },
+    metadata: shown.site ? { site: shown.site } : {},
+  }
+}
+
 export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput) {
   const options = requestOptions(input.idempotencyKey)
   const metadata = parseStripeMetadata({
@@ -41,9 +71,11 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
   if ((input.mode === 'subscription') !== (input.price.interval !== null)) {
     throw new Error('Checkout mode must match the price interval')
   }
+  const shown = stripePresentation(input)
   const session = await stripe.checkout.sessions.create(
     {
       mode: input.mode === 'one_time' ? 'payment' : 'subscription',
+      ...shown.session,
       // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
       managed_payments: { enabled: false },
       // 平台价格只有 USD：关闭 Adaptive Pricing，避免 Stripe 按买家所在地换算成其他币种扣款。
@@ -57,10 +89,12 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
             customer_email: input.customerEmail,
             ...(input.mode === 'one_time' ? { customer_creation: 'always' as const } : {}),
           }),
-      metadata: { ...metadata },
+      metadata: { ...metadata, ...shown.metadata },
       ...(input.mode === 'subscription'
         ? { subscription_data: { metadata: { ...metadata } } }
-        : { payment_intent_data: { metadata: { ...metadata } } }),
+        : {
+            payment_intent_data: { ...shown.intent, metadata: { ...metadata, ...shown.metadata } },
+          }),
     },
     options,
   )

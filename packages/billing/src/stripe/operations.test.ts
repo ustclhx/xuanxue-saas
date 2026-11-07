@@ -192,21 +192,49 @@ describe('Stripe checkout and transport', () => {
     expect(mock.requests[0]?.body.has('customer_creation')).toBe(false)
   })
 
-  it('ignores PayPal-only site presentation and keeps the Checkout Session body unchanged', async () => {
+  it('shows the purchasing site on one-time Checkout and keeps subscriptions unchanged', async () => {
     const reply = {
       method: 'POST',
       path: '/v1/checkout/sessions',
       body: { id: 'cs_test', url: 'https://checkout.stripe.com/offline' },
     }
-    const mock = mockStripe([reply, reply])
-    const input = { ...checkout, mode: 'one_time' as const, price: { ...price, interval: null } }
-    await mock.operations.createCheckout(input)
-    await mock.operations.createCheckout({
-      ...input,
-      presentation: { brandName: 'Ganjiday', locale: 'ko', description: '100 크레딧 · 간지데이' },
+    const mock = mockStripe([reply, reply, reply, reply])
+    const presentation = (site: string, brandName: string, locale: string, suffix: string) => ({
+      brandName,
+      locale,
+      description: `100 credits · ${brandName}`,
+      site,
+      statementDescriptorSuffix: suffix,
     })
-    const [plain, presented] = mock.requests.map((request) => request.body.toString())
-    expect(presented).toBe(plain)
+    const oneTime = { ...checkout, mode: 'one_time' as const, price: { ...price, interval: null } }
+    await mock.operations.createCheckout({
+      ...oneTime,
+      presentation: presentation('east', '干支日', 'zh-Hant', 'GANJIDAY'),
+    })
+    await mock.operations.createCheckout({
+      ...oneTime,
+      presentation: presentation('west', 'Arcanumber', 'en', 'ARCANUMBER'),
+    })
+    await mock.operations.createCheckout({
+      ...checkout,
+      presentation: presentation('east', '干支日', 'ko', 'GANJIDAY'),
+    })
+    await mock.operations.createCheckout(checkout)
+    const [east, west, subscription, plain] = mock.requests.map((request) => request.body)
+    for (const [body, site, brand, locale, suffix] of [
+      [east, 'east', '干支日', 'zh-TW', 'GANJIDAY'],
+      [west, 'west', 'Arcanumber', 'en', 'ARCANUMBER'],
+    ] as const) {
+      expect(body?.get('branding_settings[display_name]')).toBe(brand)
+      expect(body?.get('locale')).toBe(locale)
+      expect(body?.get('payment_intent_data[description]')).toBe(`100 credits · ${brand}`)
+      expect(body?.get('payment_intent_data[statement_descriptor_suffix]')).toBe(suffix)
+      expect(body?.get('metadata[site]')).toBe(site)
+      expect(body?.get('payment_intent_data[metadata][site]')).toBe(site)
+      // 站点元数据不替换可信的空间关联
+      expect(body?.get('metadata[workspaceId]')).toBe(metadata.workspaceId)
+    }
+    expect(subscription?.toString()).toBe(plain?.toString())
     mock.complete()
   })
 

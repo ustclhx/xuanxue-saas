@@ -265,6 +265,10 @@ export async function createCheckout(ctx: BillingServiceContext, input: CreateCh
             brandName: input.presentation.brandName,
             locale: input.presentation.locale,
             description: input.presentation.describe({ credits: selected.credits }),
+            ...(input.presentation.site ? { site: input.presentation.site } : {}),
+            ...(input.presentation.statementDescriptorSuffix
+              ? { statementDescriptorSuffix: input.presentation.statementDescriptorSuffix }
+              : {}),
           },
         }
       : {}),

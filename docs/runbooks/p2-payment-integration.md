@@ -60,6 +60,7 @@ Stripe 账号应选择专用 sandbox / 测试模式，密钥、事件 destinatio
 ```text
 checkout.session.completed
 checkout.session.async_payment_succeeded
+checkout.session.async_payment_failed
 customer.subscription.created
 customer.subscription.updated
 customer.subscription.deleted

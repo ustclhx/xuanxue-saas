@@ -108,7 +108,7 @@
   "pricing_faq_accuracy_q": "详批是预测吗？",
   "pricing_faq_accuracy_a": "不是。排盘依各体系的规则计算；解读仅供娱乐与自我反思，不是预测，也不是专业建议。",
   "pricing_faq_pay_q": "如何付款？",
-  "pricing_faq_pay_a": "付款将由我们的支付服务商安全处理，我们不会取得或保存你的卡片资料。",
+  "pricing_faq_pay_a": "付款由 Stripe（银行卡）和 PayPal 安全处理，我们不会取得或保存你的卡片资料。",
   "pricing_pack_readings_one": "可解锁 1 份完整详批",
   "pricing_pack_readings_other": "可解锁 {count} 份完整详批",
   "marketing_nav_faq": "常见问题",

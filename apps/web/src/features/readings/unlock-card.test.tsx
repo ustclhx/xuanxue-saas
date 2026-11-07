@@ -6,6 +6,7 @@ import { trackEvent, trackProductEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { FALLBACK_LOCAL_RATES } from './price.ts'
 import {
+  createReadingUnlock,
   getReading,
   getReadingOffer,
   openReadingUnlock,
@@ -203,5 +204,54 @@ describe('解锁卡埋点', () => {
     const pack = container.querySelector('[data-testid="reading-pack"]') as HTMLButtonElement
     await act(async () => pack.click())
     expect(trackEvent).toHaveBeenCalledWith('checkout_start', { plan: 'credits-100' })
+  })
+})
+
+describe('解锁卡付款方式', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    window.sessionStorage.clear()
+    vi.mocked(checkoutCustomer)
+      .mockReset()
+      .mockResolvedValue({ ok: false } as never)
+    vi.mocked(createReadingUnlock).mockResolvedValue({ token: 'tok' } as never)
+  })
+
+  it('只有一种付款方式时不显示切换，结账使用该方式的价格', async () => {
+    await mount()
+    await act(async () => button().click())
+    expect(container.querySelector('[data-testid="reading-pay-method"]')).toBeNull()
+    const pack = container.querySelector('[data-testid="reading-pack"]') as HTMLButtonElement
+    await act(async () => pack.click())
+    expect(vi.mocked(checkoutCustomer).mock.calls[0]?.[0].data).toMatchObject({
+      provider: 'paypal',
+      planPriceId: 'price',
+    })
+  })
+
+  it('Stripe 与 PayPal 都可用时默认按配置顺序选卡，切到 PayPal 后结账使用 PayPal 价格', async () => {
+    vi.mocked(getReadingOffer).mockImplementation(async () => ({
+      ...offer(0),
+      packs: [
+        { planPriceId: 'stripe-100', provider: 'stripe', credits: 100, amount: 199 },
+        { planPriceId: 'paypal-100', provider: 'paypal', credits: 100, amount: 199 },
+      ],
+    }))
+    await mount()
+    await act(async () => button().click())
+    const methods = [
+      ...container.querySelectorAll('[data-testid="reading-pay-method"]'),
+    ] as HTMLInputElement[]
+    expect(methods.map((item) => item.checked)).toEqual([true, false])
+    expect(container.querySelectorAll('[data-testid="reading-pack"]')).toHaveLength(1)
+    await act(async () => methods[1]?.click())
+    expect(methods.map((item) => item.checked)).toEqual([false, true])
+    await act(async () =>
+      (container.querySelector('[data-testid="reading-pack"]') as HTMLButtonElement).click(),
+    )
+    expect(vi.mocked(checkoutCustomer).mock.calls[0]?.[0].data).toMatchObject({
+      provider: 'paypal',
+      planPriceId: 'paypal-100',
+    })
   })
 })

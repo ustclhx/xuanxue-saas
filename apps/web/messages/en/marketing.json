@@ -108,7 +108,7 @@
   "pricing_faq_accuracy_q": "Are readings predictions?",
   "pricing_faq_accuracy_a": "No. Calculations follow the rules of each system; interpretations are for entertainment and self-reflection, not predictions or professional advice.",
   "pricing_faq_pay_q": "How will I pay?",
-  "pricing_faq_pay_a": "Payments will be processed securely by our payment provider. We never see or store your card details.",
+  "pricing_faq_pay_a": "Payments are processed securely by Stripe (card) and PayPal. We never see or store your card details.",
   "pricing_pack_readings_one": "Unlocks 1 full reading",
   "pricing_pack_readings_other": "Unlocks {count} full readings",
   "marketing_nav_faq": "FAQ",

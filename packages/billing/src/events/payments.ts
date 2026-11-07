@@ -5,7 +5,14 @@ import { nextPastDueSince } from '../past-due.ts'
 import type { WebhookTransaction } from '../pipeline.ts'
 import type { NormalizedEvent } from '../provider.ts'
 import { grantSubscriptionMonth } from './grants.ts'
-import { type BillingEventOptions, checkWinner, money, paymentScope } from './shared.ts'
+import {
+  type BillingEventOptions,
+  checkWinner,
+  lockWorkspaceBilling,
+  money,
+  orderScope,
+  paymentScope,
+} from './shared.ts'
 import type { BillingTarget } from './target.ts'
 
 /** Records the payment idempotently, advances the subscription period and grants credits. */
@@ -160,4 +167,30 @@ export async function applyPaymentSucceeded(
           : new Date(paid.paidAt.getTime() + a.plan.creditExpiryDays * 86_400_000),
     })
   await reduceToKept()
+}
+
+/**
+ * 一次性订单付款失败：不发积分，只把仍待付款的订单标记 failed。已付款、已退款的订单不变；
+ * 之后若平台又报告付款成功，applyPaymentSucceeded 会按平台结果恢复为 paid。
+ */
+export async function applyOrderFailed(
+  tx: WebhookTransaction,
+  event: Extract<NormalizedEvent, { type: 'order.failed' }>,
+) {
+  const [found] = await tx
+    .select()
+    .from(purchase)
+    .where(orderScope(event.provider, event.providerOrderId))
+  if (!found) return
+  await lockWorkspaceBilling(tx, found.workspaceId)
+  await tx
+    .update(purchase)
+    .set({ status: 'failed' })
+    .where(
+      and(
+        eq(purchase.id, found.id),
+        eq(purchase.workspaceId, found.workspaceId),
+        eq(purchase.status, 'pending'),
+      ),
+    )
 }
