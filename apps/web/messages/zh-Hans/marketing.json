@@ -74,6 +74,8 @@
   "marketing_blog_tag_title": "标签“{tag}”下的文章",
   "marketing_blog_all_posts": "全部文章",
   "marketing_blog_empty": "暂无文章。",
+  "marketing_blog_empty_description": "{brand}目前还没有已发布的文章。您可以先使用以下免费工具。",
+  "marketing_blog_empty_tool": "免费使用{tool}",
   "marketing_blog_draft": "草稿",
   "marketing_blog_back": "返回博客",
   "marketing_docs_title": "文件",
