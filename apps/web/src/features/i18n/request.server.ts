@@ -33,6 +33,12 @@ export function localizeRequest(
         locale = accountLocale(fresh.user.locale, request)
       } catch (error) {
         if (!(error instanceof AppError && [401, 403].includes(error.status))) throw error
+        // 未登录时应用区按 Cookie 取语言；Cookie 是另一站的语言（旧版同域名下切换过语言、
+        // 账号语言曾被同步到本站）时不能沿用，否则 `/app` 的登录跳转会生成 `/zh-hans/login` 这类
+        // 本站不存在的地址。改用本站回退语言并更正 Cookie。
+        const current = readCookie(request.headers.get('cookie') ?? '', cookieName)
+        if (current !== undefined && !ownsLocale(current, request))
+          locale = accountLocale(undefined, request)
       }
     }
     const headers = new Headers(request.headers)
@@ -65,12 +71,18 @@ export function localizeRequest(
  */
 function accountLocale(saved: string | null | undefined, request: Request): Locale {
   const site = resolveSite(new URL(request.url).host, templateConfig)
-  const own: readonly string[] = templateConfig.sites[site.id].locales
-  if (isLocale(saved) && (!site.known || own.includes(saved))) return saved
+  if (isLocale(saved) && ownsLocale(saved, request)) return saved
   if (site.id === 'east') {
     const east = eastLocale(request, templateConfig)
     if (isLocale(east)) return east
   }
   const fallback = templateConfig.sites[site.id].defaultLocale
   return isLocale(fallback) ? fallback : baseLocale
+}
+
+/** 语言属于请求 Host 对应的站点；未登记的 Host 接受全部已配置语言 */
+function ownsLocale(locale: string, request: Request): boolean {
+  const site = resolveSite(new URL(request.url).host, templateConfig)
+  const own: readonly string[] = templateConfig.sites[site.id].locales
+  return isLocale(locale) && (!site.known || own.includes(locale))
 }

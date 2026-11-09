@@ -2,14 +2,21 @@ import { localeUrlSegment } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
-import { EAST_ENGLISH_LOCALE, resolveSite, type SitesConfig, siteOfLocale } from './site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  resolveSite,
+  type SitesConfig,
+  siteNavLocale,
+  siteOfLocale,
+} from './site.ts'
 
 /**
  * 站点守卫（openspec add-dual-site-foundation tasks.md 1.3，specs/multi-site）：
  * 在语言中间件之前执行，先识别站点，再校验语言前缀归属。
  *
  * - 两站分开经营（openspec product-improve-ai-content-20261030 D5）：语言前缀不属于当前站点时
- *   返回本站风格的 404，不跨站跳转；唯一例外是东方站的英文入口页 `/en`。
+ *   返回本站风格、本站语言的 404，不跨站跳转；例外是东方站的英文入口页 `/en`，
+ *   以及认证页（`/zh-hans/login` 在西方站）302 到本站无前缀认证页。
  * - 当前站点默认语言的前缀（如西方站 `/en/pricing`）：307 到无前缀地址。
  * - 带语言前缀的应用区地址（`/ko/app`）不跳转，由语言守卫返回 404。
  * - 东方站没有无前缀的默认语言：除根路径（入口页）、应用区、认证页与技术路径外，302 到入口页。
@@ -65,7 +72,12 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
     // 已登记的站点只提供自己的语言；预览地址可浏览全部语言
     if (site.known && siteOfLocale(locale, config) !== site.id) {
       const eastEnglish = site.id === 'east' && locale === EAST_ENGLISH_LOCALE && rest === '/'
-      return eastEnglish ? { kind: 'pass', noindex } : { kind: 'not-found' }
+      if (eastEnglish) return { kind: 'pass', noindex }
+      // 认证页没有语言也能访问：外站语言前缀的认证页（旧状态生成的 `/zh-hans/login?redirect=…`）
+      // 302 到本站无前缀认证页、保留查询参数，再由认证页语言跳转选择本站语言；不跨站
+      if (EAST_UNPREFIXED_PREFIXES.some((p) => rest === p || rest.startsWith(`${p}/`)))
+        return redirect(302, url.origin, rest)
+      return { kind: 'not-found' }
     }
     if (locale === config.sites[site.id].defaultLocale) return redirect(307, url.origin, rest)
     return { kind: 'pass', noindex }
@@ -74,6 +86,26 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
   if (site.known && config.sites[site.id].defaultLocale === null && !isUnprefixedEastPath(pathname))
     return { kind: 'redirect', status: 302, location: `${url.origin}/` }
   return { kind: 'pass', noindex }
+}
+
+/**
+ * 改写到的 404 路径：带上本次应使用的语言前缀，使 404 页的服务端渲染与客户端水合使用同一语言。
+ * 地址的语言前缀属于本站（或未登记的 Host）时沿用；外站语言或没有前缀时用本站导航语言
+ * （东方站没有无前缀默认语言，否则会落到 baseLocale 英文，即西方站的语言）。
+ * 客户端同样把外站语言换成本站导航语言（features/i18n/site-locale.ts）。
+ */
+export function notFoundPath(url: URL, config: SitesConfig): string {
+  if (!config.i18n.enabled) return NOT_FOUND_PATH
+  const site = resolveSite(url.host, config)
+  const prefixed = prefixLocale(url.pathname, config.i18n.locales)
+  const own: readonly string[] = config.sites[site.id].locales
+  const locale =
+    prefixed !== undefined && (!site.known || own.includes(prefixed))
+      ? prefixed
+      : siteNavLocale(site.id, prefixed ?? '', config)
+  return locale === config.i18n.defaultLocale
+    ? NOT_FOUND_PATH
+    : `/${localeUrlSegment(locale)}${NOT_FOUND_PATH}`
 }
 
 /**
@@ -89,7 +121,8 @@ export async function gateSiteRequest(
   const decision = routeSite(url, config)
   if (decision.kind === 'redirect')
     return new Response(null, { status: decision.status, headers: { location: decision.location } })
-  if (decision.kind === 'not-found') return next(new Request(new URL(NOT_FOUND_PATH, url), request))
+  if (decision.kind === 'not-found')
+    return next(new Request(new URL(notFoundPath(url, config), url), request))
   const response = await next(request)
   if (!decision.noindex) return response
   // 重定向与静态响应的 headers 可能只读，复制后再设置

@@ -2,5 +2,7 @@
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "common_site_tagline": "通过命理工具与指南，认识传统智慧，探索自己。",
   "common_not_found_title": "页面不存在",
-  "common_not_found_body": "找不到你要查看的页面。"
+  "common_not_found_body": "找不到你要查看的页面。",
+  "common_not_found_home": "返回{brand}首页",
+  "common_not_found_pricing": "查看定价"
 }
