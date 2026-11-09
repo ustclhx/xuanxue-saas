@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
+import { BlogEmptyState } from './empty-state.tsx'
 
 export interface PostSummary {
   readonly slug: string
@@ -37,7 +38,7 @@ export function TagLinks({ tags }: { tags: readonly string[] }) {
 
 export function PostList({ posts }: { posts: readonly PostSummary[] }) {
   const locale = getLocale()
-  if (posts.length === 0) return <p className="text-muted-foreground">{m.marketing_blog_empty()}</p>
+  if (posts.length === 0) return <BlogEmptyState />
   return (
     <ul className="grid gap-8">
       {posts.map((post) => (

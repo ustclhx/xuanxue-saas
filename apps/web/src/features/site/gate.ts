@@ -2,7 +2,13 @@ import { localeUrlSegment } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
-import { EAST_ENGLISH_LOCALE, resolveSite, type SitesConfig, siteOfLocale } from './site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  resolveSite,
+  type SitesConfig,
+  siteNavLocale,
+  siteOfLocale,
+} from './site.ts'
 
 /**
  * 站点守卫（openspec add-dual-site-foundation tasks.md 1.3，specs/multi-site）：
@@ -12,7 +18,7 @@ import { EAST_ENGLISH_LOCALE, resolveSite, type SitesConfig, siteOfLocale } from
  *   返回本站风格的 404，不跨站跳转；唯一例外是东方站的英文入口页 `/en`。
  * - 当前站点默认语言的前缀（如西方站 `/en/pricing`）：307 到无前缀地址。
  * - 带语言前缀的应用区地址（`/ko/app`）不跳转，由语言守卫返回 404。
- * - 东方站没有无前缀的默认语言：除根路径（入口页）、应用区、认证页与技术路径外，302 到入口页。
+ * - 东方站裸法律页 302 到本站默认导航语言的对应页面；其余无前缀公开页仍 302 到入口页。
  * - 未登记的 Host 按西方站处理并 noindex；预览环境需要浏览全部语言，因此不返回 404。
  */
 export type SiteDecision =
@@ -71,6 +77,14 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
     return { kind: 'pass', noindex }
   }
 
+  if (
+    site.known &&
+    site.id === 'east' &&
+    /^\/(privacy|terms|disclaimer|refund)\/?$/.test(pathname)
+  ) {
+    const legalLocale = siteNavLocale(site.id, config.i18n.defaultLocale, config)
+    return redirect(302, url.origin, `/${localeUrlSegment(legalLocale)}${pathname}`)
+  }
   if (site.known && config.sites[site.id].defaultLocale === null && !isUnprefixedEastPath(pathname))
     return { kind: 'redirect', status: 302, location: `${url.origin}/` }
   return { kind: 'pass', noindex }
