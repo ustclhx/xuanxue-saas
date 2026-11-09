@@ -198,7 +198,12 @@ describe('Stripe checkout and transport', () => {
       path: '/v1/checkout/sessions',
       body: { id: 'cs_test', url: 'https://checkout.stripe.com/offline' },
     }
-    const mock = mockStripe([reply, reply, reply, reply])
+    const noLocalized = {
+      method: 'GET',
+      path: '/v1/prices',
+      body: { object: 'list', data: [], has_more: false, url: '/v1/prices' },
+    }
+    const mock = mockStripe([noLocalized, reply, reply, reply, reply])
     const presentation = (site: string, brandName: string, locale: string, suffix: string) => ({
       brandName,
       locale,
@@ -220,7 +225,9 @@ describe('Stripe checkout and transport', () => {
       presentation: presentation('east', '干支日', 'ko', 'GANJIDAY'),
     })
     await mock.operations.createCheckout(checkout)
-    const [east, west, subscription, plain] = mock.requests.map((request) => request.body)
+    const [east, west, subscription, plain] = mock.requests
+      .filter((request) => request.method === 'POST')
+      .map((request) => request.body)
     for (const [body, site, brand, locale, suffix] of [
       [east, 'east', '干支日', 'zh-TW', 'GANJIDAY'],
       [west, 'west', 'Arcanumber', 'en', 'ARCANUMBER'],
@@ -236,6 +243,118 @@ describe('Stripe checkout and transport', () => {
     }
     expect(subscription?.toString()).toBe(plain?.toString())
     mock.complete()
+  })
+
+  describe('localized credit pack prices', () => {
+    const packPrice = { ...price, interval: null, amount: 199 }
+    const pack = {
+      ...checkout,
+      mode: 'one_time' as const,
+      price: packPrice,
+      presentation: { brandName: '干支日', locale: 'zh-Hant', description: '100 積分 · 干支日' },
+    }
+    const localized = {
+      id: 'price_zh_hant',
+      object: 'price',
+      type: 'one_time',
+      active: true,
+      unit_amount: 199,
+      currency: 'usd',
+      lookup_key: `xuanxue_${planPriceId}_zh_hant`,
+      metadata: {
+        planId,
+        planPriceId,
+        canonicalPriceId: 'price_current',
+        locale: 'zh-Hant',
+      },
+    }
+    const lookup = (data: unknown[]) => ({
+      method: 'GET',
+      path: '/v1/prices',
+      body: { object: 'list', data, has_more: false, url: '/v1/prices' },
+    })
+    const session = {
+      method: 'POST',
+      path: '/v1/checkout/sessions',
+      body: { id: 'cs_test', url: 'https://checkout.stripe.com/offline' },
+    }
+
+    it('uses the verified localized price on east-site Checkout', async () => {
+      const mock = mockStripe([lookup([localized]), session])
+      await mock.operations.createCheckout(pack)
+      expect(mock.requests[0]?.method).toBe('GET')
+      expect(mock.requests[1]?.body.get('line_items[0][price]')).toBe('price_zh_hant')
+      // 归属元数据仍指向本地价格
+      expect(mock.requests[1]?.body.get('metadata[planPriceId]')).toBe(planPriceId)
+      mock.complete()
+    })
+
+    it('queries the deterministic active lookup key', async () => {
+      const requested: URL[] = []
+      const fetchFn: typeof fetch = async (input, init) => {
+        const url = new URL(String(input))
+        requested.push(url)
+        const body =
+          (init?.method ?? 'GET') === 'GET'
+            ? { object: 'list', data: [], has_more: false, url: '/v1/prices' }
+            : session.body
+        return new Response(JSON.stringify(body), {
+          headers: { 'content-type': 'application/json' },
+        })
+      }
+      const operations = createStripeOperations(createStripeClient('sk_test_offline_only', fetchFn))
+      await operations.createCheckout({
+        ...pack,
+        presentation: { ...pack.presentation, locale: 'ko' },
+      })
+      expect(requested[0]?.searchParams.get('lookup_keys[0]')).toBe(`xuanxue_${planPriceId}_ko`)
+      expect(requested[0]?.searchParams.get('active')).toBe('true')
+      expect(requested[0]?.searchParams.get('limit')).toBe('1')
+    })
+
+    it.each([
+      ['missing', []],
+      [
+        'another local price',
+        [{ ...localized, metadata: { ...localized.metadata, planPriceId: nextPriceId } }],
+      ],
+      [
+        'another canonical price',
+        [{ ...localized, metadata: { ...localized.metadata, canonicalPriceId: 'price_other' } }],
+      ],
+      ['a different amount', [{ ...localized, unit_amount: 99 }]],
+      ['a different currency', [{ ...localized, currency: 'eur' }]],
+    ])('falls back to the canonical price when the localized price is %s', async (_, data) => {
+      const mock = mockStripe([lookup(data), session])
+      await mock.operations.createCheckout(pack)
+      expect(mock.requests[1]?.body.get('line_items[0][price]')).toBe('price_current')
+      mock.complete()
+    })
+
+    it('falls back to the canonical price when the lookup fails', async () => {
+      const mock = mockStripe([
+        {
+          method: 'GET',
+          path: '/v1/prices',
+          status: 400,
+          body: { error: { type: 'invalid_request_error', message: 'Offline failure' } },
+        },
+        session,
+      ])
+      await mock.operations.createCheckout(pack)
+      expect(mock.requests[1]?.body.get('line_items[0][price]')).toBe('price_current')
+      mock.complete()
+    })
+
+    it('uses the canonical price without a lookup for English Checkout', async () => {
+      const mock = mockStripe([session])
+      await mock.operations.createCheckout({
+        ...pack,
+        presentation: { brandName: 'Arcanumber', locale: 'en', description: '100 credits' },
+      })
+      expect(mock.requests[0]?.body.get('line_items[0][price]')).toBe('price_current')
+      mock.complete()
+    })
   })
 
   it('rejects invalid source UUIDs and mode mismatches before making requests', async () => {
@@ -544,6 +663,143 @@ describe('Stripe refunds and immutable plan prices', () => {
     expect(mock.requests[1]?.body.get('product')).toBe(productId)
     expect(mock.requests[1]?.body.has('recurring[interval]')).toBe(false)
     mock.complete()
+  })
+
+  describe('localized credit pack variants', () => {
+    const hex = planId.replaceAll('-', '')
+    const locales = [
+      ['zh-Hant', 'zh_hant', '單次詳批', '100 積分'],
+      ['zh-Hans', 'zh_hans', '单次详批', '100 积分'],
+      ['ko', 'ko', '상세 풀이 1회', '100 크레딧'],
+    ] as const
+    const packSync: PlanSyncInput = {
+      plan: {
+        id: planId,
+        key: 'reading_single',
+        name: 'Single Reading',
+        type: 'credit_pack',
+        active: true,
+        credits: 100,
+      },
+      price: { ...price, interval: null, amount: 199 },
+      idempotencyKey: 'catalog:stripe:pack',
+    }
+    const canonical = {
+      id: 'price_current',
+      type: 'one_time',
+      unit_amount: 199,
+      currency: 'usd',
+      recurring: null,
+      metadata: { planId, planPriceId },
+    }
+    const missing = {
+      status: 404,
+      body: {
+        error: { type: 'invalid_request_error', code: 'resource_missing', message: 'Missing' },
+      },
+    }
+    const list = (data: unknown[]) => ({ object: 'list', data, has_more: false, url: '/v1/prices' })
+    const remoteLocalized = (locale: string, slug: string) => ({
+      id: `price_${slug}`,
+      object: 'price',
+      type: 'one_time',
+      product: `xuanxue_plan_${hex}_${slug}`,
+      unit_amount: 199,
+      currency: 'usd',
+      metadata: { planId, planPriceId, canonicalPriceId: 'price_current', locale },
+    })
+
+    it('creates one localized product and price per east locale beside a new canonical price', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}`, body: { id: 'p' } },
+        { method: 'POST', path: '/v1/prices', body: { id: 'price_current' } },
+        ...locales.flatMap(([, slug]) => [
+          { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}_${slug}`, ...missing },
+          { method: 'POST', path: '/v1/products', body: { id: `xuanxue_plan_${hex}_${slug}` } },
+          { method: 'GET', path: '/v1/prices', body: list([]) },
+          { method: 'POST', path: '/v1/prices', body: { id: `price_${slug}` } },
+        ]),
+      ])
+      expect(await mock.operations.syncPlan(packSync)).toEqual({ providerPriceId: 'price_current' })
+      locales.forEach(([locale, slug, name, description], index) => {
+        const [, product, , created] = mock.requests.slice(2 + index * 4, 6 + index * 4)
+        expect(product?.body.get('id')).toBe(`xuanxue_plan_${hex}_${slug}`)
+        expect(product?.body.get('name')).toBe(name)
+        expect(product?.body.get('description')).toBe(description)
+        expect(product?.body.get('metadata[locale]')).toBe(locale)
+        expect(product?.headers.get('idempotency-key')).toBe(`saas:product:${planId}:${locale}`)
+        expect(created?.body.get('product')).toBe(`xuanxue_plan_${hex}_${slug}`)
+        expect(created?.body.get('unit_amount')).toBe('199')
+        expect(created?.body.get('currency')).toBe('usd')
+        expect(created?.body.get('lookup_key')).toBe(`xuanxue_${planPriceId}_${slug}`)
+        expect(created?.body.get('metadata[planPriceId]')).toBe(planPriceId)
+        expect(created?.body.get('metadata[canonicalPriceId]')).toBe('price_current')
+        expect(created?.body.get('metadata[locale]')).toBe(locale)
+        expect(created?.body.has('recurring[interval]')).toBe(false)
+        expect(created?.headers.get('idempotency-key')).toBe(`${packSync.idempotencyKey}:${locale}`)
+      })
+      mock.complete()
+    })
+
+    it('verifies existing localized prices on rerun without creating anything', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: '/v1/prices/price_current', body: canonical },
+        ...locales.flatMap(([locale, slug]) => [
+          {
+            method: 'GET',
+            path: `/v1/products/xuanxue_plan_${hex}_${slug}`,
+            body: { id: `xuanxue_plan_${hex}_${slug}`, metadata: { planId, locale } },
+          },
+          { method: 'GET', path: '/v1/prices', body: list([remoteLocalized(locale, slug)]) },
+        ]),
+      ])
+      expect(
+        await mock.operations.syncPlan({ ...packSync, providerPriceId: 'price_current' }),
+      ).toEqual({ providerPriceId: 'price_current' })
+      expect(mock.requests.every((request) => request.method === 'GET')).toBe(true)
+      mock.complete()
+    })
+
+    it('adds missing localized variants to an already mapped canonical price', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: '/v1/prices/price_current', body: canonical },
+        { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}_zh_hant`, ...missing },
+        { method: 'POST', path: '/v1/products', body: { id: `xuanxue_plan_${hex}_zh_hant` } },
+        { method: 'GET', path: '/v1/prices', body: list([]) },
+        { method: 'POST', path: '/v1/prices', body: { id: 'price_zh_hant' } },
+        ...locales.slice(1).flatMap(([locale, slug]) => [
+          {
+            method: 'GET',
+            path: `/v1/products/xuanxue_plan_${hex}_${slug}`,
+            body: { id: `xuanxue_plan_${hex}_${slug}`, metadata: { planId, locale } },
+          },
+          { method: 'GET', path: '/v1/prices', body: list([remoteLocalized(locale, slug)]) },
+        ]),
+      ])
+      await mock.operations.syncPlan({ ...packSync, providerPriceId: 'price_current' })
+      expect(mock.requests[4]?.body.get('metadata[canonicalPriceId]')).toBe('price_current')
+      mock.complete()
+    })
+
+    it('rejects a localized price that points elsewhere instead of re-pointing it', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: '/v1/prices/price_current', body: canonical },
+        {
+          method: 'GET',
+          path: `/v1/products/xuanxue_plan_${hex}_zh_hant`,
+          body: { id: `xuanxue_plan_${hex}_zh_hant`, metadata: { planId, locale: 'zh-Hant' } },
+        },
+        {
+          method: 'GET',
+          path: '/v1/prices',
+          body: list([{ ...remoteLocalized('zh-Hant', 'zh_hant'), unit_amount: 99 }]),
+        },
+      ])
+      await expect(
+        mock.operations.syncPlan({ ...packSync, providerPriceId: 'price_current' }),
+      ).rejects.toThrow('Localized Stripe price')
+      mock.complete()
+    })
   })
 
   it('propagates Stripe errors without masking them as product absence', async () => {

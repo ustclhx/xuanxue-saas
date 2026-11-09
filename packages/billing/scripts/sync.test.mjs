@@ -57,7 +57,7 @@ test('sync rejects non-test modes and live or missing Stripe credentials', () =>
   }
 })
 
-test('live Stripe sync requires live credentials and a confirmed target database, and defaults to dry run', async () => {
+test('live Stripe sync requires live credentials only to apply, a confirmed target database, and defaults to dry run', async () => {
   const { liveSyncConfig } = await import('./sync-stripe-live.ts')
   const base = {
     STRIPE_SECRET_KEY: 'rk_live_offline',
@@ -66,9 +66,15 @@ test('live Stripe sync requires live credentials and a confirmed target database
   }
   assert.equal(liveSyncConfig(base).apply, false)
   assert.equal(liveSyncConfig({ ...base, BILLING_SYNC_CONFIRM: 'stripe-live' }).apply, true)
+  // 演练不调用 Stripe，不需要也不校验密钥
+  assert.deepEqual(liveSyncConfig({ ...base, STRIPE_SECRET_KEY: undefined }), {
+    apply: false,
+    connectionString: base.CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE,
+  })
   for (const key of [undefined, 'sk_test_offline'])
     assert.throws(
-      () => liveSyncConfig({ ...base, STRIPE_SECRET_KEY: key }),
+      () =>
+        liveSyncConfig({ ...base, STRIPE_SECRET_KEY: key, BILLING_SYNC_CONFIRM: 'stripe-live' }),
       /Stripe live credentials are required/,
     )
   assert.throws(

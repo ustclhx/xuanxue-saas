@@ -245,6 +245,39 @@ describe('Stripe order snapshots', () => {
     expect(mock.requests[0]?.url.searchParams.get('expand[1]')).toBe('payment_intent.latest_charge')
     mock.complete()
   })
+  it.each([
+    [metadata.planPriceId, 'price_test'],
+    ['019a0000-0000-7000-8000-0000000000ff', 'price_zh_hant'],
+  ])(
+    'reports the canonical price for a matching localized line item %#',
+    async (linePlanPriceId, expected) => {
+      const localized = {
+        ...session,
+        line_items: {
+          ...session.line_items,
+          data: [
+            {
+              id: 'li_test',
+              object: 'item',
+              quantity: 1,
+              price: {
+                id: 'price_zh_hant',
+                object: 'price',
+                metadata: {
+                  planPriceId: linePlanPriceId,
+                  canonicalPriceId: 'price_test',
+                  locale: 'zh-Hant',
+                },
+              },
+            },
+          ],
+        },
+      }
+      const mock = mockStripe([{ path: '/v1/checkout/sessions/cs_test', body: localized }])
+      expect((await mock.snapshots.getOrder('cs_test')).providerPriceId).toBe(expected)
+      mock.complete()
+    },
+  )
   it('rejects a subscription Checkout as an order', async () => {
     const mock = mockStripe([
       { path: '/v1/checkout/sessions/cs_test', body: { ...session, mode: 'subscription' } },

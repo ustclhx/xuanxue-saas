@@ -160,6 +160,28 @@ export function stripeInvoicePeriod(
   return { start: stripeDate(line.period.start), end: stripeDate(line.period.end) }
 }
 
+/**
+ * 东方站结账可能使用本地化价格（stripe/localized.ts），本地映射只认规范价格：
+ * 本地化价格的 metadata.planPriceId 与会话元数据一致时报告其 canonicalPriceId；
+ * 否则原样报告，让下游价格校验照常拒绝不一致的订单。
+ */
+export function stripeCanonicalPriceId(
+  price: Stripe.Price | string | null | undefined,
+  sessionMetadata: Stripe.Metadata | null,
+): string | null {
+  if (!price) return null
+  if (typeof price === 'string') return price
+  const canonical = price.metadata?.canonicalPriceId
+  const planPriceId = price.metadata?.planPriceId
+  if (
+    canonical?.startsWith('price_') &&
+    planPriceId &&
+    planPriceId === sessionMetadata?.planPriceId
+  )
+    return canonical
+  return price.id
+}
+
 export function mapStripeOrder(session: Stripe.Checkout.Session): OrderSnapshot {
   if (session.mode !== 'payment' || session.ui_mode !== 'hosted_page') {
     throw new Error('Orders require a hosted payment Checkout Session')
@@ -182,7 +204,7 @@ export function mapStripeOrder(session: Stripe.Checkout.Session): OrderSnapshot 
   return {
     providerOrderId: session.id,
     providerCustomerId: stripeObjectId(session.customer),
-    providerPriceId: session.line_items.data[0]?.price?.id ?? null,
+    providerPriceId: stripeCanonicalPriceId(session.line_items.data[0]?.price, session.metadata),
     status,
     amount: session.amount_total,
     currency: session.currency,
