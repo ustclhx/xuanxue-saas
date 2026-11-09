@@ -66,7 +66,7 @@ export function LegalPage({ page }: { page: LegalPageData }) {
             {m.marketing_legal_english_only()}
           </p>
         )}
-        <article lang={page.locale} className="grid gap-4">
+        <article lang={page.locale} className="grid min-w-0 gap-4">
           <h1 className="font-bold text-4xl tracking-tight">{page.title}</h1>
           <RichContent html={html} />
           <footer className="mt-8 grid gap-1 border-line border-t pt-4 text-muted-foreground text-sm">

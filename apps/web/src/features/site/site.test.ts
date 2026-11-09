@@ -205,12 +205,31 @@ describe('东方站入口页与无前缀路径', () => {
   })
 
   it('其他无前缀的公开页面 302 到入口页', () => {
-    for (const path of ['/pricing', '/blog/welcome', '/terms?x=1'])
+    for (const path of ['/pricing', '/blog/welcome'])
       expect(route(`${EAST}${path}`)).toEqual({
         kind: 'redirect',
         status: 302,
         location: `${EAST}/`,
       })
+  })
+
+  it('裸法律路径保留对应页面与查询参数，进入东方站默认语言', () => {
+    for (const slug of ['privacy', 'terms', 'disclaimer', 'refund']) {
+      for (const suffix of ['', '/']) {
+        const path = `/${slug}${suffix}?ref=external`
+        expect(route(`${EAST}${path}`)).toEqual({
+          kind: 'redirect',
+          status: 302,
+          location: `${EAST}/zh-hant${path}`,
+        })
+        expect(route(`${WEST}${path}`)).toEqual(pass)
+      }
+    }
+    expect(route(`${EAST}/privacy/unknown`)).toEqual({
+      kind: 'redirect',
+      status: 302,
+      location: `${EAST}/`,
+    })
   })
 
   it('应用区、认证页、接口与技术路径不跳转', () => {

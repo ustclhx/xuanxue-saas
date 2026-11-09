@@ -1,23 +1,47 @@
 import type { SiteId } from '@xuanxue/config'
 import type { ComponentType, ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { m } from '../../paraglide/messages.js'
 import { baseLocale, type Locale, overwriteGetLocale } from '../../paraglide/runtime.js'
 import { SiteContext } from '../site/context.tsx'
 import { authErrorMessage } from './errors.ts'
+import type { AuthUiOptions } from './options.ts'
 import { SignInFailure } from './site-accounts.tsx'
+
+const state = vi.hoisted(() => ({
+  options: {
+    emailPassword: true,
+    emailOtp: true,
+    magicLink: false,
+    oauth: ['google'],
+    turnstileSiteKey: null,
+  } as AuthUiOptions,
+  search: {} as { error?: string },
+}))
 
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => (options: object) => ({
     options,
-    useLoaderData: () => ({ emailPassword: true, turnstileSiteKey: null }),
+    useLoaderData: () => state.options,
+    useSearch: () => state.search,
   }),
   Link: ({ children }: { children: ReactNode }) => <a href="/login">{children}</a>,
 }))
 vi.mock('./options.functions.ts', () => ({ getAuthUiOptions: vi.fn() }))
 
 const { Route: RegisterRoute } = await import('../../routes/(auth)/register.tsx')
+
+beforeEach(() => {
+  state.options = {
+    emailPassword: true,
+    emailOtp: true,
+    magicLink: false,
+    oauth: ['google'],
+    turnstileSiteKey: null,
+  }
+  state.search = {}
+})
 
 afterEach(() => overwriteGetLocale(() => baseLocale))
 
@@ -77,5 +101,35 @@ describe('两站账户分开的提示（split-site-accounts D3）', () => {
     const html = render(<Component />, site, locale)
     overwriteGetLocale(() => locale)
     expect(html).toContain(m.auth_site_accounts_signup_hint({ site: own, otherSite: other }))
+    expect(html).toContain(m.auth_continue_with_google())
+    expect(html).toContain(m.auth_divider_email())
+  })
+})
+
+describe('注册页可用认证入口', () => {
+  function registerHtml() {
+    const Component = RegisterRoute.options.component as ComponentType
+    return render(<Component />, 'west', 'en')
+  }
+
+  it('未配置 OAuth 时只显示邮箱注册', () => {
+    state.options = { ...state.options, oauth: [] }
+    const html = registerHtml()
+    expect(html).not.toContain(m.auth_continue_with_google())
+    expect(html).not.toContain(m.auth_divider_email())
+    expect(html).toContain('autoComplete="new-password"')
+  })
+
+  it('只启用 OAuth 时显示 Google 注册，不显示邮箱注册不可用提示', () => {
+    state.options = { ...state.options, emailPassword: false }
+    const html = registerHtml()
+    expect(html).toContain(m.auth_continue_with_google())
+    expect(html).not.toContain('autoComplete="new-password"')
+    expect(html).not.toContain(m.auth_sign_up_with_email_and_password_is_not())
+  })
+
+  it('OAuth 失败回到注册页时显示本地化错误', () => {
+    state.search = { error: 'SIGNUP_DISABLED' }
+    expect(registerHtml()).toContain(m.auth_error_signup_disabled())
   })
 })

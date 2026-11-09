@@ -16,13 +16,15 @@ PayPal 保留，步骤见 [paypal-launch](paypal-launch.md)。
 | --- | --- | --- |
 | Checkout 页头名称（`branding_settings.display_name`） | 干支日 / 간지데이（按语言） | Arcanumber |
 | Checkout 语言 | zh-TW / zh / ko | en |
+| Checkout 商品行（Product 名称） | 單次詳批 / 单次详批 / 상세 풀이 1회 等（按语言的本地化商品） | Single Reading / 5-Reading Pack |
 | 付款说明（PaymentIntent description） | `100 積分 · 干支日` 等 | `100 credits · Arcanumber` |
 | 卡账单后缀（`statement_descriptor_suffix`） | `GANJIDAY` | `ARCANUMBER` |
 | 元数据 `site` | `east` | `west` |
 | 成功 / 取消回跳 | ganjiday.com | arcanumber.com |
 
 - 订单与积分归属只认 Checkout 元数据中的 `workspaceId` / `userId` / `planPriceId`（UUID，服务端生成）；`site` 只用于 Stripe 后台对账，不参与归属。回调列表的站点列由空间推出（`webhook-attribution.ts`）。
-- Stripe 商品名与价格两站共用（`Single Reading`、`5-Reading Pack`，英文）。东方站页头与说明为本站语言，但商品行仍显示英文商品名；如需本地化，需改为按站分开的商品（未做）。
+- 本地化商品：`plan_price.providerPriceId` 只记录规范（英文）价格，西方站与订阅照旧使用。积分包另为 zh-Hant / zh-Hans / ko 各建一个 Product（ID `xuanxue_plan_<planId 去横线>_<zh_hant|zh_hans|ko>`，名称与说明如 `單次詳批`、`100 積分`）和同金额 Price（`lookup_key` 为 `xuanxue_<planPriceId>_<语言>`，元数据含 `planPriceId`、`canonicalPriceId`、`locale`）。译名表在 `packages/billing/src/stripe/localized.ts`，对应 `apps/web/messages/*/marketing.json` 的积分包文案，改文案需两处同步。
+- 东方站 Checkout 按语言用 `lookup_key` 查本地化价格，核对 `planPriceId`、`canonicalPriceId`、金额与币种后作为商品行；查不到或不一致时回退到规范价格（英文商品名），不阻断付款，因此先部署代码、后跑映射也安全。订单快照把本地化价格还原为规范价格 ID，入账与对账只看到规范价格。
 - 页头名称之外，Stripe 收据、条款与卡账单前缀仍显示账户的公开商家名（第 4 节）。
 
 ## 2. 回调
@@ -55,7 +57,7 @@ charge.dispute.created
 | `STRIPE_WEBHOOK_SECRET` | 沙盒 endpoint 的 `whsec_…` | live endpoint 的 `whsec_…` | web 与 jobs `--env production` |
 | `PAYMENT_MODE` | `test` | `live`（已在 wrangler.jsonc） | — |
 
-受限密钥至少需要：Checkout Sessions 写、PaymentIntents / Charges / Customers / Invoices 读、Refunds 写、Products / Prices 写（仅映射时用，可用单独密钥）。
+受限密钥至少需要：Checkout Sessions 写、PaymentIntents / Charges / Customers / Invoices / Prices 读（Prices 读用于东方站查本地化价格，缺少时回退英文商品名）、Refunds 写、Products / Prices 写（仅映射时用，可用单独密钥）。
 
 1. Stripe 后台确认账户公开信息（第 4 节）与卡账单前缀，前缀加 `* ` 与后缀不超过 22 个字符（如 `LUCINUM* ARCANUMBER` 共 19）。
 2. 建 live endpoint（第 2 节事件），取 signing secret。
@@ -63,13 +65,16 @@ charge.dispute.created
 4. 积分包映射，先演练后写入：
 
    ```sh
-   STRIPE_SECRET_KEY=… CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=… \
-   BILLING_SYNC_DATABASE_CONFIRM=<库名> pnpm billing:sync-stripe-live          # 只列出现状
-   … BILLING_SYNC_CONFIRM=stripe-live pnpm billing:sync-stripe-live            # 创建 live Product/Price 并写回
+   # 演练：只读库连接，只列出现状，不调用 Stripe、不需要 Stripe 密钥
+   CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=<只读库 URL> \
+   BILLING_SYNC_DATABASE_CONFIRM=<库名> pnpm billing:sync-stripe-live
+   # 写入：应用库连接 + live 密钥，创建规范与本地化 Product/Price，并把规范价格写回 plan_price
+   STRIPE_SECRET_KEY=… CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=<应用库 URL> \
+   BILLING_SYNC_DATABASE_CONFIRM=<库名> BILLING_SYNC_CONFIRM=stripe-live pnpm billing:sync-stripe-live
    ```
 
-   生产库需已跑过 `billing:seed`（Stripe 占位行）。重跑幂等：已映射的价格只核对金额与元数据。
-5. 两站各做一笔真实小额购买并退款：核对页头名称、语言、账单描述、到账积分、退款后积分回收、回调列表站点列。
+   生产库需已跑过 `billing:seed`（Stripe 占位行）。只有写入时才要求 `sk_live_` / `rk_live_` 密钥。重跑幂等：已映射的规范价格与已存在的本地化价格只核对金额、币种与元数据，不一致即报错、不改指向；在已映射的库上重跑会补建缺少的本地化商品与价格（不写库）。
+5. 两站各做一笔真实小额购买并退款：核对页头名称、语言、商品行名称（东方站为本地化商品名）、账单描述、到账积分、退款后积分回收、回调列表站点列。
 
 ## 4. 需运营确认的商家资料（不由代码修改）
 

@@ -74,6 +74,8 @@
   "marketing_blog_tag_title": "‘{tag}’ 태그가 달린 글",
   "marketing_blog_all_posts": "전체 글",
   "marketing_blog_empty": "아직 글이 없습니다.",
+  "marketing_blog_empty_description": "{brand}에는 아직 게시된 글이 없습니다. 아래 무료 도구를 먼저 이용해 보세요.",
+  "marketing_blog_empty_tool": "{tool} 무료로 이용하기",
   "marketing_blog_draft": "초안",
   "marketing_blog_back": "블로그로 돌아가기",
   "marketing_docs_title": "문서",

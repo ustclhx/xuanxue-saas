@@ -74,6 +74,8 @@
   "marketing_blog_tag_title": "Posts tagged “{tag}”",
   "marketing_blog_all_posts": "All posts",
   "marketing_blog_empty": "No posts yet.",
+  "marketing_blog_empty_description": "There are no published articles on {brand} yet. You can explore our free tools below.",
+  "marketing_blog_empty_tool": "Try {tool} for free",
   "marketing_blog_draft": "Draft",
   "marketing_blog_back": "Back to blog",
   "marketing_docs_title": "Documentation",
