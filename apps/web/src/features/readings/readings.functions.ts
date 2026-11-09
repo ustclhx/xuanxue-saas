@@ -20,8 +20,12 @@ import { readRequestSession } from '../i18n/session.server.ts'
 import { siteReadingPricing } from '../marketing/reading-pricing.server.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 import { resolveSite } from '../site/site.ts'
+import {
+  loadReadingAvailability,
+  type ReadingAvailabilityDeps,
+  textChatAvailable,
+} from './availability.ts'
 import { readingDefinition } from './catalog.ts'
-import { readingAvailable, readingConfig } from './config.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeReading } from './generate.ts'
 import { FALLBACK_LOCAL_RATES, type LocalRates } from './price.ts'
@@ -45,8 +49,13 @@ export interface ReadingPack {
 
 export interface ReadingOffer {
   readonly available: boolean
-  /** 详批已配置但未对访客开放（运营关闭）：结果页显示「即将开放」，读取失败时为 false */
+  /**
+   * 本语言有这种详批但尚未对访客开放（开关关闭、未选模型、模型停用或 Provider 未配置，
+   * 见 availability.ts）：结果页明确说明尚未开放。读取失败时为 false
+   */
   readonly comingSoon: boolean
+  /** 「用这个结果问 AI」可用（至少一个文本模型的 Provider 已配置） */
+  readonly chatAvailable: boolean
   readonly credits: number
   /** 报告章节目录（本语言） */
   readonly sections: readonly string[]
@@ -62,6 +71,7 @@ export interface ReadingOffer {
 const UNAVAILABLE: ReadingOffer = {
   available: false,
   comingSoon: false,
+  chatAvailable: false,
   credits: 0,
   sections: [],
   sample: '',
@@ -106,6 +116,19 @@ async function localRates(): Promise<LocalRates> {
 export const getLocalRates = createServerFn({ method: 'GET' }).handler(
   async (): Promise<LocalRates> => localRates(),
 )
+
+/**
+ * 公开页面判定详批可用性的依赖：设置经 KV 缓存，`ai_model` 走允许短暂陈旧的连接
+ * （docs/01 §5「模型列表」），无访客时不额外唤醒数据库。
+ */
+function publicAvailabilityDeps(): ReadingAvailabilityDeps {
+  const runtime = getWebRuntime()
+  return {
+    settings: { store: dbSettingStore(runtime.db), cache: runtime.cache },
+    db: runtime.publicDb,
+    aiEnv: runtime.ai?.available ? runtime.ai.value.config : null,
+  }
+}
 
 /** 平台管理员可在 `enabled` 关闭时实测详批；未登录或读取失败一律视为非管理员。 */
 async function viewerIsPlatformAdmin(): Promise<boolean> {
@@ -169,18 +192,19 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
     const definition = readingDefinition(data.kind, data.locale)
     if (!definition) return UNAVAILABLE
     try {
-      const runtime = getWebRuntime()
-      const config = await readingConfig(
-        { store: dbSettingStore(runtime.db), cache: runtime.cache },
-        definition.kind,
-      )
+      const deps = publicAvailabilityDeps()
       const adminPreview = await viewerIsPlatformAdmin()
-      if (!readingAvailable(config, { adminPreview })) return { ...UNAVAILABLE, comingSoon: true }
+      const [status, chatAvailable] = await Promise.all([
+        loadReadingAvailability(deps, definition.kind, { adminPreview }),
+        textChatAvailable(deps.db, deps.aiEnv),
+      ])
+      if (!status.available) return { ...UNAVAILABLE, comingSoon: true, chatAvailable }
       const [packs, viewer] = await Promise.all([readingPacks(), viewerOf()])
       return {
         available: true,
         comingSoon: false,
-        credits: config.credits,
+        chatAvailable,
+        credits: status.config.credits,
         sections: definition.prompt.sections,
         sample: definition.sample,
         packs,
@@ -204,10 +228,8 @@ export const getReadingPricing = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<ReadingPricing> => {
     if (!templateConfig.billing.enabled || !templateConfig.ai.text.enabled) return { readings: [] }
     try {
-      const runtime = getWebRuntime()
-      const deps = { store: dbSettingStore(runtime.db), cache: runtime.cache }
       const site = resolveSite(new URL(getRequest().url).host, templateConfig).id
-      return { readings: await siteReadingPricing(site, data.locale, deps) }
+      return { readings: await siteReadingPricing(site, data.locale, publicAvailabilityDeps()) }
     } catch (error) {
       log.warn('readings.pricing_failed', { error })
       return { readings: [] }

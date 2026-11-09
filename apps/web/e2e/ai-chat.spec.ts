@@ -173,7 +173,7 @@ async function seedChatModel(slug: string) {
       limits: { maxInputTokens: 8000, maxOutputTokens: 2000 },
     }
     await sql`insert into ai_model (id,key,kind,provider,provider_model_id,pricing,min_plan_features,sort)
-      values (${modelId},${tag},'text','openai','gpt-fixture',${sql.json(pricing)},${sql.json([tag])},-1000)`
+      values (${modelId},${tag},'text','anthropic','gpt-fixture',${sql.json(pricing)},${sql.json([tag])},-1000)`
   } finally {
     await sql.end()
   }

@@ -35,6 +35,7 @@ const INPUT = { year: 1987, month: 11, day: 29 }
 const offer = (balance: number): ReadingOffer => ({
   available: true,
   comingSoon: false,
+  chatAvailable: true,
   credits: 100,
   sections: ['Overview'],
   sample: 'A fictional sample paragraph.',
@@ -253,5 +254,39 @@ describe('解锁卡付款方式', () => {
       provider: 'paypal',
       planPriceId: 'paypal-100',
     })
+  })
+})
+
+describe('详批未开放时的结果页', () => {
+  const closed = (chatAvailable: boolean): ReadingOffer => ({
+    ...offer(0),
+    available: false,
+    comingSoon: true,
+    chatAvailable,
+    packs: [],
+    viewer: null,
+  })
+
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    window.sessionStorage.clear()
+  })
+
+  it('说明 AI 详批尚未开放，不显示价格或解锁按钮；没有可用模型时隐藏「问 AI」', async () => {
+    vi.mocked(getReadingOffer).mockResolvedValue(closed(false))
+    await mount()
+    const card = container.querySelector('[data-testid="reading-coming-soon"]')
+    expect(card?.textContent).toContain("The full AI reading isn't open yet")
+    expect(card?.textContent).toContain('free calculation')
+    expect(container.querySelector('[data-testid="reading-unlock-button"]')).toBeNull()
+    expect(container.querySelector('[data-testid="reading-price"]')).toBeNull()
+    expect(container.querySelector('[data-testid="ask-ai-entry"]')).toBeNull()
+  })
+
+  it('有可用文本模型时保留「问 AI」入口', async () => {
+    vi.mocked(getReadingOffer).mockResolvedValue(closed(true))
+    await mount()
+    expect(container.querySelector('[data-testid="reading-coming-soon"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="ask-ai-entry"]')).not.toBeNull()
   })
 })

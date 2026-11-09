@@ -13,7 +13,11 @@ test('public pricing describes unavailable payments without a checkout success',
   await seedBillingCatalog()
   await page.goto('/pricing')
   await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-  await expect(page.getByText('Online payment is coming soon', { exact: false })).toBeVisible()
+  // 本地库通常未选定详批模型，说明暂不出售积分包；并行的 reading-unlock 用例开放数字命理详批时，
+  // 价格仍未同步，显示「Online payment is coming soon」。两种情况都没有购买入口
+  await expect(page.getByTestId('pricing-not-purchasable')).toContainText(
+    /Full AI readings aren't open yet|Online payment is coming soon/,
+  )
   const packs = page.getByTestId('pricing-pack')
   await expect(packs).toHaveCount(2)
   await expect(packs.first()).toContainText('Single Reading')

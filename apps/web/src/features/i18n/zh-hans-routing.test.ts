@@ -24,6 +24,8 @@ describe('zh-Hans 路由与占位', () => {
   })
 
   it('结果页占位文案为简体', () => {
-    expect(m.readings_coming_soon({}, { locale: 'zh-Hans' })).toBe('即将开放，敬请期待')
+    expect(m.readings_coming_soon({}, { locale: 'zh-Hans' })).toBe(
+      'AI 详批尚未开放，目前无法购买或解锁。上方结果是免费计算，可照常使用。',
+    )
   })
 })

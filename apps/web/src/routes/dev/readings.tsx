@@ -70,6 +70,7 @@ function ReadingsDemoPage() {
   const [offer] = useState<ReadingOffer>(() => ({
     available: true,
     comingSoon: false,
+    chatAvailable: false,
     credits: 100,
     sections: SECTIONS[kind] ?? SECTIONS['numerology-full'] ?? [],
     // 演示页不读取目录，样例段落用固定文本占位

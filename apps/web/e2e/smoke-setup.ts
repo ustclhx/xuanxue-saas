@@ -1,11 +1,15 @@
-import { createDb, plan, planPrice } from '@xuanxue/db'
+import { aiModel, createDb, plan, planPrice, READING_KINDS, setting } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 
 export const SMOKE_PRICE_ID = '019a0000-0000-7000-8000-000000000002'
 export const SMOKE_PACK_KEY = 'ci-smoke-credit-pack'
 const planId = '019a0000-0000-7000-8000-000000000001'
+const modelId = '019a0000-0000-7000-8000-000000000003'
+const SMOKE_MODEL_KEY = 'ci-smoke-reading-model'
+/** 积分只在详批开放时出售：冒烟购买前为全部详批选定夹具模型（Provider 由 e2e 占位 Gateway 满足） */
+const readingModelKeys = READING_KINDS.map((kind) => `readings.${kind}.modelKey`)
 
 export default async function setup() {
   const connectionString = readLocalEnv('MIGRATION_DATABASE_URL')
@@ -52,6 +56,24 @@ export default async function setup() {
         target: planPrice.id,
         set: { provider: 'paypal', active: true },
       })
+    await db
+      .insert(aiModel)
+      .values({
+        id: modelId,
+        key: SMOKE_MODEL_KEY,
+        kind: 'text',
+        // anthropic 在 direct 出口缺密钥时回落 Gateway，占位 Gateway 下本地与 CI 都视为已配置
+        provider: 'anthropic',
+        providerModelId: 'ci-smoke-fixture',
+        pricing: { mode: 'token', inputPer1k: 1, outputPer1k: 1 },
+        enabled: true,
+      })
+      .onConflictDoUpdate({ target: aiModel.id, set: { enabled: true, provider: 'anthropic' } })
+    for (const key of readingModelKeys)
+      await db
+        .insert(setting)
+        .values({ key, value: SMOKE_MODEL_KEY })
+        .onConflictDoUpdate({ target: setting.key, set: { value: SMOKE_MODEL_KEY } })
   } finally {
     await db.$client.end()
   }
@@ -62,6 +84,8 @@ export default async function setup() {
       await db.transaction(async (tx) => {
         await tx.update(planPrice).set({ active: false }).where(eq(planPrice.id, SMOKE_PRICE_ID))
         await tx.update(plan).set({ active: false }).where(eq(plan.id, planId))
+        await tx.delete(setting).where(inArray(setting.key, readingModelKeys))
+        await tx.update(aiModel).set({ enabled: false }).where(eq(aiModel.id, modelId))
       })
     } finally {
       await db.$client.end()

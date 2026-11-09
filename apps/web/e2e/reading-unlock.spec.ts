@@ -26,7 +26,7 @@ test.beforeAll(async () => {
   const sql = fixtureDb()
   try {
     await sql`insert into ai_model (id, key, kind, provider, provider_model_id, pricing)
-      values (${newId()}, ${MODEL_KEY}, 'text', 'mock', 'mock-model', ${sql.json({ mode: 'token', inputPer1k: 1, outputPer1k: 1 })})`
+      values (${newId()}, ${MODEL_KEY}, 'text', 'anthropic', 'mock-model', ${sql.json({ mode: 'token', inputPer1k: 1, outputPer1k: 1 })})`
     await sql`insert into plan (id, key, name, type, credits, features, sort, active)
       values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 100,
         '{}'::jsonb, 1000, false)`

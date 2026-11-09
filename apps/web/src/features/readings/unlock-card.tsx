@@ -140,21 +140,30 @@ type ReadingUnlockProps = {
 
 /**
  * 解锁卡之后附上「用这个结果问 AI」（product-improve-ai-content 5.1）：与详批是否开放无关，
- * 有结果且站点开启计费与文本 AI 就显示；对话是否有可用模型由对话页处理。
+ * 有结果、站点开启计费与文本 AI，且报价表明至少一个文本模型的 Provider 已配置时显示，
+ * 避免没有可用模型时仍提示「按积分计费」的对话入口。
  */
 export function ReadingUnlock(props: ReadingUnlockProps) {
-  // 随解锁卡一起在首次渲染时挂载，登录回跳才能读到 `?unlock=`；结果出现前入口自身不显示
+  const [chatAvailable, setChatAvailable] = useState(false)
+  // 随解锁卡一起在首次渲染时挂载，登录回跳才能读到 `?unlock=`；结果出现前与可用性未知时入口自身不显示
   const askAi =
     !props.previewOffer && templateConfig.billing.enabled && templateConfig.ai.text.enabled
   return (
     <>
-      <ReadingUnlockCard {...props} />
-      {askAi ? <AskAiEntry kind={props.kind} request={props.request} /> : null}
+      <ReadingUnlockCard {...props} onOffer={(offer) => setChatAvailable(offer.chatAvailable)} />
+      {askAi ? (
+        <AskAiEntry kind={props.kind} request={chatAvailable ? props.request : null} />
+      ) : null}
     </>
   )
 }
 
-function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) {
+function ReadingUnlockCard({
+  kind,
+  request,
+  previewOffer,
+  onOffer,
+}: ReadingUnlockProps & { onOffer?: (offer: ReadingOffer) => void }) {
   const hostSite = useSiteId()
   const locale = getLocale()
   // 报告站点取语言归属：已登记 Host 上两者一致（gate 跨站重定向）；未登记的 workers.dev
@@ -163,6 +172,9 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
   const [offer, setOffer] = useState<ReadingOffer | null>(previewOffer ?? null)
   const [phase, setPhase] = useState<Phase>({ name: 'idle' })
   const resumeToken = useRef<string | null>(null)
+  // 父组件每次渲染传入新函数；经 ref 调用，避免报价重复读取
+  const notifyOffer = useRef(onOffer)
+  notifyOffer.current = onOffer
   const track = useToolEvents(kind)
 
   // 积分不足、展示积分包即为付费墙曝光（含登录 / 支付回跳后直接进入该步骤）
@@ -189,6 +201,7 @@ function ReadingUnlockCard({ kind, request, previewOffer }: ReadingUnlockProps) 
     if (previewOffer) return previewOffer
     const next = await getReadingOffer({ data: { kind, locale } })
     setOffer(next)
+    notifyOffer.current?.(next)
     return next
   }, [kind, locale, previewOffer])
 

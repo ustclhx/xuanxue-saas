@@ -14,7 +14,11 @@ const price = (id: string, planId: string, amount: number, available: boolean) =
   interval: planId === 'subscription' ? 'month' : null,
   available,
 })
+let readingsOpen = true
 const page = {
+  get readingsOpen() {
+    return readingsOpen
+  },
   role: 'owner',
   entitlements: { key: 'pro' },
   readOnly: false,
@@ -65,13 +69,17 @@ vi.mock('../app-shell/space-frame.tsx', () => ({
   SpacePage: ({ children }: { children: ReactNode }) => <main>{children}</main>,
 }))
 vi.mock('./customer.functions.ts', () => ({}))
+vi.mock('../readings/readings.functions.ts', () => ({}))
 vi.mock('./refund.functions.ts', () => ({}))
 vi.mock('./refund-section.tsx', () => ({ RefundSection: () => null }))
 vi.mock('../../server/template-config.ts', () => ({
   templateConfig: { billing: { enabled: true } },
 }))
 
-afterEach(() => overwriteGetLocale(() => baseLocale))
+afterEach(() => {
+  overwriteGetLocale(() => baseLocale)
+  readingsOpen = true
+})
 
 it.each(locales)(
   'shows only purchasable options and keeps the old price in subscription information in %s',
@@ -89,3 +97,15 @@ it.each(locales)(
     expect(html).toContain(m.billing_credit_usage_link())
   },
 )
+
+it.each(locales)('详批未开放时不出售积分包并说明原因（%s）', (locale) => {
+  overwriteGetLocale(() => locale)
+  readingsOpen = false
+  const Component = Route.options.component as ComponentType
+  const html = renderToStaticMarkup(<Component />)
+  const purchases = html.slice(html.indexOf(m.billing_choose_plan_or_pack()))
+  expect(purchases).toContain('data-testid="billing-packs-not-open"')
+  expect(purchases).not.toContain('$1.99')
+  // 订阅不受影响
+  expect(purchases).toContain('$6.99')
+})
