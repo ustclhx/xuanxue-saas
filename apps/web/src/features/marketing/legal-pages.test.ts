@@ -40,6 +40,37 @@ function text(html: string): string {
 }
 
 describe('法律页内容（按站点）', () => {
+  it('所有站点与语言的 Markdown 表格都编译成保留单元格原文的语义表格', () => {
+    for (const { site, locale, slug, html } of allLegalPages) {
+      const source = readFileSync(
+        new URL(`../../../content/legal/${site}/${locale}/${slug}.mdx`, import.meta.url),
+        'utf8',
+      )
+      const rows = source.split('\n').filter((line) => line.startsWith('|'))
+      const headers = rows.filter((_, index) => /^\|[\s:|-]+\|$/.test(rows[index + 1] ?? ''))
+      const label = `${site}/${locale}/${slug}`
+      expect(html.match(/<table>/g) ?? [], label).toHaveLength(headers.length)
+      expect(html.match(/<thead>/g) ?? [], label).toHaveLength(headers.length)
+      expect(html.match(/<tbody>/g) ?? [], label).toHaveLength(headers.length)
+      expect(html.match(/class="rich-table-scroll"/g) ?? [], label).toHaveLength(headers.length)
+      expect(html.match(/<th>/g) ?? [], label).toHaveLength(
+        headers.reduce((count, row) => count + row.split('|').length - 2, 0),
+      )
+      const cells = rows
+        .filter((line) => !/^\|[\s:|-]+\|$/.test(line))
+        .flatMap((row) =>
+          row
+            .split('|')
+            .slice(1, -1)
+            .map((cell) => cell.trim()),
+        )
+      expect(
+        Array.from(html.matchAll(/<(th|td)>(.*?)<\/\1>/gs), (match) => text(match[2] ?? '').trim()),
+        label,
+      ).toEqual(cells)
+    }
+  })
+
   it('每个站点的每种语言都有四页原文，联系邮箱保留为按站点替换的标记', () => {
     for (const site of SITE_IDS)
       for (const locale of templateConfig.sites[site].locales) {

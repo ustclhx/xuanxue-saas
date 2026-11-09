@@ -4,11 +4,14 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { authClient, goAfterSignIn } from '../../features/auth/auth-client.ts'
 import {
+  AuthDivider,
   AuthLayout,
   authLinkClassName,
   FormAlert,
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
+import { authErrorMessage } from '../../features/auth/errors.ts'
+import { OAuthButton } from '../../features/auth/oauth-button.tsx'
 import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
 import { SiteAccountsHint } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
@@ -24,7 +27,7 @@ const COPY = {
     return m.auth_create_an_account()
   },
   get description() {
-    return m.auth_sign_up_with_your_email_address()
+    return m.auth_choose_how_to_create_your_account()
   },
   get name() {
     return m.auth_name()
@@ -78,6 +81,7 @@ const schema = () =>
   })
 
 export const Route = createFileRoute('/(auth)/register')({
+  validateSearch: z.object({ error: z.string().optional(), redirect: z.string().optional() }),
   loader: () => getAuthUiOptions(),
   head: () => ({ meta: [{ title: COPY.metaTitle }] }),
   component: RegisterPage,
@@ -85,6 +89,7 @@ export const Route = createFileRoute('/(auth)/register')({
 
 function RegisterPage() {
   const options = Route.useLoaderData()
+  const { error: callbackError } = Route.useSearch()
   return (
     <AuthLayout
       title={COPY.title}
@@ -100,11 +105,22 @@ function RegisterPage() {
     >
       {/* 两站账户分开（split-site-accounts D3）：另一站的用户在这里需要另外注册 */}
       <SiteAccountsHint kind="signup" />
+      {callbackError ? <FormAlert message={authErrorMessage(callbackError)} /> : null}
+      {options.oauth.length > 0 ? (
+        <div className="grid gap-2">
+          {options.oauth.map((provider) => (
+            <OAuthButton key={provider} provider={provider} />
+          ))}
+        </div>
+      ) : null}
+      {options.oauth.length > 0 && options.emailPassword ? (
+        <AuthDivider>{m.auth_divider_email()}</AuthDivider>
+      ) : null}
       {options.emailPassword ? (
         <RegisterForm siteKey={options.turnstileSiteKey} />
-      ) : (
+      ) : options.oauth.length === 0 ? (
         <FormAlert message={COPY.unavailable} />
-      )}
+      ) : null}
     </AuthLayout>
   )
 }

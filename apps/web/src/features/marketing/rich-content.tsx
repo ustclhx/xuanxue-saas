@@ -5,7 +5,7 @@ import { cn } from '@xuanxue/ui'
  * 排版样式只用主题变量对应的类名，深浅色自动适配。
  */
 const prose = [
-  'text-base leading-7',
+  'min-w-0 text-base leading-7',
   '[&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-semibold [&_h2]:text-xl',
   '[&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-semibold [&_h3]:text-lg',
   '[&_p]:my-4 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6',
@@ -14,6 +14,12 @@ const prose = [
   '[&_code]:rounded [&_code]:bg-muted [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-sm',
   '[&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-4',
   '[&_pre_code]:bg-transparent [&_pre_code]:p-0',
+  '[&_.rich-table-scroll]:my-6 [&_.rich-table-scroll]:max-w-full [&_.rich-table-scroll]:overflow-x-auto [&_.rich-table-scroll]:rounded-lg [&_.rich-table-scroll]:border [&_.rich-table-scroll]:border-line',
+  '[&_.rich-table-scroll]:focus-visible:outline-2 [&_.rich-table-scroll]:focus-visible:outline-accent',
+  '[&_table]:w-full [&_table]:min-w-[36rem] [&_table]:border-collapse [&_table]:text-left [&_table]:text-sm [&_table]:leading-6',
+  '[&_thead]:bg-surface-2 [&_th]:font-semibold [&_th]:text-ink',
+  '[&_th]:border-line [&_th]:border-b [&_th]:px-4 [&_th]:py-3 [&_th]:align-top',
+  '[&_td]:border-line [&_td]:border-b [&_td]:px-4 [&_td]:py-3 [&_td]:align-top [&_td]:break-words [&_tbody_tr:last-child_td]:border-b-0',
 ].join(' ')
 
 export function RichContent({ html, className }: { html: string; className?: string }) {

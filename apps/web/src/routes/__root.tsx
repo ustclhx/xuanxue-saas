@@ -21,12 +21,13 @@ import {
   getSafeImpersonation,
   getSeoOrigin,
 } from '../features/seo/origin.functions.ts'
-import { SiteContext } from '../features/site/context.tsx'
+import { SiteContext, useSiteId } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
+import { siteNavLocale } from '../features/site/site.ts'
 import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
 import { ThemeToggle } from '../features/theme/theme-toggle.tsx'
 import { m } from '../paraglide/messages.js'
-import { getLocale } from '../paraglide/runtime.js'
+import { getLocale, type Locale, localizeHref } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 import appCss from '../styles/app.css?url'
 
@@ -86,11 +87,34 @@ function rootBrand(site: SiteId): string {
   )
 }
 
+/**
+ * 404 页（保持 404 状态，不跳转首页）：给出回到本站首页与定价页的入口。
+ * 链接按本站导航语言生成完整地址（siteNavLocale），不落到另一站点或本站不存在的语言路径。
+ */
 function NotFoundPage() {
+  const site = useSiteId()
+  const locale = siteNavLocale(site, getLocale(), templateConfig) as Locale
+  const pricing = templateConfig.marketing.enabled && templateConfig.billing.enabled
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-24 text-center">
       <h1 className="font-heading text-3xl font-semibold">{m.common_not_found_title()}</h1>
       <p className="text-ink-muted">{m.common_not_found_body()}</p>
+      <nav className="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <a
+          href={localizeHref('/', { locale })}
+          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 font-semibold text-on-brand"
+        >
+          {m.common_not_found_home({ brand: siteBrandName(templateConfig, site, locale) })}
+        </a>
+        {pricing && (
+          <a
+            href={localizeHref('/pricing', { locale })}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-5 font-semibold text-ink"
+          >
+            {m.common_not_found_pricing()}
+          </a>
+        )}
+      </nav>
     </main>
   )
 }

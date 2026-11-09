@@ -10,6 +10,7 @@ import * as React from 'react'
 import * as jsxRuntime from 'react/jsx-runtime'
 import * as ReactDOM from 'react-dom'
 import { renderToStaticMarkup } from 'react-dom/server'
+import remarkGfm from 'remark-gfm'
 import { z } from 'zod'
 import templateConfig from '../../template.config.ts'
 
@@ -29,10 +30,22 @@ type CompileContext = Parameters<typeof compileMDX>[0]
 
 /** MDX → 静态 HTML（构建期在 Node 中执行） */
 async function renderMdx(context: CompileContext, document: { _meta: Meta; content: string }) {
-  const code = await compileMDX(context, document)
+  const code = await compileMDX(context, document, { remarkPlugins: [remarkGfm] })
   const scope = { React, ReactDOM, _jsx_runtime: jsxRuntime }
   const Component = new Function(...Object.keys(scope), code)(...Object.values(scope)).default
-  return renderToStaticMarkup(React.createElement(Component))
+  return renderToStaticMarkup(
+    React.createElement(Component, {
+      components: {
+        // 保留原生表格语义；宽表只在自身容器内滚动，并允许键盘聚焦滚动。
+        table: ({ children, ...props }: React.ComponentProps<'table'>) =>
+          React.createElement(
+            'div',
+            { className: 'rich-table-scroll', tabIndex: 0, role: 'group' },
+            React.createElement('table', props, children),
+          ),
+      },
+    }),
+  )
 }
 
 /** 搜索索引用的纯文本：去掉标签并合并空白 */

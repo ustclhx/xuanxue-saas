@@ -134,6 +134,13 @@ describe('offline catalog', () => {
       const calls = vi.mocked(adapter.syncPlan).mock.calls
       expect(calls).toHaveLength(4)
       expect(calls.every(([i]) => i.plan.key !== 'free' && i.price.active)).toBe(true)
+      // Stripe 本地化积分包按 plan.key 选译名、按 credits 写说明，同步必须带上两者
+      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toEqual([
+        ['reading_single', 100],
+        ['reading_five', 500],
+        ['reading_single', 100],
+        ['reading_five', 500],
+      ])
       expect(
         calls
           .slice(2)

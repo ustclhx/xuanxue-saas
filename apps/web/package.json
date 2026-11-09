@@ -64,6 +64,7 @@
     "cf-workers-og": "3.0.1",
     "openai": "^7.28.0",
     "postgres": "^3.4.9",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.2",
     "vitest": "^4.1.11",
