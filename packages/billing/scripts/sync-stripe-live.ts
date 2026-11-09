@@ -8,27 +8,30 @@ import { createStripeProvider } from '../src/stripe/adapter.ts'
 import { activationDatabaseUrl } from './activate-credit-packs.ts'
 
 /**
- * 生产 Stripe 积分包映射：在 live 账户按目录创建一次性 Product / Price 并写回 plan_price。
+ * 生产 Stripe 积分包映射：在 live 账户按目录创建一次性 Product / Price 并写回 plan_price，
+ * 同时补齐东方站各语言的本地化 Product / Price（不写库，见 src/stripe/localized.ts）。
  * 目录里只有积分包带价格（订阅停售、无价格），因此不会创建任何订阅价格。
- * 只读显式注入的进程环境；未设置 BILLING_SYNC_CONFIRM=stripe-live 时只列出现状，不调用 Stripe、不写库。
+ * 只读显式注入的进程环境；未设置 BILLING_SYNC_CONFIRM=stripe-live 时只列出现状，不调用 Stripe、
+ * 不写库，因此演练不需要 Stripe 密钥（可用只读库连接）；写入时才要求 live 密钥。
  */
 export function liveSyncConfig(env: NodeJS.ProcessEnv = process.env) {
+  const apply = env.BILLING_SYNC_CONFIRM === 'stripe-live'
   const secretKey = env.STRIPE_SECRET_KEY
-  if (!secretKey || !/^(sk|rk)_live_/.test(secretKey))
+  if (apply && (!secretKey || !/^(sk|rk)_live_/.test(secretKey)))
     throw new Error('Explicit Stripe live credentials are required')
   if (EXAMPLE_CATALOG.some((entry) => entry.type !== 'credit_pack' && entry.prices.length))
     throw new Error('Live sync only supports credit pack prices')
-  return {
-    secretKey,
-    connectionString: activationDatabaseUrl({
-      ...env,
-      BILLING_ACTIVATE_CONFIRM: env.BILLING_SYNC_DATABASE_CONFIRM,
-    }),
-    apply: env.BILLING_SYNC_CONFIRM === 'stripe-live',
-  }
+  const connectionString = activationDatabaseUrl({
+    ...env,
+    BILLING_ACTIVATE_CONFIRM: env.BILLING_SYNC_DATABASE_CONFIRM,
+  })
+  return apply
+    ? { apply: true as const, secretKey: secretKey as string, connectionString }
+    : { apply: false as const, connectionString }
 }
 
-async function run({ secretKey, connectionString, apply }: ReturnType<typeof liveSyncConfig>) {
+async function run(config: ReturnType<typeof liveSyncConfig>) {
+  const { connectionString } = config
   const db = createDb({ connectionString })
   try {
     const rows = await db
@@ -40,12 +43,18 @@ async function run({ secretKey, connectionString, apply }: ReturnType<typeof liv
       console.log(
         `${row.key} ${row.amount} ${row.mapping.startsWith('unsynced:') ? 'unsynced' : row.mapping}`,
       )
-    if (!apply) {
+    if (!config.apply) {
       console.log('Dry run: set BILLING_SYNC_CONFIRM=stripe-live to create live mappings.')
       return
     }
-    const stripe = createStripeProvider({ secretKey, webhookSecret: '', expectedMode: 'live' })
-    console.log(`Synced ${await syncCatalog(db, [stripe])} live Stripe credit pack mappings.`)
+    const stripe = createStripeProvider({
+      secretKey: config.secretKey,
+      webhookSecret: '',
+      expectedMode: 'live',
+    })
+    console.log(
+      `Synced ${await syncCatalog(db, [stripe])} live Stripe credit pack mappings (with localized variants).`,
+    )
   } finally {
     await db.$client.end()
   }

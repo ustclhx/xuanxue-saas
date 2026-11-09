@@ -221,7 +221,8 @@ export interface RefundInput extends PaymentReference {
 }
 
 export interface PlanSyncInput {
-  plan: Pick<Plan, 'id' | 'key' | 'name' | 'type' | 'active'>
+  /** credits 可选：Stripe 用于本地化积分包商品说明，缺省时不写说明 */
+  plan: Pick<Plan, 'id' | 'key' | 'name' | 'type' | 'active'> & { credits?: number }
   price: Pick<PlanPrice, 'id' | 'interval' | 'amount' | 'currency' | 'active'>
   /** Existing mapping allows adapters to reuse immutable remote prices/plans. */
   providerPriceId?: string
