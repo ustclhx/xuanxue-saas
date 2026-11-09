@@ -95,5 +95,8 @@ test('定价页有站点导航，CTA 未登录经登录页；首页 CTA 到注�
   expect(hrefs).toContain('/register')
   const missing = await page.goto('/no-such-page')
   expect(missing?.status()).toBe(404)
-  await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/')
+  await expect(page.getByRole('link', { name: 'Back to Arcanumber home' })).toHaveAttribute(
+    'href',
+    '/',
+  )
 })

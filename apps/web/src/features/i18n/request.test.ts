@@ -1,3 +1,4 @@
+import { AppError } from '@xuanxue/shared'
 import { describe, expect, it, vi } from 'vitest'
 import { baseLocale, getLocale, isLocale } from '../../paraglide/runtime.js'
 import type { WebRuntime } from '../../server/runtime.ts'
@@ -151,6 +152,40 @@ describe.runIf(templateConfig.i18n.enabled)('应用区按本站语言回退', ()
     expect(
       await localeOf('https://xuanxue-web-staging.saas-jobs.workers.dev/app', { 'x-locale': 'ko' }),
     ).toBe('ko')
+  })
+})
+
+describe.runIf(templateConfig.i18n.enabled)('未登录的应用区不沿用外站语言 Cookie', () => {
+  const signedOut = async (url: string, cookie: string, accept = '') => {
+    const { requireFreshSession } = await import('@xuanxue/auth')
+    vi.mocked(requireFreshSession).mockRejectedValueOnce(
+      new AppError('SESSION_REQUIRED', 'Sign in required', { status: 401 }),
+    )
+    const response = await localizeRequest(
+      new Request(url, { headers: { cookie, 'accept-language': accept } }),
+      runtime,
+      async () => new Response(getLocale()),
+    )
+    return { locale: await response.text(), setCookie: response.headers.get('set-cookie') }
+  }
+
+  it('西方站残留 zh-Hans Cookie：按英文处理并更正 Cookie（登录跳转不生成 /zh-hans/login）', async () => {
+    const result = await signedOut(`${origin}/app?buy=reading_single`, 'PARAGLIDE_LOCALE=zh-Hans')
+    expect(result.locale).toBe('en')
+    expect(result.setCookie).toMatch(/^PARAGLIDE_LOCALE=en;/)
+  })
+
+  it('东方站残留 en Cookie 按东方站语言回退；本站语言 Cookie 与无 Cookie 不改动', async () => {
+    const east1 = await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=en', 'ko-KR')
+    expect(east1).toEqual({
+      locale: 'ko',
+      setCookie: expect.stringMatching(/^PARAGLIDE_LOCALE=ko;/),
+    })
+    expect(await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=zh-Hans')).toEqual({
+      locale: 'zh-Hans',
+      setCookie: null,
+    })
+    expect(await signedOut(`${origin}/app`, '')).toEqual({ locale: 'en', setCookie: null })
   })
 })
 

@@ -1,7 +1,7 @@
 import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { NOT_FOUND_PATH } from '../admin/gate.ts'
-import { gateSiteRequest, routeSite } from './gate.ts'
+import { gateSiteRequest, notFoundPath, routeSite } from './gate.ts'
 import {
   accountSiteOf,
   requestSiteOrigin,
@@ -124,6 +124,37 @@ describe('语言归属站点', () => {
     expect(route(`${EAST}/en?utm=x`)).toEqual(pass)
     for (const path of ['/en/pricing', '/en/faq', '/en/tarot', '/en/blog/welcome'])
       expect(route(`${EAST}${path}`), path).toEqual({ kind: 'not-found' })
+  })
+
+  it('外站语言前缀的认证页 302 到本站无前缀认证页，保留查询参数，不跨站', () => {
+    const query = '?redirect=%2Fapp%3Fbuy%3Dreading_single'
+    expect(route(`${WEST}/zh-hans/login${query}`)).toEqual({
+      kind: 'redirect',
+      status: 302,
+      location: `${WEST}/login${query}`,
+    })
+    expect(route(`${WEST}/ko/register`)).toEqual({
+      kind: 'redirect',
+      status: 302,
+      location: `${WEST}/register`,
+    })
+    expect(route(`${EAST}/en/login${query}`)).toEqual({
+      kind: 'redirect',
+      status: 302,
+      location: `${EAST}/login${query}`,
+    })
+    // 本站语言的认证页与非认证页不受影响
+    expect(route(`${EAST}/zh-hans/login`)).toEqual(pass)
+    expect(route(`${WEST}/zh-hans/loginx`)).toEqual({ kind: 'not-found' })
+  })
+
+  it('404 改写路径带本站语言前缀：外站语言换成本站导航语言，本站语言沿用', () => {
+    const at = (url: string) => notFoundPath(new URL(url), config)
+    expect(at(`${WEST}/zh-hans/pricing`)).toBe(NOT_FOUND_PATH)
+    expect(at(`${WEST}/ko/app`)).toBe(NOT_FOUND_PATH)
+    expect(at(`${EAST}/en/pricing`)).toBe(`/zh-hant${NOT_FOUND_PATH}`)
+    expect(at(`${EAST}/ko/app`)).toBe(`/ko${NOT_FOUND_PATH}`)
+    expect(at('https://x.workers.dev/ko/app')).toBe(`/ko${NOT_FOUND_PATH}`)
   })
 
   it('导航语言：不属于本站的语言改用本站默认语言（东方站取第一个语言）', () => {
@@ -251,7 +282,7 @@ describe('gateSiteRequest', () => {
     expect(response.headers.get('location')).toBe(`${WEST}/pricing`)
   })
 
-  it('不属于本站的语言改写到 404 路径，由应用渲染本站风格的 404', async () => {
+  it('不属于本站的语言改写到 404 路径，由应用按本站语言渲染本站风格的 404', async () => {
     for (const url of [`${WEST}/zh-hant/pricing`, `${WEST}/ko/`, `${EAST}/en/pricing`]) {
       let seen = ''
       const response = await gateSiteRequest(new Request(url), config, (request) => {
@@ -259,7 +290,8 @@ describe('gateSiteRequest', () => {
         return new Response('not found', { status: 404 })
       })
       expect(response.status, url).toBe(404)
-      expect(seen, url).toBe(new URL(NOT_FOUND_PATH, url).href)
+      const path = url.startsWith(EAST) ? `/zh-hant${NOT_FOUND_PATH}` : NOT_FOUND_PATH
+      expect(seen, url).toBe(new URL(path, url).href)
     }
   })
 

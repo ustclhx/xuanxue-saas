@@ -13,8 +13,12 @@ const enabled = templateConfig.i18n.enabled
 const origin = 'https://arcanumber.com'
 const url = (path: string) => new URL(path, origin)
 const gated = (path: string) => new URL(gateLocaleRequest(new Request(url(path))).url).pathname
-const input = (path: string) => new URL(String(localeRewrite.input({ url: url(path) }))).pathname
-const output = (path: string) => new URL(String(localeRewrite.output({ url: url(path) }))).pathname
+// 路由改写的通用行为在未登记的预览 Host 上验证（预览可浏览全部语言）；已登记站点的外站前缀见下方用例
+const preview = 'https://preview.workers.dev'
+const rewrite = (fn: typeof localeRewrite.input, path: string, base = preview) =>
+  new URL(String(fn({ url: new URL(path, base) }))).pathname
+const input = (path: string, base?: string) => rewrite(localeRewrite.input, path, base)
+const output = (path: string, base?: string) => rewrite(localeRewrite.output, path, base)
 
 describe('语言路由（默认语言与其他配置语言）', () => {
   beforeEach(() => overwriteGetLocale(() => baseLocale))
@@ -53,6 +57,14 @@ describe('语言路由（默认语言与其他配置语言）', () => {
       expect(gated(path)).toBe(path)
       expect(input(path)).toBe(path)
     }
+  })
+
+  it.runIf(enabled)('已登记站点上外站语言前缀原样保留，客户端与服务端一样按 404 处理', () => {
+    expect(input('/zh-hans/pricing', origin)).toBe('/zh-hans/pricing')
+    expect(output('/zh-hans/pricing', origin)).toBe('/zh-hans/pricing')
+    expect(input('/ko/pricing', 'https://ganjiday.com')).toBe('/pricing')
+    overwriteGetLocale(() => 'zh-Hans')
+    expect(output('/login', 'https://ganjiday.com')).toBe('/zh-hans/login')
   })
 
   it('应用区不加语言前缀：带前缀访问改写到 404，链接也不加前缀', () => {
