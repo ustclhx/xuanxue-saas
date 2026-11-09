@@ -1,3 +1,4 @@
+import { AI_PROVIDER_NOT_CONFIGURED } from '@xuanxue/ai'
 import { createAuth } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
 import { getCreditBalance, grant } from '@xuanxue/credits'
@@ -13,7 +14,7 @@ import {
   user,
 } from '@xuanxue/db'
 import type { EmailQueueMessage } from '@xuanxue/email/queue'
-import { newId } from '@xuanxue/shared'
+import { AppError, newId } from '@xuanxue/shared'
 import { simulateReadableStream } from 'ai'
 import { MockLanguageModelV4 } from 'ai/test'
 import { eq, inArray, like } from 'drizzle-orm'
@@ -451,6 +452,19 @@ describe('POST /api/readings', () => {
     expect((await post(who, unlock(), disabled.deps)).status).toBe(404)
     const unset = deps(reportModel(REPORT), '')
     expect((await post(who, unlock(), unset.deps)).status).toBe(404)
+    // 模型已选定但部署缺 Provider 配置（生产缺 DEEPSEEK_API_KEY）：503，不留报告、不扣积分
+    const rich = await member(500)
+    const noProvider = deps(reportModel(REPORT), modelKey)
+    const unconfigured = await post(rich, unlock(), {
+      ...noProvider.deps,
+      languageModelFactory: () => {
+        throw new AppError(AI_PROVIDER_NOT_CONFIGURED, 'not configured', { status: 503 })
+      },
+    })
+    expect(unconfigured.status).toBe(503)
+    expect(await unconfigured.json()).toMatchObject({ error: { code: 'READING_UNAVAILABLE' } })
+    expect(await readings(rich.workspaceId)).toEqual([])
+    expect((await getCreditBalance(db, rich.workspaceId)).available).toBe(500)
     // 语言与站点不匹配、输入非法
     expect((await post(who, { ...unlock(), locale: 'ko' }, poor.deps)).status).toBe(400)
     expect((await post(who, unlock({ ...BIRTH, month: 13 }), poor.deps)).status).toBe(400)

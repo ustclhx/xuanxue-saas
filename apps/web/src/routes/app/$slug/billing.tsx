@@ -16,7 +16,9 @@ import {
 } from '../../../features/billing/customer.functions.ts'
 import { getCustomerRefunds } from '../../../features/billing/refund.functions.ts'
 import { RefundSection } from '../../../features/billing/refund-section.tsx'
+import { getReadingPricing } from '../../../features/readings/readings.functions.ts'
 import { m } from '../../../paraglide/messages.js'
+import { getLocale } from '../../../paraglide/runtime.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug/billing')({
@@ -34,11 +36,15 @@ export const Route = createFileRoute('/app/$slug/billing')({
       .optional(),
   }),
   loader: async ({ params }) => {
-    const [billing, refunds] = await Promise.all([
+    const [billing, refunds, readings] = await Promise.all([
       getCustomerBilling({ data: { slug: params.slug } }),
       getCustomerRefunds({ data: { slug: params.slug } }),
+      // 积分只用于详批：本站本语言没有已开放的详批时不出售积分包（与定价页同一判定）
+      getReadingPricing({ data: { locale: getLocale() } })
+        .then((pricing) => pricing.readings.length > 0)
+        .catch(() => false),
     ])
-    return { ...billing, refundView: refunds }
+    return { ...billing, refundView: refunds, readingsOpen: readings }
   },
   staleTime: 0,
   component: BillingPage,
@@ -80,6 +86,7 @@ function BillingPage() {
   // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
   const packPrices = page.catalog.prices.filter(
     (price) =>
+      page.readingsOpen &&
       price.available &&
       price.provider === provider &&
       price.interval === null &&
@@ -271,6 +278,9 @@ function BillingPage() {
                 ))}
               </select>
             </label>
+          )}
+          {!page.readingsOpen && (
+            <p data-testid="billing-packs-not-open">{m.readings_packs_not_open()}</p>
           )}
           {packPrices.length > 0 && (
             <div className="flex flex-wrap gap-3">

@@ -18,6 +18,7 @@ vi.mock('../readings/readings.functions.ts', () => ({ getReadingOffer: vi.fn() }
 const offer = (available: boolean): ReadingOffer => ({
   available,
   comingSoon: !available,
+  chatAvailable: available,
   credits: available ? 100 : 0,
   sections: [],
   sample: '',

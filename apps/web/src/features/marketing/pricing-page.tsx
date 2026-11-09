@@ -28,6 +28,8 @@ interface Pack {
   readonly creditExpiryDays: number | null
   /** 美分 */
   readonly amount: number | null
+  /** 美元一次性价格已同步到支付商且付款方式可用 */
+  readonly available: boolean
 }
 
 /** 只展示积分包（模板遗留的订阅套餐不在本产品出售）；价格取美元一次性价格，优先可购买的 */
@@ -48,6 +50,7 @@ export function creditPacks(catalog: PricingCatalog): Pack[] {
         credits: plan.credits,
         creditExpiryDays: plan.creditExpiryDays,
         amount: price?.amount ?? null,
+        available: price?.available ?? false,
       }
     })
     .sort((a, b) => a.credits - b.credits)
@@ -57,8 +60,16 @@ const usd = (cents: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 
 /**
+ * 积分包能否在本站购买：积分只用于详批，本站本语言没有已开放的详批时（`readings` 为空，
+ * 判定见 readings/availability.ts）暂停出售；否则该积分包需有可购买的价格。
+ */
+export function packPurchasable(pack: Pick<Pack, 'available'>, readingsOpen: boolean): boolean {
+  return readingsOpen && pack.available
+}
+
+/**
  * 定价页（launch-v1-production 任务 1.3）：免费工具说明、积分包、本语言可解锁的详批与常见问题。
- * 支付未开通时显示「即将开放」，不提供结账入口。
+ * 详批尚未开放时说明暂不出售积分包；支付未开通时显示「即将开放」。两种情况都不提供结账入口。
  */
 export function PricingPage({
   catalog,
@@ -75,7 +86,8 @@ export function PricingPage({
     getLocalRates().then(setRates, () => undefined)
   }, [])
   const packs = creditPacks(catalog)
-  const paymentsAvailable = catalog.providers.some((provider) => provider.available)
+  const readingsOpen = readings.length > 0
+  const anyPurchasable = packs.some((pack) => packPurchasable(pack, readingsOpen))
   const perReading = Math.min(...readings.map((r) => r.credits), DEFAULT_READING_CREDITS)
   const refundDays = String(templateConfig.billing.refundWindowDays)
   return (
@@ -84,12 +96,13 @@ export function PricingPage({
         <header className="flex max-w-3xl flex-col gap-3">
           <h1 className="m-0 font-bold font-heading text-4xl text-ink">{m.pricing_h1()}</h1>
           <p className="m-0 text-ink-muted text-lg leading-relaxed">{m.pricing_intro()}</p>
-          {!paymentsAvailable && (
+          {!anyPurchasable && (
             <p
               role="status"
+              data-testid="pricing-not-purchasable"
               className="m-0 rounded-lg border border-line bg-surface-2 px-4 py-3 text-ink text-sm"
             >
-              {m.pricing_payments_soon()}
+              {readingsOpen ? m.pricing_payments_soon() : m.readings_packs_not_open()}
             </p>
           )}
         </header>
@@ -143,7 +156,7 @@ export function PricingPage({
                     )}
                     <li>{m.pricing_pack_one_time()}</li>
                   </ul>
-                  {paymentsAvailable && (
+                  {packPurchasable(pack, readingsOpen) && (
                     <Link
                       to="/app"
                       search={{ buy: pack.key }}

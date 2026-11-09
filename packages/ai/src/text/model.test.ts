@@ -5,6 +5,7 @@ import {
   AI_PROVIDER_NOT_CONFIGURED,
   defaultLanguageModelFactory,
   type TextModelEnv,
+  textProviderConfigured,
 } from './model.ts'
 
 const env: TextModelEnv = {
@@ -371,5 +372,31 @@ describe('DeepSeek 直连（#152）', () => {
     expect(request?.url).toBe(
       'https://gateway.ai.cloudflare.com/v1/account/gateway/anthropic/v1/messages',
     )
+  })
+})
+
+describe('textProviderConfigured', () => {
+  const deepseek = { provider: 'deepseek', providerModelId: 'deepseek-chat' }
+
+  it('生产 direct 出口缺 DeepSeek 密钥且无 Gateway 时视为未配置', () => {
+    expect(textProviderConfigured(deepseek, { AI_TEXT_EGRESS: 'direct' })).toBe(false)
+  })
+
+  it('direct 出口配置 DeepSeek 密钥后视为已配置', () => {
+    expect(
+      textProviderConfigured(deepseek, { AI_TEXT_EGRESS: 'direct', DEEPSEEK_API_KEY: 'key' }),
+    ).toBe(true)
+  })
+
+  it('Gateway 已配置时按 BYOK 视为已配置；未知 Provider 视为未配置', () => {
+    expect(textProviderConfigured(deepseek, env)).toBe(true)
+    expect(textProviderConfigured({ provider: 'unknown', providerModelId: 'x' }, env)).toBe(false)
+  })
+
+  it('非配置类错误照常抛出', () => {
+    const factory = () => {
+      throw new Error('boom')
+    }
+    expect(() => textProviderConfigured(deepseek, env, factory)).toThrow('boom')
   })
 })

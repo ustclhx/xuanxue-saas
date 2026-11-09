@@ -75,7 +75,18 @@ export default defineConfig(({ command }) => {
         inspectorPort,
         // 本地开发时 Better Auth 的 baseURL 跟随实际端口（worktree 各不相同）；构建产物沿用 wrangler.jsonc
         ...((command === 'serve' || process.env.APP_URL) && {
-          config: { vars: { APP_URL: process.env.APP_URL ?? `http://localhost:${port}` } },
+          config: {
+            vars: {
+              APP_URL: process.env.APP_URL ?? `http://localhost:${port}`,
+              // 离线 e2e：占位 Gateway 让夹具模型通过「Provider 已配置」判定（详批与问 AI 入口），
+              // 真实模型请求仍由各用例拦截；只在本地 dev 且显式设置时生效
+              ...(command === 'serve' &&
+                process.env.E2E_AI_GATEWAY_PLACEHOLDER === '1' && {
+                  AI_GATEWAY_ACCOUNT_ID: 'e2e-placeholder',
+                  AI_GATEWAY_ID: 'e2e-placeholder',
+                }),
+            },
+          },
         }),
       }),
       // 没有 .dev.vars 时（CI）预渲染用的 preview 改用 .dev.vars.example 的假值通过启动校验

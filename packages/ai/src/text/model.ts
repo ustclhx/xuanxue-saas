@@ -221,3 +221,22 @@ export const defaultLanguageModelFactory: LanguageModelFactory = (model, env) =>
       )
   }
 }
+
+/**
+ * 部署配置能否为该模型构造 Provider（只构造实例，不发请求）：缺 Gateway、直连密钥或
+ * 未知 Provider 时返回 false。详批与对话入口据此判断是否对访客开放，避免出售无法生成的内容。
+ * Gateway BYOK 的密钥保存在 Cloudflare 侧，这里无法核实，按已配置处理。
+ */
+export function textProviderConfigured(
+  model: Pick<AvailableModel, 'provider' | 'providerModelId'>,
+  env: TextModelEnv,
+  factory: LanguageModelFactory = defaultLanguageModelFactory,
+): boolean {
+  try {
+    factory(model as AvailableModel, env)
+    return true
+  } catch (error) {
+    if (error instanceof AppError && error.code === AI_PROVIDER_NOT_CONFIGURED) return false
+    throw error
+  }
+}

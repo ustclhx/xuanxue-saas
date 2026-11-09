@@ -57,7 +57,11 @@ export default defineConfig({
         command: `pnpm dev > ${quotedAuthLogPath} 2>&1`,
         url: `http://localhost:${webPort}/api/health`,
         reuseExistingServer: false,
-        env: Object.fromEntries(paymentKeys.map((key) => [key, ''])),
+        env: {
+          ...Object.fromEntries(paymentKeys.map((key) => [key, ''])),
+          // 夹具模型需要「Provider 已配置」才会开放详批与问 AI 入口（vite.config.ts）
+          E2E_AI_GATEWAY_PLACEHOLDER: '1',
+        },
         timeout: 120_000,
       },
     ],

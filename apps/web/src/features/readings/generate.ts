@@ -4,7 +4,6 @@ import { type EmailTransport, SITE_IDS, type SiteId, siteBrandName } from '@xuan
 import {
   type AiModel,
   aiMessage,
-  aiModel,
   type Database,
   type Reading,
   reading,
@@ -23,6 +22,7 @@ import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { chatAppError, startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
 import { siteOfLocale, siteOrigin } from '../site/site.ts'
+import { loadReadingAvailability } from './availability.ts'
 import {
   ensureHealthNotice,
   missingSections,
@@ -33,7 +33,6 @@ import {
   withDisclaimer,
 } from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
-import { readingAvailable, readingConfig } from './config.ts'
 import { toTraditional } from './hant.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 import { readingTitle } from './title.ts'
@@ -113,8 +112,21 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const definition = readingDefinition(body.kind, body.locale)
   if (!definition || siteOfLocale(body.locale, templateConfig) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
-  const config = await readingConfig(deps.settings, definition.kind)
-  if (!readingAvailable(config, { adminPreview: isPlatformAdmin(user.role) })) throw notFound()
+  // 与结果页、定价页同一判定（availability.ts）；业务写入前读取，模型行用业务连接以免读到陈旧状态
+  const status = await loadReadingAvailability(
+    {
+      settings: deps.settings,
+      db,
+      aiEnv: deps.env,
+      languageModelFactory: deps.languageModelFactory,
+    },
+    definition.kind,
+    { adminPreview: isPlatformAdmin(user.role) },
+  )
+  if (status.blocker === 'not-configured' || status.blocker === 'switched-off') throw notFound()
+  if (!status.available || !status.model)
+    throw new AppError('READING_UNAVAILABLE', 'Reading model is not available', { status: 503 })
+  const { config, model } = status
 
   const now = deps.now?.() ?? new Date()
   const recomputed = definition.recompute(body.input, now)
@@ -124,15 +136,6 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   if (!resolved) throw notFound()
   const { workspace } = resolved
   setLogContext({ workspaceId: workspace.id, userId: user.id })
-  const [model] = await db
-    .select()
-    .from(aiModel)
-    .where(
-      and(eq(aiModel.key, config.modelKey), eq(aiModel.kind, 'text'), eq(aiModel.enabled, true)),
-    )
-    .limit(1)
-  if (!model)
-    throw new AppError('READING_UNAVAILABLE', 'Reading model is not available', { status: 503 })
 
   // 幂等：同一键加事务锁，生成中或已完成的报告直接返回；失败的报告允许重新生成
   const claim = await db.transaction(async (tx) => {
