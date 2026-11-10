@@ -10,7 +10,12 @@
       "dependsOn": ["^typecheck"]
     },
     "test": {
-      "env": ["EVIDENCE_DIR"],
+      "env": [
+        "EVIDENCE_DIR",
+        "CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE",
+        "MIGRATION_DATABASE_URL"
+      ],
+      "passThroughEnv": ["CI"],
       "dependsOn": ["^typecheck", "^test"]
     },
     "dev": {
