@@ -192,11 +192,15 @@ export async function prepareBillingEvents(
       throw error
     }
     if (!metadata) throw new Error('Missing billing association')
+    // 平台已验签的结账/付款是既成事实：价格在结账后被停用（如临时关闭售卖）只影响新结账，
+    // 不能让已付款订单无法入库或使后续退款失去关联。来源仍由平台价格 ID 与金额校验约束。
     const priced = await priceFor(
       db,
       metadata.planPriceId,
       event.provider,
       snapshot.providerPriceId,
+      undefined,
+      false,
     )
     if ((kind === 'subscription') !== (priced.plan.type === 'subscription'))
       throw new Error('Billing object plan mismatch')
