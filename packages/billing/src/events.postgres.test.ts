@@ -990,7 +990,10 @@ describe('billing event consumer on PostgreSQL', () => {
       status: 'refunded',
     })
     await apply([await checkout(true), refundedPayment])
-    expect(await db.select().from(purchase).where(eq(purchase.workspaceId, ws))).toHaveLength(1)
+    // 订单不停在 pending：与退款事件处理结果一致
+    expect(
+      (await db.select().from(purchase).where(eq(purchase.workspaceId, ws))).map((r) => r.status),
+    ).toEqual(['refunded'])
     expect(await payments()).toMatchObject([{ status: 'refunded', refundedAmount: 1000 }])
     expect(await grants()).toHaveLength(0)
     // 停用不放宽来源校验：平台价格 ID 不符仍拒绝

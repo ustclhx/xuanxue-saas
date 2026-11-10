@@ -104,6 +104,19 @@ export async function applyPaymentSucceeded(
           inArray(purchase.status, ['pending', 'failed']),
         ),
       )
+  // 付款首次入库时平台已报告退款（如退款先于结账事件处理完成）：购买同样记为 refunded，
+  // 与退款事件处理（events/refunds.ts）的结果一致，避免订单停在 pending
+  if (purchaseId && (status === 'refunded' || status === 'partially_refunded'))
+    await tx
+      .update(purchase)
+      .set({ status: 'refunded', paidAt: paid.paidAt })
+      .where(
+        and(
+          eq(purchase.id, purchaseId),
+          eq(purchase.workspaceId, a.workspaceId),
+          inArray(purchase.status, ['pending', 'failed', 'paid']),
+        ),
+      )
   if (
     sub &&
     !compensated &&
