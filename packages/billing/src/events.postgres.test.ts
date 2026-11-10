@@ -972,6 +972,45 @@ describe('billing event consumer on PostgreSQL', () => {
       ).toBe('paid')
     },
   )
+  it('price deactivated after checkout still records the paid order; full refund grants nothing', async () => {
+    await db
+      .update(plan)
+      .set({ type: 'credit_pack', creditExpiryDays: 365 })
+      .where(eq(plan.id, planId))
+    // 关闭售卖：结账已完成后价格停用
+    await db
+      .update(planPrice)
+      .set({ interval: null, active: false })
+      .where(eq(planPrice.id, priceId))
+    const refundedPayment = paid({
+      kind: 'one_time',
+      providerOrderId: orderId,
+      period: null,
+      refundedAmount: 1000,
+      status: 'refunded',
+    })
+    await apply([await checkout(true), refundedPayment])
+    expect(await db.select().from(purchase).where(eq(purchase.workspaceId, ws))).toHaveLength(1)
+    expect(await payments()).toMatchObject([{ status: 'refunded', refundedAmount: 1000 }])
+    expect(await grants()).toHaveLength(0)
+    // 停用不放宽来源校验：平台价格 ID 不符仍拒绝
+    const otherOrder = `order-${id()}`
+    vi.mocked(provider.getOrder).mockResolvedValueOnce({
+      providerOrderId: otherOrder,
+      providerCustomerId: `customer-${ws}`,
+      providerPriceId: 'price-other',
+      status: 'paid',
+      amount: 1000,
+      currency: 'USD',
+      metadata: metadata(),
+      raw: {},
+    } as Awaited<ReturnType<typeof provider.getOrder>>)
+    const other = await checkout(true)
+    if (other.type !== 'checkout.completed' || other.mode !== 'one_time') throw new Error('mode')
+    await expect(apply([{ ...other, providerOrderId: otherOrder }])).rejects.toThrow(
+      'Invalid active billing price association',
+    )
+  })
   it('failed delayed one time payment marks the pending order failed without credits; paid orders stay paid', async () => {
     await db
       .update(plan)
