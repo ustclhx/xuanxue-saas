@@ -36,11 +36,11 @@ import {
 } from './features/api-keys/gate.ts'
 import { createBillingDeletionSteps } from './features/billing/deletion.server.ts'
 import { assertSignupAdmission } from './features/growth/service.ts'
-import { authLocaleRedirect } from './features/i18n/auth-locale.ts'
-import { eastHomeRedirect } from './features/i18n/east-home.ts'
+import { authLocaleRedirect, isAuthPagePath } from './features/i18n/auth-locale.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
+import { AUTH_ROBOTS } from './features/seo/metadata.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
 import { accountSiteOf, siteHosts } from './features/site/site.ts'
 import {
@@ -81,10 +81,9 @@ const worker = instrumentWeb({
       gateSiteRequest(
         request,
         templateConfig,
-        // 不属于本站的语言前缀已被改写到 404 路径，后续一律使用守卫传入的请求
+        // 不属于本站的语言前缀已被改写到 404 路径，后续一律使用守卫传入的请求。
+        // 地址规范化（HTTPS、结尾斜杠）与东方站根路径跳转在守卫内完成；构建期预渲染请求不跳转
         async (request) =>
-          // 东方站根路径先于静态语言选择页跳到语言首页；构建期预渲染请求不跳转
-          (buildRequest ? null : eastHomeRedirect(request, templateConfig)) ??
           (!import.meta.env.DEV && !buildRequest && env.ASSETS
             ? await siteFaviconResponse(request, (asset) => env.ASSETS.fetch(asset))
             : null) ??
@@ -99,6 +98,7 @@ const worker = instrumentWeb({
           gatePublicApiRequest(request, templateConfig) ??
           authLocaleRedirect(request, templateConfig) ??
           (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
+        { canonicalize: !buildRequest },
       ),
     )
   },
@@ -131,8 +131,14 @@ export default {
           // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
           const headers = withSecurityHeaders(response.headers, security)
           headers.set('x-request-id', context.requestId)
-          if (new URL(request.url).searchParams.has('r'))
-            headers.set('x-robots-tag', 'noindex, nofollow')
+          // 分享结果链接与认证页（含 `?redirect=` 变体与各语言前缀）不进索引；robots.txt 不禁止抓取认证页，
+          // 爬虫才能读到 noindex（specs/seo「认证页不进索引」）
+          const url = new URL(request.url)
+          if (
+            url.searchParams.has('r') ||
+            isAuthPagePath(url.pathname, templateConfig.i18n.locales)
+          )
+            headers.set('x-robots-tag', AUTH_ROBOTS)
           return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,

@@ -7,10 +7,10 @@ const isEasternSite = ['ganjiday.com', 'east.localhost'].includes(hostname)
 
 if (isEasternSite) {
   test('东方站根路径直接进入语言首页', async ({ page }) => {
-    // 根路径不再展示语言选择页，按浏览器语言 302 到 /zh-hant/、/zh-hans/ 或 /ko/
+    // 根路径不再展示语言选择页：无其他偏好时 301 到规范首页 /zh-hant，简体、韩语偏好 302 到对应首页
     const response = await page.goto('/')
     expect(response?.status()).toBe(200)
-    await expect(page).toHaveURL(/\/(zh-hant|zh-hans|ko)\/$/)
+    await expect(page).toHaveURL(/\/(zh-hant|zh-hans|ko)$/)
     await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
   })
 
@@ -61,4 +61,40 @@ test('健康接口返回本次版本且数据库可用', async ({ request }) => 
   expect(body.db?.status).toBe('up')
   // 发布流水线传入完整 SHA；本地对其他环境试跑时可不设。
   if (process.env.APP_VERSION) expect(body.version).toBe(process.env.APP_VERSION)
+})
+
+// 规范地址与认证页索引（openspec fix-seo-canonical-indexing，specs/seo「规范地址收敛」「认证页不进索引」），只读 GET
+const origin = new URL(process.env.PRODUCTION_URL ?? 'https://arcanumber.com').origin
+
+test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根路径与裸路径保留路径跳到繁中', async ({
+  request,
+}) => {
+  const cases: [string, string][] = isEasternSite
+    ? [
+        ['/', '/zh-hant'],
+        ['/zh-hant/', '/zh-hant'],
+        ['/pricing?ref=smoke', '/zh-hant/pricing?ref=smoke'],
+      ]
+    : [
+        ['/pricing/', '/pricing'],
+        ['/en/pricing', '/pricing'],
+      ]
+  for (const [from, to] of cases) {
+    // 不属于东方站其他语言的浏览器语言（与不带 Accept-Language 的爬虫相同）落到繁中并永久跳转
+    const response = await request.get(from, {
+      maxRedirects: 0,
+      headers: { 'accept-language': 'en-US' },
+    })
+    expect(response.status(), from).toBe(301)
+    expect(response.headers().location, from).toBe(`${origin}${to}`)
+  }
+})
+
+test('带回跳参数的登录页 noindex，canonical 为不带参数的登录页', async ({ page }) => {
+  const path = isEasternSite ? '/zh-hant/login' : '/login'
+  const response = await page.goto(`${path}?redirect=%2Fpricing`)
+  expect(response?.status()).toBe(200)
+  expect(response?.headers()['x-robots-tag']).toContain('noindex')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `${origin}${path}`)
 })

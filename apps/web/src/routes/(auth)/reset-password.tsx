@@ -10,7 +10,9 @@ import {
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
 import { AUTH_ERROR_MESSAGES, authErrorMessage } from '../../features/auth/errors.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
 const COPY = {
@@ -72,7 +74,7 @@ const schema = () =>
 export const Route = createFileRoute('/(auth)/reset-password')({
   // 重置链接校验通过时带 ?token=，链接无效 / 过期时带 ?error=INVALID_TOKEN
   validateSearch: z.object({ token: z.string().optional(), error: z.string().optional() }),
-  head: () => ({ meta: [{ title: COPY.metaTitle }] }),
+  head: () => authPageHead('/reset-password', getLocale(), COPY.metaTitle),
   component: ResetPasswordPage,
 })
 

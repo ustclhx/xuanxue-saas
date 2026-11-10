@@ -22,7 +22,9 @@ import type { AuthUiOptions } from '../../features/auth/options.ts'
 import { SignInFailure } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
 const COPY = {
@@ -110,7 +112,7 @@ export const Route = createFileRoute('/(auth)/login')({
   // OAuth / 魔法链接失败时 Better Auth 把错误码放在 ?error= 中带回登录页
   validateSearch: z.object({ error: z.string().optional(), redirect: z.string().optional() }),
   loader: () => getAuthUiOptions(),
-  head: () => ({ meta: [{ title: COPY.metaTitle }] }),
+  head: () => authPageHead('/login', getLocale(), COPY.metaTitle),
   component: LoginPage,
 })
 

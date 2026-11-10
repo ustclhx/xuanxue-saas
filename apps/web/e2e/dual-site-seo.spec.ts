@@ -27,6 +27,73 @@ test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS �
   await context.close()
 })
 
+// openspec fix-seo-canonical-indexing：规范地址收敛、认证页 noindex、匿名可访问公开内容与 x-default
+test('规范地址：根路径、结尾斜杠与东方站裸路径一次永久跳转，保留路径与查询', async ({
+  request,
+  baseURL,
+}) => {
+  const local = baseURL ?? 'http://localhost:3000'
+  for (const [site, from, to] of [
+    ['east', '/', '/zh-hant'],
+    ['east', '/zh-hant/', '/zh-hant'],
+    ['east', '/zh-hant/pricing/?a=1', '/zh-hant/pricing?a=1'],
+    ['east', '/pricing?ref=x', '/zh-hant/pricing?ref=x'],
+    ['east', '/privacy', '/zh-hant/privacy'],
+    ['west', '/pricing/', '/pricing'],
+    ['west', '/en/pricing', '/pricing'],
+  ] as const) {
+    const host = new URL(localSite(baseURL, site)).host
+    const response = await request.get(`${local}${from}`, {
+      maxRedirects: 0,
+      // 不属于东方站其他语言的浏览器语言与不带 Accept-Language 的爬虫一样落到繁中
+      headers: { host, 'accept-language': 'en-US' },
+    })
+    expect(response.status(), `${site} ${from}`).toBe(301)
+    const location = new URL(response.headers().location ?? '', localSite(baseURL, site))
+    expect(location.pathname + location.search, `${site} ${from}`).toBe(to)
+    // 目标直接返回 200，匿名可访问
+    const target = await request.get(`${local}${to}`, { maxRedirects: 0, headers: { host } })
+    expect(target.status(), `${site} ${to}`).toBe(200)
+  }
+})
+
+test('认证页 noindex，?redirect= 变体 canonical 为不带参数的登录页；公开页匿名可访问且 x-default 为同页', async ({
+  page,
+  request,
+  baseURL,
+}) => {
+  const local = baseURL ?? 'http://localhost:3000'
+  for (const [site, path, canonical] of [
+    ['west', '/login?redirect=%2Flife-path-number%2F22', 'https://arcanumber.com/login'],
+    ['west', '/register', 'https://arcanumber.com/register'],
+    ['east', '/ko/login?redirect=%2Fko%2Fpricing', 'https://ganjiday.com/ko/login'],
+  ] as const) {
+    const response = await page.goto(`${localSite(baseURL, site)}${path}`)
+    expect(response?.status(), path).toBe(200)
+    expect(response?.headers()['x-robots-tag'], path).toContain('noindex')
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical)
+  }
+  const robotsTxt = await (
+    await request.get(`${local}/robots.txt`, {
+      headers: { host: new URL(localSite(baseURL, 'west')).host },
+    })
+  ).text()
+  expect(robotsTxt).not.toContain('/login')
+
+  // 公开内容匿名可访问，不跳登录；页头登录链接不带随页面变化的回跳参数
+  await page.goto(`${localSite(baseURL, 'west')}/tarot`, { waitUntil: 'networkidle' })
+  await expect(page).toHaveURL(`${localSite(baseURL, 'west')}/tarot`)
+  const login = page.locator('header a[rel="nofollow"]')
+  await expect(login).toHaveAttribute('href', '/login')
+  const east = await page.goto(`${localSite(baseURL, 'east')}/ko/pricing`)
+  expect(east?.status()).toBe(200)
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
+    'href',
+    'https://ganjiday.com/zh-hant/pricing',
+  )
+})
+
 test('Host 决定地图索引与抓取规则；内部入口不对外暴露', async ({ request, baseURL }) => {
   const east = baseURL ?? 'http://localhost:3000'
   const west = east
@@ -53,7 +120,7 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
     expect(rules).toContain(`Disallow: ${path}`)
   expect(rules).toContain('Sitemap: https://ganjiday.com/sitemap.xml')
   expect(
-    (await request.get(`${east}/ko/?r=shared`, eastOptions)).headers()['x-robots-tag'],
+    (await request.get(`${east}/ko?r=shared`, eastOptions)).headers()['x-robots-tag'],
   ).toContain('noindex')
 })
 

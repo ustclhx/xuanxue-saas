@@ -107,7 +107,10 @@ describe('三语牌义内容与 SEO', () => {
               'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`)
                 .href,
               ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
-              'x-default': 'https://ganjiday.com/',
+              // x-default 为同一牌义的繁中版本，不是会跳转的根路径
+              'x-default': new URL(
+                `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
+              ).href,
             },
       )
       expect(xml).toContain(`<loc>${alternate[page.locale]}</loc>`)

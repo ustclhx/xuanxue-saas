@@ -9,6 +9,7 @@ import {
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
 import { authErrorMessage } from '../../features/auth/errors.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import {
   actionResult,
   activateWorkspace,
@@ -18,12 +19,14 @@ import {
 import { invitationSearch } from '../../features/workspace/invitation-search.ts'
 import { getInvitationPage } from '../../features/workspace/workspace.functions.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 export const Route = createFileRoute('/(auth)/accept-invitation')({
   validateSearch: invitationSearch,
   beforeLoad: async ({ search }) => ({ invitationPage: await getInvitationPage({ data: search }) }),
   loaderDeps: ({ search }) => search,
   loader: ({ context }) => context.invitationPage,
+  head: () => authPageHead('/accept-invitation', getLocale()),
   staleTime: 0,
   component: InvitationPage,
 })

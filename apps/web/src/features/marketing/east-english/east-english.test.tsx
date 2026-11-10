@@ -51,7 +51,8 @@ describe('东方站英文入口页', () => {
       { rel: 'alternate', hrefLang: 'zh-Hant', href: 'https://ganjiday.com/zh-hant' },
       { rel: 'alternate', hrefLang: 'zh-Hans', href: 'https://ganjiday.com/zh-hans' },
       { rel: 'alternate', hrefLang: 'ko', href: 'https://ganjiday.com/ko' },
-      { rel: 'alternate', hrefLang: 'x-default', href: 'https://ganjiday.com/' },
+      // x-default 为繁中首页（规范首页），不是会跳转的根路径
+      { rel: 'alternate', hrefLang: 'x-default', href: 'https://ganjiday.com/zh-hant' },
     ])
     expect(JSON.stringify(head)).not.toContain('arcanumber.com')
   })

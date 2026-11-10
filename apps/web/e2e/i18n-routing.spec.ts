@@ -11,7 +11,7 @@ const unconfigured = ['fr', 'de', 'ja', 'es'].find((locale) => !locales.includes
 const prefixOf = (locale: string) =>
   locale === defaultLocale ? `/${locale}` : localePrefix(locale)
 
-test('默认语言使用无前缀地址，带默认语言前缀的地址 307 到无前缀地址', async ({ page, request }) => {
+test('默认语言使用无前缀地址，带默认语言前缀的地址 301 到无前缀地址', async ({ page, request }) => {
   await page.goto('/pricing')
   await expect(page.locator('html')).toHaveAttribute('lang', defaultLocale)
   await expect(page).toHaveURL(/\/pricing$/)
@@ -24,7 +24,7 @@ test('默认语言使用无前缀地址，带默认语言前缀的地址 307 到
       maxRedirects: 0,
       headers: { 'Sec-Fetch-Dest': 'document' },
     })
-    expect(response.status()).toBe(307)
+    expect(response.status()).toBe(301)
     expect(new URL(response.headers().location ?? '', 'http://localhost').pathname).toBe(to)
   }
 })

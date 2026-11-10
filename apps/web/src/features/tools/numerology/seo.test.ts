@@ -135,7 +135,9 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
                 'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotPath(spread, 'zh-Hans')}`)
                   .href,
                 ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
-                'x-default': 'https://ganjiday.com/',
+                // x-default 为同一牌阵的繁中版本，不是会跳转的根路径
+                'x-default': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`)
+                  .href,
               },
         )
       }
