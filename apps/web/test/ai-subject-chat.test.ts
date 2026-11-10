@@ -278,7 +278,7 @@ describe('subject conversations', () => {
     await expect404(loadSubjectChat(ctxOf(owner), { type: TEMP_TYPE, id: subject.id }))
     // 同一用户在另一空间里也看不到（provider 同时校验空间）
     const team = newId()
-    await sql`insert into organization (id,name,slug) values (${team},'Team',${team})`
+    await sql`insert into organization (id,name,slug,site) values (${team},'Team',${team},'west')`
     await sql`insert into member (id,organization_id,user_id,role) values (${newId()},${team},${owner.userId},'owner')`
     await expect404(loadSubjectChat({ ...ctxOf(owner), workspaceId: team }, subject))
     expect(await sql`select id from ai_conversation where subject_id=${subject.id}`).toHaveLength(0)

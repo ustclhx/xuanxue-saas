@@ -111,7 +111,10 @@ describe('customer data visibility', () => {
     const limit = vi.fn(async () => history)
     const select = vi
       .fn()
-      .mockReturnValueOnce({ innerJoin: () => ({ orderBy: () => ({ limit }) }) })
+      .mockReturnValueOnce({
+        // 历史查询额外 join plan_price 取价格快照（项目扩展）
+        innerJoin: () => ({ innerJoin: () => ({ orderBy: () => ({ limit }) }) }),
+      })
       .mockReturnValueOnce({ innerJoin: () => ({ orderBy: async () => [active] }) })
     vi.mocked(scoped).mockReturnValue({ select } as unknown as ReturnType<typeof scoped>)
     const page = await customerBilling(db, 'workspace', 'admin', 3)

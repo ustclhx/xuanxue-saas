@@ -32,6 +32,9 @@ vi.mock('../seo/origin.functions.ts', () => ({
   getPlausibleSite: vi.fn(),
 }))
 vi.mock('../admin/settings-announcement.functions.ts', () => ({ getAnnouncement: vi.fn() }))
+// 项目根布局额外读取站点与博客语言（xuanxue 两站），单测中替换为空实现
+vi.mock('../marketing/content.functions.ts', () => ({ getBlogLocales: vi.fn() }))
+vi.mock('../site/site.functions.ts', () => ({ getCurrentSite: vi.fn() }))
 vi.mock('@tanstack/react-router', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@tanstack/react-router')>()),
   HeadContent: () => null,

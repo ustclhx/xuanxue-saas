@@ -24,6 +24,7 @@ vi.mock('../admin/settings-announcement-banner.tsx', () => ({ AnnouncementBanner
 vi.mock('../analytics/analytics.tsx', () => ({ ProductAnalytics: () => null }))
 vi.mock('../i18n/language-controls.tsx', () => ({ LanguageSuggestion: () => null }))
 vi.mock('../theme/theme-toggle.tsx', () => ({ ThemeToggle: () => null }))
+vi.mock('../theme/html-attributes.isomorphic.ts', () => ({ getHtmlAttributes: () => ({}) }))
 
 import { baseLocale, overwriteGetLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
