@@ -1,5 +1,5 @@
 import { useLocation } from '@tanstack/react-router'
-import { Button } from '@xuanxue/ui'
+import { Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { baseLocale, getLocale, isLocale, type Locale, locales } from '../../paraglide/runtime.js'
@@ -159,26 +159,33 @@ export function LanguageSelect() {
   const [ready, setReady] = useState(false)
   useEffect(() => setReady(true), [])
   if (siteLocales.length < 2) return null
+  const currentLabel = LOCALE_AUTONYMS[locale] ?? locale
   return (
     <>
-      <label className="inline-flex min-h-11 w-fit items-center rounded-md border bg-background px-3 text-sm shadow-xs">
+      <div className="inline-flex min-h-11 w-fit items-center">
         <span className="sr-only">{m.i18n_language()}</span>
-        <select
-          className="min-h-11 min-w-11"
-          aria-label={m.i18n_language()}
-          value={locale}
+        <Select
+          value={siteLocales.some((value) => value === locale) ? locale : ''}
           disabled={!ready || busy}
-          onChange={(event) => {
-            if (isLocale(event.target.value)) void select(event.target.value)
+          onValueChange={(value) => {
+            if (isLocale(value)) void select(value)
           }}
         >
-          {siteLocales.map((value) => (
-            <option key={value} value={value}>
-              {LOCALE_AUTONYMS[value] ?? value}
-            </option>
-          ))}
-        </select>
-      </label>
+          <SelectTrigger
+            aria-label={m.i18n_language()}
+            className="min-h-11 w-full min-w-0"
+            placeholder={m.i18n_language()}
+            valueLabel={currentLabel}
+          />
+          <SelectContent>
+            {siteLocales.map((value, index) => (
+              <SelectItem key={value} index={index} value={value}>
+                {LOCALE_AUTONYMS[value] ?? value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       {error && (
         <p role="alert" className="text-destructive text-sm">
           {error}

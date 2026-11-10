@@ -123,6 +123,25 @@ export function localeUrlSegment(locale: string): string {
   return locale.toLowerCase()
 }
 
+/** 主题预设名单（packages/ui/src/styles/presets/*.css）；@xuanxue/web 的测试断言它与 @xuanxue/ui 的 UI_PRESETS 一致 */
+export const uiPresets = ['neutral', 'blue', 'violet', 'green'] as const
+export const uiShapes = ['sharp', 'rounded', 'pill'] as const
+export const uiDensities = ['default', 'compact'] as const
+
+/** `ui` 段在运行时校验：template.config.ts 写了未知预设时构建期即报错，而不是静默回退 */
+export const uiConfigSchema = z.strictObject({
+  preset: z.enum(uiPresets).default('neutral'),
+  shape: z.enum(uiShapes).default('rounded'),
+  /** 控件尺寸阶梯：default 36px，compact 28px */
+  density: z.enum(uiDensities).default('default'),
+})
+
+export type UiPreset = (typeof uiPresets)[number]
+/** 组件圆角形状 */
+export type UiShape = (typeof uiShapes)[number]
+/** 控件尺寸阶梯：default 36px，compact 28px */
+export type UiDensity = (typeof uiDensities)[number]
+
 export const textConfigSchema = z.strictObject({
   enabled: z.boolean().default(true),
   thinking: z
@@ -133,6 +152,20 @@ export const textConfigSchema = z.strictObject({
     .prefault({}),
   reasoning: z.strictObject({ display: z.boolean().default(false) }).prefault({}),
   failedReplyRefund: z.enum(['no-visible-output', 'all']).default('no-visible-output'),
+  /**
+   * 每轮回复后生成的后续推荐问题（add-subject-chat design 决策 5）：默认关闭，每条回复最多生成一次。
+   * charge 为 false 时由平台承担；为 true 时先预扣、按实际 token 用量扣积分，且只对按 token 计价的
+   * 模型生成（按次计价的模型会让每次追问收一次完整单轮费用，直接跳过）。
+   * modelKey 为空时用回复所用的模型；建议配置一个便宜的、按 token 计价的模型 key。
+   */
+  followUps: z
+    .strictObject({
+      enabled: z.boolean().default(false),
+      charge: z.boolean().default(false),
+      count: z.number().int().min(2).max(3).default(3),
+      modelKey: z.string().min(1).max(200).nullable().default(null),
+    })
+    .prefault({}),
 })
 
 export type TextConfig = z.infer<typeof textConfigSchema>
@@ -197,9 +230,18 @@ export interface TemplateConfig<L extends string = string> {
   }
   readonly credits: {
     readonly enabled: boolean
+    /** 真实登录用户访问 App 时领取每日积分，默认关闭。 */
+    readonly dailyEnabled: boolean
   }
   readonly marketing: {
     readonly enabled: boolean
+  }
+  /** 界面主题（openspec add-ui-design-system design D2/D3）；项目品牌色放 apps/web/src/styles/brand.css */
+  readonly ui: {
+    /** 主题预设：强调色、圆角与焦点环；根布局在服务端写到 <html data-preset> */
+    readonly preset: UiPreset
+    readonly shape: UiShape
+    readonly density: UiDensity
   }
   readonly ai: {
     readonly text: TextConfig
@@ -278,6 +320,7 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
   }
   credits?: Partial<Section<'credits'>>
   marketing?: Partial<Section<'marketing'>>
+  ui?: Partial<Section<'ui'>>
   ai?: Partial<Omit<Section<'ai'>, 'defaultPricingMode' | 'text'>> & {
     text?: z.input<typeof textConfigSchema>
     defaultPricingMode?: Partial<Section<'ai'>['defaultPricingMode']>
@@ -309,14 +352,16 @@ export const templateConfigDefaults = {
     overage: { maxRatio: 0.2, maxCredits: 50, dailyBudgetPerWorkspace: 200 },
     refundWindowDays: 30,
   },
-  credits: { enabled: true },
+  credits: { enabled: true, dailyEnabled: false },
   marketing: { enabled: true },
+  ui: { preset: 'neutral', shape: 'rounded', density: 'default' },
   ai: {
     text: {
       enabled: true,
       thinking: { default: 'off', userToggle: false },
       reasoning: { display: false },
       failedReplyRefund: 'no-visible-output',
+      followUps: { enabled: false, charge: false, count: 3, modelKey: null },
     },
     image: true,
     video: true,
@@ -371,6 +416,7 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
     },
     credits: { ...d.credits, ...input.credits },
     marketing: { ...d.marketing, ...input.marketing },
+    ui: uiConfigSchema.parse({ ...d.ui, ...input.ui }),
     ai: {
       ...d.ai,
       ...input.ai,

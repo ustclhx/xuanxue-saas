@@ -25,6 +25,7 @@ describe('defineTemplateConfig', () => {
     expect(config).toEqual({ app, ...templateConfigDefaults, sites: expect.any(Object) })
     expect(config.billing.enabled).toBe(true)
     expect(config.credits.enabled).toBe(true)
+    expect(config.credits.dailyEnabled).toBe(false)
     expect(config.marketing.enabled).toBe(true)
     expect(config.i18n.enabled).toBe(true)
     expect(config.features.analytics).toBe('plausible')
@@ -75,6 +76,13 @@ describe('defineTemplateConfig', () => {
     expect(strict.auth).toMatchObject({ requireEmailVerification: true, emailPassword: true })
   })
 
+  it('enables daily grants explicitly without changing the credits module default', () => {
+    expect(defineTemplateConfig({ app, credits: { dailyEnabled: true } }).credits).toEqual({
+      enabled: true,
+      dailyEnabled: true,
+    })
+  })
+
   it('replaces arrays instead of merging them', () => {
     const config = defineTemplateConfig({
       app,
@@ -94,6 +102,22 @@ describe('defineTemplateConfig', () => {
 
   it('rejects an empty locale list at runtime', () => {
     expect(() => defineTemplateConfig({ app, i18n: { locales: [] } })).toThrow(RangeError)
+  })
+
+  it('defaults the UI to the neutral rounded preset and merges partial ui settings', () => {
+    expect(defineTemplateConfig({ app }).ui).toEqual({
+      preset: 'neutral',
+      shape: 'rounded',
+      density: 'default',
+    })
+    const config = defineTemplateConfig({ app, ui: { preset: 'violet', density: 'compact' } })
+    expect(config.ui).toEqual({ preset: 'violet', shape: 'rounded', density: 'compact' })
+  })
+
+  it('rejects an unknown UI preset, shape or density at definition time', () => {
+    expect(() => defineTemplateConfig({ app, ui: { preset: 'teal' as never } })).toThrow()
+    expect(() => defineTemplateConfig({ app, ui: { shape: 'square' as never } })).toThrow()
+    expect(() => defineTemplateConfig({ app, ui: { density: 'cozy' as never } })).toThrow()
   })
 
   it('accepts all modules disabled while retaining their existing parameters', () => {
@@ -337,12 +361,19 @@ it('merges text policy defaults and rejects invalid text policy values', () => {
     thinking: { default: 'off', userToggle: true },
     reasoning: { display: false },
     failedReplyRefund: 'no-visible-output',
+    followUps: { enabled: false, charge: false, count: 3, modelKey: null },
   })
+  expect(
+    defineTemplateConfig({ app, ai: { text: { followUps: { enabled: true, count: 2 } } } }).ai.text
+      .followUps,
+  ).toEqual({ enabled: true, charge: false, count: 2, modelKey: null })
   for (const text of [
     { enabled: 'false' },
     { thinking: { default: 'auto' } },
     { reasoning: { display: 1 } },
     { failedReplyRefund: 'none' },
+    { followUps: { count: 5 } },
+    { followUps: { enabled: 'yes' } },
     { extra: true },
   ]) {
     // 外部配置可能绕过 TypeScript，运行时也必须拒绝非法策略。

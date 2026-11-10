@@ -62,6 +62,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "cf-workers-og": "3.0.1",
+    "esbuild": "^0.28.2",
     "openai": "^7.28.0",
     "postgres": "^3.4.9",
     "remark-gfm": "^4.0.1",

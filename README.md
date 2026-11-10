@@ -102,7 +102,7 @@ main 分支 CI 通过后自动发布 staging；见 [基础设施文档](docs/07-
 
 ## Agent Skills
 
-项目内提供 7 个技能，Codex 使用 `.agents/skills/`，Claude 使用 `.claude/skills/`：
+项目内提供 8 个技能，Codex 使用 `.agents/skills/`，Claude 使用 `.claude/skills/`：
 
 | 技能 | 用途 |
 | --- | --- |
@@ -113,6 +113,7 @@ main 分支 CI 通过后自动发布 staging；见 [基础设施文档](docs/07-
 | [add-ai-model](.agents/skills/add-ai-model/SKILL.md) | 后台模型编辑器、参数 schema/定价/套餐授权；必要时新增 Provider |
 | [security-scan](.agents/skills/security-scan/SKILL.md) | 工程检查、敏感路径与凭据扫描、鉴权/注入/账本等 diff 审查 |
 | [template-sync](.agents/skills/template-sync/SKILL.md) | 按模板版本采纳更新，含升级说明待办、迁移移植与基准推断 |
+| [ui-design](.agents/skills/ui-design/SKILL.md) | 新页面与较大布局改动前的设计稿关卡、项目视觉方向与设计稿副本留存 |
 
 在项目根按技能名发起请求（Codex `$new-page`、Claude `/new-page`），或直接要求 agent 阅读对应 `SKILL.md` 执行。
 部署默认只读预检与 dry-run；具体写入清单确认后才操作，缺外部凭据的环节明确标记待验收。

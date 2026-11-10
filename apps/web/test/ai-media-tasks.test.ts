@@ -15,7 +15,7 @@ import {
 } from '@xuanxue/ai'
 import { createAuth } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
-import { getCreditBalance, grant } from '@xuanxue/credits'
+import { getCreditBalance, grant, hold } from '@xuanxue/credits'
 import { aiModel, aiTask, createDb, file, member as membership, scoped } from '@xuanxue/db'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { createCloudflareRateLimiter, createCloudflareWorkflow } from '@xuanxue/platform/cloudflare'
@@ -614,6 +614,29 @@ describe.skipIf(!templateConfig.ai.image && !templateConfig.ai.video)('media tas
     } finally {
       await sql`delete from ai_model where key=${key}`
     }
+  })
+
+  it('media insufficient credits preserves the shared numeric 402 contract', async () => {
+    const who = await account('insufficient-credits')
+    await hold(db, {
+      workspaceId: who.workspaceId,
+      userId: who.userId,
+      amount: 98,
+      refType: 'ai_message',
+      refId: newId(),
+    })
+    const { deps } = dependencies()
+    const response = await submit(who, await model(), deps)
+    expect(response.status).toBe(402)
+    expect(await response.json()).toEqual({
+      error: {
+        code: 'INSUFFICIENT_CREDITS',
+        message: 'Insufficient credits',
+        details: { estimatedCredits: 3, availableCredits: 2 },
+      },
+    })
+    expect(await scoped(db, who.workspaceId).count(aiTask)).toBe(0)
+    expect(await getCreditBalance(db, who.workspaceId)).toMatchObject({ available: 2, held: 98 })
   })
 
   it('rejects an unavailable workflow before rate limiting, task creation or credit holds', async () => {

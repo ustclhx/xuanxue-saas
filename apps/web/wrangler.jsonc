@@ -66,6 +66,8 @@
   "vars": {
     "SENTRY_ENVIRONMENT": "development",
     "PAYMENT_MODE": "test",
+    // 组件预览页 /dev/ui（openspec add-ui-design-system D6）：开发与 staging 开启，production 不设（发布门禁拦截）
+    "UI_PREVIEW": "true",
     "APP_URL": "http://localhost:3000",
     "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
     "R2_FILES_BUCKET": "xuanxue-files"
@@ -85,6 +87,7 @@
         "PLAUSIBLE_DOMAIN": "",
         "PLAUSIBLE_HOST": "",
         "PAYMENT_MODE": "test",
+        "UI_PREVIEW": "true",
         "APP_URL": "https://xuanxue-web-staging.saas-jobs.workers.dev",
         "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
         "AI_GATEWAY_ACCOUNT_ID": "",
@@ -114,7 +117,7 @@
       }
     },
     // launch-v1-production 2.1：本项目独立资源，见 docs/runbooks/production-xuanxue.md。
-    // 支付使用 live；先配置 PayPal secrets 再发布，禁止 AI_FAULT_INJECTION。
+    // 支付使用 live；先配置 PayPal secrets 再发布，禁止 AI_FAULT_INJECTION；不设 UI_PREVIEW（组件预览页生产 404）。
     "production": {
       "name": "xuanxue-web-production",
       "observability": { "enabled": true, "head_sampling_rate": 1, "traces": { "enabled": false } },

@@ -1,4 +1,23 @@
 export { Alert, AlertDescription, AlertTitle } from './components/alert.tsx'
+export {
+  AlertDialog,
+  AlertDialogAction,
+  type AlertDialogButtonProps,
+  AlertDialogCancel,
+  AlertDialogContent,
+  type AlertDialogContentProps,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './components/alert-dialog.tsx'
+export {
+  Badge,
+  type BadgeColor,
+  type BadgeProps,
+  type BadgeSize,
+} from './components/badge.tsx'
 export { Button, type ButtonProps, buttonVariants } from './components/button.tsx'
 export {
   Card,
@@ -8,6 +27,52 @@ export {
   CardHeader,
   CardTitle,
 } from './components/card.tsx'
+export { Checkbox, type CheckboxProps } from './components/checkbox.tsx'
+export {
+  Combobox,
+  ComboboxChips,
+  type ComboboxChipsProps,
+  ComboboxContent,
+  type ComboboxContentProps,
+  ComboboxEmpty,
+  type ComboboxEmptyProps,
+  ComboboxInput,
+  type ComboboxInputProps,
+  ComboboxItem,
+  type ComboboxItemData,
+  type ComboboxItemProps,
+  ComboboxList,
+  type ComboboxListProps,
+  type ComboboxProps,
+  type ComboboxValue,
+} from './components/combobox.tsx'
+export {
+  CommandMenu,
+  CommandMenuDialog,
+  type CommandMenuDialogProps,
+  CommandMenuEmpty,
+  type CommandMenuEmptyProps,
+  CommandMenuFilters,
+  type CommandMenuFiltersProps,
+  CommandMenuFooter,
+  type CommandMenuFooterProps,
+  type CommandMenuHint,
+  CommandMenuInput,
+  type CommandMenuInputProps,
+  CommandMenuItem,
+  type CommandMenuItemData,
+  type CommandMenuItemProps,
+  type CommandMenuLabels,
+  CommandMenuList,
+  type CommandMenuListProps,
+  CommandMenuPlatform,
+  type CommandMenuProps,
+  CommandMenuShortcut,
+  type CommandMenuShortcutProps,
+  type CommandMenuTab,
+  CommandMenuTabs,
+  type CommandMenuTabsProps,
+} from './components/command-menu.tsx'
 export {
   DataTable,
   type DataTableColumn,
@@ -18,6 +83,43 @@ export {
   type DetailField,
   DetailList,
 } from './components/data-table.tsx'
+export {
+  Dialog,
+  DialogClose,
+  type DialogCloseProps,
+  DialogContent,
+  type DialogContentProps,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  type DialogTriggerProps,
+} from './components/dialog.tsx'
+export {
+  Dropdown,
+  DropdownContent,
+  type DropdownContentProps,
+  DropdownEmpty,
+  type DropdownEmptyProps,
+  DropdownLabel,
+  DropdownMenu,
+  type DropdownMenuProps,
+  type DropdownProps,
+  DropdownSearch,
+  type DropdownSearchProps,
+  DropdownSeparator,
+  DropdownSub,
+  DropdownSubContent,
+  type DropdownSubContentProps,
+  type DropdownSubProps,
+  DropdownSubTrigger,
+  type DropdownSubTriggerProps,
+  DropdownTrigger,
+  type DropdownTriggerProps,
+  MenuItem,
+  type MenuItemProps,
+} from './components/dropdown.tsx'
 export {
   errorMessages,
   FieldErrors,
@@ -31,9 +133,86 @@ export {
   useFormContext,
   withForm,
 } from './components/form.tsx'
-export { Input } from './components/input.tsx'
+export { Input, type InputProps } from './components/input.tsx'
 export { Label } from './components/label.tsx'
+export { ScrollArea, type ScrollAreaProps, ScrollBar } from './components/scroll-area.tsx'
+export {
+  Select,
+  SelectContent,
+  type SelectContentProps,
+  SelectGroup,
+  SelectItem,
+  type SelectItemProps,
+  SelectLabel,
+  type SelectProps,
+  SelectSeparator,
+  SelectTrigger,
+  type SelectTriggerProps,
+} from './components/select.tsx'
 export { Separator } from './components/separator.tsx'
+export {
+  Sidebar,
+  type SidebarCollapsible,
+  SidebarContent,
+  type SidebarContentProps,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupAction,
+  type SidebarGroupActionProps,
+  SidebarGroupActions,
+  type SidebarGroupActionsProps,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  type SidebarGroupLabelProps,
+  type SidebarGroupProps,
+  SidebarHeader,
+  SidebarInput,
+  type SidebarInputProps,
+  SidebarInset,
+  type SidebarInsetProps,
+  type SidebarLabels,
+  SidebarMenu,
+  SidebarMenuAction,
+  type SidebarMenuActionProps,
+  SidebarMenuActions,
+  type SidebarMenuActionsProps,
+  SidebarMenuBadge,
+  type SidebarMenuBadgeProps,
+  SidebarMenuButton,
+  type SidebarMenuButtonProps,
+  SidebarMenuItem,
+  type SidebarMenuItemProps,
+  type SidebarMenuProps,
+  SidebarMenuSkeleton,
+  type SidebarMenuSkeletonProps,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  type SidebarMenuSubButtonProps,
+  SidebarMenuSubItem,
+  type SidebarMenuSubItemProps,
+  type SidebarMenuSubProps,
+  type SidebarProps,
+  SidebarProvider,
+  type SidebarProviderProps,
+  SidebarRail,
+  type SidebarRailProps,
+  type SidebarSectionProps,
+  SidebarSeparator,
+  type SidebarSide,
+  SidebarTrigger,
+  type SidebarTriggerProps,
+  type SidebarVariant,
+} from './components/sidebar.tsx'
+export { Switch, type SwitchProps } from './components/switch.tsx'
+export {
+  Tabs,
+  TabsItem,
+  type TabsItemProps,
+  TabsPanel,
+  type TabsPanelProps,
+  type TabsProps,
+} from './components/tabs.tsx'
+export { Textarea, type TextareaProps } from './components/textarea.tsx'
 export {
   THEME_STORAGE_KEY,
   THEMES,
@@ -43,4 +222,38 @@ export {
   themeInitScript,
   useTheme,
 } from './components/theme.tsx'
+export {
+  Toaster,
+  type ToasterLabels,
+  type ToasterPosition,
+  type ToasterProps,
+} from './components/toast.tsx'
+// 命令式 API 来自零依赖的 store，只调用 toast() 的页面不会带上 Toaster 与动效库
+export {
+  type ToastAction,
+  type ToastOptions,
+  type ToastVariant,
+  toast,
+} from './components/toast-store.ts'
+export {
+  Tooltip,
+  TooltipPortalContainer,
+  type TooltipProps,
+  TooltipProvider,
+  type TooltipProviderProps,
+  type TooltipSide,
+} from './components/tooltip.tsx'
+export {
+  UI_DENSITIES,
+  UI_PRESETS,
+  UI_SHAPES,
+  type UiDensity,
+  type UiPreset,
+  UiRoot,
+  type UiRootProps,
+} from './components/ui-root.tsx'
+// 上下文 hooks 与 Provider 暂不导出（接口随上游月度变化），应用经 UiRoot 配置
+export type { IconComponent, IconName } from './lib/icon-context.tsx'
+export type { ShapeVariant } from './lib/shape-context.tsx'
+export type { SizeVariant } from './lib/size-context.tsx'
 export { cn } from './lib/utils.ts'

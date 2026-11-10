@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "check": "biome check . && node scripts/check-credit-writes.mjs && node scripts/check-site-scope.mjs && node --test scripts/check-site-scope.test.mjs && node scripts/check-payment-runtime.mjs && node scripts/production/check-wrangler-envs.mjs && node --test scripts/check-payment-runtime.test.mjs scripts/local-payment-env.test.mjs && node --test scripts/staging/staging.test.mjs scripts/production/*.test.mjs packages/billing/scripts/sync.test.mjs packages/billing/scripts/activate-credit-packs.test.mjs",
+    "check": "biome check . && pnpm check:ui && node scripts/check-credit-writes.mjs && node scripts/check-site-scope.mjs && node --test scripts/check-site-scope.test.mjs && node scripts/check-payment-runtime.mjs && node scripts/production/check-wrangler-envs.mjs && node --test scripts/check-payment-runtime.test.mjs scripts/local-payment-env.test.mjs scripts/agent-skills.test.mjs && node --test scripts/staging/staging.test.mjs scripts/production/*.test.mjs packages/billing/scripts/sync.test.mjs packages/billing/scripts/activate-credit-packs.test.mjs",
     "check:fix": "biome check --write .",
     "check:deps": "node scripts/check-deps.mjs && node --test scripts/check-deps.test.mjs",
     "check:singletons": "node scripts/check-singletons.mjs",
@@ -20,7 +20,9 @@
     "staging:check-secrets": "node scripts/staging/check-secrets.mjs",
     "billing:activate-packs": "pnpm --filter @xuanxue/billing activate-packs",
     "billing:sync-stripe-live": "pnpm --filter @xuanxue/billing sync:stripe-live",
-    "production:check-secrets": "node scripts/production/check-secrets.mjs"
+    "production:check-secrets": "node scripts/production/check-secrets.mjs",
+    "check:ui": "node scripts/check-ui.mjs",
+    "ui:lock": "node scripts/ui-lock.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

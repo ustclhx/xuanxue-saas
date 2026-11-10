@@ -46,4 +46,11 @@ export {
   type TemplateConfig,
   type TemplateConfigInput,
   templateConfigDefaults,
+  type UiDensity,
+  type UiPreset,
+  type UiShape,
+  uiConfigSchema,
+  uiDensities,
+  uiPresets,
+  uiShapes,
 } from './template.ts'

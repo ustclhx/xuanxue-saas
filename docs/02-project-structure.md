@@ -41,7 +41,7 @@ xuanxue/
 │  ├─ ai/                         # 文本模型注册、MediaProvider 接口 + fal/ 实现
 │  ├─ storage/                    # R2 封装、预签名上传、SSRF 安全下载
 │  ├─ email/                      # React Email 模板 + 发送接口
-│  ├─ ui/                         # shadcn/ui 组件（被 web 使用）
+│  ├─ ui/                         # 共享组件与设计 token（Fluid/Radix），规范见 design-system.md
 │  └─ shared/                     # 通用类型、错误、id 生成、时间工具
 ├─ infra/
 │  └─ local/                      # 本地开发 docker-compose
@@ -59,6 +59,7 @@ xuanxue/
 - `shared` 不依赖其他内部包；`config` 仅可依赖 shared；`db` 仅可依赖 shared/config。
 - `platform` 仅可依赖 shared/config/db；config/db 不反向依赖 platform。业务包与 apps 可依赖 platform，业务包之间允许互相依赖，检查器没有规定它们的总顺序。
 - React 仅允许用于 `ui`。`email` 用 React Email 在服务端渲染邮件，可依赖 React / React DOM / React Email（`react-email`、`@react-email/*`），但不依赖 ui；其他包依赖 React Email 同样视为依赖 React。
+- 交互原语、动效与图标库（`radix-ui`、`motion`、`lucide-react`、`class-variance-authority` 等）只允许 `ui` 依赖，`@radix-ui/*` 拆分包全局禁止；apps 只经 `@xuanxue/ui` 使用组件。页面颜色与尺寸取设计 token，由 `pnpm check:ui` 检查。分层、token 三层（基线 → 预设 → 项目 `brand.css`）、模板与衍生项目的文件归属见 [设计规范](design-system.md)。
 
 **平台导入边界**：业务通过 platform 中立入口访问平台能力。检查器解析 apps/packages 下的源码（含 test/probe/e2e，排除依赖和构建产物），识别静态 import、export from、动态 import、require 和 type import。`cloudflare:workers` / `cloudflare:workflows` 仅允许在 `packages/platform/src/cloudflare/**`；显式 app composition entry 只允许 `cloudflare:workers`。目标测试夹具按文件与模块名明确登记，`cloudflare:test` 只向这些夹具开放，不按目录或 `.test.ts` 后缀豁免。
 
@@ -145,8 +146,14 @@ export default defineTemplateConfig({
     publicApi: false,            // API Key 调用 /api/v1
     blog: true, docs: false, waitlist: false,
   },
+  // 界面主题：预设 neutral | blue | violet | green（只换强调色与焦点环）、圆角形状与控件密度；
+  // 品牌 token 不写在这里，放项目自有的 apps/web/src/styles/brand.css
+  ui: { preset: 'neutral', shape: 'rounded', density: 'default' },
 })
 ```
+
+`ui.shape` 目前只影响已接入 Fluid 的组件（按钮、选择器、弹窗）：`rounded` 跟随 `--radius`，
+`pill` / `sharp` 使用固定圆角；卡片、输入框等其余组件仍按 `--radius` 渲染，随组件接入（tasks 4.x）逐步统一。
 
 环境变量用 Zod 在启动时校验（`packages/config/env.ts`），缺失即报错，避免线上才发现。
 

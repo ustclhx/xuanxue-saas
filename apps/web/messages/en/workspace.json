@@ -35,5 +35,9 @@
   "workspace_revoke_invitation": "Revoke invitation",
   "workspace_validation_min_characters": "Too small: expected string to have >={count} characters",
   "workspace_validation_max_characters": "Too big: expected string to have <={count} characters",
-  "workspace_validation_slug_format": "Invalid string: must match pattern /^[a-z0-9]+(?:-[a-z0-9]+)*$/"
+  "workspace_validation_slug_format": "Invalid string: must match pattern /^[a-z0-9]+(?:-[a-z0-9]+)*$/",
+  "workspace_transfer_confirm_title": "Transfer ownership?",
+  "workspace_transfer_confirm_description": "Transfer ownership to {name}? You will become an admin.",
+  "workspace_remove_confirm_title": "Remove member?",
+  "workspace_remove_confirm_description": "Remove {name} from this workspace? They will lose access to this workspace."
 }

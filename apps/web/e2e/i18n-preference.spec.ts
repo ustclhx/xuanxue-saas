@@ -1,4 +1,5 @@
 import { type Browser, expect, type Page, test } from '@playwright/test'
+import { chooseOption } from './select.ts'
 import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'
 
 const password = 'correct-horse-battery-staple'
@@ -72,9 +73,9 @@ async function authPost(page: Page, path: string, body: Record<string, string>) 
 async function saveAccountLocale(page: Page, locale: string) {
   // 水合前提交会走原生表单 GET 而不保存，等网络空闲（水合完成）后再操作
   await page.goto('/account', { waitUntil: 'networkidle' })
-  const select = page.locator('select#locale')
+  const select = page.locator('#locale')
   const form = page.locator('form').filter({ has: select })
-  await select.selectOption(locale)
+  await chooseOption(select, { value: locale })
   const saved = page.waitForResponse((response) => response.url().includes('/api/auth/update-user'))
   await form.locator('button[type="submit"]').click()
   expect((await saved).status()).toBe(200)

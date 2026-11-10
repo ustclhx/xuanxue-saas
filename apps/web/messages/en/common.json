@@ -4,5 +4,15 @@
   "common_not_found_title": "Page not found",
   "common_not_found_body": "The page you are looking for does not exist.",
   "common_not_found_home": "Back to {brand} home",
-  "common_not_found_pricing": "See pricing"
+  "common_not_found_pricing": "See pricing",
+  "common_cancel": "Cancel",
+  "common_table_previous": "Previous",
+  "common_table_next": "Next",
+  "common_table_page": "Page {page}",
+  "common_table_page_of": "Page {page} of {pageCount}",
+  "common_table_empty": "No records found.",
+  "common_table_apply": "Apply",
+  "common_table_reset": "Reset",
+  "common_table_filters": "Filters",
+  "common_table_pagination": "Pagination"
 }
