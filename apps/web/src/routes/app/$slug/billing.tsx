@@ -66,8 +66,32 @@ function BillingPage() {
   const [message, setMessage] = useState(
     checkoutResult === 'canceled' ? m.billing_checkout_canceled() : '',
   )
+  const planType = (planId: string) => page.catalog.plans.find((plan) => plan.id === planId)?.type
+  type CatalogPrice = (typeof page.catalog.prices)[number]
+  const isPack = (price: CatalogPrice) =>
+    page.readingsOpen &&
+    price.available &&
+    price.interval === null &&
+    planType(price.planId) === 'credit_pack'
+  const isPlan = (price: CatalogPrice) =>
+    price.available && planType(price.planId) === 'subscription'
+  // 支付方式「可选」要求已配置且有可购买的价格：只配置了密钥、价格全部停用（如临时关闭 Stripe 售卖）时
+  // 不能默认选中它，否则页面只剩空白、定价页带来的购买也无法继续
+  const sells = (providerId: string, planKey?: string) =>
+    page.catalog.prices.some(
+      (price) =>
+        price.provider === providerId &&
+        (isPack(price) || isPlan(price)) &&
+        (!planKey || page.catalog.plans.find((plan) => plan.id === price.planId)?.key === planKey),
+    )
+  const selectable = page.catalog.providers.filter((p) => p.available && sells(p.id))
   const [provider, setProvider] = useState(
-    page.catalog.providers.find((p) => p.available)?.id ?? page.catalog.providers[0]?.id ?? '',
+    // 定价页带 buy 进入时优先选能卖这个积分包的支付方式
+    (buy ? selectable.find((p) => sells(p.id, buy)) : undefined)?.id ??
+      selectable[0]?.id ??
+      page.catalog.providers.find((p) => p.available)?.id ??
+      page.catalog.providers[0]?.id ??
+      '',
   )
   const [priceId, setPriceId] = useState('')
   const [confirmed, setConfirmed] = useState(false)
@@ -75,26 +99,19 @@ function BillingPage() {
   const autoBuy = useRef(false)
   useEffect(() => setReady(true), [])
   useEffect(() => trackEvent('paywall_view'), [])
-  const availableProviders = page.catalog.providers.filter((p) => p.available).length
+  const availableProviders = selectable.length
   const owner = page.role === 'owner'
   const disabled = !ready || busy || page.readOnly || !owner
   const renewing = page.subscriptions.find(
     (sub) =>
       !sub.cancelAtPeriodEnd && ['active', 'trialing', 'past_due', 'paused'].includes(sub.status),
   )
-  const planType = (planId: string) => page.catalog.plans.find((plan) => plan.id === planId)?.type
   // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
   const packPrices = page.catalog.prices.filter(
-    (price) =>
-      page.readingsOpen &&
-      price.available &&
-      price.provider === provider &&
-      price.interval === null &&
-      planType(price.planId) === 'credit_pack',
+    (price) => price.provider === provider && isPack(price),
   )
   const planPrices = page.catalog.prices.filter(
-    (price) =>
-      price.available && price.provider === provider && planType(price.planId) === 'subscription',
+    (price) => price.provider === provider && isPlan(price),
   )
   const selected = planPrices.find((price) => price.id === priceId)
   const isSubscription =
@@ -271,9 +288,9 @@ function BillingPage() {
                 }}
               >
                 {page.catalog.providers.map((p) => (
-                  <option key={p.id} value={p.id} disabled={!p.available}>
+                  <option key={p.id} value={p.id} disabled={!selectable.includes(p)}>
                     {p.id}
-                    {p.available ? '' : ` — ${m.billing_unavailable()}`}
+                    {selectable.includes(p) ? '' : ` — ${m.billing_unavailable()}`}
                   </option>
                 ))}
               </select>
@@ -321,9 +338,11 @@ function BillingPage() {
               </select>
             </label>
           )}
-          {!page.catalog.providers.some((p) => p.available) && (
-            <p>{m.billing_payments_unavailable()}</p>
-          )}
+          {/* 没有任何可购买的支付方式时说明原因，而不是留下空白（详批未开放另有说明） */}
+          {selectable.length === 0 &&
+            (page.readingsOpen || !page.catalog.providers.some((p) => p.available)) && (
+              <p data-testid="billing-payments-unavailable">{m.billing_payments_unavailable()}</p>
+            )}
           {replacement && (
             <label>
               <input
