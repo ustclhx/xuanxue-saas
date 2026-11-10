@@ -123,7 +123,8 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         }
         // 注册在 TOOL_ROUTES 的工具页（繁中首页同为 `/`）只与工具各语言版本互指，
         // 见 features/tools/bazi/bazi.test.tsx
-        // 两站分开经营（D5）：只与同站语言互指，x-default 为西方站英语同页或东方站根路径
+        // 两站分开经营（D5）：只与同站语言互指，x-default 为同一页面的站点默认语言版本
+        // （西方站英语、东方站繁中），不是会跳转的东方站根路径
         if (!page.alternates) {
           const site = siteOfLocale(locale, config) ?? 'west'
           const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
@@ -133,10 +134,11 @@ describe('公开页面 SEO（4.1–4.3）', () => {
           expect(head.links).toContainEqual({
             rel: 'alternate',
             hrefLang: 'x-default',
-            href:
+            href: new URL(
               site === 'west'
-                ? `${seoSiteOrigin('west')}${page.path}`
-                : `${seoSiteOrigin('east')}/`,
+                ? `${seoSiteOrigin('west')}${localizedPath(page.path, 'en')}`
+                : `${seoSiteOrigin('east')}${localizedPath(page.path, 'zh-Hant')}`,
+            ).href,
           })
         }
       }
@@ -346,12 +348,12 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
     ['en', 'https://arcanumber.com/pricing'],
     ['x-default', 'https://arcanumber.com/pricing'],
   ])
-  // 东方站三种语言互指，x-default 为东方站入口，不出现西方站地址
+  // 东方站三种语言互指，x-default 为繁中定价页（不是会跳转的根路径），不出现西方站地址
   expect(hreflangs('zh-Hant')).toEqual([
     ['zh-Hant', 'https://ganjiday.com/zh-hant/pricing'],
     ['zh-Hans', 'https://ganjiday.com/zh-hans/pricing'],
     ['ko', 'https://ganjiday.com/ko/pricing'],
-    ['x-default', 'https://ganjiday.com/'],
+    ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
   ])
   for (const page of pages.filter((page) => page.locale === 'en'))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
@@ -373,7 +375,7 @@ it('博客为空时站点地图不收录博客列表（specs/marketing-site「�
   expect(sitemap(one, origin, 'zh-Hant')).not.toContain('/blog')
 })
 
-it('异名工具路由互指；无英语版本时 x-default 指向本站入口', () => {
+it('异名工具路由互指；x-default 指向该工具的繁中版本', () => {
   const tools = publicPages(content, new Date('2026-10-01'), config, 'east', [bazi])
   const page = tools.find((p) => p.path === '/八字排盤/')
   if (!page) throw new Error('Missing tool page')
@@ -386,7 +388,7 @@ it('异名工具路由互指；无英语版本时 x-default 指向本站入口',
   expect(links).toContainEqual({
     rel: 'alternate',
     hrefLang: 'x-default',
-    href: 'https://ganjiday.com/',
+    href: 'https://ganjiday.com/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4',
   })
   expect(links.some((link) => 'hrefLang' in link && link.hrefLang === 'en')).toBe(false)
   expect(tools.every((p) => p.locale !== 'en')).toBe(true)

@@ -16,7 +16,9 @@ import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
 import { SiteAccountsHint } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
 const COPY = {
@@ -83,7 +85,7 @@ const schema = () =>
 export const Route = createFileRoute('/(auth)/register')({
   validateSearch: z.object({ error: z.string().optional(), redirect: z.string().optional() }),
   loader: () => getAuthUiOptions(),
-  head: () => ({ meta: [{ title: COPY.metaTitle }] }),
+  head: () => authPageHead('/register', getLocale(), COPY.metaTitle),
   component: RegisterPage,
 })
 

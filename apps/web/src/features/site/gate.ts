@@ -1,6 +1,7 @@
-import { localeUrlSegment } from '@xuanxue/config'
+import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
+import { eastHomeRedirect } from '../i18n/east-home.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import {
   EAST_ENGLISH_LOCALE,
@@ -17,13 +18,14 @@ import {
  * - 两站分开经营（openspec product-improve-ai-content-20261030 D5）：语言前缀不属于当前站点时
  *   返回本站风格、本站语言的 404，不跨站跳转；例外是东方站的英文入口页 `/en`，
  *   以及认证页（`/zh-hans/login` 在西方站）302 到本站无前缀认证页。
- * - 当前站点默认语言的前缀（如西方站 `/en/pricing`）：307 到无前缀地址。
+ * - 当前站点默认语言的前缀（如西方站 `/en/pricing`）：301 到无前缀地址。
  * - 带语言前缀的应用区地址（`/ko/app`）不跳转，由语言守卫返回 404。
- * - 东方站裸法律页 302 到本站默认导航语言的对应页面；其余无前缀公开页仍 302 到入口页。
+ * - 东方站无前缀的公开页（含裸法律页）301 到本站默认导航语言（繁体中文）的同一路径，保留查询参数；
+ *   目标不存在时由路由器返回 404，不再跳到首页（openspec fix-seo-canonical-indexing design.md 决策 4）。
  * - 未登记的 Host 按西方站处理并 noindex；预览环境需要浏览全部语言，因此不返回 404。
  */
 export type SiteDecision =
-  | { readonly kind: 'redirect'; readonly status: 302 | 307; readonly location: string }
+  | { readonly kind: 'redirect'; readonly status: 301 | 302; readonly location: string }
   | { readonly kind: 'pass'; readonly noindex: boolean }
   | { readonly kind: 'not-found' }
 
@@ -58,7 +60,7 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
   const noindex = !site.known
   if (!config.i18n.enabled) return { kind: 'pass', noindex }
   const { pathname, search } = url
-  const redirect = (status: 302 | 307, origin: string, path: string): SiteDecision => ({
+  const redirect = (status: 301 | 302, origin: string, path: string): SiteDecision => ({
     kind: 'redirect',
     status,
     location: `${origin}${path}${search}`,
@@ -79,21 +81,43 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
         return redirect(302, url.origin, rest)
       return { kind: 'not-found' }
     }
-    if (locale === config.sites[site.id].defaultLocale) return redirect(307, url.origin, rest)
+    if (locale === config.sites[site.id].defaultLocale) return redirect(301, url.origin, rest)
     return { kind: 'pass', noindex }
   }
 
   if (
     site.known &&
-    site.id === 'east' &&
-    /^\/(privacy|terms|disclaimer|refund)\/?$/.test(pathname)
+    config.sites[site.id].defaultLocale === null &&
+    !isUnprefixedEastPath(pathname)
   ) {
-    const legalLocale = siteNavLocale(site.id, config.i18n.defaultLocale, config)
-    return redirect(302, url.origin, `/${localeUrlSegment(legalLocale)}${pathname}`)
+    const navLocale = siteNavLocale(site.id, config.i18n.defaultLocale, config)
+    return redirect(301, url.origin, `/${localeUrlSegment(navLocale)}${pathname}`)
   }
-  if (site.known && config.sites[site.id].defaultLocale === null && !isUnprefixedEastPath(pathname))
-    return { kind: 'redirect', status: 302, location: `${url.origin}/` }
   return { kind: 'pass', noindex }
+}
+
+/**
+ * 公开地址规范化（specs/seo「规范地址收敛」）：返回应永久跳转到的规范地址，已是规范地址时返回 null。
+ * - 注册表中的站点域名使用 HTTPS（Cloudflare 区域未强制 HTTPS 时由 Worker 补上）；
+ *   本地 `<站点>.localhost` 与未登记的预览 Host 不升级。
+ * - GET/HEAD 的非根路径去掉结尾斜杠（站内链接、canonical 与站点地图都不带斜杠）；
+ *   `/api/` 与 `_` 开头的内部路径保持原样，不改变第三方回调地址。
+ */
+export function canonicalUrl(url: URL, method: string, config: SitesConfig): URL | null {
+  const result = new URL(url.href)
+  const hosts: readonly string[] = SITE_IDS.flatMap((id) => config.sites[id].hosts)
+  if (result.protocol === 'http:' && hosts.includes(result.hostname.toLowerCase()))
+    result.protocol = 'https:'
+  const [, first = ''] = result.pathname.split('/')
+  if (
+    ['GET', 'HEAD'].includes(method) &&
+    result.pathname.length > 1 &&
+    result.pathname.endsWith('/') &&
+    first !== 'api' &&
+    !first.startsWith('_')
+  )
+    result.pathname = result.pathname.replace(/\/+$/, '') || '/'
+  return result.href === url.href ? null : result
 }
 
 /**
@@ -117,20 +141,38 @@ export function notFoundPath(url: URL, config: SitesConfig): string {
 }
 
 /**
- * Worker 入口使用：跳转直接返回；不属于本站的语言改写到不存在的路径，由应用渲染本站风格的 404；
+ * Worker 入口使用：先把地址规范化（canonicalUrl），再按规范地址做站点判定与东方站根路径跳转，
+ * 使协议、结尾斜杠与站点跳转合并为一次跳转；只有地址需要规范化而站点判定放行时，
+ * 才单独跳到规范地址（GET/HEAD 301，其他方法 308 保留方法与请求体）。
+ * 构建期预渲染请求传 `canonicalize: false`：它使用本地 http 地址，且不应跳转。
+ * 不属于本站的语言改写到不存在的路径，由应用渲染本站风格的 404；
  * 未登记 Host 的响应附加 `X-Robots-Tag: noindex`。
  */
 export async function gateSiteRequest(
   request: Request,
   config: SitesConfig,
   next: (request: Request) => Response | Promise<Response>,
+  { canonicalize = true }: { readonly canonicalize?: boolean } = {},
 ): Promise<Response> {
-  const url = new URL(request.url)
+  const original = new URL(request.url)
+  const canonical = canonicalize ? canonicalUrl(original, request.method, config) : null
+  const url = canonical ?? original
   const decision = routeSite(url, config)
   if (decision.kind === 'redirect')
     return new Response(null, { status: decision.status, headers: { location: decision.location } })
+  // 不属于本站的地址直接给 404，不先跳到规范形式
   if (decision.kind === 'not-found')
     return next(new Request(new URL(notFoundPath(url, config), url), request))
+  // 只对 GET/HEAD 复制请求：带请求体的请求复制后原请求体会被占用
+  if (canonicalize && ['GET', 'HEAD'].includes(request.method)) {
+    const home = eastHomeRedirect(new Request(url, request), config)
+    if (home) return home
+  }
+  if (canonical)
+    return new Response(null, {
+      status: ['GET', 'HEAD'].includes(request.method) ? 301 : 308,
+      headers: { location: canonical.href },
+    })
   const response = await next(request)
   if (!decision.noindex) return response
   // 重定向与静态响应的 headers 可能只读，复制后再设置

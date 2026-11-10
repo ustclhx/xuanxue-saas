@@ -55,7 +55,7 @@ export async function staticPageResponse(
   )
     return null
   const path = url.pathname.replace(/\/+$/, '') || '/'
-  // 东方站根路径在 server.ts 中已先行跳转到语言首页，这里只会遇到西方站与关闭多语言时的根路径
+  // 东方站根路径已由站点守卫跳转到语言首页（features/site/gate.ts），这里只会遇到西方站与关闭多语言时的根路径
   url.pathname = path === '/' ? '/index.html' : `${path}.html`
   url.search = ''
   const response = await fetchAsset(new Request(url, request))

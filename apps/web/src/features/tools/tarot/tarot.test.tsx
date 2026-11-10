@@ -49,7 +49,8 @@ describe('塔罗路由', () => {
           `https://ganjiday.com/zh-hant${encodeURI(tarotPath(spread, 'zh-Hant'))}`,
         )
         expect(href('ko')).toBe(`https://ganjiday.com/ko${encodeURI(tarotPath(spread, 'ko'))}`)
-        expect(href('x-default')).toBe('https://ganjiday.com/')
+        // x-default 为同一牌阵的繁中版本，不是会跳转的根路径
+        expect(href('x-default')).toBe(href('zh-Hant'))
       }
   })
 

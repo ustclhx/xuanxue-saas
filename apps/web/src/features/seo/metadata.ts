@@ -3,6 +3,7 @@ import { brandName } from '@xuanxue/config'
 import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
+import type { AuthPagePath } from '../i18n/auth-locale.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
@@ -32,8 +33,10 @@ export function absoluteUrl(appUrl: string, path: string): string {
 }
 
 /**
- * hreflang（specs/seo「多语言关联」）：两站分开经营（D5），只声明同一站点内的语言版本，
- * x-default 指向本站入口——有无前缀默认语言的站点（西方站）为该语言的同一页面，否则为站点根路径。
+ * hreflang（specs/seo「多语言关联」）：两站分开经营（D5），只声明同一站点内的语言版本（含页面自身）。
+ * x-default 指向同一页面在站点默认语言下的版本——西方站为英语，东方站没有无前缀默认语言，取站点第一个语言
+ * （繁体中文）；该版本不存在时按站点语言顺序取第一个存在的版本。不再指向会跳转的东方站根路径
+ * （openspec fix-seo-canonical-indexing design.md 决策 5）。页面 head 与站点地图共用本函数。
  * 东方站各语言首页另与东方站英文入口页 `/en` 互指。
  */
 export function alternateLinks(
@@ -73,19 +76,13 @@ export function alternateLinks(
       hrefLang: EAST_ENGLISH_LOCALE,
       href: absoluteUrl(origin, EAST_ENGLISH_PATH),
     })
-  const siteDefault = templateConfig.sites[site].defaultLocale
-  const defaultPath = siteDefault ? paths[siteDefault] : undefined
-  return [
-    ...links,
-    {
-      rel: 'alternate',
-      hrefLang: 'x-default',
-      href:
-        siteDefault && defaultPath
-          ? absoluteUrl(origin, localizedPath(defaultPath, siteDefault))
-          : absoluteUrl(origin, '/'),
-    },
-  ]
+  const { defaultLocale: siteDefault, locales: siteLocales } = templateConfig.sites[site]
+  const fallback = [siteDefault, ...siteLocales]
+    .map((language) => links.find((link) => link.hrefLang === language))
+    .find((link) => link !== undefined)
+  return fallback
+    ? [...links, { rel: 'alternate', hrefLang: 'x-default', href: fallback.href }]
+    : links
 }
 
 /** 由 staticPage 提供元数据的静态页；新增静态页须在每种语言下补齐文案 */
@@ -196,6 +193,22 @@ export function tagPageTitle(tag: string, locale: string): string {
   if (locale === 'zh-Hans') return `标签「${tag}」下的文章`
   if (locale === 'ko') return `‘${tag}’ 태그가 달린 글`
   return `Posts tagged “${tag}”`
+}
+
+/** 认证页的 robots 指令：响应头（server.ts）与页面 meta 共用 */
+export const AUTH_ROBOTS = 'noindex, nofollow'
+
+/**
+ * 认证页 head（specs/seo「认证页不进索引」）：robots noindex，canonical 为当前语言、不带查询参数的地址，
+ * `?redirect=` 等变体都声明同一个 canonical（openspec fix-seo-canonical-indexing design.md 决策 6）。
+ */
+export function authPageHead(path: AuthPagePath, locale: string, title?: string) {
+  return {
+    meta: [...(title === undefined ? [] : [{ title }]), { name: 'robots', content: AUTH_ROBOTS }],
+    links: [
+      { rel: 'canonical', href: absoluteUrl(localeOrigin(locale), localizedPath(path, locale)) },
+    ],
+  }
 }
 
 export function privateMeta(path: string) {

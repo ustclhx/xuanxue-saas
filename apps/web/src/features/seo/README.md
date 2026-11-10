@@ -18,10 +18,12 @@ EAST_URL=https://east.example.com WEST_URL=https://west.example.com pnpm build
 
 生产域名还须与 `template.config.ts` 的 hosts 一致；运行时 Host 只选站点，不改写 HTML 中的绝对地址。
 每个语言首页与 `TOOL_ROUTES` 注册页均作为爬取入口，其余公开内容通过链接发现；定价仍使用既有快照策略。
-注册工具时沿用 `{ id, site, paths, titles, descriptions? }`，paths 为不含语言前缀的路径；异名翻译通过同一条记录互指，没有英语版本时 x-default 指向所属站点 `/`。
+注册工具时沿用 `{ id, site, paths, titles, descriptions? }`，paths 为不含语言前缀的路径；异名翻译通过同一条记录互指。x-default 指向同一页面的站点默认语言版本（西方站英语、东方站繁体中文），缺少时按站点语言顺序取第一个存在的版本，不指向会跳转的东方站根路径；页面 head 与站点地图共用 `alternateLinks`，`indexing.test.ts` 用实际内容集合核对二者一致。
 
-西方入口保存为 `dist/client/index.html`；东方站根路径不再有静态入口，GET/HEAD 直接 302 到语言首页（`features/i18n/east-home.ts`）。构建 preview 通过仅写入本地 `.dev.vars` 的随机令牌识别爬取请求，将各语言请求改写成所属站点 Host，确保 `data-site`、主题和 SEO 一致。该令牌不进入 Worker vars 或客户端产物。
-生产 HTML 请求先执行站点守卫，再经 ASSETS 绑定读取对应 HTML；东方 `/` 先跳转（不经静态文件）；直接访问 `/_site/*` 返回 404。JS、字体、图片、OG 等资源走 assets 直通。
+西方入口保存为 `dist/client/index.html`；东方站根路径不再有静态入口，GET/HEAD 由站点守卫跳到语言首页（`features/i18n/east-home.ts`）：没有其他东方站语言偏好时（含爬虫）301 到规范首页 `/zh-hant`，手动选择或浏览器语言为简体、韩语时 302。构建 preview 通过仅写入本地 `.dev.vars` 的随机令牌识别爬取请求，将各语言请求改写成所属站点 Host，确保 `data-site`、主题和 SEO 一致。该令牌不进入 Worker vars 或客户端产物。
+生产 HTML 请求先执行站点守卫，再经 ASSETS 绑定读取对应 HTML；东方 `/` 先跳转（不经静态文件）；直接访问 `/_site/*` 返回 404。
+站点守卫先做地址规范化（`features/site/gate.ts` 的 `canonicalUrl`）：已登记域名的 HTTP 升级为 HTTPS，GET/HEAD 的非根路径去掉结尾斜杠（`/api/`、`_` 内部路径除外），并与站点跳转合并为一次 301（其他方法 308）；东方站无前缀公开路径 301 到 `/zh-hant` 的同一路径，西方站 `/en/*` 301 到无前缀地址。构建期预渲染请求不做规范化。
+认证页（登录、注册、找回 / 重置密码、邮箱验证、接受邀请，两站全部语言）带 `X-Robots-Tag: noindex, nofollow` 与 robots meta，canonical 为不带查询参数的同语言地址；robots.txt 不禁止它们，便于爬虫读到 noindex。页头登录链接固定为无参数的 `/login` 并带 `rel="nofollow"`，回跳地址在点击时附加。JS、字体、图片、OG 等资源走 assets 直通。
 未知 Host 走 SSR 并保持西方品牌、noindex；`?r=` 分享兼容链接带 X-Robots-Tag，robots 同时禁止抓取分享查询。`#r=` 不发送到服务端。
 数据库不可达时公告/会话装饰降级，套餐沿用现有构建快照与运行时缓存。
 

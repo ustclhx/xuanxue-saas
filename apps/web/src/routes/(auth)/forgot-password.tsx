@@ -12,7 +12,9 @@ import {
 import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
 const COPY = {
@@ -51,7 +53,7 @@ const schema = () => z.object({ email: z.email(COPY.invalidEmail) })
 
 export const Route = createFileRoute('/(auth)/forgot-password')({
   loader: () => getAuthUiOptions(),
-  head: () => ({ meta: [{ title: COPY.metaTitle }] }),
+  head: () => authPageHead('/forgot-password', getLocale(), COPY.metaTitle),
   component: ForgotPasswordPage,
 })
 

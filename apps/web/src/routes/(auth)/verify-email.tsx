@@ -5,7 +5,9 @@ import { homePath } from '../../features/auth/auth-client.ts'
 import { AuthLayout, FormAlert, StatusAlert } from '../../features/auth/auth-layout.tsx'
 import { authErrorMessage } from '../../features/auth/errors.ts'
 import { getEmailVerificationState } from '../../features/auth/options.functions.ts'
+import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 
 /** 按当前请求或页面语言读取文案，避免在模块初始化时固定语言。 */
 const COPY = {
@@ -39,7 +41,7 @@ const COPY = {
 export const Route = createFileRoute('/(auth)/verify-email')({
   validateSearch: z.object({ error: z.string().optional() }),
   loader: () => getEmailVerificationState(),
-  head: () => ({ meta: [{ title: COPY.metaTitle }] }),
+  head: () => authPageHead('/verify-email', getLocale(), COPY.metaTitle),
   component: VerifyEmailPage,
 })
 

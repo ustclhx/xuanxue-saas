@@ -3,6 +3,7 @@ import { baseLocale } from '../../paraglide/runtime.js'
 import { resolveSite, type SitesConfig } from '../site/site.ts'
 import { eastLocale } from './east-home.ts'
 import { PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
+import { localePrefix, prefixLocale } from './url-prefix.ts'
 
 /** 没有语言前缀时也可访问的认证页（specs/i18n「认证页首次访问」） */
 export const AUTH_PAGE_PATHS = [
@@ -13,6 +14,15 @@ export const AUTH_PAGE_PATHS = [
   '/verify-email',
   '/accept-invitation',
 ] as const
+
+export type AuthPagePath = (typeof AUTH_PAGE_PATHS)[number]
+
+/** 认证页（含任意语言前缀与查询参数）：响应带 noindex（specs/seo「认证页不进索引」） */
+export function isAuthPagePath(pathname: string, locales: readonly string[]): boolean {
+  const locale = prefixLocale(pathname, locales)
+  const rest = locale === undefined ? pathname : pathname.slice(localePrefix(locale).length) || '/'
+  return (AUTH_PAGE_PATHS as readonly string[]).includes(rest.replace(/\/+$/, '') || '/')
+}
 
 /**
  * 无前缀认证页的语言跳转（302 到带语言前缀的同一页面，保留查询参数，不写 Cookie）：
