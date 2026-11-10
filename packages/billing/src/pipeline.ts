@@ -7,7 +7,12 @@ import {
 } from '@xuanxue/db'
 import { log } from '@xuanxue/shared/log'
 import { and, eq, sql } from 'drizzle-orm'
-import { billingErrorMessage, isRetryableBillingError } from './errors.ts'
+import {
+  type BillingErrorDiagnostics,
+  billingErrorDiagnostics,
+  billingErrorMessage,
+  isRetryableBillingError,
+} from './errors.ts'
 import type { NormalizedEvent, PaymentProvider, VerifiedWebhook } from './provider.ts'
 import { attributeWebhookEvent } from './webhook-attribution.ts'
 
@@ -38,6 +43,8 @@ export type WebhookResult =
       error: string
       /** false 表示重投无法修复（如币种不符）：应答服务商已接收，由运营告警转人工处理。 */
       retryable: boolean
+      /** 仅供日志定位：错误类型、状态码与错误码，已脱敏 */
+      diagnostics?: BillingErrorDiagnostics
     }
   | {
       status: 'processed' | 'ignored'
@@ -210,7 +217,13 @@ async function processRegistered<Prepared>(
     const error = billingErrorMessage(cause)
     const failed = await markFailed(options.db, delivery.id, error)
     await options.onFailure?.({ cause, delivery: failed, events: normalized.events, prepared })
-    return { status: 'failed', error, delivery: failed, retryable: isRetryableBillingError(cause) }
+    return {
+      status: 'failed',
+      error,
+      delivery: failed,
+      retryable: isRetryableBillingError(cause),
+      diagnostics: billingErrorDiagnostics(cause),
+    }
   }
   let notification: Extract<WebhookResult, { notification: unknown }>['notification'] = {
     status: 'not_requested',

@@ -22,3 +22,31 @@ export function isRetryableBillingError(error: unknown) {
     error && typeof error === 'object' && 'code' in error ? (error as { code: unknown }).code : null
   return !(typeof code === 'string' && NON_RETRYABLE_BILLING_ERRORS.includes(code))
 }
+
+/** 日志用的近似密钥特征：比持久化脱敏更宽，覆盖 sk-/rk- 等非 Stripe 前缀。 */
+const KEY_LIKE = /\b(?:sk|rk|whsec)[-_][A-Za-z0-9_]+/g
+
+export interface BillingErrorDiagnostics {
+  /** Stripe SDK 的 `type`（如 StripePermissionError），否则为 Error 的 name */
+  errorType: string
+  statusCode?: number
+  code?: string
+  message: string
+}
+
+/**
+ * 计费失败的结构化诊断字段：生产事故中 Stripe 权限错误只在实时日志里可见。
+ * 按字段鸭子类型识别 Stripe SDK 错误与 AppError，不依赖 SDK 类；消息在持久化脱敏基础上再去掉近似密钥。
+ */
+export function billingErrorDiagnostics(error: unknown): BillingErrorDiagnostics {
+  const value = (error && typeof error === 'object' ? error : {}) as Record<string, unknown>
+  const stripeType =
+    typeof value.type === 'string' && value.type.startsWith('Stripe') ? value.type : null
+  const status = value.statusCode ?? value.status
+  return {
+    errorType: stripeType ?? (error instanceof Error ? error.name : typeof error),
+    ...(typeof status === 'number' ? { statusCode: status } : {}),
+    ...(typeof value.code === 'string' ? { code: value.code.slice(0, 80) } : {}),
+    message: billingErrorMessage(error).replace(KEY_LIKE, '[redacted]').slice(0, 300),
+  }
+}

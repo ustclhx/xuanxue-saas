@@ -1,5 +1,6 @@
 import { estimateTextTokens, getTextProviderCapabilities } from '@xuanxue/ai'
 import { AppError } from '@xuanxue/shared'
+import { log } from '@xuanxue/shared/log'
 import {
   APICallError,
   createUIMessageStream,
@@ -11,6 +12,7 @@ import {
   streamText,
 } from 'ai'
 import type { ChatMessageMetadata } from './chat.ts'
+import { classifyUpstreamError } from './upstream-error.ts'
 
 interface Usage {
   inputTokens: number
@@ -341,6 +343,16 @@ export function createChatStream(options: {
       attempt++
     }
     if (signal.aborted) status = 'aborted'
+    // 最终失败只记一次分类摘要；不记录原始错误，避免上游响应正文、提示词或密钥进入日志。
+    if (status === 'failed')
+      log.error('ai.text_upstream_failed', {
+        provider: options.provider,
+        model: typeof options.model === 'string' ? options.model : options.model.modelId,
+        ...classifyUpstreamError(lastError),
+        attempts: attempt + 1,
+        retryable: retryable(lastError),
+        partial: text.length > 0,
+      })
     const outcome: ChatAttemptResult = {
       text,
       reasoning,

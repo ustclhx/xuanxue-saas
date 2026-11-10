@@ -1,5 +1,6 @@
 import {
   type BillingProviders,
+  billingErrorDiagnostics,
   createBillingEventHandler,
   createCompensationFailureHandler,
   processWebhook,
@@ -83,8 +84,10 @@ export async function handleBillingWebhook(
       log.error('billing.webhook_failed', {
         provider: providerId,
         deliveryId: result.delivery?.id,
+        stage: 'process',
         error: result.error,
         retryable,
+        ...result.diagnostics,
       })
       if (result.delivery)
         await enqueueOperations(
@@ -105,9 +108,17 @@ export async function handleBillingWebhook(
     })
     return Response.json({ received: true })
   } catch (error) {
+    // 只记录脱敏后的类型、状态码、错误码与消息，便于不开实时 tail 也能区分权限、验签与登记失败。
+    // 外层异常发生在业务处理之前：验签失败为 verify，其余（规范化、登记）归为 intake。
+    const diagnostics = billingErrorDiagnostics(error)
     if (error instanceof WebhookVerificationError)
-      log.warn('billing.webhook_rejected', { provider: providerId, error })
-    else log.error('billing.webhook_failed', { provider: providerId, error })
+      log.warn('billing.webhook_rejected', {
+        provider: providerId,
+        stage: 'verify',
+        ...diagnostics,
+      })
+    else
+      log.error('billing.webhook_failed', { provider: providerId, stage: 'intake', ...diagnostics })
     return new Response(
       error instanceof WebhookVerificationError ? 'Invalid signature' : 'Processing failed',
       { status: error instanceof WebhookVerificationError ? 400 : 500 },
