@@ -68,7 +68,10 @@ const origin = new URL(process.env.PRODUCTION_URL ?? 'https://arcanumber.com').o
 
 test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根路径与裸路径保留路径跳到繁中', async ({
   request,
+  baseURL,
 }) => {
+  // 跳转目标沿用请求的 origin（本地冒烟为 localhost），与 canonical 使用的站点规范域名不同
+  const requestOrigin = new URL(baseURL ?? origin).origin
   const cases: [string, string][] = isEasternSite
     ? [
         ['/', '/zh-hant'],
@@ -86,7 +89,7 @@ test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根�
       headers: { 'accept-language': 'en-US' },
     })
     expect(response.status(), from).toBe(301)
-    expect(response.headers().location, from).toBe(`${origin}${to}`)
+    expect(response.headers().location, from).toBe(`${requestOrigin}${to}`)
   }
 })
 
