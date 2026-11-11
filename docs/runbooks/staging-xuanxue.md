@@ -54,7 +54,7 @@ Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。目标地址：`https:
 10-19 的 99 美分 / 399 美分 Stripe 价格已在 staging 库中停用。
 
 **旧沙盒**：
-- 共用沙盒里本项目的旧 endpoint `we_1USIw1L3UTpBAoXoC4Ef0AHA` 在切换后会一直验签失败。Stripe 自 11-05 起累计告警，2026-11-11 决定在 Stripe 后台停用。
+- 共用沙盒里本项目的旧 endpoint `we_1USIw1L3UTpBAoXoC4Ef0AHA` 在切换后会一直验签失败。Stripe 自 11-05 起累计告警，2026-11-11 已由用户在 Stripe 后台停用。
 - **不要关闭整个旧沙盒**：它仍是模板的 Stripe 验收沙盒（模板 endpoint `we_1UO7wML3UTpBAoXo3N6XlJhF`）。
 
 **排查投递失败时**：先用 `stripe config --list` 确认 Stripe CLI 当前指向 `xuanxue-staging`，再按 `stripe events list --delivery-success=false` 查询。告警邮件来自哪个沙盒，以邮件里的 account 为准。
