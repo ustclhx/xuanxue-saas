@@ -23,9 +23,41 @@ Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。目标地址：`https:
 | Worker | `xuanxue-web-staging` | 业务产物已部署（版本见下方） |
 | Worker | `xuanxue-jobs-staging` | 业务产物已部署（版本见下方） |
 | Web 限流 | RL_AUTH / RL_AI / RL_API | `21002` / `21004` / `21006`，与模板既有 namespace 隔离 |
-| Stripe Sandbox endpoint | 本项目 staging billing webhook | `we_1USIw1L3UTpBAoXoC4Ef0AHA` |
+| Stripe Sandbox | 本项目独立沙盒 `xuanxue-staging`（2026-11-09 起） | account `acct_1UZks57z42aVCfct`；webhook endpoint `we_1UZkw07z42aVCfctDE12bDWC`，见下文「Stripe 沙盒切换」 |
 
 未修改或删除 `web-staging`、`jobs-staging`、`files-staging`、`saas-staging-*` 等其他项目资源。未更改套餐、账单、Stripe live 或既有 webhook endpoint。
+
+> 下文「已执行步骤与核验」第 5、7 步和「首次部署与验收」中的 Stripe 内容，是 2026-10-19 在模板共用沙盒 `acct_1UMwpCL3UTpBAoXo` 上的历史记录。staging 当前使用的 Stripe 配置以「Stripe 沙盒切换（2026-11-09）」为准。
+
+## Stripe 沙盒切换（2026-11-09）
+
+**为什么切换**：模板共用沙盒 `acct_1UMwpCL3UTpBAoXo` 里还有模板自己的测试订阅、客户等对象。这些事件推到本项目 staging 后会处理失败（例如 11-08 模板测试订阅到期产生的 `customer.subscription.deleted`）。因此 staging 改用本项目独立的沙盒。
+
+**当前配置**：
+
+| 项 | 值 |
+| --- | --- |
+| 沙盒 | `xuanxue-staging`，account `acct_1UZks57z42aVCfct` |
+| webhook endpoint | `we_1UZkw07z42aVCfctDE12bDWC`，描述 `xuanxue staging (ganjiday + arcanumber)` |
+| endpoint URL | `https://xuanxue-web-staging.saas-jobs.workers.dev/api/billing/webhooks/stripe` |
+| API version | `2026-09-30.endive` |
+| 订阅事件（10 项） | `checkout.session.completed`、`checkout.session.async_payment_succeeded`、`checkout.session.async_payment_failed`、`customer.subscription.created`、`customer.subscription.updated`、`customer.subscription.deleted`、`invoice.paid`、`invoice.payment_failed`、`charge.refunded`、`charge.dispute.created` |
+| Worker secrets | web 与 jobs 的 `STRIPE_SECRET_KEY`、`STRIPE_WEBHOOK_SECRET` 已换成该沙盒的值（名称不变，值不记录） |
+
+**价格**：staging 库按 #129 的本地化商品同步。2026-11-11 在 Stripe 上核对，生效的价格如下：
+
+| 套餐 | 金额 | Stripe 价格（默认 / zh-Hant / zh-Hans / ko） |
+| --- | --- | --- |
+| Single Reading（100 积分） | 199 美分 USD | `price_1UZl2L7z42aVCfctORUexgf5` / `price_1UZl2M7z42aVCfctJDdlI7oo` / `price_1UZl2N7z42aVCfcte14iuPQ0` / `price_1UZl2O7z42aVCfcteqKP8Lk7` |
+| 5-Reading Pack（500 积分） | 699 美分 USD | `price_1UZl2Q7z42aVCfct1pDFrrfA` / `price_1UZl2R7z42aVCfctWaJ5OxOw` / `price_1UZl2S7z42aVCfctkcYX9gHK` / `price_1UZl2T7z42aVCfctMXvZExg2` |
+
+10-19 的 99 美分 / 399 美分 Stripe 价格已在 staging 库中停用。
+
+**旧沙盒**：
+- 共用沙盒里本项目的旧 endpoint `we_1USIw1L3UTpBAoXoC4Ef0AHA` 在切换后会一直验签失败。Stripe 自 11-05 起累计告警，2026-11-11 决定在 Stripe 后台停用。
+- **不要关闭整个旧沙盒**：它仍是模板的 Stripe 验收沙盒（模板 endpoint `we_1UO7wML3UTpBAoXo3N6XlJhF`）。
+
+**排查投递失败时**：先用 `stripe config --list` 确认 Stripe CLI 当前指向 `xuanxue-staging`，再按 `stripe events list --delivery-success=false` 查询。告警邮件来自哪个沙盒，以邮件里的 account 为准。
 
 ## 已执行步骤与核验
 
