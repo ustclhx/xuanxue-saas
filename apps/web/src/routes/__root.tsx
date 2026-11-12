@@ -133,15 +133,17 @@ function RootComponent() {
       ) || /^\/admin(\/|$)/.test(state.location.pathname),
   })
   return (
-    // data-site 由 features/theme/html-attributes.ts 写到 <html>（brand.css 按它切换两站 token）
-    <RootDocument floatingControls={!hasInlineControls} htmlAttributes={htmlAttributes}>
-      <SiteContext value={site.id}>
+    // data-site 由 features/theme/html-attributes.ts 写到 <html>（brand.css 按它切换两站 token）。
+    // SiteContext 包在 RootDocument 外：模板在 RootDocument 内渲染浮动 ThemeToggle（与 children 平级），
+    // 它按站点决定是否显示，包在 children 内时会读到默认的 west 而在东方站消失。Provider 不输出 DOM。
+    <SiteContext value={site.id}>
+      <RootDocument floatingControls={!hasInlineControls} htmlAttributes={htmlAttributes}>
         <ProductAnalytics />
         <ImpersonationBanner viewer={impersonation} />
         <AnnouncementBanner initial={announcement} />
         {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion />}
         <Outlet />
-      </SiteContext>
-    </RootDocument>
+      </RootDocument>
+    </SiteContext>
   )
 }
