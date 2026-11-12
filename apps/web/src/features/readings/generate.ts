@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
-import { chatAppError, startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
+import { startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
 import { siteOfLocale, siteOrigin } from '../site/site.ts'
 import { loadReadingAvailability } from './availability.ts'
 import {
@@ -94,8 +94,9 @@ export async function handleReadingRequest(request: Request, deps: ReadingDeps):
   try {
     return await startReading(request, deps)
   } catch (error) {
-    if (!(error instanceof AppError)) log.error('readings.start_failed', { error })
-    const { status, body } = toErrorResponse(chatAppError(error))
+    if (!(error instanceof AppError) || error.status >= 500)
+      log.error('readings.start_failed', { error })
+    const { status, body } = toErrorResponse(error)
     return Response.json(body, { status })
   }
 }

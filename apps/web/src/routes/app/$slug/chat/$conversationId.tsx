@@ -41,6 +41,7 @@ function ConversationPage() {
       models={page.models}
       chatContext={page.chatContext}
       readOnly={page.readOnly}
+      initialFeedback={page.feedback}
     />
   )
 }

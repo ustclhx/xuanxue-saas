@@ -1,0 +1,10 @@
+{
+  "billing_coexist_tasks": "동시 작업 {count}개",
+  "billing_coexist_api": "공개 API: {value}",
+  "billing_coexist_priority": "우선 처리 대기열: {value}",
+  "billing_coexist_watermark": "워터마크: {value}",
+  "billing_coexist_models": "모델: {value}",
+  "billing_coexist_yes": "예",
+  "billing_coexist_no": "아니요",
+  "billing_coexist_order": "구독 크레딧과 팩 크레딧은 합산되며, 먼저 만료되는 크레딧부터 사용됩니다."
+}

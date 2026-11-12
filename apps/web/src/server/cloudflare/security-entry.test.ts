@@ -66,6 +66,24 @@ describe('cloudflare 响应入口安全头', () => {
     assertHeaders(result, false)
     expect(response.headers.has('x-frame-options')).toBe(false)
   })
+  it('内部 AppError 顶层响应不暴露 code 或详情', async () => {
+    const error = new AppError('PRIVATE_CREDIT_FAILURE', 'private failure', {
+      status: 503,
+      publicDetails: { secret: 'private' },
+      expose: false,
+    })
+    mocks.start.mockRejectedValue(error)
+    mocks.checkEnv.mockImplementation(() => {
+      throw error
+    })
+    const response = await call()
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({
+      error: { code: 'INTERNAL_ERROR', message: 'Internal error' },
+    })
+    // instrumentWeb 在此测试中为透传；上报由独立 Sentry 测试验证。
+    assertHeaders(response, true)
+  })
   it.each([new Error('private failure'), new AppError('DENIED', 'Denied', { status: 403 })])(
     '异常响应仍带安全头及可信请求 ID',
     async (error) => {

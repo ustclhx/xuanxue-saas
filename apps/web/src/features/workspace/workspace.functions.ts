@@ -8,11 +8,12 @@ import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import {
   recipientInvitation,
-  resolveWorkspaceMaxSeats,
+  resolveWorkspacePlan,
   userWorkspaces,
   workspaceInvitations,
   workspaceMembers,
 } from '../../server/workspace-data.ts'
+import { checkDailyCredits } from '../credits/daily.server.ts'
 
 import { invitationSearch } from './invitation-search.ts'
 
@@ -20,10 +21,17 @@ export const getWorkspacePage = createServerFn({ method: 'GET' })
   .middleware([withWorkspace])
   .handler(async ({ context }) => {
     const { db, workspace, member, workspaceReadOnly } = context
-    const { user } = await requireFreshSession({
+    const { user, session } = await requireFreshSession({
       auth: getWebRuntime().auth,
       db,
       headers: getRequest().headers,
+    })
+    const dailyCredits = await checkDailyCredits({
+      db,
+      cache: getWebRuntime().cache,
+      user,
+      session,
+      enabled: templateConfig.credits.enabled && templateConfig.credits.dailyEnabled,
     })
     const members = await workspaceMembers(db, workspace.id)
     const canManage =
@@ -31,6 +39,7 @@ export const getWorkspacePage = createServerFn({ method: 'GET' })
       !workspaceReadOnly &&
       (member.role === 'owner' || member.role === 'admin')
     return {
+      dailyCredits,
       user: { id: user.id, name: user.name, email: user.email },
       workspace: {
         id: workspace.id,
@@ -49,7 +58,7 @@ export const getWorkspacePage = createServerFn({ method: 'GET' })
           ? await workspaceInvitations(db, workspace.id)
           : [],
       memberCount: members.length,
-      maxSeats: await resolveWorkspaceMaxSeats(workspace.id, db.$client),
+      ...(await resolveWorkspacePlan(workspace.id, db.$client)),
     }
   })
 

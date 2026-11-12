@@ -1,4 +1,11 @@
 /*
+ * 项目品牌层（模板 add-ui-design-system D2 / D10）：本文件归项目所有，模板同步不会修改它。
+ * 基线与主题预设在 cascade layer `base` 中，本文件不分层，因此普通选择器即可覆盖。
+ * 内容由原 site-theme.css 迁入（模板 0.3.0 升级说明「xuanxue 迁移」），两站 token 仍按 <html data-site> 切换；
+ * data-site 由 features/theme/html-attributes.ts 在 SSR、预渲染与水合时一致写入。
+ */
+
+/*
  * 两站主题 token（docs/design/visual-system.md「设计 token」，openspec add-dual-site-foundation tasks.md 4.1）。
  * 根布局在 <html> 上输出 data-site="east|west"；token 名与视觉规范一致，同时映射到 @xuanxue/ui 的
  * shadcn 变量，让认证页、应用区等既有组件自动换成站点配色，组件中不写死颜色。
@@ -159,6 +166,20 @@
   --border: var(--line);
   --input: var(--line-strong);
   --ring: var(--accent);
+}
+
+/*
+ * 模板 0.3.0 新增的交互 token 指向站点配色：焦点环、链接文字、Fluid 强调色与输入框边框沿用
+ * 原 --ring / --accent-ink / --input 的取值，保持同步前的视觉。
+ * 注意：模板基线也定义了 --accent（较重的灰色强调底）与 --surface-1…8 表面阶梯，本文件中的同名
+ * --accent、--surface-2 会覆盖它们；--color-accent 已在下方 @theme 中改回 surface-2。
+ */
+:root[data-site] {
+  --focus-ring: var(--accent);
+  --primary-text: var(--accent-ink);
+  --fluid-accent: var(--accent);
+  --field-border: var(--line-strong);
+  --hover: var(--surface-2);
 }
 
 @theme inline {

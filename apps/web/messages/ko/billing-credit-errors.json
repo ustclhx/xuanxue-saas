@@ -1,0 +1,5 @@
+{
+  "billing_credit_guide_title": "크레딧 부족",
+  "billing_credit_guide_amounts": "예상 비용: {estimatedCredits} 크레딧. 사용 가능: {availableCredits} 크레딧.",
+  "billing_credit_guide_packs": "크레딧 팩 구매"
+}

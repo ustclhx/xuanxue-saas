@@ -28,7 +28,7 @@ import {
 import { requireFreshSession } from '@xuanxue/auth'
 import type { AiFaultInjectionEnv, TemplateConfig } from '@xuanxue/config'
 import type { OveragePolicy } from '@xuanxue/credits'
-import { CreditsError, getCreditBalance, hold } from '@xuanxue/credits'
+import { getCreditBalance, hold } from '@xuanxue/credits'
 import {
   type AiMessage,
   type AiPricingJson,
@@ -122,21 +122,9 @@ export async function handleChatRequest(request: Request, deps: ChatDeps): Promi
   try {
     return await startChat(request, deps)
   } catch (error) {
-    if (!(error instanceof AppError)) log.error('ai.chat.failed', { error })
-    const { status, body } = toErrorResponse(chatAppError(error))
+    if (!(error instanceof AppError) || error.status >= 500) log.error('ai.chat.failed', { error })
+    const { status, body } = toErrorResponse(error)
     return Response.json(body, { status })
-  }
-}
-
-export function chatAppError(error: unknown): unknown {
-  if (!(error instanceof CreditsError)) return error
-  switch (error.code) {
-    case 'CREDIT_DEBT':
-      return new AppError('CREDIT_DEBT', 'Workspace has unpaid credit debt', { status: 402 })
-    case 'INSUFFICIENT_CREDITS':
-      return new AppError('INSUFFICIENT_CREDITS', 'Insufficient credits', { status: 402 })
-    default:
-      return error
   }
 }
 
@@ -242,9 +230,11 @@ export async function startWorkspaceChat(
 
   const languageModel = (deps.languageModelFactory ?? defaultLanguageModelFactory)(model, deps.env)
 
-  // 3. 对话与历史：只读创建者自己的对话
+  // 3. 对话与历史：只读创建者自己的对话。首条 system 消息是建对话时写入的对象上下文
+  // （add-subject-chat），作为固定前缀放在提示词最前，截断时保留
   let conversationId = input.conversationId
-  let history: { role: 'system' | 'user' | 'assistant'; text: string }[] = []
+  let history: { role: 'user' | 'assistant'; text: string }[] = []
+  let systemPrefix: { role: 'system'; text: string } | undefined
   if (conversationId !== undefined) {
     const [conversation] = await s
       .select(aiConversation, {
@@ -252,7 +242,6 @@ export async function startWorkspaceChat(
       })
       .limit(1)
     if (!conversation) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
-    // system 消息是从结果页带入的命盘上下文（chat-context.ts），建对话时写入，排在最前
     const rows = await s
       .select(aiMessage, {
         where: and(
@@ -262,9 +251,12 @@ export async function startWorkspaceChat(
         ) as SQL,
       })
       .orderBy(asc(aiMessage.id))
+    const first = rows[0]
+    const prefixText = first?.role === 'system' ? messageText(first.parts) : ''
+    if (prefixText) systemPrefix = { role: 'system', text: prefixText }
     history = rows.flatMap((row) => {
       const text = messageText(row.parts)
-      return text && (row.role === 'system' || row.role === 'user' || row.role === 'assistant')
+      return text && (row.role === 'user' || row.role === 'assistant')
         ? [{ role: row.role, text }]
         : []
     })
@@ -276,10 +268,16 @@ export async function startWorkspaceChat(
     thinking,
     continuation,
   } = textModelConfig(model)
-  let prompt = context.prompt ?? [...history, { role: 'user' as const, text: userText }]
+  let prompt: { role: 'system' | 'user' | 'assistant'; text: string }[] = context.prompt ?? [
+    ...history,
+    { role: 'user' as const, text: userText },
+  ]
+  const prefix = context.prompt ? undefined : systemPrefix
   if (pricing.mode === 'per_call' && pricing.limits?.maxInputTokens !== undefined) {
-    prompt = truncateHistory(prompt, pricing.limits.maxInputTokens, tokensPerChar)
+    const reserved = prefix ? estimateInputTokens([prefix], tokensPerChar) : 0
+    prompt = truncateHistory(prompt, pricing.limits.maxInputTokens - reserved, tokensPerChar)
   }
+  if (prefix) prompt = [prefix, ...prompt]
   const inputTokens = estimateInputTokens(prompt, tokensPerChar)
 
   // 4. 欠费 / 余额：按余额确定最大输出与预扣额（hold 在锁内再次检查）
@@ -382,13 +380,23 @@ export async function startWorkspaceChat(
   const result = createChatStream({
     model: streamModel,
     provider: model.provider,
-    messages: prompt.map((message) => ({
-      role: message.role,
-      content: message.text,
-      ...('providerOptions' in message && message.providerOptions
-        ? { providerOptions: message.providerOptions }
-        : {}),
-    })) as ModelMessage[],
+    messages: prompt.map((message, index) =>
+      index === 0 && prefix
+        ? // 固定前缀：Anthropic 需显式标记缓存断点，其他服务商忽略该选项并按前缀自动缓存
+          {
+            role: 'system' as const,
+            content: message.text,
+            providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } },
+          }
+        : {
+            role: message.role,
+            content: message.text,
+            // 付费详批等调用方自带的 prompt（context.prompt）可携带缓存标记
+            ...('providerOptions' in message && message.providerOptions
+              ? { providerOptions: message.providerOptions }
+              : {}),
+          },
+    ) as ModelMessage[],
     thinking: supportsTextThinking(model.provider, thinking)
       ? (input.thinking ?? textConfig.thinking.default === 'on')
       : undefined,
@@ -501,7 +509,8 @@ export async function handleChatStopRequest(
   try {
     return Response.json(await stopChat(request, messageId, deps))
   } catch (error) {
-    if (!(error instanceof AppError)) log.error('ai.chat.stop_failed', { error })
+    if (!(error instanceof AppError) || error.status >= 500)
+      log.error('ai.chat.stop_failed', { error })
     const { status, body } = toErrorResponse(error)
     return Response.json(body, { status })
   }

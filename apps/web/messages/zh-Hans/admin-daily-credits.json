@@ -1,0 +1,11 @@
+{
+  "admin_daily_credits_settings": "每日积分",
+  "admin_daily_credits_template_switch_note": "每日发放需开启模板开关 credits.dailyEnabled。日期与每月上限均按 UTC 计算。",
+  "admin_daily_credits_amount": "每日积分数",
+  "admin_daily_credits_max_days": "每月最多天数",
+  "admin_daily_credits_expiry_days": "有效期（天）",
+  "admin_daily_credits_require_verified_email": "要求已验证电子邮件",
+  "admin_daily_credits_unverified_email_warning": "关闭后，未验证的账号可能冒用他人电子邮件领取每日积分，并占用该电子邮件的每日与每月额度。",
+  "admin_daily_grant_count": "每日发放次数",
+  "admin_daily_grant_credits": "每日发放积分"
+}

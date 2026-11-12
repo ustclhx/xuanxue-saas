@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { siteBrandName } from '@xuanxue/config'
+import { cn } from '@xuanxue/ui'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
@@ -11,8 +12,11 @@ import { SiteLink } from './site-link.tsx'
 
 const footerLink = 'inline-flex min-h-11 items-center text-ink-subtle text-sm hover:text-ink'
 
-/** 页脚区块：品牌（按站点）、产品、资源与法律页链接 */
-export function SiteFooter() {
+/**
+ * 页脚区块：品牌（按站点）、产品、资源与法律页链接。
+ * floatingEntry：右下角有悬浮 AI 入口时页脚底部多留空白（模板 0.3.0），本项目目前未开启该入口。
+ */
+export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean } = {}) {
   const siteId = useSiteId()
   const locale = getLocale()
   const brand = siteBrandName(templateConfig, siteId, locale)
@@ -25,7 +29,7 @@ export function SiteFooter() {
     </SiteLink>
   )
   return (
-    <footer className="border-line border-t bg-background">
+    <footer className={`border-line border-t bg-background${floatingEntry ? ' pb-34' : ''}`}>
       <div className="mx-auto grid max-w-[1120px] gap-8 px-4 py-10 sm:grid-cols-4 sm:px-6">
         <div className="grid content-start gap-3">
           <p className="flex items-center gap-2 font-bold font-heading text-ink text-lg">

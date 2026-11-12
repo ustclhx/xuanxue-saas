@@ -1,4 +1,5 @@
 import { type Browser, expect, type Page, test } from '@playwright/test'
+import { chooseOption } from './select.ts'
 import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'
 
 const password = 'correct-horse-battery-staple'
@@ -14,7 +15,8 @@ test('Accept-Language 只建议不跳转，手动选择和关闭建议会记住�
     await expect(page).toHaveURL(/\/pricing$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     const banner = page.getByRole('complementary', { name: 'Language suggestion' })
-    await expect(banner).toBeVisible()
+    // 建议浮层在水合后才请求；CI 中这是冷启动 vite dev 的首个用例，首次按需编译客户端模块可能超过 5 秒
+    await expect(banner).toBeVisible({ timeout: 30_000 })
     await banner.getByRole('button', { name: 'Switch language' }).click()
     await expect(page).toHaveURL(/\/zh-hant\/pricing$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
@@ -72,9 +74,9 @@ async function authPost(page: Page, path: string, body: Record<string, string>) 
 async function saveAccountLocale(page: Page, locale: string) {
   // 水合前提交会走原生表单 GET 而不保存，等网络空闲（水合完成）后再操作
   await page.goto('/account', { waitUntil: 'networkidle' })
-  const select = page.locator('select#locale')
+  const select = page.locator('#locale')
   const form = page.locator('form').filter({ has: select })
-  await select.selectOption(locale)
+  await chooseOption(select, { value: locale })
   const saved = page.waitForResponse((response) => response.url().includes('/api/auth/update-user'))
   await form.locator('button[type="submit"]').click()
   expect((await saved).status()).toBe(200)

@@ -4,8 +4,8 @@ import {
   Link,
   useRouter,
 } from '@tanstack/react-router'
-import { Button } from '@xuanxue/ui'
-import { useEffect, useRef, useState } from 'react'
+import { Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
+import { useEffect, useId, useRef, useState } from 'react'
 import { z } from 'zod'
 import { trackEvent } from '../../../features/analytics/track.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
@@ -93,6 +93,8 @@ function BillingPage() {
       page.catalog.providers[0]?.id ??
       '',
   )
+  const providerId = useId()
+  const planId = useId()
   const [priceId, setPriceId] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const intent = useRef<{ key: string; uuid: string } | null>(null)
@@ -114,6 +116,11 @@ function BillingPage() {
     (price) => price.provider === provider && isPlan(price),
   )
   const selected = planPrices.find((price) => price.id === priceId)
+  const currentProvider = page.catalog.providers.find((p) => p.id === provider)
+  const providerLabel = (p: (typeof page.catalog.providers)[number]) =>
+    selectable.includes(p) ? p.id : `${p.id} — ${m.billing_unavailable()}`
+  const priceLabel = (price: (typeof planPrices)[number]) =>
+    `${page.catalog.plans.find((plan) => plan.id === price.planId)?.name} · ${money(price.amount, price.currency)}${price.interval ? ` / ${price.interval}` : ''}`
   const isSubscription =
     page.catalog.plans.find((plan) => plan.id === selected?.planId)?.type === 'subscription'
   const change = isSubscription && renewing?.provider === 'stripe' && provider === 'stripe'
@@ -238,7 +245,7 @@ function BillingPage() {
             {sub.priceActive ? '' : ` · ${m.billing_unavailable()}`}
           </p>
           <p>
-            {sub.cancelAtPeriodEnd
+            {sub.cancelAtPeriodEnd || ['canceled', 'expired', 'paused'].includes(sub.status)
               ? m.billing_paid_access_ends({ date: date(sub.currentPeriodEnd) })
               : m.billing_next_billing({ date: date(sub.currentPeriodEnd) })}
           </p>
@@ -271,30 +278,47 @@ function BillingPage() {
         </section>
       ))}
       {owner && (
-        <section className="grid gap-3 rounded-xl border border-line bg-surface p-6">
-          <h3 className="font-semibold">{m.billing_choose_plan_or_pack()}</h3>
+        <section
+          id="credit-packs"
+          className="grid gap-3 rounded-xl border border-line bg-surface p-6"
+        >
+          <h3 id="subscriptions" className="font-semibold">
+            {m.billing_choose_plan_or_pack()}
+          </h3>
           {/* 只有一个可用支付方式时不显示选择器，直接用它结账（design D5） */}
           {availableProviders > 1 && (
-            <label>
-              {m.billing_payment_method()}{' '}
-              <select
-                value={provider}
+            <div className="grid gap-2">
+              <label htmlFor={providerId}>{m.billing_payment_method()}</label>
+              <Select
+                value={currentProvider ? provider : ''}
                 disabled={disabled}
-                onChange={(event) => {
-                  setProvider(event.target.value)
+                onValueChange={(value) => {
+                  setProvider(value)
                   setPriceId('')
                   setConfirmed(false)
                   intent.current = null
                 }}
               >
-                {page.catalog.providers.map((p) => (
-                  <option key={p.id} value={p.id} disabled={!selectable.includes(p)}>
-                    {p.id}
-                    {selectable.includes(p) ? '' : ` — ${m.billing_unavailable()}`}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <SelectTrigger
+                  id={providerId}
+                  className="w-full"
+                  placeholder={m.billing_payment_method()}
+                  valueLabel={currentProvider ? providerLabel(currentProvider) : undefined}
+                />
+                <SelectContent>
+                  {page.catalog.providers.map((p, index) => (
+                    <SelectItem
+                      key={p.id}
+                      index={index}
+                      value={p.id}
+                      disabled={!selectable.includes(p)}
+                    >
+                      {providerLabel(p)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
           {!page.readingsOpen && (
             <p data-testid="billing-packs-not-open">{m.readings_packs_not_open()}</p>
@@ -316,27 +340,37 @@ function BillingPage() {
             </div>
           )}
           {planPrices.length > 0 && (
-            <label>
-              {m.billing_plan()}{' '}
-              <select
-                value={priceId}
+            <div className="grid gap-2">
+              <label htmlFor={planId}>{m.billing_plan()}</label>
+              <Select
+                value={selected ? priceId : ''}
                 disabled={disabled}
-                onChange={(event) => {
-                  setPriceId(event.target.value)
+                onValueChange={(value) => {
+                  setPriceId(value)
                   setConfirmed(false)
                   intent.current = null
                 }}
               >
-                <option value="">{m.billing_choose_plan()}</option>
-                {planPrices.map((price) => (
-                  <option key={price.id} value={price.id} disabled={!price.available}>
-                    {page.catalog.plans.find((plan) => plan.id === price.planId)?.name} ·{' '}
-                    {money(price.amount, price.currency)}
-                    {price.interval ? ` / ${price.interval}` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
+                <SelectTrigger
+                  id={planId}
+                  className="w-full"
+                  placeholder={m.billing_choose_plan()}
+                  valueLabel={selected ? priceLabel(selected) : undefined}
+                />
+                <SelectContent>
+                  {planPrices.map((price, index) => (
+                    <SelectItem
+                      key={price.id}
+                      index={index}
+                      value={price.id}
+                      disabled={!price.available}
+                    >
+                      {priceLabel(price)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           )}
           {/* 没有任何可购买的支付方式时说明原因，而不是留下空白（详批未开放另有说明） */}
           {selectable.length === 0 &&

@@ -1,0 +1,7 @@
+{
+  "daily_credits_granted": "已向你的個人空間發放 {credits} 每日積分。本月：{daysThisMonth}/{maxDaysPerMonth} 天。",
+  "daily_credits_expiry": "於 {expiresAt} 到期。",
+  "daily_credits_dismiss": "關閉",
+  "daily_credits_verify": "驗證電子郵件以領取每日積分",
+  "daily_credits_source": "每日積分"
+}

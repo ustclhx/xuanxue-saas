@@ -39,7 +39,8 @@
   "admin_never": "永不过期",
   "admin_status": "状态",
   "admin_revoke_remaining": "撤销剩余积分",
-  "admin_revoke_remaining_credits_in_batch": "确定撤销批次 {batchId} 中的剩余积分吗？",
+  "admin_revoke_batch_confirm_title": "撤销剩余积分？",
+  "admin_revoke_batch_confirm_description": "将按上方填写的原因撤销批次 {batchId} 的剩余积分。此操作无法撤销。",
   "admin_revoke_batch": "撤销批次",
   "admin_business_metrics": "业务指标",
   "admin_apply": "应用",
@@ -370,5 +371,6 @@
   "admin_metrics_by_site": "按站点",
   "admin_metrics_by_site_description": "按所选区间实时计算：注册数为区间内新增；用户数、工作空间数与付费工作空间数为区间最后一日日末（UTC）的存量。",
   "admin_total_users": "用户数",
-  "admin_total_workspaces": "有效工作空间数"
+  "admin_total_workspaces": "有效工作空间数",
+  "admin_revoke_remaining_credits_in_batch": "确定撤销批次 {batchId} 中的剩余积分吗？"
 }

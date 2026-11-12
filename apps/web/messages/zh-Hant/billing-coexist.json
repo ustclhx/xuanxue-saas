@@ -1,0 +1,10 @@
+{
+  "billing_coexist_tasks": "{count} 個並行任務",
+  "billing_coexist_api": "公開 API：{value}",
+  "billing_coexist_priority": "優先佇列：{value}",
+  "billing_coexist_watermark": "浮水印：{value}",
+  "billing_coexist_models": "模型：{value}",
+  "billing_coexist_yes": "是",
+  "billing_coexist_no": "否",
+  "billing_coexist_order": "訂閱積分與積分包積分合併使用，先到期的積分優先扣除。"
+}

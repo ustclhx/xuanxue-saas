@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
 import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts'
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
+import { DailyCreditsNotice } from '../../../features/credits/daily-notice.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationCenter } from '../../../features/notifications/center.tsx'
 import { getWorkspacePage } from '../../../features/workspace/workspace.functions.ts'
@@ -84,6 +85,7 @@ function WorkspaceLayout() {
                 {m.app_readonly()}
               </p>
             ) : null}
+            <DailyCreditsNotice result={page.dailyCredits} />
             <NotificationCenter key={page.workspace.slug} slug={page.workspace.slug} />
           </section>
           <nav aria-label={m.app_nav_label()} className="grid gap-1">

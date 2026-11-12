@@ -4,7 +4,7 @@ import {
   Link,
   useRouter,
 } from '@tanstack/react-router'
-import { Button, DataTable, Input } from '@xuanxue/ui'
+import { Button, DataTable, Input, Textarea } from '@xuanxue/ui'
 import { useState } from 'react'
 import {
   adminListPage,
@@ -13,13 +13,7 @@ import {
   offsetOfPage,
 } from '../../../features/admin/list.ts'
 import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
-import {
-  AdminPage,
-  adminTableLabels,
-  Field,
-  panelClass,
-  Textarea,
-} from '../../../features/admin/ui.tsx'
+import { AdminPage, adminTableLabels, Field, panelClass } from '../../../features/admin/ui.tsx'
 import {
   completeAdminRefund,
   getAdminRefunds,

@@ -9,6 +9,8 @@ declare namespace Cloudflare {
     /** 仅构建 preview 的本地变量，不部署 */
     SITE_PRERENDER_TOKEN?: string
     AI_FAULT_INJECTION?: string
+    /** 组件预览页 /dev/ui 开关（vars，非密钥）：仅 `true` 时可访问；production 不设 */
+    UI_PREVIEW?: string
     SENTRY_DSN?: string
     SENTRY_ENVIRONMENT?: 'development' | 'staging' | 'production' | 'smoke'
     /** 不带查询缓存（app-db）：健康检查与写操作 */

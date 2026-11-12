@@ -2,7 +2,9 @@ import { createHash, randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { newId } from '@xuanxue/shared'
+import { EMPTY_MEDIA_PARAMETER } from '../src/features/ai-media/schema.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
+import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // 后台写入、认证、权益与提交页 loader 均为真实本地链路；只 mock 任务 API，避免调用模型。
@@ -16,6 +18,8 @@ test('saved media parameter schemas drive submit fields, defaults and validation
   const planId = newId()
   const priceId = newId()
   const subscriptionId = newId()
+  const readyFileId = newId()
+  const pendingFileId = newId()
   try {
     await simulateClientIp(page)
     await stubTurnstile(page)
@@ -36,6 +40,15 @@ test('saved media parameter schemas drive submit fields, defaults and validation
       cancel_at_period_end,canceled_at,last_event_at)
       values (${subscriptionId},${actor.workspace_id},${planId},${priceId},'stripe',${`e2e:${planId}`},
         'canceled',now(),now()+interval '1 day',true,now(),now())`
+
+    for (const [id, status] of [
+      [readyFileId, 'ready'],
+      [pendingFileId, 'pending'],
+    ] as const) {
+      await sql`insert into file (id,workspace_id,user_id,purpose,status,r2_key,mime,size)
+        values (${id},${actor.workspace_id},${actor.user_id},'ai_input',${status},
+          ${`ws/${actor.workspace_id}/${id}`},'image/png',68)`
+    }
 
     // 延迟客户端脚本，复现 SSR 表单可见但 React 尚未接管的窗口。
     let allowScripts = () => {}
@@ -61,17 +74,15 @@ test('saved media parameter schemas drive submit fields, defaults and validation
     await expect(form.getByRole('button', { name: 'Create model' })).toBeEnabled()
     await expect
       .poll(async () => {
-        await form.getByRole('combobox', { name: 'Kind', exact: true }).selectOption('video')
-        return form
-          .getByRole('combobox', { name: 'Provider', exact: true })
-          .locator('option[value="fal"]')
-          .count()
+        await chooseOption(form.getByRole('combobox', { name: 'Kind', exact: true }), 'Video')
+        return form.getByRole('combobox', { name: 'Provider', exact: true }).count()
       })
       .toBe(1)
-    await form.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('fal')
-    await form
-      .getByLabel('Insert reference template', { exact: true })
-      .selectOption('fal-wan-turbo')
+    await chooseOption(form.getByRole('combobox', { name: 'Provider', exact: true }), 'fal')
+    await chooseOption(
+      form.getByRole('combobox', { name: 'Insert reference template', exact: true }),
+      'fal · Wan v2.2 turbo',
+    )
     const wanSchema = JSON.parse(
       await form.getByLabel('Parameters schema (JSON)', { exact: true }).inputValue(),
     )
@@ -81,8 +92,8 @@ test('saved media parameter schemas drive submit fields, defaults and validation
       default: '720p',
     })
     expect(wanSchema.properties).not.toHaveProperty('duration')
-    await form.getByRole('combobox', { name: 'Kind', exact: true }).selectOption('image')
-    await form.getByRole('combobox', { name: 'Provider', exact: true }).selectOption('workers-ai')
+    await chooseOption(form.getByRole('combobox', { name: 'Kind', exact: true }), 'Image')
+    await chooseOption(form.getByRole('combobox', { name: 'Provider', exact: true }), 'workers-ai')
     await form.getByLabel('Key', { exact: true }).fill(key)
     await form.getByLabel('Provider model ID').fill('@cf/black-forest-labs/flux-1-schnell')
     await form.getByLabel('Plan tags (comma separated)').fill(key)
@@ -98,9 +109,10 @@ test('saved media parameter schemas drive submit fields, defaults and validation
       await sql`select id from audit_log where actor_user_id=${actor.user_id} and target_type='ai_model'`,
     ).toHaveLength(0)
 
-    await form
-      .getByLabel('Insert reference template', { exact: true })
-      .selectOption('workers-ai-flux-schnell')
+    await chooseOption(
+      form.getByRole('combobox', { name: 'Insert reference template', exact: true }),
+      'Workers AI · FLUX schnell',
+    )
     const initialSchema = JSON.parse(
       await form.getByLabel('Parameters schema (JSON)', { exact: true }).inputValue(),
     )
@@ -116,6 +128,8 @@ test('saved media parameter schemas drive submit fields, defaults and validation
       properties: {
         prompt: { type: 'string', title: 'Scene', minLength: 5, default: 'A forest' },
         steps: { type: 'integer', title: 'Sampling steps', minimum: 1, maximum: 8, default: 6 },
+        reference: { type: 'string', format: 'file', title: 'Reference image' },
+        quality: { type: 'string', title: 'Quality', enum: ['standard', 'high'] },
         image_size: {
           type: 'string',
           title: 'Canvas size',
@@ -150,24 +164,46 @@ test('saved media parameter schemas drive submit fields, defaults and validation
 
     await page.goto(`/app/${slug}/media/new`)
     // 注册表可能缓存旧列表；等待真实 loader 读到由后台保存的模型。
-    await expect
-      .poll(
-        async () => {
-          await page.reload()
-          return page.getByLabel('Model').locator(`option[value="${key}"]`).count()
-        },
-        { timeout: 90_000, intervals: [2_000, 5_000] },
+    await expect(async () => {
+      await page.reload()
+      const trigger = page.getByRole('combobox', { name: 'Model', exact: true })
+      expect(await trigger.count()).toBe(1)
+      await expect(async () => {
+        if (!(await page.getByRole('listbox').isVisible())) await trigger.click({ timeout: 1_000 })
+        await expect(page.getByRole('listbox')).toBeVisible({ timeout: 500 })
+      }).toPass({ timeout: 10_000, intervals: [100, 250, 500] })
+      expect(await page.locator(`[role="option"][data-value=${JSON.stringify(key)}]`).count()).toBe(
+        1,
       )
-      .toBe(1)
-    await page.getByLabel('Model').selectOption(key)
+      await page.keyboard.press('Escape')
+      await expect(page.getByRole('listbox')).toHaveCount(0)
+      await chooseOption(trigger, { value: key })
+    }).toPass({ timeout: 90_000, intervals: [2_000, 5_000] })
     await expect(page.getByLabel('Scene')).toHaveValue('A forest')
     await expect(page.getByLabel('Sampling steps')).toHaveValue('6')
-    await expect(page.getByLabel('Canvas size')).toHaveValue('1')
-    await expect(page.getByLabel('Canvas size').getByRole('option')).toHaveText([
-      'Choose an option',
-      'square',
+    await expect(page.getByRole('combobox', { name: 'Canvas size *', exact: true })).toHaveText(
       'portrait',
-    ])
+    )
+    await chooseOption(page.getByRole('combobox', { name: 'Canvas size *', exact: true }), 'square')
+    await chooseOption(
+      page.getByRole('combobox', { name: 'Canvas size *', exact: true }),
+      'portrait',
+    )
+    const quality = page.getByRole('combobox', { name: 'Quality', exact: true })
+    await chooseOption(quality, 'high')
+    await expect(quality).toHaveText('high')
+    await chooseOption(quality, { value: EMPTY_MEDIA_PARAMETER })
+    await expect(quality).toHaveText('Choose an option')
+    const reference = page.getByRole('combobox', { name: 'Reference image', exact: true })
+    await reference.click()
+    await expect(page.getByRole('option').filter({ hasText: pendingFileId })).toHaveCount(0)
+    await expect(page.getByRole('option').filter({ hasText: readyFileId })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await chooseOption(reference, { value: readyFileId })
+    await expect(reference).toContainText(readyFileId)
+    await chooseOption(reference, { value: EMPTY_MEDIA_PARAMETER })
+    await expect(reference).toHaveText('Choose a confirmed file')
     await expect(page.getByTestId('media-credit-estimate')).toHaveText('Estimated cost: 2 credits')
     const submitted: unknown[] = []
     await page.route('**/api/ai/tasks', async (route) => {
@@ -193,6 +229,7 @@ test('saved media parameter schemas drive submit fields, defaults and validation
     ])
     expect(await sql`select id from ai_task where model_key=${key}`).toHaveLength(0)
   } finally {
+    await sql`delete from file where id in ${sql([readyFileId, pendingFileId])}`
     await sql`delete from ai_model where key=${key}`
     await sql`delete from subscription where id=${subscriptionId}`
     await sql`delete from plan_price where id=${priceId}`

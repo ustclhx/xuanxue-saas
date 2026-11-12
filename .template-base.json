@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "repository": "https://github.com/ustclhx/saas-template",
-  "commit": "9235e90ca2f06818076a93aab47db0618e57d56c",
-  "version": "0.2.1",
+  "commit": "d77618b2f1570de5b127c07b36093cfd6ce8c8ef",
+  "version": "0.3.0",
   "clean": true,
   "params": {
     "ai": [
@@ -56,6 +56,9 @@
     "0017_audit_meta_remove_personal_data",
     "0018_ai_task_cancel_billing",
     "0019_user_attribution",
-    "0020_user_attribution_signup_host"
+    "0020_user_attribution_signup_host",
+    "0021_daily_credits",
+    "0022_subject_chat",
+    "0023_feedback_reason"
   ]
 }

@@ -1,0 +1,1020 @@
+{
+  "exceptions": {
+    "apps/web/src/features/auth/oauth-button.tsx": [
+      {
+        "rule": "color-literal",
+        "reason": "Google 等第三方品牌图标使用官方品牌颜色。",
+        "value": "#4285F4"
+      },
+      {
+        "rule": "color-literal",
+        "reason": "Google 等第三方品牌图标使用官方品牌颜色。",
+        "value": "#34A853"
+      },
+      {
+        "rule": "color-literal",
+        "reason": "Google 等第三方品牌图标使用官方品牌颜色。",
+        "value": "#FBBC05"
+      },
+      {
+        "rule": "color-literal",
+        "reason": "Google 等第三方品牌图标使用官方品牌颜色。",
+        "value": "#EA4335"
+      }
+    ]
+  },
+  "pendingReplacement": {
+    "apps/web/src/features/admin/settings-readings-form.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:grid-cols-[1fr_auto_8rem_14rem]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/ai/chat-context-start.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[auto_1fr]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/app-shell/space-frame.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[34px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/i18n/language-controls.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/marketing/east-english/page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[760px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[32px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[40px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[24px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[22px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[16px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[20px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/marketing/pricing-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/marketing/rich-content.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "[&_table]:min-w-[36rem]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/marketing/site-footer.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/marketing/site-header.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/readings/markdown.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.8]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[24px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/readings/report-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[760px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[28px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[36px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "browser-dialog",
+        "value": "window.confirm",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量 window.confirm，待替换为 AlertDialog。"
+      }
+    ],
+    "apps/web/src/features/readings/unlock-card.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[22px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.9]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[28px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/site/account-menu.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "focus-visible:ring-[3px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/site/header-menu.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "focus-visible:ring-[3px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/birth-fields.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[1.5fr_1fr_1fr]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/chart-parts.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[13px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[30px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[36px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[44px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[13px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fill,minmax(88px,1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "min-h-[72px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "w-[76px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "min-h-[84px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[22px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fill,minmax(92px,1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[32px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/concept-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/gunghap-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(200px,1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[48px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/manseryeok-home.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(min(160px,100%),1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/mingpan-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[28px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "min-w-[520px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/bazi/ziwei-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[11px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[13px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/faq.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/form.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(200px,1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "native-select",
+        "value": "<select>",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量原生下拉，待替换为 @xuanxue/ui 的 Select。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "accent-[var(--accent)]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/numerology/chart.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[360px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[28px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/numerology/compatibility.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[56px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/numerology/home.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:pb-[72px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[40px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.05]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[56px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/numerology/life-path-calculator.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "flex-[1_1_420px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[520px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "flex-[1_1_220px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "flex-[0_0_auto]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "flex-[1_1_380px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/numerology/parts.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[88px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[0.9]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[112px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[13px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[64px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[72px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.8]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "[overflow-wrap:anywhere]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "tracking-[1.5px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[28px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[32px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.75]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "[&_h2]:text-[28px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:[&_h2]:text-[34px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "[&_pre]:text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/reading-guide.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/tarot/card.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "bg-[#ECE7DA]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "color-literal",
+        "value": "#ECE7DA",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量颜色字面量，待改用 brand.css 的 token。"
+      }
+    ],
+    "apps/web/src/features/tools/tarot/meaning-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[820px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[32px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[44px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "lg:grid-cols-[minmax(0,720px)_280px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "w-[140px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/tarot/table.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "aspect-[0.58]",
+        "count": 3,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "auto-rows-[44px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "pb-[34px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:auto-rows-[48px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:pb-[48px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "transition-[opacity,transform]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "shadow-[0_-2px_6px_rgba(0,0,0,0.25)]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "tracking-[1px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "perspective-[900px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[560px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1fr)]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[520px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/tarot/tarot-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 2,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 3,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "[scrollbar-width:none]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/tool-links.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(180px,1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "rounded-[10px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[15px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/features/tools/tool-page.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[32px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[40px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[40px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "leading-[1.05]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "sm:text-[56px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[17px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/routes/app/$slug/route.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "lg:grid-cols-[232px_minmax(0,1fr)]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/routes/dev/readings.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/routes/dev/tools.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "text-[44px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/routes/faq.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      },
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[720px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ],
+    "apps/web/src/routes/newsletter.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "max-w-[1120px]",
+        "count": 1,
+        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
+      }
+    ]
+  }
+}

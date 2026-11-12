@@ -52,7 +52,10 @@ describe('认证页 noindex 与 canonical', () => {
     expect(AUTH_ROBOTS).toContain('noindex')
   })
 
-  it('认证路由 head 使用该规则：登录页的 ?redirect= 变体声明同一个 canonical', async () => {
+  // 动态导入六个认证路由（含共享 UI 组件），冷启动转换可超过默认 5s
+  it('认证路由 head 使用该规则：登录页的 ?redirect= 变体声明同一个 canonical', {
+    timeout: 30_000,
+  }, async () => {
     const { Route: Login } = await import('../../routes/(auth)/login.tsx')
     const { Route: Register } = await import('../../routes/(auth)/register.tsx')
     const { Route: Forgot } = await import('../../routes/(auth)/forgot-password.tsx')

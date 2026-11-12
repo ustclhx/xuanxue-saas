@@ -32,6 +32,23 @@ test('public pricing describes unavailable payments without a checkout success',
   await expect(page.getByTestId('pricing-pack').first()).toContainText('≈ ₩')
 })
 
+test('public pricing renders before hydration', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({
+    ...(baseURL ? { baseURL } : {}),
+    javaScriptEnabled: false,
+  })
+  const page = await context.newPage()
+  try {
+    await page.goto('/pricing')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    const language = page.getByRole('combobox', { name: 'Language', exact: true })
+    await expect(language).toHaveText('English')
+    await expect(language).toBeDisabled()
+  } finally {
+    await context.close()
+  }
+})
+
 test('billing and usage require a fresh authenticated workspace session', async ({ page }) => {
   await page.goto('/app/no-session/billing')
   await expect(page).toHaveURL(/\/login/)

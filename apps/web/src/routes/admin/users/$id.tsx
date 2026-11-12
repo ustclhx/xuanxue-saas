@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import { Button, DetailList, Input } from '@xuanxue/ui'
+import { Button, Checkbox, DetailList, Input, Label } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { ADMIN_COPY } from '../../../features/admin/copy.ts'
 import { OtherSiteNotice, siteLabel } from '../../../features/admin/site-ui.tsx'
 import {
   AdminPage,
   AdminSection,
-  CheckboxField,
   EmptyState,
   Field,
   formatDateTime,
@@ -164,12 +163,15 @@ function UserDetail() {
                 required
               />
             </Field>
-            <CheckboxField
-              label={m.admin_i_confirm_this_user_status_change()}
-              disabled={!ready}
-              checked={confirm}
-              onChange={(event) => setConfirm(event.target.checked)}
-            />
+            <Label htmlFor="confirm-user-status" className="font-normal text-sm leading-normal">
+              <Checkbox
+                id="confirm-user-status"
+                disabled={!ready}
+                checked={confirm}
+                onCheckedChange={setConfirm}
+              />
+              {m.admin_i_confirm_this_user_status_change()}
+            </Label>
             <Button
               type="submit"
               className="w-fit"

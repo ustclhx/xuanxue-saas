@@ -39,6 +39,8 @@ export interface WebRuntime {
       readonly PLAUSIBLE_HOST?: string | undefined
       readonly PLAUSIBLE_SITES?: string | undefined
       readonly INDEXNOW_KEY?: string | undefined
+      /** 组件预览页 /dev/ui 开关，仅 `true` 时开放（features/ui-preview） */
+      readonly UI_PREVIEW?: string | undefined
     } & AiFaultInjectionEnv
   /**
    * 本请求的账户站点（openspec split-site-accounts 决策 1）：入口按 Host 解析一次，认证实例与空间解析都用它；

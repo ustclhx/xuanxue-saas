@@ -1,0 +1,7 @@
+{
+  "daily_credits_granted": "개인 워크스페이스에 일일 크레딧 {credits}개를 지급했습니다. 이번 달: {daysThisMonth}/{maxDaysPerMonth}일.",
+  "daily_credits_expiry": "{expiresAt}에 만료됩니다.",
+  "daily_credits_dismiss": "닫기",
+  "daily_credits_verify": "이메일을 인증하고 일일 크레딧 받기",
+  "daily_credits_source": "일일 크레딧"
+}

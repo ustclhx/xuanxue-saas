@@ -1,3 +1,4 @@
+import { Button } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { authClient } from '../auth/auth-client.ts'
@@ -113,9 +114,9 @@ export function DeletionSection({
           ))}
         </ul>
       )}
-      <button
+      <Button
         type="button"
-        className="rounded bg-destructive p-2 text-destructive-foreground disabled:opacity-50"
+        variant="destructive"
         disabled={!hydrated || busy || completed || confirmation !== label}
         onClick={() => void submit()}
       >
@@ -124,7 +125,7 @@ export function DeletionSection({
           : workspace
             ? m.deletion_workspace_submit()
             : m.deletion_account_title()}
-      </button>
+      </Button>
     </section>
   )
 }

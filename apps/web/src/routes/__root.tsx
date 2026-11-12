@@ -1,13 +1,6 @@
-import {
-  createRootRoute,
-  HeadContent,
-  Outlet,
-  Scripts,
-  useRouterState,
-} from '@tanstack/react-router'
+import { createRootRoute, Outlet, useRouterState } from '@tanstack/react-router'
 import { type SiteId, siteBrandName } from '@xuanxue/config'
 import { themeInitScript } from '@xuanxue/ui'
-import type { ReactNode } from 'react'
 import { ImpersonationBanner } from '../features/admin/impersonation-banner.tsx'
 import { getAnnouncement } from '../features/admin/settings-announcement.functions.ts'
 import { AnnouncementBanner } from '../features/admin/settings-announcement-banner.tsx'
@@ -25,13 +18,17 @@ import { SiteContext, useSiteId } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { siteNavLocale } from '../features/site/site.ts'
 import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
-import { ThemeToggle } from '../features/theme/theme-toggle.tsx'
+import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.ts'
+import { RootDocument } from '../features/theme/root-document.tsx'
 import { m } from '../paraglide/messages.js'
 import { getLocale, type Locale, localizeHref } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
+  beforeLoad: ({ location }) => ({
+    htmlAttributes: getHtmlAttributes(location.pathname),
+  }),
   loader: async () => {
     const [impersonation, announcement, appUrl, site, blogLocales, plausible] = await Promise.all([
       getSafeImpersonation(),
@@ -121,42 +118,32 @@ function NotFoundPage() {
 
 function RootComponent() {
   const { impersonation, announcement, site } = Route.useLoaderData()
-  // 后台侧栏与认证页脚自带控件，避免浮动控件遮挡正文。
+  const { htmlAttributes } = Route.useRouteContext()
+  // 后台侧栏、认证页脚与工作台侧边栏布局自带控件，避免浮动控件遮挡正文。
   const hasInlineControls = useRouterState({
     select: (state) =>
-      state.matches.some((match) => match.routeId.startsWith('/(auth)/')) ||
-      /^\/admin(\/|$)/.test(state.location.pathname),
+      state.matches.some(
+        (match) =>
+          match.routeId.startsWith('/(auth)/') ||
+          // 只在工作台壳实际渲染时；空间不存在或出错时显示浮动控件
+          (templateConfig.ui.appLayout === 'sidebar' &&
+            match.routeId === '/app/$slug' &&
+            match.status !== 'notFound' &&
+            match.status !== 'error'),
+      ) || /^\/admin(\/|$)/.test(state.location.pathname),
   })
   return (
-    <RootDocument site={site.id} floatingControls={!hasInlineControls}>
-      <ProductAnalytics />
-      <ImpersonationBanner viewer={impersonation} />
-      <AnnouncementBanner initial={announcement} />
-      {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion />}
-      <Outlet />
-    </RootDocument>
-  )
-}
-
-function RootDocument({
-  children,
-  site,
-  floatingControls,
-}: Readonly<{ children: ReactNode; site: SiteId; floatingControls: boolean }>) {
-  return (
-    // 主题类名由下方内联脚本在水合前写到 <html> 上，与服务端输出不一致属预期；
-    // data-site 切换两站 token（styles/site-theme.css）
-    <html lang={getLocale()} data-site={site} suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <SiteContext value={site}>
-          {children}
-          {floatingControls && <ThemeToggle className="fixed right-4 bottom-4" />}
-        </SiteContext>
-        <Scripts />
-      </body>
-    </html>
+    // data-site 由 features/theme/html-attributes.ts 写到 <html>（brand.css 按它切换两站 token）。
+    // SiteContext 包在 RootDocument 外：模板在 RootDocument 内渲染浮动 ThemeToggle（与 children 平级），
+    // 它按站点决定是否显示，包在 children 内时会读到默认的 west 而在东方站消失。Provider 不输出 DOM。
+    <SiteContext value={site.id}>
+      <RootDocument floatingControls={!hasInlineControls} htmlAttributes={htmlAttributes}>
+        <ProductAnalytics />
+        <ImpersonationBanner viewer={impersonation} />
+        <AnnouncementBanner initial={announcement} />
+        {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion />}
+        <Outlet />
+      </RootDocument>
+    </SiteContext>
   )
 }

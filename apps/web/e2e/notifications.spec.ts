@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import { createDb } from '@xuanxue/db'
 import { loadEnv } from 'vite'
+import templateConfig from '../../../template.config.ts'
 import { writeNotification } from '../src/features/notifications/service.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -19,7 +20,10 @@ test('通用写入服务触发未读加一，点击跳转并归零，支持全�
     const [account] = await sql`select id from "user" where email=${email}`
     const [workspace] = await sql`select id from organization where slug=${slug}`
     if (!account || !workspace) throw new Error('Notification fixture missing')
-    await expect(page.getByTestId('notification-unread')).toHaveText('0')
+    // 工作台侧边栏布局在还没有通知时不渲染通知块
+    if (templateConfig.ui.appLayout === 'sidebar')
+      await expect(page.getByTestId('notification-unread')).toHaveCount(0)
+    else await expect(page.getByTestId('notification-unread')).toHaveText('0')
     await writeNotification(db, workspace.id, {
       userId: account.id,
       type: 'test.completed',
@@ -79,6 +83,19 @@ test('后台保存运营通知密钥后只显示配置状态，不回显明文',
     await expect(form.getByLabel('Telegram chat ID', { exact: true })).toHaveValue('-456')
     expect(await page.content()).not.toContain(token)
     expect(await page.content()).not.toContain(webhook)
+    await form.getByRole('checkbox', { name: 'Clear Telegram token', exact: true }).check()
+    await form.getByRole('checkbox', { name: 'Clear Discord webhook', exact: true }).check()
+    await form.getByRole('button', { name: 'Save operations notifications' }).click()
+    await expect(form.getByRole('status')).toHaveText('Operations settings saved.')
+    await expect(
+      form.getByRole('checkbox', { name: 'Clear Telegram token', exact: true }),
+    ).not.toBeChecked()
+    await expect(
+      form.getByRole('checkbox', { name: 'Clear Discord webhook', exact: true }),
+    ).not.toBeChecked()
+    await page.reload()
+    await expect(form.getByText('Telegram bot: Not configured')).toBeVisible()
+    await expect(form.getByText('Discord webhook: Not configured')).toBeVisible()
   } finally {
     await sql`delete from setting where key in ${sql(keys)}`
     for (const row of original)

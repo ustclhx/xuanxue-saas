@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { AiEntry } from './ai-entry.tsx'
+import { site } from './site.ts'
 import { SiteFooter } from './site-footer.tsx'
 import { SiteHeader } from './site-header.tsx'
 
@@ -10,7 +12,8 @@ export function MarketingShell({ children }: { children: ReactNode }) {
       <main id="main" className="flex-1">
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter floatingEntry={site.marketing.aiEntry !== null} />
+      {site.marketing.aiEntry !== null && <AiEntry href={site.marketing.aiEntry} />}
     </div>
   )
 }

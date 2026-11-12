@@ -31,7 +31,26 @@ it('queries only active catalog prices and marks unsynced or unavailable provide
 
 it('retains the existing subscription price without requiring that price to be active', async () => {
   const query = vi.fn(async (_sql: string, _params: unknown[]) => ({
-    rows: [['sub', 'stripe', 'old', 'Pro', 399, 'usd', 'month', false, 'active', null, false]],
+    // 列顺序：模板的订阅字段（含 plan 与 pastDueSince），之后是项目追加的价格快照
+    rows: [
+      [
+        'sub',
+        'stripe',
+        'old',
+        'Pro',
+        'pro',
+        10,
+        {},
+        null,
+        'active',
+        null,
+        false,
+        399,
+        'usd',
+        'month',
+        false,
+      ],
+    ],
   }))
   const workspaceId = '9e4f8378-149f-440a-bf9b-50c014ecb457'
   const billing = await customerBilling(

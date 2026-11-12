@@ -26,6 +26,7 @@ import {
 import { eq } from 'drizzle-orm'
 import { actionDb, actor, offlineProviderTransport } from './billing-actions-helper.ts'
 import { register, simulateClientIp } from './fixtures.ts'
+import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 async function catalog(db: ReturnType<typeof actionDb>, planId: string, subscriptionPlan = false) {
@@ -122,7 +123,9 @@ for (const realSubmission of [true, false])
         if (realSubmission) {
           await page.locator('aside').getByRole('link', { name: 'Billing', exact: true }).click()
           const form = page.getByRole('form', { name: 'Request a refund' })
-          await form.getByRole('combobox', { name: 'Payment', exact: true }).selectOption(paymentId)
+          await chooseOption(form.getByRole('combobox', { name: 'Payment', exact: true }), {
+            value: paymentId,
+          })
           await form
             .getByLabel('Reason', { exact: true })
             .fill('Please return part of this payment')
@@ -261,10 +264,11 @@ for (const realSubmission of [true, false])
           (await db.select().from(refundRequest).where(eq(refundRequest.id, request.id)))[0]
             ?.status,
         ).toBe('refunded')
+        // 部分退款按比例回收（refund-requests「退款后收回积分」）：退款 400/1000，
+        // 批次保留 floor(100 × 600 / 1000) = 60，其余收回；回调重放不重复收回。
         expect(
-          (await db.select().from(creditGrant).where(eq(creditGrant.paymentId, paymentId)))[0]
-            ?.remaining,
-        ).toBe(60) // 部分退款 40%：按现有 Q6 规则保留未退款份额，回调重放不重复扣减。
+          (await db.select().from(creditGrant).where(eq(creditGrant.paymentId, paymentId)))[0],
+        ).toMatchObject({ remaining: 60, status: 'active' }) // 部分退款 40%：按现有 Q6 规则保留未退款份额，回调重放不重复扣减。
       } finally {
         await closeCatalog(db, planId)
       }

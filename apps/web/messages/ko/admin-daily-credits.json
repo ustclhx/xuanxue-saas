@@ -1,0 +1,11 @@
+{
+  "admin_daily_credits_settings": "일일 크레딧",
+  "admin_daily_credits_template_switch_note": "일일 지급은 템플릿 스위치 credits.dailyEnabled를 켜야 작동합니다. 날짜와 월간 한도는 UTC 기준입니다.",
+  "admin_daily_credits_amount": "일일 크레딧 수",
+  "admin_daily_credits_max_days": "월 최대 일수",
+  "admin_daily_credits_expiry_days": "유효 기간(일)",
+  "admin_daily_credits_require_verified_email": "이메일 인증 필수",
+  "admin_daily_credits_unverified_email_warning": "끄면 인증되지 않은 계정이 다른 사람의 이메일로 일일 크레딧을 받아 해당 이메일의 일일 및 월간 한도를 소진할 수 있습니다.",
+  "admin_daily_grant_count": "일일 지급 횟수",
+  "admin_daily_grant_credits": "일일 지급 크레딧"
+}

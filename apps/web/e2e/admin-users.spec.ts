@@ -4,6 +4,7 @@ import { capture, grant, hold } from '@xuanxue/credits'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { actionDb, actor } from './billing-actions-helper.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
+import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 /** 调用浏览器实际导入的 Start 客户端桩，POST 仍进入真实服务端中间件与 handler。 */
@@ -47,7 +48,9 @@ async function makeAdmin(page: Page) {
 
 async function banForm(page: Page, reason: string, button: string) {
   await page.getByLabel('Reason', { exact: true }).fill(reason)
-  await page.getByLabel('I confirm this user status change').check()
+  await page
+    .getByRole('checkbox', { name: 'I confirm this user status change', exact: true })
+    .check()
   await page.getByRole('button', { name: button, exact: true }).click()
 }
 
@@ -87,7 +90,9 @@ test('用户封禁后旧会话结账立即被拒绝，解封与自封禁约束�
     ])
     await page.goto(`/admin/users/${admin.userId}`)
     await page.getByLabel('Reason', { exact: true }).fill('Self ban')
-    await page.getByLabel('I confirm this user status change').check()
+    await page
+      .getByRole('checkbox', { name: 'I confirm this user status change', exact: true })
+      .check()
     await expect(page.getByRole('button', { name: 'Ban user', exact: true })).toBeDisabled()
     await expect(page.getByRole('button', { name: 'Impersonate user' })).toBeDisabled()
     const direct = await page.request.post('/api/auth/admin/ban-user', {
@@ -243,15 +248,23 @@ test('空间详情展示积分、重叠订阅，并恢复原 owner 的访问', a
     await expect(ownerPage.getByRole('heading', { name: 'Workspace not found' })).toBeVisible()
     await page.goto('/admin/workspaces')
     await page.getByLabel('Search workspaces').fill(workspaceId)
-    await page.getByLabel('Status', { exact: true }).selectOption('deleted')
+    // DataTable 筛选下拉为 @xuanxue/ui Select（add-ui-design-system 4.2）
+    await chooseOption(page.getByRole('combobox', { name: 'Status', exact: true }), 'Deleted')
     await page.getByRole('button', { name: 'Apply', exact: true }).click()
-    await page.getByRole('link', { name: 'Recoverable workspace' }).click()
+    // 筛选结果加载前旧列表仍在，且可能含同名空间：按本用例的空间 id 定位行
+    await expect(page).toHaveURL(/status=deleted/)
+    await page
+      .getByRole('link', { name: 'Recoverable workspace' })
+      .and(page.locator(`a[href$="/admin/workspaces/${workspaceId}"]`))
+      .click()
     await expect(page.locator('strong').filter({ hasText: 'Overlapping period' })).toHaveCount(2)
     await expect(page.locator('dl')).toContainText('Held credits10')
     await expect(page.locator('dl')).toContainText('Credit debt10')
     await expect(page.getByRole('heading', { name: 'Credit batches' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Recent credit ledger' })).toBeVisible()
-    await page.getByLabel('I confirm restoring this workspace').check()
+    await page
+      .getByRole('checkbox', { name: 'I confirm restoring this workspace', exact: true })
+      .check()
     await page.getByRole('button', { name: 'Restore workspace' }).click()
     await expect(
       page.getByText('Workspace restored. Original owners can access it again.'),

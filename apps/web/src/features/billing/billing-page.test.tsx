@@ -108,7 +108,8 @@ it.each(locales)(
     const html = renderToStaticMarkup(<Component />)
     const purchases = html.slice(html.indexOf(m.billing_choose_plan_or_pack()))
     expect(purchases).toContain('$1.99')
-    expect(purchases).toContain('$6.99')
+    // 订阅价格在 @xuanxue/ui Select 中，选项列表展开后才渲染；SSR 只输出带占位文案的触发器
+    expect(purchases).toContain(m.billing_choose_plan())
     expect(purchases).not.toContain('$0.99')
     expect(purchases).not.toContain('$3.99')
     expect(html).toContain(`$3.99 / month · ${m.billing_unavailable()}`)
@@ -125,8 +126,8 @@ it.each(locales)('详批未开放时不出售积分包并说明原因（%s）', 
   const purchases = html.slice(html.indexOf(m.billing_choose_plan_or_pack()))
   expect(purchases).toContain('data-testid="billing-packs-not-open"')
   expect(purchases).not.toContain('$1.99')
-  // 订阅不受影响
-  expect(purchases).toContain('$6.99')
+  // 订阅不受影响（价格在 Select 选项中，SSR 只渲染触发器）
+  expect(purchases).toContain(m.billing_choose_plan())
 })
 
 it('已配置但价格全部停用的支付方式不作默认，改用有积分包的支付方式', () => {

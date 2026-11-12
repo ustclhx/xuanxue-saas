@@ -85,6 +85,8 @@ export default defineConfig(({ command }) => {
                   AI_GATEWAY_ACCOUNT_ID: 'e2e-placeholder',
                   AI_GATEWAY_ID: 'e2e-placeholder',
                 }),
+              // 组件预览页开关可由环境变量覆盖（smoke e2e 设为 false，断言未开启时 /dev/ui 返回 404）
+              ...(process.env.UI_PREVIEW !== undefined && { UI_PREVIEW: process.env.UI_PREVIEW }),
             },
           },
         }),

@@ -69,7 +69,7 @@ function UsagePage() {
             <tbody>
               {page.batches.items.map((batch) => (
                 <tr key={batch.id}>
-                  <td>{batch.source}</td>
+                  <td>{batch.source === 'daily' ? m.daily_credits_source() : batch.source}</td>
                   <td>{batch.amount}</td>
                   <td>{batch.remaining}</td>
                   <td>{batch.status}</td>
@@ -112,8 +112,8 @@ function UsagePage() {
                   {item.delta}
                 </td>
                 <td>
-                  {item.refType}
-                  {item.refId ? ` · ${item.refId}` : ''}
+                  {item.refType === 'daily' ? m.daily_credits_source() : item.refType}
+                  {item.refType !== 'daily' && item.refId ? ` · ${item.refId}` : ''}
                 </td>
                 <td>{item.grantId ?? '—'}</td>
               </tr>

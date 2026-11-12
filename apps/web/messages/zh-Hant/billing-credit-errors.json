@@ -1,0 +1,5 @@
+{
+  "billing_credit_guide_title": "積分不足",
+  "billing_credit_guide_amounts": "預計消耗：{estimatedCredits} 積分。可用：{availableCredits} 積分。",
+  "billing_credit_guide_packs": "購買積分包"
+}

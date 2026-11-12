@@ -10,10 +10,7 @@ const start = createRequire(require.resolve('@tanstack/react-start/package.json'
 const client = createRequire(start.resolve('@tanstack/start-client-core/package.json'))
 export const serializer = client('seroval') as {
   fromJSON(value: unknown): { data: Record<string, unknown> }
-  fromCrossJSON(
-    value: unknown,
-    options: { refs: Map<unknown, unknown> },
-  ): { result?: Record<string, unknown> }
+  fromCrossJSON(value: unknown, options: { refs: Map<unknown, unknown> }): { result?: unknown }
   toCrossJSONAsync(value: unknown, options: { refs: Map<unknown, unknown> }): Promise<unknown>
 }
 
@@ -81,7 +78,7 @@ export async function offlineProviderTransport(
       for (const provider of catalog.providers)
         if (provider.id === 'paypal') provider.available = true
     }
-    if (result && 'rows' in result)
+    if (result && typeof result === 'object' && 'rows' in result)
       for (const row of result.rows as { provider: string; providerAvailable: boolean }[])
         if (row.provider === 'paypal') row.providerAvailable = true
     await route.fulfill({

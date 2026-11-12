@@ -1,0 +1,13 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chat_ui_feedback_question": "哪些地方可以改进？",
+  "chat_ui_feedback_edit": "修改反馈",
+  "chat_ui_credits_description": "本次请求所需积分超过当前余额。请储值后重新发送。",
+  "chat_ui_credits_estimated": "预计消耗",
+  "chat_ui_credits_available": "当前余额",
+  "chat_ui_credits_value": "{count} 积分",
+  "chat_ui_credits_shortfall": "还需 {count} 积分。积分包永不过期；订阅每月发放积分。",
+  "chat_ui_credits_subscribe": "订阅",
+  "chat_ui_credits_reopen": "储值积分",
+  "chat_ui_close": "关闭"
+}

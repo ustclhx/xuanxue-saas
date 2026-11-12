@@ -21,7 +21,7 @@ import {
   createCloudflareRequestMetadata,
   createCloudflareWorkflow,
 } from '@xuanxue/platform/cloudflare'
-import { AppError } from '@xuanxue/shared'
+import { AppError, toErrorResponse } from '@xuanxue/shared'
 import { log, withLogContext } from '@xuanxue/shared/log'
 import { getFileDownload } from '@xuanxue/storage'
 import { createCloudflareStorage } from '@xuanxue/storage/cloudflare'
@@ -147,11 +147,13 @@ export default {
         } catch (error) {
           // 包装器已经捕获异常；返回无敏感细节的响应与请求 ID，便于管理员验收定位。
           log.error('http.unhandled', { error })
-          if (error instanceof AppError)
-            return Response.json(error.toJSON(), {
-              status: error.status,
+          if (error instanceof AppError) {
+            const { status, body } = toErrorResponse(error)
+            return Response.json(body, {
+              status,
               headers: withSecurityHeaders({ 'x-request-id': context.requestId }, security),
             })
+          }
           return new Response('Internal Server Error', {
             status: 500,
             headers: withSecurityHeaders({ 'x-request-id': context.requestId }, security),
@@ -222,6 +224,7 @@ function createCloudflareWebRuntime(
     PAYMENT_MODE: env.PAYMENT_MODE,
     SENTRY_ENVIRONMENT: env.SENTRY_ENVIRONMENT,
     AI_FAULT_INJECTION: env.AI_FAULT_INJECTION,
+    UI_PREVIEW: env.UI_PREVIEW,
     ...(env.STRIPE_SECRET_KEY === undefined ? {} : { STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY }),
     ...(env.STRIPE_WEBHOOK_SECRET === undefined
       ? {}
