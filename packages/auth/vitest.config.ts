@@ -1,17 +1,14 @@
 import { cloudflareTest } from '@cloudflare/vitest-plugin'
 import { isPostgresSocketRejection } from '@xuanxue/db/test/postgres-socket-rejection'
-import { readLocalEnv } from '@xuanxue/db/worktree-env'
+import { readTestDbUrls } from '@xuanxue/db/worktree-env'
 import { defineConfig } from 'vitest/config'
 
-// 集成测试连接的本地库：环境变量 → .env.worktree → 主 checkout 的 xuanxue_dev。
-// CI 中未显式提供连接串时跳过集成测试，只跑单元测试（与 @xuanxue/db 一致）。
+// 集成测试连接的本地库：环境变量 → .env.worktree → 本机专用测试库 xuanxue_test，
+// 不回退到开发库 xuanxue_dev；CI 中未显式提供连接串时跳过集成测试。见 readTestDbUrls。
 const HYPERDRIVE_ENV = 'CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE'
-const fallback = (url: string) => (process.env.CI ? undefined : url)
-const appUrl =
-  readLocalEnv(HYPERDRIVE_ENV) ?? fallback('postgres://app:app@localhost:5433/xuanxue_dev')
-const migratorUrl =
-  readLocalEnv('MIGRATION_DATABASE_URL') ??
-  fallback('postgres://migrator:migrator@localhost:5433/xuanxue_dev')
+const urls = readTestDbUrls('@xuanxue/auth')
+const appUrl = urls?.appUrl
+const migratorUrl = urls?.migratorUrl
 
 const integration = appUrl && migratorUrl
 if (integration) {
