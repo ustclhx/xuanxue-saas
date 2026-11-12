@@ -1,8 +1,20 @@
-import { Button, Input } from '@xuanxue/ui'
+import {
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from '@xuanxue/ui'
 import { type FormEvent, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getReadingSettings, saveReadingSettings } from './settings-readings.functions.ts'
-import { CheckboxField, Field, NativeSelect, panelClass } from './ui.tsx'
+import { Field, panelClass } from './ui.tsx'
+
+// Select 选项不能用空字符串表示「未选择」，界面内用哨兵值，保存时仍写空字符串
+const UNSET = '__unset__'
 
 type Saved = Awaited<ReturnType<typeof getReadingSettings>>
 type Row = Saved['readings'][number]
@@ -67,11 +79,17 @@ export function ReadingSettingsForm() {
               className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-[1fr_auto_8rem_14rem] sm:items-end"
             >
               <p className="font-medium text-sm">{KIND_LABELS[row.kind]()}</p>
-              <CheckboxField
-                label={m.admin_reading_enabled()}
-                checked={row.enabled}
-                onChange={(event) => update(row.kind, { enabled: event.target.checked })}
-              />
+              <Label
+                htmlFor={`reading-enabled-${row.kind}`}
+                className="font-normal text-sm leading-normal"
+              >
+                <Checkbox
+                  id={`reading-enabled-${row.kind}`}
+                  checked={row.enabled}
+                  onCheckedChange={(enabled) => update(row.kind, { enabled })}
+                />
+                {m.admin_reading_enabled()}
+              </Label>
               <Field label={m.admin_reading_credits()} htmlFor={`reading-credits-${row.kind}`}>
                 <Input
                   id={`reading-credits-${row.kind}`}
@@ -85,18 +103,29 @@ export function ReadingSettingsForm() {
                 />
               </Field>
               <Field label={m.admin_reading_model()} htmlFor={`reading-model-${row.kind}`}>
-                <NativeSelect
-                  id={`reading-model-${row.kind}`}
-                  value={row.modelKey}
-                  onChange={(event) => update(row.kind, { modelKey: event.target.value })}
+                <Select
+                  value={row.modelKey || UNSET}
+                  onValueChange={(value) =>
+                    update(row.kind, { modelKey: value === UNSET ? '' : String(value) })
+                  }
                 >
-                  <option value="">{m.admin_reading_model_unset()}</option>
-                  {options.map((model) => (
-                    <option key={model.key} value={model.key}>
-                      {model.key}
-                    </option>
-                  ))}
-                </NativeSelect>
+                  <SelectTrigger
+                    id={`reading-model-${row.kind}`}
+                    className="w-full"
+                    placeholder={m.admin_reading_model_unset()}
+                    valueLabel={row.modelKey || m.admin_reading_model_unset()}
+                  />
+                  <SelectContent>
+                    <SelectItem index={0} value={UNSET}>
+                      {m.admin_reading_model_unset()}
+                    </SelectItem>
+                    {options.map((model, index) => (
+                      <SelectItem key={model.key} index={index + 1} value={model.key}>
+                        {model.key}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
             </div>
           )

@@ -11,10 +11,11 @@ import {
   type UiPreset,
   UiRoot,
 } from '@xuanxue/ui'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { ThemeToggle } from '../theme/theme-toggle.tsx'
+import { MarketingSection } from './section-marketing.tsx'
 import {
   BadgeTooltipSection,
   ButtonSection,
@@ -26,6 +27,7 @@ import {
   SelectSection,
   SurfaceSection,
 } from './sections-basic.tsx'
+import { AiChatComponentsSection, CreditsComponentsSection } from './sections-business.tsx'
 import {
   ComboboxSection,
   CommandMenuSection,
@@ -34,6 +36,11 @@ import {
   TabsSection,
   ToastSection,
 } from './sections-overlay.tsx'
+
+// 阅读器依赖 react-markdown 等较重的库，按文档约定的方式懒加载（@xuanxue/ui/reader 子路径形成独立分包）
+const ReaderSection = lazy(() =>
+  import('./section-reader.tsx').then((module) => ({ default: module.ReaderSection })),
+)
 
 /** 目录顺序与页面各节一致（锚点 id → 标题） */
 const SECTIONS = [
@@ -52,6 +59,13 @@ const SECTIONS = [
   ['surface', 'Card · Alert'],
   ['data-table', 'DataTable'],
   ['form', 'Form'],
+  ['reader', 'Reader'],
+  ['business-chat', 'SuggestionChips · MessageFeedback · EmbeddedChat'],
+  [
+    'business-credits',
+    'InsufficientCreditsDialog · CreditEstimate · LockedFeature · DailyClaimNotice',
+  ],
+  ['marketing', 'Marketing blocks'],
 ] as const
 
 /**
@@ -139,6 +153,12 @@ export function UiPreviewPage() {
         <SurfaceSection />
         <DataTableSection />
         <FormSection />
+        <Suspense fallback={null}>
+          <ReaderSection />
+        </Suspense>
+        <AiChatComponentsSection />
+        <CreditsComponentsSection />
+        <MarketingSection />
       </div>
     </UiRoot>
   )

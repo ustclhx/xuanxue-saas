@@ -95,6 +95,11 @@ xuanxue/
 关闭营销后首页转向 `/app`，公开营销路由与预渲染关闭；关闭 i18n 后只编译默认语言，
 不注册语言前缀入口，不读取语言偏好，也不展示语言切换。
 
+营销首页区块的内容也在 `marketing` 段（openspec add-ui-design-system 8.5）：`stats` 为数据背书的数值与来源，
+`items` 为空时区块不渲染，模板不提供示例数字；`steps` 为「如何开始」流程（为空不渲染）；`products` 为编号产品矩阵（按顺序编号，`image` 省略时显示占位框）；
+`aiEntry` 为右下角悬浮 AI 入口（`href` 默认 `/app`，关闭文本 AI 时一并隐藏）。文案按 `i18n.locales` 逐语言填写，
+缺语言在类型检查时报错，空值在构建期报错；区块眉标与标题等固定文案在 `apps/web/messages/<locale>/marketing-blocks.json`。
+
 `template.config.ts` 草案：
 
 ```ts
@@ -147,8 +152,9 @@ export default defineTemplateConfig({
     blog: true, docs: false, waitlist: false,
   },
   // 界面主题：预设 neutral | blue | violet | green（只换强调色与焦点环）、圆角形状与控件密度；
-  // 品牌 token 不写在这里，放项目自有的 apps/web/src/styles/brand.css
-  ui: { preset: 'neutral', shape: 'rounded', density: 'default' },
+  // 品牌 token 不写在这里，放项目自有的 apps/web/src/styles/brand.css；
+  // appLayout：App 区布局，sidebar 工作台侧边栏（默认）| topbar 原有顶部布局
+  ui: { preset: 'neutral', shape: 'rounded', density: 'default', appLayout: 'sidebar' },
 })
 ```
 

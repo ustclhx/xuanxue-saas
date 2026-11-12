@@ -27,6 +27,11 @@ describe('defineTemplateConfig', () => {
     expect(config.credits.enabled).toBe(true)
     expect(config.credits.dailyEnabled).toBe(false)
     expect(config.marketing.enabled).toBe(true)
+    // 模板不提供背书数值与产品示例：未配置时这两个区块不渲染
+    expect(config.marketing.stats).toEqual({ items: [], source: null })
+    expect(config.marketing.steps).toEqual([])
+    expect(config.marketing.products).toEqual([])
+    expect(config.marketing.aiEntry).toEqual({ enabled: false, href: '/app' })
     expect(config.i18n.enabled).toBe(true)
     expect(config.features.analytics).toBe('plausible')
     expect(config.analytics.cloudflareToken).toBe('')
@@ -36,6 +41,79 @@ describe('defineTemplateConfig', () => {
       maxCredits: 50,
       dailyBudgetPerWorkspace: 200,
     })
+  })
+
+  it('merges marketing blocks and rejects malformed stats', () => {
+    const config = defineTemplateConfig({
+      app,
+      marketing: {
+        stats: {
+          items: [
+            {
+              value: '1,000+',
+              label: { en: 'Users', 'zh-Hant': '用戶', 'zh-Hans': '用户', ko: '사용자' },
+            },
+          ],
+        },
+        aiEntry: { enabled: true },
+      },
+    })
+    expect(config.marketing.enabled).toBe(true)
+    expect(config.marketing.stats).toEqual({
+      items: [
+        {
+          value: '1,000+',
+          label: { en: 'Users', 'zh-Hant': '用戶', 'zh-Hans': '用户', ko: '사용자' },
+        },
+      ],
+      source: null,
+    })
+    expect(config.marketing.aiEntry).toEqual({ enabled: true, href: '/app' })
+
+    const stat = { value: '1', label: 'Users' }
+    expect(() =>
+      defineTemplateConfig({ app, marketing: { stats: { items: Array(5).fill(stat) } } }),
+    ).toThrow(/at most 4/)
+    expect(() =>
+      defineTemplateConfig({ app, marketing: { stats: { items: [{ ...stat, value: ' ' }] } } }),
+    ).toThrow(/stats.items\[0\].value must not be empty/)
+    // 多语言数值逐语言校验
+    expect(() =>
+      defineTemplateConfig({
+        app,
+        marketing: {
+          stats: {
+            items: [{ value: { en: '1', 'zh-Hant': '1', 'zh-Hans': '', ko: '1' }, label: 'Users' }],
+          },
+        },
+      }),
+    ).toThrow(/stats.items\[0\].value/)
+    const product = {
+      title: 'Atlas',
+      description: '',
+      primary: { label: 'Open', href: '/register' },
+      secondaryHref: '#features',
+    }
+    expect(() =>
+      defineTemplateConfig({ app, marketing: { products: [{ ...product, title: '' }] } }),
+    ).toThrow(/products\[0\].title/)
+    expect(() =>
+      defineTemplateConfig({
+        app,
+        marketing: { products: [{ ...product, primary: { label: 'Open', href: ' ' } }] },
+      }),
+    ).toThrow(/products\[0\].primary.href/)
+    expect(() =>
+      defineTemplateConfig({ app, marketing: { steps: [{ title: '', description: 'x' }] } }),
+    ).toThrow(/steps\[0\].title/)
+    // 多语言文案缺少语言时类型检查报错，绕过类型时运行时同样拒绝
+    expect(() =>
+      defineTemplateConfig({
+        app,
+        // @ts-expect-error zh 缺失
+        marketing: { stats: { items: [{ value: '1', label: { en: 'Users' } }] } },
+      }),
+    ).toThrow(/stats.items\[0\].label/)
   })
 
   it('merges nested sections field by field', () => {
@@ -109,15 +187,23 @@ describe('defineTemplateConfig', () => {
       preset: 'neutral',
       shape: 'rounded',
       density: 'default',
+      appLayout: 'sidebar',
     })
     const config = defineTemplateConfig({ app, ui: { preset: 'violet', density: 'compact' } })
-    expect(config.ui).toEqual({ preset: 'violet', shape: 'rounded', density: 'compact' })
+    expect(config.ui).toEqual({
+      preset: 'violet',
+      shape: 'rounded',
+      density: 'compact',
+      appLayout: 'sidebar',
+    })
+    expect(defineTemplateConfig({ app, ui: { appLayout: 'topbar' } }).ui.appLayout).toBe('topbar')
   })
 
   it('rejects an unknown UI preset, shape or density at definition time', () => {
     expect(() => defineTemplateConfig({ app, ui: { preset: 'teal' as never } })).toThrow()
     expect(() => defineTemplateConfig({ app, ui: { shape: 'square' as never } })).toThrow()
     expect(() => defineTemplateConfig({ app, ui: { density: 'cozy' as never } })).toThrow()
+    expect(() => defineTemplateConfig({ app, ui: { appLayout: 'stacked' as never } })).toThrow()
   })
 
   it('accepts all modules disabled while retaining their existing parameters', () => {

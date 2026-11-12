@@ -224,23 +224,6 @@ function BillingPage() {
           })}
         </p>
       )}
-      {page.summary && (
-        <section className="grid gap-2">
-          <p>Available credits: {page.summary.credits.available}</p>
-          {page.summary.nextRenewalAt && (
-            <p>{m.billing_coexist_renewal({ date: date(new Date(page.summary.nextRenewalAt)) })}</p>
-          )}
-          <p>
-            {m.billing_coexist_subscription_credits({
-              current: page.summary.credits.subscription.currentPeriod,
-              total: page.summary.credits.subscription.total,
-            })}
-          </p>
-          <p>{m.billing_coexist_pack_credits({ count: page.summary.credits.purchase })}</p>
-          <p>{m.billing_coexist_free_credits(page.summary.credits.free)}</p>
-          <p>{m.billing_coexist_other_credits({ count: page.summary.credits.other })}</p>
-        </section>
-      )}
       <Link to="/app/$slug/usage" params={{ slug }} className="underline">
         {m.billing_credit_usage_link()}
       </Link>

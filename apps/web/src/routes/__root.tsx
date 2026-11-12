@@ -119,11 +119,18 @@ function NotFoundPage() {
 function RootComponent() {
   const { impersonation, announcement, site } = Route.useLoaderData()
   const { htmlAttributes } = Route.useRouteContext()
-  // 后台侧栏与认证页脚自带控件，避免浮动控件遮挡正文。
+  // 后台侧栏、认证页脚与工作台侧边栏布局自带控件，避免浮动控件遮挡正文。
   const hasInlineControls = useRouterState({
     select: (state) =>
-      state.matches.some((match) => match.routeId.startsWith('/(auth)/')) ||
-      /^\/admin(\/|$)/.test(state.location.pathname),
+      state.matches.some(
+        (match) =>
+          match.routeId.startsWith('/(auth)/') ||
+          // 只在工作台壳实际渲染时；空间不存在或出错时显示浮动控件
+          (templateConfig.ui.appLayout === 'sidebar' &&
+            match.routeId === '/app/$slug' &&
+            match.status !== 'notFound' &&
+            match.status !== 'error'),
+      ) || /^\/admin(\/|$)/.test(state.location.pathname),
   })
   return (
     // data-site 由 features/theme/html-attributes.ts 写到 <html>（brand.css 按它切换两站 token）

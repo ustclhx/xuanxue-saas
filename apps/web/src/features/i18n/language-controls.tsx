@@ -194,3 +194,11 @@ export function LanguageSelect() {
     </>
   )
 }
+
+/**
+ * 模板工作台侧边栏布局（ui.appLayout='sidebar'）使用的语言切换入口；本项目目前用 topbar 布局，
+ * 这里复用后台侧栏的下拉，保证切换到侧边栏布局时语言列表同样只列本站语言。
+ */
+export function LanguageControls(_props: { placement?: 'floating' | 'inline' | 'bare' } = {}) {
+  return <LanguageSelect />
+}

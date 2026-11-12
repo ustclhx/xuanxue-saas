@@ -23,6 +23,7 @@ import {
 import { type ReactNode, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { m } from '../../paraglide/messages.js'
+import { useAppShellBarAvailable } from '../app-shell/bar.tsx'
 import { FormAlert } from '../auth/auth-layout.tsx'
 import { actionResult, activateWorkspace, workspaceAction } from './client.ts'
 import type { getWorkspacePage } from './workspace.functions.ts'
@@ -53,6 +54,55 @@ export function HydratedControls({ children }: { children: ReactNode }) {
     <fieldset disabled={!hydrated} className="grid min-w-0 gap-4">
       {children}
     </fieldset>
+  )
+}
+
+// 模板工作台布局（sidebar / topbar-layout）使用；本项目单空间时返回 null
+export function WorkspaceSwitcher({ page }: { page: WorkspacePage }) {
+  const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+  const spaces = page.spaces.map((space) => ({
+    ...space,
+    label: `${space.name}${space.isPersonal ? ' (personal)' : ''}`,
+  }))
+  const currentSpace = spaces.find((space) => space.id === page.workspace.id)
+  if (!page.multiTenant) return null
+  return (
+    <HydratedControls>
+      <Label htmlFor="workspace-switcher">Switch workspace</Label>
+      <Select
+        value={currentSpace?.id ?? ''}
+        disabled={pending}
+        onValueChange={async (value) => {
+          const space = spaces.find((s) => s.id === value)
+          if (!space) return
+          setPending(true)
+          setError(null)
+          try {
+            await activateWorkspace(space)
+          } catch (e) {
+            setError(e instanceof Error ? e.message : 'Could not switch workspace.')
+            setPending(false)
+          }
+        }}
+      >
+        <SelectTrigger
+          id="workspace-switcher"
+          className="w-full"
+          placeholder="Switch workspace"
+          valueLabel={currentSpace?.label}
+        />
+        <SelectContent>
+          {spaces.map((space, index) => (
+            <SelectItem key={space.id} index={index} value={space.id}>
+              {space.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormAlert message={error} />
+      <CreateTeam />
+    </HydratedControls>
   )
 }
 
@@ -131,6 +181,7 @@ type ConfirmationTarget = {
 }
 
 export function WorkspaceSettings({ page }: { page: WorkspacePage }) {
+  const inShell = useAppShellBarAvailable()
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [email, setEmail] = useState('')
@@ -176,9 +227,12 @@ export function WorkspaceSettings({ page }: { page: WorkspacePage }) {
   }
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{m.app_workspace_settings()}</CardTitle>
-      </CardHeader>
+      {/* 工作台顶部条已显示「空间设置」标题（h1），不再重复 */}
+      {inShell ? null : (
+        <CardHeader>
+          <CardTitle>{m.app_workspace_settings()}</CardTitle>
+        </CardHeader>
+      )}
       <CardContent className="grid gap-6">
         <p>
           {m.workspace_seats({
