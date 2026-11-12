@@ -20,7 +20,7 @@
 |---|---|
 | 依赖 | 每个 worktree 自己 `pnpm install`（pnpm 全局内容寻址存储，安装很快）。**不共享 `node_modules`**：并行分支会安装不同依赖 |
 | 构建缓存 | `.turbo` 通过 `worktree.sharedDirectories` 共享（内容寻址，可安全共享） |
-| 本地数据库 | 所有 worktree 共用一个本地 PG 容器 `xuanxue-pg`；每个 worktree 使用独立数据库 `xuanxue_wt_<worktree 名>`，setup 时创建、archive 时删除。主 checkout 使用 `xuanxue_dev` |
+| 本地数据库 | 所有 worktree 共用一个本地 PG 容器 `xuanxue-pg`；每个 worktree 使用独立数据库 `xuanxue_wt_<worktree 名>`，setup 时创建、archive 时删除。主 checkout 使用 `xuanxue_dev`；主 checkout 跑集成测试时使用自动创建的专用库 `xuanxue_test`，不触碰 `xuanxue_dev` |
 | 端口 | 按 worktree 名哈希分配 `20000–29990` 中一个 10 个端口的段，写入 `.env.worktree`（`WEB_PORT`、`JOBS_PORT`、两个 inspector 端口） |
 | Hyperdrive 本地连接 | `.env.worktree` 中的 `CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE(_CACHED)` 指向该 worktree 的数据库（`app` 账号）；`MIGRATION_DATABASE_URL` 为同一库的 `migrator` 账号，供 drizzle-kit 使用 |
 | 本地认证配置 | 主 checkout 的 app `.dev.vars` 经 `.worktreeinclude` 复制，认证模板为 `apps/web/.dev.vars.example` |
