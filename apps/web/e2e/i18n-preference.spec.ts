@@ -15,7 +15,8 @@ test('Accept-Language 只建议不跳转，手动选择和关闭建议会记住�
     await expect(page).toHaveURL(/\/pricing$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     const banner = page.getByRole('complementary', { name: 'Language suggestion' })
-    await expect(banner).toBeVisible()
+    // 建议浮层在水合后才请求；CI 中这是冷启动 vite dev 的首个用例，首次按需编译客户端模块可能超过 5 秒
+    await expect(banner).toBeVisible({ timeout: 30_000 })
     await banner.getByRole('button', { name: 'Switch language' }).click()
     await expect(page).toHaveURL(/\/zh-hant\/pricing$/)
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
