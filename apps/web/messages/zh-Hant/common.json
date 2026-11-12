@@ -4,5 +4,15 @@
   "common_not_found_title": "頁面不存在",
   "common_not_found_body": "找不到你要查看的頁面。",
   "common_not_found_home": "返回{brand}首頁",
-  "common_not_found_pricing": "查看定價"
+  "common_not_found_pricing": "查看定價",
+  "common_cancel": "取消",
+  "common_table_previous": "上一頁",
+  "common_table_next": "下一頁",
+  "common_table_page": "第 {page} 頁",
+  "common_table_page_of": "第 {page} 頁，共 {pageCount} 頁",
+  "common_table_empty": "找不到記錄。",
+  "common_table_apply": "套用",
+  "common_table_reset": "重設",
+  "common_table_filters": "篩選",
+  "common_table_pagination": "分頁"
 }

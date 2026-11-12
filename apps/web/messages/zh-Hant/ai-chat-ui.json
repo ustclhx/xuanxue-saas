@@ -1,0 +1,13 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chat_ui_feedback_question": "哪些地方可以改進？",
+  "chat_ui_feedback_edit": "修改回饋",
+  "chat_ui_credits_description": "本次請求所需積分超過目前餘額。請儲值後重新傳送。",
+  "chat_ui_credits_estimated": "預計消耗",
+  "chat_ui_credits_available": "目前餘額",
+  "chat_ui_credits_value": "{count} 積分",
+  "chat_ui_credits_shortfall": "還需 {count} 積分。積分包永不到期；訂閱每月發放積分。",
+  "chat_ui_credits_subscribe": "訂閱",
+  "chat_ui_credits_reopen": "儲值積分",
+  "chat_ui_close": "關閉"
+}

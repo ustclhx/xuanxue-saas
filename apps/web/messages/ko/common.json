@@ -4,5 +4,15 @@
   "common_not_found_title": "페이지를 찾을 수 없습니다",
   "common_not_found_body": "요청하신 페이지가 존재하지 않습니다.",
   "common_not_found_home": "{brand} 홈으로 돌아가기",
-  "common_not_found_pricing": "요금 보기"
+  "common_not_found_pricing": "요금 보기",
+  "common_cancel": "취소",
+  "common_table_previous": "이전",
+  "common_table_next": "다음",
+  "common_table_page": "{page}페이지",
+  "common_table_page_of": "{page} / {pageCount}페이지",
+  "common_table_empty": "기록이 없습니다.",
+  "common_table_apply": "적용",
+  "common_table_reset": "초기화",
+  "common_table_filters": "필터",
+  "common_table_pagination": "페이지 이동"
 }

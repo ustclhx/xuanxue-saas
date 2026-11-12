@@ -35,5 +35,9 @@
   "workspace_revoke_invitation": "撤銷邀請",
   "workspace_validation_min_characters": "請至少輸入 {count} 個字元。",
   "workspace_validation_max_characters": "最多可輸入 {count} 個字元。",
-  "workspace_validation_slug_format": "請使用小寫字母、數字，以及字母或數字之間的連字元。"
+  "workspace_validation_slug_format": "請使用小寫字母、數字，以及字母或數字之間的連字元。",
+  "workspace_transfer_confirm_title": "轉移所有權？",
+  "workspace_transfer_confirm_description": "要將所有權轉移給 {name} 嗎？你將成為管理員。",
+  "workspace_remove_confirm_title": "移除成員？",
+  "workspace_remove_confirm_description": "要將 {name} 從此空間移除嗎？對方將無法再存取此空間。"
 }

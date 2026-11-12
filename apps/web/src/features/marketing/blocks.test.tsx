@@ -75,8 +75,8 @@ describe('编号产品矩阵', () => {
     )
   })
 
-  it('模板示例产品各语言文案齐全', () => {
-    expect(templateConfig.marketing.products.length).toBeGreaterThan(0)
+  // 本项目未配置产品矩阵（首页为工具页）；有配置时逐语言校验文案齐全
+  it('已配置产品各语言文案齐全', () => {
     for (const locale of templateConfig.i18n.locales) {
       for (const product of templateConfig.marketing.products) {
         const item = localizeProduct(product, locale)
@@ -99,7 +99,6 @@ describe('三步流程', () => {
     )
     expect(html).toContain('role="list"')
     expect(html.indexOf('First')).toBeLessThan(html.indexOf('Second'))
-    expect(templateConfig.marketing.steps.length).toBeGreaterThan(0)
   })
 })
 

@@ -35,5 +35,9 @@
   "workspace_revoke_invitation": "撤销邀请",
   "workspace_validation_min_characters": "请至少输入 {count} 个字符。",
   "workspace_validation_max_characters": "最多可输入 {count} 个字符。",
-  "workspace_validation_slug_format": "请使用小写字母、数字，以及字母或数字之间的连字符。"
+  "workspace_validation_slug_format": "请使用小写字母、数字，以及字母或数字之间的连字符。",
+  "workspace_transfer_confirm_title": "转移所有权？",
+  "workspace_transfer_confirm_description": "要将所有权转移给 {name} 吗？你将成为管理员。",
+  "workspace_remove_confirm_title": "移除成员？",
+  "workspace_remove_confirm_description": "要将 {name} 从此空间移除吗？对方将无法再访问此空间。"
 }

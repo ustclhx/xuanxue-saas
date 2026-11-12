@@ -1,0 +1,10 @@
+{
+  "billing_coexist_tasks": "{count} 个并发任务",
+  "billing_coexist_api": "公开 API：{value}",
+  "billing_coexist_priority": "优先队列：{value}",
+  "billing_coexist_watermark": "水印：{value}",
+  "billing_coexist_models": "模型：{value}",
+  "billing_coexist_yes": "是",
+  "billing_coexist_no": "否",
+  "billing_coexist_order": "订阅积分与积分包积分合并使用，先到期的积分优先扣除。"
+}

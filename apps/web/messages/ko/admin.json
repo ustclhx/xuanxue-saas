@@ -39,7 +39,8 @@
   "admin_never": "만료 없음",
   "admin_status": "상태",
   "admin_revoke_remaining": "잔여 크레딧 회수",
-  "admin_revoke_remaining_credits_in_batch": "배치 {batchId}의 잔여 크레딧을 회수할까요?",
+  "admin_revoke_batch_confirm_title": "잔여 크레딧을 회수하시겠습니까?",
+  "admin_revoke_batch_confirm_description": "배치 {batchId}의 잔여 크레딧을 위에 입력한 사유로 회수합니다. 이 작업은 되돌릴 수 없습니다.",
   "admin_revoke_batch": "배치 회수",
   "admin_business_metrics": "사업 지표",
   "admin_apply": "적용",
@@ -370,5 +371,6 @@
   "admin_metrics_by_site": "사이트별",
   "admin_metrics_by_site_description": "선택한 기간을 기준으로 실시간 계산합니다. 가입자 수는 해당 기간의 신규 가입자 수이며, 사용자 수, 워크스페이스 수 및 유료 워크스페이스 수는 마지막 날 종료 시점 (UTC)을 기준으로 합니다.",
   "admin_total_users": "사용자 수",
-  "admin_total_workspaces": "활성 워크스페이스 수"
+  "admin_total_workspaces": "활성 워크스페이스 수",
+  "admin_revoke_remaining_credits_in_batch": "배치 {batchId}의 잔여 크레딧을 회수할까요?"
 }

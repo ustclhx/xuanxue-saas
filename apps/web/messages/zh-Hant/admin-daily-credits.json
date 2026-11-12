@@ -1,0 +1,11 @@
+{
+  "admin_daily_credits_settings": "每日積分",
+  "admin_daily_credits_template_switch_note": "每日發放需開啟模板開關 credits.dailyEnabled。日期與每月上限均按 UTC 計算。",
+  "admin_daily_credits_amount": "每日積分數",
+  "admin_daily_credits_max_days": "每月最多天數",
+  "admin_daily_credits_expiry_days": "有效期（天）",
+  "admin_daily_credits_require_verified_email": "要求已驗證電子郵件",
+  "admin_daily_credits_unverified_email_warning": "關閉後，未驗證的帳號可能冒用他人電子郵件領取每日積分，並占用該電子郵件的每日與每月額度。",
+  "admin_daily_grant_count": "每日發放次數",
+  "admin_daily_grant_credits": "每日發放積分"
+}
