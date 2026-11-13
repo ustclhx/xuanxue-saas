@@ -1,5 +1,6 @@
 import type { BaziChart } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { SubmitButton, ToolForm } from '../form.tsx'
@@ -60,6 +61,7 @@ export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
           onSubmit={tool.onSubmit}
           onChange={tool.onChange}
         >
+          <ProfileBar target={{ kind: 'birth', tool: 'bazi', onFill: tool.fill }} />
           <BirthFields values={tool.values} locale={LOCALE} issues={tool.issues} trueSolarCallout />
           <SubmitButton>{m.bazi_submit()}</SubmitButton>
         </ToolForm>

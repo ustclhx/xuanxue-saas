@@ -59,7 +59,19 @@ export function useBirthValues(
     () => loadBirthValues(sessionStore(), storageKey, defaults),
     [storageKey, defaults],
   )
-  return { values, formKey, defaults, restore, update, loadStored }
+  // 从出生档案填入（add-birth-profiles-daily-horoscope 6.2）：只覆盖档案里有的字段，
+  // 缺失的字段保留当前输入；重新挂载控件并写回 sessionStorage
+  const current = useRef(values)
+  current.current = values
+  const fill = useCallback(
+    (partial: Partial<BirthFormValues>) => {
+      const next = { ...current.current, ...partial }
+      restore(next)
+      saveBirthValues(sessionStore(), storageKey, next)
+    },
+    [restore, storageKey],
+  )
+  return { values, formKey, defaults, restore, update, loadStored, fill }
 }
 
 /** 打开分享链接（`#r=`）时读取输入；只在挂载时读取一次 */

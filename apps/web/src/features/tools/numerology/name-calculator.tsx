@@ -1,6 +1,7 @@
 import { type NumberResult, nameNumbers } from '@xuanxue/numerology'
 import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
@@ -107,6 +108,7 @@ export function NameCalculator({ focus = 'expression' }: { focus?: NameNumberKey
   return (
     <div className="flex flex-col gap-5">
       <ToolForm label={m.numerology_name_form_label()} onSubmit={submit}>
+        <ProfileBar target={{ kind: 'numerology', date: false, name: true }} />
         <TextField
           label={m.numerology_name_only_label()}
           name="name"
