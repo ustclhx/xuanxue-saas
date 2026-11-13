@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>今日運勢（东方站）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--inverse:#1F1C18;--on-inverse:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);"><div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">干支日</strong><span style="color: var(--subtle); font-size: 14px;">（現有頁頭，導覽新增「今日運勢」）</span></div></header>
+  <main style="max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; display: flex; flex-direction: column; gap: 40px;">
+    <section aria-labelledby="h1" style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap;">
+      <div style="display: flex; gap: 8px;">
+        <div style="width: 96px; height: 120px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Noto Serif TC', serif; font-size: 40px; line-height: 1.15;"><span style="font-size: 12px; color: var(--subtle); font-family: -apple-system, sans-serif;">月</span>[丁][亥]</div>
+        <div style="width: 120px; height: 150px; border-radius: 12px; background: var(--inverse); color: var(--on-inverse); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Noto Serif TC', serif; font-size: 52px; line-height: 1.1;"><span style="font-size: 12px; font-family: -apple-system, sans-serif; opacity: 0.8;">今日</span>[甲]<br>[子]</div>
+      </div>
+      <div style="flex: 1 1 420px; min-width: 0;">
+        <p style="margin: 0 0 8px; color: var(--subtle); font-size: 14px;">[2026 年 11 月 13 日 星期五] · 依台北時間 0:00 換日</p>
+        <h1 id="h1" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 40px;">今日運勢 · [甲子日]</h1>
+        <dl style="margin: 16px 0 0; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px 12px; font-size: 16px;">
+          <dt style="color: var(--accent-ink); font-weight: 700;">宜</dt><dd style="margin: 0;">[祭祀、出行、會友、納財]</dd>
+          <dt style="color: var(--subtle); font-weight: 700;">忌</dt><dd style="margin: 0;">[動土、安葬、開倉]</dd>
+          <dt style="color: var(--subtle); font-weight: 700;">建除</dt><dd style="margin: 0;">[成日]：[適合把進行中的事收尾]</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section aria-labelledby="mine" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline;">
+        <h2 id="mine" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 24px;">今天對你的日主來說</h2>
+        <span style="font-size: 13px; color: var(--subtle);">在你的瀏覽器中計算，不上傳生日</span>
+      </div>
+      <div role="tablist" aria-label="選擇日主" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <sc-for list="{{stems}}" as="s" hint-placeholder-count="10">
+          <button type="button" role="tab" aria-selected="{{s.sel}}" onClick="{{s.pick}}" style="width: 52px; height: 52px; border-radius: 10px; border: {{s.border}}; background: {{s.bg}}; color: {{s.fg}}; font-family: 'Noto Serif TC', serif; font-size: 20px;">{{s.name}}</button>
+        </sc-for>
+        <button type="button" style="height: 52px; padding: 0 16px; border-radius: 10px; border: 1px dashed var(--line-strong); background: transparent; color: var(--ink); font-size: 14px;">不知道日主？輸入生日</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><div style="font-size: 13px; color: var(--subtle);">今日天干對你</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px;">{{god}}</div></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><div style="font-size: 13px; color: var(--subtle);">今日地支</div><div style="font-size: 22px; font-weight: 700; margin-top: 4px;">[子水] · [與日支無沖合]</div></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><div style="font-size: 13px; color: var(--subtle);">提醒</div><div style="font-size: 16px; margin-top: 4px; line-height: 1.6;">{{tip}}</div></div>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: var(--muted);">登入並存好出生檔案，工作台會直接顯示你的今日面板，並可把今天的情況帶去問 AI。 <a href="#">建立出生檔案</a></p>
+    </section>
+
+    <section aria-labelledby="more" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+      <h2 id="more" style="grid-column: span 3; margin: 0; font-size: 18px;">想看得更完整</h2>
+      <a href="#" style="padding: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink);"><strong>八字排盤</strong><p style="margin: 6px 0 0; color: var(--muted); font-size: 14px;">先排出命盤，找到你的日主。</p></a>
+      <a href="#" style="padding: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink);"><strong>每日一張塔羅</strong><p style="margin: 6px 0 0; color: var(--muted); font-size: 14px;">再抽一張牌當今天的主題。</p></a>
+      <a href="#" style="padding: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink);"><strong>AI 八字詳批</strong><p style="margin: 6px 0 0; color: var(--muted); font-size: 14px;">含未來五年的流年逐年分析。</p></a>
+    </section>
+    <p style="margin: 0; padding: 14px 16px; border-radius: 10px; background: var(--surface-2); color: var(--muted); font-size: 14px;">依傳統曆法規則計算，僅供娛樂參考，不預測未來。</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: '庚' }; }
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const picked = this.state.picked;
+    const names = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    const gods = { 甲: '比肩', 乙: '劫財', 丙: '偏印', 丁: '正印', 戊: '七殺', 己: '正官', 庚: '偏財', 辛: '正財', 壬: '食神', 癸: '傷官' };
+    const stems = names.map((n) => ({ name: n, sel: n === picked ? 'true' : 'false',
+      border: n === picked ? '2px solid var(--accent)' : '1px solid var(--line-strong)',
+      bg: n === picked ? 'var(--accent)' : 'transparent', fg: n === picked ? 'var(--on-accent)' : 'var(--ink)',
+      pick: () => this.setState({ picked: n }) }));
+    return { cls: dark ? 'east dark' : 'east', stems, god: '[' + gods[picked] + ']', tip: '[依十神與日主關係給出的固定文案，按日期輪替]' };
+  }
+}
+</script>
+</body>
+</html>

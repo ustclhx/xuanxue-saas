@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>报告页内追问</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);"><div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">干支日</strong><span style="margin-left: 16px; color: var(--subtle); font-size: 14px;">我的報告 / 八字詳批 · 我</span></div></header>
+  <main style="max-width: 760px; margin: 0 auto; padding: 32px 24px 72px; display: flex; flex-direction: column; gap: 28px;">
+    <div style="border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">報告正文（現有閱讀器，七個章節，不變）</div>
+
+    <section aria-labelledby="ask" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;">
+        <h2 id="ask" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 22px;">追問這份報告</h2>
+        <span style="font-size: 13px; color: var(--subtle);">AI 會參考報告內容與命盤，不包含你的姓名與出生地</span>
+      </div>
+
+      <sc-if value="{{empty}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <sc-for list="{{openers}}" as="q" hint-placeholder-count="4">
+            <button type="button" style="min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 14px; text-align: left;">{{q}}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{withReply}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="align-self: flex-end; max-width: 80%; padding: 12px 16px; border-radius: 14px 14px 4px 14px; background: var(--surface-2); line-height: 1.7;">流年逐年裡提到 [2028] 是轉換期，具體要注意什麼？</div>
+          <div style="max-width: 92%; line-height: 1.8; color: var(--ink);">[AI 回覆：依報告第七章與命盤中 [2028 戊申] 對日主的關係……（僅供參考）]</div>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <button type="button" aria-label="有幫助" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink);"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 7l3-5c1 0 2 .8 1.6 2.2L9 6.5h4.2a1.3 1.3 0 0 1 1.3 1.5l-.8 5A1.3 1.3 0 0 1 12.4 14H5zM2 7h3v7H2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg></button>
+            <button type="button" aria-label="沒幫助" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink);"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="transform: rotate(180deg);"><path d="M5 7l3-5c1 0 2 .8 1.6 2.2L9 6.5h4.2a1.3 1.3 0 0 1 1.3 1.5l-.8 5A1.3 1.3 0 0 1 12.4 14H5zM2 7h3v7H2z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg></button>
+            <span style="margin-left: 8px; font-size: 12px; color: var(--subtle);">本次使用 [6] 積分</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span style="font-size: 13px; color: var(--subtle); align-self: center;">接著問：</span>
+            <button type="button" style="min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 13px;">[那一年適合換工作嗎？]</button>
+            <button type="button" style="min-height: 36px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 13px;">[和大運的關係是什麼？]</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <form style="display: flex; flex-direction: column; gap: 8px;">
+        <label style="position: absolute; left: -9999px;" for="q">輸入問題</label>
+        <textarea id="q" rows="3" placeholder="想進一步了解哪一段？" style="border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 12px; font-size: 15px; font-family: inherit; resize: vertical;"></textarea>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span style="font-size: 13px; color: var(--subtle);">模型 [DeepSeek] · 預計每則 [4–8] 積分 · 餘額 [126]</span>
+          <button type="button" style="height: 44px; padding: 0 20px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600;">送出</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["empty","withReply"],"default":"empty"},"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.state ?? 'empty';
+    return {
+      cls: (this.props.dark ?? false) ? 'east dark' : 'east',
+      empty: s === 'empty', withReply: s === 'withReply',
+      openers: ['我的喜用神在日常生活中怎麼用？', '大運轉換那幾年要注意什麼？', '事業章節提到的方向，適合哪些行業？', '流年裡哪一年最適合做重要決定？']
+    };
+  }
+}
+</script>
+</body>
+</html>

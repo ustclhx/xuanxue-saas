@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>出生档案管理</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);"><div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">干支日</strong></div></header>
+  <div style="max-width: 1120px; margin: 0 auto; padding: 32px 24px; display: flex; gap: 32px; flex-wrap: wrap;">
+    <aside style="flex: 1 1 220px; max-width: 240px; display: flex; flex-direction: column; gap: 4px; font-size: 15px;">
+      <strong style="font-size: 16px; margin-bottom: 12px;">我的空間</strong>
+      <a href="#" style="padding: 10px 12px; color: var(--muted); text-decoration: none;">總覽</a>
+      <a href="#" style="padding: 10px 12px; color: var(--muted); text-decoration: none;">我的報告</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; background: var(--surface-2); color: var(--ink); text-decoration: none; font-weight: 600;">出生檔案</a>
+      <a href="#" style="padding: 10px 12px; color: var(--muted); text-decoration: none;">AI 對話</a>
+      <a href="#" style="padding: 10px 12px; color: var(--muted); text-decoration: none;">帳單與積分</a>
+    </aside>
+    <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap;">
+        <div><h1 style="margin: 0; font-size: 26px;">出生檔案</h1><p style="margin: 6px 0 0; color: var(--muted); font-size: 15px;">存好自己和家人的生辰，排盤與詳批時一鍵帶入。只有你看得到。（{{count}}/20）</p></div>
+        <button type="button" style="height: 44px; padding: 0 18px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px;">新增檔案</button>
+      </div>
+      <div style="border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; background: var(--surface);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 640px;">
+          <thead><tr style="background: var(--surface-2); text-align: left;"><th style="padding: 12px 16px; font-weight: 600;">名稱</th><th style="padding: 12px 16px; font-weight: 600;">關係</th><th style="padding: 12px 16px; font-weight: 600;">出生</th><th style="padding: 12px 16px; font-weight: 600;">日主</th><th style="padding: 12px 16px;"><span style="position: absolute; left: -9999px;">操作</span></th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+              <tr style="border-top: 1px solid var(--line);">
+                <td style="padding: 14px 16px;"><strong>{{r.name}}</strong> <sc-if value="{{r.isDefault}}" hint-placeholder-val="{{ false }}"><span style="margin-left: 6px; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--accent-ink);">預設</span></sc-if></td>
+                <td style="padding: 14px 16px; color: var(--muted);">{{r.rel}}</td>
+                <td style="padding: 14px 16px; color: var(--muted); font-variant-numeric: tabular-nums;">{{r.birth}}</td>
+                <td style="padding: 14px 16px; font-family: 'Noto Serif TC', serif;">{{r.dm}}</td>
+                <td style="padding: 8px 16px; text-align: right; white-space: nowrap;"><a href="#" style="display: inline-flex; align-items: center; height: 36px; padding: 0 10px;">排盤</a><button type="button" style="height: 36px; padding: 0 10px; border: 0; background: transparent; color: var(--ink);">編輯</button><button type="button" aria-label="更多操作：{{r.name}}" style="width: 36px; height: 36px; border: 0; background: transparent; color: var(--ink);">⋯</button></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: var(--subtle);">刪除檔案不影響已生成的報告；刪除帳戶時檔案一併刪除。出生資料不會寫入分享連結、統計或 AI 對話。</p>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1050}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [
+      { name: '我', rel: '本人', birth: '1990-05-15 10:30 台北', dm: '庚金', isDefault: true },
+      { name: '媽媽', rel: '家人', birth: '1962-09-03 06:15 台中', dm: '[ ]', isDefault: false },
+      { name: '小安', rel: '伴侶', birth: '1991-12-24 時辰不詳 高雄', dm: '[ ]', isDefault: false }
+    ];
+    return { cls: (this.props.dark ?? false) ? 'east dark' : 'east', rows, count: String(rows.length) };
+  }
+}
+</script>
+</body>
+</html>

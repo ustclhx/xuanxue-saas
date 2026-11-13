@@ -126,3 +126,7 @@
 ## 决策记录（2026-11-13，使用者确认）
 
 使用者审阅后确认：本 change 的 Open Questions 全部采用设计中的默认/推荐方案；需要使用者审阅的文案与样例按本 change 的默认方案执行，上线前的验收截图仍按 tasks 留证。
+
+## 原型索引（2026-11-14）
+
+设计稿经使用者确认，见 `docs/design/prototypes/README.md` 中所属 change 为本 change 的各行（副本在 `docs/design/prototypes/roadmap/`）。确认时同时变更品牌 token：东方站浅色 `--bg`、`--surface` 改为 `#ffffff`，`--surface-2` 改为 `#f5f2ec`（已写入 `apps/web/src/styles/brand.css` 与 `docs/design/visual-system.md`）。
