@@ -415,7 +415,7 @@ async function ensureLocalizedProduct(
   const description =
     input.plan.credits === undefined
       ? undefined
-      : localizedPackDescription(input.plan.credits, locale)
+      : localizedPackDescription(input.plan.credits, locale, input.plan.type)
   try {
     const product = await stripe.products.retrieve(productId)
     if (product.metadata.planId !== input.plan.id || product.metadata.locale !== locale)
@@ -522,7 +522,7 @@ async function syncLocalizedPackPrices(
 
 /**
  * TWD / KRW 价格行（localize-checkout-currency D1）：每行对应 Stripe 上一个独立 Price，挂在该币种所服务语言的
- * 本地化商品上（积分包有译名时；订阅等没有译名的套餐挂规范商品）。本地 plan_price 直接记录该 Price，
+ * 本地化商品上（套餐有译名时，含订阅 plus / premium；没有译名的套餐挂规范商品）。本地 plan_price 直接记录该 Price，
  * 结账不经 lookup_key 还原。已映射的 Price 只核对，不一致即报错，绝不改价或改指向。
  */
 async function syncLocalCurrencyPrice(stripe: Stripe, input: PlanSyncInput): Promise<string> {
@@ -530,7 +530,8 @@ async function syncLocalCurrencyPrice(stripe: Stripe, input: PlanSyncInput): Pro
   if (!currency || currency === 'USD') throw new Error('Expected a local-currency price')
   assertMinorAmount(input.price.amount, currency)
   const locale = LOCAL_CURRENCY_LOCALE[currency]
-  const name = input.price.interval === null ? localizedPackName(input.plan.key, locale) : null
+  // 积分包与有译名的订阅（plus / premium）都挂本地化商品；没有译名的套餐挂规范商品
+  const name = localizedPackName(input.plan.key, locale)
   const expectedProduct = name
     ? localizedProductId(input.plan.id, locale)
     : canonicalProductId(input.plan.id)

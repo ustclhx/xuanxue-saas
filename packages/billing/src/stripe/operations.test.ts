@@ -895,20 +895,74 @@ describe('Stripe refunds and immutable plan prices', () => {
       mock.complete()
     })
 
-    it('puts a KRW subscription price on the canonical product', async () => {
+    it('puts a KRW subscription price without a localized name on the canonical product', async () => {
       const mock = mockStripe([
         { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}`, body: { id: 'p' } },
         { method: 'POST', path: '/v1/prices', body: { id: 'price_krw' } },
       ])
       await mock.operations.syncPlan({
         ...sync,
-        plan: { ...sync.plan, key: 'plus' },
         price: { ...price, amount: 7000, currency: 'KRW' },
       })
       expect(mock.requests[1]?.body.get('product')).toBe(`xuanxue_plan_${hex}`)
       expect(mock.requests[1]?.body.get('currency')).toBe('krw')
       expect(mock.requests[1]?.body.get('recurring[interval]')).toBe('month')
       expect(mock.requests[1]?.body.get('metadata[locale]')).toBe('ko')
+      mock.complete()
+    })
+
+    it.each([
+      ['plus', 'KRW', 7000, 'ko', 'Plus 월간 플랜', '매월 400 크레딧'],
+      ['premium', 'TWD', 32500, 'zh_hant', 'Premium 每月方案', '每月 400 積分'],
+    ] as const)(
+      'puts the %s %s subscription price on its localized monthly product',
+      async (key, currency, amount, slug, name, description) => {
+        const mock = mockStripe([
+          {
+            method: 'GET',
+            path: `/v1/products/xuanxue_plan_${hex}_${slug}`,
+            status: 404,
+            body: {
+              error: {
+                type: 'invalid_request_error',
+                code: 'resource_missing',
+                message: 'Missing',
+              },
+            },
+          },
+          { method: 'POST', path: '/v1/products', body: { id: `xuanxue_plan_${hex}_${slug}` } },
+          { method: 'POST', path: '/v1/prices', body: { id: 'price_local' } },
+        ])
+        expect(
+          await mock.operations.syncPlan({
+            ...sync,
+            plan: { ...sync.plan, key, credits: 400 },
+            price: { ...price, amount, currency },
+          }),
+        ).toEqual({ providerPriceId: 'price_local' })
+        expect(mock.requests[1]?.body.get('name')).toBe(name)
+        expect(mock.requests[1]?.body.get('description')).toBe(description)
+        expect(mock.requests[2]?.body.get('product')).toBe(`xuanxue_plan_${hex}_${slug}`)
+        expect(mock.requests[2]?.body.get('recurring[interval]')).toBe('month')
+        expect(mock.requests[2]?.body.has('lookup_key')).toBe(false)
+        mock.complete()
+      },
+    )
+
+    it('creates a USD subscription price on the canonical product only, without localized variants', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}`, body: { id: 'p' } },
+        { method: 'POST', path: '/v1/prices', body: { id: 'price_plus_usd' } },
+      ])
+      expect(
+        await mock.operations.syncPlan({
+          ...sync,
+          plan: { ...sync.plan, key: 'plus', credits: 400 },
+          price: { ...price, amount: 499 },
+        }),
+      ).toEqual({ providerPriceId: 'price_plus_usd' })
+      expect(mock.requests).toHaveLength(2)
+      expect(mock.requests[1]?.body.get('recurring[interval]')).toBe('month')
       mock.complete()
     })
   })

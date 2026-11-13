@@ -2,7 +2,7 @@ import { providerSettlesIn } from '@xuanxue/billing/currency'
 import { createDb } from '@xuanxue/db'
 import { log } from '@xuanxue/shared/log'
 import type { Plugin } from 'vite'
-import { EXAMPLE_CATALOG } from '../../../packages/billing/src/catalog.ts'
+import { EXAMPLE_CATALOG, SUBSCRIPTION_PROVIDERS } from '../../../packages/billing/src/catalog.ts'
 import type { PricingCatalog } from '../src/features/marketing/pricing-data.ts'
 import { readPricingCatalog } from '../src/features/marketing/pricing-read.ts'
 
@@ -22,7 +22,12 @@ export function examplePricingCatalog(): PricingCatalog {
     prices: active.flatMap((plan) =>
       (['stripe', 'paypal'] as const).flatMap((provider) =>
         plan.prices
-          .filter((price) => providerSettlesIn(provider, price.currency))
+          // 与 seed 同一规则：PayPal 只有 USD 且不卖订阅
+          .filter(
+            (price) =>
+              providerSettlesIn(provider, price.currency) &&
+              (price.interval === null || SUBSCRIPTION_PROVIDERS.includes(provider)),
+          )
           .map((price) => ({
             ...price,
             id: `example:${plan.key}:${provider}:${price.interval}:${price.currency}`,

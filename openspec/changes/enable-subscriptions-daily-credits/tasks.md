@@ -28,10 +28,10 @@
 
 ## 2. W1 订阅目录与价格同步
 
-- [ ] 2.1 【Claude】在 `EXAMPLE_CATALOG` 中新增 `plus`（400）与 `premium`（1000）月付订阅（`rollover=false`，sort 30/40），价格只来自价目表的 `month` 条目，只生成 Stripe 价格行，不生成 PayPal 订阅价格行。`pro`/`team` 不动。验证：catalog 的 postgres 测试覆盖：重跑 seed 幂等；新套餐的 Stripe 价格行为 `unsynced` 且 inactive；PayPal 没有订阅价格行；既有积分包行不变
-- [ ] 2.2 【Claude】增加「在售订阅套餐的 `features.models` ⊇ free 的 models」检查：激活订阅价格前若不满足即报错，并提供只读诊断输出。验证：单测覆盖缺少模型时拒绝、补齐后通过
-- [ ] 2.3 【Claude】`sync-stripe-live.ts` 去掉「只允许积分包」的断言，允许月付订阅价格；`stripe/localized.ts` 的译名表扩展到 `plus`/`premium`（四种语言），本地化订阅 Product 与 Price 的创建复用 A 的同步逻辑（若 A 未合并，则只建规范 Price）。验证：sync 测试覆盖订阅价格的创建与重跑核对；演练模式列出订阅价格且不调用 Stripe
-- [ ] 2.4 【Codex】在 `docs/05-billing.md` 的「本站」部分与 `docs/runbooks/stripe-launch.md` §0 中更新「只卖积分包」的边界，补充订阅价格的创建、门户配置与停用步骤。验证：按文档在本地库运行演练命令，输出一致
+- [x] 2.1 【Claude】在 `EXAMPLE_CATALOG` 中新增 `plus`（400）与 `premium`（1000）月付订阅（`rollover=false`，sort 30/40），价格只来自价目表的 `month` 条目，只生成 Stripe 价格行，不生成 PayPal 订阅价格行。`pro`/`team` 不动。验证：catalog 的 postgres 测试覆盖：重跑 seed 幂等；新套餐的 Stripe 价格行为 `unsynced` 且 inactive；PayPal 没有订阅价格行；既有积分包行不变
+- [x] 2.2 【Claude】增加「在售订阅套餐的 `features.models` ⊇ free 的 models」检查：激活订阅价格前若不满足即报错，并提供只读诊断输出。验证：单测覆盖缺少模型时拒绝、补齐后通过
+- [x] 2.3 【Claude】`sync-stripe-live.ts` 去掉「只允许积分包」的断言，允许月付订阅价格；`stripe/localized.ts` 的译名表扩展到 `plus`/`premium`（四种语言），本地化订阅 Product 与 Price 的创建复用 A 的同步逻辑（若 A 未合并，则只建规范 Price）。验证：sync 测试覆盖订阅价格的创建与重跑核对；演练模式列出订阅价格且不调用 Stripe
+- [x] 2.4 【Codex】在 `docs/05-billing.md` 的「本站」部分与 `docs/runbooks/stripe-launch.md` §0 中更新「只卖积分包」的边界，补充订阅价格的创建、门户配置与停用步骤。验证：按文档在本地库运行演练命令，输出一致
 
 ## 3. W2 每日积分
 
