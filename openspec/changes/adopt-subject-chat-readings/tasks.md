@@ -21,8 +21,8 @@
 
 ## 3. 波次 A-2：预计消耗改用模板组件（依赖：无）
 
-- [ ] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
-- [ ] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
+- [x] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
+- [x] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
 - [ ] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
 - [ ] 3.4 【Codex】余额不足弹窗验收：在对话页与（组 5 合并后的）嵌入对话中，余额低于最低预扣时发送消息，弹出 `InsufficientCreditsDialog` 并显示预计消耗与余额，「购买积分包」跳到账单页积分包区。验证：本地 e2e 或浏览器截图存入证据目录
 

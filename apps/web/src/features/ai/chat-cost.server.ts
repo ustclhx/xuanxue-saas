@@ -1,0 +1,56 @@
+import { aiMessageOrder, messageText } from '@xuanxue/ai'
+import { getCreditBalance } from '@xuanxue/credits'
+import { aiConversation, aiMessage, type Database, scoped } from '@xuanxue/db'
+import { AppError } from '@xuanxue/shared'
+import { and, eq, type SQL } from 'drizzle-orm'
+
+/**
+ * 对话输入区预计消耗所需的服务端数据（adopt-subject-chat-readings design 决策 6）：
+ * 当前空间可用余额，以及对话首条 system 消息（对象上下文或旧带盘上下文）的长度。
+ * 只返回长度不返回正文；与 `chat.ts` 取固定前缀的口径一致（首条 system 消息的文本）。
+ */
+export interface ChatCostContext {
+  /** 可用积分（与 POST /api/ai/chat 预扣时读取的余额一致） */
+  readonly availableCredits: number
+  /** 固定前缀的字符数（按码点计数，与 token 估算器一致）；无对话或无前缀为 0 */
+  readonly prefixChars: number
+}
+
+export async function chatCostContext(
+  db: Database,
+  input: { workspaceId: string; userId: string; conversationId?: string | undefined },
+): Promise<ChatCostContext> {
+  const prefixChars = input.conversationId ? await prefixLength(db, input) : 0
+  const balance = await getCreditBalance(db, input.workspaceId)
+  return { availableCredits: Math.max(0, balance.available), prefixChars }
+}
+
+async function prefixLength(
+  db: Database,
+  input: { workspaceId: string; userId: string; conversationId?: string | undefined },
+) {
+  const s = scoped(db, input.workspaceId)
+  const conversationId = input.conversationId ?? ''
+  // 只看自己的对话：他人的对话与不存在的对话一样 404
+  const [conversation] = await s
+    .select(aiConversation, {
+      fields: { id: aiConversation.id },
+      where: and(
+        eq(aiConversation.id, conversationId),
+        eq(aiConversation.userId, input.userId),
+      ) as SQL,
+    })
+    .limit(1)
+  if (!conversation) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
+  const [system] = await s
+    .select(aiMessage, {
+      fields: { parts: aiMessage.parts },
+      where: and(eq(aiMessage.conversationId, conversationId), eq(aiMessage.role, 'system')) as SQL,
+    })
+    .orderBy(...aiMessageOrder())
+    .limit(1)
+  if (!system) return 0
+  let chars = 0
+  for (const _ of messageText(system.parts)) chars++
+  return chars
+}

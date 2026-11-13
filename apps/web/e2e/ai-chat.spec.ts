@@ -232,8 +232,10 @@ test('chat page picks a model, streams replies, stops and explains errors', asyn
       await expect(page.getByRole('listbox')).toHaveCount(0)
       await chooseOption(trigger, { value: model.modelId })
     }).toPass({ timeout: 90_000, intervals: [2_000, 5_000] })
-    await expect(page.getByTestId('chat-cost-model')).toHaveText(model.key)
-    await expect(page.getByTestId('chat-cost-estimate')).toHaveText('2 credits per message')
+    // 预计消耗改用 @xuanxue/ui 的 CreditEstimate：「每条预计 · 余额」，模型名由选择器显示
+    await expect(page.getByTestId('chat-cost')).toContainText(
+      /^2 credits per message · Balance [\d,]+/,
+    )
 
     // 1. 正常回复：只提交本轮用户消息，逐段渲染模拟流
     const messageId = newId()
