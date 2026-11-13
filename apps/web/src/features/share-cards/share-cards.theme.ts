@@ -42,7 +42,8 @@ export const siteShareCardThemes: Readonly<Record<SiteId, Partial<ShareCardTheme
 }
 
 /**
- * 运行时分享卡片与 /dev/ui 预览使用的单一覆盖：与 templateConfig.app（Arcanumber / arcanumber.com）一致，取西方站配色。
- * 项目注册按站点区分的卡片类型时，在类型的 render 中按站点叠加 siteShareCardThemes。
+ * 运行时分享卡片与 /dev/ui 预览使用的单一覆盖。项目尚未注册卡片类型，暂保持模板基线：
+ * 模板的版式单测按基线颜色断言，且单一覆盖无法同时表达两站配色。
+ * 注册按站点区分的卡片类型时，在类型的 render 中按站点叠加 siteShareCardThemes。
  */
-export const projectShareCardTheme: Partial<ShareCardTheme> = siteShareCardThemes.west
+export const projectShareCardTheme: Partial<ShareCardTheme> = {}

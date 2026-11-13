@@ -20,7 +20,19 @@ vi.mock('@tanstack/react-router', async (importOriginal) => ({
       {children}
     </a>
   ),
-  useRouterState: () => false,
+  // 项目页头读取路由状态（博客语言）与当前路径（东方站英文入口页），这里给出空路由状态
+  useRouterState: (options?: { select?: (state: unknown) => unknown }) =>
+    options?.select
+      ? options.select({
+          matches: [],
+          isLoading: false,
+          location: { pathname: new URL(current.request.url).pathname },
+        })
+      : false,
+  useLocation: (options?: { select?: (location: { pathname: string }) => unknown }) => {
+    const location = { pathname: new URL(current.request.url).pathname }
+    return options?.select ? options.select(location) : location
+  },
 }))
 vi.mock('@tanstack/react-start/server', () => ({ getRequest: () => current.request }))
 

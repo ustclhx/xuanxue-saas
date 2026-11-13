@@ -295,11 +295,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     writeFileSync(SNAPSHOT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`)
     console.log(`已写入 ${SNAPSHOT_PATH}`)
   } else {
-    // 唯一调用方是 `pnpm build`（Cloudflare 构建，必有 dist/server）
-    for (const { ok, lines } of [
-      reportHomePages(checkHomePages(clientDir)),
-      reportServerHomeBundle(serverDir),
-    ]) {
+    // 唯一调用方是 `pnpm build`（Cloudflare 构建，必有 dist/server）；一侧产物缺失时另一侧照常报告
+    const client = () => {
+      try {
+        return reportHomePages(checkHomePages(clientDir))
+      } catch (error) {
+        return {
+          ok: false,
+          lines: [`首页包检查失败：${error instanceof Error ? error.message : error}`],
+        }
+      }
+    }
+    for (const { ok, lines } of [reportServerHomeBundle(serverDir), client()]) {
       for (const line of lines) (ok ? console.log : console.error)(line)
       if (!ok) process.exitCode = 1
     }
