@@ -59,9 +59,9 @@
 
 依赖：3（7.1 可在 3 合并后立即开始）；7.3 依赖 4、5、6 合并。冲突点：`features/tools/share-link.tsx` 与新模块 `features/tools/share-card/` 只由本组修改；文案 `share-card.json`。
 
-- [ ] 7.1 技术预研：用 3.1 的外框与一个样例图形，验证「克隆 SVG → 内联颜色 → Image → Canvas → PNG」在 iOS Safari、Android Chrome、桌面 Chrome / Safari / Firefox 的中韩文字形与导出；不通过时按 design.md D5 改为 Canvas 2D 绘字。验证：各浏览器导出图存入 `EVIDENCE_DIR`，结论写入 PR 与 design.md D5
-- [ ] 7.2 实现按需加载的分享图模块：卡片框架（图形、站名与网址、合规声明、可选出生日期勾选，默认不含）、1080×1350 PNG、`navigator.share` 文件分享与下载回退、失败提示与重试。验证：单元测试断言默认输出不含出生日期 / 姓名 / 出生地文本；Playwright 断言生成期间无携带输入的网络请求、离线可生成；2.2 的禁止标记检查通过
-- [ ] 7.3 在八字、만세력、紫微、生命灵数结果的分享操作旁接入「保存分享图」。验证：四类结果各生成一张，与「分享图」画布副本对照，截图存入 `EVIDENCE_DIR`
+- [ ] 7.1 技术预研：用 3.1 的外框与一个样例图形，验证「克隆 SVG → 内联颜色 → Image → Canvas → PNG」在 iOS Safari、Android Chrome、桌面 Chrome / Safari / Firefox 的中韩文字形与导出；不通过时按 design.md D5 改为 Canvas 2D 绘字。验证：各浏览器导出图存入 `EVIDENCE_DIR`，结论写入 PR 与 design.md D5（2026-11-14：桌面 Chromium / Chrome / WebKit / Firefox 已通过并写入 D5；iOS Safari、Android Chrome 实机待 10.3 staging 验收后勾选）
+- [x] 7.2 实现按需加载的分享图模块：卡片框架（图形、站名与网址、合规声明、可选出生日期勾选，默认不含）、1080×1350 PNG、`navigator.share` 文件分享与下载回退、失败提示与重试。验证：单元测试断言默认输出不含出生日期 / 姓名 / 出生地文本；Playwright 断言生成期间无携带输入的网络请求、离线可生成；2.2 的禁止标记检查通过
+- [x] 7.3 在八字、만세력、紫微、生命灵数结果的分享操作旁接入「保存分享图」。验证：四类结果各生成一张，与「分享图」画布副本对照，截图存入 `EVIDENCE_DIR`
 
 ## 8. 样例 OG 图（worktree W6）
 

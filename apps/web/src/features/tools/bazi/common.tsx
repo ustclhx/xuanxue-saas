@@ -1,6 +1,7 @@
 import type { BirthInput } from '@xuanxue/bazi'
 import { type ReactNode, useEffect } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import type { ShareCardModel } from '../share-card/model.ts'
 import { ShareLink } from '../share-link.tsx'
 import { toolHref } from '../tool-href.ts'
 import type { ToolLink } from '../tool-links.tsx'
@@ -75,13 +76,16 @@ export function ResultStatus<R>({
 export function ResultFooter({
   share,
   engineVersion,
+  card,
 }: {
   share: Readonly<Record<string, unknown>>
   engineVersion: string
+  /** 「保存分享图」的模型（八字、만세력、紫微结果提供） */
+  card?: (() => ShareCardModel) | undefined
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <ShareLink input={share} />
+      <ShareLink input={share} card={card} />
       <p className="m-0 text-ink-subtle text-xs">
         {m.bazi_engine_version({ version: engineVersion })}
       </p>

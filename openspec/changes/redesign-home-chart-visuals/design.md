@@ -71,6 +71,13 @@
 点击「保存分享图」时按需 `import()` 分享图模块：克隆页面中已渲染的图形节点，内联解析后的颜色，套入卡片 SVG 框架（站名、网址、合规声明、可选出生日期），经 `Image` → `Canvas` 栅格化为 PNG；支持 `navigator.canShare({ files })` 时提供系统分享，否则下载。默认尺寸 1080×1350（4:5）。
 SVG 作为图像时不能使用页面网页字体，卡片文字用系统字体栈；第一个实现任务先做技术预研，在 iOS Safari、Android Chrome、桌面 Chrome/Safari/Firefox 上验证中韩文字形与导出。预研不通过时改为 Canvas 2D 直接绘制文字（可用 `document.fonts` 中已加载的网页字体），图形部分仍用 SVG 栅格化。
 备选：服务端按结果生成。否决理由：需要把出生信息发到服务器，违反 `#r=` 片段不出浏览器的设计，也增加 Worker CPU 与 wasm 体积。备选：浏览器内跑 satori。否决理由：wasm 与字体体积过大。
+备选：模板 0.4.1 的运行时分享卡片（`/share-card/<type>/<token>.png`）。否决理由：须先把结果持久化到服务端换取令牌，与「出生资料不上传」相悖；本 change 的结果分享图仍在浏览器本地生成，不接入运行时分享卡片。
+
+**预研结论（tasks 7.1，2026-11-14）**：本机（macOS）Playwright Chromium 153、Google Chrome 157、WebKit 26.6（Safari 内核）、Firefox 155 上，
+「SVG → Image → Canvas → PNG」的繁体、简体、韩文字形与导出均正常，但 SVG 作图片时读不到页面网页字体（按字体栈回退到系统字体）；
+Canvas 2D `fillText` 可使用页面已加载的网页字体。据此采用：卡片文字与版式用 Canvas 2D 绘制（东方站 Noto Serif TC / KR、西方站 Cormorant Garamond 等页面字体，
+先等待 `document.fonts.load`，超时或离线时用回退字体），只有克隆的页面图形（紫微盘）经 SVG 栅格化；韩文由页面字体与系统字体覆盖，不需要另载 Noto Sans KR。
+卡片颜色随页面当前主题解析（东方站深色模式下生成深色卡片）。iOS Safari 与 Android Chrome 实机未测，并入 10.3 staging 手机实机验收。
 
 ### D6 OG 图在构建期加入样例图形
 

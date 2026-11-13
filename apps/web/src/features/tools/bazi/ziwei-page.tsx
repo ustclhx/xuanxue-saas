@@ -8,6 +8,7 @@ import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { ZiweiChartGraphic } from '../charts/ziwei-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
+import { ziweiShareCard } from '../share-card/sources-ziwei.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
@@ -197,7 +198,11 @@ export function ZiweiResult({
           })}
         </ul>
       </ResultBlock>
-      <ResultFooter share={share} engineVersion={chart.engineVersion} />
+      <ResultFooter
+        share={share}
+        engineVersion={chart.engineVersion}
+        card={() => ziweiShareCard(chart)}
+      />
     </>
   )
 }

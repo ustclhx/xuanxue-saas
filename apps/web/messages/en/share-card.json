@@ -1,0 +1,23 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_card_save": "Save share image",
+  "share_card_generating": "Creating image…",
+  "share_card_include_birth": "Show birth date on the image",
+  "share_card_ready": "Your image was created in this browser. Nothing was uploaded.",
+  "share_card_download": "Download image",
+  "share_card_share": "Share",
+  "share_card_failed": "Couldn't create the image. Try again — your result and share link still work.",
+  "share_card_retry": "Try again",
+  "share_card_preview_alt": "Share image preview",
+  "share_card_title_bazi": "{brand} · My BaZi chart",
+  "share_card_title_manseryeok": "{brand} · My Manseryeok chart",
+  "share_card_title_ziwei": "{brand} · My Zi Wei chart",
+  "share_card_eyebrow_life_path": "My Life Path",
+  "share_card_cta_east": "Free charts at {domain}",
+  "share_card_cta_west": "Find yours at {domain}",
+  "share_card_privacy_without_birth": "No birth date shown",
+  "share_card_privacy_with_birth": "No name or birthplace shown",
+  "share_card_disclaimer": "Calculated with traditional rules. For entertainment only; it does not predict the future.",
+  "share_card_ziwei_stars": "Life palace stars: {stars}",
+  "share_card_list_separator": ", "
+}

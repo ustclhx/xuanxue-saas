@@ -7,6 +7,7 @@ import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
+import { lifePathShareCard } from '../share-card/sources-life-path.ts'
 import { ShareLink } from '../share-link.tsx'
 import { formatBirthDate, parseBirthDate } from './calc.ts'
 import { FieldError, LifePathCard } from './parts.tsx'
@@ -133,7 +134,12 @@ export function LifePathCalculator({
             <LifePathCard
               result={calculated.result}
               date={calculated.date}
-              footer={<ShareLink input={{ date: formatBirthDate(calculated.date) }} />}
+              footer={
+                <ShareLink
+                  input={{ date: formatBirthDate(calculated.date) }}
+                  card={() => lifePathShareCard(calculated.result, calculated.date)}
+                />
+              }
             />
           ) : (
             <LifePathCard result={lifePath(example)} date={example} example />

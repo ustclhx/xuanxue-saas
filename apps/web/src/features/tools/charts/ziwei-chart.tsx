@@ -232,6 +232,8 @@ export function ZiweiBoard({
         color={colors.inkMuted}
         size={v.small}
         textAnchor="middle"
+        // 出生时间：分享图未勾选「显示出生日期」时据此移除（share-card/chart-markup.ts）
+        data-birth=""
       >
         {formatDateTime(chart.used)}
       </ChartText>
