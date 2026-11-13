@@ -125,7 +125,10 @@ test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示�
   await expect(page.getByLabel('女', { exact: true })).toBeChecked()
 
   await page.getByRole('button', { name: '排紫微命盤' }).click()
-  await expect(page.locator('#palaces [data-palace]')).toHaveCount(12)
+  // 图形按断点输出手机版与桌面版两张，只数可见的一张
+  await expect(
+    page.locator('#palaces [data-chart="ziwei-palaces"]:visible [data-palace]'),
+  ).toHaveCount(12)
 
   await page.getByLabel('不知道出生時辰').check()
   await page.getByRole('button', { name: '排紫微命盤' }).click()

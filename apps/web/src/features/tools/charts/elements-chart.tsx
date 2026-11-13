@@ -12,7 +12,7 @@ export function ElementsChart({
   colors: overrides,
 }: {
   elements: readonly ElementStat[]
-  colors?: Partial<ChartColors>
+  colors?: Partial<ChartColors> | undefined
 }) {
   const colors = chartColors(overrides)
   const layout = layoutElements(elements)

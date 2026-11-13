@@ -89,9 +89,9 @@ export function PillarsChart({
   pillars: Pillars
   locale: PillarsLocale
   /** 默认按语言：繁简年月日時、韩语시일월연 */
-  order?: readonly PillarKey[]
-  colors?: Partial<ChartColors>
-  className?: string
+  order?: readonly PillarKey[] | undefined
+  colors?: Partial<ChartColors> | undefined
+  className?: string | undefined
 }) {
   const colors = chartColors(overrides)
   const ko = locale === 'ko'
@@ -132,7 +132,7 @@ export function PillarsChart({
             y={rows.header.baseline}
             color={column.isDay ? colors.ink : colors.inkSubtle}
             size={24}
-            weight={column.isDay ? 600 : undefined}
+            weight={column.isDay ? 600 : 400}
             textAnchor="middle"
           >
             {PILLAR_LABEL[column.key]()}
@@ -142,7 +142,7 @@ export function PillarsChart({
             y={rows.tenGod.baseline}
             color={column.isDay ? colors.accentInk : colors.inkMuted}
             size={24}
-            weight={column.isDay ? 600 : undefined}
+            weight={column.isDay ? 600 : 400}
             textAnchor="middle"
           >
             {column.tenGod === 'dayMaster'
