@@ -28,6 +28,7 @@ import {
 import { readingDefinition, resolveReadingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeRecordedReading } from './generate.ts'
+import { SAMPLES_APPROVED } from './samples.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
 /**
@@ -220,7 +221,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
           resolveReadingDefinition(definition.kind, data.locale, status.config.promptVersion) ??
           definition
         ).prompt.sections,
-        sample: definition.sample,
+        // 样例段落经使用者审定（D11）前不渲染
+        sample: SAMPLES_APPROVED ? definition.sample : '',
         packs,
         // 已有续费中的订阅时换档走账单页（模板换档与币种约束），解锁卡只提供积分包
         plans: viewer?.subscribed ? [] : plans,

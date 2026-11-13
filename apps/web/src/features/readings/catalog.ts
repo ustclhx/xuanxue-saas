@@ -40,6 +40,7 @@ import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
+import { READING_SAMPLES } from './samples.ts'
 
 /**
  * 详批注册表（add-reading-monetization design 决策 1）：每种详批的输入校验、服务端复算、
@@ -81,6 +82,7 @@ export interface ReadingVariant {
   /**
    * 解锁卡的样例段落（product-improve-ai-content design 决策 5、D11）：人工撰写、基于虚构命盘或牌阵，
    * 不调用模型、不引用访客数据；须通过 `checkCompliance`，由 catalog.test.ts 检查。
+   * 全文在 samples.ts；是否对访客渲染由其中的审定开关 `SAMPLES_APPROVED` 决定（见 readings.functions.ts）。
    */
   readonly sample: string
 }
@@ -442,16 +444,14 @@ const entries = {
         disclaimer:
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
-        sample:
-          '日主乙木，生於卯月，木氣當令，本來有根有氣。不過四柱之中金氣偏旺，整體判斷為身弱。年干庚金為正官、時干辛金為七殺，形成官殺混雜、壓力偏重的格局。這樣的組合，人生的主軸往往是「如何在要求與規範之中，穩住自己的節奏」。',
+        sample: READING_SAMPLES['bazi-full']['zh-Hant'],
       },
       'zh-Hans': {
         prompt: BAZI_FULL_V3,
         disclaimer:
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
-        sample:
-          '日主乙木，生于卯月。乙木如藤萝花草，看似柔软，实则韧性很强。天干庚金正官与辛金七杀并见，对日主形成持续的约束、雕琢之力，综合判为身弱，属于“有根但压力不小”的结构。喜用取水、木：水能化金之锐而生木，木能帮身自立。',
+        sample: READING_SAMPLES['bazi-full']['zh-Hans'],
       },
     },
     versions: { 'bazi-full.v4': BAZI_FULL_V4 },
@@ -465,8 +465,7 @@ const entries = {
         disclaimer:
           '이 풀이는 전통 명리학에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: KO_HEALTH,
-        sample:
-          '일간 기토가 월지와 일지의 유금, 그리고 시간의 신금까지 마주해 식신의 기운이 대단히 두터운 것이 이 명식의 가장 큰 특징입니다. 여기에 계수 편재가 더해져 식신생재의 흐름이 자연스럽게 이어집니다. 다만 일간을 받쳐 주는 토의 힘이 넉넉하지 않아, 재능은 풍부하지만 중심을 잡는 힘이 아쉬울 수 있습니다.',
+        sample: READING_SAMPLES['saju-full'].ko,
       },
     },
     versions: { 'saju-full.v4': SAJU_FULL_V4 },
@@ -480,16 +479,14 @@ const entries = {
         disclaimer:
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
-        sample:
-          '命宮在卯，天府得地坐命；身宮落在遷移宮酉位，由武曲、七殺同宮。命宮天府重視安全感、善於統籌與守成，身宮武曲七殺則帶著實事求是與敢於承擔的衝勁。兩者並不衝突，只要懂得分工，就能形成先想清楚、再快速執行的節奏。',
+        sample: READING_SAMPLES['ziwei-full']['zh-Hant'],
       },
       'zh-Hans': {
         prompt: ZIWEI_FULL_V3,
         disclaimer:
           '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
-        sample:
-          '命宫坐卯宫，主星为天府，性稳能容，重信用讲章法，做事喜欢有把握、有次序。身宫落在迁移宫（酉），主星武曲与七杀，代表行动风格偏向务实、果断、敢往外走。命宫与身宫一静一动，形成“底子求稳、对外敢闯”的基本格局。',
+        sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
     },
     versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
@@ -503,8 +500,7 @@ const entries = {
         disclaimer:
           '이 궁합 풀이는 전통 명리학에 따른 참고 자료로 관계에 대한 결정을 대신하지 않으며, 의료·법률·투자 조언이 아니고 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
-        sample:
-          '한 사람은 병화 일간으로 화 기운이 중심이고, 다른 사람은 갑목 일간으로 목 기운이 중심입니다. 목생화의 흐름이라 상대의 기운이 이쪽을 북돋아 주는 방향으로 작동합니다. 서로에게 부족한 것을 이미 서로가 갖고 있는 셈이니, 이 관계의 힘은 화려한 사건보다 일상에서 쌓이는 온기와 안정에 있습니다.',
+        sample: READING_SAMPLES['saju-compat'].ko,
       },
     },
     recompute: recomputeCompat,
@@ -520,8 +516,7 @@ const entries = {
           title: 'Wellbeing Habits',
           notice: 'If you feel unwell, please consult a qualified healthcare professional.',
         },
-        sample:
-          "This chart centers on a Life Path 9, a number of compassion, perspective and quiet completion. It gives a wide-angle view of people, seeing the story behind someone's behaviour rather than just the behaviour itself. Alongside it sits a Birthday number 7, adding thoughtfulness and a habit of looking beneath the surface, and an Expression number 11, a master number that brings unusual sensitivity and intuition.",
+        sample: READING_SAMPLES['numerology-full'].en,
       },
     },
     versions: { 'numerology-full.v4': NUMEROLOGY_FULL_V4 },
@@ -535,32 +530,28 @@ const entries = {
         disclaimer:
           'This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: null,
-        sample:
-          'In this three-card spread, The Hanged Man in the Past suggests that a period of pause or letting go has influenced the question. In the Present, the Five of Cups brings disappointment and grief into focus, not to trap anyone there, but to acknowledge what has felt lost. The Hermit reversed in the Future is a direction to consider: solitude and insight matter, yet withdrawal may become too enclosed if it keeps one from returning to connection.',
+        sample: READING_SAMPLES['tarot-spread'].en,
       },
       'zh-Hant': {
         prompt: TAROT_SPREAD_V2['zh-Hant'],
         disclaimer:
           '本報告依塔羅牌的象徵意義整理，僅供參考與自我反思，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: null,
-        sample:
-          '過去位置的隱者逆位、現在位置的惡魔正位、未來位置的星星逆位。三張牌放在一起看，有一條很清楚的線：從「把自己收得太緊」到「被熟悉的慣性牽著走」，再到「與心裡的期待之間出現距離」。這不是命運的宣告，而是一組很溫和的提醒。',
+        sample: READING_SAMPLES['tarot-spread']['zh-Hant'],
       },
       'zh-Hans': {
         prompt: TAROT_SPREAD_V3['zh-Hans'],
         disclaimer:
           '本报告依塔罗牌的象征意义整理，仅供参考与自我反思，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: null,
-        sample:
-          '权杖四、逆位的权杖五与权杖王牌都来自权杖牌组，共同指向同一条线索：行动、热情，以及在人群中的位置。三张牌依序从“庆祝与归属”走到“摩擦被按下不表”，再到“灵感与起步”，像是一段由外而内的收束，再由内而外重新开始的历程。',
+        sample: READING_SAMPLES['tarot-spread']['zh-Hans'],
       },
       ko: {
         prompt: TAROT_SPREAD_V2.ko,
         disclaimer:
           '이 리딩은 타로 카드의 상징에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
-        sample:
-          '소드 8과 펜타클 5가 모두 역방향으로 놓였습니다. 두 카드 모두 "무언가에 묶여 있던 상태"를 담고 있는데, 뒤집혀 있다는 것은 그 묶임이 이미 힘을 잃기 시작했다는 뜻으로 읽을 수 있습니다. 마지막의 별 역방향은 회복의 방향은 분명하지만 마음의 확신이 아직 그 속도를 따라오지 못하는 상태로 볼 수 있습니다.',
+        sample: READING_SAMPLES['tarot-spread'].ko,
       },
     },
     recompute: recomputeTarot,

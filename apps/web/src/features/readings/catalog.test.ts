@@ -239,7 +239,8 @@ describe('样例段落', () => {
     expect(variants).toHaveLength(11)
     for (const { locale, sample } of variants) {
       expect(sample.length).toBeGreaterThan(0)
-      // 样例正文摘自真实生成的报告，「虚构」声明由解锁卡的标题承担（readings_unlock_sample）
+      // 正文自身以「示例」开头，解锁卡标题再声明为虚构案例（readings_unlock_sample）
+      expect(sample).toMatch(/^(?:示例|예시|In this sample|This sample)/)
       const caption = JSON.parse(
         readFileSync(new URL(`../../../messages/${locale}/readings.json`, import.meta.url), 'utf8'),
       ).readings_unlock_sample as string
@@ -262,6 +263,15 @@ describe('样例段落', () => {
         expect(chars).toBeLessThanOrEqual(150)
       }
     }
+  })
+
+  it('东方站样例基于首页同一张虚构命盘（庚午 辛巳 庚辰 辛巳），西方站灵数为 Life Path 3', () => {
+    const sample = (kind: string, locale: string) => readingDefinition(kind, locale)?.sample ?? ''
+    expect(sample('bazi-full', 'zh-Hant')).toContain('庚午、辛巳、庚辰、辛巳')
+    expect(sample('bazi-full', 'zh-Hans')).toContain('庚午、辛巳、庚辰、辛巳')
+    expect(sample('saju-full', 'ko')).toContain('경오·신사·경진·신사')
+    expect(sample('saju-compat', 'ko')).toContain('경오·신사·경진·신사')
+    expect(sample('numerology-full', 'en')).toContain('Life Path 3')
   })
 
   it('通过合规检查：不含日期预言、病名或投资标的', () => {
