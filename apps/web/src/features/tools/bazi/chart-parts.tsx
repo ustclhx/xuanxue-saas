@@ -149,7 +149,7 @@ export function HiddenStemsTable({ chart, locale }: { chart: BaziChart; locale: 
   const order: PillarKey[] =
     locale === 'ko' ? ['hour', 'day', 'month', 'year'] : ['year', 'month', 'day', 'hour']
   return (
-    <div id="ten-gods" className="scroll-mt-6 overflow-x-auto">
+    <div id="ten-gods" className="max-w-2xl scroll-mt-6 overflow-x-auto">
       <table className="w-full min-w-0 border-collapse text-center text-sm">
         <caption className="sr-only">
           {m.bazi_hidden_stems()} · {m.bazi_ten_gods()}
@@ -197,66 +197,6 @@ export function HiddenStemsTable({ chart, locale }: { chart: BaziChart; locale: 
           </tr>
         </tbody>
       </table>
-    </div>
-  )
-}
-
-const byScore = (chart: BaziChart) => [...chart.strength.elements].sort((a, b) => b.score - a.score)
-
-/** 繁中：五行横向条形图（按加权分数占比，数字为个数） */
-export function ElementBars({ chart }: { chart: BaziChart }) {
-  const max = Math.max(...chart.strength.elements.map((e) => e.percent), 1)
-  return (
-    <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-[15px]">
-      {byScore(chart).map((e) => (
-        <li key={e.element} data-element={e.element} className="flex items-center gap-3">
-          <span className={cn('w-6 shrink-0 font-heading', ELEMENT_TEXT[e.element])}>
-            {ELEMENT_LABEL[e.element]()}
-          </span>
-          <span className="h-3.5 flex-1 overflow-hidden rounded-full bg-surface-2">
-            <span
-              className={cn('block h-full rounded-full', ELEMENT_BG[e.element])}
-              style={{ width: `${(e.percent / max) * 100}%` }}
-            />
-          </span>
-          <span className="w-24 shrink-0 text-right text-ink-muted text-sm tabular-nums">
-            {e.count} · {e.percent}%
-          </span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-/** 韩语：五行堆叠条（占比过小的段不放文字），下方列出全部五行 */
-export function ElementStack({ chart }: { chart: BaziChart }) {
-  const elements = byScore(chart)
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex h-7 gap-1 overflow-hidden rounded-md" aria-hidden="true">
-        {elements
-          .filter((e) => e.percent > 0)
-          .map((e) => (
-            <span
-              key={e.element}
-              className={cn(
-                'flex min-w-1 items-center justify-center rounded-md text-[13px] text-white',
-                ELEMENT_BG[e.element],
-              )}
-              style={{ flexGrow: e.percent, flexBasis: 0 }}
-            >
-              {e.percent >= 12 ? `${ELEMENT_LABEL[e.element]()} ${e.count}` : ''}
-            </span>
-          ))}
-      </div>
-      <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-ink-muted text-sm">
-        {elements.map((e) => (
-          <li key={e.element} data-element={e.element} className="tabular-nums">
-            <span className={ELEMENT_TEXT[e.element]}>●</span> {ELEMENT_LABEL[e.element]()}{' '}
-            {e.count} ({e.percent}%)
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }

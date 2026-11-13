@@ -40,7 +40,8 @@ const offer = (balance: number): ReadingOffer => ({
   sections: ['Overview'],
   sample: 'A fictional sample paragraph.',
   packs: [{ planPriceId: 'price', provider: 'paypal', credits: 100, amount: 199, currency: 'USD' }],
-  viewer: { slug: 'me', balance },
+  plans: [],
+  viewer: { slug: 'me', balance, subscribed: false },
 })
 
 let balance = 0
@@ -266,6 +267,91 @@ describe('解锁卡付款方式', () => {
       provider: 'paypal',
       planPriceId: 'paypal-100',
     })
+  })
+})
+
+describe('积分不足时提供订阅（enable-subscriptions-daily-credits 4.3）', () => {
+  const stripePack = {
+    planPriceId: 'stripe-100',
+    provider: 'stripe',
+    credits: 100,
+    amount: 6500,
+    currency: 'TWD',
+  }
+  const plus = {
+    key: 'plus',
+    name: 'Plus',
+    planPriceId: 'plus-twd',
+    provider: 'stripe',
+    credits: 400,
+    amount: 16200,
+    currency: 'TWD',
+  }
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    window.sessionStorage.clear()
+    vi.mocked(checkoutCustomer)
+      .mockReset()
+      .mockResolvedValue({ ok: false } as never)
+    vi.mocked(createReadingUnlock).mockResolvedValue({ token: 'tok' } as never)
+    vi.mocked(getReadingOffer).mockImplementation(async () => ({
+      ...offer(balance),
+      packs: [
+        stripePack,
+        {
+          ...stripePack,
+          planPriceId: 'paypal-100',
+          provider: 'paypal',
+          amount: 199,
+          currency: 'USD',
+        },
+      ],
+      plans: [plus],
+    }))
+  })
+
+  it('同时列出积分包与订阅档位；选订阅以 Stripe 订阅价格结账并带回跳地址', async () => {
+    locale = 'zh-Hant'
+    await mount()
+    await act(async () => button().click())
+    expect(container.querySelectorAll('[data-testid="reading-pack"]')).toHaveLength(1)
+    const plans = [...container.querySelectorAll('[data-testid="reading-plan"]')]
+    expect(plans).toHaveLength(1)
+    expect(plans[0]?.textContent).toContain('Plus・每月 400 積分')
+    expect(plans[0]?.textContent).toContain('NT$162/月')
+    expect(container.textContent).toContain('每月自動續費，可隨時取消')
+    await act(async () => (plans[0] as HTMLButtonElement).click())
+    expect(vi.mocked(checkoutCustomer).mock.calls[0]?.[0].data).toMatchObject({
+      provider: 'stripe',
+      planPriceId: 'plus-twd',
+      returnTo: '/?unlock=tok',
+    })
+    expect(trackEvent).toHaveBeenCalledWith('checkout_start', { plan: 'plus' })
+  })
+
+  it('切到 PayPal 时不显示订阅（PayPal 只卖积分包）', async () => {
+    await mount()
+    await act(async () => button().click())
+    const methods = [
+      ...container.querySelectorAll('[data-testid="reading-pay-method"]'),
+    ] as HTMLInputElement[]
+    await act(async () => methods[1]?.click())
+    expect(container.querySelector('[data-testid="reading-plans"]')).toBeNull()
+    expect(container.querySelectorAll('[data-testid="reading-pack"]')).toHaveLength(1)
+  })
+
+  it('订阅首付回跳后轮询到首期积分入账即自动生成', async () => {
+    window.history.replaceState(null, '', '/?unlock=tok&checkout=success')
+    window.sessionStorage.setItem(
+      'xuanxue.readings.pending-unlock',
+      JSON.stringify({ token: 'tok', kind: KIND, input: INPUT }),
+    )
+    await mount()
+    expect(generated()).toBe(0)
+    // 首期 400 积分由 invoice.paid 入账
+    balance = 400
+    await advance(2_000)
+    expect(generated()).toBe(1)
   })
 })
 

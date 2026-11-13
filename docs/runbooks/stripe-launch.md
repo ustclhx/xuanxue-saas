@@ -5,7 +5,17 @@ PayPal 保留，步骤见 [paypal-launch](paypal-launch.md)。
 
 ## 0. 边界
 
-- 只卖一次性积分包：`reading_single` 100 积分 $1.99、`reading_five` 500 积分 $6.99，积分 365 天到期；订阅 `pro` / `team` 停售、无价格，不在 Stripe 创建订阅价格。
+- 一次性积分包：`reading_single` 100 积分 $1.99、`reading_five` 500 积分 $6.99，积分 365 天到期。
+- 月付订阅（change `enable-subscriptions-daily-credits`）：`plus` $4.99 / NT$162 / ₩7,000 每月 400 积分，`premium` $9.99 / NT$325 / ₩14,000 每月 1000 积分；
+  积分当期有效（周期末加 24 小时宽限）、不结转；只经 Stripe，PayPal 不卖订阅。模板示例 `pro` / `team` 仍停售、无价格。
+  - 创建：`billing:seed` 为每档建 Stripe USD / TWD / KRW 月付占位行（停用）；第 3 节第 4 步的同一条命令负责创建，演练中订阅行显示为
+    `+ plus USD 499 /month on canonical product`、`+ plus TWD 16200 /month on zh-Hant localized product` 等，并输出
+    `Model grants: <档位> OK / MISSING …`。出现 MISSING 时先在 `/admin/billing/plans` 给该档授予不少于免费档的模型，否则写入会在调用 Stripe 前失败。
+  - 客户门户（Stripe 后台 Settings → Billing → Customer portal，沙盒与 live 各配一次）：允许修改付款方式、查看发票、取消订阅（设为周期末生效）；
+    关闭「切换方案」与「暂停」，换档只走账单页以保持续费币种。
+  - 停用：经使用者批准后把 `plan.key in ('plus','premium')` 的 Stripe `plan_price` 行设为 `active=false`，并在 Stripe 后台把对应 Price 设为 inactive；
+    定价页回到「即将开放」，已存在的订阅照常续费，用户可在账单页或门户取消。
+  - live 激活前须完成第 4 节业务描述更新（原描述写有「No subscriptions」）。
 - `billing.providers: ['stripe', 'paypal']`：生产未写入 Stripe 密钥时 Stripe 显示为不可用，PayPal 照常；写入密钥并完成映射后 Stripe 才可选。
 - 仓库公开：密钥、webhook signing secret、数据库 URL、账户邮箱不写入本文、证据、PR 或日志。secret 只经 stdin 写入。
 - **账户可收款不等于业务已获批**：Stripe 可能在收款后按业务描述复审、要求补材料或限制账户。开放生产付款前需运营确认第 4 节。
@@ -111,6 +121,10 @@ Stripe 后台现有业务描述与实际服务不符时，按下列事实改写�
 - 建议描述（英文）：
 
   > Lucinum LLC operates two websites offering free online calculators for Chinese metaphysics (BaZi / Four Pillars, Zi Wei Dou Shu; ganjiday.com, in Chinese and Korean) and numerology and tarot (arcanumber.com, in English). Users can buy one-time digital credit packs (US$1.99 for 100 credits, US$6.99 for 500 credits) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No subscriptions, physical goods, live or phone readings, or guaranteed outcomes. Credits expire 365 days after purchase; unused credits are refundable within 30 days.
+
+  启用订阅（change `enable-subscriptions-daily-credits` 任务 1.3）后，把上段第二、第三句改为：
+
+  > Users can buy one-time digital credit packs (US$1.99 for 100 credits, US$6.99 for 500 credits) or subscribe monthly (US$4.99 for 400 credits per month, US$9.99 for 1,000 credits per month; auto-renews until canceled, cancel anytime, effective at the end of the paid period) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No physical goods, live or phone readings, or guaranteed outcomes. Credit pack credits expire 365 days after purchase and subscription credits at the end of each billing period; refund requests are reviewed manually within 30 days.
 
 - 行业类别：选与「数字内容 / 娱乐类在线服务」最接近的类别，并如实写明命理与塔罗内容。占卜、命理类业务在 Stripe 可能属于需审查的类别，以 Stripe 的回复为准，不以账户已启用为准。
 - 公开商家名与卡账单前缀：建议 `LUCINUM` / `LUCINUM LLC`，与条款中的运营主体一致。

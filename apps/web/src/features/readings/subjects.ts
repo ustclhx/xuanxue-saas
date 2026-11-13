@@ -11,6 +11,7 @@ import type {
 } from '../ai/subjects.ts'
 import { readingDefinition } from './catalog.ts'
 import { followUpQuestions } from './follow-up-questions.ts'
+import { READING_SUBJECT_TYPE } from './subject-type.ts'
 import { readingTitle } from './title.ts'
 
 /**
@@ -23,7 +24,7 @@ import { readingTitle } from './title.ts'
  * 两者的上下文都不含出生日期、地点、姓名等原始输入（`reading.input` 不进入上下文）。
  */
 
-export const READING_SUBJECT = 'reading'
+export const READING_SUBJECT = READING_SUBJECT_TYPE
 export const CHART_RESULT_SUBJECT = 'chart-result'
 export const READING_CONTEXT_VERSION = 'reading-v1'
 export const CHART_RESULT_CONTEXT_VERSION = 'chart-result-v1'

@@ -22,6 +22,7 @@ const offer = (available: boolean): ReadingOffer => ({
   sections: [],
   sample: '',
   packs: [],
+  plans: [],
   viewer: null,
 })
 

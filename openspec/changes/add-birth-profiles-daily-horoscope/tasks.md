@@ -66,21 +66,21 @@
 
 ## 7. 波次 B · WT-daily-public：公开每日运势页（【Claude】，依赖 2、1.1、1.3）
 
-- [ ] 7.1 【Claude 起草 → 用户审定】规则文案表 `features/daily/rules/<locale>.ts`，带 `DAILY_COPY_VERSION`：
+- [x] 7.1 【Claude 起草 → 用户审定】规则文案表 `features/daily/rules/<locale>.ts`，带 `DAILY_COPY_VERSION`：
   - 东方站三语：十神 × 每类 3 条以上的「主题、建议、留意」，地支关系各类提示，建除 12 项与常见宜忌词条的释义；
   - 西方站英语：宇宙日与个人日 1–9、11、22 的含义。
 
   同一类事实按日期确定性轮换。验证：合规检查单测断言无「AI」、无医疗、投资、法律的确定性措辞、无吉凶断语黑名单词；用户抽检 20 条通过
-- [ ] 7.2 实现 `features/daily/facts.ts`（引擎结果 → `DailyFacts` → 文案键）与四个语言路由。页面包括参考日期计算、H1 与日期、规则区块、合规声明、本地个人化表单（东方站按需 import 引擎；西方站直接计算），以及水合后按本地日期重算。验证：单测断言 loader 不访问 db；组件测试覆盖本地日期不同时替换区块，并核对 spec 的「查看日主提示」「计算个人日」场景
-- [ ] 7.3 在 `server.ts` 加入 `dailyPageCache`：不带会话 cookie 的 GET 请求使用 `caches.default`，键为规范 URL 加参考日期，TTL 为到参考日结束的秒数且不超过 3600，带会话的请求直接旁路。验证：单测覆盖带 cookie 不读不写缓存、跨日键变化、TTL 计算；`pnpm build` 后用 wrangler dry-run 验证打包
-- [ ] 7.4 SEO：页面加入 `publicPages`（站点地图、hreflang、构建期 OG），不进入预渲染列表；输出 `WebPage` 结构化数据；`llms.txt` 增加该页；营销首页与相关工具页加站内入口（与 `redesign-home-chart-visuals` 协调位置）。验证：`src/features/seo` 单测与 `indexing.test.ts` 通过；繁体子站点地图含该页与 alternate；西方站页面没有东方站的 hreflang
-- [ ] 7.5 e2e：禁用 JS 时请求四个语言页，HTML 含 H1、日期与规则内容；在数据库不可达的情况下请求返回 200（对应 spec「数据库不可达」）。验证：`test:e2e daily.spec.ts` 通过
+- [x] 7.2 实现 `features/daily/facts.ts`（引擎结果 → `DailyFacts` → 文案键）与四个语言路由。页面包括参考日期计算、H1 与日期、规则区块、合规声明、本地个人化表单（东方站按需 import 引擎；西方站直接计算），以及水合后按本地日期重算。验证：单测断言 loader 不访问 db；组件测试覆盖本地日期不同时替换区块，并核对 spec 的「查看日主提示」「计算个人日」场景
+- [x] 7.3 在 `server.ts` 加入 `dailyPageCache`：不带会话 cookie 的 GET 请求使用 `caches.default`，键为规范 URL 加参考日期，TTL 为到参考日结束的秒数且不超过 3600，带会话的请求直接旁路。验证：单测覆盖带 cookie 不读不写缓存、跨日键变化、TTL 计算；`pnpm build` 后用 wrangler dry-run 验证打包
+- [x] 7.4 SEO：页面加入 `publicPages`（站点地图、hreflang、构建期 OG），不进入预渲染列表；输出 `WebPage` 结构化数据；`llms.txt` 增加该页；营销首页与相关工具页加站内入口（与 `redesign-home-chart-visuals` 协调位置）。验证：`src/features/seo` 单测与 `indexing.test.ts` 通过；繁体子站点地图含该页与 alternate；西方站页面没有东方站的 hreflang
+- [x] 7.5 e2e：禁用 JS 时请求四个语言页，HTML 含 H1、日期与规则内容；在数据库不可达的情况下请求返回 200（对应 spec「数据库不可达」）。验证：`test:e2e daily.spec.ts` 通过
 
 ## 8. 波次 B · WT-today-panel：今日面板（【Claude】，依赖 2、3、7.1、7.2、1.4）
 
-- [ ] 8.1 新建 `features/daily/today-panel.tsx` 与服务端 loader：个人空间、一次档案查询、按参考日期计算默认档案的 `DailyFacts`、`?profile=` 切换（越权按不存在处理）、无档案和字段缺失两种状态、水合后按本地日期重算。在模板文件 `routes/app/$slug/index.tsx` 中只插入挂载点，并在 `docs/design/forks.md` 或项目升级跟踪中登记该改动。验证：组件测试覆盖四种状态；集成测试覆盖越权 profile 参数；e2e 登录后首页显示默认档案的今日内容
-- [ ] 8.2 面板链接：「用此档案打开工具」使用 `#r=` 片段（不含姓名）；另有「查看公开每日页」。验证：单测断言生成的链接片段不含 `name` 与 `full_name`
-- [ ] 8.3 （可选，依赖 1.4 中确认保留此入口）「就今日运势问 AI」：在 `features/ai/subject-providers.ts` 注册 `daily` 类型，用 `issueSubjectContext` 签发只含 `DailyFacts` 的临时上下文，按 Chat 场景显示 AI 声明。验证：单测断言上下文正文不含出生日期与出生地；e2e 能打开对话并看到上下文类型标签
+- [x] 8.1 新建 `features/daily/today-panel.tsx` 与服务端 loader：个人空间、一次档案查询、按参考日期计算默认档案的 `DailyFacts`、`?profile=` 切换（越权按不存在处理）、无档案和字段缺失两种状态、水合后按本地日期重算。在模板文件 `routes/app/$slug/index.tsx` 中只插入挂载点，并在 `docs/design/forks.md` 或项目升级跟踪中登记该改动。验证：组件测试覆盖四种状态；集成测试覆盖越权 profile 参数；e2e 登录后首页显示默认档案的今日内容
+- [x] 8.2 面板链接：「用此档案打开工具」使用 `#r=` 片段（不含姓名）；另有「查看公开每日页」。验证：单测断言生成的链接片段不含 `name` 与 `full_name`
+- [x] 8.3 （可选，依赖 1.4 中确认保留此入口）「就今日运势问 AI」：在 `features/ai/subject-providers.ts` 注册 `daily` 类型，用 `issueSubjectContext` 签发只含 `DailyFacts` 的临时上下文，按 Chat 场景显示 AI 声明。验证：单测断言上下文正文不含出生日期与出生地；e2e 能打开对话并看到上下文类型标签
 
 ## 9. 集成验收
 

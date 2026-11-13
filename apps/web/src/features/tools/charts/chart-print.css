@@ -21,6 +21,8 @@
     --on-accent: Canvas;
     --inverse: CanvasText;
     --on-inverse: Canvas;
+    /* 外框本身透明，深色页面打印时补浅底，保证深字可读 */
+    background-color: Canvas;
     break-inside: avoid;
   }
 }

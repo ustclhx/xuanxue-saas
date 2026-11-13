@@ -22,6 +22,7 @@ export function ToolPage({
   links = [],
   faq = [],
   children,
+  hub,
 }: {
   /** 工具标识（注册表 id），埋点 tool 字段 */
   tool: string
@@ -34,6 +35,8 @@ export function ToolPage({
   faq?: readonly FaqItem[]
   /** 结果之后的订阅卡与付费卡（不得以弹窗出现） */
   children?: ReactNode
+  /** 首页枢纽区块（redesign-home-chart-visuals home-hub）：位于内链之后、FAQ 之前 */
+  hub?: ReactNode
 }) {
   const site = useSiteId()
   const track = useToolEvents(tool)
@@ -70,6 +73,7 @@ export function ToolPage({
         <Disclaimer />
         {children}
         <ToolLinks links={links} />
+        {hub}
         <ToolFaq items={faq} />
       </div>
     </ToolContext>
