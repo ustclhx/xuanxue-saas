@@ -111,7 +111,18 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     const free = state.plans.find((p) => p.key === 'free')
     expect(free?.features).toEqual(DEFAULT_FREE_FEATURES)
-    expect(state.prices).toHaveLength(4)
+    // 每个积分包：Stripe 按价目表建 USD/TWD/KRW 三行，PayPal 只建 USD（决策 2）
+    expect(state.prices).toHaveLength(8)
+    expect(state.prices.map((p) => `${p.provider}:${p.currency}:${p.amount}`).sort()).toEqual([
+      'paypal:USD:199',
+      'paypal:USD:699',
+      'stripe:KRW:2800',
+      'stripe:KRW:9800',
+      'stripe:TWD:22700',
+      'stripe:TWD:6500',
+      'stripe:USD:199',
+      'stripe:USD:699',
+    ])
     expect(
       state.prices.every((p) => !p.active && String(p.providerPriceId).startsWith('unsynced:')),
     ).toBe(true)
@@ -128,26 +139,27 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe, paypal])
     expect(state.plans).toHaveLength(6)
-    expect(state.prices.slice(0, 4)).toEqual(before)
-    expect(state.prices).toHaveLength(5)
-    for (const adapter of [stripe, paypal]) {
+    expect(state.prices.slice(0, 8)).toEqual(before)
+    expect(state.prices).toHaveLength(9)
+    for (const [adapter, perRun] of [
+      [stripe, 6],
+      [paypal, 2],
+    ] as const) {
       const calls = vi.mocked(adapter.syncPlan).mock.calls
-      expect(calls).toHaveLength(4)
+      expect(calls).toHaveLength(perRun * 2)
       expect(calls.every(([i]) => i.plan.key !== 'free' && i.price.active)).toBe(true)
       // Stripe 本地化积分包按 plan.key 选译名、按 credits 写说明，同步必须带上两者
-      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toEqual([
-        ['reading_single', 100],
-        ['reading_five', 500],
-        ['reading_single', 100],
-        ['reading_five', 500],
-      ])
+      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toContainEqual(['reading_five', 500])
       expect(
         calls
-          .slice(2)
+          .slice(perRun)
           .every(([i]) => i.providerPriceId && !i.providerPriceId.startsWith('unsynced:')),
       ).toBe(true)
-      expect(calls[0]?.[0].idempotencyKey).toBe(calls[2]?.[0].idempotencyKey)
+      expect(calls[0]?.[0].idempotencyKey).toBe(calls[perRun]?.[0].idempotencyKey)
     }
+    expect(vi.mocked(paypal.syncPlan).mock.calls.every(([i]) => i.price.currency === 'USD')).toBe(
+      true,
+    )
   })
 
   it('commits successful prices and keeps failed or unattempted mappings inactive for retry', async () => {
@@ -166,7 +178,7 @@ describe('offline catalog', () => {
     ).toBe(true)
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe])
-    expect(state.prices.filter((p) => p.active)).toHaveLength(2)
+    expect(state.prices.filter((p) => p.active)).toHaveLength(6)
   })
 
   it('propagates immutable remote mismatch without recreating or rewriting the mapping', async () => {

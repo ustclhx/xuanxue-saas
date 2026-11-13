@@ -30,10 +30,10 @@
 
 ## 3. W2 价目表、种子与价格同步（依赖 W1）
 
-- [ ] 3.1 【Claude】新增 `packages/billing/src/price-table.ts`（项目自有），包含汇率快照、取整规则和价目字面量。积分包两档填入 1.1 确认的数值，订阅档位预留给 B change。验证：单测断言字面量与「快照 × 规则」一致、TWD 金额为 100 的倍数，快照超过 180 天时给出警告
-- [ ] 3.2 【Claude】`catalog.ts` 的 `EXAMPLE_CATALOG.prices` 从价目表展开出多币种价格；`tuple()`、`seedCatalog`、`activateCreditPackMappings` 都按币种处理，PayPal 只激活 `currencyFor` 允许的币种。验证：catalog 的 postgres 测试中，重跑种子是幂等的，不会生成重复行；USD 旧行不变；新的 TWD/KRW 行为 `unsynced` 且 inactive
-- [ ] 3.3 【Claude】Stripe 同步（`stripe/operations.ts` 中的 `syncCanonicalPrice`、`syncLocalizedPackPrices`，脚本 `sync.ts`、`sync-stripe-live.ts`）：TWD Price 建在 `zh_hant` 本地化 Product 上，KRW Price 建在 `ko` 本地化 Product 上，`metadata` 写入 `planPriceId` 与 `currency`，并把 Price ID 写回对应的 `plan_price` 行；已存在的 Price 只做核对。验证：operations 单测（使用 mock Stripe）覆盖首次创建、重跑幂等、金额不一致时报错；live 演练模式（不设 `BILLING_SYNC_CONFIRM`）只列出将要创建的 TWD/KRW 价格，不调用 Stripe
-- [ ] 3.4 【Codex】在 `docs/runbooks/stripe-launch.md` 中补充多币种价格的创建、演练、写入与停用步骤，并更新 §4 中「只收美元」的说明。验证：按文档在本地库运行演练命令，输出与文档一致
+- [x] 3.1 【Claude】新增 `packages/billing/src/price-table.ts`（项目自有），包含汇率快照、取整规则和价目字面量。积分包两档填入 1.1 确认的数值，订阅档位预留给 B change。验证：单测断言字面量与「快照 × 规则」一致、TWD 金额为 100 的倍数，快照超过 180 天时给出警告
+- [x] 3.2 【Claude】`catalog.ts` 的 `EXAMPLE_CATALOG.prices` 从价目表展开出多币种价格；`tuple()`、`seedCatalog`、`activateCreditPackMappings` 都按币种处理，PayPal 只激活 `currencyFor` 允许的币种。验证：catalog 的 postgres 测试中，重跑种子是幂等的，不会生成重复行；USD 旧行不变；新的 TWD/KRW 行为 `unsynced` 且 inactive
+- [x] 3.3 【Claude】Stripe 同步（`stripe/operations.ts` 中的 `syncCanonicalPrice`、`syncLocalizedPackPrices`，脚本 `sync.ts`、`sync-stripe-live.ts`）：TWD Price 建在 `zh_hant` 本地化 Product 上，KRW Price 建在 `ko` 本地化 Product 上，`metadata` 写入 `planPriceId` 与 `currency`，并把 Price ID 写回对应的 `plan_price` 行；已存在的 Price 只做核对。验证：operations 单测（使用 mock Stripe）覆盖首次创建、重跑幂等、金额不一致时报错；live 演练模式（不设 `BILLING_SYNC_CONFIRM`）只列出将要创建的 TWD/KRW 价格，不调用 Stripe
+- [x] 3.4 【Codex】在 `docs/runbooks/stripe-launch.md` 中补充多币种价格的创建、演练、写入与停用步骤，并更新 §4 中「只收美元」的说明。验证：按文档在本地库运行演练命令，输出与文档一致
 
 ## 4. W3 结账选价（依赖 W1；与 W2 并行，联调时需要 W2 的数据）
 

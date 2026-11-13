@@ -74,6 +74,32 @@ charge.dispute.created
    ```
 
    生产库需已跑过 `billing:seed`（Stripe 占位行）。只有写入时才要求 `sk_live_` / `rk_live_` 密钥。重跑幂等：已映射的规范价格与已存在的本地化价格只核对金额、币种与元数据，不一致即报错、不改指向；在已映射的库上重跑会补建缺少的本地化商品与价格（不写库）。
+   **多币种价格（change `localize-checkout-currency`）**：价目表 `packages/billing/src/price-table.ts` 为每个积分包另有
+   TWD / KRW 金额。`billing:seed` 为它们各建一行 Stripe 占位价格（`unsynced:stripe:…`、停用），PayPal 只有 USD 行。
+   上述同一条命令负责创建：TWD Price 挂在 `zh-Hant` 本地化商品上、KRW Price 挂在 `ko` 本地化商品上，元数据含
+   `planPriceId` 与 `currency`，Price ID 直接写回对应的 `plan_price` 行并启用（不使用 `lookup_key`）。
+
+   - 部署顺序：先部署币种感知的 web 与 jobs，再 `billing:seed`（新行停用，页面与结账仍为 USD），最后演练并写入。
+   - 演练输出先列出现状，再列出将创建的价格，例如：
+
+     ```text
+     reading_single KRW 2800 unsynced
+     reading_single TWD 6500 unsynced
+     reading_single USD 199 price_…
+     Would create 2 live Stripe prices:
+       + reading_single KRW 2800 on ko localized product
+       + reading_single TWD 6500 on zh-Hant localized product
+     Dry run: set BILLING_SYNC_CONFIRM=stripe-live to create live mappings.
+     ```
+
+     清单经使用者确认后才执行写入命令。TWD 金额不是 100 的倍数（整元）时，种子与同步在写库或调用 Stripe 之前失败。
+   - 调价：改价目表 → 评审合并 → `billing:seed` 新增新金额的占位行 → 演练与写入创建新 Price；旧行保留历史映射，
+     在 Stripe 后台把旧 Price 设为 inactive（Price 不可改价）。
+   - 停用本地币种（回滚）：把对应 `plan_price` 行设为 `active=false`（例如
+     `update plan_price set active = false where provider = 'stripe' and currency in ('TWD', 'KRW')`，需经使用者批准后在生产库执行）。
+     定价页与结账自动回退 USD；已入账的 TWD/KRW 付款仍可正常退款。恢复时把这些行重新设为 `active=true`。
+   - 沙盒（staging）用 `BILLING_SYNC_MODE=test pnpm billing:sync`，同样只创建缺少的价格，执行前列出对象清单并获批准。
+
 5. 两站各做一笔真实小额购买并退款：核对页头名称、语言、商品行名称（东方站为本地化商品名）、账单描述、到账积分、退款后积分回收、回调列表站点列。
 
 ## 4. 需运营确认的商家资料（不由代码修改）
@@ -89,4 +115,7 @@ Stripe 后台现有业务描述与实际服务不符时，按下列事实改写�
 - 行业类别：选与「数字内容 / 娱乐类在线服务」最接近的类别，并如实写明命理与塔罗内容。占卜、命理类业务在 Stripe 可能属于需审查的类别，以 Stripe 的回复为准，不以账户已启用为准。
 - 公开商家名与卡账单前缀：建议 `LUCINUM` / `LUCINUM LLC`，与条款中的运营主体一致。
 - 客服信息：两站分别为 support@ganjiday.com、support@arcanumber.com；Stripe 后台只能填一个，建议填西方站邮箱并在描述中注明两站。
-- 业务限制：只收美元（已关闭 Adaptive Pricing）；未启用 Stripe Tax，税务处理需运营另行确认；退款人工审核（30 天内未使用积分）。
+- 业务限制：按界面语言以固定价目表收取美元、新台币或韩元（繁体中文界面 TWD、韩语界面 KRW，其余 USD；PayPal 一律 USD），
+  价格不随汇率浮动，已关闭 Adaptive Pricing；未启用 Stripe Tax，税务处理需运营另行确认；退款人工审核（30 天内未使用积分），按原付款币种退回。
+  原描述中的「只收美元」须在 live 激活 TWD/KRW 价格之前由运营改写（localize-checkout-currency 任务 1.2）。
+  建议在英文描述中把价格改为 `US$1.99 / NT$65 / ₩2,800 for 100 credits, US$6.99 / NT$227 / ₩9,800 for 500 credits`。

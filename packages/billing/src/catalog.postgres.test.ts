@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { createDb, plan, planPrice } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
-import { eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray, ne } from 'drizzle-orm'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { activateCreditPackMappings, seedCatalog, syncCatalog } from './catalog.ts'
 import { creditPackId } from './paypal/metadata.ts'
@@ -100,6 +100,40 @@ describe('catalog on isolated PostgreSQL', () => {
     }
   })
 
+  it('adds local-currency rows beside synced USD rows without touching them', async () => {
+    await seedCatalog(db)
+    const rollback = new Error('rollback local currency fixture')
+    await expect(
+      db.transaction(async (tx) => {
+        const fixture = tx as unknown as typeof db
+        const [single] = await tx.select().from(plan).where(eq(plan.key, 'reading_single'))
+        if (!single) throw new Error('Missing seeded pack')
+        // 模拟线上现状：只有已同步并启用的 USD 行
+        await tx
+          .delete(planPrice)
+          .where(and(eq(planPrice.planId, single.id), ne(planPrice.currency, 'USD')))
+        await tx
+          .update(planPrice)
+          .set({ active: true, providerPriceId: 'price_live_usd' })
+          .where(and(eq(planPrice.planId, single.id), eq(planPrice.provider, 'stripe')))
+        const usd = await tx.select().from(planPrice).where(eq(planPrice.planId, single.id))
+        await seedCatalog(fixture)
+        await seedCatalog(fixture)
+        const after = await tx.select().from(planPrice).where(eq(planPrice.planId, single.id))
+        for (const row of usd) expect(after.find((p) => p.id === row.id)).toEqual(row)
+        const local = after.filter((p) => p.currency !== 'USD')
+        expect(local.map((p) => `${p.provider}:${p.currency}:${p.amount}`).sort()).toEqual([
+          'stripe:KRW:2800',
+          'stripe:TWD:6500',
+        ])
+        expect(
+          local.every((p) => !p.active && p.providerPriceId.startsWith('unsynced:stripe:')),
+        ).toBe(true)
+        throw rollback
+      }),
+    ).rejects.toBe(rollback)
+  })
+
   it('runs the confirmed CLI against this isolated database without HTTP calls or URL output', async () => {
     await seedCatalog(db)
     const prices = await db.select().from(planPrice)
@@ -129,6 +163,34 @@ describe('catalog on isolated PostgreSQL', () => {
           .set({ providerPriceId: price.providerPriceId, active: price.active })
           .where(eq(planPrice.id, price.id))
     }
+  })
+
+  it('live Stripe dry run lists the TWD/KRW prices to create without calling Stripe', async () => {
+    await seedCatalog(db)
+    const output = execFileSync(
+      process.execPath,
+      [
+        '--import',
+        'data:text/javascript,globalThis.fetch%20%3D%20()%20%3D%3E%20%7Bthrow%20new%20Error(%22HTTP%20forbidden%22)%7D',
+        '--experimental-strip-types',
+        'scripts/sync-stripe-live.ts',
+      ],
+      {
+        cwd: new URL('../', import.meta.url),
+        env: {
+          ...process.env,
+          CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE: url,
+          BILLING_SYNC_DATABASE_CONFIRM: decodeURIComponent(app.pathname.slice(1)),
+          BILLING_SYNC_CONFIRM: '',
+          STRIPE_SECRET_KEY: '',
+        },
+        encoding: 'utf8',
+      },
+    )
+    expect(output).toContain('  + reading_single TWD 6500 on zh-Hant localized product')
+    expect(output).toContain('  + reading_five KRW 9800 on ko localized product')
+    expect(output).toMatch(/Dry run: set BILLING_SYNC_CONFIRM=stripe-live/)
+    expect(output).not.toContain(url)
   })
 
   it('preserves admin model permissions across repeated and concurrent seeds', async () => {
@@ -183,7 +245,16 @@ describe('catalog on isolated PostgreSQL', () => {
           .from(planPrice)
           .where(inArray(planPrice.planId, catalogIds))
           .orderBy(planPrice.id)
-        expect(prices).toHaveLength(4)
+        // 两个积分包 × (Stripe USD/TWD/KRW + PayPal USD)；新的本地币种行为 unsynced 且停用
+        expect(prices).toHaveLength(8)
+        expect(
+          prices
+            .filter((p) => p.currency !== 'USD')
+            .every(
+              (p) =>
+                p.provider === 'stripe' && !p.active && p.providerPriceId.startsWith('unsynced:'),
+            ),
+        ).toBe(true)
         const first = prices[0]
         if (!first) throw new Error('Missing seeded price')
         const [historical] = await tx

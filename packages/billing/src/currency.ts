@@ -118,7 +118,8 @@ export function formatMoney(amount: number, currency: string, locale: string): s
   }).format(amount / 10 ** exponent)
 }
 
-export type CheckoutProviderId = 'stripe' | 'paypal'
+/** 平台 ID 用字符串，避免依赖数据库枚举；只有 Stripe 支持本地币种，其余平台（PayPal 等）恒为 USD */
+export type CheckoutProviderId = string
 
 /** 界面语言 → Stripe 结算币种；未列出的语言（en、zh-Hans 等）以 USD 结算 */
 const STRIPE_LOCALE_CURRENCY: Readonly<Record<string, EnabledCurrency>> = {
@@ -128,8 +129,14 @@ const STRIPE_LOCALE_CURRENCY: Readonly<Record<string, EnabledCurrency>> = {
 
 /** 结算币种只由服务端按界面语言与支付平台决定；PayPal 所有语言都以 USD 结算（决策 2） */
 export function currencyFor(locale: string, provider: CheckoutProviderId): EnabledCurrency {
-  if (provider === 'paypal') return 'USD'
+  if (provider !== 'stripe') return 'USD'
   return STRIPE_LOCALE_CURRENCY[locale] ?? 'USD'
+}
+
+/** 支付平台是否以该币种结算：Stripe 接受全部启用币种，PayPal 等其余平台恒为 USD（决策 2） */
+export function providerSettlesIn(provider: CheckoutProviderId, currency: string): boolean {
+  const code = enabledCurrency(currency)
+  return provider === 'stripe' ? code !== null : code === 'USD'
 }
 
 export interface SelectablePrice {
