@@ -10,6 +10,15 @@ import type { DailyCreditsCheck } from './daily.server.ts'
 
 type Granted = Extract<DailyCreditsCheck, { status: 'granted' }>
 
+/** 到期时间按界面语言与浏览器时区显示；通知只在客户端 effect 后渲染，不产生水合差异 */
+function formatExpiry(expiresAt: string) {
+  const date = new Date(expiresAt)
+  if (Number.isNaN(date.getTime())) return expiresAt
+  return new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }).format(
+    date,
+  )
+}
+
 /** 由 UI 设计任务替换展示，领取和去重仍归 App 数据层。 */
 export function DailyGrantNotice({
   credits,
@@ -19,9 +28,11 @@ export function DailyGrantNotice({
   onDismiss,
 }: Omit<Granted, 'status' | 'grantId' | 'day'> & { onDismiss(): void }) {
   return (
-    <section role="status" className="grid gap-2 rounded-xl border p-4">
-      <p>{m.daily_credits_granted({ credits, daysThisMonth, maxDaysPerMonth })}</p>
-      <p>{m.daily_credits_expiry({ expiresAt })}</p>
+    <section role="status" className="grid gap-2 rounded-xl border border-line p-4 text-sm">
+      <p className="m-0">{m.daily_credits_granted({ credits, daysThisMonth, maxDaysPerMonth })}</p>
+      <p className="m-0 text-ink-muted">
+        {m.daily_credits_expiry({ expiresAt: formatExpiry(expiresAt) })}
+      </p>
       <Button type="button" variant="outline" onClick={onDismiss}>
         {m.daily_credits_dismiss()}
       </Button>

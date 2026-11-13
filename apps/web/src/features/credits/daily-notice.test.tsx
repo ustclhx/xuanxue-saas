@@ -100,7 +100,13 @@ describe('daily credit presentation', () => {
     expect(html).toContain(
       m.daily_credits_granted({ credits: 10, daysThisMonth: 2, maxDaysPerMonth: 10 }),
     )
-    expect(html).toContain(m.daily_credits_expiry({ expiresAt: '2026-11-17T08:00:00.000Z' }))
+    // 到期时间按界面语言格式化，不直接显示 ISO 字符串
+    const expiresAt = new Intl.DateTimeFormat(baseLocale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date('2026-11-17T08:00:00.000Z'))
+    expect(html).toContain(m.daily_credits_expiry({ expiresAt }))
+    expect(html).not.toContain('2026-11-17T08:00')
   })
 
   it('links unverified users to account verification and renders no success for cached checks', () => {
