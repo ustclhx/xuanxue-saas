@@ -1,3 +1,7 @@
+/* 图形打印约定：只在 @media print 下重定义图形外框内的 token（openspec redesign-home-chart-visuals D3）；
+ * 放在项目自有的 brand.css 而非模板的 app.css，避免模板同步冲突。@import 须位于其他规则之前 */
+@import "../features/tools/charts/chart-print.css";
+
 /*
  * 项目品牌层（模板 add-ui-design-system D2 / D10）：本文件归项目所有，模板同步不会修改它。
  * 基线与主题预设在 cascade layer `base` 中，本文件不分层，因此普通选择器即可覆盖。
