@@ -126,5 +126,7 @@
   "marketing_guides_title": "指南",
   "marketing_guides_subtitle": "常見問題的簡明解答。",
   "marketing_guides_back": "全部指南",
-  "marketing_guides_faq": "常見問題"
+  "marketing_guides_faq": "常見問題",
+  "pricing_faq_currency_q": "以什麼幣別付款？",
+  "pricing_faq_currency_a": "以結帳頁面顯示的幣別與金額為準：以卡片付款時以新台幣結算，PayPal 一律以美元結算。標示的價格即結帳金額，不隨匯率變動；退款按原付款幣別退回。"
 }

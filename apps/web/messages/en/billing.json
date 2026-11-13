@@ -64,5 +64,7 @@
   "billing_usage_reference": "Reference",
   "billing_usage_batch": "Batch",
   "billing_usage_no_activity": "No credit activity yet.",
-  "billing_usage_older_activity": "Older activity"
+  "billing_usage_older_activity": "Older activity",
+  "billing_paypal_usd_note": "PayPal payments are charged in US dollars.",
+  "billing_cny_reference": "≈ {price} (reference only; charged in US dollars)"
 }

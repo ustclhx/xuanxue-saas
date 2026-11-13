@@ -21,7 +21,7 @@ vi.mock('./marketing-shell.tsx', () => ({
   MarketingShell: ({ children }: { children: ReactNode }) => <main>{children}</main>,
 }))
 vi.mock('../growth/forms.tsx', () => ({ GrowthForm: () => null }))
-vi.mock('../readings/readings.functions.ts', () => ({ getLocalRates: vi.fn() }))
+vi.mock('../readings/readings.functions.ts', () => ({}))
 
 function settings(overrides: Partial<Record<SettingKey, unknown>> = {}): SettingsContext {
   return {
@@ -189,5 +189,57 @@ describe('定价页与详批可用性一致', () => {
     })
     expect(html).not.toContain('href="/app"')
     expect(html).toContain('線上付款即將開放')
+  })
+
+  const localCatalog = (twdAvailable: boolean): PricingCatalog =>
+    ({
+      plans: catalog(true).plans,
+      prices: [
+        ['stripe', 'USD', 199, true],
+        ['stripe', 'TWD', 6500, twdAvailable],
+        ['stripe', 'KRW', 2800, true],
+        ['paypal', 'USD', 199, true],
+      ].map(([provider, currency, amount, available], index) => ({
+        id: `price-${index}`,
+        planId: 'p1',
+        provider,
+        interval: null,
+        amount,
+        currency,
+        active: available,
+        available,
+      })),
+      providers: [
+        { id: 'stripe', available: true },
+        { id: 'paypal', available: true },
+      ],
+    }) as unknown as PricingCatalog
+  const shownPrice = (html: string) =>
+    html.match(/data-testid="pricing-pack-price">([^<]*)</)?.[1] ?? ''
+
+  it.each([
+    ['zh-Hant', 'NT$65'],
+    ['ko', '₩2,800'],
+    ['zh-Hans', 'US$1.99'],
+    ['en', '$1.99'],
+  ])('%s 按结算币种显示实价：%s', (locale, expected) => {
+    language.locale = locale
+    const html = render({
+      catalog: localCatalog(true),
+      readings: [{ kind: 'bazi-full', credits: 100 }],
+    })
+    expect(shownPrice(html)).toBe(expected)
+    expect(html).not.toContain('≈')
+    expect(html.includes('¥13')).toBe(locale === 'zh-Hans')
+    expect(html).not.toMatch(/exchangerate/i)
+  })
+
+  it('本地价格不可购买时显示美元价格，与结账回退一致', () => {
+    language.locale = 'zh-Hant'
+    const html = render({
+      catalog: localCatalog(false),
+      readings: [{ kind: 'bazi-full', credits: 100 }],
+    })
+    expect(shownPrice(html)).toBe('US$1.99')
   })
 })

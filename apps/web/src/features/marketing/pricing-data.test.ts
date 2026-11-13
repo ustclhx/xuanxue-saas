@@ -8,6 +8,7 @@ import {
   PRICING_TTL_MS,
   pricingFeatures,
   pricingForInterval,
+  selectDisplayPrice,
 } from './pricing-data.ts'
 
 describe('公开定价缓存（tasks.md 3.2）', () => {
@@ -94,6 +95,51 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
     const plans = marketingPlans(examplePricingCatalog())
     const single = plans.find((plan) => plan.key === 'reading_single')
     expect(single).toMatchObject({ credits: 100 })
-    expect(single?.prices.map((p) => [p.interval, p.amount])).toEqual([[null, 199]])
+    // 不同支付渠道的同周期同币种报价合并为一项，价目表的每个结算币种各保留一项
+    expect(single?.prices.map((p) => [p.interval, p.currency, p.amount])).toEqual([
+      [null, 'USD', 199],
+      [null, 'TWD', 6500],
+      [null, 'KRW', 2800],
+    ])
+  })
+})
+
+describe('展示选价（localize-checkout-currency 5.1）', () => {
+  const row = (provider: string, currency: string, available = true) => ({
+    id: `${provider}-${currency}`,
+    planId: 'pack',
+    provider,
+    interval: null,
+    currency,
+    available,
+  })
+  const prices = [
+    row('stripe', 'USD'),
+    row('stripe', 'TWD'),
+    row('stripe', 'KRW'),
+    row('paypal', 'USD'),
+  ]
+
+  it.each([
+    ['zh-Hant', 'stripe', 'stripe-TWD'],
+    ['ko', 'stripe', 'stripe-KRW'],
+    ['zh-Hans', 'stripe', 'stripe-USD'],
+    ['en', 'stripe', 'stripe-USD'],
+    ['ko', 'paypal', 'paypal-USD'],
+    ['zh-Hant', 'paypal', 'paypal-USD'],
+  ])('%s + %s 展示 %s', (locale, provider, id) => {
+    expect(selectDisplayPrice(prices, locale, provider)?.id).toBe(id)
+  })
+
+  it('本地价格缺失或不可购买时显示 USD', () => {
+    expect(selectDisplayPrice([row('stripe', 'USD')], 'zh-Hant', 'stripe')?.id).toBe('stripe-USD')
+    expect(
+      selectDisplayPrice([row('stripe', 'USD'), row('stripe', 'KRW', false)], 'ko', 'stripe')?.id,
+    ).toBe('stripe-USD')
+  })
+
+  it('支付尚未开通时按目标币种展示金额', () => {
+    const closed = prices.map((price) => ({ ...price, available: false }))
+    expect(selectDisplayPrice(closed, 'ko', 'stripe')?.id).toBe('stripe-KRW')
   })
 })

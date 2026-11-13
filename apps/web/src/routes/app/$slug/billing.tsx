@@ -4,6 +4,7 @@ import {
   Link,
   useRouter,
 } from '@tanstack/react-router'
+import { enabledCurrency, formatMoney } from '@xuanxue/billing/currency'
 import { Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useEffect, useId, useRef, useState } from 'react'
 import { z } from 'zod'
@@ -16,6 +17,8 @@ import {
 } from '../../../features/billing/customer.functions.ts'
 import { getCustomerRefunds } from '../../../features/billing/refund.functions.ts'
 import { RefundSection } from '../../../features/billing/refund-section.tsx'
+import { displayPrices } from '../../../features/marketing/pricing-data.ts'
+import { paypalUsdNotice } from '../../../features/readings/price.ts'
 import { getReadingPricing } from '../../../features/readings/readings.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
@@ -49,9 +52,10 @@ export const Route = createFileRoute('/app/$slug/billing')({
   staleTime: 0,
   component: BillingPage,
 })
+// 按各行的币种格式化（TWD、KRW 无小数），不认识的币种不猜测单位
 const money = (amount: number, currency: string) =>
-  currency.toUpperCase() === 'USD'
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount / 100)
+  enabledCurrency(currency)
+    ? formatMoney(amount, currency, getLocale())
     : m.billing_amount_unavailable()
 const date = (value: Date | null) =>
   value ? new Date(value).toLocaleDateString('en-US', { timeZone: 'UTC' }) : m.billing_pending()
@@ -109,12 +113,9 @@ function BillingPage() {
       !sub.cancelAtPeriodEnd && ['active', 'trialing', 'past_due', 'paused'].includes(sub.status),
   )
   // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
-  const packPrices = page.catalog.prices.filter(
-    (price) => price.provider === provider && isPack(price),
-  )
-  const planPrices = page.catalog.prices.filter(
-    (price) => price.provider === provider && isPlan(price),
-  )
+  // 每个 (套餐, 周期) 只显示按界面语言选出的一行（与结账同一选价规则，localize-checkout-currency D5）
+  const packPrices = displayPrices(page.catalog.prices.filter(isPack), getLocale(), provider)
+  const planPrices = displayPrices(page.catalog.prices.filter(isPlan), getLocale(), provider)
   const selected = planPrices.find((price) => price.id === priceId)
   const currentProvider = page.catalog.providers.find((p) => p.id === provider)
   const providerLabel = (p: (typeof page.catalog.providers)[number]) =>
@@ -323,6 +324,10 @@ function BillingPage() {
           {!page.readingsOpen && (
             <p data-testid="billing-packs-not-open">{m.readings_packs_not_open()}</p>
           )}
+          {paypalUsdNotice(getLocale(), provider) &&
+            (packPrices.length > 0 || planPrices.length > 0) && (
+              <p data-testid="billing-paypal-usd">{m.billing_paypal_usd_note()}</p>
+            )}
           {packPrices.length > 0 && (
             <div className="flex flex-wrap gap-3">
               {packPrices.map((price) => (

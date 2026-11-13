@@ -3,7 +3,6 @@ import { act, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { FALLBACK_LOCAL_RATES } from '../readings/price.ts'
 import { getReadingOffer, type ReadingOffer } from '../readings/readings.functions.ts'
 import { ContentFunnel, ReadingGuide } from './reading-guide.tsx'
 
@@ -24,7 +23,6 @@ const offer = (available: boolean): ReadingOffer => ({
   sample: '',
   packs: [],
   viewer: null,
-  rates: FALLBACK_LOCAL_RATES,
 })
 
 const target = {

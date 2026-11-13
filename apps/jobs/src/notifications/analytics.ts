@@ -1,4 +1,5 @@
 // biome-ignore-all lint/plugin: 跨空间的付款与归因读取没有单一租户归属。
+import { toMajor } from '@xuanxue/billing/currency'
 import { normalizeSiteHost, type PlausibleSite, type SiteId } from '@xuanxue/config'
 import {
   analyticsDelivery,
@@ -136,7 +137,8 @@ async function resolve(db: Database, event: ServerAnalyticsEvent): Promise<Resol
       plan: paid.plan ?? undefined,
       device: row?.device ?? undefined,
     }),
-    revenue: { currency: paid.currency, amount: (paid.amount / 100).toFixed(2) },
+    // 按币种指数换算主单位（KRW 无小数），不统一除以 100（localize-checkout-currency）
+    revenue: { currency: paid.currency, amount: toMajor(paid.amount, paid.currency) },
     host: accountHost(row),
   }
 }

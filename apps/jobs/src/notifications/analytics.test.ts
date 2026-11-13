@@ -93,6 +93,18 @@ describe('deliverServerAnalytics', () => {
     expect(inserts).toEqual([{ eventKey: 'payment_success:stripe:pi_1' }])
   })
 
+  it.each([
+    ['KRW', 2800, '2800'],
+    ['TWD', 6500, '65.00'],
+  ])('%s 收入按币种指数换算主单位', async (currency, amount, expected) => {
+    const fetchMock = vi.fn(async () => new Response('ok', { status: 202 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const { db } = fakeDb([[{ ...paid, currency, amount }], [{ userId: 'u1' }], [attribution]])
+    await deliverServerAnalytics(db, target, event)
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    expect(JSON.parse(String(init.body)).revenue).toEqual({ currency, amount: expected })
+  })
+
   it('已发送过、未配置或付款已非成功状态时不发送', async () => {
     const fetchMock = vi.fn(async () => new Response('ok', { status: 202 }))
     vi.stubGlobal('fetch', fetchMock)

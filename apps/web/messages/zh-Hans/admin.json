@@ -372,5 +372,6 @@
   "admin_metrics_by_site_description": "按所选区间实时计算：注册数为区间内新增；用户数、工作空间数与付费工作空间数为区间最后一日日末（UTC）的存量。",
   "admin_total_users": "用户数",
   "admin_total_workspaces": "有效工作空间数",
-  "admin_revoke_remaining_credits_in_batch": "确定撤销批次 {batchId} 中的剩余积分吗？"
+  "admin_revoke_remaining_credits_in_batch": "确定撤销批次 {batchId} 中的剩余积分吗？",
+  "admin_partial_amount_in_currency": "部分退款金额（{currency}）"
 }

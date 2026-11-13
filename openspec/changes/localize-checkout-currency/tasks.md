@@ -44,11 +44,11 @@
 
 ## 5. W4 展示与下游（依赖 W1；联调需要 W2）
 
-- [ ] 5.1 【Claude】`pricing-read.ts` 的 `available` 去掉 USD 条件；新增 `selectDisplayPrice(prices, locale, provider)`，与 4.1 共用选价逻辑。验证：pricing-data 测试覆盖四种语言的展示币种，以及本地价格缺失时显示 USD
-- [ ] 5.2 【Claude】`features/readings/price.ts`：解锁卡与定价页改为显示所选币种的实价，zh-Hans 显示 USD 与固定汇率的 CNY 参考价（「约 ¥13（参考价，以美元结算）」）；删除 `localRates` / `getLocalRates`、Exchange Rate API 调用与 `FxAttribution`。验证：`readings-ui.test.ts`、`pricing-page.test.tsx` 断言 zh-Hant 显示 `NT$65` 且无「≈」、ko 显示 `₩2,800`、zh-Hans 显示参考价；`grep exchangerate` 无结果
-- [ ] 5.3 【Codex】zh-Hant 与 ko 用户在支付方式选择处，如果选 PayPal，提示「PayPal 以美元结算」及 USD 金额；四种语言的文案追加到 `messages/<locale>/billing.json`。验证：组件测试覆盖 ko + PayPal 的提示；其他语言不出现该提示
-- [ ] 5.4 【Codex】账单页与后台的付款、购买、退款、指标列表用 `formatMoney` 按行的币种格式化；后台退款审批的输入按币种单位换算，TWD/KRW 只接受整数。验证：`admin-display`、`refund-section` 测试覆盖 KRW、TWD 的显示与输入换算
-- [ ] 5.5 【Codex】`apps/jobs/src/notifications/analytics.ts` 的收入金额与 `operations.ts` 的运营通知金额改用 `toMajor`。验证：analytics 测试断言 KRW 2800 输出为 `"2800"`、TWD 6500 输出为 `"65.00"`
+- [x] 5.1 【Claude】`pricing-read.ts` 的 `available` 去掉 USD 条件；新增 `selectDisplayPrice(prices, locale, provider)`，与 4.1 共用选价逻辑。验证：pricing-data 测试覆盖四种语言的展示币种，以及本地价格缺失时显示 USD
+- [x] 5.2 【Claude】`features/readings/price.ts`：解锁卡与定价页改为显示所选币种的实价，zh-Hans 显示 USD 与固定汇率的 CNY 参考价（「约 ¥13（参考价，以美元结算）」）；删除 `localRates` / `getLocalRates`、Exchange Rate API 调用与 `FxAttribution`。验证：`readings-ui.test.ts`、`pricing-page.test.tsx` 断言 zh-Hant 显示 `NT$65` 且无「≈」、ko 显示 `₩2,800`、zh-Hans 显示参考价；`grep exchangerate` 无结果
+- [x] 5.3 【Codex】zh-Hant 与 ko 用户在支付方式选择处，如果选 PayPal，提示「PayPal 以美元结算」及 USD 金额；四种语言的文案追加到 `messages/<locale>/billing.json`。验证：组件测试覆盖 ko + PayPal 的提示；其他语言不出现该提示
+- [x] 5.4 【Codex】账单页与后台的付款、购买、退款、指标列表用 `formatMoney` 按行的币种格式化；后台退款审批的输入按币种单位换算，TWD/KRW 只接受整数。验证：`admin-display`、`refund-section` 测试覆盖 KRW、TWD 的显示与输入换算
+- [x] 5.5 【Codex】`apps/jobs/src/notifications/analytics.ts` 的收入金额与 `operations.ts` 的运营通知金额改用 `toMajor`。验证：analytics 测试断言 KRW 2800 输出为 `"2800"`、TWD 6500 输出为 `"65.00"`
 - [ ] 5.6 【Claude 起草 → 用户确认】在定价页 FAQ 与退款政策中补充「以结账页显示的币种与金额为准、退款按原币种退回」，四种语言。验证：文案经用户确认；`legal-pages.test.ts` 与 `faq.test.tsx` 通过
 
 ## 6. Staging 验收（全部 PR 合并后）

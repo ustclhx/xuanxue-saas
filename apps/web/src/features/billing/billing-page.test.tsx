@@ -136,10 +136,14 @@ it('已配置但价格全部停用的支付方式不作默认，改用有积分�
     { id: 'stripe', available: true },
     { id: 'paypal', available: true },
   ]
+  page.catalog.plans = [
+    ...original.plans,
+    { id: 'five', key: 'reading_five', name: 'Five', type: 'credit_pack' },
+  ]
   page.catalog.prices = [
     price('stripe-off', 'pack', 199, false),
     price('paypal-pack', 'pack', 199, true, 'paypal'),
-    price('paypal-five', 'pack', 699, true, 'paypal'),
+    price('paypal-five', 'five', 699, true, 'paypal'),
   ]
   search = { buy: 'reading_single' }
   const purchases = purchasesHtml()
@@ -175,4 +179,22 @@ it('已配置的支付方式都没有可购买价格时给出说明而不是空�
   page.catalog.providers = [{ id: 'stripe', available: true }]
   page.catalog.prices = [price('stripe-off', 'pack', 199, false)]
   expect(purchasesHtml()).toContain('data-testid="billing-payments-unavailable"')
+})
+
+it('繁体按新台币显示 Stripe 积分包；韩语选择 PayPal 时提示以美元结算', () => {
+  overwriteGetLocale(() => 'zh-Hant')
+  page.catalog.prices = [
+    price('pack-usd', 'pack', 199, true),
+    { ...price('pack-twd', 'pack', 6500, true), currency: 'TWD' },
+  ]
+  let purchases = purchasesHtml()
+  expect(purchases).toContain('NT$65')
+  expect(purchases).not.toContain('$1.99')
+  expect(purchases).not.toContain('billing-paypal-usd')
+  overwriteGetLocale(() => 'ko')
+  page.catalog.providers = [{ id: 'paypal', available: true }]
+  page.catalog.prices = [price('paypal-pack', 'pack', 199, true, 'paypal')]
+  purchases = purchasesHtml()
+  expect(purchases).toContain('US$1.99')
+  expect(purchases).toContain('data-testid="billing-paypal-usd"')
 })

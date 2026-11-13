@@ -6,7 +6,6 @@ import { createPaymentRuntime } from '@xuanxue/billing'
 import { getCreditBalance } from '@xuanxue/credits'
 import { aiMessage, dbSettingStore, type Reading, reading, scoped } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
-import { FX_ATTRIBUTION, loadUsdRates } from '@xuanxue/shared/fx'
 import { log } from '@xuanxue/shared/log'
 import { and, desc, eq, lt, ne, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
@@ -17,6 +16,7 @@ import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { customerCatalog } from '../billing/customer-data.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
+import { displayPrices } from '../marketing/pricing-data.ts'
 import { siteReadingPricing } from '../marketing/reading-pricing.server.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 import { resolveSite } from '../site/site.ts'
@@ -28,7 +28,6 @@ import {
 import { readingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeReading } from './generate.ts'
-import { FALLBACK_LOCAL_RATES, type LocalRates } from './price.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
 /**
@@ -43,8 +42,9 @@ export interface ReadingPack {
   readonly planPriceId: string
   readonly provider: string
   readonly credits: number
-  /** 美元最小单位（美分） */
+  /** 结算币种的最小单位 */
   readonly amount: number
+  readonly currency: string
 }
 
 export interface ReadingOffer {
@@ -64,8 +64,6 @@ export interface ReadingOffer {
   readonly packs: readonly ReadingPack[]
   /** 未登录为 null；详批保存在个人空间，余额也取个人空间 */
   readonly viewer: { readonly slug: string; readonly balance: number } | null
-  /** 当地货币估价用的汇率（见 price.ts） */
-  readonly rates: LocalRates
 }
 
 const UNAVAILABLE: ReadingOffer = {
@@ -77,45 +75,7 @@ const UNAVAILABLE: ReadingOffer = {
   sample: '',
   packs: [],
   viewer: null,
-  rates: FALLBACK_LOCAL_RATES,
 }
-
-/** Exchange Rate API 每日更新一次，缓存一天即可；模块默认 12 小时，这里按数据源的更新频率覆盖 */
-const LOCAL_RATES_TTL_SECONDS = 24 * 60 * 60
-
-/**
- * 当地货币估价的汇率：Exchange Rate API 数据由运行时缓存保存一天（见 `loadUsdRates`），
- * 只返回本站用到的货币；任何失败都回退到参考值，不影响页面渲染。
- */
-async function localRates(): Promise<LocalRates> {
-  const runtime = getWebRuntime()
-  try {
-    const fx = await loadUsdRates({
-      store: {
-        get: (key) => runtime.cache.get(key),
-        put: (key, value, ttlSeconds) =>
-          runtime.cache.put(key, value, { expirationTtl: ttlSeconds }),
-      },
-      fallback: FALLBACK_LOCAL_RATES.perUsd,
-      ttlSeconds: LOCAL_RATES_TTL_SECONDS,
-    })
-    const perUsd = Object.fromEntries(
-      Object.entries(FALLBACK_LOCAL_RATES.perUsd).map(([code, fallback]) => [
-        code,
-        fx.rates[code] ?? fallback,
-      ]),
-    )
-    return { perUsd, attribution: fx.source === 'live' ? FX_ATTRIBUTION : null }
-  } catch (error) {
-    log.warn('readings.rates_failed', { error })
-    return FALLBACK_LOCAL_RATES
-  }
-}
-
-/** 定价页在浏览器中读取汇率（页面是预渲染的静态页，构建时的汇率不会随时间更新） */
-export const getLocalRates = createServerFn({ method: 'GET' }).handler(
-  async (): Promise<LocalRates> => localRates(),
-)
 
 /**
  * 公开页面判定详批可用性的依赖：设置经 KV 缓存，`ai_model` 走允许短暂陈旧的连接
@@ -156,8 +116,11 @@ async function viewerOf(): Promise<ReadingOffer['viewer']> {
   return { slug: resolved.workspace.slug, balance: balance.available }
 }
 
-/** 积分包：可购买的美元一次性价格，按积分从少到多 */
-async function readingPacks(): Promise<ReadingPack[]> {
+/**
+ * 积分包：每个可用付款方式下按界面语言选出的可购买一次性价格（与结账同一选价规则，见 pricing-data.ts），
+ * 按积分从少到多
+ */
+async function readingPacks(locale: string): Promise<ReadingPack[]> {
   const runtime = getWebRuntime()
   const payments = createPaymentRuntime(runtime.config, templateConfig.billing.providers, {
     cache: runtime.cache,
@@ -166,17 +129,23 @@ async function readingPacks(): Promise<ReadingPack[]> {
   const catalog = await customerCatalog(runtime.db, payments.readiness)
   // 每个可用付款方式各一项，按积分数、再按 template.config 的付款方式顺序排列，解锁卡据此提供切换
   const order: readonly string[] = templateConfig.billing.providers
+  const available = catalog.prices.filter((item) => item.available && item.interval === null)
   return catalog.plans
     .filter((plan) => plan.type === 'credit_pack' && plan.credits > 0)
     .flatMap((plan) =>
-      catalog.prices
-        .filter((item) => item.planId === plan.id && item.available && item.interval === null)
-        .map((price) => ({
+      order.flatMap((provider) =>
+        displayPrices(
+          available.filter((item) => item.planId === plan.id),
+          locale,
+          provider,
+        ).map((price) => ({
           planPriceId: price.id,
           provider: price.provider,
           credits: plan.credits,
           amount: price.amount,
+          currency: price.currency,
         })),
+      ),
     )
     .sort((a, b) => a.credits - b.credits || order.indexOf(a.provider) - order.indexOf(b.provider))
 }
@@ -199,7 +168,7 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         textChatAvailable(deps.db, deps.aiEnv),
       ])
       if (!status.available) return { ...UNAVAILABLE, comingSoon: true, chatAvailable }
-      const [packs, viewer] = await Promise.all([readingPacks(), viewerOf()])
+      const [packs, viewer] = await Promise.all([readingPacks(data.locale), viewerOf()])
       return {
         available: true,
         comingSoon: false,
@@ -209,7 +178,6 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         sample: definition.sample,
         packs,
         viewer,
-        rates: await localRates(),
       }
     } catch (error) {
       log.warn('readings.offer_failed', { kind: data.kind, error })

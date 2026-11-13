@@ -126,5 +126,7 @@
   "marketing_guides_title": "가이드",
   "marketing_guides_subtitle": "자주 묻는 질문에 대한 짧은 답변입니다.",
   "marketing_guides_back": "모든 가이드",
-  "marketing_guides_faq": "자주 묻는 질문"
+  "marketing_guides_faq": "자주 묻는 질문",
+  "pricing_faq_currency_q": "어떤 통화로 결제되나요?",
+  "pricing_faq_currency_a": "결제 페이지에 표시된 통화와 금액으로 결제됩니다. 카드 결제는 원화로, PayPal 결제는 미국 달러로 청구됩니다. 표시 가격은 환율에 따라 바뀌지 않으며, 환불은 원래 결제한 통화로 이루어집니다."
 }
