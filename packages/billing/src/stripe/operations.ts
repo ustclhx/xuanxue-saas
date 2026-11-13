@@ -79,6 +79,8 @@ function stripePresentation(input: CheckoutInput) {
  */
 async function checkoutPrice(stripe: Stripe, input: CheckoutInput): Promise<string> {
   const canonical = priceId(input.price)
+  // TWD / KRW 行本身就是挂在本地化商品上的独立 Price（localize-checkout-currency D1），直接使用、不查 lookup_key
+  if (input.price.currency.toUpperCase() !== 'USD') return canonical
   const locale = input.mode === 'one_time' ? input.presentation?.locale : undefined
   if (!locale || !isLocalizedPackLocale(locale)) return canonical
   try {
@@ -125,7 +127,7 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
       ...shown.session,
       // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
       managed_payments: { enabled: false },
-      // 平台价格只有 USD：关闭 Adaptive Pricing，避免 Stripe 按买家所在地换算成其他币种扣款。
+      // 结算币种由服务端按界面语言选定价格行：关闭 Adaptive Pricing，避免 Stripe 按买家所在地再换算币种扣款。
       adaptive_pricing: { enabled: false },
       line_items: [{ price: linePrice, quantity: 1 }],
       success_url: input.successUrl,

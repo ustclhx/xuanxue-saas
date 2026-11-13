@@ -531,6 +531,108 @@ describe('trusted billing services on PostgreSQL', () => {
     })
     expect(ctx.providers.stripe?.createCheckout).not.toHaveBeenCalled()
   })
+  it('selects the checkout currency on the server from interface language and provider', async () => {
+    const pack = id()
+    extraPlans.push(pack)
+    const [base] = await db.select().from(plan).where(eq(plan.id, pid))
+    if (!base) throw new Error('Missing plan')
+    await db
+      .insert(plan)
+      .values({ ...base, id: pack, key: pack, name: 'Pack', type: 'credit_pack', sort: 0 })
+    const rows = {
+      usd: { provider: 'stripe' as const, amount: 199, currency: 'USD' },
+      twd: { provider: 'stripe' as const, amount: 6500, currency: 'TWD' },
+      krw: { provider: 'stripe' as const, amount: 2800, currency: 'KRW' },
+      paypal: { provider: 'paypal' as const, amount: 199, currency: 'USD' },
+    }
+    const ids = Object.fromEntries(Object.keys(rows).map((key) => [key, id()])) as Record<
+      keyof typeof rows,
+      string
+    >
+    await db.insert(planPrice).values(
+      Object.entries(rows).map(([key, row]) => ({
+        ...row,
+        id: ids[key as keyof typeof rows],
+        planId: pack,
+        interval: null,
+        providerPriceId: `price_${key}_${pack}`,
+      })),
+    )
+    const buy = async (locale: string, provider: 'stripe' | 'paypal' = 'stripe') => {
+      const mock = vi.mocked(ctx.providers[provider]?.createCheckout)
+      mock?.mockClear()
+      await createCheckout(ctx, {
+        ...checkout(provider),
+        // 客户端提交的总是 USD 价格 ID，也不能决定币种
+        planPriceId: provider === 'stripe' ? ids.usd : ids.paypal,
+        presentation: { brandName: 'Test', locale, describe: () => 'credits' },
+      })
+      return mock?.mock.calls[0]?.[0].price
+    }
+    expect(await buy('zh-Hant')).toMatchObject({ id: ids.twd, currency: 'TWD', amount: 6500 })
+    expect(await buy('ko')).toMatchObject({ id: ids.krw, currency: 'KRW', amount: 2800 })
+    expect(await buy('zh-Hans')).toMatchObject({ id: ids.usd, currency: 'USD' })
+    expect(await buy('ko', 'paypal')).toMatchObject({ id: ids.paypal, currency: 'USD' })
+    // PayPal 订单记录实际所选的价格行
+    expect((await db.select().from(purchase).where(eq(purchase.workspaceId, ws)))[0]).toMatchObject(
+      { planPriceId: ids.paypal, amount: 199, currency: 'USD' },
+    )
+    // 本地价格停用或未同步时回退 USD
+    await db.update(planPrice).set({ active: false }).where(eq(planPrice.id, ids.twd))
+    expect(await buy('zh-Hant')).toMatchObject({ id: ids.usd, currency: 'USD' })
+    await db
+      .update(planPrice)
+      .set({ providerPriceId: 'unsynced:stripe:krw' })
+      .where(eq(planPrice.id, ids.krw))
+    expect(await buy('ko')).toMatchObject({ id: ids.usd, currency: 'USD' })
+  })
+  it('plan changes keep the current subscription currency instead of the interface language', async () => {
+    await db.update(planPrice).set({ amount: 16200, currency: 'TWD' }).where(eq(planPrice.id, sp))
+    await seedSub()
+    const team = id(),
+      teamUsd = id(),
+      teamTwd = id()
+    extraPlans.push(team)
+    const [base] = await db.select().from(plan).where(eq(plan.id, pid))
+    if (!base) throw new Error('Missing plan')
+    await db
+      .insert(plan)
+      .values({ ...base, id: team, key: team, name: 'Team', sort: 20, credits: 30 })
+    const teamRow = {
+      planId: team,
+      provider: 'stripe' as const,
+      interval: 'month' as const,
+    }
+    await db.insert(planPrice).values({
+      ...teamRow,
+      id: teamUsd,
+      providerPriceId: `price_${teamUsd}`,
+      amount: 999,
+      currency: 'USD',
+    })
+    await expect(changePlan(ctx, { ...subInput(), planPriceId: teamUsd })).rejects.toMatchObject({
+      code: 'BILLING_PRICE_UNAVAILABLE',
+      message: 'No active synced TWD price for this plan',
+    })
+    expect(ctx.providers.stripe?.changePlan).not.toHaveBeenCalled()
+    await db.insert(planPrice).values({
+      ...teamRow,
+      id: teamTwd,
+      providerPriceId: `price_${teamTwd}`,
+      amount: 32500,
+      currency: 'TWD',
+    })
+    remote = { ...remote, providerPriceId: `price_${sp}` }
+    expect(await changePlan(ctx, { ...subInput(), planPriceId: teamUsd })).toEqual({
+      status: 'changed',
+    })
+    const change = ctx.providers.stripe?.changePlan
+    if (!change) throw new Error('Missing changePlan')
+    expect(vi.mocked(change).mock.calls[0]?.[1]).toMatchObject({
+      id: teamTwd,
+      currency: 'TWD',
+    })
+  })
   it('PayPal suspension preserves paid period and rejects resume before remote calls when another subscription renews', async () => {
     await seedSub('paypal')
     remote = { ...remote, providerPriceId: `P-${pp}`, status: 'paused', remoteStatus: 'SUSPENDED' }

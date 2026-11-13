@@ -346,6 +346,19 @@ describe('Stripe checkout and transport', () => {
       mock.complete()
     })
 
+    it('uses a TWD price directly without listing prices and keeps Adaptive Pricing off', async () => {
+      const mock = mockStripe([session])
+      await mock.operations.createCheckout({
+        ...pack,
+        price: { ...packPrice, amount: 6500, currency: 'TWD', providerPriceId: 'price_twd' },
+      })
+      expect(mock.requests[0]?.path).toBe('/v1/checkout/sessions')
+      expect(mock.requests[0]?.body.get('line_items[0][price]')).toBe('price_twd')
+      expect(mock.requests[0]?.body.get('adaptive_pricing[enabled]')).toBe('false')
+      expect(mock.requests[0]?.body.get('metadata[planPriceId]')).toBe(planPriceId)
+      mock.complete()
+    })
+
     it('uses the canonical price without a lookup for English Checkout', async () => {
       const mock = mockStripe([session])
       await mock.operations.createCheckout({

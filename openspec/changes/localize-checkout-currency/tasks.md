@@ -37,9 +37,9 @@
 
 ## 4. W3 结账选价（依赖 W1；与 W2 并行，联调时需要 W2 的数据）
 
-- [ ] 4.1 【Claude】`createCheckout` 的服务路径中，由 `planPriceId` 推出 (plan, interval)，再按 `presentation.locale` 与 provider 选出价格行（找不到时回退 USD），实际所选行写入 metadata 与 `purchase`。验证：`customer.functions` / services 测试覆盖 zh-Hant 选 TWD、ko 走 Stripe 选 KRW、ko 走 PayPal 选 USD、TWD 行 inactive 时回退 USD、客户端传 USD 价格 ID 时仍选 TWD
-- [ ] 4.2 【Claude】`stripe/operations.ts` 的 `checkoutPrice`：TWD/KRW 行直接使用自身的 Price，USD 行保持现有的本地化 lookup 回退。保留 `adaptive_pricing: { enabled: false }`。验证：operations 单测断言 TWD 结账的 `line_items` 使用 TWD Price，并且不调用 `prices.list`
-- [ ] 4.3 【Claude】`changePlan` 的目标价格按当前订阅的币种选择，不按界面语言选（design D7）。验证：单测覆盖 TWD 订阅换档时选出 TWD 目标价格；同币种价格缺失时返回明确错误
+- [x] 4.1 【Claude】`createCheckout` 的服务路径中，由 `planPriceId` 推出 (plan, interval)，再按 `presentation.locale` 与 provider 选出价格行（找不到时回退 USD），实际所选行写入 metadata 与 `purchase`。验证：`customer.functions` / services 测试覆盖 zh-Hant 选 TWD、ko 走 Stripe 选 KRW、ko 走 PayPal 选 USD、TWD 行 inactive 时回退 USD、客户端传 USD 价格 ID 时仍选 TWD
+- [x] 4.2 【Claude】`stripe/operations.ts` 的 `checkoutPrice`：TWD/KRW 行直接使用自身的 Price，USD 行保持现有的本地化 lookup 回退。保留 `adaptive_pricing: { enabled: false }`。验证：operations 单测断言 TWD 结账的 `line_items` 使用 TWD Price，并且不调用 `prices.list`
+- [x] 4.3 【Claude】`changePlan` 的目标价格按当前订阅的币种选择，不按界面语言选（design D7）。验证：单测覆盖 TWD 订阅换档时选出 TWD 目标价格；同币种价格缺失时返回明确错误
 - [x] 4.4 ~~作废（决策 2：PayPal 恒为 USD）~~ 【Claude】PayPal 一次性订单在开关开启时以 TWD 创建，`amount.breakdown` 一并按整数输出。验证：PayPal operations 单测断言请求体的 `currency_code`=`TWD`、`value`=`"65"`
 
 ## 5. W4 展示与下游（依赖 W1；联调需要 W2）
