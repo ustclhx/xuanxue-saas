@@ -482,8 +482,8 @@ describe('POST /api/readings', () => {
 })
 
 describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', () => {
-  /** 用于切换测试的非默认版本与语言；v4 登记后改为 v4 */
-  const SWITCHED = { kind: 'bazi-full', locale: 'zh-Hans', version: 'bazi-full.v3' } as const
+  /** 用于切换测试的非默认版本与语言 */
+  const SWITCHED = { kind: 'bazi-full', locale: 'zh-Hans', version: 'bazi-full.v4' } as const
   const VERSION_KEY = `readings.${SWITCHED.kind}.promptVersion` as const
 
   const switchedReport = () => {

@@ -28,13 +28,17 @@ import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/t
 import { z } from 'zod'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
+import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
+import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
+import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
+import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
 
 /**
  * 详批注册表（add-reading-monetization design 决策 1）：每种详批的输入校验、服务端复算、
@@ -465,6 +469,7 @@ const entries = {
           '日主乙木，生于卯月。乙木如藤萝花草，看似柔软，实则韧性很强。天干庚金正官与辛金七杀并见，对日主形成持续的约束、雕琢之力，综合判为身弱，属于“有根但压力不小”的结构。喜用取水、木：水能化金之锐而生木，木能帮身自立。',
       },
     },
+    versions: { 'bazi-full.v4': BAZI_FULL_V4 },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -479,6 +484,7 @@ const entries = {
           '일간 기토가 월지와 일지의 유금, 그리고 시간의 신금까지 마주해 식신의 기운이 대단히 두터운 것이 이 명식의 가장 큰 특징입니다. 여기에 계수 편재가 더해져 식신생재의 흐름이 자연스럽게 이어집니다. 다만 일간을 받쳐 주는 토의 힘이 넉넉하지 않아, 재능은 풍부하지만 중심을 잡는 힘이 아쉬울 수 있습니다.',
       },
     },
+    versions: { 'saju-full.v4': SAJU_FULL_V4 },
     recompute: recomputeChart,
   },
   'ziwei-full': {
@@ -501,6 +507,7 @@ const entries = {
           '命宫坐卯宫，主星为天府，性稳能容，重信用讲章法，做事喜欢有把握、有次序。身宫落在迁移宫（酉），主星武曲与七杀，代表行动风格偏向务实、果断、敢往外走。命宫与身宫一静一动，形成“底子求稳、对外敢闯”的基本格局。',
       },
     },
+    versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
     recompute: recomputeZiwei,
   },
   'saju-compat': {
@@ -532,6 +539,7 @@ const entries = {
           "This chart centers on a Life Path 9, a number of compassion, perspective and quiet completion. It gives a wide-angle view of people, seeing the story behind someone's behaviour rather than just the behaviour itself. Alongside it sits a Birthday number 7, adding thoughtfulness and a habit of looking beneath the surface, and an Expression number 11, a master number that brings unusual sensitivity and intuition.",
       },
     },
+    versions: { 'numerology-full.v4': NUMEROLOGY_FULL_V4 },
     recompute: recomputeNumerology,
   },
   'tarot-spread': {
