@@ -131,10 +131,11 @@ describe('首页枢纽数据', () => {
 })
 
 describe('首页枢纽区块', () => {
-  it('区块顺序：工具矩阵、样例详批、三步、定价、背书；未登记每日运势页时不渲染入口', () => {
+  it('区块顺序：每日运势入口、工具矩阵、样例详批、三步、定价、背书', () => {
     const html = render('east', 'zh-Hant', { sampleChart: <svg data-chart="sample" /> })
     const blocks = [...html.matchAll(/data-hub-block="(\w+)"/g)].map((match) => match[1])
-    expect(blocks).toEqual(['tools', 'sample', 'steps', 'plans', 'trust'])
+    expect(blocks).toEqual(['daily', 'tools', 'sample', 'steps', 'plans', 'trust'])
+    expect(html).toContain('href="/zh-hant/%E6%AF%8F%E6%97%A5%E9%81%8B%E5%8B%A2"')
     expect(html).not.toContain('即將')
     expect(html).toContain('data-chart="sample"')
   })

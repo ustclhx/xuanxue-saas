@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { m } from '../../../paraglide/messages.js'
+import { DAILY_PATHS } from '../../daily/routes.ts'
 import { displayPrice } from '../../readings/price.ts'
 import { TOOL_ROUTES, type ToolRoute, toolsForSite } from '../../tools/registry.ts'
 import { toolHref } from '../../tools/tool-href.ts'
@@ -110,7 +111,8 @@ export function hubPricing(catalog: PricingCatalog, locale: string): HubPrice[] 
  * 路由合并、在该语言上线后在这里登记路径（D9：/每日運勢、/每日运势、/오늘의-운세、/daily-numerology），
  * 首页才显示入口卡片；未登记时不渲染，也不出现「即将开放」。
  */
-export const DAILY_PAGES: Readonly<Partial<Record<string, string>>> = {}
+// 每日运势页已上线（#152），直接取其规范地址；routes.ts 只含数据，不引入运行时模块
+export const DAILY_PAGES: Readonly<Partial<Record<string, string>>> = DAILY_PATHS
 
 export function dailyEntryHref(
   locale: string,

@@ -27,14 +27,16 @@ export const FORBIDDEN_MARKERS = [
 /**
  * 需要检查的首页：西方站 `/` 与东方站三种语言首页（预渲染输出 `zh-hant.html` 等）。
  * `budget` 为静态脚本闭包 gzip（level 9）总量上限，单位字节：
- * = 首页改版前 main（abb49674，2026-11-13 本地 `pnpm --filter @xuanxue/web build`）实测值 × 1.10，向上取整。
+ * = 首页改版前 main（abb49674，2026-11-13 本地 `pnpm --filter @xuanxue/web build`）实测值 × 1.12，向上取整。
+ * 2026-11-14 由 ×1.10 放宽到 ×1.12：roadmap 第二波（首页枢纽区块、样例命盘图、页头每日运势入口）合计约 +10.2%；
+ * 首页 LCP 基线本就偏慢（5.7–11.6s），体积与 LCP 优化另立任务，不再靠放宽预算。
  * 提高预算须在 PR 中说明原因与新实测值。
  */
 export const HOME_PAGES = [
-  { id: 'west', file: 'index.html', budget: 368992 }, // 实测 335447 B
-  { id: 'zh-hant', file: 'zh-hant.html', budget: 368992 }, // 实测 335447 B
-  { id: 'zh-hans', file: 'zh-hans.html', budget: 368992 }, // 实测 335447 B
-  { id: 'ko', file: 'ko.html', budget: 368992 }, // 实测 335447 B
+  { id: 'west', file: 'index.html', budget: 375701 }, // 实测 335447 B
+  { id: 'zh-hant', file: 'zh-hant.html', budget: 375701 }, // 实测 335447 B
+  { id: 'zh-hans', file: 'zh-hans.html', budget: 375701 }, // 实测 335447 B
+  { id: 'ko', file: 'ko.html', budget: 375701 }, // 实测 335447 B
 ]
 
 // 压缩后的静态导入 / 再导出：`import{a}from"./x.js"`、`import"./x.js"`、`export*from"./x.js"`；
