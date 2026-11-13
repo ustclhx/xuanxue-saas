@@ -52,9 +52,9 @@
 
 ## 5. 波次 B · WT-profiles-ui：档案管理页（【Claude】，依赖 3、1.2）
 
-- [ ] 5.1 用 `new-page` 技能新增 `/app/$slug/profiles`，含列表、新建或编辑对话框、删除用的 AlertDialog、设为默认，并在 `nav.project.ts` 用 `registerAppNav` 登记入口。表单复用 `birth-fields.tsx` 的字段组件，按站点显示字段。验证：组件测试覆盖空态、默认与「本人」标记、字段错误提示；`pnpm check`（含 check:ui）通过
-- [ ] 5.2 新建四种语言的 `messages/*/profiles.json`。验证：`pnpm typecheck` 生成文案无缺项；`pnpm test` 不报告缺失翻译
-- [ ] 5.3 e2e：登录后新建、编辑、设为默认、删除档案，东西两站各跑一次。验证：`pnpm --filter @xuanxue/web test:e2e profiles.spec.ts` 通过，截图存入 `EVIDENCE_DIR`
+- [x] 5.1 用 `new-page` 技能新增 `/app/$slug/profiles`，含列表、新建或编辑对话框、删除用的 AlertDialog、设为默认，并在 `nav.project.ts` 用 `registerAppNav` 登记入口。表单复用 `birth-fields.tsx` 的字段组件，按站点显示字段。验证：组件测试覆盖空态、默认与「本人」标记、字段错误提示；`pnpm check`（含 check:ui）通过
+- [x] 5.2 新建四种语言的 `messages/*/profiles.json`。验证：`pnpm typecheck` 生成文案无缺项；`pnpm test` 不报告缺失翻译
+- [x] 5.3 e2e：登录后新建、编辑、设为默认、删除档案，东西两站各跑一次。验证：`pnpm --filter @xuanxue/web test:e2e profiles.spec.ts` 通过，截图存入 `EVIDENCE_DIR`
 
 ## 6. 波次 B · WT-profiles-tools：工具页接入档案（【Claude】，依赖 3、1.2）
 

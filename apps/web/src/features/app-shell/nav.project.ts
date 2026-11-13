@@ -13,4 +13,23 @@
 //
 // 分组固定为 tools / content / settings；可见性用 visible({ role, readOnly, isPersonal })；
 // to 必须是 /app/$slug 下已存在的路由。顶部布局（ui.appLayout: 'topbar'）也会渲染这里新增的条目。
-export function registerProjectAppNav() {}
+import { Users } from '@xuanxue/ui/icons'
+import { m } from '../../paraglide/messages.js'
+import { registerAppNav } from './nav.ts'
+
+export function registerProjectAppNav() {
+  // 出生档案（add-birth-profiles-daily-horoscope 5.1）：只属于个人空间
+  registerAppNav({
+    group: 'content',
+    items: [
+      {
+        id: 'birth-profiles',
+        label: m.profiles_title,
+        icon: Users,
+        to: '/app/$slug/profiles',
+        order: 20,
+        visible: ({ isPersonal }) => isPersonal,
+      },
+    ],
+  })
+}
