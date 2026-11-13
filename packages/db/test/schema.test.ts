@@ -301,8 +301,11 @@ describe('ai_message_feedback.share_conversation（Hyperdrive → 本地 Postgre
 
   beforeAll(async () => {
     db = open()
-    await db.insert(user).values({ id: userId, name: 'Sharer', email: `${userId}@example.test` })
+    await db
+      .insert(user)
+      .values({ site: 'west', id: userId, name: 'Sharer', email: `${userId}@example.test` })
     await db.insert(organization).values({
+      site: 'west',
       id: orgId,
       name: 'Personal',
       slug: `u-${orgId.slice(-12)}`,
