@@ -8,6 +8,7 @@ import { ElementsChart } from '../charts/elements-chart.tsx'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
+import { baziShareCard } from '../share-card/sources-bazi.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { KO_TRUE_SOLAR_DEFAULT, toShareInput } from './birth-form-state.ts'
@@ -187,7 +188,11 @@ export function SajuResult({
           <ConceptLink href={conceptHref(LOCALE, 'void')}>{m.bazi_void_link()}</ConceptLink>
         </div>
       </ResultBlock>
-      <ResultFooter share={share} engineVersion={chart.engineVersion} />
+      <ResultFooter
+        share={share}
+        engineVersion={chart.engineVersion}
+        card={() => baziShareCard(chart, 'manseryeok', LOCALE)}
+      />
     </>
   )
 }

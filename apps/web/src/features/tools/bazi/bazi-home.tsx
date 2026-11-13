@@ -8,6 +8,7 @@ import { ElementsChart } from '../charts/elements-chart.tsx'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
+import { baziShareCard } from '../share-card/sources-bazi.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
@@ -198,7 +199,11 @@ export function BaziResult({
           <ConceptLink href={conceptHref(LOCALE, 'weight')}>{m.bazi_weight_link()}</ConceptLink>
         </ResultBlock>
       </div>
-      <ResultFooter share={share} engineVersion={chart.engineVersion} />
+      <ResultFooter
+        share={share}
+        engineVersion={chart.engineVersion}
+        card={() => baziShareCard(chart, 'bazi', LOCALE)}
+      />
     </>
   )
 }

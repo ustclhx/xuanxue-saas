@@ -1,0 +1,23 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_card_save": "공유 이미지 저장",
+  "share_card_generating": "만드는 중…",
+  "share_card_include_birth": "이미지에 생년월일 표시",
+  "share_card_ready": "공유 이미지를 브라우저에서 만들었습니다. 어떤 정보도 업로드하지 않았습니다.",
+  "share_card_download": "이미지 다운로드",
+  "share_card_share": "공유",
+  "share_card_failed": "공유 이미지를 만들지 못했습니다. 다시 시도해 주세요. 사주 결과와 공유 링크는 그대로 사용할 수 있습니다.",
+  "share_card_retry": "다시 시도",
+  "share_card_preview_alt": "공유 이미지 미리보기",
+  "share_card_title_bazi": "{brand} · 나의 사주",
+  "share_card_title_manseryeok": "{brand} · 나의 만세력",
+  "share_card_title_ziwei": "{brand} · 나의 자미두수 명반",
+  "share_card_eyebrow_life_path": "나의 라이프 패스 넘버",
+  "share_card_cta_east": "무료 만세력 {domain}",
+  "share_card_cta_west": "{domain}에서 나의 숫자 찾기",
+  "share_card_privacy_without_birth": "이름·출생지 미포함",
+  "share_card_privacy_with_birth": "이름·출생지 미포함",
+  "share_card_disclaimer": "전통 규칙에 따른 계산이며 오락용 참고 자료로, 미래를 예측하지 않습니다.",
+  "share_card_ziwei_stars": "명궁 주성: {stars}",
+  "share_card_list_separator": ", "
+}

@@ -1,14 +1,23 @@
 import { useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { shareUrl } from './share.ts'
+import type { ShareCardModel } from './share-card/model.ts'
+import { ShareCardAction } from './share-card/share-card-action.tsx'
 
 type CopyState = 'idle' | 'copied' | 'failed'
 
 /**
  * 分享结果链接：显示可选中的完整地址与复制按钮。地址在浏览器中按当前页面生成（`#r=` 片段），
  * 复制失败时提示手动选取；状态通过 aria-live 播报。
+ * 传入 `card` 时在下方提供「保存分享图」（redesign-home-chart-visuals tasks 7.3），按点击生成模型。
  */
-export function ShareLink({ input }: { input: Readonly<Record<string, unknown>> }) {
+export function ShareLink({
+  input,
+  card,
+}: {
+  input: Readonly<Record<string, unknown>>
+  card?: (() => ShareCardModel) | undefined
+}) {
   const fieldId = useId()
   const [href, setHref] = useState('')
   const [state, setState] = useState<CopyState>('idle')
@@ -54,6 +63,7 @@ export function ShareLink({ input }: { input: Readonly<Record<string, unknown>> 
             ? m.tools_share_failed()
             : m.tools_share_hint()}
       </p>
+      {card && <ShareCardAction build={card} />}
     </div>
   )
 }

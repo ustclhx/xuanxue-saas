@@ -1,0 +1,23 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_card_save": "保存分享图",
+  "share_card_generating": "正在生成…",
+  "share_card_include_birth": "在图中显示出生日期",
+  "share_card_ready": "分享图已在你的浏览器中生成，未上传任何资料。",
+  "share_card_download": "下载图片",
+  "share_card_share": "分享",
+  "share_card_failed": "分享图生成失败，可以重试；排盘结果与分享链接不受影响。",
+  "share_card_retry": "重试",
+  "share_card_preview_alt": "分享图预览",
+  "share_card_title_bazi": "{brand} · 我的八字",
+  "share_card_title_manseryeok": "{brand} · 我的万岁历",
+  "share_card_title_ziwei": "{brand} · 我的紫微命盘",
+  "share_card_eyebrow_life_path": "我的生命灵数",
+  "share_card_cta_east": "免费排盘 {domain}",
+  "share_card_cta_west": "在 {domain} 算出你的数字",
+  "share_card_privacy_without_birth": "不含姓名与出生地",
+  "share_card_privacy_with_birth": "不含姓名与出生地",
+  "share_card_disclaimer": "依传统规则计算，仅供娱乐参考，不预测未来。",
+  "share_card_ziwei_stars": "命宫主星：{stars}",
+  "share_card_list_separator": "、"
+}
