@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { type ReactNode, useMemo } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ToolContext } from '../context.tsx'
 import { Disclaimer } from '../disclaimer.tsx'
@@ -16,7 +16,14 @@ import { faqItems } from './seo.ts'
  * H1 → 计算器 → 结果 → 1–33 数字网格 → 「What is a life path number」长文 → FAQ → 完整计算器入口。
  * 首屏为左右两栏，不套用 ToolPage 的单栏布局，组件与埋点仍复用 features/tools。
  */
-export function LifePathHome({ content }: { content: NumerologyPage }) {
+export function LifePathHome({
+  content,
+  hub,
+}: {
+  content: NumerologyPage
+  /** 首页枢纽区块（长文之后、FAQ 之前），由首页路由传入 */
+  hub?: ReactNode
+}) {
   const track = useToolEvents('life-path')
   const context = useMemo(() => ({ tool: 'life-path', track }), [track])
   return (
@@ -34,6 +41,7 @@ export function LifePathHome({ content }: { content: NumerologyPage }) {
         <Disclaimer />
         <NumberGrid />
         <NumerologyArticle html={content.html} />
+        {hub}
         <ToolFaq items={faqItems(content.faq)} />
         <ToolLinks links={numerologyLinks('life-path')} title={m.numerology_more_tools()} />
       </div>

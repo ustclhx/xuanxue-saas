@@ -1,9 +1,10 @@
-import type { BirthInput, Branch } from '@xuanxue/bazi'
-import type { MajorStar, Mutagen, PalaceKey, ZiweiChart, ZiweiPalace } from '@xuanxue/bazi/ziwei'
+import type { BirthInput } from '@xuanxue/bazi'
+import type { PalaceKey, ZiweiChart } from '@xuanxue/bazi/ziwei'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { ZiweiChartGraphic } from '../charts/ziwei-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -14,88 +15,7 @@ import { link, pageHref, ReadingSlots, ResultFooter, ResultStatus, usePrefetch }
 import { loadZiwei } from './engine.ts'
 import { BRANCH_HANZI, formatDateTime, STEM_HANZI } from './glyphs.ts'
 import { useBirthTool } from './use-birth-tool.ts'
-
-type Message = () => string
-
-const PALACE_LABEL: Record<PalaceKey, Message> = {
-  soul: m.bazi_ziwei_palace_soul,
-  siblings: m.bazi_ziwei_palace_siblings,
-  spouse: m.bazi_ziwei_palace_spouse,
-  children: m.bazi_ziwei_palace_children,
-  wealth: m.bazi_ziwei_palace_wealth,
-  health: m.bazi_ziwei_palace_health,
-  surface: m.bazi_ziwei_palace_surface,
-  friends: m.bazi_ziwei_palace_friends,
-  career: m.bazi_ziwei_palace_career,
-  property: m.bazi_ziwei_palace_property,
-  spirit: m.bazi_ziwei_palace_spirit,
-  parents: m.bazi_ziwei_palace_parents,
-}
-
-/** 十四主星与四化可能落到的辅星（文昌、文曲、左辅、右弼） */
-const STAR_LABEL: Record<MajorStar | 'wenchang' | 'wenqu' | 'zuofu' | 'youbi', Message> = {
-  ziwei: m.bazi_ziwei_star_ziwei,
-  tianji: m.bazi_ziwei_star_tianji,
-  taiyang: m.bazi_ziwei_star_taiyang,
-  wuqu: m.bazi_ziwei_star_wuqu,
-  tiantong: m.bazi_ziwei_star_tiantong,
-  lianzhen: m.bazi_ziwei_star_lianzhen,
-  tianfu: m.bazi_ziwei_star_tianfu,
-  taiyin: m.bazi_ziwei_star_taiyin,
-  tanlang: m.bazi_ziwei_star_tanlang,
-  jumen: m.bazi_ziwei_star_jumen,
-  tianxiang: m.bazi_ziwei_star_tianxiang,
-  tianliang: m.bazi_ziwei_star_tianliang,
-  qisha: m.bazi_ziwei_star_qisha,
-  pojun: m.bazi_ziwei_star_pojun,
-  wenchang: m.bazi_ziwei_star_wenchang,
-  wenqu: m.bazi_ziwei_star_wenqu,
-  zuofu: m.bazi_ziwei_star_zuofu,
-  youbi: m.bazi_ziwei_star_youbi,
-}
-
-const BRIGHTNESS_LABEL: Record<string, Message> = {
-  miao: m.bazi_ziwei_brightness_miao,
-  wang: m.bazi_ziwei_brightness_wang,
-  de: m.bazi_ziwei_brightness_de,
-  li: m.bazi_ziwei_brightness_li,
-  ping: m.bazi_ziwei_brightness_ping,
-  bu: m.bazi_ziwei_brightness_bu,
-  xian: m.bazi_ziwei_brightness_xian,
-}
-
-const MUTAGEN_LABEL: Record<Mutagen, Message> = {
-  lu: m.bazi_ziwei_mutagen_lu,
-  quan: m.bazi_ziwei_mutagen_quan,
-  ke: m.bazi_ziwei_mutagen_ke,
-  ji: m.bazi_ziwei_mutagen_ji,
-}
-
-const CLASS_LABEL: Record<string, Message> = {
-  water2nd: m.bazi_ziwei_class_water2nd,
-  wood3rd: m.bazi_ziwei_class_wood3rd,
-  metal4th: m.bazi_ziwei_class_metal4th,
-  earth5th: m.bazi_ziwei_class_earth5th,
-  fire6th: m.bazi_ziwei_class_fire6th,
-}
-
-const label = (table: Record<string, Message>, key: string) => table[key]?.() ?? key
-
-/** 传统命盘排法：地支宫位绕外圈固定（巳午未申在上、寅丑子亥在下），中间 2×2 为命盘信息 */
-const GRID_AREA: Record<Branch, string> = {
-  si: 'col-start-1 row-start-1',
-  wu: 'col-start-2 row-start-1',
-  wei: 'col-start-3 row-start-1',
-  shen: 'col-start-4 row-start-1',
-  chen: 'col-start-1 row-start-2',
-  you: 'col-start-4 row-start-2',
-  mao: 'col-start-1 row-start-3',
-  xu: 'col-start-4 row-start-3',
-  yin: 'col-start-1 row-start-4',
-  chou: 'col-start-2 row-start-4',
-  zi: 'col-start-3 row-start-4',
-  hai: 'col-start-4 row-start-4',
-}
+import { BRIGHTNESS_LABEL, label, MUTAGEN_LABEL, PALACE_LABEL, STAR_LABEL } from './ziwei-labels.ts'
 
 async function computeZiweiChart(input: BirthInput): Promise<ZiweiChart> {
   return (await loadZiwei()).computeZiwei(input)
@@ -155,58 +75,67 @@ export function ZiweiPage() {
   )
 }
 
-function PalaceCell({ palace, isSoul }: { palace: ZiweiPalace; isSoul: boolean }) {
+// 十二宫顺序取自文案表的键序；不从引擎模块取值，避免把紫微引擎打进页面首屏包
+const PALACE_ORDER = Object.keys(PALACE_LABEL) as PalaceKey[]
+
+/** 宫位列表（图形的等价文字内容，「紫微盘手机版」画布）：每宫的宫名、干支、命身宫标记与全部主星 */
+function PalaceList({ chart }: { chart: Extract<ZiweiChart, { status: 'ok' }> }) {
   return (
-    <li
-      data-palace={palace.key}
-      className={cn(
-        'flex min-h-28 min-w-0 flex-col gap-1 rounded-lg border p-1.5 sm:min-h-32 sm:p-2.5',
-        GRID_AREA[palace.branch],
-        isSoul ? 'border-2 border-brand bg-brand/8' : 'border-line bg-surface',
-      )}
-    >
-      <span className="flex flex-wrap items-baseline justify-between gap-x-1 text-xs sm:text-sm">
-        <span className="font-heading text-ink">{PALACE_LABEL[palace.key]()}</span>
-        <span className="text-ink-subtle">
-          {STEM_HANZI[palace.stem]}
-          {BRANCH_HANZI[palace.branch]}
-        </span>
-      </span>
-      {(isSoul || palace.isBodyPalace) && (
-        <span className="flex flex-wrap gap-1">
-          {isSoul && (
-            <span className="rounded-full bg-brand px-1.5 text-[11px] text-on-brand">
-              {m.bazi_ziwei_soul()}
-            </span>
-          )}
-          {palace.isBodyPalace && (
-            <span className="rounded-full bg-inverse px-1.5 text-[11px] text-on-inverse">
-              {m.bazi_ziwei_body()}
-            </span>
-          )}
-        </span>
-      )}
-      <ul className="m-0 flex list-none flex-col gap-0.5 p-0 text-[13px] leading-snug sm:text-[15px]">
-        {palace.majorStars.length === 0 && (
-          <li className="text-ink-subtle text-xs">{m.bazi_ziwei_empty()}</li>
-        )}
-        {palace.majorStars.map((s) => (
-          <li key={s.star} className="break-words text-ink">
-            <span className="font-heading">{STAR_LABEL[s.star]()}</span>
-            {s.brightness && (
-              <span className="text-ink-subtle text-xs">
-                {label(BRIGHTNESS_LABEL, s.brightness)}
-              </span>
-            )}
-            {s.mutagen && (
-              <span className="ml-0.5 inline-block whitespace-nowrap rounded bg-surface-2 px-1 text-brand-ink text-xs">
-                {MUTAGEN_LABEL[s.mutagen]()}
-              </span>
-            )}
-          </li>
-        ))}
+    <section aria-labelledby="ziwei-palace-list" className="flex flex-col gap-2.5">
+      <h3 id="ziwei-palace-list" className="m-0 font-semibold text-base text-ink">
+        {m.chart_ziwei_list_title()}
+      </h3>
+      <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        {/* 列表从命宫起按十二宫顺序（命宮、兄弟、夫妻…），便于逐宫阅读 */}
+        {[...chart.palaces]
+          .sort((a, b) => PALACE_ORDER.indexOf(a.key) - PALACE_ORDER.indexOf(b.key))
+          .map((palace) => {
+            const isSoul = palace.branch === chart.soulPalaceBranch
+            return (
+              <li
+                key={palace.key}
+                data-palace-item={palace.key}
+                className={cn(
+                  'flex min-w-0 flex-col gap-1 rounded-lg bg-surface px-3.5 py-3',
+                  isSoul ? 'border-2 border-brand' : 'border border-line',
+                )}
+              >
+                <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="font-semibold text-ink">{PALACE_LABEL[palace.key]()}</span>
+                  <span className="font-heading text-ink-subtle text-sm">
+                    {STEM_HANZI[palace.stem]}
+                    {BRANCH_HANZI[palace.branch]}
+                  </span>
+                  {isSoul && (
+                    <span className="rounded-full bg-brand px-1.5 text-on-brand text-xs">
+                      {m.bazi_ziwei_soul()}
+                    </span>
+                  )}
+                  {palace.isBodyPalace && (
+                    <span className="rounded-full bg-inverse px-1.5 text-on-inverse text-xs">
+                      {m.bazi_ziwei_body()}
+                    </span>
+                  )}
+                </span>
+                <span className="text-ink-muted text-sm">
+                  {palace.majorStars.length === 0
+                    ? m.bazi_ziwei_empty()
+                    : palace.majorStars.map((s, index) => (
+                        <span key={s.star}>
+                          {index > 0 && '、'}
+                          <strong className="font-heading font-normal text-brand-ink">
+                            {STAR_LABEL[s.star]()}
+                          </strong>
+                          {s.brightness && label(BRIGHTNESS_LABEL, s.brightness)}
+                          {s.mutagen && ` ${MUTAGEN_LABEL[s.mutagen]()}`}
+                        </span>
+                      ))}
+                </span>
+              </li>
+            )
+          })}
       </ul>
-    </li>
+    </section>
   )
 }
 
@@ -228,11 +157,6 @@ export function ZiweiResult({
       </p>
     )
   const palaceOf = (key: PalaceKey) => chart.palaces.find((p) => p.key === key)
-  const center = m.bazi_ziwei_center({
-    class: label(CLASS_LABEL, chart.fiveElementsClass),
-    soul: BRANCH_HANZI[chart.soulPalaceBranch],
-    body: BRANCH_HANZI[chart.bodyPalaceBranch],
-  })
   return (
     <>
       <ResultBlock
@@ -243,21 +167,8 @@ export function ZiweiResult({
         description={m.bazi_ziwei_desc_palaces()}
         className="p-3 sm:p-5"
       >
-        <ol className="m-0 grid list-none grid-cols-4 grid-rows-4 gap-1 p-0 sm:gap-2">
-          {chart.palaces.map((palace) => (
-            <PalaceCell
-              key={palace.key}
-              palace={palace}
-              isSoul={palace.branch === chart.soulPalaceBranch}
-            />
-          ))}
-          <li className="col-span-2 col-start-2 row-span-2 row-start-2 flex flex-col items-center justify-center gap-2 rounded-lg bg-surface-2 p-2 text-center">
-            <span className="font-heading text-ink text-lg sm:text-2xl">
-              {m.bazi_ziwei_title()}
-            </span>
-            <span className="text-ink-muted text-xs sm:text-sm">{center}</span>
-          </li>
-        </ol>
+        <ZiweiChartGraphic chart={chart} />
+        <PalaceList chart={chart} />
       </ResultBlock>
       <ResultBlock
         id="mutagens"
