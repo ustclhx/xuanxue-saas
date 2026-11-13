@@ -1,0 +1,6 @@
+{
+  "readings_chat_title": "Ask about this report",
+  "readings_chat_note": "The AI uses the report and your chart as context, not your name or birthplace",
+  "readings_chat_unavailable_title": "No AI model is available right now",
+  "readings_chat_unavailable_body": "You can keep reading the report. Follow-up questions are unavailable for now; you can buy credits, and you can ask here once a model is available."
+}
