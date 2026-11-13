@@ -51,9 +51,9 @@
 
 依赖：3。冲突点：`numerology/chart.tsx`、`numerology/life-path-calculator.tsx`、`numerology/home.tsx` 只由本组修改；文案 `chart-numerology.json`。
 
-- [ ] 6.1 实现生命灵数推导 SVG（逐步求和、大师数 11 / 22 / 33 保留）。验证：单元测试断言大师数 22 的样例停在 22，普通样例的步骤与 `calc.ts` 输出一致
-- [ ] 6.2 实现数字网格 SVG（1–9 出现次数、缺失数字标记），替换 `DigitGrid` 的视觉部分并保留 `ChartFacts` 文字。验证：单元测试断言计数与缺失标记；`full-calculator.test.tsx` 等现有用例通过
-- [ ] 6.3 接入西方站首页与 `/numerology-chart`，截图对照（390 / 1440 深色 + 打印预览）。验证：截图存入 `EVIDENCE_DIR`；2.2、2.3 检查通过
+- [x] 6.1 实现生命灵数推导 SVG（逐步求和、大师数 11 / 22 / 33 保留）。验证：单元测试断言大师数 22 的样例停在 22，普通样例的步骤与 `calc.ts` 输出一致
+- [x] 6.2 实现数字网格 SVG（1–9 出现次数、缺失数字标记），替换 `DigitGrid` 的视觉部分并保留 `ChartFacts` 文字。验证：单元测试断言计数与缺失标记；`full-calculator.test.tsx` 等现有用例通过
+- [x] 6.3 接入西方站首页与 `/numerology-chart`，截图对照（390 / 1440 深色 + 打印预览）。验证：截图存入 `EVIDENCE_DIR`；2.2、2.3 检查通过
 
 ## 7. 结果分享图（worktree W5）
 

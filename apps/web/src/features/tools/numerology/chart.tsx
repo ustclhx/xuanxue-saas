@@ -1,13 +1,14 @@
 import { type BirthDate, lifePath, type NumberResult, nameNumbers } from '@xuanxue/numerology'
 import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { DigitGridChart } from '../charts/digit-grid-chart.tsx'
+import { LifePathChart } from '../charts/life-path-chart.tsx'
 import { useTool } from '../context.tsx'
 import { SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ShareLink } from '../share-link.tsx'
 import {
   birthDigits,
-  CHART_LAYOUT,
   chartSummary,
   digitCounts,
   formatBirthDate,
@@ -17,59 +18,6 @@ import {
 import { BirthDateField } from './life-path-calculator.tsx'
 import { FieldError, LifePathSteps, NumberHeadline } from './parts.tsx'
 import { useSharedInput } from './use-shared-input.ts'
-
-/** 3×3 数字分布图：每格重复显示该数字（如 `11`），空格标出缺失；读屏读「Digit 1: 2 times」 */
-export function DigitGrid({
-  counts,
-  caption,
-}: {
-  counts: Record<number, number>
-  caption: string
-}) {
-  return (
-    <table className="w-full max-w-[360px] table-fixed border-separate border-spacing-2">
-      <caption className="sr-only">{caption}</caption>
-      <tbody>
-        {CHART_LAYOUT.map((row) => (
-          <tr key={row.join()}>
-            {row.map((digit) => {
-              const count = counts[digit] ?? 0
-              return (
-                <td
-                  key={digit}
-                  aria-label={m.numerology_chart_digit({ digit, count })}
-                  className="p-0"
-                >
-                  <div
-                    className={
-                      count
-                        ? 'flex aspect-square flex-col items-center justify-center rounded-xl border border-line-strong bg-surface-2 p-1'
-                        : 'flex aspect-square flex-col items-center justify-center rounded-xl border border-line border-dashed p-1'
-                    }
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={
-                        count
-                          ? 'break-all text-center font-heading text-[28px] text-brand leading-none'
-                          : 'font-heading text-[28px] text-ink-subtle/50 leading-none'
-                      }
-                    >
-                      {count ? String(digit).repeat(Math.min(count, 6)) : digit}
-                    </span>
-                    <span aria-hidden="true" className="mt-1 text-ink-subtle text-xs tabular-nums">
-                      ×{count}
-                    </span>
-                  </div>
-                </td>
-              )
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
 
 function ChartFacts({ counts }: { counts: Record<number, number> }) {
   const { missing, repeated } = chartSummary(counts)
@@ -163,7 +111,7 @@ export function ChartCalculator() {
               aside={formatBirthDate(state.date)}
               description={m.numerology_chart_birth_desc()}
             >
-              <DigitGrid counts={state.birth} caption={m.numerology_chart_birth_grid()} />
+              <DigitGridChart counts={state.birth} caption={m.numerology_chart_birth_grid()} />
               <ChartFacts counts={state.birth} />
             </ResultBlock>
             <ResultBlock
@@ -172,6 +120,7 @@ export function ChartCalculator() {
               description={m.numerology_desc_life_path()}
             >
               <NumberHeadline result={state.lifePath} size="sm" />
+              <LifePathChart result={state.lifePath} date={state.date} />
               <LifePathSteps result={state.lifePath} date={state.date} />
             </ResultBlock>
             {state.name && (
@@ -180,7 +129,7 @@ export function ChartCalculator() {
                 title={m.numerology_chart_name_grid()}
                 description={m.numerology_chart_name_desc()}
               >
-                <DigitGrid counts={state.name} caption={m.numerology_chart_name_grid()} />
+                <DigitGridChart counts={state.name} caption={m.numerology_chart_name_grid()} />
                 <ChartFacts counts={state.name} />
               </ResultBlock>
             )}
