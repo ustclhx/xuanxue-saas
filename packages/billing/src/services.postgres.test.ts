@@ -531,6 +531,18 @@ describe('trusted billing services on PostgreSQL', () => {
     })
     expect(ctx.providers.stripe?.createCheckout).not.toHaveBeenCalled()
   })
+  it('rejects a PayPal subscription checkout when only Stripe has a subscription price', async () => {
+    // 订阅只经 Stripe（enable-subscriptions-daily-credits D3）：PayPal 没有订阅价格行
+    await db.delete(planPrice).where(eq(planPrice.id, pp))
+    await expect(createCheckout(ctx, checkout('paypal'))).rejects.toMatchObject({
+      code: 'BILLING_PRICE_UNAVAILABLE',
+    })
+    // 拿 Stripe 的订阅价格 ID 以 PayPal 结账同样被拒
+    await expect(
+      createCheckout(ctx, { ...checkout('paypal'), planPriceId: sp }),
+    ).rejects.toMatchObject({ code: 'BILLING_PRICE_UNAVAILABLE' })
+    expect(ctx.providers.paypal?.createCheckout).not.toHaveBeenCalled()
+  })
   it('selects the checkout currency on the server from interface language and provider', async () => {
     const pack = id()
     extraPlans.push(pack)

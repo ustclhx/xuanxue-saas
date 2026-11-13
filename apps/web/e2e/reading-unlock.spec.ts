@@ -10,6 +10,7 @@ import {
   serializer,
 } from './billing-actions-helper.ts'
 import { fixtureDb, login, PASSWORD, register } from './fixtures.ts'
+import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // add-reading-monetization tasks.md 3.1：新访客在结果页点击解锁 → 登录 → 积分不足时购买积分包
@@ -64,7 +65,8 @@ async function enableReading(page: Page) {
   }
   await page.goto('/admin/settings')
   const form = page.getByRole('form', { name: 'Paid readings' })
-  await form.locator('#reading-model-numerology-full').selectOption(MODEL_KEY)
+  // 模型选择已改为 @xuanxue/ui 的 Select（模板 0.3.0），不能用原生 selectOption
+  await chooseOption(form.locator('#reading-model-numerology-full'), MODEL_KEY)
   await form.getByRole('button', { name: 'Save paid readings' }).click()
   await expect(form.getByRole('status')).toHaveText(/^Saved\./)
   await page.context().clearCookies()
@@ -126,7 +128,9 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
     const result = envelope.result as { packs?: unknown[]; available?: boolean } | undefined
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
-    result.packs = [{ planPriceId: PACK_PRICE, provider: 'paypal', credits: 100, amount: 99 }]
+    result.packs = [
+      { planPriceId: PACK_PRICE, provider: 'paypal', credits: 100, amount: 99, currency: 'USD' },
+    ]
     await route.fulfill({
       status: response.status(),
       headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
@@ -198,6 +202,102 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await page.reload()
   await expect(page.getByTestId('reading-unlock')).toBeVisible()
   expect(generated).toHaveLength(1)
+})
+
+/**
+ * 离线订阅（enable-subscriptions-daily-credits 4.3）：报价中注入一个 Stripe 月付档位；结账时模拟
+ * invoice.paid 首期入账 400 积分，并像 Stripe Checkout 一样直接回到 `returnTo?checkout=success`。
+ */
+const PLAN_PRICE = newId()
+async function offlineSubscription(page: Page, email: string, subscribed: string[]) {
+  await page.route('**/_serverFn/**', async (route) => {
+    const request = route.request()
+    if (request.method() === 'POST') {
+      const data = requestData(route)
+      if (data.planPriceId !== PLAN_PRICE) return route.continue()
+      subscribed.push(String(data.provider))
+      const owner = await actor(email)
+      const db = actionDb()
+      try {
+        await grant(db, {
+          workspaceId: owner.workspaceId,
+          source: 'purchase',
+          sourceRef: `e2e-subscription:${newId()}`,
+          amount: 400,
+        })
+      } finally {
+        await db.$client.end()
+      }
+      return reply(route, {
+        ok: true,
+        result: { url: `${String(data.returnTo)}&checkout=success` },
+      })
+    }
+    if (!serverFnId(request.url()).includes('getReadingOffer')) return route.continue()
+    const response = await route.fetch()
+    const body = await response.json()
+    const envelope = serializer.fromCrossJSON(body, { refs: new Map() })
+    const result = envelope.result as { packs?: unknown[]; plans?: unknown[]; available?: boolean }
+    if (!result || !('packs' in result) || !result.available)
+      return route.fulfill({ response, json: body })
+    result.packs = [
+      { planPriceId: PACK_PRICE, provider: 'stripe', credits: 100, amount: 199, currency: 'USD' },
+    ]
+    result.plans = [
+      {
+        key: 'plus',
+        name: 'Plus',
+        planPriceId: PLAN_PRICE,
+        provider: 'stripe',
+        credits: 400,
+        amount: 499,
+        currency: 'USD',
+      },
+    ]
+    await route.fulfill({
+      status: response.status(),
+      headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
+      body: JSON.stringify(await serializer.toCrossJSONAsync(envelope, { refs: new Map() })),
+    })
+  })
+}
+
+test('积分不足时选择订阅，首期积分到账后回到原结果页自动生成', async ({ page }) => {
+  await stubTurnstile(page)
+  await enableReading(page)
+  const email = `subscribe-${newId()}@example.com`
+  await register(page, email, 'Subscribe Visitor')
+  const subscribed: string[] = []
+  await offlineSubscription(page, email, subscribed)
+  const generated: unknown[] = []
+  await page.route('**/api/readings', async (route) => {
+    generated.push(route.request().postDataJSON())
+    await route.fulfill({
+      status: 200,
+      headers: {
+        'content-type': 'text/event-stream',
+        'x-reading-id': '01900000-0000-7000-8000-000000000002',
+      },
+      body: REPORT_STREAM,
+    })
+  })
+
+  await page.goto('/')
+  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await page.getByRole('button', { name: 'Calculate' }).first().click()
+  const card = page.getByTestId('reading-unlock')
+  await card.getByRole('button', { name: 'Unlock the full reading' }).click()
+  const plan = page.getByTestId('reading-plan')
+  await expect(plan).toContainText('Plus · 400 credits a month')
+  await expect(plan).toContainText('$4.99/month')
+  expect(generated).toEqual([])
+  await plan.click()
+
+  const stream = page.getByTestId('reading-stream')
+  await expect(stream.getByText('is a master number.')).toBeVisible()
+  expect(subscribed).toEqual(['stripe'])
+  expect(generated).toHaveLength(1)
+  expect(new URL(page.url()).search).toBe('')
 })
 
 test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ page }) => {

@@ -82,3 +82,34 @@ test('live Stripe sync requires live credentials only to apply, a confirmed targ
     /must match the target database name/,
   )
 })
+
+test('live Stripe dry run describes monthly subscription prices beside credit packs', async () => {
+  const { describeLiveSync } = await import('./sync-stripe-live.ts')
+  const lines = describeLiveSync([
+    { key: 'plus', currency: 'USD', amount: 499, mapping: 'unsynced:stripe:a', interval: 'month' },
+    { key: 'plus', currency: 'TWD', amount: 16200, mapping: 'price_twd', interval: 'month' },
+    {
+      key: 'premium',
+      currency: 'KRW',
+      amount: 14000,
+      mapping: 'unsynced:stripe:b',
+      interval: 'month',
+    },
+    {
+      key: 'reading_single',
+      currency: 'USD',
+      amount: 199,
+      mapping: 'unsynced:stripe:c',
+      interval: null,
+    },
+  ])
+  assert.ok(lines.includes('plus TWD 16200 /month price_twd'))
+  assert.ok(lines.includes('Would create 3 live Stripe prices:'))
+  assert.ok(lines.includes('  + plus USD 499 /month on canonical product'))
+  assert.ok(lines.includes('  + premium KRW 14000 /month on ko localized product'))
+  assert.ok(
+    lines.includes(
+      '  + reading_single USD 199 on canonical product + zh-Hant/zh-Hans/ko localized USD variants',
+    ),
+  )
+})

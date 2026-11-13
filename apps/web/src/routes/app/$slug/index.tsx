@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { SpacePage, SpacePanel, spaceSections } from '../../../features/app-shell/space-frame.tsx'
+import { TodayPanel, todayPanelLoader, todayPanelSearch } from '../../../features/daily/mount.tsx'
 import { NotificationCenter } from '../../../features/notifications/center.tsx'
 import { CreateTeam, HydratedControls } from '../../../features/workspace/components.tsx'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
 export const Route = createFileRoute('/app/$slug/')({
+  // 项目挂载点：今日面板（add-birth-profiles-daily-horoscope design D10，登记于 docs/design/forks.md）
+  validateSearch: todayPanelSearch,
+  loaderDeps: ({ search }) => ({ profile: search.profile }),
+  loader: ({ params, deps }) => todayPanelLoader(params.slug, deps.profile),
   component: SpaceOverviewPage,
 })
 
@@ -37,6 +42,7 @@ function SpaceOverviewPage() {
       description={page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
     >
       {/* 铃铛「查看全部通知」的落点（#notifications）；还没有通知时不渲染 */}
+      <TodayPanel data={Route.useLoaderData()} slug={slug} chatAvailable={chatAvailable} />
       <div className="empty:hidden print:hidden">
         <NotificationCenter hideWhenEmpty />
       </div>

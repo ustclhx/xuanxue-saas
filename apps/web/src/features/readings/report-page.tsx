@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { SiteId } from '@xuanxue/config'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
@@ -26,6 +26,9 @@ import { readingTitle } from './title.ts'
  */
 
 const POLL_MS = 3000
+
+// 报告追问（adopt-subject-chat-readings tasks.md 5.1）：对话组件较大，懒加载，不进入报告正文的首屏 bundle
+const ReportChat = lazy(() => import('./report-chat.tsx'))
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }).format(
@@ -134,9 +137,31 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           {m.readings_report_print()}
         </button>
       )}
+      {view.status === 'ready' && (
+        <section
+          aria-labelledby="reading-chat-title"
+          data-testid="reading-chat"
+          className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5 sm:p-6 print:hidden"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h2 id="reading-chat-title" className="m-0 font-heading font-bold text-ink text-xl">
+              {m.readings_chat_title()}
+            </h2>
+            <span className="text-ink-subtle text-sm">{m.readings_chat_note()}</span>
+          </div>
+          <Suspense fallback={<ReportChatFallback />}>
+            <ReportChat slug={slug} readingId={view.id} content={view.content} />
+          </Suspense>
+        </section>
+      )}
       <AiDisclaimer />
     </article>
   )
+}
+
+/** 懒加载期间的占位：与对话区读取中的骨架同高，避免版面位移 */
+function ReportChatFallback() {
+  return <div role="status" aria-busy="true" className="min-h-40 rounded-lg bg-surface-2" />
 }
 
 /**

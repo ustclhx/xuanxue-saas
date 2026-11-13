@@ -61,6 +61,12 @@ export function faqSections(locale: Locale): FaqSection[] {
               answer: m.pricing_faq_refund_a({ days }, options),
             },
             qa([m.pricing_faq_pay_q, m.pricing_faq_pay_a]),
+            // 订阅积分不结转、取消方式与取消后的权益（enable-subscriptions-daily-credits 4.5）
+            qa([m.pricing_faq_sub_rollover_q, m.pricing_faq_sub_rollover_a]),
+            {
+              question: m.pricing_faq_sub_cancel_q({}, options),
+              answer: m.pricing_faq_sub_cancel_a({ days }, options),
+            },
             // 每日积分的领取规则与两站共享额度（enable-subscriptions-daily-credits D6）
             ...(templateConfig.credits.enabled && templateConfig.credits.dailyEnabled
               ? [

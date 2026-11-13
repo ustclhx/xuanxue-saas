@@ -1,0 +1,6 @@
+{
+  "readings_chat_title": "追问这份报告",
+  "readings_chat_note": "AI 会参考报告内容与命盘，不包含你的姓名与出生地",
+  "readings_chat_unavailable_title": "目前没有可用的 AI 模型",
+  "readings_chat_unavailable_body": "报告仍可阅读；追问暂时无法使用。你可以先购买积分，有可用模型后即可在这里追问。"
+}

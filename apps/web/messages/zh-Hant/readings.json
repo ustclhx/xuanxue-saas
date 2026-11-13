@@ -48,5 +48,9 @@
   "readings_report_failed": "這份報告生成失敗，積分已退回。",
   "readings_report_created": "建立於 {date}",
   "readings_report_contents": "目錄",
-  "readings_report_print": "列印或存成 PDF"
+  "readings_report_print": "列印或存成 PDF",
+  "readings_unlock_or_subscribe": "或訂閱每月方案",
+  "readings_plan_option": "{name}・每月 {credits} 積分",
+  "readings_plan_price": "{price}/月",
+  "readings_plan_note": "每月自動續費，可隨時取消；首期積分到帳後自動開始生成。"
 }
