@@ -15,9 +15,9 @@
 
 ## 2. 波次 A：引擎数据、版本注册与评测骨架（并行 worktree）
 
-- [ ] 2.1 【Claude】`packages/bazi` 新增流年窗口函数（独立文件，`index.ts` 只加导出）：逐年干支与五行、天干十神与地支藏干十神、所属大运、与本命四柱及当步大运的天干五合 / 六合 / 冲 / 刑 / 三合、值太岁 / 冲太岁、喜忌标记；大运地支本气十神与喜忌；神煞所在柱。复用 `compat.ts` 与 `shensha.ts` 判定，不改 `computeChart` 输出与 `ENGINE_VERSION`。验证：vitest 覆盖 spec 场景（冲太岁、窗口内换运、无时辰不含时柱、大运喜忌），并与 `lunar-javascript`（devDependency）抽样比对流年干支；`pnpm --filter @xuanxue/bazi test`、`pnpm check:deps` 通过
-- [ ] 2.2 【Claude】`packages/bazi/src/ziwei.ts` 新增紫微运限函数：十二宫大限年龄区间、当前与下一步大限、窗口内逐年流年命宫与流年四化（iztro `horoscope`，取年中日期）、六吉六煞落宫；不改 `computeZiwei` 现有输出。验证：vitest 用固定虚构命盘断言大限区间连续覆盖、流年四化星曜与该年天干一致、无时辰仍返回 `requiresHour`；`apps/web/scripts/check-bazi-build.mjs` 与首页包检查不因此失败
-- [ ] 2.3 【Codex】`packages/numerology` 新增 `personalYears`、`pinnacles`、`challenges`（大师数规则与生命灵数一致）。验证：`numerology.test.ts` 覆盖连续五年序列与单年个人年一致、第一巅峰止于 36 减生命灵数单数、大师数巅峰保留 11 / 22、挑战数为 0–8
+- [x] 2.1 【Claude】`packages/bazi` 新增流年窗口函数（独立文件，`index.ts` 只加导出）：逐年干支与五行、天干十神与地支藏干十神、所属大运、与本命四柱及当步大运的天干五合 / 六合 / 冲 / 刑 / 三合、值太岁 / 冲太岁、喜忌标记；大运地支本气十神与喜忌；神煞所在柱。复用 `compat.ts` 与 `shensha.ts` 判定，不改 `computeChart` 输出与 `ENGINE_VERSION`。验证：vitest 覆盖 spec 场景（冲太岁、窗口内换运、无时辰不含时柱、大运喜忌），并与 `lunar-javascript`（devDependency）抽样比对流年干支；`pnpm --filter @xuanxue/bazi test`、`pnpm check:deps` 通过
+- [x] 2.2 【Claude】`packages/bazi/src/ziwei.ts` 新增紫微运限函数：十二宫大限年龄区间、当前与下一步大限、窗口内逐年流年命宫与流年四化（iztro `horoscope`，取年中日期）、六吉六煞落宫；不改 `computeZiwei` 现有输出。验证：vitest 用固定虚构命盘断言大限区间连续覆盖、流年四化星曜与该年天干一致、无时辰仍返回 `requiresHour`；`apps/web/scripts/check-bazi-build.mjs` 与首页包检查不因此失败
+- [x] 2.3 【Codex】`packages/numerology` 新增 `personalYears`、`pinnacles`、`challenges`（大师数规则与生命灵数一致）。验证：`numerology.test.ts` 覆盖连续五年序列与单年个人年一致、第一巅峰止于 36 减生命灵数单数、大师数巅峰保留 11 / 22、挑战数为 0–8
 - [ ] 2.4 【Claude】提示词版本注册与运行时切换：
   - `catalog.ts` 改为 `kind → version → locale` 注册表，`readingDefinition(kind, locale, { promptVersion })`，未指定时为当前默认版本（行为与今天一致）；
   - `packages/db/src/settings.ts` 新增 `readings.<kind>.promptVersion`（默认空字符串 = 代码默认版本）；`readingConfig` 读取该值，非法值回退默认并 `log.warn`；
