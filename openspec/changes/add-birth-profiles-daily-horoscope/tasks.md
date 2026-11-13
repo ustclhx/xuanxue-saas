@@ -39,12 +39,12 @@
 
 ## 3. 波次 A · WT-profiles-data：档案数据与服务（【Claude】）
 
-- [ ] 3.1 新建 `packages/db/src/schema/profiles.ts`，内容见 design D1：表、check 约束、两个部分唯一索引与查询索引。`schema/index.ts` 追加导出；本地 `drizzle-kit push`。验证：`pnpm typecheck` 通过；本地库中可看到表与索引
-- [ ] 3.2 新建 `apps/web/src/features/profiles/schema.ts`：从 `readings/catalog.ts` 抽出共用的 `birthInputSchema`，详批改为引用它，行为不变；新增按站点必填的 `birthProfileSchema` 与 `profileFor(tool, profile)`。验证：单测覆盖东方站缺性别时拒绝、西方站只填日期时通过、农历闰月非法时拒绝，以及 `profileFor` 返回的 missing 列表；详批现有测试全部通过
-- [ ] 3.3 实现 `profiles.functions.ts`：list、get、create、update、delete、setDefault。要求个人空间，`scoped` 加用户过滤；事务内维持 20 份上限与默认档案转移；越权按 NOT_FOUND 处理。验证：集成测试覆盖越权读写、第 21 份被拒、两个并发请求同时新建不会超限、第二份「本人」被拒、删除默认档案后自动转移、第一份档案自动成为默认
-- [ ] 3.4 在 `features/readings/deletion.server.ts` 的 `workspaceContentDeletionStep` 中加入删除 `birth_profile`。验证：集成测试中删号后该用户档案为 0，另一站同邮箱账户的档案保留（对应 account-deletion 增量 spec）
-- [ ] 3.5 数据最小化：server function 的日志与审计只记录档案 id，错误上报不带请求体。验证：单测断言创建或更新失败时的日志字段不含 `birth` 与 `full_name`
-- [ ] 3.6 在 `docs/03-data-model.md` 登记 `birth_profile` 表与隐私约束。验证：文档与 schema 字段一致
+- [x] 3.1 新建 `packages/db/src/schema/profiles.ts`，内容见 design D1：表、check 约束、两个部分唯一索引与查询索引。`schema/index.ts` 追加导出；本地 `drizzle-kit push`。验证：`pnpm typecheck` 通过；本地库中可看到表与索引
+- [x] 3.2 新建 `apps/web/src/features/profiles/schema.ts`：从 `readings/catalog.ts` 抽出共用的 `birthInputSchema`，详批改为引用它，行为不变；新增按站点必填的 `birthProfileSchema` 与 `profileFor(tool, profile)`。验证：单测覆盖东方站缺性别时拒绝、西方站只填日期时通过、农历闰月非法时拒绝，以及 `profileFor` 返回的 missing 列表；详批现有测试全部通过
+- [x] 3.3 实现 `profiles.functions.ts`：list、get、create、update、delete、setDefault。要求个人空间，`scoped` 加用户过滤；事务内维持 20 份上限与默认档案转移；越权按 NOT_FOUND 处理。验证：集成测试覆盖越权读写、第 21 份被拒、两个并发请求同时新建不会超限、第二份「本人」被拒、删除默认档案后自动转移、第一份档案自动成为默认
+- [x] 3.4 在 `features/readings/deletion.server.ts` 的 `workspaceContentDeletionStep` 中加入删除 `birth_profile`。验证：集成测试中删号后该用户档案为 0，另一站同邮箱账户的档案保留（对应 account-deletion 增量 spec）
+- [x] 3.5 数据最小化：server function 的日志与审计只记录档案 id，错误上报不带请求体。验证：单测断言创建或更新失败时的日志字段不含 `birth` 与 `full_name`
+- [x] 3.6 在 `docs/03-data-model.md` 登记 `birth_profile` 表与隐私约束。验证：文档与 schema 字段一致
 
 ## 4. 波次 A · WT-privacy：隐私政策（【Claude 起草 → 用户确认】）
 
