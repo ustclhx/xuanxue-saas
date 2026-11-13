@@ -1,3 +1,4 @@
+import { toMajor } from '@xuanxue/billing/currency'
 import { brandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import type { PricingCatalog } from '../marketing/pricing-data.ts'
@@ -61,7 +62,8 @@ export function pricingData(catalog: PricingCatalog, appUrl: string, locale: str
         image: absoluteUrl(appUrl, ogImagePath({ path: '/pricing', locale })),
         offers: prices.map((price) => ({
           '@type': 'Offer',
-          price: (price.amount / 100).toFixed(2),
+          // 按币种指数换算主单位（KRW 无小数）
+          price: toMajor(price.amount, price.currency),
           priceCurrency: price.currency.toUpperCase(),
           url: absoluteUrl(appUrl, localizedPath('/pricing', locale)),
           availability: price.available

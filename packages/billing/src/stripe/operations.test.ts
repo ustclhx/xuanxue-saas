@@ -346,6 +346,19 @@ describe('Stripe checkout and transport', () => {
       mock.complete()
     })
 
+    it('uses a TWD price directly without listing prices and keeps Adaptive Pricing off', async () => {
+      const mock = mockStripe([session])
+      await mock.operations.createCheckout({
+        ...pack,
+        price: { ...packPrice, amount: 6500, currency: 'TWD', providerPriceId: 'price_twd' },
+      })
+      expect(mock.requests[0]?.path).toBe('/v1/checkout/sessions')
+      expect(mock.requests[0]?.body.get('line_items[0][price]')).toBe('price_twd')
+      expect(mock.requests[0]?.body.get('adaptive_pricing[enabled]')).toBe('false')
+      expect(mock.requests[0]?.body.get('metadata[planPriceId]')).toBe(planPriceId)
+      mock.complete()
+    })
+
     it('uses the canonical price without a lookup for English Checkout', async () => {
       const mock = mockStripe([session])
       await mock.operations.createCheckout({
@@ -798,6 +811,104 @@ describe('Stripe refunds and immutable plan prices', () => {
       await expect(
         mock.operations.syncPlan({ ...packSync, providerPriceId: 'price_current' }),
       ).rejects.toThrow('Localized Stripe price')
+      mock.complete()
+    })
+  })
+
+  describe('local-currency prices', () => {
+    const hex = planId.replaceAll('-', '')
+    const twdSync: PlanSyncInput = {
+      plan: {
+        id: planId,
+        key: 'reading_single',
+        name: 'Single Reading',
+        type: 'credit_pack',
+        active: true,
+        credits: 100,
+      },
+      price: { ...price, interval: null, amount: 6500, currency: 'TWD' },
+      idempotencyKey: 'catalog:stripe:twd',
+    }
+    const remoteTwd = {
+      id: 'price_twd',
+      object: 'price',
+      type: 'one_time',
+      product: `xuanxue_plan_${hex}_zh_hant`,
+      unit_amount: 6500,
+      currency: 'twd',
+      recurring: null,
+      metadata: { planId, planPriceId, currency: 'TWD', locale: 'zh-Hant' },
+    }
+
+    it('creates the TWD price on the zh-Hant localized product without lookup keys', async () => {
+      const mock = mockStripe([
+        {
+          method: 'GET',
+          path: `/v1/products/xuanxue_plan_${hex}_zh_hant`,
+          status: 404,
+          body: {
+            error: { type: 'invalid_request_error', code: 'resource_missing', message: 'Missing' },
+          },
+        },
+        { method: 'POST', path: '/v1/products', body: { id: `xuanxue_plan_${hex}_zh_hant` } },
+        { method: 'POST', path: '/v1/prices', body: { id: 'price_twd' } },
+      ])
+      expect(await mock.operations.syncPlan(twdSync)).toEqual({ providerPriceId: 'price_twd' })
+      const created = mock.requests[2]
+      expect(created?.body.get('product')).toBe(`xuanxue_plan_${hex}_zh_hant`)
+      expect(created?.body.get('currency')).toBe('twd')
+      expect(created?.body.get('unit_amount')).toBe('6500')
+      expect(created?.body.get('metadata[planPriceId]')).toBe(planPriceId)
+      expect(created?.body.get('metadata[currency]')).toBe('TWD')
+      expect(created?.body.has('lookup_key')).toBe(false)
+      expect(created?.headers.get('idempotency-key')).toBe(twdSync.idempotencyKey)
+      mock.complete()
+    })
+
+    it('only verifies an existing TWD mapping on rerun', async () => {
+      const mock = mockStripe([{ method: 'GET', path: '/v1/prices/price_twd', body: remoteTwd }])
+      expect(await mock.operations.syncPlan({ ...twdSync, providerPriceId: 'price_twd' })).toEqual({
+        providerPriceId: 'price_twd',
+      })
+      mock.complete()
+    })
+
+    it('rejects an existing local-currency price whose amount drifted', async () => {
+      const mock = mockStripe([
+        {
+          method: 'GET',
+          path: '/v1/prices/price_twd',
+          body: { ...remoteTwd, unit_amount: 6900 },
+        },
+      ])
+      await expect(
+        mock.operations.syncPlan({ ...twdSync, providerPriceId: 'price_twd' }),
+      ).rejects.toThrow('Immutable')
+      mock.complete()
+    })
+
+    it('rejects a TWD amount that is not whole dollars before calling Stripe', async () => {
+      const mock = mockStripe([])
+      await expect(
+        mock.operations.syncPlan({ ...twdSync, price: { ...twdSync.price, amount: 6550 } }),
+      ).rejects.toThrow('Invalid TWD minor amount')
+      mock.complete()
+    })
+
+    it('puts a KRW subscription price on the canonical product', async () => {
+      const mock = mockStripe([
+        { method: 'GET', path: `/v1/products/xuanxue_plan_${hex}`, body: { id: 'p' } },
+        { method: 'POST', path: '/v1/prices', body: { id: 'price_krw' } },
+      ])
+      await mock.operations.syncPlan({
+        ...sync,
+        plan: { ...sync.plan, key: 'plus' },
+        price: { ...price, amount: 7000, currency: 'KRW' },
+      })
+      expect(mock.requests[1]?.body.get('product')).toBe(`xuanxue_plan_${hex}`)
+      expect(mock.requests[1]?.body.get('currency')).toBe('krw')
+      expect(mock.requests[1]?.body.get('recurring[interval]')).toBe('month')
+      expect(mock.requests[1]?.body.get('metadata[locale]')).toBe('ko')
       mock.complete()
     })
   })

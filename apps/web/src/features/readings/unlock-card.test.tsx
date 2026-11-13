@@ -4,7 +4,6 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { trackEvent, trackProductEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
-import { FALLBACK_LOCAL_RATES } from './price.ts'
 import {
   createReadingUnlock,
   getReading,
@@ -19,8 +18,9 @@ import { ReadingUnlock } from './unlock-card.tsx'
 
 vi.mock('../../paraglide/runtime.js', async (original) => {
   const actual = await original<typeof import('../../paraglide/runtime.js')>()
-  return { ...actual, getLocale: () => 'en' }
+  return { ...actual, getLocale: () => locale }
 })
+let locale = 'en'
 vi.mock('./readings.functions.ts', () => ({
   createReadingUnlock: vi.fn(),
   getReading: vi.fn(),
@@ -39,9 +39,8 @@ const offer = (balance: number): ReadingOffer => ({
   credits: 100,
   sections: ['Overview'],
   sample: 'A fictional sample paragraph.',
-  packs: [{ planPriceId: 'price', provider: 'paypal', credits: 100, amount: 199 }],
+  packs: [{ planPriceId: 'price', provider: 'paypal', credits: 100, amount: 199, currency: 'USD' }],
   viewer: { slug: 'me', balance },
-  rates: FALLBACK_LOCAL_RATES,
 })
 
 let balance = 0
@@ -55,6 +54,7 @@ beforeEach(() => {
   vi.stubGlobal('fetch', fetchMock)
   fetchMock.mockReset().mockResolvedValue({ ok: false, status: 500, body: null })
   balance = 0
+  locale = 'en'
   vi.mocked(getReadingOffer).mockImplementation(async () => offer(balance))
   vi.mocked(openReadingUnlock).mockResolvedValue({ kind: KIND } as never)
   window.history.replaceState(null, '', '/?unlock=tok&checkout=success')
@@ -234,8 +234,20 @@ describe('解锁卡付款方式', () => {
     vi.mocked(getReadingOffer).mockImplementation(async () => ({
       ...offer(0),
       packs: [
-        { planPriceId: 'stripe-100', provider: 'stripe', credits: 100, amount: 199 },
-        { planPriceId: 'paypal-100', provider: 'paypal', credits: 100, amount: 199 },
+        {
+          planPriceId: 'stripe-100',
+          provider: 'stripe',
+          credits: 100,
+          amount: 199,
+          currency: 'USD',
+        },
+        {
+          planPriceId: 'paypal-100',
+          provider: 'paypal',
+          credits: 100,
+          amount: 199,
+          currency: 'USD',
+        },
       ],
     }))
     await mount()
@@ -254,6 +266,67 @@ describe('解锁卡付款方式', () => {
       provider: 'paypal',
       planPriceId: 'paypal-100',
     })
+  })
+})
+
+describe('按界面语言结算的价格（localize-checkout-currency）', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/')
+    window.sessionStorage.clear()
+  })
+  const localOffer = (): ReadingOffer => ({
+    ...offer(0),
+    packs: [
+      {
+        planPriceId: 'stripe-krw',
+        provider: 'stripe',
+        credits: 100,
+        amount: 2800,
+        currency: 'KRW',
+      },
+      { planPriceId: 'paypal-usd', provider: 'paypal', credits: 100, amount: 199, currency: 'USD' },
+    ],
+  })
+
+  it('韩语显示韩元实价且不带约值；切到 PayPal 后提示以美元结算并显示美元金额', async () => {
+    locale = 'ko'
+    vi.mocked(getReadingOffer).mockImplementation(async () => localOffer())
+    await mount()
+    const price = container.querySelector('[data-testid="reading-price"]')?.textContent ?? ''
+    expect(price).toContain('₩2,800')
+    expect(price).not.toMatch(/≈|약/)
+    await act(async () => button().click())
+    expect(container.querySelector('[data-testid="reading-paypal-usd"]')).toBeNull()
+    expect(container.querySelector('[data-testid="reading-pack"]')?.textContent).toContain('₩2,800')
+    const methods = [
+      ...container.querySelectorAll('[data-testid="reading-pay-method"]'),
+    ] as HTMLInputElement[]
+    await act(async () => methods[1]?.click())
+    expect(container.querySelector('[data-testid="reading-paypal-usd"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="reading-pack"]')?.textContent).toContain(
+      'US$1.99',
+    )
+  })
+
+  it('简体显示美元与人民币参考价；英文选择 PayPal 不出现美元结算提示', async () => {
+    locale = 'zh-Hans'
+    vi.mocked(getReadingOffer).mockImplementation(async () => ({
+      ...offer(0),
+      packs: [
+        { planPriceId: 'usd', provider: 'stripe', credits: 100, amount: 199, currency: 'USD' },
+      ],
+    }))
+    await mount()
+    const price = container.querySelector('[data-testid="reading-price"]')?.textContent ?? ''
+    expect(price).toContain('US$1.99')
+    expect(price).toContain('¥13')
+    act(() => root.unmount())
+    root = createRoot(container)
+    locale = 'en'
+    vi.mocked(getReadingOffer).mockImplementation(async () => offer(0))
+    await mount()
+    await act(async () => button().click())
+    expect(container.querySelector('[data-testid="reading-paypal-usd"]')).toBeNull()
   })
 })
 

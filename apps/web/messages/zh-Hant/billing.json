@@ -64,5 +64,7 @@
   "billing_usage_reference": "關聯記錄",
   "billing_usage_batch": "批次",
   "billing_usage_no_activity": "尚無積分活動。",
-  "billing_usage_older_activity": "較早的活動"
+  "billing_usage_older_activity": "較早的活動",
+  "billing_paypal_usd_note": "PayPal 以美元結算。",
+  "billing_cny_reference": "約 {price}（參考價，以美元結算）"
 }

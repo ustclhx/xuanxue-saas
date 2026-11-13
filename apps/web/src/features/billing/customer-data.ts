@@ -1,3 +1,4 @@
+import { enabledCurrency } from '@xuanxue/billing/currency'
 import {
   type CreditPageInput,
   getCreditBalance,
@@ -70,7 +71,7 @@ export async function customerCatalog(
         price.active &&
         Boolean(synced) &&
         !synced.startsWith('unsynced:') &&
-        price.currency.toUpperCase() === 'USD' &&
+        enabledCurrency(price.currency) !== null &&
         readiness.some((p) => p.id === price.provider && p.available),
     })),
     providers: readiness,

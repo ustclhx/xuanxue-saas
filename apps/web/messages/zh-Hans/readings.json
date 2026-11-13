@@ -19,7 +19,7 @@
   "readings_unlock_balance": "目前余额：{balance} 积分",
   "readings_unlock_need_credits": "积分不足。选择积分包并完成付款后，会回到这里自动开始生成。",
   "readings_pack_credits": "{credits} 积分",
-  "readings_pack_price_note": "以美元扣款；当地货币价格仅供参考，实际换算以发卡银行或 PayPal 为准",
+  "readings_pack_price_note": "按所示币种与金额扣款；参考价仅供参考。",
   "readings_pay_method": "付款方式",
   "readings_pay_card": "银行卡",
   "readings_pay_paypal": "PayPal",

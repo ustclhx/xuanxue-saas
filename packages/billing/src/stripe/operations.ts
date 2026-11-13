@@ -1,10 +1,14 @@
 import type { PlanPrice } from '@xuanxue/db/schema'
 import { log } from '@xuanxue/shared/log'
 import Stripe from 'stripe'
+import { assertMinorAmount, enabledCurrency } from '../currency.ts'
 import type { CheckoutInput, PaymentProvider, PlanSyncInput, RefundInput } from '../provider.ts'
 import {
+  canonicalProductId,
   isLocalizedPackLocale,
+  LOCAL_CURRENCY_LOCALE,
   LOCALIZED_PACK_LOCALES,
+  type LocalizedPackLocale,
   localizedLookupKey,
   localizedPackDescription,
   localizedPackName,
@@ -75,6 +79,8 @@ function stripePresentation(input: CheckoutInput) {
  */
 async function checkoutPrice(stripe: Stripe, input: CheckoutInput): Promise<string> {
   const canonical = priceId(input.price)
+  // TWD / KRW 行本身就是挂在本地化商品上的独立 Price（localize-checkout-currency D1），直接使用、不查 lookup_key
+  if (input.price.currency.toUpperCase() !== 'USD') return canonical
   const locale = input.mode === 'one_time' ? input.presentation?.locale : undefined
   if (!locale || !isLocalizedPackLocale(locale)) return canonical
   try {
@@ -121,7 +127,7 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
       ...shown.session,
       // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
       managed_payments: { enabled: false },
-      // 平台价格只有 USD：关闭 Adaptive Pricing，避免 Stripe 按买家所在地换算成其他币种扣款。
+      // 结算币种由服务端按界面语言选定价格行：关闭 Adaptive Pricing，避免 Stripe 按买家所在地再换算币种扣款。
       adaptive_pricing: { enabled: false },
       line_items: [{ price: linePrice, quantity: 1 }],
       success_url: input.successUrl,
@@ -380,6 +386,55 @@ function isMissing(error: unknown): boolean {
   )
 }
 
+async function ensureCanonicalProduct(stripe: Stripe, input: PlanSyncInput): Promise<string> {
+  const productId = canonicalProductId(input.plan.id)
+  try {
+    await stripe.products.retrieve(productId)
+  } catch (error) {
+    if (!isMissing(error)) throw error
+    await stripe.products.create(
+      {
+        id: productId,
+        name: input.plan.name,
+        metadata: { planId: input.plan.id },
+      },
+      { idempotencyKey: `saas:product:${input.plan.id}` },
+    )
+  }
+  return productId
+}
+
+/** 按确定的商品 ID 幂等补齐本地化商品；已存在时核对归属，不一致即报错 */
+async function ensureLocalizedProduct(
+  stripe: Stripe,
+  input: PlanSyncInput,
+  locale: LocalizedPackLocale,
+  name: string,
+): Promise<string> {
+  const productId = localizedProductId(input.plan.id, locale)
+  const description =
+    input.plan.credits === undefined
+      ? undefined
+      : localizedPackDescription(input.plan.credits, locale)
+  try {
+    const product = await stripe.products.retrieve(productId)
+    if (product.metadata.planId !== input.plan.id || product.metadata.locale !== locale)
+      throw new Error('Localized Stripe product does not match the local plan')
+  } catch (error) {
+    if (!isMissing(error)) throw error
+    await stripe.products.create(
+      {
+        id: productId,
+        name,
+        ...(description ? { description } : {}),
+        metadata: { planId: input.plan.id, locale },
+      },
+      { idempotencyKey: `saas:product:${input.plan.id}:${locale}` },
+    )
+  }
+  return productId
+}
+
 async function syncCanonicalPrice(stripe: Stripe, input: PlanSyncInput): Promise<string> {
   const options = requestOptions(input.idempotencyKey)
   if (input.providerPriceId) {
@@ -396,20 +451,7 @@ async function syncCanonicalPrice(stripe: Stripe, input: PlanSyncInput): Promise
     }
     return existing.id
   }
-  const productId = `xuanxue_plan_${input.plan.id.replaceAll('-', '')}`
-  try {
-    await stripe.products.retrieve(productId)
-  } catch (error) {
-    if (!isMissing(error)) throw error
-    await stripe.products.create(
-      {
-        id: productId,
-        name: input.plan.name,
-        metadata: { planId: input.plan.id },
-      },
-      { idempotencyKey: `saas:product:${input.plan.id}` },
-    )
-  }
+  const productId = await ensureCanonicalProduct(stripe, input)
   const price = await stripe.prices.create(
     {
       product: productId,
@@ -439,27 +481,7 @@ async function syncLocalizedPackPrices(
   for (const locale of LOCALIZED_PACK_LOCALES) {
     const name = localizedPackName(input.plan.key, locale)
     if (!name) continue
-    const productId = localizedProductId(input.plan.id, locale)
-    const description =
-      input.plan.credits === undefined
-        ? undefined
-        : localizedPackDescription(input.plan.credits, locale)
-    try {
-      const product = await stripe.products.retrieve(productId)
-      if (product.metadata.planId !== input.plan.id || product.metadata.locale !== locale)
-        throw new Error('Localized Stripe product does not match the local plan')
-    } catch (error) {
-      if (!isMissing(error)) throw error
-      await stripe.products.create(
-        {
-          id: productId,
-          name,
-          ...(description ? { description } : {}),
-          metadata: { planId: input.plan.id, locale },
-        },
-        { idempotencyKey: `saas:product:${input.plan.id}:${locale}` },
-      )
-    }
+    const productId = await ensureLocalizedProduct(stripe, input, locale, name)
     const lookupKey = localizedLookupKey(input.price.id, locale)
     // 不按 active 过滤：停用的同 key 价格也必须被发现，避免重复创建或静默改指向
     const found = await stripe.prices.list({ lookup_keys: [lookupKey], limit: 1 })
@@ -498,11 +520,60 @@ async function syncLocalizedPackPrices(
   }
 }
 
+/**
+ * TWD / KRW 价格行（localize-checkout-currency D1）：每行对应 Stripe 上一个独立 Price，挂在该币种所服务语言的
+ * 本地化商品上（积分包有译名时；订阅等没有译名的套餐挂规范商品）。本地 plan_price 直接记录该 Price，
+ * 结账不经 lookup_key 还原。已映射的 Price 只核对，不一致即报错，绝不改价或改指向。
+ */
+async function syncLocalCurrencyPrice(stripe: Stripe, input: PlanSyncInput): Promise<string> {
+  const currency = enabledCurrency(input.price.currency)
+  if (!currency || currency === 'USD') throw new Error('Expected a local-currency price')
+  assertMinorAmount(input.price.amount, currency)
+  const locale = LOCAL_CURRENCY_LOCALE[currency]
+  const name = input.price.interval === null ? localizedPackName(input.plan.key, locale) : null
+  const expectedProduct = name
+    ? localizedProductId(input.plan.id, locale)
+    : canonicalProductId(input.plan.id)
+  if (input.providerPriceId) {
+    const existing = await stripe.prices.retrieve(input.providerPriceId)
+    if (
+      existing.unit_amount !== input.price.amount ||
+      existing.currency !== currency.toLowerCase() ||
+      (existing.recurring?.interval ?? null) !== input.price.interval ||
+      (existing.recurring?.interval_count ?? 1) !== 1 ||
+      objectId(existing.product) !== expectedProduct ||
+      existing.metadata.planId !== input.plan.id ||
+      existing.metadata.planPriceId !== input.price.id ||
+      existing.metadata.currency !== currency
+    ) {
+      throw new Error('Immutable Stripe price mapping does not match the local price')
+    }
+    return existing.id
+  }
+  const productId = name
+    ? await ensureLocalizedProduct(stripe, input, locale, name)
+    : await ensureCanonicalProduct(stripe, input)
+  const price = await stripe.prices.create(
+    {
+      product: productId,
+      currency: currency.toLowerCase(),
+      unit_amount: input.price.amount,
+      active: input.plan.active && input.price.active,
+      ...(input.price.interval ? { recurring: { interval: input.price.interval } } : {}),
+      metadata: { planId: input.plan.id, planPriceId: input.price.id, currency, locale },
+    },
+    requestOptions(input.idempotencyKey),
+  )
+  return price.id
+}
+
 export async function syncStripePlan(stripe: Stripe, input: PlanSyncInput) {
   requestOptions(input.idempotencyKey)
   if ((input.plan.type === 'subscription') !== (input.price.interval !== null)) {
     throw new Error('Plan type must match the price interval')
   }
+  if (input.price.currency.toUpperCase() !== 'USD')
+    return { providerPriceId: await syncLocalCurrencyPrice(stripe, input) }
   const providerPriceId = await syncCanonicalPrice(stripe, input)
   await syncLocalizedPackPrices(stripe, input, providerPriceId)
   return { providerPriceId }

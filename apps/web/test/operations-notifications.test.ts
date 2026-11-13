@@ -210,7 +210,7 @@ it('退款已提交成功，Telegram HTTP 超时只让消息重试，重投成�
     expect(http).toHaveBeenCalledTimes(5)
     const discordBody = JSON.parse(String(http.mock.calls[4]?.[1]?.body))
     expect(discordBody.content).toContain(ws)
-    expect(discordBody.content).toContain('1000 USD')
+    expect(discordBody.content).toContain('10.00 USD')
     expect(discordBody.allowed_mentions).toEqual({ parse: [] })
     const audit = await db.select().from(auditLog).where(eq(auditLog.actorUserId, uid))
     const visible = JSON.stringify({ audit, logs: logs.flatMap((spy) => spy.mock.calls) })

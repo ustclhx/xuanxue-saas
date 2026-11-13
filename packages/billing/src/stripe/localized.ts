@@ -21,6 +21,15 @@ const CREDITS_LABEL: Record<LocalizedPackLocale, (credits: number) => string> = 
   ko: (credits) => `${credits} 크레딧`,
 }
 
+/**
+ * 本地币种价格挂在对应语言的本地化商品上（localize-checkout-currency D1）：TWD 只服务 zh-Hant，KRW 只服务 ko。
+ * 与 currency.ts 的 Stripe 语言→币种映射互为反向，修改时两处同步。
+ */
+export const LOCAL_CURRENCY_LOCALE = { TWD: 'zh-Hant', KRW: 'ko' } as const satisfies Record<
+  string,
+  LocalizedPackLocale
+>
+
 export function isLocalizedPackLocale(locale: string): locale is LocalizedPackLocale {
   return (LOCALIZED_PACK_LOCALES as readonly string[]).includes(locale)
 }
@@ -28,6 +37,11 @@ export function isLocalizedPackLocale(locale: string): locale is LocalizedPackLo
 /** Stripe 自定义 ID 与 lookup_key 只用字母数字与下划线 */
 function localeSlug(locale: LocalizedPackLocale): string {
   return locale.toLowerCase().replace('-', '_')
+}
+
+/** 规范（英文）商品 ID；订阅与没有译名的套餐都挂在这里 */
+export function canonicalProductId(planId: string): string {
+  return `xuanxue_plan_${planId.replaceAll('-', '')}`
 }
 
 export function localizedProductId(planId: string, locale: LocalizedPackLocale): string {

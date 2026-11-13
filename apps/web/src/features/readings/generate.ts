@@ -30,6 +30,7 @@ import {
   readingDefinition,
   readingInputHash,
   readingMessages,
+  resolveReadingDefinition,
   withDisclaimer,
 } from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
@@ -110,8 +111,8 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   if (!parsed.success) throw new AppError('INVALID_REQUEST', 'Invalid reading request')
   const body = parsed.data
   if (!readingDefinition(body.kind)) throw notFound()
-  const definition = readingDefinition(body.kind, body.locale)
-  if (!definition || siteOfLocale(body.locale, templateConfig) !== body.site)
+  const base = readingDefinition(body.kind, body.locale)
+  if (!base || siteOfLocale(body.locale, templateConfig) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
   // 与结果页、定价页同一判定（availability.ts）；业务写入前读取，模型行用业务连接以免读到陈旧状态
   const status = await loadReadingAvailability(
@@ -121,13 +122,15 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
       aiEnv: deps.env,
       languageModelFactory: deps.languageModelFactory,
     },
-    definition.kind,
+    base.kind,
     { adminPreview: isPlatformAdmin(user.role) },
   )
   if (status.blocker === 'not-configured' || status.blocker === 'switched-off') throw notFound()
   if (!status.available || !status.model)
     throw new AppError('READING_UNAVAILABLE', 'Reading model is not available', { status: 503 })
   const { config, model } = status
+  // 提示词版本由运行时设置选择（readings-prompt-v4-yearly 决策 4）；报告记录所用版本，收尾按记录版本进行
+  const definition = resolveReadingDefinition(base.kind, body.locale, config.promptVersion) ?? base
 
   const now = deps.now?.() ?? new Date()
   const recomputed = definition.recompute(body.input, now)
@@ -330,6 +333,20 @@ export async function finalizeReading(
       title: readingTitle(saved.kind, saved.locale),
     })
   return saved
+}
+
+/**
+ * 读取报告时补做收尾：按报告记录的提示词版本取定义，生成中管理员切换版本不影响章节检查
+ * （spec「已生成报告不受版本切换影响」）。记录的版本已不在注册表时回退默认版本并告警，照常保存。
+ */
+export async function finalizeRecordedReading(
+  db: Database,
+  workspaceId: string,
+  row: Pick<Reading, 'id' | 'kind' | 'locale' | 'promptVersion'>,
+): Promise<Reading | null> {
+  const definition = resolveReadingDefinition(row.kind, row.locale, row.promptVersion)
+  if (!definition) return null
+  return finalizeReading(db, { workspaceId, readingId: row.id, definition })
 }
 
 async function sendReadingEmail(

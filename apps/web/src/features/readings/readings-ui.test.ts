@@ -1,44 +1,50 @@
 import { describe, expect, it } from 'vitest'
 import { encodeShareInput } from '../tools/share.ts'
 import { parseMarkdown } from './markdown.tsx'
-import { formatPrice, usdCentsFor } from './price.ts'
+import { displayPrice, paypalUsdNotice, priceForCredits } from './price.ts'
 import { applyChunk, readReadingStream } from './stream.ts'
 import { peekUnlockToken, unlockReturnPath, unlockShareOf } from './unlock.ts'
 
 // add-reading-monetization tasks.md 3.1–3.2：估价、意图令牌、流式解析与白名单 Markdown。
 
 const PACKS = [
-  { credits: 500, amount: 399 },
-  { credits: 100, amount: 99 },
+  { credits: 500, amount: 22700, currency: 'TWD' },
+  { credits: 100, amount: 6500, currency: 'TWD' },
 ]
 
-describe('当地货币估价', () => {
-  it('取能覆盖所需积分的最小积分包折算美元', () => {
-    expect(usdCentsFor(100, PACKS)).toBe(99)
-    expect(usdCentsFor(300, PACKS)).toBe(239)
-    expect(usdCentsFor(800, PACKS)).toBe(638)
-    expect(usdCentsFor(100, [])).toBeNull()
+describe('按界面语言结算的价格（localize-checkout-currency 5.2）', () => {
+  it('取能覆盖所需积分的最小积分包按比例折算，TWD 取整到元', () => {
+    expect(priceForCredits(100, PACKS)).toEqual({ amount: 6500, currency: 'TWD' })
+    expect(priceForCredits(300, PACKS)).toEqual({ amount: 13600, currency: 'TWD' })
+    expect(priceForCredits(800, PACKS)).toEqual({ amount: 36300, currency: 'TWD' })
+    expect(priceForCredits(100, [])).toBeNull()
   })
 
-  it('按站点语言显示约值：韩元取整到百，新台币显示 NT$，英语显示美元标价', () => {
-    expect(formatPrice(99, 'ko')).toEqual({ text: '₩1,400', approximate: true })
-    expect(formatPrice(99, 'zh-Hant')).toEqual({ text: 'NT$32', approximate: true })
-    expect(formatPrice(1000, 'zh-Hans')).toEqual({ text: '¥67', approximate: true })
-    expect(formatPrice(99, 'en')).toEqual({ text: '$0.99', approximate: false })
-  })
-
-  it('优先使用实时汇率，缺少的货币回退到参考值', () => {
-    const live = {
-      perUsd: { KRW: 1300, CNY: 7 },
-      attribution: { text: 'Rates By Exchange Rate API', href: 'https://www.exchangerate-api.com' },
-    }
-    expect(formatPrice(99, 'ko', live)).toEqual({ text: '₩1,300', approximate: true })
-    expect(formatPrice(99, 'zh-Hant', live)).toEqual({ text: 'NT$32', approximate: true })
-    expect(formatPrice(1000, 'zh-Hans', live)).toEqual({ text: '¥70', approximate: true })
-    expect(formatPrice(1000, 'zh-Hans', { ...live, perUsd: {} })).toEqual({
-      text: '¥67',
-      approximate: true,
+  it('繁体与韩语显示实价不带约值，简体附人民币参考价，英语显示美元', () => {
+    expect(displayPrice({ amount: 6500, currency: 'TWD' }, 'zh-Hant')).toEqual({
+      text: 'NT$65',
+      reference: null,
     })
+    expect(displayPrice({ amount: 2800, currency: 'KRW' }, 'ko')).toEqual({
+      text: '₩2,800',
+      reference: null,
+    })
+    expect(displayPrice({ amount: 199, currency: 'USD' }, 'zh-Hans')).toEqual({
+      text: 'US$1.99',
+      reference: '¥13',
+    })
+    expect(displayPrice({ amount: 199, currency: 'USD' }, 'en')).toEqual({
+      text: '$1.99',
+      reference: null,
+    })
+  })
+
+  it('只在繁体与韩语选择 PayPal 时提示以美元结算', () => {
+    expect(paypalUsdNotice('ko', 'paypal')).toBe(true)
+    expect(paypalUsdNotice('zh-Hant', 'paypal')).toBe(true)
+    expect(paypalUsdNotice('ko', 'stripe')).toBe(false)
+    expect(paypalUsdNotice('zh-Hans', 'paypal')).toBe(false)
+    expect(paypalUsdNotice('en', 'paypal')).toBe(false)
   })
 })
 

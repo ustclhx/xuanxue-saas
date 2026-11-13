@@ -17,6 +17,7 @@ import {
 } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, eq, inArray, isNull, ne, sql } from 'drizzle-orm'
+import { ENABLED_CURRENCIES, enabledCurrency } from '../currency.ts'
 import type { WebhookTransaction } from '../pipeline.ts'
 import type {
   CheckoutMetadata,
@@ -65,20 +66,29 @@ export const orderScope = (provider: PaymentProviderId, id: string) =>
 export const paymentScope = (provider: PaymentProviderId, id: string) =>
   and(eq(payment.provider, provider), eq(payment.providerPaymentId, id))
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-export function money(amount: number, currency: string) {
-  // 平台只以 USD 定价与发放积分；其他币种说明结账配置异常，重投无法修复，需要人工处理。
-  if (typeof currency !== 'string' || currency.toUpperCase() !== 'USD')
+/**
+ * 校验付款金额与币种：币种必须属于启用集合（USD / TWD / KRW）；传入 `expected`（价格行或原付款的币种）时
+ * 还必须与之一致。币种不符说明结账配置异常或买家所在地导致换币，重投无法修复，按不可重试错误由人工处理。
+ */
+export function money(amount: number, currency: string, expected?: string) {
+  const code = enabledCurrency(currency)
+  if (!code || (expected !== undefined && code !== expected.toUpperCase()))
     throw new AppError(
       'BILLING_CURRENCY_MISMATCH',
-      `BILLING_CURRENCY_MISMATCH: expected USD, received ${String(currency)
-        .replace(/[^A-Za-z]/g, '')
-        .slice(0, 8)
-        .toUpperCase()}`,
+      `BILLING_CURRENCY_MISMATCH: expected ${
+        expected === undefined ? ENABLED_CURRENCIES.join('|') : clean(expected)
+      }, received ${clean(currency)}`,
       { status: 422 },
     )
   if (!Number.isSafeInteger(amount) || amount < 0 || amount > 2_147_483_647)
     throw new Error('Invalid billing amount or currency')
 }
+// 错误文本会进入日志与审计，只保留字母且限长
+const clean = (value: unknown) =>
+  String(value)
+    .replace(/[^A-Za-z]/g, '')
+    .slice(0, 8)
+    .toUpperCase()
 export async function priceFor(
   db: Database | WebhookTransaction,
   id: string,
@@ -222,11 +232,8 @@ export async function checkWinner(
 export function conflictPayment(event: NormalizedEvent, a: Association) {
   if (event.type !== 'payment.succeeded' || event.payment.kind === 'one_time') return {}
   const p = event.payment
-  money(p.amount, p.currency)
-  if (
-    (p.kind !== 'adjustment' && p.amount !== a.price.amount) ||
-    p.currency.toUpperCase() !== a.price.currency.toUpperCase()
-  )
+  money(p.amount, p.currency, a.price.currency)
+  if (p.kind !== 'adjustment' && p.amount !== a.price.amount)
     throw new Error('Payment price mismatch')
   if (!p.period || !(p.period.start < p.period.end) || !Number.isFinite(p.paidAt.getTime()))
     throw new Error('Invalid payment period')

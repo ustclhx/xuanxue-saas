@@ -1,7 +1,9 @@
 import { useRouter } from '@tanstack/react-router'
+import { formatMoney } from '@xuanxue/billing/currency'
 import { Button, Select, SelectContent, SelectItem, SelectTrigger, Textarea } from '@xuanxue/ui'
 import { useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 import { type getCustomerRefunds, requestCustomerRefund } from './refund.functions.ts'
 
 export function RefundSection({
@@ -79,9 +81,7 @@ export function RefundSection({
                   <SelectItem key={p.id} index={index} value={p.id}>
                     {p.provider} ·{' '}
                     {new Date(p.paidAt).toLocaleDateString('en-US', { timeZone: 'UTC' })} ·{' '}
-                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                      p.remainingRefundable / 100,
-                    )}
+                    {formatMoney(p.remainingRefundable, p.currency, getLocale())}
                   </SelectItem>
                 ))}
               </SelectContent>

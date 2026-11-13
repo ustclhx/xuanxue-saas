@@ -371,5 +371,6 @@
   "admin_metrics_by_site": "By site",
   "admin_metrics_by_site_description": "Computed live for the selected range: registrations within the range; users, workspaces and paid workspaces as of the end of the last day (UTC).",
   "admin_total_users": "Users",
-  "admin_total_workspaces": "Active workspaces"
+  "admin_total_workspaces": "Active workspaces",
+  "admin_partial_amount_in_currency": "Partial amount ({currency})"
 }

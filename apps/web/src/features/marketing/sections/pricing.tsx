@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { CURRENCY_EXPONENT, enabledCurrency } from '@xuanxue/billing/currency'
 import {
   Button,
   Card,
@@ -32,11 +33,14 @@ export function formatPrice(
   locale: string,
   { exact = false }: { exact?: boolean } = {},
 ): string {
+  // 按币种指数换算（KRW 无小数），不在启用集合的币种按两位小数处理
+  const code = currency.toUpperCase()
+  const scale = 10 ** (enabledCurrency(code) ? CURRENCY_EXPONENT[code as 'USD'] : 2)
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: currency.toUpperCase(),
-    ...(exact ? {} : { maximumFractionDigits: amount % 100 === 0 ? 0 : 2 }),
-  }).format(amount / 100)
+    currency: code,
+    ...(exact ? {} : { maximumFractionDigits: amount % scale === 0 ? 0 : 2 }),
+  }).format(amount / scale)
 }
 
 export function Pricing({ plans: initialPlans }: { plans: readonly PricingPlan[] }) {

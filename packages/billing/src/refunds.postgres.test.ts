@@ -297,6 +297,18 @@ describe('trusted refund service on PostgreSQL', () => {
       await db.select().from(refundRequest).where(eq(refundRequest.paymentId, pid)),
     ).toHaveLength(1)
   })
+  it('TWD refunds must be whole dollars (multiples of 100 minor units)', async () => {
+    await db.update(payment).set({ amount: 22700, currency: 'TWD' }).where(eq(payment.id, pid))
+    await expect(submit({ requestedAmount: 10050 })).rejects.toMatchObject({
+      code: 'INVALID_REFUND_AMOUNT',
+    })
+    const request = await submit({ requestedAmount: 10000 })
+    await expect(approve(request.id, 10050)).rejects.toMatchObject({
+      code: 'INVALID_REFUND_AMOUNT',
+    })
+    await approve(request.id, 10000)
+    expect(remote.mock.calls[0]?.[0]).toMatchObject({ amount: 10000, currency: 'TWD' })
+  })
   it('persists partial approval before remote failure and retries the same immutable decision/key', async () => {
     const request = await submit()
     remote.mockImplementationOnce(async (input) => {

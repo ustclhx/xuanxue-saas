@@ -16,3 +16,15 @@ const chart = numerologyChart(birthDate, 2027, 'Hélène Dupont')
 `numerologyChart` 在姓名错误时保留日期结果，以 `nameError` 返回字段错误；姓名为空返回 `name: null`。单独调用 `nameNumbers` / `normalizeName` 的非法输入会抛出带 `details.field = 'name'` 的 AppError。
 
 `compatibility(firstDate, secondDate)` 返回双方生命灵数、固定等级和可本地化说明 key；表格行列次序见 `LIFE_PATH_VALUES`。该矩阵为常见流派主题的编辑综合，只供娱乐，不能用来预测关系结果。
+
+## 每日数字
+
+`universalDay(local)`、`personalMonth(birth, { year, month })`、`personalDay(birth, local)` 返回
+`{ value, master, steps }`；`local` 必须是访客本地日期，由调用方传入，服务端不按 UTC 推断。
+
+- 宇宙日：当日年、月、日分别归约后相加再归约，例 2026-11-13：1 + 11 + 4 = 16 → 7。
+- 个人月 = 个人年 + 当月数后归约；个人日 = 个人月 + 当日数后归约。`personalDay` 的 `steps` 只含个人日一段，
+  另带 `personalYear`、`personalMonth`，页面依次展示三段。例 生日 5/15 在 2026-11-13：
+  个人年 5 + 6 + 1 = 12 → 3，个人月 3 + 11 = 14 → 5，个人日 5 + 4 = 9。
+- 每日数字只保留 11、22 为主数（取值 1–9、11、22），33 继续归约；个人年仍按原规则保留 33。
+- 算法变化时，web 侧依赖它的文案表与 `NUMEROLOGY_ENGINE_VERSION` 一并更新。
