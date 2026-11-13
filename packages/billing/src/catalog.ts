@@ -110,6 +110,33 @@ export const EXAMPLE_CATALOG = [
     active: true,
     prices: tablePrices('reading_five'),
   },
+  // 两档月付订阅（enable-subscriptions-daily-credits D1）：不复用模板示例 pro/team。只有月付价格，
+  // 每期积分在周期末加宽限后过期、不结转；权益沿用免费档，模型授权由后台给予，激活前须覆盖免费档（D2）。
+  // 放在积分包之后：同步按数组顺序进行，订阅模型检查不通过时积分包已同步完成、不受阻塞。
+  {
+    key: 'plus',
+    name: 'Plus',
+    type: 'subscription',
+    credits: 400,
+    creditExpiryDays: null,
+    rollover: false,
+    features: DEFAULT_FREE_FEATURES,
+    sort: 30,
+    active: true,
+    prices: tablePrices('plus'),
+  },
+  {
+    key: 'premium',
+    name: 'Premium',
+    type: 'subscription',
+    credits: 1000,
+    creditExpiryDays: null,
+    rollover: false,
+    features: DEFAULT_FREE_FEATURES,
+    sort: 40,
+    active: true,
+    prices: tablePrices('premium'),
+  },
 ] satisfies (Omit<typeof plan.$inferInsert, 'id'> & {
   prices: CatalogPrice[]
 })[]
@@ -121,9 +148,74 @@ function assertCatalogAmounts() {
       assertMinorAmount(price.amount, price.currency)
 }
 
-/** 该平台要建价格行的目录价格：PayPal 只建 USD（决策 2） */
+/**
+ * 订阅首发只经这些平台提供（enable-subscriptions-daily-credits D3）：PayPal 不建订阅价格行，
+ * 结账因找不到该平台的价格返回 BILLING_PRICE_UNAVAILABLE，页面也就不显示 PayPal 的订阅选项。
+ */
+export const SUBSCRIPTION_PROVIDERS: readonly PlanPrice['provider'][] = ['stripe']
+
+/** 该平台要建价格行的目录价格：PayPal 只建 USD（localize-checkout-currency 决策 2），且只建一次性价格 */
 function providerPrices(prices: readonly CatalogPrice[], provider: PlanPrice['provider']) {
-  return prices.filter((price) => providerSettlesIn(provider, price.currency))
+  return prices.filter(
+    (price) =>
+      providerSettlesIn(provider, price.currency) &&
+      (price.interval === null || SUBSCRIPTION_PROVIDERS.includes(provider)),
+  )
+}
+
+export interface SubscriptionModelGap {
+  readonly key: string
+  /** 免费档已授权、该订阅套餐缺少的模型 */
+  readonly missing: readonly string[]
+}
+
+/** 套餐模型授权是否覆盖某个模型：`*` 表示全部 */
+function grants(models: readonly string[], model: string) {
+  return models.includes('*') || models.includes(model)
+}
+
+/**
+ * 在售订阅套餐的模型授权必须覆盖免费档（D2）：权益取最高生效套餐，订阅套餐少授权会让用户订阅后反而失去模型。
+ * 纯函数，供同步前断言与只读诊断共用；免费档缺失时没有比较基线，视为无缺口。
+ */
+export function subscriptionModelGaps(
+  plans: readonly {
+    readonly key: string
+    readonly type: string
+    readonly active: boolean
+    readonly features: { readonly models: readonly string[] }
+  }[],
+): SubscriptionModelGap[] {
+  const free = plans.find((row) => row.key === 'free')?.features.models ?? []
+  return plans
+    .filter((row) => row.type === 'subscription' && row.active && row.key !== 'free')
+    .filter((row) =>
+      EXAMPLE_CATALOG.some((entry) => entry.key === row.key && entry.prices.length > 0),
+    )
+    .map((row) => ({
+      key: row.key,
+      missing: free.filter((model) => !grants(row.features.models, model)),
+    }))
+}
+
+/** 只读诊断：每个在售订阅套餐一行，列出是否覆盖免费档模型；不写库、不调用平台 */
+export async function describeSubscriptionModels(db: Database): Promise<string[]> {
+  const gaps = subscriptionModelGaps(
+    await db.select().from(plan).where(eq(plan.type, 'subscription')),
+  )
+  return gaps.map(({ key, missing }) =>
+    missing.length
+      ? `Model grants: ${key} MISSING free models: ${missing.join(', ')}`
+      : `Model grants: ${key} OK (covers free tier)`,
+  )
+}
+
+function assertSubscriptionModels(plans: Parameters<typeof subscriptionModelGaps>[0], key: string) {
+  const gap = subscriptionModelGaps(plans).find((row) => row.key === key)
+  if (gap?.missing.length)
+    throw new Error(
+      `Subscription plan ${key} must be granted every free-tier model before activation (missing: ${gap.missing.join(', ')})`,
+    )
 }
 
 const PROVIDERS = ['stripe', 'paypal'] as const
@@ -238,11 +330,16 @@ export async function syncCatalog(
 ): Promise<number> {
   assertCatalogAmounts()
   let synced = 0
+  // 免费档本身也是 subscription 类型，同一查询即可取到比较基线
+  const plans = await db.select().from(plan).where(eq(plan.type, 'subscription'))
   for (const provider of providers) {
     for (const example of EXAMPLE_CATALOG) {
       if (!example.prices.length) continue // Free has no remote price or checkout.
       const [localPlan] = await db.select().from(plan).where(eq(plan.key, example.key))
       if (!localPlan) throw new Error(`Seed catalog before syncing ${example.key}`)
+      // 激活订阅价格前检查模型授权，在任何远程调用之前失败
+      if (localPlan.type === 'subscription' && providerPrices(example.prices, provider.id).length)
+        assertSubscriptionModels(plans, example.key)
       for (const intended of providerPrices(example.prices, provider.id)) {
         const prices = await db
           .select()

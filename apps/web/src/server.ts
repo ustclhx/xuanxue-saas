@@ -35,6 +35,7 @@ import {
   normalizePublicApiNotFound,
 } from './features/api-keys/gate.ts'
 import { createBillingDeletionSteps } from './features/billing/deletion.server.ts'
+import { type DailyCacheStore, dailyPageCache } from './features/daily/page-cache.ts'
 import { assertSignupAdmission } from './features/growth/service.ts'
 import { authLocaleRedirect, isAuthPagePath } from './features/i18n/auth-locale.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
@@ -67,7 +68,7 @@ const startHandler = createStartHandler((context) => {
 })
 
 const worker = instrumentWeb({
-  fetch(incoming, env) {
+  fetch(incoming, env, ctx) {
     const buildRequest = prerenderRequest(incoming, env.SITE_PRERENDER_TOKEN)
     const path = decodeURI(new URL(incoming.url).pathname)
     if (!buildRequest && /^\/_site(?:\/|$)/.test(path))
@@ -97,6 +98,19 @@ const worker = instrumentWeb({
             : null) ??
           gatePublicApiRequest(request, templateConfig) ??
           authLocaleRedirect(request, templateConfig) ??
+          // 公开每日运势页：匿名请求按参考日缓存（add-birth-profiles-daily-horoscope design D7）
+          (await dailyPageCache(
+            request,
+            templateConfig.i18n.locales,
+            {
+              cache: !import.meta.env.DEV && !buildRequest ? workersCache() : undefined,
+              waitUntil: (promise) => ctx.waitUntil(promise),
+              secure: (response) =>
+                withStaticSecurityHeaders(response, staticSecurity(request, env)),
+            },
+            async () =>
+              localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime()))),
+          )) ??
           (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
         { canonicalize: !buildRequest },
       ),
@@ -173,6 +187,14 @@ function staticSecurity(request: Request, env: Cloudflare.Env) {
     analyticsOrigin: plausibleSite(templateConfig.features.analytics, env)?.origin,
     clarity: Boolean(templateConfig.analytics.clarityProjectId.trim()),
   }
+}
+
+/** Workers 的默认缓存；本地 Node 测试等没有 Cache API 的环境返回 undefined（不缓存） */
+function workersCache() {
+  // DOM 的 CacheStorage 类型没有 Workers 的 `default`
+  return typeof caches === 'undefined'
+    ? undefined
+    : (caches as unknown as { default: DailyCacheStore }).default
 }
 
 // 只记录方法与路径：查询串可能带令牌（魔法链接、重置密码等）

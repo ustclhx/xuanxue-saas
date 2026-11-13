@@ -32,7 +32,7 @@ export const Route = createFileRoute('/app/$slug/billing')({
   validateSearch: z.object({
     returnTo: z.string().max(1024).optional(),
     checkout: z.enum(['success', 'canceled']).optional(),
-    // 定价页「购买」带上积分包 key：进入本页后直接跳转支付页
+    // 定价页「购买 / 订阅」带上套餐 key：积分包直接跳转支付页；订阅在没有续费中的订阅时直接结账，否则预选待确认
     buy: z
       .string()
       .regex(/^[a-z0-9_-]{1,64}$/)
@@ -125,6 +125,18 @@ function BillingPage() {
   const isSubscription =
     page.catalog.plans.find((plan) => plan.id === selected?.planId)?.type === 'subscription'
   const change = isSubscription && renewing?.provider === 'stripe' && provider === 'stripe'
+  // 升级（积分更多）立即生效并按比例计费，新档积分从下个周期开始发放（design D8），确认前说明
+  const planCredits = (priceId?: string) => {
+    const planId = page.catalog.prices.find((price) => price.id === priceId)?.planId
+    return page.catalog.plans.find((plan) => plan.id === planId)?.credits
+  }
+  const currentCredits = planCredits(renewing?.planPriceId)
+  const upgrade =
+    change && (currentCredits === undefined || (planCredits(selected?.id) ?? 0) > currentCredits)
+  // 订阅只经 Stripe（design D3）：所选支付方式没有订阅价格、另一种有时说明订阅需用卡片付款
+  const subscriptionsElsewhere =
+    planPrices.length === 0 &&
+    page.catalog.prices.some((price) => isPlan(price) && price.provider !== provider)
   const replacement = isSubscription && !change ? renewing : undefined
   const currentInterval = renewing?.interval
   // 月付与年付互换由服务端安排在当前周期结束时生效，确认前先说明生效时间
@@ -210,6 +222,14 @@ function BillingPage() {
     url.searchParams.delete('buy')
     window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
     const plan = page.catalog.plans.find((item) => item.key === buy)
+    if (plan?.type === 'subscription') {
+      const price = planPrices.find((item) => item.planId === plan.id && item.available)
+      if (!price || disabled) return
+      // 已有续费中的订阅时需要换档或确认替换，只预选、不自动结账
+      if (renewing) setPriceId(price.id)
+      else void checkout(price)
+      return
+    }
     const price = packPrices.find((item) => item.planId === plan?.id && item.available)
     if (price && !disabled) void checkout(price)
   }, [ready])
@@ -250,6 +270,16 @@ function BillingPage() {
               ? m.billing_paid_access_ends({ date: date(sub.currentPeriodEnd) })
               : m.billing_next_billing({ date: date(sub.currentPeriodEnd) })}
           </p>
+          {sub.currentPeriodEnd && ['active', 'trialing', 'past_due'].includes(sub.status) && (
+            <p data-testid="billing-sub-period-credits">
+              {m.billing_sub_period_credits({ date: date(sub.currentPeriodEnd) })}
+            </p>
+          )}
+          {owner && !sub.cancelAtPeriodEnd && sub.currentPeriodEnd && sub.status === 'active' && (
+            <p data-testid="billing-sub-cancel-keeps">
+              {m.billing_sub_cancel_keeps({ date: date(sub.currentPeriodEnd) })}
+            </p>
+          )}
           {owner && 'id' in sub && sub.id && (
             <div className="flex gap-3">
               <Button
@@ -324,6 +354,9 @@ function BillingPage() {
           {!page.readingsOpen && (
             <p data-testid="billing-packs-not-open">{m.readings_packs_not_open()}</p>
           )}
+          {subscriptionsElsewhere && (
+            <p data-testid="billing-sub-stripe-only">{m.billing_sub_stripe_only()}</p>
+          )}
           {paypalUsdNotice(getLocale(), provider) &&
             (packPrices.length > 0 || planPrices.length > 0) && (
               <p data-testid="billing-paypal-usd">{m.billing_paypal_usd_note()}</p>
@@ -395,6 +428,12 @@ function BillingPage() {
           )}
           {intervalChange && renewing && (
             <p>{m.billing_change_interval_notice({ date: date(renewing.currentPeriodEnd) })}</p>
+          )}
+          {upgrade && !intervalChange && (
+            <p data-testid="billing-sub-upgrade">{m.billing_sub_upgrade_notice()}</p>
+          )}
+          {planPrices.length > 0 && (
+            <p data-testid="billing-sub-autorenew">{m.billing_sub_autorenew()}</p>
           )}
           {planPrices.length > 0 && (
             <Button

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_bazi_pillars_title": "四柱命盘：{pillars}；日主 {dayMaster}",
+  "chart_bazi_elements_title": "五行分布（个数 · 占比）：{elements}",
+  "chart_bazi_list_separator": "、"
+}

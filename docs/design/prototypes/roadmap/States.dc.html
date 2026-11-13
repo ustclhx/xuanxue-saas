@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>空、加载、错误态</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="east" style="width: 1330px; height: 900px; box-sizing: border-box; display: flex; gap: 80px; background: transparent; font-family: -apple-system, 'PingFang TC', sans-serif; color: var(--ink);">
+  <section aria-label="空態" style="width: 390px; height: 900px; background: var(--bg); padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+    <span style="font-size: 12px; color: var(--subtle); letter-spacing: 0.1em;">空態</span>
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="6" width="24" height="28" rx="3" fill="none" stroke="var(--line-strong)" stroke-width="1.5"></rect><path d="M14 14h12M14 20h12M14 26h7" stroke="var(--line-strong)" stroke-width="1.5"></path></svg>
+      <strong style="font-size: 17px;">還沒有出生檔案</strong>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">存好自己和家人的生辰，排盤時一鍵帶入。</p>
+      <button type="button" style="height: 44px; padding: 0 18px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600;">新增第一份檔案</button>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <strong style="font-size: 16px;">今日 · [甲子日]</strong>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">設定預設檔案後，這裡會顯示今天與你日主的關係。</p>
+      <a href="#" style="font-weight: 600; min-height: 44px; display: inline-flex; align-items: center;">選擇預設檔案</a>
+    </div>
+  </section>
+
+  <section aria-label="加載態" style="width: 390px; height: 900px; background: var(--bg); padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+    <span style="font-size: 12px; color: var(--subtle); letter-spacing: 0.1em;">加載態</span>
+    <div aria-busy="true" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="height: 18px; width: 60%; border-radius: 6px; background: var(--surface-2);"></div>
+      <div style="display: flex; gap: 12px;"><div style="width: 64px; height: 76px; border-radius: 10px; background: var(--surface-2);"></div><div style="flex: 1; display: flex; flex-direction: column; gap: 8px;"><div style="height: 14px; border-radius: 6px; background: var(--surface-2);"></div><div style="height: 14px; width: 80%; border-radius: 6px; background: var(--surface-2);"></div><div style="height: 14px; width: 50%; border-radius: 6px; background: var(--surface-2);"></div></div></div>
+      <span style="font-size: 13px; color: var(--subtle);">今日面板：固定高度骨架，避免版面位移</span>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="align-self: flex-end; padding: 10px 14px; border-radius: 14px 14px 4px 14px; background: var(--surface-2); font-size: 14px;">大運轉換那幾年要注意什麼？</div>
+      <div role="status" style="font-size: 14px; color: var(--muted);">正在回覆… <span style="color: var(--subtle);">（逐字串流，可停止）</span></div>
+      <button type="button" style="align-self: flex-start; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 13px;">停止</button>
+    </div>
+  </section>
+
+  <section aria-label="錯誤態" style="width: 390px; height: 900px; background: var(--bg); padding: 24px 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+    <span style="font-size: 12px; color: var(--subtle); letter-spacing: 0.1em;">錯誤態</span>
+    <div role="alert" style="background: var(--surface); border: 1px solid var(--accent); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <strong style="font-size: 16px;">積分不足</strong>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">這則追問預計需要 [4–8] 積分，目前餘額 [2]。</p>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;"><a href="#" style="height: 44px; padding: 0 14px; border-radius: 8px; background: var(--accent); color: var(--on-accent); text-decoration: none; display: inline-flex; align-items: center; font-weight: 600;">購買積分</a><a href="#" style="height: 44px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none; display: inline-flex; align-items: center;">看訂閱方案</a></div>
+      <span style="font-size: 12px; color: var(--subtle);">（模板 InsufficientCreditsDialog 的頁內版本）</span>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <strong style="font-size: 16px;">目前沒有可用的 AI 模型</strong>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">報告仍可閱讀；追問暫時無法使用，請稍後再試。</p>
+    </div>
+    <div role="alert" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
+      <strong style="font-size: 16px;">檔案沒有儲存</strong>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">已達 20 份檔案上限，請先刪除不需要的檔案。</p>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1330,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

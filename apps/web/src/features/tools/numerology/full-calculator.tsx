@@ -1,6 +1,7 @@
 import { type BirthDate, numerologyChart } from '@xuanxue/numerology'
 import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
@@ -57,6 +58,7 @@ export function FullCalculator() {
         label={m.numerology_calc_form_label()}
         onSubmit={(data) => show(data.get('birthDate'), String(data.get('name') ?? ''))}
       >
+        <ProfileBar target={{ kind: 'numerology', date: true, name: true }} />
         <TextField
           label={m.numerology_name_label()}
           name="name"

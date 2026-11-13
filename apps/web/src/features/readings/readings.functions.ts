@@ -4,10 +4,10 @@ import { getRequest } from '@tanstack/react-start/server'
 import { messageText } from '@xuanxue/ai'
 import { createPaymentRuntime } from '@xuanxue/billing'
 import { getCreditBalance } from '@xuanxue/credits'
-import { aiMessage, dbSettingStore, type Reading, reading, scoped } from '@xuanxue/db'
+import { aiMessage, dbSettingStore, type Reading, reading, scoped, subscription } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
-import { and, desc, eq, lt, ne, type SQL } from 'drizzle-orm'
+import { and, desc, eq, inArray, lt, ne, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
@@ -47,6 +47,12 @@ export interface ReadingPack {
   readonly currency: string
 }
 
+/** 积分不足时一并提供的月付订阅档位（enable-subscriptions-daily-credits 4.3） */
+export interface ReadingPlan extends ReadingPack {
+  readonly key: string
+  readonly name: string
+}
+
 export interface ReadingOffer {
   readonly available: boolean
   /**
@@ -62,8 +68,15 @@ export interface ReadingOffer {
   /** 本语言的样例段落（虚构命盘，人工撰写）；不可用时为空字符串 */
   readonly sample: string
   readonly packs: readonly ReadingPack[]
+  /** 可购买的月付订阅（只在有订阅价格的平台上，即 Stripe）；个人空间已有续费中的订阅时为空 */
+  readonly plans: readonly ReadingPlan[]
   /** 未登录为 null；详批保存在个人空间，余额也取个人空间 */
-  readonly viewer: { readonly slug: string; readonly balance: number } | null
+  readonly viewer: {
+    readonly slug: string
+    readonly balance: number
+    /** 个人空间已有续费中的订阅：换档走账单页，解锁卡不再提供订阅 */
+    readonly subscribed: boolean
+  } | null
 }
 
 const UNAVAILABLE: ReadingOffer = {
@@ -74,6 +87,7 @@ const UNAVAILABLE: ReadingOffer = {
   sections: [],
   sample: '',
   packs: [],
+  plans: [],
   viewer: null,
 }
 
@@ -112,15 +126,28 @@ async function viewerOf(): Promise<ReadingOffer['viewer']> {
   }
   const resolved = await resolveDefaultWorkspace(db, user, null, site)
   if (!resolved) return null
-  const balance = await getCreditBalance(db, resolved.workspace.id)
-  return { slug: resolved.workspace.slug, balance: balance.available }
+  const [balance, renewing] = await Promise.all([
+    getCreditBalance(db, resolved.workspace.id),
+    scoped(db, resolved.workspace.id).select(subscription, {
+      fields: { id: subscription.id },
+      where: sql`${inArray(subscription.status, ['trialing', 'active', 'past_due', 'paused'])}
+        and ${subscription.cancelAtPeriodEnd} = false`,
+    }),
+  ])
+  return {
+    slug: resolved.workspace.slug,
+    balance: balance.available,
+    subscribed: renewing.length > 0,
+  }
 }
 
 /**
- * 积分包：每个可用付款方式下按界面语言选出的可购买一次性价格（与结账同一选价规则，见 pricing-data.ts），
- * 按积分从少到多
+ * 积分包与月付订阅：每个可用付款方式下按界面语言选出的可购买价格（与结账同一选价规则，见 pricing-data.ts），
+ * 按积分从少到多。订阅只有有订阅价格的平台才会出现（PayPal 没有订阅价格行，design D3）。
  */
-async function readingPacks(locale: string): Promise<ReadingPack[]> {
+async function readingPurchases(
+  locale: string,
+): Promise<{ packs: ReadingPack[]; plans: ReadingPlan[] }> {
   const runtime = getWebRuntime()
   const payments = createPaymentRuntime(runtime.config, templateConfig.billing.providers, {
     cache: runtime.cache,
@@ -129,25 +156,36 @@ async function readingPacks(locale: string): Promise<ReadingPack[]> {
   const catalog = await customerCatalog(runtime.db, payments.readiness)
   // 每个可用付款方式各一项，按积分数、再按 template.config 的付款方式顺序排列，解锁卡据此提供切换
   const order: readonly string[] = templateConfig.billing.providers
-  const available = catalog.prices.filter((item) => item.available && item.interval === null)
-  return catalog.plans
-    .filter((plan) => plan.type === 'credit_pack' && plan.credits > 0)
-    .flatMap((plan) =>
-      order.flatMap((provider) =>
-        displayPrices(
-          available.filter((item) => item.planId === plan.id),
-          locale,
-          provider,
-        ).map((price) => ({
-          planPriceId: price.id,
-          provider: price.provider,
-          credits: plan.credits,
-          amount: price.amount,
-          currency: price.currency,
-        })),
-      ),
-    )
-    .sort((a, b) => a.credits - b.credits || order.indexOf(a.provider) - order.indexOf(b.provider))
+  const offers = (type: 'credit_pack' | 'subscription') => {
+    const interval = type === 'subscription' ? 'month' : null
+    const available = catalog.prices.filter((item) => item.available && item.interval === interval)
+    return catalog.plans
+      .filter((plan) => plan.type === type && plan.credits > 0)
+      .flatMap((plan) =>
+        order.flatMap((provider) =>
+          displayPrices(
+            available.filter((item) => item.planId === plan.id),
+            locale,
+            provider,
+          ).map((price) => ({
+            key: plan.key,
+            name: plan.name,
+            planPriceId: price.id,
+            provider: price.provider,
+            credits: plan.credits,
+            amount: price.amount,
+            currency: price.currency,
+          })),
+        ),
+      )
+      .sort(
+        (a, b) => a.credits - b.credits || order.indexOf(a.provider) - order.indexOf(b.provider),
+      )
+  }
+  return {
+    packs: offers('credit_pack').map(({ key: _key, name: _name, ...pack }) => pack),
+    plans: offers('subscription'),
+  }
 }
 
 /**
@@ -168,7 +206,10 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         textChatAvailable(deps.db, deps.aiEnv),
       ])
       if (!status.available) return { ...UNAVAILABLE, comingSoon: true, chatAvailable }
-      const [packs, viewer] = await Promise.all([readingPacks(data.locale), viewerOf()])
+      const [{ packs, plans }, viewer] = await Promise.all([
+        readingPurchases(data.locale),
+        viewerOf(),
+      ])
       return {
         available: true,
         comingSoon: false,
@@ -181,6 +222,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         ).prompt.sections,
         sample: definition.sample,
         packs,
+        // 已有续费中的订阅时换档走账单页（模板换档与币种约束），解锁卡只提供积分包
+        plans: viewer?.subscribed ? [] : plans,
         viewer,
       }
     } catch (error) {

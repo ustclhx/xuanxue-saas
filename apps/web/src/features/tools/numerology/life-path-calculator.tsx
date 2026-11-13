@@ -1,6 +1,7 @@
 import { type BirthDate, lifePath, type NumberResult } from '@xuanxue/numerology'
 import { type ReactNode, useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
@@ -108,6 +109,10 @@ export function LifePathCalculator({
             onSubmit={(data) => show(data.get('birthDate'))}
             className="mt-2 flex flex-wrap items-end gap-3 border-0 bg-transparent p-0 sm:p-0"
           >
+            <ProfileBar
+              target={{ kind: 'numerology', date: true, name: false }}
+              className="w-full"
+            />
             <BirthDateField
               className="min-w-0 flex-[1_1_220px]"
               errorId={errorId}

@@ -1,11 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { type MouseEvent, useEffect, useState } from 'react'
+import type { MouseEvent } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
-import { getViewerSpaces } from '../workspace/viewer.functions.ts'
+import { useViewer } from '../workspace/viewer-store.ts'
 import { closeHeaderMenu, HeaderMenu, UserIcon } from './header-menu.tsx'
-
-type Viewer = Awaited<ReturnType<typeof getViewerSpaces>>
 
 /**
  * 登录入口附加回跳地址（specs/user-auth「登录后的去向」）：`here` 为当前页面的路径与查询（含语言前缀）。
@@ -23,22 +21,9 @@ export function loginWithReturn(loginHref: string, here: string): string {
  * 爬虫渲染后每个公开页都会多出一个登录地址变体（openspec fix-seo-canonical-indexing design.md 决策 7）。
  */
 export function AccountMenu() {
-  const [viewer, setViewer] = useState<Viewer | null>(null)
+  // 与工具页的档案入口共用一次读取（viewer-store.ts）
+  const viewer = useViewer()
   const loginHref = localizeHref('/login', { locale: getLocale() })
-  useEffect(() => {
-    let active = true
-    void getViewerSpaces().then(
-      (value) => {
-        if (active) setViewer(value)
-      },
-      () => {
-        if (active) setViewer({ signedIn: false, name: '', spaces: [] })
-      },
-    )
-    return () => {
-      active = false
-    }
-  }, [])
 
   // 普通左键点击时带上当前页面；修饰键 / 中键打开新标签时进入不带参数的登录页
   const goLogin = (event: MouseEvent<HTMLAnchorElement>) => {

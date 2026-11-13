@@ -3,12 +3,16 @@ import { createAuth } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
 import { getCreditBalance, grant } from '@xuanxue/credits'
 import {
+  aiConversation,
+  aiMessage,
+  aiMessageFeedback,
   aiModel,
   auditLog,
   dbSettingStore,
   READING_KINDS,
   type SettingKey,
   type SettingStore,
+  scoped,
   setting,
   settingDefaults,
   user,
@@ -17,7 +21,7 @@ import type { EmailQueueMessage } from '@xuanxue/email/queue'
 import { AppError, newId } from '@xuanxue/shared'
 import { simulateReadableStream } from 'ai'
 import { MockLanguageModelV4 } from 'ai/test'
-import { eq, inArray, like } from 'drizzle-orm'
+import { and, desc, eq, inArray, like, type SQL } from 'drizzle-orm'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 import { runAdminAction } from '../src/features/admin/action.ts'
 import {
@@ -26,8 +30,12 @@ import {
   readingSettingsInput,
   writeReadingSettings,
 } from '../src/features/admin/settings-readings.ts'
+import { startSubjectConversation } from '../src/features/ai/subject-chat.server.ts'
+import { formValuesOf } from '../src/features/profiles/prefill.ts'
+import { createProfile, deleteProfile, updateProfile } from '../src/features/profiles/service.ts'
 import { readingDefinition } from '../src/features/readings/catalog.ts'
 import { readingConfig } from '../src/features/readings/config.ts'
+import { listedConversation } from '../src/features/readings/conversation-visibility.ts'
 import { deleteReadingWithContent } from '../src/features/readings/delete.ts'
 import { workspaceContentDeletionStep } from '../src/features/readings/deletion.server.ts'
 import {
@@ -35,6 +43,7 @@ import {
   handleReadingRequest,
   type ReadingDeps,
 } from '../src/features/readings/generate.ts'
+import { birthUnlock } from '../src/features/readings/unlock-requests.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
 // add-reading-monetization tasks.md 1.2：后台修改详批设置后前台读取到新值。
@@ -285,6 +294,7 @@ async function holds(workspaceId: string) {
 afterAll(async () => {
   const ids = sql`select id from "user" where email like ${`%@${EMAIL_DOMAIN}`}`
   await sql`delete from reading where workspace_id in (${ids})`
+  await sql`delete from ai_message_feedback where workspace_id in (${ids})`
   await sql`delete from ai_message where workspace_id in (${ids})`
   await sql`delete from ai_conversation where workspace_id in (${ids})`
   await sql`delete from credit_hold_allocation where hold_id in
@@ -563,10 +573,48 @@ describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', ()
   })
 })
 
+describe('用出生档案预填后解锁（add-birth-profiles-daily-horoscope 6.4）', () => {
+  it('报告保存解锁时的输入快照：之后修改或删除档案，报告输入与正文不变，令牌不含档案', async () => {
+    const who = await member(300)
+    const ctx = { db, workspaceId: who.workspaceId, userId: who.userId }
+    const profile = await createProfile(ctx, 'east', {
+      label: '本人',
+      relation: 'self',
+      birth: BIRTH,
+    })
+    // 与工具页相同的链路：档案 → 表单值 → 解锁请求（input 为请求体，share 进入解锁令牌）
+    const request = birthUnlock(formValuesOf(profile, 'zh-Hant'))
+    if (!request) throw new Error('profile prefill should produce an unlock request')
+    expect(JSON.stringify(request.share)).not.toContain(profile.id)
+    expect(Object.keys(request.share).some((key) => /name|profile/i.test(key))).toBe(false)
+
+    const modelKey = await textModel()
+    const run = deps(reportModel(REPORT), modelKey)
+    const response = await post(who, unlock(request.input), run.deps)
+    expect(response.status).toBe(200)
+    await response.text()
+    await run.settled()
+    const [before] = await sql<{ id: string; input: unknown; content: string }[]>`
+      select id, input, content from reading where workspace_id = ${who.workspaceId}`
+    expect(before?.input).toMatchObject({ year: 1990, month: 5, day: 17 })
+    expect(JSON.stringify(before?.input)).not.toContain(profile.id)
+
+    await updateProfile(ctx, 'east', profile.id, {
+      label: '本人',
+      relation: 'self',
+      birth: { ...BIRTH, time: { hour: 22, minute: 0 } },
+    })
+    await deleteProfile(ctx, profile.id)
+    const [after] = await sql<{ id: string; input: unknown; content: string }[]>`
+      select id, input, content from reading where workspace_id = ${who.workspaceId}`
+    expect(after).toEqual(before)
+  })
+})
+
 describe('删除（隐私政策「如何删除数据」）', () => {
-  async function generated(who: Awaited<ReturnType<typeof member>>) {
+  async function generated(who: Awaited<ReturnType<typeof member>>, input: unknown = BIRTH) {
     const run = deps(reportModel(REPORT), await textModel())
-    const response = await post(who, unlock(), run.deps)
+    const response = await post(who, unlock(input), run.deps)
     const id = response.headers.get('x-reading-id')
     await response.text()
     await run.settled()
@@ -594,6 +642,100 @@ describe('删除（隐私政策「如何删除数据」）', () => {
     // 其他空间的报告不能删
     const other = await member(0)
     expect(await deleteReadingWithContent(db, other.workspaceId, id)).toBe(false)
+  })
+
+  // adopt-subject-chat-readings tasks.md 5.2：隐私政策「删除报告会一并清除追问对话」
+  it('删除报告时一并清除追问对话：正文与上下文清空、反馈删除、两个列表都不再显示，积分流水不变', async () => {
+    const who = await member(200)
+    const id = await generated(who)
+    const keep = await generated(who, { ...BIRTH, year: 1991 })
+    const ctx = { db, workspaceId: who.workspaceId, userId: who.userId, locale: 'zh-Hant' }
+    const s = scoped(db, who.workspaceId)
+    // 两段追问对话，各有一问一答；其中一条回复带点踩反馈（含文字）
+    const followUps: string[] = []
+    let replyId = ''
+    for (const question of ['事業章節怎麼理解？', '健康要注意什麼？']) {
+      const { id: conversationId } = await startSubjectConversation(ctx, { type: 'reading', id })
+      followUps.push(conversationId)
+      await s.insert(aiMessage, {
+        conversationId,
+        role: 'user',
+        parts: [{ type: 'text', text: question }],
+        status: 'completed',
+      })
+      const [reply] = await s
+        .insert(aiMessage, {
+          conversationId,
+          role: 'assistant',
+          parts: [{ type: 'text', text: `依報告事業章節：${question}` }],
+          status: 'completed',
+        })
+        .returning({ id: aiMessage.id })
+      replyId = reply?.id ?? ''
+    }
+    await s.insert(aiMessageFeedback, {
+      messageId: replyId,
+      userId: who.userId,
+      rating: 'down',
+      reason: 'inaccurate',
+      comment: '和報告第三章不一致',
+    })
+    // 另一份报告的追问与普通对话不受影响
+    const { id: otherFollowUp } = await startSubjectConversation(ctx, { type: 'reading', id: keep })
+    const [plain] = await s
+      .insert(aiConversation, { userId: who.userId, title: 'plain', modelKey: '' })
+      .returning({ id: aiConversation.id })
+    // 用户把其中一段追问归档：归档列表同样不能再出现
+    await s.update(aiConversation, { archived: true }, eq(aiConversation.id, followUps[1] ?? ''))
+
+    const listed = (archived: boolean) =>
+      s
+        .select(aiConversation, {
+          fields: { id: aiConversation.id },
+          where: and(
+            eq(aiConversation.userId, who.userId),
+            eq(aiConversation.archived, archived),
+            listedConversation(),
+          ) as SQL,
+        })
+        .orderBy(desc(aiConversation.id))
+        .then((rows) => rows.map((row) => row.id))
+    expect(await listed(false)).toEqual(
+      expect.arrayContaining([followUps[0], otherFollowUp, plain?.id]),
+    )
+    expect(await listed(true)).toEqual([followUps[1]])
+
+    const ledger = () =>
+      sql`select id, delta, type, ref_type, ref_id from credit_ledger
+        where workspace_id = ${who.workspaceId} order by id`
+    const ledgerBefore = await ledger()
+    const balanceBefore = await getCreditBalance(db, who.workspaceId)
+
+    expect(await deleteReadingWithContent(db, who.workspaceId, id)).toBe(true)
+
+    const rows = await sql<{ role: string; parts: unknown[]; title: string; archived: boolean }[]>`
+      select m.role, m.parts, c.title, c.archived from ai_message m
+      join ai_conversation c on c.id = m.conversation_id
+      where c.id in ${sql(followUps)}`
+    // 两段对话各有 system（报告上下文）、问题、回复三条消息
+    expect(rows).toHaveLength(6)
+    for (const row of rows) expect(row).toMatchObject({ parts: [], title: '', archived: true })
+    expect(
+      await sql`select 1 from ai_message_feedback where workspace_id = ${who.workspaceId}`,
+    ).toHaveLength(0)
+    const active = await listed(false)
+    const archived = await listed(true)
+    for (const conversationId of followUps) {
+      expect(active).not.toContain(conversationId)
+      expect(archived).not.toContain(conversationId)
+    }
+    expect(active).toEqual(expect.arrayContaining([otherFollowUp, plain?.id]))
+    const [kept] = await sql<{ parts: { text: string }[] }[]>`
+      select parts from ai_message where conversation_id = ${otherFollowUp} and role = 'system'`
+    expect(kept?.parts[0]?.text).toContain('[context type=reading')
+    // 积分流水与余额保持不变，便于对账
+    expect(await ledger()).toEqual(ledgerBefore)
+    expect(await getCreditBalance(db, who.workspaceId)).toEqual(balanceBefore)
   })
 
   it('删除账号的步骤清除个人空间的报告、AI 正文与订阅记录', async () => {

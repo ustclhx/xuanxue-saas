@@ -1,5 +1,9 @@
 import type { BirthProfileBirth } from '@xuanxue/db'
-import { type BirthFormValues, OTHER_PLACE } from '../tools/bazi/birth-form-state.ts'
+import {
+  type BirthFormValues,
+  defaultBirthValues,
+  OTHER_PLACE,
+} from '../tools/bazi/birth-form-state.ts'
 
 /**
  * 档案 → 工具表单的预填（add-birth-profiles-daily-horoscope design D2「档案按站点补全字段」）。
@@ -77,4 +81,10 @@ export function profileFor(
   if (birth.location === null) missing.push('location')
   if (tool === 'ziwei' && birth.time === null) missing.push('time')
   return { values: birthValues(birth), missing }
+}
+
+/** 档案 → 东方站完整表单值（档案页「排盘」链接、编辑表单与详批预填共用）；缺失字段沿用默认值 */
+export function formValuesOf(profile: ProfileSource | undefined, locale: string): BirthFormValues {
+  const defaults = defaultBirthValues(locale)
+  return profile ? { ...defaults, ...profileFor('bazi', profile).values } : defaults
 }

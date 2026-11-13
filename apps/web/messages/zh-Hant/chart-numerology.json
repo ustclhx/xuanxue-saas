@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_numerology_reduction_title": "生命靈數推導：{steps}。生命靈數 {value}。",
+  "chart_numerology_grid_title": "{caption}：{digits}"
+}

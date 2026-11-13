@@ -111,6 +111,14 @@ If you pay on PayPal's checkout page, your card, bank or PayPal account details 
 directly to PayPal and never reach our servers. We tell PayPal the amount, a short description of the
 credit pack and our internal reference for the order.
 
+Monthly plan subscriptions are offered through Stripe only. When you subscribe, Stripe keeps the
+payment method you enter at checkout and charges it automatically each billing period until you
+cancel. We tell Stripe a short description of the plan, and Stripe notifies us each time a renewal
+payment succeeds or fails; we use these notices to grant that period's credits, remind you to update
+your payment method and keep transaction records, but we never receive your full card number. You can
+cancel on the Billing page, or update your payment method and view invoices in Stripe's customer
+portal.
+
 We keep a record of each transaction — amount, currency, status, the credits granted, the
 processor's references (Stripe's Checkout Session, PaymentIntent and charge references, or PayPal's
 order and payment references) and the payment notifications the processor sends us. Stripe's

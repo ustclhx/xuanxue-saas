@@ -2,7 +2,7 @@ import { type Database, plan, planPrice } from '@xuanxue/db'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { SQL } from 'drizzle-orm'
 import { describe, expect, it, vi } from 'vitest'
-import { seedCatalog, syncCatalog } from './catalog.ts'
+import { seedCatalog, subscriptionModelGaps, syncCatalog } from './catalog.ts'
 import type { PaymentProvider, PlanSyncInput } from './provider.ts'
 
 vi.mock('drizzle-orm', async (original) => ({
@@ -112,16 +112,27 @@ describe('offline catalog', () => {
     const free = state.plans.find((p) => p.key === 'free')
     expect(free?.features).toEqual(DEFAULT_FREE_FEATURES)
     // 每个积分包：Stripe 按价目表建 USD/TWD/KRW 三行，PayPal 只建 USD（决策 2）
-    expect(state.prices).toHaveLength(8)
-    expect(state.prices.map((p) => `${p.provider}:${p.currency}:${p.amount}`).sort()).toEqual([
-      'paypal:USD:199',
-      'paypal:USD:699',
-      'stripe:KRW:2800',
-      'stripe:KRW:9800',
-      'stripe:TWD:22700',
-      'stripe:TWD:6500',
-      'stripe:USD:199',
-      'stripe:USD:699',
+    // 积分包 Stripe USD/TWD/KRW + PayPal USD；订阅 plus/premium 只有 Stripe 月付三币种，PayPal 不建订阅价格（D3）
+    expect(state.prices).toHaveLength(14)
+    expect(
+      state.prices
+        .map((p) => `${p.provider}:${p.currency}:${p.amount}:${p.interval ?? 'once'}`)
+        .sort(),
+    ).toEqual([
+      'paypal:USD:199:once',
+      'paypal:USD:699:once',
+      'stripe:KRW:14000:month',
+      'stripe:KRW:2800:once',
+      'stripe:KRW:7000:month',
+      'stripe:KRW:9800:once',
+      'stripe:TWD:16200:month',
+      'stripe:TWD:22700:once',
+      'stripe:TWD:32500:month',
+      'stripe:TWD:6500:once',
+      'stripe:USD:199:once',
+      'stripe:USD:499:month',
+      'stripe:USD:699:once',
+      'stripe:USD:999:month',
     ])
     expect(
       state.prices.every((p) => !p.active && String(p.providerPriceId).startsWith('unsynced:')),
@@ -138,11 +149,11 @@ describe('offline catalog', () => {
     })
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe, paypal])
-    expect(state.plans).toHaveLength(6)
-    expect(state.prices.slice(0, 8)).toEqual(before)
-    expect(state.prices).toHaveLength(9)
+    expect(state.plans).toHaveLength(8)
+    expect(state.prices.slice(0, 14)).toEqual(before)
+    expect(state.prices).toHaveLength(15)
     for (const [adapter, perRun] of [
-      [stripe, 6],
+      [stripe, 12],
       [paypal, 2],
     ] as const) {
       const calls = vi.mocked(adapter.syncPlan).mock.calls
@@ -178,7 +189,7 @@ describe('offline catalog', () => {
     ).toBe(true)
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe])
-    expect(state.prices.filter((p) => p.active)).toHaveLength(6)
+    expect(state.prices.filter((p) => p.active)).toHaveLength(12)
   })
 
   it('propagates immutable remote mismatch without recreating or rewriting the mapping', async () => {
@@ -193,5 +204,36 @@ describe('offline catalog', () => {
     expect(vi.mocked(stripe.syncPlan).mock.lastCall?.[0].providerPriceId).toBe(
       before[0]?.providerPriceId,
     )
+  })
+
+  it('refuses to activate subscription prices until paid plans cover every free-tier model', async () => {
+    const state = memoryDb()
+    await seedCatalog(state.db)
+    const grant = (key: string, models: string[]) => {
+      const row = state.plans.find((p) => p.key === key)
+      if (!row) throw new Error(`Missing ${key}`)
+      row.features = { ...(row.features as object), models }
+    }
+    grant('free', ['chat-basic', 'chat-lite'])
+    grant('plus', ['chat-basic'])
+    grant('premium', ['*'])
+    expect(subscriptionModelGaps(state.plans as never)).toEqual([
+      { key: 'plus', missing: ['chat-lite'] },
+      { key: 'premium', missing: [] },
+    ])
+    const stripe = provider('stripe')
+    await expect(syncCatalog(state.db, [stripe])).rejects.toThrow(
+      'Subscription plan plus must be granted every free-tier model before activation (missing: chat-lite)',
+    )
+    // 积分包排在订阅之前已同步；订阅价格没有发起任何平台调用、保持未同步
+    const calls = vi.mocked(stripe.syncPlan).mock.calls
+    expect(calls.every(([i]) => i.plan.type === 'credit_pack')).toBe(true)
+    expect(state.prices.filter((p) => p.interval !== null).every((p) => !p.active)).toBe(true)
+    grant('plus', ['chat-lite', 'chat-basic', 'chat-pro'])
+    expect(subscriptionModelGaps(state.plans as never).every((gap) => !gap.missing.length)).toBe(
+      true,
+    )
+    await syncCatalog(state.db, [stripe])
+    expect(state.prices.filter((p) => p.interval === 'month').every((p) => p.active)).toBe(true)
   })
 })

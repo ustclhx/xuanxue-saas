@@ -134,6 +134,63 @@ describe('catalog on isolated PostgreSQL', () => {
     ).rejects.toBe(rollback)
   })
 
+  it('seeds monthly subscriptions as unsynced Stripe-only rows without touching credit packs', async () => {
+    await seedCatalog(db)
+    const rollback = new Error('rollback subscription seed fixture')
+    await expect(
+      db.transaction(async (tx) => {
+        const fixture = tx as unknown as typeof db
+        const packs = await tx
+          .select({ price: planPrice })
+          .from(planPrice)
+          .innerJoin(plan, eq(plan.id, planPrice.planId))
+          .where(eq(plan.type, 'credit_pack'))
+          .orderBy(planPrice.id)
+        await seedCatalog(fixture)
+        await seedCatalog(fixture)
+        const subs = await tx
+          .select()
+          .from(plan)
+          .where(inArray(plan.key, ['plus', 'premium']))
+        expect(
+          subs.map((row) => [row.key, row.type, row.credits, row.rollover, row.sort]).sort(),
+        ).toEqual([
+          ['plus', 'subscription', 400, false, 30],
+          ['premium', 'subscription', 1000, false, 40],
+        ])
+        const prices = await tx
+          .select()
+          .from(planPrice)
+          .where(
+            inArray(
+              planPrice.planId,
+              subs.map((row) => row.id),
+            ),
+          )
+        // 每档 Stripe USD/TWD/KRW 各一行月付；重跑幂等；PayPal 没有订阅价格
+        expect(prices).toHaveLength(6)
+        expect(
+          prices.every(
+            (p) =>
+              p.provider === 'stripe' &&
+              p.interval === 'month' &&
+              !p.active &&
+              p.providerPriceId.startsWith('unsynced:stripe:'),
+          ),
+        ).toBe(true)
+        expect(
+          await tx
+            .select({ price: planPrice })
+            .from(planPrice)
+            .innerJoin(plan, eq(plan.id, planPrice.planId))
+            .where(eq(plan.type, 'credit_pack'))
+            .orderBy(planPrice.id),
+        ).toEqual(packs)
+        throw rollback
+      }),
+    ).rejects.toBe(rollback)
+  })
+
   it('runs the confirmed CLI against this isolated database without HTTP calls or URL output', async () => {
     await seedCatalog(db)
     const prices = await db.select().from(planPrice)
@@ -189,6 +246,12 @@ describe('catalog on isolated PostgreSQL', () => {
     )
     expect(output).toContain('  + reading_single TWD 6500 on zh-Hant localized product')
     expect(output).toContain('  + reading_five KRW 9800 on ko localized product')
+    // 订阅月付价格：USD 只建规范价格，本地币种挂本地化商品；并输出模型授权诊断
+    expect(output).toContain('  + plus USD 499 /month on canonical product')
+    expect(output).toContain('  + plus TWD 16200 /month on zh-Hant localized product')
+    expect(output).toContain('  + premium KRW 14000 /month on ko localized product')
+    expect(output).toMatch(/^Model grants: plus (OK|MISSING)/m)
+    expect(output).toMatch(/^Model grants: premium (OK|MISSING)/m)
     expect(output).toMatch(/Dry run: set BILLING_SYNC_CONFIRM=stripe-live/)
     expect(output).not.toContain(url)
   })

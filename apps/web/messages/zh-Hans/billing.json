@@ -66,5 +66,10 @@
   "billing_usage_no_activity": "尚无积分活动。",
   "billing_usage_older_activity": "较早的活动",
   "billing_paypal_usd_note": "PayPal 以美元结算。",
-  "billing_cny_reference": "约 {price}（参考价，以美元结算）"
+  "billing_cny_reference": "约 {price}（参考价，以美元结算）",
+  "billing_sub_autorenew": "每月自动续费，可随时取消。",
+  "billing_sub_upgrade_notice": "升级立即生效并按比例计费；新方案的积分从下个计费周期开始发放。",
+  "billing_sub_period_credits": "本期订阅积分于 {date} 到期（另有 24 小时宽限），不累积到下一期。",
+  "billing_sub_cancel_keeps": "取消于本期结束时生效：已付期间的权益与本期积分保留到 {date}。",
+  "billing_sub_stripe_only": "订阅只能以银行卡（Stripe）付款；PayPal 仅供购买积分包，并以美元结账。"
 }

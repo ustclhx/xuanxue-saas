@@ -1,8 +1,10 @@
 import type { BaziChart, PillarKey } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -53,6 +55,7 @@ export function MingpanPage() {
           onSubmit={tool.onSubmit}
           onChange={tool.onChange}
         >
+          <ProfileBar target={{ kind: 'birth', tool: 'bazi', onFill: tool.fill }} />
           <BirthFields values={tool.values} locale={LOCALE} issues={tool.issues} />
           <SubmitButton>{m.bazi_mingpan_submit()}</SubmitButton>
         </ToolForm>
@@ -118,6 +121,7 @@ export function MingpanResult({
         aside={usedTimeText(chart, LOCALE)}
         description={m.bazi_mingpan_desc_table()}
       >
+        <PillarsChart pillars={chart.pillars} locale={LOCALE} order={ORDER} />
         <table id="ten-gods" className="w-full scroll-mt-6 border-collapse text-[15px]">
           <thead>
             <tr>

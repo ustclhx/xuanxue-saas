@@ -1,4 +1,5 @@
 import type { SiteId } from '@xuanxue/config'
+import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { CONCEPT_SLUGS, type ConceptKey, conceptPath } from './bazi/eastern-routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
@@ -21,6 +22,11 @@ export interface ToolRoute {
   readonly titles: Readonly<Partial<Record<string, string>>>
   /** false 时不进页头导航（同一工具的次级页面），仍参与预渲染、站点地图与 hreflang */
   readonly nav?: boolean
+  /**
+   * false 时不进构建期预渲染（内容按日变化的页面走 SSR + 边缘缓存，如每日运势页），
+   * 仍参与页头导航、站点地图与 hreflang。
+   */
+  readonly prerender?: false
 }
 
 // 每个 conceptKey 一条记录，只有存在译文的语言参与 hreflang。
@@ -94,6 +100,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   // openspec add-numerology-tools：西方站首页、工具内页、12 个数字页与两个枢纽页
   ...NUMEROLOGY_ROUTES,
   ...conceptRoutes,
+  // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
+  ...DAILY_TOOL_ROUTES,
 ]
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */

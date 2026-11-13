@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
 import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts'
+import { resolveAppNav, TEMPLATE_NAV_IDS } from '../../../features/app-shell/registry.ts'
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { DailyCreditsNotice } from '../../../features/credits/daily-notice.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
@@ -57,6 +58,14 @@ function WorkspaceLayout() {
     publicApi: templateConfig.features.publicApi,
     canManageKeys,
   })
+  // 项目经 nav.project.ts 登记的条目（如出生档案）排在「我的报告」之后；模板条目已由下面的固定链接渲染
+  const projectItems = resolveAppNav({
+    role: page.role,
+    readOnly: page.readOnly,
+    isPersonal: page.workspace.isPersonal,
+  })
+    .flatMap((group) => group.items)
+    .filter((item) => !(TEMPLATE_NAV_IDS as readonly string[]).includes(item.id))
   // 铃铛与首页通知区共用一份通知数据与 30 秒轮询（模板 0.3.1），按空间重建
   return (
     <NotificationsProvider key={page.workspace.slug} slug={page.workspace.slug}>
@@ -113,6 +122,19 @@ function WorkspaceLayout() {
                   {m.readings_list_title()}
                 </Link>
               ) : null}
+              {projectItems.map((item) => (
+                <Link
+                  key={item.id}
+                  to={item.to as '/app/$slug'}
+                  params={{ slug }}
+                  {...(item.search && { search: item.search as never })}
+                  activeOptions={{ exact: item.exact === true }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {item.label()}
+                </Link>
+              ))}
               {sections.chat ? (
                 <Link
                   to="/app/$slug/chat"

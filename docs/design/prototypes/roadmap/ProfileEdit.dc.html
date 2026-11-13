@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>档案编辑与选用</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--scrim:rgba(31,28,24,0.45)}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72}
+</style>
+</helmet>
+<div class="{{cls}}" style="width: 390px; min-height: 1150px; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; display: flex; flex-direction: column;">
+  <div style="height: 560px; position: relative; background: var(--scrim);">
+    <div role="dialog" aria-labelledby="dlg" style="position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 16px 16px 0 0; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><h2 id="dlg" style="margin: 0; font-size: 18px;">新增出生檔案</h2><button type="button" aria-label="關閉" style="width: 44px; height: 44px; border: 0; background: transparent; color: var(--ink); font-size: 20px;">×</button></div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">名稱（只給你自己看）<input value="媽媽" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 16px;"></label>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">關係<button type="button" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); text-align: left; padding: 0 12px; font-size: 15px;">家人 ▾</button></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">性別<button type="button" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); text-align: left; padding: 0 12px; font-size: 15px;">女 ▾</button></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生日期<input value="1962-09-03" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生時間<input value="06:15" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+      </div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生地<input value="台中" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+      <label style="display: flex; align-items: center; gap: 10px; font-size: 15px; min-height: 44px;"><input type="checkbox"> 設為預設檔案（今日面板使用）</label>
+      <button type="button" style="height: 48px; border-radius: 10px; border: 0; background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600;">儲存</button>
+    </div>
+  </div>
+  <div style="padding: 24px 16px; display: flex; flex-direction: column; gap: 12px;">
+    <h3 style="margin: 0; font-size: 15px; color: var(--subtle);">工具頁：從檔案帶入（登入後，點擊才讀取）</h3>
+    <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><strong>出生資料</strong><span style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--accent); display: inline-flex; align-items: center; font-size: 13px;">從檔案帶入 ▴</span></div>
+      <ul role="listbox" aria-label="選擇出生檔案" style="list-style: none; margin: 0; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg);">
+        <li role="option" aria-selected="true" style="padding: 10px 12px; border-radius: 8px; background: var(--surface-2); display: flex; justify-content: space-between;"><span>我（本人）</span><span style="color: var(--subtle); font-size: 13px;">1990-05-15</span></li>
+        <li role="option" aria-selected="false" style="padding: 10px 12px; display: flex; justify-content: space-between;"><span>媽媽</span><span style="color: var(--subtle); font-size: 13px;">1962-09-03</span></li>
+        <li role="option" aria-selected="false" style="padding: 10px 12px; display: flex; justify-content: space-between;"><span>小安</span><span style="color: var(--subtle); font-size: 13px;">1991-12-24</span></li>
+      </ul>
+      <p style="margin: 0; font-size: 13px; color: var(--muted);">排盤後可「另存為檔案」；未登入時此按鈕改為「登入後可儲存」。</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":1150}}'>
+class Component extends DCLogic {
+  renderVals() { return { cls: (this.props.dark ?? false) ? 'east dark' : 'east' }; }
+}
+</script>
+</body>
+</html>

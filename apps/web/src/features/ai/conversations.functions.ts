@@ -1,15 +1,16 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { aiMessageOrder } from '@xuanxue/ai'
-import { aiConversation, aiMessage, type Database, reading, scoped } from '@xuanxue/db'
+import { aiConversation, aiMessage, type Database, scoped } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
-import { and, asc, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
 import { getLocale } from '../../paraglide/runtime.js'
 import { withBilling } from '../../server/feature-gates.ts'
 import { withWorkspace } from '../../server/middleware.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { listedConversation } from '../readings/conversation-visibility.ts'
 import { conversationTitleSchema, messageDisplayParts } from './conversation.ts'
 import { feedbackForMessages } from './feedback.server.ts'
 import { contextFromParts } from './legacy-chat-context.ts'
@@ -82,8 +83,8 @@ export const listConversations = createServerFn({ method: 'GET' })
           where: and(
             ownConversation(context.user.id),
             eq(aiConversation.archived, archived),
-            // 付费详批借用对话消息结算，不出现在对话列表中
-            sql`not exists (select 1 from ${reading} join ${aiMessage} on ${aiMessage.id} = ${reading.messageId} where ${aiMessage.conversationId} = ${aiConversation.id})`,
+            // 付费详批的生成对话与已删除报告的追问对话不出现在列表中（项目规则）
+            listedConversation(),
           ) as SQL,
         })
         .orderBy(desc(aiConversation.id))

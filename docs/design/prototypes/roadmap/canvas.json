@@ -1,0 +1,27 @@
+{"v":3,"createdOnFiles":{"v":1,"at":"2026-11-13T14:00:00Z"},"title":"Xuanxue Roadmap 设计稿","launch":{"view":"canvas"},"pages":[],
+"boards":{
+"Main.dc.html":{"x":0,"y":0,"w":1440,"h":2900,"title":"首页 · 东方站 zh-Hant（桌面，Tweak 切换深色）","expand":"fill"},
+"HomeWest.dc.html":{"x":1520,"y":0,"w":1440,"h":2700,"title":"首页 · 西方站 en（桌面）","expand":"fill"},
+"HomeMobile.dc.html":{"x":3040,"y":0,"w":390,"h":3300,"title":"首页 · 手机（Tweak 切换站点/深色）"},
+"Charts.dc.html":{"x":0,"y":3420,"w":1440,"h":1700,"title":"命盘图形：八字四柱 / 紫微十二宫 / 灵数"},
+"ChartsMobile.dc.html":{"x":1520,"y":3420,"w":390,"h":1700,"title":"命盘图形 · 手机（紫微盘 + 宫位列表）"},
+"ShareCard.dc.html":{"x":1990,"y":3420,"w":540,"h":675,"title":"分享图 1080×1350（半尺寸预览）"},
+"DailyPublic.dc.html":{"x":0,"y":5440,"w":1440,"h":1900,"title":"公开每日运势 · 东方站 /zh-hant/今日運勢","expand":"fill","is_interactive":true},
+"DailyMobile.dc.html":{"x":1520,"y":5440,"w":390,"h":1800,"title":"每日数字 · 西方站 /daily-numerology（手机）"},
+"TodayPanel.dc.html":{"x":1990,"y":5440,"w":1440,"h":1150,"title":"工作台首页 · 今日面板","expand":"fill"},
+"Profiles.dc.html":{"x":0,"y":7660,"w":1440,"h":1050,"title":"出生档案管理 /app/$slug/profiles","expand":"fill"},
+"ProfileEdit.dc.html":{"x":1520,"y":7660,"w":390,"h":1150,"title":"新增/编辑档案（手机抽屉）+ 工具页选用档案"},
+"Pricing.dc.html":{"x":1990,"y":7660,"w":1440,"h":1800,"title":"定价页 · 订阅 + 积分包 + 每日领取（zh-Hant / TWD）","expand":"fill"},
+"ReportChat.dc.html":{"x":0,"y":9780,"w":1440,"h":1500,"title":"报告页内追问","expand":"fill"},
+"States.dc.html":{"x":1520,"y":9780,"w":1330,"h":900,"title":"空 / 加载 / 错误态（手机 · 浅色）"}
+},
+"order":["Main.dc.html","HomeWest.dc.html","HomeMobile.dc.html","Charts.dc.html","ChartsMobile.dc.html","ShareCard.dc.html","DailyPublic.dc.html","DailyMobile.dc.html","TodayPanel.dc.html","Profiles.dc.html","ProfileEdit.dc.html","Pricing.dc.html","ReportChat.dc.html","States.dc.html"],
+"notes":{
+"t1":{"x":0,"y":-300,"text":"① 两站首页：工具在前，下方枢纽区块","kind":"title1","maxW":3430},
+"t2":{"x":0,"y":3120,"text":"② 命盘图形与分享图","kind":"title1","maxW":2530},
+"t3":{"x":0,"y":5140,"text":"③ 每日运势与今日面板","kind":"title1","maxW":3430},
+"t4":{"x":0,"y":7360,"text":"④ 出生档案与定价页","kind":"title1","maxW":3430},
+"t5":{"x":0,"y":9480,"text":"⑤ 报告内追问与异常态","kind":"title1","maxW":2850},
+"n1":{"x":3520,"y":0,"w":420,"text":"约定：只用 brand.css 现有 token（东方 墨·纸·朱砂，西方 夜蓝·星金），不新增颜色/字体。[方括号] 为实现时替换的真实数据。样例命盘沿用 1990-05-15 10:30 台北男（庚午 辛巳 庚辰 辛巳）。各画板右上 Tweaks 可切换深色/站点。","fill":"orange","size":"m"}
+},
+"designSystems":[]}

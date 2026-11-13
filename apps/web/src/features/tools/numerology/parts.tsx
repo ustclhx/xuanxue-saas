@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { useId } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { RichContent } from '../../marketing/rich-content.tsx'
+import { LifePathChart } from '../charts/life-path-chart.tsx'
 import { useTool } from '../context.tsx'
 import { formatLongDate, lifePathLines } from './calc.ts'
 import { asLifePath, NUMBER_SUMMARY } from './copy.ts'
@@ -107,6 +108,7 @@ export function LifePathCard({
           : m.numerology_result_label()}
       </h2>
       <NumberHeadline result={result} />
+      <LifePathChart result={result} date={date} />
       <LifePathSteps result={result} date={date} />
       <p className="m-0 text-[15px] text-ink-muted leading-relaxed">{NUMBER_SUMMARY[value]()}</p>
       <a

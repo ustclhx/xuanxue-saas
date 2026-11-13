@@ -32,6 +32,20 @@ const LifePathHome = lazyRouteComponent(
   () => import('../features/tools/numerology/home.tsx'),
   'LifePathHome',
 )
+// 首页枢纽区块与两站样例图形（redesign-home-chart-visuals tasks 9）：同样按需加载、loader 预载，
+// 静态预渲染进 HTML；东方站不下载西方站的推导图，反之亦然
+const HomeHub = lazyRouteComponent(
+  () => import('../features/marketing/home-hub/home-hub.tsx'),
+  'HomeHub',
+)
+const EastSampleChart = lazyRouteComponent(
+  () => import('../features/marketing/home-hub/sample-chart-east.tsx'),
+  'EastSampleChart',
+)
+const WestSampleChart = lazyRouteComponent(
+  () => import('../features/marketing/home-hub/sample-chart-west.tsx'),
+  'WestSampleChart',
+)
 const TemplateHome = lazyRouteComponent(
   () => import('../features/marketing/template-home.tsx'),
   'TemplateHome',
@@ -43,12 +57,19 @@ export const Route = createFileRoute('/')({
   },
   loader: async () => {
     const locale = getLocale()
-    if (locale === 'zh-Hant' || locale === 'zh-Hans') await BaziHome.preload?.()
-    if (locale === 'ko') await ManseryeokHome.preload?.()
+    if (isEastHome(locale)) {
+      await Promise.all([
+        locale === 'ko' ? ManseryeokHome.preload?.() : BaziHome.preload?.(),
+        HomeHub.preload?.(),
+        EastSampleChart.preload?.(),
+      ])
+    }
     if (locale !== NUMEROLOGY_LOCALE) return null
     const [page] = await Promise.all([
       getNumerologyPage({ data: { slug: 'life-path-number' } }),
       LifePathHome.preload?.(),
+      HomeHub.preload?.(),
+      WestSampleChart.preload?.(),
     ])
     if (!page) await TemplateHome.preload?.()
     return page
@@ -78,7 +99,7 @@ function IndexPage() {
     return (
       <MarketingShell>
         <Suspense>
-          <BaziHome />
+          <BaziHome hub={<HomeHub sampleChart={<EastSampleChart />} />} />
         </Suspense>
       </MarketingShell>
     )
@@ -86,7 +107,7 @@ function IndexPage() {
     return (
       <MarketingShell>
         <Suspense>
-          <ManseryeokHome />
+          <ManseryeokHome hub={<HomeHub sampleChart={<EastSampleChart />} />} />
         </Suspense>
       </MarketingShell>
     )
@@ -97,7 +118,13 @@ function HomePage() {
   const content = Route.useLoaderData()
   return (
     <MarketingShell>
-      <Suspense>{content ? <LifePathHome content={content} /> : <TemplateHome />}</Suspense>
+      <Suspense>
+        {content ? (
+          <LifePathHome content={content} hub={<HomeHub sampleChart={<WestSampleChart />} />} />
+        ) : (
+          <TemplateHome />
+        )}
+      </Suspense>
       <p data-testid="version" className="sr-only">
         v{__APP_VERSION__}
       </p>

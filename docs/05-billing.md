@@ -144,6 +144,17 @@ type NormalizedEvent =
 - **live 积分包激活**：`billing:sync` 仍只允许 `BILLING_SYNC_MODE=test`。生产用 `pnpm billing:activate-packs`（`packages/billing/scripts/activate-credit-packs.ts`，调用 `catalog.ts` 的 `activateCreditPackMappings(db, 'paypal')`）：只在数据库内把当前目录中每个 `credit_pack` 的 PayPal 价格设为 `paypal:credit_pack:{priceId}`（复用 PayPal 模块导出的 `creditPackId`），`active` 取 `plan.active`；不在当前目录元组中的旧 PayPal 积分包价格设为 inactive 并保留映射；跳过订阅价格；不构造 PayPal transport、不发起网络请求。目标库 URL 由进程环境显式注入（同 seed），且必须设置 `BILLING_ACTIVATE_CONFIRM=<数据库名>` 与目标库名一致，输出变更条数、不输出连接串；重复执行报告 0 处变更。脚本名以 C 组实现合并后的 `package.json` 为准。
 - **生产配置**：web 与 jobs 的 production `vars` 设置 `PAYMENT_MODE: "live"`，`check-wrangler-envs.mjs` 断言之；生产 secret 检查复用 `getSecretRequirements()`，只启用 PayPal 时 web 与 jobs 各要求 `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID`，不要求 Stripe。只有 live 模式而缺凭据时 provider 不可用，定价页降级为「即将开放」。
 
+### 本站订阅 plus / premium（change `enable-subscriptions-daily-credits`）
+
+在积分包之外销售两档月付订阅，取舍见 change 的 design.md D1–D9：
+
+- **目录**：`EXAMPLE_CATALOG` 新增 `plus`（400 积分/月，sort 30）与 `premium`（1000 积分/月，sort 40），`type='subscription'`、`rollover=false`、`creditExpiryDays=null`（周期末加 `subscriptionCreditGraceHours` 过期）。价格只来自价目表 `tablePrices('plus' | 'premium')` 的 `month` 条目，每个结算币种（USD / TWD / KRW）一行；模板示例 `pro` / `team` 仍停售、无价格。
+- **只经 Stripe**：`catalog.ts` 的 `SUBSCRIPTION_PROVIDERS = ['stripe']`，`billing:seed` 不为 PayPal 生成订阅价格行，PayPal 直接发起订阅结账因找不到该平台的价格返回 `BILLING_PRICE_UNAVAILABLE`；定价页、账单页与解锁卡只在有可购买订阅价格的平台上显示订阅选项。
+- **模型授权检查**：权益取最高生效套餐，seed 给新套餐的 `features.models` 为空。`syncCatalog` 在为某个订阅套餐调用平台前断言其模型授权覆盖免费档（`subscriptionModelGaps`；`*` 视为全部），不满足即报错，此前排在目录前面的积分包已正常同步。`billing:sync-stripe-live` 的演练逐档输出 `Model grants: plus OK (covers free tier)` 或 `Model grants: plus MISSING free models: …`。上线前在 `/admin/billing/plans` 给两档授予不少于免费档的模型。
+- **Stripe 价格对象**：USD 月付价格只建在规范（英文）商品上，不建 `lookup_key` 本地化变体（续费与换档按 `plan_price` 记录的平台价格 ID 对账）；TWD / KRW 月付价格挂在 zh-Hant / ko 本地化商品上（`Plus 每月方案`、`Premium 월간 플랜` 等，说明为「每月 400 積分」，译名表 `stripe/localized.ts`）。
+- **上线与停用**：沙盒用 `BILLING_SYNC_MODE=test pnpm billing:sync`，live 用 `pnpm billing:sync-stripe-live`（先演练，获批后写入），步骤见 [Stripe 上线 runbook](./runbooks/stripe-launch.md) §0 与 §3。停用订阅：把这两档的 `plan_price` 行设为 `active=false`（经使用者批准），定价页回到「即将开放」；已存在的订阅照常续费，用户可在账单页取消。
+- **客户门户**：保留修改付款方式、查看发票与周期末取消，关闭「切换方案」，换档只走账单页（保持续费币种与模板换档逻辑，design D5/D8）。门户配置属于外部动作。
+
 ### PayPal Sandbox 实测与录制（2026-10-15，Asia/Taipei）
 
 复用当前 Sandbox App 的 2026-10-11 真实交易，在 2026-10-14 UTC 将既有 webhook URL 临时改为自建本地接收器的 Cloudflare quick tunnel，并通过 Webhooks Management API 重投 6 条既有事件。随后按协调者指示，使用 [PayPal 官方 Sandbox 测试卡](https://developer.paypal.com/sandbox-testing/card-testing) 与 Orders v2 `payment_source.card` 创建独立 USD 0.01 订单，创建接口直接返回 COMPLETED 与 Capture；全额退款也为 COMPLETED，再录制这笔交易的两条回调。既有 staging Capture / Sale 和待审退款均未改动。8 条回调全部收到原始 body 与 transmission headers，回传 `/v1/notifications/verify-webhook-signature` 得到 `SUCCESS`，接收器返回 200。两轮录制后均已恢复原 staging URL 与原 12 项事件订阅，并停止接收器和 quick tunnel；未修改命名 tunnel、staging secrets 或部署。本次接收器只录制和验签，不写应用账务，不能代替 staging 11.1。
@@ -389,7 +400,7 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 
 ## 7. 页面
 
-- `/pricing`：订阅套餐 + 积分包，选择支付方式（按 `billing.providers` 展示；本站只有 PayPal 积分包）。
+- `/pricing`：订阅套餐 + 积分包，选择支付方式（按 `billing.providers` 展示；本站订阅 `plus` / `premium` 只经 Stripe，积分包 Stripe 与 PayPal 均可，PayPal 一律以美元结算）。
 - `/app/$slug/billing`：当前套餐、下次扣费、积分余额与批次明细、账单记录、取消/恢复、（Stripe）打开门户。
 - `/app/$slug/usage`：积分流水、按模型/成员的用量统计。
 - `/admin/billing`：付款、订阅、Webhook 事件（可重放）；手动调积分和完整管理能力在 P5。

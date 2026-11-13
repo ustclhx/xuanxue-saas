@@ -1,7 +1,11 @@
 import type { BaziChart } from '@xuanxue/bazi'
+import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { ElementsChart } from '../charts/elements-chart.tsx'
+import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -9,11 +13,9 @@ import { BirthFields } from './birth-fields.tsx'
 import { KO_TRUE_SOLAR_DEFAULT, toShareInput } from './birth-form-state.ts'
 import {
   ConceptLink,
-  ElementStack,
   HiddenStemsTable,
   LuckAxis,
   luckAside,
-  PillarsGrid,
   ShenshaTable,
   StrengthBody,
   UsefulBody,
@@ -39,7 +41,14 @@ const LOCALE = 'ko'
  * 사주팔자、오행 분포、신강·신약、용신、대운·세운、신살·귀인·공망（最详细的一块，反色）。
  * 默认出生地首尔；手机优先。
  */
-export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
+export function ManseryeokHome({
+  focusBlock,
+  hub,
+}: {
+  focusBlock?: string
+  /** 首页枢纽区块，由首页路由传入 */
+  hub?: ReactNode
+}) {
   const tool = useBirthTool({
     locale: LOCALE,
     compute: computeBaziChart,
@@ -49,6 +58,7 @@ export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
   usePrefetch(loadBazi)
   return (
     <ToolPage
+      hub={hub}
       tool="manseryeok"
       title={m.bazi_home_title()}
       intro={<p className="m-0">{m.bazi_home_intro()}</p>}
@@ -60,6 +70,7 @@ export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
           onSubmit={tool.onSubmit}
           onChange={tool.onChange}
         >
+          <ProfileBar target={{ kind: 'birth', tool: 'bazi', onFill: tool.fill }} />
           <BirthFields values={tool.values} locale={LOCALE} issues={tool.issues} trueSolarCallout />
           <SubmitButton>{m.bazi_submit()}</SubmitButton>
         </ToolForm>
@@ -123,7 +134,7 @@ export function SajuResult({
         description={m.bazi_desc_pillars()}
         className="p-4 sm:p-5"
       >
-        <PillarsGrid chart={chart} locale={LOCALE} />
+        <PillarsChart pillars={chart.pillars} locale={LOCALE} />
         <p className="m-0 text-ink-subtle text-xs">{m.bazi_pillars_order_note()}</p>
         <HiddenStemsTable chart={chart} locale={LOCALE} />
       </ResultBlock>
@@ -133,7 +144,7 @@ export function SajuResult({
         description={m.bazi_desc_elements()}
         className="p-4 sm:p-5"
       >
-        <ElementStack chart={chart} />
+        <ElementsChart elements={chart.strength.elements} />
       </ResultBlock>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(160px,100%),1fr))] gap-2.5 sm:gap-5">
         <ResultBlock
