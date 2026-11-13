@@ -26,7 +26,7 @@
   - 后台详批设置表新增「提示词版本」选择（选项来自注册表，含「默认」），保存时校验；四语言后台文案。
 
   验证：单测覆盖「设置 v3 → 生成记录 v3」「非法值回退默认并告警」「生成中切换版本后收尾按记录版本、报告 ready」「幂等窗口内切换仍返回已有报告」「后台拒绝未注册版本」；现有 `catalog.test.ts`、`readings-ui.test.ts` 不改断言即通过（默认版本未变）
-- [ ] 2.5 【Claude】评测骨架 `apps/web/scripts/eval-readings/`（依赖 2.4 的 `readingDefinition` 接口，可先按约定签名开发、2.4 合并后 rebase）：
+- [x] 2.5 【Claude】评测骨架 `apps/web/scripts/eval-readings/`（依赖 2.4 的 `readingDefinition` 接口，可先按约定签名开发、2.4 合并后 rebase）：
   - 运行器：读取套件 → `recompute` + `readingMessages` 组装与线上一致的消息 → 录制 / 真实调用；
   - 真实调用经 `@xuanxue/ai` 按模型 key，`--live` 必须同时给 `--max-calls` 与 `--max-usd`，超限即停；
   - 检查器：章节、流年年份集合、长度区间、`checkCompliance` 命中、繁简字形、夹杂拉丁字母、就医提示、年份干支 / 个人年数一致；
@@ -35,7 +35,7 @@
   - 根 `package.json` 增加 `eval:readings`，不进入 `pnpm test`。
 
   验证：检查器与汇总的单测（用仓库内少量虚构录制文本）进入 `pnpm test`；无 `--live` 时断言不发起网络请求；`--live` 缺预算参数时退出非零；`git status` 确认运行后仓库内无新文件
-- [ ] 2.6 【Codex】新增项目运行手册 `docs/runbooks/readings-prompt-release.md`：评测命令、上线门槛（design 决策 7）、staging / 生产切换与回滚步骤、观测指标（`readings.sections_incomplete`、失败率阈值）。验证：文档链接到本 change 的 design.md 与 `docs/runbooks/evidence/readings/` 旧抽检记录；`pnpm check` 通过
+- [x] 2.6 【Codex】新增项目运行手册 `docs/runbooks/readings-prompt-release.md`：评测命令、上线门槛（design 决策 7）、staging / 生产切换与回滚步骤、观测指标（`readings.sections_incomplete`、失败率阈值）。验证：文档链接到本 change 的 design.md 与 `docs/runbooks/evidence/readings/` 旧抽检记录；`pnpm check` 通过
 
 ## 3. 波次 B：v4 数据档与提示词（3.1 先合并，3.2–3.4 并行）
 

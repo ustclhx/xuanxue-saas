@@ -1,0 +1,44 @@
+{
+  "kind": "ziwei-full",
+  "locale": "zh-Hans",
+  "samples": [
+    {
+      "id": "ziwei-hans-01",
+      "note": "虚构：女",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1993,
+        "month": 5,
+        "day": 30,
+        "time": {
+          "hour": 11,
+          "minute": 45
+        },
+        "gender": "female",
+        "location": {
+          "city": "shanghai"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hans-02",
+      "note": "虚构：男",
+      "requestDate": "2026-09-01T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1980,
+        "month": 8,
+        "day": 18,
+        "time": {
+          "hour": 2,
+          "minute": 10
+        },
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      }
+    }
+  ]
+}

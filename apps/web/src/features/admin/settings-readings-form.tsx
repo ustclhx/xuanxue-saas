@@ -86,7 +86,7 @@ export function ReadingSettingsForm() {
           return (
             <div
               key={row.kind}
-              className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-[1fr_auto_8rem_14rem_14rem] sm:items-end"
+              className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-2 sm:items-end lg:grid-cols-5"
             >
               <p className="font-medium text-sm">{KIND_LABELS[row.kind]()}</p>
               <Label
