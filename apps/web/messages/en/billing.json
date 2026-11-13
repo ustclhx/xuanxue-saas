@@ -66,5 +66,10 @@
   "billing_usage_no_activity": "No credit activity yet.",
   "billing_usage_older_activity": "Older activity",
   "billing_paypal_usd_note": "PayPal payments are charged in US dollars.",
-  "billing_cny_reference": "≈ {price} (reference only; charged in US dollars)"
+  "billing_cny_reference": "≈ {price} (reference only; charged in US dollars)",
+  "billing_sub_autorenew": "Renews automatically every month. Cancel anytime.",
+  "billing_sub_upgrade_notice": "Upgrades take effect immediately and are prorated. Credits for the new plan start from your next billing period.",
+  "billing_sub_period_credits": "This period's subscription credits expire on {date} (plus a 24-hour grace period) and do not roll over.",
+  "billing_sub_cancel_keeps": "If you cancel, it takes effect at the end of this period: your benefits and this period's credits stay until {date}.",
+  "billing_sub_stripe_only": "Subscriptions are paid by card (Stripe) only. PayPal is available for credit packs and is charged in US dollars."
 }

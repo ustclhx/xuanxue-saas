@@ -42,11 +42,11 @@
 
 ## 4. W3 定价页、账单页与解锁流程（依赖 1.2 的设计稿确认）
 
-- [ ] 4.1 【Claude】按确认的设计稿重做 `features/marketing/pricing-page.tsx`：订阅两档（复用 `groupPricingPlans` / `pricingForInterval`，只有月付、无切换）、积分包、每日领取说明（`dailyEnabled` 时显示），保留可解锁详批清单、FAQ、AI 声明、「即将开放」降级与预渲染快照；价格展示调用 A 的 `selectDisplayPrice`（A 未合并时显示 USD）。验证：`pricing-page.test.tsx` 覆盖：订阅未同步时显示「即将开放」无入口；有效时有入口；每日说明随开关显示；预渲染 HTML 不依赖数据库
-- [ ] 4.2 【Claude】订阅支付方式按「有有效价格的平台」过滤：定价页、账单页的订阅选择和余额不足弹窗都不显示 PayPal 的订阅选项；直接调用时返回 `BILLING_PRICE_UNAVAILABLE`。验证：`billing-sections` 与 `payment-entrypoints` 测试覆盖只有 Stripe 时的订阅选项，以及积分包仍可选两种平台
-- [ ] 4.3 【Claude】解锁卡在积分不足时的购买流程同时提供积分包与订阅档位；订阅首付到账后回到原结果页自动生成（复用现有的 returnTo 与轮询）。验证：`unlock-card.test.tsx` 覆盖积分不足时出现订阅入口；e2e 用例模拟订阅回跳后自动生成
-- [ ] 4.4 【Codex】账单页订阅分区的文案补齐四种语言：「新档积分从下个周期开始发放」的升级提示、「本期积分 X 到期」、取消后保留至周期末。结账按钮附近显示「每月自动续费，可随时取消」。验证：组件测试断言四种语言的 key 存在；账单页截图
-- [ ] 4.5 【Claude】FAQ 新增问答：订阅积分是否结转、如何取消、取消后怎样、每日领取规则与两站共享额度。验证：`faq.test.tsx` 通过，`/faq` 汇总页包含新问答
+- [x] 4.1 【Claude】按确认的设计稿重做 `features/marketing/pricing-page.tsx`：订阅两档（复用 `groupPricingPlans` / `pricingForInterval`，只有月付、无切换）、积分包、每日领取说明（`dailyEnabled` 时显示），保留可解锁详批清单、FAQ、AI 声明、「即将开放」降级与预渲染快照；价格展示调用 A 的 `selectDisplayPrice`（A 未合并时显示 USD）。验证：`pricing-page.test.tsx` 覆盖：订阅未同步时显示「即将开放」无入口；有效时有入口；每日说明随开关显示；预渲染 HTML 不依赖数据库
+- [x] 4.2 【Claude】订阅支付方式按「有有效价格的平台」过滤：定价页、账单页的订阅选择和余额不足弹窗都不显示 PayPal 的订阅选项；直接调用时返回 `BILLING_PRICE_UNAVAILABLE`。验证：`billing-sections` 与 `payment-entrypoints` 测试覆盖只有 Stripe 时的订阅选项，以及积分包仍可选两种平台
+- [x] 4.3 【Claude】解锁卡在积分不足时的购买流程同时提供积分包与订阅档位；订阅首付到账后回到原结果页自动生成（复用现有的 returnTo 与轮询）。验证：`unlock-card.test.tsx` 覆盖积分不足时出现订阅入口；e2e 用例模拟订阅回跳后自动生成
+- [x] 4.4 【Codex】账单页订阅分区的文案补齐四种语言：「新档积分从下个周期开始发放」的升级提示、「本期积分 X 到期」、取消后保留至周期末。结账按钮附近显示「每月自动续费，可随时取消」。验证：组件测试断言四种语言的 key 存在；账单页截图
+- [x] 4.5 【Claude】FAQ 新增问答：订阅积分是否结转、如何取消、取消后怎样、每日领取规则与两站共享额度。验证：`faq.test.tsx` 通过，`/faq` 汇总页包含新问答
 
 ## 5. 法律文案（可与组 2–4 并行）
 

@@ -66,5 +66,10 @@
   "billing_usage_no_activity": "아직 크레딧 활동이 없습니다.",
   "billing_usage_older_activity": "이전 활동",
   "billing_paypal_usd_note": "PayPal은 미국 달러로 결제됩니다.",
-  "billing_cny_reference": "약 {price} (참고 가격, 미국 달러로 결제)"
+  "billing_cny_reference": "약 {price} (참고 가격, 미국 달러로 결제)",
+  "billing_sub_autorenew": "매월 자동 결제되며 언제든 해지할 수 있습니다.",
+  "billing_sub_upgrade_notice": "업그레이드는 즉시 적용되며 일할 계산됩니다. 새 플랜의 크레딧은 다음 결제 기간부터 지급됩니다.",
+  "billing_sub_period_credits": "이번 기간 구독 크레딧은 {date}에 만료되며(24시간 유예 추가) 이월되지 않습니다.",
+  "billing_sub_cancel_keeps": "해지는 이번 기간이 끝날 때 적용되며, 혜택과 이번 기간 크레딧은 {date}까지 유지됩니다.",
+  "billing_sub_stripe_only": "구독은 카드(Stripe)로만 결제할 수 있습니다. PayPal은 크레딧 팩 구매에만 사용되며 미국 달러로 결제됩니다."
 }
