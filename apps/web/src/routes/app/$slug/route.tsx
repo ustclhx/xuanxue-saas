@@ -3,7 +3,8 @@ import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { DailyCreditsNotice } from '../../../features/credits/daily-notice.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
-import { NotificationCenter } from '../../../features/notifications/center.tsx'
+import { NotificationBell } from '../../../features/notifications/bell.tsx'
+import { NotificationsProvider } from '../../../features/notifications/store.tsx'
 import { getWorkspacePage } from '../../../features/workspace/workspace.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -56,133 +57,138 @@ function WorkspaceLayout() {
     publicApi: templateConfig.features.publicApi,
     canManageKeys,
   })
+  // 铃铛与首页通知区共用一份通知数据与 30 秒轮询（模板 0.3.1），按空间重建
   return (
-    <div className="flex min-h-svh flex-col bg-background text-foreground">
-      <SiteHeader />
-      <div className="mx-auto grid w-full max-w-[1120px] flex-1 items-start gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="grid content-start gap-6">
-          <section
-            aria-labelledby="space-summary"
-            className="grid gap-2 rounded-xl border border-line bg-surface p-4"
-          >
-            <h2
-              id="space-summary"
-              data-testid="workspace-name"
-              className="m-0 font-semibold text-ink text-base"
+    <NotificationsProvider key={page.workspace.slug} slug={page.workspace.slug}>
+      <div className="flex min-h-svh flex-col bg-background text-foreground">
+        <SiteHeader />
+        <div className="mx-auto grid w-full max-w-[1120px] flex-1 items-start gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[232px_minmax(0,1fr)]">
+          <aside className="grid content-start gap-6">
+            <section
+              aria-labelledby="space-summary"
+              className="grid gap-2 rounded-xl border border-line bg-surface p-4"
             >
-              {page.workspace.name}
-            </h2>
-            <p className="m-0 text-ink-subtle text-sm">
-              {page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
-              {' · '}
-              {m.app_role({ role: page.role })}
-            </p>
-            <p data-testid="current-user" className="m-0 break-all text-ink-muted text-sm">
-              {page.user.name} ({page.user.email})
-            </p>
-            {page.readOnly ? (
-              <p role="status" className="m-0 text-ink-muted text-sm">
-                {m.app_readonly()}
+              <div className="flex items-start justify-between gap-2">
+                <h2
+                  id="space-summary"
+                  data-testid="workspace-name"
+                  className="m-0 min-w-0 break-words font-semibold text-ink text-base"
+                >
+                  {page.workspace.name}
+                </h2>
+                <NotificationBell />
+              </div>
+              <p className="m-0 text-ink-subtle text-sm">
+                {page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
+                {' · '}
+                {m.app_role({ role: page.role })}
               </p>
-            ) : null}
-            <DailyCreditsNotice result={page.dailyCredits} />
-            <NotificationCenter key={page.workspace.slug} slug={page.workspace.slug} />
-          </section>
-          <nav aria-label={m.app_nav_label()} className="grid gap-1">
-            <Link
-              to="/app/$slug"
-              params={{ slug }}
-              activeOptions={{ exact: true }}
-              activeProps={activeProps}
-              inactiveProps={inactiveProps}
-            >
-              {m.app_nav_overview()}
-            </Link>
-            {sections.readings ? (
+              <p data-testid="current-user" className="m-0 break-all text-ink-muted text-sm">
+                {page.user.name} ({page.user.email})
+              </p>
+              {page.readOnly ? (
+                <p role="status" className="m-0 text-ink-muted text-sm">
+                  {m.app_readonly()}
+                </p>
+              ) : null}
+              <DailyCreditsNotice result={page.dailyCredits} />
+            </section>
+            <nav aria-label={m.app_nav_label()} className="grid gap-1">
               <Link
-                to="/app/$slug/readings"
+                to="/app/$slug"
+                params={{ slug }}
+                activeOptions={{ exact: true }}
+                activeProps={activeProps}
+                inactiveProps={inactiveProps}
+              >
+                {m.app_nav_overview()}
+              </Link>
+              {sections.readings ? (
+                <Link
+                  to="/app/$slug/readings"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.readings_list_title()}
+                </Link>
+              ) : null}
+              {sections.chat ? (
+                <Link
+                  to="/app/$slug/chat"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.app_chat()}
+                </Link>
+              ) : null}
+              {sections.tasks ? (
+                <Link
+                  to="/app/$slug/tasks"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.media_tasks_title()}
+                </Link>
+              ) : null}
+              {sections.media ? (
+                <Link
+                  to="/app/$slug/media/new"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.media_title()}
+                </Link>
+              ) : null}
+              {sections.usage ? (
+                <Link
+                  to="/app/$slug/usage"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.app_usage()}
+                </Link>
+              ) : null}
+              {sections.billing ? (
+                <Link
+                  to="/app/$slug/billing"
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  {m.app_billing()}
+                </Link>
+              ) : null}
+              {sections.apiKeys ? (
+                <Link
+                  to="/app/$slug/api-keys"
+                  search={{ page: 0 }}
+                  params={{ slug }}
+                  activeProps={activeProps}
+                  inactiveProps={inactiveProps}
+                >
+                  API Keys
+                </Link>
+              ) : null}
+              <Link
+                to="/app/$slug/settings"
                 params={{ slug }}
                 activeProps={activeProps}
                 inactiveProps={inactiveProps}
               >
-                {m.readings_list_title()}
+                {m.app_workspace_settings()}
               </Link>
-            ) : null}
-            {sections.chat ? (
-              <Link
-                to="/app/$slug/chat"
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                {m.app_chat()}
-              </Link>
-            ) : null}
-            {sections.tasks ? (
-              <Link
-                to="/app/$slug/tasks"
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                {m.media_tasks_title()}
-              </Link>
-            ) : null}
-            {sections.media ? (
-              <Link
-                to="/app/$slug/media/new"
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                {m.media_title()}
-              </Link>
-            ) : null}
-            {sections.usage ? (
-              <Link
-                to="/app/$slug/usage"
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                {m.app_usage()}
-              </Link>
-            ) : null}
-            {sections.billing ? (
-              <Link
-                to="/app/$slug/billing"
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                {m.app_billing()}
-              </Link>
-            ) : null}
-            {sections.apiKeys ? (
-              <Link
-                to="/app/$slug/api-keys"
-                search={{ page: 0 }}
-                params={{ slug }}
-                activeProps={activeProps}
-                inactiveProps={inactiveProps}
-              >
-                API Keys
-              </Link>
-            ) : null}
-            <Link
-              to="/app/$slug/settings"
-              params={{ slug }}
-              activeProps={activeProps}
-              inactiveProps={inactiveProps}
-            >
-              {m.app_workspace_settings()}
-            </Link>
-          </nav>
-        </aside>
-        <main id="main" className="min-w-0">
-          <Outlet />
-        </main>
+            </nav>
+          </aside>
+          <main id="main" className="min-w-0">
+            <Outlet />
+          </main>
+        </div>
       </div>
-    </div>
+    </NotificationsProvider>
   )
 }

@@ -98,7 +98,8 @@ export async function register(
   await form.getByLabel(copy.email, { exact: true }).fill(email)
   await form.getByLabel(copy.password, { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: copy.registerButton }).click()
-  await expect(page).toHaveURL(HOME_URL)
+  // 注册接口要做密码哈希并创建个人空间，dev server 在并行负载下常超过默认 5 秒（模板 0.3.1）
+  await expect(page).toHaveURL(HOME_URL, { timeout: 15_000 })
   await page.goto('/app')
   await expect(page).toHaveURL(APP_URL)
 }

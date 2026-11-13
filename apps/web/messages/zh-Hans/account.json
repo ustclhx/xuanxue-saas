@@ -10,6 +10,7 @@
   "account_profile_submit": "存储资料",
   "account_profile_saved": "资料已存储。",
   "account_preferences_heading": "语言与时区",
+  "account_preferences_timezoneheading": "时区",
   "account_preferences_locale": "语言",
   "account_preferences_localedefault": "默认",
   "account_preferences_timezone": "时区",

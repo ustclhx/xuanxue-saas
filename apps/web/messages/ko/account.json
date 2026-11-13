@@ -10,6 +10,7 @@
   "account_profile_submit": "프로필 저장",
   "account_profile_saved": "프로필을 저장했습니다.",
   "account_preferences_heading": "언어 및 시간대",
+  "account_preferences_timezoneheading": "시간대",
   "account_preferences_locale": "언어",
   "account_preferences_localedefault": "기본값",
   "account_preferences_timezone": "시간대",

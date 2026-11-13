@@ -1,5 +1,6 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { aiMessageOrder } from '@xuanxue/ai'
 import { aiConversation, aiMessage, type Database, reading, scoped } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
@@ -142,7 +143,7 @@ export const getConversation = createServerFn({ method: 'GET' })
           inArray(aiMessage.role, ['user', 'assistant']),
         ) as SQL,
       })
-      .orderBy(asc(aiMessage.id))
+      .orderBy(...aiMessageOrder())
     const feedback = await feedbackForMessages(
       { db: context.db, workspaceId: context.workspace.id, userId: context.user.id },
       messages.filter((message) => message.role === 'assistant').map((message) => message.id),
