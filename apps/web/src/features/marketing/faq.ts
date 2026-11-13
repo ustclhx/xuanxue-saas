@@ -61,6 +61,15 @@ export function faqSections(locale: Locale): FaqSection[] {
               answer: m.pricing_faq_refund_a({ days }, options),
             },
             qa([m.pricing_faq_pay_q, m.pricing_faq_pay_a]),
+            // 每日积分的领取规则与两站共享额度（enable-subscriptions-daily-credits D6）
+            ...(templateConfig.credits.enabled && templateConfig.credits.dailyEnabled
+              ? [
+                  {
+                    question: m.daily_credits_faq_q({}, options),
+                    answer: m.daily_credits_faq_a(names, options),
+                  },
+                ]
+              : []),
           ],
         },
       ]

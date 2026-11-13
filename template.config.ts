@@ -68,7 +68,9 @@ export default defineTemplateConfig({
     },
     refundWindowDays: 30, // 可申请退款的付款时间范围；退款需人工审核，默认不主动退
   },
-  credits: { enabled: true, dailyEnabled: false },
+  // 每日登录赠送：额度、天数上限、有效期与验证邮箱要求用运行时设置默认值 10/10/7 天/要求验证
+  // （enable-subscriptions-daily-credits D6）；同一邮箱的两站账户共享每日与每月额度
+  credits: { enabled: true, dailyEnabled: true },
   marketing: { enabled: true },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css
