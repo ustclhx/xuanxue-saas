@@ -7,6 +7,7 @@ import type { AuthPagePath } from '../i18n/auth-locale.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
+import { homePageCopy } from './home-copy.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
 export interface SeoPage {
@@ -100,10 +101,7 @@ export type StaticPath =
 // 东方站（zh-Hant / zh-Hans / ko）描述八字、紫微、塔罗等本站体系，不写 numerology。
 const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> = {
   en: {
-    '/': [
-      'Free numerology and tarot tools',
-      'Life Path, numerology chart, name numerology and tarot spreads, calculated by traditional rules in your browser. For entertainment and self-reflection.',
-    ],
+    '/': homePageCopy('en'),
     '/pricing': [
       'Pricing: free tools and credit packs',
       'All numerology and tarot tools are free. Credit packs unlock full AI readings of your own numbers and cards.',
@@ -122,10 +120,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
     ],
   },
   'zh-Hant': {
-    '/': [
-      '八字排盤、紫微斗數與塔羅',
-      '免費八字排盤、紫微斗數與塔羅工具，依傳統規則在瀏覽器中計算，僅供娛樂與自我反思。',
-    ],
+    '/': homePageCopy('zh-Hant'),
     '/pricing': [
       '價格方案：免費工具與積分包',
       '八字、紫微與塔羅工具全部免費；積分包用於解鎖依你命盤撰寫的 AI 完整詳批。',
@@ -141,10 +136,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
     ],
   },
   'zh-Hans': {
-    '/': [
-      '八字排盘、紫微斗数与塔罗',
-      '免费八字排盘、紫微斗数与塔罗工具，依传统规则在浏览器中计算，仅供娱乐与自我反思。',
-    ],
+    '/': homePageCopy('zh-Hans'),
     '/pricing': [
       '价格方案：免费工具与积分包',
       '八字、紫微与塔罗工具全部免费；积分包用于解锁依你命盘撰写的 AI 完整详批。',
@@ -160,10 +152,7 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
     ],
   },
   ko: {
-    '/': [
-      '무료 만세력·사주·타로',
-      '무료 만세력, 사주궁합, 타로 도구. 전통 규칙에 따라 브라우저에서 계산하며 오락과 자기 성찰용입니다.',
-    ],
+    '/': homePageCopy('ko'),
     '/pricing': [
       '요금 안내: 무료 도구와 크레딧 팩',
       '만세력·사주·타로 도구는 모두 무료이며, 크레딧 팩으로 내 명식에 맞춘 AI 상세 풀이를 이용할 수 있습니다.',

@@ -22,7 +22,7 @@
         "value": "#EA4335"
       }
     ],
-    "apps/web/src/features/share-cards/share-cards.theme.ts": [
+    "apps/web/src/features/share-cards/share-cards.sites.ts": [
       {
         "rule": "color-literal",
         "reason": "分享卡片在服务端渲染，无法读取 CSS 变量"

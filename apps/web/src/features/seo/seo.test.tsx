@@ -2,6 +2,13 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
+import { defaultShareCardLayout } from '../share-cards/layout.tsx'
+import {
+  defaultShareCardSite,
+  resolveRequestShareCardSite,
+  resolveShareCardSite,
+} from '../share-cards/site.ts'
+import { resolveShareCardTheme } from '../share-cards/theme.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { AI_CRAWLERS, llmsTxt, robots, sitemap, sitemapIndex } from './crawlers.ts'
 import {
@@ -12,7 +19,6 @@ import {
   privateMeta,
   staticPage,
 } from './metadata.ts'
-import { eastEnglishOgImageCard, ogImageCard, ogImageCardLayout } from './og-image-card.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
 import {
@@ -334,31 +340,65 @@ it('关闭营销时没有公开页面，单语言只生成默认语言页面', (
   }
 })
 
+// 构建期默认分享图与 scripts/og-images.ts 相同：按 app.url 的域名与页面 locale / pathname 解析站点
+function buildCard(title: string, page: { locale: string; path?: string }) {
+  const { site, themeOverride } = resolveShareCardSite({
+    host: defaultShareCardSite().host,
+    locale: page.locale,
+    pathname: page.path,
+  })
+  return {
+    site,
+    markup: renderToStaticMarkup(
+      defaultShareCardLayout(title, resolveShareCardTheme('light', themeOverride), site),
+    ),
+  }
+}
+
 describe('分享图与缓存（4.4）', () => {
   it('无封面页面的卡片包含站点名称和页面标题', () => {
     const page = pages.find((page) => page.path === '/terms' && page.locale === locale)
     if (!page) throw new Error('Missing legal page')
-    const markup = renderToStaticMarkup(ogImageCardLayout(ogImageCard(page)))
+    const { markup } = buildCard(page.title, page)
     expect(markup).toContain(pageBrand(page))
     expect(markup).toContain('arcanumber.com')
     expect(markup).toContain(page.title)
     expect(markup).not.toContain('AI workspace')
+    expect(markup).toContain(`Arcanumber · ${staticPage('/', 'en').title}`)
   })
 
-  it('东方站页面与英文入口页的卡片使用东方站品牌、域名与配色', () => {
-    const card = ogImageCard({ title: '八字排盘', locale: 'zh-Hant' })
-    expect(card).toMatchObject({ site: 'east', brand: '干支日', host: 'ganjiday.com' })
-    const markup = renderToStaticMarkup(ogImageCardLayout(card))
-    expect(markup).toContain('干支日')
+  it('东方站各语言与英文入口页的卡片使用东方站品牌、规范域名与配色', () => {
+    const { site, markup } = buildCard('八字排盤', { locale: 'zh-Hant', path: '/' })
+    expect(site).toMatchObject({ brand: { name: '干支日' }, host: 'ganjiday.com' })
     expect(markup).toContain('ganjiday.com')
     expect(markup).not.toContain('arcanumber.com')
     expect(markup).toContain('#ffffff')
-    expect(eastEnglishOgImageCard('BaZi')).toMatchObject({
-      site: 'east',
-      brand: 'Ganjiday',
+    expect(markup).toContain(`干支日 · ${staticPage('/', 'zh-Hant').title}`)
+    expect(buildCard('사주', { locale: 'ko' }).site.brand.name).toBe('간지데이')
+    expect(buildCard('BaZi', { locale: 'en', path: '/en' }).site).toMatchObject({
+      brand: { name: 'Ganjiday' },
       host: 'ganjiday.com',
+      tagline: 'English guide',
     })
-    expect(ogImageCard({ title: 'Life Path', locale: 'en' }).site).toBe('west')
+    expect(buildCard('Life Path', { locale: 'en', path: '/' }).site.host).toBe('arcanumber.com')
+  })
+
+  it('运行时按请求域名解析，www 与未登记域名的绝对地址总是规范域名', () => {
+    const app = 'https://arcanumber.com'
+    for (const [url, host] of [
+      ['https://ganjiday.com/s/x/y', 'ganjiday.com'],
+      ['https://www.ganjiday.com/s/x/y', 'ganjiday.com'],
+      ['https://arcanumber.com/s/x/y', 'arcanumber.com'],
+      ['https://www.arcanumber.com/s/x/y', 'arcanumber.com'],
+      ['https://xuanxue-web.example.workers.dev/s/x/y', 'arcanumber.com'],
+    ] as const) {
+      const { site, origin } = resolveRequestShareCardSite(url, app)
+      expect(site.host, url).toBe(host)
+      expect(origin, url).toBe(`https://${host}`)
+    }
+    expect(resolveRequestShareCardSite('https://ganjiday.com/s/x/y', app).site.brand.name).toBe(
+      '干支日',
+    )
   })
 })
 

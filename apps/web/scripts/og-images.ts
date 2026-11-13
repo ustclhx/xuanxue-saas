@@ -3,14 +3,12 @@ import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
-import { ogImagePath, type SeoPage } from '../src/features/seo/metadata.ts'
-import {
-  eastEnglishOgImageCard,
-  type OgImageCard,
-  ogImageCard,
-  ogImageCardLayout,
-} from '../src/features/seo/og-image-card.ts'
+import { ogImagePath } from '../src/features/seo/metadata.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
+import { defaultShareCardLayout } from '../src/features/share-cards/layout.tsx'
+import { defaultShareCardSite, resolveShareCardSite } from '../src/features/share-cards/site.ts'
+import { resolveShareCardTheme } from '../src/features/share-cards/theme.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
 import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
@@ -18,7 +16,6 @@ import { templateConfig } from '../src/server/template-config.ts'
 
 const root = new URL('..', import.meta.url)
 // 与运行时分享卡片共用字体目录与渲染核心；构建期逐页串行渲染，不触及并发上限。
-// 模板 0.4.0 渲染器只加载 Noto Sans SC：韩文（谚文）显示为方框，待 0.4.1 字体扩展点登记 NotoSansKR。
 const renderer = createNodeShareCardRenderer(
   fileURLToPath(new URL('../public/fonts/share-card', import.meta.url)),
 )
@@ -44,17 +41,31 @@ function pages() {
   })
 }
 
-/** 模板默认版式（设计稿 `default` 变体），品牌、域名与配色按页面所属站点（features/seo/og-image-card.ts）。 */
-function renderCard(card: OgImageCard): Promise<Uint8Array> {
-  return renderer.render(ogImageCardLayout(card))
+/**
+ * 设计稿 `default` 变体。站点按 app.url 的域名与页面的 locale / pathname 解析
+ * （features/share-cards/share-cards.sites.ts：东方站语言用东方站品牌、域名与配色；
+ * 构建期没有请求 host，静态图按路径输出，各站点共用同一路径的图片）。
+ */
+export function renderOgImage(
+  title: string,
+  page: { locale?: string; path?: string } = {},
+): Promise<Uint8Array> {
+  const { site, themeOverride } = resolveShareCardSite({
+    host: defaultShareCardSite().host,
+    locale: page.locale,
+    pathname: page.path,
+  })
+  return renderer.render(
+    defaultShareCardLayout(title, resolveShareCardTheme('light', themeOverride), site),
+  )
 }
 
-export function renderOgImage(page: Pick<SeoPage, 'title' | 'locale'>): Promise<Uint8Array> {
-  return renderCard(ogImageCard(page))
-}
-
+/** 东方站英文入口页（D5）：语言 en 归西方站，站点解析按路径识别为东方站 */
 function renderEastEnglishOgImage(): Promise<Uint8Array> {
-  return renderCard(eastEnglishOgImageCard(EAST_ENGLISH_COPY.title))
+  return renderOgImage(EAST_ENGLISH_COPY.title, {
+    locale: EAST_ENGLISH_LOCALE,
+    path: EAST_ENGLISH_PATH,
+  })
 }
 
 /** WASM 与完整字体只在 Node 构建阶段使用，PNG 作为客户端静态资源输出。 */
@@ -68,7 +79,7 @@ export function ogImages(): Plugin {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),
-          source: await renderOgImage(page),
+          source: await renderOgImage(page.title, page),
         })
       }
       if (templateConfig.marketing.enabled && templateConfig.i18n.enabled)
@@ -103,7 +114,7 @@ export function ogImages(): Plugin {
             return
           }
           response.setHeader('Content-Type', 'image/png')
-          response.end(await renderOgImage(page))
+          response.end(await renderOgImage(page.title, page))
         } catch (error) {
           next(error)
         }
