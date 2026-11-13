@@ -26,12 +26,14 @@ export function isPrerenderedPath(
     PRERENDERED_PREFIXES.some(
       (prefix) => delocalized === prefix || delocalized.startsWith(`${prefix}/`),
     ) ||
-    tools.some((tool) =>
-      Object.entries(tool.paths).some(([language, route]) => {
-        if (locale ? language !== locale : language !== 'en') return false
-        const prefix = route?.replace(/\/+$/, '')
-        return Boolean(prefix) && (prefix === delocalized || delocalized.startsWith(`${prefix}/`))
-      }),
+    tools.some(
+      (tool) =>
+        tool.prerender !== false &&
+        Object.entries(tool.paths).some(([language, route]) => {
+          if (locale ? language !== locale : language !== 'en') return false
+          const prefix = route?.replace(/\/+$/, '')
+          return Boolean(prefix) && (prefix === delocalized || delocalized.startsWith(`${prefix}/`))
+        }),
     )
   )
 }
@@ -51,7 +53,8 @@ export function prerenderEntryPages(
       paths.add(prefix || '/')
       for (const tool of tools) {
         const path = tool.paths[locale]
-        if (tool.site === id && path) paths.add(`${prefix}${path === '/' ? '' : path}` || '/')
+        if (tool.site === id && path && tool.prerender !== false)
+          paths.add(`${prefix}${path === '/' ? '' : path}` || '/')
       }
     }
     // 东方站英文入口页（D5）：语言 en 归西方站，页面单独登记
