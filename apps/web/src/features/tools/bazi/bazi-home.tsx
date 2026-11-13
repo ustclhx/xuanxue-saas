@@ -1,4 +1,5 @@
 import type { BaziChart } from '@xuanxue/bazi'
+import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
@@ -39,12 +40,20 @@ import { useBirthTool } from './use-birth-tool.ts'
  * 繁中 `/zh-hant/` 八字排盤首页（tasks.md 2.2，原型 Main.dc.html）：七个结果区块依次为
  * 四柱、五行强弱、身強身弱、喜用神、大運十年轴、神煞、八字重量。
  */
-export function BaziHome({ focusBlock }: { focusBlock?: string }) {
+export function BaziHome({
+  focusBlock,
+  hub,
+}: {
+  focusBlock?: string
+  /** 首页枢纽区块，由首页路由传入 */
+  hub?: ReactNode
+}) {
   const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeBaziChart, focusBlock })
   usePrefetch(loadBazi)
   return (
     <ToolPage
+      hub={hub}
       tool="bazi"
       title={m.bazi_home_title()}
       intro={<p className="m-0">{m.bazi_home_intro()}</p>}

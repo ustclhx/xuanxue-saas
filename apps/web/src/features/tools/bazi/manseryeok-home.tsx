@@ -1,4 +1,5 @@
 import type { BaziChart } from '@xuanxue/bazi'
+import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
@@ -39,7 +40,14 @@ const LOCALE = 'ko'
  * 사주팔자、오행 분포、신강·신약、용신、대운·세운、신살·귀인·공망（最详细的一块，反色）。
  * 默认出生地首尔；手机优先。
  */
-export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
+export function ManseryeokHome({
+  focusBlock,
+  hub,
+}: {
+  focusBlock?: string
+  /** 首页枢纽区块，由首页路由传入 */
+  hub?: ReactNode
+}) {
   const tool = useBirthTool({
     locale: LOCALE,
     compute: computeBaziChart,
@@ -49,6 +57,7 @@ export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
   usePrefetch(loadBazi)
   return (
     <ToolPage
+      hub={hub}
       tool="manseryeok"
       title={m.bazi_home_title()}
       intro={<p className="m-0">{m.bazi_home_intro()}</p>}
