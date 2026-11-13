@@ -2,7 +2,7 @@ import { chatHoldSweeper } from '@xuanxue/ai'
 import { createAuth } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
 import { getCreditBalance, grant, hold } from '@xuanxue/credits'
-import { type AiPricingJson, aiModel } from '@xuanxue/db'
+import { type AiPricingJson, aiMessage, aiModel } from '@xuanxue/db'
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError, newId } from '@xuanxue/shared'
@@ -10,7 +10,12 @@ import { simulateReadableStream } from 'ai'
 import { MockLanguageModelV4 } from 'ai/test'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { runAdminAction } from '../src/features/admin/action.ts'
-import { deleteFeedback, feedbackStats, listFeedback } from '../src/features/admin/feedback.ts'
+import {
+  deleteFeedback,
+  feedbackStats,
+  listFeedback,
+  readSharedConversation,
+} from '../src/features/admin/feedback.ts'
 import { type ChatDeps, handleChatRequest } from '../src/features/ai/chat.ts'
 import { feedbackForMessages, saveMessageFeedback } from '../src/features/ai/feedback.server.ts'
 import { type FollowUpsConfig, generateFollowUps } from '../src/features/ai/follow-ups.server.ts'
@@ -354,6 +359,81 @@ describe('subject conversations', () => {
     expect(JSON.stringify(last)).not.toContain('first question')
   })
 
+  it('orders legacy replies after their questions on reload, in history and in follow-up prompts', async () => {
+    const owner = await member('legacy-order', 100)
+    const subject = doc(owner)
+    const { id: conversationId } = await startSubjectConversation(ctxOf(owner), subject)
+    const model = await textModel({ mode: 'per_call', credits: 1 })
+    // 旧实现先分配回复 ID，但事务中的问答共享 createdAt；只按 ID 会把回复放在问题前。
+    const assistantId = newId()
+    const userId = newId()
+    const createdAt = new Date()
+    await db.insert(aiMessage).values([
+      {
+        id: userId,
+        workspaceId: owner.workspaceId,
+        conversationId,
+        role: 'user',
+        parts: [{ type: 'text', text: 'legacy question' }],
+        createdAt,
+      },
+      {
+        id: assistantId,
+        workspaceId: owner.workspaceId,
+        conversationId,
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'legacy answer' }],
+        modelKey: model.key,
+        createdAt,
+      },
+    ])
+    // 保留数据库微秒精度：读取为 JS Date 再比较会截断，漏掉与回复同时创建的问题。
+    await sql`update ai_message set created_at=${createdAt.toISOString()}::timestamptz + interval '123 microseconds'
+      where conversation_id=${conversationId}`
+
+    const reloaded = await loadSubjectChat(ctxOf(owner), subject)
+    expect(reloaded.messages.map((message) => message.id)).toEqual([userId, assistantId])
+    const mock = streamModel('next answer')
+    const response = await chat(
+      owner,
+      {
+        modelId: model.id,
+        conversationId,
+        message: { role: 'user', parts: [{ type: 'text', text: 'next question' }] },
+      },
+      mock,
+    )
+    expect(response.status).toBe(200)
+    expect(mock.doStreamCalls[0]?.prompt[0]).toMatchObject({ role: 'system' })
+    expect(mock.doStreamCalls[0]?.prompt.slice(1)).toMatchObject([
+      { role: 'user', content: [{ type: 'text', text: 'legacy question' }] },
+      { role: 'assistant', content: [{ type: 'text', text: 'legacy answer' }] },
+      { role: 'user', content: [{ type: 'text', text: 'next question' }] },
+    ])
+
+    // 追问旧回复时仍取该轮问题，不能因反序 ID 漏掉，也不能误取后来一轮的问题。
+    const followUp = generateModel('["Why?", "How?"]')
+    expect(
+      await generateFollowUps(
+        {
+          db,
+          cache: memoryKv(),
+          env: {},
+          workersAi: false,
+          entitlements,
+          languageModelFactory: () => followUp,
+          config: { enabled: true, charge: false, count: 2, modelKey: null },
+        },
+        { workspaceId: owner.workspaceId, userId: owner.userId },
+        assistantId,
+      ),
+    ).toEqual({ questions: ['Why?', 'How?'] })
+    expect(followUp.doGenerateCalls[0]?.prompt.slice(1, 3)).toMatchObject([
+      { role: 'user', content: [{ type: 'text', text: 'legacy question' }] },
+      { role: 'assistant', content: [{ type: 'text', text: 'legacy answer' }] },
+    ])
+  })
+
   it('refuses provider contexts over the size limit without creating a conversation', async () => {
     const owner = await member('too-large')
     const type = `${SUBJECT_TYPE}big`
@@ -513,6 +593,7 @@ describe('message feedback', () => {
       rating: 'up',
       comment: null,
       reason: null,
+      shareConversation: false,
     })
     expect(
       await saveMessageFeedback(scope, {
@@ -520,7 +601,12 @@ describe('message feedback', () => {
         rating: 'down',
         comment: 'leaked sk-live-0123456789abcdefABCDEF in reply',
       }),
-    ).toEqual({ rating: 'down', comment: 'leaked [REDACTED] in reply', reason: null })
+    ).toEqual({
+      rating: 'down',
+      comment: 'leaked [REDACTED] in reply',
+      reason: null,
+      shareConversation: false,
+    })
     const rows = await sql`select rating, comment, model_key, subject_type from ai_message_feedback
       where message_id=${messageId}`
     expect(rows).toEqual([
@@ -542,6 +628,7 @@ describe('message feedback', () => {
       rating: 'down',
       comment: 'leaked [REDACTED] in reply',
       reason: null,
+      shareConversation: false,
     })
 
     expect(await saveMessageFeedback(scope, { messageId, rating: null })).toBeNull()
@@ -561,8 +648,13 @@ describe('message feedback', () => {
 
     expect(
       await saveMessageFeedback(scope, { messageId, rating: 'down', reason: 'no_source' }),
-    ).toEqual({ rating: 'down', comment: null, reason: 'no_source' })
-    expect(await reload()).toEqual({ rating: 'down', comment: null, reason: 'no_source' })
+    ).toEqual({ rating: 'down', comment: null, reason: 'no_source', shareConversation: false })
+    expect(await reload()).toEqual({
+      rating: 'down',
+      comment: null,
+      reason: 'no_source',
+      shareConversation: false,
+    })
     // 修改反馈时不选原因即清空
     await saveMessageFeedback(scope, { messageId, rating: 'down', comment: 'too vague' })
     expect(await stored()).toEqual([{ rating: 'down', reason: null }])
@@ -572,6 +664,7 @@ describe('message feedback', () => {
       rating: 'up',
       comment: null,
       reason: null,
+      shareConversation: false,
     })
     expect(await stored()).toEqual([{ rating: 'up', reason: null }])
     // 点赞或撤销时带原因、未约定的原因：400，记录不变
@@ -667,6 +760,179 @@ describe('message feedback', () => {
       select action, meta from audit_log where target_id=${id}`
     expect(audits).toMatchObject([{ action: 'ai.feedback.delete' }])
     expect(JSON.stringify(audits)).not.toContain('SECRET-COMMENT-TEXT')
+  })
+
+  it('shows the shared conversation to admins only while the user consents, with an audit record', async () => {
+    const owner = await member('sharer', 100)
+    const model = await textModel({ mode: 'per_call', credits: 1 })
+    const { id: conversationId } = await startSubjectConversation(ctxOf(owner), doc(owner))
+    // 三轮问答：system 上下文、Q1/A1、Q2/A2、Q3/A3
+    for (const round of [1, 2, 3])
+      await chat(
+        owner,
+        {
+          modelId: model.id,
+          conversationId,
+          message: { role: 'user', parts: [{ type: 'text', text: `QUESTION-${round}` }] },
+        },
+        streamModel(`ANSWER-${round}`),
+      )
+    const replies = await sql<{ id: string }[]>`select id from ai_message
+      where conversation_id=${conversationId} and role='assistant' order by id`
+    const [, second, third] = replies.map((row) => row.id) as [string, string, string]
+    const scope = { db, workspaceId: owner.workspaceId, userId: owner.userId }
+    const admin = await member('share-admin')
+    await sql`update "user" set role='admin' where id=${admin.userId}`
+    const feedbackId = async (messageId: string) =>
+      (
+        await sql<
+          { id: string }[]
+        >`select id from ai_message_feedback where message_id=${messageId}`
+      )[0]?.id as string
+    const view = (id: string) =>
+      runAdminAction(
+        { db, admin: { id: admin.userId } },
+        'ai.feedback.view_conversation',
+        (adminScope) => readSharedConversation(adminScope, id),
+      )
+    const viewAudits = async (id: string) =>
+      sql<{ action: string; workspace_id: string; meta: unknown }[]>`
+        select action, workspace_id, meta from audit_log
+        where target_id=${id} and action='ai.feedback.view_conversation'`
+
+    // 未同意：服务端拒绝返回正文，不留审计
+    await saveMessageFeedback(scope, { messageId: third, rating: 'down', comment: 'vague' })
+    const id = await feedbackId(third)
+    await expect404(view(id))
+    expect(await viewAudits(id)).toHaveLength(0)
+    expect((await listFeedback(db, { offset: 0, model: model.key, shared: 'yes' })).rows).toEqual(
+      [],
+    )
+
+    // 同意：被评回复和它之前最近 3 条 user/assistant 消息；不含 system 上下文与更早的消息
+    expect(
+      await saveMessageFeedback(scope, {
+        messageId: third,
+        rating: 'down',
+        reason: 'incomplete',
+        shareConversation: true,
+      }),
+    ).toEqual({ rating: 'down', comment: null, reason: 'incomplete', shareConversation: true })
+    expect((await feedbackForMessages(scope, [third]))[third]?.shareConversation).toBe(true)
+    const sharedAtOf = async () =>
+      (
+        await sql<{ shared_at: string | null }[]>`
+          select shared_at::text from ai_message_feedback where id=${id}`
+      )[0]?.shared_at ?? null
+    const sharedAt = await sharedAtOf()
+    expect(sharedAt).not.toBeNull()
+    const shared = await view(id)
+    expect(shared.messages.map((message) => [message.role, message.text, message.rated])).toEqual([
+      ['user', 'QUESTION-2', false],
+      ['assistant', 'ANSWER-2', false],
+      ['user', 'QUESTION-3', false],
+      ['assistant', 'ANSWER-3', true],
+    ])
+    expect(JSON.stringify(shared)).not.toContain(CONTEXT_BODY)
+    const audits = await viewAudits(id)
+    expect(audits).toEqual([
+      {
+        action: 'ai.feedback.view_conversation',
+        workspace_id: owner.workspaceId,
+        meta: { messageId: third, messageCount: 4 },
+      },
+    ])
+    expect(JSON.stringify(audits)).not.toContain('ANSWER')
+    expect(
+      (await listFeedback(db, { offset: 0, model: model.key, shared: 'yes' })).rows,
+    ).toMatchObject([{ id, shareConversation: true }])
+    expect(
+      (await listFeedback(db, { offset: 0, model: model.key, shared: 'no' })).rows,
+    ).toHaveLength(0)
+
+    // 再次保存保留最初的同意时间；之后的消息不共享
+    await saveMessageFeedback(scope, { messageId: third, rating: 'down', shareConversation: true })
+    expect(
+      (
+        await sql<{ shared_at: Date }[]>`select shared_at from ai_message_feedback where id=${id}`
+      )[0]?.shared_at,
+    ).toEqual(sharedAt)
+    await saveMessageFeedback(scope, { messageId: second, rating: 'up', shareConversation: true })
+    expect((await view(await feedbackId(second))).messages.map((m) => m.text)).toEqual([
+      'QUESTION-1',
+      'ANSWER-1',
+      'QUESTION-2',
+      'ANSWER-2',
+    ])
+
+    // 撤回：再次提交时不勾选即撤回，后台又被拒绝；切到点赞同样撤回；撤销评分时带同意为 400
+    await saveMessageFeedback(scope, { messageId: third, rating: 'down', comment: 'vague' })
+    expect(await sql`select share_conversation from ai_message_feedback where id=${id}`).toEqual([
+      { share_conversation: false },
+    ])
+    expect(await sharedAtOf()).toBeNull()
+    await expect404(view(id))
+    expect(await viewAudits(id)).toHaveLength(1)
+    await saveMessageFeedback(scope, { messageId: second, rating: 'up' })
+    await expect404(view(await feedbackId(second)))
+    await expect(
+      saveMessageFeedback(scope, { messageId: third, rating: null, shareConversation: true }),
+    ).rejects.toMatchObject({ code: 'INVALID_REQUEST', status: 400 })
+  })
+
+  it('shares only text parts with secrets removed, and refuses replies outside the rater’s own conversation', async () => {
+    const owner = await member('share-parts', 100)
+    const other = await member('share-other')
+    const { messageId } = await reply(owner)
+    // 推理、工具调用与数据片段不进入片段；文本中的疑似密钥按反馈文字的规则替换
+    const parts = [
+      { type: 'reasoning', text: 'REASONING-TEXT' },
+      {
+        type: 'tool-search',
+        toolCallId: 't1',
+        state: 'output-available',
+        input: { q: 'TOOL-INPUT' },
+        output: 'TOOL-OUTPUT',
+      },
+      { type: 'data-subject-context', data: { note: 'DATA-PART' } },
+      { type: 'text', text: 'Visible answer with sk-live-0123456789abcdefABCDEF' },
+    ]
+    await sql`update ai_message set parts=${JSON.stringify(parts)}::jsonb where id=${messageId}`
+    await saveMessageFeedback(
+      { db, workspaceId: owner.workspaceId, userId: owner.userId },
+      { messageId, rating: 'down', shareConversation: true },
+    )
+    const [row] = await sql<{ id: string }[]>`
+      select id from ai_message_feedback where message_id=${messageId}`
+    const id = row?.id as string
+    const admin = await member('share-parts-admin')
+    await sql`update "user" set role='admin' where id=${admin.userId}`
+    const view = () =>
+      runAdminAction(
+        { db, admin: { id: admin.userId } },
+        'ai.feedback.view_conversation',
+        (adminScope) => readSharedConversation(adminScope, id),
+      )
+    const shared = await view()
+    expect(shared.messages.at(-1)).toMatchObject({
+      rated: true,
+      text: 'Visible answer with [REDACTED]',
+    })
+    expect(JSON.stringify(shared)).not.toMatch(
+      /REASONING-TEXT|TOOL-INPUT|TOOL-OUTPUT|DATA-PART|sk-live/,
+    )
+
+    // 反馈行指向的评分者不是对话所有者：拒绝
+    await sql`update ai_message_feedback set user_id=${other.userId} where id=${id}`
+    await expect404(view())
+    // 反馈行的空间与消息所在空间不一致（跨空间）：租户隔离查询找不到消息，拒绝
+    await sql`update ai_message_feedback set user_id=${owner.userId}, workspace_id=${other.workspaceId}
+      where id=${id}`
+    await expect404(view())
+    const audits = await sql`select id from audit_log
+      where target_id=${id} and action='ai.feedback.view_conversation'`
+    expect(audits).toHaveLength(1)
+    await sql`update ai_message_feedback set workspace_id=${owner.workspaceId} where id=${id}`
   })
 })
 

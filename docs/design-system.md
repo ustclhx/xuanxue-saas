@@ -12,7 +12,7 @@ claude.ai 的 Design System Artifact 只是可视化镜像，供出设计稿前�
 | 字段 | 值 |
 |---|---|
 | Design System 镜像 | https://claude.ai/artifact/5bJuRwNuRe7xV5aQcCfULr（私有，需所有者共享后他人可见） |
-| 最近同步提交 | c5bd1fb（2026-11-11，模板 0.3.0） |
+| 最近同步提交 | 412f652（2026-11-12，模板 0.3.1） |
 
 镜像在**发布模板版本时**由协调者按仓库内容更新，同时把上表的「最近同步提交」改为该版本的提交；
 平时合并 token 或组件 PR 不逐次更新。判断镜像是否落后（模板仓库中执行，退出码 0 表示不落后）：
@@ -144,6 +144,8 @@ grep -nE '^export' packages/ui/src/index.ts
   | `Combobox` / `ComboboxEmpty` | `onCreate` 时 `createLabel(query)` / `children` | 创建行文字与无匹配文字 |
   | `CommandMenu` | `labels`（`placeholder`、`suggestions`、`tabs`、`selectHint`、`tabsHint`、`closeHint`） | 搜索框占位（兼作可读名称）、建议分组标题、标签栏名称与底部按键提示；键帽字形保留 |
   | `CommandMenuDialog` | `title`（`description` 可选） | 对话框的可读名称 |
+  | `SheetContent` | `closeLabel` | 关闭按钮的可读名称；`showCloseButton={false}` 时不需要（内容自带关闭按钮时） |
+  | `PopoverTitle` / `SheetTitle` | `children` | 弹层标题；`PopoverContent` 需传 `aria-labelledby` 指向标题 id（Radix Popover 没有 Title） |
   | `Toaster` | `labels`（`region`、`announcement`、`close`） | 通知区域名称（可含 `{hotkey}`）、读屏播报前缀、关闭按钮名称；`toast()` 的内容与 `action.label` 由调用方传入 |
   | `SidebarProvider` | `labels`（`title`、`expand`、`collapse`、`rail`、`railResize`、`railCollapse`；开启 peek 时 `peek`） | 移动抽屉名称、触发按钮与拖拽条的名称和提示；`SidebarMenuButton` 在 `status="unread"` 时必传 `unreadLabel` |
   | `Reader`（`@xuanxue/ui/reader`） | `labels`（`toc`、`progress`、`exportPdf`、`printPdf`、`serverPdf`、`loading`、`footnotes`、`footnoteBack`）与 `title` | 目录标题、进度条名称、导出按钮与注册服务端导出后的两个菜单项、加载播报、脚注区标题与返回链接名称；`ReaderProgress` 的 `label`、`ReaderExportButton` 的 `labels`（导出三项）；`ReaderEmpty` / `ReaderError` 的标题、说明与 `retryLabel` 由调用方传入 |
@@ -174,6 +176,9 @@ grep -nE '^export' packages/ui/src/index.ts
 - **命令面板**：键帽按平台显示 ⌘ 或 Ctrl；SSR 首帧无法得知平台，需要时在布局中用
   `<CommandMenuPlatform mac={…}>` 包裹，`mac` 取自请求头 `Sec-CH-UA-Platform` 或 User-Agent，避免水合后键帽变宽。
 - **浮层层级**：自定义吸顶、遮罩与弹层用 `--z-*` 变量，不写任意 `z-[…]`。
+- **弹层与底部面板**：触发按钮旁的非模态内容（列表、说明、轻量操作）用 `Popover`（`role="dialog"`，Escape / 点击外部关闭，
+  焦点回到触发按钮；菜单项里不能再放按钮时不用 Dropdown）；手机上的对应形态用 `Sheet side="bottom"`（模态、锁定焦点，
+  触控目标 ≥ 44px）。同一入口按 md 断点在两者之间切换时，打开期间不切换（见通知铃铛 `features/notifications/bell.tsx`）。
 - **长文阅读器（tasks 8.4）**：从子路径 `@xuanxue/ui/reader` 导入（依赖 react-markdown 等，约 56 KB gzip，不在 `@xuanxue/ui`
   主入口中），页面用 `React.lazy` 按需加载，构建时形成独立分包，不进入首页包（`apps/web` 的 `pnpm build` 末尾由
   `scripts/check-home-bundle.mjs` 检查首页静态依赖闭包）：
@@ -209,7 +214,7 @@ grep -nE '^export' packages/ui/src/index.ts
     否则只打印可见部分。
 
 已接入：Button、Input、Textarea、Select、Combobox、Checkbox、Switch、Badge、Tooltip、Tabs、Dropdown（菜单）、
-Command Menu、Dialog、AlertDialog、Toast、Sidebar、Card、Alert、Separator、Label、ScrollArea、DataTable、Form；Reader 系列经 `@xuanxue/ui/reader` 子路径；
+Command Menu、Dialog、AlertDialog、Popover、Sheet、Toast、Sidebar、Card、Alert、Separator、Label、ScrollArea、DataTable、Form；Reader 系列经 `@xuanxue/ui/reader` 子路径；
 业务界面组件（8.6）见 [6.1](#61-业务界面组件)。
 `Toaster` 含动效库（约 44 KB gzip），只在需要的页面挂载，不放进根布局；以后全站使用时按需动态加载。缺少的组件先在 `packages/ui` 补齐（模板）或在 `packages/ui/src/project/` 补齐（项目），
 再实现页面，不在页面里临时写一个。
@@ -600,7 +605,14 @@ export function registerProjectAppNav() {
 `useAppShellBarAvailable()` 为 false（顶部布局）时页面自行渲染工具条。打印时侧边栏、打开的抽屉、顶部条与通知入口隐藏，
 面板去掉外边距与阴影，正文随文档流完整输出。顶部条与抽屉里的语言选择用 `LanguageControls placement="bare"`（无底色与阴影）；
 `SidebarInset as="div"` 让顶部条不落在 `<main>` 地标里；`MenuItem` 的 `render`（如 `<Link to="/account" />`）让菜单项成为真实链接。
-升级入口只对免费套餐空间的所有者 / 管理员显示（`getWorkspacePage` 返回 `planKey`）；还没有任何通知时不渲染通知块。
+升级入口只对免费套餐空间的所有者 / 管理员显示（`getWorkspacePage` 返回 `planKey`）。
+
+**通知铃铛（0.3.1，评审清单 #90，设计稿 `ui-review/Notifications*.dc.html`）**：顶部条（两种布局）右侧的铃铛，桌面为右缘对齐的
+384px `Popover`，< md 为底部 `Sheet`；显示最近 5 条（点一条标为已读并跳到服务端校验的链接，行尾的勾只标已读）、全部标为已读、
+正常 / 空 / 加载 / 错误（重试）四态。角标为未读数（> 99 显示 99+，0、加载中、出错时不显示）。铃铛与首页通知区共用
+`NotificationsProvider`（`features/notifications/store.tsx`，在 `/app/$slug` 布局路由中按空间挂载一次，30 秒轮询一份数据）。
+「查看全部通知」跳到工作台首页 `#notifications`，首页的通知折叠块读取锚点后展开并滚动到可见位置；侧边栏布局下还没有任何
+通知时不渲染这个折叠块，其他页面的内容区不再有通知块。
 
 每个页面都要设计并实现四种状态：正常、空、加载、错误；在 390px 宽无横向滚动，浅色与深色均正确。
 根布局与公开页面的数据读取失败时降级，不让整页报错。
@@ -616,7 +628,7 @@ DailyClaimNotice」两节用中性示例数据展示全部状态。
 | 组件 | 主要属性 | 回调 | 行为 |
 |---|---|---|---|
 | `SuggestionChips` | `suggestions: readonly string[]`、`label`、`showLabel?`、`disabled?` | `onSelect(text)` | 为空不渲染；长问题换行，不撑出横向滚动 |
-| `MessageFeedback` | `value: { rating: 'up' \| 'down'; comment: string \| null; reason? } \| null`（按字段比较）、`labels`、`reasons?: { value; label }[]`、`disabled?`、`actions?`、`meta?`、`commentMaxLength?` | `onChange(next \| null): Promise<void>` | 再次点击同一评分以 `null` 回调（撤销）；点踩展开文字反馈，提交后可「修改反馈」；切到点赞时文字与原因清空；乐观更新，reject 时回滚（表单开合一并复位，提交失败焦点回到文字框）并以 `role="alert"` 播报 `labels.failed`；反馈表单带 `data-escape-scope`，其中的 Esc 只收起表单 |
+| `MessageFeedback` | `value: { rating: 'up' \| 'down'; comment: string \| null; reason?; shareConversation? } \| null`（按字段比较）、`labels`、`reasons?: { value; label }[]`、`shareLabels?: { label; description }`、`disabled?`、`actions?`、`meta?`、`commentMaxLength?` | `onChange(next \| null): Promise<void>` | 再次点击同一评分以 `null` 回调（撤销）；点踩展开文字反馈，提交后可「修改反馈」；传入 `shareLabels` 时表单中有「共享对话」Checkbox（默认不勾选，说明文字经 `aria-describedby` 关联，随表单提交，修改时带出、取消勾选再提交即撤回）；切到点赞时文字、原因与共享同意清空；乐观更新，reject 时回滚（表单开合一并复位，提交失败焦点回到文字框）并以 `role="alert"` 播报 `labels.failed`；反馈表单带 `data-escape-scope`，其中的 Esc 只收起表单 |
 | `EmbeddedChat` | `variant?: 'inline' \| 'panel'`（默认 panel）、`labels`、`children`（消息、推荐问题等）、`footer?`（输入框）、`badge?`、`headerAction?`、`open?` / `defaultOpen?`、`showTrigger?` | `onOpenChange(open)` | `inline`（Reader 画板，8.4 使用）：≥ 768px 为正文流中的卡片，始终显示；`panel`：≥ 768px 为悬浮按钮 + 右侧非模态面板，页面仍可操作，Esc 只在焦点位于面板内时关闭，关闭时焦点原在面板内才还给悬浮按钮（或打开前的元素）。< 768px 两者都是悬浮按钮 + 模态底部抽屉（含 safe-area）。**面板 / 抽屉关闭时卸载 children**，对话状态（草稿、已加载消息）由调用方保存；打开期间断点变化不切换模态，关闭后再按新断点。`[data-escape-scope]` 内的 Esc 不关闭面板 |
 | `InsufficientCreditsDialog` | `open`、`estimatedCredits`、`availableCredits`、`labels`、`fallbackFocus?` | `onOpenChange`、`onBuyPacks()`、`onSubscribe?()` | 显示预计消耗、当前余额（危险色）与差额；不传 `onSubscribe` 时只显示购买积分包；关闭后焦点回到打开前的元素，打开前焦点在 body 时交给 `fallbackFocus()` |
 | `CreditEstimate` | `estimate: string \| null`、`balance?`、`insufficient?`、`hideIcon?`、`pendingLabel?` | — | `null` 显示估算中占位（`pendingLabel` 给读屏）；`insufficient` 用危险色并换成提示图标，带 `data-insufficient` |
@@ -624,7 +636,7 @@ DailyClaimNotice」两节用中性示例数据展示全部状态。
 | `DailyClaimNotice` | `status: 'available' \| 'pending' \| 'claimed' \| 'error'`、`title`、`description`、`labels`、`error?`、`compact?` | `onClaim?()`、`onDismiss?()` | 自动发放的项目不传 `onClaim`；`claimed` 显示徽标；`pending` 按钮忙碌；只有标题、说明与错误在 `role="status"` 内；< 640px 自动紧凑、按钮放不下时换行，`compact` 为强制紧凑 |
 
 接线现状：对话页（`features/ai/chat-page.tsx`，含嵌入式 `SubjectChat`）经 `features/ai/chat-extras.tsx` 接入推荐追问、
-消息评分（`setMessageFeedback`；点踩原因为画板的四个选项，取值 `FEEDBACK_REASONS` 与服务端校验、`ai_message_feedback.reason` 的约束一致，刷新后还原，后台 `/admin/feedback` 可按原因筛选）与余额不足弹窗（`INSUFFICIENT_CREDITS` 的数值，入口跳到账单页 `#credit-packs` /
+消息评分（`setMessageFeedback`；点踩原因为画板的四个选项，取值 `FEEDBACK_REASONS` 与服务端校验、`ai_message_feedback.reason` 的约束一致，刷新后还原，后台 `/admin/feedback` 可按原因筛选；共享对话勾选项写入 `ai_message_feedback.share_conversation`，只有同意的反馈后台才能查看被评回复与之前最近 3 条消息）与余额不足弹窗（`INSUFFICIENT_CREDITS` 的数值，入口跳到账单页 `#credit-packs` /
 `#subscriptions`，构建时套餐快照中明确没有订阅时不显示订阅入口；`CREDIT_DEBT` 等仍为账单链接）。`EmbeddedChat`、`CreditEstimate`、`LockedFeature`、
 `DailyClaimNotice` 暂只在 `/dev/ui` 展示，由后续页面（账单页 8.7、长文阅读器 8.4 等）按需接入。
 

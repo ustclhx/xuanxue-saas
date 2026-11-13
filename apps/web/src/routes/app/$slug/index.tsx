@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { SpacePage, SpacePanel, spaceSections } from '../../../features/app-shell/space-frame.tsx'
+import { NotificationCenter } from '../../../features/notifications/center.tsx'
 import { CreateTeam, HydratedControls } from '../../../features/workspace/components.tsx'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -35,6 +36,10 @@ function SpaceOverviewPage() {
       title={page.workspace.name}
       description={page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
     >
+      {/* 铃铛「查看全部通知」的落点（#notifications）；还没有通知时不渲染 */}
+      <div className="empty:hidden print:hidden">
+        <NotificationCenter hideWhenEmpty />
+      </div>
       <SpacePanel title={m.app_overview_quick()}>
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2">
           {shortcuts.map((item) => (

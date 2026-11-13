@@ -1,4 +1,5 @@
 import {
+  aiMessageOrder,
   CHAT_HOLD_TTL_MS,
   type CheckpointScheduleOptions,
   checkpointSchedule,
@@ -42,7 +43,7 @@ import type { BackgroundTasks, RateLimiter } from '@xuanxue/platform'
 import { AppError, newId, toErrorResponse } from '@xuanxue/shared'
 import { log, setLogContext } from '@xuanxue/shared/log'
 import type { ModelMessage } from 'ai'
-import { and, asc, eq, inArray, type SQL } from 'drizzle-orm'
+import { and, eq, inArray, type SQL } from 'drizzle-orm'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveWorkspaceBySlug } from '../../server/workspace-context.ts'
@@ -250,9 +251,9 @@ export async function startWorkspaceChat(
           inArray(aiMessage.status, ['completed', 'aborted', 'failed']),
         ) as SQL,
       })
-      .orderBy(asc(aiMessage.id))
-    const first = rows[0]
-    const prefixText = first?.role === 'system' ? messageText(first.parts) : ''
+      .orderBy(...aiMessageOrder())
+    const firstSystem = rows.find((row) => row.role === 'system')
+    const prefixText = firstSystem ? messageText(firstSystem.parts) : ''
     if (prefixText) systemPrefix = { role: 'system', text: prefixText }
     history = rows.flatMap((row) => {
       const text = messageText(row.parts)
@@ -299,6 +300,7 @@ export async function startWorkspaceChat(
   })
 
   // 5. 同一事务：对话、用户消息、预扣、带定价快照的 streaming 消息
+  const userMessageId = newId()
   const assistantId = newId()
   const holdDeadline = Date.now() + CHAT_HOLD_TTL_MS
   const streamModel = faultMode
@@ -322,6 +324,7 @@ export async function startWorkspaceChat(
       })
     }
     await t.insert(aiMessage, {
+      id: userMessageId,
       conversationId,
       role: 'user',
       parts: input.message.parts,
