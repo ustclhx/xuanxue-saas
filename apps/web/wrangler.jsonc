@@ -105,7 +105,11 @@
         { "name": "RL_AUTH", "namespace_id": "21002", "simple": { "limit": 10, "period": 60 } },
         { "name": "RL_AI", "namespace_id": "21004", "simple": { "limit": 20, "period": 60 } },
         { "name": "RL_API", "namespace_id": "21006", "simple": { "limit": 60, "period": 60 } },
-        { "name": "RL_SHARE_CARD", "namespace_id": "21008", "simple": { "limit": 30, "period": 60 } }
+        {
+          "name": "RL_SHARE_CARD",
+          "namespace_id": "21008",
+          "simple": { "limit": 30, "period": 60 }
+        }
       ],
       "hyperdrive": [
         // Neon xuanxue_staging，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒（docs/07 §2）
@@ -151,7 +155,11 @@
         { "name": "RL_AUTH", "namespace_id": "22002", "simple": { "limit": 10, "period": 60 } },
         { "name": "RL_AI", "namespace_id": "22004", "simple": { "limit": 20, "period": 60 } },
         { "name": "RL_API", "namespace_id": "22006", "simple": { "limit": 60, "period": 60 } },
-        { "name": "RL_SHARE_CARD", "namespace_id": "22008", "simple": { "limit": 30, "period": 60 } }
+        {
+          "name": "RL_SHARE_CARD",
+          "namespace_id": "22008",
+          "simple": { "limit": 30, "period": 60 }
+        }
       ],
       "hyperdrive": [
         // Neon xuanxue_production，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒

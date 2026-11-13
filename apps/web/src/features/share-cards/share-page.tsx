@@ -1,6 +1,6 @@
+import { Link } from '@tanstack/react-router'
 import { Badge, Button } from '@xuanxue/ui'
 import { Link2Off } from '@xuanxue/ui/icons'
-import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
