@@ -1,6 +1,5 @@
 import { SolarDay } from 'tyme4ts'
 import type { BaziChart, LunarDate } from './chart.ts'
-import { isClash, isPunish, isSixCombine, isTriad } from './compat.ts'
 import {
   BRANCHES,
   type Branch,
@@ -15,6 +14,7 @@ import {
 } from './constants.ts'
 import { BaziInputError, MAX_YEAR, MIN_YEAR } from './input.ts'
 import { hiddenStemsOf, tenGodOf } from './pillars.ts'
+import { isClash, isHarm, isPunish, isSixCombine, isTriad } from './relations.ts'
 
 /**
  * 流日（add-birth-profiles-daily-horoscope design D6）：给定公历日期，返回当日干支、农历日、
@@ -135,15 +135,6 @@ export function dayPillarOf(date: DailyDate): DayPillar {
   }
 }
 
-/**
- * 六害：子未、丑午、寅巳、卯辰、申亥、酉戌（两支序号和 ≡ 7 mod 12）。
- * TODO(readings-prompt-v4-yearly)：该 change 计划新增 packages/bazi/src/relations.ts 收拢冲/合/刑/害，
- * 合并后改为从那里引用，删除本函数与下方 branchRelations。
- */
-export function isHarm(a: number, b: number): boolean {
-  return mod(a + b, 12) === 7
-}
-
 const RELATION_KINDS: readonly [DailyRelationKind, (a: number, b: number) => boolean][] = [
   ['clash', isClash],
   ['combine', isSixCombine],
@@ -152,8 +143,11 @@ const RELATION_KINDS: readonly [DailyRelationKind, (a: number, b: number) => boo
   ['harm', isHarm],
 ]
 
-/** 两支之间成立的全部关系（同一对可同时成立多种，如寅巳既刑又害）。 */
-export function branchRelations(a: number, b: number): DailyRelationKind[] {
+/**
+ * 两支之间成立的全部关系（同一对可同时成立多种，如寅巳既刑又害）。判断取自共享的 relations.ts；
+ * 此处按每日运势的关系名（combine 而非 sixCombine）输出。
+ */
+export function dailyBranchRelations(a: number, b: number): DailyRelationKind[] {
   return RELATION_KINDS.filter(([, test]) => test(a, b)).map(([kind]) => kind)
 }
 
@@ -168,7 +162,7 @@ export function dailyRelations(natal: DailyNatal, date: DailyDate | DayPillar): 
     const pillar = natal.pillars[key]
     // 时辰未知时 hour 为 null，只比较年、月、日三支
     if (!pillar) continue
-    for (const kind of branchRelations(dayBranch, branchIndex(pillar.branch))) {
+    for (const kind of dailyBranchRelations(dayBranch, branchIndex(pillar.branch))) {
       relations.push({ natal: key, natalBranch: pillar.branch, kind })
     }
   }

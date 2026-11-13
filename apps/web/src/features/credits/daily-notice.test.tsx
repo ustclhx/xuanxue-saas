@@ -100,7 +100,13 @@ describe('daily credit presentation', () => {
     expect(html).toContain(
       m.daily_credits_granted({ credits: 10, daysThisMonth: 2, maxDaysPerMonth: 10 }),
     )
-    expect(html).toContain(m.daily_credits_expiry({ expiresAt: '2026-11-17T08:00:00.000Z' }))
+    // 到期时间按界面语言格式化，不直接显示 ISO 字符串
+    const expiresAt = new Intl.DateTimeFormat(baseLocale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date('2026-11-17T08:00:00.000Z'))
+    expect(html).toContain(m.daily_credits_expiry({ expiresAt }))
+    expect(html).not.toContain('2026-11-17T08:00')
   })
 
   it('links unverified users to account verification and renders no success for cached checks', () => {
@@ -108,6 +114,19 @@ describe('daily credit presentation', () => {
       renderToStaticMarkup(<DailyCreditsNotice result={{ status: 'unverified' }} />),
     ).toContain('href="/account"')
     expect(renderToStaticMarkup(<DailyCreditsNotice result={{ status: 'cached' }} />)).toBe('')
+  })
+
+  it('explains already-claimed and monthly-limit results with the cross-site shared limit', () => {
+    const note = m.daily_credits_shared_note({ site: 'Arcanumber', otherSite: 'Ganjiday' })
+    // 静态渲染会转义撇号，比对前还原
+    const render = (status: 'already_claimed' | 'monthly_limit') =>
+      renderToStaticMarkup(<DailyCreditsNotice result={{ status }} />).replaceAll('&#x27;', "'")
+    const claimed = render('already_claimed')
+    expect(claimed).toContain(m.daily_credits_already_claimed())
+    expect(claimed).toContain(note)
+    const limit = render('monthly_limit')
+    expect(limit).toContain(m.daily_credits_monthly_limit())
+    expect(limit).toContain(note)
   })
 
   it('keeps email verification available when signup credits are zero', () => {

@@ -1,27 +1,45 @@
 import {
+  annualOutlook,
   type BaziChart,
   BaziInputError,
   type BirthInput,
   computeChart,
   computeCompatibility,
+  decadeDetails,
   ENGINE_VERSION,
 } from '@xuanxue/bazi'
-import { computeZiwei, type ZiweiChart } from '@xuanxue/bazi/ziwei'
+import {
+  computeZiwei,
+  type ZiweiChart,
+  type ZiweiHoroscope,
+  ziweiHoroscope,
+} from '@xuanxue/bazi/ziwei'
 import type { ReadingKind } from '@xuanxue/db'
-import { numerologyChart } from '@xuanxue/numerology'
+import {
+  challenges,
+  type LifePeriod,
+  numerologyChart,
+  personalYears,
+  pinnacles,
+} from '@xuanxue/numerology'
 import { AppError } from '@xuanxue/shared'
+import { log } from '@xuanxue/shared/log'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
 import { z } from 'zod'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
+import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
+import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
+import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
+import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
 
 /**
  * 详批注册表（add-reading-monetization design 决策 1）：每种详批的输入校验、服务端复算、
@@ -36,7 +54,14 @@ export interface ReadingPrompt {
   readonly system: string
   /** 报告必须包含的 `## ` 章节，顺序即输出顺序 */
   readonly sections: readonly string[]
+  /**
+   * 进入用户消息的数据档（readings-prompt-v4-yearly tasks.md 3.1）：省略为 `base`，即 v1–v3 的摘要，
+   * 保证回滚与基线评测时模型看到的数据与改动前一致；`annual` 在其上增加流年窗口等逐年数据。
+   */
+  readonly dataProfile?: ReadingDataProfile
 }
+
+export type ReadingDataProfile = 'base' | 'annual'
 
 export interface RecomputedReading {
   /** 规范化后的原始输入，存入 `reading.input` 并参与幂等哈希 */
@@ -69,10 +94,15 @@ export interface ReadingDefinition extends ReadingVariant {
 
 interface ReadingEntry {
   readonly kind: ReadingKind
-  /** 第一个语言为默认 */
+  /** 第一个语言为默认；各语言的 `prompt` 为代码默认版本（运行时设置为空时使用） */
   readonly variants: Readonly<Record<string, ReadingVariant>>
-  /** 塔罗按报告语言查牌义，其余详批的复算与语言无关 */
-  recompute(raw: unknown, now: Date, locale: string): RecomputedReading
+  /**
+   * 默认版本之外可经运行时设置 `readings.<kind>.promptVersion` 切换的提示词（版本号 → 语言 → 提示词，
+   * readings-prompt-v4-yearly design 决策 4）。旧版本文件永久保留，供回滚与已生成报告的收尾。
+   */
+  readonly versions?: Readonly<Record<string, Readonly<Record<string, ReadingPrompt>>>>
+  /** 塔罗按报告语言查牌义，其余详批的复算与语言无关；数据档由所选提示词版本决定 */
+  recompute(raw: unknown, now: Date, locale: string, profile: ReadingDataProfile): RecomputedReading
 }
 
 const int = z.number().int()
@@ -163,23 +193,106 @@ function engine<T>(compute: () => T): T {
   }
 }
 
+/**
+ * 流年窗口年数（design 决策 2）：起点为请求时的 UTC 年（与 `currentYear` 一致），含当年共 5 年。
+ * 改动年数只影响本常量、v4 提示词的规则与评测样本。
+ */
+export const READING_ANNUAL_YEARS = 5
+
+/**
+ * 扩展数据档的算法版本后缀，记入 `reading.engine_version`（如 `1.0.0+annual.1`）；
+ * 逐年数据的算法或字段变化时递增，免费结果页的 ENGINE_VERSION 不受影响。
+ */
+export const ANNUAL_DATA_VERSION = 'annual.1'
+
+/**
+ * v4 八字 / 사주摘要：v3 摘要 + 大运地支十神与喜忌 + 命中的神煞所在柱 + 流年窗口逐年数据。
+ * 仍不含出生日期与城市（逐年数据只含年份、干支与关系）。
+ */
+export function annualChartSummary(chart: BaziChart, startYear: number) {
+  const base = chartSummary(chart)
+  const details = decadeDetails(chart)
+  return {
+    ...base,
+    fortune: {
+      ...base.fortune,
+      decades: base.fortune.decades.map((d, i) => ({
+        ...d,
+        endAge: chart.fortune.decades[i]?.endAge,
+        branchTenGod: details[i]?.branchTenGod,
+        favorable: details[i]?.favorable,
+      })),
+    },
+    // v3 只列神煞 key（每张命盘都相同）；这里只保留命中本命柱的神煞及其所在柱
+    shensha: chart.shensha
+      .filter((s) => s.pillars.length > 0)
+      .map((s) => ({ key: s.key, basis: s.basis, targets: s.targets, pillars: s.pillars })),
+    annual: annualOutlook(chart, { startYear, years: READING_ANNUAL_YEARS }),
+  }
+}
+
 /** 八字与사주共用排盘；参考年取请求时的 UTC 年份，与免费结果页的「当前流年」一致。 */
-function recomputeChart(raw: unknown, now: Date): RecomputedReading {
+function recomputeChart(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const input = parseBirth(raw)
-  const chart = engine(() => computeChart(input, { referenceYear: now.getUTCFullYear() }))
+  const year = now.getUTCFullYear()
+  const chart = engine(() => computeChart(input, { referenceYear: year }))
+  if (profile === 'annual')
+    return {
+      input,
+      engineVersion: `${ENGINE_VERSION}+${ANNUAL_DATA_VERSION}`,
+      result: annualChartSummary(chart, year),
+    }
   return { input, engineVersion: ENGINE_VERSION, result: chartSummary(chart) }
 }
 
 /** 紫微必须有出生时辰（免费页同样要求），缺少时辰视为非法输入 */
-function recomputeZiwei(raw: unknown): RecomputedReading {
+function recomputeZiwei(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const input = parseBirth(raw)
   const chart = engine(() => computeZiwei(input))
   if (chart.status !== 'ok') invalidInput([{ field: 'time', code: 'required' }])
-  return { input, engineVersion: chart.engineVersion, result: ziweiSummary(chart) }
+  if (profile !== 'annual')
+    return { input, engineVersion: chart.engineVersion, result: ziweiSummary(chart) }
+  const horoscope = engine(() =>
+    ziweiHoroscope(input, { startYear: now.getUTCFullYear(), years: READING_ANNUAL_YEARS }),
+  )
+  if (horoscope.status !== 'ok') invalidInput([{ field: 'time', code: 'required' }])
+  return {
+    input,
+    engineVersion: `${chart.engineVersion}+${ANNUAL_DATA_VERSION}`,
+    result: ziweiAnnualSummary(chart, horoscope),
+  }
+}
+
+/** v4 紫微摘要：v3 摘要 + 六吉六煞落宫 + 大限区间、当前 / 下一大限与逐年流年（不含出生日期） */
+export function ziweiAnnualSummary(
+  chart: Extract<ZiweiChart, { status: 'ok' }>,
+  horoscope: Extract<ZiweiHoroscope, { status: 'ok' }>,
+) {
+  return {
+    ...ziweiSummary(chart),
+    auxiliaryStars: horoscope.auxiliaryStars,
+    horoscope: {
+      decades: horoscope.decades,
+      currentDecade: horoscope.currentDecade,
+      nextDecade: horoscope.nextDecade,
+      years: horoscope.years,
+    },
+  }
 }
 
 /** 궁합：两人分别排盘后计分；摘要沿用八字命盘摘要，不含出生信息 */
 function recomputeCompat(raw: unknown, now: Date): RecomputedReading {
+  // 궁합不在本次 v4 范围，各版本都用同一摘要
   const parsed = z.object({ a: birthInputSchema, b: birthInputSchema }).safeParse(raw)
   if (!parsed.success) invalidInput()
   const { a, b } = parsed.data as { a: BirthInput; b: BirthInput }
@@ -213,7 +326,12 @@ const numerologyInputSchema = z.object({
 })
 
 /** 个人年取请求时的 UTC 年份；姓名非法时姓名类数字为 null，与免费计算器一致 */
-function recomputeNumerology(raw: unknown, now: Date): RecomputedReading {
+function recomputeNumerology(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const parsed = numerologyInputSchema.safeParse(raw)
   if (!parsed.success) invalidInput()
   const { name, ...date } = parsed.data
@@ -226,19 +344,36 @@ function recomputeNumerology(raw: unknown, now: Date): RecomputedReading {
     throw error
   }
   const number = (n: { value: number; master: boolean }) => ({ value: n.value, master: n.master })
+  const result = {
+    lifePath: number(chart.lifePath),
+    birthday: number(chart.birthday),
+    personalYear: number(chart.personalYear),
+    currentYear,
+    name: chart.name && {
+      expression: number(chart.name.expression),
+      soulUrge: number(chart.name.soulUrge),
+      personality: number(chart.name.personality),
+    },
+  }
+  const input = name ? { ...date, name } : date
+  if (profile !== 'annual') return { input, engineVersion: NUMEROLOGY_ENGINE_VERSION, result }
+  // 只标出当年所处的巅峰 / 挑战阶段，不输出年龄，避免由年龄反推出生年份
+  const age = currentYear - date.year
+  const period = (p: LifePeriod) => ({
+    value: p.value,
+    master: p.master,
+    startAge: p.startAge,
+    endAge: p.endAge,
+    current: p.startAge <= age && (p.endAge === null || age < p.endAge),
+  })
   return {
-    input: name ? { ...date, name } : date,
-    engineVersion: NUMEROLOGY_ENGINE_VERSION,
+    input,
+    engineVersion: `${NUMEROLOGY_ENGINE_VERSION}+years.1`,
     result: {
-      lifePath: number(chart.lifePath),
-      birthday: number(chart.birthday),
-      personalYear: number(chart.personalYear),
-      currentYear,
-      name: chart.name && {
-        expression: number(chart.name.expression),
-        soulUrge: number(chart.name.soulUrge),
-        personality: number(chart.name.personality),
-      },
+      ...result,
+      personalYears: personalYears(date, currentYear, READING_ANNUAL_YEARS),
+      pinnacles: pinnacles(date).map(period),
+      challenges: challenges(date).map(period),
     },
   }
 }
@@ -319,6 +454,7 @@ const entries = {
           '日主乙木，生于卯月。乙木如藤萝花草，看似柔软，实则韧性很强。天干庚金正官与辛金七杀并见，对日主形成持续的约束、雕琢之力，综合判为身弱，属于“有根但压力不小”的结构。喜用取水、木：水能化金之锐而生木，木能帮身自立。',
       },
     },
+    versions: { 'bazi-full.v4': BAZI_FULL_V4 },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -333,6 +469,7 @@ const entries = {
           '일간 기토가 월지와 일지의 유금, 그리고 시간의 신금까지 마주해 식신의 기운이 대단히 두터운 것이 이 명식의 가장 큰 특징입니다. 여기에 계수 편재가 더해져 식신생재의 흐름이 자연스럽게 이어집니다. 다만 일간을 받쳐 주는 토의 힘이 넉넉하지 않아, 재능은 풍부하지만 중심을 잡는 힘이 아쉬울 수 있습니다.',
       },
     },
+    versions: { 'saju-full.v4': SAJU_FULL_V4 },
     recompute: recomputeChart,
   },
   'ziwei-full': {
@@ -355,6 +492,7 @@ const entries = {
           '命宫坐卯宫，主星为天府，性稳能容，重信用讲章法，做事喜欢有把握、有次序。身宫落在迁移宫（酉），主星武曲与七杀，代表行动风格偏向务实、果断、敢往外走。命宫与身宫一静一动，形成“底子求稳、对外敢闯”的基本格局。',
       },
     },
+    versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
     recompute: recomputeZiwei,
   },
   'saju-compat': {
@@ -386,6 +524,7 @@ const entries = {
           "This chart centers on a Life Path 9, a number of compassion, perspective and quiet completion. It gives a wide-angle view of people, seeing the story behind someone's behaviour rather than just the behaviour itself. Alongside it sits a Birthday number 7, adding thoughtfulness and a habit of looking beneath the surface, and an Expression number 11, a master number that brings unusual sensitivity and intuition.",
       },
     },
+    versions: { 'numerology-full.v4': NUMEROLOGY_FULL_V4 },
     recompute: recomputeNumerology,
   },
   'tarot-spread': {
@@ -430,22 +569,111 @@ const entries = {
 
 export type AvailableReadingKind = keyof typeof entries
 
+/** kind → version → locale 注册表：代码默认版本与 `versions` 中登记的版本合并 */
+function promptRegistry(entry: ReadingEntry): Map<string, Map<string, ReadingPrompt>> {
+  const registry = new Map<string, Map<string, ReadingPrompt>>()
+  const add = (locale: string, prompt: ReadingPrompt) => {
+    const locales = registry.get(prompt.version) ?? new Map<string, ReadingPrompt>()
+    locales.set(locale, prompt)
+    registry.set(prompt.version, locales)
+  }
+  for (const [locale, variant] of Object.entries(entry.variants)) add(locale, variant.prompt)
+  for (const prompts of Object.values(entry.versions ?? {}))
+    for (const [locale, prompt] of Object.entries(prompts)) add(locale, prompt)
+  return registry
+}
+
+function entryOf(kind: string): ReadingEntry | undefined {
+  return Object.hasOwn(entries, kind) ? entries[kind as AvailableReadingKind] : undefined
+}
+
+export interface ReadingDefinitionOptions {
+  /**
+   * 提示词版本号（如 `bazi-full.v4`）；省略或空字符串表示代码默认版本。
+   * 指定的版本未在该语言注册时返回 undefined，调用方决定回退（见 `resolveReadingDefinition`）。
+   */
+  readonly promptVersion?: string | null | undefined
+}
+
 /**
- * 某种详批的定义；省略 `locale` 时取默认语言。类型不存在或不支持该语言时返回 undefined。
+ * 某种详批的定义；省略 `locale` 时取默认语言。类型不存在、不支持该语言或该语言没有指定的
+ * 提示词版本时返回 undefined。
  */
-export function readingDefinition(kind: string, locale?: string): ReadingDefinition | undefined {
-  if (!Object.hasOwn(entries, kind)) return undefined
-  const entry: ReadingEntry = entries[kind as AvailableReadingKind]
+export function readingDefinition(
+  kind: string,
+  locale?: string,
+  options: ReadingDefinitionOptions = {},
+): ReadingDefinition | undefined {
+  const entry = entryOf(kind)
+  if (!entry) return undefined
   const locales = Object.keys(entry.variants)
   const chosen = locale ?? locales[0] ?? ''
   if (!Object.hasOwn(entry.variants, chosen)) return undefined
   const variant = entry.variants[chosen] as ReadingVariant
+  let prompt = variant.prompt
+  if (options.promptVersion) {
+    const registered = promptRegistry(entry).get(options.promptVersion)?.get(chosen)
+    if (!registered) return undefined
+    prompt = registered
+  }
   return {
     kind: entry.kind,
     locales,
     ...variant,
-    recompute: (raw, now) => entry.recompute(raw, now, chosen),
+    prompt,
+    recompute: (raw, now) => entry.recompute(raw, now, chosen, prompt.dataProfile ?? 'base'),
   }
+}
+
+/** 按指定数据档复算（测试与评测用；线上由所选提示词版本的 `dataProfile` 决定） */
+export function recomputeReading(
+  kind: string,
+  raw: unknown,
+  now: Date,
+  options: { locale?: string; profile: ReadingDataProfile },
+): RecomputedReading {
+  const entry = entryOf(kind)
+  const locale = options.locale ?? Object.keys(entry?.variants ?? {})[0]
+  if (!entry || !locale || !Object.hasOwn(entry.variants, locale)) invalidInput()
+  return entry.recompute(raw, now, locale, options.profile)
+}
+
+/**
+ * 按版本取定义，版本未注册或该语言没有该版本时回退到代码默认版本并告警
+ * （spec「提示词版本的运行时切换」）。类型或语言不存在时返回 undefined。
+ */
+export function resolveReadingDefinition(
+  kind: string,
+  locale: string,
+  promptVersion: string | null | undefined,
+): ReadingDefinition | undefined {
+  const fallback = readingDefinition(kind, locale)
+  if (!fallback || !promptVersion) return fallback
+  const chosen = readingDefinition(kind, locale, { promptVersion })
+  if (chosen) return chosen
+  log.warn('readings.prompt_version_fallback', {
+    kind,
+    locale,
+    promptVersion,
+    fallback: fallback.prompt.version,
+  })
+  return fallback
+}
+
+/** 某种详批已注册的提示词版本与支持的语言（后台选项与保存校验） */
+export function readingPromptVersions(
+  kind: string,
+): { readonly version: string; readonly locales: readonly string[] }[] {
+  const entry = entryOf(kind)
+  if (!entry) return []
+  return [...promptRegistry(entry)]
+    .map(([version, locales]) => ({ version, locales: [...locales.keys()] }))
+    .sort((a, b) => a.version.localeCompare(b.version, 'en', { numeric: true }))
+}
+
+/** 运行时设置的取值是否合法：空字符串（代码默认）或该详批已注册的版本 */
+export function isReadingPromptVersion(kind: string, version: string): boolean {
+  return version === '' || readingPromptVersions(kind).some((item) => item.version === version)
 }
 
 /** 键排序后的 JSON，使字段顺序不同的同一输入得到同一哈希 */

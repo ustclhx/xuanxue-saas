@@ -4,15 +4,15 @@ import { describe, expect, it } from 'vitest'
 import { computeChart } from '../src/chart.ts'
 import { BRANCHES, STEMS } from '../src/constants.ts'
 import {
-  branchRelations,
   DAILY_RULES_VERSION,
   type DailyNatal,
   DUTY_KEYS,
+  dailyBranchRelations,
   dailyRelations,
   dayPillarOf,
-  isHarm,
 } from '../src/daily.ts'
 import { BaziInputError } from '../src/input.ts'
+import { isHarm } from '../src/relations.ts'
 
 const STEM_HANZI = '甲乙丙丁戊己庚辛壬癸'
 const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
@@ -142,17 +142,17 @@ describe('dailyRelations', () => {
   })
 
   it('子丑合', () => {
-    expect(branchRelations(0, 1)).toEqual(['combine'])
+    expect(dailyBranchRelations(0, 1)).toEqual(['combine'])
   })
 
   it('寅巳申刑：寅巳同时为刑与害，寅申为冲与刑', () => {
-    expect(branchRelations(2, 5)).toEqual(['punish', 'harm'])
-    expect(branchRelations(2, 8)).toEqual(['clash', 'punish'])
-    expect(branchRelations(5, 8)).toEqual(['combine', 'punish'])
+    expect(dailyBranchRelations(2, 5)).toEqual(['punish', 'harm'])
+    expect(dailyBranchRelations(2, 8)).toEqual(['clash', 'punish'])
+    expect(dailyBranchRelations(5, 8)).toEqual(['combine', 'punish'])
   })
 
   it('子未害', () => {
-    expect(branchRelations(0, 7)).toEqual(['harm'])
+    expect(dailyBranchRelations(0, 7)).toEqual(['harm'])
   })
 
   it('十神：庚日主遇丙日为七杀；日支本气十神', () => {

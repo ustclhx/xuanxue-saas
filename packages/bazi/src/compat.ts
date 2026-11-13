@@ -1,7 +1,10 @@
 import { type BaziChart, type ChartOptions, computeChart } from './chart.ts'
-import { branchIndex, mod, stemIndex } from './constants.ts'
+import { branchIndex, stemIndex } from './constants.ts'
 import type { BirthInput } from './input.ts'
-import { triadOf } from './shensha.ts'
+import { isClash, isPunish, isSixCombine, isStemCombine, isTriad } from './relations.ts'
+
+// 判定函数已移到 relations.ts 供流年与每日运势共用；保留原导出路径
+export { isClash, isPunish, isSixCombine, isStemCombine, isTriad } from './relations.ts'
 
 /**
  * 사주궁합参考分：基础 60 分，按日柱关系与五行互补加减，最终限制在 0–100。
@@ -41,35 +44,6 @@ const PUNISH = -8
 const COMPLEMENT_MAX = 10
 /** 对方在我两种喜用五行上的占比达到 40% 即得满分。 */
 const COMPLEMENT_FULL_PERCENT = 40
-
-/** 六合：子丑、寅亥、卯戌、辰酉、巳申、午未（两支序号和 ≡ 1 mod 12）。 */
-export function isSixCombine(a: number, b: number): boolean {
-  return mod(a + b, 12) === 1
-}
-
-/** 相冲：相隔六位。 */
-export function isClash(a: number, b: number): boolean {
-  return mod(a - b, 12) === 6
-}
-
-/** 三合：同属申子辰/亥卯未/寅午戌/巳酉丑且不同支。 */
-export function isTriad(a: number, b: number): boolean {
-  return a !== b && triadOf(a) === triadOf(b)
-}
-
-const PUNISH_PAIRS = new Set(['0-3', '2-5', '5-8', '2-8', '1-10', '10-7', '1-7'])
-const SELF_PUNISH = new Set([4, 6, 9, 11])
-
-/** 相刑：子卯、寅巳申、丑戌未；自刑：辰午酉亥。 */
-export function isPunish(a: number, b: number): boolean {
-  if (a === b) return SELF_PUNISH.has(a)
-  return PUNISH_PAIRS.has(`${a}-${b}`) || PUNISH_PAIRS.has(`${b}-${a}`)
-}
-
-/** 天干五合：甲己、乙庚、丙辛、丁壬、戊癸（相隔五位）。 */
-export function isStemCombine(a: number, b: number): boolean {
-  return mod(a - b, 10) === 5
-}
 
 function complement(self: BaziChart, other: BaziChart): { delta: number; percent: number } {
   const wanted = self.useful.favorable.slice(0, 2)

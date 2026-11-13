@@ -1,0 +1,44 @@
+{
+  "kind": "ziwei-full",
+  "locale": "zh-Hant",
+  "samples": [
+    {
+      "id": "ziwei-hant-01",
+      "note": "虚构：男",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1989,
+        "month": 10,
+        "day": 3,
+        "time": {
+          "hour": 6,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-02",
+      "note": "虚构：女，1 月请求",
+      "requestDate": "2026-01-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1997,
+        "month": 2,
+        "day": 14,
+        "time": {
+          "hour": 23,
+          "minute": 20
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    }
+  ]
+}

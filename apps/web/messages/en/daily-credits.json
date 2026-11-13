@@ -3,5 +3,10 @@
   "daily_credits_expiry": "Expires at {expiresAt}.",
   "daily_credits_dismiss": "Dismiss",
   "daily_credits_verify": "Verify your email to receive daily credits",
-  "daily_credits_source": "Daily credits"
+  "daily_credits_source": "Daily credits",
+  "daily_credits_already_claimed": "Today's daily credits have already been claimed. Come back tomorrow (UTC).",
+  "daily_credits_monthly_limit": "You've used this month's daily credit days. Daily credits start again next month (UTC).",
+  "daily_credits_shared_note": "Accounts on {site} and {otherSite} that use the same email share one daily claim and one monthly limit.",
+  "daily_credits_faq_q": "How do daily credits work?",
+  "daily_credits_faq_a": "With a verified email, you get 10 free credits the first time you open your account area each day (UTC), on up to 10 days a month. Daily credits are valid for 7 days and are used before your other credits. Accounts on {site} and {otherSite} that use the same email share one daily claim and one monthly limit, so claiming on one site counts for both."
 }

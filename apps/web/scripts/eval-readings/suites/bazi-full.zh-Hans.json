@@ -1,0 +1,41 @@
+{
+  "kind": "bazi-full",
+  "locale": "zh-Hans",
+  "samples": [
+    {
+      "id": "bazi-hans-01",
+      "note": "虚构：女，有时辰",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1992,
+        "month": 7,
+        "day": 8,
+        "time": {
+          "hour": 20,
+          "minute": 40
+        },
+        "gender": "female",
+        "location": {
+          "city": "shanghai"
+        }
+      }
+    },
+    {
+      "id": "bazi-hans-02",
+      "note": "虚构：男，不知道时辰，2 月请求",
+      "requestDate": "2026-02-02T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1984,
+        "month": 9,
+        "day": 12,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      }
+    }
+  ]
+}
