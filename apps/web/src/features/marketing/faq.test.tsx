@@ -64,4 +64,15 @@ describe('FAQ 汇总页（4.7）', () => {
       expect(en).toMatch(new RegExp(word, 'i'))
     expect(en).not.toMatch(/八字|BaZi/)
   })
+
+  it('说明每日积分规则与同一邮箱两站共享额度', () => {
+    const text = (locale: 'en' | 'zh-Hant' | 'ko') =>
+      faqSections(locale)
+        .flatMap((section) => section.items)
+        .map((item) => `${item.question}${item.answer}`)
+        .join('\n')
+    expect(text('en')).toMatch(/Arcanumber and Ganjiday that use the same email share/)
+    expect(text('zh-Hant')).toContain('每日積分')
+    expect(text('ko')).toContain('일일 크레딧')
+  })
 })

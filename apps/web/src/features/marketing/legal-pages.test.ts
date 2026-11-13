@@ -128,4 +128,41 @@ describe('法律页内容（按站点）', () => {
     expect(lookup('west', 'fr')?.site).toBe('west')
     expect(lookup('east', 'ja')).toBeUndefined()
   })
+
+  it('条款与退款页说明订阅自动续费、周期末取消、不按天退款与每日积分两站共享额度', () => {
+    const expected = {
+      'west/en': {
+        terms: [
+          'renews automatically',
+          'end of the current billing period',
+          'do not roll over',
+          'share one daily claim',
+        ],
+        refund: ['No refunds by the day', 'Daily credits are free'],
+      },
+      'east/zh-Hant': {
+        terms: ['自動續訂', '當前計費週期結束時生效', '不會結轉', '共用每天一次的領取機會'],
+        refund: ['不按天退款', '每日積分為免費發放'],
+      },
+      'east/zh-Hans': {
+        terms: ['自动续订', '当前计费周期结束时生效', '不会结转', '共用每天一次的领取机会'],
+        refund: ['不按天退款', '每日积分为免费发放'],
+      },
+      'east/ko': {
+        terms: [
+          '자동으로 갱신',
+          '현재 결제 주기가 끝날 때 적용',
+          '이월되지 않습니다',
+          '하루 한 번의 수령 기회',
+        ],
+        refund: ['일할 환불 없음', '일일 크레딧은 무료로 지급'],
+      },
+    } as const
+    for (const [key, slugs] of Object.entries(expected)) {
+      const [site = '', locale = ''] = key.split('/')
+      for (const [slug, phrases] of Object.entries(slugs))
+        for (const phrase of phrases)
+          expect(text(page(site, locale, slug).html), `${key}/${slug}`).toContain(phrase)
+    }
+  })
 })

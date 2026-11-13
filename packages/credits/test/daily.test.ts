@@ -27,19 +27,17 @@ const keys = [
 const claim = (userId: string, day = '2026-11-01') =>
   grantDailyCredits({ db, userId, enabled: true, now: new Date(`${day}T12:34:56Z`) })
 
-async function account(email?: string, verified = true) {
+async function account(email?: string, verified = true, site: 'east' | 'west' = 'west') {
   const id = newId()
   ids.push(id)
   await db.insert(user).values({
-    site: 'west',
+    site,
     id,
     name: 'Daily',
     email: email ?? `${id}@example.test`,
     emailVerified: verified,
   })
-  await db
-    .insert(organization)
-    .values({ site: 'west', id, name: 'Personal', slug: id, isPersonal: true })
+  await db.insert(organization).values({ site, id, name: 'Personal', slug: id, isPersonal: true })
   await db.insert(member).values({ id: newId(), organizationId: id, userId: id, role: 'owner' })
   return id
 }
@@ -139,6 +137,29 @@ describe('daily credits on PostgreSQL', () => {
       .from(creditDailyClaim)
       .where(eq(creditDailyClaim.userId, winner))
     expect(record?.emailHash).toMatch(/^[a-f0-9]{64}$/)
+  })
+
+  // 两站按站点拆分账户，但领取按「规范化邮箱 + UTC 日期」全库唯一（enable-subscriptions-daily-credits D6）
+  it('shares the same-day claim between east and west accounts with one email', async () => {
+    const email = `${newId()}@example.test`
+    const east = await account(email, true, 'east')
+    const west = await account(email, true, 'west')
+    expect((await claim(east)).status).toBe('granted')
+    expect(await claim(west)).toEqual({ status: 'already_claimed' })
+    expect(await claim(west, '2026-11-02')).toMatchObject({ status: 'granted', daysThisMonth: 2 })
+  })
+
+  it('counts the monthly limit across both sites for one email', async () => {
+    await configure('credits.dailyMaxDaysPerMonth', 10)
+    const email = `${newId()}@example.test`
+    const east = await account(email, true, 'east')
+    const west = await account(email, true, 'west')
+    for (let day = 1; day <= 6; day++)
+      expect((await claim(east, `2026-11-${String(day).padStart(2, '0')}`)).status).toBe('granted')
+    for (let day = 7; day <= 10; day++)
+      expect((await claim(west, `2026-11-${String(day).padStart(2, '0')}`)).status).toBe('granted')
+    expect(await claim(east, '2026-11-11')).toEqual({ status: 'monthly_limit' })
+    expect(await claim(west, '2026-11-12')).toEqual({ status: 'monthly_limit' })
   })
 
   it('enforces D+1, next-day progress and next-month reset independently of revoked batches', async () => {
