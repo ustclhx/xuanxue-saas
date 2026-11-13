@@ -16,16 +16,16 @@
 
 ## 1. 决策与外部准备（不改代码）
 
-- [ ] 1.1 【用户】确认 design Open Questions 1、2、5：价目表数值、zh-Hant 的 PayPal 是否收 TWD、通用部分是否先上交模板。验证：决定记录在 design.md 的 Open Questions 下方；如果第 5 项选择上交模板，组 2 改为同步模板版本
+- [x] 1.1 【用户】确认 design Open Questions 1、2、5：价目表数值、zh-Hant 的 PayPal 是否收 TWD、通用部分是否先上交模板。验证：决定记录在 design.md 的 Open Questions 下方；如果第 5 项选择上交模板，组 2 改为同步模板版本
 - [ ] 1.2 【用户 / 运营】确认 Open Questions 3、4（税务口径、换汇费），并按 `docs/runbooks/stripe-launch.md` §4 更新 Stripe 业务描述中「只收美元」的表述。验证：运营书面确认；Stripe 后台描述已更新（截图存在仓库外）
-- [ ] 1.3 【用户】如果 1.1 决定 PayPal 收 TWD，在 PayPal live 与 Sandbox 账户确认 TWD 的收款设置（接收后保留余额，或自动换汇）。验证：账户设置截图存在仓库外
+- [x] 1.3 ~~作废（决策 2：PayPal 恒为 USD）~~ 【用户】如果 1.1 决定 PayPal 收 TWD，在 PayPal live 与 Sandbox 账户确认 TWD 的收款设置（接收后保留余额，或自动换汇）。验证：账户设置截图存在仓库外
 
 ## 2. W1 币种基础（packages/billing）
 
-- [ ] 2.1 【Claude】新增 `packages/billing/src/currency.ts`：启用币种集合、币种指数、平台约束（Stripe 的 TWD 金额为 100 的倍数，PayPal 的 TWD 为整数）、`toMajor`/`toMinor`/`formatMoney`/`currencyFor(locale, provider)`，其中 PayPal 的 TWD 由开关控制。验证：单测覆盖四种语言 × 两个平台的映射、KRW/TWD/USD 的格式化（`NT$65`、`₩2,800`、`US$1.99`）以及非法 TWD 金额
+- [ ] 2.1 【Claude】新增 `packages/billing/src/currency.ts`：启用币种集合、币种指数、平台约束（Stripe 的 TWD 金额为 100 的倍数，PayPal 的 TWD 为整数）、`toMajor`/`toMinor`/`formatMoney`/`currencyFor(locale, provider)`，PayPal 恒为 USD（决策 2）。验证：单测覆盖四种语言 × 两个平台的映射、KRW/TWD/USD 的格式化（`NT$65`、`₩2,800`、`US$1.99`）以及非法 TWD 金额
 - [ ] 2.2 【Claude】`events/shared.ts` 的 `money()` 改为接受启用的币种。`events/payments.ts`、`conflictPayment`、`events/refunds.ts`、`events/target.ts` 中「付款币种与价格行币种必须一致」的比对保持不变，不一致时仍抛出不可重试的 `BILLING_CURRENCY_MISMATCH`。验证：billing 单测与 postgres 集成测试覆盖 TWD/KRW 付款入账、关联 TWD 价格但以 USD 付款时被拒、KRW 部分退款按比例回收；已有 USD 录制夹具测试全部通过
 - [ ] 2.3 【Claude】`services.ts` 的 `priceFor` 去掉 USD 条件，改为要求币种属于启用集合。`refunds.ts` 的退款金额校验按币种约束执行。验证：服务层测试覆盖 TWD 退款金额不是 100 的倍数时拒绝
-- [ ] 2.4 【Claude】`paypal/money.ts` 支持 TWD（整数元字符串），KRW 仍抛错。验证：单测断言 TWD 6500 输出为 `"65"`，`"65"` 解析回 6500，KRW 抛错
+- [x] 2.4 ~~作废（决策 2：PayPal 恒为 USD）~~ 【Claude】`paypal/money.ts` 支持 TWD（整数元字符串），KRW 仍抛错。验证：单测断言 TWD 6500 输出为 `"65"`，`"65"` 解析回 6500，KRW 抛错
 - [ ] 2.5 【Claude】在 `docs/05-billing.md` §1 中把币种段落改写为多币种规则，并链接到本 change。验证：文档 diff 由评审确认，`pnpm check` 通过
 
 ## 3. W2 价目表、种子与价格同步（依赖 W1）
@@ -40,13 +40,13 @@
 - [ ] 4.1 【Claude】`createCheckout` 的服务路径中，由 `planPriceId` 推出 (plan, interval)，再按 `presentation.locale` 与 provider 选出价格行（找不到时回退 USD），实际所选行写入 metadata 与 `purchase`。验证：`customer.functions` / services 测试覆盖 zh-Hant 选 TWD、ko 走 Stripe 选 KRW、ko 走 PayPal 选 USD、TWD 行 inactive 时回退 USD、客户端传 USD 价格 ID 时仍选 TWD
 - [ ] 4.2 【Claude】`stripe/operations.ts` 的 `checkoutPrice`：TWD/KRW 行直接使用自身的 Price，USD 行保持现有的本地化 lookup 回退。保留 `adaptive_pricing: { enabled: false }`。验证：operations 单测断言 TWD 结账的 `line_items` 使用 TWD Price，并且不调用 `prices.list`
 - [ ] 4.3 【Claude】`changePlan` 的目标价格按当前订阅的币种选择，不按界面语言选（design D7）。验证：单测覆盖 TWD 订阅换档时选出 TWD 目标价格；同币种价格缺失时返回明确错误
-- [ ] 4.4 【Claude】PayPal 一次性订单在开关开启时以 TWD 创建，`amount.breakdown` 一并按整数输出。验证：PayPal operations 单测断言请求体的 `currency_code`=`TWD`、`value`=`"65"`
+- [x] 4.4 ~~作废（决策 2：PayPal 恒为 USD）~~ 【Claude】PayPal 一次性订单在开关开启时以 TWD 创建，`amount.breakdown` 一并按整数输出。验证：PayPal operations 单测断言请求体的 `currency_code`=`TWD`、`value`=`"65"`
 
 ## 5. W4 展示与下游（依赖 W1；联调需要 W2）
 
 - [ ] 5.1 【Claude】`pricing-read.ts` 的 `available` 去掉 USD 条件；新增 `selectDisplayPrice(prices, locale, provider)`，与 4.1 共用选价逻辑。验证：pricing-data 测试覆盖四种语言的展示币种，以及本地价格缺失时显示 USD
 - [ ] 5.2 【Claude】`features/readings/price.ts`：解锁卡与定价页改为显示所选币种的实价，zh-Hans 显示 USD 与固定汇率的 CNY 参考价（「约 ¥13（参考价，以美元结算）」）；删除 `localRates` / `getLocalRates`、Exchange Rate API 调用与 `FxAttribution`。验证：`readings-ui.test.ts`、`pricing-page.test.tsx` 断言 zh-Hant 显示 `NT$65` 且无「≈」、ko 显示 `₩2,800`、zh-Hans 显示参考价；`grep exchangerate` 无结果
-- [ ] 5.3 【Codex】ko 用户在支付方式选择处，如果选 PayPal，提示「PayPal 以美元结算」及 USD 金额；四种语言的文案追加到 `messages/<locale>/billing.json`。验证：组件测试覆盖 ko + PayPal 的提示；其他语言不出现该提示
+- [ ] 5.3 【Codex】zh-Hant 与 ko 用户在支付方式选择处，如果选 PayPal，提示「PayPal 以美元结算」及 USD 金额；四种语言的文案追加到 `messages/<locale>/billing.json`。验证：组件测试覆盖 ko + PayPal 的提示；其他语言不出现该提示
 - [ ] 5.4 【Codex】账单页与后台的付款、购买、退款、指标列表用 `formatMoney` 按行的币种格式化；后台退款审批的输入按币种单位换算，TWD/KRW 只接受整数。验证：`admin-display`、`refund-section` 测试覆盖 KRW、TWD 的显示与输入换算
 - [ ] 5.5 【Codex】`apps/jobs/src/notifications/analytics.ts` 的收入金额与 `operations.ts` 的运营通知金额改用 `toMajor`。验证：analytics 测试断言 KRW 2800 输出为 `"2800"`、TWD 6500 输出为 `"65.00"`
 - [ ] 5.6 【Claude 起草 → 用户确认】在定价页 FAQ 与退款政策中补充「以结账页显示的币种与金额为准、退款按原币种退回」，四种语言。验证：文案经用户确认；`legal-pages.test.ts` 与 `faq.test.tsx` 通过
@@ -61,4 +61,4 @@
 
 - [ ] 7.1 【用户批准 → 协调者】执行 live 演练，`pnpm billing:sync-stripe-live` 不带确认参数。验证：输出的待创建清单经使用者确认
 - [ ] 7.2 【用户批准 → 协调者】带确认参数写入 live 价格并激活，然后在两站各做一笔 TWD、KRW 的真实小额购买并退款。验证：Stripe 后台、生产后台与积分回收一致；主分支的发布流水线成功
-- [ ] 7.3 【用户批准】如果 1.1 与 1.3 都通过，打开 PayPal 的 TWD 开关，并在 live 环境做一笔真实购买与退款。验证：PayPal 交易币种为 TWD，入账一致
+- [x] 7.3 ~~作废（决策 2：PayPal 恒为 USD）~~ 【用户批准】如果 1.1 与 1.3 都通过，打开 PayPal 的 TWD 开关，并在 live 环境做一笔真实购买与退款。验证：PayPal 交易币种为 TWD，入账一致

@@ -11,7 +11,7 @@
 
 | 界面语言 | Stripe | PayPal |
 |---|---|---|
-| zh-Hant | TWD | TWD |
+| zh-Hant | TWD | USD |
 | ko | KRW | USD |
 | zh-Hans | USD | USD |
 | en 及其他语言 | USD | USD |
@@ -52,7 +52,7 @@
 所有金额 SHALL 以付款币种的最小单位整数记录，并遵循各平台对该币种的约定：
 
 - KRW 为零小数币种，1 表示 ₩1；
-- TWD 在 Stripe 中以 1/100 元记录，且 MUST 为 100 的倍数；在 PayPal 中只能以整元传递；
+- TWD 在 Stripe 中以 1/100 元记录，且 MUST 为 100 的倍数；PayPal 不使用 TWD（恒为 USD）；
 - USD 以美分记录。
 
 金额在显示、导出或发送分析事件前 MUST 按币种换算，MUST NOT 统一除以 100。

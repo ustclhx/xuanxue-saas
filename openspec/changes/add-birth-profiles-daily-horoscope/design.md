@@ -249,3 +249,7 @@ server functions 放在 `features/profiles/profiles.functions.ts`，包括 list�
 - **OQ7 评分**：是否在规则提示之外显示星级或分数？v1 不显示。
 - **OQ8 今日面板加入塔罗每日一张**：是否按「档案 + 日期」确定性地抽一张牌展示在面板？
 - **OQ9 地址用词**：韩语用 `오늘의-운세` 还是 `오늘의운세`，西方站用 `/daily-numerology` 还是 `/numerology/today`。需在 ui-design 阶段与 SEO 关键词一并确认，上线后不再改动。
+
+## 决策记录（2026-11-13，使用者确认）
+
+使用者审阅后确认：本 change 的 Open Questions 全部采用设计中的默认/推荐方案；需要使用者审阅的文案与样例按本 change 的默认方案执行，上线前的验收截图仍按 tasks 留证。

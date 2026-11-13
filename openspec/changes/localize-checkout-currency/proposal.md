@@ -8,7 +8,7 @@
 
 | 界面语言 | Stripe 结算币种 | PayPal 结算币种 | 页面展示 |
 |---|---|---|---|
-| zh-Hant | TWD | TWD | NT$ 实价 |
+| zh-Hant | TWD | USD | Stripe 显示 NT$ 实价，PayPal 显示 USD |
 | ko | KRW | USD | Stripe 显示 ₩ 实价，PayPal 显示 USD |
 | zh-Hans | USD | USD | 以 USD 为准，附 CNY 参考价 |
 | en | USD | USD | USD |
