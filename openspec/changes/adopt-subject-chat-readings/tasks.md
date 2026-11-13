@@ -36,9 +36,9 @@
 
 ## 5. 波次 B-2：报告页内追问（依赖：组 2、1.2 设计稿确认；1.1 Q3）
 
-- [ ] 5.1 【Claude】按 1.2 设计稿在 `report-page.tsx` 中于 ready 状态的正文之后懒加载 `<SubjectChat slug subjectType="reading" subjectId={view.id} />`（`print:hidden`，生成中不渲染，轮询转为 ready 后出现）；区块标题等文案放 `messages/<locale>/readings-chat.json`。若 1.1 Q3 选择授予报告模型，按 `generate.ts#readingEntitlements` 写法仅在报告对话中加入 `reading.modelKey`。验证：`report-page.test.tsx` 覆盖 ready 显示、generating / failed 不显示；`pnpm check:ui` 无新增例外；`check-home-bundle` 通过
-- [ ] 5.2 【Claude】删除报告时清除追问：`deleteReadingWithContent` 同一事务内清空 `subject_type='reading'` 且 `subject_id=<报告 id>` 的对话消息正文与标题、置为归档、删除其 `ai_message_feedback`；对话列表（含已归档）排除报告已不存在的报告对话。验证：集成测试建报告 + 两段追问 + 一条反馈后删除报告，断言消息 `parts` 为空、反馈已删、`listConversations` 两个列表都不含这两段对话、积分流水不变
-- [ ] 5.3 【Claude】报告追问 e2e（离线模型）：打开 ready 报告 → 追问区显示该类型的开场问题 → 点击后收到回复并扣积分 → 刷新后仍在同一对话 → 另一账号以同一报告 ID 请求对象对话得到 404 → 无可用模型的账号看到空态与购买入口、报告正文正常。验证：本地 e2e 通过，手机 390 与桌面 1440 截图存入证据目录
+- [x] 5.1 【Claude】按 1.2 设计稿在 `report-page.tsx` 中于 ready 状态的正文之后懒加载 `<SubjectChat slug subjectType="reading" subjectId={view.id} />`（`print:hidden`，生成中不渲染，轮询转为 ready 后出现）；区块标题等文案放 `messages/<locale>/readings-chat.json`。若 1.1 Q3 选择授予报告模型，按 `generate.ts#readingEntitlements` 写法仅在报告对话中加入 `reading.modelKey`。验证：`report-page.test.tsx` 覆盖 ready 显示、generating / failed 不显示；`pnpm check:ui` 无新增例外；`check-home-bundle` 通过
+- [x] 5.2 【Claude】删除报告时清除追问：`deleteReadingWithContent` 同一事务内清空 `subject_type='reading'` 且 `subject_id=<报告 id>` 的对话消息正文与标题、置为归档、删除其 `ai_message_feedback`；对话列表（含已归档）排除报告已不存在的报告对话。验证：集成测试建报告 + 两段追问 + 一条反馈后删除报告，断言消息 `parts` 为空、反馈已删、`listConversations` 两个列表都不含这两段对话、积分流水不变
+- [x] 5.3 【Claude】报告追问 e2e（离线模型）：打开 ready 报告 → 追问区显示该类型的开场问题 → 点击后收到回复并扣积分 → 刷新后仍在同一对话 → 另一账号以同一报告 ID 请求对象对话得到 404 → 无可用模型的账号看到空态与购买入口、报告正文正常。验证：本地 e2e 通过，手机 390 与桌面 1440 截图存入证据目录（实施记录：`e2e/reading-chat.spec.ts` 拦截 `POST /api/ai/chat` 返回模拟流，扣积分与上下文写入由 `test/readings-subjects.test.ts`、`test/ai-subject-chat.test.ts` 覆盖；他人 404 在 e2e 中为打开报告页 404，对象对话接口的 404 由 `test/readings-subjects.test.ts` 覆盖）
 
 ## 6. 波次 B-3：推荐追问、评分与隐私说明（依赖：1.1 Q2；可与组 4、5 并行）
 
