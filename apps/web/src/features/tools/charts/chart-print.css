@@ -1,0 +1,26 @@
+/*
+ * 图形打印约定（openspec redesign-home-chart-visuals design D3、chart-visuals「图形主题与打印」）：
+ * 打印时图形一律浅底深字。只在图形外框（ChartFrame 的 .chart-frame）内重定义站点 token，
+ * 不影响页面其余部分；用 CSS 系统色 Canvas / CanvasText / GrayText 配合 color-scheme: light，
+ * 不引入新的颜色字面量（brand.css 仍是唯一的品牌颜色来源）。五行色保持不变，图形中另有文字标签。
+ * 具体的打印配色以「命盘图形」设计稿的打印预览为准，可在此替换。
+ */
+@media print {
+  .chart-frame {
+    color-scheme: light;
+    --bg: Canvas;
+    --surface: Canvas;
+    --surface-2: Canvas;
+    --ink: CanvasText;
+    --ink-muted: CanvasText;
+    --ink-subtle: CanvasText;
+    --line: GrayText;
+    --line-strong: CanvasText;
+    --accent: CanvasText;
+    --accent-ink: CanvasText;
+    --on-accent: Canvas;
+    --inverse: CanvasText;
+    --on-inverse: Canvas;
+    break-inside: avoid;
+  }
+}

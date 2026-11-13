@@ -20,17 +20,17 @@
 
 依赖：无。冲突点：`apps/web/scripts/check-home-bundle.mjs` 及其测试只由本组修改。
 
-- [ ] 2.1 在 main 的本地生产预览上按 `docs/runbooks/evidence/perf-audit/2026-10-19.md` 的 `lighthouse@13.5.0` 命令测量基线（西方站 `/`、`/zh-hant`、`/zh-hans`、`/ko`、`/zh-hant/紫微斗數排盤`、`/numerology-chart`，各三次取中位数），并保存各首页预渲染 HTML 的 head（canonical、hreflang、robots、JSON-LD 类型）作为对照。验证：`$EVIDENCE_DIR/home-redesign/baseline/` 下有报告与 head 快照，PR 描述列出中位数
-- [ ] 2.2 扩展 `check-home-bundle.mjs`：检查西方站与东方站各语言首页的预渲染 HTML；新增分享图模块的禁止标记；新增每页 gzip 预算（= 2.1 时 main 的实测值 × 1.10，写为常量并注明来源）。验证：`check-home-bundle.test.ts` 覆盖多页面、禁止标记与超预算失败；`pnpm --filter @xuanxue/web build` 打印各页结果并通过
-- [ ] 2.3 新增首页 head 对照测试：断言各语言首页的 canonical、hreflang、x-default、robots 与 JSON-LD 类型与 2.1 快照一致。验证：测试在 main 上通过，并在 PR 中说明后续组修改首页时必须保持通过
+- [x] 2.1 在 main 的本地生产预览上按 `docs/runbooks/evidence/perf-audit/2026-10-19.md` 的 `lighthouse@13.5.0` 命令测量基线（西方站 `/`、`/zh-hant`、`/zh-hans`、`/ko`、`/zh-hant/紫微斗數排盤`、`/numerology-chart`，各三次取中位数），并保存各首页预渲染 HTML 的 head（canonical、hreflang、robots、JSON-LD 类型）作为对照。验证：`$EVIDENCE_DIR/home-redesign/baseline/` 下有报告与 head 快照，PR 描述列出中位数
+- [x] 2.2 扩展 `check-home-bundle.mjs`：检查西方站与东方站各语言首页的预渲染 HTML；新增分享图模块的禁止标记；新增每页 gzip 预算（= 2.1 时 main 的实测值 × 1.10，写为常量并注明来源）。验证：`check-home-bundle.test.ts` 覆盖多页面、禁止标记与超预算失败；`pnpm --filter @xuanxue/web build` 打印各页结果并通过
+- [x] 2.3 新增首页 head 对照测试：断言各语言首页的 canonical、hreflang、x-default、robots 与 JSON-LD 类型与 2.1 快照一致。验证：测试在 main 上通过，并在 PR 中说明后续组修改首页时必须保持通过
 
 ## 3. 图形基础（worktree W1）
 
 依赖：1.6。冲突点：新建 `apps/web/src/features/tools/charts/` 与 `apps/web/messages/<locale>/chart-common.json`，其他组只在自己的子文件中扩展。
 
-- [ ] 3.1 建立 `charts/` 模块骨架：图形外框组件（`viewBox` 固定宽高比、`role="img"`、`<title>` 与可选描述、`colors` 属性默认 `var(--token)`）、打印样式（浅底深字、`break-inside: avoid`）与服务端渲染测试工具（`renderToStaticMarkup` 输出快照）。验证：单元测试断言外框在服务端输出 `role="img"` 与标题，且源码通过 `pnpm check:ui`（无颜色字面量）
-- [ ] 3.2 实现浏览器端颜色解析工具（从 `getComputedStyle` 把 `var(--token)` 解析为实际颜色，供分享图使用）与构建期 brand.css 解析工具（供 OG 使用，放 `apps/web/scripts/`）。验证：单元测试断言 brand.css 解析出的东方站浅 / 深与西方站颜色等于 `visual-system.md` 表中的值
-- [ ] 3.3 在 `/dev/ui` 或项目预览页加入图形外框示例，记录各图形组的接入方式到 `apps/web/src/features/tools/charts/README.md`（布局函数 / 组件 / 颜色 / 文案命名空间约定）。验证：README 中的示例命令可运行，预览页在 390px 无横向滚动
+- [x] 3.1 建立 `charts/` 模块骨架：图形外框组件（`viewBox` 固定宽高比、`role="img"`、`<title>` 与可选描述、`colors` 属性默认 `var(--token)`）、打印样式（浅底深字、`break-inside: avoid`）与服务端渲染测试工具（`renderToStaticMarkup` 输出快照）。验证：单元测试断言外框在服务端输出 `role="img"` 与标题，且源码通过 `pnpm check:ui`（无颜色字面量）
+- [x] 3.2 实现浏览器端颜色解析工具（从 `getComputedStyle` 把 `var(--token)` 解析为实际颜色，供分享图使用）与构建期 brand.css 解析工具（供 OG 使用，放 `apps/web/scripts/`）。验证：单元测试断言 brand.css 解析出的东方站浅 / 深与西方站颜色等于 `visual-system.md` 表中的值
+- [x] 3.3 在 `/dev/ui` 或项目预览页加入图形外框示例，记录各图形组的接入方式到 `apps/web/src/features/tools/charts/README.md`（布局函数 / 组件 / 颜色 / 文案命名空间约定）。验证：README 中的示例命令可运行，预览页在 390px 无横向滚动
 
 ## 4. 八字与만세력图形（worktree W2）
 

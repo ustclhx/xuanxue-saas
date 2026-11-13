@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_sample_badge": "示例",
+  "chart_equivalent_hint": "完整内容见图形下方的表格。"
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_sample_badge": "예시",
+  "chart_equivalent_hint": "전체 내용은 그림 아래 표에서 볼 수 있습니다."
+}
