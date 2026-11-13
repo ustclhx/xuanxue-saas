@@ -458,6 +458,76 @@ describe('billing event consumer on PostgreSQL', () => {
       await db.delete(webhookEvent).where(eq(webhookEvent.providerEventId, delivery))
     }
   })
+  it('TWD and KRW payments record in their own minor units', async () => {
+    await db
+      .update(planPrice)
+      .set({ amount: 6500, currency: 'TWD' })
+      .where(eq(planPrice.id, priceId))
+    await apply([await checkout(), paid({ amount: 6500, currency: 'twd' })])
+    expect(await payments()).toMatchObject([{ amount: 6500, currency: 'TWD' }])
+    expect(await grants()).toHaveLength(1)
+  })
+  it('a TWD price paid in USD is a non-retryable currency mismatch', async () => {
+    await db
+      .update(planPrice)
+      .set({ amount: 6500, currency: 'TWD' })
+      .where(eq(planPrice.id, priceId))
+    await apply([await checkout()])
+    const delivery = id()
+    try {
+      const verified = {
+        providerEventId: delivery,
+        type: 'invoice.paid',
+        events: [paid({ amount: 199, currency: 'USD' })],
+      }
+      const result = await processWebhook({
+        db,
+        provider: { ...provider, verifyWebhook: async () => verified },
+        request: new Request('https://example.test'),
+        rawBody: '{}',
+        ...createBillingEventHandler({ db, providers: { stripe: provider }, now: () => now }),
+        onFailure: vi.fn(),
+      })
+      expect(result).toMatchObject({ status: 'failed', retryable: false })
+      expect(result.status === 'failed' && result.error).toContain(
+        'BILLING_CURRENCY_MISMATCH: expected TWD, received USD',
+      )
+      expect(await payments()).toHaveLength(0)
+      expect(await grants()).toHaveLength(0)
+    } finally {
+      await db.delete(webhookEvent).where(eq(webhookEvent.providerEventId, delivery))
+    }
+  })
+  it('KRW partial refund reclaims credits proportionally; a refund in another currency is rejected', async () => {
+    await db
+      .update(planPrice)
+      .set({ amount: 2800, currency: 'KRW' })
+      .where(eq(planPrice.id, priceId))
+    await apply([await checkout(), paid({ amount: 2800, currency: 'KRW' })])
+    const [p] = await payments()
+    if (!p) throw new Error('missing')
+    const refund: NormalizedEvent = {
+      provider: 'stripe',
+      type: 'payment.refunded',
+      providerPaymentId: p.providerPaymentId,
+      providerRefundId: id(),
+      amount: 1400,
+      currency: 'KRW',
+      refundedAmount: 1400,
+      occurredAt: now,
+      raw: {},
+    }
+    await expect(apply([{ ...refund, currency: 'USD' }])).rejects.toThrow(
+      'BILLING_CURRENCY_MISMATCH',
+    )
+    await apply([refund])
+    expect((await payments())[0]).toMatchObject({
+      refundedAmount: 1400,
+      status: 'partially_refunded',
+    })
+    // 10 积分批次在退款 50% 后保留 floor(10 × 0.5) = 5，与币种无关
+    expect((await grants())[0]).toMatchObject({ amount: 10, remaining: 5 })
+  })
   it('past_due start survives updates, retries and daily reconciliation; recovery clears it', async () => {
     await apply([paid()])
     const at = (days: number) => new Date(now.getTime() + days * 86_400_000)

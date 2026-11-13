@@ -126,5 +126,7 @@
   "marketing_guides_title": "指南",
   "marketing_guides_subtitle": "常见问题的简明答案。",
   "marketing_guides_back": "全部指南",
-  "marketing_guides_faq": "常见问题"
+  "marketing_guides_faq": "常见问题",
+  "pricing_faq_currency_q": "以什么币种付款？",
+  "pricing_faq_currency_a": "以结账页面显示的币种与金额为准：本站以美元结算，人民币金额仅为参考价。PayPal 一律以美元结算。退款按原付款币种退回。"
 }

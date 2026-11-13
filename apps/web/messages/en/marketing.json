@@ -126,5 +126,7 @@
   "marketing_guides_title": "Guides",
   "marketing_guides_subtitle": "Short answers to common questions.",
   "marketing_guides_back": "All guides",
-  "marketing_guides_faq": "Frequently asked questions"
+  "marketing_guides_faq": "Frequently asked questions",
+  "pricing_faq_currency_q": "Which currency will I be charged in?",
+  "pricing_faq_currency_a": "You are charged in the currency and amount shown at checkout. On this site prices are in US dollars. Refunds go back in the currency of the original payment."
 }

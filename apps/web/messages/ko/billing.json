@@ -64,5 +64,7 @@
   "billing_usage_reference": "참조",
   "billing_usage_batch": "배치",
   "billing_usage_no_activity": "아직 크레딧 활동이 없습니다.",
-  "billing_usage_older_activity": "이전 활동"
+  "billing_usage_older_activity": "이전 활동",
+  "billing_paypal_usd_note": "PayPal은 미국 달러로 결제됩니다.",
+  "billing_cny_reference": "약 {price} (참고 가격, 미국 달러로 결제)"
 }

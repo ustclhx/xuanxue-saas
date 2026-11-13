@@ -372,5 +372,6 @@
   "admin_metrics_by_site_description": "依所選區間即時計算：註冊數為區間內新增；使用者數、工作空間數與付費工作空間數為區間最後一日日終（UTC）的存量。",
   "admin_total_users": "使用者數",
   "admin_total_workspaces": "有效工作空間數",
-  "admin_revoke_remaining_credits_in_batch": "確定撤銷批次 {batchId} 中的剩餘積分嗎？"
+  "admin_revoke_remaining_credits_in_batch": "確定撤銷批次 {batchId} 中的剩餘積分嗎？",
+  "admin_partial_amount_in_currency": "部分退款金額（{currency}）"
 }

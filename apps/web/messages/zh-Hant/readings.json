@@ -19,7 +19,7 @@
   "readings_unlock_balance": "目前餘額：{balance} 積分",
   "readings_unlock_need_credits": "積分不足。選擇積分包並完成付款後，會回到這裡自動開始生成。",
   "readings_pack_credits": "{credits} 積分",
-  "readings_pack_price_note": "以美元扣款；當地貨幣價格僅供參考，實際換算以發卡銀行或 PayPal 為準",
+  "readings_pack_price_note": "按所示幣別與金額扣款；參考價僅供參考。",
   "readings_pay_method": "付款方式",
   "readings_pay_card": "信用卡／金融卡",
   "readings_pay_paypal": "PayPal",

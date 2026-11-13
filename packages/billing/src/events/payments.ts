@@ -23,11 +23,9 @@ export async function applyPaymentSucceeded(
   options: Pick<BillingEventOptions, 'subscriptionCreditGraceHours' | 'now'>,
 ) {
   const p = event.payment
-  money(p.amount, p.currency)
-  if (
-    p.kind !== 'adjustment' &&
-    (p.amount !== a.price.amount || p.currency.toUpperCase() !== a.price.currency.toUpperCase())
-  )
+  // 调整账单（升级补差）金额与价格不同，但币种仍须与价格行一致
+  money(p.amount, p.currency, a.price.currency)
+  if (p.kind !== 'adjustment' && p.amount !== a.price.amount)
     throw new Error('Payment price mismatch')
   if (
     p.period &&

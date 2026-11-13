@@ -14,6 +14,7 @@ import {
 } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm'
+import { isValidMinorAmount } from './currency.ts'
 import { applyBillingEvent, type BillingProviders, lockWorkspaceBilling } from './events.ts'
 import type { WebhookTransaction } from './pipeline.ts'
 
@@ -44,9 +45,12 @@ function text(value: string, name: string, required = true) {
     fail('INVALID_REFUND_INPUT', `${name} must contain 1–2000 characters`)
   return result
 }
-function amount(value: number, remaining: number) {
+function amount(value: number, remaining: number, currency: string) {
   if (!Number.isSafeInteger(value) || value <= 0 || value > remaining)
     fail('INVALID_REFUND_AMOUNT', 'Refund amount exceeds the remaining payment')
+  // 按原付款币种的平台约束校验：Stripe 的 TWD 退款必须是整元（最小单位 100 的倍数）
+  if (!isValidMinorAmount(value, currency))
+    fail('INVALID_REFUND_AMOUNT', 'Refund amount is not valid for the payment currency')
   return value
 }
 const clock = (options: RefundServiceOptions) => options.now?.() ?? new Date()
@@ -203,7 +207,7 @@ export async function submitRefundRequest(
     const requestedAmount =
       input.requestedAmount === undefined
         ? null
-        : amount(input.requestedAmount, paid.amount - paid.refundedAmount)
+        : amount(input.requestedAmount, paid.amount - paid.refundedAmount, paid.currency)
     const [created] = await tx
       .insert(refundRequest)
       .values({
@@ -303,6 +307,7 @@ export async function reviewRefundRequest(
         ? amount(
             input.approvedAmount ?? paid.amount - paid.refundedAmount,
             paid.amount - paid.refundedAmount,
+            paid.currency,
           )
         : null
     if (input.decision === 'approve') {

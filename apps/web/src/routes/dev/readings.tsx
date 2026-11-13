@@ -2,7 +2,6 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useState } from 'react'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import { Markdown } from '../../features/readings/markdown.tsx'
-import { FALLBACK_LOCAL_RATES } from '../../features/readings/price.ts'
 import type { ReadingOffer } from '../../features/readings/readings.functions.ts'
 import { ReadingUnlock } from '../../features/readings/unlock-card.tsx'
 import { Disclaimer } from '../../features/tools/disclaimer.tsx'
@@ -81,16 +80,17 @@ function ReadingsDemoPage() {
         provider: 'stripe',
         credits: 100,
         amount: 99,
+        currency: 'USD',
       },
       {
         planPriceId: '00000000-0000-7000-8000-000000000002',
         provider: 'stripe',
         credits: 500,
         amount: 399,
+        currency: 'USD',
       },
     ],
     viewer: signed ? { slug: 'demo', balance } : null,
-    rates: FALLBACK_LOCAL_RATES,
   }))
   return (
     <MarketingShell>

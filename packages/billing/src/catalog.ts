@@ -2,10 +2,15 @@ import { type Database, type Plan, type PlanPrice, plan, planPrice } from '@xuan
 import { DEFAULT_FREE_FEATURES } from '@xuanxue/entitlements'
 import { newId } from '@xuanxue/shared'
 import { and, eq, isNull, sql } from 'drizzle-orm'
+import { assertMinorAmount, type EnabledCurrency, providerSettlesIn } from './currency.ts'
 import { creditPackId } from './paypal/metadata.ts'
+import { type CatalogPrice, tablePrices } from './price-table.ts'
 import type { PaymentProvider } from './provider.ts'
 
-/** Template examples in USD cents, not approved business prices. Model permissions are managed in the admin console. */
+/**
+ * Template examples; sold plans take their multi-currency prices from the project price table
+ * (`price-table.ts`). Model permissions are managed in the admin console.
+ */
 export const EXAMPLE_CATALOG = [
   {
     key: 'free',
@@ -79,7 +84,8 @@ export const EXAMPLE_CATALOG = [
     active: false,
     prices: [],
   },
-  // 详批积分包（add-reading-monetization design 决策 4）：1 次详批 = 100 积分；价格为种子值，后台可改。
+  // 详批积分包（add-reading-monetization design 决策 4）：1 次详批 = 100 积分。
+  // 价格来自价目表，每个结算币种一行（localize-checkout-currency D1/D2）。
   {
     key: 'reading_single',
     name: 'Single Reading',
@@ -90,7 +96,7 @@ export const EXAMPLE_CATALOG = [
     features: DEFAULT_FREE_FEATURES,
     sort: 0,
     active: true,
-    prices: [{ interval: null, amount: 199 }],
+    prices: tablePrices('reading_single'),
   },
   {
     key: 'reading_five',
@@ -102,30 +108,42 @@ export const EXAMPLE_CATALOG = [
     features: DEFAULT_FREE_FEATURES,
     sort: 10,
     active: true,
-    prices: [{ interval: null, amount: 699 }],
+    prices: tablePrices('reading_five'),
   },
 ] satisfies (Omit<typeof plan.$inferInsert, 'id'> & {
-  prices: { interval: PlanPrice['interval']; amount: number }[]
+  prices: CatalogPrice[]
 })[]
+
+/** 写入任何数据或调用平台之前校验目录金额：TWD 必须是整元等币种约束 */
+function assertCatalogAmounts() {
+  for (const entry of EXAMPLE_CATALOG)
+    for (const price of entry.prices as CatalogPrice[])
+      assertMinorAmount(price.amount, price.currency)
+}
+
+/** 该平台要建价格行的目录价格：PayPal 只建 USD（决策 2） */
+function providerPrices(prices: readonly CatalogPrice[], provider: PlanPrice['provider']) {
+  return prices.filter((price) => providerSettlesIn(provider, price.currency))
+}
 
 const PROVIDERS = ['stripe', 'paypal'] as const
 function tuple(
   planId: string,
   provider: PlanPrice['provider'],
-  interval: PlanPrice['interval'],
-  amount: number,
+  { interval, amount, currency }: CatalogPrice,
 ) {
   return and(
     eq(planPrice.planId, planId),
     eq(planPrice.provider, provider),
     interval === null ? isNull(planPrice.interval) : eq(planPrice.interval, interval),
     eq(planPrice.amount, amount),
-    eq(planPrice.currency, 'USD'),
+    eq(planPrice.currency, currency satisfies EnabledCurrency),
   )
 }
 
 /** Database only: no provider construction, credentials, or network access. */
 export async function seedCatalog(db: Database): Promise<void> {
+  assertCatalogAmounts()
   await db.transaction(async (tx) => {
     for (const { prices, ...values } of EXAMPLE_CATALOG) {
       const [localPlan] = await tx
@@ -143,11 +161,11 @@ export async function seedCatalog(db: Database): Promise<void> {
       if (!localPlan) throw new Error('Catalog plan upsert returned no row')
       // The upsert locks the plan until commit, serializing tuple creation across seed runs.
       for (const provider of PROVIDERS) {
-        for (const price of prices) {
+        for (const price of providerPrices(prices, provider)) {
           const existing = await tx
             .select()
             .from(planPrice)
-            .where(tuple(localPlan.id, provider, price.interval, price.amount))
+            .where(tuple(localPlan.id, provider, price))
           if (existing.length) continue
           const id = newId()
           await tx.insert(planPrice).values({
@@ -157,7 +175,7 @@ export async function seedCatalog(db: Database): Promise<void> {
             providerPriceId: `unsynced:${provider}:${id}`,
             interval: price.interval,
             amount: price.amount,
-            currency: 'USD',
+            currency: price.currency,
             active: false,
           })
         }
@@ -179,13 +197,15 @@ export async function activateCreditPackMappings(
         (entry) => entry.type === 'credit_pack' && entry.key === pack.key,
       )
       const currentIds = new Set<string>()
-      for (const intended of example?.prices ?? []) {
+      for (const intended of providerPrices(example?.prices ?? [], provider)) {
         const prices = await tx
           .select()
           .from(planPrice)
-          .where(tuple(pack.id, provider, intended.interval, intended.amount))
+          .where(tuple(pack.id, provider, intended))
         if (prices.length !== 1)
-          throw new Error(`Expected one seeded price for ${pack.key}/${provider}`)
+          throw new Error(
+            `Expected one seeded price for ${pack.key}/${provider}/${intended.currency}`,
+          )
         const price = prices[0] as PlanPrice
         currentIds.add(price.id)
         const mapping = creditPackId(price.id)
@@ -216,19 +236,22 @@ export async function syncCatalog(
   db: Database,
   providers: readonly PaymentProvider[],
 ): Promise<number> {
+  assertCatalogAmounts()
   let synced = 0
   for (const provider of providers) {
     for (const example of EXAMPLE_CATALOG) {
       if (!example.prices.length) continue // Free has no remote price or checkout.
       const [localPlan] = await db.select().from(plan).where(eq(plan.key, example.key))
       if (!localPlan) throw new Error(`Seed catalog before syncing ${example.key}`)
-      for (const intended of example.prices) {
+      for (const intended of providerPrices(example.prices, provider.id)) {
         const prices = await db
           .select()
           .from(planPrice)
-          .where(tuple(localPlan.id, provider.id, intended.interval, intended.amount))
+          .where(tuple(localPlan.id, provider.id, intended))
         if (prices.length !== 1)
-          throw new Error(`Expected one seeded price for ${example.key}/${provider.id}`)
+          throw new Error(
+            `Expected one seeded price for ${example.key}/${provider.id}/${intended.currency}`,
+          )
         const price = prices[0] as PlanPrice
         const existingId = price.providerPriceId.startsWith('unsynced:')
           ? undefined

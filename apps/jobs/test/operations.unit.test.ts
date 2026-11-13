@@ -2,7 +2,11 @@ import type { QueueBatch, QueueMessage } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { BillingEnv } from '../src/billing.ts'
-import { parseOperationsMessage, sendOperationsChannel } from '../src/notifications/operations.ts'
+import {
+  operationsAmount,
+  parseOperationsMessage,
+  sendOperationsChannel,
+} from '../src/notifications/operations.ts'
 import { logJobObserver } from '../src/observer.ts'
 import { handleBillingBatch } from '../src/queues/billing.ts'
 
@@ -101,4 +105,11 @@ it('retries ordinary operations errors then records exhaustion while billing is 
   expect(vi.mocked(console.warn).mock.calls.flat().join('\n')).toContain(
     '"requestId":"original-request"',
   )
+})
+
+it('formats operations amounts per currency exponent instead of dividing by 100', () => {
+  expect(operationsAmount(199, 'usd')).toBe('1.99 USD')
+  expect(operationsAmount(6500, 'TWD')).toBe('65.00 TWD')
+  expect(operationsAmount(2800, 'KRW')).toBe('2800 KRW')
+  expect(operationsAmount(100, 'EUR')).toBe('100 EUR (minor units)')
 })

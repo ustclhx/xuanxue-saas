@@ -1,3 +1,4 @@
+import { currencyFor, selectCurrencyPrice } from '@xuanxue/billing/currency'
 import type { PlanFeatures } from '@xuanxue/db'
 import type { customerCatalog } from '../billing/customer-data.ts'
 
@@ -154,4 +155,60 @@ export function packExpiryDays(
     .map((pack) => pack.creditExpiryDays)
     .filter((value): value is number => value !== null)
   return days.length ? Math.min(...days) : null
+}
+
+interface DisplayablePrice {
+  readonly planId: string
+  readonly provider: string
+  readonly interval: BillingInterval | null
+  readonly currency: string
+  readonly available: boolean
+}
+
+/**
+ * 页面展示的价格行（localize-checkout-currency D5）：与结账的服务端选价使用同一规则——
+ * 在该支付平台的可购买行中按界面语言的结算币种选，缺失时回退 USD，因此展示币种与扣款一致。
+ * 支付尚未开通（没有可购买行）时只用于展示金额，同样按目标币种选、回退 USD。
+ */
+export function selectDisplayPrice<P extends DisplayablePrice>(
+  prices: readonly P[],
+  locale: string,
+  provider: string,
+): P | undefined {
+  const own = prices.filter((price) => price.provider === provider)
+  const target = currencyFor(locale, provider)
+  const available = own.filter((price) => price.available)
+  return available.length
+    ? selectCurrencyPrice(available, target)
+    : selectCurrencyPrice(own, target)
+}
+
+/** 每个 (套餐, 周期) 只保留一行展示价格，顺序沿用输入 */
+export function displayPrices<P extends DisplayablePrice>(
+  prices: readonly P[],
+  locale: string,
+  provider: string,
+): P[] {
+  const groups = new Map<string, P[]>()
+  for (const price of prices) {
+    if (price.provider !== provider) continue
+    const key = `${price.planId}:${price.interval}`
+    groups.set(key, [...(groups.get(key) ?? []), price])
+  }
+  return [...groups.values()].flatMap((group) => {
+    const chosen = selectDisplayPrice(group, locale, provider)
+    return chosen ? [chosen] : []
+  })
+}
+
+/** 公开页的主展示平台：template.config 顺序中第一个可用的平台，都不可用时取第一个出现的平台 */
+export function displayProvider(catalog: {
+  readonly providers: readonly { readonly id: string; readonly available: boolean }[]
+  readonly prices: readonly { readonly provider: string }[]
+}): string | undefined {
+  return (
+    catalog.providers.find((provider) => provider.available)?.id ??
+    catalog.providers[0]?.id ??
+    catalog.prices[0]?.provider
+  )
 }
