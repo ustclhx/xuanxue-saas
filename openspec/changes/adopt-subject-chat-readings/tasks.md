@@ -44,7 +44,7 @@
 
 - [ ] 6.1 【Codex】`template.config.ts` 设置 `ai.text.followUps`（`enabled: true`，`count: 3`，`charge` 与 `modelKey` 按 1.1 Q2）。验证：`pnpm typecheck` 通过；本地对话一轮后显示 3 个推荐问题，点击即发送且刷新后历史中没有推荐问题本身；模型故障注入下回复正常、不显示推荐区
 - [ ] 6.2 【Codex】评分与反馈验收（模板已接线，项目不改代码）：在对话页与报告追问中依次点赞、改点踩选原因并勾选共享、撤销，后台 `/admin/feedback` 统计与原因筛选随之变化，共享查看只显示被评回复与之前最多 3 条消息、不含报告上下文，且写审计。验证：浏览器截图与审计记录存入证据目录
-- [ ] 6.3 【Claude】隐私政策（`content/legal/{east/zh-Hant,east/zh-Hans,east/ko,west/en}/privacy.mdx`）补充：反馈共享（逐条同意、可撤回、保留期随对话删除）；报告追问会把报告内容作为上下文发送给模型服务商；删除报告会一并清除追问内容。措辞经使用者确认（Open Questions 6）。验证：四个语言版本内容一致，`pnpm build` 预渲染通过，使用者确认记录在 PR 描述中
+- [x] 6.3 【Claude】隐私政策（`content/legal/{east/zh-Hant,east/zh-Hans,east/ko,west/en}/privacy.mdx`）补充：反馈共享（逐条同意、可撤回、保留期随对话删除）；报告追问会把报告内容作为上下文发送给模型服务商；删除报告会一并清除追问内容。措辞经使用者确认（Open Questions 6）。验证：四个语言版本内容一致，`pnpm build` 预渲染通过，使用者确认记录在 PR 描述中
 
 ## 7. 集成验收（依赖：组 2–6 全部合并）
 
