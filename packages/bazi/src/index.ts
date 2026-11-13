@@ -1,4 +1,14 @@
 export {
+  type AnnualOutlook,
+  type AnnualRelation,
+  type AnnualRelationType,
+  type AnnualYear,
+  annualOutlook,
+  type DecadeDetail,
+  decadeDetails,
+  type ElementRole,
+} from './annual.ts'
+export {
   type BaziChart,
   type ChartOptions,
   type ChartTime,
@@ -25,6 +35,19 @@ export {
   TEN_GODS,
   type TenGod,
 } from './constants.ts'
+export {
+  DAILY_RULES_VERSION,
+  type DailyDate,
+  type DailyNatal,
+  type DailyRelation,
+  type DailyRelationKind,
+  type DailyRelations,
+  type DayPillar,
+  DUTY_KEYS,
+  type DutyKey,
+  dailyRelations,
+  dayPillarOf,
+} from './daily.ts'
 export type { DecadeFortune, Fortune, YearFortune } from './fortune.ts'
 export {
   BaziInputError,
@@ -39,6 +62,22 @@ export {
   validateInput,
 } from './input.ts'
 export type { HiddenStem, Pillar, Pillars, Qi } from './pillars.ts'
+export {
+  type BranchRelationType,
+  branchRelations,
+  type GanZhiRelationType,
+  ganZhiRelations,
+  isClash,
+  isHarm,
+  isPunish,
+  isSixCombine,
+  isStemCombine,
+  isTriad,
+  type StemRelationType,
+  stemRelations,
+  taiSuiOf,
+  triadOf,
+} from './relations.ts'
 export { SHENSHA_KEYS, type ShenshaBasis, type ShenshaEntry, type ShenshaKey } from './shensha.ts'
 export type { ElementStat, ScoreItem, Strength, UsefulElements } from './strength.ts'
 export type { DateTimeParts } from './time.ts'

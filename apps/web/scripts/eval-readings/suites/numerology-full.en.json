@@ -1,0 +1,27 @@
+{
+  "kind": "numerology-full",
+  "locale": "en",
+  "samples": [
+    {
+      "id": "numerology-en-01",
+      "note": "fictional: life path master number 11",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "year": 1987,
+        "month": 11,
+        "day": 29,
+        "name": "Mira Holloway"
+      }
+    },
+    {
+      "id": "numerology-en-02",
+      "note": "fictional: no name, January request",
+      "requestDate": "2026-01-05T00:00:00Z",
+      "input": {
+        "year": 1994,
+        "month": 5,
+        "day": 6
+      }
+    }
+  ]
+}

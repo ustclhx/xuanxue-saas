@@ -32,23 +32,23 @@
 
 ## 2. 波次 A · WT-engine：引擎流日与个人日（【Claude】）
 
-- [ ] 2.1 在 `packages/bazi/src/daily.ts` 实现 `dayPillarOf(date)`：日柱、农历日，以及宜忌与建除的键，来自 tyme4ts，不带本地化文字。从 `index.ts` 和新的子入口导出，并导出 `DAILY_RULES_VERSION`。验证：单测用 10 个以上已知日期核对日柱，至少包括 2026-11-13 和跨年、闰月附近的日期；民用日界下 23:30 不换日
-- [ ] 2.2 实现 `dailyRelations(chart, date)`：返回十神，以及日支与本命各支的冲、合、三合、刑、害。复用 `compat.ts` 的函数，补上六害。验证：单测覆盖辰戌冲、子丑合、寅巳申刑、子未害，以及时辰未知时只比较三支
-- [ ] 2.3 在 `packages/numerology` 增加 `universalDay`、`personalMonth`、`personalDay`，返回值带 steps，11、22 保留为主数。验证：单测覆盖 spec 的「步骤可展示」与「调用方传入本地日期」两个场景，以及结果为主数的情况
-- [ ] 2.4 更新 `packages/bazi` 与 `packages/numerology` 的 README 或包内说明，补上新函数与版本号约定。验证：`pnpm typecheck`、`pnpm test --filter @xuanxue/bazi --filter @xuanxue/numerology` 通过
+- [x] 2.1 在 `packages/bazi/src/daily.ts` 实现 `dayPillarOf(date)`：日柱、农历日，以及宜忌与建除的键，来自 tyme4ts，不带本地化文字。从 `index.ts` 和新的子入口导出，并导出 `DAILY_RULES_VERSION`。验证：单测用 10 个以上已知日期核对日柱，至少包括 2026-11-13 和跨年、闰月附近的日期；民用日界下 23:30 不换日
+- [x] 2.2 实现 `dailyRelations(chart, date)`：返回十神，以及日支与本命各支的冲、合、三合、刑、害。复用 `compat.ts` 的函数，补上六害。验证：单测覆盖辰戌冲、子丑合、寅巳申刑、子未害，以及时辰未知时只比较三支
+- [x] 2.3 在 `packages/numerology` 增加 `universalDay`、`personalMonth`、`personalDay`，返回值带 steps，11、22 保留为主数。验证：单测覆盖 spec 的「步骤可展示」与「调用方传入本地日期」两个场景，以及结果为主数的情况
+- [x] 2.4 更新 `packages/bazi` 与 `packages/numerology` 的 README 或包内说明，补上新函数与版本号约定。验证：`pnpm typecheck`、`pnpm test --filter @xuanxue/bazi --filter @xuanxue/numerology` 通过
 
 ## 3. 波次 A · WT-profiles-data：档案数据与服务（【Claude】）
 
-- [ ] 3.1 新建 `packages/db/src/schema/profiles.ts`，内容见 design D1：表、check 约束、两个部分唯一索引与查询索引。`schema/index.ts` 追加导出；本地 `drizzle-kit push`。验证：`pnpm typecheck` 通过；本地库中可看到表与索引
-- [ ] 3.2 新建 `apps/web/src/features/profiles/schema.ts`：从 `readings/catalog.ts` 抽出共用的 `birthInputSchema`，详批改为引用它，行为不变；新增按站点必填的 `birthProfileSchema` 与 `profileFor(tool, profile)`。验证：单测覆盖东方站缺性别时拒绝、西方站只填日期时通过、农历闰月非法时拒绝，以及 `profileFor` 返回的 missing 列表；详批现有测试全部通过
-- [ ] 3.3 实现 `profiles.functions.ts`：list、get、create、update、delete、setDefault。要求个人空间，`scoped` 加用户过滤；事务内维持 20 份上限与默认档案转移；越权按 NOT_FOUND 处理。验证：集成测试覆盖越权读写、第 21 份被拒、两个并发请求同时新建不会超限、第二份「本人」被拒、删除默认档案后自动转移、第一份档案自动成为默认
-- [ ] 3.4 在 `features/readings/deletion.server.ts` 的 `workspaceContentDeletionStep` 中加入删除 `birth_profile`。验证：集成测试中删号后该用户档案为 0，另一站同邮箱账户的档案保留（对应 account-deletion 增量 spec）
-- [ ] 3.5 数据最小化：server function 的日志与审计只记录档案 id，错误上报不带请求体。验证：单测断言创建或更新失败时的日志字段不含 `birth` 与 `full_name`
-- [ ] 3.6 在 `docs/03-data-model.md` 登记 `birth_profile` 表与隐私约束。验证：文档与 schema 字段一致
+- [x] 3.1 新建 `packages/db/src/schema/profiles.ts`，内容见 design D1：表、check 约束、两个部分唯一索引与查询索引。`schema/index.ts` 追加导出；本地 `drizzle-kit push`。验证：`pnpm typecheck` 通过；本地库中可看到表与索引
+- [x] 3.2 新建 `apps/web/src/features/profiles/schema.ts`：从 `readings/catalog.ts` 抽出共用的 `birthInputSchema`，详批改为引用它，行为不变；新增按站点必填的 `birthProfileSchema` 与 `profileFor(tool, profile)`。验证：单测覆盖东方站缺性别时拒绝、西方站只填日期时通过、农历闰月非法时拒绝，以及 `profileFor` 返回的 missing 列表；详批现有测试全部通过
+- [x] 3.3 实现 `profiles.functions.ts`：list、get、create、update、delete、setDefault。要求个人空间，`scoped` 加用户过滤；事务内维持 20 份上限与默认档案转移；越权按 NOT_FOUND 处理。验证：集成测试覆盖越权读写、第 21 份被拒、两个并发请求同时新建不会超限、第二份「本人」被拒、删除默认档案后自动转移、第一份档案自动成为默认
+- [x] 3.4 在 `features/readings/deletion.server.ts` 的 `workspaceContentDeletionStep` 中加入删除 `birth_profile`。验证：集成测试中删号后该用户档案为 0，另一站同邮箱账户的档案保留（对应 account-deletion 增量 spec）
+- [x] 3.5 数据最小化：server function 的日志与审计只记录档案 id，错误上报不带请求体。验证：单测断言创建或更新失败时的日志字段不含 `birth` 与 `full_name`
+- [x] 3.6 在 `docs/03-data-model.md` 登记 `birth_profile` 表与隐私约束。验证：文档与 schema 字段一致
 
 ## 4. 波次 A · WT-privacy：隐私政策（【Claude 起草 → 用户确认】）
 
-- [ ] 4.1 两站四份 `content/legal/*/privacy.mdx` 各新增「出生档案」小节，内容包括存储、用途、保存期限（直到删除档案或账号，备份最多 7 天）、删除方式、不发送给 AI 提供方；并把「免费工具不向服务器发送资料」改为「除非你主动保存档案」。保存期限列表与「如何删除」段同步更新。验证：用户确认文案；`e2e/marketing.spec.ts` 的法律页用例通过；预渲染 HTML 中可搜到该小节
+- [x] 4.1 两站四份 `content/legal/*/privacy.mdx` 各新增「出生档案」小节，内容包括存储、用途、保存期限（直到删除档案或账号，备份最多 7 天）、删除方式、不发送给 AI 提供方；并把「免费工具不向服务器发送资料」改为「除非你主动保存档案」。保存期限列表与「如何删除」段同步更新。验证：用户确认文案；`e2e/marketing.spec.ts` 的法律页用例通过；预渲染 HTML 中可搜到该小节
 
 ## 5. 波次 B · WT-profiles-ui：档案管理页（【Claude】，依赖 3、1.2）
 
