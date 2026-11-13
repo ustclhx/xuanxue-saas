@@ -21,6 +21,12 @@
         "reason": "Google 等第三方品牌图标使用官方品牌颜色。",
         "value": "#EA4335"
       }
+    ],
+    "apps/web/src/features/share-cards/share-cards.theme.ts": [
+      {
+        "rule": "color-literal",
+        "reason": "分享卡片在服务端渲染，无法读取 CSS 变量"
+      }
     ]
   },
   "pendingReplacement": {

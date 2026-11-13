@@ -12,7 +12,7 @@ import {
   privateMeta,
   staticPage,
 } from './metadata.ts'
-import { OgCard } from './og-card.ts'
+import { eastEnglishOgImageCard, ogImageCard, ogImageCardLayout } from './og-image-card.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
 import {
@@ -219,6 +219,23 @@ describe('公开页面 SEO（4.1–4.3）', () => {
       expect(robots(origin)).toContain(`Disallow: ${path}`)
   })
 
+  it('分享页与分享卡片：robots 放行，站点地图不收录（模板 0.4.0）', () => {
+    const text = robots(origin)
+    expect(text).toContain('Allow: /share-card/')
+    expect(text).toContain('Allow: /s/')
+    expect(text).toContain('Allow: /zh-hant/s/')
+    expect(text).not.toMatch(/Disallow: \/(?:s|share-card)\//)
+    const shared = [
+      ...pages,
+      { path: '/s/sample/abc', title: 'Shared', description: 'Shared', locale },
+      { path: '/share-card/sample/abc.png', title: 'Card', description: 'Card', locale },
+    ]
+    const output = sitemap(shared, origin)
+    expect(output).not.toContain('/s/sample')
+    expect(output).not.toContain('/share-card/')
+    expect(pages.some((page) => page.path.startsWith('/s/'))).toBe(false)
+  })
+
   it('三类页面 JSON-LD 为合法 JSON 且具备类型所需字段，价格来自套餐目录', () => {
     const home = pages.find((page) => page.path === '/' && page.locale === locale)
     if (!home) throw new Error('Missing homepage')
@@ -321,12 +338,27 @@ describe('分享图与缓存（4.4）', () => {
   it('无封面页面的卡片包含站点名称和页面标题', () => {
     const page = pages.find((page) => page.path === '/terms' && page.locale === locale)
     if (!page) throw new Error('Missing legal page')
-    const markup = renderToStaticMarkup(
-      <OgCard title={page.title} brand={pageBrand(page)} host="arcanumber.com" />,
-    )
-    expect(markup).toContain('Arcanumber')
+    const markup = renderToStaticMarkup(ogImageCardLayout(ogImageCard(page)))
+    expect(markup).toContain(pageBrand(page))
     expect(markup).toContain('arcanumber.com')
     expect(markup).toContain(page.title)
+    expect(markup).not.toContain('AI workspace')
+  })
+
+  it('东方站页面与英文入口页的卡片使用东方站品牌、域名与配色', () => {
+    const card = ogImageCard({ title: '八字排盘', locale: 'zh-Hant' })
+    expect(card).toMatchObject({ site: 'east', brand: '干支日', host: 'ganjiday.com' })
+    const markup = renderToStaticMarkup(ogImageCardLayout(card))
+    expect(markup).toContain('干支日')
+    expect(markup).toContain('ganjiday.com')
+    expect(markup).not.toContain('arcanumber.com')
+    expect(markup).toContain('#ffffff')
+    expect(eastEnglishOgImageCard('BaZi')).toMatchObject({
+      site: 'east',
+      brand: 'Ganjiday',
+      host: 'ganjiday.com',
+    })
+    expect(ogImageCard({ title: 'Life Path', locale: 'en' }).site).toBe('west')
   })
 })
 

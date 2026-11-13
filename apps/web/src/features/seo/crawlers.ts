@@ -16,11 +16,18 @@ export function escapeXml(text: string): string {
   )
 }
 
+/** 分享页与分享卡片只供社交平台抓取（noindex），不进站点地图与 llms.txt（模板 0.4.0）。 */
+export function isSharePath(path: string): boolean {
+  return /^\/(?:s|share-card)(?:\/|$)/.test(path)
+}
+
+const indexable = (pages: readonly SeoPage[]) => pages.filter((page) => !isSharePath(page.path))
+
 export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: string): string {
-  const urls = pages
+  const urls = indexable(pages)
     .filter((page) => !locale || page.locale === locale)
     .map((page) => {
-      const languages = pages
+      const languages = indexable(pages)
         .filter((other) => other.path === page.path)
         .map((other) => other.locale)
       const links = alternateLinks(appUrl, page.path, languages, page.alternates, page.locale)
@@ -76,18 +83,21 @@ export function robots(appUrl: string, known = true): string {
     '',
     ...(templateConfig.i18n.enabled ? templateConfig.i18n.locales.map(localePrefix) : []),
   ]
-  const disallow = [
+  const rules = [
     ...prefixes.flatMap((prefix) =>
       ['/app', '/account', '/admin', '/api'].map((path) => `Disallow: ${prefix}${path}`),
     ),
     'Disallow: /*?r=',
     'Disallow: /*&r=',
     'Disallow: /_site/',
+    // 社交平台抓取器需要读取分享页与卡片图片；是否收录由响应的 noindex 决定（模板 0.4.0）。
+    'Allow: /share-card/',
+    ...prefixes.map((prefix) => `Allow: ${prefix}/s/`),
   ]
   return [
     'User-agent: *',
-    ...disallow,
-    ...AI_CRAWLERS.flatMap((bot) => ['', `User-agent: ${bot}`, 'Allow: /', ...disallow]),
+    ...rules,
+    ...AI_CRAWLERS.flatMap((bot) => ['', `User-agent: ${bot}`, 'Allow: /', ...rules]),
     '',
     `Sitemap: ${absoluteUrl(appUrl, '/sitemap.xml')}`,
     '',

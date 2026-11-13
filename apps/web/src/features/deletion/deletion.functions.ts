@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getRequest, setResponseStatus } from '@tanstack/react-start/server'
 import { deleteAccount, deleteTeamWorkspace } from '@xuanxue/auth'
 import { AppError } from '@xuanxue/shared'
+import { createShareCardInvalidator } from '@xuanxue/storage'
 import { z } from 'zod'
 import { withRealSession } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
@@ -18,6 +19,11 @@ async function remove(workspaceId?: string) {
     headers: getRequest().headers,
     clientIp: runtime.requestMeta.clientIp,
     kv: runtime.cache,
+    ...(runtime.files?.available &&
+      runtime.files.value.shareCards && {
+        cleanupShareCards: createShareCardInvalidator(runtime.files.value.shareCards, runtime.cache)
+          .cleanupWorkspaceShareCards,
+      }),
     additionalSteps: [
       ...createBillingDeletionSteps(runtime.config, db, runtime.cache),
       workspaceContentDeletionStep,

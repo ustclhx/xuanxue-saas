@@ -11,6 +11,7 @@ import { APIError } from 'better-auth/api'
 import { admin, emailOTP, magicLink, organization, twoFactor } from 'better-auth/plugins'
 import { accountSettings, userSettingsFields } from './account-settings.ts'
 import { adminBootstrap } from './admin-bootstrap.ts'
+import type { CleanupWorkspaceShareCards } from './ai-content-cleanup.ts'
 import { type DeletionStep, deletionPlugin } from './deletion.ts'
 import type { SendAuthEmail } from './email.ts'
 import { emailVerificationOptions } from './email-verification.ts'
@@ -37,6 +38,7 @@ export interface CreateAuthDeps {
   /** 注册提交后调用；headers 缺失表示非浏览器请求。实现方自行兜底，抛错只记日志不影响注册。 */
   readonly onUserSignedUp?: (user: { readonly id: string }, headers?: Headers) => Promise<void>
   readonly deletionSteps?: readonly DeletionStep[]
+  readonly cleanupShareCards?: CleanupWorkspaceShareCards
   /** 模板配置（`template.config.ts`），决定启用哪些登录方式与插件 */
   readonly config: TemplateConfig
   /** 认证邮件的发送点；由调用方注入（后续接 EMAIL_QUEUE），测试中用假实现 */
@@ -214,6 +216,7 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
         config.tenancy.multiTenant,
         deps.deletionSteps,
         deps.clientIp,
+        deps.cleanupShareCards,
       ),
       verificationReservation(db, site),
       workspaceLifecyclePlugin(db, site, config.tenancy.maxWorkspacesPerUser, deps.clientIp),

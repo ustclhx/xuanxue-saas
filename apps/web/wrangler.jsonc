@@ -5,7 +5,7 @@
   "main": "./src/server.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
-  // HTML / 动态路由走安全头入口（src/server.ts）；构建静态资源与 OG 图片直接由 Asset Worker 返回。
+  // HTML / 动态路由走安全头入口（src/server.ts）；构建静态资源、OG 图片与分享卡片字体直接由 Asset Worker 返回。
   "assets": {
     "binding": "ASSETS",
     "html_handling": "none",
@@ -19,6 +19,8 @@
       "!/images/*",
       // 站点图标在 /images/favicon-<site>.*；/favicon.ico 经 Worker 按 Host 重定向到本站图标
       "!/og/*",
+      // 模板 0.4.0：分享卡片字体（已被 /fonts/* 覆盖，显式列出与模板保持一致）
+      "!/fonts/share-card/*",
       "!/src/*",
       "!/@*",
       "!/node_modules/*"
@@ -55,11 +57,13 @@
   // Better Auth 会话的 secondaryStorage（packages/auth/src/session.ts）；本地由 Miniflare 模拟，id 为占位值
   "kv_namespaces": [{ "binding": "CACHE", "id": "00000000000000000000000000000000" }],
   // 认证入口按 IP + 邮箱限流（packages/auth/src/protection.ts）：每个 key 每 60 秒 10 次；
-  // AI 接口按空间 + 用户限流（features/ai/chat.ts）：每个 key 每 60 秒 20 次，只用于防刷；本地由 Miniflare 模拟
+  // AI 接口按空间 + 用户限流（features/ai/chat.ts）：每个 key 每 60 秒 20 次，只用于防刷；
+  // 分享卡片缓存未命中与分享页按 IP 限流（features/share-cards）：每个 key 每 60 秒 30 次；本地由 Miniflare 模拟
   "ratelimits": [
     { "name": "RL_AUTH", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } },
     { "name": "RL_AI", "namespace_id": "1003", "simple": { "limit": 20, "period": 60 } },
-    { "name": "RL_API", "namespace_id": "1005", "simple": { "limit": 60, "period": 60 } }
+    { "name": "RL_API", "namespace_id": "1005", "simple": { "limit": 60, "period": 60 } },
+    { "name": "RL_SHARE_CARD", "namespace_id": "1010", "simple": { "limit": 30, "period": 60 } }
   ],
   // 本地开发的站点地址；`vite dev` 时由 vite.config.ts 按 .env.worktree 的端口覆盖。
   // TURNSTILE_SITE_KEY 为 Cloudflare 官方测试 site key（始终通过），与 .dev.vars 中的测试 secret 配对
@@ -101,7 +105,8 @@
       "ratelimits": [
         { "name": "RL_AUTH", "namespace_id": "21002", "simple": { "limit": 10, "period": 60 } },
         { "name": "RL_AI", "namespace_id": "21004", "simple": { "limit": 20, "period": 60 } },
-        { "name": "RL_API", "namespace_id": "21006", "simple": { "limit": 60, "period": 60 } }
+        { "name": "RL_API", "namespace_id": "21006", "simple": { "limit": 60, "period": 60 } },
+        { "name": "RL_SHARE_CARD", "namespace_id": "21008", "simple": { "limit": 30, "period": 60 } }
       ],
       "hyperdrive": [
         // Neon xuanxue_staging，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒（docs/07 §2）
@@ -146,7 +151,8 @@
       "ratelimits": [
         { "name": "RL_AUTH", "namespace_id": "22002", "simple": { "limit": 10, "period": 60 } },
         { "name": "RL_AI", "namespace_id": "22004", "simple": { "limit": 20, "period": 60 } },
-        { "name": "RL_API", "namespace_id": "22006", "simple": { "limit": 60, "period": 60 } }
+        { "name": "RL_API", "namespace_id": "22006", "simple": { "limit": 60, "period": 60 } },
+        { "name": "RL_SHARE_CARD", "namespace_id": "22008", "simple": { "limit": 30, "period": 60 } }
       ],
       "hyperdrive": [
         // Neon xuanxue_production，app 非 pooled TLS 直连；分别关闭缓存与缓存 60 秒

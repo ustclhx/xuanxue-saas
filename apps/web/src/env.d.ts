@@ -33,6 +33,8 @@ declare namespace Cloudflare {
     RL_AI: RateLimit
     /** 公开 API 按 Key 和空间限流 */
     RL_API: RateLimit
+    /** 分享卡片缓存未命中与分享页按 IP 限流（features/share-cards） */
+    RL_SHARE_CARD: RateLimit
     /** 站点地址（vars；`vite dev` 时由 vite.config.ts 按端口覆盖） */
     APP_URL: string
     /** 邮件发信通道（vars，log | resend）；须与 apps/jobs 一致，web 只据此决定是否提示「已寄信」 */

@@ -23,7 +23,7 @@ import {
 } from '@xuanxue/platform/cloudflare'
 import { AppError, toErrorResponse } from '@xuanxue/shared'
 import { log, withLogContext } from '@xuanxue/shared/log'
-import { getFileDownload } from '@xuanxue/storage'
+import { createShareCardInvalidator, getFileDownload } from '@xuanxue/storage'
 import { createCloudflareStorage } from '@xuanxue/storage/cloudflare'
 import { APIError } from 'better-auth/api'
 import { gateAdminRequest } from './features/admin/gate.ts'
@@ -207,6 +207,11 @@ function localized(request: Request): Promise<Response> {
   return localizeRequest(request, getWebRuntime(), () => startHandler(request))
 }
 
+/** Workers 的默认 Cache API；web 的 tsconfig 同时含 DOM 声明，`caches.default` 在此显式取用。 */
+function edgeCache(): Cache {
+  return (caches as unknown as { default: Cache }).default
+}
+
 /** CF bindings 仅在入口装配；getter 保证公开页降级时不提前创建认证/数据库资源。 */
 function createCloudflareWebRuntime(
   env: Cloudflare.Env,
@@ -263,6 +268,10 @@ function createCloudflareWebRuntime(
       clientIp: requestMeta.clientIp,
       hosts: siteHosts(templateConfig, config.APP_URL),
       sendEmail,
+      ...(files.shareCards && {
+        cleanupShareCards: createShareCardInvalidator(files.shareCards, cache)
+          .cleanupWorkspaceShareCards,
+      }),
       deletionSteps: [
         ...createBillingDeletionSteps(config, db, cache),
         workspaceContentDeletionStep,
@@ -301,6 +310,26 @@ function createCloudflareWebRuntime(
     requestMeta,
     observability: { enabled: sentryEnabled(env), captureError: captureServerError },
     files: { available: true, value: files },
+    // 渲染器只在分享卡片路由首次调用时加载；首页与其他路由的闭包不含 satori / resvg / 字体
+    shareCardRenderer: env.ASSETS
+      ? {
+          available: true,
+          value: () =>
+            import('./server/cloudflare/share-card-renderer.ts').then((module) =>
+              module.workersShareCardRenderer(env.ASSETS),
+            ),
+        }
+      : { available: false },
+    // 分享卡片的数据中心级缓存；写入放进 waitUntil，不阻塞本次响应。
+    shareCardCache: {
+      available: true,
+      value: {
+        match: (url) => edgeCache().match(url),
+        put: async (url, response) => {
+          ctx.waitUntil(edgeCache().put(url, response))
+        },
+      },
+    },
     emailQueue: { available: true, value: queue },
     // 与 apps/jobs 的 EMAIL_TRANSPORT 保持一致；未设置或取值不认识时按 log 处理，宁可不提邮件
     emailTransport: env.EMAIL_TRANSPORT === 'resend' ? 'resend' : 'log',

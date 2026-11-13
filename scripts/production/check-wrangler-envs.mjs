@@ -5,13 +5,16 @@ import { fileURLToPath } from 'node:url'
 /**
  * add-cloud-production-neon 2.1：web / jobs 的 env.production 与 env.staging 绑定名集合一致，
  * production 不含任何 staging 资源 ID 或名称，支付显式使用 live，且禁止 AI_FAULT_INJECTION 与 UI_PREVIEW
- * （组件预览页 /dev/ui 只在开发与 staging 开放，模板 add-ui-design-system D6）。
+ * （组件预览页 /dev/ui 只在开发与 staging 开放，模板 add-ui-design-system D6）；
+ * web 在开发、staging、production 都声明 RL_SHARE_CARD，且各限流 namespace_id 互不相同（模板 0.4.0）。
  */
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 /** 各 Cron 档位独有的触发器；档位与 triggers 不一致时 Worker 运行期会拒绝触发。 */
 const CRON_PROFILE_TRIGGERS = { reduced: '*/30 * * * *', default: '*/5 * * * *' }
 const FORBIDDEN_PRODUCTION_VARS = ['AI_FAULT_INJECTION', 'UI_PREVIEW']
 const PRODUCTION_ORIGINS = ['https://ganjiday.com', 'https://arcanumber.com']
+/** ratelimits 不从顶层继承：这些绑定在开发、staging 与 production 都必须各自声明（模板 add-og-images 5.2）。 */
+const REQUIRED_RATE_LIMITS = { web: ['RL_SHARE_CARD'] }
 
 /** 去掉 JSONC 注释与尾逗号；字符串内的 `//`（如 URL）保持不变 */
 export function parseJsonc(text) {
@@ -153,6 +156,26 @@ export function checkEnvs(app, config) {
       site === staging.vars?.PLAUSIBLE_DOMAIN && site === production.vars?.PLAUSIBLE_DOMAIN
     if (productionSites.has(site) && !bothFallback)
       problems.push(`${app}: staging and production share Plausible site ${site}`)
+  }
+  // 限流命名空间按账号计数：任意两个环境共用 namespace_id 会让计数串到一起。
+  const environments = [
+    ['top-level', config],
+    ['staging', staging],
+    ['production', production],
+  ]
+  const namespaces = new Map()
+  for (const [environment, env] of environments) {
+    const names = new Set((env.ratelimits ?? []).map((item) => item.name))
+    for (const name of REQUIRED_RATE_LIMITS[app] ?? [])
+      if (!names.has(name)) problems.push(`${app}: ${environment} is missing ratelimit ${name}`)
+    for (const item of env.ratelimits ?? []) {
+      const owner = namespaces.get(item.namespace_id)
+      if (owner)
+        problems.push(
+          `${app}: ratelimit namespace_id ${item.namespace_id} is shared by ${owner} and ${environment} ${item.name}`,
+        )
+      else namespaces.set(item.namespace_id, `${environment} ${item.name}`)
+    }
   }
   if (production.vars?.PAYMENT_MODE !== 'live')
     problems.push(`${app}: production PAYMENT_MODE must be live`)
