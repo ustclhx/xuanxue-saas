@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test'
+import { newId } from '@xuanxue/shared'
+import { fixtureDb, PASSWORD } from './fixtures.ts'
+import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'
 
 // openspec add-birth-profiles-daily-horoscope tasks 7.5：公开每日运势页
 const localSite = (baseURL: string | undefined, site: string) => {
@@ -78,7 +81,55 @@ test('西方站个人日计算只在浏览器中进行', async ({ page, baseURL 
   // 等水合完成，受控输入才会响应
   await page.waitForLoadState('networkidle')
   page.on('request', (request) => requests.push(request.url()))
-  await page.getByLabel('Birth date (stays in your browser)').fill('1990-05-15')
-  await expect(page.getByTestId('daily-personal')).toContainText('Personal Day')
+  // 水合前的输入会被受控组件重置：重复填写直到结果出现
+  await expect(async () => {
+    await page.getByLabel('Birth date (stays in your browser)').fill('1990-05-15')
+    await expect(page.getByTestId('daily-personal')).toContainText('Personal Day', {
+      timeout: 1000,
+    })
+  }).toPass({ timeout: 15_000 })
   expect(requests.filter((url) => url.includes('1990'))).toEqual([])
+})
+
+// tasks 8.1：登录后首页显示默认档案的今日内容；没有档案时显示建立入口
+test('东方站今日面板：无档案引导建立，写入默认档案后显示今日十神', async ({ page, baseURL }) => {
+  const east = localSite(baseURL, 'east')
+  const email = `daily-${newId()}@example.com`
+  // 在页面内调用注册接口（APIRequestContext 不解析 *.localhost），会话 Cookie 直接写进浏览器
+  await page.goto(`${east}/zh-hant`)
+  const status = await page.evaluate(
+    async ({ email, password, token }) =>
+      (
+        await fetch('/api/auth/sign-up/email', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-turnstile-token': token },
+          body: JSON.stringify({ name: 'Daily', email, password }),
+        })
+      ).status,
+    { email, password: PASSWORD, token: DUMMY_TURNSTILE_TOKEN },
+  )
+  expect(status).toBe(200)
+  await page.goto(`${east}/app`)
+  await expect(page.getByText('還沒有出生檔案')).toBeVisible()
+  const sql = fixtureDb()
+  try {
+    await sql`
+      insert into birth_profile (id, workspace_id, user_id, label, relation, is_default, birth)
+      select gen_random_uuid(), o.id, u.id, '本人', 'self', true, ${sql.json({
+        calendar: 'solar',
+        year: 1990,
+        month: 5,
+        day: 15,
+        time: { hour: 10, minute: 30 },
+        gender: 'male',
+        location: { city: 'taipei' },
+      })}
+      from "user" u join organization o on o.id = u.id where u.email = ${email}`
+  } finally {
+    await sql.end()
+  }
+  await page.reload()
+  const panel = page.getByTestId('today-panel')
+  await expect(panel).toContainText('今日天干對你')
+  await expect(panel).toContainText('庚金日主')
 })

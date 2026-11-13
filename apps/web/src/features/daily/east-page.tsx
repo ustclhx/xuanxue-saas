@@ -240,7 +240,7 @@ function Row({
 }) {
   return (
     <div className="flex gap-3">
-      <dt className={cn('w-12 shrink-0 font-bold', termClass)}>{term}</dt>
+      <dt className={cn('min-w-12 shrink-0 whitespace-nowrap font-bold', termClass)}>{term}</dt>
       <dd className="m-0 min-w-0 flex-1 text-ink">{children}</dd>
     </div>
   )

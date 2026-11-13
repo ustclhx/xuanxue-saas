@@ -78,9 +78,9 @@
 
 ## 8. 波次 B · WT-today-panel：今日面板（【Claude】，依赖 2、3、7.1、7.2、1.4）
 
-- [ ] 8.1 新建 `features/daily/today-panel.tsx` 与服务端 loader：个人空间、一次档案查询、按参考日期计算默认档案的 `DailyFacts`、`?profile=` 切换（越权按不存在处理）、无档案和字段缺失两种状态、水合后按本地日期重算。在模板文件 `routes/app/$slug/index.tsx` 中只插入挂载点，并在 `docs/design/forks.md` 或项目升级跟踪中登记该改动。验证：组件测试覆盖四种状态；集成测试覆盖越权 profile 参数；e2e 登录后首页显示默认档案的今日内容
-- [ ] 8.2 面板链接：「用此档案打开工具」使用 `#r=` 片段（不含姓名）；另有「查看公开每日页」。验证：单测断言生成的链接片段不含 `name` 与 `full_name`
-- [ ] 8.3 （可选，依赖 1.4 中确认保留此入口）「就今日运势问 AI」：在 `features/ai/subject-providers.ts` 注册 `daily` 类型，用 `issueSubjectContext` 签发只含 `DailyFacts` 的临时上下文，按 Chat 场景显示 AI 声明。验证：单测断言上下文正文不含出生日期与出生地；e2e 能打开对话并看到上下文类型标签
+- [x] 8.1 新建 `features/daily/today-panel.tsx` 与服务端 loader：个人空间、一次档案查询、按参考日期计算默认档案的 `DailyFacts`、`?profile=` 切换（越权按不存在处理）、无档案和字段缺失两种状态、水合后按本地日期重算。在模板文件 `routes/app/$slug/index.tsx` 中只插入挂载点，并在 `docs/design/forks.md` 或项目升级跟踪中登记该改动。验证：组件测试覆盖四种状态；集成测试覆盖越权 profile 参数；e2e 登录后首页显示默认档案的今日内容
+- [x] 8.2 面板链接：「用此档案打开工具」使用 `#r=` 片段（不含姓名）；另有「查看公开每日页」。验证：单测断言生成的链接片段不含 `name` 与 `full_name`
+- [x] 8.3 （可选，依赖 1.4 中确认保留此入口）「就今日运势问 AI」：在 `features/ai/subject-providers.ts` 注册 `daily` 类型，用 `issueSubjectContext` 签发只含 `DailyFacts` 的临时上下文，按 Chat 场景显示 AI 声明。验证：单测断言上下文正文不含出生日期与出生地；e2e 能打开对话并看到上下文类型标签
 
 ## 9. 集成验收
 
