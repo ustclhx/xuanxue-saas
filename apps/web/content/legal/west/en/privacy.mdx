@@ -33,13 +33,28 @@ notices that a report is ready.
 
 The free tools (numerology and tarot) calculate results in your browser. Your birth
 date, name and other inputs are not sent to our servers just because you run a
-free calculation. Your browser may keep your most recent inputs in session storage until you close
+free calculation, unless you choose to save them as a birth profile (see the next section). Your browser may keep your most recent inputs in session storage until you close
 the tab.
 
 If you unlock a full reading, the inputs needed for that reading — for example the name and birth
 date you enter for numerology, or your tarot cards and question — are sent to our servers. We
 recalculate the result there and save the inputs together with the
 finished report in your account so you can return to it.
+
+### Birth profiles
+
+If you are signed in and choose to save a "birth profile", we store what you enter on our servers:
+the profile name, your relationship to the person, their birth date and, if you add them, their full
+birth name and other birth details such as time and place. A profile can be for you or for someone
+else, such as a partner or family member; please get their permission before saving their details.
+
+We use birth profiles only so that you do not have to re-enter details in our tools, full readings and
+daily numerology, and to show your personal numbers for today based on your default profile. A profile
+is read only when you choose to use it. Birth profiles are not included in share links, analytics, logs
+or error reports, and they are not sent to our AI model provider: if you use a profile to unlock a
+reading or start a chat, the AI still receives only the numbers calculated from your inputs, as
+described in the next section. A full reading keeps a copy of the inputs used when you unlocked it, so
+editing or deleting a profile later does not change existing reports.
 
 ### AI prompts
 
@@ -126,7 +141,7 @@ their service to us.
 | Provider | Purpose | Data involved |
 | --- | --- | --- |
 | Cloudflare (United States) | Hosting, content delivery, storage, background jobs, Turnstile and Web Analytics | All requests to the Services |
-| Neon (United States) | Database | Account, report, subscription and payment records |
+| Neon (United States) | Database | Account, report, birth profile, subscription and payment records |
 | DeepSeek (China) | AI model that writes full readings | The AI prompts described above |
 | Resend (United States) | Sending email | Your email address and the email content |
 | Google (United States) | Optional "Sign in with Google" | Your name and email address from Google |
@@ -168,6 +183,8 @@ browser settings, but you will not be able to sign in without the session cookie
 - **How you first reached us** (from the first-visit cookie): while your account is active; it is
   deleted with your account.
 - **Saved reports, their inputs and AI prompts**: until you delete the report or your account.
+- **Birth profiles**: until you delete the profile or your account. After deletion they may remain in
+  database backups for up to 7 days.
 - **Chat conversations, ratings and shared feedback**: while your account is active; they are deleted
   when you delete your account.
 - **Email subscriptions**: until you unsubscribe or delete your account. After you unsubscribe we keep
@@ -183,8 +200,10 @@ browser settings, but you will not be able to sign in without the session cookie
 
 - **One report**: open the report and choose Delete. This deletes the report, its inputs and the AI
   prompt and text behind it.
+- **One birth profile**: choose Delete on the Birth profiles page. The profile is removed from our
+  database straight away, not just hidden; reports you created with it are not affected.
 - **Your account**: delete it in your account settings. This deletes your saved reports, their inputs
-  and AI prompts, removes your email subscription, anonymises your account and signs you out
+  and AI prompts, and all your birth profiles, removes your email subscription, anonymises your account and signs you out
   everywhere. Records described under "How long we keep data" are kept as stated there.
 - **Email subscriptions**: use the unsubscribe link in any subscription email.
 - **By email**: write to {{supportEmail}}.
