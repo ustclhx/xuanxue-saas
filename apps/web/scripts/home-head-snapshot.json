@@ -1,0 +1,47 @@
+{
+  "west": {
+    "canonical": "/",
+    "hreflang": {
+      "en": "/",
+      "x-default": "/"
+    },
+    "robots": null,
+    "jsonLd": ["FAQPage", "Organization", "WebSite"]
+  },
+  "zh-hant": {
+    "canonical": "/zh-hant",
+    "hreflang": {
+      "en": "/en",
+      "ko": "/ko",
+      "x-default": "/zh-hant",
+      "zh-Hans": "/zh-hans",
+      "zh-Hant": "/zh-hant"
+    },
+    "robots": null,
+    "jsonLd": []
+  },
+  "zh-hans": {
+    "canonical": "/zh-hans",
+    "hreflang": {
+      "en": "/en",
+      "ko": "/ko",
+      "x-default": "/zh-hant",
+      "zh-Hans": "/zh-hans",
+      "zh-Hant": "/zh-hant"
+    },
+    "robots": null,
+    "jsonLd": []
+  },
+  "ko": {
+    "canonical": "/ko",
+    "hreflang": {
+      "en": "/en",
+      "ko": "/ko",
+      "x-default": "/zh-hant",
+      "zh-Hans": "/zh-hans",
+      "zh-Hant": "/zh-hant"
+    },
+    "robots": null,
+    "jsonLd": []
+  }
+}
