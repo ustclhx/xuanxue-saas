@@ -15,9 +15,9 @@
 
 ## 2. 波次 A-1：对象类型注册与推荐问题（依赖：无）
 
-- [ ] 2.1 【Claude】新增 `features/readings/follow-up-questions.ts`：按「详批类型 × 语言」（bazi-full、ziwei-full：zh-Hant / zh-Hans；saju-full、saju-compat：ko；numerology-full：en；tarot-spread：en / zh-Hant / zh-Hans / ko）各提供 3 个开场问题，按 1.1 Q5 的结论交使用者审定。验证：单元测试断言 `catalog` 中每个 `kind × locale` 都有 3 条、长度 ≤ 200，且全部通过 `readings/compliance.ts` 的 `checkCompliance`
-- [ ] 2.2 【Claude】新增 `features/readings/subjects.ts`，实现 `reading` provider（`resolve` 同时校验 `workspaceId`、`userId` 与 `status = 'ready'`；`title`、`defaultModelKey = reading.modelKey`、按报告语言的 `suggestions`；`context()` 返回 design 决策 3 的 `reading-v1` 上下文，不含出生输入）与 `chart-result` 类型（无 `resolve`）及其上下文构造函数（决策 2，`chart-result-v1`，标题为「类型 · 关键结论」≤ 200 字符）；四种语言的来源标签放 `messages/<locale>/subject-readings.json`。在 `features/ai/subject-providers.ts` 中注册两种类型。验证：集成测试覆盖本人 ready 报告可解析、他人报告 / 他空间 / generating / failed / 不存在一律为 null；`startSubjectConversation` 写入的首条 system 消息以 `[context type=reading version=reading-v1]` 开头且不含出生日期；`subject-context.providers.test.ts` 通过
-- [ ] 2.3 【Claude】`chart-result` 上下文与旧 `contextSystemText` 的口径对照：说明文字保留合规边界与「用用户语言作答」，JSON 只含 `{ kind, result }`。验证：单元测试对八字、紫微、塔罗三种复算结果断言上下文通过 `subjectSystemContextSchema`、不含姓名与出生字段；`pnpm check`、`pnpm typecheck` 通过
+- [x] 2.1 【Claude】新增 `features/readings/follow-up-questions.ts`：按「详批类型 × 语言」（bazi-full、ziwei-full：zh-Hant / zh-Hans；saju-full、saju-compat：ko；numerology-full：en；tarot-spread：en / zh-Hant / zh-Hans / ko）各提供 3 个开场问题，按 1.1 Q5 的结论交使用者审定。验证：单元测试断言 `catalog` 中每个 `kind × locale` 都有 3 条、长度 ≤ 200，且全部通过 `readings/compliance.ts` 的 `checkCompliance`
+- [x] 2.2 【Claude】新增 `features/readings/subjects.ts`，实现 `reading` provider（`resolve` 同时校验 `workspaceId`、`userId` 与 `status = 'ready'`；`title`、`defaultModelKey = reading.modelKey`、按报告语言的 `suggestions`；`context()` 返回 design 决策 3 的 `reading-v1` 上下文，不含出生输入）与 `chart-result` 类型（无 `resolve`）及其上下文构造函数（决策 2，`chart-result-v1`，标题为「类型 · 关键结论」≤ 200 字符）；四种语言的来源标签放 `messages/<locale>/subject-readings.json`。在 `features/ai/subject-providers.ts` 中注册两种类型。验证：集成测试覆盖本人 ready 报告可解析、他人报告 / 他空间 / generating / failed / 不存在一律为 null；`startSubjectConversation` 写入的首条 system 消息以 `[context type=reading version=reading-v1]` 开头且不含出生日期；`subject-context.providers.test.ts` 通过
+- [x] 2.3 【Claude】`chart-result` 上下文与旧 `contextSystemText` 的口径对照：说明文字保留合规边界与「用用户语言作答」，JSON 只含 `{ kind, result }`。验证：单元测试对八字、紫微、塔罗三种复算结果断言上下文通过 `subjectSystemContextSchema`、不含姓名与出生字段；`pnpm check`、`pnpm typecheck` 通过
 
 ## 3. 波次 A-2：预计消耗改用模板组件（依赖：无）
 
