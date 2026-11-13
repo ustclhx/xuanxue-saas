@@ -1,14 +1,27 @@
 import {
+  annualOutlook,
   type BaziChart,
   BaziInputError,
   type BirthInput,
   computeChart,
   computeCompatibility,
+  decadeDetails,
   ENGINE_VERSION,
 } from '@xuanxue/bazi'
-import { computeZiwei, type ZiweiChart } from '@xuanxue/bazi/ziwei'
+import {
+  computeZiwei,
+  type ZiweiChart,
+  type ZiweiHoroscope,
+  ziweiHoroscope,
+} from '@xuanxue/bazi/ziwei'
 import type { ReadingKind } from '@xuanxue/db'
-import { numerologyChart } from '@xuanxue/numerology'
+import {
+  challenges,
+  type LifePeriod,
+  numerologyChart,
+  personalYears,
+  pinnacles,
+} from '@xuanxue/numerology'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
@@ -36,7 +49,14 @@ export interface ReadingPrompt {
   readonly system: string
   /** 报告必须包含的 `## ` 章节，顺序即输出顺序 */
   readonly sections: readonly string[]
+  /**
+   * 进入用户消息的数据档（readings-prompt-v4-yearly tasks.md 3.1）：省略为 `base`，即 v1–v3 的摘要，
+   * 保证回滚与基线评测时模型看到的数据与改动前一致；`annual` 在其上增加流年窗口等逐年数据。
+   */
+  readonly dataProfile?: ReadingDataProfile
 }
+
+export type ReadingDataProfile = 'base' | 'annual'
 
 export interface RecomputedReading {
   /** 规范化后的原始输入，存入 `reading.input` 并参与幂等哈希 */
@@ -76,8 +96,8 @@ interface ReadingEntry {
    * readings-prompt-v4-yearly design 决策 4）。旧版本文件永久保留，供回滚与已生成报告的收尾。
    */
   readonly versions?: Readonly<Record<string, Readonly<Record<string, ReadingPrompt>>>>
-  /** 塔罗按报告语言查牌义，其余详批的复算与语言无关 */
-  recompute(raw: unknown, now: Date, locale: string): RecomputedReading
+  /** 塔罗按报告语言查牌义，其余详批的复算与语言无关；数据档由所选提示词版本决定 */
+  recompute(raw: unknown, now: Date, locale: string, profile: ReadingDataProfile): RecomputedReading
 }
 
 const int = z.number().int()
@@ -184,23 +204,106 @@ function engine<T>(compute: () => T): T {
   }
 }
 
+/**
+ * 流年窗口年数（design 决策 2）：起点为请求时的 UTC 年（与 `currentYear` 一致），含当年共 5 年。
+ * 改动年数只影响本常量、v4 提示词的规则与评测样本。
+ */
+export const READING_ANNUAL_YEARS = 5
+
+/**
+ * 扩展数据档的算法版本后缀，记入 `reading.engine_version`（如 `1.0.0+annual.1`）；
+ * 逐年数据的算法或字段变化时递增，免费结果页的 ENGINE_VERSION 不受影响。
+ */
+export const ANNUAL_DATA_VERSION = 'annual.1'
+
+/**
+ * v4 八字 / 사주摘要：v3 摘要 + 大运地支十神与喜忌 + 命中的神煞所在柱 + 流年窗口逐年数据。
+ * 仍不含出生日期与城市（逐年数据只含年份、干支与关系）。
+ */
+export function annualChartSummary(chart: BaziChart, startYear: number) {
+  const base = chartSummary(chart)
+  const details = decadeDetails(chart)
+  return {
+    ...base,
+    fortune: {
+      ...base.fortune,
+      decades: base.fortune.decades.map((d, i) => ({
+        ...d,
+        endAge: chart.fortune.decades[i]?.endAge,
+        branchTenGod: details[i]?.branchTenGod,
+        favorable: details[i]?.favorable,
+      })),
+    },
+    // v3 只列神煞 key（每张命盘都相同）；这里只保留命中本命柱的神煞及其所在柱
+    shensha: chart.shensha
+      .filter((s) => s.pillars.length > 0)
+      .map((s) => ({ key: s.key, basis: s.basis, targets: s.targets, pillars: s.pillars })),
+    annual: annualOutlook(chart, { startYear, years: READING_ANNUAL_YEARS }),
+  }
+}
+
 /** 八字与사주共用排盘；参考年取请求时的 UTC 年份，与免费结果页的「当前流年」一致。 */
-function recomputeChart(raw: unknown, now: Date): RecomputedReading {
+function recomputeChart(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const input = parseBirth(raw)
-  const chart = engine(() => computeChart(input, { referenceYear: now.getUTCFullYear() }))
+  const year = now.getUTCFullYear()
+  const chart = engine(() => computeChart(input, { referenceYear: year }))
+  if (profile === 'annual')
+    return {
+      input,
+      engineVersion: `${ENGINE_VERSION}+${ANNUAL_DATA_VERSION}`,
+      result: annualChartSummary(chart, year),
+    }
   return { input, engineVersion: ENGINE_VERSION, result: chartSummary(chart) }
 }
 
 /** 紫微必须有出生时辰（免费页同样要求），缺少时辰视为非法输入 */
-function recomputeZiwei(raw: unknown): RecomputedReading {
+function recomputeZiwei(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const input = parseBirth(raw)
   const chart = engine(() => computeZiwei(input))
   if (chart.status !== 'ok') invalidInput([{ field: 'time', code: 'required' }])
-  return { input, engineVersion: chart.engineVersion, result: ziweiSummary(chart) }
+  if (profile !== 'annual')
+    return { input, engineVersion: chart.engineVersion, result: ziweiSummary(chart) }
+  const horoscope = engine(() =>
+    ziweiHoroscope(input, { startYear: now.getUTCFullYear(), years: READING_ANNUAL_YEARS }),
+  )
+  if (horoscope.status !== 'ok') invalidInput([{ field: 'time', code: 'required' }])
+  return {
+    input,
+    engineVersion: `${chart.engineVersion}+${ANNUAL_DATA_VERSION}`,
+    result: ziweiAnnualSummary(chart, horoscope),
+  }
+}
+
+/** v4 紫微摘要：v3 摘要 + 六吉六煞落宫 + 大限区间、当前 / 下一大限与逐年流年（不含出生日期） */
+export function ziweiAnnualSummary(
+  chart: Extract<ZiweiChart, { status: 'ok' }>,
+  horoscope: Extract<ZiweiHoroscope, { status: 'ok' }>,
+) {
+  return {
+    ...ziweiSummary(chart),
+    auxiliaryStars: horoscope.auxiliaryStars,
+    horoscope: {
+      decades: horoscope.decades,
+      currentDecade: horoscope.currentDecade,
+      nextDecade: horoscope.nextDecade,
+      years: horoscope.years,
+    },
+  }
 }
 
 /** 궁합：两人分别排盘后计分；摘要沿用八字命盘摘要，不含出生信息 */
 function recomputeCompat(raw: unknown, now: Date): RecomputedReading {
+  // 궁합不在本次 v4 范围，各版本都用同一摘要
   const parsed = z.object({ a: birthInputSchema, b: birthInputSchema }).safeParse(raw)
   if (!parsed.success) invalidInput()
   const { a, b } = parsed.data as { a: BirthInput; b: BirthInput }
@@ -234,7 +337,12 @@ const numerologyInputSchema = z.object({
 })
 
 /** 个人年取请求时的 UTC 年份；姓名非法时姓名类数字为 null，与免费计算器一致 */
-function recomputeNumerology(raw: unknown, now: Date): RecomputedReading {
+function recomputeNumerology(
+  raw: unknown,
+  now: Date,
+  _locale: string,
+  profile: ReadingDataProfile,
+): RecomputedReading {
   const parsed = numerologyInputSchema.safeParse(raw)
   if (!parsed.success) invalidInput()
   const { name, ...date } = parsed.data
@@ -247,19 +355,36 @@ function recomputeNumerology(raw: unknown, now: Date): RecomputedReading {
     throw error
   }
   const number = (n: { value: number; master: boolean }) => ({ value: n.value, master: n.master })
+  const result = {
+    lifePath: number(chart.lifePath),
+    birthday: number(chart.birthday),
+    personalYear: number(chart.personalYear),
+    currentYear,
+    name: chart.name && {
+      expression: number(chart.name.expression),
+      soulUrge: number(chart.name.soulUrge),
+      personality: number(chart.name.personality),
+    },
+  }
+  const input = name ? { ...date, name } : date
+  if (profile !== 'annual') return { input, engineVersion: NUMEROLOGY_ENGINE_VERSION, result }
+  // 只标出当年所处的巅峰 / 挑战阶段，不输出年龄，避免由年龄反推出生年份
+  const age = currentYear - date.year
+  const period = (p: LifePeriod) => ({
+    value: p.value,
+    master: p.master,
+    startAge: p.startAge,
+    endAge: p.endAge,
+    current: p.startAge <= age && (p.endAge === null || age < p.endAge),
+  })
   return {
-    input: name ? { ...date, name } : date,
-    engineVersion: NUMEROLOGY_ENGINE_VERSION,
+    input,
+    engineVersion: `${NUMEROLOGY_ENGINE_VERSION}+years.1`,
     result: {
-      lifePath: number(chart.lifePath),
-      birthday: number(chart.birthday),
-      personalYear: number(chart.personalYear),
-      currentYear,
-      name: chart.name && {
-        expression: number(chart.name.expression),
-        soulUrge: number(chart.name.soulUrge),
-        personality: number(chart.name.personality),
-      },
+      ...result,
+      personalYears: personalYears(date, currentYear, READING_ANNUAL_YEARS),
+      pinnacles: pinnacles(date).map(period),
+      challenges: challenges(date).map(period),
     },
   }
 }
@@ -503,8 +628,21 @@ export function readingDefinition(
     locales,
     ...variant,
     prompt,
-    recompute: (raw, now) => entry.recompute(raw, now, chosen),
+    recompute: (raw, now) => entry.recompute(raw, now, chosen, prompt.dataProfile ?? 'base'),
   }
+}
+
+/** 按指定数据档复算（测试与评测用；线上由所选提示词版本的 `dataProfile` 决定） */
+export function recomputeReading(
+  kind: string,
+  raw: unknown,
+  now: Date,
+  options: { locale?: string; profile: ReadingDataProfile },
+): RecomputedReading {
+  const entry = entryOf(kind)
+  const locale = options.locale ?? Object.keys(entry?.variants ?? {})[0]
+  if (!entry || !locale || !Object.hasOwn(entry.variants, locale)) invalidInput()
+  return entry.recompute(raw, now, locale, options.profile)
 }
 
 /**

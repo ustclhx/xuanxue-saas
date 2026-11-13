@@ -39,7 +39,7 @@
 
 ## 3. 波次 B：v4 数据档与提示词（3.1 先合并，3.2–3.4 并行）
 
-- [ ] 3.1 【Claude】`catalog.ts` 的 recompute 支持数据档：v1–v3 版本沿用现有 `chartSummary` / `ziweiSummary` / 数字摘要（逐字段不变），v4 使用扩展摘要（`annual`、大运补充、`horoscope`、六吉六煞、`personalYears`、`pinnacles`、`challenges`）；窗口常量 `READING_ANNUAL_YEARS`；`engine_version` 记录组合版本。验证：快照测试断言旧版本摘要与改动前一致；v4 摘要含窗口内全部年份、不含出生日期与城市；同一输入两次复算结果一致
+- [x] 3.1 【Claude】`catalog.ts` 的 recompute 支持数据档：v1–v3 版本沿用现有 `chartSummary` / `ziweiSummary` / 数字摘要（逐字段不变），v4 使用扩展摘要（`annual`、大运补充、`horoscope`、六吉六煞、`personalYears`、`pinnacles`、`challenges`）；窗口常量 `READING_ANNUAL_YEARS`；`engine_version` 记录组合版本。验证：快照测试断言旧版本摘要与改动前一致；v4 摘要含窗口内全部年份、不含出生日期与城市；同一输入两次复算结果一致
 - [ ] 3.2 【Claude】八字 / 사주 v4：`prompts/bazi-full.v4.ts`（zh-Hant、zh-Hans）与 `prompts/saju-full.v4.ts`（ko），整理 v1–v3 约束为完整 system，新增「流年逐年 / 연도별 세운」章节（`### <年份> <干支>` 小节、上下半年表述、禁止月日），按 design 决策 3 优化其余章节；在注册表登记 v4（不改默认版本）。验证：`catalog.test.ts` 新增断言 v4 章节表、system 不含用户内容、样例段落仍通过合规；评测录制模式下 2 个样本通过全部确定性检查
 - [ ] 3.3 【Claude】紫微 v4：`prompts/ziwei-full.v4.ts`（zh-Hant、zh-Hans），新增「大限與流年 / 大限与流年」章节，引用大限宫位、流年命宫与流年四化，补辅星解读规则。验证：同 3.2
 - [ ] 3.4 【Claude】数字命理 v4：`prompts/numerology-full.v4.ts`（en），「Personal Year」扩为「Year by Year」（窗口内每年一个小节），Core Numbers 加入巅峰数与挑战数。验证：同 3.2，并断言个人年数值与 JSON 一致的检查器通过
