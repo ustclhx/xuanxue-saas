@@ -26,6 +26,7 @@ import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
 import { z } from 'zod'
+import { birthInputSchema } from '../profiles/schema.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
@@ -105,22 +106,6 @@ interface ReadingEntry {
 }
 
 const int = z.number().int()
-
-/** `@xuanxue/bazi` 的 BirthInput；语义校验（日期存在、闰月、经度）仍由引擎完成。 */
-const birthInputSchema = z.object({
-  calendar: z.enum(['solar', 'lunar']),
-  year: int,
-  month: int,
-  day: int,
-  isLeapMonth: z.boolean().optional(),
-  time: z.object({ hour: int, minute: int }).nullable(),
-  gender: z.enum(['male', 'female']),
-  location: z.union([
-    z.object({ city: z.string().max(64) }),
-    z.object({ utcOffsetMinutes: int, longitude: z.number().optional() }),
-  ]),
-  trueSolarTime: z.boolean().optional(),
-})
 
 function invalidInput(issues?: unknown): never {
   throw new AppError('INVALID_READING_INPUT', 'Invalid reading input', {

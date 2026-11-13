@@ -20,6 +20,7 @@ pattern workspace_table() {
     `auditLog`,
     `billingCustomer`,
     `billingCompensation`,
+    `birthProfile`,
     `creditDebt`,
     `creditGrant`,
     `creditHold`,

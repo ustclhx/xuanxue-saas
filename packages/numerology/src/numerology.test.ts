@@ -8,10 +8,13 @@ import {
   nameNumbers,
   normalizeName,
   numerologyChart,
+  personalDay,
+  personalMonth,
   personalYear,
   personalYears,
   pinnacles,
   reduceNumber,
+  universalDay,
 } from './index.ts'
 
 const birthday = { year: 1987, month: 11, day: 29 }
@@ -116,5 +119,78 @@ describe('numerology', () => {
     ])
       for (const item of challenges(date)) expect(item.value).toBeGreaterThanOrEqual(0)
     expect(Math.max(...challenges({ year: 2000, month: 1, day: 9 }).map((c) => c.value))).toBe(8)
+  })
+})
+
+describe('daily numbers', () => {
+  const birth = { year: 1990, month: 5, day: 15 }
+  it('exposes personal year, month and day steps for 5/15 on 2026-11-13', () => {
+    const result = personalDay(birth, { year: 2026, month: 11, day: 13 })
+    // 个人年：5 + (1+5=6) + (2026→10→1) = 12 → 3
+    expect(result.personalYear).toMatchObject({ value: 3 })
+    expect(result.personalYear.steps.filter((s) => s.phase === 'total')).toEqual([
+      { phase: 'total', operands: [5, 6, 1], result: 12 },
+      { phase: 'total', operands: [1, 2], result: 3 },
+    ])
+    // 个人月：3 + 11（主数月份保留）= 14 → 5
+    expect(result.personalMonth.value).toBe(5)
+    expect(result.personalMonth.steps).toEqual([
+      { phase: 'total', operands: [3, 11], result: 14 },
+      { phase: 'total', operands: [1, 4], result: 5 },
+    ])
+    // 个人日：5 + (1+3=4) = 9
+    expect(result).toMatchObject({ value: 9, master: false })
+    expect(result.steps).toEqual([
+      { phase: 'day', operands: [1, 3], result: 4 },
+      { phase: 'total', operands: [5, 4], result: 9 },
+    ])
+    expect(personalMonth(birth, { year: 2026, month: 11 }).value).toBe(5)
+  })
+  it('uses the caller-provided local date instead of the server clock', () => {
+    // 服务端 UTC 已是 11 月 14 日，调用方传入访客本地 11 月 13 日
+    expect(personalDay(birth, { year: 2026, month: 11, day: 13 }).value).toBe(9)
+    expect(personalDay(birth, { year: 2026, month: 11, day: 14 }).value).toBe(1)
+    // 跨年时个人年随本地年份变化
+    expect(personalDay(birth, { year: 2026, month: 12, day: 31 }).personalYear.value).toBe(3)
+    expect(personalDay(birth, { year: 2027, month: 1, day: 1 }).personalYear.value).toBe(22)
+  })
+  it('keeps 11 and 22 as master numbers but reduces 33 for daily numbers', () => {
+    expect(personalDay(birth, { year: 2026, month: 11, day: 6 })).toMatchObject({
+      value: 11,
+      master: true,
+    })
+    expect(personalDay(birth, { year: 2026, month: 8, day: 11 })).toMatchObject({
+      value: 22,
+      master: true,
+    })
+    // 个人年 33（1987-11-29 在 2027 年）+ 11 月 = 44 → 8
+    expect(personalMonth({ year: 1987, month: 11, day: 29 }, { year: 2027, month: 11 }).value).toBe(
+      8,
+    )
+    for (let month = 1; month <= 12; month++) {
+      for (let day = 1; day <= 28; day++) {
+        const value = personalDay(birth, { year: 2026, month, day }).value
+        expect(value <= 9 || value === 11 || value === 22).toBe(true)
+      }
+    }
+  })
+  it('computes the universal day with steps', () => {
+    const result = universalDay({ year: 2026, month: 11, day: 13 })
+    expect(result).toMatchObject({ value: 7, master: false })
+    expect(result.steps).toEqual([
+      { phase: 'year', operands: [2, 0, 2, 6], result: 10 },
+      { phase: 'year', operands: [1, 0], result: 1 },
+      { phase: 'day', operands: [1, 3], result: 4 },
+      { phase: 'total', operands: [1, 11, 4], result: 16 },
+      { phase: 'total', operands: [1, 6], result: 7 },
+    ])
+    // 2026 → 1，2 月 + 1 + 8 日 = 11
+    expect(universalDay({ year: 2026, month: 2, day: 8 })).toMatchObject({
+      value: 11,
+      master: true,
+    })
+    expect(() => universalDay({ year: 2026, month: 2, day: 30 })).toThrow(
+      expect.objectContaining({ code: 'INVALID_DATE' }),
+    )
   })
 })

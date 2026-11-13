@@ -35,6 +35,19 @@ export {
   TEN_GODS,
   type TenGod,
 } from './constants.ts'
+export {
+  DAILY_RULES_VERSION,
+  type DailyDate,
+  type DailyNatal,
+  type DailyRelation,
+  type DailyRelationKind,
+  type DailyRelations,
+  type DayPillar,
+  DUTY_KEYS,
+  type DutyKey,
+  dailyRelations,
+  dayPillarOf,
+} from './daily.ts'
 export type { DecadeFortune, Fortune, YearFortune } from './fortune.ts'
 export {
   BaziInputError,
