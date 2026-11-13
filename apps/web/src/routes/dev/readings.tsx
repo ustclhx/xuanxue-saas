@@ -90,7 +90,18 @@ function ReadingsDemoPage() {
         currency: 'USD',
       },
     ],
-    viewer: signed ? { slug: 'demo', balance } : null,
+    plans: [
+      {
+        key: 'plus',
+        name: 'Plus',
+        planPriceId: '00000000-0000-7000-8000-000000000003',
+        provider: 'stripe',
+        credits: 400,
+        amount: 499,
+        currency: 'USD',
+      },
+    ],
+    viewer: signed ? { slug: 'demo', balance, subscribed: false } : null,
   }))
   return (
     <MarketingShell>

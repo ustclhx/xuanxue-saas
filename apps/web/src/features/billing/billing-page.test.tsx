@@ -198,3 +198,48 @@ it('繁体按新台币显示 Stripe 积分包；韩语选择 PayPal 时提示以
   expect(purchases).toContain('US$1.99')
   expect(purchases).toContain('data-testid="billing-paypal-usd"')
 })
+
+it('订阅只经 Stripe：选 PayPal 时没有订阅选项并说明，积分包仍可用两种方式购买', () => {
+  page.catalog.providers = [
+    { id: 'stripe', available: true },
+    { id: 'paypal', available: true },
+  ]
+  page.catalog.prices = [
+    price('subscription-ready', 'subscription', 699, true),
+    price('paypal-pack', 'pack', 199, true, 'paypal'),
+  ]
+  // 只有 PayPal 卖这个积分包：按 buy 默认选中 PayPal
+  search = { buy: 'reading_single' }
+  let purchases = purchasesHtml()
+  expect(purchases).toContain('$1.99')
+  expect(purchases).not.toContain(m.billing_continue_checkout())
+  expect(purchases).toContain('data-testid="billing-sub-stripe-only"')
+  expect(purchases).not.toContain('billing-sub-autorenew')
+  // 默认（Stripe）：订阅选择与「每月自动续费，可随时取消」在结账按钮附近
+  search = {}
+  page.catalog.prices = [
+    price('subscription-ready', 'subscription', 699, true),
+    price('stripe-pack', 'pack', 199, true),
+    price('paypal-pack', 'pack', 199, true, 'paypal'),
+  ]
+  purchases = purchasesHtml()
+  expect(purchases).toContain(m.billing_continue_checkout())
+  expect(purchases).toContain('data-testid="billing-sub-autorenew"')
+  expect(purchases).not.toContain('billing-sub-stripe-only')
+})
+
+it.each(locales)('订阅分区的升级、到期、取消保留与自动续费文案齐全（%s）', (locale) => {
+  overwriteGetLocale(() => locale)
+  for (const text of [
+    m.billing_sub_autorenew(),
+    m.billing_sub_upgrade_notice(),
+    m.billing_sub_period_credits({ date: '2026-12-01' }),
+    m.billing_sub_cancel_keeps({ date: '2026-12-01' }),
+    m.billing_sub_stripe_only(),
+  ])
+    expect(text).not.toMatch(/^billing_/)
+  const Component = Route.options.component as ComponentType
+  const html = renderToStaticMarkup(<Component />)
+  // 现有订阅为 active：显示本期积分到期（日期待定时为「待定」）
+  expect(html).not.toContain('billing-sub-period-credits')
+})

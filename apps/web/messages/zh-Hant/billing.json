@@ -66,5 +66,10 @@
   "billing_usage_no_activity": "尚無積分活動。",
   "billing_usage_older_activity": "較早的活動",
   "billing_paypal_usd_note": "PayPal 以美元結算。",
-  "billing_cny_reference": "約 {price}（參考價，以美元結算）"
+  "billing_cny_reference": "約 {price}（參考價，以美元結算）",
+  "billing_sub_autorenew": "每月自動續費，可隨時取消。",
+  "billing_sub_upgrade_notice": "升級立即生效並按比例計費；新方案的積分從下個計費週期開始發放。",
+  "billing_sub_period_credits": "本期訂閱積分於 {date} 到期（另有 24 小時寬限），不累積到下一期。",
+  "billing_sub_cancel_keeps": "取消於本期結束時生效：已付期間的權益與本期積分保留到 {date}。",
+  "billing_sub_stripe_only": "訂閱只能以卡片（Stripe）付款；PayPal 僅供購買積分包，並以美元結帳。"
 }

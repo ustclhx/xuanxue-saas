@@ -243,3 +243,170 @@ describe('定价页与详批可用性一致', () => {
     expect(shownPrice(html)).toBe('US$1.99')
   })
 })
+
+describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', () => {
+  const plan = (id: string, key: string, type: string, credits: number) => ({
+    id,
+    key,
+    name: key === 'plus' ? 'Plus' : key === 'premium' ? 'Premium' : key,
+    type,
+    credits,
+    creditExpiryDays: type === 'credit_pack' ? 365 : null,
+    features: {},
+  })
+  const row = (
+    planId: string,
+    provider: string,
+    interval: string | null,
+    currency: string,
+    amount: number,
+    available: boolean,
+  ) => ({
+    id: `${planId}-${provider}-${currency}`,
+    planId,
+    provider,
+    interval,
+    amount,
+    currency,
+    active: available,
+    available,
+  })
+  const catalog = (subsAvailable: boolean): PricingCatalog =>
+    ({
+      plans: [
+        plan('free', 'free', 'subscription', 0),
+        plan('single', 'reading_single', 'credit_pack', 100),
+        plan('five', 'reading_five', 'credit_pack', 500),
+        plan('plus', 'plus', 'subscription', 400),
+        plan('premium', 'premium', 'subscription', 1000),
+      ],
+      prices: [
+        row('single', 'stripe', null, 'USD', 199, true),
+        row('single', 'stripe', null, 'TWD', 6500, true),
+        row('single', 'paypal', null, 'USD', 199, true),
+        row('five', 'stripe', null, 'USD', 699, true),
+        row('five', 'stripe', null, 'TWD', 22700, true),
+        row('five', 'paypal', null, 'USD', 699, true),
+        row('plus', 'stripe', 'month', 'USD', 499, subsAvailable),
+        row('plus', 'stripe', 'month', 'TWD', 16200, subsAvailable),
+        row('plus', 'stripe', 'month', 'KRW', 7000, subsAvailable),
+        row('premium', 'stripe', 'month', 'USD', 999, subsAvailable),
+        row('premium', 'stripe', 'month', 'TWD', 32500, subsAvailable),
+        row('premium', 'stripe', 'month', 'KRW', 14000, subsAvailable),
+      ],
+      providers: [
+        { id: 'stripe', available: true },
+        { id: 'paypal', available: true },
+      ],
+    }) as unknown as PricingCatalog
+  const readings = [{ kind: 'numerology-full', credits: 100 }]
+  const html = (props: Parameters<typeof PricingPage>[0]) =>
+    renderToStaticMarkup(<PricingPage {...props} />)
+  const count = (text: string, pattern: string) => text.split(pattern).length - 1
+
+  it('英文页并列两档订阅与两个积分包，标明每月续费、可随时取消与每日领取', () => {
+    language.locale = 'en'
+    const page = html({ catalog: catalog(true), readings })
+    expect(count(page, 'data-testid="pricing-sub"')).toBe(2)
+    expect(count(page, 'data-testid="pricing-pack"')).toBe(2)
+    expect(page).toContain('$4.99')
+    expect(page).toContain('$9.99')
+    expect(page).toContain('400 credits every month (about 4 full readings)')
+    expect(page).toContain('1000 credits every month (about 10 full readings)')
+    expect(page).toContain('Cancel anytime')
+    expect(page).toContain('Renews automatically every month in US dollars (USD) through Stripe')
+    expect(page).toContain('10 credits each day you sign in (up to 10 days a month)')
+    expect(page).toContain('daily free credits → subscription credits → purchased credits')
+    // 订阅入口与积分包入口都在：2 档订阅 + 2 个积分包
+    expect(count(page, 'href="/app"')).toBe(4)
+    expect(page).not.toContain('pricing-sub-soon')
+    expect(page).toContain('Do unused subscription credits roll over?')
+  })
+
+  it('订阅价格未同步时显示「即将开放」且没有订阅入口，积分包照常可买', () => {
+    language.locale = 'zh-Hant'
+    const page = html({ catalog: catalog(false), readings })
+    expect(count(page, 'data-testid="pricing-sub-soon"')).toBe(2)
+    expect(page).toContain('即將開放')
+    expect(count(page, 'href="/app"')).toBe(2)
+    expect(page).not.toContain('pricing-not-purchasable')
+    // 未同步时仍按繁中结算币种展示金额
+    expect(page).toContain('NT$162')
+    expect(page).toContain('NT$325')
+  })
+
+  it.each([
+    [
+      'zh-Hant',
+      ['NT$162', 'NT$325', 'NT$0'],
+      '以新台幣（TWD）透過 Stripe',
+      '以美元結帳（US$1.99 / US$6.99）',
+    ],
+    ['ko', ['₩7,000', '₩14,000', '₩0'], '원화(KRW)로 Stripe', null],
+    [
+      'zh-Hans',
+      ['US$4.99', 'US$9.99', 'US$0', '¥33', '¥67'],
+      '以美元（USD）通过 Stripe',
+      '信用卡与 PayPal 均以美元结账',
+    ],
+  ] as const)('%s 按结算币种显示订阅价格与付款说明', (locale, prices, subNote, payNote) => {
+    language.locale = locale
+    const page = html({ catalog: catalog(true), readings })
+    for (const price of prices) expect(page).toContain(price)
+    expect(page).toContain(subNote)
+    if (payNote) expect(page).toContain(payNote)
+  })
+
+  it('PayPal 排在首位时订阅仍按 Stripe 价格展示，PayPal 不出现订阅选项', () => {
+    language.locale = 'zh-Hant'
+    const base = catalog(true)
+    const page = html({
+      catalog: { ...base, providers: [...base.providers].reverse() } as PricingCatalog,
+      readings,
+    })
+    expect(page).toContain('NT$162')
+    expect(page).toContain('以新台幣（TWD）透過 Stripe')
+  })
+
+  it('详批未开放时订阅与积分包都不提供入口', () => {
+    language.locale = 'en'
+    const page = html({ catalog: catalog(true), readings: [] })
+    expect(page).not.toContain('href="/app"')
+    expect(page).toContain('data-testid="pricing-not-purchasable"')
+  })
+
+  it('每日领取说明随开关显示', async () => {
+    const { templateConfig } = await import('../../server/template-config.ts')
+    const original = templateConfig.credits.dailyEnabled
+    language.locale = 'en'
+    try {
+      ;(templateConfig.credits as { dailyEnabled: boolean }).dailyEnabled = false
+      const off = html({ catalog: catalog(true), readings })
+      expect(off).not.toContain('each day you sign in')
+      expect(off).toContain('subscription credits → purchased credits')
+      expect(off).not.toContain('daily free credits')
+    } finally {
+      ;(templateConfig.credits as { dailyEnabled: boolean }).dailyEnabled = original
+    }
+    expect(html({ catalog: catalog(true), readings })).toContain('each day you sign in')
+  })
+
+  it('没有订阅档位时只显示积分包（模板示例 pro/team 没有价格不出现）', () => {
+    language.locale = 'en'
+    const only = catalog(true)
+    const page = html({
+      catalog: {
+        ...only,
+        plans: [
+          ...only.plans.filter((p) => p.type === 'credit_pack'),
+          plan('pro', 'pro', 'subscription', 1000),
+        ],
+        prices: only.prices.filter((p) => p.interval === null),
+      } as PricingCatalog,
+      readings,
+    })
+    expect(page).not.toContain('pricing-sub')
+    expect(page).not.toContain('pricing-free')
+    expect(count(page, 'data-testid="pricing-pack"')).toBe(2)
+  })
+})

@@ -48,5 +48,9 @@
   "readings_report_failed": "This reading could not be generated, and your credits were returned.",
   "readings_report_created": "Created {date}",
   "readings_report_contents": "Contents",
-  "readings_report_print": "Print or save as PDF"
+  "readings_report_print": "Print or save as PDF",
+  "readings_unlock_or_subscribe": "Or subscribe to a monthly plan",
+  "readings_plan_option": "{name} · {credits} credits a month",
+  "readings_plan_price": "{price}/month",
+  "readings_plan_note": "Renews automatically every month; cancel anytime. Your reading starts once the first month's credits arrive."
 }

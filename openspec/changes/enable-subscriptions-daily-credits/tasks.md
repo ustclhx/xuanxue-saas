@@ -28,10 +28,10 @@
 
 ## 2. W1 订阅目录与价格同步
 
-- [ ] 2.1 【Claude】在 `EXAMPLE_CATALOG` 中新增 `plus`（400）与 `premium`（1000）月付订阅（`rollover=false`，sort 30/40），价格只来自价目表的 `month` 条目，只生成 Stripe 价格行，不生成 PayPal 订阅价格行。`pro`/`team` 不动。验证：catalog 的 postgres 测试覆盖：重跑 seed 幂等；新套餐的 Stripe 价格行为 `unsynced` 且 inactive；PayPal 没有订阅价格行；既有积分包行不变
-- [ ] 2.2 【Claude】增加「在售订阅套餐的 `features.models` ⊇ free 的 models」检查：激活订阅价格前若不满足即报错，并提供只读诊断输出。验证：单测覆盖缺少模型时拒绝、补齐后通过
-- [ ] 2.3 【Claude】`sync-stripe-live.ts` 去掉「只允许积分包」的断言，允许月付订阅价格；`stripe/localized.ts` 的译名表扩展到 `plus`/`premium`（四种语言），本地化订阅 Product 与 Price 的创建复用 A 的同步逻辑（若 A 未合并，则只建规范 Price）。验证：sync 测试覆盖订阅价格的创建与重跑核对；演练模式列出订阅价格且不调用 Stripe
-- [ ] 2.4 【Codex】在 `docs/05-billing.md` 的「本站」部分与 `docs/runbooks/stripe-launch.md` §0 中更新「只卖积分包」的边界，补充订阅价格的创建、门户配置与停用步骤。验证：按文档在本地库运行演练命令，输出一致
+- [x] 2.1 【Claude】在 `EXAMPLE_CATALOG` 中新增 `plus`（400）与 `premium`（1000）月付订阅（`rollover=false`，sort 30/40），价格只来自价目表的 `month` 条目，只生成 Stripe 价格行，不生成 PayPal 订阅价格行。`pro`/`team` 不动。验证：catalog 的 postgres 测试覆盖：重跑 seed 幂等；新套餐的 Stripe 价格行为 `unsynced` 且 inactive；PayPal 没有订阅价格行；既有积分包行不变
+- [x] 2.2 【Claude】增加「在售订阅套餐的 `features.models` ⊇ free 的 models」检查：激活订阅价格前若不满足即报错，并提供只读诊断输出。验证：单测覆盖缺少模型时拒绝、补齐后通过
+- [x] 2.3 【Claude】`sync-stripe-live.ts` 去掉「只允许积分包」的断言，允许月付订阅价格；`stripe/localized.ts` 的译名表扩展到 `plus`/`premium`（四种语言），本地化订阅 Product 与 Price 的创建复用 A 的同步逻辑（若 A 未合并，则只建规范 Price）。验证：sync 测试覆盖订阅价格的创建与重跑核对；演练模式列出订阅价格且不调用 Stripe
+- [x] 2.4 【Codex】在 `docs/05-billing.md` 的「本站」部分与 `docs/runbooks/stripe-launch.md` §0 中更新「只卖积分包」的边界，补充订阅价格的创建、门户配置与停用步骤。验证：按文档在本地库运行演练命令，输出一致
 
 ## 3. W2 每日积分
 
@@ -42,11 +42,11 @@
 
 ## 4. W3 定价页、账单页与解锁流程（依赖 1.2 的设计稿确认）
 
-- [ ] 4.1 【Claude】按确认的设计稿重做 `features/marketing/pricing-page.tsx`：订阅两档（复用 `groupPricingPlans` / `pricingForInterval`，只有月付、无切换）、积分包、每日领取说明（`dailyEnabled` 时显示），保留可解锁详批清单、FAQ、AI 声明、「即将开放」降级与预渲染快照；价格展示调用 A 的 `selectDisplayPrice`（A 未合并时显示 USD）。验证：`pricing-page.test.tsx` 覆盖：订阅未同步时显示「即将开放」无入口；有效时有入口；每日说明随开关显示；预渲染 HTML 不依赖数据库
-- [ ] 4.2 【Claude】订阅支付方式按「有有效价格的平台」过滤：定价页、账单页的订阅选择和余额不足弹窗都不显示 PayPal 的订阅选项；直接调用时返回 `BILLING_PRICE_UNAVAILABLE`。验证：`billing-sections` 与 `payment-entrypoints` 测试覆盖只有 Stripe 时的订阅选项，以及积分包仍可选两种平台
-- [ ] 4.3 【Claude】解锁卡在积分不足时的购买流程同时提供积分包与订阅档位；订阅首付到账后回到原结果页自动生成（复用现有的 returnTo 与轮询）。验证：`unlock-card.test.tsx` 覆盖积分不足时出现订阅入口；e2e 用例模拟订阅回跳后自动生成
-- [ ] 4.4 【Codex】账单页订阅分区的文案补齐四种语言：「新档积分从下个周期开始发放」的升级提示、「本期积分 X 到期」、取消后保留至周期末。结账按钮附近显示「每月自动续费，可随时取消」。验证：组件测试断言四种语言的 key 存在；账单页截图
-- [ ] 4.5 【Claude】FAQ 新增问答：订阅积分是否结转、如何取消、取消后怎样、每日领取规则与两站共享额度。验证：`faq.test.tsx` 通过，`/faq` 汇总页包含新问答
+- [x] 4.1 【Claude】按确认的设计稿重做 `features/marketing/pricing-page.tsx`：订阅两档（复用 `groupPricingPlans` / `pricingForInterval`，只有月付、无切换）、积分包、每日领取说明（`dailyEnabled` 时显示），保留可解锁详批清单、FAQ、AI 声明、「即将开放」降级与预渲染快照；价格展示调用 A 的 `selectDisplayPrice`（A 未合并时显示 USD）。验证：`pricing-page.test.tsx` 覆盖：订阅未同步时显示「即将开放」无入口；有效时有入口；每日说明随开关显示；预渲染 HTML 不依赖数据库
+- [x] 4.2 【Claude】订阅支付方式按「有有效价格的平台」过滤：定价页、账单页的订阅选择和余额不足弹窗都不显示 PayPal 的订阅选项；直接调用时返回 `BILLING_PRICE_UNAVAILABLE`。验证：`billing-sections` 与 `payment-entrypoints` 测试覆盖只有 Stripe 时的订阅选项，以及积分包仍可选两种平台
+- [x] 4.3 【Claude】解锁卡在积分不足时的购买流程同时提供积分包与订阅档位；订阅首付到账后回到原结果页自动生成（复用现有的 returnTo 与轮询）。验证：`unlock-card.test.tsx` 覆盖积分不足时出现订阅入口；e2e 用例模拟订阅回跳后自动生成
+- [x] 4.4 【Codex】账单页订阅分区的文案补齐四种语言：「新档积分从下个周期开始发放」的升级提示、「本期积分 X 到期」、取消后保留至周期末。结账按钮附近显示「每月自动续费，可随时取消」。验证：组件测试断言四种语言的 key 存在；账单页截图
+- [x] 4.5 【Claude】FAQ 新增问答：订阅积分是否结转、如何取消、取消后怎样、每日领取规则与两站共享额度。验证：`faq.test.tsx` 通过，`/faq` 汇总页包含新问答
 
 ## 5. 法律文案（可与组 2–4 并行）
 

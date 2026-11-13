@@ -21,6 +21,7 @@ import {
   openReadingUnlock,
   type ReadingOffer,
   type ReadingPack,
+  type ReadingPlan,
   type ReadingView,
 } from './readings.functions.ts'
 import { EMAIL_DELIVERY_HEADER, readReadingStream } from './stream.ts'
@@ -32,7 +33,8 @@ import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } 
  * 反色块依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与按界面语言结算的价格
  * （zh-Hans 附人民币参考价，localize-checkout-currency），位于免费结果与订阅卡之后，不以弹窗出现。
  *
- * 点击后：未登录 → 本语言登录页；积分不足 → 选择积分包并跳转 Checkout；否则直接生成并流式显示。
+ * 点击后：未登录 → 本语言登录页；积分不足 → 选择积分包或月付订阅（enable-subscriptions-daily-credits 4.3）
+ * 并跳转 Checkout；否则直接生成并流式显示。订阅首期积分由 webhook 入账，回跳后沿用同一轮询。
  * 登录与 Checkout 的回跳地址带签名的 `unlock` 参数（design 决策 5）。回到本页时：
  * 1. 挂载时把令牌中的分享输入写成 `#r=` 片段，工具页沿用分享链接的逻辑恢复输入并出结果；
  * 2. 令牌与本标签页 sessionStorage 中的待办一致且服务端验签通过时，自动 POST /api/readings。
@@ -292,10 +294,12 @@ function ReadingUnlockCard({
       return generate(request.input)
     })
 
-  const buy = (pack: ReadingPack) =>
+  const buy = (pack: ReadingPack | ReadingPlan) =>
     run(async () => {
       if (!request || !offer?.viewer) return
-      trackEvent('checkout_start', { plan: `credits-${pack.credits}` })
+      trackEvent('checkout_start', {
+        plan: 'key' in pack ? pack.key : `credits-${pack.credits}`,
+      })
       setPhase({ name: 'busy', label: m.readings_unlock_redirecting() })
       const returnTo = await issueToken(request.input, request.share)
       const result = await checkoutCustomer({
@@ -382,8 +386,13 @@ function ReadingUnlockCard({
     )
   }
 
-  // 支付未开通（没有可购买的积分包）且余额不够时不显示解锁入口，避免走到无法付款的一步
-  if (offer.packs.length === 0 && (offer.viewer?.balance ?? 0) < offer.credits) return null
+  // 支付未开通（没有可购买的积分包或订阅）且余额不够时不显示解锁入口，避免走到无法付款的一步
+  if (
+    offer.packs.length === 0 &&
+    offer.plans.length === 0 &&
+    (offer.viewer?.balance ?? 0) < offer.credits
+  )
+    return null
   // 标价取首选付款方式（packs 已按 template.config 顺序排列）的积分包，与结账扣款币种一致
   const headline = priceForCredits(
     offer.credits,
@@ -434,6 +443,7 @@ function ReadingUnlockCard({
       {phase.name === 'packs' ? (
         <PackChooser
           packs={offer.packs}
+          plans={offer.plans}
           locale={locale}
           balance={offer.viewer?.balance ?? 0}
           onPick={buy}
@@ -514,19 +524,23 @@ function PhaseMessage({
 
 function PackChooser({
   packs,
+  plans,
   locale,
   balance,
   onPick,
 }: {
   packs: readonly ReadingPack[]
+  plans: readonly ReadingPlan[]
   locale: string
   balance: number
-  onPick: (pack: ReadingPack) => void
+  onPick: (pack: ReadingPack | ReadingPlan) => void
 }) {
-  // 同一积分包有多个付款方式时先选方式；只有一种时不显示切换
-  const providers = [...new Set(packs.map((pack) => pack.provider))]
+  // 同一积分包有多个付款方式时先选方式；只有一种时不显示切换。
+  // 订阅只在有订阅价格的平台（Stripe）出现：选 PayPal 时不显示订阅（design D3）
+  const providers = [...new Set([...packs, ...plans].map((pack) => pack.provider))]
   const [provider, setProvider] = useState(providers[0])
   const shown = packs.filter((pack) => pack.provider === (provider ?? providers[0]))
+  const shownPlans = plans.filter((plan) => plan.provider === (provider ?? providers[0]))
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0">
       <legend className="mb-2 p-0 text-sm">
@@ -583,6 +597,32 @@ function PackChooser({
           </button>
         )
       })}
+      {shownPlans.length > 0 && (
+        <div className="flex flex-col gap-2" data-testid="reading-plans">
+          <p className="m-0 mt-1 text-sm">{m.readings_unlock_or_subscribe()}</p>
+          {shownPlans.map((plan) => {
+            const price = displayPrice(plan, locale)
+            return (
+              <button
+                key={plan.planPriceId}
+                type="button"
+                onClick={() => onPick(plan)}
+                data-testid="reading-plan"
+                className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-on-inverse/40 bg-transparent px-4 text-left font-semibold text-on-inverse transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-on-inverse focus-visible:outline-offset-2"
+              >
+                <span>
+                  {m.readings_plan_option({ name: plan.name, credits: String(plan.credits) })}
+                </span>
+                <span className="font-normal text-sm">
+                  {m.readings_plan_price({ price: price.text })}
+                  {price.reference && ` · ${m.billing_cny_reference({ price: price.reference })}`}
+                </span>
+              </button>
+            )
+          })}
+          <p className="m-0 text-on-inverse/75 text-xs">{m.readings_plan_note()}</p>
+        </div>
+      )}
       {paypalUsdNotice(locale, provider ?? providers[0] ?? '') && (
         <p className="m-0 text-sm" data-testid="reading-paypal-usd">
           {m.billing_paypal_usd_note()}

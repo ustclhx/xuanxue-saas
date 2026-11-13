@@ -48,5 +48,9 @@
   "readings_report_failed": "이 리포트는 생성되지 않았으며 크레딧은 환불되었습니다.",
   "readings_report_created": "{date} 생성",
   "readings_report_contents": "목차",
-  "readings_report_print": "인쇄 또는 PDF로 저장"
+  "readings_report_print": "인쇄 또는 PDF로 저장",
+  "readings_unlock_or_subscribe": "또는 월간 플랜 구독",
+  "readings_plan_option": "{name} · 매월 {credits} 크레딧",
+  "readings_plan_price": "{price}/월",
+  "readings_plan_note": "매월 자동 결제되며 언제든 해지할 수 있습니다. 첫 달 크레딧이 지급되면 자동으로 생성을 시작합니다."
 }

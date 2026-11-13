@@ -75,4 +75,18 @@ describe('FAQ 汇总页（4.7）', () => {
     expect(text('zh-Hant')).toContain('每日積分')
     expect(text('ko')).toContain('일일 크레딧')
   })
+
+  it('说明订阅积分不结转、如何取消与取消后保留到周期末', () => {
+    const text = (locale: 'en' | 'zh-Hant' | 'zh-Hans' | 'ko') =>
+      faqSections(locale)
+        .flatMap((section) => section.items)
+        .map((item) => `${item.question}${item.answer}`)
+        .join('\n')
+    expect(text('en')).toMatch(/Do unused subscription credits roll over\?/)
+    expect(text('en')).toMatch(/takes effect at the end of the current period/)
+    expect(text('zh-Hant')).toContain('訂閱積分用不完會累積到下個月嗎')
+    expect(text('zh-Hant')).toContain('如何取消訂閱')
+    expect(text('zh-Hans')).toContain('订阅积分用不完会累积到下个月吗')
+    expect(text('ko')).toContain('구독은 어떻게 해지')
+  })
 })
