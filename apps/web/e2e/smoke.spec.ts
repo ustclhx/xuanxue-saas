@@ -143,7 +143,8 @@ test('signed-out pricing purchase signs in and goes straight to checkout', async
   await page
     .getByRole('article')
     .filter({ hasText: 'CI smoke credits' })
-    .getByRole('link', { name: 'Buy credits' })
+    // 定价页改版（#153）后积分包按钮文案为「Buy」
+    .getByRole('link', { name: 'Buy', exact: true })
     .click()
   await expect(page).toHaveURL(/\/login\?redirect=%2Fapp%3Fbuy%3D/)
   // 登录后回到 /app?buy=，进入计费页即跳转支付页，不需要再选择积分包
