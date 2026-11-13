@@ -11,6 +11,11 @@ import { registerShareCard } from './registry.ts'
 import { SharePage, SharePageGone } from './share-page.tsx'
 import type { ShareCardDefinition, ShareResolution } from './types.ts'
 
+// 模板默认行为的单测：隔离项目自有的字体登记与站点解析（项目在 share-cards.fonts.ts / share-cards.sites.ts 中登记了
+// 韩文字体与两站覆盖），这些覆盖另由项目测试（features/seo/seo.test.tsx）验证。
+vi.mock('./share-cards.fonts.ts', () => ({ projectShareCardFonts: [] }))
+vi.mock('./share-cards.sites.ts', () => ({ resolveProjectShareCardSite: () => undefined }))
+
 const current = vi.hoisted(() => ({ request: new Request('https://app.example/s/x/y') }))
 // 页头页脚的链接只需输出 href，组件测试不搭建完整路由。
 vi.mock('@tanstack/react-router', async (importOriginal) => ({

@@ -1,8 +1,9 @@
 import { shareCardThemes } from '@xuanxue/ui/share-card-theme'
 import type { ReactElement, ReactNode } from 'react'
 import { isValidElement } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { staticPage } from '../seo/metadata.ts'
 import {
   defaultShareCardLayout,
   sampleShareCardLayout,
@@ -10,8 +11,14 @@ import {
   titleWeight,
 } from './layout.tsx'
 import { collectText } from './renderer.ts'
+import { defaultShareCardSite } from './site.ts'
 import { countLines, needsFallbackFont, sanitizeText, textWidth, truncateText } from './text.ts'
 import { resolveShareCardTheme } from './theme.ts'
+
+// 模板默认行为的单测：隔离项目自有的字体登记与站点解析（项目在 share-cards.fonts.ts / share-cards.sites.ts 中登记了
+// 韩文字体与两站覆盖），这些覆盖另由项目测试（features/seo/seo.test.tsx）验证。
+vi.mock('./share-cards.fonts.ts', () => ({ projectShareCardFonts: [] }))
+vi.mock('./share-cards.sites.ts', () => ({ resolveProjectShareCardSite: () => undefined }))
 
 type Style = Record<string, unknown>
 type Node = ReactElement<{ style?: Style; children?: ReactNode }>
@@ -94,8 +101,31 @@ describe('分享卡片版式（4.2）', () => {
   it('默认版式（构建期分享图）用大标题、无标签与摘要', () => {
     const tree = defaultShareCardLayout('定价与套餐', resolveShareCardTheme('light'))
     expect(withText(tree, '定价与套餐').props.style).toMatchObject({ fontSize: 76, maxHeight: 184 })
-    expect(collectText(tree)).toContain(`${templateConfig.app.name} · AI workspace`)
+    // 副标题取默认语言首页的 SEO 标题，不再写死英文
+    const tagline = staticPage('/', templateConfig.i18n.defaultLocale).title
+    expect(collectText(tree)).toContain(`${templateConfig.app.name} · ${tagline}`)
     expect(elements(tree).some((node) => node.props.style?.height === 44)).toBe(false)
+  })
+
+  it('默认分享图副标题跟随页面语言', () => {
+    // 衍生项目的语言列表不同（xuanxue 没有 zh），取配置中的最后一个语言
+    const pageLocale = templateConfig.i18n.locales.at(-1) ?? 'en'
+    const tree = defaultShareCardLayout('定价与套餐', light, defaultShareCardSite(pageLocale))
+    expect(collectText(tree)).toContain(
+      `${templateConfig.app.name} · ${staticPage('/', pageLocale).title}`,
+    )
+  })
+
+  it('未提供品牌与域名时与模板配置一致；提供时替换品牌行、首字与域名', () => {
+    const plain = collectText(shareCardLayout({ title: 'Report' }, light))
+    expect(plain).toBe(`${brandInitial}${templateConfig.app.name}Report${brandHost}`)
+    const branded = collectText(
+      shareCardLayout(
+        { title: 'Report', brand: { name: 'Arcanumber', initial: 'A' }, host: 'arcanumber.com' },
+        light,
+      ),
+    )
+    expect(branded).toBe('AArcanumberReportarcanumber.com')
   })
 
   it('超长标题与摘要按字宽加权截断并以省略号结尾', () => {

@@ -15,6 +15,11 @@ import { registerShareCard } from './registry.ts'
 import { SHARE_CARD_BUSY } from './renderer.ts'
 import type { ShareResolution } from './types.ts'
 
+// 模板默认行为的单测：隔离项目自有的字体登记与站点解析（项目在 share-cards.fonts.ts / share-cards.sites.ts 中登记了
+// 韩文字体与两站覆盖），这些覆盖另由项目测试（features/seo/seo.test.tsx）验证。
+vi.mock('./share-cards.fonts.ts', () => ({ projectShareCardFonts: [] }))
+vi.mock('./share-cards.sites.ts', () => ({ resolveProjectShareCardSite: () => undefined }))
+
 interface Data {
   title: string
 }
