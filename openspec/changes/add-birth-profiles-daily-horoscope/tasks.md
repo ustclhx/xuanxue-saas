@@ -32,10 +32,10 @@
 
 ## 2. 波次 A · WT-engine：引擎流日与个人日（【Claude】）
 
-- [ ] 2.1 在 `packages/bazi/src/daily.ts` 实现 `dayPillarOf(date)`：日柱、农历日，以及宜忌与建除的键，来自 tyme4ts，不带本地化文字。从 `index.ts` 和新的子入口导出，并导出 `DAILY_RULES_VERSION`。验证：单测用 10 个以上已知日期核对日柱，至少包括 2026-11-13 和跨年、闰月附近的日期；民用日界下 23:30 不换日
-- [ ] 2.2 实现 `dailyRelations(chart, date)`：返回十神，以及日支与本命各支的冲、合、三合、刑、害。复用 `compat.ts` 的函数，补上六害。验证：单测覆盖辰戌冲、子丑合、寅巳申刑、子未害，以及时辰未知时只比较三支
-- [ ] 2.3 在 `packages/numerology` 增加 `universalDay`、`personalMonth`、`personalDay`，返回值带 steps，11、22 保留为主数。验证：单测覆盖 spec 的「步骤可展示」与「调用方传入本地日期」两个场景，以及结果为主数的情况
-- [ ] 2.4 更新 `packages/bazi` 与 `packages/numerology` 的 README 或包内说明，补上新函数与版本号约定。验证：`pnpm typecheck`、`pnpm test --filter @xuanxue/bazi --filter @xuanxue/numerology` 通过
+- [x] 2.1 在 `packages/bazi/src/daily.ts` 实现 `dayPillarOf(date)`：日柱、农历日，以及宜忌与建除的键，来自 tyme4ts，不带本地化文字。从 `index.ts` 和新的子入口导出，并导出 `DAILY_RULES_VERSION`。验证：单测用 10 个以上已知日期核对日柱，至少包括 2026-11-13 和跨年、闰月附近的日期；民用日界下 23:30 不换日
+- [x] 2.2 实现 `dailyRelations(chart, date)`：返回十神，以及日支与本命各支的冲、合、三合、刑、害。复用 `compat.ts` 的函数，补上六害。验证：单测覆盖辰戌冲、子丑合、寅巳申刑、子未害，以及时辰未知时只比较三支
+- [x] 2.3 在 `packages/numerology` 增加 `universalDay`、`personalMonth`、`personalDay`，返回值带 steps，11、22 保留为主数。验证：单测覆盖 spec 的「步骤可展示」与「调用方传入本地日期」两个场景，以及结果为主数的情况
+- [x] 2.4 更新 `packages/bazi` 与 `packages/numerology` 的 README 或包内说明，补上新函数与版本号约定。验证：`pnpm typecheck`、`pnpm test --filter @xuanxue/bazi --filter @xuanxue/numerology` 通过
 
 ## 3. 波次 A · WT-profiles-data：档案数据与服务（【Claude】）
 

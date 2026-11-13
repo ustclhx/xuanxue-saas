@@ -98,6 +98,94 @@ export function personalYear(date: BirthDate, localYear: number): NumberResult {
   }
 }
 
+/**
+ * 每日数字（add-birth-profiles-daily-horoscope design D6）：宇宙日、个人月与个人日。
+ * 结果按 1–9 与主数 11、22 解读，因此这里只保留 11、22，33 继续归约（个人年沿用原有规则）。
+ * 「当日」由调用方显式传入访客本地日期，服务端不按 UTC 推断。
+ */
+const DAILY_MASTERS = new Set([11, 22])
+
+function reduceDaily(input: number, phase: Step['phase'] = 'digits'): NumberResult {
+  let value = input
+  const steps: Step[] = []
+  while (value > 9 && !DAILY_MASTERS.has(value)) {
+    const operands = [...String(value)].map(Number)
+    value = operands.reduce((sum, digit) => sum + digit, 0)
+    steps.push({ phase, operands, result: value })
+  }
+  return { value, master: DAILY_MASTERS.has(value), steps }
+}
+
+/** 各部分归约后相加，再归约；步骤顺序为各部分、合计、合计的归约。 */
+function sumParts(parts: NumberResult[], operands: number[]): NumberResult {
+  const sum = operands.reduce((a, b) => a + b, 0)
+  const result = reduceDaily(sum, 'total')
+  return {
+    ...result,
+    steps: [
+      ...parts.flatMap((part) => part.steps),
+      { phase: 'total', operands, result: sum },
+      ...result.steps,
+    ],
+  }
+}
+
+function validateLocalDate(date: BirthDate) {
+  try {
+    validateDate(date)
+  } catch {
+    throw new AppError('INVALID_DATE', 'Enter a valid local date', {
+      details: { field: 'date' },
+    })
+  }
+}
+
+/** 宇宙日数：当日公历年、月、日分别归约后相加，再归约。 */
+export function universalDay(local: BirthDate): NumberResult {
+  validateLocalDate(local)
+  const parts = [
+    reduceDaily(local.year, 'year'),
+    reduceDaily(local.month, 'month'),
+    reduceDaily(local.day, 'day'),
+  ]
+  return sumParts(
+    parts,
+    parts.map((part) => part.value),
+  )
+}
+
+export interface PersonalMonthResult extends NumberResult {
+  personalYear: NumberResult
+}
+export interface PersonalDayResult extends NumberResult {
+  personalYear: NumberResult
+  personalMonth: PersonalMonthResult
+}
+
+/** 个人月数：个人年数（按本地年份）加当月数后归约。 */
+export function personalMonth(
+  birth: BirthDate,
+  local: { year: number; month: number },
+): PersonalMonthResult {
+  validateLocalDate({ ...local, day: 1 })
+  const year = personalYear(birth, local.year)
+  const month = reduceDaily(local.month, 'month')
+  const result = sumParts([month], [year.value, month.value])
+  return { ...result, personalYear: year }
+}
+
+/**
+ * 个人日数：个人月数加当日数后归约。`steps` 只含个人日这一段；
+ * 个人年、个人月两段的步骤分别在 `personalYear.steps` 与 `personalMonth.steps`，页面依次展示。
+ */
+export function personalDay(birth: BirthDate, local: BirthDate): PersonalDayResult {
+  validateLocalDate(local)
+  const month = personalMonth(birth, local)
+  const day = reduceDaily(local.day, 'day')
+  const result = sumParts([day], [month.value, day.value])
+  return { ...result, personalYear: month.personalYear, personalMonth: month }
+}
+
 export function normalizeName(name: string): string {
   // 先校验原始字母，避免大写转换把非基础拉丁字符悄悄变成 A–Z。
   const normalized = name.normalize('NFD').replace(/\p{M}/gu, '')
