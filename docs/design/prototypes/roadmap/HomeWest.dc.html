@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Arcanumber home (west site)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+.west{--bg:#11162A;--surface:#181F3A;--surface-2:#151B33;--ink:#ECE7DA;--muted:#C9C4B7;--subtle:#B9B5AA;--line:#2A3150;--line-strong:#3A4266;--accent:#E3C36F;--accent-ink:#E3C36F;--on-accent:#11162A;--inverse:#ECE7DA;--on-inverse:#11162A}
+a{color:var(--accent-ink)}
+.hf{font-family:'Cormorant Garamond',Georgia,serif}
+</style>
+</helmet>
+<div class="west" style="background: var(--bg); color: var(--ink); font-family: 'Source Sans 3', -apple-system, 'Segoe UI', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line);">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap;">
+      <a href="#" class="hf" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 700; font-size: 22px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z" fill="none" stroke="var(--accent)" stroke-width="1.5"></path></svg>
+        Arcanumber
+      </a>
+      <nav aria-label="Tools" style="display: flex; gap: 20px; font-size: 15px; flex-wrap: wrap;">
+        <a href="#" style="color: var(--ink); text-decoration: none; font-weight: 600;">Life Path</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">Numerology Calculator</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">Compatibility</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">Tarot</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">Today</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">Pricing</a>
+      </nav>
+      <a href="#" style="margin-left: auto; height: 36px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 8px; background: var(--accent); color: var(--on-accent); text-decoration: none; font-size: 14px; font-weight: 600;">Sign in</a>
+    </div>
+  </header>
+
+  <main style="max-width: 1120px; margin: 0 auto; padding: 56px 24px 0;">
+    <section aria-labelledby="h1" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: start;">
+      <div>
+        <p style="margin: 0 0 12px; font-size: 13px; color: var(--subtle); letter-spacing: 0.1em; text-transform: uppercase;">Existing tool area · unchanged</p>
+        <h1 id="h1" class="hf" style="margin: 0; font-size: 52px; line-height: 1.1;">Life Path Number Calculator</h1>
+        <p style="margin: 16px 0 0; font-size: 18px; line-height: 1.7; color: var(--muted);">Enter your birth date to find your Life Path number, with every reduction step shown. Master numbers are kept.</p>
+      </div>
+      <form style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;"><strong>Birth date</strong><button type="button" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 13px;">Use a saved profile ▾</button></div>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">Date of birth<input value="1990-05-15" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+        <button type="button" style="height: 48px; border-radius: 10px; border: 0; background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600;">Calculate</button>
+      </form>
+    </section>
+
+    <div style="margin-top: 32px; border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">Result area (existing big number + steps, with the new reduction diagram — see the chart board)</div>
+
+    <section aria-labelledby="today" style="margin-top: 64px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px;">
+      <div class="hf" style="width: 72px; height: 72px; border-radius: 999px; border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 36px; color: var(--accent);">[7]</div>
+      <div style="flex: 1 1 360px; min-width: 0;">
+        <h2 id="today" style="margin: 0; font-size: 18px;">Today is a Universal Day [7] · [November 13, 2026]</h2>
+        <p style="margin: 6px 0 0; color: var(--muted);">[A day for reflection, study and quiet questions.] Add your birth date to see your Personal Day.</p>
+      </div>
+      <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none; font-weight: 600;">Your number today →</a>
+    </section>
+
+    <section aria-labelledby="tools" style="margin-top: 72px;">
+      <h2 id="tools" class="hf" style="margin: 0 0 8px; font-size: 36px;">Free tools</h2>
+      <p style="margin: 0 0 24px; color: var(--muted);">One birth date works across every calculator.</p>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+        <sc-for list="{{tools}}" as="t" hint-placeholder-count="6">
+          <a href="#" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink); min-height: 128px;">
+            <span class="hf" style="font-size: 18px; color: var(--accent);">{{t.no}}</span>
+            <strong style="font-size: 18px;">{{t.name}}</strong>
+            <span style="color: var(--muted); font-size: 14px; line-height: 1.6;">{{t.desc}}</span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="sample" style="margin-top: 72px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start;">
+      <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;"><strong>Sample chart</strong><span style="font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);">Sample</span></div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 15px; color: var(--muted); flex-wrap: wrap;">
+          <span>05 → 5</span><span aria-hidden="true">+</span><span>15 → 6</span><span aria-hidden="true">+</span><span>1990 → 19 → 10 → 1</span>
+        </div>
+        <div class="hf" style="margin: 20px auto 0; width: 120px; height: 120px; border-radius: 999px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 64px; color: var(--accent);">3</div>
+        <p style="margin: 16px 0 0; text-align: center; font-size: 13px; color: var(--subtle);">Fictional birth date: May 15, 1990</p>
+      </div>
+      <div>
+        <h2 id="sample" class="hf" style="margin: 0 0 8px; font-size: 36px;">What a full reading looks like</h2>
+        <p style="margin: 0 0 16px; color: var(--muted);">Chapters built from your core numbers, including a year-by-year look ahead. Ask follow-up questions inside the report.</p>
+        <ol style="margin: 0 0 16px; padding-left: 20px; color: var(--muted); line-height: 1.9;"><li>Your core numbers</li><li>Strengths and blind spots</li><li>Work and money</li><li>Relationships</li><li>Pinnacles and challenges</li><li>Year by year (next five years)</li></ol>
+        <blockquote style="margin: 0; padding: 16px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); line-height: 1.8;"><span style="font-size: 12px; color: var(--subtle);">Sample paragraph</span><br>[Approved sample paragraph from the catalog; hidden until approved]</blockquote>
+        <p style="margin: 12px 0 0; font-size: 13px; color: var(--subtle);">Written by AI from your numbers. For reflection and entertainment.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="plans" style="margin-top: 72px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1 1 320px; min-width: 0;">
+        <h2 id="plans" class="hf" style="margin: 0 0 8px; font-size: 30px;">How credits work</h2>
+        <p style="margin: 0; color: var(--muted); line-height: 1.7;">Sign in each day for 10 free credits (up to 10 days a month). Buy once or subscribe when you need more.</p>
+      </div>
+      <dl style="flex: 2 1 480px; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+        <div style="padding: 16px; border-radius: 10px; background: var(--bg);"><dt style="color: var(--subtle); font-size: 13px;">One reading</dt><dd style="margin: 4px 0 0; font-size: 24px; font-weight: 600;">$1.99</dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">100 credits</dd></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--bg);"><dt style="color: var(--subtle); font-size: 13px;">Plus</dt><dd style="margin: 4px 0 0; font-size: 24px; font-weight: 600;">$4.99<span style="font-size: 13px; font-weight: 400;">/mo</span></dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">400 credits monthly</dd></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--bg);"><dt style="color: var(--subtle); font-size: 13px;">Premium</dt><dd style="margin: 4px 0 0; font-size: 24px; font-weight: 600;">$9.99<span style="font-size: 13px; font-weight: 400;">/mo</span></dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">1000 credits monthly</dd></div>
+      </dl>
+      <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none; font-weight: 600;">See pricing</a>
+    </section>
+
+    <section aria-labelledby="trust" style="margin-top: 72px;">
+      <h2 id="trust" class="hf" style="margin: 0 0 16px; font-size: 30px;">How we calculate, and what we keep</h2>
+      <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 32px; color: var(--muted); line-height: 1.7;">
+        <li>· Pythagorean method, each step shown; master numbers 11, 22, 33 kept</li>
+        <li>· Free calculators run in your browser; share links never contain your birth date</li>
+        <li>· Saved profiles are visible only to you and can be deleted anytime</li>
+        <li>· Deleting your account deletes profiles, readings and chats</li>
+      </ul>
+    </section>
+    <div style="margin-top: 72px; border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">FAQ (existing, unchanged)</div>
+  </main>
+  <footer style="margin-top: 72px; border-top: 1px solid var(--line);">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 32px 24px; display: flex; gap: 24px; flex-wrap: wrap; color: var(--subtle); font-size: 14px;"><span>© Arcanumber</span><a href="#">Privacy</a><a href="#">Terms</a><a href="#">FAQ</a><span style="margin-left: auto;">For entertainment and reflection</span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      tools: [
+        { no: 'I', name: 'Life Path Number', desc: 'Your core number from your birth date, step by step.' },
+        { no: 'II', name: 'Numerology Calculator', desc: 'Expression, Soul Urge and Personality from your name.' },
+        { no: 'III', name: 'Life Path Compatibility', desc: 'How two Life Path numbers work together.' },
+        { no: 'IV', name: 'Your Number Today', desc: 'Universal Day and your Personal Day.' },
+        { no: 'V', name: 'Three-Card Tarot', desc: 'Shuffle, cut and reveal past, present and future.' },
+        { no: 'VI', name: 'Card of the Day', desc: 'One card as a theme to reflect on today.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

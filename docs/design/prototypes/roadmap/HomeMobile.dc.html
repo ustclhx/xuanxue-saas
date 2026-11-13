@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>首页手机版</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;family=Cormorant+Garamond:wght@600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--inverse:#1F1C18;--on-inverse:#FFFDF8;--hf:'Noto Serif TC',serif;--bf:-apple-system,'PingFang TC',sans-serif}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+.west{--bg:#11162A;--surface:#181F3A;--surface-2:#151B33;--ink:#ECE7DA;--muted:#C9C4B7;--subtle:#B9B5AA;--line:#2A3150;--line-strong:#3A4266;--accent:#E3C36F;--accent-ink:#E3C36F;--on-accent:#11162A;--inverse:#ECE7DA;--on-inverse:#11162A;--hf:'Cormorant Garamond',Georgia,serif;--bf:'Source Sans 3',-apple-system,sans-serif}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="width: 390px; min-height: 3300px; box-sizing: border-box; background: var(--bg); color: var(--ink); font-family: var(--bf);">
+  <header style="height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--surface);">
+    <strong style="font-family: var(--hf); font-size: 20px;">{{c.brand}}</strong>
+    <button type="button" aria-label="{{c.menu}}" style="width: 44px; height: 44px; border: 0; background: transparent; color: var(--ink);"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5"></path></svg></button>
+  </header>
+  <main style="padding: 24px 16px; display: flex; flex-direction: column; gap: 40px;">
+    <section style="display: flex; flex-direction: column; gap: 16px;">
+      <h1 style="margin: 0; font-family: var(--hf); font-size: 32px; line-height: 1.2;">{{c.h1}}</h1>
+      <div style="height: 200px; border: 1px dashed var(--line-strong); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--subtle); font-size: 14px; text-align: center; padding: 16px;">{{c.toolNote}}</div>
+    </section>
+    <section style="display: flex; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px;">
+      <div style="width: 56px; height: 64px; flex: none; border-radius: 10px; background: var(--inverse); color: var(--on-inverse); display: flex; align-items: center; justify-content: center; font-family: var(--hf); font-size: 22px; text-align: center; line-height: 1.1; white-space: pre-line;">{{c.dayMark}}</div>
+      <div style="min-width: 0;"><h2 style="margin: 0; font-size: 16px;">{{c.todayTitle}}</h2><p style="margin: 4px 0 0; font-size: 14px; color: var(--muted);">{{c.todayLine}}</p><a href="#" style="display: inline-block; margin-top: 6px; font-size: 14px; font-weight: 600; min-height: 24px;">{{c.todayCta}}</a></div>
+    </section>
+    <section>
+      <h2 style="margin: 0 0 16px; font-family: var(--hf); font-size: 26px;">{{c.toolsTitle}}</h2>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <sc-for list="{{c.tools}}" as="t" hint-placeholder-count="6">
+          <a href="#" style="display: flex; gap: 14px; align-items: center; padding: 14px 16px; min-height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink);">
+            <span style="font-family: var(--hf); color: var(--accent-ink); width: 28px;">{{t.no}}</span>
+            <span style="display: flex; flex-direction: column; min-width: 0;"><strong style="font-size: 16px;">{{t.name}}</strong><span style="font-size: 13px; color: var(--muted);">{{t.desc}}</span></span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+    <section style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; justify-content: space-between;"><h2 style="margin: 0; font-family: var(--hf); font-size: 22px;">{{c.sampleTitle}}</h2><span style="font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted); align-self: center;">{{c.sampleTag}}</span></div>
+      <div style="height: 140px; border-radius: 10px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--subtle); font-size: 13px;">{{c.sampleChart}}</div>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">{{c.sampleDesc}}</p>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 12px;">
+      <h2 style="margin: 0; font-family: var(--hf); font-size: 22px;">{{c.plansTitle}}</h2>
+      <p style="margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7;">{{c.plansDesc}}</p>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+        <sc-for list="{{c.plans}}" as="p" hint-placeholder-count="3">
+          <div style="padding: 12px 8px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); text-align: center;"><div style="font-size: 12px; color: var(--subtle);">{{p.name}}</div><div style="font-size: 18px; font-weight: 700; margin-top: 4px;">{{p.price}}</div><div style="font-size: 12px; color: var(--muted);">{{p.note}}</div></div>
+        </sc-for>
+      </div>
+      <a href="#" style="height: 48px; border-radius: 10px; border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; color: var(--ink); text-decoration: none; font-weight: 600;">{{c.plansCta}}</a>
+    </section>
+    <section>
+      <h2 style="margin: 0 0 12px; font-family: var(--hf); font-size: 22px;">{{c.trustTitle}}</h2>
+      <ul style="margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; line-height: 1.8;"><sc-for list="{{c.trust}}" as="x" hint-placeholder-count="3"><li>{{x}}</li></sc-for></ul>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"site":{"editor":"enum","options":["east","west"],"default":"east"},"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":3300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const site = this.props.site ?? 'east';
+    const dark = this.props.dark ?? false;
+    const east = {
+      brand: '干支日', menu: '選單', h1: '免費八字排盤', toolNote: '現有排盤表單與結果（不變）',
+      dayMark: '[甲]\n[子]', todayTitle: '今日 [甲子日] · [建除：成]', todayLine: '宜 [祭祀、出行] · 忌 [動土]', todayCta: '看你的今日運勢 →',
+      toolsTitle: '全部免費工具',
+      tools: [
+        { no: '01', name: '八字排盤', desc: '四柱、五行、大運流年' }, { no: '02', name: '紫微斗數', desc: '十二宮與十四主星' },
+        { no: '03', name: '命盤查詢', desc: '藏干、十神與大運表' }, { no: '04', name: '今日運勢', desc: '今日干支與你的關係' },
+        { no: '05', name: '三張牌塔羅', desc: '過去、現在、未來' }, { no: '06', name: '每日一張塔羅', desc: '今日省思主題' }
+      ],
+      sampleTitle: 'AI 詳批示例', sampleTag: '示例', sampleChart: '樣例四柱圖（庚午 辛巳 庚辰 辛巳）', sampleDesc: '七個章節，含流年逐年；完成後可在報告內追問。',
+      plansTitle: '積分怎麼來', plansDesc: '每天登入領 10 積分，每月最多 10 天。',
+      plans: [{ name: '單次', price: 'NT$65', note: '100 積分' }, { name: 'Plus', price: 'NT$162', note: '400/月' }, { name: 'Premium', price: 'NT$325', note: '1000/月' }],
+      plansCta: '查看定價', trustTitle: '資料與計算',
+      trust: ['依子平八字傳統規則計算', '出生資料不寫入分享連結', '檔案只有你看得到，可隨時刪除']
+    };
+    const west = {
+      brand: 'Arcanumber', menu: 'Menu', h1: 'Life Path Number Calculator', toolNote: 'Existing calculator and result (unchanged)',
+      dayMark: '[7]', todayTitle: 'Universal Day [7]', todayLine: '[A day for reflection and study]', todayCta: 'Your number today →',
+      toolsTitle: 'Free tools',
+      tools: [
+        { no: 'I', name: 'Life Path Number', desc: 'Step-by-step core number' }, { no: 'II', name: 'Numerology Calculator', desc: 'Name numbers' },
+        { no: 'III', name: 'Compatibility', desc: 'Two Life Paths together' }, { no: 'IV', name: 'Your Number Today', desc: 'Personal Day' },
+        { no: 'V', name: 'Three-Card Tarot', desc: 'Past, present, future' }, { no: 'VI', name: 'Card of the Day', desc: 'A theme for today' }
+      ],
+      sampleTitle: 'Sample reading', sampleTag: 'Sample', sampleChart: 'Reduction diagram for May 15, 1990 → 3', sampleDesc: 'Chapters from your core numbers, with a year-by-year look ahead.',
+      plansTitle: 'How credits work', plansDesc: '10 free credits each day you sign in, up to 10 days a month.',
+      plans: [{ name: 'One', price: '$1.99', note: '100 credits' }, { name: 'Plus', price: '$4.99', note: '400/mo' }, { name: 'Premium', price: '$9.99', note: '1000/mo' }],
+      plansCta: 'See pricing', trustTitle: 'Your data',
+      trust: ['Pythagorean method, steps shown', 'Share links never contain your birth date', 'Profiles are private and deletable']
+    };
+    const c = site === 'west' ? west : east;
+    const cls = site === 'west' ? 'west' : (dark ? 'east dark' : 'east');
+    return { c, cls };
+  }
+}
+</script>
+</body>
+</html>

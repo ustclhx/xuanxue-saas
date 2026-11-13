@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>工作台今日面板</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--inverse:#1F1C18;--on-inverse:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);"><div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">干支日</strong><span style="margin-left: auto; color: var(--subtle); font-size: 14px;">（現有頁頭）</span></div></header>
+  <div style="max-width: 1120px; margin: 0 auto; padding: 32px 24px; display: flex; gap: 32px; flex-wrap: wrap;">
+    <aside style="flex: 1 1 220px; max-width: 240px; display: flex; flex-direction: column; gap: 4px; font-size: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;"><strong style="font-size: 16px;">我的空間</strong><button type="button" aria-label="通知，沒有未讀" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--ink);"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 13V8a5 5 0 0 1 10 0v5l1.5 1.5h-13zM7 16h4" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg></button></div>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; background: var(--surface-2); color: var(--ink); text-decoration: none; font-weight: 600;">總覽</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none;">我的報告</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none;">出生檔案 <span style="font-size: 12px; color: var(--accent-ink);">新</span></a>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none;">AI 對話</a>
+      <a href="#" style="padding: 10px 12px; border-radius: 8px; color: var(--muted); text-decoration: none;">帳單與積分</a>
+    </aside>
+    <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px;">
+      <div role="status" style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-radius: 10px; background: var(--surface-2); font-size: 14px;"><span>今日已領取 10 積分（本月第 [3]/10 天），7 天內有效。</span><a href="#">查看餘額</a></div>
+      <section aria-labelledby="today" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <h2 id="today" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 22px;">今日 · [11 月 13 日 甲子日]</h2>
+          <button type="button" style="height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 14px;">檔案：本人（庚日主）▾</button>
+        </div>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: stretch;">
+          <div style="width: 88px; flex: none; border-radius: 10px; background: var(--inverse); color: var(--on-inverse); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 0; font-family: 'Noto Serif TC', serif; font-size: 34px; line-height: 1.15;">[甲]<br>[子]</div>
+          <dl style="flex: 1 1 420px; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+            <div style="padding: 14px; border-radius: 10px; background: var(--surface-2);"><dt style="font-size: 13px; color: var(--subtle);">今日天干對你</dt><dd style="margin: 4px 0 0; font-size: 20px; font-weight: 700;">[偏財]</dd></div>
+            <div style="padding: 14px; border-radius: 10px; background: var(--surface-2);"><dt style="font-size: 13px; color: var(--subtle);">與你的地支</dt><dd style="margin: 4px 0 0; font-size: 20px; font-weight: 700;">[子辰半合]</dd></div>
+            <div style="padding: 14px; border-radius: 10px; background: var(--surface-2);"><dt style="font-size: 13px; color: var(--subtle);">宜 / 忌</dt><dd style="margin: 4px 0 0; font-size: 15px;">[出行、會友] / [動土]</dd></div>
+          </dl>
+        </div>
+        <p style="margin: 0; line-height: 1.8; color: var(--muted);">[依十神與沖合關係給出的固定文案：今天適合處理與錢有關的小事……]</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; background: var(--accent); color: var(--on-accent); text-decoration: none; font-weight: 600;">把今天帶去問 AI</a>
+          <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none;">看完整命盤</a>
+        </div>
+        <p style="margin: 0; font-size: 12px; color: var(--subtle);">依傳統規則計算，僅供娛樂參考。</p>
+      </section>
+      <div style="border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">通知中心（有通知時才顯示）與現有「快速進入」面板，不變</div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1150}}'>
+class Component extends DCLogic {
+  renderVals() { return { cls: (this.props.dark ?? false) ? 'east dark' : 'east' }; }
+}
+</script>
+</body>
+</html>

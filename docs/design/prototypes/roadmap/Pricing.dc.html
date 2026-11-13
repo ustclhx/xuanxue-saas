@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>定价页</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--inverse:#1F1C18;--on-inverse:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+a{color:var(--accent-ink)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', 'Apple SD Gothic Neo', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);"><div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">干支日</strong></div></header>
+  <main style="max-width: 1120px; margin: 0 auto; padding: 48px 24px 72px; display: flex; flex-direction: column; gap: 48px;">
+    <div style="text-align: center;">
+      <h1 style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 40px;">{{c.h1}}</h1>
+      <p style="margin: 12px auto 0; max-width: 620px; color: var(--muted); font-size: 17px; line-height: 1.7;">{{c.lead}}</p>
+    </div>
+
+    <section aria-labelledby="sub">
+      <h2 id="sub" style="margin: 0 0 16px; font-size: 20px;">{{c.subTitle}}</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch;">
+        <div style="padding: 24px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; gap: 12px;">
+          <strong style="font-size: 18px;">{{c.free}}</strong>
+          <div style="font-size: 32px; font-weight: 700;">{{c.zero}}</div>
+          <ul style="margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.8; font-size: 15px; flex: 1;"><li>{{c.free1}}</li><li>{{c.free2}}</li><li>{{c.free3}}</li></ul>
+          <a href="#" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; color: var(--ink); text-decoration: none;">{{c.freeCta}}</a>
+        </div>
+        <div style="padding: 24px; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface); display: flex; flex-direction: column; gap: 12px;">
+          <strong style="font-size: 18px;">Plus</strong>
+          <div><span style="font-size: 32px; font-weight: 700;">{{c.plus}}</span><span style="color: var(--muted);">{{c.perMonth}}</span><div style="font-size: 13px; color: var(--subtle); min-height: 18px;">{{c.plusRef}}</div></div>
+          <ul style="margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.8; font-size: 15px; flex: 1;"><li>{{c.plus1}}</li><li>{{c.sub2}}</li><li>{{c.sub3}}</li></ul>
+          <button type="button" style="height: 44px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px;">{{c.subCta}}</button>
+        </div>
+        <div style="padding: 24px; border-radius: 12px; border: 2px solid var(--accent); background: var(--surface); display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between;"><strong style="font-size: 18px;">Premium</strong><span style="font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--accent); color: var(--on-accent); align-self: center;">{{c.best}}</span></div>
+          <div><span style="font-size: 32px; font-weight: 700;">{{c.premium}}</span><span style="color: var(--muted);">{{c.perMonth}}</span><div style="font-size: 13px; color: var(--subtle); min-height: 18px;">{{c.premiumRef}}</div></div>
+          <ul style="margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.8; font-size: 15px; flex: 1;"><li>{{c.premium1}}</li><li>{{c.sub2}}</li><li>{{c.sub3}}</li></ul>
+          <button type="button" style="height: 44px; border-radius: 8px; border: 0; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 15px;">{{c.subCta}}</button>
+        </div>
+      </div>
+      <p style="margin: 12px 0 0; font-size: 13px; color: var(--subtle);">{{c.subNote}}</p>
+    </section>
+
+    <section aria-labelledby="packs">
+      <h2 id="packs" style="margin: 0 0 16px; font-size: 20px;">{{c.packTitle}}</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+        <div style="padding: 20px 24px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;"><div><strong style="font-size: 17px;">{{c.pack1}}</strong><div style="color: var(--muted); font-size: 14px;">{{c.pack1d}}</div></div><div style="text-align: right;"><div style="font-size: 24px; font-weight: 700;">{{c.p1}}</div><div style="font-size: 13px; color: var(--subtle);">{{c.p1Ref}}</div></div><button type="button" style="height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-weight: 600;">{{c.buy}}</button></div>
+        <div style="padding: 20px 24px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;"><div><strong style="font-size: 17px;">{{c.pack2}}</strong><div style="color: var(--muted); font-size: 14px;">{{c.pack2d}}</div></div><div style="text-align: right;"><div style="font-size: 24px; font-weight: 700;">{{c.p2}}</div><div style="font-size: 13px; color: var(--subtle);">{{c.p2Ref}}</div></div><button type="button" style="height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-weight: 600;">{{c.buy}}</button></div>
+      </div>
+      <p style="margin: 12px 0 0; font-size: 13px; color: var(--subtle);">{{c.payNote}}</p>
+    </section>
+
+    <section aria-labelledby="order" style="padding: 20px 24px; border-radius: 12px; background: var(--surface-2);">
+      <h2 id="order" style="margin: 0 0 8px; font-size: 17px;">{{c.orderTitle}}</h2>
+      <p style="margin: 0; color: var(--muted); line-height: 1.8; font-size: 15px;">{{c.order}}</p>
+    </section>
+    <div style="border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">{{c.rest}}</div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"locale":{"editor":"enum","options":["zh-Hant","ko","zh-Hans"],"default":"zh-Hant"},"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const L = this.props.locale ?? 'zh-Hant';
+    const hant = {
+      h1: '定價', lead: '免費工具不需要積分。AI 詳批、追問與對話使用積分；每天登入可領免費積分。',
+      subTitle: '每月方案', free: '免費', zero: 'NT$0', free1: '所有排盤與塔羅工具', free2: '每天登入領 10 積分（每月最多 10 天）', free3: '免費積分 7 天內有效', freeCta: '免費註冊',
+      plus: 'NT$162', premium: 'NT$325', perMonth: ' /月', plusRef: '', premiumRef: '', best: '最划算',
+      plus1: '每月 400 積分（約 4 份詳批）', premium1: '每月 1000 積分（約 10 份詳批）', sub2: '積分可用於詳批、報告內追問與 AI 對話', sub3: '隨時取消，已付期間照常使用', subCta: '訂閱',
+      subNote: '以新台幣（TWD）透過 Stripe 自動續費；訂閱積分當期有效，不累積到下一期。',
+      packTitle: '單次購買積分', pack1: '單次詳批', pack1d: '100 積分', p1: 'NT$65', p1Ref: '', pack2: '五次包', pack2d: '500 積分', p2: 'NT$227', p2Ref: '', buy: '購買',
+      payNote: '信用卡以新台幣結帳；選擇 PayPal 時以美元結帳（US$1.99 / US$6.99）。購買的積分 365 天內有效。',
+      orderTitle: '積分扣用順序', order: '先用快到期的：每日免費積分 → 訂閱積分 → 購買的積分。',
+      rest: '可解鎖項目清單與常見問題（現有，不變）'
+    };
+    const ko = {
+      h1: '요금', lead: '무료 도구는 크레딧이 필요 없습니다. AI 상세 풀이, 추가 질문, 대화에 크레딧을 사용하며 매일 로그인하면 무료 크레딧을 받습니다.',
+      subTitle: '월간 플랜', free: '무료', zero: '₩0', free1: '모든 만세력·타로 도구', free2: '매일 로그인 시 10 크레딧 (월 최대 10일)', free3: '무료 크레딧은 7일간 유효', freeCta: '무료 가입',
+      plus: '₩7,000', premium: '₩14,000', perMonth: ' /월', plusRef: '', premiumRef: '', best: '가장 알뜰',
+      plus1: '매월 400 크레딧 (상세 풀이 약 4회)', premium1: '매월 1000 크레딧 (상세 풀이 약 10회)', sub2: '상세 풀이, 리포트 추가 질문, AI 대화에 사용', sub3: '언제든 해지, 결제한 기간은 계속 이용', subCta: '구독하기',
+      subNote: '원화(KRW)로 Stripe 자동 결제됩니다. 구독 크레딧은 해당 기간에만 유효하며 이월되지 않습니다.',
+      packTitle: '크레딧 단건 구매', pack1: '상세 풀이 1회', pack1d: '100 크레딧', p1: '₩2,800', p1Ref: '', pack2: '5회 묶음', pack2d: '500 크레딧', p2: '₩9,800', p2Ref: '', buy: '구매',
+      payNote: '카드 결제는 원화, PayPal은 미국 달러로 결제됩니다 (US$1.99 / US$6.99). 구매 크레딧은 365일간 유효합니다.',
+      orderTitle: '크레딧 차감 순서', order: '만료가 가까운 것부터: 일일 무료 크레딧 → 구독 크레딧 → 구매 크레딧.',
+      rest: '이용 가능한 항목과 FAQ (기존 그대로)'
+    };
+    const hans = {
+      h1: '定价', lead: '免费工具不需要积分。AI 详批、追问与对话使用积分；每天登录可领免费积分。',
+      subTitle: '每月方案', free: '免费', zero: 'US$0', free1: '所有排盘与塔罗工具', free2: '每天登录领 10 积分（每月最多 10 天）', free3: '免费积分 7 天内有效', freeCta: '免费注册',
+      plus: 'US$4.99', premium: 'US$9.99', perMonth: ' /月', plusRef: '约 ¥33（参考价，以美元结算）', premiumRef: '约 ¥67（参考价，以美元结算）', best: '最划算',
+      plus1: '每月 400 积分（约 4 份详批）', premium1: '每月 1000 积分（约 10 份详批）', sub2: '积分可用于详批、报告内追问与 AI 对话', sub3: '随时取消，已付期间照常使用', subCta: '订阅',
+      subNote: '以美元（USD）通过 Stripe 自动续费；人民币金额仅供参考。订阅积分当期有效，不累积。',
+      packTitle: '单次购买积分', pack1: '单次详批', pack1d: '100 积分', p1: 'US$1.99', p1Ref: '约 ¥13', pack2: '五次包', pack2d: '500 积分', p2: 'US$6.99', p2Ref: '约 ¥47', buy: '购买',
+      payNote: '信用卡与 PayPal 均以美元结账。购买的积分 365 天内有效。',
+      orderTitle: '积分扣用顺序', order: '先用快到期的：每日免费积分 → 订阅积分 → 购买的积分。',
+      rest: '可解锁项目清单与常见问题（现有，不变）'
+    };
+    const c = L === 'ko' ? ko : (L === 'zh-Hans' ? hans : hant);
+    return { c, cls: (this.props.dark ?? false) ? 'east dark' : 'east' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>命盘图形</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;family=Cormorant+Garamond:wght@600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--inverse:#1F1C18;--on-inverse:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+.west{--bg:#11162A;--surface:#181F3A;--surface-2:#151B33;--ink:#ECE7DA;--muted:#C9C4B7;--subtle:#B9B5AA;--line:#2A3150;--line-strong:#3A4266;--accent:#E3C36F}
+.wx{--wx-metal:#6E7480;--wx-wood:#3E7D4F;--wx-water:#2E5E8C;--wx-fire:#B8432F;--wx-earth:#9A7438}
+</style>
+</helmet>
+<div class="wx" style="width: 100%; min-height: 1700px; display: flex; flex-direction: column; gap: 0;">
+  <div class="{{eastCls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', sans-serif; padding: 48px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px;">
+    <section aria-labelledby="bz" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+      <h2 id="bz" style="margin: 0 0 4px; font-family: 'Noto Serif TC', serif; font-size: 22px;">① 四柱命盤</h2>
+      <p style="margin: 0 0 20px; font-size: 13px; color: var(--subtle);">圖形與下方文字表同源；顏色只輔助，五行以文字標註</p>
+      <figure role="img" aria-label="四柱：年柱庚午，月柱辛巳，日柱庚辰（日主），時柱辛巳" style="margin: 0; display: grid; grid-template-columns: 56px repeat(4, minmax(0, 1fr)); gap: 8px; text-align: center;">
+        <span></span>
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="4"><span style="font-size: 13px; color: var(--subtle);">{{c.label}}</span></sc-for>
+        <span style="font-size: 12px; color: var(--subtle); align-self: center;">十神</span>
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="4"><span style="font-size: 13px; color: var(--muted);">{{c.god}}</span></sc-for>
+        <span style="font-size: 12px; color: var(--subtle); align-self: center;">天干</span>
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+          <div style="height: 76px; border-radius: 10px; border: 1px solid var(--line); background: {{c.cellBg}}; color: {{c.cellFg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+            <span style="font-family: 'Noto Serif TC', serif; font-size: 34px; line-height: 1;">{{c.stem}}</span>
+            <span style="font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 999px; background: {{c.stemWx}};"></span>{{c.stemEl}}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 12px; color: var(--subtle); align-self: center;">地支</span>
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="4">
+          <div style="height: 76px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;">
+            <span style="font-family: 'Noto Serif TC', serif; font-size: 34px; line-height: 1;">{{c.branch}}</span>
+            <span style="font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 999px; background: {{c.branchWx}};"></span>{{c.branchEl}}</span>
+          </div>
+        </sc-for>
+        <span style="font-size: 12px; color: var(--subtle); align-self: center;">藏干</span>
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="4"><span style="font-size: 13px; color: var(--muted);">{{c.hidden}}</span></sc-for>
+      </figure>
+    </section>
+
+    <section aria-labelledby="wx" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+      <h2 id="wx" style="margin: 0 0 4px; font-family: 'Noto Serif TC', serif; font-size: 22px;">② 五行分佈</h2>
+      <p style="margin: 0 0 20px; font-size: 13px; color: var(--subtle);">天干地支計數；數值同時寫在條旁</p>
+      <figure role="img" aria-label="五行：金 4，火 3，土 1，木 0，水 0" style="margin: 0; display: flex; flex-direction: column; gap: 14px;">
+        <sc-for list="{{bars}}" as="b" hint-placeholder-count="5">
+          <div style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 32px; gap: 12px; align-items: center;">
+            <span style="font-size: 15px;">{{b.name}}</span>
+            <div style="height: 14px; border-radius: 999px; background: var(--surface-2);"><div style="height: 14px; border-radius: 999px; width: {{b.w}}; background: {{b.color}};"></div></div>
+            <span style="font-size: 15px; text-align: right; font-variant-numeric: tabular-nums;">{{b.n}}</span>
+          </div>
+        </sc-for>
+      </figure>
+      <p style="margin: 20px 0 0; font-size: 14px; color: var(--muted); line-height: 1.7;">日主庚金，金旺、木水缺。[身強身弱與喜用神結論沿用現有文字區塊]</p>
+    </section>
+
+    <section aria-labelledby="zw" style="grid-column: span 2; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+      <h2 id="zw" style="margin: 0 0 4px; font-family: 'Noto Serif TC', serif; font-size: 22px;">紫微十二宮</h2>
+      <p style="margin: 0 0 20px; font-size: 13px; color: var(--subtle);">4×4 外圈 + 中宮；命宮以朱砂框標示；[主星] 由引擎填入，下方另有等價的宮位列表</p>
+      <figure role="img" aria-label="紫微斗數十二宮命盤，命宮在[巳]" style="margin: 0 auto; max-width: 880px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, 120px); gap: 0; border: 1px solid var(--line-strong);">
+        <sc-for list="{{palaces}}" as="p" hint-placeholder-count="12">
+          <div style="grid-column: {{p.col}}; grid-row: {{p.row}}; border: {{p.border}}; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; background: var(--surface);">
+            <div style="display: flex; flex-direction: column; gap: 2px;"><strong style="font-family: 'Noto Serif TC', serif; font-size: 17px; color: var(--accent-ink);">{{p.stars}}</strong><span style="font-size: 12px; color: var(--muted);">{{p.minor}}</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;"><span style="font-weight: 600;">{{p.name}}</span><span style="color: var(--subtle);">{{p.branch}}</span></div>
+          </div>
+        </sc-for>
+        <div style="grid-column: 2 / span 2; grid-row: 2 / span 2; border: 1px solid var(--line); background: var(--surface-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;">
+          <strong style="font-family: 'Noto Serif TC', serif; font-size: 20px;">[庚午年] 男 · [水二局]</strong>
+          <span style="font-size: 13px; color: var(--muted);">1990-05-15 10:30 台北（虛構樣例）</span>
+          <span style="font-size: 13px; color: var(--muted);">命主 [ ] · 身主 [ ]　生年四化 [ ]</span>
+        </div>
+      </figure>
+    </section>
+  </div>
+
+  <div class="west" style="background: var(--bg); color: var(--ink); font-family: 'Source Sans 3', sans-serif; padding: 48px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px;">
+    <section aria-labelledby="lp" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+      <h2 id="lp" style="margin: 0 0 4px; font-family: 'Cormorant Garamond', serif; font-size: 30px;">Life Path reduction</h2>
+      <p style="margin: 0 0 24px; font-size: 13px; color: var(--subtle);">Each part reduced first; master numbers kept</p>
+      <figure role="img" aria-label="Month 5, day 15 reduces to 6, year 1990 reduces to 1; 5 plus 6 plus 1 is 12, which reduces to Life Path 3" style="margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; text-align: center;">
+        <div style="padding: 12px; border-radius: 10px; border: 1px solid var(--line);"><div style="font-size: 12px; color: var(--subtle);">Month</div><div style="font-size: 20px;">05 → <strong style="color: var(--accent);">5</strong></div></div>
+        <div style="padding: 12px; border-radius: 10px; border: 1px solid var(--line);"><div style="font-size: 12px; color: var(--subtle);">Day</div><div style="font-size: 20px;">15 → <strong style="color: var(--accent);">6</strong></div></div>
+        <div style="padding: 12px; border-radius: 10px; border: 1px solid var(--line);"><div style="font-size: 12px; color: var(--subtle);">Year</div><div style="font-size: 20px;">1990 → 19 → 10 → <strong style="color: var(--accent);">1</strong></div></div>
+        <div style="grid-column: span 3; display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 12px; font-size: 20px;">5 + 6 + 1 = 12 → <span style="font-family: 'Cormorant Garamond', serif; width: 84px; height: 84px; border-radius: 999px; border: 2px solid var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 48px; color: var(--accent);">3</span></div>
+      </figure>
+    </section>
+    <section aria-labelledby="grid" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+      <h2 id="grid" style="margin: 0 0 4px; font-family: 'Cormorant Garamond', serif; font-size: 30px;">Birth date grid</h2>
+      <p style="margin: 0 0 24px; font-size: 13px; color: var(--subtle);">How many times each digit appears in 15·05·1990</p>
+      <figure role="img" aria-label="Digits 1, 5 and 9 appear twice; all others are missing" style="margin: 0 auto; width: 300px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+        <sc-for list="{{digits}}" as="d" hint-placeholder-count="9">
+          <div style="height: 88px; border-radius: 10px; border: 1px solid var(--line); background: {{d.bg}}; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-size: 12px; color: var(--subtle);">{{d.label}}</span>
+            <span style="font-family: 'Cormorant Garamond', serif; font-size: 28px; color: {{d.fg}};">{{d.marks}}</span>
+          </div>
+        </sc-for>
+      </figure>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    const w = { 金: 'var(--wx-metal)', 木: 'var(--wx-wood)', 水: 'var(--wx-water)', 火: 'var(--wx-fire)', 土: 'var(--wx-earth)' };
+    const col = (label, god, stem, se, branch, be, hidden, day) => ({ label, god, stem, stemEl: se, stemWx: w[se], branch, branchEl: be, branchWx: w[be], hidden,
+      cellBg: day ? 'var(--inverse)' : 'var(--surface-2)', cellFg: day ? 'var(--on-inverse)' : 'var(--ink)' });
+    const names = ['命宮','兄弟','夫妻','子女','財帛','疾厄','遷移','交友','官祿','田宅','福德','父母'];
+    const branches = ['巳','午','未','申','酉','戌','亥','子','丑','寅','卯','辰'];
+    const pos = [[1,1],[1,2],[1,3],[1,4],[2,4],[3,4],[4,4],[4,3],[4,2],[4,1],[3,1],[2,1]];
+    const palaces = names.map((n, i) => ({ name: n, branch: branches[i], stars: '[主星]', minor: '[輔星]',
+      row: String(pos[i][0]), col: String(pos[i][1]),
+      border: i === 0 ? '2px solid var(--accent)' : '1px solid var(--line)' }));
+    const counts = { 1: 2, 5: 2, 9: 2 };
+    const digits = [3,6,9,2,5,8,1,4,7].map((d) => ({ label: String(d), marks: counts[d] ? String(d).repeat(counts[d]) : '—',
+      bg: counts[d] ? 'var(--surface-2)' : 'transparent', fg: counts[d] ? 'var(--accent)' : 'var(--subtle)' }));
+    return {
+      eastCls: dark ? 'east dark' : 'east',
+      cols: [
+        col('年柱', '比肩', '庚', '金', '午', '火', '丁 己', false),
+        col('月柱', '劫財', '辛', '金', '巳', '火', '丙 戊 庚', false),
+        col('日柱', '日主', '庚', '金', '辰', '土', '戊 乙 癸', true),
+        col('時柱', '劫財', '辛', '金', '巳', '火', '丙 戊 庚', false)
+      ],
+      bars: [
+        { name: '金', n: '4', w: '100%', color: w['金'] }, { name: '火', n: '3', w: '75%', color: w['火'] },
+        { name: '土', n: '1', w: '25%', color: w['土'] }, { name: '木', n: '0', w: '0%', color: w['木'] }, { name: '水', n: '0', w: '0%', color: w['水'] }
+      ],
+      palaces, digits
+    };
+  }
+}
+</script>
+</body>
+</html>

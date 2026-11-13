@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>分享图</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;family=Cormorant+Garamond:wght@600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--accent:#B8432F;--inverse:#1F1C18;--on-inverse:#FFFDF8;--hf:'Noto Serif TC',serif}
+.west{--bg:#11162A;--surface:#181F3A;--surface-2:#151B33;--ink:#ECE7DA;--muted:#C9C4B7;--subtle:#B9B5AA;--line:#2A3150;--accent:#E3C36F;--inverse:#ECE7DA;--on-inverse:#11162A;--hf:'Cormorant Garamond',serif}
+</style>
+</helmet>
+<div class="{{site}}" style="width: 540px; height: 675px; box-sizing: border-box; padding: 36px; background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', 'Source Sans 3', sans-serif; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--line);">
+  <sc-if value="{{isEast}}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><strong style="font-family: var(--hf); font-size: 20px;">干支日 · 我的八字</strong><span style="font-size: 12px; color: var(--subtle);">ganjiday.com</span></div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; text-align: center; font-family: var(--hf);">
+        <sc-for list="{{pillars}}" as="p" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 8px;"><span style="font-size: 12px; color: var(--subtle); font-family: -apple-system, sans-serif;">{{p.l}}</span><span style="height: 84px; border-radius: 10px; background: {{p.bg}}; color: {{p.fg}}; display: flex; align-items: center; justify-content: center; font-size: 40px;">{{p.s}}</span><span style="height: 84px; border-radius: 10px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; font-size: 40px;">{{p.b}}</span></div>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px;"><strong style="font-size: 18px;">日主庚金 · 金旺缺木水</strong><span style="font-size: 14px; color: var(--muted);">[一句結論，來自現有結果文字]</span></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid var(--line); padding-top: 16px;"><span style="font-size: 13px; color: var(--muted);">免費排盤 ganjiday.com</span><span style="font-size: 12px; color: var(--subtle);">不含姓名與出生地</span></div>
+  </sc-if>
+  <sc-if value="{{isWest}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; gap: 28px; align-items: center; text-align: center;">
+      <div style="align-self: stretch; display: flex; justify-content: space-between;"><strong style="font-family: var(--hf); font-size: 24px;">Arcanumber</strong><span style="font-size: 12px; color: var(--subtle);">arcanumber.com</span></div>
+      <span style="font-size: 14px; color: var(--subtle); letter-spacing: 0.12em; text-transform: uppercase;">My Life Path</span>
+      <span style="font-family: var(--hf); width: 200px; height: 200px; border-radius: 999px; border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 120px; color: var(--accent);">3</span>
+      <strong style="font-family: var(--hf); font-size: 32px;">The Communicator</strong>
+      <span style="font-size: 15px; color: var(--muted);">[One-line meaning from the existing result copy]</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 16px;"><span style="font-size: 13px; color: var(--muted);">Find yours at arcanumber.com</span><span style="font-size: 12px; color: var(--subtle);">No birth date shown</span></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"site":{"editor":"enum","options":["east","west"],"default":"east"},"$preview":{"width":540,"height":675}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const site = this.props.site ?? 'east';
+    return {
+      site, isEast: site === 'east', isWest: site === 'west',
+      pillars: [
+        { l: '年', s: '庚', b: '午', bg: 'var(--surface-2)', fg: 'var(--ink)' },
+        { l: '月', s: '辛', b: '巳', bg: 'var(--surface-2)', fg: 'var(--ink)' },
+        { l: '日', s: '庚', b: '辰', bg: 'var(--inverse)', fg: 'var(--on-inverse)' },
+        { l: '時', s: '辛', b: '巳', bg: 'var(--surface-2)', fg: 'var(--ink)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

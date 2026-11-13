@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>干支日首页（东方站）</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+.east{--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#F5F2EC;--ink:#1F1C18;--muted:#4A443B;--subtle:#6B6355;--line:#DCD3C1;--line-strong:#C9BEA8;--accent:#B8432F;--accent-ink:#9E3A27;--on-accent:#FFFDF8;--inverse:#1F1C18;--on-inverse:#FFFDF8}
+.east.dark{--bg:#1A1815;--surface:#24211C;--surface-2:#2C2823;--ink:#ECE5D6;--muted:#CFC6B4;--subtle:#A89F8E;--line:#3A352D;--line-strong:#4E473C;--accent:#D0583F;--accent-ink:#E58A72;--inverse:#ECE5D6;--on-inverse:#1F1C18}
+a{color:var(--accent-ink)}a:hover{color:var(--accent)}
+</style>
+</helmet>
+<div class="{{cls}}" style="background: var(--bg); color: var(--ink); font-family: -apple-system, 'PingFang TC', 'Noto Sans TC', sans-serif; min-height: 100%;">
+  <header style="border-bottom: 1px solid var(--line); background: var(--surface);">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap;">
+      <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 20px;">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M13 1.5a5.75 5.75 0 0 1 0 11.5a5.75 5.75 0 0 0 0 11.5" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="13" cy="7.2" r="1.8" fill="var(--accent)"></circle></svg>
+        干支日
+      </a>
+      <nav aria-label="工具" style="display: flex; gap: 20px; font-size: 15px; flex-wrap: wrap;">
+        <a href="#" style="color: var(--ink); text-decoration: none; font-weight: 600;">八字排盤</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">紫微斗數</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">命盤查詢</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">塔羅</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">今日運勢</a>
+        <a href="#" style="color: var(--muted); text-decoration: none;">定價</a>
+      </nav>
+      <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+        <button type="button" style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 14px;">繁體中文</button>
+        <a href="#" style="height: 36px; padding: 0 16px; display: inline-flex; align-items: center; border-radius: 8px; background: var(--accent); color: var(--on-accent); text-decoration: none; font-size: 14px; font-weight: 600;">登入</a>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1120px; margin: 0 auto; padding: 48px 24px 0;">
+    <section aria-labelledby="h1" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; align-items: start;">
+      <div style="padding-top: 16px;">
+        <p style="margin: 0 0 12px; font-size: 14px; color: var(--subtle); letter-spacing: 0.08em;">現有工具區 · 結構與文案不變</p>
+        <h1 id="h1" style="margin: 0; font-family: 'Noto Serif TC', serif; font-size: 44px; line-height: 1.2;">免費八字排盤</h1>
+        <p style="margin: 16px 0 0; font-size: 17px; line-height: 1.7; color: var(--muted);">輸入出生日期與時辰，立即排出四柱、十神、五行與大運。依傳統規則計算，結果只在你的瀏覽器中呈現。</p>
+      </div>
+      <form style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong style="font-size: 16px;">出生資料</strong>
+          <button type="button" style="height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); font-size: 13px;">從檔案帶入 ▾</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生日期<input value="1990-05-15" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生時間<input value="10:30" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);">出生地<input value="台北" style="height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); padding: 0 12px; font-size: 15px;"></label>
+          <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted);"><legend style="padding: 0; margin-bottom: 6px;">性別</legend><div style="display: flex; gap: 8px;"><label style="flex: 1; height: 44px; border-radius: 8px; border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; color: var(--ink);"><input type="radio" checked> 男</label><label style="flex: 1; height: 44px; border-radius: 8px; border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; color: var(--ink);"><input type="radio"> 女</label></div></fieldset>
+        </div>
+        <button type="button" style="height: 48px; border-radius: 10px; border: 0; background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600;">排盤</button>
+      </form>
+    </section>
+
+    <div style="margin-top: 32px; border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">排盤結果區（現有 ①–⑦ 區塊，新增四柱與五行圖形，見「命盤圖形」畫板）</div>
+
+    <section aria-labelledby="today" style="margin-top: 64px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 24px;">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 72px; height: 88px; border-radius: 10px; background: var(--inverse); color: var(--on-inverse); font-family: 'Noto Serif TC', serif;"><span style="font-size: 26px; line-height: 1.1;">[甲]</span><span style="font-size: 26px; line-height: 1.1;">[子]</span></div>
+      <div style="flex: 1 1 360px; min-width: 0;">
+        <h2 id="today" style="margin: 0; font-size: 18px;">今日 · [乙巳年 丁亥月 甲子日] · [建除：成]</h2>
+        <p style="margin: 6px 0 0; color: var(--muted); font-size: 15px;">宜 [祭祀、出行、會友] · 忌 [動土、安葬]　依台北時間換日</p>
+      </div>
+      <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none; font-weight: 600;">看你的今日運勢 →</a>
+    </section>
+
+    <section aria-labelledby="tools" style="margin-top: 72px;">
+      <h2 id="tools" style="margin: 0 0 8px; font-family: 'Noto Serif TC', serif; font-size: 28px;">全部免費工具</h2>
+      <p style="margin: 0 0 24px; color: var(--muted);">同一份出生資料，可以在每個工具間直接帶入。</p>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+        <sc-for list="{{tools}}" as="t" hint-placeholder-count="6">
+          <a href="#" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink); min-height: 132px;">
+            <span style="font-family: 'Noto Serif TC', serif; font-size: 15px; color: var(--accent-ink);">{{t.no}}</span>
+            <strong style="font-size: 18px;">{{t.name}}</strong>
+            <span style="color: var(--muted); font-size: 14px; line-height: 1.6;">{{t.desc}}</span>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="sample" style="margin-top: 72px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start;">
+      <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;"><strong>樣例命盤</strong><span style="font-size: 12px; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); color: var(--muted);">示例</span></div>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; text-align: center; font-family: 'Noto Serif TC', serif;">
+          <sc-for list="{{pillars}}" as="p" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <span style="font-size: 12px; color: var(--subtle); font-family: -apple-system, sans-serif;">{{p.label}}</span>
+              <span style="height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: {{p.bg}}; color: {{p.fg}}; border: 1px solid var(--line);">{{p.stem}}</span>
+              <span style="height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: var(--surface-2); border: 1px solid var(--line);">{{p.branch}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin: 16px 0 0; font-size: 13px; color: var(--subtle);">虛構命盤：1990-05-15 10:30 台北 男</p>
+      </div>
+      <div>
+        <h2 id="sample" style="margin: 0 0 8px; font-family: 'Noto Serif TC', serif; font-size: 28px;">AI 八字詳批長什麼樣</h2>
+        <p style="margin: 0 0 16px; color: var(--muted);">七個章節，含流年逐年分析；完成後可在報告內繼續追問。</p>
+        <ol style="margin: 0 0 16px; padding-left: 20px; color: var(--muted); line-height: 1.9;"><li>命局總論</li><li>性格與天賦</li><li>事業與財運</li><li>感情與人際</li><li>健康提醒</li><li>大運走勢</li><li>流年逐年（未來五年）</li></ol>
+        <blockquote style="margin: 0; padding: 16px; border-radius: 10px; background: var(--surface-2); color: var(--ink); line-height: 1.8; font-size: 15px;"><span style="font-size: 12px; color: var(--subtle);">示例段落</span><br>[經使用者審定的樣例段落，來自 catalog；未審定前此區塊不顯示]</blockquote>
+        <p style="margin: 12px 0 0; font-size: 13px; color: var(--subtle);">內容由 AI 依命盤生成，僅供參考與娛樂。</p>
+        <a href="#" style="margin-top: 16px; height: 48px; padding: 0 20px; display: inline-flex; align-items: center; border-radius: 10px; background: var(--accent); color: var(--on-accent); text-decoration: none; font-weight: 600;">先免費排盤，再決定是否解鎖</a>
+      </div>
+    </section>
+
+    <section aria-labelledby="steps" style="margin-top: 72px;">
+      <h2 id="steps" style="margin: 0 0 24px; font-family: 'Noto Serif TC', serif; font-size: 28px;">三步看懂自己的命盤</h2>
+      <ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;">
+        <li style="padding: 20px; border-top: 2px solid var(--accent);"><strong style="font-size: 17px;">1　輸入生辰</strong><p style="margin: 8px 0 0; color: var(--muted); line-height: 1.6;">可存成出生檔案，下次一鍵帶入。</p></li>
+        <li style="padding: 20px; border-top: 2px solid var(--line-strong);"><strong style="font-size: 17px;">2　免費排盤</strong><p style="margin: 8px 0 0; color: var(--muted); line-height: 1.6;">四柱、十神、五行、大運與神煞，全部免費。</p></li>
+        <li style="padding: 20px; border-top: 2px solid var(--line-strong);"><strong style="font-size: 17px;">3　AI 詳批與追問</strong><p style="margin: 8px 0 0; color: var(--muted); line-height: 1.6;">用積分解鎖詳批，看不懂的地方直接問。</p></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="plans" style="margin-top: 72px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 28px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1 1 320px; min-width: 0;">
+        <h2 id="plans" style="margin: 0 0 8px; font-family: 'Noto Serif TC', serif; font-size: 24px;">積分怎麼來</h2>
+        <p style="margin: 0; color: var(--muted); line-height: 1.7;">每天登入領 10 積分（每月最多 10 天）。需要更多時，可單次購買或訂閱。</p>
+      </div>
+      <dl style="flex: 2 1 480px; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><dt style="color: var(--subtle); font-size: 13px;">單次詳批</dt><dd style="margin: 4px 0 0; font-size: 22px; font-weight: 700;">NT$65</dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">100 積分</dd></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><dt style="color: var(--subtle); font-size: 13px;">Plus 訂閱</dt><dd style="margin: 4px 0 0; font-size: 22px; font-weight: 700;">NT$162<span style="font-size: 13px; font-weight: 400;">/月</span></dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">每月 400 積分</dd></div>
+        <div style="padding: 16px; border-radius: 10px; background: var(--surface-2);"><dt style="color: var(--subtle); font-size: 13px;">Premium 訂閱</dt><dd style="margin: 4px 0 0; font-size: 22px; font-weight: 700;">NT$325<span style="font-size: 13px; font-weight: 400;">/月</span></dd><dd style="margin: 0; color: var(--muted); font-size: 13px;">每月 1000 積分</dd></div>
+      </dl>
+      <a href="#" style="height: 44px; padding: 0 18px; display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line-strong); color: var(--ink); text-decoration: none; font-weight: 600;">查看定價</a>
+    </section>
+
+    <section aria-labelledby="trust" style="margin-top: 72px;">
+      <h2 id="trust" style="margin: 0 0 16px; font-family: 'Noto Serif TC', serif; font-size: 24px;">我們怎麼算、怎麼保護資料</h2>
+      <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 32px; color: var(--muted); line-height: 1.7;">
+        <li>· 依子平八字傳統規則計算，換算真太陽時與節氣</li>
+        <li>· 免費工具在瀏覽器中計算，出生資料不寫入分享連結</li>
+        <li>· 出生檔案只有你自己看得到，可隨時刪除</li>
+        <li>· 刪除帳戶時，檔案、報告與對話一併刪除</li>
+      </ul>
+    </section>
+
+    <div style="margin-top: 72px; border: 1px dashed var(--line-strong); border-radius: 12px; padding: 20px; text-align: center; color: var(--subtle); font-size: 14px;">常見問題（現有 FAQ，不變）</div>
+  </main>
+
+  <footer style="margin-top: 72px; border-top: 1px solid var(--line); background: var(--surface);">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 32px 24px; display: flex; gap: 24px; flex-wrap: wrap; color: var(--subtle); font-size: 14px;"><span>© 干支日</span><a href="#">隱私政策</a><a href="#">服務條款</a><a href="#">常見問題</a><span style="margin-left: auto;">依傳統規則計算，僅供娛樂參考</span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = this.props.dark ?? false;
+    return {
+      cls: dark ? 'east dark' : 'east',
+      tools: [
+        { no: '01', name: '八字排盤', desc: '四柱命盤、五行強弱、喜用神、大運流年與神煞。' },
+        { no: '02', name: '紫微斗數', desc: '十二宮位、命宮與身宮、十四主星與生年四化。' },
+        { no: '03', name: '命盤查詢', desc: '四柱、藏干、十神與大運流年表。' },
+        { no: '04', name: '今日運勢', desc: '今天的干支、宜忌，以及與你日主的關係。' },
+        { no: '05', name: '三張牌塔羅', desc: '洗牌、切牌，翻開過去、現在、未來三張牌。' },
+        { no: '06', name: '每日一張塔羅', desc: '每天抽一張牌，作為今日省思的主題。' }
+      ],
+      pillars: [
+        { label: '年柱', stem: '庚', branch: '午', bg: 'var(--surface-2)', fg: 'var(--ink)' },
+        { label: '月柱', stem: '辛', branch: '巳', bg: 'var(--surface-2)', fg: 'var(--ink)' },
+        { label: '日柱', stem: '庚', branch: '辰', bg: 'var(--inverse)', fg: 'var(--on-inverse)' },
+        { label: '時柱', stem: '辛', branch: '巳', bg: 'var(--surface-2)', fg: 'var(--ink)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

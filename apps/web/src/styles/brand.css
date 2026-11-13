@@ -84,9 +84,10 @@
 
 :root[data-site="east"] {
   color-scheme: light;
-  --bg: #f4efe4;
-  --surface: #fffdf8;
-  --surface-2: #ece5d6;
+  /* 2026-11-14 使用者确认：东方站浅色主底改为纯白，卡片以边线区分；悬停与弱化底改为浅暖灰 */
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f5f2ec;
   --ink: #1f1c18;
   --ink-muted: #4a443b;
   --ink-subtle: #6b6355;
