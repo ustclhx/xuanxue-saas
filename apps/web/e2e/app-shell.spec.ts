@@ -162,7 +162,11 @@ test.describe('topbar 布局', () => {
     await expect(page.getByTestId('workspace-name')).toHaveText('Personal')
     await expect(page.getByTestId('current-user')).toContainText('Shell Tester')
     await expect(shell(page)).toHaveCount(0)
-    await page.getByRole('link', { name: 'Usage' }).click()
+    // 项目空间首页另有同名快捷入口，限定在空间导航内点击
+    await page
+      .getByRole('navigation', { name: 'Space navigation' })
+      .getByRole('link', { name: 'Usage' })
+      .click()
     await expect(page).toHaveURL(/\/usage$/)
     await expect(page.getByTestId('workspace-name')).toHaveText('Personal')
     await page.setViewportSize({ width: 390, height: 844 })

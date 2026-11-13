@@ -169,6 +169,30 @@
 }
 
 /*
+ * 模板的表面阶梯 --surface-1…8 供弹层、底部面板、对话框按层级取底色（surfaceClasses）。
+ * 未映射时会回落到模板的中性灰（西方站弹层变成灰色而非深蓝）：1 为页面底，3 起为卡片底；
+ * 暗色下逐级向文字色微提亮，保持模板「越高越亮」的层次。2 仍是项目的悬停/弱化底，不在此改动。
+ */
+:root[data-site] {
+  --surface-1: var(--bg);
+  --surface-3: var(--surface);
+  --surface-4: var(--surface);
+  --surface-5: var(--surface);
+  --surface-6: var(--surface);
+  --surface-7: var(--surface);
+  --surface-8: var(--surface);
+}
+
+:root[data-site="west"],
+:root.dark[data-site="east"] {
+  --surface-4: color-mix(in oklab, var(--surface) 96%, var(--ink));
+  --surface-5: color-mix(in oklab, var(--surface) 93%, var(--ink));
+  --surface-6: color-mix(in oklab, var(--surface) 90%, var(--ink));
+  --surface-7: color-mix(in oklab, var(--surface) 87%, var(--ink));
+  --surface-8: color-mix(in oklab, var(--surface) 84%, var(--ink));
+}
+
+/*
  * 模板 0.3.0 新增的交互 token 指向站点配色：焦点环、链接文字、Fluid 强调色与输入框边框沿用
  * 原 --ring / --accent-ink / --input 的取值，保持同步前的视觉。
  * 注意：模板基线也定义了 --accent（较重的灰色强调底）与 --surface-1…8 表面阶梯，本文件中的同名
