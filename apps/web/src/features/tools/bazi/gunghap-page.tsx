@@ -8,6 +8,7 @@ import type {
 import { cn } from '@xuanxue/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { compatUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
@@ -147,9 +148,12 @@ export function GunghapPage() {
     values: BirthFormValues,
     prefix: string,
     list: readonly InputIssue[],
+    fill: (values: Partial<BirthFormValues>) => void,
   ) => (
     <fieldset className="m-0 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-x-5 gap-y-4 rounded-lg border border-line p-3 sm:p-4">
       <legend className="px-1 font-heading text-ink text-lg">{legend}</legend>
+      {/* 双人各自从档案填入（6.2）；填入一方不改动另一方的输入 */}
+      <ProfileBar target={{ kind: 'birth', tool: 'bazi', prefix, onFill: fill }} />
       <BirthFields values={values} locale={LOCALE} prefix={prefix} issues={list} trueSolarCallout />
     </fieldset>
   )
@@ -168,8 +172,8 @@ export function GunghapPage() {
           onChange={onChange}
           className="flex flex-col"
         >
-          {person(m.bazi_gunghap_person_a(), a.values, A, issues.a)}
-          {person(m.bazi_gunghap_person_b(), b.values, B, issues.b)}
+          {person(m.bazi_gunghap_person_a(), a.values, A, issues.a, a.fill)}
+          {person(m.bazi_gunghap_person_b(), b.values, B, issues.b, b.fill)}
           <SubmitButton className="self-stretch sm:self-end">
             {m.bazi_gunghap_submit()}
           </SubmitButton>

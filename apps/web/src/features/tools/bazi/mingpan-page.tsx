@@ -1,6 +1,7 @@
 import type { BaziChart, PillarKey } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
+import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
@@ -54,6 +55,7 @@ export function MingpanPage() {
           onSubmit={tool.onSubmit}
           onChange={tool.onChange}
         >
+          <ProfileBar target={{ kind: 'birth', tool: 'bazi', onFill: tool.fill }} />
           <BirthFields values={tool.values} locale={LOCALE} issues={tool.issues} />
           <SubmitButton>{m.bazi_mingpan_submit()}</SubmitButton>
         </ToolForm>

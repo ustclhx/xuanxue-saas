@@ -31,6 +31,8 @@ import {
   writeReadingSettings,
 } from '../src/features/admin/settings-readings.ts'
 import { startSubjectConversation } from '../src/features/ai/subject-chat.server.ts'
+import { formValuesOf } from '../src/features/profiles/prefill.ts'
+import { createProfile, deleteProfile, updateProfile } from '../src/features/profiles/service.ts'
 import { readingDefinition } from '../src/features/readings/catalog.ts'
 import { readingConfig } from '../src/features/readings/config.ts'
 import { listedConversation } from '../src/features/readings/conversation-visibility.ts'
@@ -41,6 +43,7 @@ import {
   handleReadingRequest,
   type ReadingDeps,
 } from '../src/features/readings/generate.ts'
+import { birthUnlock } from '../src/features/readings/unlock-requests.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
 // add-reading-monetization tasks.md 1.2：后台修改详批设置后前台读取到新值。
@@ -567,6 +570,44 @@ describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', ()
     })
     expect(saved).toMatchObject({ status: 'ready', promptVersion: SWITCHED.version })
     expect(saved?.content).toContain(switchedReport().split('\n')[0])
+  })
+})
+
+describe('用出生档案预填后解锁（add-birth-profiles-daily-horoscope 6.4）', () => {
+  it('报告保存解锁时的输入快照：之后修改或删除档案，报告输入与正文不变，令牌不含档案', async () => {
+    const who = await member(300)
+    const ctx = { db, workspaceId: who.workspaceId, userId: who.userId }
+    const profile = await createProfile(ctx, 'east', {
+      label: '本人',
+      relation: 'self',
+      birth: BIRTH,
+    })
+    // 与工具页相同的链路：档案 → 表单值 → 解锁请求（input 为请求体，share 进入解锁令牌）
+    const request = birthUnlock(formValuesOf(profile, 'zh-Hant'))
+    if (!request) throw new Error('profile prefill should produce an unlock request')
+    expect(JSON.stringify(request.share)).not.toContain(profile.id)
+    expect(Object.keys(request.share).some((key) => /name|profile/i.test(key))).toBe(false)
+
+    const modelKey = await textModel()
+    const run = deps(reportModel(REPORT), modelKey)
+    const response = await post(who, unlock(request.input), run.deps)
+    expect(response.status).toBe(200)
+    await response.text()
+    await run.settled()
+    const [before] = await sql<{ id: string; input: unknown; content: string }[]>`
+      select id, input, content from reading where workspace_id = ${who.workspaceId}`
+    expect(before?.input).toMatchObject({ year: 1990, month: 5, day: 17 })
+    expect(JSON.stringify(before?.input)).not.toContain(profile.id)
+
+    await updateProfile(ctx, 'east', profile.id, {
+      label: '本人',
+      relation: 'self',
+      birth: { ...BIRTH, time: { hour: 22, minute: 0 } },
+    })
+    await deleteProfile(ctx, profile.id)
+    const [after] = await sql<{ id: string; input: unknown; content: string }[]>`
+      select id, input, content from reading where workspace_id = ${who.workspaceId}`
+    expect(after).toEqual(before)
   })
 })
 
