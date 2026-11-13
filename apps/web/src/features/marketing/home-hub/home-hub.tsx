@@ -116,7 +116,7 @@ function ToolMatrix({ tools, numerals }: { tools: HubTool[]; numerals: 'roman' |
 
 /**
  * 样例详批：虚构样例命盘图形 + 章节大纲（与 catalog 默认提示词一致）+「示例」标记 + AI 声明。
- * 样例段落经使用者审定前不渲染（HUB_SAMPLE_PARAGRAPHS 为空）；不调用模型、不引用访客数据。
+ * 样例段落经使用者审定前不渲染（readings/samples.ts 的 SAMPLES_APPROVED 为 false 时 HUB_SAMPLE_PARAGRAPHS 为空）；不调用模型、不引用访客数据。
  */
 function SampleReading({
   sections,
