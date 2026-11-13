@@ -8,7 +8,12 @@ import type { PricingCatalog } from '../pricing-data.ts'
 import { creditPacks } from '../pricing-page.tsx'
 import { dailyEntryHref, hubPricing, hubTools } from './data.ts'
 import { HomeHub } from './home-hub.tsx'
-import { HUB_SAMPLE_KIND, HUB_SAMPLE_PARAGRAPHS, HUB_SAMPLE_SECTIONS } from './sample.ts'
+import {
+  HUB_SAMPLE_KIND,
+  HUB_SAMPLE_PARAGRAPHS,
+  HUB_SAMPLE_SECTIONS,
+  hubSampleParagraphs,
+} from './sample.ts'
 
 const language = vi.hoisted(() => ({ locale: 'zh-Hant' }))
 vi.mock('../../../paraglide/runtime.js', async (original) => ({
@@ -118,6 +123,16 @@ describe('首页枢纽数据', () => {
       `/zh-hant/${encodeURI('每日運勢')}`,
     )
     expect(dailyEntryHref('en', { en: '/daily-numerology' })).toBe('/daily-numerology')
+  })
+
+  it('样例段落与 catalog 同源；审定开关关闭时为空', () => {
+    expect(hubSampleParagraphs(false)).toEqual({})
+    const approved = hubSampleParagraphs(true)
+    for (const [locale, kind] of Object.entries(HUB_SAMPLE_KIND)) {
+      const text = approved[locale as keyof typeof approved]
+      expect(text).toBeTruthy()
+      expect(text).toBe(readingDefinition(kind, locale)?.sample)
+    }
   })
 
   it('样例大纲与详批 catalog 当前默认提示词的章节一致', () => {

@@ -1,3 +1,5 @@
+import { readingSampleText, SAMPLES_APPROVED } from '../../readings/samples.ts'
+
 // 首页「样例详批」区块的静态内容（tasks 9.2、9.3）：章节大纲固化为常量，避免把详批 catalog（含全部提示词）
 // 打进首页包；`home-hub.test.tsx` 断言它与 catalog 当前默认提示词的章节一致。
 
@@ -28,11 +30,23 @@ export const HUB_SAMPLE_SECTIONS: Record<HubSampleLocale, readonly string[]> = {
 }
 
 /**
- * 样例段落（product-improve-ai-content-20261030 tasks 3.2 / D11）须经使用者审定，截至 2026-11-14 尚未审定，
- * 而且 catalog 现有样例基于另一张虚构命盘，与首页样例图形不一致。审定并与样例命盘对齐后，
- * 把段落写入这里（键为语言）并在测试中核对与 catalog 一致；为空的语言不渲染段落。
+ * 首页样例段落（product-improve-ai-content-20261030 tasks 3.2 / D11）：与解锁卡同一份全文（readings/samples.ts，
+ * 东方站八字 / 사주基于与首页样例图形相同的虚构命盘，西方站为 1990-05-15 的 Life Path 3）。
+ * 使用者审定前 `SAMPLES_APPROVED` 为 false，返回空对象；为空的语言不渲染段落。
  */
-export const HUB_SAMPLE_PARAGRAPHS: Readonly<Partial<Record<HubSampleLocale, string>>> = {}
+export function hubSampleParagraphs(
+  approved: boolean,
+): Readonly<Partial<Record<HubSampleLocale, string>>> {
+  if (!approved) return {}
+  const paragraphs: Partial<Record<HubSampleLocale, string>> = {}
+  for (const [locale, kind] of Object.entries(HUB_SAMPLE_KIND) as [HubSampleLocale, string][]) {
+    const text = readingSampleText(kind, locale)
+    if (text) paragraphs[locale] = text
+  }
+  return paragraphs
+}
+
+export const HUB_SAMPLE_PARAGRAPHS = hubSampleParagraphs(SAMPLES_APPROVED)
 
 export function isHubSampleLocale(locale: string): locale is HubSampleLocale {
   return Object.hasOwn(HUB_SAMPLE_KIND, locale)
