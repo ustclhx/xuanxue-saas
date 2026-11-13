@@ -180,9 +180,10 @@ export function PricingPage({
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-4 py-12 sm:px-6">
         <header className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
           <h1 className="m-0 font-bold font-heading text-4xl text-ink">{m.pricing_h1()}</h1>
+          {/* 补充句自带前导空格（en / ko），中文直接衔接 */}
           <p className="m-0 text-ink-muted text-lg leading-relaxed">
             {m.pricing_lead()}
-            {daily && ` ${m.pricing_lead_daily()}`}
+            {daily && m.pricing_lead_daily()}
           </p>
           {!anyPurchasable && (
             <p
@@ -284,7 +285,7 @@ export function PricingPage({
             </div>
             <p className="m-0 text-ink-subtle text-sm" data-testid="pricing-sub-note">
               {m.pricing_sub_note({ currency: CURRENCY_NAMES[subCurrency]?.() ?? subCurrency })}
-              {subReference && ` ${m.pricing_sub_reference_note()}`}
+              {subReference && m.pricing_sub_reference_note()}
             </p>
           </section>
         )}
