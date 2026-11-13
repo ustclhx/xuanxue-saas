@@ -2,6 +2,8 @@ import type { BaziChart } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { ElementsChart } from '../charts/elements-chart.tsx'
+import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -9,11 +11,9 @@ import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
 import {
   ConceptLink,
-  ElementBars,
   HiddenStemsTable,
   LuckAxis,
   luckAside,
-  PillarsGrid,
   ShenshaChips,
   StrengthBody,
   UsefulBody,
@@ -120,7 +120,7 @@ export function BaziResult({
         aside={usedTimeText(chart, LOCALE)}
         description={m.bazi_desc_pillars()}
       >
-        <PillarsGrid chart={chart} locale={LOCALE} />
+        <PillarsChart pillars={chart.pillars} locale={LOCALE} />
         <HiddenStemsTable chart={chart} locale={LOCALE} />
       </ResultBlock>
       <div className={twoColumns}>
@@ -130,7 +130,7 @@ export function BaziResult({
           title={m.bazi_block_elements()}
           description={m.bazi_desc_elements()}
         >
-          <ElementBars chart={chart} />
+          <ElementsChart elements={chart.strength.elements} />
         </ResultBlock>
         <div className="flex flex-col gap-5">
           <ResultBlock

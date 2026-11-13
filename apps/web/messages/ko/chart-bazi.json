@@ -1,0 +1,6 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_bazi_pillars_title": "사주팔자: {pillars}; 일간 {dayMaster}",
+  "chart_bazi_elements_title": "오행 분포(개수 · 비율): {elements}",
+  "chart_bazi_list_separator": ", "
+}

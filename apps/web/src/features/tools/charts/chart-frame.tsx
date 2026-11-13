@@ -1,3 +1,4 @@
+import { cn } from '@xuanxue/ui'
 import { type ReactNode, type SVGProps, useId } from 'react'
 import type { Box, ChartSize } from './layout/geometry.ts'
 
@@ -49,9 +50,8 @@ export function ChartFrame({
       role="img"
       aria-labelledby={description ? `${titleId} ${descId}` : titleId}
       data-chart={name}
-      className={['chart-frame block h-auto w-full max-w-full', className]
-        .filter(Boolean)
-        .join(' ')}
+      // cn 合并类名，调用方的 max-w-* 等可覆盖默认的 max-w-full
+      className={cn('chart-frame block h-auto w-full max-w-full', className)}
       style={{ aspectRatio: `${size.width} / ${size.height}` }}
     >
       <title id={titleId}>{title}</title>

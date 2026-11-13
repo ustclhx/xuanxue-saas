@@ -2,6 +2,8 @@ import type { BaziChart } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { ElementsChart } from '../charts/elements-chart.tsx'
+import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ToolPage } from '../tool-page.tsx'
@@ -9,11 +11,9 @@ import { BirthFields } from './birth-fields.tsx'
 import { KO_TRUE_SOLAR_DEFAULT, toShareInput } from './birth-form-state.ts'
 import {
   ConceptLink,
-  ElementStack,
   HiddenStemsTable,
   LuckAxis,
   luckAside,
-  PillarsGrid,
   ShenshaTable,
   StrengthBody,
   UsefulBody,
@@ -123,7 +123,7 @@ export function SajuResult({
         description={m.bazi_desc_pillars()}
         className="p-4 sm:p-5"
       >
-        <PillarsGrid chart={chart} locale={LOCALE} />
+        <PillarsChart pillars={chart.pillars} locale={LOCALE} />
         <p className="m-0 text-ink-subtle text-xs">{m.bazi_pillars_order_note()}</p>
         <HiddenStemsTable chart={chart} locale={LOCALE} />
       </ResultBlock>
@@ -133,7 +133,7 @@ export function SajuResult({
         description={m.bazi_desc_elements()}
         className="p-4 sm:p-5"
       >
-        <ElementStack chart={chart} />
+        <ElementsChart elements={chart.strength.elements} />
       </ResultBlock>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(160px,100%),1fr))] gap-2.5 sm:gap-5">
         <ResultBlock
