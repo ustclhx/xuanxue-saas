@@ -2,6 +2,10 @@ import { Link } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
+import { templateConfig } from '../../server/template-config.ts'
+import { siteAccountNames } from '../auth/site-account-names.ts'
+import { siteOfLocale } from '../site/site.ts'
 import type { DailyCreditsCheck } from './daily.server.ts'
 
 type Granted = Extract<DailyCreditsCheck, { status: 'granted' }>
@@ -48,5 +52,19 @@ export function DailyCreditsNotice({ result }: { result: DailyCreditsCheck | nul
         </Link>
       </p>
     )
+  // 已领取 / 本月已满只在当天首次检查时返回（之后 KV 返回 cached），因此每天至多提示一次；
+  // 同一邮箱两站共享额度（enable-subscriptions-daily-credits D6），提示中说明原因
+  if (result?.status === 'already_claimed' || result?.status === 'monthly_limit') {
+    const locale = getLocale()
+    const names = siteAccountNames(siteOfLocale(locale, templateConfig) ?? 'west', locale)
+    return (
+      <p role="status" className="m-0 text-ink-muted text-sm">
+        {result.status === 'already_claimed'
+          ? m.daily_credits_already_claimed()
+          : m.daily_credits_monthly_limit()}{' '}
+        {m.daily_credits_shared_note(names)}
+      </p>
+    )
+  }
   return notice ? <DailyGrantNotice {...notice} onDismiss={() => setNotice(null)} /> : null
 }

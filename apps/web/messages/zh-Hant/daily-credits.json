@@ -3,5 +3,10 @@
   "daily_credits_expiry": "於 {expiresAt} 到期。",
   "daily_credits_dismiss": "關閉",
   "daily_credits_verify": "驗證電子郵件以領取每日積分",
-  "daily_credits_source": "每日積分"
+  "daily_credits_source": "每日積分",
+  "daily_credits_already_claimed": "今天的每日積分已經領取過了，明天（UTC）再來。",
+  "daily_credits_monthly_limit": "本月可領取每日積分的天數已用完，下個月（UTC）重新開始。",
+  "daily_credits_shared_note": "在{site}與{otherSite}使用同一個電子郵件的帳號，共用每天一次的領取機會與每月的天數上限。",
+  "daily_credits_faq_q": "每日積分怎麼領？",
+  "daily_credits_faq_a": "電子郵件已驗證的帳號，每天（UTC）第一次進入帳戶頁面時自動獲得 10 積分，每月最多 10 天。每日積分有效期 7 天，使用時會先於其他積分扣除。在{site}與{otherSite}使用同一個電子郵件的帳號，共用每天一次的領取機會與每月的天數上限：在一個網站領取後，另一個網站當天不再發放。"
 }

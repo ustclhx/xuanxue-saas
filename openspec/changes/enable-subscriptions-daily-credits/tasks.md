@@ -35,9 +35,9 @@
 
 ## 3. W2 每日积分
 
-- [ ] 3.1 【Codex】在 `template.config.ts` 中设置 `credits.dailyEnabled: true`。核对运行时设置默认值（10 / 10 / 有效期按 1.1 的决定 / 要求已验证邮箱）；如果 1.1 修改了有效期，改为在 runbook 中记录后台设置值，不改模板默认值。验证：`pnpm typecheck`；`daily.server.test.ts` 与 credits 测试通过
-- [ ] 3.2 【Codex】补齐 `daily-credits.json`、`admin-daily-credits.json` 在 zh-Hant、zh-Hans、ko 中缺失或机翻的文案，内容包括已领取、本月已满、未验证邮箱、跨站共享说明。验证：`pnpm test` 中的文案缺失检查不再列出这些 key；由使用者抽查 ko 文案
-- [ ] 3.3 【Claude】为「同一邮箱两站共享额度」补充集成测试：东方站账户领取后，西方站同邮箱账户当日返回已领取，月上限跨站累计。验证：credits 的 postgres 测试新增两个用例并通过
+- [x] 3.1 【Codex】在 `template.config.ts` 中设置 `credits.dailyEnabled: true`。核对运行时设置默认值（10 / 10 / 有效期按 1.1 的决定 / 要求已验证邮箱）；如果 1.1 修改了有效期，改为在 runbook 中记录后台设置值，不改模板默认值。验证：`pnpm typecheck`；`daily.server.test.ts` 与 credits 测试通过
+- [x] 3.2 【Codex】补齐 `daily-credits.json`、`admin-daily-credits.json` 在 zh-Hant、zh-Hans、ko 中缺失或机翻的文案，内容包括已领取、本月已满、未验证邮箱、跨站共享说明。验证：`pnpm test` 中的文案缺失检查不再列出这些 key；由使用者抽查 ko 文案
+- [x] 3.3 【Claude】为「同一邮箱两站共享额度」补充集成测试：东方站账户领取后，西方站同邮箱账户当日返回已领取，月上限跨站累计。验证：credits 的 postgres 测试新增两个用例并通过
 - [ ] 3.4 【Codex】确认 topbar 布局中的 `DailyCreditsNotice` 在两站主题下显示正常（App 区当前使用 topbar）。验证：本地两站截图（四种语言）存在仓库外
 
 ## 4. W3 定价页、账单页与解锁流程（依赖 1.2 的设计稿确认）

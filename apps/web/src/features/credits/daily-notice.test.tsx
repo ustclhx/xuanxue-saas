@@ -110,6 +110,19 @@ describe('daily credit presentation', () => {
     expect(renderToStaticMarkup(<DailyCreditsNotice result={{ status: 'cached' }} />)).toBe('')
   })
 
+  it('explains already-claimed and monthly-limit results with the cross-site shared limit', () => {
+    const note = m.daily_credits_shared_note({ site: 'Arcanumber', otherSite: 'Ganjiday' })
+    // 静态渲染会转义撇号，比对前还原
+    const render = (status: 'already_claimed' | 'monthly_limit') =>
+      renderToStaticMarkup(<DailyCreditsNotice result={{ status }} />).replaceAll('&#x27;', "'")
+    const claimed = render('already_claimed')
+    expect(claimed).toContain(m.daily_credits_already_claimed())
+    expect(claimed).toContain(note)
+    const limit = render('monthly_limit')
+    expect(limit).toContain(m.daily_credits_monthly_limit())
+    expect(limit).toContain(note)
+  })
+
   it('keeps email verification available when signup credits are zero', () => {
     const user = {
       id: 'user',

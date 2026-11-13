@@ -3,5 +3,10 @@
   "daily_credits_expiry": "于 {expiresAt} 到期。",
   "daily_credits_dismiss": "关闭",
   "daily_credits_verify": "验证电子邮件以领取每日积分",
-  "daily_credits_source": "每日积分"
+  "daily_credits_source": "每日积分",
+  "daily_credits_already_claimed": "今天的每日积分已经领取过了，明天（UTC）再来。",
+  "daily_credits_monthly_limit": "本月可领取每日积分的天数已用完，下个月（UTC）重新开始。",
+  "daily_credits_shared_note": "在{site}与{otherSite}使用同一个电子邮件的账号，共用每天一次的领取机会与每月的天数上限。",
+  "daily_credits_faq_q": "每日积分怎么领？",
+  "daily_credits_faq_a": "电子邮件已验证的账号，每天（UTC）第一次进入账户页面时自动获得 10 积分，每月最多 10 天。每日积分有效期 7 天，使用时会先于其他积分扣除。在{site}与{otherSite}使用同一个电子邮件的账号，共用每天一次的领取机会与每月的天数上限：在一个网站领取后，另一个网站当天不再发放。"
 }
