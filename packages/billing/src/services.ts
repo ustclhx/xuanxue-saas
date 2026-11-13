@@ -14,6 +14,7 @@ import {
 } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, eq, inArray, isNull, or } from 'drizzle-orm'
+import { enabledCurrency } from './currency.ts'
 import { type BillingProviders, lockWorkspaceBilling } from './events.ts'
 import { nextPastDueSince } from './past-due.ts'
 import type { WebhookTransaction } from './pipeline.ts'
@@ -97,12 +98,17 @@ async function priceFor(ctx: BillingServiceContext, id: string, provider: Paymen
       ),
     )
   if (
-    found?.price.currency.toUpperCase() !== 'USD' ||
+    !found ||
+    !enabledCurrency(found.price.currency) ||
     !found.price.providerPriceId ||
     found.price.providerPriceId.startsWith('unsynced:') ||
     (found.plan.type === 'subscription') !== (found.price.interval !== null)
   )
-    fail('BILLING_PRICE_UNAVAILABLE', 'An active synced USD price is required', 400)
+    fail(
+      'BILLING_PRICE_UNAVAILABLE',
+      'An active synced price in an enabled currency is required',
+      400,
+    )
   return found
 }
 async function current(db: Database | WebhookTransaction, workspaceId: string) {

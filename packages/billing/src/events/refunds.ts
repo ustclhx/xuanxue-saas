@@ -24,12 +24,8 @@ async function lockReversedPayment(tx: WebhookTransaction, event: PaymentReversa
     .where(and(eq(payment.id, found.id), eq(payment.workspaceId, found.workspaceId)))
     .for('update')
   if (!paid) throw new Error('Payment association not found')
-  money(event.amount, event.currency)
-  if (
-    event.currency.toUpperCase() !== paid.currency.toUpperCase() ||
-    event.amount <= 0 ||
-    event.amount > paid.amount
-  )
+  money(event.amount, event.currency, paid.currency)
+  if (event.amount <= 0 || event.amount > paid.amount)
     throw new Error('Refund or dispute amount mismatch')
   return paid
 }

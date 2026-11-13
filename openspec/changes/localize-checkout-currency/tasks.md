@@ -22,11 +22,11 @@
 
 ## 2. W1 币种基础（packages/billing）
 
-- [ ] 2.1 【Claude】新增 `packages/billing/src/currency.ts`：启用币种集合、币种指数、平台约束（Stripe 的 TWD 金额为 100 的倍数，PayPal 的 TWD 为整数）、`toMajor`/`toMinor`/`formatMoney`/`currencyFor(locale, provider)`，PayPal 恒为 USD（决策 2）。验证：单测覆盖四种语言 × 两个平台的映射、KRW/TWD/USD 的格式化（`NT$65`、`₩2,800`、`US$1.99`）以及非法 TWD 金额
-- [ ] 2.2 【Claude】`events/shared.ts` 的 `money()` 改为接受启用的币种。`events/payments.ts`、`conflictPayment`、`events/refunds.ts`、`events/target.ts` 中「付款币种与价格行币种必须一致」的比对保持不变，不一致时仍抛出不可重试的 `BILLING_CURRENCY_MISMATCH`。验证：billing 单测与 postgres 集成测试覆盖 TWD/KRW 付款入账、关联 TWD 价格但以 USD 付款时被拒、KRW 部分退款按比例回收；已有 USD 录制夹具测试全部通过
-- [ ] 2.3 【Claude】`services.ts` 的 `priceFor` 去掉 USD 条件，改为要求币种属于启用集合。`refunds.ts` 的退款金额校验按币种约束执行。验证：服务层测试覆盖 TWD 退款金额不是 100 的倍数时拒绝
+- [x] 2.1 【Claude】新增 `packages/billing/src/currency.ts`：启用币种集合、币种指数、平台约束（Stripe 的 TWD 金额为 100 的倍数，PayPal 的 TWD 为整数）、`toMajor`/`toMinor`/`formatMoney`/`currencyFor(locale, provider)`，PayPal 恒为 USD（决策 2）。验证：单测覆盖四种语言 × 两个平台的映射、KRW/TWD/USD 的格式化（`NT$65`、`₩2,800`、`US$1.99`）以及非法 TWD 金额
+- [x] 2.2 【Claude】`events/shared.ts` 的 `money()` 改为接受启用的币种。`events/payments.ts`、`conflictPayment`、`events/refunds.ts`、`events/target.ts` 中「付款币种与价格行币种必须一致」的比对保持不变，不一致时仍抛出不可重试的 `BILLING_CURRENCY_MISMATCH`。验证：billing 单测与 postgres 集成测试覆盖 TWD/KRW 付款入账、关联 TWD 价格但以 USD 付款时被拒、KRW 部分退款按比例回收；已有 USD 录制夹具测试全部通过
+- [x] 2.3 【Claude】`services.ts` 的 `priceFor` 去掉 USD 条件，改为要求币种属于启用集合。`refunds.ts` 的退款金额校验按币种约束执行。验证：服务层测试覆盖 TWD 退款金额不是 100 的倍数时拒绝
 - [x] 2.4 ~~作废（决策 2：PayPal 恒为 USD）~~ 【Claude】`paypal/money.ts` 支持 TWD（整数元字符串），KRW 仍抛错。验证：单测断言 TWD 6500 输出为 `"65"`，`"65"` 解析回 6500，KRW 抛错
-- [ ] 2.5 【Claude】在 `docs/05-billing.md` §1 中把币种段落改写为多币种规则，并链接到本 change。验证：文档 diff 由评审确认，`pnpm check` 通过
+- [x] 2.5 【Claude】在 `docs/05-billing.md` §1 中把币种段落改写为多币种规则，并链接到本 change。验证：文档 diff 由评审确认，`pnpm check` 通过
 
 ## 3. W2 价目表、种子与价格同步（依赖 W1）
 
