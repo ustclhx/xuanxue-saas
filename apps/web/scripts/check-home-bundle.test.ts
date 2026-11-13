@@ -138,6 +138,17 @@ describe('服务端首页闭包（模板 add-og-images 5.5）', () => {
     expect(result.violations).toEqual([])
   })
 
+  it('注释中提到渲染器不算违规（服务端产物保留源码注释）', () => {
+    const root = fixture({
+      '.vite/manifest.json': manifest,
+      'index.js':
+        '/**\n* 首页闭包不含 satori / resvg / 字体。\n*/\n// cf-workers-og 只在分享卡片路由加载\nconst r=()=>import("./assets/renderer.js");',
+      'assets/home.js': '',
+      'assets/renderer.js': renderer,
+    })
+    expect(checkServerHomeBundle(root).violations).toEqual([])
+  })
+
   it('首页路由静态导入渲染器时检查失败', () => {
     const root = fixture({
       '.vite/manifest.json': manifest,

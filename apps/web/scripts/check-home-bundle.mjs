@@ -88,13 +88,21 @@ export function staticClosure(clientDir, entries) {
   return [...seen]
 }
 
+/**
+ * 去掉块注释与独占一行的行注释：项目的服务端产物不压缩、保留源码注释，
+ * 注释里提到渲染器（如「首页闭包不含 satori / resvg」）不代表静态依赖。
+ */
+export function stripComments(code) {
+  return code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+}
+
 function scan(dir, files, markers) {
   const violations = []
   let gzipBytes = 0
   for (const asset of files) {
     const code = readFileSync(join(dir, asset))
     gzipBytes += gzipSync(code, { level: 9 }).length
-    const text = code.toString('utf8')
+    const text = stripComments(code.toString('utf8'))
     for (const marker of markers) {
       if (text.includes(marker)) violations.push({ asset, marker })
     }

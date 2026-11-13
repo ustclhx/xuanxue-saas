@@ -18,6 +18,7 @@ export interface HomePageResult {
   gzipBytes: number
   violations: { asset: string; marker: string }[]
 }
+export function stripComments(code: string): string
 export function htmlScripts(html: string): string[]
 export function staticClosure(clientDir: string, entries: readonly string[]): string[]
 export function checkHomePage(clientDir: string, file?: string): HomePageResult
