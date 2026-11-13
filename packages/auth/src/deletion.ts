@@ -2,9 +2,14 @@ import type { SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError, newId, normalizeSignupEmail } from '@xuanxue/shared'
+import { log } from '@xuanxue/shared/log'
 import type { BetterAuthPlugin } from 'better-auth'
 import { APIError, createAuthEndpoint } from 'better-auth/api'
 import { z } from 'zod'
+import {
+  type CleanupWorkspaceShareCards,
+  purgeDeletedPersonalWorkspaceShareCards,
+} from './ai-content-cleanup.ts'
 import { type AuthContextSource, requireFreshSession } from './fresh-session.ts'
 import { authCacheKey } from './session.ts'
 
@@ -32,6 +37,7 @@ export function registerDeletionStep(kind: DeletionKind, step: DeletionStep): ()
   }
 }
 interface Options {
+  readonly cleanupShareCards?: CleanupWorkspaceShareCards | undefined
   readonly additionalSteps?: readonly DeletionStep[]
   readonly auth: AuthContextSource
   readonly db: Database
@@ -89,7 +95,11 @@ async function runCleanup(
   keys: readonly string[],
 ) {
   const results = await Promise.allSettled(keys.map((key) => kv.delete(authCacheKey(site, key))))
-  if (results.some((result) => result.status === 'rejected')) return false
+  const failed = results.filter((result) => result.status === 'rejected').length
+  if (failed) {
+    log.warn('deletion.credential-cache.cleanup.failed', { reason: 'cache-delete-failed', failed })
+    return false
+  }
   await db.$client`delete from verification where id=${id} and identifier=${DELETION_CLEANUP_PREFIX + id}`
   return true
 }
@@ -308,7 +318,32 @@ export async function deleteAccount(options: Options) {
     await sql`insert into audit_log (id,actor_user_id,action,target_type,target_id,ip,meta) values (${newId()},${current.id},'account.deleted','user',${current.id},${options.clientIp ?? null},${JSON.stringify({ anonymized: true, deletedPersonalWorkspaceIds: personal.map((workspace) => workspace.id) })}::jsonb)`
     return saveCleanup(sql, cacheKeys, site, options.kv)
   })
-  await finishCleanup(options.db, options.kv, keys)
+  const cleanup = await Promise.allSettled([
+    finishCleanup(options.db, options.kv, keys),
+    ...(options.cleanupShareCards
+      ? [
+          purgeDeletedPersonalWorkspaceShareCards(
+            options.db,
+            options.cleanupShareCards,
+            fresh.user.id,
+            { maxIndexes: 20 },
+          ).then((result) => {
+            if (result.failed)
+              throw new AppError('DELETION_CLEANUP_FAILED', 'Share card cleanup failed')
+          }),
+        ]
+      : []),
+  ])
+  for (const [index, result] of cleanup.entries()) {
+    if (result.status === 'rejected')
+      log.warn('deletion.external-cleanup.failed', {
+        reason: index === 0 ? 'credential-cleanup-failed' : 'share-card-cleanup-failed',
+      })
+  }
+  if (cleanup.some((result) => result.status === 'rejected'))
+    fail('DELETION_CLEANUP_FAILED', 'Deletion completed; external cleanup needs retry', 503, {
+      deletionCompleted: true,
+    })
   return { deleted: true }
 }
 /** Mount before the native organization plugin. The HTTP endpoints validate signed cookies in DB. */
@@ -319,6 +354,7 @@ export function deletionPlugin(
   multiTenant = true,
   additionalSteps?: readonly DeletionStep[],
   clientIp?: string | null,
+  cleanupShareCards?: CleanupWorkspaceShareCards,
 ) {
   const endpoint = (kind: DeletionKind) =>
     createAuthEndpoint(
@@ -334,6 +370,7 @@ export function deletionPlugin(
             db,
             kv,
             clientIp,
+            cleanupShareCards,
             ...(additionalSteps ? { additionalSteps } : {}),
             headers: ctx.headers,
             auth: { site, $context: Promise.resolve(ctx.context) },

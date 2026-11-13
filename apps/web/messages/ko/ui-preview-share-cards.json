@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "ui_preview_share_cards_desc": "고정된 예시 데이터를 실제 렌더러로 생성한 결과 공유 카드입니다. 중국어·영어·긴 제목의 라이트/다크 모드와 빌드 시 기본 공유 이미지를 보여 줍니다. 디자인 사본 share-cards/Card.dc.html과 비교하세요.",
+  "ui_preview_share_cards_alt": "공유 카드 미리보기: {variant}, {mode}"
+}

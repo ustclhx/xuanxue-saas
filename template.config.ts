@@ -12,6 +12,8 @@ export default defineTemplateConfig({
     url: 'https://arcanumber.com',
     supportEmail: 'support@arcanumber.com',
   },
+  // 分享卡片默认有效天数（模板 0.4.0）；null 表示永不过期
+  shareCards: { defaultTtlDays: 90 },
   i18n: { enabled: true, locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'], defaultLocale: 'en' },
   // 站点注册表：同一个 Worker 按 Host 区分东方站与西方站，每种语言只属于一个站点。
   // 第一个 host 为规范域名；www 由 Cloudflare 重定向规则跳到裸域（决策 D2，docs/v1-decisions.md）。

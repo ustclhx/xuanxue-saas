@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "ui_preview_share_cards_desc": "以示例固定資料經真實渲染器產生的結果分享卡片：中文、英文與長標題的淺色和深色，以及建置期預設分享圖。與設計稿副本 share-cards/Card.dc.html 對照。",
+  "ui_preview_share_cards_alt": "分享卡片預覽：{variant}，{mode}"
+}

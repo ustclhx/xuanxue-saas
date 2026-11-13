@@ -1,28 +1,23 @@
 import { readFileSync } from 'node:fs'
-import { CustomFont, ImageResponse } from 'cf-workers-og/node'
-import { createElement } from 'react'
+import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
-import { ogImagePath, pageBrand, type SeoPage } from '../src/features/seo/metadata.ts'
-import { OgCard } from '../src/features/seo/og-card.ts'
+import { ogImagePath } from '../src/features/seo/metadata.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
-import { siteOfLocale } from '../src/features/site/site.ts'
+import { defaultShareCardLayout } from '../src/features/share-cards/layout.tsx'
+import { defaultShareCardSite, resolveShareCardSite } from '../src/features/share-cards/site.ts'
+import { resolveShareCardTheme } from '../src/features/share-cards/theme.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
 import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
+import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
 
 const root = new URL('..', import.meta.url)
-const font = new CustomFont(
-  'Noto Sans SC',
-  readFileSync(new URL('./seo/NotoSansSC-Regular.otf', import.meta.url)),
-  { weight: 400 },
-)
-
-const koreanFont = new CustomFont(
-  'Noto Sans KR',
-  readFileSync(new URL('./seo/NotoSansKR-Regular.otf', import.meta.url)),
-  { weight: 400 },
+// 与运行时分享卡片共用字体目录与渲染核心；构建期逐页串行渲染，不触及并发上限。
+const renderer = createNodeShareCardRenderer(
+  fileURLToPath(new URL('../public/fonts/share-card', import.meta.url)),
 )
 
 function pages() {
@@ -46,34 +41,31 @@ function pages() {
   })
 }
 
-/** 卡片底部显示页面所属站点的规范域名 */
-function pageHost(page: Pick<SeoPage, 'locale'>): string {
-  const site = siteOfLocale(page.locale, templateConfig) ?? 'west'
-  return templateConfig.sites[site].hosts[0] ?? new URL(templateConfig.app.url).hostname
-}
-
-/** 东方站英文入口页（D5）：语言 en 归西方站，品牌与域名按东方站单独给出 */
-const eastEnglishCard = {
-  title: EAST_ENGLISH_COPY.title,
-  brand: templateConfig.sites.east.brand.name,
-  host: templateConfig.sites.east.hosts[0] ?? new URL(templateConfig.app.url).hostname,
-}
-
-export async function renderOgImage(
-  page: Pick<SeoPage, 'title' | 'locale'>,
-  override?: { brand: string; host: string },
+/**
+ * 设计稿 `default` 变体。站点按 app.url 的域名与页面的 locale / pathname 解析
+ * （features/share-cards/share-cards.sites.ts：东方站语言用东方站品牌、域名与配色；
+ * 构建期没有请求 host，静态图按路径输出，各站点共用同一路径的图片）。
+ */
+export function renderOgImage(
+  title: string,
+  page: { locale?: string; path?: string } = {},
 ): Promise<Uint8Array> {
-  const card = { title: page.title, brand: pageBrand(page), host: pageHost(page), ...override }
-  const response = await ImageResponse.create(createElement(OgCard, card), {
-    width: 1200,
-    height: 630,
-    fonts: [font, koreanFont],
+  const { site, themeOverride } = resolveShareCardSite({
+    host: defaultShareCardSite().host,
+    locale: page.locale,
+    pathname: page.path,
   })
-  return new Uint8Array(await response.arrayBuffer())
+  return renderer.render(
+    defaultShareCardLayout(title, resolveShareCardTheme('light', themeOverride), site),
+  )
 }
 
+/** 东方站英文入口页（D5）：语言 en 归西方站，站点解析按路径识别为东方站 */
 function renderEastEnglishOgImage(): Promise<Uint8Array> {
-  return renderOgImage({ title: eastEnglishCard.title, locale: 'en' }, eastEnglishCard)
+  return renderOgImage(EAST_ENGLISH_COPY.title, {
+    locale: EAST_ENGLISH_LOCALE,
+    path: EAST_ENGLISH_PATH,
+  })
 }
 
 /** WASM 与完整字体只在 Node 构建阶段使用，PNG 作为客户端静态资源输出。 */
@@ -87,7 +79,7 @@ export function ogImages(): Plugin {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),
-          source: await renderOgImage(page),
+          source: await renderOgImage(page.title, page),
         })
       }
       if (templateConfig.marketing.enabled && templateConfig.i18n.enabled)
@@ -100,7 +92,9 @@ export function ogImages(): Plugin {
         type: 'asset',
         fileName: '_headers',
         source:
-          '/og/*\n  Cache-Control: public, max-age=86400\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n',
+          '/og/*\n  Cache-Control: public, max-age=86400\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n' +
+          // 分享卡片字体：文件名不变但内容稳定，长期缓存；不被索引
+          '/fonts/share-card/*\n  Cache-Control: public, max-age=31536000, immutable\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n',
       })
     },
     configureServer(server) {
@@ -120,7 +114,7 @@ export function ogImages(): Plugin {
             return
           }
           response.setHeader('Content-Type', 'image/png')
-          response.end(await renderOgImage(page))
+          response.end(await renderOgImage(page.title, page))
         } catch (error) {
           next(error)
         }

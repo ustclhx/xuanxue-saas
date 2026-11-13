@@ -4,7 +4,9 @@
 // 同时把各首页 head 中的 canonical、hreflang、robots 与 JSON-LD 类型与 home-head-snapshot.json 对照，
 // 首页改版（枢纽区块、命盘图形）不得改变这些搜索相关元数据。
 // 只看 HTML 直接列出的文件不够：路由文件中未被拆分的部分（如 validateSearch）会让入口静态导入重的分包。
-// 用法：node scripts/check-home-bundle.mjs [dist/client]；`pnpm build` 在预渲染后自动执行。
+// 模板 add-og-images 5.5：服务端（Worker 入口与首页路由分包）与客户端首页闭包都不得出现分享卡片渲染器、
+// satori、resvg 与字体；渲染器只能经动态 import() 在分享卡片路由中加载。
+// 用法：node scripts/check-home-bundle.mjs [dist/client] [dist/server]；`pnpm build` 在预渲染后自动执行。
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -23,6 +25,23 @@ export const FORBIDDEN_MARKERS = [
   'reader-mobile-toc',
   SHARE_CARD_MARKER,
 ]
+
+/**
+ * 模板分享卡片渲染器的代码特征：cf-workers-og、satori、resvg 的 WASM 初始化与 CJK 字体文件名。
+ * NotoSansKR-Regular 为项目的韩文字体（模板 0.4.1 字体扩展点接入后由渲染器加载），同样不得进入首页闭包。
+ */
+export const RENDERER_MARKERS = [
+  'cf-workers-og',
+  'satori',
+  'resvg',
+  'initWasm',
+  'NotoSansSC-Regular',
+  'NotoSansKR-Regular',
+]
+
+// 静态导入的 WASM、Data 模块与字体文件（渲染器随包的部分）
+const BINARY_IMPORT =
+  /\b(?:import|export)\s*(?:[\w$*{}\s,]*?\bfrom\s*)?["']([^"']+\.(?:wasm|bin|woff2?|otf|ttf))["']/g
 
 /**
  * 需要检查的首页：西方站 `/` 与东方站三种语言首页（预渲染输出 `zh-hant.html` 等）。
@@ -71,26 +90,76 @@ export function staticClosure(clientDir, entries) {
   return [...seen]
 }
 
-/** 单个首页 HTML 的静态闭包、gzip 总量与禁止标记 */
-export function checkHomePage(clientDir, file = 'index.html') {
-  const html = readFileSync(join(clientDir, file), 'utf8')
-  const files = staticClosure(clientDir, htmlScripts(html))
+/**
+ * 去掉块注释与独占一行的行注释：项目的服务端产物不压缩、保留源码注释，
+ * 注释里提到渲染器（如「首页闭包不含 satori / resvg」）不代表静态依赖。
+ */
+export function stripComments(code) {
+  return code.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+}
+
+function scan(dir, files, markers) {
   const violations = []
   let gzipBytes = 0
   for (const asset of files) {
-    const code = readFileSync(join(clientDir, asset))
+    const code = readFileSync(join(dir, asset))
     gzipBytes += gzipSync(code, { level: 9 }).length
-    const text = code.toString('utf8')
-    for (const marker of FORBIDDEN_MARKERS) {
+    const text = stripComments(code.toString('utf8'))
+    for (const marker of markers) {
       if (text.includes(marker)) violations.push({ asset, marker })
     }
+    for (const [, specifier] of text.matchAll(BINARY_IMPORT)) {
+      violations.push({ asset, marker: specifier })
+    }
   }
-  return { files, gzipBytes, violations }
+  return { gzipBytes, violations }
+}
+
+/** 单个首页 HTML 的静态闭包、gzip 总量与禁止标记（含分享卡片渲染器与字体） */
+export function checkHomePage(clientDir, file = 'index.html') {
+  const html = readFileSync(join(clientDir, file), 'utf8')
+  const files = staticClosure(clientDir, htmlScripts(html))
+  return { files, ...scan(clientDir, files, [...FORBIDDEN_MARKERS, ...RENDERER_MARKERS]) }
 }
 
 /** 只检查西方站首页（保留原接口） */
 export function checkHomeBundle(clientDir) {
   return checkHomePage(clientDir, 'index.html')
+}
+
+/**
+ * 服务端首页闭包：Worker 入口 index.js 加上首页路由（src/routes/index.tsx 的各拆分分包）的静态 import 闭包，
+ * 分包位置取自 Vite manifest（dist/server/.vite/manifest.json）。两站各语言首页共用这一路由。
+ */
+export function checkServerHomeBundle(serverDir) {
+  const manifestPath = join(serverDir, '.vite/manifest.json')
+  const manifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, 'utf8')) : {}
+  const routeEntries = Object.entries(manifest)
+    .filter(([source]) => /^src\/routes\/index\.tsx(?:\?|$)/.test(source))
+    .map(([, chunk]) => `/${chunk.file}`)
+  const files = staticClosure(serverDir, ['/index.js', ...routeEntries])
+  return { files, routeEntries, ...scan(serverDir, files, RENDERER_MARKERS) }
+}
+
+/** 服务端首页闭包的输出行；缺少服务端产物或首页分包时失败，避免静默跳过 */
+export function reportServerHomeBundle(serverDir) {
+  if (!existsSync(join(serverDir, 'index.js')))
+    return { ok: false, lines: [`首页包检查失败：找不到服务端产物 ${join(serverDir, 'index.js')}`] }
+  const server = checkServerHomeBundle(serverDir)
+  if (server.routeEntries.length === 0)
+    return {
+      ok: false,
+      lines: ['首页包检查失败：服务端 manifest 中找不到首页路由分包（src/routes/index.tsx）'],
+    }
+  if (server.violations.length > 0)
+    return {
+      ok: false,
+      lines: [
+        '首页包检查失败：服务端首页闭包中出现了只应懒加载的分享卡片渲染器与字体',
+        ...server.violations.map(({ asset, marker }) => `  - 服务端 ${asset} 含 "${marker}"`),
+      ],
+    }
+  return { ok: true, lines: [`服务端首页闭包检查通过：${server.files.length} 个模块`] }
 }
 
 // HTML 属性解析：React 输出 `hrefLang`，按小写键读取
@@ -206,7 +275,7 @@ export function reportHomePages(results) {
     const problems = [
       ...page.violations.map(
         ({ asset, marker }) =>
-          `静态依赖 ${asset} 含 "${marker}"（阅读器 / Markdown / 分享图代码只应懒加载）`,
+          `静态依赖 ${asset} 含 "${marker}"（阅读器 / Markdown / 分享图与分享卡片渲染器只应懒加载）`,
       ),
       ...(page.overBudget ? [`gzip 合计 ${page.gzipBytes} B 超出预算 ${page.budget} B`] : []),
       ...page.headDiffs.map((diff) => `head 与 home-head-snapshot.json 不一致：${diff}`),
@@ -225,8 +294,9 @@ export function reportHomePages(results) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2)
-  const dirArg = args.find((arg) => !arg.startsWith('--'))
-  const clientDir = resolve(dirArg ?? join(dirname(process.argv[1]), '../dist/client'))
+  const [clientArg, serverArg] = args.filter((arg) => !arg.startsWith('--'))
+  const clientDir = resolve(clientArg ?? join(dirname(process.argv[1]), '../dist/client'))
+  const serverDir = resolve(serverArg ?? join(clientDir, '../server'))
   if (args.includes('--write-head-snapshot')) {
     // 仅在有意修改首页元数据、并在 PR 中说明后使用；写入后运行 biome format 统一格式
     const snapshot = Object.fromEntries(
@@ -235,8 +305,20 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     writeFileSync(SNAPSHOT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`)
     console.log(`已写入 ${SNAPSHOT_PATH}`)
   } else {
-    const { ok, lines } = reportHomePages(checkHomePages(clientDir))
-    for (const line of lines) (ok ? console.log : console.error)(line)
-    if (!ok) process.exitCode = 1
+    // 唯一调用方是 `pnpm build`（Cloudflare 构建，必有 dist/server）；一侧产物缺失时另一侧照常报告
+    const client = () => {
+      try {
+        return reportHomePages(checkHomePages(clientDir))
+      } catch (error) {
+        return {
+          ok: false,
+          lines: [`首页包检查失败：${error instanceof Error ? error.message : error}`],
+        }
+      }
+    }
+    for (const { ok, lines } of [reportServerHomeBundle(serverDir), client()]) {
+      for (const line of lines) (ok ? console.log : console.error)(line)
+      if (!ok) process.exitCode = 1
+    }
   }
 }

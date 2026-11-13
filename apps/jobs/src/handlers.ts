@@ -3,11 +3,13 @@ import type { EmailSender } from '@xuanxue/email'
 import type {
   Capability,
   DeadLetterSink,
+  KeyValueStore,
   QueueBatch,
   ScheduledHandler,
   Scheduler,
 } from '@xuanxue/platform'
 import { log, newRequestId, withLogContext } from '@xuanxue/shared/log'
+import type { ShareCardObjects } from '@xuanxue/storage'
 import {
   BILLING_DAILY_CRON,
   BILLING_HOURLY_CRON,
@@ -31,6 +33,8 @@ export interface JobsContext extends BillingEnv {
   emailTransport: JobsEmailTransport
   emailSender?: EmailSender
   files: Capability<{ delete(key: string | string[]): Promise<void> }>
+  shareCardCache?: KeyValueStore
+  shareCards?: ShareCardObjects
   observer: JobObserver
   emailDeadLetters?: DeadLetterSink<unknown>
   eventsDeadLetters?: DeadLetterSink<unknown>

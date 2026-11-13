@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_page_shared_by": "{site} 사용자가 공유함 · {date}",
+  "share_page_cta_primary": "{site}에서 내 결과 만들기",
+  "share_page_cta_secondary": "{site} 알아보기",
+  "share_page_note": "{site} 사용자가 공개로 공유한 결과입니다. 공유한 사람은 언제든지 공유를 취소할 수 있습니다.",
+  "share_page_note_expires": "{site} 사용자가 공개로 공유한 결과입니다. 공유한 사람은 언제든지 공유를 취소할 수 있습니다. 링크는 {date}까지 유효합니다.",
+  "share_page_not_found_title": "존재하지 않거나 취소된 공유입니다",
+  "share_page_not_found_body": "링크가 잘못되었거나 공유한 사람이 공유를 취소했습니다.",
+  "share_page_expired_title": "만료된 공유입니다",
+  "share_page_expired_body": "공유 링크의 유효 기간이 지났습니다. 공유한 사람에게 다시 공유해 달라고 요청하세요.",
+  "share_page_rate_limited_title": "요청이 너무 많습니다",
+  "share_page_rate_limited_body": "1분 후에 다시 시도해 주세요.",
+  "share_page_home": "홈으로 돌아가기"
+}

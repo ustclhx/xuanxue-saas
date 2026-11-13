@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    // vite/client：构建期分享图经 layout.tsx → sample.ts 引入分享卡片注册表（读取 import.meta.env / hot）
+    "types": ["node", "vite/client"],
+    // 构建期分享图（scripts/og-images.ts）复用 src 中的 JSX 版式
+    "jsx": "react-jsx"
   },
   "include": [
     "vite.config.ts",

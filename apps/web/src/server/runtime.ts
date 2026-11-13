@@ -18,6 +18,13 @@ import type {
 import { AppError } from '@xuanxue/shared'
 import type { Storage } from '@xuanxue/storage'
 import type { AuthUiEnv } from '../features/auth/options.ts'
+import type { ShareCardRenderer } from '../features/share-cards/renderer.ts'
+
+/** 分享卡片边缘缓存（Cloudflare Cache API）；自托管不装配，由对象存储加 HTTP 缓存头承担。 */
+export interface ShareCardEdgeCache {
+  match(url: string): Promise<Response | undefined>
+  put(url: string, response: Response): Promise<void>
+}
 
 /** AI 模块按目标注入；文件签名留在目标入口，不让公开 API 依赖 R2 类型。 */
 export interface WebAiRuntime {
@@ -68,6 +75,9 @@ export interface WebRuntime {
   readonly files?: Capability<Storage>
   /** 未装配的目标明确报告 unavailable；认证等独立模块不要求 AI 能力。 */
   readonly ai?: Capability<WebAiRuntime>
+  /** 分享卡片渲染器加载函数：目标入口用动态 import() 提供，首页与其他路由不加载 satori / resvg。 */
+  readonly shareCardRenderer?: Capability<() => Promise<ShareCardRenderer>>
+  readonly shareCardCache?: Capability<ShareCardEdgeCache>
   /** 后台认证写入需借用事务 facade 与延后提交的缓存。 */
   createAuth(db: Database, cache?: KeyValueStore): Auth
   handleAuthRequest(request: Request): Promise<Response>

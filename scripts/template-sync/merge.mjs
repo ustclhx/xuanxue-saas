@@ -10,6 +10,13 @@ export const excludedPaths = [
   'PROJECT_SETUP.md',
   'pnpm-lock.yaml',
 ]
+// 新版首次交付占位文件；后续同步不覆盖项目已接管的注册与品牌。
+export const projectOwnedPaths = new Set([
+  'apps/web/src/features/share-cards/share-cards.project.ts',
+  'apps/web/src/features/share-cards/share-cards.theme.ts',
+  'apps/web/src/features/share-cards/share-cards.fonts.ts',
+  'apps/web/src/features/share-cards/share-cards.sites.ts',
+])
 export const baseRef = 'refs/template-sync/base'
 export const targetRef = 'refs/template-sync/target'
 
@@ -119,7 +126,11 @@ export function templateChanges(project) {
       index += 1
     }
   }
-  return changes
+  return changes.filter(
+    (change) =>
+      change.status === 'A' ||
+      (!projectOwnedPaths.has(change.path) && !projectOwnedPaths.has(change.from)),
+  )
 }
 
 /**

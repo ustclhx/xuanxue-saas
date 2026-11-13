@@ -738,6 +738,9 @@ importers:
       '@xuanxue/entitlements':
         specifier: workspace:*
         version: link:../entitlements
+      '@xuanxue/platform':
+        specifier: workspace:*
+        version: link:../platform
       '@xuanxue/shared':
         specifier: workspace:*
         version: link:../shared
