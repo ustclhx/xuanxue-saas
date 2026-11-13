@@ -32,6 +32,10 @@ export interface ShareCardLayoutContent {
   readonly meta?: string | undefined
   /** `hero`：构建期默认分享图的大标题；`card`：结果卡片。 */
   readonly size?: 'card' | 'hero'
+  /** 品牌行名称；缺省为 `templateConfig.app.name`（多站点项目按页面所属站点传入）。 */
+  readonly brand?: string | undefined
+  /** 底部站点域名；缺省取 `templateConfig.app.url` 的 host。 */
+  readonly host?: string | undefined
 }
 
 // Inter 优先：拉丁字符使用 Inter 的真实 600 字重，CJK 只有常规体，按需回退到 Noto Sans SC。
@@ -75,7 +79,7 @@ export function shareCardLayout(
       lines: 2,
     })
   const meta = content.meta && truncateText(content.meta, SHARE_CARD_TEXT_LIMITS.meta)
-  const appName = templateConfig.app.name
+  const appName = content.brand ?? templateConfig.app.name
   return (
     <div
       style={{
@@ -206,7 +210,7 @@ export function shareCardLayout(
             style={{ width: 12, height: 12, borderRadius: 9999, background: theme.brandAccent }}
           />
           <div style={{ display: 'flex', color: theme.foreground, fontWeight: 500 }}>
-            {siteHost()}
+            {content.host ?? siteHost()}
           </div>
         </div>
       </div>
