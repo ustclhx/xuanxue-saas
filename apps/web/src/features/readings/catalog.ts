@@ -10,6 +10,7 @@ import { computeZiwei, type ZiweiChart } from '@xuanxue/bazi/ziwei'
 import type { ReadingKind } from '@xuanxue/db'
 import { numerologyChart } from '@xuanxue/numerology'
 import { AppError } from '@xuanxue/shared'
+import { log } from '@xuanxue/shared/log'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
 import { z } from 'zod'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
@@ -68,8 +69,13 @@ export interface ReadingDefinition extends ReadingVariant {
 
 interface ReadingEntry {
   readonly kind: ReadingKind
-  /** 第一个语言为默认 */
+  /** 第一个语言为默认；各语言的 `prompt` 为代码默认版本（运行时设置为空时使用） */
   readonly variants: Readonly<Record<string, ReadingVariant>>
+  /**
+   * 默认版本之外可经运行时设置 `readings.<kind>.promptVersion` 切换的提示词（版本号 → 语言 → 提示词，
+   * readings-prompt-v4-yearly design 决策 4）。旧版本文件永久保留，供回滚与已生成报告的收尾。
+   */
+  readonly versions?: Readonly<Record<string, Readonly<Record<string, ReadingPrompt>>>>
   /** 塔罗按报告语言查牌义，其余详批的复算与语言无关 */
   recompute(raw: unknown, now: Date, locale: string): RecomputedReading
 }
@@ -445,22 +451,98 @@ const entries = {
 
 export type AvailableReadingKind = keyof typeof entries
 
+/** kind → version → locale 注册表：代码默认版本与 `versions` 中登记的版本合并 */
+function promptRegistry(entry: ReadingEntry): Map<string, Map<string, ReadingPrompt>> {
+  const registry = new Map<string, Map<string, ReadingPrompt>>()
+  const add = (locale: string, prompt: ReadingPrompt) => {
+    const locales = registry.get(prompt.version) ?? new Map<string, ReadingPrompt>()
+    locales.set(locale, prompt)
+    registry.set(prompt.version, locales)
+  }
+  for (const [locale, variant] of Object.entries(entry.variants)) add(locale, variant.prompt)
+  for (const prompts of Object.values(entry.versions ?? {}))
+    for (const [locale, prompt] of Object.entries(prompts)) add(locale, prompt)
+  return registry
+}
+
+function entryOf(kind: string): ReadingEntry | undefined {
+  return Object.hasOwn(entries, kind) ? entries[kind as AvailableReadingKind] : undefined
+}
+
+export interface ReadingDefinitionOptions {
+  /**
+   * 提示词版本号（如 `bazi-full.v4`）；省略或空字符串表示代码默认版本。
+   * 指定的版本未在该语言注册时返回 undefined，调用方决定回退（见 `resolveReadingDefinition`）。
+   */
+  readonly promptVersion?: string | null | undefined
+}
+
 /**
- * 某种详批的定义；省略 `locale` 时取默认语言。类型不存在或不支持该语言时返回 undefined。
+ * 某种详批的定义；省略 `locale` 时取默认语言。类型不存在、不支持该语言或该语言没有指定的
+ * 提示词版本时返回 undefined。
  */
-export function readingDefinition(kind: string, locale?: string): ReadingDefinition | undefined {
-  if (!Object.hasOwn(entries, kind)) return undefined
-  const entry: ReadingEntry = entries[kind as AvailableReadingKind]
+export function readingDefinition(
+  kind: string,
+  locale?: string,
+  options: ReadingDefinitionOptions = {},
+): ReadingDefinition | undefined {
+  const entry = entryOf(kind)
+  if (!entry) return undefined
   const locales = Object.keys(entry.variants)
   const chosen = locale ?? locales[0] ?? ''
   if (!Object.hasOwn(entry.variants, chosen)) return undefined
   const variant = entry.variants[chosen] as ReadingVariant
+  let prompt = variant.prompt
+  if (options.promptVersion) {
+    const registered = promptRegistry(entry).get(options.promptVersion)?.get(chosen)
+    if (!registered) return undefined
+    prompt = registered
+  }
   return {
     kind: entry.kind,
     locales,
     ...variant,
+    prompt,
     recompute: (raw, now) => entry.recompute(raw, now, chosen),
   }
+}
+
+/**
+ * 按版本取定义，版本未注册或该语言没有该版本时回退到代码默认版本并告警
+ * （spec「提示词版本的运行时切换」）。类型或语言不存在时返回 undefined。
+ */
+export function resolveReadingDefinition(
+  kind: string,
+  locale: string,
+  promptVersion: string | null | undefined,
+): ReadingDefinition | undefined {
+  const fallback = readingDefinition(kind, locale)
+  if (!fallback || !promptVersion) return fallback
+  const chosen = readingDefinition(kind, locale, { promptVersion })
+  if (chosen) return chosen
+  log.warn('readings.prompt_version_fallback', {
+    kind,
+    locale,
+    promptVersion,
+    fallback: fallback.prompt.version,
+  })
+  return fallback
+}
+
+/** 某种详批已注册的提示词版本与支持的语言（后台选项与保存校验） */
+export function readingPromptVersions(
+  kind: string,
+): { readonly version: string; readonly locales: readonly string[] }[] {
+  const entry = entryOf(kind)
+  if (!entry) return []
+  return [...promptRegistry(entry)]
+    .map(([version, locales]) => ({ version, locales: [...locales.keys()] }))
+    .sort((a, b) => a.version.localeCompare(b.version, 'en', { numeric: true }))
+}
+
+/** 运行时设置的取值是否合法：空字符串（代码默认）或该详批已注册的版本 */
+export function isReadingPromptVersion(kind: string, version: string): boolean {
+  return version === '' || readingPromptVersions(kind).some((item) => item.version === version)
 }
 
 /** 键排序后的 JSON，使字段顺序不同的同一输入得到同一哈希 */

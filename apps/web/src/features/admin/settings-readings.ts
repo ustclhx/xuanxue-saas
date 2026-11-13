@@ -12,10 +12,14 @@ import {
 import { AppError } from '@xuanxue/shared'
 import { and, asc, eq, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
+import { isReadingPromptVersion, readingPromptVersions } from '../readings/catalog.ts'
 import type { AdminActionScope } from './action.ts'
 
-/** 详批的三项运行时设置（add-reading-monetization tasks.md 1.2） */
-const FIELDS = ['enabled', 'credits', 'modelKey'] as const
+/**
+ * 详批的运行时设置（add-reading-monetization tasks.md 1.2）；`promptVersion` 由
+ * readings-prompt-v4-yearly 决策 4 加入，空字符串表示代码默认版本。
+ */
+const FIELDS = ['enabled', 'credits', 'modelKey', 'promptVersion'] as const
 type Field = (typeof FIELDS)[number]
 const keyOf = <F extends Field>(kind: ReadingKind, field: F) => `readings.${kind}.${field}` as const
 
@@ -29,6 +33,8 @@ const readingSettingInput = z.object({
   credits: z.number().int().min(1).max(100_000),
   /** 空字符串表示未选定模型，该详批在前台不可用 */
   modelKey: z.string().trim().max(200),
+  /** 空字符串表示代码默认版本；是否为已注册版本在写入时按注册表校验 */
+  promptVersion: z.string().trim().max(64).default(''),
 })
 
 export const readingSettingsInput = z.object({
@@ -50,6 +56,9 @@ export async function readReadingSettings(db: Database) {
       enabled: await getSetting(ctx, keyOf(kind, 'enabled')),
       credits: await getSetting(ctx, keyOf(kind, 'credits')),
       modelKey: await getSetting(ctx, keyOf(kind, 'modelKey')),
+      promptVersion: await getSetting(ctx, keyOf(kind, 'promptVersion')),
+      /** 可选的提示词版本（注册表），选项文案附上支持的语言 */
+      promptVersions: readingPromptVersions(kind),
     })),
   )
   const models = await db
@@ -74,6 +83,9 @@ export async function writeReadingSettings(
     if (found.length !== modelKeys.length)
       throw new AppError('INVALID_REQUEST', 'Unknown text model', { status: 400 })
   }
+  // 只接受代码中为该详批注册的版本，避免切换到不存在的提示词（spec「非法取值」）
+  if (input.readings.some((row) => !isReadingPromptVersion(row.kind, row.promptVersion)))
+    throw new AppError('INVALID_REQUEST', 'Unknown prompt version', { status: 400 })
   for (const row of input.readings) {
     const changes: Record<string, { oldValue: unknown; newValue: unknown }> = {}
     for (const field of FIELDS) {

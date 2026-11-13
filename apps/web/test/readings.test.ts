@@ -30,7 +30,11 @@ import { readingDefinition } from '../src/features/readings/catalog.ts'
 import { readingConfig } from '../src/features/readings/config.ts'
 import { deleteReadingWithContent } from '../src/features/readings/delete.ts'
 import { workspaceContentDeletionStep } from '../src/features/readings/deletion.server.ts'
-import { handleReadingRequest, type ReadingDeps } from '../src/features/readings/generate.ts'
+import {
+  finalizeRecordedReading,
+  handleReadingRequest,
+  type ReadingDeps,
+} from '../src/features/readings/generate.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
 // add-reading-monetization tasks.md 1.2：后台修改详批设置后前台读取到新值。
@@ -477,6 +481,88 @@ describe('POST /api/readings', () => {
   })
 })
 
+describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', () => {
+  /** 用于切换测试的非默认版本与语言；v4 登记后改为 v4 */
+  const SWITCHED = { kind: 'bazi-full', locale: 'zh-Hans', version: 'bazi-full.v3' } as const
+  const VERSION_KEY = `readings.${SWITCHED.kind}.promptVersion` as const
+
+  const switchedReport = () => {
+    const definition = readingDefinition(SWITCHED.kind, SWITCHED.locale, {
+      promptVersion: SWITCHED.version,
+    })
+    if (!definition) throw new Error('switched version missing')
+    return definition.prompt.sections.map((title) => `## ${title}\n\n${title}…`).join('\n\n')
+  }
+  const request = () => ({
+    kind: SWITCHED.kind,
+    input: BIRTH,
+    locale: SWITCHED.locale,
+    site: 'east',
+  })
+  const promptVersionOf = async (id: string | null) =>
+    (
+      await sql<{ prompt_version: string }[]>`
+      select prompt_version from reading where id = ${id}`
+    )[0]?.prompt_version
+
+  it('按设置的版本生成并记录；切换后幂等窗口内再次解锁仍返回已有报告且不重复扣费', async () => {
+    const who = await member(300)
+    const modelKey = await textModel()
+    const run = deps(reportModel(switchedReport()), modelKey, { [VERSION_KEY]: SWITCHED.version })
+    const response = await post(who, request(), run.deps)
+    expect(response.status).toBe(200)
+    const readingId = response.headers.get('x-reading-id')
+    await response.text()
+    await run.settled()
+    expect(await promptVersionOf(readingId)).toBe(SWITCHED.version)
+    expect((await readings(who.workspaceId))[0]).toMatchObject({ status: 'ready' })
+
+    // 管理员切回默认版本后，同一输入在 10 分钟内仍返回已有报告
+    const again = deps(reportModel(switchedReport()), modelKey, { [VERSION_KEY]: '' })
+    expect(await (await post(who, request(), again.deps)).json()).toEqual({
+      reading: { id: readingId, status: 'ready' },
+    })
+    expect((await getCreditBalance(db, who.workspaceId)).available).toBe(200)
+    expect(await promptVersionOf(readingId)).toBe(SWITCHED.version)
+  })
+
+  it('非法版本值：生成使用代码默认版本', async () => {
+    const who = await member(100)
+    const modelKey = await textModel()
+    const run = deps(reportModel(REPORT), modelKey, { 'readings.bazi-full.promptVersion': 'x.v9' })
+    const response = await post(who, unlock(), run.deps)
+    const readingId = response.headers.get('x-reading-id')
+    await response.text()
+    await run.settled()
+    expect(await promptVersionOf(readingId)).toBe(
+      readingDefinition('bazi-full', 'zh-Hant')?.prompt.version,
+    )
+  })
+
+  it('生成中切换版本：读取时的收尾按报告记录的版本进行，报告保存为 ready', async () => {
+    const who = await member(100)
+    const modelKey = await textModel()
+    const run = deps(reportModel(switchedReport()), modelKey, { [VERSION_KEY]: SWITCHED.version })
+    const response = await post(who, request(), run.deps)
+    const readingId = response.headers.get('x-reading-id')
+    await response.text()
+    await run.settled()
+    // 模拟后台同步未完成：报告仍是 generating，读取时才收尾；此时设置已切回默认版本
+    await sql`update reading set status = 'generating', content = '' where id = ${readingId}`
+    const [row] = await sql<{ id: string; kind: string; locale: string; prompt_version: string }[]>`
+      select id, kind, locale, prompt_version from reading where id = ${readingId}`
+    if (!row) throw new Error('reading missing')
+    const saved = await finalizeRecordedReading(db, who.workspaceId, {
+      id: row.id,
+      kind: row.kind as typeof SWITCHED.kind,
+      locale: row.locale,
+      promptVersion: row.prompt_version,
+    })
+    expect(saved).toMatchObject({ status: 'ready', promptVersion: SWITCHED.version })
+    expect(saved?.content).toContain(switchedReport().split('\n')[0])
+  })
+})
+
 describe('删除（隐私政策「如何删除数据」）', () => {
   async function generated(who: Awaited<ReturnType<typeof member>>) {
     const run = deps(reportModel(REPORT), await textModel())
@@ -655,7 +741,13 @@ describe('详批运行时设置', () => {
       const before = await readingConfig(ctx, 'tarot-spread')
       const input = readingSettingsInput.parse({
         readings: [
-          { kind: 'bazi-full', enabled: true, credits: 120, modelKey: ` ${modelKey} ` },
+          {
+            kind: 'bazi-full',
+            enabled: true,
+            credits: 120,
+            modelKey: ` ${modelKey} `,
+            promptVersion: 'bazi-full.v3',
+          },
           { kind: 'tarot-spread', enabled: false, credits: 80, modelKey: '' },
         ],
       })
@@ -669,11 +761,13 @@ describe('详批运行时设置', () => {
         enabled: true,
         credits: 120,
         modelKey,
+        promptVersion: 'bazi-full.v3',
       })
       expect(await readingConfig(ctx, 'tarot-spread')).toEqual({
         enabled: false,
         credits: 80,
         modelKey: '',
+        promptVersion: '',
       })
       const records = await db.select().from(auditLog).where(eq(auditLog.actorUserId, admin.id))
       expect(records.map((r) => r.targetId).sort()).toEqual([
@@ -692,6 +786,24 @@ describe('详批运行时设置', () => {
             scope,
             readingSettingsInput.parse({
               readings: [{ kind: 'saju-full', enabled: true, credits: 100, modelKey: 'missing' }],
+            }),
+          ),
+        ),
+      ).rejects.toMatchObject({ code: 'INVALID_REQUEST' })
+      await expect(
+        runAdminAction({ db, admin }, 'setting.readings.update', (scope) =>
+          writeReadingSettings(
+            scope,
+            readingSettingsInput.parse({
+              readings: [
+                {
+                  kind: 'saju-full',
+                  enabled: true,
+                  credits: 100,
+                  modelKey: '',
+                  promptVersion: 'saju-full.v99',
+                },
+              ],
             }),
           ),
         ),
