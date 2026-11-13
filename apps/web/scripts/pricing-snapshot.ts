@@ -1,3 +1,4 @@
+import { providerSettlesIn } from '@xuanxue/billing/currency'
 import { createDb } from '@xuanxue/db'
 import { log } from '@xuanxue/shared/log'
 import type { Plugin } from 'vite'
@@ -20,15 +21,16 @@ export function examplePricingCatalog(): PricingCatalog {
     })),
     prices: active.flatMap((plan) =>
       (['stripe', 'paypal'] as const).flatMap((provider) =>
-        plan.prices.map((price) => ({
-          ...price,
-          id: `example:${plan.key}:${provider}:${price.interval}`,
-          planId: `example:${plan.key}`,
-          provider,
-          currency: 'USD',
-          active: false,
-          available: false,
-        })),
+        plan.prices
+          .filter((price) => providerSettlesIn(provider, price.currency))
+          .map((price) => ({
+            ...price,
+            id: `example:${plan.key}:${provider}:${price.interval}:${price.currency}`,
+            planId: `example:${plan.key}`,
+            provider,
+            active: false,
+            available: false,
+          })),
       ),
     ),
     providers: [],

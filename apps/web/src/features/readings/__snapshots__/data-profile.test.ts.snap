@@ -1,0 +1,522 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`base 数据档（v1–v3） > 与原摘要逐字段一致 > bazi-base 1`] = `
+{
+  "engineVersion": "1.0.0",
+  "input": {
+    "calendar": "solar",
+    "day": 17,
+    "gender": "female",
+    "location": {
+      "city": "taipei",
+    },
+    "month": 5,
+    "time": {
+      "hour": 8,
+      "minute": 30,
+    },
+    "year": 1990,
+  },
+  "result": {
+    "currentYear": {
+      "branch": "wu",
+      "decadeIndex": 3,
+      "stem": "bing",
+      "tenGod": "pianCai",
+      "year": 2026,
+    },
+    "dayMaster": "ren",
+    "engineVersion": "1.0.0",
+    "fortune": {
+      "approximate": false,
+      "decades": [
+        {
+          "branch": "chen",
+          "endYear": 2003,
+          "index": 0,
+          "startAge": 5,
+          "startYear": 1994,
+          "stem": "geng",
+          "tenGod": "pianYin",
+        },
+        {
+          "branch": "mao",
+          "endYear": 2013,
+          "index": 1,
+          "startAge": 15,
+          "startYear": 2004,
+          "stem": "ji",
+          "tenGod": "zhengGuan",
+        },
+        {
+          "branch": "yin",
+          "endYear": 2023,
+          "index": 2,
+          "startAge": 25,
+          "startYear": 2014,
+          "stem": "wu",
+          "tenGod": "qiSha",
+        },
+        {
+          "branch": "chou",
+          "endYear": 2033,
+          "index": 3,
+          "startAge": 35,
+          "startYear": 2024,
+          "stem": "ding",
+          "tenGod": "zhengCai",
+        },
+        {
+          "branch": "zi",
+          "endYear": 2043,
+          "index": 4,
+          "startAge": 45,
+          "startYear": 2034,
+          "stem": "bing",
+          "tenGod": "pianCai",
+        },
+        {
+          "branch": "hai",
+          "endYear": 2053,
+          "index": 5,
+          "startAge": 55,
+          "startYear": 2044,
+          "stem": "yi",
+          "tenGod": "shangGuan",
+        },
+        {
+          "branch": "xu",
+          "endYear": 2063,
+          "index": 6,
+          "startAge": 65,
+          "startYear": 2054,
+          "stem": "jia",
+          "tenGod": "shiShen",
+        },
+        {
+          "branch": "you",
+          "endYear": 2073,
+          "index": 7,
+          "startAge": 75,
+          "startYear": 2064,
+          "stem": "gui",
+          "tenGod": "jieCai",
+        },
+        {
+          "branch": "shen",
+          "endYear": 2083,
+          "index": 8,
+          "startAge": 85,
+          "startYear": 2074,
+          "stem": "ren",
+          "tenGod": "biJian",
+        },
+        {
+          "branch": "wei",
+          "endYear": 2093,
+          "index": 9,
+          "startAge": 95,
+          "startYear": 2084,
+          "stem": "xin",
+          "tenGod": "zhengYin",
+        },
+      ],
+      "forward": false,
+    },
+    "gender": "female",
+    "hourKnown": true,
+    "pillars": {
+      "day": {
+        "branch": "wu",
+        "hiddenStems": [
+          {
+            "qi": "main",
+            "stem": "ding",
+            "tenGod": "zhengCai",
+          },
+          {
+            "qi": "middle",
+            "stem": "ji",
+            "tenGod": "zhengGuan",
+          },
+        ],
+        "stem": "ren",
+        "tenGod": null,
+      },
+      "hour": {
+        "branch": "chen",
+        "hiddenStems": [
+          {
+            "qi": "main",
+            "stem": "wu",
+            "tenGod": "qiSha",
+          },
+          {
+            "qi": "middle",
+            "stem": "yi",
+            "tenGod": "shangGuan",
+          },
+          {
+            "qi": "residual",
+            "stem": "gui",
+            "tenGod": "jieCai",
+          },
+        ],
+        "stem": "jia",
+        "tenGod": "shiShen",
+      },
+      "month": {
+        "branch": "si",
+        "hiddenStems": [
+          {
+            "qi": "main",
+            "stem": "bing",
+            "tenGod": "pianCai",
+          },
+          {
+            "qi": "middle",
+            "stem": "geng",
+            "tenGod": "pianYin",
+          },
+          {
+            "qi": "residual",
+            "stem": "wu",
+            "tenGod": "qiSha",
+          },
+        ],
+        "stem": "xin",
+        "tenGod": "zhengYin",
+      },
+      "year": {
+        "branch": "wu",
+        "hiddenStems": [
+          {
+            "qi": "main",
+            "stem": "ding",
+            "tenGod": "zhengCai",
+          },
+          {
+            "qi": "middle",
+            "stem": "ji",
+            "tenGod": "zhengGuan",
+          },
+        ],
+        "stem": "geng",
+        "tenGod": "pianYin",
+      },
+    },
+    "shensha": [
+      "kongWang",
+      "kongWang",
+      "taoHua",
+      "taoHua",
+      "tianYiGuiRen",
+      "tianYiGuiRen",
+      "yiMa",
+      "yiMa",
+      "huaGai",
+      "huaGai",
+      "wenChang",
+      "yangRen",
+      "luShen",
+    ],
+    "strength": {
+      "elements": [
+        {
+          "count": 1,
+          "element": "wood",
+          "percent": 15.3,
+        },
+        {
+          "count": 3,
+          "element": "fire",
+          "percent": 27.1,
+        },
+        {
+          "count": 1,
+          "element": "earth",
+          "percent": 15.9,
+        },
+        {
+          "count": 2,
+          "element": "metal",
+          "percent": 28.8,
+        },
+        {
+          "count": 1,
+          "element": "water",
+          "percent": 12.9,
+        },
+      ],
+      "supportPercent": 41.8,
+      "verdict": "weak",
+    },
+    "useful": {
+      "favorable": [
+        "water",
+        "metal",
+      ],
+      "unfavorable": [
+        "wood",
+        "earth",
+        "fire",
+      ],
+    },
+  },
+}
+`;
+
+exports[`base 数据档（v1–v3） > 与原摘要逐字段一致 > numerology-base 1`] = `
+{
+  "engineVersion": "numerology@2",
+  "input": {
+    "day": 29,
+    "month": 11,
+    "name": "Ada Lovelace",
+    "year": 1987,
+  },
+  "result": {
+    "birthday": {
+      "master": true,
+      "value": 11,
+    },
+    "currentYear": 2026,
+    "lifePath": {
+      "master": true,
+      "value": 11,
+    },
+    "name": {
+      "expression": {
+        "master": false,
+        "value": 9,
+      },
+      "personality": {
+        "master": false,
+        "value": 8,
+      },
+      "soulUrge": {
+        "master": false,
+        "value": 1,
+      },
+    },
+    "personalYear": {
+      "master": false,
+      "value": 5,
+    },
+  },
+}
+`;
+
+exports[`base 数据档（v1–v3） > 与原摘要逐字段一致 > ziwei-base 1`] = `
+{
+  "engineVersion": "1.0.0",
+  "input": {
+    "calendar": "solar",
+    "day": 17,
+    "gender": "female",
+    "location": {
+      "city": "taipei",
+    },
+    "month": 5,
+    "time": {
+      "hour": 8,
+      "minute": 30,
+    },
+    "year": 1990,
+  },
+  "result": {
+    "bodyPalaceBranch": "you",
+    "engineVersion": "1.0.0",
+    "fiveElementsClass": "fire6th",
+    "mutagens": [
+      {
+        "mutagen": "ji",
+        "palace": "spouse",
+        "star": "tiantong",
+      },
+      {
+        "mutagen": "quan",
+        "palace": "siblings",
+        "star": "wuqu",
+      },
+      {
+        "mutagen": "lu",
+        "palace": "soul",
+        "star": "taiyang",
+      },
+      {
+        "mutagen": "ke",
+        "palace": "soul",
+        "star": "taiyin",
+      },
+    ],
+    "palaces": [
+      {
+        "branch": "yin",
+        "isBodyPalace": false,
+        "key": "parents",
+        "majorStars": [
+          {
+            "brightness": "ping",
+            "mutagen": null,
+            "star": "tanlang",
+          },
+        ],
+        "stem": "wu",
+      },
+      {
+        "branch": "mao",
+        "isBodyPalace": false,
+        "key": "spirit",
+        "majorStars": [
+          {
+            "brightness": "wang",
+            "mutagen": null,
+            "star": "tianji",
+          },
+          {
+            "brightness": "miao",
+            "mutagen": null,
+            "star": "jumen",
+          },
+        ],
+        "stem": "ji",
+      },
+      {
+        "branch": "chen",
+        "isBodyPalace": false,
+        "key": "property",
+        "majorStars": [
+          {
+            "brightness": "de",
+            "mutagen": null,
+            "star": "ziwei",
+          },
+          {
+            "brightness": "de",
+            "mutagen": null,
+            "star": "tianxiang",
+          },
+        ],
+        "stem": "geng",
+      },
+      {
+        "branch": "si",
+        "isBodyPalace": false,
+        "key": "career",
+        "majorStars": [
+          {
+            "brightness": "xian",
+            "mutagen": null,
+            "star": "tianliang",
+          },
+        ],
+        "stem": "xin",
+      },
+      {
+        "branch": "wu",
+        "isBodyPalace": false,
+        "key": "friends",
+        "majorStars": [
+          {
+            "brightness": "wang",
+            "mutagen": null,
+            "star": "qisha",
+          },
+        ],
+        "stem": "ren",
+      },
+      {
+        "branch": "wei",
+        "isBodyPalace": false,
+        "key": "surface",
+        "majorStars": [],
+        "stem": "gui",
+      },
+      {
+        "branch": "shen",
+        "isBodyPalace": false,
+        "key": "health",
+        "majorStars": [
+          {
+            "brightness": "miao",
+            "mutagen": null,
+            "star": "lianzhen",
+          },
+        ],
+        "stem": "jia",
+      },
+      {
+        "branch": "you",
+        "isBodyPalace": true,
+        "key": "wealth",
+        "majorStars": [],
+        "stem": "yi",
+      },
+      {
+        "branch": "xu",
+        "isBodyPalace": false,
+        "key": "children",
+        "majorStars": [
+          {
+            "brightness": "wang",
+            "mutagen": null,
+            "star": "pojun",
+          },
+        ],
+        "stem": "bing",
+      },
+      {
+        "branch": "hai",
+        "isBodyPalace": false,
+        "key": "spouse",
+        "majorStars": [
+          {
+            "brightness": "miao",
+            "mutagen": "ji",
+            "star": "tiantong",
+          },
+        ],
+        "stem": "ding",
+      },
+      {
+        "branch": "zi",
+        "isBodyPalace": false,
+        "key": "siblings",
+        "majorStars": [
+          {
+            "brightness": "wang",
+            "mutagen": "quan",
+            "star": "wuqu",
+          },
+          {
+            "brightness": "miao",
+            "mutagen": null,
+            "star": "tianfu",
+          },
+        ],
+        "stem": "wu",
+      },
+      {
+        "branch": "chou",
+        "isBodyPalace": false,
+        "key": "soul",
+        "majorStars": [
+          {
+            "brightness": "bu",
+            "mutagen": "lu",
+            "star": "taiyang",
+          },
+          {
+            "brightness": "miao",
+            "mutagen": "ke",
+            "star": "taiyin",
+          },
+        ],
+        "stem": "ji",
+      },
+    ],
+    "soulPalaceBranch": "chou",
+  },
+}
+`;

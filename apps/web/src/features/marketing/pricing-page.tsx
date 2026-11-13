@@ -1,17 +1,16 @@
 import { Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { trackEvent } from '../analytics/track.ts'
 import { GrowthForm } from '../growth/forms.tsx'
-import { FxAttribution } from '../readings/fx-attribution.tsx'
-import { formatPrice, LOCAL_CURRENCY, type LocalRates } from '../readings/price.ts'
-import { getLocalRates, type ReadingPricing } from '../readings/readings.functions.ts'
+import { displayPrice, priceForCredits } from '../readings/price.ts'
+import type { ReadingPricing } from '../readings/readings.functions.ts'
 import { readingTitle } from '../readings/title.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { MarketingShell } from './marketing-shell.tsx'
-import type { PricingCatalog } from './pricing-data.ts'
+import { displayProvider, type PricingCatalog, selectDisplayPrice } from './pricing-data.ts'
 
 /** 未读到运行时设置时的每份详批积分（与 packages/db 设置默认值一致） */
 const DEFAULT_READING_CREDITS = 100
@@ -26,38 +25,38 @@ interface Pack {
   readonly name: string
   readonly credits: number
   readonly creditExpiryDays: number | null
-  /** 美分 */
+  /** 结算币种的最小单位 */
   readonly amount: number | null
-  /** 美元一次性价格已同步到支付商且付款方式可用 */
+  readonly currency: string
+  /** 有一次性价格已同步到支付商且付款方式可用 */
   readonly available: boolean
 }
 
-/** 只展示积分包（模板遗留的订阅套餐不在本产品出售）；价格取美元一次性价格，优先可购买的 */
-export function creditPacks(catalog: PricingCatalog): Pack[] {
+/**
+ * 只展示积分包（模板遗留的订阅套餐不在本产品出售）。价格按界面语言在主展示平台上选价
+ * （与结账同一规则，localize-checkout-currency D5）：zh-Hant 为 TWD、ko 为 KRW，本地价格不可购买时回退 USD。
+ */
+export function creditPacks(catalog: PricingCatalog, locale: string): Pack[] {
+  const provider = displayProvider(catalog)
   return catalog.plans
     .filter((plan) => plan.type === 'credit_pack' && plan.credits > 0)
     .map((plan) => {
       const prices = catalog.prices.filter(
-        (price) =>
-          price.planId === plan.id &&
-          price.interval === null &&
-          price.currency.toUpperCase() === 'USD',
+        (price) => price.planId === plan.id && price.interval === null,
       )
-      const price = prices.find((item) => item.available) ?? prices[0]
+      const price = provider ? selectDisplayPrice(prices, locale, provider) : undefined
       return {
         key: plan.key,
         name: PACK_NAMES[plan.key]?.() ?? plan.name,
         credits: plan.credits,
         creditExpiryDays: plan.creditExpiryDays,
         amount: price?.amount ?? null,
-        available: price?.available ?? false,
+        currency: price?.currency ?? 'USD',
+        available: prices.some((item) => item.available),
       }
     })
     .sort((a, b) => a.credits - b.credits)
 }
-
-const usd = (cents: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 
 /**
  * 积分包能否在本站购买：积分只用于详批，本站本语言没有已开放的详批时（`readings` 为空，
@@ -79,13 +78,8 @@ export function PricingPage({
   readings: ReadingPricing['readings']
 }) {
   const locale = getLocale()
-  // 汇率在浏览器中获取：预渲染时为空，不显示当地货币价格；读取失败时保持为空
   useEffect(() => trackEvent('paywall_view'), [])
-  const [rates, setRates] = useState<LocalRates | null>(null)
-  useEffect(() => {
-    getLocalRates().then(setRates, () => undefined)
-  }, [])
-  const packs = creditPacks(catalog)
+  const packs = creditPacks(catalog, locale)
   const readingsOpen = readings.length > 0
   const anyPurchasable = packs.some((pack) => packPurchasable(pack, readingsOpen))
   const perReading = Math.min(...readings.map((r) => r.credits), DEFAULT_READING_CREDITS)
@@ -115,12 +109,14 @@ export function PricingPage({
             {packs.map((pack) => {
               const count = Math.floor(pack.credits / perReading)
               const best = packs.length > 1 && pack === packs.at(-1)
-              const local =
-                pack.amount !== null && rates && LOCAL_CURRENCY[locale]
-                  ? formatPrice(pack.amount, locale, rates).text
+              const money =
+                pack.amount === null ? null : { amount: pack.amount, currency: pack.currency }
+              const price = money && displayPrice(money, locale)
+              const perPrice =
+                count > 1 && money
+                  ? priceForCredits(perReading, [{ ...money, credits: pack.credits }])
                   : null
-              const each =
-                count > 1 && pack.amount !== null ? usd(Math.round(pack.amount / count)) : null
+              const each = perPrice && displayPrice(perPrice, locale).text
               return (
                 <article
                   key={pack.key}
@@ -138,10 +134,16 @@ export function PricingPage({
                     )}
                   </div>
                   <p className="m-0 flex flex-wrap items-baseline gap-x-2">
-                    {pack.amount !== null && (
-                      <span className="font-bold text-3xl">{usd(pack.amount)}</span>
+                    {price && (
+                      <span className="font-bold text-3xl" data-testid="pricing-pack-price">
+                        {price.text}
+                      </span>
                     )}
-                    {local && <span className="text-sm opacity-75">≈ {local}</span>}
+                    {price?.reference && (
+                      <span className="text-sm opacity-75">
+                        {m.billing_cny_reference({ price: price.reference })}
+                      </span>
+                    )}
                   </p>
                   <ul className="m-0 flex flex-col gap-1 pl-5 text-[15px] leading-relaxed">
                     <li>{m.pricing_pack_credits({ credits: String(pack.credits) })}</li>
@@ -169,9 +171,6 @@ export function PricingPage({
               )
             })}
           </div>
-          {rates?.attribution && LOCAL_CURRENCY[locale] && (
-            <FxAttribution attribution={rates.attribution} />
-          )}
         </section>
 
         {readings.length > 0 && (
@@ -200,6 +199,7 @@ export function PricingPage({
             [m.pricing_faq_refund_q(), m.pricing_faq_refund_a({ days: refundDays })],
             [m.pricing_faq_accuracy_q(), m.pricing_faq_accuracy_a()],
             [m.pricing_faq_pay_q(), m.pricing_faq_pay_a()],
+            [m.pricing_faq_currency_q(), m.pricing_faq_currency_a()],
           ].map(([question, answer]) => (
             <div key={question} className="flex flex-col gap-1">
               <h3 className="m-0 font-semibold text-ink">{question}</h3>

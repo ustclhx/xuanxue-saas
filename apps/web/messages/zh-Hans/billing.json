@@ -64,5 +64,7 @@
   "billing_usage_reference": "关联记录",
   "billing_usage_batch": "批次",
   "billing_usage_no_activity": "尚无积分活动。",
-  "billing_usage_older_activity": "较早的活动"
+  "billing_usage_older_activity": "较早的活动",
+  "billing_paypal_usd_note": "PayPal 以美元结算。",
+  "billing_cny_reference": "约 {price}（参考价，以美元结算）"
 }

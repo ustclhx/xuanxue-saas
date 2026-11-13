@@ -1,3 +1,4 @@
+import { enabledCurrency } from '@xuanxue/billing/currency'
 import { type Database, plan, planPrice } from '@xuanxue/db'
 import { log } from '@xuanxue/shared/log'
 import { asc, desc, eq } from 'drizzle-orm'
@@ -64,7 +65,7 @@ export async function readPricingCatalog(db: Database): Promise<PricingCatalog> 
             price.active &&
             Boolean(providerPriceId) &&
             !providerPriceId.startsWith('unsynced:') &&
-            price.currency.toUpperCase() === 'USD',
+            enabledCurrency(price.currency) !== null,
         })),
       providers: [],
     }

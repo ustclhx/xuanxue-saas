@@ -19,7 +19,7 @@
   "readings_unlock_balance": "Your balance: {balance} credits",
   "readings_unlock_need_credits": "Not enough credits. Pick a pack and you'll come back here to start the reading.",
   "readings_pack_credits": "{credits} credits",
-  "readings_pack_price_note": "Charged in US dollars. Local prices are estimates; your bank or PayPal may apply its own conversion",
+  "readings_pack_price_note": "Charged in the currency shown. Reference prices are for information only.",
   "readings_pay_method": "Payment method",
   "readings_pay_card": "Card",
   "readings_pay_paypal": "PayPal",

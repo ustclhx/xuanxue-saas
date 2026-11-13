@@ -1,4 +1,5 @@
 // biome-ignore-all lint/plugin: 运营通知在后台跨空间消费，只访问系统审计标记与设置。
+import { enabledCurrency, toMajor } from '@xuanxue/billing/currency'
 import { auditLog, type Database, dbSettingStore, getSetting } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, eq } from 'drizzle-orm'
@@ -130,6 +131,14 @@ function webhookRequest(channels: OperationsChannels, event: OperationsEvent, te
   }
 }
 
+/** 运营通知的金额按币种指数换算为主单位（KRW 无小数）；不认识的币种保留最小单位并注明 */
+export function operationsAmount(amount: number, currency: string | undefined): string {
+  const code = enabledCurrency(currency)
+  return code
+    ? `${toMajor(amount, code)} ${code}`
+    : `${amount} ${currency ?? ''} (minor units)`.trim()
+}
+
 /** 网络异常只暴露渠道和状态；异常文本可能带含 token 的请求 URL，不能透传。 */
 export async function sendOperationsChannel(
   channel: OperationsChannel,
@@ -142,7 +151,7 @@ export async function sendOperationsChannel(
     `Reference: ${event.sourceId}`,
     ...(event.workspaceId ? [`Workspace: ${event.workspaceId}`] : []),
     ...(event.amount !== undefined
-      ? [`Amount: ${event.amount} ${event.currency ?? ''} (minor units)`]
+      ? [`Amount: ${operationsAmount(event.amount, event.currency)}`]
       : []),
   ].join('\n')
   const request =

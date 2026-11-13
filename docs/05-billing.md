@@ -5,9 +5,18 @@
 - **订阅套餐**（`plan.type='subscription'`）：按月/年付费，**每月**发放一批积分（年付也按月发放，见 §4「年付按月发放」），并解锁一组权益（可用模型、并发数、席位等）。
 - **积分包**（`plan.type='credit_pack'`）：一次性购买，发放一批有效期较长的积分，不改变权益（或只附加少量权益）。
 - **免费档**：`plan.key='free'`，无需支付记录；注册赠送积分 `signupBonusCredits`（用户领取时触发邮箱验证，验证完成后才发放，见 §4「注册赠送防刷」）。
-- 币种：模板默认单币种（`billing.currency`），多币种作为后续扩展（`plan_price` 已按 currency 建模）。
-  Stripe Checkout 显式传 `adaptive_pricing: { enabled: false }`，买家所在地不会改变扣款币种；
-  回调中出现非 USD 金额时 `money()` 抛出 `BILLING_CURRENCY_MISMATCH`，见 §3「不可重试的失败」。
+- 币种（多币种规则，见 change [`localize-checkout-currency`](../openspec/changes/localize-checkout-currency/design.md)）：
+  - 启用币种为 USD、TWD、KRW，规则集中在 `packages/billing/src/currency.ts`（浏览器可用的
+    `@xuanxue/billing/currency`）：最小单位指数以 Stripe 为准（USD 2、TWD 2、KRW 0），TWD 金额必须是
+    100 的倍数（整元）；展示用 `formatMoney`，换算用 `toMajor` / `toMinor`，任何地方都不写死「除以 100」。
+  - 结算币种由服务端按界面语言与支付平台决定（`currencyFor`）：Stripe 下 zh-Hant → TWD、ko → KRW，
+    其余语言 USD；PayPal 所有语言都以 USD 结算。客户端不能指定币种。
+  - `plan_price` 按 (套餐, 平台, 周期, 币种) 各建一行，每行对应平台上一个独立价格对象（不用 `currency_options`）；
+    所选币种的价格未同步或已停用时回退 USD，展示与结账共用同一选价函数。
+  - Stripe Checkout 显式传 `adaptive_pricing: { enabled: false }`，买家所在地不会改变扣款币种。
+  - 回调入账时 `money(amount, currency, expected)` 要求币种属于启用集合且与价格行（退款为原付款）的币种一致，
+    否则抛出 `BILLING_CURRENCY_MISMATCH`，见 §3「不可重试的失败」。订单、付款、退款与退款申请都以原付款币种的最小单位记录；
+    退款申请与审批金额同样受 TWD 整元约束。
 
 ## 2. 支付 Provider 抽象
 

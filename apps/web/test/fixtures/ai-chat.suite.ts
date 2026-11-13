@@ -32,7 +32,7 @@ import {
   handleChatStopRequest,
   startWorkspaceChat,
 } from '../../src/features/ai/chat.ts'
-import { contextMessageParts } from '../../src/features/ai/chat-context.ts'
+import { CHAT_CONTEXT_PART } from '../../src/features/ai/legacy-chat-context.ts'
 
 // tasks.md 2.3：POST /api/ai/chat 的三种结算（正常完成、实际少于预扣、实际多于预扣），
 // 以及未配置模型工厂时的 503、余额不足与他人对话的拒绝。模型为 AI SDK 的模拟模型。
@@ -618,7 +618,7 @@ export function registerAiChatSuite(
       expect(mock.doStreamCalls).toHaveLength(0)
     })
 
-    it('结果页带入的命盘上下文作为 system 消息进入提示词，计费不变（5.2）', async () => {
+    it('旧版结果页带入的命盘上下文作为 system 消息进入提示词，计费不变（5.2）', async () => {
       const me = await member('context', 100)
       const modelId = await textModel({
         mode: 'per_call',
@@ -632,7 +632,8 @@ export function registerAiChatSuite(
           strength: { elements: [{ element: 'earth', count: 3 }] },
         },
       }
-      // 与 createConversation 带令牌时写入的内容相同
+      // 发布前旧机制（createConversation 带令牌）写入的内容：文本片段 + data-chat-context 数据片段；
+      // 旧对话不迁移，仍按首条 system 消息作为前缀（adopt-subject-chat-readings design 决策 7）
       const conversationId = await db.transaction(async (tx) => {
         const t = scoped(tx, me.workspaceId)
         const [row] = await t
@@ -642,7 +643,10 @@ export function registerAiChatSuite(
         await t.insert(aiMessage, {
           conversationId: row.id,
           role: 'system',
-          parts: contextMessageParts(context),
+          parts: [
+            { type: 'text', text: `Legacy chart context:\n${JSON.stringify(context)}` },
+            { type: CHAT_CONTEXT_PART, data: context },
+          ],
         })
         return row.id
       })

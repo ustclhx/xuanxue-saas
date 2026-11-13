@@ -161,3 +161,27 @@ fixtures 需重新生成并在 PR 中说明差异。
 - 只由本引擎计算、记入 `engineOnly` 回归快照的项：神煞（空亡除外）、八字重量、身强弱、喜用神、
   起运日/时；它们的规则由 `test/rules.test.ts` 按上表逐项覆盖。
 - 回归测试同时现算一次 lunar-javascript，防止 fixtures 与 oracle 漂移。
+
+## 13. 流日（`@xuanxue/bazi/daily`）
+
+每日运势使用的流日计算，也从主入口导出；页面按需加载时可单独 import `@xuanxue/bazi/daily`。
+
+```ts
+import { dailyRelations, dayPillarOf } from '@xuanxue/bazi/daily'
+
+const day = dayPillarOf({ year: 2026, month: 11, day: 13 })
+// 辛卯日，农历十月初五，建除「定」；recommends / avoids 为 tyme4ts Taboo 序号
+const daily = dailyRelations(chart, day) // 也可直接传日期
+// { tenGod, branchTenGod, relations: [{ natal: 'day', natalBranch: 'chen', kind: 'clash' }, …] }
+```
+
+- **日界**：调用方传入的就是「今天」的公历日期，民用日界 00:00 换日；与排盘日柱「23 点换日」无关。
+- **黄历**：日柱、农历日、宜忌、建除取 tyme4ts `SixtyCycleDay`（月令按节气）。宜忌只返回 Taboo 序号、
+  建除返回 `DUTY_KEYS` 中的 key，文字由 web 文案表按语言提供。测试以 lunar-javascript 交叉校验
+  日柱、农历、建除与宜忌。
+- **十神**：`tenGod` 为当日日干对日主，`branchTenGod` 为当日日支本气对日主。
+- **地支关系**：当日日支与本命年、月、日、时各支逐一比较，同一对可同时成立多种：
+  六冲 `clash`、六合 `combine`、三合 `triad`、相刑与自刑 `punish`（规则同 §11）、六害 `harm`
+  （子未、丑午、寅巳、卯辰、申亥、酉戌）。时辰未知时只比较三支。
+- **版本**：`DAILY_RULES_VERSION`（`src/daily.ts`）写入每个流日结果，规则或输出结构变化时递增；
+  与 `ENGINE_VERSION` 分开，流日改动不影响命盘 fixtures。

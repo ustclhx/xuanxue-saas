@@ -1,0 +1,41 @@
+{
+  "kind": "bazi-full",
+  "locale": "zh-Hant",
+  "samples": [
+    {
+      "id": "bazi-hant-01",
+      "note": "虚构：男，有时辰，年中请求",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1988,
+        "month": 3,
+        "day": 21,
+        "time": {
+          "hour": 9,
+          "minute": 15
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-02",
+      "note": "虚构：女，不知道时辰，1 月请求（立春前）",
+      "requestDate": "2026-01-20T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1995,
+        "month": 11,
+        "day": 2,
+        "time": null,
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    }
+  ]
+}

@@ -52,7 +52,17 @@ export function ReadingSettingsForm() {
     event.preventDefault()
     setBusy(true)
     try {
-      const result = await saveReadingSettings({ data: { readings: rows } })
+      const result = await saveReadingSettings({
+        data: {
+          readings: rows.map(({ kind, enabled, credits, modelKey, promptVersion }) => ({
+            kind,
+            enabled,
+            credits,
+            modelKey,
+            promptVersion,
+          })),
+        },
+      })
       apply(await getReadingSettings())
       setMessage(result.ok ? m.admin_paid_readings_saved() : m.admin_save_failed())
     } catch {
@@ -76,7 +86,7 @@ export function ReadingSettingsForm() {
           return (
             <div
               key={row.kind}
-              className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-[1fr_auto_8rem_14rem] sm:items-end"
+              className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-2 sm:items-end lg:grid-cols-5"
             >
               <p className="font-medium text-sm">{KIND_LABELS[row.kind]()}</p>
               <Label
@@ -122,6 +132,34 @@ export function ReadingSettingsForm() {
                     {options.map((model, index) => (
                       <SelectItem key={model.key} index={index + 1} value={model.key}>
                         {model.key}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field
+                label={m.admin_reading_prompt_version()}
+                htmlFor={`reading-prompt-${row.kind}`}
+              >
+                <Select
+                  value={row.promptVersion || UNSET}
+                  onValueChange={(value) =>
+                    update(row.kind, { promptVersion: value === UNSET ? '' : String(value) })
+                  }
+                >
+                  <SelectTrigger
+                    id={`reading-prompt-${row.kind}`}
+                    className="w-full"
+                    placeholder={m.admin_reading_prompt_version_default()}
+                    valueLabel={row.promptVersion || m.admin_reading_prompt_version_default()}
+                  />
+                  <SelectContent>
+                    <SelectItem index={0} value={UNSET}>
+                      {m.admin_reading_prompt_version_default()}
+                    </SelectItem>
+                    {row.promptVersions.map((item, index) => (
+                      <SelectItem key={item.version} index={index + 1} value={item.version}>
+                        {`${item.version} · ${item.locales.join(', ')}`}
                       </SelectItem>
                     ))}
                   </SelectContent>

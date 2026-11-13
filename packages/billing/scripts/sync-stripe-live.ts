@@ -10,6 +10,7 @@ import { activationDatabaseUrl } from './activate-credit-packs.ts'
 /**
  * 生产 Stripe 积分包映射：在 live 账户按目录创建一次性 Product / Price 并写回 plan_price，
  * 同时补齐东方站各语言的本地化 Product / Price（不写库，见 src/stripe/localized.ts）。
+ * TWD / KRW 价格行（localize-checkout-currency）各对应一个独立 Price，分别挂在 zh-Hant / ko 本地化商品上。
  * 目录里只有积分包带价格（订阅停售、无价格），因此不会创建任何订阅价格。
  * 只读显式注入的进程环境；未设置 BILLING_SYNC_CONFIRM=stripe-live 时只列出现状，不调用 Stripe、
  * 不写库，因此演练不需要 Stripe 密钥（可用只读库连接）；写入时才要求 live 密钥。
@@ -30,19 +31,52 @@ export function liveSyncConfig(env: NodeJS.ProcessEnv = process.env) {
     : { apply: false as const, connectionString }
 }
 
+export interface LiveSyncRow {
+  key: string
+  currency: string
+  amount: number
+  mapping: string
+}
+
+const TARGET: Record<string, string> = {
+  USD: 'canonical product + zh-Hant/zh-Hans/ko localized USD variants',
+  TWD: 'zh-Hant localized product',
+  KRW: 'ko localized product',
+}
+
+/** 现状清单与演练要创建的价格；只用数据库数据，不调用 Stripe */
+export function describeLiveSync(rows: readonly LiveSyncRow[]): string[] {
+  const unsynced = (row: LiveSyncRow) => row.mapping.startsWith('unsynced:')
+  const pending = rows.filter(unsynced)
+  return [
+    ...rows.map(
+      (row) =>
+        `${row.key} ${row.currency} ${row.amount} ${unsynced(row) ? 'unsynced' : row.mapping}`,
+    ),
+    `Would create ${pending.length} live Stripe prices:`,
+    ...pending.map(
+      (row) =>
+        `  + ${row.key} ${row.currency} ${row.amount} on ${TARGET[row.currency] ?? 'unsupported currency'}`,
+    ),
+  ]
+}
+
 async function run(config: ReturnType<typeof liveSyncConfig>) {
   const { connectionString } = config
   const db = createDb({ connectionString })
   try {
     const rows = await db
-      .select({ key: plan.key, amount: planPrice.amount, mapping: planPrice.providerPriceId })
+      .select({
+        key: plan.key,
+        currency: planPrice.currency,
+        amount: planPrice.amount,
+        mapping: planPrice.providerPriceId,
+      })
       .from(planPrice)
       .innerJoin(plan, eq(plan.id, planPrice.planId))
       .where(and(eq(planPrice.provider, 'stripe'), eq(plan.type, 'credit_pack')))
-    for (const row of rows)
-      console.log(
-        `${row.key} ${row.amount} ${row.mapping.startsWith('unsynced:') ? 'unsynced' : row.mapping}`,
-      )
+      .orderBy(plan.key, planPrice.currency)
+    for (const line of describeLiveSync(rows)) console.log(line)
     if (!config.apply) {
       console.log('Dry run: set BILLING_SYNC_CONFIRM=stripe-live to create live mappings.')
       return

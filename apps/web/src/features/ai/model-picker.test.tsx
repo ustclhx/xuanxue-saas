@@ -1,5 +1,5 @@
 import type { Pricing } from '@xuanxue/ai'
-import { renderToStaticMarkup, renderToString } from 'react-dom/server'
+import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { m } from '../../paraglide/messages.js'
 import {
@@ -10,7 +10,7 @@ import {
   TYPICAL_REPLY_TOKENS,
   typicalMessageEstimate,
 } from './model-picker.ts'
-import { ChatCostHint, CreditEstimateText, ModelPicker } from './model-picker.tsx'
+import { ModelPicker } from './model-picker.tsx'
 
 const perCall: PickerModel = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -31,35 +31,25 @@ const perToken: PickerModel = {
   pricing: { mode: 'token', inputPer1k: 2, outputPer1k: 10, minCharge: 1 },
 }
 
-describe('CreditEstimateText', () => {
+describe('formatEstimate(creditEstimate)', () => {
+  const text = (model: PickerModel, options: Parameters<typeof creditEstimate>[1]) =>
+    formatEstimate(creditEstimate(model.pricing, options))
+
   it('按次计费显示确定值，并按参数倍率加权', () => {
-    const html = renderToString(<CreditEstimateText model={perCall} inputTokens={1500} />)
-    expect(html).toContain('>5 credits</span>')
-    const weighted = renderToString(
-      <CreditEstimateText model={perCall} inputTokens={0} params={{ quality: 'high' }} />,
-    )
-    expect(weighted).toContain('>10 credits</span>')
-    expect(html).not.toContain('~')
+    expect(text(perCall, { inputTokens: 1500 })).toBe('5 credits')
+    expect(text(perCall, { inputTokens: 0, params: { quality: 'high' } })).toBe('10 credits')
   })
 
   it('按 token 计费显示「约 X–Y」区间：下限为输入估算 + 0 输出，上限加上最大输出', () => {
     // 输入 1500 token → 3 积分；最大输出 2000 token → 3 + 20 = 23 积分
-    const html = renderToString(
-      <CreditEstimateText model={perToken} inputTokens={1500} maxOutputTokens={2000} />,
-    )
-    expect(html).toContain('>~3–23 credits</span>')
+    expect(text(perToken, { inputTokens: 1500, maxOutputTokens: 2000 })).toBe('~3–23 credits')
   })
 
   it('按 token 计费的上限按余额压低最大输出', () => {
     // 余额 8：输入 3 积分后只够 500 输出 token → 上限 3 + 5 = 8
-    const html = renderToString(
-      <CreditEstimateText model={perToken} inputTokens={1500} maxOutputTokens={2000} balance={8} />,
+    expect(text(perToken, { inputTokens: 1500, maxOutputTokens: 2000, balance: 8 })).toBe(
+      '~3–8 credits',
     )
-    expect(html).toContain('>~3–8 credits</span>')
-  })
-
-  it('未选择模型时不渲染', () => {
-    expect(renderToString(<CreditEstimateText model={undefined} inputTokens={0} />)).toBe('')
   })
 })
 
@@ -120,19 +110,21 @@ describe('ModelPicker', () => {
   )
 })
 
-describe('ChatCostHint（specs/ai-chat「发送前显示预计消耗」）', () => {
-  it('显示当前模型名称与每条消息的典型消耗区间', () => {
-    const html = renderToStaticMarkup(<ChatCostHint model={perToken} inputTokens={1500} />)
-    expect(html).toContain('data-testid="chat-cost-model">smart-chat</span>')
+describe('typicalMessageEstimate（每条消息的典型消耗）', () => {
+  it('按 token：输入估算 + 典型回复长度', () => {
     // 输入 1500 → 3 积分；典型回复 150–800 token → +2 / +8 积分
-    const estimate = formatEstimate({ kind: 'range', min: 5, max: 11 })
-    expect(html).toContain(m.ai_chat_per_message({ estimate }))
-    expect(html).toContain('~5–11 credits per message')
+    expect(typicalMessageEstimate(perToken.pricing, { inputTokens: 1500 })).toEqual({
+      kind: 'range',
+      min: 5,
+      max: 11,
+    })
   })
 
-  it('按次计费显示确定值', () => {
-    const html = renderToStaticMarkup(<ChatCostHint model={perCall} inputTokens={10} />)
-    expect(html).toContain('5 credits per message')
+  it('按次计费为确定值', () => {
+    expect(typicalMessageEstimate(perCall.pricing, { inputTokens: 10 })).toEqual({
+      kind: 'exact',
+      credits: 5,
+    })
   })
 
   it('典型回复不超过模型的最大输出', () => {
@@ -140,9 +132,5 @@ describe('ChatCostHint（specs/ai-chat「发送前显示预计消耗」）', () 
       typicalMessageEstimate(perToken.pricing, { inputTokens: 0, maxOutputTokens: 100 }),
     ).toEqual({ kind: 'range', min: 1, max: 1 })
     expect(TYPICAL_REPLY_TOKENS.min).toBeLessThan(TYPICAL_REPLY_TOKENS.max)
-  })
-
-  it('未选择模型时不渲染', () => {
-    expect(renderToStaticMarkup(<ChatCostHint model={undefined} inputTokens={0} />)).toBe('')
   })
 })

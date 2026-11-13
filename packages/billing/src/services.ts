@@ -13,7 +13,13 @@ import {
   user,
 } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
-import { and, eq, inArray, isNull, or } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm'
+import {
+  currencyFor,
+  type EnabledCurrency,
+  enabledCurrency,
+  selectCurrencyPrice,
+} from './currency.ts'
 import { type BillingProviders, lockWorkspaceBilling } from './events.ts'
 import { nextPastDueSince } from './past-due.ts'
 import type { WebhookTransaction } from './pipeline.ts'
@@ -82,28 +88,61 @@ async function owner(db: Database | WebhookTransaction, actor: BillingActor) {
   if (!account) fail('BILLING_OWNER_REQUIRED', 'An active workspace owner is required', 403)
   return account
 }
-async function priceFor(ctx: BillingServiceContext, id: string, provider: PaymentProviderId) {
+/**
+ * 服务端选价（localize-checkout-currency D4/D7）：客户端提交的价格 ID 只用来确定 (套餐, 周期)，
+ * 实际扣款的价格行在同一 (套餐, 平台, 周期) 的可售行中按目标币种选出；`fallbackUsd` 时目标币种缺失回退 USD。
+ * 可售 = 价格与套餐都启用、已同步到平台、币种属于启用集合、周期与套餐类型一致。
+ */
+async function selectPrice(
+  ctx: BillingServiceContext,
+  id: string,
+  provider: PaymentProviderId,
+  currency: EnabledCurrency,
+  fallbackUsd: boolean,
+) {
   providerFor(ctx, provider)
-  const [found] = await ctx.db
+  const [requested] = await ctx.db
+    .select()
+    .from(planPrice)
+    .where(and(eq(planPrice.id, id), eq(planPrice.provider, provider)))
+  if (!requested) fail('BILLING_PRICE_UNAVAILABLE', 'Unknown price for this provider', 400)
+  const rows = await ctx.db
     .select({ price: planPrice, plan })
     .from(planPrice)
     .innerJoin(plan, eq(planPrice.planId, plan.id))
     .where(
       and(
-        eq(planPrice.id, id),
+        eq(planPrice.planId, requested.planId),
         eq(planPrice.provider, provider),
+        requested.interval === null
+          ? isNull(planPrice.interval)
+          : eq(planPrice.interval, requested.interval),
         eq(planPrice.active, true),
         eq(plan.active, true),
       ),
     )
-  if (
-    found?.price.currency.toUpperCase() !== 'USD' ||
-    !found.price.providerPriceId ||
-    found.price.providerPriceId.startsWith('unsynced:') ||
-    (found.plan.type === 'subscription') !== (found.price.interval !== null)
-  )
-    fail('BILLING_PRICE_UNAVAILABLE', 'An active synced USD price is required', 400)
-  return found
+    .orderBy(desc(planPrice.createdAt), desc(planPrice.id))
+  const usable = rows
+    .filter(
+      (row) =>
+        enabledCurrency(row.price.currency) &&
+        row.price.providerPriceId &&
+        !row.price.providerPriceId.startsWith('unsynced:') &&
+        (row.plan.type === 'subscription') === (row.price.interval !== null),
+    )
+    .map((row) => ({ ...row, currency: row.price.currency }))
+  const found = fallbackUsd
+    ? selectCurrencyPrice(usable, currency)
+    : usable.find((row) => row.currency.toUpperCase() === currency)
+  if (!found)
+    fail(
+      'BILLING_PRICE_UNAVAILABLE',
+      fallbackUsd
+        ? 'An active synced price in an enabled currency is required'
+        : `No active synced ${currency} price for this plan`,
+      400,
+    )
+  return { price: found.price, plan: found.plan }
 }
 async function current(db: Database | WebhookTransaction, workspaceId: string) {
   const [winner] = await db
@@ -217,7 +256,14 @@ export async function createCheckout(ctx: BillingServiceContext, input: CreateCh
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input.idempotencyKey))
     fail('BILLING_INVALID_IDEMPOTENCY_KEY', 'Checkout requires an idempotency UUID', 400)
   const account = await owner(ctx.db, input)
-  const { price, plan: selected } = await priceFor(ctx, input.planPriceId, input.provider)
+  // 结算币种只由服务端按界面语言（presentation 由路由按 returnTo 语言生成）与平台决定
+  const { price, plan: selected } = await selectPrice(
+    ctx,
+    input.planPriceId,
+    input.provider,
+    currencyFor(input.presentation?.locale ?? 'en', input.provider),
+    true,
+  )
   const provider = providerFor(ctx, input.provider)
   const mode = selected.type === 'subscription' ? 'subscription' : 'one_time'
   if (mode === 'subscription') {
@@ -364,7 +410,23 @@ export async function changePlan(
   input: SubscriptionInput & { planPriceId: string },
 ) {
   const sub = await ownedSubscription(ctx, input)
-  const { price, plan: target } = await priceFor(ctx, input.planPriceId, sub.provider)
+  const [old] = await ctx.db
+    .select({ plan, price: planPrice })
+    .from(planPrice)
+    .innerJoin(plan, eq(planPrice.planId, plan.id))
+    .where(eq(planPrice.id, sub.planPriceId))
+  if (!old) fail('BILLING_PRICE_UNAVAILABLE', 'Current price unavailable')
+  const currency = enabledCurrency(old.price.currency)
+  if (!currency) fail('BILLING_PRICE_UNAVAILABLE', 'Current price currency unavailable')
+  // Stripe 不允许同一客户的订阅混用币种（design D7）：换档沿用当前订阅的币种，不按界面语言选，
+  // 同币种的目标价格缺失时明确报错，不回退其他币种。
+  const { price, plan: target } = await selectPrice(
+    ctx,
+    input.planPriceId,
+    sub.provider,
+    currency,
+    false,
+  )
   if (target.type !== 'subscription')
     fail('BILLING_PRICE_UNAVAILABLE', 'A subscription price is required', 400)
   const provider = providerFor(ctx, sub.provider)
@@ -375,12 +437,6 @@ export async function changePlan(
       planPriceId: price.id,
       provider: sub.provider,
     }
-  const [old] = await ctx.db
-    .select({ plan, price: planPrice })
-    .from(planPrice)
-    .innerJoin(plan, eq(planPrice.planId, plan.id))
-    .where(eq(planPrice.id, sub.planPriceId))
-  if (!old) fail('BILLING_PRICE_UNAVAILABLE', 'Current price unavailable')
   await locked(ctx, input, async (tx) => {
     unchanged(sub, await reload(tx, sub))
     if ((await current(tx, input.workspaceId))?.id !== sub.id || sub.cancelAtPeriodEnd)

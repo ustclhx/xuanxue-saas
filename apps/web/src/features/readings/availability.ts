@@ -7,7 +7,12 @@ import {
   type SettingsContext,
 } from '@xuanxue/db'
 import { and, eq } from 'drizzle-orm'
-import { type ReadingConfig, readingAvailable, readingConfig } from './config.ts'
+import {
+  type ReadingConfig,
+  type ReadingSwitches,
+  readingAvailable,
+  readingConfig,
+} from './config.ts'
 
 /**
  * 详批是否对访客开放的唯一判定（结果页解锁卡、定价页、应用区计费页与 `POST /api/readings` 共用）。
@@ -26,7 +31,7 @@ export type ReadingBlocker =
   | 'provider-not-configured'
 
 export interface ReadingAvailabilityInput {
-  readonly config: ReadingConfig
+  readonly config: ReadingSwitches
   readonly model: Pick<AiModel, 'provider' | 'providerModelId'> | null
   /** 未装配 AI 能力时为 null */
   readonly env: TextModelEnv | null

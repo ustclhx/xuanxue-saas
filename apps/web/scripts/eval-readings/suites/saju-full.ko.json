@@ -1,0 +1,41 @@
+{
+  "kind": "saju-full",
+  "locale": "ko",
+  "samples": [
+    {
+      "id": "saju-ko-01",
+      "note": "虚构：女，有时辰",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1991,
+        "month": 4,
+        "day": 5,
+        "time": {
+          "hour": 14,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-02",
+      "note": "虚构：男，不知道时辰，1 月请求",
+      "requestDate": "2026-01-10T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1986,
+        "month": 12,
+        "day": 24,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "busan"
+        }
+      }
+    }
+  ]
+}

@@ -11,10 +11,9 @@ import { siteOfLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { useToolEvents } from '../tools/use-tool-events.ts'
-import { FxAttribution } from './fx-attribution.tsx'
 import { toTraditional } from './hant.ts'
 import { Markdown } from './markdown.tsx'
-import { formatPrice, LOCAL_CURRENCY, type LocalRates, usdCentsFor } from './price.ts'
+import { displayPrice, paypalUsdNotice, priceForCredits } from './price.ts'
 import {
   createReadingUnlock,
   getReading,
@@ -30,7 +29,8 @@ import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } 
 
 /**
  * 结果页的「完整分析」解锁卡（add-reading-monetization tasks.md 3.1，原型 Main.dc.html 付费卡）：
- * 反色块依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与当地货币估价，位于免费结果与订阅卡之后，不以弹窗出现。
+ * 反色块依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与按界面语言结算的价格
+ * （zh-Hans 附人民币参考价，localize-checkout-currency），位于免费结果与订阅卡之后，不以弹窗出现。
  *
  * 点击后：未登录 → 本语言登录页；积分不足 → 选择积分包并跳转 Checkout；否则直接生成并流式显示。
  * 登录与 Checkout 的回跳地址带签名的 `unlock` 参数（design 决策 5）。回到本页时：
@@ -384,8 +384,12 @@ function ReadingUnlockCard({
 
   // 支付未开通（没有可购买的积分包）且余额不够时不显示解锁入口，避免走到无法付款的一步
   if (offer.packs.length === 0 && (offer.viewer?.balance ?? 0) < offer.credits) return null
-  const cents = usdCentsFor(offer.credits, offer.packs)
-  const price = cents === null ? null : formatPrice(cents, locale, offer.rates)
+  // 标价取首选付款方式（packs 已按 template.config 顺序排列）的积分包，与结账扣款币种一致
+  const headline = priceForCredits(
+    offer.credits,
+    offer.packs.filter((pack) => pack.provider === offer.packs[0]?.provider),
+  )
+  const price = headline === null ? null : displayPrice(headline, locale)
   const busy = phase.name === 'busy'
   return (
     <section
@@ -420,20 +424,17 @@ function ReadingUnlockCard({
         <span className="font-bold text-[28px]">
           {m.readings_unlock_credits({ credits: String(offer.credits) })}
         </span>
-        {price && (
+        {price && <span className="text-on-inverse/75 text-sm">{price.text}</span>}
+        {price?.reference && (
           <span className="text-on-inverse/75 text-sm">
-            {price.approximate ? m.readings_unlock_approx({ price: price.text }) : price.text}
+            {m.billing_cny_reference({ price: price.reference })}
           </span>
-        )}
-        {price?.approximate && offer.rates.attribution && (
-          <FxAttribution attribution={offer.rates.attribution} />
         )}
       </p>
       {phase.name === 'packs' ? (
         <PackChooser
           packs={offer.packs}
           locale={locale}
-          rates={offer.rates}
           balance={offer.viewer?.balance ?? 0}
           onPick={buy}
         />
@@ -514,13 +515,11 @@ function PhaseMessage({
 function PackChooser({
   packs,
   locale,
-  rates,
   balance,
   onPick,
 }: {
   packs: readonly ReadingPack[]
   locale: string
-  rates: LocalRates
   balance: number
   onPick: (pack: ReadingPack) => void
 }) {
@@ -562,8 +561,7 @@ function PackChooser({
         </div>
       )}
       {shown.map((pack, index) => {
-        const usd = formatPrice(pack.amount, 'en')
-        const local = formatPrice(pack.amount, locale, rates)
+        const price = displayPrice(pack, locale)
         return (
           <button
             key={pack.planPriceId}
@@ -579,16 +577,18 @@ function PackChooser({
           >
             <span>{m.readings_pack_credits({ credits: String(pack.credits) })}</span>
             <span className="font-normal text-sm">
-              {usd.text}
-              {local.approximate && ` · ${m.readings_unlock_approx({ price: local.text })}`}
+              {price.text}
+              {price.reference && ` · ${m.billing_cny_reference({ price: price.reference })}`}
             </span>
           </button>
         )
       })}
-      <p className="m-0 text-on-inverse/75 text-xs">{m.readings_pack_price_note()}</p>
-      {LOCAL_CURRENCY[locale] && rates.attribution && (
-        <FxAttribution attribution={rates.attribution} className="text-on-inverse/75" />
+      {paypalUsdNotice(locale, provider ?? providers[0] ?? '') && (
+        <p className="m-0 text-sm" data-testid="reading-paypal-usd">
+          {m.billing_paypal_usd_note()}
+        </p>
       )}
+      <p className="m-0 text-on-inverse/75 text-xs">{m.readings_pack_price_note()}</p>
     </fieldset>
   )
 }

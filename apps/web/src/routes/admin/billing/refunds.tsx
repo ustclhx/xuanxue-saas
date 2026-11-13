@@ -20,7 +20,7 @@ import {
   retryAdminRefundEmail,
   reviewAdminRefund,
 } from '../../../features/billing/admin.functions.ts'
-import { adminMoney } from '../../../features/billing/admin-display.ts'
+import { adminMoney, partialRefundAmount } from '../../../features/billing/admin-display.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
@@ -187,14 +187,14 @@ function Refund({ row }: { row: RefundRow }) {
             </Button>
           </div>
           <div className="flex flex-wrap items-end gap-3">
-            <Field label={m.admin_partial_amount_usd_cents()} htmlFor={`${row.id}-cents`}>
+            <Field
+              label={m.admin_partial_amount_in_currency({ currency: row.currency.toUpperCase() })}
+              htmlFor={`${row.id}-cents`}
+            >
               <Input
                 id={`${row.id}-cents`}
                 className="w-48"
-                type="number"
-                min="1"
-                max={row.remainingRefundable}
-                step="1"
+                inputMode={row.currency.toUpperCase() === 'USD' ? 'decimal' : 'numeric'}
                 value={cents}
                 onChange={(event) => setCents(event.target.value)}
               />
@@ -204,11 +204,13 @@ function Refund({ row }: { row: RefundRow }) {
               variant="outline"
               disabled={
                 !row.providerAvailable ||
-                !Number.isInteger(Number(cents)) ||
-                Number(cents) <= 0 ||
-                Number(cents) >= row.remainingRefundable
+                partialRefundAmount(cents, row.currency, row.remainingRefundable) === null
               }
-              onClick={() => review('approve', Number(cents))}
+              onClick={() => {
+                // 按币种显示单位输入，提交前换算为最小单位；服务端再按币种约束校验
+                const amount = partialRefundAmount(cents, row.currency, row.remainingRefundable)
+                if (amount !== null) void review('approve', amount)
+              }}
             >
               {m.admin_approve_partial_refund()}
             </Button>

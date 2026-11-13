@@ -205,12 +205,8 @@ export async function prepareBillingEvents(
     if ((kind === 'subscription') !== (priced.plan.type === 'subscription'))
       throw new Error('Billing object plan mismatch')
     if ('providerOrderId' in snapshot) {
-      money(snapshot.amount, snapshot.currency)
-      if (
-        snapshot.amount !== priced.price.amount ||
-        snapshot.currency.toUpperCase() !== priced.price.currency.toUpperCase()
-      )
-        throw new Error('Order price mismatch')
+      money(snapshot.amount, snapshot.currency, priced.price.currency)
+      if (snapshot.amount !== priced.price.amount) throw new Error('Order price mismatch')
     }
     prepared.associations.set(associationKey, {
       workspaceId: metadata.workspaceId,

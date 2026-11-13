@@ -104,3 +104,19 @@ credit_ledger (只增不改的流水)
     - **永久保留**：`credit_*`、`payment`、`subscription`、`purchase`、`refund_request`（`contact_email` 除外）、`audit_log`、`webhook_event` 永久保留以供财务审计。
     - **审计记录不存个人信息**：`audit_log` 对 `app` 只追加，删号时无法改写，因此写入方只记录用户 id、邀请 id 与变更的字段名，不写入邮箱、姓名、头像；用户行匿名化后，审计页显示为已删除用户。
   - 指向 `user` 的列（`credit_ledger.user_id`、`audit_log.actor_user_id` 等）在用户删除后仍指向已匿名化的 user 行，不置空。
+
+## 8. 项目业务表
+
+| 表 | 关键字段 | 说明 |
+|---|---|---|
+| `birth_profile` | id, ws, user_id, label null（≤ 40）, relation（`self`/`partner`/`family`/`friend`/`other`，check 约束）, is_default, **birth** jsonb, full_name null（≤ 120） | 出生档案（add-birth-profiles-daily-horoscope）。`birth` 与 `@xuanxue/bazi` 的 BirthInput 同形，`gender`、`location` 可为 null（西方站只填日期）；`full_name` 只供西方站姓名数字，东方站保存时清空。索引 (ws, user_id, updated_at desc)；部分唯一索引 `(user_id) where is_default` 与 `(user_id) where relation = 'self'` |
+
+`birth_profile` 的约束与隐私规则：
+
+- 只在个人空间使用；查询走 `scoped(db, ws)` 并加 `user_id` 过滤，他人档案按不存在（404）处理。
+- 每人最多 20 份、一份默认、一份「本人」。写操作在事务内按用户取 advisory 锁后检查上限与「本人」唯一；
+  第一份档案自动为默认，删除默认档案时把最近更新的另一份设为默认。
+- 删除档案为硬删除；删号或删空间时由 web 的 `workspaceContentDeletionStep` 在账号匿名化之前删除该空间的全部档案。
+  `reading.input` 是解锁时的输入快照，不引用档案，删除或修改档案不影响已有报告。
+- 出生资料与姓名属于敏感个人信息：不进入分享链接、埋点、应用日志、审计正文、错误上报与 AI 提示词；
+  日志只记录档案 id、错误码与约束名（drizzle 的错误消息含 SQL 参数，不记录）。

@@ -68,7 +68,9 @@ export default defineTemplateConfig({
     },
     refundWindowDays: 30, // 可申请退款的付款时间范围；退款需人工审核，默认不主动退
   },
-  credits: { enabled: true, dailyEnabled: false },
+  // 每日登录赠送：额度、天数上限、有效期与验证邮箱要求用运行时设置默认值 10/10/7 天/要求验证
+  // （enable-subscriptions-daily-credits D6）；同一邮箱的两站账户共享每日与每月额度
+  credits: { enabled: true, dailyEnabled: true },
   marketing: { enabled: true },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css
@@ -80,6 +82,8 @@ export default defineTemplateConfig({
       thinking: { default: 'off', userToggle: false },
       reasoning: { display: false },
       failedReplyRefund: 'no-visible-output',
+      // 回复后的推荐追问（adopt-subject-chat-readings design 决策 4）：平台承担、沿用回复所用模型
+      followUps: { enabled: true, count: 3, charge: false, modelKey: null },
     },
     image: false,
     video: false,
