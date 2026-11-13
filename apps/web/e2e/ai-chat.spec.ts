@@ -232,8 +232,10 @@ test('chat page picks a model, streams replies, stops and explains errors', asyn
       await expect(page.getByRole('listbox')).toHaveCount(0)
       await chooseOption(trigger, { value: model.modelId })
     }).toPass({ timeout: 90_000, intervals: [2_000, 5_000] })
-    await expect(page.getByTestId('chat-cost-model')).toHaveText(model.key)
-    await expect(page.getByTestId('chat-cost-estimate')).toHaveText('2 credits per message')
+    // 预计消耗改用 @xuanxue/ui 的 CreditEstimate：「每条预计 · 余额」，模型名由选择器显示
+    await expect(page.getByTestId('chat-cost')).toContainText(
+      /^2 credits per message · Balance [\d,]+/,
+    )
 
     // 1. 正常回复：只提交本轮用户消息，逐段渲染模拟流
     const messageId = newId()
@@ -431,7 +433,7 @@ test('stop button calls the stop endpoint with the streaming message id', async 
   }
 })
 
-test('result page “Ask AI” opens a chat with the recomputed result as context', async ({
+test('result page “Ask AI” opens a temporary-context chat with the recomputed result', async ({
   page,
 }) => {
   test.setTimeout(180_000)
@@ -453,43 +455,91 @@ test('result page “Ask AI” opens a chat with the recomputed result as contex
     await expect(page.locator('#life-path-result')).toContainText('11')
     await page.getByTestId('ask-ai-button').click()
 
-    // 未登录：登录后回到结果页并自动继续，进入带上下文的新对话
+    // 未登录：登录后回到结果页并自动继续，进入模板临时上下文页（地址只带签名令牌）
     await expect(page).toHaveURL(/\/login\?redirect=%2F%3Funlock%3D/)
     const form = page.getByRole('form', { name: 'Sign in with password' })
     await form.getByLabel('Email', { exact: true }).fill(email)
     await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
     await form.getByRole('button', { name: 'Sign in', exact: true }).click()
-    await expect(page).toHaveURL(new RegExp(`/app/${slug}/chat/${UUID}$`), { timeout: 30_000 })
-    const summary = page.getByTestId('chat-context-summary')
-    await expect(summary).toContainText('Life Path')
-    await expect(summary).toContainText('11')
-
-    // 入口地址只带签名令牌，不含出生日期
-    const contextUrl = visited.find((url) => url.includes('/chat?context='))
-    expect(contextUrl).toBeTruthy()
+    await expect(page).toHaveURL(new RegExp(`/app/${slug}/chat/context\\?token=`), {
+      timeout: 30_000,
+    })
+    const contextUrl = page.url()
+    expect(visited.some((url) => url.includes('/chat?context='))).toBe(false)
     expect(contextUrl).not.toMatch(/1987|11-29/)
-    const conversationId = new URL(page.url()).pathname.split('/').at(-1) ?? ''
+    // 标题区显示「类型 · 关键结论」（取代旧摘要卡）
+    await expect(
+      page.getByRole('heading', { name: /^Your full numerology reading · 11/ }),
+    ).toBeVisible()
+
+    // 模板临时页不自动建对话：点击开场问题后才建对话并发送
+    const bodies: { conversationId?: string }[] = []
+    const messageId = newId()
+    await page.route('**/api/ai/chat', async (route) => {
+      const body = route.request().postDataJSON() as { conversationId?: string }
+      bodies.push(body)
+      await route.fulfill({
+        status: 200,
+        headers: { ...STREAM_HEADERS, 'x-conversation-id': body.conversationId ?? '' },
+        body: uiStream(body.conversationId ?? '', messageId, [
+          'Life Path 11 ',
+          'invites intuition.',
+        ]),
+      })
+    })
+    // 点击可能早于水合：重试直到发出第一条消息
+    const opening = page.getByRole('button', {
+      name: 'How does my Life Path number shape the way I make decisions?',
+    })
+    await expect(async () => {
+      if (bodies.length === 0 && (await opening.count()) > 0) await opening.click()
+      expect(bodies.length).toBeGreaterThan(0)
+    }).toPass({ timeout: 30_000, intervals: [1_000, 2_000] })
+    const messages = page.getByRole('list', { name: 'Messages' })
+    await expect(messages.getByRole('listitem', { name: 'Assistant' })).toHaveText(
+      /Life Path 11 invites intuition\./,
+    )
+    const conversationId = bodies[0]?.conversationId ?? ''
+    expect(conversationId).toMatch(new RegExp(`^${UUID}$`))
     const sql = fixtureDb()
     try {
+      const [conversation] = await sql<{ subject_type: string }[]>`
+        select subject_type from ai_conversation where id = ${conversationId}`
+      expect(conversation?.subject_type).toBe('chart-result')
       const rows = await sql<{ role: string; parts: { type: string; text?: string }[] }[]>`
-        select role, parts from ai_message where conversation_id = ${conversationId}`
-      expect(rows).toHaveLength(1)
-      expect(rows[0]?.role).toBe('system')
+        select role, parts from ai_message where conversation_id = ${conversationId} and role = 'system'`
+      expect(rows[0]?.parts[0]?.text).toMatch(
+        /^\[context type=chart-result version=chart-result-v1\]/,
+      )
       expect(rows[0]?.parts[0]?.text).toContain('"lifePath":{"value":11')
     } finally {
       await sql.end()
     }
 
-    // 他人使用同一入口地址被拒，不建对话
+    // 对话列表显示「结果」来源标签
+    await page.goto(`/app/${slug}/chat`)
+    const list = page.getByRole('region', { name: 'Conversations', exact: true })
+    await expect(list.getByText('Result', { exact: true })).toBeVisible()
+
+    // 篡改的令牌显示无效
+    const tampered = new URL(contextUrl)
+    const token = tampered.searchParams.get('token') ?? ''
+    tampered.searchParams.set(
+      'token',
+      `${token.slice(0, 10)}${token[10] === 'A' ? 'B' : 'A'}${token.slice(11)}`,
+    )
+    await page.goto(tampered.pathname + tampered.search)
+    await expect(page.getByRole('alert')).toContainText('invalid or belongs to another account')
+
+    // 他人使用同一入口地址同样无效，不建对话
     await page.context().clearCookies()
     await register(page, `chat-context-other-${randomUUID()}@example.com`)
     const otherSlug = slugOf(page)
     const other = await seedChatModel(otherSlug)
     try {
       await newConversation(page, otherSlug)
-      const search = new URL(contextUrl ?? '').search
-      await page.goto(`/app/${otherSlug}/chat${search}`)
-      await expect(page.getByRole('alert')).toContainText('not valid for your account')
+      await page.goto(`/app/${otherSlug}/chat/context${new URL(contextUrl).search}`)
+      await expect(page.getByRole('alert')).toContainText('invalid or belongs to another account')
     } finally {
       await removeModel(other.modelId)
     }

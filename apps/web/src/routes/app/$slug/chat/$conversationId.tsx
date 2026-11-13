@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { ChatContextSummary } from '../../../../features/ai/chat-context-summary-card.tsx'
 import { ChatPage } from '../../../../features/ai/chat-page.tsx'
 import { getConversation } from '../../../../features/ai/conversations.functions.ts'
 import { m } from '../../../../paraglide/messages.js'
@@ -32,16 +33,19 @@ export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
 function ConversationPage() {
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
+  // 发布前的旧带盘对话在对话之上显示原命盘摘要（legacy-chat-context.ts）
   return (
-    <ChatPage
-      key={page.conversation.id}
-      slug={slug}
-      conversation={page.conversation}
-      storedMessages={page.messages}
-      models={page.models}
-      chatContext={page.chatContext}
-      readOnly={page.readOnly}
-      initialFeedback={page.feedback}
-    />
+    <div className="grid gap-4">
+      {page.chatContext ? <ChatContextSummary context={page.chatContext} /> : null}
+      <ChatPage
+        key={page.conversation.id}
+        slug={slug}
+        conversation={page.conversation}
+        storedMessages={page.messages}
+        models={page.models}
+        readOnly={page.readOnly}
+        initialFeedback={page.feedback}
+      />
+    </div>
   )
 }

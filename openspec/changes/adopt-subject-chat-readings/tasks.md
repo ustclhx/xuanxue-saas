@@ -15,24 +15,24 @@
 
 ## 2. 波次 A-1：对象类型注册与推荐问题（依赖：无）
 
-- [ ] 2.1 【Claude】新增 `features/readings/follow-up-questions.ts`：按「详批类型 × 语言」（bazi-full、ziwei-full：zh-Hant / zh-Hans；saju-full、saju-compat：ko；numerology-full：en；tarot-spread：en / zh-Hant / zh-Hans / ko）各提供 3 个开场问题，按 1.1 Q5 的结论交使用者审定。验证：单元测试断言 `catalog` 中每个 `kind × locale` 都有 3 条、长度 ≤ 200，且全部通过 `readings/compliance.ts` 的 `checkCompliance`
-- [ ] 2.2 【Claude】新增 `features/readings/subjects.ts`，实现 `reading` provider（`resolve` 同时校验 `workspaceId`、`userId` 与 `status = 'ready'`；`title`、`defaultModelKey = reading.modelKey`、按报告语言的 `suggestions`；`context()` 返回 design 决策 3 的 `reading-v1` 上下文，不含出生输入）与 `chart-result` 类型（无 `resolve`）及其上下文构造函数（决策 2，`chart-result-v1`，标题为「类型 · 关键结论」≤ 200 字符）；四种语言的来源标签放 `messages/<locale>/subject-readings.json`。在 `features/ai/subject-providers.ts` 中注册两种类型。验证：集成测试覆盖本人 ready 报告可解析、他人报告 / 他空间 / generating / failed / 不存在一律为 null；`startSubjectConversation` 写入的首条 system 消息以 `[context type=reading version=reading-v1]` 开头且不含出生日期；`subject-context.providers.test.ts` 通过
-- [ ] 2.3 【Claude】`chart-result` 上下文与旧 `contextSystemText` 的口径对照：说明文字保留合规边界与「用用户语言作答」，JSON 只含 `{ kind, result }`。验证：单元测试对八字、紫微、塔罗三种复算结果断言上下文通过 `subjectSystemContextSchema`、不含姓名与出生字段；`pnpm check`、`pnpm typecheck` 通过
+- [x] 2.1 【Claude】新增 `features/readings/follow-up-questions.ts`：按「详批类型 × 语言」（bazi-full、ziwei-full：zh-Hant / zh-Hans；saju-full、saju-compat：ko；numerology-full：en；tarot-spread：en / zh-Hant / zh-Hans / ko）各提供 3 个开场问题，按 1.1 Q5 的结论交使用者审定。验证：单元测试断言 `catalog` 中每个 `kind × locale` 都有 3 条、长度 ≤ 200，且全部通过 `readings/compliance.ts` 的 `checkCompliance`
+- [x] 2.2 【Claude】新增 `features/readings/subjects.ts`，实现 `reading` provider（`resolve` 同时校验 `workspaceId`、`userId` 与 `status = 'ready'`；`title`、`defaultModelKey = reading.modelKey`、按报告语言的 `suggestions`；`context()` 返回 design 决策 3 的 `reading-v1` 上下文，不含出生输入）与 `chart-result` 类型（无 `resolve`）及其上下文构造函数（决策 2，`chart-result-v1`，标题为「类型 · 关键结论」≤ 200 字符）；四种语言的来源标签放 `messages/<locale>/subject-readings.json`。在 `features/ai/subject-providers.ts` 中注册两种类型。验证：集成测试覆盖本人 ready 报告可解析、他人报告 / 他空间 / generating / failed / 不存在一律为 null；`startSubjectConversation` 写入的首条 system 消息以 `[context type=reading version=reading-v1]` 开头且不含出生日期；`subject-context.providers.test.ts` 通过
+- [x] 2.3 【Claude】`chart-result` 上下文与旧 `contextSystemText` 的口径对照：说明文字保留合规边界与「用用户语言作答」，JSON 只含 `{ kind, result }`。验证：单元测试对八字、紫微、塔罗三种复算结果断言上下文通过 `subjectSystemContextSchema`、不含姓名与出生字段；`pnpm check`、`pnpm typecheck` 通过
 
 ## 3. 波次 A-2：预计消耗改用模板组件（依赖：无）
 
-- [ ] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
-- [ ] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
-- [ ] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
+- [x] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
+- [x] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
+- [x] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
 - [ ] 3.4 【Codex】余额不足弹窗验收：在对话页与（组 5 合并后的）嵌入对话中，余额低于最低预扣时发送消息，弹出 `InsufficientCreditsDialog` 并显示预计消耗与余额，「购买积分包」跳到账单页积分包区。验证：本地 e2e 或浏览器截图存入证据目录
 
 ## 4. 波次 B-1：结果页入口迁移与过渡兼容（依赖：组 2；chat-page.tsx 在组 3 之后 rebase）
 
-- [ ] 4.1 【Claude】`createChatContextLink` 改用 `issueSubjectContext`（`chart-result`、个人空间、标题与开场问题），返回 `/app/<slug>/chat/context?token=`；保留复算、`safeReturnPath`、`login` / `unavailable` 合同与日志事件。验证：单元 / 集成测试断言返回地址格式、令牌绑定用户与空间、KV 中无出生字段；`ask-ai-entry` 的未登录回跳续接用例通过
-- [ ] 4.2 【Claude】新增 `features/ai/legacy-chat-context.ts`：保留旧令牌验签与旧 KV 读取（只读）、旧 system 片段解析；`routes/app/$slug/chat/index.tsx` 的 `?context=` 分支改为 `upgradeLegacyChatContext`——有效时换发新令牌并重定向到 `/chat/context?token=`，过期 / 无效时渲染模板 `TemporarySubjectChat` 的对应状态。代码与 PR 描述注明「下一次发布删除换发逻辑」（组 8）。验证：集成测试用旧 `issueChatContext` 生成令牌，断言有效时重定向且新令牌可建对话、过期时显示返回原页、他人令牌显示无效
-- [ ] 4.3 【Claude】旧对话摘要：`ChatContextSummary` 与解析函数移入 `legacy-chat-context.ts` / `chat-context-summary.ts`，由 `routes/app/$slug/chat/$conversationId.tsx` 在 `ChatPage` 之上渲染；删除 `ChatPage` 的 `chatContext` 属性。验证：组件测试用带 `data-chat-context` 的旧 system parts 断言摘要显示；新对象对话不显示旧摘要
-- [ ] 4.4 【Claude】删除 `chat-context.ts` 的签发与 `contextMessageParts`、`chat-context.functions.ts#getChatContext`、`chat-context-start.tsx`、`createConversation` 的 `context` 参数与 `CHAT_CONTEXT_EXPIRED` 分支，更新 `chat-context.test.ts`、`test/fixtures/ai-chat.suite.ts`。验证：`grep -rn "chat?context=\|issueChatContext\|createConversation({ data: { slug, context" apps/web/src` 只剩兼容入口；`pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm test` 通过
-- [ ] 4.5 【Claude】更新 `e2e/ai-chat.spec.ts` 结果页带盘用例：地址为 `/chat/context?token=`、标题区显示「类型 · 关键结论」、点击开场问题后建对话并收到引用命盘的回复、对话列表显示「结果」标签；另加篡改令牌显示无效的用例。验证：本地 `pnpm --filter @xuanxue/web test:e2e -- ai-chat` 通过
+- [x] 4.1 【Claude】`createChatContextLink` 改用 `issueSubjectContext`（`chart-result`、个人空间、标题与开场问题），返回 `/app/<slug>/chat/context?token=`；保留复算、`safeReturnPath`、`login` / `unavailable` 合同与日志事件。验证：单元 / 集成测试断言返回地址格式、令牌绑定用户与空间、KV 中无出生字段；`ask-ai-entry` 的未登录回跳续接用例通过
+- [x] 4.2 【Claude】新增 `features/ai/legacy-chat-context.ts`：保留旧令牌验签与旧 KV 读取（只读）、旧 system 片段解析；`routes/app/$slug/chat/index.tsx` 的 `?context=` 分支改为 `upgradeLegacyChatContext`——有效时换发新令牌并重定向到 `/chat/context?token=`，过期 / 无效时渲染模板 `TemporarySubjectChat` 的对应状态。代码与 PR 描述注明「下一次发布删除换发逻辑」（组 8）。验证：集成测试用旧 `issueChatContext` 生成令牌，断言有效时重定向且新令牌可建对话、过期时显示返回原页、他人令牌显示无效
+- [x] 4.3 【Claude】旧对话摘要：`ChatContextSummary` 与解析函数移入 `legacy-chat-context.ts` / `chat-context-summary.ts`，由 `routes/app/$slug/chat/$conversationId.tsx` 在 `ChatPage` 之上渲染；删除 `ChatPage` 的 `chatContext` 属性。验证：组件测试用带 `data-chat-context` 的旧 system parts 断言摘要显示；新对象对话不显示旧摘要
+- [x] 4.4 【Claude】删除 `chat-context.ts` 的签发与 `contextMessageParts`、`chat-context.functions.ts#getChatContext`、`chat-context-start.tsx`、`createConversation` 的 `context` 参数与 `CHAT_CONTEXT_EXPIRED` 分支，更新 `chat-context.test.ts`、`test/fixtures/ai-chat.suite.ts`。验证：`grep -rn "chat?context=\|issueChatContext\|createConversation({ data: { slug, context" apps/web/src` 只剩兼容入口；`pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm test` 通过
+- [x] 4.5 【Claude】更新 `e2e/ai-chat.spec.ts` 结果页带盘用例：地址为 `/chat/context?token=`、标题区显示「类型 · 关键结论」、点击开场问题后建对话并收到引用命盘的回复、对话列表显示「结果」标签；另加篡改令牌显示无效的用例。验证：本地 `pnpm --filter @xuanxue/web test:e2e -- ai-chat` 通过
 
 ## 5. 波次 B-2：报告页内追问（依赖：组 2、1.2 设计稿确认；1.1 Q3）
 
@@ -44,7 +44,7 @@
 
 - [ ] 6.1 【Codex】`template.config.ts` 设置 `ai.text.followUps`（`enabled: true`，`count: 3`，`charge` 与 `modelKey` 按 1.1 Q2）。验证：`pnpm typecheck` 通过；本地对话一轮后显示 3 个推荐问题，点击即发送且刷新后历史中没有推荐问题本身；模型故障注入下回复正常、不显示推荐区
 - [ ] 6.2 【Codex】评分与反馈验收（模板已接线，项目不改代码）：在对话页与报告追问中依次点赞、改点踩选原因并勾选共享、撤销，后台 `/admin/feedback` 统计与原因筛选随之变化，共享查看只显示被评回复与之前最多 3 条消息、不含报告上下文，且写审计。验证：浏览器截图与审计记录存入证据目录
-- [ ] 6.3 【Claude】隐私政策（`content/legal/{east/zh-Hant,east/zh-Hans,east/ko,west/en}/privacy.mdx`）补充：反馈共享（逐条同意、可撤回、保留期随对话删除）；报告追问会把报告内容作为上下文发送给模型服务商；删除报告会一并清除追问内容。措辞经使用者确认（Open Questions 6）。验证：四个语言版本内容一致，`pnpm build` 预渲染通过，使用者确认记录在 PR 描述中
+- [x] 6.3 【Claude】隐私政策（`content/legal/{east/zh-Hant,east/zh-Hans,east/ko,west/en}/privacy.mdx`）补充：反馈共享（逐条同意、可撤回、保留期随对话删除）；报告追问会把报告内容作为上下文发送给模型服务商；删除报告会一并清除追问内容。措辞经使用者确认（Open Questions 6）。验证：四个语言版本内容一致，`pnpm build` 预渲染通过，使用者确认记录在 PR 描述中
 
 ## 7. 集成验收（依赖：组 2–6 全部合并）
 

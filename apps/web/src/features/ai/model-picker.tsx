@@ -1,12 +1,6 @@
 import { Label, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { m } from '../../paraglide/messages.js'
-import {
-  creditEstimate,
-  type EstimateOptions,
-  formatEstimate,
-  type PickerModel,
-  typicalMessageEstimate,
-} from './model-picker.ts'
+import type { PickerModel } from './model-picker.ts'
 
 /** 模型下拉框；`models` 已按空间权益与启用状态过滤（`getPickerModels`） */
 export function ModelPicker({
@@ -41,42 +35,5 @@ export function ModelPicker({
         </SelectContent>
       </Select>
     </div>
-  )
-}
-
-/** 提交按钮旁的预计消耗 */
-export function CreditEstimateText({
-  model,
-  ...options
-}: { model: PickerModel | undefined } & EstimateOptions) {
-  if (!model) return null
-  return (
-    <span data-testid="credit-estimate" className="text-muted-foreground text-sm">
-      <span className="sr-only">{m.ai_chat_estimate_label()}: </span>
-      {formatEstimate(creditEstimate(model.pricing, options))}
-    </span>
-  )
-}
-
-/**
- * 对话输入区的模型名称与每条消息的预计积分（specs/ai-chat「发送前显示预计消耗」）：
- * 按模型单价 × 典型回复长度估算，只用于展示。
- */
-export function ChatCostHint({
-  model,
-  inputTokens,
-}: {
-  model: PickerModel | undefined
-  inputTokens: number
-}) {
-  if (!model) return null
-  const estimate = formatEstimate(typicalMessageEstimate(model.pricing, { inputTokens }))
-  return (
-    <span data-testid="chat-cost-hint" className="text-muted-foreground text-sm">
-      <span data-testid="chat-cost-model">{model.key}</span>
-      {' · '}
-      <span className="sr-only">{m.ai_chat_estimate_label()}: </span>
-      <span data-testid="chat-cost-estimate">{m.ai_chat_per_message({ estimate })}</span>
-    </span>
   )
 }

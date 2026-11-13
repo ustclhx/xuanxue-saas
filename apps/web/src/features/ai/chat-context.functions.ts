@@ -3,6 +3,7 @@ import { getRequest } from '@tanstack/react-start/server'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { z } from 'zod'
+import { getLocale } from '../../paraglide/runtime.js'
 import { withBilling } from '../../server/feature-gates.ts'
 import { withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
@@ -11,7 +12,6 @@ import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
 import { readingDefinition } from '../readings/catalog.ts'
 import { safeReturnPath } from '../site/return-path.ts'
-import { CHAT_CONTEXT_PARAM, issueChatContext, openChatContext } from './chat-context.ts'
 
 /** 结果页「用这个结果问 AI」的结果：未登录时由页面跳转登录，成功时跳到对话页 */
 export type ChatContextLink =
@@ -21,7 +21,8 @@ export type ChatContextLink =
 
 /**
  * 结果页提交原始输入：服务端按详批注册表复算（与付费详批同一份校验与摘要，不含出生信息），
- * 存入 KV 并签发 30 分钟、绑定当前用户的令牌。返回的地址只带令牌。
+ * 经模板临时上下文令牌（`chart-result`，30 分钟，绑定当前用户与个人空间）进入
+ * `/app/<slug>/chat/context?token=`（adopt-subject-chat-readings design 决策 2）。返回的地址只带令牌。
  */
 export const createChatContextLink = createServerFn({ method: 'POST' })
   .validator(
@@ -56,30 +57,46 @@ export const createChatContextLink = createServerFn({ method: 'POST' })
     const recomputed = definition.recompute(data.input, new Date())
     const resolved = await resolveDefaultWorkspace(runtime.db, user, null, runtime.site)
     if (!resolved) return { status: 'unavailable' }
-    const token = await issueChatContext(
+    const { issueChartResultContext, chartResultChatHref } = await import(
+      '../readings/chart-result-context.ts'
+    )
+    const { token } = await issueChartResultContext(
       { secret: runtime.config.BETTER_AUTH_SECRET, cache: runtime.cache },
       {
         userId: user.id,
-        // 复算结果只含 JSON 值；经一次序列化固定为可存储、可传给页面的形态
-        context: { kind: definition.kind, result: JSON.parse(JSON.stringify(recomputed.result)) },
+        workspaceId: resolved.workspace.id,
+        kind: definition.kind,
+        // 复算结果只含 JSON 值；经一次序列化固定为可存储的形态
+        result: JSON.parse(JSON.stringify(recomputed.result)),
+        locale: data.locale,
         returnTo,
       },
     )
     log.info('ai.chat_context.issued', { kind: definition.kind })
-    return {
-      status: 'ok',
-      href: `/app/${resolved.workspace.slug}/chat?${CHAT_CONTEXT_PARAM}=${encodeURIComponent(token)}`,
-    }
+    return { status: 'ok', href: chartResultChatHref(resolved.workspace.slug, token) }
   })
 
-/** 对话列表页带 `?context=` 时读取上下文，用于显示摘要或过期提示（只读，不建对话） */
-export const getChatContext = createServerFn({ method: 'GET' })
+/**
+ * 旧链接 `chat?context=<token>` 的换发（design 决策 7）：有效时返回新令牌（由路由重定向到临时上下文页），
+ * 过期或无效时返回对应状态。**本 change 发布后的下一次发布删除**（tasks.md 8.1）。
+ */
+export const upgradeLegacyChatContextLink = createServerFn({ method: 'GET' })
   .middleware([withBilling, withWorkspace])
-  .inputValidator(z.object({ slug: z.string().min(1).max(64), token: z.string().min(1).max(1024) }))
+  .inputValidator(
+    z.strictObject({ slug: z.string().min(1).max(64), token: z.string().min(1).max(1024) }),
+  )
   .handler(async ({ context, data }) => {
     const runtime = getWebRuntime()
-    return openChatContext(
+    const { upgradeLegacyChatContext } = await import('./legacy-chat-context.ts')
+    const upgraded = await upgradeLegacyChatContext(
       { secret: runtime.config.BETTER_AUTH_SECRET, cache: runtime.cache },
-      { userId: context.user.id, token: data.token },
+      {
+        userId: context.user.id,
+        workspaceId: context.workspace.id,
+        token: data.token,
+        locale: getLocale(),
+      },
     )
+    log.info('ai.chat_context.upgraded', { status: upgraded.status })
+    return upgraded
   })

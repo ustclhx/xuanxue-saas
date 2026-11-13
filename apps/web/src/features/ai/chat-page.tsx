@@ -12,8 +12,7 @@ import { FormAlert } from '../auth/auth-layout.tsx'
 import { pricingSnapshot } from '../marketing/pricing-snapshot.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
-import { type ChatContext, contextSystemText } from './chat-context.ts'
-import { ChatContextSummary } from './chat-context-start.tsx'
+import { ChatCost } from './chat-cost.tsx'
 import { CreditsDialog, formatNumber, MessageFeedback, SuggestionChips } from './chat-extras.tsx'
 import { ChatUnavailable } from './chat-unavailable.tsx'
 import {
@@ -34,7 +33,7 @@ import {
 import { renameConversation } from './conversations.functions.ts'
 import type { MessageFeedbackValue } from './feedback.ts'
 import type { PickerModel } from './model-picker.ts'
-import { ChatCostHint, ModelPicker } from './model-picker.tsx'
+import { ModelPicker } from './model-picker.tsx'
 import { getFollowUps, setMessageFeedback } from './subject-chat.functions.ts'
 
 const BILLING_CODES = new Set(['INSUFFICIENT_CREDITS', 'CREDIT_DEBT', 'UPGRADE_REQUIRED'])
@@ -53,7 +52,6 @@ export function ChatPage({
   conversation,
   storedMessages,
   models,
-  chatContext = null,
   readOnly,
   variant = 'page',
   openingSuggestions = [],
@@ -65,8 +63,6 @@ export function ChatPage({
   conversation: { id: string; title: string }
   storedMessages: readonly StoredMessage[]
   models: readonly PickerModel[]
-  /** 从结果页带入的命盘上下文；每轮请求由服务端从对话的 system 消息带上 */
-  chatContext?: ChatContext | null
   readOnly: boolean
   /** embedded：嵌入其他页面（对象对话），不显示标题栏与返回链接 */
   variant?: 'page' | 'embedded'
@@ -103,6 +99,8 @@ export function ChatPage({
   const canToggleThinkingRef = useRef(canToggleThinking)
   canToggleThinkingRef.current = canToggleThinking
   const titleRef = useRef(title)
+  // 每轮回复结束后刷新一次余额（预计消耗不轮询）
+  const [turns, setTurns] = useState(0)
 
   const transport = useMemo(
     () =>
@@ -126,6 +124,7 @@ export function ChatPage({
     messages: initialMessages,
     transport,
     onFinish: ({ messages, isError, isAbort }) => {
+      setTurns((n) => n + 1)
       if (!isAbort) trackEvent(isError ? 'generate_fail' : 'generate_success')
       const replyId = messages.at(-1)?.metadata?.messageId
       if (!isError && !isAbort && replyId && templateConfig.ai.text.followUps.enabled)
@@ -147,8 +146,8 @@ export function ChatPage({
   })
 
   const busy = status === 'submitted' || status === 'streaming'
+  // 固定前缀（对象上下文、旧带盘上下文）的长度由 ChatCost 从服务端读取后计入
   const inputTokens = estimateInputTokens([
-    ...(chatContext ? [{ text: contextSystemText(chatContext) }] : []),
     ...messages.map((message) => ({ text: messageText(message) })),
     { text: input },
   ])
@@ -237,7 +236,6 @@ export function ChatPage({
           </Link>
         </div>
       ) : null}
-      {chatContext ? <ChatContextSummary context={chatContext} /> : null}
       <ol aria-label={m.ai_chat_messages_label()} className="grid gap-4">
         {messages.map((message) => {
           const live = busy && message === messages.at(-1)
@@ -348,7 +346,13 @@ export function ChatPage({
                   {m.ai_chat_send()}
                 </Button>
               )}
-              <ChatCostHint model={model} inputTokens={inputTokens} />
+              <ChatCost
+                slug={slug}
+                conversationId={conversation.id}
+                refreshKey={turns}
+                model={model}
+                inputTokens={inputTokens}
+              />
             </div>
           </HydratedControls>
         </form>

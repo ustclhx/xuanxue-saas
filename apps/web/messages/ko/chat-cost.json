@@ -1,0 +1,5 @@
+{
+  "chat_cost_balance": "잔액 {credits}",
+  "chat_cost_balance_low": "잔액 {credits}(부족)",
+  "chat_cost_pending": "사용량 계산 중"
+}

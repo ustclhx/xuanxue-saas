@@ -82,6 +82,8 @@ export default defineTemplateConfig({
       thinking: { default: 'off', userToggle: false },
       reasoning: { display: false },
       failedReplyRefund: 'no-visible-output',
+      // 回复后的推荐追问（adopt-subject-chat-readings design 决策 4）：平台承担、沿用回复所用模型
+      followUps: { enabled: true, count: 3, charge: false, modelKey: null },
     },
     image: false,
     video: false,
