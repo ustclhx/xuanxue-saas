@@ -1,7 +1,7 @@
 import type { Branch, Stem } from '@xuanxue/bazi'
 import { m } from '../../paraglide/messages.js'
 import { BRANCH_HANZI, ganzhi, ganzhiHangul, STEM_HANZI } from '../tools/bazi/glyphs.ts'
-import type { ChatContext } from './chat-context.ts'
+import type { ChatContext } from './legacy-chat-context.ts'
 
 /**
  * 对话页首条消息前的上下文摘要：只挑几项最能辨认「是哪一张盘」的结论，完整结果在提示词里。

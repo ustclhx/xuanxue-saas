@@ -12,8 +12,6 @@ import { FormAlert } from '../auth/auth-layout.tsx'
 import { pricingSnapshot } from '../marketing/pricing-snapshot.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { HydratedControls } from '../workspace/components.tsx'
-import type { ChatContext } from './chat-context.ts'
-import { ChatContextSummary } from './chat-context-start.tsx'
 import { ChatCost } from './chat-cost.tsx'
 import { CreditsDialog, formatNumber, MessageFeedback, SuggestionChips } from './chat-extras.tsx'
 import { ChatUnavailable } from './chat-unavailable.tsx'
@@ -54,7 +52,6 @@ export function ChatPage({
   conversation,
   storedMessages,
   models,
-  chatContext = null,
   readOnly,
   variant = 'page',
   openingSuggestions = [],
@@ -66,8 +63,6 @@ export function ChatPage({
   conversation: { id: string; title: string }
   storedMessages: readonly StoredMessage[]
   models: readonly PickerModel[]
-  /** 从结果页带入的命盘上下文；每轮请求由服务端从对话的 system 消息带上 */
-  chatContext?: ChatContext | null
   readOnly: boolean
   /** embedded：嵌入其他页面（对象对话），不显示标题栏与返回链接 */
   variant?: 'page' | 'embedded'
@@ -241,7 +236,6 @@ export function ChatPage({
           </Link>
         </div>
       ) : null}
-      {chatContext ? <ChatContextSummary context={chatContext} /> : null}
       <ol aria-label={m.ai_chat_messages_label()} className="grid gap-4">
         {messages.map((message) => {
           const live = busy && message === messages.at(-1)

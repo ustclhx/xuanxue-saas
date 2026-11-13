@@ -23,16 +23,16 @@
 
 - [x] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
 - [x] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
-- [ ] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
+- [x] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
 - [ ] 3.4 【Codex】余额不足弹窗验收：在对话页与（组 5 合并后的）嵌入对话中，余额低于最低预扣时发送消息，弹出 `InsufficientCreditsDialog` 并显示预计消耗与余额，「购买积分包」跳到账单页积分包区。验证：本地 e2e 或浏览器截图存入证据目录
 
 ## 4. 波次 B-1：结果页入口迁移与过渡兼容（依赖：组 2；chat-page.tsx 在组 3 之后 rebase）
 
-- [ ] 4.1 【Claude】`createChatContextLink` 改用 `issueSubjectContext`（`chart-result`、个人空间、标题与开场问题），返回 `/app/<slug>/chat/context?token=`；保留复算、`safeReturnPath`、`login` / `unavailable` 合同与日志事件。验证：单元 / 集成测试断言返回地址格式、令牌绑定用户与空间、KV 中无出生字段；`ask-ai-entry` 的未登录回跳续接用例通过
-- [ ] 4.2 【Claude】新增 `features/ai/legacy-chat-context.ts`：保留旧令牌验签与旧 KV 读取（只读）、旧 system 片段解析；`routes/app/$slug/chat/index.tsx` 的 `?context=` 分支改为 `upgradeLegacyChatContext`——有效时换发新令牌并重定向到 `/chat/context?token=`，过期 / 无效时渲染模板 `TemporarySubjectChat` 的对应状态。代码与 PR 描述注明「下一次发布删除换发逻辑」（组 8）。验证：集成测试用旧 `issueChatContext` 生成令牌，断言有效时重定向且新令牌可建对话、过期时显示返回原页、他人令牌显示无效
-- [ ] 4.3 【Claude】旧对话摘要：`ChatContextSummary` 与解析函数移入 `legacy-chat-context.ts` / `chat-context-summary.ts`，由 `routes/app/$slug/chat/$conversationId.tsx` 在 `ChatPage` 之上渲染；删除 `ChatPage` 的 `chatContext` 属性。验证：组件测试用带 `data-chat-context` 的旧 system parts 断言摘要显示；新对象对话不显示旧摘要
-- [ ] 4.4 【Claude】删除 `chat-context.ts` 的签发与 `contextMessageParts`、`chat-context.functions.ts#getChatContext`、`chat-context-start.tsx`、`createConversation` 的 `context` 参数与 `CHAT_CONTEXT_EXPIRED` 分支，更新 `chat-context.test.ts`、`test/fixtures/ai-chat.suite.ts`。验证：`grep -rn "chat?context=\|issueChatContext\|createConversation({ data: { slug, context" apps/web/src` 只剩兼容入口；`pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm test` 通过
-- [ ] 4.5 【Claude】更新 `e2e/ai-chat.spec.ts` 结果页带盘用例：地址为 `/chat/context?token=`、标题区显示「类型 · 关键结论」、点击开场问题后建对话并收到引用命盘的回复、对话列表显示「结果」标签；另加篡改令牌显示无效的用例。验证：本地 `pnpm --filter @xuanxue/web test:e2e -- ai-chat` 通过
+- [x] 4.1 【Claude】`createChatContextLink` 改用 `issueSubjectContext`（`chart-result`、个人空间、标题与开场问题），返回 `/app/<slug>/chat/context?token=`；保留复算、`safeReturnPath`、`login` / `unavailable` 合同与日志事件。验证：单元 / 集成测试断言返回地址格式、令牌绑定用户与空间、KV 中无出生字段；`ask-ai-entry` 的未登录回跳续接用例通过
+- [x] 4.2 【Claude】新增 `features/ai/legacy-chat-context.ts`：保留旧令牌验签与旧 KV 读取（只读）、旧 system 片段解析；`routes/app/$slug/chat/index.tsx` 的 `?context=` 分支改为 `upgradeLegacyChatContext`——有效时换发新令牌并重定向到 `/chat/context?token=`，过期 / 无效时渲染模板 `TemporarySubjectChat` 的对应状态。代码与 PR 描述注明「下一次发布删除换发逻辑」（组 8）。验证：集成测试用旧 `issueChatContext` 生成令牌，断言有效时重定向且新令牌可建对话、过期时显示返回原页、他人令牌显示无效
+- [x] 4.3 【Claude】旧对话摘要：`ChatContextSummary` 与解析函数移入 `legacy-chat-context.ts` / `chat-context-summary.ts`，由 `routes/app/$slug/chat/$conversationId.tsx` 在 `ChatPage` 之上渲染；删除 `ChatPage` 的 `chatContext` 属性。验证：组件测试用带 `data-chat-context` 的旧 system parts 断言摘要显示；新对象对话不显示旧摘要
+- [x] 4.4 【Claude】删除 `chat-context.ts` 的签发与 `contextMessageParts`、`chat-context.functions.ts#getChatContext`、`chat-context-start.tsx`、`createConversation` 的 `context` 参数与 `CHAT_CONTEXT_EXPIRED` 分支，更新 `chat-context.test.ts`、`test/fixtures/ai-chat.suite.ts`。验证：`grep -rn "chat?context=\|issueChatContext\|createConversation({ data: { slug, context" apps/web/src` 只剩兼容入口；`pnpm check`、`pnpm typecheck`、`pnpm check:deps`、`pnpm test` 通过
+- [x] 4.5 【Claude】更新 `e2e/ai-chat.spec.ts` 结果页带盘用例：地址为 `/chat/context?token=`、标题区显示「类型 · 关键结论」、点击开场问题后建对话并收到引用命盘的回复、对话列表显示「结果」标签；另加篡改令牌显示无效的用例。验证：本地 `pnpm --filter @xuanxue/web test:e2e -- ai-chat` 通过
 
 ## 5. 波次 B-2：报告页内追问（依赖：组 2、1.2 设计稿确认；1.1 Q3）
 
