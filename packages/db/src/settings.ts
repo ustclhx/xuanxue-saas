@@ -10,6 +10,9 @@ type ReadingSettingValues = {
   [K in ReadingKind as `readings.${K}.credits`]: number
 } & {
   [K in ReadingKind as `readings.${K}.modelKey`]: string
+} & {
+  /** 提示词版本号（如 `bazi-full.v4`）；空字符串表示代码默认版本，取值由 web 端注册表校验 */
+  [K in ReadingKind as `readings.${K}.promptVersion`]: string
 }
 
 /** 详批价格种子：1 次详批 = 100 积分（design 决策 4），后台可改。 */
@@ -18,6 +21,7 @@ const readingSettingDefaults = Object.fromEntries(
     [`readings.${kind}.enabled`, true],
     [`readings.${kind}.credits`, 100],
     [`readings.${kind}.modelKey`, ''],
+    [`readings.${kind}.promptVersion`, ''],
   ]),
 ) as ReadingSettingValues
 

@@ -25,9 +25,9 @@ import {
   type ReadingAvailabilityDeps,
   textChatAvailable,
 } from './availability.ts'
-import { readingDefinition } from './catalog.ts'
+import { readingDefinition, resolveReadingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
-import { finalizeReading } from './generate.ts'
+import { finalizeRecordedReading } from './generate.ts'
 import { FALLBACK_LOCAL_RATES, type LocalRates } from './price.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
@@ -205,7 +205,11 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
         comingSoon: false,
         chatAvailable,
         credits: status.config.credits,
-        sections: definition.prompt.sections,
+        // 章节目录随运行时设置选定的提示词版本变化
+        sections: (
+          resolveReadingDefinition(definition.kind, data.locale, status.config.promptVersion) ??
+          definition
+        ).prompt.sections,
         sample: definition.sample,
         packs,
         viewer,
@@ -321,14 +325,8 @@ export const getReading = createServerFn({ method: 'GET' })
     let row: Reading = found
     let content = row.content
     if (row.status === 'generating') {
-      const definition = readingDefinition(row.kind, row.locale)
-      const synced = definition
-        ? await finalizeReading(context.db, {
-            workspaceId: context.workspace.id,
-            readingId: row.id,
-            definition,
-          })
-        : null
+      // 按报告记录的提示词版本收尾，生成中切换版本不影响章节检查
+      const synced = await finalizeRecordedReading(context.db, context.workspace.id, row)
       if (synced) {
         row = synced
         content = synced.content

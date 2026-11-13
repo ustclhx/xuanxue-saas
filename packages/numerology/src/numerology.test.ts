@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest'
 import {
   birthdayNumber,
   COMPATIBILITY_MATRIX,
+  challenges,
   compatibility,
   lifePath,
   nameNumbers,
   normalizeName,
   numerologyChart,
   personalYear,
+  personalYears,
+  pinnacles,
   reduceNumber,
 } from './index.ts'
 
@@ -82,5 +85,36 @@ describe('numerology', () => {
       explanationKey: 'numerology.compatibility.1-5',
     })
     expect(compatibility(second, first).level).toBe('high')
+  })
+
+  it('lists consecutive personal years that match the single-year rule', () => {
+    const years = personalYears(birthday, 2026, 5)
+    expect(years.map((item) => item.year)).toEqual([2026, 2027, 2028, 2029, 2030])
+    for (const item of years) {
+      const single = personalYear(birthday, item.year)
+      expect(item).toEqual({ year: item.year, value: single.value, master: single.master })
+    }
+    expect(() => personalYears(birthday, 2026, 0)).toThrow()
+  })
+
+  it('computes pinnacles and challenges with life-path based ages', () => {
+    // 月 11→2、日 29→2、年 1987→7；生命灵数 11 的个位值 2，第一巅峰止于 34 岁
+    expect(pinnacles(birthday)).toEqual([
+      { value: 4, master: false, startAge: 0, endAge: 34 },
+      { value: 9, master: false, startAge: 34, endAge: 43 },
+      { value: 4, master: false, startAge: 43, endAge: 52 },
+      { value: 9, master: false, startAge: 52, endAge: null },
+    ])
+    expect(challenges(birthday).map((item) => item.value)).toEqual([0, 5, 5, 5])
+    // 5 + 6 = 11 保留为大师数；生命灵数 3，第一巅峰止于 33 岁
+    const master = pinnacles({ year: 1990, month: 5, day: 6 })
+    expect(master[0]).toEqual({ value: 11, master: true, startAge: 0, endAge: 33 })
+    for (const date of [
+      birthday,
+      { year: 1999, month: 9, day: 1 },
+      { year: 2000, month: 1, day: 9 },
+    ])
+      for (const item of challenges(date)) expect(item.value).toBeGreaterThanOrEqual(0)
+    expect(Math.max(...challenges({ year: 2000, month: 1, day: 9 }).map((c) => c.value))).toBe(8)
   })
 })

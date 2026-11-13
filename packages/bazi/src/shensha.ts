@@ -1,5 +1,6 @@
 import { BRANCHES, type Branch, mod, type PillarKey } from './constants.ts'
 import type { GanZhi } from './pillars.ts'
+import { triadOf } from './relations.ts'
 
 export const SHENSHA_KEYS = [
   'kongWang',
@@ -53,10 +54,9 @@ const WEN_CHANG = [5, 6, 8, 9, 8, 9, 11, 0, 2, 3]
 /** 禄神（日干）：甲寅 乙卯 丙戊巳 丁己午 庚申 辛酉 壬亥 癸子。 */
 const LU_SHEN = [2, 3, 5, 6, 5, 6, 8, 9, 11, 0]
 
-/** 三合局组号 = 地支序号 mod 4：申子辰=0、巳酉丑=1、寅午戌=2、亥卯未=3。以下三表按组号排列。 */
-export function triadOf(branch: number): number {
-  return mod(branch, 4)
-}
+// 三合局组号（申子辰=0、巳酉丑=1、寅午戌=2、亥卯未=3）定义在 relations.ts，以下三表按组号排列
+export { triadOf }
+
 /** 桃花（咸池）：申子辰在酉，巳酉丑在午，寅午戌在卯，亥卯未在子。 */
 const TAO_HUA = [9, 6, 3, 0]
 /** 驿马：申子辰马在寅，巳酉丑马在亥，寅午戌马在申，亥卯未马在巳。 */
