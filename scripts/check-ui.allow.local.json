@@ -32,14 +32,6 @@
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
     ],
-    "apps/web/src/features/ai/chat-context-start.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "grid-cols-[auto_1fr]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
     "apps/web/src/features/app-shell/space-frame.tsx": [
       {
         "rule": "arbitrary-class",

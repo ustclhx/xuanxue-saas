@@ -20,9 +20,9 @@ export function ChatContextSummary({ context }: { context: ChatContext }) {
         {m.ai_chat_context_title({ title: readingTitle(context.kind) })}
       </h3>
       {items.length > 0 ? (
-        <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+        <dl className="m-0 grid gap-1 text-sm">
           {items.map((item) => (
-            <div key={item.label} className="contents">
+            <div key={item.label} className="flex flex-wrap gap-x-3">
               <dt className="text-ink-subtle">{item.label}</dt>
               <dd className="m-0 text-ink">{item.value}</dd>
             </div>
