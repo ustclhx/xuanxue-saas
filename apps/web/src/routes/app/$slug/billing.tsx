@@ -235,7 +235,14 @@ function BillingPage() {
   }, [ready])
   return (
     <SpacePage title={m.app_billing()}>
-      <p>{m.billing_current_plan({ plan: page.entitlements.key })}</p>
+      <p>
+        {/* 显示套餐名而非内部 key（staging 验收 D2：曾显示小写「plus」） */}
+        {m.billing_current_plan({
+          plan:
+            page.catalog.plans.find((plan) => plan.key === page.entitlements.key)?.name ??
+            page.entitlements.key,
+        })}
+      </p>
       {page.credits && (
         <p>
           {m.billing_credit_balance({
