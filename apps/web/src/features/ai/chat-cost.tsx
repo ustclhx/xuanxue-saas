@@ -27,11 +27,13 @@ export function ChatCostView({
   model,
   inputTokens,
   cost,
+  className,
 }: {
   model: PickerModel | undefined
   /** 历史与当前输入的估算（不含前缀） */
   inputTokens: number
   cost: ChatCostState
+  className?: string
 }) {
   if (!model) return null
   if (cost === null)
@@ -40,6 +42,7 @@ export function ChatCostView({
         data-testid="chat-cost"
         estimate={null}
         pendingLabel={m.chat_cost_pending()}
+        {...(className ? { className } : {})}
       />
     )
   const loaded = cost === 'error' ? null : cost
@@ -49,18 +52,21 @@ export function ChatCostView({
   const upper = estimate.kind === 'range' ? estimate.max : estimate.credits
   const insufficient = loaded !== null && upper > loaded.availableCredits
   const credits = loaded ? formatNumber(loaded.availableCredits) : ''
+  const text = m.ai_chat_per_message({ estimate: formatEstimate(estimate) })
+  const balance = loaded
+    ? insufficient
+      ? m.chat_cost_balance_low({ credits })
+      : m.chat_cost_balance({ credits })
+    : undefined
   return (
     <CreditEstimate
       data-testid="chat-cost"
-      estimate={m.ai_chat_per_message({ estimate: formatEstimate(estimate) })}
-      {...(loaded
-        ? {
-            balance: insufficient
-              ? m.chat_cost_balance_low({ credits })
-              : m.chat_cost_balance({ credits }),
-          }
-        : {})}
+      estimate={text}
+      {...(balance ? { balance } : {})}
       insufficient={insufficient}
+      // 窄输入区（手机抽屉）里文字会被截断，悬停可看全文
+      title={balance ? `${text} · ${balance}` : text}
+      {...(className ? { className } : {})}
     />
   )
 }
@@ -77,6 +83,7 @@ export function ChatCost({
   refreshKey: number
   model: PickerModel | undefined
   inputTokens: number
+  className?: string
 }) {
   const [cost, setCost] = useState<ChatCostState>(null)
   useEffect(() => {
@@ -132,6 +139,8 @@ export function SessionChatCost({
       refreshKey={settled.current}
       model={model}
       inputTokens={inputTokens + hintTokens}
+      // 输入区右下角空间有限：限制在所在列宽内，超出时截断而不是压到发送按钮下
+      className="max-w-full"
     />
   )
 }

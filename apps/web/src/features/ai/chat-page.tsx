@@ -98,8 +98,9 @@ function ConversationActions({ session }: { session: ChatSession }) {
  */
 function ChatPageHeader({ session }: { session: ChatSession }) {
   const state = useChatSessionState(session)
-  // 侧边栏布局：顶部条不显示标题（路由 staticData.shellTitle = false），对话标题是页面 h1；顶部布局的 h1 为空间名
-  const Heading = useAppShellBarAvailable() ? 'h1' : 'h2'
+  // 侧边栏布局：顶部条不显示标题（路由 staticData.shellTitle = false），对话标题是页面 h1。
+  // 项目：应用区不用模板顶部条，各页标题由页面自己的 h1 给出（SpacePage），对话标题因此总是 h1
+  const Heading = 'h1'
   return (
     <div className="flex min-h-12 min-w-0 items-center gap-2 border-b pb-2">
       <Link

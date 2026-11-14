@@ -2,7 +2,6 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChatContextSummary } from '../../../../features/ai/chat-context-summary-card.tsx'
 import { ChatPage, ChatPageSkeleton } from '../../../../features/ai/chat-page.tsx'
 import { getConversation } from '../../../../features/ai/conversations.functions.ts'
-import { useAppShellBarAvailable } from '../../../../features/app-shell/bar.tsx'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
@@ -31,10 +30,11 @@ export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
   notFoundComponent: ConversationNotFound,
 })
 
-/** 顶部条不显示标题（staticData.shellTitle = false），侧边栏布局下这里是页面 h1 */
+/** 顶部条不显示标题（staticData.shellTitle = false），这里是页面 h1 */
 function ConversationNotFound() {
   const { slug } = Route.useParams()
-  const Heading = useAppShellBarAvailable() ? 'h1' : 'h2'
+  // 项目：应用区不用模板顶部条，页面标题总是 h1（与 SpacePage 一致）
+  const Heading = 'h1'
   return (
     <section className="grid gap-2">
       <Heading className="text-2xl font-semibold">{m.chat_ui_not_found_title()}</Heading>
