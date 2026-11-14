@@ -60,3 +60,45 @@ describe('v4 提示词', () => {
       expect(checkCompliance(v4.sample, item.locale).violations).toEqual([])
     })
 })
+
+// tasks 4.3：评测扣分点对应的约束写进 system，数据档提供对宫，避免模型自行推算
+describe('v4 修订约束', () => {
+  const system = (kind: string, locale: string) =>
+    readingDefinition(kind, locale, { promptVersion: `${kind}.v4` })?.prompt.system ?? ''
+
+  it('紫微引用数据档的对宫与借星', () => {
+    for (const locale of ['zh-Hant', 'zh-Hans']) {
+      expect(system('ziwei-full', locale)).toContain('opposite')
+      expect(system('ziwei-full', locale)).toContain('borrowedStars')
+    }
+    const v4 = readingDefinition('ziwei-full', 'zh-Hans', { promptVersion: 'ziwei-full.v4' })
+    if (!v4) throw new Error('definition missing')
+    const chart = JSON.parse(readingMessages(v4, v4.recompute(BIRTH, NOW))[1]?.text ?? '{}').chart
+    expect(chart.palaces.every((p: { opposite?: string }) => p.opposite)).toBe(true)
+  })
+
+  it('八字 / 사주只引用数据中的藏干十神，全部 v4 禁止键名与金融术语', () => {
+    expect(system('bazi-full', 'zh-Hant')).toContain('藏干與藏干十神只能引用 JSON')
+    expect(system('bazi-full', 'zh-Hans')).toContain('藏干与藏干十神只能引用 JSON')
+    expect(system('saju-full', 'ko')).toContain('지장간과 그 십성은 JSON에 있는 것만')
+    // 流年所属大运干支只取数据档 decade 字段
+    expect(system('bazi-full', 'zh-Hant')).toContain('干支只取該年的 decade')
+    expect(system('bazi-full', 'zh-Hans')).toContain('干支只取该年的 decade')
+    expect(system('saju-full', 'ko')).toContain('그해의 decade에서만')
+    for (const [kind, locale, word] of [
+      ['bazi-full', 'zh-Hant', '槓桿'],
+      ['bazi-full', 'zh-Hans', '杠杆'],
+      ['ziwei-full', 'zh-Hant', '槓桿'],
+      ['ziwei-full', 'zh-Hans', '杠杆'],
+      ['saju-full', 'ko', '레버리지'],
+      ['numerology-full', 'en', 'take stock'],
+    ] as const) {
+      expect(system(kind, locale)).toContain(word)
+      expect(system(kind, locale)).toContain('JSON')
+    }
+  })
+
+  it('数字命理巅峰数不落到具体年份', () => {
+    expect(system('numerology-full', 'en')).toContain('Never attach a calendar year')
+  })
+})

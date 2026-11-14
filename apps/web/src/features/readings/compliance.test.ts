@@ -57,6 +57,34 @@ describe('合规规则检查', () => {
     ])
   })
 
+  it('英语投资规则只在投资语境命中，日常用语不误报', () => {
+    const benign = [
+      'This is a year for taking stock of what you have built.',
+      'Take stock of your habits before the second half.',
+      'She shares her ideas generously and shares credit with others.',
+      'Leverage your strengths in teamwork.',
+      'You care about bright futures for the people around you.',
+      'Your calendar stocks up quickly in spring.',
+      'Keep the essentials in stock so the week runs smoothly.',
+    ]
+    for (const text of benign) expect(checkCompliance(text, 'en').violations).toEqual([])
+    const risky = [
+      'Consider buying stocks this year.',
+      'Watch the stock market closely.',
+      'It is a good year to buy shares in a growth company.',
+      'Pick a few growth stocks.',
+      'Invest in index funds for the long run.',
+      'Avoid leveraged trading for now.',
+      'Buying on margin suits your 8 energy.',
+      'Trade futures only when the cycle turns.',
+      'Hold some company shares as a cushion.',
+    ]
+    for (const text of risky)
+      expect(checkCompliance(text, 'en').violations, text).toEqual([
+        { rule: 'investment', block: 0 },
+      ])
+  })
+
   it('健康的报告不做任何改动', () => {
     const text = '## 總論\n\n日主甲木，性格正直。\n\n## 建議\n\n- 保持規律作息\n- 多與朋友交流'
     expect(checkCompliance(text, 'zh-Hant')).toEqual({ content: text, violations: [] })

@@ -34,6 +34,8 @@ export interface LiveOptions {
 export interface EvalOptions {
   readonly kinds: readonly string[]
   readonly locales: readonly string[]
+  /** 只评测这些样本 id（空数组为全部），供小规模复测 */
+  readonly samples: readonly string[]
   /** `default` 表示各语言的代码默认版本 */
   readonly baseline: string
   /** 完整版本号或 `vN` 简写（按详批展开为 `<kind>.vN`）；null 表示只评测基线 */
@@ -51,6 +53,7 @@ export const USAGE = `用法：pnpm eval:readings [选项]
 
   --kind <kind>            只评测某种详批（可重复）
   --locale <locale>        只评测某种语言（可重复）
+  --sample <id>            只评测某个样本（可重复），用于小规模复测
   --baseline <version>     基线版本，默认 default（各语言的代码默认版本）
   --candidate <version>    候选版本，如 bazi-full.v4 或 v4（按详批展开）
   --recorded               离线模式（默认）：读取 EVIDENCE_DIR/eval-readings/recordings/
@@ -85,6 +88,7 @@ function positive(value: string | undefined, flag: string, integer = false): num
 const VALUE_FLAGS = new Set([
   '--kind',
   '--locale',
+  '--sample',
   '--baseline',
   '--candidate',
   '--model',
@@ -167,6 +171,7 @@ export function parseArgs(argv: readonly string[]): EvalOptions {
   return {
     kinds: values.get('--kind') ?? [],
     locales: values.get('--locale') ?? [],
+    samples: values.get('--sample') ?? [],
     baseline: one('--baseline') ?? 'default',
     candidate: one('--candidate') ?? null,
     live,

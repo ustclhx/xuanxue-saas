@@ -309,4 +309,14 @@ describe('运行器（离线）', () => {
     }
     // 96 次排盘（含紫微星盘）在全量并行测试下可能超过默认 5 秒
   }, 30_000)
+
+  it('--sample 只保留指定样本，没有命中样本的套件被跳过', () => {
+    const options = parseArgs(['--sample', 'bazi-hant-01', '--sample', 'ziwei-hans-04'])
+    expect(options.samples).toEqual(['bazi-hant-01', 'ziwei-hans-04'])
+    const suites = loadSuites(SUITES_DIR, options)
+    expect(suites.map((s) => [s.kind, s.locale, s.samples.map((x) => x.id)])).toEqual([
+      ['bazi-full', 'zh-Hant', ['bazi-hant-01']],
+      ['ziwei-full', 'zh-Hans', ['ziwei-hans-04']],
+    ])
+  })
 })

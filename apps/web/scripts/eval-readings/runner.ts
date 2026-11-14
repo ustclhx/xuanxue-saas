@@ -35,7 +35,10 @@ export interface Suite {
 
 export const SUITES_DIR = new URL('./suites/', import.meta.url).pathname
 
-export function loadSuites(dir: string, filter: Pick<EvalOptions, 'kinds' | 'locales'>): Suite[] {
+export function loadSuites(
+  dir: string,
+  filter: Pick<EvalOptions, 'kinds' | 'locales'> & Partial<Pick<EvalOptions, 'samples'>>,
+): Suite[] {
   const ids = new Set<string>()
   return readdirSync(dir)
     .filter((file) => file.endsWith('.json'))
@@ -52,8 +55,11 @@ export function loadSuites(dir: string, filter: Pick<EvalOptions, 'kinds' | 'loc
           throw new Error(`Invalid or duplicate sample id ${sample.id}`)
         ids.add(sample.id)
       }
-      return suite
+      const wanted = filter.samples ?? []
+      if (wanted.length === 0) return suite
+      return { ...suite, samples: suite.samples.filter((sample) => wanted.includes(sample.id)) }
     })
+    .filter((suite) => suite.samples.length > 0)
 }
 
 /** `default` → 代码默认版本；`vN` → `<kind>.vN`；完整版本号只对同一详批生效 */
