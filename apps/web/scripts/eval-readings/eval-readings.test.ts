@@ -2,7 +2,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReadingDefinition } from '../../src/features/readings/catalog.ts'
+import { type ReadingDefinition, readingDefinition } from '../../src/features/readings/catalog.ts'
 import { Budget, EvalUsageError, parseArgs } from './args.ts'
 import {
   bodyGanzhiMismatches,
@@ -12,7 +12,7 @@ import {
   wrongGlyphs,
 } from './checks.ts'
 import { parseJudge } from './judge.ts'
-import { resolveVersion, runEval } from './runner.ts'
+import { loadSuites, resolveVersion, runEval, SUITES_DIR } from './runner.ts'
 import { percentile, type SampleOutcome, summarize } from './stats.ts'
 
 // readings-prompt-v4-yearly tasks.md 2.5：检查器、汇总与预算保护的离线单测（只用虚构文本）。
@@ -217,7 +217,20 @@ describe('参数与预算保护', () => {
       '--price-out',
       '0.002',
     ]).live
-    expect(live).toMatchObject({ maxCalls: 4, maxUsd: 1, maxOutputTokens: 12000, judge: null })
+    expect(live).toMatchObject({
+      maxCalls: 4,
+      maxUsd: 1,
+      maxOutputTokens: 12000,
+      judgeMaxOutputTokens: 16000,
+      thinking: null,
+      judge: null,
+    })
+    const budgetArgs = ['--live', '--model', 'deepseek:chat', '--max-calls', '1', '--max-usd', '1']
+    const prices = ['--price-in', '0.001', '--price-out', '0.002']
+    expect(parseArgs([...budgetArgs, ...prices, '--thinking', 'off']).live?.thinking).toBe(false)
+    expect(() => parseArgs([...budgetArgs, ...prices, '--thinking', 'auto'])).toThrow(
+      EvalUsageError,
+    )
   })
 
   it('按最坏情况估算，超过次数或金额即停', () => {
@@ -271,4 +284,29 @@ describe('运行器（离线）', () => {
     expect(readFileSync(join(run.outDir, 'summary.md'), 'utf8')).toContain('bazi-hant-01')
     expect(existsSync(join(run.outDir, 'bazi-full.v2/bazi-hant-01.check.json'))).toBe(true)
   })
+
+  it('每个「详批 × 语言」套件至少 8 个样本，基线与 v4 都能复算', () => {
+    // tasks.md 4.1：样本不足或输入无法复算时，真实评测会静默缩水，因此离线先挡住
+    const suites = loadSuites(SUITES_DIR, { kinds: [], locales: [] })
+    expect(suites.map((s) => `${s.kind}.${s.locale}`).sort()).toEqual([
+      'bazi-full.zh-Hans',
+      'bazi-full.zh-Hant',
+      'numerology-full.en',
+      'saju-full.ko',
+      'ziwei-full.zh-Hans',
+      'ziwei-full.zh-Hant',
+    ])
+    for (const suite of suites) {
+      expect(suite.samples.length).toBeGreaterThanOrEqual(8)
+      for (const promptVersion of ['', `${suite.kind}.v4`]) {
+        const definition = readingDefinition(suite.kind, suite.locale, { promptVersion })
+        expect(definition).toBeDefined()
+        for (const sample of suite.samples)
+          expect(() =>
+            definition?.recompute(sample.input, new Date(sample.requestDate)),
+          ).not.toThrow()
+      }
+    }
+    // 96 次排盘（含紫微星盘）在全量并行测试下可能超过默认 5 秒
+  }, 30_000)
 })

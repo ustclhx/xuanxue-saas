@@ -39,6 +39,121 @@
           "city": "beijing"
         }
       }
+    },
+    {
+      "id": "ziwei-hans-03",
+      "note": "虚构：女，命宫空宫，窗口内换大限",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1968,
+        "month": 6,
+        "day": 12,
+        "time": {
+          "hour": 18,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "shanghai"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hans-04",
+      "note": "虚构：男，四个空宫，1 月请求",
+      "requestDate": "2026-01-25T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1978,
+        "month": 5,
+        "day": 15,
+        "time": {
+          "hour": 6,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hans-05",
+      "note": "虚构：男，无空宫，窗口内换大限",
+      "requestDate": "2026-10-01T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1997,
+        "month": 10,
+        "day": 5,
+        "time": {
+          "hour": 21,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "guangzhou"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hans-06",
+      "note": "虚构：女，农历闰月输入",
+      "requestDate": "2026-03-15T00:00:00Z",
+      "input": {
+        "calendar": "lunar",
+        "year": 1987,
+        "month": 6,
+        "day": 10,
+        "time": {
+          "hour": 15,
+          "minute": 20
+        },
+        "gender": "female",
+        "location": {
+          "city": "shanghai"
+        },
+        "isLeapMonth": true
+      }
+    },
+    {
+      "id": "ziwei-hans-07",
+      "note": "虚构：男，命宫空宫，2 月请求",
+      "requestDate": "2026-02-14T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 11,
+        "day": 6,
+        "time": {
+          "hour": 5,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "singapore"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hans-08",
+      "note": "虚构：女，0 点早子时，12 月请求",
+      "requestDate": "2026-12-12T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1984,
+        "month": 4,
+        "day": 6,
+        "time": {
+          "hour": 0,
+          "minute": 20
+        },
+        "gender": "female",
+        "location": {
+          "city": "beijing"
+        }
+      }
     }
   ]
 }
