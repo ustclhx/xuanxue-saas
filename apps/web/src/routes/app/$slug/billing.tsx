@@ -10,6 +10,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { z } from 'zod'
 import { trackEvent } from '../../../features/analytics/track.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
+import { entitlementPlanName } from '../../../features/billing/billing-sections.tsx'
 import {
   checkoutCustomer,
   getCustomerBilling,
@@ -236,11 +237,8 @@ function BillingPage() {
   return (
     <SpacePage title={m.app_billing()}>
       <p>
-        {/* 显示套餐名而非内部 key（staging 验收 D2：曾显示小写「plus」） */}
         {m.billing_current_plan({
-          plan:
-            page.catalog.plans.find((plan) => plan.key === page.entitlements.key)?.name ??
-            page.entitlements.key,
+          plan: entitlementPlanName(page.entitlements, page.catalog.plans),
         })}
       </p>
       {page.credits && (

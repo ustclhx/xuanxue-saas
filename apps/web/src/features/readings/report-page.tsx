@@ -138,17 +138,12 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
         </button>
       )}
       {view.status === 'ready' && (
+        // 标题与说明由 ReportChat 按状态渲染（对话就绪时为模板 EmbeddedChat 卡片，手机上为悬浮按钮 + 底部抽屉）
         <section
           aria-labelledby="reading-chat-title"
           data-testid="reading-chat"
-          className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5 sm:p-6 print:hidden"
+          className="print:hidden"
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <h2 id="reading-chat-title" className="m-0 font-heading font-bold text-ink text-xl">
-              {m.readings_chat_title()}
-            </h2>
-            <span className="text-ink-subtle text-sm">{m.readings_chat_note()}</span>
-          </div>
           <Suspense fallback={<ReportChatFallback />}>
             <ReportChat slug={slug} readingId={view.id} content={view.content} />
           </Suspense>

@@ -88,6 +88,20 @@ export function typicalMessageEstimate(
   }
 }
 
+/** 模型选择与预计消耗的文案（按当前语言读取） */
+export const MODEL_PICKER_COPY = {
+  get label() {
+    return m.chat_ui_model()
+  },
+  get empty() {
+    return m.chat_ui_model_empty()
+  },
+  get estimate() {
+    return m.chat_ui_estimate()
+  },
+}
+
+// 金额文案沿用项目 ai-chat.json（「约」与区间的语序按语言不同，见 ai_chat_approx / ai_chat_range）
 const credits = (n: number) =>
   n === 1 ? m.ai_chat_credit_one() : m.ai_chat_credits({ credits: String(n) })
 

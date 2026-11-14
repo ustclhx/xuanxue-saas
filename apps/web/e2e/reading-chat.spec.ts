@@ -138,7 +138,18 @@ async function capture(page: Page, name: string) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
           390,
         )
-      await section.screenshot({ path: join(evidenceDir, `${name}-${width}-${scheme}.png`) })
+      const path = join(evidenceDir, `${name}-${width}-${scheme}.png`)
+      // 模板 EmbeddedChat：手机上对话在悬浮按钮打开的底部抽屉中，截取打开后的整屏
+      const trigger = page.locator('[data-embedded-chat-trigger]')
+      if (width === 390 && (await trigger.isVisible())) {
+        await trigger.click()
+        const sheet = page.locator('[data-embedded-chat="sheet"]')
+        await expect(sheet).toBeVisible()
+        await page.waitForTimeout(600)
+        await page.screenshot({ path })
+        await page.keyboard.press('Escape')
+        await expect(sheet).toHaveCount(0)
+      } else await section.screenshot({ path })
     }
   }
   await page.emulateMedia({ colorScheme: 'light' })

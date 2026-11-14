@@ -420,3 +420,30 @@ test('packageLayers in rules restrict pure packages to listed internal deps', (t
   assert.equal(violations.length, 2)
   assert.ok(violations.every((v) => v.includes('@xuanxue/bazi 不得依赖其他内部包')))
 })
+
+test('evals is only allowed as a root dependency, never in app or package manifests and sources', (t) => {
+  const check = workspace(t, {
+    'package.json': { name: 'root', devDependencies: { '@xuanxue/evals': 'workspace:*' } },
+    'packages/evals/package.json': manifest('@xuanxue/evals', { '@xuanxue/ai': '*' }),
+    'packages/evals/src/cli.ts': "import '@xuanxue/ai'; import './run.ts'",
+    'packages/ai/package.json': manifest('@xuanxue/ai'),
+    'apps/web/package.json': {
+      name: '@xuanxue/web',
+      devDependencies: { '@xuanxue/evals': 'workspace:*' },
+    },
+    'apps/jobs/package.json': manifest('@xuanxue/jobs'),
+    'apps/jobs/src/index.ts': "import { defineSuite } from '@xuanxue/evals'",
+    'packages/ai/test/helper.ts': "import '../../evals/src/suite.ts'",
+  })
+  const violations = check()
+  assert.equal(violations.length, 3, violations.join('\n'))
+  for (const text of [
+    '@xuanxue/web → @xuanxue/evals（apps/web/package.json devDependencies）',
+    '@xuanxue/jobs → @xuanxue/evals（apps/jobs/src/index.ts:1）',
+    '@xuanxue/ai → @xuanxue/evals（packages/ai/test/helper.ts:1）',
+  ])
+    assert.ok(
+      violations.some((message) => message.includes(text)),
+      text,
+    )
+})

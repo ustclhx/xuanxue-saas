@@ -48,15 +48,17 @@ export function getTextProviderCapabilities(provider: string): TextProviderCapab
   return capabilities.get(provider.split('.')[0] ?? provider) ?? defaults
 }
 
-/** 模型缺省跟随适配器；显式 true 仍需 Provider 可控，false 始终禁用。 */
+/** 是否向使用者开放 thinking 开关：缺省跟随适配器；显式 true 仍需 Provider 可控，false 不开放。 */
 export function supportsTextThinking(provider: string, thinkingOverride?: boolean): boolean {
   return thinkingOverride !== false && getTextProviderCapabilities(provider).supportsThinking
 }
 
 /**
- * 实际发给 Provider 的 thinking 设置。可控 Provider 上模型配置 thinking=false 时显式禁用：
- * 不发送任何设置时 DeepSeek V4（如 deepseek-flash）默认开启推理，推理 token 计入输出上限，长文会被截断。
- * 不可控 Provider 返回 undefined（不附带参数）；其余情况跟随请求或缺省值。
+ * 计算本次调用实际下发的 thinking：
+ * - Provider 不可控时返回 undefined，不改变请求；
+ * - 模型显式 `thinking=false` 时返回 false，由 applyThinking 下发关闭形式。
+ *   部分模型（如 DeepSeek V4）默认推理，不下发关闭会让 reasoning 占用 maxOutputTokens 而截断正文；
+ * - 其他情况使用调用方请求的值。
  */
 export function resolveTextThinking(
   provider: string,

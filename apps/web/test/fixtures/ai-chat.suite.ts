@@ -1389,7 +1389,7 @@ export function registerAiChatSuite(
       expect(plain.doStreamCalls[0]?.reasoning).toBeUndefined()
     })
 
-    it('thinking 按模板与单条请求映射；禁止切换时拒绝，不支持的模型忽略', async () => {
+    it('thinking 按模板与单条请求映射；禁止切换时拒绝，显式禁用的模型下发关闭', async () => {
       const me = await member('thinking-policy', 100)
       const modelId = await resilientModel(callPricing)
       const denied = attempts([{ text: 'unused' }])
@@ -1425,10 +1425,11 @@ export function registerAiChatSuite(
           textConfig: policy({ thinking: { default: 'on', userToggle: true } }),
         },
       )
-      // 模型配置 thinking=false：显式发送禁用（不发送时 DeepSeek V4 默认开启推理），忽略请求里的 thinking=true
+      // 模型显式 thinking=false：忽略请求开关，但向可控 Provider 显式下发关闭形式
       expect(unsupported.doStreamCalls[0]?.providerOptions).toMatchObject({
         deepseek: { thinking: { type: 'disabled' } },
       })
+      expect(unsupported.doStreamCalls[0]?.reasoning).toBe('none')
       expect(stream).not.toContain('hidden')
       expect(
         (await assistantMessage(response.headers.get('x-conversation-id') as string)).message.parts,
@@ -1635,6 +1636,20 @@ export function registerAiChatSuite(
       expect(peek).toMatchObject({ status: 404, body: { error: { code: 'NOT_FOUND' } } })
       expect((await stop(owner, newId())).status).toBe(404)
       expect((await stop(owner, 'not-a-uuid')).status).toBe(404)
+
+      // 同 isolate 的提前中止只认发起者：他人请求不触发 abort，发起者鉴权后即中止
+      const aborted: string[] = []
+      const pendingId = newId()
+      const activeChats = new Map([
+        [
+          pendingId,
+          { userId: owner.userId, abort: () => aborted.push('abort'), done: Promise.resolve() },
+        ],
+      ])
+      await stop({ slug: owner.slug, cookie: other.cookie }, pendingId, { activeChats })
+      expect(aborted).toEqual([])
+      await stop(owner, pendingId, { activeChats })
+      expect(aborted).toEqual(['abort'])
     })
   })
 

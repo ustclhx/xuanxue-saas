@@ -23,11 +23,13 @@
     "billing:sync-stripe-live": "pnpm --filter @xuanxue/billing sync:stripe-live",
     "production:check-secrets": "node scripts/production/check-secrets.mjs",
     "check:ui": "node scripts/check-ui.mjs",
-    "ui:lock": "node scripts/ui-lock.mjs"
+    "ui:lock": "node scripts/ui-lock.mjs",
+    "eval:prompts": "node --experimental-strip-types packages/evals/src/cli.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@xuanxue/config": "workspace:*",
+    "@xuanxue/evals": "workspace:*",
     "@sentry/cli": "^3.8.0",
     "squawk-cli": "2.67.0",
     "turbo": "^2.11.7",

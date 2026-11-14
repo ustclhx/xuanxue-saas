@@ -69,6 +69,7 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 | `pnpm check:singletons` | 关键依赖唯一实例检查 |
 | `pnpm test` | 各包测试；有隔离数据库配置时包含集成测试 |
 | `pnpm build` | web 生产构建与 jobs 部署 dry-run |
+| `pnpm eval:prompts --suite <name>` | 提示词评测，默认离线回放；真实调用须 `--live`/`--record` 与 `--budget-usd` |
 | `openspec list --json` | 查看当前 change 与项目根 |
 
 持续开发使用根 package.json 的 dev 脚本，启动 web 与 jobs；停止时仅结束自己启动的进程。

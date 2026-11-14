@@ -138,6 +138,8 @@ export const getConversation = createServerFn({ method: 'GET' })
           role: aiMessage.role,
           parts: aiMessage.parts,
           status: aiMessage.status,
+          credits: aiMessage.credits,
+          modelKey: aiMessage.modelKey,
         },
         where: and(
           eq(aiMessage.conversationId, conversation.id),
@@ -161,6 +163,45 @@ export const getConversation = createServerFn({ method: 'GET' })
       })),
       chatContext,
       readOnly: context.workspaceReadOnly,
+    }
+  })
+
+/**
+ * 单条回复的保存结果（正文、状态、结算积分与模型）：回复结束（完成、停止、出错、断开）后对话页据此
+ * 把本地消息换成已保存、已计费的版本（停止后服务端可能比客户端多生成一段）。他人或不存在的消息返回 null。
+ */
+export const getChatMessage = createServerFn({ method: 'GET' })
+  .middleware([withBilling, withWorkspace])
+  .inputValidator(workspace.extend({ messageId: z.uuid() }))
+  .handler(async ({ context, data }) => {
+    const s = scoped(context.db, context.workspace.id)
+    const [message] = await s
+      .select(aiMessage, {
+        fields: {
+          id: aiMessage.id,
+          role: aiMessage.role,
+          parts: aiMessage.parts,
+          status: aiMessage.status,
+          credits: aiMessage.credits,
+          modelKey: aiMessage.modelKey,
+        },
+        where: and(
+          eq(aiMessage.id, data.messageId),
+          eq(aiMessage.role, 'assistant'),
+          inArray(
+            aiMessage.conversationId,
+            s.select(aiConversation, {
+              where: ownConversation(context.user.id),
+              fields: { id: aiConversation.id },
+            }),
+          ),
+        ) as SQL,
+      })
+      .limit(1)
+    if (!message) return null
+    return {
+      ...message,
+      parts: messageDisplayParts(message.parts, templateConfig.ai.text.reasoning.display),
     }
   })
 

@@ -267,15 +267,21 @@ export async function cancelStripeSubscription(
   else await stripe.subscriptions.cancel(subId, { invoice_now: false, prorate: false })
 }
 
-/** Restore a period-end cancellation; an already canceled subscription cannot be restored. */
+/**
+ * Restore a period-end cancellation; an already canceled subscription cannot be restored.
+ * Customer Portal 以 cancel_at 表达周期末取消，cancel_at_period_end=false 无法清除它，
+ * 需按 Stripe 约定传空字符串清空 cancel_at；API 形态仍只撤销 cancel_at_period_end。
+ */
 export async function resumeStripeSubscription(stripe: Stripe, subId: string): Promise<void> {
   const subscription = await stripe.subscriptions.retrieve(subId)
-  // 门户取消写的是 cancel_at（见 stripeCancelsAtPeriodEnd），恢复时清空它；站内取消写的是 cancel_at_period_end
+  const item = subscription.items.data[0]
+  const portalStyle =
+    !subscription.cancel_at_period_end &&
+    item !== undefined &&
+    stripeCancelsAtPeriodEnd(subscription, item.current_period_end)
   await stripe.subscriptions.update(
     subId,
-    !subscription.cancel_at_period_end && subscription.cancel_at != null
-      ? { cancel_at: '' }
-      : { cancel_at_period_end: false },
+    portalStyle ? { cancel_at: '' } : { cancel_at_period_end: false },
   )
 }
 

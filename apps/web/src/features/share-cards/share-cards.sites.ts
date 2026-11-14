@@ -55,11 +55,24 @@ const KOREAN_TAGLINE = '무료 만세력'
  * www 变体映射到同站，未登记的 Host（预览、workers.dev）按西方站处理。
  */
 function siteOf(context: ShareCardSiteContext): SiteId {
-  if (context.locale === EAST_ENGLISH_LOCALE && context.pathname === EAST_ENGLISH_PATH)
-    return 'east'
-  const byLocale = context.locale ? siteOfLocale(context.locale, templateConfig) : undefined
+  if (isEastEnglish(context)) return 'east'
+  const locale = explicitLocale(context)
+  const byLocale = locale ? siteOfLocale(locale, templateConfig) : undefined
   if (byLocale) return byLocale
   return resolveSite((context.host ?? '').replace(/^www\./i, ''), templateConfig).id
+}
+
+const isEastEnglish = (context: ShareCardSiteContext) =>
+  context.locale === EAST_ENGLISH_LOCALE && context.pathname === EAST_ENGLISH_PATH
+
+/**
+ * 能说明站点的语言。模板 0.5.0 起运行时卡片的 locale 总有值（地址没有 `l` 时为默认语言 en），
+ * 默认语言因此不说明站点（东方站默认语言的卡片地址同样不带 `l`），按 host 判断，与此前 locale 缺省时一致；
+ * 构建期西方站页面为 en，按 host 缺省同样落到西方站。东方站英文入口页按路径识别。
+ */
+function explicitLocale(context: ShareCardSiteContext): string | undefined {
+  if (isEastEnglish(context)) return context.locale
+  return context.locale !== templateConfig.i18n.defaultLocale ? context.locale : undefined
 }
 
 /** 站点的规范域名（裸主机名）：og:url / og:image 使用它，总是返回，避免落到 APP_URL 的站点 */
@@ -71,10 +84,10 @@ export function resolveProjectShareCardSite(
   context: ShareCardSiteContext,
 ): ProjectShareCardSite | undefined {
   const site = siteOf(context)
-  const eastEnglish = site === 'east' && context.locale === EAST_ENGLISH_LOCALE
+  const eastEnglish = isEastEnglish(context)
   // 品牌名按语言（东方站 zh-Hant / zh-Hans「干支日」、ko「간지데이」，英文入口页 Ganjiday）；
-  // 运行时没有语言时取站点导航默认语言（东方站为繁体中文）
-  const locale = context.locale ?? templateConfig.sites[site].locales[0]
+  // 运行时为默认语言（不说明站点）时取站点导航默认语言（东方站为繁体中文）
+  const locale = explicitLocale(context) ?? templateConfig.sites[site].locales[0]
   return {
     theme: SITE_THEMES[site],
     brand: { name: siteBrandName(templateConfig, site, locale) },

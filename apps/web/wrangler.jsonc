@@ -22,7 +22,10 @@
       "!/og/*",
       "!/src/*",
       "!/@*",
-      "!/node_modules/*"
+      "!/node_modules/*",
+      // 本地 dev：嵌入式对话 e2e 的测试模块（e2e/subject-chat/harness.tsx，playwright.subject-chat.config.ts）
+      // 由 Vite 提供；生产没有 /e2e 下的资源，这些路径由 Asset Worker 返回 404
+      "!/e2e/*"
     ]
   },
 
