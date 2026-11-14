@@ -1425,7 +1425,10 @@ export function registerAiChatSuite(
           textConfig: policy({ thinking: { default: 'on', userToggle: true } }),
         },
       )
-      expect(unsupported.doStreamCalls[0]?.providerOptions?.deepseek).toBeUndefined()
+      // 模型配置 thinking=false：显式发送禁用（不发送时 DeepSeek V4 默认开启推理），忽略请求里的 thinking=true
+      expect(unsupported.doStreamCalls[0]?.providerOptions).toMatchObject({
+        deepseek: { thinking: { type: 'disabled' } },
+      })
       expect(stream).not.toContain('hidden')
       expect(
         (await assistantMessage(response.headers.get('x-conversation-id') as string)).message.parts,

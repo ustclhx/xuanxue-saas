@@ -52,3 +52,18 @@ export function getTextProviderCapabilities(provider: string): TextProviderCapab
 export function supportsTextThinking(provider: string, thinkingOverride?: boolean): boolean {
   return thinkingOverride !== false && getTextProviderCapabilities(provider).supportsThinking
 }
+
+/**
+ * 实际发给 Provider 的 thinking 设置。可控 Provider 上模型配置 thinking=false 时显式禁用：
+ * 不发送任何设置时 DeepSeek V4（如 deepseek-flash）默认开启推理，推理 token 计入输出上限，长文会被截断。
+ * 不可控 Provider 返回 undefined（不附带参数）；其余情况跟随请求或缺省值。
+ */
+export function resolveTextThinking(
+  provider: string,
+  thinkingOverride: boolean | undefined,
+  requested: boolean,
+): boolean | undefined {
+  if (!getTextProviderCapabilities(provider).supportsThinking) return undefined
+  if (thinkingOverride === false) return false
+  return requested
+}

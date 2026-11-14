@@ -14,10 +14,10 @@ import {
   parseAcceptanceFault,
   planTextBudget,
   requireAvailableModel,
+  resolveTextThinking,
   settleChatMessage,
   settleFromCheckpoint,
   settleInterruptedChatMessage,
-  supportsTextThinking,
   TEXT_FAULT_MAX_OUTPUT_TOKENS,
   type TextModelEnv,
   textModelConfig,
@@ -400,9 +400,12 @@ export async function startWorkspaceChat(
               : {}),
           },
     ) as ModelMessage[],
-    thinking: supportsTextThinking(model.provider, thinking)
-      ? (input.thinking ?? textConfig.thinking.default === 'on')
-      : undefined,
+    // 模型配置 thinking=false 时显式禁用（不发送设置时 DeepSeek V4 默认开启推理，长文会被截断）
+    thinking: resolveTextThinking(
+      model.provider,
+      thinking,
+      input.thinking ?? textConfig.thinking.default === 'on',
+    ),
     continuation: continuation === 'native' && !faultMode,
     displayReasoning: textConfig.reasoning.display,
     inputTokens,

@@ -2,7 +2,11 @@ import type { ModelMessage } from 'ai'
 import { generateText, streamText } from 'ai'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { AvailableModel } from '../models.ts'
-import { getTextProviderCapabilities, supportsTextThinking } from './capabilities.ts'
+import {
+  getTextProviderCapabilities,
+  resolveTextThinking,
+  supportsTextThinking,
+} from './capabilities.ts'
 import { defaultLanguageModelFactory } from './model.ts'
 
 const model: AvailableModel = {
@@ -144,4 +148,16 @@ describe('文本 Provider 能力', () => {
       if (!thinking) expect(body).not.toHaveProperty('reasoning_effort')
     },
   )
+})
+
+describe('resolveTextThinking', () => {
+  it('模型配置 thinking=false 时向可控 Provider 显式发送禁用', () => {
+    expect(resolveTextThinking('deepseek', false, true)).toBe(false)
+    expect(resolveTextThinking('deepseek.chat', false, false)).toBe(false)
+  })
+  it('未覆盖时跟随请求；不可控 Provider 不附带', () => {
+    expect(resolveTextThinking('deepseek', undefined, true)).toBe(true)
+    expect(resolveTextThinking('deepseek', undefined, false)).toBe(false)
+    expect(resolveTextThinking('openai', false, true)).toBeUndefined()
+  })
 })
