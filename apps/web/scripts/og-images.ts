@@ -4,6 +4,7 @@ import type { Plugin } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
 import { ogImagePath } from '../src/features/seo/metadata.ts'
+import { ogImageTitle } from '../src/features/seo/og-title.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
 import { defaultShareCardLayout } from '../src/features/share-cards/layout.tsx'
 import { defaultShareCardSite, resolveShareCardSite } from '../src/features/share-cards/site.ts'
@@ -79,7 +80,7 @@ export function ogImages(): Plugin {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),
-          source: await renderOgImage(page.title, page),
+          source: await renderOgImage(ogImageTitle(page.title), page),
         })
       }
       if (templateConfig.marketing.enabled && templateConfig.i18n.enabled)
@@ -114,7 +115,7 @@ export function ogImages(): Plugin {
             return
           }
           response.setHeader('Content-Type', 'image/png')
-          response.end(await renderOgImage(page.title, page))
+          response.end(await renderOgImage(ogImageTitle(page.title), page))
         } catch (error) {
           next(error)
         }

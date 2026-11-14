@@ -155,14 +155,15 @@ describe('首页枢纽区块', () => {
     expect(html).toContain('data-chart="sample"')
   })
 
-  it('样例详批标「示例」并附 AI 声明；样例段落审定前不渲染', () => {
+  it('样例详批标「示例」并附 AI 声明；样例段落已审定，渲染与 catalog 一致的段落', () => {
     const html = render('east', 'zh-Hant')
     const sample = html.match(/data-hub-block="sample"[\s\S]*?<\/section>/)?.[0] ?? ''
     expect(sample).toContain('data-sample-badge')
     expect(sample).toContain('>示例<')
     expect(sample).toContain('data-testid="ai-disclaimer"')
-    expect(HUB_SAMPLE_PARAGRAPHS['zh-Hant']).toBeUndefined()
-    expect(sample).not.toContain('data-sample-paragraph')
+    // 2026-11-14 使用者审定通过（readings/samples.ts SAMPLES_APPROVED = true）
+    expect(HUB_SAMPLE_PARAGRAPHS['zh-Hant']).toBeTruthy()
+    expect(sample).toContain('data-sample-paragraph')
     for (const section of HUB_SAMPLE_SECTIONS['zh-Hant']) expect(sample).toContain(section)
   })
 

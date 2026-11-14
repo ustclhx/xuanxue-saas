@@ -15,7 +15,8 @@ import type { ReadingKind } from '@xuanxue/db'
  * 使用者审定开关（D11）：审定前为 false，解锁卡与首页枢纽都不渲染样例段落；
  * catalog 仍保留全文，供合规与长度测试检查。审定通过后改为 true。
  */
-export const SAMPLES_APPROVED = false
+// 2026-11-14 使用者审定通过（原话「样例通过」），解锁卡与首页枢纽开始渲染样例段落
+export const SAMPLES_APPROVED = true
 
 export const READING_SAMPLES = {
   'bazi-full': {
