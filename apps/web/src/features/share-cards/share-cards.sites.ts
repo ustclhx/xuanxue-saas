@@ -43,6 +43,11 @@ const SITE_THEMES: Readonly<Record<SiteId, Partial<ShareCardTheme>>> = {
 
 /** 东方站英文入口页（D5）的副标题；入口页语言 en 归西方站，首页 SEO 标题是西方站文案 */
 const EAST_ENGLISH_TAGLINE = 'English guide'
+/**
+ * 韩语副标题用短文案（2026-11-14 使用者确认「用短标题」）：模板 0.4.1 对谚文的字宽测量偏小，
+ * 默认副标题「무료 만세력·사주·타로」行尾会被裁掉；模板 0.5.0 修复渲染器后可再评估是否恢复。
+ */
+const KOREAN_TAGLINE = '무료 만세력'
 
 /**
  * 站点识别：构建期默认分享图有页面语言，按语言所属站点（东方站英文入口页按路径）；
@@ -74,6 +79,10 @@ export function resolveProjectShareCardSite(
     theme: SITE_THEMES[site],
     brand: { name: siteBrandName(templateConfig, site, locale) },
     host: canonicalHost(site),
-    ...(eastEnglish ? { tagline: EAST_ENGLISH_TAGLINE } : {}),
+    ...(eastEnglish
+      ? { tagline: EAST_ENGLISH_TAGLINE }
+      : site === 'east' && locale === 'ko'
+        ? { tagline: KOREAN_TAGLINE }
+        : {}),
   }
 }
