@@ -36,6 +36,22 @@ const EN_DATE =
   /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?\b|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{4}\b|\b\d{4}-\d{2}(?:-\d{2})?\b/i
 const EN_ASSERT = /\b(?:will|shall|is going to|are going to|destined|certainly|definitely)\b/i
 
+/**
+ * 英文投资标的：stock / shares / futures / leverage 在日常英语里很常见（taking stock、shares her
+ * feelings、bright futures、leverage your strengths），单词匹配会把整段误替换成理财提示，
+ * 因此这几个词只在投资语境（市场、买卖、持有、标的类型）中命中；不会有歧义的标的名称仍按单词匹配。
+ */
+const EN_INVESTMENT: readonly RegExp[] = [
+  /\b(?:bitcoin|ethereum|crypto(?:currency|currencies)?|ETFs?|forex|mutual funds?|index funds?|hedge funds?|equities)\b/i,
+  /\bstocks\b(?!\s+up\b)/i,
+  /\b(?:stock|share|futures)[\s-](?:market|markets|price|prices|picks?|tips?|portfolios?|options|trading|exchange|contracts?)\b/i,
+  /\b(?:penny|growth|blue[\s-]chip|tech|dividend|individual|single)\s+stocks?\b/i,
+  /\b(?:buy|buys|buying|bought|sell|sells|selling|sold|trade|trades|trading|own|owning|hold|holding|pick|picking|short|shorting)\s+(?:(?:a|some|more|your|the|those|these|few|company|its)\s+){0,2}(?:stocks?|shares|futures)\b/i,
+  /\binvest(?:s|ed|ing|ment|ments)?\s+in\s+(?:(?:a|some|more|the)\s+)?(?:stocks?|shares|futures|funds?)\b/i,
+  /\bshares\s+(?:of|in)\s+(?:a\s+|the\s+)?(?:company|companies|startup|startups|firm|business|stock)\b/i,
+  /\b(?:financial|margin)\s+leverage\b|\bleveraged\s+(?:trading|trades?|positions?|bets?|investments?|products?)\b|\b(?:borrow|borrowing|trade|trading|buy|buying)\s+on\s+margin\b/i,
+]
+
 /** 同一段同时出现具体日期与断言语气才算日期预言 */
 const both = (date: RegExp, assert: RegExp): Matcher => ({
   test: (text: string) => date.test(text) && assert.test(text),
@@ -101,9 +117,7 @@ const RULES: Record<'zh-Hant' | 'zh-Hans' | 'ko' | 'en', LocaleRules> = {
       medical: [
         /\b(?:cancer|tumou?r|diabetes|hypertension|heart disease|stroke|depression|hepatitis|kidney disease|dementia|infertility|pneumonia|diagnos[ie]s|diagnosed)\b/i,
       ],
-      investment: [
-        /\b(?:stocks?|shares|mutual funds?|futures|bitcoin|crypto(?:currency|currencies)?|ETFs?|forex|leverage)\b/i,
-      ],
+      investment: EN_INVESTMENT,
     },
     replacements: {
       'date-prediction':
