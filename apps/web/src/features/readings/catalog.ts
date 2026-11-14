@@ -3,6 +3,7 @@ import {
   type BaziChart,
   BaziInputError,
   type BirthInput,
+  BRANCHES,
   computeChart,
   computeCompatibility,
   decadeDetails,
@@ -270,18 +271,52 @@ function recomputeZiwei(
   if (horoscope.status !== 'ok') invalidInput([{ field: 'time', code: 'required' }])
   return {
     input,
-    engineVersion: `${chart.engineVersion}+${ANNUAL_DATA_VERSION}`,
+    engineVersion: `${chart.engineVersion}+${ZIWEI_ANNUAL_DATA_VERSION}`,
     result: ziweiAnnualSummary(chart, horoscope),
   }
 }
 
-/** v4 紫微摘要：v3 摘要 + 六吉六煞落宫 + 大限区间、当前 / 下一大限与逐年流年（不含出生日期） */
+/**
+ * 紫微 v4 数据档后缀：annual.2 在十二宫上加对宫与空宫借星（4.3 评测中模型多次自行推错对宫）。
+ * 八字 / 사주的逐年数据未变，仍用 ANNUAL_DATA_VERSION。
+ */
+export const ZIWEI_ANNUAL_DATA_VERSION = 'annual.2'
+
+type ZiweiOkChart = Extract<ZiweiChart, { status: 'ok' }>
+
+/**
+ * 十二宫加 `opposite`（地支相隔六位的对宫）；没有主星的空宫再加 `borrowedStars`（对宫主星与亮度）。
+ * 由服务端按地支派生，模型只需引用，不再自行推算对宫。
+ */
+export function palacesWithOpposite(palaces: ZiweiOkChart['palaces']) {
+  const byBranch = new Map(palaces.map((p) => [p.branch, p]))
+  return palaces.map((palace) => {
+    const branch = BRANCHES[(BRANCHES.indexOf(palace.branch) + 6) % 12]
+    const opposite = branch === undefined ? undefined : byBranch.get(branch)
+    if (!opposite) throw new Error(`Missing opposite palace for ${palace.key}`)
+    return {
+      ...palace,
+      opposite: opposite.key,
+      ...(palace.majorStars.length === 0
+        ? {
+            borrowedStars: opposite.majorStars.map((s) => ({
+              star: s.star,
+              brightness: s.brightness,
+            })),
+          }
+        : {}),
+    }
+  })
+}
+
+/** v4 紫微摘要：v3 摘要（十二宫加对宫）+ 六吉六煞落宫 + 大限区间、当前 / 下一大限与逐年流年（不含出生日期） */
 export function ziweiAnnualSummary(
-  chart: Extract<ZiweiChart, { status: 'ok' }>,
+  chart: ZiweiOkChart,
   horoscope: Extract<ZiweiHoroscope, { status: 'ok' }>,
 ) {
   return {
     ...ziweiSummary(chart),
+    palaces: palacesWithOpposite(chart.palaces),
     auxiliaryStars: horoscope.auxiliaryStars,
     horoscope: {
       decades: horoscope.decades,

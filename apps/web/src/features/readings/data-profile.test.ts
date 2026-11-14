@@ -4,8 +4,10 @@ import { describe, expect, it } from 'vitest'
 import {
   ANNUAL_DATA_VERSION,
   chartSummary,
+  type palacesWithOpposite,
   READING_ANNUAL_YEARS,
   recomputeReading,
+  ZIWEI_ANNUAL_DATA_VERSION,
   ziweiSummary,
 } from './catalog.ts'
 
@@ -72,6 +74,40 @@ describe('annual 数据档（v4）', () => {
     expect(result.auxiliaryStars).toHaveLength(12)
     expect(JSON.stringify(result)).not.toContain('1990')
     expect(annual('ziwei-full', INPUT)).toEqual(recomputed)
+  })
+
+  it('紫微：十二宫带对宫，空宫带借星，模型不需自行推算', () => {
+    const recomputed = annual('ziwei-full', INPUT)
+    expect(recomputed.engineVersion).toMatch(new RegExp(`\\+${ZIWEI_ANNUAL_DATA_VERSION}$`))
+    const palaces = (recomputed.result as { palaces: ReturnType<typeof palacesWithOpposite> })
+      .palaces
+    const byKey = new Map(palaces.map((p) => [p.key, p]))
+    // 宫位顺序固定：命—迁、兄—友、夫—官、子—田、财—福、疾—父互为对宫
+    const pairs = [
+      ['soul', 'surface'],
+      ['siblings', 'friends'],
+      ['spouse', 'career'],
+      ['children', 'property'],
+      ['wealth', 'spirit'],
+      ['health', 'parents'],
+    ] as const
+    for (const [a, b] of pairs) {
+      expect(byKey.get(a)?.opposite).toBe(b)
+      expect(byKey.get(b)?.opposite).toBe(a)
+    }
+    const empty = palaces.filter((p) => p.majorStars.length === 0)
+    expect(empty.length).toBeGreaterThan(0)
+    for (const p of empty) {
+      const opposite = byKey.get(p.opposite)
+      expect(p.borrowedStars).toEqual(
+        opposite?.majorStars.map((s) => ({ star: s.star, brightness: s.brightness })),
+      )
+    }
+    expect(
+      palaces.filter((p) => p.majorStars.length > 0).every((p) => !('borrowedStars' in p)),
+    ).toBe(true)
+    // base 数据档的宫位结构不变
+    expect(JSON.stringify(base('ziwei-full', INPUT).result)).not.toContain('opposite')
   })
 
   it('数字命理：逐年个人年、巅峰与挑战数，只标当前阶段，不含出生年份与姓名', () => {
