@@ -132,15 +132,18 @@ export function SessionChatCost({
   const hintChars = useContext(ChatCostPrefixHint)
   const conversationId = session.conversationId
   const hintTokens = conversationId === undefined ? prefixTokens(hintChars) : 0
+  // credit-estimate：沿用模板 CreditEstimateText 的测试钩子（模板 e2e 读取输入区预计消耗）；contents 不参与布局
   return (
-    <ChatCost
-      slug={session.slug}
-      conversationId={conversationId}
-      refreshKey={settled.current}
-      model={model}
-      inputTokens={inputTokens + hintTokens}
-      // 输入区右下角空间有限：限制在所在列宽内，超出时截断而不是压到发送按钮下
-      className="max-w-full"
-    />
+    <span data-testid="credit-estimate" className="contents">
+      <ChatCost
+        slug={session.slug}
+        conversationId={conversationId}
+        refreshKey={settled.current}
+        model={model}
+        inputTokens={inputTokens + hintTokens}
+        // 输入区右下角空间有限：限制在所在列宽内，超出时截断而不是压到发送按钮下
+        className="max-w-full"
+      />
+    </span>
   )
 }
