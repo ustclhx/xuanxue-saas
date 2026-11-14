@@ -192,11 +192,24 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
           length: sample.length,
         })
         let judge: JudgeScore | null = null
+        let judgeMeta: RecordingMeta | null = null
         if (judgeModel && budget && live) {
           const judgeInput = judgeMessages(loadRubric(suite.locale), recomputed.result, text)
-          if (budget.allows(estimateTokens(judgeInput), 1000)) {
-            const generation = await judgeModel.generate(judgeInput, 1000)
-            budget.record(generation.inputTokens ?? estimateTokens(judgeInput), 1000)
+          if (budget.allows(estimateTokens(judgeInput), live.judgeMaxOutputTokens)) {
+            const generation = await judgeModel.generate(judgeInput, live.judgeMaxOutputTokens)
+            budget.record(
+              generation.inputTokens ?? estimateTokens(judgeInput),
+              generation.outputTokens ?? live.judgeMaxOutputTokens,
+            )
+            // 评委用量单独记下，便于按评委模型的单价核算实际费用
+            judgeMeta = {
+              inputTokens: generation.inputTokens,
+              outputTokens: generation.outputTokens,
+              durationMs: generation.durationMs,
+              ...(live.judge
+                ? { model: `${live.judge.provider}:${live.judge.providerModelId}` }
+                : {}),
+            }
             try {
               judge = parseJudge(generation.text)
             } catch (error) {
@@ -209,7 +222,7 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
         writeFileSync(join(versionDir, `${sample.id}.md`), text)
         writeFileSync(
           join(versionDir, `${sample.id}.check.json`),
-          `${JSON.stringify({ report, judge, meta }, null, 2)}\n`,
+          `${JSON.stringify({ report, judge, meta, judgeMeta }, null, 2)}\n`,
         )
         outcomes.push({
           ...base,

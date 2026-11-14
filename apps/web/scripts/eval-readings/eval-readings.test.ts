@@ -217,7 +217,13 @@ describe('参数与预算保护', () => {
       '--price-out',
       '0.002',
     ]).live
-    expect(live).toMatchObject({ maxCalls: 4, maxUsd: 1, maxOutputTokens: 12000, judge: null })
+    expect(live).toMatchObject({
+      maxCalls: 4,
+      maxUsd: 1,
+      maxOutputTokens: 12000,
+      judgeMaxOutputTokens: 16000,
+      judge: null,
+    })
   })
 
   it('按最坏情况估算，超过次数或金额即停', () => {
