@@ -39,6 +39,120 @@
           "city": "taipei"
         }
       }
+    },
+    {
+      "id": "ziwei-hant-03",
+      "note": "虚构：男，命宫无主星（空宫），窗口内换大限",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1984,
+        "month": 3,
+        "day": 13,
+        "time": {
+          "hour": 13,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-04",
+      "note": "虚构：女，四个空宫，窗口内换大限",
+      "requestDate": "2026-02-05T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1986,
+        "month": 4,
+        "day": 16,
+        "time": {
+          "hour": 22,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "taichung"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-05",
+      "note": "虚构：男，无空宫",
+      "requestDate": "2026-11-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1993,
+        "month": 1,
+        "day": 18,
+        "time": {
+          "hour": 11,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "hongKong"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-06",
+      "note": "虚构：女，农历输入，命宫空宫",
+      "requestDate": "2026-08-20T00:00:00Z",
+      "input": {
+        "calendar": "lunar",
+        "year": 1961,
+        "month": 8,
+        "day": 27,
+        "time": {
+          "hour": 2,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "kaohsiung"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-07",
+      "note": "虚构：男，23 点后晚子时",
+      "requestDate": "2026-12-30T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1986,
+        "month": 11,
+        "day": 21,
+        "time": {
+          "hour": 23,
+          "minute": 40
+        },
+        "gender": "male",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "ziwei-hant-08",
+      "note": "虚构：女，年轻，窗口内换大限",
+      "requestDate": "2026-04-10T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1998,
+        "month": 4,
+        "day": 17,
+        "time": {
+          "hour": 1,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "macau"
+        }
+      }
     }
   ]
 }

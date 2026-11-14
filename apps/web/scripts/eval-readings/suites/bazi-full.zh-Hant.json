@@ -36,6 +36,116 @@
           "city": "taipei"
         }
       }
+    },
+    {
+      "id": "bazi-hant-03",
+      "note": "虚构：女，身弱，23 点子时边界，窗口内换大运且冲太岁",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1986,
+        "month": 4,
+        "day": 16,
+        "time": {
+          "hour": 23,
+          "minute": 10
+        },
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-04",
+      "note": "虚构：男，身弱，窗口内换大运且值太岁，2 月立春后请求",
+      "requestDate": "2026-02-10T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1968,
+        "month": 3,
+        "day": 28,
+        "time": {
+          "hour": 1,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "kaohsiung"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-05",
+      "note": "虚构：男，不知道时辰，第四季度请求",
+      "requestDate": "2026-11-20T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1984,
+        "month": 3,
+        "day": 13,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "hongKong"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-06",
+      "note": "虚构：男，农历输入，3 月请求",
+      "requestDate": "2026-03-01T00:00:00Z",
+      "input": {
+        "calendar": "lunar",
+        "year": 1990,
+        "month": 5,
+        "day": 12,
+        "time": {
+          "hour": 19,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "taichung"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-07",
+      "note": "虚构：女，不知道时辰，12 月底请求",
+      "requestDate": "2026-12-28T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 2001,
+        "month": 11,
+        "day": 6,
+        "time": null,
+        "gender": "female",
+        "location": {
+          "city": "taipei"
+        }
+      }
+    },
+    {
+      "id": "bazi-hant-08",
+      "note": "虚构：男，手选 UTC+8 与经度，真太阳时",
+      "requestDate": "2026-07-01T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1978,
+        "month": 5,
+        "day": 15,
+        "time": {
+          "hour": 6,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "utcOffsetMinutes": 480,
+          "longitude": 121.0
+        },
+        "trueSolarTime": true
+      }
     }
   ]
 }

@@ -36,6 +36,115 @@
           "city": "beijing"
         }
       }
+    },
+    {
+      "id": "bazi-hans-03",
+      "note": "虚构：男，身强，冲太岁",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1984,
+        "month": 12,
+        "day": 13,
+        "time": {
+          "hour": 23,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "guangzhou"
+        }
+      }
+    },
+    {
+      "id": "bazi-hans-04",
+      "note": "虚构：女，身弱，窗口内换大运且冲太岁，1 月请求",
+      "requestDate": "2026-01-08T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1987,
+        "month": 1,
+        "day": 8,
+        "time": {
+          "hour": 18,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "shanghai"
+        }
+      }
+    },
+    {
+      "id": "bazi-hans-05",
+      "note": "虚构：女，不知道时辰，第四季度请求",
+      "requestDate": "2026-10-30T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1976,
+        "month": 4,
+        "day": 23,
+        "time": null,
+        "gender": "female",
+        "location": {
+          "city": "beijing"
+        }
+      }
+    },
+    {
+      "id": "bazi-hans-06",
+      "note": "虚构：男，身强，窗口内换大运且值太岁",
+      "requestDate": "2026-08-01T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1990,
+        "month": 6,
+        "day": 5,
+        "time": {
+          "hour": 19,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "singapore"
+        }
+      }
+    },
+    {
+      "id": "bazi-hans-07",
+      "note": "虚构：女，农历闰月输入",
+      "requestDate": "2026-05-10T00:00:00Z",
+      "input": {
+        "calendar": "lunar",
+        "year": 1995,
+        "month": 8,
+        "day": 15,
+        "time": {
+          "hour": 9,
+          "minute": 30
+        },
+        "gender": "female",
+        "location": {
+          "city": "guangzhou"
+        },
+        "isLeapMonth": true
+      }
+    },
+    {
+      "id": "bazi-hans-08",
+      "note": "虚构：男，年长，不知道时辰，12 月请求",
+      "requestDate": "2026-12-05T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1960,
+        "month": 2,
+        "day": 19,
+        "time": null,
+        "gender": "male",
+        "location": {
+          "city": "beijing"
+        }
+      }
     }
   ]
 }
