@@ -523,6 +523,7 @@ describe('Stripe subscription management', () => {
 
   it('resumes renewal and opens the portal with the supplied return URL', async () => {
     const mock = mockStripe([
+      { method: 'GET', path: '/v1/subscriptions/sub_test', body: subscription },
       { method: 'POST', path: '/v1/subscriptions/sub_test', body: subscription },
       {
         method: 'POST',
@@ -531,12 +532,23 @@ describe('Stripe subscription management', () => {
       },
     ])
     await mock.operations.resumeSubscription('sub_test')
-    expect(mock.requests[0]?.body.get('cancel_at_period_end')).toBe('false')
+    expect(mock.requests[1]?.body.get('cancel_at_period_end')).toBe('false')
     expect(await mock.operations.getPortalUrl('cus_test', 'https://app.example/billing')).toBe(
       'https://billing.stripe.com/offline',
     )
-    expect(mock.requests[1]?.body.get('customer')).toBe('cus_test')
-    expect(mock.requests[1]?.body.get('return_url')).toBe('https://app.example/billing')
+    expect(mock.requests[2]?.body.get('customer')).toBe('cus_test')
+    expect(mock.requests[2]?.body.get('return_url')).toBe('https://app.example/billing')
+  })
+
+  it('restores a portal cancellation by clearing cancel_at (portal sets cancel_at, not cancel_at_period_end)', async () => {
+    const portalCanceled = { ...subscription, cancel_at: 1802592000 }
+    const mock = mockStripe([
+      { method: 'GET', path: '/v1/subscriptions/sub_test', body: portalCanceled },
+      { method: 'POST', path: '/v1/subscriptions/sub_test', body: subscription },
+    ])
+    await mock.operations.resumeSubscription('sub_test')
+    expect(mock.requests[1]?.body.get('cancel_at')).toBe('')
+    expect(mock.requests[1]?.body.has('cancel_at_period_end')).toBe(false)
   })
 
   it('rejects multi-item subscriptions before a destructive plan update', async () => {
