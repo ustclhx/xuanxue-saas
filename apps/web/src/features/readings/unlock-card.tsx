@@ -122,11 +122,18 @@ type Phase =
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms))
 
 /** 流结束后等待报告同步出最终状态（后台结算可能稍晚于流）；读取失败时返回 null，按流的结果显示 */
-async function settledStatus(slug: string, id: string): Promise<ReadingView['status'] | null> {
+/**
+ * 等服务端收尾后的报告：状态以保存结果为准；ready 时返回保存的正文（已做 v4 兜底修正、补健康提示与声明），
+ * 流式期间展示的原文在完成后换成与报告页、重新打开时一致的版本。
+ */
+async function settledReading(
+  slug: string,
+  id: string,
+): Promise<Pick<ReadingView, 'status' | 'content'> | null> {
   for (let attempt = 0; attempt < 8; attempt++) {
     const view = await getReading({ data: { slug, id } }).catch(() => null)
     if (!view) return null
-    if (view.status !== 'generating') return view.status
+    if (view.status !== 'generating') return view
     await wait(1000)
   }
   return null
@@ -262,14 +269,15 @@ function ReadingUnlockCard({
     )
     // 章节不全等未完整完成的报告由服务端标记失败并退回积分：流结束后以保存的状态为准
     const slug = offer?.viewer?.slug
-    const status = slug ? await settledStatus(slug, id) : null
-    if (status === 'failed' || (result.failed && !result.text.trim())) {
+    const settled = slug ? await settledReading(slug, id) : null
+    if (settled?.status === 'failed' || (result.failed && !result.text.trim())) {
       void refresh()
       trackEvent('generate_fail')
       return setPhase({ name: 'failed' })
     }
     trackEvent('generate_success')
-    setPhase({ name: 'done', id, text: result.text, emailed })
+    const saved = settled?.status === 'ready' ? settled.content?.trim() : ''
+    setPhase({ name: 'done', id, text: saved || result.text, emailed })
     void refresh()
   }
 

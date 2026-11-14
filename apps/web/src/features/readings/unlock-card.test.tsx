@@ -149,9 +149,9 @@ describe('解锁卡内容与完成提示', () => {
     expect(container.querySelector('[data-testid="reading-sample"]')).toBeNull()
   })
 
-  const finish = async (delivery: 'queued' | 'none') => {
+  const finish = async (delivery: 'queued' | 'none', saved?: string) => {
     balance = 100
-    vi.mocked(getReading).mockResolvedValue({ status: 'ready' } as never)
+    vi.mocked(getReading).mockResolvedValue({ status: 'ready', content: saved } as never)
     const chunks = [
       'data: {"type":"text-delta","id":"t","delta":"## Overview\\n\\nText"}\n\n',
       'data: {"type":"finish"}\n\n',
@@ -181,6 +181,19 @@ describe('解锁卡内容与完成提示', () => {
 
   it('报告邮件已交给发信通道（queued）时提示已寄出链接', async () => {
     expect(await finish('queued')).toBe("Saved to your account. We've also emailed you a link.")
+  })
+
+  const streamText = () => container.querySelector('[data-testid="reading-stream"]')?.textContent
+
+  it('完成后显示服务端保存的正文（v4 兜底修正后的版本）', async () => {
+    await finish('none', '## Overview\n\nCorrected body')
+    expect(streamText()).toContain('Corrected body')
+    expect(streamText()).not.toContain('Text')
+  })
+
+  it('没有读到保存的正文时保留流式原文', async () => {
+    await finish('none')
+    expect(streamText()).toContain('Text')
   })
 })
 

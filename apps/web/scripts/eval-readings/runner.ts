@@ -5,6 +5,13 @@ import {
   readingDefinition,
   readingMessages,
 } from '../../src/features/readings/catalog.ts'
+import {
+  deliveredReadingText,
+  type GuardReport,
+  guardApplies,
+  guardChanged,
+  readingGuardYears,
+} from '../../src/features/readings/guard.ts'
 import { Budget, type EvalOptions, type ModelRef } from './args.ts'
 import { checkReading } from './checks.ts'
 import { type JudgeScore, judgeMessages, loadRubric, parseJudge } from './judge.ts'
@@ -113,6 +120,16 @@ const toChat = (messages: ReturnType<typeof readingMessages>): ChatMessage[] =>
 const estimateTokens = (messages: readonly ChatMessage[]) =>
   messages.reduce((sum, m) => sum + m.content.length, 0)
 
+function guardSummary(report: GuardReport): string {
+  const parts = [
+    report.glyphs > 0 ? `繁→简 ${report.glyphs} 字` : '',
+    report.ganzhi > 0 ? `干支改正 ${report.ganzhi} 处` : '',
+    report.personalYear > 0 ? `个人年数改正 ${report.personalYear} 处` : '',
+    report.unresolved > 0 ? `无法改正 ${report.unresolved} 处` : '',
+  ]
+  return parts.filter(Boolean).join('、')
+}
+
 export async function runEval(options: EvalOptions, deps: RunnerDeps) {
   const log = deps.log ?? ((message: string) => console.log(message))
   const root = join(deps.evidenceDir, 'eval-readings')
@@ -126,6 +143,7 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
   const budget = live ? new Budget(live) : null
   const outcomes: SampleOutcome[] = []
   const notes: string[] = []
+  const guardNotes: string[] = []
 
   const roles: { role: SampleOutcome['role']; spec: string }[] = [
     { role: 'baseline', spec: options.baseline },
@@ -190,6 +208,25 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
             writeFileSync(metaFile, `${JSON.stringify(meta, null, 2)}\n`)
           }
         }
+        // 检查与评委都针对使用者实际看到的正文：与 finalizeReading 相同的字形补正与 v4 兜底；
+        // 录制保留模型原文，离线复跑时同样经过兜底
+        const raw = text
+        const delivered = deliveredReadingText(raw, {
+          locale: suite.locale,
+          promptVersion: definition.prompt.version,
+          years: guardApplies(definition.prompt.version)
+            ? readingGuardYears(
+                suite.kind,
+                new Date(sample.requestDate).getUTCFullYear(),
+                recomputed.input,
+              )
+            : [],
+        })
+        text = delivered.text
+        if (guardChanged(delivered.report) || delivered.report.unresolved > 0)
+          guardNotes.push(
+            `${sample.id}（${definition.prompt.version}）${guardSummary(delivered.report)}`,
+          )
         const report = checkReading({
           text,
           definition,
@@ -226,9 +263,10 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
         const versionDir = join(outDir, definition.prompt.version)
         mkdirSync(versionDir, { recursive: true })
         writeFileSync(join(versionDir, `${sample.id}.md`), text)
+        if (raw !== text) writeFileSync(join(versionDir, `${sample.id}.raw.md`), raw)
         writeFileSync(
           join(versionDir, `${sample.id}.check.json`),
-          `${JSON.stringify({ report, judge, meta, judgeMeta }, null, 2)}\n`,
+          `${JSON.stringify({ report, guard: delivered.report, judge, meta, judgeMeta }, null, 2)}\n`,
         )
         outcomes.push({
           ...base,
@@ -242,6 +280,7 @@ export async function runEval(options: EvalOptions, deps: RunnerDeps) {
     }
   }
 
+  if (guardNotes.length > 0) notes.push(`生成后兜底（guard.ts）：${guardNotes.join('；')}`)
   if (budget) notes.push(`真实调用 ${budget.calls} 次，估算费用 ${budget.spentUsd.toFixed(4)} USD`)
   const checked = outcomes.filter((o) => o.status === 'checked').length
   if (!live && checked === 0)

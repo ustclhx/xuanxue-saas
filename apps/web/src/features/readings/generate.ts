@@ -34,6 +34,13 @@ import {
   withDisclaimer,
 } from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
+import {
+  deliveredReadingText,
+  type GuardReport,
+  guardApplies,
+  guardChanged,
+  readingGuardYears,
+} from './guard.ts'
 import { toTraditional } from './hant.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 import { readingTitle } from './title.ts'
@@ -310,8 +317,17 @@ export async function finalizeReading(
     update = { status: 'failed', content: '' }
   } else {
     const { definition } = options
-    const normalized = toTraditional(text, row.locale)
-    const checked = checkCompliance(ensureHealthNotice(normalized, definition), row.locale)
+    // 繁中字形补正（所有版本）+ v4 兜底（简中繁体字、年份干支 / 个人年数按数据改正，guard.ts）。
+    // 窗口起点取报告创建时的 UTC 年，与生成请求复算时一致
+    const guarded = deliveredReadingText(text, {
+      locale: row.locale,
+      promptVersion: row.promptVersion,
+      years: guardApplies(row.promptVersion)
+        ? readingGuardYears(row.kind, row.createdAt.getUTCFullYear(), row.input)
+        : [],
+    })
+    logGuard(row, guarded.report)
+    const checked = checkCompliance(ensureHealthNotice(guarded.text, definition), row.locale)
     if (checked.violations.length > 0)
       log.warn('readings.compliance_replaced', {
         readingId: row.id,
@@ -333,6 +349,28 @@ export async function finalizeReading(
       title: readingTitle(saved.kind, saved.locale),
     })
   return saved
+}
+
+/**
+ * 兜底只记次数，不记正文（日志不含报告内容）。仍有无法改正的年份标题时只告警、照常保存：
+ * 流式正文已展示、积分已按完整报告结算，重新生成需要再调用一次模型并改动计费，代价远大于单处笔误。
+ */
+function logGuard(
+  row: Pick<Reading, 'id' | 'kind' | 'locale' | 'promptVersion'>,
+  report: GuardReport,
+) {
+  const fields = {
+    readingId: row.id,
+    kind: row.kind,
+    locale: row.locale,
+    promptVersion: row.promptVersion,
+    glyphs: report.glyphs,
+    ganzhi: report.ganzhi,
+    personalYear: report.personalYear,
+    unresolved: report.unresolved,
+  }
+  if (report.unresolved > 0) log.warn('readings.guard_unresolved', fields)
+  else if (guardChanged(report)) log.info('readings.guard_corrected', fields)
 }
 
 /**

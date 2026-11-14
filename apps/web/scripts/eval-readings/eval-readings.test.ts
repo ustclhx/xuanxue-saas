@@ -1,8 +1,17 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type ReadingDefinition, readingDefinition } from '../../src/features/readings/catalog.ts'
+import { readingGuardYears } from '../../src/features/readings/guard.ts'
 import { Budget, EvalUsageError, parseArgs } from './args.ts'
 import {
   bodyGanzhiMismatches,
@@ -309,6 +318,91 @@ describe('运行器（离线）', () => {
     }
     // 96 次排盘（含紫微星盘）在全量并行测试下可能超过默认 5 秒
   }, 30_000)
+
+  it('线上兜底按公历年推算的期望年份与复算数据（八字 annual、紫微 horoscope、个人年）逐样本一致', () => {
+    // guard.ts 的 readingGuardYears 不重新排盘；这里保证它与模型实际拿到的逐年数据相同
+    for (const suite of loadSuites(SUITES_DIR, { kinds: [], locales: [] })) {
+      const definition = readingDefinition(suite.kind, suite.locale, {
+        promptVersion: `${suite.kind}.v4`,
+      })
+      for (const sample of suite.samples) {
+        const recomputed = definition?.recompute(sample.input, new Date(sample.requestDate))
+        if (!recomputed) throw new Error(`${sample.id} 无法复算`)
+        expect(
+          readingGuardYears(
+            suite.kind,
+            new Date(sample.requestDate).getUTCFullYear(),
+            recomputed.input,
+          ),
+          sample.id,
+        ).toEqual(expectedYears(recomputed.result))
+      }
+    }
+  }, 30_000)
+
+  it('检查与评委针对兜底后的正文：简中繁体字与年份干支笔误修正后通过，录制保留原文', async () => {
+    const evidence = mkdtempSync(join(tmpdir(), 'eval-readings-'))
+    dirs.push(evidence)
+    const [suite] = loadSuites(SUITES_DIR, {
+      kinds: ['ziwei-full'],
+      locales: ['zh-Hans'],
+      samples: ['ziwei-hans-01'],
+    })
+    const sample = suite?.samples[0]
+    const v4 = readingDefinition('ziwei-full', 'zh-Hans', { promptVersion: 'ziwei-full.v4' })
+    if (!sample || !v4) throw new Error('fixture missing')
+    const years = expectedYears(v4.recompute(sample.input, new Date(sample.requestDate)).result)
+    const [first, second] = years
+    if (!first?.ganzhi || !second) throw new Error('window missing')
+    // 第二年的标题故意写成第一年的干支，正文夹一个繁体「變」（rev2 的两类失败）
+    const yearly = years
+      .map((y) => `### ${y.year} ${(y === second ? first : y).ganzhi?.hanzi}\n\n这一年稳步推进。`)
+      .join('\n\n')
+    const text = v4.prompt.sections
+      .map((title) => {
+        if (title === '大限与流年') return `## ${title}\n\n当前大限平稳。\n\n${yearly}`
+        if (title === '健康作息提示')
+          return `## ${title}\n\n规律作息。${v4.healthSection?.notice ?? ''}`
+        return `## ${title}\n\n${title}的内容有所變化。`
+      })
+      .join('\n\n')
+    const recordings = join(evidence, 'eval-readings/recordings/ziwei-full.v4')
+    mkdirSync(recordings, { recursive: true })
+    writeFileSync(join(recordings, 'ziwei-hans-01.md'), text)
+
+    const run = await runEval(
+      parseArgs([
+        '--kind',
+        'ziwei-full',
+        '--locale',
+        'zh-Hans',
+        '--sample',
+        'ziwei-hans-01',
+        '--candidate',
+        'v4',
+      ]),
+      { evidenceDir: evidence, log: () => {} },
+    )
+    const candidate = run.outcomes.find((o) => o.role === 'candidate')
+    expect(candidate?.status).toBe('checked')
+    expect(candidate?.report?.checks.filter((c) => c.hard && !c.passed)).toEqual([])
+    const saved = readFileSync(join(run.outDir, 'ziwei-full.v4/ziwei-hans-01.md'), 'utf8')
+    expect(saved).toContain(`### ${second.year} ${second.ganzhi?.hanzi}`)
+    expect(saved).not.toContain('變')
+    expect(readFileSync(join(run.outDir, 'ziwei-full.v4/ziwei-hans-01.raw.md'), 'utf8')).toBe(text)
+    expect(run.notes.join('\n')).toContain('干支改正 1 处')
+    // 不经兜底的原文仍会被检查器判失败：兜底确实是通过的原因
+    const rawReport = checkReading({
+      text,
+      definition: v4,
+      locale: 'zh-Hans',
+      result: v4.recompute(sample.input, new Date(sample.requestDate)).result,
+    })
+    expect(rawReport.checks.filter((c) => c.hard && !c.passed).map((c) => c.name)).toEqual([
+      'dataConsistency',
+      'glyphs',
+    ])
+  })
 
   it('--sample 只保留指定样本，没有命中样本的套件被跳过', () => {
     const options = parseArgs(['--sample', 'bazi-hant-01', '--sample', 'ziwei-hans-04'])

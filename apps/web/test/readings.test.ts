@@ -43,6 +43,7 @@ import {
   handleReadingRequest,
   type ReadingDeps,
 } from '../src/features/readings/generate.ts'
+import { yearGanzhi } from '../src/features/readings/guard.ts'
 import { birthUnlock } from '../src/features/readings/unlock-requests.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
 
@@ -570,6 +571,48 @@ describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', ()
     })
     expect(saved).toMatchObject({ status: 'ready', promptVersion: SWITCHED.version })
     expect(saved?.content).toContain(switchedReport().split('\n')[0])
+  })
+})
+
+describe('v4 生成后兜底（readings-prompt-v4-yearly tasks 4.3）', () => {
+  const VERSION = 'bazi-full.v4'
+  /** 简中 v4 报告：流年小节中第二年写成第一年的干支、正文夹繁体字「變」 */
+  const sloppyReport = () => {
+    const definition = readingDefinition('bazi-full', 'zh-Hans', { promptVersion: VERSION })
+    if (!definition) throw new Error('v4 missing')
+    const year = new Date().getUTCFullYear()
+    const yearly = [year, year + 1]
+      .map((y) => `### ${y} ${yearGanzhi(year).hanzi}\n\n这一年稳步推进。`)
+      .join('\n\n')
+    return definition.prompt.sections
+      .map((title) =>
+        title === '流年逐年' ? `## ${title}\n\n${yearly}` : `## ${title}\n\n${title}有所變化。`,
+      )
+      .join('\n\n')
+  }
+
+  it('保存的正文已改正，承载消息保留模型原文', async () => {
+    const who = await member(100)
+    const modelKey = await textModel()
+    const raw = sloppyReport()
+    const run = deps(reportModel(raw), modelKey, { 'readings.bazi-full.promptVersion': VERSION })
+    const response = await post(
+      who,
+      { kind: 'bazi-full', input: BIRTH, locale: 'zh-Hans', site: 'east' },
+      run.deps,
+    )
+    expect(response.status).toBe(200)
+    await response.text()
+    await run.settled()
+    const [saved] = await readings(who.workspaceId)
+    expect(saved).toMatchObject({ status: 'ready' })
+    const next = new Date().getUTCFullYear() + 1
+    expect(saved?.content).toContain(`### ${next} ${yearGanzhi(next).hanzi}`)
+    expect(saved?.content).not.toContain('變')
+    expect(saved?.content).toContain('有所变化')
+    const [message] = await sql<{ parts: unknown }[]>`
+      select parts from ai_message where id = ${saved?.message_id ?? null}`
+    expect(JSON.stringify(message?.parts)).toContain('變')
   })
 })
 
