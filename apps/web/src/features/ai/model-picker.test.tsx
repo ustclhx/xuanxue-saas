@@ -78,11 +78,10 @@ describe('ModelPicker', () => {
       <ModelPicker models={[perCall, perToken]} value={perToken.id} onChange={() => {}} />,
     )
     expect(html).toContain('role="combobox"')
-    expect(html).toContain('for="ai-model"')
-    expect(html).toContain('id="ai-model"')
+    expect(html).toMatch(/for="([^"]+)"[\s\S]*id="\1"/)
     expect(html).toContain('smart-chat')
     expect(html).not.toContain('fast-chat')
-    expect(html).toMatch(/^<div>/)
+    expect(html).toMatch(/^<div data-model-picker="">/)
   })
 
   it('未指定模型时显示第一项，已下架的选值显示占位文字', () => {
@@ -96,16 +95,19 @@ describe('ModelPicker', () => {
 
   it('没有可用模型时显示提示', () => {
     const html = renderToString(<ModelPicker models={[]} value={undefined} onChange={() => {}} />)
-    expect(html).toContain(m.ai_chat_no_models())
+    expect(html).toContain(m.chat_ui_model_empty())
     expect(html).not.toContain('role="combobox"')
   })
 
   it.each(['en', 'zh-Hant', 'zh-Hans', 'ko'] as const)(
     '%s 有选择器文案（不再写死英文）',
     (locale) => {
-      expect(m.ai_chat_model_label({}, { locale })).toBeTruthy()
-      expect(m.ai_chat_no_models({}, { locale })).toBeTruthy()
-      expect(m.ai_chat_estimate_label({}, { locale })).toBeTruthy()
+      // 非英文语言有自己的译文（缺译时 Paraglide 回退到英文）
+      const en = { locale: 'en' } as const
+      for (const key of ['chat_ui_model', 'chat_ui_model_empty', 'chat_ui_estimate'] as const) {
+        expect(m[key]({}, { locale })).toBeTruthy()
+        if (locale !== 'en') expect(m[key]({}, { locale })).not.toBe(m[key]({}, en))
+      }
     },
   )
 })

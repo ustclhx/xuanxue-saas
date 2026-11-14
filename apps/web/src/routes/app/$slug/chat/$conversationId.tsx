@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { ChatContextSummary } from '../../../../features/ai/chat-context-summary-card.tsx'
-import { ChatPage } from '../../../../features/ai/chat-page.tsx'
+import { ChatPage, ChatPageSkeleton } from '../../../../features/ai/chat-page.tsx'
 import { getConversation } from '../../../../features/ai/conversations.functions.ts'
+import { useAppShellBarAvailable } from '../../../../features/app-shell/bar.tsx'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
@@ -13,22 +14,29 @@ export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
   },
   staleTime: 0,
   head: ({ loaderData }) => ({
-    meta: loaderData ? [{ title: loaderData.conversation.title || m.ai_chat_new_chat() }] : [],
+    meta: loaderData ? [{ title: loaderData.conversation.title || m.chat_ui_untitled() }] : [],
   }),
   component: ConversationPage,
-  notFoundComponent: () => {
-    const { slug } = Route.useParams()
-    return (
-      <section className="grid gap-2">
-        <h2 className="text-2xl font-semibold">{m.ai_chat_not_found_title()}</h2>
-        <p>{m.ai_chat_not_found_body()}</p>
-        <Link to="/app/$slug/chat" params={{ slug }} className="underline">
-          {m.ai_chat_back_to_chats()}
-        </Link>
-      </section>
-    )
-  },
+  pendingComponent: ChatPageSkeleton,
+  // 对话区头部即页面标题（版式取舍 2），顶部条不再显示「对话」标题
+  staticData: { shellTitle: false },
+  notFoundComponent: ConversationNotFound,
 })
+
+/** 顶部条不显示标题（staticData.shellTitle = false），侧边栏布局下这里是页面 h1 */
+function ConversationNotFound() {
+  const { slug } = Route.useParams()
+  const Heading = useAppShellBarAvailable() ? 'h1' : 'h2'
+  return (
+    <section className="grid gap-2">
+      <Heading className="text-2xl font-semibold">{m.chat_ui_not_found_title()}</Heading>
+      <p>{m.chat_ui_not_found_body()}</p>
+      <Link to="/app/$slug/chat" params={{ slug }} className="underline">
+        {m.chat_ui_back_to_chats()}
+      </Link>
+    </section>
+  )
+}
 
 function ConversationPage() {
   const page = Route.useLoaderData()
@@ -36,7 +44,12 @@ function ConversationPage() {
   // 发布前的旧带盘对话在对话之上显示原命盘摘要（legacy-chat-context.ts）
   return (
     <div className="grid gap-4">
-      {page.chatContext ? <ChatContextSummary context={page.chatContext} /> : null}
+      {page.chatContext ? (
+        // 与对话页 720px 消息列对齐
+        <div className="mx-auto w-full min-w-0 max-w-180">
+          <ChatContextSummary context={page.chatContext} />
+        </div>
+      ) : null}
       <ChatPage
         key={page.conversation.id}
         slug={slug}

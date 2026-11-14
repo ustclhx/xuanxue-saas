@@ -98,8 +98,11 @@ export async function stripeInvoiceLines(
 }
 
 /**
- * 是否已安排在当期结束时取消。Stripe 客户门户（API 2026-09-30.endive）的「周期末取消」写入
- * cancel_at = 当期结束时间而 cancel_at_period_end 仍为 false；两种写法都视为周期末取消。
+ * 订阅是否会在当前周期末停止续费。
+ * API 置 cancel_at_period_end=true；Customer Portal 的“周期末取消”（2026-09-30.endive 实测）
+ * 改为设置 cancel_at=当前周期末且 cancel_at_period_end 仍为 false。两种形态都视为周期末取消。
+ * cancel_at 晚于当前周期末（远期定时取消）时下一周期仍会续费，不算周期末取消。
+ * currentPeriodEnd 取订阅项的 current_period_end（Unix 秒），与快照周期一致。
  */
 export function stripeCancelsAtPeriodEnd(
   subscription: Pick<Stripe.Subscription, 'cancel_at_period_end' | 'cancel_at'>,

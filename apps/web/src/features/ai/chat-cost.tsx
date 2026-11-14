@@ -1,10 +1,13 @@
+import { useChat } from '@ai-sdk/react'
 import { DEFAULT_TOKENS_PER_CHAR, estimateInputTokens } from '@xuanxue/ai/client'
 import { CreditEstimate } from '@xuanxue/ui'
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getChatCostContext } from './chat-cost.functions.ts'
 import type { ChatCostContext } from './chat-cost.server.ts'
 import { formatNumber } from './chat-extras.tsx'
+import { type ChatSession, useChatSessionState } from './chat-session.ts'
+import type { ChatUIMessage } from './conversation.ts'
 import { formatEstimate, type PickerModel, typicalMessageEstimate } from './model-picker.ts'
 
 /**
@@ -92,4 +95,43 @@ export function ChatCost({
     }
   }, [slug, conversationId, refreshKey])
   return <ChatCostView cost={cost} {...props} />
+}
+
+/**
+ * 还没有对话时（对象对话第一次发送前）服务端尚未写入上下文前缀，由页面给出前缀的近似字符数
+ * （报告页传报告正文长度）；新建对话后改读服务端的实际前缀。
+ */
+export const ChatCostPrefixHint = createContext(0)
+
+/**
+ * ChatComposer 内的「预计 · 余额」：按会话读取对话 ID（对象对话第一次发送后才有）与回复状态，
+ * 每轮回复结束（不再生成）时刷新一次余额。
+ */
+export function SessionChatCost({
+  session,
+  model,
+  inputTokens,
+}: {
+  session: ChatSession
+  model: PickerModel | undefined
+  inputTokens: number
+}) {
+  useChatSessionState(session)
+  const { status, messages } = useChat<ChatUIMessage>({ chat: session.chat })
+  const busy = status === 'submitted' || status === 'streaming'
+  // 只在不生成时更新：生成开始不触发读取，结束时消息数变化触发一次
+  const settled = useRef(messages.length)
+  if (!busy) settled.current = messages.length
+  const hintChars = useContext(ChatCostPrefixHint)
+  const conversationId = session.conversationId
+  const hintTokens = conversationId === undefined ? prefixTokens(hintChars) : 0
+  return (
+    <ChatCost
+      slug={session.slug}
+      conversationId={conversationId}
+      refreshKey={settled.current}
+      model={model}
+      inputTokens={inputTokens + hintTokens}
+    />
+  )
 }

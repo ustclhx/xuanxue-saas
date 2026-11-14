@@ -18,12 +18,16 @@ import { gzipSync } from 'node:zlib'
  */
 export const SHARE_CARD_MARKER = 'xuanxue-share-card'
 
-/** 首页不应出现的代码特征：mdast-util-to-hast 的 id 前缀、GFM 脚注区属性、阅读器自身的标记、分享图模块 */
+/**
+ * 首页不应出现的代码特征：mdast-util-to-hast 的 id 前缀、GFM 脚注区属性、阅读器自身的标记、分享图模块、
+ * 对话 Markdown 代码块的标记（`@xuanxue/ui/chat`，模板 add-ai-chat-components 3.4）
+ */
 export const FORBIDDEN_MARKERS = [
   'user-content-',
   'data-footnotes',
   'reader-mobile-toc',
   SHARE_CARD_MARKER,
+  'data-chat-code',
 ]
 
 /**
@@ -275,7 +279,7 @@ export function reportHomePages(results) {
     const problems = [
       ...page.violations.map(
         ({ asset, marker }) =>
-          `静态依赖 ${asset} 含 "${marker}"（阅读器 / Markdown / 分享图与分享卡片渲染器只应懒加载）`,
+          `静态依赖 ${asset} 含 "${marker}"（阅读器 / 对话 / Markdown / 分享图与分享卡片渲染器只应懒加载）`,
       ),
       ...(page.overBudget ? [`gzip 合计 ${page.gzipBytes} B 超出预算 ${page.budget} B`] : []),
       ...page.headDiffs.map((diff) => `head 与 home-head-snapshot.json 不一致：${diff}`),
