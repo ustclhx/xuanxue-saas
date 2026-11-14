@@ -81,6 +81,10 @@ describe('v4 修订约束', () => {
     expect(system('bazi-full', 'zh-Hant')).toContain('藏干與藏干十神只能引用 JSON')
     expect(system('bazi-full', 'zh-Hans')).toContain('藏干与藏干十神只能引用 JSON')
     expect(system('saju-full', 'ko')).toContain('지장간과 그 십성은 JSON에 있는 것만')
+    // 流年所属大运干支只取数据档 decade 字段
+    expect(system('bazi-full', 'zh-Hant')).toContain('干支只取該年的 decade')
+    expect(system('bazi-full', 'zh-Hans')).toContain('干支只取该年的 decade')
+    expect(system('saju-full', 'ko')).toContain('그해의 decade에서만')
     for (const [kind, locale, word] of [
       ['bazi-full', 'zh-Hant', '槓桿'],
       ['bazi-full', 'zh-Hans', '杠杆'],

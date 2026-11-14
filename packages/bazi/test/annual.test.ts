@@ -92,6 +92,14 @@ describe('annualOutlook', () => {
     expect(entered).toMatchObject({ decadeIndex: next?.index, decadeStart: true })
     expect(years[0]?.decadeIndex).toBe((next?.index ?? 0) - 1)
     expect(years[0]?.decadeStart).toBe(false)
+    // 换运年起，大运干支切换为下一步大运；换运前仍是上一步
+    const previous = chart.fortune.decades.find((d) => d.index === (next?.index ?? 0) - 1)
+    expect(entered?.decade).toEqual({ stem: next?.stem, branch: next?.branch })
+    expect(years[0]?.decade).toEqual({ stem: previous?.stem, branch: previous?.branch })
+    for (const y of years) {
+      const d = chart.fortune.decades.find((x) => x.index === y.decadeIndex)
+      expect(y.decade).toEqual(d ? { stem: d.stem, branch: d.branch } : null)
+    }
   })
 
   it('无时辰：逐年关系不含时柱，并标注为估算', () => {

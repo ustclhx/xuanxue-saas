@@ -42,6 +42,11 @@ export type AnnualYear = {
   branchTenGods: { stem: Stem; qi: Qi; tenGod: TenGod }[]
   /** 所属大运序号；起运之前或十步大运之后为 null */
   decadeIndex: number | null
+  /**
+   * 所属大运的干支（与 decadeIndex 同源）；起运前或十步大运之后为 null。
+   * 直接给出干支，避免模型按序号回查大运时张冠李戴（readings-prompt-v4 tasks 4.3 评测）
+   */
+  decade: { stem: Stem; branch: Branch } | null
   /** 该年是否为某步大运的起始年（窗口内换运） */
   decadeStart: boolean
   relations: AnnualRelation[]
@@ -125,6 +130,7 @@ export function annualOutlook(
         tenGod: tenGodOf(dayStem, stem),
       })),
       decadeIndex: decade?.index ?? null,
+      decade: decade ? { stem: decade.stem, branch: decade.branch } : null,
       decadeStart: decade?.startYear === year,
       relations,
       taiSui: taiSuiOf(fortune.branch, chart.pillars.year.branch),

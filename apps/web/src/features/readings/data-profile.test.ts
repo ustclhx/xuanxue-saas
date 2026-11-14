@@ -54,6 +54,21 @@ describe('annual 数据档（v4）', () => {
       shensha: { pillars: string[] }[]
     }
     expect(result.annual.years.map((y) => y.year)).toEqual(WINDOW)
+    // annual.2：每年带所属大运干支，与 decadeIndex 指向的大运一致
+    const years = result.annual.years as unknown as {
+      decadeIndex: number | null
+      decade: { stem: string; branch: string } | null
+    }[]
+    const decades = result.fortune.decades as unknown as {
+      index: number
+      stem: string
+      branch: string
+    }[]
+    for (const y of years) {
+      const d = decades.find((x) => x.index === y.decadeIndex)
+      expect(y.decade).toEqual(d ? { stem: d.stem, branch: d.branch } : null)
+    }
+    expect(years.some((y) => y.decade !== null)).toBe(true)
     expect(result.fortune.decades.every((d) => d.branchTenGod && d.favorable)).toBe(true)
     expect(result.shensha.every((s) => s.pillars.length > 0)).toBe(true)
     const text = JSON.stringify(result)

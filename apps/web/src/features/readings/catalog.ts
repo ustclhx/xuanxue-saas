@@ -206,7 +206,8 @@ export const READING_ANNUAL_YEARS = 5
  * 扩展数据档的算法版本后缀，记入 `reading.engine_version`（如 `1.0.0+annual.1`）；
  * 逐年数据的算法或字段变化时递增，免费结果页的 ENGINE_VERSION 不受影响。
  */
-export const ANNUAL_DATA_VERSION = 'annual.1'
+// annual.2：逐年数据加入所属大运干支 `decade`（tasks 4.3 评测中模型按序号回查大运时多次写错干支）
+export const ANNUAL_DATA_VERSION = 'annual.2'
 
 /**
  * v4 八字 / 사주摘要：v3 摘要 + 大运地支十神与喜忌 + 命中的神煞所在柱 + 流年窗口逐年数据。
