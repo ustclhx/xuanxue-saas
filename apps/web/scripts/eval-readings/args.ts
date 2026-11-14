@@ -19,7 +19,14 @@ export interface LiveOptions {
   readonly priceIn: number
   readonly priceOut: number
   readonly maxOutputTokens: number
+  /** 评委输出上限：推理模型的思考 token 也计入输出，过小会只剩思考、没有 JSON */
+  readonly judgeMaxOutputTokens: number
   readonly record: boolean
+  /**
+   * 生成模型的思考开关，与线上 x-text.thinking 显式开 / 关时的请求一致；null 表示不传，
+   * 由服务商默认决定（DeepSeek V4 默认开启思考）
+   */
+  readonly thinking: boolean | null
   /** 评委模型；应与生成模型不同 */
   readonly judge: ModelRef | null
 }
@@ -37,6 +44,8 @@ export interface EvalOptions {
 
 /** 与 generate.ts 的 READING_MAX_OUTPUT_TOKENS 保持一致（不直接导入，避免把 Workers 运行时依赖带进脚本） */
 export const DEFAULT_MAX_OUTPUT_TOKENS = 12000
+/** DeepSeek V4 Pro 默认开启思考，实测评委一次约 4k 输出 token，留足余量 */
+export const DEFAULT_JUDGE_MAX_OUTPUT_TOKENS = 16000
 
 export const USAGE = `用法：pnpm eval:readings [选项]
 
@@ -53,7 +62,9 @@ export const USAGE = `用法：pnpm eval:readings [选项]
     --price-out <x>        输出价格（美元 / 1k token）
     --max-output-tokens <n> 默认 ${DEFAULT_MAX_OUTPUT_TOKENS}
     --record               把真实输出保存为录制，供离线复跑
+    --thinking <on|off>    显式开关生成模型的思考；省略时不传，由服务商默认决定
     --judge <provider:id>  评委模型（只在 --live 下调用）
+    --judge-max-output-tokens <n> 评委输出上限（含思考 token），默认 ${DEFAULT_JUDGE_MAX_OUTPUT_TOKENS}
 `
 
 function modelRef(value: string, flag: string): ModelRef {
@@ -83,6 +94,8 @@ const VALUE_FLAGS = new Set([
   '--price-out',
   '--max-output-tokens',
   '--judge',
+  '--judge-max-output-tokens',
+  '--thinking',
 ])
 const BOOLEAN_FLAGS = new Set(['--recorded', '--live', '--record', '--help', '-h'])
 
@@ -105,7 +118,16 @@ export function parseArgs(argv: readonly string[]): EvalOptions {
   const help = flags.has('--help') || flags.has('-h')
   if (flags.has('--live') && flags.has('--recorded'))
     throw new EvalUsageError('--live 与 --recorded 不能同时使用')
-  const liveOnly = ['--model', '--max-calls', '--max-usd', '--judge', '--price-in', '--price-out']
+  const liveOnly = [
+    '--model',
+    '--max-calls',
+    '--max-usd',
+    '--judge',
+    '--judge-max-output-tokens',
+    '--thinking',
+    '--price-in',
+    '--price-out',
+  ]
   if (!flags.has('--live') && (flags.has('--record') || liveOnly.some((flag) => values.has(flag))))
     throw new EvalUsageError('--record、--judge 与预算参数只能与 --live 一起使用')
   let live: LiveOptions | null = null
@@ -116,6 +138,9 @@ export function parseArgs(argv: readonly string[]): EvalOptions {
     const model = one('--model')
     if (!model) throw new EvalUsageError('--live 需要 --model provider:providerModelId')
     const judge = one('--judge')
+    const thinking = one('--thinking')
+    if (thinking !== undefined && thinking !== 'on' && thinking !== 'off')
+      throw new EvalUsageError('--thinking 只能是 on 或 off')
     live = {
       model: modelRef(model, '--model'),
       maxCalls: positive(one('--max-calls'), '--max-calls', true),
@@ -125,7 +150,11 @@ export function parseArgs(argv: readonly string[]): EvalOptions {
       maxOutputTokens: values.has('--max-output-tokens')
         ? positive(one('--max-output-tokens'), '--max-output-tokens', true)
         : DEFAULT_MAX_OUTPUT_TOKENS,
+      judgeMaxOutputTokens: values.has('--judge-max-output-tokens')
+        ? positive(one('--judge-max-output-tokens'), '--judge-max-output-tokens', true)
+        : DEFAULT_JUDGE_MAX_OUTPUT_TOKENS,
       record: flags.has('--record'),
+      thinking: thinking === undefined ? null : thinking === 'on',
       judge: judge ? modelRef(judge, '--judge') : null,
     }
     if (

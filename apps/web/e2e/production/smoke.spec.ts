@@ -50,7 +50,10 @@ if (isEasternSite) {
     const response = await page.goto('/pricing')
     expect(response?.status()).toBe(200)
     await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Credit packs', exact: true })).toBeVisible()
+    // 订阅上线后积分包区块标题为「Buy credits once」，未上线时为「Credit packs」
+    await expect(
+      page.getByRole('heading', { name: /^(Credit packs|Buy credits once)$/ }),
+    ).toBeVisible()
   })
 }
 

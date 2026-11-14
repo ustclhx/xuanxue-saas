@@ -1,5 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { type AvailableModel, defaultLanguageModelFactory, type TextModelEnv } from '@xuanxue/ai'
+import {
+  type AvailableModel,
+  defaultLanguageModelFactory,
+  getTextProviderCapabilities,
+  type TextModelEnv,
+} from '@xuanxue/ai'
 import { type ModelMessage, streamText } from 'ai'
 import type { ModelRef } from './args.ts'
 import type { ChatMessage, TextGenerator } from './runner.ts'
@@ -39,7 +44,14 @@ export function loadTextEnv(): TextModelEnv {
   return { ...parseDevVars(readFileSync(file, 'utf8')) }
 }
 
-export function createLiveGenerator(ref: ModelRef, env: TextModelEnv): TextGenerator {
+export function createLiveGenerator(
+  ref: ModelRef,
+  env: TextModelEnv,
+  thinking: boolean | null = null,
+): TextGenerator {
+  // 与 text-stream.ts 相同：只有显式开 / 关时才经 Provider 适配器写入思考参数
+  const thinkingParams =
+    thinking === null ? {} : getTextProviderCapabilities(ref.provider).applyThinking({}, thinking)
   // 工厂只用 provider 与 providerModelId；其余字段是评测外的计费与授权信息
   const model = defaultLanguageModelFactory(
     {
@@ -59,8 +71,12 @@ export function createLiveGenerator(ref: ModelRef, env: TextModelEnv): TextGener
       const started = Date.now()
       const result = streamText({
         model,
+        // 与线上 text-stream.ts 一致：固定 system 前缀放在 messages 中（带缓存标记），ai v7 需显式允许
+        allowSystemInMessages: true,
+        maxRetries: 0,
         messages: messages as ModelMessage[],
         maxOutputTokens,
+        ...thinkingParams,
       })
       let text = ''
       for await (const delta of result.textStream) text += delta

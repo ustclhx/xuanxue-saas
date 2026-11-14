@@ -36,6 +36,117 @@
           "city": "busan"
         }
       }
+    },
+    {
+      "id": "saju-ko-03",
+      "note": "虚构：女，身弱，窗口内换大运且冲太岁",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1998,
+        "month": 5,
+        "day": 8,
+        "time": {
+          "hour": 14,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-04",
+      "note": "虚构：男，身强，窗口内换大运且值太岁，2 月请求",
+      "requestDate": "2026-02-20T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1978,
+        "month": 2,
+        "day": 28,
+        "time": {
+          "hour": 6,
+          "minute": 0
+        },
+        "gender": "male",
+        "location": {
+          "city": "daegu"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-05",
+      "note": "虚构：女，不知道时辰，第四季度请求",
+      "requestDate": "2026-11-05T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1993,
+        "month": 1,
+        "day": 10,
+        "time": null,
+        "gender": "female",
+        "location": {
+          "city": "seoul"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-06",
+      "note": "虚构：男，음력 输入",
+      "requestDate": "2026-04-01T00:00:00Z",
+      "input": {
+        "calendar": "lunar",
+        "year": 1985,
+        "month": 11,
+        "day": 22,
+        "time": {
+          "hour": 7,
+          "minute": 40
+        },
+        "gender": "male",
+        "location": {
+          "city": "busan"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-07",
+      "note": "虚构：女，海外出生（洛杉矶，夏令时）",
+      "requestDate": "2026-09-15T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1997,
+        "month": 7,
+        "day": 4,
+        "time": {
+          "hour": 10,
+          "minute": 0
+        },
+        "gender": "female",
+        "location": {
+          "city": "losAngeles"
+        }
+      }
+    },
+    {
+      "id": "saju-ko-08",
+      "note": "虚构：男，23 点 30 分子时边界，冲太岁",
+      "requestDate": "2026-12-20T00:00:00Z",
+      "input": {
+        "calendar": "solar",
+        "year": 1972,
+        "month": 8,
+        "day": 4,
+        "time": {
+          "hour": 23,
+          "minute": 30
+        },
+        "gender": "male",
+        "location": {
+          "city": "seoul"
+        }
+      }
     }
   ]
 }

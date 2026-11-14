@@ -35,7 +35,17 @@ async function main() {
   const env = live?.loadTextEnv()
   await runEval(options, {
     evidenceDir: evidenceDir(),
-    ...(live && env ? { createGenerator: (ref) => live.createLiveGenerator(ref, env) } : {}),
+    ...(live && env && options.live
+      ? {
+          // 思考开关只作用于生成模型；评委按服务商默认
+          createGenerator: (ref) =>
+            live.createLiveGenerator(
+              ref,
+              env,
+              ref === options.live?.model ? options.live.thinking : null,
+            ),
+        }
+      : {}),
   })
 }
 

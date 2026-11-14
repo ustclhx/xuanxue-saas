@@ -22,6 +22,71 @@
         "month": 5,
         "day": 6
       }
+    },
+    {
+      "id": "numerology-en-03",
+      "note": "fictional: life path master 22, no name",
+      "requestDate": "2026-06-15T00:00:00Z",
+      "input": {
+        "year": 1997,
+        "month": 11,
+        "day": 21
+      }
+    },
+    {
+      "id": "numerology-en-04",
+      "note": "fictional: life path 22 with master personal year and master pinnacle",
+      "requestDate": "2026-03-10T00:00:00Z",
+      "input": {
+        "year": 1994,
+        "month": 6,
+        "day": 11,
+        "name": "Daniel Reyes"
+      }
+    },
+    {
+      "id": "numerology-en-05",
+      "note": "fictional: leap-day birthday, December request",
+      "requestDate": "2026-12-15T00:00:00Z",
+      "input": {
+        "year": 1996,
+        "month": 2,
+        "day": 29,
+        "name": "Ava Lindqvist"
+      }
+    },
+    {
+      "id": "numerology-en-06",
+      "note": "fictional: hyphen and apostrophe in name, master pinnacle",
+      "requestDate": "2026-09-01T00:00:00Z",
+      "input": {
+        "year": 1982,
+        "month": 4,
+        "day": 9,
+        "name": "Liam O'Brien-Hale"
+      }
+    },
+    {
+      "id": "numerology-en-07",
+      "note": "fictional: older user, challenge 0, no master numbers",
+      "requestDate": "2026-02-01T00:00:00Z",
+      "input": {
+        "year": 1960,
+        "month": 11,
+        "day": 20,
+        "name": "Grace Whitfield"
+      }
+    },
+    {
+      "id": "numerology-en-08",
+      "note": "fictional: life path 11, master personal year, January request",
+      "requestDate": "2026-01-02T00:00:00Z",
+      "input": {
+        "year": 1985,
+        "month": 3,
+        "day": 3,
+        "name": "Noah Kim"
+      }
     }
   ]
 }
