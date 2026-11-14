@@ -59,6 +59,9 @@ export function createLiveGenerator(ref: ModelRef, env: TextModelEnv): TextGener
       const started = Date.now()
       const result = streamText({
         model,
+        // 与线上 text-stream.ts 一致：固定 system 前缀放在 messages 中（带缓存标记），ai v7 需显式允许
+        allowSystemInMessages: true,
+        maxRetries: 0,
         messages: messages as ModelMessage[],
         maxOutputTokens,
       })
