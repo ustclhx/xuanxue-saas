@@ -18,6 +18,14 @@ export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
   }),
   component: ConversationPage,
   pendingComponent: ChatPageSkeleton,
+  // 项目：路由插件默认不拆分 pendingComponent，与对话页同模块的骨架会把整个对话页（@xuanxue/ui/chat、Markdown）
+  // 带进客户端入口与首页静态闭包（check-home-bundle 拦截）；单独拆分，入口不再静态导入 chat-page.tsx
+  codeSplitGroupings: [
+    ['component'],
+    ['pendingComponent'],
+    ['errorComponent'],
+    ['notFoundComponent'],
+  ],
   // 对话区头部即页面标题（版式取舍 2），顶部条不再显示「对话」标题
   staticData: { shellTitle: false },
   notFoundComponent: ConversationNotFound,
