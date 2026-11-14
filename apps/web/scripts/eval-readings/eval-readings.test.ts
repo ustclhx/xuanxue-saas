@@ -222,8 +222,15 @@ describe('参数与预算保护', () => {
       maxUsd: 1,
       maxOutputTokens: 12000,
       judgeMaxOutputTokens: 16000,
+      thinking: null,
       judge: null,
     })
+    const budgetArgs = ['--live', '--model', 'deepseek:chat', '--max-calls', '1', '--max-usd', '1']
+    const prices = ['--price-in', '0.001', '--price-out', '0.002']
+    expect(parseArgs([...budgetArgs, ...prices, '--thinking', 'off']).live?.thinking).toBe(false)
+    expect(() => parseArgs([...budgetArgs, ...prices, '--thinking', 'auto'])).toThrow(
+      EvalUsageError,
+    )
   })
 
   it('按最坏情况估算，超过次数或金额即停', () => {
