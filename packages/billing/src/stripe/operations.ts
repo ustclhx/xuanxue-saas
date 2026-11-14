@@ -15,6 +15,7 @@ import {
   localizedProductId,
 } from './localized.ts'
 import { parseStripeMetadata } from './metadata.ts'
+import { stripeCancelsAtPeriodEnd } from './snapshots.ts'
 
 export type StripeOperations = Required<
   Pick<
@@ -268,7 +269,14 @@ export async function cancelStripeSubscription(
 
 /** Restore a period-end cancellation; an already canceled subscription cannot be restored. */
 export async function resumeStripeSubscription(stripe: Stripe, subId: string): Promise<void> {
-  await stripe.subscriptions.update(subId, { cancel_at_period_end: false })
+  const subscription = await stripe.subscriptions.retrieve(subId)
+  // 门户取消写的是 cancel_at（见 stripeCancelsAtPeriodEnd），恢复时清空它；站内取消写的是 cancel_at_period_end
+  await stripe.subscriptions.update(
+    subId,
+    !subscription.cancel_at_period_end && subscription.cancel_at != null
+      ? { cancel_at: '' }
+      : { cancel_at_period_end: false },
+  )
 }
 
 export async function changeStripePlan(
@@ -285,7 +293,7 @@ export async function changeStripePlan(
     throw new Error('Plan changes require a single subscription item')
   }
   if (subscription.pending_update) throw new Error('Subscription has a pending payment update')
-  if (subscription.cancel_at_period_end)
+  if (stripeCancelsAtPeriodEnd(subscription, item.current_period_end))
     throw new Error('Resume the subscription before changing plan')
   const metadata = { ...subscription.metadata, planPriceId: newPrice.id }
   const intervalChange = item.price.recurring?.interval !== newPrice.interval

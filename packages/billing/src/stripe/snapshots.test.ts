@@ -1,7 +1,11 @@
 import Stripe from 'stripe'
 import { describe, expect, it } from 'vitest'
 import { createStripeClient, STRIPE_API_VERSION } from './client.ts'
-import { classifyStripeBillingReason, createStripeSnapshots } from './snapshots.ts'
+import {
+  classifyStripeBillingReason,
+  createStripeSnapshots,
+  stripeCancelsAtPeriodEnd,
+} from './snapshots.ts'
 
 const metadata = {
   workspaceId: '019a0000-0000-7000-8000-000000000001',
@@ -588,5 +592,23 @@ describe('Stripe payment associations', () => {
     await expect(unexpected.snapshots.getOrder('cs_unexpected')).rejects.toBeInstanceOf(
       Stripe.errors.StripeConnectionError,
     )
+  })
+})
+
+describe('portal-style cancellation', () => {
+  it('treats cancel_at at or before the period end as a period-end cancellation', () => {
+    expect(stripeCancelsAtPeriodEnd({ cancel_at_period_end: false, cancel_at: end }, end)).toBe(
+      true,
+    )
+    expect(stripeCancelsAtPeriodEnd({ cancel_at_period_end: true, cancel_at: null }, end)).toBe(
+      true,
+    )
+    expect(stripeCancelsAtPeriodEnd({ cancel_at_period_end: false, cancel_at: null }, end)).toBe(
+      false,
+    )
+    // 晚于当期结束的 cancel_at 不是「当期结束取消」
+    expect(
+      stripeCancelsAtPeriodEnd({ cancel_at_period_end: false, cancel_at: end + 86400 }, end),
+    ).toBe(false)
   })
 })
