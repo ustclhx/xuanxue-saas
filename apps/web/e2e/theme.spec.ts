@@ -12,7 +12,9 @@ const east = (path: string) => {
   url.hostname = 'east.localhost'
   return url.href
 }
-const option = (page: Page, value: string) => page.locator(`[data-theme-option="${value}"]`)
+// 主题切换有浮动（md 及以上）与页脚设置行（手机端）两处，只取当前可见的一组（0.5.1）
+const option = (page: Page, value: string) =>
+  page.locator(`[data-theme-option="${value}"]`).filter({ visible: true })
 
 /** 截图中心像素的亮度（0–255）：在页面内用 canvas 解码截图 */
 async function screenshotLuminance(page: Page) {

@@ -1,8 +1,12 @@
 import { cn, Label, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useId } from 'react'
-import { SessionChatCost } from './chat-cost.tsx'
-import type { ChatSession } from './chat-session.ts'
-import { MODEL_PICKER_COPY, type PickerModel } from './model-picker.ts'
+import {
+  creditEstimate,
+  type EstimateOptions,
+  formatEstimate,
+  MODEL_PICKER_COPY,
+  type PickerModel,
+} from './model-picker.ts'
 
 /** 模型下拉框；`models` 已按空间权益与启用状态过滤（`getPickerModels`） */
 export function ModelPicker({
@@ -79,19 +83,16 @@ export function ModelPicker({
   )
 }
 
-/**
- * 输入区右下角的预计消耗（ChatComposer 的 trailing）。项目以「每条预计 · 余额」取代模板的最坏情况估算
- * （adopt-subject-chat-readings design 决策 6，specs/ai-chat「预计消耗与余额提示」）：
- * 按典型回复长度估算并计入对话的固定前缀，余额每轮回复结束后刷新一次。见 chat-cost.tsx。
- */
+/** 提交按钮旁的预计消耗 */
 export function CreditEstimateText({
   model,
-  inputTokens,
-  session,
-}: {
-  model: PickerModel | undefined
-  inputTokens: number
-  session: ChatSession
-}) {
-  return <SessionChatCost session={session} model={model} inputTokens={inputTokens} />
+  ...options
+}: { model: PickerModel | undefined } & EstimateOptions) {
+  if (!model) return null
+  return (
+    <span data-testid="credit-estimate" className="text-muted-foreground text-sm">
+      <span className="sr-only">{MODEL_PICKER_COPY.estimate}: </span>
+      {formatEstimate(creditEstimate(model.pricing, options))}
+    </span>
+  )
 }

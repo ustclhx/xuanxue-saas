@@ -12,8 +12,8 @@ export const UUID = '[0-9a-f-]{36}'
 export const slugOf = (page: Page) => new URL(page.url()).pathname.split('/')[2] ?? ''
 
 /**
- * 项目：空间没有可用模型时列表页只显示空态（specs/ai-chat「无可用模型时隐藏对话入口」）；
- * 模型列表经 KV 缓存（TTL 60 秒），刷新直到出现「New chat」。
+ * 打开对话列表并新建对话。模型列表经 KV 缓存（TTL 60 秒），项目也可能在没有可用模型时隐藏入口，
+ * 因此刷新直到「New chat」出现（#373）。
  */
 export async function newConversation(page: Page, slug: string) {
   const create = page.getByRole('button', { name: 'New chat' })
@@ -32,8 +32,14 @@ export async function newConversation(page: Page, slug: string) {
   return new URL(page.url()).pathname.split('/').at(-1) ?? ''
 }
 
-/** 让空间的权益包含一个按次计费的测试模型（模型标签写入套餐 features.models） */
-export async function seedChatModel(slug: string) {
+/**
+ * 让空间的权益包含一个按次计费的测试模型（模型标签写入套餐 features.models）。
+ * Provider 默认 openai；离线 e2e 只为某个 Provider 配置了占位凭据的项目用 `E2E_CHAT_PROVIDER` 或参数改写（#373）。
+ */
+export async function seedChatModel(
+  slug: string,
+  { provider = process.env.E2E_CHAT_PROVIDER || 'openai' }: { provider?: string } = {},
+) {
   const sql = fixtureDb()
   const tag = `e2e-chat-${randomUUID().slice(0, 8)}`
   const modelId = newId()
@@ -52,14 +58,14 @@ export async function seedChatModel(slug: string) {
       cancel_at_period_end,canceled_at,last_event_at)
       values (${newId()},${workspace.id},${planId},${priceId},'stripe',${`e2e:${planId}`},
         'canceled',now(),now()+interval '1 day',true,now(),now())`
-    // 项目：离线 e2e 只为 anthropic 设置占位 Gateway（E2E_AI_GATEWAY_PLACEHOLDER），其他 Provider 视为未配置
+    // 项目：离线 e2e 只为 anthropic 设置占位 Gateway，provider 由 playwright.config.ts 的 E2E_CHAT_PROVIDER 指定
     const pricing = {
       mode: 'per_call',
       credits: 2,
       limits: { maxInputTokens: 8000, maxOutputTokens: 2000 },
     }
     await sql`insert into ai_model (id,key,kind,provider,provider_model_id,pricing,min_plan_features,sort)
-      values (${modelId},${tag},'text','anthropic','gpt-fixture',${sql.json(pricing)},${sql.json([tag])},-1000)`
+      values (${modelId},${tag},'text',${provider},'gpt-fixture',${sql.json(pricing)},${sql.json([tag])},-1000)`
   } finally {
     await sql.end()
   }

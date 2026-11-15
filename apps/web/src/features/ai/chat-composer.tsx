@@ -9,6 +9,7 @@ import { type RefObject, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { trackEvent } from '../analytics/track.ts'
 import { pricingSnapshot } from '../marketing/pricing-snapshot.ts'
+import { ProjectComposerEstimate } from './chat-composer.project.tsx'
 import { CreditsDialog, formatNumber } from './chat-extras.tsx'
 import { type ChatSession, useChatSessionState } from './chat-session.ts'
 import { CHAT_THROTTLE_MS } from './chat-thread.tsx'
@@ -227,9 +228,13 @@ export function ChatComposer({
               ) : null}
             </>
           }
-          // 项目：预计消耗读取会话（对话 ID 与回复状态），显示「每条预计 · 余额」（model-picker.tsx）
           trailing={
-            <CreditEstimateText model={model} inputTokens={inputTokens} session={session} />
+            // 项目可在 chat-composer.project.tsx 替换（#373）
+            ProjectComposerEstimate ? (
+              <ProjectComposerEstimate model={model} inputTokens={inputTokens} session={session} />
+            ) : (
+              <CreditEstimateText model={model} inputTokens={inputTokens} />
+            )
           }
         />
       </fieldset>
