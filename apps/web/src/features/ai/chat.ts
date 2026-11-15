@@ -709,7 +709,7 @@ async function stopChatRequest(
   if (local) local.abort()
   else markPendingStop(deps.pendingStops ?? pendingStops, key)
 
-  const resolved = await resolveWorkspaceBySlug(db, user.id, slug)
+  const resolved = await resolveWorkspaceBySlug(db, user.id, slug, deps.auth.site)
   if (!resolved) throw notFound()
   setLogContext({ workspaceId: resolved.workspace.id, userId: user.id })
   const s = scoped(db, resolved.workspace.id)
