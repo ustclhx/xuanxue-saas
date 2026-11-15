@@ -68,10 +68,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
 
   // 生成中轮询到的是模型原文，与保存时同样把简体字换成繁体（已保存的正文不变）
   const content = toTraditional(view.content, view.locale)
-  const headings = parseMarkdown(content).filter(
-    (block): block is Extract<typeof block, { type: 'heading' }> =>
-      block.type === 'heading' && block.level === 2,
-  )
+  const contents = tableOfContents(content)
   return (
     <article
       lang={view.locale}
@@ -104,7 +101,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           {m.readings_report_failed()}
         </p>
       )}
-      {view.status === 'ready' && headings.length > 2 && (
+      {view.status === 'ready' && contents.length > 2 && (
         <nav
           aria-label={m.readings_report_contents()}
           className="rounded-xl border border-line bg-surface px-5 py-4 print:hidden"
@@ -113,11 +110,22 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
             {m.readings_report_contents()}
           </h2>
           <ol className="m-0 grid gap-x-6 gap-y-1 pl-5 text-[15px] sm:grid-cols-2">
-            {headings.map((heading, index) => (
-              <li key={heading.text}>
-                <a href={`#${sectionId(heading.text, index)}`} className="text-brand-ink">
-                  {heading.text.replaceAll('*', '')}
+            {contents.map((section) => (
+              <li key={section.id}>
+                <a href={`#${section.id}`} className="text-brand-ink">
+                  {section.text}
                 </a>
+                {section.children.length > 0 && (
+                  <ul className="m-0 mt-1 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">
+                    {section.children.map((child) => (
+                      <li key={child.id}>
+                        <a href={`#${child.id}`} className="text-ink-muted">
+                          {child.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ol>
@@ -310,4 +318,27 @@ export function ReadingsListPage({
       )}
     </section>
   )
+}
+
+interface ContentsEntry {
+  readonly id: string
+  readonly text: string
+}
+
+/**
+ * 报告页目录：二级标题为章节，三级标题（v4 逐年小节 `### 年份 干支`）列在所属章节下。
+ * 锚点序号与 Markdown 渲染一致，按全部标题（二、三级）计数，否则逐年小节之后的章节会跳错位置。
+ */
+export function tableOfContents(
+  content: string,
+): readonly (ContentsEntry & { readonly children: readonly ContentsEntry[] })[] {
+  const sections: (ContentsEntry & { children: ContentsEntry[] })[] = []
+  let index = 0
+  for (const block of parseMarkdown(content)) {
+    if (block.type !== 'heading') continue
+    const entry = { id: sectionId(block.text, index++), text: block.text.replaceAll('*', '') }
+    if (block.level === 2) sections.push({ ...entry, children: [] })
+    else sections.at(-1)?.children.push(entry)
+  }
+  return sections
 }
