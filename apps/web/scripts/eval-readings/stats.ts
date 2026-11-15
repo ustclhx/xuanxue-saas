@@ -97,6 +97,19 @@ function roleRows(label: string, s: RoleSummary): string {
   return `| ${label} | ${s.checked} | ${s.skipped} | ${pct(s.passRate)} | ${fmt(s.outputTokens.p50)} / ${fmt(s.outputTokens.p95)} | ${fmt(s.durationMs.p50 == null ? null : s.durationMs.p50 / 1000, 1)} / ${fmt(s.durationMs.p95 == null ? null : s.durationMs.p95 / 1000, 1)} |`
 }
 
+/**
+ * 评委门槛容差（design 决策 7）：候选各维度均值 ≥ 基线 − 0.1。同一提示词两次运行的评委均值波动约 ±0.2，
+ * 2026-11-15 使用者决定放宽（「Korean year-name prompt line和accuracy gate都做吧」）
+ */
+export const JUDGE_TOLERANCE = 0.1
+
+/** 某维度是否达到评委门槛；缺少任一侧分数时为 null */
+export function judgeGatePassed(delta: number | null | undefined): boolean | null {
+  if (delta === null || delta === undefined) return null
+  // 均值差在浮点下可能出现 -0.10000000000000053，留极小余量
+  return delta >= -JUDGE_TOLERANCE - 1e-9
+}
+
 /** summary.md：通过率、检查失败分布、评委维度均值与差值、逐样本明细 */
 export function renderSummary(
   meta: { readonly mode: string; readonly baseline: string; readonly candidate: string | null },
@@ -125,12 +138,13 @@ export function renderSummary(
     '',
     '## 评委维度均值',
     '',
-    '| 维度 | 基线 | 候选 | 差值 |',
-    '|---|---|---|---|',
-    ...Object.keys(s.judgeDelta).map(
-      (d) =>
-        `| ${d} | ${fmt(s.baseline.judge[d])} | ${fmt(s.candidate?.judge[d])} | ${fmt(s.judgeDelta[d])} |`,
-    ),
+    `| 维度 | 基线 | 候选 | 差值 | 门槛（≥ 基线 − ${JUDGE_TOLERANCE}） |`,
+    '|---|---|---|---|---|',
+    ...Object.keys(s.judgeDelta).map((d) => {
+      const gate = judgeGatePassed(s.judgeDelta[d])
+      const label = gate === null ? '—' : gate ? '达成' : '未达成'
+      return `| ${d} | ${fmt(s.baseline.judge[d])} | ${fmt(s.candidate?.judge[d])} | ${fmt(s.judgeDelta[d])} | ${label} |`
+    }),
     '',
     '## 逐样本',
     '',
