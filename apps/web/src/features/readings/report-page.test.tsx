@@ -3,7 +3,8 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SiteContext } from '../site/context.tsx'
-import { freeToolLinks, ReadingsListPage } from './report-page.tsx'
+import { sectionId } from './markdown.tsx'
+import { freeToolLinks, ReadingsListPage, tableOfContents } from './report-page.tsx'
 
 // product-improve-ai-content tasks.md 2.6：报告列表空态跟随详批可用性
 
@@ -81,5 +82,29 @@ describe('免费工具链接', () => {
     const links = freeToolLinks('en', 'east')
     expect(links.length).toBeGreaterThan(0)
     expect(links.every((link) => !link.href.startsWith('/numerology'))).toBe(true)
+  })
+})
+
+describe('报告页目录', () => {
+  it('逐年三级标题列在所属章节下，锚点按全部标题计数', () => {
+    const content = [
+      '## 总论',
+      'a',
+      '## 流年逐年',
+      'b',
+      '### 2026 丙午',
+      'c',
+      '### 2027 丁未',
+      'd',
+      '## **结语**',
+      'e',
+    ].join('\n')
+    const contents = tableOfContents(content)
+    expect(contents.map((section) => section.text)).toEqual(['总论', '流年逐年', '结语'])
+    expect(contents[1]?.children.map((child) => child.id)).toEqual([
+      sectionId('2026 丙午', 2),
+      sectionId('2027 丁未', 3),
+    ])
+    expect(contents[2]?.id).toBe(sectionId('**结语**', 4))
   })
 })
