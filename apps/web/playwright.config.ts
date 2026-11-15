@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test'
 import { loadEnv } from 'vite'
 import { paymentKeys } from '../../scripts/local-payment-env.mjs'
 
+// 项目：离线 e2e 只为 anthropic 设置占位 Gateway（E2E_AI_GATEWAY_PLACEHOLDER），夹具模型用该 Provider（chat-fixtures.ts #373）
+process.env.E2E_CHAT_PROVIDER ??= 'anthropic'
+
 // 认证页面的 e2e（tasks.md 7.2）：在本地 `vite dev`（web）上运行；默认注册无需邮件消费者，
 // 端口取自 Orca worktree 的 .env.worktree（docs/09-parallel-plan.md §2），不存在时用默认端口。
 // 离线 suite 使用独立 dev 子进程并清空支付绑定，避免读取根 dotenv 真值或复用旧 Worker。
