@@ -22,7 +22,7 @@ import {
 } from './checks.ts'
 import { parseJudge } from './judge.ts'
 import { loadSuites, resolveVersion, runEval, SUITES_DIR } from './runner.ts'
-import { percentile, type SampleOutcome, summarize } from './stats.ts'
+import { judgeGatePassed, percentile, type SampleOutcome, summarize } from './stats.ts'
 
 // readings-prompt-v4-yearly tasks.md 2.5：检查器、汇总与预算保护的离线单测（只用虚构文本）。
 
@@ -191,6 +191,14 @@ describe('汇总与评委', () => {
     expect(s.baseline.failures).toEqual({ sections: 1 })
     expect(s.judgeDelta.accuracy).toBe(1.5)
     expect(s.judgeDelta.tone).toBe(0)
+  })
+
+  it('评委门槛容差 0.1：差值不低于 −0.1 达成，缺少分数时不判定', () => {
+    expect(judgeGatePassed(0)).toBe(true)
+    expect(judgeGatePassed(-0.083)).toBe(true)
+    expect(judgeGatePassed(4.275 - 4.375)).toBe(true)
+    expect(judgeGatePassed(-0.104)).toBe(false)
+    expect(judgeGatePassed(null)).toBeNull()
   })
 
   it('解析评委 JSON，分数越界时报错', () => {
