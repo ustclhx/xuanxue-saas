@@ -20,6 +20,7 @@ import { siteNavLocale } from '../features/site/site.ts'
 import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
 import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.ts'
 import { RootDocument } from '../features/theme/root-document.tsx'
+import { SiteSettings } from '../features/theme/site-settings.tsx'
 import { m } from '../paraglide/messages.js'
 import { getLocale, type Locale, localizeHref } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
@@ -143,6 +144,11 @@ function RootComponent() {
         <AnnouncementBanner initial={announcement} />
         {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion />}
         <Outlet />
+        {/* 手机端没有站点页脚的页面（含 topbar 工作台）：设置行放在页面末尾，底部留 80px 给右下悬浮按钮；
+            有页脚时由页脚渲染，这里隐藏（模板 0.5.1） */}
+        {!hasInlineControls && (
+          <SiteSettings className="border-t px-4 pt-4 pb-20 md:hidden print:hidden [body:has([data-site-footer])_&]:hidden" />
+        )}
       </RootDocument>
     </SiteContext>
   )
