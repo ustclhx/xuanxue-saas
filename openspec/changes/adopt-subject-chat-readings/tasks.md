@@ -24,7 +24,7 @@
 - [x] 3.1 【Codex】新增 `features/ai/chat-cost.functions.ts` 的 `getChatCostContext({ slug, conversationId? })`：经 `withWorkspace` 鉴权，返回 `availableCredits`（`getCreditBalance`）与首条 system 消息的文本长度 `prefixChars`（只返回长度，他人对话按 404）。验证：集成测试覆盖无对话为 0、旧带盘对话与对象对话返回正确长度、他人对话 404
 - [x] 3.2 【Codex】新增 `features/ai/chat-cost.tsx`：用 `typicalMessageEstimate` 计算区间（输入 token 计入 `prefixChars`），渲染 `@xuanxue/ui` 的 `CreditEstimate`（预计 · 余额，预计上限 > 余额时 `insufficient`）；挂载时读取一次，每轮回复结束后刷新一次，不轮询；文案放 `messages/<locale>/chat-cost.json`（四种语言）。验证：组件测试覆盖充足、不足（`data-insufficient` 与图标）、读取失败时只显示预计不显示余额
 - [x] 3.3 【Codex】`chat-page.tsx` 把 `ChatCostHint` 换成 `ChatCost`，删除估算中对 `chatContext` 的引用（`chatContext` 属性与摘要显示留给组 4）；`model-picker.tsx` 删除 `ChatCostHint` 与无调用方的 `CreditEstimateText`，同步更新 `model-picker.test.tsx` 与依赖 `chat-cost-*` testid 的 e2e。验证：`pnpm check`（含 `check:ui`）、`pnpm typecheck`、`pnpm test` 通过；本地对话页输入框旁显示「预计 · 余额」
-- [ ] 3.4 【Codex】余额不足弹窗验收：在对话页与（组 5 合并后的）嵌入对话中，余额低于最低预扣时发送消息，弹出 `InsufficientCreditsDialog` 并显示预计消耗与余额，「购买积分包」跳到账单页积分包区。验证：本地 e2e 或浏览器截图存入证据目录
+- [x] 3.4 【Codex】余额不足弹窗验收：在对话页与（组 5 合并后的）嵌入对话中，余额低于最低预扣时发送消息，弹出 `InsufficientCreditsDialog` 并显示预计消耗与余额，「购买积分包」跳到账单页积分包区。验证：本地 e2e 或浏览器截图存入证据目录
 
 ## 4. 波次 B-1：结果页入口迁移与过渡兼容（依赖：组 2；chat-page.tsx 在组 3 之后 rebase）
 
@@ -43,13 +43,13 @@
 ## 6. 波次 B-3：推荐追问、评分与隐私说明（依赖：1.1 Q2；可与组 4、5 并行）
 
 - [x] 6.1 【Codex】`template.config.ts` 设置 `ai.text.followUps`（`enabled: true`，`count: 3`，`charge` 与 `modelKey` 按 1.1 Q2）。验证：`pnpm typecheck` 通过；本地对话一轮后显示 3 个推荐问题，点击即发送且刷新后历史中没有推荐问题本身；模型故障注入下回复正常、不显示推荐区（实施记录：配置已随组 2 合入；`chat-follow-ups.test.tsx` 以模拟的 `useChat` 与 `getFollowUps` 断言 3 个推荐、点击即发送、失败不显示推荐区；服务端生成、缓存、不写入历史与故障注入见 `test/ai-subject-chat.test.ts`）
-- [ ] 6.2 【Codex】评分与反馈验收（模板已接线，项目不改代码）：在对话页与报告追问中依次点赞、改点踩选原因并勾选共享、撤销，后台 `/admin/feedback` 统计与原因筛选随之变化，共享查看只显示被评回复与之前最多 3 条消息、不含报告上下文，且写审计。验证：浏览器截图与审计记录存入证据目录
+- [x] 6.2 【Codex】评分与反馈验收（模板已接线，项目不改代码）：在对话页与报告追问中依次点赞、改点踩选原因并勾选共享、撤销，后台 `/admin/feedback` 统计与原因筛选随之变化，共享查看只显示被评回复与之前最多 3 条消息、不含报告上下文，且写审计。验证：浏览器截图与审计记录存入证据目录（实施记录：staging 7.1 中两处均完成点赞→点踩 no_source + 共享→撤销，共享窗口 4 条、无上下文，审计 messageCount=4）（证据：私有验收目录 `adopt-subject-chat-readings/staging-7.1/`）
 - [x] 6.3 【Claude】隐私政策（`content/legal/{east/zh-Hant,east/zh-Hans,east/ko,west/en}/privacy.mdx`）补充：反馈共享（逐条同意、可撤回、保留期随对话删除）；报告追问会把报告内容作为上下文发送给模型服务商；删除报告会一并清除追问内容。措辞经使用者确认（Open Questions 6）。验证：四个语言版本内容一致，`pnpm build` 预渲染通过，使用者确认记录在 PR 描述中
 
 ## 7. 集成验收（依赖：组 2–6 全部合并）
 
-- [ ] 7.1 【Codex】staging 验收（合并后 CI 自动发布 staging）：发布前在 staging 生成一个旧 `?context=` 地址，发布后 30 分钟内打开应跳到新地址并可对话；新结果页入口、报告追问、越权 404、推荐追问、评分与共享、预计消耗与余额不足弹窗逐项通过；两站四种语言各抽查一份报告的开场问题语言正确。验证：验收记录与截图存入证据目录，`/api/health` 为本次 SHA
-- [ ] 7.2 【用户】批准 production 发布（推 `v*` tag）。发布前只读核对：后台对话模型可用、套餐 `features.models` 覆盖各详批的默认模型（不一致时记录回落行为）。验证：production `/api/health` 为本次 SHA，用真实账号对一份已有报告追问一次并核对扣费；main 的发布流水线成功
+- [x] 7.1 【Codex】staging 验收（合并后 CI 自动发布 staging）：发布前在 staging 生成一个旧 `?context=` 地址，发布后 30 分钟内打开应跳到新地址并可对话；新结果页入口、报告追问、越权 404、推荐追问、评分与共享、预计消耗与余额不足弹窗逐项通过；两站四种语言各抽查一份报告的开场问题语言正确。验证：验收记录与截图存入证据目录，`/api/health` 为本次 SHA（实施记录：2026-11-15 在 2b9b6c06 上通过；staging 各套餐原 `features.models` 为空，经使用者批准为 free/plus/premium 授权 `deepseek-flash`；旧 `?context=` 跳转在 staging 已无法于发布前补建，改到 7.2 生产发布后用 v0.1.22 签发的链接核对；服务端 failed 后全额释放未在 staging 触发，由 `test/ai-subject-chat.test.ts` 覆盖）（证据：私有验收目录 `adopt-subject-chat-readings/staging-7.1/`）
+- [ ] 7.2 【用户】批准 production 发布（推 `v*` tag）。发布前只读核对：后台对话模型可用、套餐 `features.models` 覆盖各详批的默认模型（不一致时记录回落行为；使用者 2026-11-15 决定 free/plus/premium 授权 `deepseek-flash`，生产迁移后在 `/admin/billing/plans` 设置）。发布前在生产签发一个旧 `?context=` 地址，发布后 30 分钟内打开应跳到新地址并可对话。验证：production `/api/health` 为本次 SHA，用真实账号对一份已有报告追问一次并核对扣费；main 的发布流水线成功
 - [ ] 7.3 【协调者】规格衔接：确认 `product-improve-ai-content-20261030` 已先归档，再按 design 决策 9 把本 change 中「结果页上下文经临时上下文令牌进入对话」「预计消耗与余额提示」改写为对「从结果页携带命盘上下文」「发送前显示预计消耗」的 MODIFIED（或归档后删除被取代的旧要求），然后归档本 change。验证：`openspec validate --strict` 通过，主规格 `ai-chat` 中无重复要求
 
 ## 8. 下一次发布：移除旧链接兼容（依赖：7.2 发布至少 30 分钟后的下一个版本）
