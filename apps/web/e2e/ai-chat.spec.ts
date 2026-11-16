@@ -49,6 +49,11 @@ test('creates, renames and archives own conversations', async ({ page }) => {
     await nav.click()
     await expect(page.getByText('No conversations yet.')).toBeVisible()
 
+    // 旧令牌已全部过期，?context= 不再验签或换发，直接显示对话列表。
+    await page.goto(`/app/${slug}/chat?context=retired-legacy-token`)
+    await expect(page.getByRole('region', { name: 'Conversations', exact: true })).toBeVisible()
+    await expect(page.getByText('No conversations yet.')).toBeVisible()
+
     const id = await newConversation(page, slug)
     await expect(page.getByTestId('conversation-title')).toHaveText('New chat')
     await page.getByRole('link', { name: 'All chats' }).click()
@@ -186,6 +191,7 @@ test('chat page picks a model, streams replies, stops and explains errors', asyn
         slug,
         modelId: model.modelId,
         conversationId,
+        requestId: expect.any(String),
         message: { role: 'user', parts: [{ type: 'text', text: 'Plan a weekend trip' }] },
       },
     ])
