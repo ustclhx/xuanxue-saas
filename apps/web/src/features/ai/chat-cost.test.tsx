@@ -21,15 +21,15 @@ const render = (cost: Parameters<typeof ChatCostView>[0]['cost'], inputTokens = 
 
 describe('ChatCostView', () => {
   it('余额充足：显示每条预计与余额，不标记不足', () => {
-    // 输入 1500 → 3 积分；典型回复 150–800 token → 5–11 积分
-    const html = render({ availableCredits: 1280, prefixChars: 0 })
-    expect(html).toContain('~5–11 credits per message · Balance 1,280')
+    // 输入 1500 → 3 积分；至少容纳服务端最低 256 输出 → 6–11 积分
+    const html = render({ availableCredits: 1280, prefixChars: 0, minOutputTokens: 256 })
+    expect(html).toContain('~6–11 credits per message · Balance 1,280')
     expect(html).not.toContain('data-insufficient')
     expect(html).not.toContain('data-icon="insufficient"')
   })
 
   it('预计上限超过余额：危险提示，带图标与「不足」文字', () => {
-    const html = render({ availableCredits: 10, prefixChars: 0 })
+    const html = render({ availableCredits: 10, prefixChars: 0, minOutputTokens: 256 })
     expect(html).toContain('data-insufficient="true"')
     expect(html).toContain('data-icon="insufficient"')
     expect(html).toContain(m.chat_cost_balance_low({ credits: '10' }))
@@ -37,10 +37,13 @@ describe('ChatCostView', () => {
 
   it('估算计入对话的固定前缀（报告正文）', () => {
     // 前缀 10,000 字符按保守口径约 10,008 token → 多约 20 积分
-    const plain = render({ availableCredits: 1000, prefixChars: 0 }, 0)
-    const withPrefix = render({ availableCredits: 1000, prefixChars: 10_000 }, 0)
-    expect(plain).toContain('~2–8 credits per message')
-    expect(withPrefix).toContain('~22–29 credits per message')
+    const plain = render({ availableCredits: 1000, prefixChars: 0, minOutputTokens: 256 }, 0)
+    const withPrefix = render(
+      { availableCredits: 1000, prefixChars: 10_000, minOutputTokens: 256 },
+      0,
+    )
+    expect(plain).toContain('~3–8 credits per message')
+    expect(withPrefix).toContain('~23–29 credits per message')
   })
 
   it('读取失败：只显示预计，不显示余额', () => {

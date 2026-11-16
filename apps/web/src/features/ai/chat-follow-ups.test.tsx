@@ -25,13 +25,16 @@ vi.mock('./conversations.functions.ts', () => ({
   setConversationArchived: vi.fn(),
 }))
 vi.mock('./chat-cost.functions.ts', () => ({
-  getChatCostContext: vi.fn().mockResolvedValue({ availableCredits: 100, prefixChars: 0 }),
+  getChatCostContext: vi
+    .fn()
+    .mockResolvedValue({ availableCredits: 100, prefixChars: 0, minOutputTokens: 256 }),
 }))
 vi.mock('../analytics/track.ts', () => ({ trackEvent: vi.fn() }))
 vi.mock('../marketing/pricing-snapshot.ts', () => ({ pricingSnapshot: { plans: [] } }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children }: { children: React.ReactNode }) => <a href="/app/me/billing">{children}</a>,
   useNavigate: () => vi.fn(),
+  useRouterState: () => undefined,
 }))
 
 import { ChatPage } from './chat-page.tsx'
