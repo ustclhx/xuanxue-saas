@@ -105,6 +105,7 @@ const worker = instrumentWeb({
             {
               cache: !import.meta.env.DEV && !buildRequest ? workersCache() : undefined,
               waitUntil: (promise) => ctx.waitUntil(promise),
+              version: __APP_VERSION__,
               secure: (response) =>
                 withStaticSecurityHeaders(response, staticSecurity(request, env)),
             },

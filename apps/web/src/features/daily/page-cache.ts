@@ -6,7 +6,8 @@ import { DAILY_PATHS } from './routes.ts'
  * 公开每日页的边缘缓存（add-birth-profiles-daily-horoscope design D7）。
  *
  * - 只处理每日页的 GET；带会话 Cookie 的请求直接 SSR，不读也不写缓存，响应标记为 private；
- * - 匿名请求以「规范 URL + 参考日期」为键查缓存，参考时区跨过 00:00 后键随之变化，旧内容不再命中；
+ * - 匿名请求以「规范 URL + 参考日期 + 部署版本」为键查缓存，参考时区跨过 00:00 后键随之变化，旧内容不再命中；
+ *   部署版本进键：缓存的 HTML 引用带哈希的静态资源，新版本部署后旧资源即 404，旧版本缓存不能再返回；
  * - 未命中时 SSR，只缓存 200 的 HTML，去掉 Set-Cookie 后写入，TTL 为距参考日结束的秒数且不超过 3600；
  * - 响应带 `Vary: Cookie`，避免下游缓存把匿名版本给已登录用户。
  *
@@ -25,6 +26,8 @@ export interface DailyCacheDeps {
   /** 命中缓存时补安全头（缓存的 HTML 不带本次请求的 nonce，按脚本哈希授权） */
   readonly secure?: (response: Response) => Promise<Response>
   readonly now?: Date
+  /** 部署版本（构建 SHA），进入缓存键 */
+  readonly version?: string
 }
 
 /** 自定义头：验收时据此确认第二次请求命中缓存 */
@@ -62,10 +65,11 @@ export function dailyTtl(locale: DailyLocale, now: Date): number {
   return Math.min(MAX_TTL_SECONDS, secondsUntilDayEnd(locale, now))
 }
 
-/** 缓存键：去掉查询串与片段的规范地址 + 参考日期 */
-export function dailyCacheKey(url: URL, locale: DailyLocale, now: Date): Request {
+/** 缓存键：去掉查询串与片段的规范地址 + 参考日期 + 部署版本 */
+export function dailyCacheKey(url: URL, locale: DailyLocale, now: Date, version = ''): Request {
   const key = new URL(url.origin + url.pathname)
   key.searchParams.set('daily', dateKey(referenceDate(locale, now)))
+  if (version) key.searchParams.set('v', version)
   return new Request(key.href, { method: 'GET' })
 }
 
@@ -96,7 +100,7 @@ export async function dailyPageCache(
       : response
   }
   const now = deps.now ?? new Date()
-  const key = dailyCacheKey(url, locale, now)
+  const key = dailyCacheKey(url, locale, now, deps.version)
   const ttl = dailyTtl(locale, now)
   const cacheControl = `public, max-age=300, s-maxage=${ttl}`
   const hit = await deps.cache.match(key).catch(() => undefined)
