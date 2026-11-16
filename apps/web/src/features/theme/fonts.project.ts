@@ -6,6 +6,6 @@
 // 站点字体样式表由 features/site/theme.ts 在首帧后插入，按 unicode-range 拆分的 CJK 字体不预加载。
 import type { FontPreload } from '@xuanxue/ui/fonts'
 
-export function projectFontPreloads(): readonly FontPreload[] {
+export function projectFontPreloads(_defaults: readonly FontPreload[]): readonly FontPreload[] {
   return []
 }

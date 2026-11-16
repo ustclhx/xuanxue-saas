@@ -23,3 +23,9 @@ export function decodeClassAttributes(html: string): string
 export const DEFAULT_ALLOW_RULES: readonly RegExp[]
 export function selectorClasses(selector: string): string[]
 export function documentClasses(html: string): Set<string>
+// 项目修正（xuanxue）：根元素属性规则与伪元素规则的保留
+export function rootAttributes(html: string): Map<string, string>
+export class RootAttributeRule extends RegExp {
+  constructor(attrs: Map<string, string>)
+}
+export const PROJECT_ALLOW_RULES: readonly RegExp[]
