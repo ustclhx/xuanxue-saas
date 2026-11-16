@@ -1,3 +1,4 @@
+import { useRouterState } from '@tanstack/react-router'
 import type { ComponentType } from 'react'
 import { SessionChatCost } from './chat-cost.tsx'
 import type { ChatSession } from './chat-session.ts'
@@ -28,4 +29,19 @@ export const ProjectComposerEstimate: ComponentType<ComposerEstimateProps> | und
   model,
   inputTokens,
   session,
-}) => <SessionChatCost session={session} model={model} inputTokens={inputTokens} />
+}) => {
+  // 临时对象页由模板持有；在项目扩展点读取其路由令牌，正文始终由服务端 KV 解析。
+  const token = useRouterState({
+    select: (state): string | undefined => {
+      const match = state.matches.find((match) => match.routeId === '/app/$slug/chat/context')
+      return match &&
+        'slug' in match.params &&
+        match.params.slug === session.slug &&
+        'token' in match.search &&
+        typeof match.search.token === 'string'
+        ? match.search.token
+        : undefined
+    },
+  })
+  return <SessionChatCost session={session} model={model} inputTokens={inputTokens} token={token} />
+}

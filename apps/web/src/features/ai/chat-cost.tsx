@@ -1,5 +1,5 @@
 import { useChat } from '@ai-sdk/react'
-import { DEFAULT_TOKENS_PER_CHAR, estimateInputTokens } from '@xuanxue/ai/client'
+import { DEFAULT_TOKENS_PER_CHAR, estimateCredits, estimateInputTokens } from '@xuanxue/ai/client'
 import { CreditEstimate } from '@xuanxue/ui'
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
@@ -9,6 +9,7 @@ import { formatNumber } from './chat-extras.tsx'
 import { type ChatSession, useChatSessionState } from './chat-session.ts'
 import type { ChatUIMessage } from './conversation.ts'
 import { formatEstimate, type PickerModel, typicalMessageEstimate } from './model-picker.ts'
+import type { SubjectRef } from './subject-chat.server.ts'
 
 /**
  * 对话输入区的「预计 · 余额」（adopt-subject-chat-readings design 决策 6，specs/ai-chat
@@ -46,9 +47,22 @@ export function ChatCostView({
       />
     )
   const loaded = cost === 'error' ? null : cost
-  const estimate = typicalMessageEstimate(model.pricing, {
-    inputTokens: inputTokens + prefixTokens(loaded?.prefixChars ?? 0),
+  const totalInputTokens = inputTokens + prefixTokens(loaded?.prefixChars ?? 0)
+  const typical = typicalMessageEstimate(model.pricing, {
+    inputTokens: totalInputTokens,
   })
+  // 典型回复的下限为 150 token，服务端预扣至少要容纳 256；从服务端读取该门槛，避免取整边界低估。
+  const minimum =
+    loaded && model.pricing.mode === 'token'
+      ? estimateCredits(model.pricing, {
+          inputTokens: totalInputTokens,
+          maxOutputTokens: loaded.minOutputTokens,
+        })
+      : 0
+  const estimate =
+    typical.kind === 'range'
+      ? { ...typical, min: Math.max(typical.min, minimum), max: Math.max(typical.max, minimum) }
+      : typical
   const upper = estimate.kind === 'range' ? estimate.max : estimate.credits
   const insufficient = loaded !== null && upper > loaded.availableCredits
   const credits = loaded ? formatNumber(loaded.availableCredits) : ''
@@ -75,22 +89,39 @@ export function ChatCostView({
 export function ChatCost({
   slug,
   conversationId,
+  subject,
+  token,
   refreshKey,
   ...props
 }: {
   slug: string
   conversationId: string | undefined
+  subject?: SubjectRef | undefined
+  token?: string | undefined
   refreshKey: number
   model: PickerModel | undefined
   inputTokens: number
   className?: string
 }) {
   const [cost, setCost] = useState<ChatCostState>(null)
+  const subjectType = subject?.type
+  const subjectId = subject?.id
   useEffect(() => {
     // refreshKey 只用于触发重新读取
     void refreshKey
     let active = true
-    getChatCostContext({ data: { slug, ...(conversationId ? { conversationId } : {}) } })
+    getChatCostContext({
+      data: {
+        slug,
+        ...(conversationId
+          ? { conversationId }
+          : subjectType && subjectId
+            ? { subject: { type: subjectType, id: subjectId } }
+            : token
+              ? { token }
+              : {}),
+      },
+    })
       .then((next) => {
         if (active) setCost(next)
       })
@@ -100,15 +131,15 @@ export function ChatCost({
     return () => {
       active = false
     }
-  }, [slug, conversationId, refreshKey])
+  }, [slug, conversationId, subjectType, subjectId, token, refreshKey])
   return <ChatCostView cost={cost} {...props} />
 }
 
 /**
- * 还没有对话时（对象对话第一次发送前）服务端尚未写入上下文前缀，由页面给出前缀的近似字符数
- * （报告页传报告正文长度）；新建对话后改读服务端的实际前缀。
+ * 项目页面只传对象引用；首次发送前由服务端构建完整 system 上下文并计数。
+ * 已有对话始终读取持久化前缀，不叠加对象上下文。
  */
-export const ChatCostPrefixHint = createContext(0)
+export const ChatCostSubject = createContext<SubjectRef | undefined>(undefined)
 
 /**
  * ChatComposer 内的「预计 · 余额」：按会话读取对话 ID（对象对话第一次发送后才有）与回复状态，
@@ -118,10 +149,12 @@ export function SessionChatCost({
   session,
   model,
   inputTokens,
+  token,
 }: {
   session: ChatSession
   model: PickerModel | undefined
   inputTokens: number
+  token?: string | undefined
 }) {
   useChatSessionState(session)
   const { status, messages } = useChat<ChatUIMessage>({ chat: session.chat })
@@ -129,18 +162,20 @@ export function SessionChatCost({
   // 只在不生成时更新：生成开始不触发读取，结束时消息数变化触发一次
   const settled = useRef(messages.length)
   if (!busy) settled.current = messages.length
-  const hintChars = useContext(ChatCostPrefixHint)
+  const subject = useContext(ChatCostSubject)
   const conversationId = session.conversationId
-  const hintTokens = conversationId === undefined ? prefixTokens(hintChars) : 0
   // credit-estimate：沿用模板 CreditEstimateText 的测试钩子（模板 e2e 读取输入区预计消耗）；contents 不参与布局
   return (
     <span data-testid="credit-estimate" className="contents">
       <ChatCost
+        key={`${session.slug}:${conversationId ?? (subject ? `${subject.type}:${subject.id}` : (token ?? ''))}`}
         slug={session.slug}
         conversationId={conversationId}
+        subject={conversationId ? undefined : subject}
+        token={conversationId || subject ? undefined : token}
         refreshKey={settled.current}
         model={model}
-        inputTokens={inputTokens + hintTokens}
+        inputTokens={inputTokens}
         // 输入区右下角空间有限：限制在所在列宽内，超出时截断而不是压到发送按钮下
         className="max-w-full"
       />

@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { cn } from '@xuanxue/ui'
 import { type ReactNode, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
-import { ChatCostPrefixHint } from '../ai/chat-cost.tsx'
+import { ChatCostSubject } from '../ai/chat-cost.tsx'
 import { getPickerModels } from '../ai/model-picker.functions.ts'
 import type { PickerModel } from '../ai/model-picker.ts'
 import { getSubjectChat, startSubjectConversation } from '../ai/subject-chat.functions.ts'
@@ -17,7 +17,7 @@ import { READING_SUBJECT_TYPE } from './subject-type.ts'
  * 与模板 `<SubjectChat>` 同一数据流（getSubjectChat + getPickerModels → `SubjectChatView`，模板 0.5.0 起为
  * `EmbeddedChat` 外壳：≥ 768px 为正文中的卡片，< 768px 为悬浮按钮 + 底部抽屉），不修改模板文件；项目在外层多做两件事：
  * - 空间没有可用对话模型且还没有追问时，整块显示报告专用空态与购买入口，不显示输入框；
- * - 还没有对话时服务端尚未写入上下文前缀，以报告正文长度作为「预计 · 余额」的前缀估算（ChatCostPrefixHint）。
+ * - 还没有对话时传对象引用，由服务端按实际 system 文本估算完整前缀。
  * 由报告页经 React.lazy 加载（默认导出），不进入报告页首屏 bundle。
  */
 
@@ -45,16 +45,7 @@ function ReportChatPanel({ children }: { children: ReactNode }) {
   )
 }
 
-export default function ReportChat({
-  slug,
-  readingId,
-  content,
-}: {
-  slug: string
-  readingId: string
-  /** 报告正文：新建对话前估算上下文前缀 */
-  content: string
-}) {
+export default function ReportChat({ slug, readingId }: { slug: string; readingId: string }) {
   const [state, setState] = useState<
     | { status: 'loading' }
     | { status: 'error'; notFound: boolean }
@@ -106,7 +97,7 @@ export default function ReportChat({
   return (
     <div className="flex flex-col gap-3">
       <ReportChatHeader className="max-md:hidden" />
-      <ChatCostPrefixHint value={[...content].length}>
+      <ChatCostSubject value={subject}>
         <SubjectChatView
           variant="inline"
           slug={slug}
@@ -121,7 +112,7 @@ export default function ReportChat({
             getSubjectChat({ data: { slug, subject, conversationId } })
           }
         />
-      </ChatCostPrefixHint>
+      </ChatCostSubject>
     </div>
   )
 }

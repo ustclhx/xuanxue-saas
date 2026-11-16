@@ -1,4 +1,11 @@
 // @vitest-environment happy-dom
+
+import {
+  estimateCredits,
+  estimateInputTokens,
+  MIN_OUTPUT_TOKENS,
+  planTextBudget,
+} from '@xuanxue/ai'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,6 +27,7 @@ vi.mock('@tanstack/react-router', () => ({
     <a href={hash ? `/app/me/billing#${hash}` : '#'}>{children}</a>
   ),
   useNavigate: () => vi.fn(),
+  useRouterState: () => undefined,
 }))
 vi.mock('./readings.functions.ts', () => ({
   deleteReading: vi.fn(),
@@ -38,8 +46,10 @@ vi.mock('../ai/chat-cost.functions.ts', () => ({ getChatCostContext: fn.getChatC
 vi.mock('../ai/conversations.functions.ts', () => ({ renameConversation: vi.fn() }))
 vi.mock('../marketing/pricing-snapshot.ts', () => ({ pricingSnapshot: { plans: [] } }))
 
+import { subjectSystemText } from '../ai/subject-context.ts'
 import ReportChat from './report-chat.tsx'
 import { ReadingReportPage } from './report-page.tsx'
+import { readingContext } from './subjects.ts'
 
 const READING_ID = '01a1d5f1-7014-7371-bed6-d8d78223581b'
 const model: PickerModel = {
@@ -82,7 +92,11 @@ beforeEach(() => {
   root = createRoot(container)
   fn.getSubjectChat.mockResolvedValue(chatData())
   fn.getPickerModels.mockResolvedValue([model])
-  fn.getChatCostContext.mockResolvedValue({ availableCredits: 126, prefixChars: 0 })
+  fn.getChatCostContext.mockResolvedValue({
+    availableCredits: 126,
+    prefixChars: 0,
+    minOutputTokens: 256,
+  })
 })
 
 afterEach(() => {
@@ -126,9 +140,7 @@ describe('报告页追问区', () => {
 
 describe('ReportChat', () => {
   const render = async () => {
-    await act(async () =>
-      root.render(<ReportChat slug="me" readingId={READING_ID} content={'報告正文'.repeat(500)} />),
-    )
+    await act(async () => root.render(<ReportChat slug="me" readingId={READING_ID} />))
     await flush()
     await flush()
   }
@@ -139,8 +151,54 @@ describe('ReportChat', () => {
     for (const question of openers) expect(chips).toContain(question)
     const cost = container.querySelector('[data-testid="chat-cost"]')
     expect(cost?.textContent).toContain('126')
-    // 新建前不传对话 ID（前缀按报告正文在本地估算）
-    expect(fn.getChatCostContext).toHaveBeenCalledWith({ data: { slug: 'me' } })
+    // 新建前只传对象引用，由服务端构建完整前缀
+    expect(fn.getChatCostContext).toHaveBeenCalledWith({
+      data: { slug: 'me', subject: { type: 'reading', id: READING_ID } },
+    })
+  })
+
+  it('首次发送前：长报告的预计下限不低于包含完整对象上下文的服务端最低预扣', async () => {
+    const content = '日主庚金，结合命盘与大运作反思。'.repeat(300).slice(0, 4232)
+    const system = subjectSystemText(
+      'reading',
+      readingContext({
+        kind: 'bazi-full',
+        locale: 'zh-Hant',
+        content,
+        input: {
+          calendar: 'solar',
+          year: 1990,
+          month: 5,
+          day: 17,
+          time: { hour: 8, minute: 30 },
+          gender: 'female',
+          location: { city: 'taipei' },
+        },
+        createdAt: new Date('2026-11-16T00:00:00Z'),
+        engineVersion: 'bazi-v1',
+        promptVersion: 'v1',
+      }),
+    )
+    const pricing = { mode: 'token', inputPer1k: 1, outputPer1k: 1, minCharge: 1 } as const
+    fn.getPickerModels.mockResolvedValue([{ ...model, key: 'deepseek-flash', pricing }])
+    fn.getChatCostContext.mockImplementation(async ({ data }) => ({
+      availableCredits: 6,
+      minOutputTokens: 256,
+      prefixChars: data.subject ? [...system].length : 0,
+    }))
+    const inputTokens = estimateInputTokens([{ text: system }, { text: '' }])
+    const minimum = estimateCredits(pricing, { inputTokens, maxOutputTokens: MIN_OUTPUT_TOKENS })
+    expect(system.length).toBeGreaterThan(7000)
+    expect(minimum).toBeGreaterThan(6)
+    expect(() =>
+      planTextBudget({ pricing, inputTokens, balance: minimum - 1, maxOutputTokens: 12000 }),
+    ).toThrow()
+    await act(async () => root.render(<ReportChat slug="me" readingId={READING_ID} />))
+    await flush()
+    await flush()
+    const text = container.querySelector('[data-testid="chat-cost"]')?.textContent ?? ''
+    const lower = Number(text.match(/\d+/)?.[0])
+    expect(lower, text).toBeGreaterThanOrEqual(minimum)
   })
 
   it('没有可用对话模型：显示空态与购买积分入口，不显示输入框与开场问题', async () => {

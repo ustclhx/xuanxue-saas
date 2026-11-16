@@ -37,7 +37,11 @@ vi.mock('./subject-chat.functions.ts', () => ({
 }))
 vi.mock('../marketing/pricing-snapshot.ts', () => ({ pricingSnapshot: { plans: [] } }))
 vi.mock('./chat-cost.functions.ts', () => ({
-  getChatCostContext: vi.fn(async () => ({ availableCredits: 100, prefixChars: 0 })),
+  getChatCostContext: vi.fn(async () => ({
+    availableCredits: 100,
+    prefixChars: 0,
+    minOutputTokens: 256,
+  })),
 }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, ...props }: { children: React.ReactNode; to: string }) => (
@@ -46,6 +50,7 @@ vi.mock('@tanstack/react-router', () => ({
     </a>
   ),
   useNavigate: () => vi.fn(),
+  useRouterState: () => undefined,
 }))
 
 import { ChatPage } from './chat-page.tsx'
