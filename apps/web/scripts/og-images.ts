@@ -1,19 +1,22 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import type { Plugin } from 'vite'
+import { type Plugin, runnerImport } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
+import { homePageCopy } from '../src/features/seo/home-copy.ts'
 import { ogImagePath } from '../src/features/seo/metadata.ts'
+import { type OgSampleChart, ogSampleChart } from '../src/features/seo/og-sample/pages.ts'
 import { ogImageTitle } from '../src/features/seo/og-title.ts'
 import { publicPages } from '../src/features/seo/pages.ts'
 import { defaultShareCardLayout } from '../src/features/share-cards/layout.tsx'
 import { defaultShareCardSite, resolveShareCardSite } from '../src/features/share-cards/site.ts'
 import { resolveShareCardTheme } from '../src/features/share-cards/theme.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../src/features/site/site.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
 import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
+import { brandChartColors } from './brand-tokens.ts'
 
 const root = new URL('..', import.meta.url)
 // 与运行时分享卡片共用字体目录与渲染核心；构建期逐页串行渲染，不触及并发上限。
@@ -61,6 +64,64 @@ export function renderOgImage(
   )
 }
 
+type OgSampleModule = typeof import('../src/features/seo/og-sample/render.tsx')
+let sampleModule: Promise<OgSampleModule> | undefined
+
+/**
+ * 样例模板依赖图形组件与 Paraglide 文案；src/paraglide 由 i18n 插件在构建开始时生成，vite 配置加载时可能还不存在，
+ * 因此首次使用时才经 vite 的 runnerImport 加载（独立配置，不再读取 vite.config.ts）。
+ */
+function loadSampleModule(): Promise<OgSampleModule> {
+  sampleModule ??= runnerImport<OgSampleModule>(
+    fileURLToPath(new URL('../src/features/seo/og-sample/render.tsx', import.meta.url)),
+    { configFile: false, logLevel: 'error' },
+  )
+    .then((result) => result.module)
+    .catch((error: unknown) => {
+      sampleModule = undefined
+      throw error
+    })
+  return sampleModule
+}
+
+/**
+ * 登记页面（首页、八字 / 紫微 / 命盤查詢 / 만세력、Life Path、数字图表）的样例 OG 图（openspec
+ * redesign-home-chart-visuals design D6）：标题、站名、虚构样例命盘图形与「示例」角标。
+ * 颜色取自 brand.css（东方站浅色、西方站深色），品牌、域名与副标题与默认分享图同一来源。
+ */
+export async function renderSampleOgImage(
+  title: string,
+  page: { locale: string; path: string },
+  chart: OgSampleChart,
+): Promise<Uint8Array> {
+  const { site } = resolveShareCardSite({
+    host: defaultShareCardSite().host,
+    locale: page.locale,
+    pathname: page.path,
+  })
+  const siteId = siteOfLocale(page.locale, templateConfig) ?? 'west'
+  const tagline = site.tagline ?? homePageCopy(page.locale)[0]
+  const { ogSampleElement } = await loadSampleModule()
+  return renderer.render(
+    ogSampleElement({
+      chart,
+      locale: page.locale as Parameters<OgSampleModule['ogSampleElement']>[0]['locale'],
+      title,
+      meta: `${site.brand.name} · ${tagline}`,
+      brand: site.brand,
+      host: site.host,
+      colors: brandChartColors(siteId === 'east' ? 'east-light' : 'west'),
+    }),
+  )
+}
+
+/** 公开页面的分享图：登记页面用样例模板，其余沿用默认版式 */
+export function renderPageOgImage(page: { locale: string; path: string; title: string }) {
+  const title = ogImageTitle(page.title)
+  const chart = ogSampleChart(page)
+  return chart ? renderSampleOgImage(title, page, chart) : renderOgImage(title, page)
+}
+
 /** 东方站英文入口页（D5）：语言 en 归西方站，站点解析按路径识别为东方站 */
 function renderEastEnglishOgImage(): Promise<Uint8Array> {
   return renderOgImage(EAST_ENGLISH_COPY.title, {
@@ -80,7 +141,7 @@ export function ogImages(): Plugin {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),
-          source: await renderOgImage(ogImageTitle(page.title), page),
+          source: await renderPageOgImage(page),
         })
       }
       if (templateConfig.marketing.enabled && templateConfig.i18n.enabled)
@@ -115,7 +176,7 @@ export function ogImages(): Plugin {
             return
           }
           response.setHeader('Content-Type', 'image/png')
-          response.end(await renderOgImage(ogImageTitle(page.title), page))
+          response.end(await renderPageOgImage(page))
         } catch (error) {
           next(error)
         }
