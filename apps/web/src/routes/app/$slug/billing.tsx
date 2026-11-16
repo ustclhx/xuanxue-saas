@@ -7,7 +7,6 @@ import {
 import { enabledCurrency, formatMoney } from '@xuanxue/billing/currency'
 import { Badge, Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useEffect, useId, useRef, useState } from 'react'
-import { z } from 'zod'
 import { trackEvent } from '../../../features/analytics/track.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import { entitlementPlanName, formatCredits } from '../../../features/billing/billing-sections.tsx'
@@ -17,11 +16,13 @@ import {
   manageCustomerSubscription,
 } from '../../../features/billing/customer.functions.ts'
 import { billingDailyClaimState } from '../../../features/billing/daily-claim.ts'
+import { planKey } from '../../../features/billing/plan-key.ts'
 import { getCustomerRefunds } from '../../../features/billing/refund.functions.ts'
 import { RefundSection } from '../../../features/billing/refund-section.tsx'
 import { displayPrices } from '../../../features/marketing/pricing-data.ts'
 import { paypalUsdNotice } from '../../../features/readings/price.ts'
 import { getReadingPricing } from '../../../features/readings/readings.functions.ts'
+import { compactSearch, optionalEnum, optionalString } from '../../../features/routing/search.ts'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -31,15 +32,13 @@ export const Route = createFileRoute('/app/$slug/billing')({
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
   // 从公开页面发起购买时带上发起页面，支付后回到该页（决策 4；服务端再次校验）
-  validateSearch: z.object({
-    returnTo: z.string().max(1024).optional(),
-    checkout: z.enum(['success', 'canceled']).optional(),
-    // 定价页「购买 / 订阅」带上套餐 key：积分包直接跳转支付页；订阅在没有续费中的订阅时直接结账，否则预选待确认
-    buy: z
-      .string()
-      .regex(/^[a-z0-9_-]{1,64}$/)
-      .optional(),
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    compactSearch({
+      returnTo: optionalString(search.returnTo, 1024),
+      checkout: optionalEnum(search.checkout, ['success', 'canceled']),
+      // 定价页「购买 / 订阅」带上套餐 key：积分包直接跳转支付页；订阅在没有续费中的订阅时直接结账，否则预选待确认
+      buy: planKey(search.buy),
+    }),
   loader: async ({ params }) => {
     const [billing, refunds, readings] = await Promise.all([
       getCustomerBilling({ data: { slug: params.slug } }),

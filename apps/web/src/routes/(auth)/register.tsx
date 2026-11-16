@@ -16,6 +16,7 @@ import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
 import { SiteAccountsHint } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
+import { compactSearch, optionalString } from '../../features/routing/search.ts'
 import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
@@ -83,7 +84,11 @@ const schema = () =>
   })
 
 export const Route = createFileRoute('/(auth)/register')({
-  validateSearch: z.object({ error: z.string().optional(), redirect: z.string().optional() }),
+  validateSearch: (search: Record<string, unknown>) =>
+    compactSearch({
+      error: optionalString(search.error),
+      redirect: optionalString(search.redirect),
+    }),
   loader: () => getAuthUiOptions(),
   head: () => authPageHead('/register', getLocale(), COPY.metaTitle),
   component: RegisterPage,
