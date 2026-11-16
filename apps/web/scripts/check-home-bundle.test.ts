@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+  budgetViolation,
   checkHomeBundle,
   checkHomePages,
   checkServerHomeBundle,
@@ -11,6 +12,7 @@ import {
   homeHead,
   htmlScripts,
   readHomeHeadSnapshot,
+  readPerformanceOptions,
   reportHomePages,
   SHARE_CARD_MARKER,
   staticClosure,
@@ -118,6 +120,71 @@ describe('首页包检查', () => {
       'ko.html',
     ])
     for (const page of HOME_PAGES) expect(page.budget).toBeGreaterThan(0)
+  })
+})
+
+describe('zod 标记与首页包预算（模板 add-marketing-critical-path）', () => {
+  it('客户端首页静态依赖中出现 zod schema 实现时报错；只有 jitless 配置时通过', () => {
+    const ok = fixture({
+      'index.html': '<script type="module" src="/assets/entry.js"></script>',
+      'assets/entry.js': 'const c={};function config(o){Object.assign(c,o)}config({jitless:!0});',
+    })
+    expect(checkHomeBundle(ok).violations).toEqual([])
+    rmSync(dir, { recursive: true, force: true })
+    const bad = fixture({
+      'index.html': '<script type="module" src="/assets/entry.js"></script>',
+      'assets/entry.js': 'import"./schema.js";',
+      'assets/schema.js': 'class ZodError extends Error{};const i={code:"invalid_type"};',
+    })
+    expect(checkHomeBundle(bad).violations.map((v) => v.marker)).toEqual([
+      'invalid_type',
+      'ZodError',
+    ])
+  })
+
+  it('加载器内联脚本中的入口路径也计入首页闭包', () => {
+    const root = fixture({
+      'index.html':
+        '<script>(function(){var css=["/assets/app.css"],js=["/assets/entry.js"]})()</script>',
+      'assets/entry.js': 'import"./schema.js";',
+      'assets/schema.js': 'const i={code:"invalid_type"};',
+    })
+    expect(checkHomeBundle(root).files.sort()).toEqual(['/assets/entry.js', '/assets/schema.js'])
+  })
+
+  it('未设置预算不检查；未超出返回 null；超出给出实际值与预算', () => {
+    expect(budgetViolation(500_000, null)).toBeNull()
+    expect(budgetViolation(500_000, undefined)).toBeNull()
+    expect(budgetViolation(1000, 1000)).toBeNull()
+    expect(budgetViolation(1001, 1000)).toMatch(/1001 B.*预算 1000 B/)
+  })
+
+  it('读取构建写出的 marketing.performance，缺失时为 null', () => {
+    const root = fixture({})
+    expect(readPerformanceOptions(root)).toBeNull()
+    mkdirSync(join(root, '.build'))
+    writeFileSync(
+      join(root, '.build/marketing-performance.json'),
+      JSON.stringify({ homeScriptGzipBudget: 1234 }),
+    )
+    expect(readPerformanceOptions(root)).toEqual({ homeScriptGzipBudget: 1234 })
+  })
+
+  it('未设置配置预算时 zod 只警告并沿用各页预算；设置后取代各页预算且 zod 判失败', () => {
+    const root = fixture({
+      'index.html': '<script type="module" src="/assets/entry.js"></script>',
+      'assets/entry.js': 'const i={code:"invalid_type"};',
+    })
+    const pages = [{ id: 'west', file: 'index.html', budget: 1_000_000 }]
+    const head = { west: homeHead('') }
+    const warned = reportHomePages(checkHomePages(root, pages, head))
+    expect(warned.ok).toBe(true)
+    expect(warned.warnings.join('\n')).toMatch(/zod schema[\s\S]*invalid_type/)
+    const [strict] = checkHomePages(root, pages, head, 1)
+    expect(strict?.budget).toBe(1)
+    expect(strict?.overBudget).toBe(true)
+    expect(strict?.violations.map((v) => v.marker)).toEqual(['invalid_type'])
+    expect(reportHomePages(strict ? [strict] : []).ok).toBe(false)
   })
 })
 

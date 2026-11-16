@@ -73,7 +73,13 @@ export default defineTemplateConfig({
   // 每日登录赠送：额度、天数上限、有效期与验证邮箱要求用运行时设置默认值 10/10/7 天/要求验证
   // （enable-subscriptions-daily-credits D6）；同一邮箱的两站账户共享每日与每月额度
   credits: { enabled: true, dailyEnabled: true },
-  marketing: { enabled: true },
+  marketing: {
+    enabled: true,
+    // 预渲染营销页的首屏关键路径（模板 0.5.4，docs/02-project-structure.md §3）：
+    // after-paint 首帧后再加载水合脚本；used 只内联本页用到的样式；预算为首页客户端脚本 gzip 合计上限（字节），
+    // 设置后取代 apps/web/scripts/check-home-bundle.mjs 中各首页的预算，数值写普通字面量（template-sync 静态解析不支持数字分隔符）
+    performance: { hydration: 'after-paint', criticalCss: 'used' },
+  },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css
   // appLayout：App 区布局，'sidebar' 工作台侧边栏 | 'topbar' 原有顶部布局

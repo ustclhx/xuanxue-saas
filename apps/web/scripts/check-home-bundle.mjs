@@ -6,6 +6,8 @@
 // 只看 HTML 直接列出的文件不够：路由文件中未被拆分的部分（如 validateSearch）会让入口静态导入重的分包。
 // 模板 add-og-images 5.5：服务端（Worker 入口与首页路由分包）与客户端首页闭包都不得出现分享卡片渲染器、
 // satori、resvg 与字体；渲染器只能经动态 import() 在分享卡片路由中加载。
+// 模板 add-marketing-critical-path：客户端首页闭包不得含 zod schema 实现（模板配置在客户端是构建期 JSON），
+// 模板配置 marketing.performance.homeScriptGzipBudget 为数字时，以它作为各首页的 gzip 预算。
 // 用法：node scripts/check-home-bundle.mjs [dist/client] [dist/server]；`pnpm build` 在预渲染后自动执行。
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, resolve } from 'node:path'
@@ -29,6 +31,12 @@ export const FORBIDDEN_MARKERS = [
   SHARE_CARD_MARKER,
   'data-chat-code',
 ]
+
+/**
+ * zod schema 实现的特征（issue 码与错误类名）；只设置 jitless 的 `config` 不含这些字符串。
+ * 首页依赖在客户端运行时解析 schema 时会带入整套实现（约 125KB），应改为服务端校验或按需加载。
+ */
+export const ZOD_MARKERS = ['invalid_type', 'ZodError']
 
 /**
  * 模板分享卡片渲染器的代码特征：cf-workers-og、satori、resvg 的 WASM 初始化与 CJK 字体文件名。
@@ -123,7 +131,24 @@ function scan(dir, files, markers) {
 export function checkHomePage(clientDir, file = 'index.html') {
   const html = readFileSync(join(clientDir, file), 'utf8')
   const files = staticClosure(clientDir, htmlScripts(html))
-  return { files, ...scan(clientDir, files, [...FORBIDDEN_MARKERS, ...RENDERER_MARKERS]) }
+  return {
+    files,
+    ...scan(clientDir, files, [...FORBIDDEN_MARKERS, ...RENDERER_MARKERS, ...ZOD_MARKERS]),
+  }
+}
+
+/** 预算检查：budget 为 null 时不检查；返回超出时的说明，未超出返回 null */
+export function budgetViolation(gzipBytes, budget) {
+  if (budget === null || budget === undefined) return null
+  return gzipBytes > budget
+    ? `首页客户端脚本 gzip 合计 ${gzipBytes} B，超出预算 ${budget} B（template.config.ts marketing.performance.homeScriptGzipBudget）`
+    : null
+}
+
+/** 构建时写出的 marketing.performance（dist/.build/marketing-performance.json），缺失时为 null */
+export function readPerformanceOptions(distDir) {
+  const file = join(distDir, '.build/marketing-performance.json')
+  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null
 }
 
 /** 只检查西方站首页（保留原接口） */
@@ -253,17 +278,30 @@ export function readHomeHeadSnapshot() {
   return JSON.parse(readFileSync(SNAPSHOT_PATH, 'utf8'))
 }
 
-/** 检查全部首页：包闭包、禁止标记、gzip 预算与 head 对照；`pages` / `snapshot` 供测试注入 */
-export function checkHomePages(clientDir, pages = HOME_PAGES, snapshot = readHomeHeadSnapshot()) {
-  return pages.map(({ id, file, budget }) => {
-    const result = checkHomePage(clientDir, file)
+/**
+ * 检查全部首页：包闭包、禁止标记、gzip 预算与 head 对照；`pages` / `snapshot` 供测试注入。
+ * `configBudget`（模板配置 homeScriptGzipBudget）为数字时取代各页预算，且 zod 标记判为违规；
+ * 为 null 时沿用 HOME_PAGES 的预算，zod 标记只作警告（同模板：未接受首页包约束的项目不因此构建失败）。
+ */
+export function checkHomePages(
+  clientDir,
+  pages = HOME_PAGES,
+  snapshot = readHomeHeadSnapshot(),
+  configBudget = null,
+) {
+  return pages.map(({ id, file, budget: pageBudget }) => {
+    const { violations: all, ...result } = checkHomePage(clientDir, file)
     const head = homeHead(readFileSync(join(clientDir, file), 'utf8'))
+    const budget = configBudget ?? pageBudget
+    const zod = all.filter(({ marker }) => ZOD_MARKERS.includes(marker))
     return {
       id,
       file,
       budget,
       ...result,
-      overBudget: result.gzipBytes > budget,
+      violations: configBudget === null ? all.filter((item) => !zod.includes(item)) : all,
+      zodWarnings: configBudget === null ? zod : [],
+      overBudget: budgetViolation(result.gzipBytes, budget) !== null,
       head,
       headDiffs: diffHomeHead(head, snapshot[id]),
     }
@@ -273,13 +311,19 @@ export function checkHomePages(clientDir, pages = HOME_PAGES, snapshot = readHom
 /** 把检查结果整理为输出行；有任何问题时 ok 为 false */
 export function reportHomePages(results) {
   const lines = []
+  const warnings = []
   let ok = true
   for (const page of results) {
     const label = `${page.id}（${page.file}）`
+    if (page.zodWarnings.length > 0)
+      warnings.push(
+        `首页包检查警告：${label} 客户端静态依赖中有 zod schema 实现（设置 homeScriptGzipBudget 后此项判为失败）`,
+        ...page.zodWarnings.map(({ asset, marker }) => `  - 客户端 ${asset} 含 "${marker}"`),
+      )
     const problems = [
       ...page.violations.map(
         ({ asset, marker }) =>
-          `静态依赖 ${asset} 含 "${marker}"（阅读器 / 对话 / Markdown / 分享图与分享卡片渲染器只应懒加载）`,
+          `静态依赖 ${asset} 含 "${marker}"（阅读器 / 对话 / Markdown / 分享图与分享卡片渲染器 / zod schema 只应懒加载）`,
       ),
       ...(page.overBudget ? [`gzip 合计 ${page.gzipBytes} B 超出预算 ${page.budget} B`] : []),
       ...page.headDiffs.map((diff) => `head 与 home-head-snapshot.json 不一致：${diff}`),
@@ -293,7 +337,7 @@ export function reportHomePages(results) {
       )
     }
   }
-  return { ok, lines }
+  return { ok, lines, warnings }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -312,7 +356,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     // 唯一调用方是 `pnpm build`（Cloudflare 构建，必有 dist/server）；一侧产物缺失时另一侧照常报告
     const client = () => {
       try {
-        return reportHomePages(checkHomePages(clientDir))
+        const budget = readPerformanceOptions(join(clientDir, '..'))?.homeScriptGzipBudget ?? null
+        return reportHomePages(
+          checkHomePages(clientDir, HOME_PAGES, readHomeHeadSnapshot(), budget),
+        )
       } catch (error) {
         return {
           ok: false,
@@ -320,7 +367,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         }
       }
     }
-    for (const { ok, lines } of [reportServerHomeBundle(serverDir), client()]) {
+    for (const { ok, lines, warnings = [] } of [reportServerHomeBundle(serverDir), client()]) {
+      for (const line of warnings) console.warn(line)
       for (const line of lines) (ok ? console.log : console.error)(line)
       if (!ok) process.exitCode = 1
     }

@@ -34,8 +34,21 @@ export function checkHomePages(
   clientDir: string,
   pages?: readonly HomePage[],
   snapshot?: Record<string, HomeHead>,
-): (HomePage & HomePageResult & { overBudget: boolean; head: HomeHead; headDiffs: string[] })[]
+  configBudget?: number | null,
+): (HomePage &
+  HomePageResult & {
+    zodWarnings: { asset: string; marker: string }[]
+    overBudget: boolean
+    head: HomeHead
+    headDiffs: string[]
+  })[]
 export function reportHomePages(results: ReturnType<typeof checkHomePages>): {
   ok: boolean
   lines: string[]
+  warnings: string[]
 }
+export const ZOD_MARKERS: readonly string[]
+export function budgetViolation(gzipBytes: number, budget: number | null | undefined): string | null
+export function readPerformanceOptions(
+  distDir: string,
+): { homeScriptGzipBudget?: number | null } | null
