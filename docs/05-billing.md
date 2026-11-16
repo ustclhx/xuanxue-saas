@@ -414,6 +414,17 @@ INSERT INTO credit_hold (...), credit_hold_allocation (...);
 - `/app/$slug/usage`：积分流水、按模型/成员的用量统计。
 - `/admin/billing`：付款、订阅、Webhook 事件（可重放）；手动调积分和完整管理能力在 P5。
 
+### 当地货币参考价（`@xuanxue/shared/fx`）
+
+页面需要显示「约 NT$620」这类当地货币估价时，服务端调用 `loadUsdRates({ store, fallback })` 取 USD 基准汇率：
+默认数据源为 Exchange Rate API 免费端点，结果按 `store`（KV、Cache API 或内存）缓存 12 小时；拉取失败、超时或响应无效时
+返回调用方提供的参考值并标记 `source: 'fallback'`，回退结果不缓存。估价只用于展示，不参与扣款，实际金额以支付服务商显示为准。
+该子路径依赖服务端日志，不能进入浏览器包。
+
+**署名要求**：免费端点要求在使用其汇率的页面链接到其站点。凡展示由它得到的估价的页面，须渲染
+`FX_ATTRIBUTION`（文字 `Rates By Exchange Rate API`，链接 `https://www.exchangerate-api.com`），例如放在估价下方的一行小字。
+上线前由项目确认该链接可见；改用其他数据源（传入 `url`）时按该数据源的条款处理署名。模板自身页面不使用该模块。
+
 ## 8. 支付模式与生产切换清单
 
 `createPaymentRuntime` 是 Web、Jobs 和认证删除步骤共用的支付工厂。非敏感 Worker var `PAYMENT_MODE` 只接受 `test` / `live`，两端 Wrangler 顶层与 `env.staging` 均显式设为 `test`；本站 `env.production` 显式设为 `live`（change `enable-paypal-checkout`，`check-wrangler-envs.mjs` 断言）。只有 `SENTRY_ENVIRONMENT=development` 缺少模式时默认 test，staging、production 和未知环境缺失模式时关闭支付：HTTP 支付入口返回 503，Jobs 事件失败并交给既有重试机制。结构化日志 `billing.runtime_invalid` 只包含安全字段名与模式，公开营销定价降级为支付不可用。
