@@ -169,13 +169,20 @@ interface DisplayablePrice {
  * 页面展示的价格行（localize-checkout-currency D5）：与结账的服务端选价使用同一规则——
  * 在该支付平台的可购买行中按界面语言的结算币种选，缺失时回退 USD，因此展示币种与扣款一致。
  * 支付尚未开通（没有可购买行）时只用于展示金额，同样按目标币种选、回退 USD。
+ * 已有订阅传入其币种后严格匹配同币种可售价，不使用语言或 USD 回退。
  */
 export function selectDisplayPrice<P extends DisplayablePrice>(
   prices: readonly P[],
   locale: string,
   provider: string,
+  currency?: string,
 ): P | undefined {
   const own = prices.filter((price) => price.provider === provider)
+  // 已有订阅约束币种时只能使用同币种可售价，不能回退到 USD 或未就绪价格。
+  if (currency)
+    return own.find(
+      (price) => price.available && price.currency.toUpperCase() === currency.toUpperCase(),
+    )
   const target = currencyFor(locale, provider)
   const available = own.filter((price) => price.available)
   return available.length
@@ -188,6 +195,7 @@ export function displayPrices<P extends DisplayablePrice>(
   prices: readonly P[],
   locale: string,
   provider: string,
+  currency?: string,
 ): P[] {
   const groups = new Map<string, P[]>()
   for (const price of prices) {
@@ -196,7 +204,7 @@ export function displayPrices<P extends DisplayablePrice>(
     groups.set(key, [...(groups.get(key) ?? []), price])
   }
   return [...groups.values()].flatMap((group) => {
-    const chosen = selectDisplayPrice(group, locale, provider)
+    const chosen = selectDisplayPrice(group, locale, provider, currency)
     return chosen ? [chosen] : []
   })
 }

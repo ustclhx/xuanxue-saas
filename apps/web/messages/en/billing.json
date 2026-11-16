@@ -71,5 +71,6 @@
   "billing_sub_upgrade_notice": "Upgrades take effect immediately and are prorated. Credits for the new plan start from your next billing period.",
   "billing_sub_period_credits": "This period's subscription credits expire on {date} (plus a 24-hour grace period) and do not roll over.",
   "billing_sub_cancel_keeps": "If you cancel, it takes effect at the end of this period: your benefits and this period's credits stay until {date}.",
-  "billing_sub_stripe_only": "Subscriptions are paid by card (Stripe) only. PayPal is available for credit packs and is charged in US dollars."
+  "billing_sub_stripe_only": "Subscriptions are paid by card (Stripe) only. PayPal is available for credit packs and is charged in US dollars.",
+  "billing_error_currency_conflict": "Your subscription uses a different currency. Reload billing to use its currency, or contact support if checkout still fails."
 }

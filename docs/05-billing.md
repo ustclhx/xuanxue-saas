@@ -13,6 +13,10 @@
     其余语言 USD；PayPal 所有语言都以 USD 结算。客户端不能指定币种。
   - `plan_price` 按 (套餐, 平台, 周期, 币种) 各建一行，每行对应平台上一个独立价格对象（不用 `currency_options`）；
     所选币种的价格未同步或已停用时回退 USD，展示与结账共用同一选价函数。
+  - 新建订阅时，同一空间、同一平台仍有 active / trialing / past_due 订阅（包括周期末取消中）则沿用其币种，
+    该币种无可售价格时返回 `BILLING_PRICE_UNAVAILABLE`，避免回退 USD 后与旧订阅冲突。旧订阅终止后恢复按语言选价；
+    积分包仍按语言选价。账单页的重订与换档选项展示实际订阅币种，公开定价页保留语言定价，重订先进入账单页确认。
+    Stripe 仍拒绝 Customer 混用币种时返回 `BILLING_CURRENCY_CONFLICT`，由页面显示本地化说明。
   - Stripe Checkout 显式传 `adaptive_pricing: { enabled: false }`，买家所在地不会改变扣款币种。
   - 回调入账时 `money(amount, currency, expected)` 要求币种属于启用集合且与价格行（退款为原付款）的币种一致，
     否则抛出 `BILLING_CURRENCY_MISMATCH`，见 §3「不可重试的失败」。订单、付款、退款与退款申请都以原付款币种的最小单位记录；
