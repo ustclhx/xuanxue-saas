@@ -139,6 +139,12 @@ ko 用户的情况：Stripe 显示 KRW 主价；选择 PayPal 时，在支付方
 - 用户切换语言后新建订阅，如果与现有续费订阅币种不同，按现有「先周期末取消旧订阅再结账」的流程处理，并在 staging 实测 Stripe 是否接受。
 - 如果 Stripe 拒绝，回退为沿用旧订阅的币种。此项留给 B change 的订阅验收覆盖。
 
+**实测结果（enable-subscriptions-daily-credits tasks 6.4，2026-11-15，本地对接 `xuanxue-staging` 沙盒）**：
+
+- 繁体界面订阅 Plus 以 TWD 首付（NT$162），Test Clock 续费仍为 TWD；切到简体界面换档到 Premium 时选中 TWD 目标价格（NT$325）并按比例计费，换档按订阅币种选价的规则成立。
+- 旧 TWD 订阅已设周期末取消、仍在已付周期内时，同一 Customer 在简体界面重新订阅 USD 被 Stripe 拒绝（同一 Customer 不能混用币种），没有生成 USD 结账或扣款；应用只返回通用错误，尚未实现上面的「沿用旧订阅币种」回退。本次没有测试旧订阅彻底终止后能否换币种。
+- 另发现换档选项显示 USD 金额、实际按 TWD 结算。两项缺陷已另开 PR 修复（沿用旧订阅币种、换档选项按订阅币种显示）。证据见私有验收目录 `enable-subscriptions-daily-credits/staging-6/results.md`。
+
 ### D8 部署顺序保证安全
 
 1. 先部署币种感知的 web 与 jobs（`money()` 接受 TWD/KRW）。

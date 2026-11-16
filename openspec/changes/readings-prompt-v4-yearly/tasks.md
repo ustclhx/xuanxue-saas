@@ -10,8 +10,10 @@
 
 ## 1. 决策与批准（不改代码）
 
-- [ ] 1.1 【用户】回答 design.md Open Questions 1–3（流年年数、第四季度是否顺延、是否加价）。验证：协调者把结论写回 design.md 决策 2 与 Open Questions，若年数不是 5 则同步更新 3.x 与评测样本的窗口
-- [ ] 1.2 【用户】批准评测预算与评委模型（Open Questions 5–6，建议首轮真实调用 ≤ 10 USD）。验证：预算与模型 key 记录在本 change 的 design.md
+- [x] 1.1 【用户】回答 design.md Open Questions 1–3（流年年数、第四季度是否顺延、是否加价）。验证：协调者把结论写回 design.md 决策 2 与 Open Questions，若年数不是 5 则同步更新 3.x 与评测样本的窗口
+  - 2026-11-13 使用者确认采用默认方案（5 年、当年起不顺延、不加价），见 design.md 决策记录
+- [x] 1.2 【用户】批准评测预算与评委模型（Open Questions 5–6，建议首轮真实调用 ≤ 10 USD）。验证：预算与模型 key 记录在本 change 的 design.md
+  - 预算 ≤ 10 USD 于 2026-11-14 批准，生成 `deepseek-flash`、评委 `deepseek-v4-pro`，已记入 design.md 决策记录
 
 ## 2. 波次 A：引擎数据、版本注册与评测骨架（并行 worktree）
 
@@ -40,9 +42,12 @@
 ## 3. 波次 B：v4 数据档与提示词（3.1 先合并，3.2–3.4 并行）
 
 - [x] 3.1 【Claude】`catalog.ts` 的 recompute 支持数据档：v1–v3 版本沿用现有 `chartSummary` / `ziweiSummary` / 数字摘要（逐字段不变），v4 使用扩展摘要（`annual`、大运补充、`horoscope`、六吉六煞、`personalYears`、`pinnacles`、`challenges`）；窗口常量 `READING_ANNUAL_YEARS`；`engine_version` 记录组合版本。验证：快照测试断言旧版本摘要与改动前一致；v4 摘要含窗口内全部年份、不含出生日期与城市；同一输入两次复算结果一致
-- [ ] 3.2 【Claude】八字 / 사주 v4：`prompts/bazi-full.v4.ts`（zh-Hant、zh-Hans）与 `prompts/saju-full.v4.ts`（ko），整理 v1–v3 约束为完整 system，新增「流年逐年 / 연도별 세운」章节（`### <年份> <干支>` 小节、上下半年表述、禁止月日），按 design 决策 3 优化其余章节；在注册表登记 v4（不改默认版本）。验证：`catalog.test.ts` 新增断言 v4 章节表、system 不含用户内容、样例段落仍通过合规；评测录制模式下 2 个样本通过全部确定性检查
-- [ ] 3.3 【Claude】紫微 v4：`prompts/ziwei-full.v4.ts`（zh-Hant、zh-Hans），新增「大限與流年 / 大限与流年」章节，引用大限宫位、流年命宫与流年四化，补辅星解读规则。验证：同 3.2
-- [ ] 3.4 【Claude】数字命理 v4：`prompts/numerology-full.v4.ts`（en），「Personal Year」扩为「Year by Year」（窗口内每年一个小节），Core Numbers 加入巅峰数与挑战数。验证：同 3.2，并断言个人年数值与 JSON 一致的检查器通过
+- [x] 3.2 【Claude】八字 / 사주 v4：`prompts/bazi-full.v4.ts`（zh-Hant、zh-Hans）与 `prompts/saju-full.v4.ts`（ko），整理 v1–v3 约束为完整 system，新增「流年逐年 / 연도별 세운」章节（`### <年份> <干支>` 小节、上下半年表述、禁止月日），按 design 决策 3 优化其余章节；在注册表登记 v4（不改默认版本）。验证：`catalog.test.ts` 新增断言 v4 章节表、system 不含用户内容、样例段落仍通过合规；评测录制模式下 2 个样本通过全部确定性检查
+  - #145 登记 v4，按评测修订于 #166、#168、#169 合并
+- [x] 3.3 【Claude】紫微 v4：`prompts/ziwei-full.v4.ts`（zh-Hant、zh-Hans），新增「大限與流年 / 大限与流年」章节，引用大限宫位、流年命宫与流年四化，补辅星解读规则。验证：同 3.2
+  - #145 登记 v4，按评测修订于 #166、#168 合并
+- [x] 3.4 【Claude】数字命理 v4：`prompts/numerology-full.v4.ts`（en），「Personal Year」扩为「Year by Year」（窗口内每年一个小节），Core Numbers 加入巅峰数与挑战数。验证：同 3.2，并断言个人年数值与 JSON 一致的检查器通过
+  - #145 登记 v4，按评测修订于 #166、#168 合并
 
 ## 4. 评测、审阅与上线（顺序执行）
 
@@ -53,3 +58,4 @@
 - [x] 4.5 【Codex，需用户批准】staging：如模型行 `maxOutputTokens` 低于 4.3 的上限则调高；后台把 4 种详批（八字、사주、紫微、数字命理；按语言共 6 个组合）的提示词版本切到 v4；每个组合用测试账号真实生成 1 份。验证：报告 ready、扣费等于设置积分、报告页目录含逐年小节、`reading.prompt_version` 为 v4；再切回默认并确认新报告恢复 v3、已生成 v4 报告不变
 - [ ] 4.6 【用户批准 → Codex】生产逐个详批切换到 v4（建议先八字 zh-Hant），观察两周 `readings.sections_incomplete` 与失败率；超过 design 决策 5 阈值时切回并向模板提出通用报告模块需求。验证：切换记录、观测数据与（如有）回滚记录写入私有验收记录
 - [ ] 4.7 【协调者】模板发布 R6 提示词评测后，按其升级说明迁移套件与评分标准并删除 `apps/web/scripts/eval-readings/`。验证：`pnpm eval:prompts`（或模板实际命令）能跑通本项目套件
+  - （2026-11-16：模板 0.5.0（#167）已提供 `pnpm eval:prompts`（`packages/evals`），但本项目套件与评分标准尚未迁移，`apps/web/scripts/eval-readings/` 仍在）

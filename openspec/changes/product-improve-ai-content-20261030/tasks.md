@@ -9,8 +9,11 @@
 ## 1. 运维与决策（不改代码）
 
 - [ ] 1.1 【Codex】只读核对生产环境六种详批的开关、模型与积分：用普通账号（非 staff）在 zh-Hant、zh-Hans、ko、en 四种语言下，打开八字、紫微、四柱、宫合、灵数、塔罗的结果页并截图。验证：交付「种类 × 语言」状态表（仓库外），列出关闭项给用户
+  - （2026-11-16：2026-10-31 已交访客状态表（私有验收目录 `pi-ops-readcheck-20261031/status.md`），普通账号列未完成）
 - [ ] 1.2 【用户】按 D1（全开）在后台打开全部六种详批，选定模型与积分（等同完成 `launch-v1-production` 2.2）。验证：重跑 1.1 的状态表，开放项不再显示「即将开放」
+  - （2026-11-16：六类详批、模型与积分已于 v0.1.20 在生产开启，两站真实生成验证成功；按 1.1 重跑状态表未做）
 - [ ] 1.3 【用户 / Codex】按 D2，在 `/admin/billing` 给免费套餐授权 `deepseek-flash`。验证：普通账号进入 Chat 可以选到 flash 并成功发送一条消息，积分按规则扣除
+  - （2026-11-16：生产 free（及 plus/premium）已授权 `deepseek-flash`，库已核实；普通账号在生产 Chat 发送并扣费未记录）
 - [ ] 1.4 【协调者通知用户配置密钥 → Codex】按 D3 接通 Resend：由用户经 stdin 写入两站 key（写入前确认不是空值），配置发信域名的 SPF/DKIM，再切换 `EMAIL_TRANSPORT`。验证：两站测试邮件实际送达；切换前由 2.5 保证不显示「已寄信」
 - [ ] 1.5 【协调者】合并本 change 第一个 PR 之前，完成 `add-zh-hans-locale` 剩余的验收并归档。验证：`openspec list --json` 中不再有该 change，`openspec/specs/paid-readings` 中已包含简体相关的要求
 
@@ -43,7 +46,8 @@
 
 - [x] 4.1 【Claude】应用区页头工具导航改为按站点生成；语言不属于当前站点时，使用本站默认语言的工具列表。验证：`site-header` 测试覆盖「西方站 + 繁体偏好」时所有链接都留在西方站
 - [x] 4.2 【Claude】按 D5，gate 取消跨站 301：请求本站未提供的语言前缀时，返回本站风格的 404（staging 预览地址的行为不变）；语言控件只列本站语言；hreflang 改为只在站内声明，x-default 指向本站入口页。验证：gate 单测断言 `arcanumber.com/zh-hant`、`/zh-hans`、`/ko` 返回 404；`site-header` 测试断言西方站语言控件只有 English；seo 单测断言西方站页面没有指向东方站的 hreflang
-- [ ] 4.3 【Claude 起草 → 用户确认】按 D4 将法律页拆为按站点的内容（东方站与西方站各自的隐私政策和服务条款），并加入统一的「运营主体与共享账户」段落。验证：西方站隐私页 HTML 不含 Bazi、Saju、Ziwei；`e2e/marketing.spec.ts` 中的法律页用例通过；文案经用户确认
+- [x] 4.3 【Claude 起草 → 用户确认】按 D4 将法律页拆为按站点的内容（东方站与西方站各自的隐私政策和服务条款），并加入统一的「运营主体与共享账户」段落。验证：西方站隐私页 HTML 不含 Bazi、Saju、Ziwei；`e2e/marketing.spec.ts` 中的法律页用例通过；文案经用户确认
+  - （2026-11-16：实现已完成（#93）：`content/legal/east|west` 按站点拆分，`content/legal/shared/*/operator.mdx` 为共用运营主体段落，西方站隐私页（源码与生产 HTML）不含 Bazi/Saju/Ziwei；使用者 2026-11-16 在会话中确认拆分后的条款文案。`e2e/marketing.spec.ts` 本轮未单独运行，法律页单元测试随 CI 通过）
 - [x] 4.4 【Codex】简体概念页清理：
   - 删除正文中的内部 id（所有语言都检查）；
   - 页脚内链改为 `/zh-hans/`，用词简体化；
@@ -73,10 +77,11 @@
 
 - [ ] 6.1 【Codex】在 staging 用普通账号走查四种语言：工具 → 结果漏斗 → 解锁 → 报告 → Chat → 账单。对照体验报告第 1–5 项与「双站 AI 能力对照」表逐条记录。验证：证据存放在仓库外，未通过的项开 issue
 - [ ] 6.2 【用户批准发版后 / Codex】生产发版后，只读复核：两站 `/api/health` 返回新的 SHA；`curl` 核对 `arcanumber.com/zh-hant` 返回 404、`ganjiday.com/en` 为英文入口页、robots、404 标题、简体定价 meta、`/faq`、电子报表单、西方站隐私页；四种语言结果页不再出现与开放状态不符的「即将开放」。验证：复核表存放在仓库外，引用编号写进 PR 或发布记录
+  - （2026-11-16：两站 `/api/health` 为 c30b67b3；`curl` 抽查 `arcanumber.com/zh-hant` 404、`ganjiday.com/en` 200、两站 robots 200、简体定价 meta 为简体、`/faq` 200；复核表与四语结果页检查未做）
 
 ## 审计记录（2026-11-13）
 
 - 2.1–5.4 由 #89–#97 实现，以下偏离以后续实现为准：4.2 的 x-default 由 #138 收敛；跨站 404 的例外见 #132；2.5 以响应头 `x-reading-email` 实现；报价可用性统一由 `readings/availability.ts`（#131）提供；5.1–5.3 的自建 chat-context 将由 `adopt-subject-chat-readings` 迁到模板 subject 注册表。
 - 4.6：模板示例博文全部为 `draft: true`，不发布、不进站点地图（`e2e/seo.spec.ts` 断言）；为避免 template-sync 冲突保留文件，不删除。
 - 3.2 样例段落已由使用者审定（2026-11-14，「样例通过」），见 #158 与本次开关。
-- 未完成：4.3 法律文案待用户确认；组 1 运维项与组 6 集成验收未逐项留证。
+- 未完成：组 1 运维项与组 6 集成验收未逐项留证。

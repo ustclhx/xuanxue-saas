@@ -22,9 +22,12 @@
 
 ## 1. 决策与设计
 
-- [ ] 1.1 【用户】确认 design Open Questions 1–6：套餐名、每日积分有效期、是否结转、额外权益、领取触发点、升级是否补发。验证：决定记录在 design.md；如有变更，同步更新 spec 与本 tasks
-- [ ] 1.2 【Claude】用 `ui-design` 技能出定价页改版设计稿（订阅两档 + 积分包 + 每日领取说明 + 可解锁详批 + FAQ；两站主题；四种语言中最长文案的排版），经使用者确认后保存离线副本并登记原型索引。验证：使用者明确确认；原型索引中有该条目
-- [ ] 1.3 【用户 / 运营】确认 Open Question 7（续费提醒与自动续费披露），把 Stripe 业务描述从「No subscriptions」改为包含两档月付订阅（参考 `docs/runbooks/stripe-launch.md` §4）。验证：运营书面确认；Stripe 后台描述更新截图存在仓库外
+- [x] 1.1 【用户】确认 design Open Questions 1–6：套餐名、每日积分有效期、是否结转、额外权益、领取触发点、升级是否补发。验证：决定记录在 design.md；如有变更，同步更新 spec 与本 tasks
+  - 2026-11-13 使用者确认全部采用默认方案，见 design.md 决策记录
+- [x] 1.2 【Claude】用 `ui-design` 技能出定价页改版设计稿（订阅两档 + 积分包 + 每日领取说明 + 可解锁详批 + FAQ；两站主题；四种语言中最长文案的排版），经使用者确认后保存离线副本并登记原型索引。验证：使用者明确确认；原型索引中有该条目
+  - 2026-11-14 确认，副本 `roadmap/Pricing.dc.html`，已登记原型索引
+- [x] 1.3 【用户 / 运营】确认 Open Question 7（续费提醒与自动续费披露），把 Stripe 业务描述从「No subscriptions」改为包含两档月付订阅（参考 `docs/runbooks/stripe-launch.md` §4）。验证：运营书面确认；Stripe 后台描述更新截图存在仓库外
+  - OQ7 于 2026-11-13 按默认方案确认；Stripe live 业务描述 2026-11-16 已改为包含两档月付订阅，截图在私有验收目录 `release-v0.1.23/dashboard-config/`
 
 ## 2. W1 订阅目录与价格同步
 
@@ -54,16 +57,25 @@
 
 ## 6. Staging 验收（组 2–5 合并后）
 
-- [ ] 6.1 【用户批准 → Codex】在 staging 管理后台给 `plus`/`premium` 授予不少于免费档的模型。运行 `billing:seed` 和 `BILLING_SYNC_MODE=test pnpm billing:sync`，在 `xuanxue-staging` 沙盒中创建订阅 Product/Price，包括本地化与本地币种（如 A 已合并）。执行前列出对象清单，获批后再执行。验证：沙盒价格与 staging 库的映射一致且为 active
-- [ ] 6.2 【用户批准 → Codex】在沙盒配置 Stripe 客户门户：可修改付款方式、查看发票、在周期末取消，关闭方案切换。验证：从账单页打开门户，截图显示配置生效
-- [ ] 6.3 【Codex】订阅端到端：英文订阅 `plus`（USD）→ 首付到账 400 积分 → 解锁一份详批（先扣每日积分再扣订阅积分）→ 用 Stripe Test Clock 推进一个账期，续费到账、上期积分在宽限后过期 → 升级到 `premium`（按比例计费，下期发 1000）→ 账单页取消 → 推进到周期末，订阅终止且不再发放 → 对首付做全额退款，积分被回收。验证：每步的 `payment`、`credit_grant`、余额与对账差额为 0，证据写入 `EVIDENCE_DIR`
-- [ ] 6.4 【Codex】A 已合并时：用繁体界面订阅（TWD），确认续费币种为 TWD，切换到英文界面后换档仍选 TWD；取消后在英文界面重新订阅 USD，记录 Stripe 是否接受同一 Customer 换币种。验证：结果记录进 A design D7；若被拒绝，开缺陷跟进
-- [ ] 6.5 【Codex】每日积分：已验证账号进入 App 领取 10 积分，再次进入显示已领取；未验证账号显示引导；同邮箱在两站的账户共享当日额度；后台指标显示领取次数。验证：截图与数据库只读快照
-- [ ] 6.6 【Codex】PayPal 订阅不可见：账单页与定价页的订阅选项没有 PayPal，PayPal 积分包照常可买。验证：截图
+- [x] 6.1 【用户批准 → Codex】在 staging 管理后台给 `plus`/`premium` 授予不少于免费档的模型。运行 `billing:seed` 和 `BILLING_SYNC_MODE=test pnpm billing:sync`，在 `xuanxue-staging` 沙盒中创建订阅 Product/Price，包括本地化与本地币种（如 A 已合并）。执行前列出对象清单，获批后再执行。验证：沙盒价格与 staging 库的映射一致且为 active
+  - 2026-11-14：staging 已 seed 并同步订阅价格（含 TWD/KRW），plus/premium 已授权 `deepseek-flash`
+- [x] 6.2 【用户批准 → Codex】在沙盒配置 Stripe 客户门户：可修改付款方式、查看发票、在周期末取消，关闭方案切换。验证：从账单页打开门户，截图显示配置生效
+  - 2026-11-14：沙盒客户门户已配置（周期末取消、改付款方式、发票，关闭换档）
+- [x] 6.3 【Codex】订阅端到端：英文订阅 `plus`（USD）→ 首付到账 400 积分 → 解锁一份详批（先扣每日积分再扣订阅积分）→ 用 Stripe Test Clock 推进一个账期，续费到账、上期积分在宽限后过期 → 升级到 `premium`（按比例计费，下期发 1000）→ 账单页取消 → 推进到周期末，订阅终止且不再发放 → 对首付做全额退款，积分被回收。验证：每步的 `payment`、`credit_grant`、余额与对账差额为 0，证据写入 `EVIDENCE_DIR`
+  - 2026-11-15 staging Test Clock 全流程通过，8 个阶段对账差额 0；上期积分过期按 `expires_at` = 周期末 + 24h 与现有测试核对（约定的验收口径），见私有验收目录 `enable-subscriptions-daily-credits/staging-6/results.md`
+- [x] 6.4 【Codex】A 已合并时：用繁体界面订阅（TWD），确认续费币种为 TWD，切换到英文界面后换档仍选 TWD；取消后在英文界面重新订阅 USD，记录 Stripe 是否接受同一 Customer 换币种。验证：结果记录进 A design D7；若被拒绝，开缺陷跟进
+  - 2026-11-15 本地对接 staging 沙盒：TWD 首付、续费、简中换档保持 TWD 通过；周期末取消期间同 Customer 重订 USD 被 Stripe 拒绝，结果已记入 localize-checkout-currency design D7，缺陷另开 PR 修复
+- [x] 6.5 【Codex】每日积分：已验证账号进入 App 领取 10 积分，再次进入显示已领取；未验证账号显示引导；同邮箱在两站的账户共享当日额度；后台指标显示领取次数。验证：截图与数据库只读快照
+  - 2026-11-15 通过；低优先级缺陷「当日每日积分用完后不显示今日已领」另开 PR 修复
+- [x] 6.6 【Codex】PayPal 订阅不可见：账单页与定价页的订阅选项没有 PayPal，PayPal 积分包照常可买。验证：截图
+  - 2026-11-15 staging 西方站通过，见 `localize-checkout-currency/staging-6/results.md`
 
 ## 7. 生产上线（需使用者逐项批准）
 
-- [ ] 7.1 【用户】完成 1.3 的 Stripe 业务描述更新，并在生产后台给新套餐授权模型。验证：2.2 的诊断输出通过
+- [x] 7.1 【用户】完成 1.3 的 Stripe 业务描述更新，并在生产后台给新套餐授权模型。验证：2.2 的诊断输出通过
+  - 2026-11-16：业务描述已更新；生产 free/plus/premium 均授权 `deepseek-flash`（库已核实），写入订阅价格时套餐模型检查通过
 - [ ] 7.2 【用户批准 → 协调者】合并并发布，每日积分随之开启。确认主分支的发布流水线成功，并核对 `/api/health` 的版本 SHA。验证：两站进入 App 时领取正常
-- [ ] 7.3 【用户批准 → 协调者】`pnpm billing:sync-stripe-live`：先演练，获批后写入订阅价格；配置 live 客户门户（同 6.2）。验证：生产定价页的订阅档位变为可购买
+  - （2026-11-16：v0.1.23（c30b67b3）已发布生产，deploy-production run 43803684100 成功，两站 `/api/health` 为 c30b67b3；生产两站进入 App 领取每日积分尚未记录验证）
+- [x] 7.3 【用户批准 → 协调者】`pnpm billing:sync-stripe-live`：先演练，获批后写入订阅价格；配置 live 客户门户（同 6.2）。验证：生产定价页的订阅档位变为可购买
+  - 2026-11-16：演练后写入 plus/premium USD/TWD/KRW 月付价格并逐个核对；live 默认客户门户已保存（周期末取消、改付款方式、发票开启，换档、暂停、改资料关闭）；生产定价页订阅档位显示可订阅按钮与价格（如 NT$162 / NT$325）
 - [ ] 7.4 【用户批准】在两站各做一笔真实小额订阅，然后取消并申请全额退款。验证：积分发放与回收一致，后台显示正确，Stripe 不再续费

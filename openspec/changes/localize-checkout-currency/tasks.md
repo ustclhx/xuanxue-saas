@@ -17,7 +17,8 @@
 ## 1. 决策与外部准备（不改代码）
 
 - [x] 1.1 【用户】确认 design Open Questions 1、2、5：价目表数值、zh-Hant 的 PayPal 是否收 TWD、通用部分是否先上交模板。验证：决定记录在 design.md 的 Open Questions 下方；如果第 5 项选择上交模板，组 2 改为同步模板版本
-- [ ] 1.2 【用户 / 运营】确认 Open Questions 3、4（税务口径、换汇费），并按 `docs/runbooks/stripe-launch.md` §4 更新 Stripe 业务描述中「只收美元」的表述。验证：运营书面确认；Stripe 后台描述已更新（截图存在仓库外）
+- [x] 1.2 【用户 / 运营】确认 Open Questions 3、4（税务口径、换汇费），并按 `docs/runbooks/stripe-launch.md` §4 更新 Stripe 业务描述中「只收美元」的表述。验证：运营书面确认；Stripe 后台描述已更新（截图存在仓库外）
+  - OQ3、OQ4 于 2026-11-13 按默认方案确认（design.md 决策记录第 3 条）；Stripe live 业务描述 2026-11-16 已改为订阅 + USD/TWD/KRW，截图在私有验收目录 `release-v0.1.23/dashboard-config/`
 - [x] 1.3 ~~作废（决策 2：PayPal 恒为 USD）~~ 【用户】如果 1.1 决定 PayPal 收 TWD，在 PayPal live 与 Sandbox 账户确认 TWD 的收款设置（接收后保留余额，或自动换汇）。验证：账户设置截图存在仓库外
 
 ## 2. W1 币种基础（packages/billing）
@@ -49,16 +50,22 @@
 - [x] 5.3 【Codex】zh-Hant 与 ko 用户在支付方式选择处，如果选 PayPal，提示「PayPal 以美元结算」及 USD 金额；四种语言的文案追加到 `messages/<locale>/billing.json`。验证：组件测试覆盖 ko + PayPal 的提示；其他语言不出现该提示
 - [x] 5.4 【Codex】账单页与后台的付款、购买、退款、指标列表用 `formatMoney` 按行的币种格式化；后台退款审批的输入按币种单位换算，TWD/KRW 只接受整数。验证：`admin-display`、`refund-section` 测试覆盖 KRW、TWD 的显示与输入换算
 - [x] 5.5 【Codex】`apps/jobs/src/notifications/analytics.ts` 的收入金额与 `operations.ts` 的运营通知金额改用 `toMajor`。验证：analytics 测试断言 KRW 2800 输出为 `"2800"`、TWD 6500 输出为 `"65.00"`
-- [ ] 5.6 【Claude 起草 → 用户确认】在定价页 FAQ 与退款政策中补充「以结账页显示的币种与金额为准、退款按原币种退回」，四种语言。验证：文案经用户确认；`legal-pages.test.ts` 与 `faq.test.tsx` 通过
+- [x] 5.6 【Claude 起草 → 用户确认】在定价页 FAQ 与退款政策中补充「以结账页显示的币种与金额为准、退款按原币种退回」，四种语言。验证：文案经用户确认；`legal-pages.test.ts` 与 `faq.test.tsx` 通过
+  - 定价页 FAQ（`messages/*/marketing.json` 的 `pricing_faq_currency_*`）与四语退款政策（`content/legal/*/*/refund.mdx`）已实现，使用者批准随 v0.1.23 发布
 
 ## 6. Staging 验收（全部 PR 合并后）
 
-- [ ] 6.1 【用户批准 → Codex】在 staging 执行 `billing:seed` 与 `BILLING_SYNC_MODE=test pnpm billing:sync`，在 `xuanxue-staging` 沙盒中创建 TWD/KRW Price 并激活。执行前列出将要创建的对象清单，获批后再执行。验证：在沙盒中核对 Price 的币种与金额；staging 库中的新行为 active
+- [x] 6.1 【用户批准 → Codex】在 staging 执行 `billing:seed` 与 `BILLING_SYNC_MODE=test pnpm billing:sync`，在 `xuanxue-staging` 沙盒中创建 TWD/KRW Price 并激活。执行前列出将要创建的对象清单，获批后再执行。验证：在沙盒中核对 Price 的币种与金额；staging 库中的新行为 active
+  - 2026-11-14 staging 已 seed 并同步；2026-11-15 只读核对 12/12 在售价格一致（私有验收目录 `localize-checkout-currency/staging-6/results.md`）
 - [ ] 6.2 【Codex】staging 端到端：zh-Hant 用 Stripe 购买（TWD）、ko 用 Stripe 购买（KRW）、ko 用 PayPal 购买（USD，需 staging 配置了 PayPal 凭据，否则记为未验收）、zh-Hans 购买（USD）、en 购买（USD）；对 TWD 付款做部分退款，对 KRW 付款做全额退款。验证：每笔的 Checkout 币种、`payment` 行、积分批次、退款回收、后台显示、对账差额为 0，证据写入 `EVIDENCE_DIR`
-- [ ] 6.3 【Codex】停用 TWD 价格后，确认 zh-Hant 的定价页与结账都回到 USD，然后恢复。验证：截图与 Checkout 币种记录
+  - （2026-11-15：en USD（staging）购买 + 全额退款、zh-Hant TWD 购买 + 部分退款、ko KRW 购买 + 全额退款、zh-Hans USD 购买通过，差额 0（东方站交易在本地 east.localhost 对接 staging 沙盒完成，因 workers.dev 只解析为西方站）；ko PayPal（USD）未验收（本地未配置 PayPal）。见私有验收目录 `localize-checkout-currency/staging-6/results.md`）
+- [x] 6.3 【Codex】停用 TWD 价格后，确认 zh-Hant 的定价页与结账都回到 USD，然后恢复。验证：截图与 Checkout 币种记录
+  - 2026-11-15 本地库对接 staging 沙盒：停用 TWD 行 → 定价页与 Checkout 回到 USD → 恢复 TWD，见 `localize-checkout-currency/staging-6/results.md`
 
 ## 7. 生产上线（需使用者逐项批准）
 
-- [ ] 7.1 【用户批准 → 协调者】执行 live 演练，`pnpm billing:sync-stripe-live` 不带确认参数。验证：输出的待创建清单经使用者确认
+- [x] 7.1 【用户批准 → 协调者】执行 live 演练，`pnpm billing:sync-stripe-live` 不带确认参数。验证：输出的待创建清单经使用者确认
+  - 2026-11-16：生产迁移与 seed 后执行演练，待建 12 个价格的清单经使用者确认
 - [ ] 7.2 【用户批准 → 协调者】带确认参数写入 live 价格并激活，然后在两站各做一笔 TWD、KRW 的真实小额购买并退款。验证：Stripe 后台、生产后台与积分回收一致；主分支的发布流水线成功
+  - （2026-11-16：live 价格已写入并激活（12 个，逐个与 Stripe 核对），v0.1.23 发布流水线成功；两站 TWD、KRW 真实小额购买与退款待做）
 - [x] 7.3 ~~作废（决策 2：PayPal 恒为 USD）~~ 【用户批准】如果 1.1 与 1.3 都通过，打开 PayPal 的 TWD 开关，并在 live 环境做一笔真实购买与退款。验证：PayPal 交易币种为 TWD，入账一致

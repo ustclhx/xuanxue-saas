@@ -102,6 +102,13 @@ Canvas 2D `fillText` 可使用页面已加载的网页字体。据此采用：�
 
 视觉沿用 `docs/design/visual-system.md` 的 token、字体与五行色；新增颜色、字号或组件在画布旁单列「token / 组件变更提议」，确认后由协调者写入 `brand.css` 与 `visual-system.md`。确认后在本文件追加「原型索引」小节，只引用 `docs/design/prototypes/README.md` 的行，不重复链接与原话。
 
+**ui-design 第 1–2 步记录（tasks 1.2，2026-11-16 补记）**：
+
+- 判断：首页增删、重排顶层区块，命盘图形与分享图是新增页面模式，属于 `docs/design-system.md` §8.1 中需要设计稿的情形。
+- 页面清单：东方站 `/zh-hant`、`/zh-hans`、`/ko` 首页与西方站 `/` 首页；八字 / 만세력 / 命盤查詢、紫微、`/numerology-chart` 的图形区；四类结果的分享图；样例 OG 图。
+- 数据来源：工具矩阵取 `features/tools/registry.ts`；样例大纲与段落取 `readings/catalog`；价格取构建期价格快照；背书只用事实型常量（OQ4 默认不展示数值）；图形数据来自各引擎的复算结果。
+- 可用组件与 token：模板区块 `Steps`、`ProductMatrix`、`Stats`，`@xuanxue/ui` 组件，`visual-system.md` 的 token、字体与五行色；图形与分享图在 `features/tools/charts/`、`features/tools/share-card/` 中新建，颜色只经 token 传入。
+
 ## Risks / Trade-offs
 
 - [首页变长稀释主词相关性或拖慢首屏] → 枢纽区块在工具之后、全部静态预渲染；Title/H1/head 前后对比测试；包体积预算与 Lighthouse 前后对照。

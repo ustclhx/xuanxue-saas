@@ -9,12 +9,18 @@
 
 依赖：无。产出：原型索引行与副本，是第 3–9 组的开工条件。冲突点：`docs/design/prototypes/`、`brand.css`、`visual-system.md` 只由协调者修改。
 
-- [ ] 1.1 向使用者确认 design.md Open Questions 1–6、8（首页形态、每日运势入口、视觉方向、背书数值、分享图选项、AI 入口、样例详批），把答复与原话写回 design.md；若选择枢纽型首页（OQ1），先修订 specs 与本文件再继续。验证：design.md 的 Open Questions 每项都有「已定」结论，`openspec validate redesign-home-chart-visuals --strict` 通过
-- [ ] 1.2 按 `ui-design` 第 1–2 步记录判断（§8.1「增删或重排页面的顶层区块」「新增页面模式」→ 需要设计稿）、页面清单、数据来源与可用组件 / token。验证：判断与清单写入 design.md D8 下方
-- [ ] 1.3 OQ3 选择刷新视觉时，按 `ui-design` 第 3 步索取参考并发布 Design System 镜像，使用者确认后写 `brand.css` 与 `visual-system.md`；沿用现有 token 时跳过并注明。验证：`pnpm check:ui` 通过，或 design.md 注明跳过
-- [ ] 1.4 在 Design 画布产出「首页 · 东方站」「首页 · 西方站」两张画布，按 design.md D8 的画板矩阵，规范外需求单列变更提议。验证：画布链接可打开、画板矩阵完整
-- [ ] 1.5 在 Design 画布产出「命盘图形」「分享图」画布（含紫微手机端方案 OQ7、打印预览、时辰未知态、生成失败态、样例 OG 图）。验证：画布链接可打开、画板矩阵完整
-- [ ] 1.6 把四张画布发给使用者确认，按意见修改直至使用者在会话中明确确认；保存 `docs/design/prototypes/<画布>/*.dc.html` 与 `canvas.json` 副本，在 `docs/design/prototypes/README.md` 每个页面 / 画板登记一行（所属 change 填本 change），在 design.md 追加「原型索引」小节引用索引行，已确认的 token / 组件提议写入 design.md。验证：索引行与副本文件存在，副本提交到 PR
+- [x] 1.1 向使用者确认 design.md Open Questions 1–6、8（首页形态、每日运势入口、视觉方向、背书数值、分享图选项、AI 入口、样例详批），把答复与原话写回 design.md；若选择枢纽型首页（OQ1），先修订 specs 与本文件再继续。验证：design.md 的 Open Questions 每项都有「已定」结论，`openspec validate redesign-home-chart-visuals --strict` 通过
+  - 2026-11-13 使用者确认全部采用默认方案，见 design.md 决策记录
+- [x] 1.2 按 `ui-design` 第 1–2 步记录判断（§8.1「增删或重排页面的顶层区块」「新增页面模式」→ 需要设计稿）、页面清单、数据来源与可用组件 / token。验证：判断与清单写入 design.md D8 下方
+  - 记录见 design.md D8 下方「ui-design 第 1–2 步记录」
+- [x] 1.3 OQ3 选择刷新视觉时，按 `ui-design` 第 3 步索取参考并发布 Design System 镜像，使用者确认后写 `brand.css` 与 `visual-system.md`；沿用现有 token 时跳过并注明。验证：`pnpm check:ui` 通过，或 design.md 注明跳过
+  - 使用者确认画布时决定东方站浅色主底改为纯白，已写入 `brand.css` 与 `visual-system.md`（#150），见 design.md「原型索引」
+- [x] 1.4 在 Design 画布产出「首页 · 东方站」「首页 · 西方站」两张画布，按 design.md D8 的画板矩阵，规范外需求单列变更提议。验证：画布链接可打开、画板矩阵完整
+  - 画布 https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj（首页东方站、西方站与手机画板）
+- [x] 1.5 在 Design 画布产出「命盘图形」「分享图」画布（含紫微手机端方案 OQ7、打印预览、时辰未知态、生成失败态、样例 OG 图）。验证：画布链接可打开、画板矩阵完整
+  - 同一画布的命盘图形、手机紫微与分享图画板
+- [x] 1.6 把四张画布发给使用者确认，按意见修改直至使用者在会话中明确确认；保存 `docs/design/prototypes/<画布>/*.dc.html` 与 `canvas.json` 副本，在 `docs/design/prototypes/README.md` 每个页面 / 画板登记一行（所属 change 填本 change），在 design.md 追加「原型索引」小节引用索引行，已确认的 token / 组件提议写入 design.md。验证：索引行与副本文件存在，副本提交到 PR
+  - 2026-11-14 使用者确认，副本在 `docs/design/prototypes/roadmap/`，索引已登记，design.md 已加「原型索引」
 
 ## 2. 基线与性能门槛（worktree W0，可在第 1 组期间进行）
 
@@ -88,3 +94,4 @@
 - [ ] 10.2 SEO 与预渲染复核：2.3 对照测试、`seo.spec.ts`、禁用 JavaScript 抓取两站首页与工具页、数据库不可达时首页可用（本地停 PG 后访问预渲染页）。验证：结果记录在 PR 或证据目录
 - [ ] 10.3 【需使用者授权】合并各 PR 并部署 staging，在 staging 两站按 home-hub、chart-visuals、share-cards 的场景逐项验收（含手机实机生成分享图）。验证：staging 验收记录存入 `EVIDENCE_DIR`
 - [ ] 10.4 【需使用者授权】随常规版本发布到生产，确认 main 部署流水线成功与 `/api/health` 版本 SHA；上线两周内观察 Search Console 首页展示与排名。验证：发布记录与健康检查结果；观察结论写入项目日志
+  - （2026-11-16：已随 v0.1.23 发布生产（run 43803684100，两站 `/api/health` 为 c30b67b3）；两周 Search Console 观察未做）

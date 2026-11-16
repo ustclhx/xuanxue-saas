@@ -28,11 +28,15 @@
 - **THEN** 返回 301，跳转到东方站的 `/ko/manseryeok/`
 
 ### Requirement: 东方站入口页
-东方站根路径 `/` SHALL 显示列出其全部语言版本入口的轻量页面，MUST NOT 依据 Accept-Language 对爬虫自动跳转；对浏览器访客 SHALL 突出显示与其浏览器语言匹配的入口。
+东方站根路径 `/` SHALL 跳转到某个东方站语言的首页，不再展示单独的语言选择页。东方站内的手动选择或浏览器语言指向繁体中文以外的东方站语言时 SHALL 302 到该语言首页；其余情况（含不带 Accept-Language 的爬虫）SHALL 301 到繁体中文首页 `/zh-hant`。跳转目标 MUST 是不带结尾斜杠的规范地址，保留查询参数，响应 MUST NOT 被缓存为跨访客共享的结果。
 
 #### Scenario: 韩语浏览器访问东方站根路径
-- **WHEN** 浏览器语言为 `ko-KR` 的访客打开东方站 `/`
-- **THEN** 页面显示繁中与韩语两个入口，韩语入口被突出显示，且没有自动跳转
+- **WHEN** 浏览器语言为 `ko-KR` 且没有手动选择的访客打开东方站 `/`
+- **THEN** 返回 302，跳转到 `/ko`
+
+#### Scenario: 爬虫访问东方站根路径
+- **WHEN** 不带 Accept-Language 与 Cookie 的请求访问 `https://ganjiday.com/`
+- **THEN** 返回 301，Location 为 `https://ganjiday.com/zh-hant`，该地址直接返回 200
 
 ### Requirement: 账号与付费跨站可用
 登录、账户、积分购买与应用区 SHALL 在两个站点上各自可用，并以访客当前站点的语言显示；完成登录或支付后 SHALL 回到发起操作的站点与页面。两个站点的账户、积分余额、购买、付款、退款申请与报告 MUST 彼此独立：在一个站点的操作与记录 MUST NOT 出现在另一个站点，一个站点签发的会话 MUST NOT 能在另一个站点使用。

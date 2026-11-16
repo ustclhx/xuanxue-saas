@@ -25,10 +25,14 @@
 
 ## 1. 波次 0：决策与设计稿（不改代码）
 
-- [ ] 1.1 【用户】确认 design.md 的 OQ1（西方站参考时区）与 OQ9（四个公开地址用词）。其余 OQ 不阻塞本 change。验证：决定记录到 design.md 的 Decisions D8 与 D9，并删去对应的 OQ
-- [ ] 1.2 【Claude → 用户确认】用 `ui-design` 技能产出档案相关设计稿：档案管理页（列表、新建或编辑对话框、删除确认、默认与「本人」标记）、工具表单的档案选择器（单人与宫合双人）、「存为档案」对话框，包括东西两站的样式、桌面与 390px 手机。验证：用户确认后，离线副本保存到 `docs/design/prototypes/` 并登记到原型索引
-- [ ] 1.3 【Claude → 用户确认】用 `ui-design` 技能产出公开每日运势页设计稿：东方站（今日干支、宜忌与建除、十日主区块、本地个人化入口）、西方站（宇宙日步骤、个人日 1–9 与 11、22、本地计算器），以及合规声明的位置。验证：同 1.2，两站桌面与 390px 各一份
-- [ ] 1.4 【Claude → 用户确认】用 `ui-design` 技能产出今日面板设计稿：有默认档案、切换档案、无档案、字段缺失四种状态，含两站版本。验证：同 1.2
+- [x] 1.1 【用户】确认 design.md 的 OQ1（西方站参考时区）与 OQ9（四个公开地址用词）。其余 OQ 不阻塞本 change。验证：决定记录到 design.md 的 Decisions D8 与 D9，并删去对应的 OQ
+  - 2026-11-13 使用者确认采用默认方案，已写入 D8、D9 并删去 OQ1、OQ9
+- [x] 1.2 【Claude → 用户确认】用 `ui-design` 技能产出档案相关设计稿：档案管理页（列表、新建或编辑对话框、删除确认、默认与「本人」标记）、工具表单的档案选择器（单人与宫合双人）、「存为档案」对话框，包括东西两站的样式、桌面与 390px 手机。验证：用户确认后，离线副本保存到 `docs/design/prototypes/` 并登记到原型索引
+  - 2026-11-14 确认，副本 `roadmap/Profiles.dc.html`、`ProfileEdit.dc.html`，已登记原型索引
+- [x] 1.3 【Claude → 用户确认】用 `ui-design` 技能产出公开每日运势页设计稿：东方站（今日干支、宜忌与建除、十日主区块、本地个人化入口）、西方站（宇宙日步骤、个人日 1–9 与 11、22、本地计算器），以及合规声明的位置。验证：同 1.2，两站桌面与 390px 各一份
+  - 2026-11-14 确认，副本 `roadmap/DailyPublic.dc.html`、`DailyMobile.dc.html`，已登记原型索引
+- [x] 1.4 【Claude → 用户确认】用 `ui-design` 技能产出今日面板设计稿：有默认档案、切换档案、无档案、字段缺失四种状态，含两站版本。验证：同 1.2
+  - 2026-11-14 确认，副本 `roadmap/TodayPanel.dc.html`、`States.dc.html`，已登记原型索引
 
 ## 2. 波次 A · WT-engine：引擎流日与个人日（【Claude】）
 
@@ -84,7 +88,8 @@
 
 ## 9. 集成验收
 
-- [ ] 9.1 【协调者】组 3 合并后，在 main 上运行 `drizzle-kit generate`，生成 `birth_profile` 的扩展型迁移，带 `lock_timeout` 与 `-- rollback-safe:` 注释，并提交 PR。验证：本地空库与已有数据的库都能迁移成功；`pnpm test` 集成测试通过
+- [x] 9.1 【协调者】组 3 合并后，在 main 上运行 `drizzle-kit generate`，生成 `birth_profile` 的扩展型迁移，带 `lock_timeout` 与 `-- rollback-safe:` 注释，并提交 PR。验证：本地空库与已有数据的库都能迁移成功；`pnpm test` 集成测试通过
+  - 迁移 `packages/db/migrations/0026_birth_profile.sql`（#146，含 `lock_timeout` 与 `-- rollback-safe:`），v0.1.23 发布流水线已在 staging 与生产应用
 - [ ] 9.2 【Codex】staging 验收（需用户批准合并以触发 staging 部署）：
   - 两站登录后完成档案增删改与默认切换；
   - 工具页填入并出结果；
@@ -95,5 +100,8 @@
   - 390px 无横向滚动，浅色与深色主题。
 
   验证：状态表与截图存入 `EVIDENCE_DIR`
+
+  （2026-11-16：私有验收目录 `add-birth-profiles-daily-horoscope/wave2/` 只有实施阶段的页面截图（档案页、每日页、今日面板四态、两主题与 390px）；staging 缓存命中在 #152 合并时验过。尚无 staging 状态表，删号后档案为 0、用档案预填解锁详批未记录）
 - [ ] 9.3 【用户批准 → Codex】发布 production（推送 `v*` tag），并检查 `/api/health` 的 SHA 与部署流水线成功。一周内查看 Neon Usage，确认运行时长没有因每日页明显上升。验证：发布记录与 Neon Usage 截图存入 `EVIDENCE_DIR`
+  - （2026-11-16：v0.1.23（c30b67b3）已发布生产，deploy-production run 43803684100 成功，两站 `/api/health` 为 c30b67b3；一周内的 Neon Usage 检查未做）
 - [ ] 9.4 【协调者】全部任务合并并验收后，按并行计划同步 specs 并归档本 change。验证：`openspec validate --strict` 通过；`openspec list --json` 中不再有本 change

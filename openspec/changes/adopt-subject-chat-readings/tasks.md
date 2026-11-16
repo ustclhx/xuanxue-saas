@@ -10,8 +10,10 @@
 
 ## 1. 决策与设计稿
 
-- [ ] 1.1 【用户】答复 design.md Open Questions 1–5（追问计费方式、`followUps.charge` 与 `modelKey`、是否为报告购买者授予报告模型、结果页摘要卡是否 fork、开场问题是否逐条审定）。验证：答复记录在本 change 的 design.md（由协调者更新 Open Questions 为 Decisions）；若 Q1 选择「附赠免费追问」，协调者另开 change，本 change 范围不变
-- [ ] 1.2 【Claude】用 `ui-design` 技能产出报告页追问区设计稿（两站、桌面 1440 与手机 390、浅色与深色；含开场推荐问题、对话中、无可用模型空态、余额不足三种状态，以及输入区的预计消耗与余额），经使用者确认后保存离线副本并登记原型索引。验证：`docs/design/prototypes/` 有副本且索引已登记，使用者确认记录在 PR 描述中
+- [x] 1.1 【用户】答复 design.md Open Questions 1–5（追问计费方式、`followUps.charge` 与 `modelKey`、是否为报告购买者授予报告模型、结果页摘要卡是否 fork、开场问题是否逐条审定）。验证：答复记录在本 change 的 design.md（由协调者更新 Open Questions 为 Decisions）；若 Q1 选择「附赠免费追问」，协调者另开 change，本 change 范围不变
+  - 2026-11-13 使用者确认全部采用默认方案，见 design.md「决策记录（2026-11-13，使用者确认）」
+- [x] 1.2 【Claude】用 `ui-design` 技能产出报告页追问区设计稿（两站、桌面 1440 与手机 390、浅色与深色；含开场推荐问题、对话中、无可用模型空态、余额不足三种状态，以及输入区的预计消耗与余额），经使用者确认后保存离线副本并登记原型索引。验证：`docs/design/prototypes/` 有副本且索引已登记，使用者确认记录在 PR 描述中
+  - 设计稿 2026-11-14 经使用者确认，副本 `docs/design/prototypes/roadmap/ReportChat.dc.html`、`States.dc.html`，已登记原型索引（含确认原话）
 
 ## 2. 波次 A-1：对象类型注册与推荐问题（依赖：无）
 
@@ -50,6 +52,7 @@
 
 - [x] 7.1 【Codex】staging 验收（合并后 CI 自动发布 staging）：发布前在 staging 生成一个旧 `?context=` 地址，发布后 30 分钟内打开应跳到新地址并可对话；新结果页入口、报告追问、越权 404、推荐追问、评分与共享、预计消耗与余额不足弹窗逐项通过；两站四种语言各抽查一份报告的开场问题语言正确。验证：验收记录与截图存入证据目录，`/api/health` 为本次 SHA（实施记录：2026-11-15 在 2b9b6c06 上通过；staging 各套餐原 `features.models` 为空，经使用者批准为 free/plus/premium 授权 `deepseek-flash`；旧 `?context=` 跳转在 staging 已无法于发布前补建，改到 7.2 生产发布后用 v0.1.22 签发的链接核对；服务端 failed 后全额释放未在 staging 触发，由 `test/ai-subject-chat.test.ts` 覆盖）（证据：私有验收目录 `adopt-subject-chat-readings/staging-7.1/`）
 - [ ] 7.2 【用户】批准 production 发布（推 `v*` tag）。发布前只读核对：后台对话模型可用、套餐 `features.models` 覆盖各详批的默认模型（不一致时记录回落行为；使用者 2026-11-15 决定 free/plus/premium 授权 `deepseek-flash`，生产迁移后在 `/admin/billing/plans` 设置）。发布前在生产签发一个旧 `?context=` 地址，发布后 30 分钟内打开应跳到新地址并可对话。验证：production `/api/health` 为本次 SHA，用真实账号对一份已有报告追问一次并核对扣费；main 的发布流水线成功
+  - （2026-11-16：v0.1.23（c30b67b3）已发布生产，deploy-production run 43803684100 成功，两站 `/api/health` 为 c30b67b3；生产 free/plus/premium 已授权 `deepseek-flash`（库已核实）。旧 `?context=` 回归由使用者明确决定跳过；真实账号对已有报告追问一次并核对扣费尚未记录，补齐后勾选）
 - [ ] 7.3 【协调者】规格衔接：确认 `product-improve-ai-content-20261030` 已先归档，再按 design 决策 9 把本 change 中「结果页上下文经临时上下文令牌进入对话」「预计消耗与余额提示」改写为对「从结果页携带命盘上下文」「发送前显示预计消耗」的 MODIFIED（或归档后删除被取代的旧要求），然后归档本 change。验证：`openspec validate --strict` 通过，主规格 `ai-chat` 中无重复要求
 
 ## 8. 下一次发布：移除旧链接兼容（依赖：7.2 发布至少 30 分钟后的下一个版本）

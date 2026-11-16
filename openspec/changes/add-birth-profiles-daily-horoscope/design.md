@@ -153,7 +153,7 @@ server functions 放在 `features/profiles/profiles.functions.ts`，包括 list�
 - **参考时区**：
   - zh-Hant、zh-Hans：`Asia/Taipei`（UTC+8）；
   - ko：`Asia/Seoul`（UTC+9）；
-  - en：暂定 `America/New_York`（主要受众为北美；OQ1 确认）。
+  - en：`America/New_York`（主要受众为北美；原 OQ1，2026-11-13 使用者确认采用此默认方案）。
 - **本地校正**：水合后，客户端用 `Intl` 得到本地日期，与参考日期不同时：
   - 西方站：本地重算，numerology 代码很小，直接打包；
   - 东方站：动态 import `@xuanxue/bazi` 的 daily 子入口，tyme4ts 较大，不进首屏包，复用 `features/tools/bazi/engine.ts` 的按需加载模式。
@@ -169,6 +169,8 @@ server functions 放在 `features/profiles/profiles.functions.ts`，包括 list�
   - `/daily-numerology`
 
   西方站用 numerology 命名，避免与星座 horoscope 的搜索意图混淆（OQ4）。
+
+  以上四个地址为原 OQ9 的默认方案，2026-11-13 使用者确认采用，上线后不再改动。
 - **页面信息**：
   - title 与 H1 含日期；
   - 结构化数据为 `WebPage` 加 `dateModified`；
@@ -231,7 +233,6 @@ server functions 放在 `features/profiles/profiles.functions.ts`，包括 list�
 
 ## Open Questions
 
-- **OQ1 西方站参考时区**：暂定 `America/New_York`，也可以用 UTC。只影响首屏 SSR 的日期，客户端会校正为本地日期。
 - **OQ2 AI 润色**：
   - 是否在规则文案之上用模型润色？
   - 若启用：免费页面使用 AI 文本会与「不得声称 AI 生成」的合规口径冲突，需要先确定披露方式；
@@ -248,7 +249,6 @@ server functions 放在 `features/profiles/profiles.functions.ts`，包括 list�
 - **OQ6 档案应用层加密与数量上限**：v1 依赖数据库静态加密，上限 20 份；是否需要字段级加密或调整上限？
 - **OQ7 评分**：是否在规则提示之外显示星级或分数？v1 不显示。
 - **OQ8 今日面板加入塔罗每日一张**：是否按「档案 + 日期」确定性地抽一张牌展示在面板？
-- **OQ9 地址用词**：韩语用 `오늘의-운세` 还是 `오늘의운세`，西方站用 `/daily-numerology` 还是 `/numerology/today`。需在 ui-design 阶段与 SEO 关键词一并确认，上线后不再改动。
 
 ## 决策记录（2026-11-13，使用者确认）
 
