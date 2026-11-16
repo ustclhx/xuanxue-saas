@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3f324b24f63a2cf7a6dc8b33a96fa1602a7d89013eefce9f61b8360e419c6c79",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All star, palace, brightness, stem/branch, and mutagen references match the provided data; no invented elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart features such as 巨門 in 命宮, 天同化祿 in 官祿, 天機化權 in 財帛, and 太陰 in 夫妻.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and tied to the chart, but the report lacks a year-by-year section with per-year guidance, so it does not fully satisfy that part of the criterion.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based tone; describes tendencies without asserting specific events, no month/day predictions, health section focuses on habits and recommends consulting a professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, logical sections, appropriate length, and fluent Traditional Chinese as used in Taiwan with no Simplified characters or mixed scripts.\"\n    }\n  },\n  \"summary\": \"A highly personalized and accurate Zi Wei report that matches the chart data and maintains a supportive tone; the main gap is the absence of year-by-year actionable guidance.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6883,
+    "outputTokens": 5766
+  },
+  "recordedAt": "2026-11-16T08:27:48.760Z",
+  "source": "recorded"
+}

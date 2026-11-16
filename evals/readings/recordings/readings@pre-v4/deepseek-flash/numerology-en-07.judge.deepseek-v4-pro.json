@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c7cece04ca7240d23b8ac1596ea2caee63158b7d0850c5324783d85040b79b8d",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers match the provided data exactly: Life Path 2, Birthday 2, Expression 4, Soul Urge 11, Personality 11, Personal Year 5, and current year 2026. No invented chart elements or incorrect values appear.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this chart's specific numbers and combinations—doubled 2, 4 expression, twin 11 master numbers, and personal year 5—rather than generic statements.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and tied to the chart (e.g., deliberate adventure, grounding routines, asking for worth), but the report lacks a year-by-year section for the provided 2027–2030 personal years, so no yearly lean-in/watch guidance is given beyond 2026.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm, supportive, and tendency-based. It avoids fear, specific event assertions, medical/financial/legal advice, and religious framing; wellbeing guidance appropriately recommends consulting a professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English with appropriate length. Minor repetition occurs as the same core numbers are reinterpreted across sections, but it remains readable and organized.\"\n    }\n  },\n  \"summary\": \"The output is accurate, warm, and well-personalized, using the chart's core numbers effectively. It is strong on tone and specificity, with slightly reduced actionability due to the absence of a year-by-year section, and mild repetition in readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3486,
+    "outputTokens": 2097
+  },
+  "recordedAt": "2026-11-16T08:33:21.629Z",
+  "source": "recorded"
+}

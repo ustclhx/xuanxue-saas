@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:532612ef11c76abd36c067d981cab2fc7cce0b5b3ef1c499329c7cf8428f7279",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems/branches, ten gods, elements, percentages, shensha, decade and annual data match the provided chart; no invented chart elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section anchors in specific chart details such as 丁火, 戌月, 丙火劫財, 酉金偏財, 己丑/庚寅大運, annual relations, and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete suggestions tied to chart: pause before responding, fixed savings allocation, grounding activities, adjusting schedule around 2027, clarifying team roles. Each year contains lean-in and watch-out guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based, no specific events or month/day predictions, health advice recommends seeing a doctor, no investment, legal or medical decisions, and no religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear Traditional Chinese, well-structured sections, fluent, no simplified characters or foreign terms; some repetition of core chart points but not excessive.\"\n    }\n  },\n  \"summary\": \"A highly accurate, specific, and actionable bazi-full annual/decade reading that uses chart elements consistently, maintains a warm non-predictive tone, and is written in clear Traditional Chinese.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6913,
+    "outputTokens": 6789
+  },
+  "recordedAt": "2026-11-16T08:37:10.534Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:7cadc0535be37857eaf7987b6391965cb003805034abac927555ad0c7555166a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"绝大多数十神、干支、五行比例、神煞、流年关系和用神都准确，仅有细微出入：2028年流年支与日支酉的关系未见于数据，且“正官透于戌中本气”表述不严谨；丑中藏辛金为大运支藏干，数据中未给出。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各节均围绕癸水日主、财多身弱、喜用金水、偏印贴身、己丑七杀大运及具体流年干支展开，个人化程度高，不是通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可操作，如先存后花、考证进修、主动休息、账目清楚；逐年部分每年都有宜做与需注意的方向，健康建议也提到求助专业医师。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"行文温和，多用“容易”“倾向”“可能”等倾向性表述，未断言具体事件，无恐吓；健康只谈习惯并建议就医，不涉投资或医疗决定。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，简中流畅，章节分明，长度适当；虽有主题词重复但不影响阅读，未混入外语或繁体字。\"\n    }\n  },\n  \"summary\": \"整体是一份高度个性化且符合合规要求的八字流年解读，五行十神与流年数据使用准确，建议具体温暖，结构与用字均佳；仅有少量关系表述需要与数据进一步对齐。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7468,
+    "outputTokens": 4972
+  },
+  "recordedAt": "2026-11-16T08:44:12.013Z",
+  "source": "recorded"
+}

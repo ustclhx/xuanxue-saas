@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:2248a968df0cbc7553021f9dee49584e874c71c7404ea76dbe32b1d25b2de5ad",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 1,\n      \"reason\": \"日主错误为甲木，实际为己土；丁丑大运天干丁火实为偏印却被写为正印；多处十神与数据不符。\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"大量使用本命盘特定元素（年柱正官偏财、桃花文昌、丁丑/戊寅大运、各流年刑冲合等），但日主错误使部分个人化定位偏离。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建议具体且与火土喜用、金水偏旺、身弱相关；逐年有把握/注意点，但部分建议因日主错误而偏离实际命主。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，不恐吓，不断言具体事件，健康类仅给习惯建议并提醒就医，无投资/法律/医疗决策或宗教表述。\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"结构清晰、简体规范，但多处重复（如15.4%、火为零、身弱金水旺）造成冗长。\"\n    }\n  },\n  \"summary\": \"整体报告结构完整、语气得当且可操作性强，但日主误为甲木而实际为己土，导致核心定位与多处十神描述不准确，需修正后才可使用。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6904,
+    "outputTokens": 2783
+  },
+  "recordedAt": "2026-11-16T08:40:59.150Z",
+  "source": "recorded"
+}

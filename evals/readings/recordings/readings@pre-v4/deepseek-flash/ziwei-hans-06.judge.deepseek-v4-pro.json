@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:16349cbd05f66de263548c1785a7ec5256e6bb4d6fb6fb452b3601ba1bfc0bea",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"财帛宫错将子女宫天府旺作为对宫借星，实际数据中财帛宫对宫为福德宫，借星为天同天梁；交友宫错借父母宫天相，实际对宫为兄弟宫，借星为廉贞贪狼。这两处与数据明显矛盾，其余星曜、宫位、四化基本正确。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"大量引用具体星曜、宫位、四化及亮度，如命宫巨门化忌、身宫天同化权天梁、夫妻太阴化禄、官禄太阳旺等，内容高度锚定本盘，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建议部分具体且结合盘势，如表达练习、节奏管理、财务稳健、感情沟通；但缺少逐年流年提示，未覆盖每个年份的宜忌内容。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖、不恐吓，只描述倾向而非断言具体事件；健康部分仅提供作息习惯并建议咨询专业医师，无投资、法律、医疗决策或宗教表述。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，简体中文流畅，无明显重复或混杂文字，篇幅适中。\"\n    }\n  },\n  \"summary\": \"整体文字温暖且高度具体，但财帛宫与交友宫的对宫借星出现明显错误，且缺少流年建议，使准确性与行动性受到一定影响。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6370,
+    "outputTokens": 4722
+  },
+  "recordedAt": "2026-11-16T08:30:17.325Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:b64309b635da71b87707e0b704597d57e9fab3057abde1893fa43c1d57614be5",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"大部分宮位、主星、亮度、四化與數據一致，但「父母宮借對宮遷移宮的天相（陷）」有誤：父母宮對宮為疾厄宮，且疾厄宮主星為天機、天梁，並非遷移宮天相，構成資料引用錯誤。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"全篇大量引用本命盤特定元素，如命宮廉貞破軍、身宮天府、官祿武曲貪狼化祿、田宅太陰化權、交友右弼化科、疾厄天機化忌等，幾乎不適用於其他命盤。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體且與盤面扣合：深耕專業、先存後花、柔軟表達、把放鬆排進日程，每項都可執行；無年運部分，因此不評價逐年提示。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖且不帶恐嚇，多以傾向與提醒描述，未斷言具體事件，健康部分建議諮詢專業醫師，無投資、法律、醫療決策或宗教用語。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清楚、分段合理，無明顯簡體字或外語混雜，長度適中，重複不多，閱讀流暢。\"\n    }\n  },\n  \"summary\": \"整體是一份高度個人化且溫暖的紫微斗數報告，僅在父母宮借星的宮位與星曜引用上有一處明確錯誤，其餘大致與數據吻合。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6401,
+    "outputTokens": 4343
+  },
+  "recordedAt": "2026-11-16T08:27:41.948Z",
+  "source": "recorded"
+}

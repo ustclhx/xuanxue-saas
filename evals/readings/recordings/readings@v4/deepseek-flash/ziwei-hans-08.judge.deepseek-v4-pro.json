@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:13d47c5071fd1d13b2b3fbc26ad3fa2c4bc085c5f53e515787f737d0316982bd",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有宫位、主星、辅星、四化、大限和流年信息都与 data 完全一致，没有虚构或错误引用。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个部分都紧扣具体宫位与星曜组合展开，例如巨门陷、文曲同宫、太阳化忌、廉贞化禄、流年四化等，内容高度个性化。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可执行，且逐流年均给出可把握的方向与需留意的方面，与命盘元素清楚对应。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和，使用‘容易’‘提示’等倾向性表述，无恐惧渲染，健康部分建议咨询专业医师，没有具体事件或投资、法律、医疗断言。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，分段合理，重复少，简体中文流畅，没有混用繁体或外文。\"\n    }\n  },\n  \"summary\": \"整体高度贴合命盘数据，各宫位、四化、流年描述准确具体，建议切合盘面且语气温和可执行。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7115,
+    "outputTokens": 4065
+  },
+  "recordedAt": "2026-11-16T08:59:10.048Z",
+  "source": "recorded"
+}

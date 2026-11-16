@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:25a4d73c2e6ea8be2c4ad7d6a2ce7136e99d1bb8150fa2043309045835977ff9",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"차트 데이터의 기둥, 십성, 오행, 비율, 대운, 신살 등 인용이 대체로 정확하며 허구가 없습니다.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"각 섹션이 일간, 십성, 신살 등 고유 요소에 연결되어 있으나 연도별 세부 해석은 2026년 외에는 빠져 있습니다.\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"조언이 구체적이고 차트와 연결되어 있지만 2027~2030년 연도별로 취할 행동과 주의할 점이 제시되지 않았습니다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"온화하고 공포를 조장하지 않으며 구체적 사건을 단정하지 않고 전문의 상담을 권합니다.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구성이 명확하고 한국어가 자연스러우나 유리한 오행(수·목) 등 일부 내용이 섹션 간 반복됩니다.\"\n    }\n  },\n  \"summary\": \"을목 일간의 신약 명식에 대해 정확한 데이터와 차트 고유 요소를 바탕으로 성격·직업·재물·애정·건강 등을 조화롭게 풀어냈으나, 연도별 세부 조언이 2026년에만 머물러 행동 가능성이 다소 아쉽습니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7699,
+    "outputTokens": 5869
+  },
+  "recordedAt": "2026-11-16T08:18:49.239Z",
+  "source": "recorded"
+}

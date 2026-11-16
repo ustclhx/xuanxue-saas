@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:7594d386018f6b3d8c06e92e2f142c304528ecaae8b1c854a531f8c49de682d1",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有四柱、十神、五行、大運、流年與神煞皆與 data 一致，沒有虛構或矛盾之處；金土水喜用、火木忌神、空亡與桃花落在月柱等均正確。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"內容大量錨定本命盤，如年柱甲子偏印坐正官、月柱丁卯劫財坐正印、日支午藏傷官、辛未與壬申大運及逐年干支十神，並非通用文案。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"每個流年都有具體的「值得把握／需要留意」行動，並給出作息、理財、溝通等可操作建議，且與命盤特點扣合。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不恐懼，未斷言具體事件，未做月日級預測；健康部分僅提供作息習慣並建議諮詢專業，沒有投資、法律或醫療決策。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"整體結構清楚、繁體中文流暢，但部分大運資訊（辛未、壬申）在事業、財運、未來大運中重複出現，略欠精簡。\"\n    }\n  },\n  \"summary\": \"整體而言，這份報告準確引用命盤資料，個人化程度高，建議具體可行，語氣合規且專業；唯一小缺點是部分大運資訊在不同章節重複，略影響閱讀流暢。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7177,
+    "outputTokens": 6184
+  },
+  "recordedAt": "2026-11-16T08:39:12.155Z",
+  "source": "recorded"
+}

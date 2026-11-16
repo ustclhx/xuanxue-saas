@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8d36185c7e51da4ae8302e223d01184de26e9e3f152604ce6c5658c10f305f91",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的柱、十神、五行比例、神煞、大运与流年关系均与资料一致，未发现虚构或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均锚定本命盘的具体柱、十神、地支藏干、神煞与流年关系，几乎不具可替换性。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"逐年给出可执行的侧重点与注意事项，生活、财务、情绪等建议具体且贴合喜用与身弱格局。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和，用“需要留意/适合”等措辞避免断言事件，健康建议限于习惯并提示咨询专业医师。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，简体中文流畅，篇幅适中，重复较少，未混用繁体或外来词。\"\n    }\n  },\n  \"summary\": \"整体高度契合命盘资料，个性化与可操作性俱佳，语气平和、结构清晰。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7226,
+    "outputTokens": 7278
+  },
+  "recordedAt": "2026-11-16T08:43:42.855Z",
+  "source": "recorded"
+}

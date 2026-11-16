@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:885c16a0fadfd54ad7ef0b457e3ff45cdb32af37bcca686bb363e07c8580f993",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用都与数据一致：四柱干支、十神、五行占比、喜忌、神煞、大运、流年关系均准确，未发现捏造或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各节均锚定本命盘具体要素，如辛金偏财、己土食神、丁酉大运、丙午流年、华盖空亡等，个性化强，几乎无泛泛而谈。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可操作：主业副业结构、丁酉借同伴之力、2027前做减法、晒太阳与饮食有节等，逐年流年也有明确方向与提醒。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，无恐吓，不断言具体事件，无月度预测，健康部分建议咨询专业医师，未涉及投资或医疗决定。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰、分段合理、简体中文流畅，无混杂字符或泄漏字段，篇幅适中，重复可控。\"\n    }\n  },\n  \"summary\": \"报告高度贴合命盘数据，结构完整，建议具体可行，语气温和且专业，是一份优质的八字解读。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7559,
+    "outputTokens": 5568
+  },
+  "recordedAt": "2026-11-16T08:42:28.650Z",
+  "source": "recorded"
+}

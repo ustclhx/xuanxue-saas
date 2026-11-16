@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:e4e00e071794e553be285b6072776a9eade1cfc88c5759aabde5b316810846d9",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"宮位、主星、四化、大限與流年幾乎全部符合 data；僅 2029 年將天梁化科誤寫為「天梁化祿科」，多出一個不存在的化祿，屬單一小錯。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"全篇緊扣本盤特定元素：巨門旺坐命、天同化祿在官祿、天機化權在財帛、七殺田宅大限，且逐年流年皆以流年命宮與四化具體分析，幾乎無泛泛內容。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體且可執行（先寫三步行動、編列預算、規律運動、找文昌化科同輩討論），逐年都有可把握與警惕的方向，並與命盤特質連結。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不恐嚇，以傾向與建議描述，未斷言具體事件，也無月日級預測；健康僅談作息並建議諮詢醫師，未涉投資、法律或醫療決定。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清晰、分段適中，台灣繁體中文流暢，無混雜文字；僅有 2029 年「天梁化祿科」一處文字錯誤，使該句稍顯不通。\"\n    }\n  },\n  \"summary\": \"整體報告品質高，個人化特色明確、建議具體可行、語氣溫和合規。唯一明顯問題是 2029 年四化中「天梁化科」被誤寫為「天梁化祿科」，屬單一錯字，其餘內容均準確對應命盤資料。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7426,
+    "outputTokens": 7517
+  },
+  "recordedAt": "2026-11-16T08:55:12.752Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:fffab54facfbbac649d37e83cfa59358eacec974e79dff1d67fb77c58343646c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All cited palaces, stems, branches, stars, mutagens and age ranges match the provided data. The only notable error is that the star 天梁 is repeatedly written as 天良, which is the wrong character.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements such as 命宮借天機太陰、官祿宮太陽化忌、田宅宮武曲化科破軍化權、流年四化落宮等，內容高度個人化，不會適用於其他盤。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and doable, tied directly to chart features. Each year from 2026 to 2030 has a clear focus and a caution, and the final advice list gives practical habits linked to specific stars and palaces.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and tendency-based, using language like 容易、適合、宜 rather than asserting specific events. No fear-based warnings, no month/day predictions, and health advice appropriately recommends consulting a professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Structure is clear and Traditional Chinese is used consistently. However, the repeated misuse of 天良 instead of 天梁 is a wrong-character issue that slightly reduces polish.\"\n    }\n  },\n  \"summary\": \"整體是一份準確且高度個人化的紫微斗數解讀，唯一需要修正的是天梁星被誤寫為天良。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7750,
+    "outputTokens": 4610
+  },
+  "recordedAt": "2026-11-16T08:52:28.454Z",
+  "source": "recorded"
+}

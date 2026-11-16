@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:5657dbb422edcaf67e43d9beaaecc6f01503a2d29fe537e10542b849c506617f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly consistent with the data, but it says 2030 is the first year of the Friends palace decade when the data shows 2029 (nominal age 52) begins that decade; it also claims no sha star directly faces the Soul palace despite 地空 being in the opposite Surface palace.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly specific throughout: cites exact palaces, stars, brightness, mutagens, and year-by-year placements; the content would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete, doable suggestions tied to the chart, and each year section has something to lean into and something to watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fearful, avoids asserting specific events, frames wellbeing as habits, and recommends professional medical advice when relevant.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Simplified Chinese, but some star placements and groupings are repeated across sections, making it slightly long-winded.\"\n    }\n  },\n  \"summary\": \"A well-personalized and actionable reading with minor accuracy slips involving the 2030 decade transition and an omitted opposite-palace sha star, plus some repetition.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6932,
+    "outputTokens": 6909
+  },
+  "recordedAt": "2026-11-16T08:58:10.014Z",
+  "source": "recorded"
+}

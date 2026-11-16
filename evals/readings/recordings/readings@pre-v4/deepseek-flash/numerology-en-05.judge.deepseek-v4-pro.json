@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:f4901e0705963ed1543c682513e1e763306a0d8f20eb1ce33c9bc34474178db4",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (Life Path 2, birthday 11, expression 6, soul urge 2, personality 4, personal year 5) match the data exactly; no invented elements, pillars, stars, or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements: double 2 energy, master 11 sensitivity, 6 expression warmth, 4 practicality, and the 5 personal year. The text is clearly tailored to this unique numerological profile.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Concrete, doable suggestions are tied to the chart throughout (career fields, money pacing, sleep, food, movement, emotional routines, gentle adventure in 2026). However, there is no year-by-year section with specific lean-in/watch guidance for 2027-2030, which prevents a full 5.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based tone throughout; uses tender language ('gently loosening your grip', 'fresh air let into a well-kept house') without asserting specific events, illnesses, investments, legal or medical decisions. No month/day predictions or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical headings, fluent English appropriate for locale, appropriate length, and only acceptable thematic repetition of core numbers. No mixed scripts or leaked JSON fields.\"\n    }\n  },\n  \"summary\": \"The output is highly accurate, deeply personalized, warm, and well-organized. It excels in specificity, tone, and readability, and offers useful chart-anchored suggestions; it would be perfect if it included a year-by-year walk-through of future personal years.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3318,
+    "outputTokens": 1738
+  },
+  "recordedAt": "2026-11-16T08:32:18.099Z",
+  "source": "recorded"
+}

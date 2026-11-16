@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:9eeb5dd9c174d9297f084d09e32d584e5768c2a076627e9b4433d7cda35973ef",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"월지를 인월(寅月)로 잘못 표현했고(데이터는 자월 子月), 지장간에 없는 정재(正財)를 언급하는 등 데이터와 모순되는 부분이 있습니다.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"각 섹션이 실제 십성, 지장간, 신살, 대운, 세운, 오행 비율에 구체적으로 연결되어 있으며 다른 차트로 대체하기 어렵습니다.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"연도별 조언과 일반 조언이 구체적이고 실행 가능하며 차트 요소와 연결되어 있습니다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"따뜻하고 비공포적이며, 구체적 사건을 단정하지 않고 월/일 단위 예측도 없습니다. 전문의 상담 권유도 적절합니다.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구조가 명확하고 흐름이 좋지만 2030년 부분에 간체자 '顺序'가 삽입되어 외국 문자가 섞였습니다.\"\n    }\n  },\n  \"summary\": \"Overall, a well-personalised and actionable reading with warm tone. However, accuracy is weakened by misidentifying the month branch as 寅月 (data: 子月) and mentioning 正財 in hidden stems although not present in data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7999,
+    "outputTokens": 7042
+  },
+  "recordedAt": "2026-11-16T08:47:07.187Z",
+  "source": "recorded"
+}

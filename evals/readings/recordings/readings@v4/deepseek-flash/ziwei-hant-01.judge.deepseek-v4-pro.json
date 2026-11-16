@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:1f8a211ba0fd3a82a0dfa8df097e5bdb641668269709b4b38847e88fb6ad5acc",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"整體比對命盤資料正確：宮位、主星、亮度、四化、大限與流年四化均能對應。唯獨將「天梁」寫成「天良」，重複出現，但未造成實質混淆，其餘無誤。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"幾乎每一段都錨定本命盤的宮位、星曜、輔星與四化，並逐年對應流年命宮與四化，個人化程度高，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"具體建議與命盤特質扣合，每個流年都有可把握與需留意的面向，結尾建議可操作且清楚。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖且保持傾向描述，未斷言具體事件或月份，健康建議合乎習慣範圍並提醒尋求專業。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清楚、分段合理、繁體中文流暢；但將「天梁」誤作「天良」多次重複，略微影響星曜名稱的準確與閱讀。\"\n    }\n  },\n  \"summary\": \"此報告準確運用命盤多數星曜、宮位與四化，個人化與建議具體；主要問題為「天梁」誤寫為「天良」，其餘內容大致良好。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7512,
+    "outputTokens": 5678
+  },
+  "recordedAt": "2026-11-16T08:50:49.431Z",
+  "source": "recorded"
+}

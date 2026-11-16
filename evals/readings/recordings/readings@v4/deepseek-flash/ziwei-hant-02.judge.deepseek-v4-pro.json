@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3b9197913af92631d9eef9ee8ba27ae5ff90670e08829c14a445c5d794bb7c14",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"大部分命宮、星曜、宮位、四化與流年資料都與 data 相符，但「下一步大限…大限天干使廉貞化忌」一處與 data 的乙干不符，屬於自行推演且錯誤的內容。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段都緊扣命盤中的特定星曜、宮位、四化與大限流年，幾乎無泛泛而談。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行且與命盤特質連結；逐年段落均提供可掌握與需留意的方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不恐嚇，未斷言具體事件，健康僅提作息習慣並建議諮詢專業醫師，無投資、法律、醫療決策或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清楚、層次分明，用詞流暢，全篇為台灣繁體中文，無明顯簡體字或外語混雜；雖有少量重複但瑕不掩瑜。\"\n    }\n  },\n  \"summary\": \"整體是一份高度個人化且溫暖的紫微斗數報告，幾乎所有星曜、宮位與流年都準確，但下一大限的廉貞化忌推演有誤，需修正以避免誤導。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7930,
+    "outputTokens": 6272
+  },
+  "recordedAt": "2026-11-16T08:52:13.023Z",
+  "source": "recorded"
+}

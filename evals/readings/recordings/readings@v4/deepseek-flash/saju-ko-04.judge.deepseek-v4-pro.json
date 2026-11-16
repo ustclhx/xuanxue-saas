@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:6d11430c357b6bb8e0da9badfe8b9139f30dd65e9c6ada3d196103dfce6bba54",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"대체로 정확하나, 성격 부분에서 연주에 정관 기운이 있다고 서술해 연주에는 없는 십성을 연주에 연결한 어색한 표현이 있습니다. 다른 기둥·오행·합충·세운 등은 데이터와 일치합니다.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"일주, 십성, 오행 비율, 신살, 희용기신, 대운 및 연도별 천간·지지·합충과 관계 등 이 명식 고유 정보가 구체적으로 반복·활용됩니다.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"연도별로 활용할 점과 주의할 점이 구체적이고, 총론·건강·조언에서 명식의 희용과 신강 구조에 맞춘 실천 가능한 습관 제안이 이어집니다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"온건하고 예측을 단정하지 않으며, 건강은 전문의 상담을 권하고 투자·법적·종교적 내용도 없습니다. 월/일 단위 예측 없이 반기 정도의 흐름 언급만 있습니다.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구조가 명확하고 한국어가 자연스럽습니다. 다만 수(水) 부재와 정인·편인 생각 과다 경향이 여러 섹션에서 반복되어 약간의 중복감이 있습니다.\"\n    }\n  },\n  \"summary\": \"전체적으로 명식의 십성·오행·신살·대운·세운을 정확히 반영한 구체적이고 실행 가능한 해석입니다. 어조도 안정적이고 준수 요건을 잘 지켰습니다. 다만 연주 정관 서술의 미세한 오류와 섹션 간 반복이 일부 있어 정확도와 가독성에서 5점을 받지 못했습니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8649,
+    "outputTokens": 7119
+  },
+  "recordedAt": "2026-11-16T08:47:38.752Z",
+  "source": "recorded"
+}

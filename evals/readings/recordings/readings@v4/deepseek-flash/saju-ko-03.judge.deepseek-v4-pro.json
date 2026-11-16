@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c64c3babc665c0f555982e558668605472e4fc245f264d31132600e8fe483a77",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems/branches, ten gods, elements, percentages, shensha, and year relations match the data; no invented chart elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart features such as 을목 day master, 월간 정화 식신, 월지 병화 상관, 일지 묘목 비견, 시간 계수 편인, and detailed annual stems/branches and relations.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart; water-adjacent habits, income-splitting, expression routine, decision delay, and year-specific lean-in/watch points are all doable and chart-linked.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm tone with tendency-based language, no fear mongering, no month/day-level predictions, health limited to habits with professional advice, and no investment/legal/medical/religious directives.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear Korean with Hanja only alongside Hangul, well-structured sections, minimal repetition, appropriate length, and fluent natural text.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly specific, actionable, warm, and well-written in Korean, closely matching the provided chart data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 9900,
+    "outputTokens": 3134
+  },
+  "recordedAt": "2026-11-16T08:46:02.794Z",
+  "source": "recorded"
+}

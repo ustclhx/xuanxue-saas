@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c02b615b320eef6932e20c51ecfdedf5823f1bf987c9c101cbadadfec59da2d8",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (Life Path 6, Birthday 9, Expression/Soul Urge/Personality 7/9/7, Personal Year 5) match the data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"Sections consistently reference the chart's specific numbers (6, 9, 7, 5) and apply them to each area, though available pinnacles/challenges and later personal years are unused.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Offers concrete habits and choices tied to the 5 personal year and core numbers (e.g., share responsibilities, choose one study/craft, sleep and meal routines), but lacks a year-by-year section with specific lean-into/watch for 2027-2030.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language; no specific events, fear, religious framing, or medical/financial/legal directives; wellbeing consults professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings and fluent English; minor recurring themes but well organised and no mixed scripts.\"\n    }\n  },\n  \"summary\": \"A warm, well-organised numerology reading that accurately uses the chart's core numbers and gives practical suggestions, though it omits the later personal years and pinnacle/challenge details.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3506,
+    "outputTokens": 2715
+  },
+  "recordedAt": "2026-11-16T08:32:45.331Z",
+  "source": "recorded"
+}

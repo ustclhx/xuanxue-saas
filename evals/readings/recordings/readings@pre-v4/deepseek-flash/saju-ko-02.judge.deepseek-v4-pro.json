@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:a5bdbd3b97407feec53187cd66065536e5f93fe3bfc47c33e8185481f6a7619a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"월지를 寅月로 잘못 적고 계절을 이른 봄이라 했으며, 甲辰 대운의 십성을 食神이 아닌 傷官으로 표기하는 등 명식 정보와 다른 부분이 여럿 있습니다.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"일간, 월지, 연간, 일지, 십성, 신살과 대운을 구체적으로 활용해 대부분의 섹션이 이 명식에 맞게 서술되었으나, 건강·생활 습관은 다소 일반적입니다.\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"수면·식사·운동 등 구체적 생활 습관 제안이 있지만, 직업·재물·조언은 추상적이고 연도별 실행 지침이 부족합니다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"따뜻하고 위압적이지 않으며, 특정 사건을 단정하지 않고 전문가 상담을 권유해 기준을 잘 따릅니다.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구조가 명확하고 한국어가 자연스럽지만, 일부 핵심 요소가 여러 섹션에서 반복되고 약간 긴 편입니다.\"\n    }\n  },\n  \"summary\": \"대체로 따뜻하고 구조가 명확하지만, 월지와 대운 십성 등 일부 명식 정보에서 오류가 있고, 조언이 다소 추상적입니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6768,
+    "outputTokens": 6021
+  },
+  "recordedAt": "2026-11-16T08:19:59.581Z",
+  "source": "recorded"
+}

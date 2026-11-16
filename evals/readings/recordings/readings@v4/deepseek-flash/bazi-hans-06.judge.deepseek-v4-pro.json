@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:9851b460681e1952e2818a691f285ebf66a6d91676ef307bf8736844ef4505ac",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"大部分与数据一致，但存在具体错误：日支华盖应为时支华盖；财运部分把劫财、食神、七杀等非财星藏干当作财星列举，造成明显偏差。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"引用具体四柱、十神、地支藏干、神煞、五行比例、大运流年干支及关系，几乎每节都有独特锚点，高度个性化。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"逐年给出可执行的把握与提醒，总体建议具体且贴合命局；健康建议限于习惯并提示咨询专业医师。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖、无恐惧式断言，只描述倾向；无日/月级预测，无投资、法律、医疗决策或宗教内容。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，简体中文流畅，无过度重复，无泄露的JSON字段名或外来词。\"\n    }\n  },\n  \"summary\": \"输出整体个性化强、结构清楚、建议具体，语气合规；主要问题是若干具体命盘元素引用错误，如将日支误称华盖，以及财运部分把非财星藏干当作财星列举，需修正这些硬伤。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7674,
+    "outputTokens": 6836
+  },
+  "recordedAt": "2026-11-16T08:44:29.635Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:e347402972c17ddf13877c276dccf979d76c444f3cb33dc5c3ad8b5a4bacb126",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"The report correctly cites most chart elements, but states the month pillar as 묘(卯) and wood even though data shows 丑(丑) earth month, and says 상관(傷官) spans year and month stems although month stem is 食神(shiShen). These are clear contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"Most sections are anchored to the chart's specific elements: 신금 day master, 수 42.3%, 토·금 favorable, 천을귀인, 도화, 역마, 편재 in day branch, and current decade. Some advice is generic, but overall personalized.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Offers concrete, chart-linked suggestions such as building routines, seeking professional advice for health, managing finances with record-keeping, and adjusting work delegation. The 2026 and 2034 periods are broadly described rather than each year, but the advice is doable.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tendency-based; avoids fear-based assertions, specific event predictions, and month/day-level forecasts. Financial and health advice includes professional guidance, with no religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Korean with appropriate Hanja. Some repetition of 신약/토금 themes across sections and an internal month-branch contradiction slightly reduce clarity.\"\n    }\n  },\n  \"summary\": \"대체로 사주 구성 요소를 잘 활용했고 톤도 좋지만, 월주를 묘월로 잘못 적고 월간 십성을 상관으로 오인한 부분이 있어 정확성에서 감점됩니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6978,
+    "outputTokens": 6221
+  },
+  "recordedAt": "2026-11-16T08:21:43.245Z",
+  "source": "recorded"
+}

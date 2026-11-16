@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:f7efef65f4a701961c82e12221a248ce683299d72f66798ec24a31d5fa2a352b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All palace placements, stars, brightness levels, mutagens, auxiliary stars, stems/branches, decade transitions, and year-by-year references match the provided data; nothing chart-related is invented or contradicted.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to the actual chart: Lianzhen/Pojun in Soul, Wuqu/Tanlang Lu in Career, Taiyin Quan in Property, Youbi Ke in Friends, Tianji Ji in Health, and specific annual mutagens are all used correctly.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to chart indicators; each year-by-year section includes a clear lean-in area and a watch-out, and the final advice list is practical and chart-specific.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-focused language is used throughout; no month- or day-level predictions, no fear-based warnings; health advice stays at habits and recommends professional consultation; no investment, legal, medical, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, fluent Traditional Chinese suitable for zh-Hant, no simplified characters or JSON field leakage, appropriate length, and only necessary repetition of chart details.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, thoroughly personalised, actionable, tonally appropriate, and clearly written in Traditional Chinese; it fully meets the evaluation criteria.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8463,
+    "outputTokens": 5184
+  },
+  "recordedAt": "2026-11-16T08:55:05.078Z",
+  "source": "recorded"
+}

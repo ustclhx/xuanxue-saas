@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:6d609993199e58f2a20da4061a5f9af5fb4c3a8daf8d5845d014440a3e0373ab",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Almost all cited palaces, stars, brightness, branches, and mutagens match the data exactly. Error: '天良' is used instead of '天梁' for the spouse palace star.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements (e.g., empty soul palace borrowing Tian Ji/Tai Yin, Tai Yang Ji in career, Wu Qu Ke/Po Jun Quan in property, Lian Zhen Lu in siblings), making it highly personalized.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Concrete chart-tied suggestions exist (e.g., build a long-term professional skill, set boundaries due to Tai Yang Ji, prioritize long-term asset planning, specific health habits). However, there is no year-by-year section with per-year lean/watch guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tendency language, avoids asserting specific events, provides only habit-based health advice with a professional disclaimer, and avoids investment/legal/medical decisions or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear sections, fluent Traditional Chinese, appropriate length, minimal repetition. Minor issue: one wrong character ('天良' instead of '天梁').\"\n    }\n  },\n  \"summary\": \"The report is highly personalized and chart-accurate, with a warm compliant tone and clear Traditional Chinese prose. Minor deductions for a star-name typo and the absence of a year-by-year section.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6077,
+    "outputTokens": 5374
+  },
+  "recordedAt": "2026-11-16T08:25:25.170Z",
+  "source": "recorded"
+}

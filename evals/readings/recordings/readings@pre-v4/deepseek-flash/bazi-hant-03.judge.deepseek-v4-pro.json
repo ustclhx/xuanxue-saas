@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:225a3ee91b92ba225bcf43c746370e734ca278713c41a5686f6366bf2fdeab7e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"準確引用四柱、五行比例、十神、大運與神煞，未見與資料矛盾或虛構。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節均扣合辛金、戊子/丁亥大運、正官傷官、偏財桃花等具體命盤元素，非泛泛而談。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"建議具體如建立預算、考取證照、溫和運動，但缺乏逐年(2026-2030)可把握與留意之指引，故未完全符合。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖，未作月日級預測，健康僅作息並建議就醫；無投資/醫療決策或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清晰流暢，惟建議段與前文略有重複，仍屬可讀。\"\n    }\n  },\n  \"summary\": \"整體內容正確且個人化，語氣合規；主要扣分在缺少逐年指引，以及部分建議重複。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6666,
+    "outputTokens": 5991
+  },
+  "recordedAt": "2026-11-16T08:09:56.725Z",
+  "source": "recorded"
+}

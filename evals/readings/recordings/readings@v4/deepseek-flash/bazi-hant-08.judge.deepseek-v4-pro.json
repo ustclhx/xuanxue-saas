@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:d8d13a7fea5532ed4782793cc5b6761c4ea1beaaeb635a17182bf0b2fa3c049f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有提及的柱、十神、五行、神煞、大運與流年干支關係均與 data 一致，無杜撰或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段落皆錨定本命盤的具體十神、藏干、神煞、五行比例與逐年關係，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行，逐年流年皆有可把握與需留意之處，健康與財務提醒務實且不越界。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖且不恐懼，僅描述傾向而未斷言具體事件，健康僅作習慣提示並建議專業諮詢。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰、層次分明，長度適中，無明顯重複，繁體中文用字流暢且無簡體混入。\"\n    }\n  },\n  \"summary\": \"內容準確具體，建議行動性強，語氣合宜，整體為高品質的繁體中文命理報告。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7607,
+    "outputTokens": 5900
+  },
+  "recordedAt": "2026-11-16T08:40:03.898Z",
+  "source": "recorded"
+}

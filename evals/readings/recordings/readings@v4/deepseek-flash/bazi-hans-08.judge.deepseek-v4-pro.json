@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:92ebec087df47ebeee9e65af3eb4235caf926318bc15f2b5ea523c7371c8e3c1",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"报告引用的柱、干、支、十神、五行比例、神煞、大运和流年关系均与 data 一致，没有杜撰或错误，且明确说明时辰未知的大运为估算。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各章节都紧扣日主丁火、身弱喜木火、月柱伤官、日支食神/七杀/偏财、天乙贵人、驿马、乙酉大运及逐年流年干支等本命盘信息，个性化程度高。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"每一年流年都有值得把握和需要留意的事项，最终建议具体可行，如收入三分法、先听后说、主动求助等，且与喜忌和十神紧密结合。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，多用“宜”“适合”“需要留意”而非断言事件，不含具体疾病、投资、法律或宗教内容，健康提示也建议咨询专业医师。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，按总论、性格、事业、财运、感情、健康、大运、流年、建议排列，简体中文流畅自然，无明显重复或杂乱。\"\n    }\n  },\n  \"summary\": \"输出高度契合命盘数据，各分项均准确引用本命柱、神煞、大运与流年关系，建议具体可行，语气温和无恐吓，结构清晰。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7533,
+    "outputTokens": 3711
+  },
+  "recordedAt": "2026-11-16T08:44:09.806Z",
+  "source": "recorded"
+}

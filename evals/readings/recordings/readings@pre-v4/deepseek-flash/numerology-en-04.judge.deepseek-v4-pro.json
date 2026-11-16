@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:566269d390b81bbc2c1c26856d6613b9f18768d46922d544cb76ad893a4d6038",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (Life Path 22, Birthday 11, Personality 11, Expression 9, Soul Urge 7, Personal Year 9 for 2026) match the data; no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to the subject's chart—22, 11, 9, 7 are consistently referenced in context; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete, doable suggestions tied to the chart (sleep routine, slow meals, journal, career directions, financial review, communication in relationships) and gives 2026 guidance to lean into completion and watch perfectionism.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tendency language throughout, no specific event assertions, no month/day predictions, includes professional healthcare disclaimer, avoids investment/legal/medical decisions and religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical headings, fluent English, appropriate length, no disruptive repetition or mixed scripts.\"\n    }\n  },\n  \"summary\": \"Excellent numerology reading that accurately reflects the provided chart data and personalizes each section. The tone is warm and compliant, suggestions are practical, and the text is clear and well-structured.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3513,
+    "outputTokens": 2996
+  },
+  "recordedAt": "2026-11-16T08:32:39.389Z",
+  "source": "recorded"
+}

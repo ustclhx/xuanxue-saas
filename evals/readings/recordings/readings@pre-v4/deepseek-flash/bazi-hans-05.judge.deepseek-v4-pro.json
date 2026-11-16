@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:adc9f3c226cc6ee3bc1acc7891860b42954b8611b7e2fb08c25f08b5b1003272",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"绝大部分内容与数据一致：年柱丙辰、月柱壬辰、日柱乙巳、身弱、喜水木、大运丁亥、2026丙午等均准确。少量解读如“印星偏旺”“戌土为财库”为延伸推断，略微超出数据直接内容，但未发现明显矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各章节均紧扣命盘具体元素，如乙木藤萝、壬水正印、丙火伤官、辰中癸水偏印、巳中正官伤官、华盖桃花驿马文昌、身弱46.2%、喜水木、丁亥大运、2026丙午等，个性化程度高，内容不会互换到其他命盘。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可操作：接触水木环境、专业进修、稳健理财、感情沟通、重视作息情绪，均与盘面喜忌和身弱特征挂钩；健康部分提醒咨询专业医师，没有越界。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和、正向，从未断言具体事件或月份天数；健康仅涉及习惯并建议咨询医师；投资理财只提示稳健、回避高风险；无宗教色彩，整体不制造恐惧。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，总论、性格、事业、财运、感情、健康、大运、建议层次分明；简中文本通顺，无繁体字或外文；虽个别主题略有呼应但不显重复，篇幅适中。\"\n    }\n  },\n  \"summary\": \"整体评价高：内容与命盘数据高度吻合，个性化充分，建议具体可行，语气温和可读。少量基于传统的延伸解读（如印星偏旺、戌土为财库）不影响整体准确性。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6132,
+    "outputTokens": 6279
+  },
+  "recordedAt": "2026-11-16T08:16:30.186Z",
+  "source": "recorded"
+}

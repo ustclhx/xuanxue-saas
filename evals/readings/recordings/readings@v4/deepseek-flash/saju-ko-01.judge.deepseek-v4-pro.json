@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:87767ea300d3187f7ba8e7aae253dcba5340516030175130b0da838a700c6ac2",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Nearly all cited pillars, ten gods, elements, percentages, shensha and annual relations match the data; however the love section incorrectly labels the day branch as 未土/편재 (day branch is 巳火), and 2030 has '경화' instead of '경금'.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored to specific chart elements (辛金 편관, 卯月/祿神, 巳火 상관·정관, 未土 편재, 43.5% support, annual stems/branches and relations) and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to chart dynamics; each year has a lean-in and watch-out item, and the closing advice gives specific habits.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; describes tendencies without asserting specific events; no month/day-level predictions; health advice stays within habits and recommends professional consultation; no investment/legal/medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Korean with appropriate Hanja; some repetition of advice in the closing section and a minor wrong character ('경화') keep it from a perfect score.\"\n    }\n  },\n  \"summary\": \"A highly personalized, warm and actionable saju reading that almost fully matches the chart data, with only minor accuracy/readability slips.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8822,
+    "outputTokens": 7540
+  },
+  "recordedAt": "2026-11-16T08:47:00.019Z",
+  "source": "recorded"
+}

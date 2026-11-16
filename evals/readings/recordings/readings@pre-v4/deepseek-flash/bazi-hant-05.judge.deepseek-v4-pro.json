@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:2825a9210a8dbddd52808ce6d70f047ecaa6626d8ee381df6669975a1d5e3008",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"大部分內容準確對應命盤，如丙火日主、身強、木火比例、辛未大運等；但財運提到正偏財藏於地支，實際本命地支未藏財星，財星主要出現在大運，略有失準。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節皆緊扣具體命盤元素，如丁火劫財、午中己土傷官、辛未大運、天乙貴人、驛馬、祿神、羊刃等，非通用範本。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建議具體且與命盤扣合，但缺少各流年的逐年具體提點，僅有2026年與十年大運描述，未能完全滿足逐年可執行指引。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖正向，以傾向描述為主，未斷言具體事件；健康部分僅提醒作息並建議諮詢專業醫師，無恐懼、投資或醫療決策。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰、分段合理，用字為繁體中文，無簡體字或外文混雜，內容流暢自然。\"\n    }\n  },\n  \"summary\": \"整體為高度個人化的身強丙火命盤解讀，十神、大運與神煞運用大致正確；主要改善處在於財星敘述略不精準，以及缺少逐流年的具體行動指引。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6263,
+    "outputTokens": 5869
+  },
+  "recordedAt": "2026-11-16T08:12:03.405Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:283bb1b4125315ef0ffb40248aa5d0627c14e090d82a7ea044d165745972af22",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, master statuses, pinnacles, challenges and personal years match the provided data exactly; no invented elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements—Life Path 22, birthday 11, Expression 9, Soul Urge 7, Personality 11, current 7 Pinnacle and 3 Challenge—and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Year-by-year guidance gives concrete actions to lean into and watch for each year, and the final guidance offers doable, chart-tied practices such as daily quiet time and seasonal review.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Language is warm and tendency-focused, avoids fear or specific event assertions, includes professional-disclaimer statements for finances and health, and stays free of religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings and fluent English with no foreign words or leaked JSON; length is appropriate and repetition across sections is minor and purposeful.\"\n    }\n  },\n  \"summary\": \"The output is an excellent numerology reading: it accurately reflects the provided chart, is deeply personalised, offers practical and chart-tied guidance, maintains a warm compliant tone, and is clearly structured and readable.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4066,
+    "outputTokens": 2378
+  },
+  "recordedAt": "2026-11-16T09:00:35.595Z",
+  "source": "recorded"
+}

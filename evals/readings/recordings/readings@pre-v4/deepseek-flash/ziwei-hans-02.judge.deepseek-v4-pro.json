@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:e93152f0509662c6de324168fe19b462052feb16810d723a533034e52e4b9488",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的星曜、亮度、宫位、四化、五行局均与数据一致；借对宫天机太阴化科的论述基于数据，未凭空造星。无年份/数字错误。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各章节均紧扣本命盘具体配置，如廉贞七杀、武曲破军化权、紫微贪狼、天相、太阳化禄、天同化忌、天机太阴化科等，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建议具体可行且与命盘关联，如固定睡眠、温和运动、预算管理等；但无流年逐条内容，年度行动提示缺失，部分建议仍偏一般性。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，无恐吓或断言具体事件；健康作息仅提习惯并建议咨询专业医师；未涉及投资、法律、医疗决策或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构清晰，繁简正确为简体中文，长度适中；但部分主题（如交友宫太阳化禄、田宅天同化忌）在不同章节重复出现，略显重复。\"\n    }\n  },\n  \"summary\": \"整体质量高：精确引用命盘符号，高度个人化，语气温和负责，建议有操作性；主要不足是缺少流年逐条内容且个别主题略有重复。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 5896,
+    "outputTokens": 5664
+  },
+  "recordedAt": "2026-11-16T08:28:22.742Z",
+  "source": "recorded"
+}

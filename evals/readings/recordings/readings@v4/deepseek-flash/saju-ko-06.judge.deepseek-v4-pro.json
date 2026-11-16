@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:2f7102113d85d2fb1fefde035d2be984a9a32c8ed45e63829737ee9c07eab8a9",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems/branches, ten gods, elements, percentages, shensha, decade fortunes, and annual relations match the provided data, with no contradictions or invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in this specific chart: day master, support percentage, favorable/unfavorable elements, shensha placements, hidden stems, decade and annual stems/branches are consistently referenced.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and doable, tied to the chart's favorable elements and current decade/year relationships; each annual year includes clear things to lean into and watch, and health advice is habit-focused with professional referral.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based, uses tendency language rather than asserting specific events, avoids month/day-level predictions, includes a professional medical recommendation, and makes no investment, legal, or medical decisions or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear and well-structured with logical sections, fluent natural Korean, appropriate use of Hanja, minimal repetition, and no leaked JSON field names or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The output is highly accurate, personalized to the provided saju chart, and consistently uses the chart's data across sections. It offers warm, concrete, and actionable guidance with clear year-by-year distinctions and no compliance issues.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8511,
+    "outputTokens": 7735
+  },
+  "recordedAt": "2026-11-16T08:50:22.049Z",
+  "source": "recorded"
+}

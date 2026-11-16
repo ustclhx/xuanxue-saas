@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:a902ec64194c5539e83d9f1405575bbf6da3484982dac55bacd212144789ede0",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"整体与命盘数据高度一致，星曜、宫位、四化、大限流年均准确；唯一明显错误是把本命交友宫的文昌误称为“文昌化科”，数据中本命文昌并无化科，此为一处发明。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各节紧密围绕本命盘：太阳天梁在官禄、太阴化科在命、武曲天相在田宅、破军化禄在子女、每年流年四化等，几乎无法套用到其他命盘。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可操作：给思考设截止点、主动请益、先留后用、以运动书写化解、经营少而深关系；流年段落也各有宜忌，贴合盘面。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气平稳、不计具体事件，多用“容易”“适合”“宜”；健康仅给作息与运动习惯并提醒咨询医师，无恐吓、无投资法律医疗决定、无宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，从总论到分宫、大限流年、建议层次分明；简体中文流畅，无明显重复或外来词。\"\n    }\n  },\n  \"summary\": \"整体是一份高质量、高度个性化的紫微斗数报告，几乎全部引用准确且建议具体；唯一瑕疵是将本命文昌误写为文昌化科，其余无明显问题。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7538,
+    "outputTokens": 7476
+  },
+  "recordedAt": "2026-11-16T08:55:48.284Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:32d26eddc5c645671b3ce6ac32a21eff1be040e6855fd1eefc57e942991dab95",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Most palace, star and mutagen details match the data, but the Health Palace section incorrectly borrows Ziwei and Pojun from the body palace instead of Tiantong and Tianliang from the Parents Palace.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements such as Tianxiang in Soul, Ziwei-Pojun in Body, Wuqu Lu in Spirit, and Tanlang Quan in Spouse; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and chart-linked, but the report omits the year-by-year section so no yearly lean/watch guidance is provided.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, balanced wording; avoids fear-based predictions, gives habit-level health advice with a professional referral, and does not assert specific events or make investment/legal/medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear Traditional Chinese structure and fluent prose; slightly repetitive across sections in revisiting core palace themes, but overall well organised.\"\n    }\n  },\n  \"summary\": \"A highly personalised and warm reading that is mostly accurate and actionable. The main issues are one incorrect borrowed-star explanation for the Health Palace and the absence of a year-by-year section, with minor repetition across sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6541,
+    "outputTokens": 6221
+  },
+  "recordedAt": "2026-11-16T08:24:23.615Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:1f77673d2beb3331669e3078eac7ee3b4c210ceaff3e2d982e374ecc4515b8bf",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的宫位、主星、亮度、四化及五行局均与提供的数据一致，未编造盘中元素。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个部分都紧扣命盘的具体元素，如太阴化禄在官禄、天同化权在夫妻、巨门化忌在迁移等，具有高度个性化。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可行且与命盘直接相关，例如说话放慢、重要事项留书面记录、长期深耕本业、守住付出边界等。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和，不制造恐惧，只描述倾向而不断言具体事件；健康部分建议咨询专业人士；无投资、法律或医疗决策；无宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，有标题分段，无明显重复，简体中文流畅，长度适中，无繁体字或泄露JSON字段名。\"\n    }\n  },\n  \"summary\": \"这是一篇结构清晰、准确且高度个性化的紫微斗数解读，与命盘数据高度吻合，并提供了温暖而实用的建议。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 5977,
+    "outputTokens": 1963
+  },
+  "recordedAt": "2026-11-16T08:29:02.665Z",
+  "source": "recorded"
+}

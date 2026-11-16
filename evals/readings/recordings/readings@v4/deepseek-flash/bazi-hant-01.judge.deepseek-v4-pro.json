@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:54e526bee4de86019a7ab8d37b0f0952bc17661d4f907d6c1f15743927e145f4",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"幾乎所有柱、十神、五行、數字與神煞都正確對應 data；唯一小瑕疵是 2030 年資料顯示 taiSui 為「chong（沖太歲）」，但內文寫成「值太歲」，另 2029 年與時柱的關係資料標為 triad 而內文用「半合」，稍有不精確。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每一節都緊扣本盤：乙木日主、卯月祿神比肩、戊辰正財、辛巳七殺、亥水正印、羊刃空亡驛馬，以及 2026–2030 各流年干支、十神、喜用與合沖關係，通用段落少。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"各流年皆有「值得把握」與「需要留意」；建議具體可行並扣回喜用火金土、比肩旺、己未大運等命盤特徵，不是空泛建議。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不恐懼，只描述傾向，未斷言具體事件；健康只談作息與習慣並建議諮詢專業；沒有投資、法律、醫療或宗教指引，也沒有月、日級預測。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰、分段恰當、長度適中，全篇為台灣繁體中文，無簡化字混入，重複不多，流暢易讀。\"\n    }\n  },\n  \"summary\": \"整體是一篇高度命盤化、結構清楚且語氣合宜的完整八字報告，幾乎所有命理元素都準確引用 data；唯一需修正處是 2030 年太歲用語應為「沖太歲」而非「值太歲」。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7432,
+    "outputTokens": 6636
+  },
+  "recordedAt": "2026-11-16T08:37:28.314Z",
+  "source": "recorded"
+}

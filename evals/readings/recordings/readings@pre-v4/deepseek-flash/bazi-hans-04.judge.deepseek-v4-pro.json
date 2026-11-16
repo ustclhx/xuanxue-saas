@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8c03656a9ee8b5005504ebf9d7bc90bb9d319344bab2409234fc92e845504192",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"十神、五行、大运年份等大多吻合；但总论称水偏多与数据中水极少/为0且后文水较少不一致，属轻微偏差。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各章节均围绕丁火、巳火、辛金偏财、己土食神、寅木正印、丁酉/丙申大运等具体命局元素展开，不具通用模板感。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建议具体可执行并联系命局；但缺少逐年或逐大运的可侧重与注意项，部分建议较泛。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖平和，只描述倾向，无具体事件断言，健康部分只提示习惯并建议就医，无恐吓。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"段落清晰、简体中文流畅；但食神生财、日主偏弱等要点在多节重复，略显啰嗦。\"\n    }\n  },\n  \"summary\": \"整体为较准确的八字解读，语气温和、结构清楚；可在避免重复和增加逐年行动提示上优化。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6282,
+    "outputTokens": 7545
+  },
+  "recordedAt": "2026-11-16T08:16:22.203Z",
+  "source": "recorded"
+}

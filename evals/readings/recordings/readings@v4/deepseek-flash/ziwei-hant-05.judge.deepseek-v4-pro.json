@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:983419ffdce246b408bc1863846d8786e8968657a21e90556fde74c65935ce90",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有宮位、主星、輔星、四化、年份、大限與流年資訊均與 data 一致，沒有自創或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段落緊扣本命宮、財帛、官祿、田宅、夫妻、交友及逐年四化與宮位，內容高度個人化，幾乎無泛泛之論。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行且與盤勢扣連；每年流年皆有可著力與需留意的方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不恐嚇，多以傾向與提醒描述，未斷言事件，也未作月日級預測，健康僅談作息並建議就醫。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清楚、分段完整，長度適中，全文為台灣繁體中文，未見簡體字或混雜外語，流暢易讀。\"\n    }\n  },\n  \"summary\": \"整體報告高度貼合命盤，資訊準確且具體，建議務實，語氣合規，閱讀體驗佳。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7839,
+    "outputTokens": 5185
+  },
+  "recordedAt": "2026-11-16T08:53:01.544Z",
+  "source": "recorded"
+}

@@ -57,5 +57,7 @@
 - [x] 4.4 【用户】审阅每个组合至少 2 份 v4 样例（含边界样本），书面确认或提出修改。验证：确认记录在项目私有验收记录
 - [x] 4.5 【Codex，需用户批准】staging：如模型行 `maxOutputTokens` 低于 4.3 的上限则调高；后台把 4 种详批（八字、사주、紫微、数字命理；按语言共 6 个组合）的提示词版本切到 v4；每个组合用测试账号真实生成 1 份。验证：报告 ready、扣费等于设置积分、报告页目录含逐年小节、`reading.prompt_version` 为 v4；再切回默认并确认新报告恢复 v3、已生成 v4 报告不变
 - [ ] 4.6 【用户批准 → Codex】生产逐个详批切换到 v4（建议先八字 zh-Hant），观察两周 `readings.sections_incomplete` 与失败率；超过 design 决策 5 阈值时切回并向模板提出通用报告模块需求。验证：切换记录、观测数据与（如有）回滚记录写入私有验收记录
-- [ ] 4.7 【协调者】模板发布 R6 提示词评测后，按其升级说明迁移套件与评分标准并删除 `apps/web/scripts/eval-readings/`。验证：`pnpm eval:prompts`（或模板实际命令）能跑通本项目套件
+- [x] 4.7 【协调者】模板发布 R6 提示词评测后，按其升级说明迁移套件与评分标准并删除 `apps/web/scripts/eval-readings/`。验证：`pnpm eval:prompts`（或模板实际命令）能跑通本项目套件
   - （2026-11-16：模板 0.5.0（#167）已提供 `pnpm eval:prompts`（`packages/evals`），但本项目套件与评分标准尚未迁移，`apps/web/scripts/eval-readings/` 仍在）
+  - 2026-11-16：迁移到模板 0.5.3 套件 `evals/readings/`（prepareOutput guard.v4、迁移的检查与评分标准、evaluateRun 整批门槛），旧 `apps/web/scripts/eval-readings/` 与 `eval:readings` 已删除。经使用者批准全量重录（pre-v4 $1.52 + v4 $1.71，上限 4.3 USD），回放 `pnpm eval:prompts --suite readings --baseline readings@pre-v4` 退出码 0，自动门槛全部 passed；证据在私有验收目录 `readings-prompt-v4/eval-0.5.3/`
+  - 重录后的 v4 正文与 4.4 审阅批次（rev4）不同，提示词版本相同；人工审阅与 staging 两项门槛是外部证据，评测命令中保持 incomplete，不在此勾选

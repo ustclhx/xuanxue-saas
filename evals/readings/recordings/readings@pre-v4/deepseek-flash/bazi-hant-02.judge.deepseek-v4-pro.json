@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:ff7b373233f1f114893d0a4087788aa883d73d8ab09e072f2e2a4996aae48e3f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"大多準確，但將己丑大運描述為「食神與偏財」與資料不符（該運僅為食神），且說金偏少但金屬比例高於木，另日支酉金帶桃花的對應未直接載於資料。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均緊扣丁火日主、月柱劫財傷官、日支酉金偏財、驛馬天乙等具體命盤元素，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建議具體可行且與命盤相關，但未提供逐年重點，未來十年僅涵蓋2026與下一大運。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、以傾向描述，無恐嚇或斷言具體事件，健康僅提醒作息並建議諮詢專業。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清楚、用繁體中文流暢，但「時柱未知」等免責說明重複多次，略顯冗贅。\"\n    }\n  },\n  \"summary\": \"整體內容結構良好、用語溫暖並能扣合命盤，惟部分大運與五行描述有誤，準確性略受影響。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6206,
+    "outputTokens": 8949
+  },
+  "recordedAt": "2026-11-16T08:10:59.896Z",
+  "source": "recorded"
+}

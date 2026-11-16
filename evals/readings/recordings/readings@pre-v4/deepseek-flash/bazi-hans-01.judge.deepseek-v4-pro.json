@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:6b10f12e6d382d8907efc6088edab66c5036bcec069d0bc58b9ea3baf732f15c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用均与 data 及 preV4Fields 一致：日主乙木、月干丁火食神、时干丙火伤官、年柱壬申正印坐正官、日支酉金七杀、时支戌土正财、身弱支持 28.8%、喜用木水、大运癸卯/壬寅及 2026 丙午均准确，未发现虚构。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个部分都锚定具体柱、十神、藏干、星与百分比，如丁火食神、丙火伤官、酉金七杀、文昌禄神、驿马桃花等，通用性很低。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建议具体可行且与命盘挂钩，但缺乏逐年流年宜忌，仅对 2026 和大运给出指引，未覆盖全部流年。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和，描述倾向而不断言事件，无月日级预测；健康只谈作息并建议咨询专业医师；无投资、法律医疗决策或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构清晰、语言流畅，但“喜用木水”等立场在总论、事业、财运、建议多处重复，略有冗余。\"\n    }\n  },\n  \"summary\": \"整体是高质量且高度个性化的解读，准确引用命盘元素，语气温和，建议实用；主要不足是缺少逐年的流年宜忌，且部分喜用概念重复较多。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6617,
+    "outputTokens": 5084
+  },
+  "recordedAt": "2026-11-16T08:14:09.769Z",
+  "source": "recorded"
+}

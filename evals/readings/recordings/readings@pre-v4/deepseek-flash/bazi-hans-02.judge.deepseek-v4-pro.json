@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:da3289e54e9aa3243097b415a4735425e601b6c5df346fc15df1c26362ba492e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"绝大部分数据引用准确，如身弱、喜用火土、甲子/癸酉/己酉柱的十神、丁丑大运等，均与 data 一致；但将戊寅大运的寅木支描述为“七杀之支”，而 data 中该支的 branchTenGod 为 zhengGuan，属一处明确的十神错误，因此扣一分。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"报告紧扣本命盘：日主己土、身弱、酉金食神旺、火土为喜用、天干甲己合、桃花与天乙贵人、当前丁丑大运及下一戊寅大运等，每一节都锚定具体柱、神、十神或五行，无法套用于其他命盘。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体且可执行，如多晒太阳、规律作息、饮食温热、事业专精、感情中直接表达感受、财务留冷静期等，且均与火土喜用、身弱食神旺的命局特征挂钩，没有空泛或无关的建议。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，始终使用“容易”“倾向”“建议”等措辞，未断言具体事件；健康部分仅涉及作息习惯并提示咨询医师；未涉及投资、法律或医疗决策；也无月日级断言和宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，分节合理，长度适中，语言流畅，使用简体中文且未混入繁体或外语；各节虽有主题呼应，但无明显冗余重复，也没有泄露 JSON 字段名。\"\n    }\n  },\n  \"summary\": \"整体是一篇准确、温暖且可执行的八字解读，仅有一处将戊寅大运寅木的十神误称为七杀（应为正官），其余部分与数据高度一致。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6251,
+    "outputTokens": 6765
+  },
+  "recordedAt": "2026-11-16T08:15:23.251Z",
+  "source": "recorded"
+}

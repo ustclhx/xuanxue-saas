@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:0a5e04532746afa04c26881e7c5a0141363fd9eef03a2e7c8351863955a7d344",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有干支、十神、五行、神煞、大运与数据一致（含preV4Fields神煞），未发现编造或矛盾；仅个别“食伤”为类别表述，不构成错误。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"几乎每节都锚定命盘具体元素：癸水日主、戌月、丙火正财、丁巳偏财、日支酉金偏印、年柱食神配亥水劫财、月/时藏官等，个性化高。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议覆盖作息、事业专注、财务守稳、感情表达、贵人合作，均具体可执行且与身弱财旺、喜水金等命局特征紧密挂钩。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖平和，只描述倾向，不预测具体事件；健康仅涉及习惯并建议咨询专业医师；无投资、法律、医疗决定或宗教色彩。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，分节合理，长度适中，行文流畅，使用简体中文，无繁体字混入、无明显重复或错误字词。\"\n    }\n  },\n  \"summary\": \"报告整体质量高：命理信息引用准确，个性化充分，建议务实可执行，语气温和合规，符合简体中文要求。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6469,
+    "outputTokens": 7080
+  },
+  "recordedAt": "2026-11-16T08:18:05.526Z",
+  "source": "recorded"
+}

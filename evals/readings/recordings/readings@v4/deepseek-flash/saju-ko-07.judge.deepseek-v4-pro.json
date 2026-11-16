@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:977965bbbd8ff1cb524759cca4e3f0797c2f97164fe52174acdfbec7ed618abc",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, ten gods, branches, stars, percentages, decade boundaries and annual relations match the provided data; no invented elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored to this chart's specific pillars, ten gods, hidden stems, shensha and annual stems/branches; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete habits (water/lighting, saving, finishing one task, pausing) and each yearly section has clear lean-in and caution tied to the chart.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language, no fear or event assertions; health advice is habits only with professional consultation.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structured sections, fluent Korean with appropriate Hanja, little repetition; length appropriate.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly personalized, actionable, warm and clearly written; it aligns closely with the supplied Saju chart data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8406,
+    "outputTokens": 5778
+  },
+  "recordedAt": "2026-11-16T08:49:41.647Z",
+  "source": "recorded"
+}

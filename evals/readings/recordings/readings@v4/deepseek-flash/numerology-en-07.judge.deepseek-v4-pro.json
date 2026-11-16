@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:2e8af0631f1e3bd66d66489c091213e6f47f8517483797fc79ad6d44702b164a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers and cycles (Life Path 2, birthday 2, Expression 4, Soul Urge/Personality 11, pinnacles/challenges, personal years 2026–2030) match the data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this chart's numbers and current 9 Pinnacle/5 Challenge, and the year-by-year section uses the provided personal year values, making it chart-specific.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete, doable suggestions tied to chart themes, and each year has a clear lean-in and watch point.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language with no specific event assertions, no month- or day-level predictions, and wellbeing includes a professional consultation recommendation.\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"Clear structure and fluent English, but the Overview section is duplicated verbatim, creating noticeable repetition.\"\n    }\n  },\n  \"summary\": \"The report is accurate, specific, actionable, and warm, but the duplicated Overview section lowers readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4625,
+    "outputTokens": 2014
+  },
+  "recordedAt": "2026-11-16T09:01:40.409Z",
+  "source": "recorded"
+}

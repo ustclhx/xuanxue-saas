@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:10edff80468a9c2e07baaf3228db6a069da7c3a441b6d88d5cd16dbdad7a6330",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"대부분의 기둥·십성·오행·숫자는 데이터와 일치하지만, 일지 묘목의 지장간 십성을 정재(正財)로 반복해서 적어 데이터의 편재(偏財)와 다르다. 또한 2026년이 대운 마무리 흐름이라는 설명은 2024-2033년 대운 초반이라는 데이터와 어긋난다.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"각 섹션이 연간 임수 상관, 월간 계수 식신, 일지 묘목, 년지 신금 지장간, 천을귀인, 희용 토금 등 사주 고유 요소로 채워져 있어 이 명식에만 맞는다.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"연도별로 의지할 점과 주의할 점이 매년 제시되고, 학습·자격·저축·온기·협력 등 구체적이고 실천 가능한 조언이 희용과 연결된다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"온화하고 단정적이지 않으며, 사건을 확정하지 않고 경향만 표현한다. 건강은 습관만 다루고 전문 의료진 상담을 권했다. 투자·법률·의료 결정이나 종교적 표현 없음.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구조가 뚜렷하고 한국어 문장이 자연스럽다. 다만 '대운이 마무리되는 흐름' 같은 어색한 표현과 劫材 같은 한자 오타가 일부 있고, 신약·수 강함 등 표현이 여러 섹션에서 반복된다.\"\n    }\n  },\n  \"summary\": \"이 사주 보고서는 신금 일간의 신약한 구조와 희용 토금을 중심으로 구체적으로 잘 풀어냈으며, 연도별 운세와 실천 조언도 충실하다. 다만 일지 묘목의 장간 십성을 정재로 반복해 데이터와 다르게 설명한 점이 가장 큰 흠이다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7500,
+    "outputTokens": 5984
+  },
+  "recordedAt": "2026-11-16T08:48:34.243Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:00cf3b0661faf56749e7137c4e2f9314713e34de6783569a23d7d18d26d0ce66",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有提到的星曜、宮位、四化、五行局、亮度（如太陽不、巨門旺化忌、天同化權）皆與 data 一致，未發現自行編造的命盤元素。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均以具體命盤元素為核心：空宮借天同天梁、太陰化祿、巨門化忌、天機化科、武曲七殺、天相、紫微破軍等，內容高度個人化，不會誤植到其他盤。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建議具體可行且緊扣命盤（文字確認、設定目標、主動表達、規律作息），但缺少逐年流年提示，未完全涵蓋 year-by-year 的行動指引。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖平實，沒有恐嚇或斷言具體事件，健康僅提供作息習慣並建議諮詢專業醫師，沒有投資、法律或醫療決策，也無宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清晰、長度適中、整體為臺灣繁中，但出現一個簡體字「松」（應為「鬆」），且部分宮位描述重複略多。\"\n    }\n  },\n  \"summary\": \"這是高度個人化且準確的紫微斗數解讀，各宮與四化引用正確，建議具體實用，語氣合規；唯缺少逐年流年段落，以及一個簡體字影響繁中純度。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6151,
+    "outputTokens": 5902
+  },
+  "recordedAt": "2026-11-16T08:23:56.831Z",
+  "source": "recorded"
+}

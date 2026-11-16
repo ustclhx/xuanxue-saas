@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:07a2a6fe9cc63bb857024b7af5750b2ade6c0efc43317835d63130005fd46e3a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有星曜、宫位、四化、五行局均与 data 一致，没有捏造或错误引用。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每一节都落在本命盘的具体星曜、亮度、化曜和宫位上，不是模板内容。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"整体建议具体且贴盘，但完全没有流年逐年分析，缺少每年可做与可留意的事项。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，只谈倾向与习惯，没有断言事件或月日级预测；健康建议只谈作息并建议就医，无投资、法律或医疗决策，无宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构清晰、中文简体自然；但部分关键组合（如太阳巨门、身宫在迁移）在多个章节重复出现，略显重复。\"\n    }\n  },\n  \"summary\": \"整体准确且高度贴盘，语气温和可读；建议部分具体可操作，但因未提供流年逐年内容而扣分。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6622,
+    "outputTokens": 3810
+  },
+  "recordedAt": "2026-11-16T08:29:26.616Z",
+  "source": "recorded"
+}

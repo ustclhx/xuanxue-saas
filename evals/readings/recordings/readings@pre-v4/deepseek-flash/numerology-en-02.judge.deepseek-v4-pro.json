@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:ad2acdd07dcf9430a76d85cda225b3b2d9720014dbe210774174ac749570f9e9",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All cited core numbers (Life Path 7, Birthday 6, Personal Year 3 for 2026) match the data, and the note about missing name is accurate. However, the statement that 'your numbers here are single-digit vibrations' is slightly off because the data includes master numbers 11 in the current pinnacle and 22 for the 2027 personal year.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"The reading is consistently anchored in the person's Life Path 7, Birthday 6, and Personal Year 3, with sections that would not entirely fit another chart. It does omit the provided pinnacles, challenges and future personal years, leaving portions of the reading a bit generic.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Concrete, doable suggestions are offered for love, career and wellbeing in the context of the 3 Personal Year, including routines, communication habits, and consulting professionals. There is no year-by-year section, so the multi-year action guidance is absent.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm and non-fear-based, describes tendencies rather than asserting specific events, avoids month/day predictions, investment, legal or medical decisions, and appropriately recommends seeing a qualified healthcare professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear headings, fluent English and an accessible structure. Some themes (7's solitude vs 3's expressiveness) are repeated across sections, but overall it remains readable and coherent.\"\n    }\n  },\n  \"summary\": \"A well-written, warm numerology reading focused on Life Path 7, Birthday 6 and Personal Year 3. It correctly uses the supplied core numbers and offers practical suggestions, but it omits the provided pinnacles, challenges and future personal years, and one remark about all numbers being single-digit mildly conflicts with the master numbers in the data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3270,
+    "outputTokens": 2678
+  },
+  "recordedAt": "2026-11-16T08:31:24.774Z",
+  "source": "recorded"
+}

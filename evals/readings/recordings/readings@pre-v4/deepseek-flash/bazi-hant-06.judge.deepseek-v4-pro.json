@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:1d435c9508829e12bff4b679ec3351be5812e96b28ef3bc6c79abd9edc78a007",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly accurate on pillars, ten gods, elements and strength, but states '日支子水為桃花所在'—a specific peach-blossom location not supported by the chart data (preV4 only lists taoHua generically), so one star placement is invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly personalized: uses day master, specific pillars, hidden stems, ten gods, favorable elements, shensha and decade changes throughout. Each major section is anchored in this chart.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and tied to the chart (e.g., manage bluntness, clarify money rules with friends, steady cash flow), but some remain general and there is no year-by-year section with specific lean-in/watch guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; describes tendencies without asserting specific events. Health advice sticks to habits, avoids diagnosis, and recommends professional consultation. No investment, legal or medical directives.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, appropriate length, fluent Traditional Chinese, no noticeable repetition or mixed scripts.\"\n    }\n  },\n  \"summary\": \"A well-structured, mostly personalized BaZi reading with good tone and readability. The main flaw is an inaccurate specific placement of the peach-blossom star at the day branch, which slightly undermines accuracy.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6139,
+    "outputTokens": 6350
+  },
+  "recordedAt": "2026-11-16T08:12:30.859Z",
+  "source": "recorded"
+}

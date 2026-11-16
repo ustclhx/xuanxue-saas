@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:bb0e4f7901fa82bb91c0759176ed8db9945c890587f8cb2bdaa7e933eb6a2155",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited stars, palaces, stems, and mutagens match the provided data; no invented elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart details such as palace names, stem/branch, star brightness, and mutagens, making it highly personalised.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and tied to the chart, but the report omits the available year-by-year section, so yearly lean-in/watch guidance is missing.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-focused language without fear, specific event predictions, or medical/investment decisions; health advice appropriately recommends professionals.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent Traditional Chinese, minimal repetition, and appropriate length.\"\n    }\n  },\n  \"summary\": \"The report is accurate, specific, warm, and well-structured. Its main limitation is the absence of year-by-year action points despite the yearly data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6231,
+    "outputTokens": 4800
+  },
+  "recordedAt": "2026-11-16T08:25:53.645Z",
+  "source": "recorded"
+}
