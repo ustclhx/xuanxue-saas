@@ -1,5 +1,6 @@
 import {
   creditDailyClaim,
+  creditGrant,
   type DailyCreditSettingKey,
   type Database,
   isValidDailyCreditSetting,
@@ -32,6 +33,47 @@ export type DailyCreditsResult =
     }
   | { status: 'disabled' | 'already_claimed' | 'monthly_limit' | 'blacklisted' | 'unverified' }
 
+export interface DailyCreditsClaim {
+  credits: number
+  day: string
+}
+
+function dailyDay(now: Date): string {
+  if (!Number.isFinite(now.getTime())) throw new Error('Invalid daily credits time')
+  return now.toISOString().slice(0, 10)
+}
+
+async function dailyEmailHash(email: string): Promise<string> {
+  const normalized = normalizeSignupEmail(email)
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized))
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/** 只读领取事实；已消耗的积分和同邮箱另一站账户的领取仍算今日已领。 */
+export async function getDailyCreditsClaim(input: {
+  db: Database
+  userId: string
+  now?: Date
+}): Promise<DailyCreditsClaim | null> {
+  const { db, userId } = input
+  const day = dailyDay(input.now ?? new Date())
+  const [account] = await db.select({ email: user.email }).from(user).where(eq(user.id, userId))
+  if (!account) return null
+  const emailHash = await dailyEmailHash(account.email)
+  const [claimed] = await db
+    .select({ credits: creditGrant.amount, day: creditDailyClaim.day })
+    .from(creditDailyClaim)
+    .innerJoin(creditGrant, eq(creditGrant.id, creditDailyClaim.grantId))
+    .where(
+      and(
+        eq(creditDailyClaim.day, day),
+        or(eq(creditDailyClaim.userId, userId), eq(creditDailyClaim.emailHash, emailHash)),
+      ),
+    )
+    .limit(1)
+  return claimed ?? null
+}
+
 const dailyKeys = [
   'credits.dailyAmount',
   'credits.dailyMaxDaysPerMonth',
@@ -49,8 +91,7 @@ export async function grantDailyCredits(input: {
   if (!input.enabled) return { status: 'disabled' }
   const { db, userId } = input
   const now = input.now ?? new Date()
-  if (!Number.isFinite(now.getTime())) throw new Error('Invalid daily credits time')
-  const day = now.toISOString().slice(0, 10)
+  const day = dailyDay(now)
   const monthStart = `${day.slice(0, 7)}-01`
   const previousMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1))
     .toISOString()
@@ -104,11 +145,7 @@ export async function grantDailyCredits(input: {
         : [],
     )
     if (isSignupEmailBlacklisted(account.email, domains)) return { status: 'blacklisted' }
-    const normalized = normalizeSignupEmail(account.email)
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized))
-    const emailHash = Array.from(new Uint8Array(digest), (byte) =>
-      byte.toString(16).padStart(2, '0'),
-    ).join('')
+    const emailHash = await dailyEmailHash(account.email)
     // 同一邮箱跨账号、跨日期请求也串行，月末最后一次额度不会被并发穿透。
     await tx.execute(
       sql`select pg_advisory_xact_lock(hashtextextended(${`daily-email:${emailHash}`}, 0))`,

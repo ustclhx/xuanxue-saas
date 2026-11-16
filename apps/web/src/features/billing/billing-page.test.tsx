@@ -29,7 +29,8 @@ const page = {
   role: 'owner',
   entitlements: { key: 'pro' },
   readOnly: false,
-  credits: null,
+  credits: null as { available: number; held: number; debt: number } | null,
+  dailyClaim: null as { credits: number; day: string } | null,
   subscriptions: [
     {
       id: 'sub',
@@ -91,6 +92,8 @@ vi.mock('../../server/template-config.ts', () => ({
 afterEach(() => {
   overwriteGetLocale(() => baseLocale)
   readingsOpen = true
+  page.credits = null
+  page.dailyClaim = null
   search = {}
   Object.assign(page.catalog, original)
 })
@@ -242,4 +245,23 @@ it.each(locales)('订阅分区的升级、到期、取消保留与自动续费�
   const html = renderToStaticMarkup(<Component />)
   // 现有订阅为 active：显示本期积分到期（日期待定时为「待定」）
   expect(html).not.toContain('billing-sub-period-credits')
+})
+
+// 余额为零不代表当天未领：账单页只读取领取事实，不读取布局的 KV 检查状态。
+it.each(locales)('每日积分耗尽后仍显示今日已领及领取数量（%s）', (locale) => {
+  overwriteGetLocale(() => locale)
+  page.credits = { available: 0, held: 0, debt: 0 }
+  page.dailyClaim = { credits: 10, day: '2026-11-16' }
+  const Component = Route.options.component as ComponentType
+  const html = renderToStaticMarkup(<Component />)
+  expect(html).toContain('data-status="claimed"')
+  expect(html).toContain(renderToStaticMarkup(m.billing_page_daily_claimed_title()))
+  expect(html).toContain(m.billing_page_daily_claimed_desc({ count: '10' }))
+  expect(html).not.toContain(m.billing_page_daily_claimed_desc({ count: '0' }))
+})
+
+it('当天没有领取记录时不显示今日已领', () => {
+  page.credits = { available: 10, held: 0, debt: 0 }
+  const Component = Route.options.component as ComponentType
+  expect(renderToStaticMarkup(<Component />)).not.toContain('data-status="claimed"')
 })

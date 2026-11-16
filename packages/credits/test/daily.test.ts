@@ -11,7 +11,7 @@ import {
 import { newId, SIGNUP_BONUS_DOMAIN_BLACKLIST_KEY } from '@xuanxue/shared'
 import { eq, inArray } from 'drizzle-orm'
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
-import { grantDailyCredits, revokeGrant } from '../src/index.ts'
+import { getDailyCreditsClaim, grantDailyCredits, revokeGrant } from '../src/index.ts'
 
 const url = process.env.CREDITS_TEST_DATABASE_URL
 if (!url) throw new Error('Missing isolated test database')
@@ -60,6 +60,51 @@ afterEach(async () => {
 afterAll(() => db.$client.end())
 
 describe('daily credits on PostgreSQL', () => {
+  it('reads the original claimed amount after spending and changing the account email', async () => {
+    const id = await account()
+    const result = await claim(id)
+    if (result.status !== 'granted') throw new Error('Missing grant')
+    await db.update(creditGrant).set({ remaining: 0 }).where(eq(creditGrant.id, result.grantId))
+    await db
+      .update(user)
+      .set({ email: `${newId()}@example.test` })
+      .where(eq(user.id, id))
+    await configure('credits.dailyAmount', 25)
+
+    expect(
+      await getDailyCreditsClaim({ db, userId: id, now: new Date('2026-11-01T23:59:59Z') }),
+    ).toEqual({ credits: 10, day: '2026-11-01' })
+  })
+
+  it('returns no claim before claiming or after the next UTC day starts', async () => {
+    const id = await account()
+    const today = { db, userId: id, now: new Date('2026-11-01T23:59:59Z') }
+    expect(await getDailyCreditsClaim(today)).toBeNull()
+    expect((await claim(id)).status).toBe('granted')
+    expect(await getDailyCreditsClaim(today)).toEqual({ credits: 10, day: '2026-11-01' })
+    expect(
+      await getDailyCreditsClaim({ db, userId: id, now: new Date('2026-11-02T00:00:00Z') }),
+    ).toBeNull()
+  })
+
+  it('reads a normalized email claim across sites without matching unrelated users', async () => {
+    const local = newId().replaceAll('-', '')
+    const east = await account(`${local}@gmail.com`, true, 'east')
+    const west = await account(
+      `${local.slice(0, 4)}.${local.slice(4)}+alias@googlemail.com`,
+      true,
+      'west',
+    )
+    const unrelated = await account()
+    expect((await claim(east)).status).toBe('granted')
+    const now = new Date('2026-11-01T12:34:56Z')
+    expect(await getDailyCreditsClaim({ db, userId: west, now })).toEqual({
+      credits: 10,
+      day: '2026-11-01',
+    })
+    expect(await getDailyCreditsClaim({ db, userId: unrelated, now })).toBeNull()
+  })
+
   it('returns disabled before any database access', async () => {
     const transaction = vi.spyOn(db, 'transaction')
     try {
