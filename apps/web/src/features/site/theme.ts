@@ -22,14 +22,19 @@ export function siteIconLinks(site: SiteId) {
 }
 
 /**
- * 字体样式表不阻塞首屏（性能审计：繁中字体 CSS 约 260KB）：<head> 内同步执行的脚本插入 <link>，
- * 浏览器不会因脚本插入的样式表推迟渲染；字体到达前用 brand.css 中度量匹配的本机 fallback。
- * 换语言是整页导航（页头语言链接与语言选择），因此只需在首次加载时插入一次。
+ * 字体样式表不阻塞首屏（性能审计：繁中字体 CSS 约 260KB）：<head> 内脚本插入 <link>，
+ * 字体到达前用 brand.css 中度量匹配的本机 fallback。换语言是整页导航，只需在首次加载时插入一次。
  * 未启用脚本时不加载站点字体，页面保持系统字体，属可接受的降级。
+ *
+ * 插入时机推迟到首次内容绘制（FCP）之后（redesign-home-chart-visuals 10.1 复测）：立即插入时，
+ * 字体 CSS 与首屏用到的数十个 CJK 分片（简繁首页约 1.4MB）常在首帧之前下载完，
+ * 与首屏 HTML、入口脚本争带宽并推迟首帧，LCP 波动到 9–17 秒。首屏 LCP 元素是系统字体正文，
+ * 不依赖站点字体；标题字体在 FCP 后开始下载、按 font-display: swap 替换，度量匹配的 fallback 使替换无位移。
+ * 浏览器不支持 paint 计时（或页面在后台、迟迟不绘制）时，load 事件或 3 秒后兜底插入。
  */
 export function siteFontScript(site: SiteId, locale: string): string {
   const href = JSON.stringify(siteFontHref(site, locale))
-  return `(function(){var l=document.createElement('link');l.rel='stylesheet';l.href=${href};document.head.appendChild(l)})()`
+  return `(function(){var d=0;function a(){if(d)return;d=1;var l=document.createElement('link');l.rel='stylesheet';l.href=${href};document.head.appendChild(l)}try{new PerformanceObserver(function(s){if(s.getEntriesByName('first-contentful-paint').length)setTimeout(a,0)}).observe({type:'paint',buffered:true})}catch(e){addEventListener('load',a)}setTimeout(a,3000)})()`
 }
 
 /**
