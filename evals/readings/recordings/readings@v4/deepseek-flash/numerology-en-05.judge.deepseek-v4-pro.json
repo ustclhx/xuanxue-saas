@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:79fff7e5691adb3b58bb732374facc7c561da9a663c7d7241a530a9c9836e988",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, values, ages, and cycles match the provided data exactly; no chart elements are invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to this chart's Life Path 2, master birthday 11, name numbers 6/2/4, current 4 pinnacle, 0 challenge, and personal years 5–9.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart; each year has actionable guidance, and the final guidance bullets are specific and doable.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and tendency-based, avoids specific events and fear; wellbeing covers habits only and includes a healthcare professional disclaimer.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings, fluent English, no repetition that detracts, and appropriate length; no mixed scripts or foreign words.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, deeply personalised, clearly actionable, warm in tone, and well structured, making excellent use of the client's unique numerology chart.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4164,
+    "outputTokens": 1792
+  },
+  "recordedAt": "2026-11-16T09:01:05.961Z",
+  "source": "recorded"
+}

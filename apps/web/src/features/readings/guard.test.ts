@@ -54,7 +54,7 @@ describe('简中繁体字兜底', () => {
 })
 
 describe('年份干支兜底', () => {
-  it('流年干支按六十甲子推算（与引擎数据的逐样本对照见 eval-readings.test.ts）', () => {
+  it('流年干支按六十甲子推算（与引擎数据的逐样本对照见 evals/readings/readings.test.ts）', () => {
     expect(yearGanzhi(1984)).toEqual({ hanzi: '甲子', hangul: '갑자' })
     expect(yearGanzhi(2043)).toEqual({ hanzi: '癸亥', hangul: '계해' })
     expect(yearGanzhi(2027)).toEqual({ hanzi: '丁未', hangul: '정미' })

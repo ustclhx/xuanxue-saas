@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c3e4a579875e34af31f61a846dd171d05a387e52e557ed1c38d0a95cf3e15cae",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"多數干支、十神、五行比例、大運與流年關係均與 data 相符，但時支戌的藏干被誤寫為正印（實為偏印），且總論提及未土大運略與當前乙酉大運不符，屬於局部資料引用錯誤。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各章節皆緊扣本命庚金、比肩劫財、日支傷官、乙酉大運與流年沖合等具體元素，個人化程度高，不易套用於其他命盤。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"每年流年都有明確的「值得把握」與「需要留意」方向，建議具體可執行，且與命局喜忌、大運與流年關係緊密扣合。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不帶恐嚇，僅描述傾向而非斷言具體事件；健康部分只談作息習慣並提醒諮詢專業，無投資、法律或醫療決策。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰、分段合理，各部分無明顯重複，文字流暢且使用台灣繁體中文，未混入簡體或外來詞。\"\n    }\n  },\n  \"summary\": \"整體內容準確度與個人化程度俱佳，建議具體可行，語氣合宜；主要問題是時支藏干十神誤植及少數大運引用略模糊，故準確度酌扣。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7836,
+    "outputTokens": 6013
+  },
+  "recordedAt": "2026-11-16T08:39:33.245Z",
+  "source": "recorded"
+}

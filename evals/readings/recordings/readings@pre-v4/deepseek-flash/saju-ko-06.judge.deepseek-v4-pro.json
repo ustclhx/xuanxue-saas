@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:108ac080f967ca0a8ef4e50c639996b793cde3ce6c2802ff7a99c1da6953472a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"모든 기둥, 십신, 오행 비율, 신강도, 대운, 2026년 등이 data와 일치하며 preV4Fields의 신살 언급도 타당합니다.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"병화 일간, 자월, 무토 식신, 임수 편관, 오화 겁재, 목화 용신, 갑신 대운, 병오년 등 구체적 요소가 여러 섹션에 반복되어 이 명식에만 맞는 내용입니다.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"학습·자격, 지출 관리, 관계 표현, 건강 습관, 2026년 실행 등 구체적이고 실천 가능한 조언이 차트와 연결되어 제시됩니다.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"따뜻하고 비판적이지 않으며, 월·일 단위 예측이나 투자·법적·의학적 결정, 종교적 표현 없이 경향성과 습관 중심으로 서술합니다.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"명확한 문단 구성, 자연스러운 한국어, 한자는 한글 옆에 적절히 사용되었으며 반복이나 혼용 문자가 거의 없습니다.\"\n    }\n  },\n  \"summary\": \"사주 구조와 비율, 신살, 대운, 2026년 흐름을 정확하고 구체적으로 반영하면서도 지나친 예언 없이 실용적 조언을 따뜻한 톤으로 전달한 우수한 해석입니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7030,
+    "outputTokens": 4754
+  },
+  "recordedAt": "2026-11-16T08:21:49.656Z",
+  "source": "recorded"
+}

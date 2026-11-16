@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:683536182a88943d743caac28f6fc5999a591dcc0cad41d65824c10ff0a41b3b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的宮位、主星、亮度、四化與五行局均與資料相符，沒有虛構或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節皆以命盤中的具體星曜與宮位為依據，如紫微七殺、武曲貪狼、天同化祿等，個人化程度高。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建議具體可行且與命盤相關，如儲蓄、運動與表達需求；但未提供逐年指引，少了每一年的把握與留意方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、不帶恐懼，沒有斷言具體事件或月日預測，健康部分僅建議生活習慣並提醒諮詢專業醫師。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清楚、分段合理，用字為繁體中文且流暢，沒有重複或混雜其他文字。\"\n    }\n  },\n  \"summary\": \"整體品質良好，命盤資訊引用準確且個人化程度高；唯一可加強的是加入逐年指引以提升行動建議的完整性。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6281,
+    "outputTokens": 5352
+  },
+  "recordedAt": "2026-11-16T08:26:09.618Z",
+  "source": "recorded"
+}

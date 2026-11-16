@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:03940db304e4b5ec0a4caf71a75344a3f6c623f0653847ca4bd88e28b814856c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的柱、天干地支、十神、五行比例、神煞、大運與年份均符合資料，未見虛構或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節均以本命盤具體元素錨定（如癸水日主、辛金偏印、戊土正官、酉金偏印、喜用木火土等），非泛泛而論。\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"建議大多具體可行且連結命盤，但缺乏逐年年份的『可做／注意』，部分建議仍偏一般性。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖且不恐懼，僅描述傾向未斷言事件；健康僅作作息提示並建議諮詢專業，無投資、法律、醫療或宗教建議。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清楚，台灣繁體中文流暢；但喜用五行、正官等重點在各段重複出現，稍欠精煉。\"\n    }\n  },\n  \"summary\": \"報告準確、具體且語氣得體，結構清楚；若能加入更細化的年度指引並減少重複，將更完善。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6630,
+    "outputTokens": 6902
+  },
+  "recordedAt": "2026-11-16T08:12:44.010Z",
+  "source": "recorded"
+}

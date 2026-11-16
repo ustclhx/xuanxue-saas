@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3e777733a1c559cf4a0649cc6729f5152445d34d030a8071d831c7cccfd9500b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems, branches, ten gods, elements, percentages, shensha, and luck cycle years match the data; no invented chart elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart details such as Ding fire day master, Yi wood pianYin in month, Xin metal pianCai in day/hour, favorable wood/fire, and named luck cycles.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete suggestions tied to the chart are provided for career, finance, health, and relationships, with clear doable habits and priorities.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language; describes tendencies without asserting specific events, avoids month/day predictions, and advises seeing a professional for health.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, fluent Traditional Chinese, minimal repetition, and appropriate length.\"\n    }\n  },\n  \"summary\": \"An accurate, well-personalized, and actionable BaZi reading that is warm, clear, and fully compliant with the locale.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6591,
+    "outputTokens": 4535
+  },
+  "recordedAt": "2026-11-16T08:09:34.076Z",
+  "source": "recorded"
+}

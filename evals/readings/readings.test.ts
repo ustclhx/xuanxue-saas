@@ -14,9 +14,11 @@ import {
   readingDefinition,
   recomputeReading,
 } from '../../apps/web/src/features/readings/catalog.ts'
+import { readingGuardYears } from '../../apps/web/src/features/readings/guard.ts'
 import {
   bodyGanzhiMismatches,
   checkYears,
+  expectedYears,
   latinWords,
   readingChecks,
   wrongGlyphs,
@@ -146,6 +148,21 @@ describe('迁移的生成录制', () => {
 })
 
 describe('被评正文转换', () => {
+  it('线上兜底按公历年推算的期望年份与复算数据（八字 annual、紫微 horoscope、个人年）逐样本一致', () => {
+    for (const s of samples) {
+      const { kind, locale, request, requestDate } = s.input
+      const now = new Date(requestDate)
+      const recomputed = recomputeReading(kind, request, now, { locale, profile: 'annual' })
+      const fromData = expectedYears(recomputed.result)
+      assert.equal(fromData.length, 5, s.id)
+      assert.deepEqual(
+        readingGuardYears(kind, now.getUTCFullYear(), recomputed.input),
+        fromData,
+        s.id,
+      )
+    }
+  })
+
   it('v4 简中：繁体字换成简体、年份标题干支按数据改正；结果可重复', () => {
     const raw = '## 流年逐年\n\n### 2026 丙午\n\n變化。\n\n### 2027 丁酉\n\n平穩。'
     const input = sample('bazi-hans-01').input

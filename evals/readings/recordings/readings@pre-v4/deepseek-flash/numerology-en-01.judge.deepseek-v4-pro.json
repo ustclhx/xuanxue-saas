@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:0d55174de965ef049c58af6444d6b6366f0a94077525866910b69321bd9360cf",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (Life Path 11, Birthday 11, Expression 8, Soul Urge 5, Personality 3, Personal Year 5) match the data exactly; no chart elements are invented or contradicted.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section anchors its discussion in this chart's specific numbers—double 11 core, 8/5/3 name numbers, and Personal Year 5—making the text highly personalized and not interchangeable with another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Concrete, doable suggestions are tied to the chart (grounding routines, varied movement, choosing experiments with 8's discernment), but no year-by-year guidance is provided for 2027–2030 despite those personal years being in the data.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful tone uses tendency-based language ('may', 'likely', 'can'); avoids specific event predictions, month/day forecasts, and investment/medical assertions; wellbeing stays habit-focused and recommends a professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear, logical structure with helpful headings; fluent English throughout; no problematic repetition, mixed scripts, or leaked JSON field names.\"\n    }\n  },\n  \"summary\": \"A strongly personalized and accurate numerology reading that effectively weaves the chart's master 11s, name numbers, and current Personal Year 5 into warm, practical guidance. The main limitation is the absence of year-by-year forecasts for 2027–2030.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3555,
+    "outputTokens": 2921
+  },
+  "recordedAt": "2026-11-16T08:31:23.288Z",
+  "source": "recorded"
+}

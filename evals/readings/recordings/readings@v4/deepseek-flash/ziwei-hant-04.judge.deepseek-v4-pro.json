@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c54e9ad8d3f29bcf8abe09767fc521810a32ecf590b7e9651e17a3d84c81d72e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有宮位、主星、亮度、四化、輔星、大限與流年資料均與 data 一致，未發現虛構或錯誤。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每一節都緊扣本命盤與流年四化，引用具體宮位、星曜和年份，個人化程度高。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行且與命盤相連，逐年提供可把握與需留意方向，健康建議也提醒諮詢專業醫師。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖，以傾向而非斷言事件，健康只談作息並建議專業諮詢，無投資、法律、醫療決策或恐懼渲染。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清楚、用字為臺灣繁體中文，文句流暢；僅有少數星曜與宮位重複說明，略顯重複但不影響閱讀。\"\n    }\n  },\n  \"summary\": \"整體報告高度符合命盤資料，個人化與實用性強，語氣合規，僅有些微重複。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7952,
+    "outputTokens": 5408
+  },
+  "recordedAt": "2026-11-16T08:52:57.543Z",
+  "source": "recorded"
+}

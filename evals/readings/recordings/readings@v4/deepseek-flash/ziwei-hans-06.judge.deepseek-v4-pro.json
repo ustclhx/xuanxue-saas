@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:ed837343e340ab9adb94015211fa19fa678ccfe2867caf121b0068ae1a9b7e4f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"整体引用的宫位、主星、四化与年份均与数据一致；仅2029年将“天梁”误写为“天良”，属笔误。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个章节都紧扣命盘具体星曜、宫位、大限流年与年份，非通用内容，个人化程度高。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可行且与盘面相应，逐年都有可把握与留意的事项，健康也以习惯调整为主。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，使用倾向性措辞，无具体事件、月份或日子预测，不涉及投资医疗法律，健康建议谨慎并建议就医。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构完整，语言流畅，简体使用正确；但跨段落重复较多，且“天良”笔误略影响阅读。\"\n    }\n  },\n  \"summary\": \"报告准确且具体，建议可行，语气温暖；存在个别星名笔误和一定重复，整体质量高。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8043,
+    "outputTokens": 5900
+  },
+  "recordedAt": "2026-11-16T08:59:25.708Z",
+  "source": "recorded"
+}

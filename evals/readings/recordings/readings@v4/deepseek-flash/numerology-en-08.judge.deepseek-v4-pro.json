@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:4764430d976b5fb3f48ebd77f2161b64040f8bb49e3ef8840d991cddb2cc14c4",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers and chart elements match the provided data: Life Path 11, birthday 3, Personal Year 7, Expression 8, Soul Urge 7, Personality 1, pinnacles 6/8/5/8 with age ranges, challenges 0/2/2/2, and personal years 2026-2030. No invented chart elements or contradictions found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"The report is highly personalized and consistently anchored in this specific chart: Life Path 11, birthday 3, Expression 8, Soul Urge 7, Personality 1, current 8 pinnacle, challenge 2, and each yearly personal year number. Sections would not fit another chart easily.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to chart elements. Each year in the year-by-year section includes something to lean into and something to watch, and the guidance section offers specific practices such as weekly review blocks, written goal/spending records, creative outlets, and pairing inspiration with a concrete step.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and non-fear-based, describing tendencies rather than asserting specific events. No month- or day-level predictions, no investment/legal/medical decisions, and wellbeing advice includes consulting a healthcare professional. No religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, fluent English, appropriate length, and no mixed scripts or leaked JSON field names. Some repetition of chart numbers is purposeful and not excessive.\"\n    }\n  },\n  \"summary\": \"Excellent personalized numerology report that accurately uses all chart data, remains specific, actionable, warm, and readable across all sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3791,
+    "outputTokens": 1282
+  },
+  "recordedAt": "2026-11-16T09:01:44.898Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:dbe4d0145c15aebb3cacd7804dec97aa1563b815ee9e87acaae36391d34f6a5d",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All numbers, master statuses, age ranges, and personal year values cited match the provided data exactly; no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart data: Life Path 22, birthday 3, current 6 Personal Year, current pinnacle 5 and challenge 1, upcoming 11 pinnacle, and detailed year-by-year values.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions appear in the year-by-year sections, Guidance, and Wellbeing Habits, all tied to the specific numbers and current cycles.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language uses tendency phrasing, avoids specific event predictions or month/day accuracy, limits wellbeing to habits with a professional recommendation, and omits investment, legal, or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, fluent English, minimal repetition, appropriate length, and no foreign words or leaked JSON field names.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly personalised to the Life Path 22 chart, action-oriented, warmly toned, and clearly written.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4010,
+    "outputTokens": 2132
+  },
+  "recordedAt": "2026-11-16T09:00:14.193Z",
+  "source": "recorded"
+}

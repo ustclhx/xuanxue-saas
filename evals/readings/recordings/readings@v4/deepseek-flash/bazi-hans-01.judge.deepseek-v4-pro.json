@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:5b2c99ccb13390fd497a853ad6695cdc85c56eeb075ee30b370f7c44d7a4b348",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的柱、十神、五行、地支、星煞、年份和数字均与 data 一致；如乙木日主生于未月、火三成/木一成三、年支申为天乙贵人、月柱食神坐偏财、时柱伤官坐正财、癸卯/壬寅大运及逐年流年关系均准确，无编造。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个部分都锚定本命盘具体元素：年柱正印坐正官、日支酉七杀兼桃花、时柱伤官坐正财、癸卯/壬寅大运、逐年流年关系与神煞等，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可操作，如给工作做减法、补水养木习惯、癸卯大运深耕专业口碑、壬寅培养合作关系；逐年有可把握与需留意方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"措辞温暖、无恐惧，用“宜/可留意/容易”描述倾向，不断言具体事件，无月/日级别预测，健康仅作息习惯并建议咨询专业医师。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰、分段合理、简体中文流畅，无重复或混杂字符，篇幅虽长但分段清楚，符合 zh-Hans 语境。\"\n    }\n  },\n  \"summary\": \"整体为高质量八字全篇解读，数据匹配度高，个人化充分，建议具体温暖，无禁忌内容，简体中文流畅易读。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7634,
+    "outputTokens": 6390
+  },
+  "recordedAt": "2026-11-16T08:41:48.325Z",
+  "source": "recorded"
+}

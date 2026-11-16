@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:704148bea13a178a2de3ee035e66df0c0a2f060e4dcd7d6c259d5004a19557b1",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用之柱、干支、十神、五行比例、桃花、大運與流年關係皆與 data 一致，未發現矛盾或自創星曜。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均以本命盤特定元素為錨，如月柱傷官、日支偏財、時柱正印、年柱正官、桃花、戊子大運與逐年干支十神，具體且不可套用他盤。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行，如穩定作息、建立備用金、少而精取捨，且逐年列出值得把握與需留意事項，與命盤相扣。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖平和，使用傾向性描述而非斷言具體事件，健康部分僅作息習慣並建議諮詢專業，無恐懼、投資、法律、醫療或宗教指引。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰，分段明確，無跨節重複冗贅，全文繁體中文流暢，未見簡體字或混雜外語。\"\n    }\n  },\n  \"summary\": \"整體輸出高度符合資料，既準確又具體，建議務實可行，語氣溫和，易讀性佳。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7400,
+    "outputTokens": 5669
+  },
+  "recordedAt": "2026-11-16T08:36:43.330Z",
+  "source": "recorded"
+}

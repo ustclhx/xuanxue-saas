@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:d59e24bed8ff4da8426c3c1b5ab9bac58c93be3d2c9afc215679888fbfe5aa63",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Almost all palace, star, stem-branch, year and mutagen citations match data; minor issues include repeated misspelling of 天梁 as 天良 and a 2029 statement that treats the natal 武曲化权 as a year mutagen, though the natal star is still in the career palace.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is grounded in this chart: named palaces, stars, mutagens, auxiliary stars, current/next decades and year-by-year 四化 with palace placements; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete doable suggestions tied to chart; each year gives something to lean into and something to watch; summary suggestions include specific practices and time rules.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-assertive, uses hedged language; no specific event predictions or month/day forecasts; health advice stays lifestyle and refers to professionals; no investment/legal/medical or religious prescriptions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Simplified Chinese; only notable flaw is the repeated misspelling of 天梁 as 天良 in multiple sections, otherwise no mixed scripts or foreign words.\"\n    }\n  },\n  \"summary\": \"A highly specific and well-structured report that uses the chart's palaces, stars and mutagens to give personalized, actionable guidance. Minor accuracy and readability issues stem from a repeated misspelling of 天梁 and a slight blending of natal and year mutagens in 2029.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7729,
+    "outputTokens": 6324
+  },
+  "recordedAt": "2026-11-16T08:57:30.831Z",
+  "source": "recorded"
+}

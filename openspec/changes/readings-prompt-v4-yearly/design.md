@@ -155,3 +155,11 @@ rev2 全量复测 48 份中 2 份硬性失败都是单字笔误（简中夹繁�
 
 - Open Questions 1–3（2026-11-13 确认，采用默认）：流年窗口 5 年；第四季度不顺延，仍从当年起；v4 不加价，作为现有价格的内容升级。
 - Open Questions 5–6（2026-11-14 批准）：首轮真实评测预算 ≤ 10 USD，只用 DeepSeek；生成模型 `deepseek-flash`（与 staging 详批相同），评委 `deepseek-v4-pro`。实际费用约 2.4 USD，记录在私有验收目录 `readings-prompt-v4/gate-report.md`。
+
+## 决策记录（2026-11-16，tasks 4.7 迁移到模板 0.5.3 评测，使用者确认）
+
+- 评委口径：模板评委只看样本输入、看不到提示词中的数据，因此把服务端复算数据放进样本 input（`evals/readings/samples.json`
+  的 `data` 为 v4 数据档，`preV4Fields` 为旧数据档中不同的字段）；基线与候选共用同一份合并数据，生成仍按各版本数据档现场复算。
+  门槛按整批（48 个样本合并）计算，与旧脚本 `summarize` 口径相同；任一样本缺分即判 incomplete。
+- 批准全量重录（模板 `--record` 同时重新生成正文与评委）：两步合计上限 4.3 USD，计入首轮 ≤ 10 USD 预算；
+  报告按套件单价结算 pre-v4 1.52 + v4 1.71 = 3.23 USD，回放门槛全部达成，证据在私有验收目录 `readings-prompt-v4/eval-0.5.3/`。

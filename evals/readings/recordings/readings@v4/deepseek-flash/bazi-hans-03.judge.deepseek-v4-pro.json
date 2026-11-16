@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:49a887faa30ec3bb3d7398a2cbaa6aac980ce479e11d5bcbf161f2d43e62ffac",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的四柱、十神、五行百分比、喜忌、大运/流年干支、神煞及关系均与 data 一致，未发现虚构或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均紧扣本命盘：日主壬水、三子水、月干偏财、年干食神、羊刃、庚辰大运及各流年关系，内容无法套用到其他命盘。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可行且与命盘关联；每个流年都有“值得把握”和“需要留意”的面向，结尾五条建议对应命局特点。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温和，无恐吓或具体事件断言；健康仅为习惯建议并提醒咨询专业医师；不含投资、法律、医疗决策或宗教内容。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，无明显重复，简体中文流畅，长度适切，无混杂文字或外国词。\"\n    }\n  },\n  \"summary\": \"整体质量优秀：内容准确对应 data，高度个性化，建议具体可执行，语气温暖合规，行文流畅易读。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7077,
+    "outputTokens": 5089
+  },
+  "recordedAt": "2026-11-16T08:42:02.400Z",
+  "source": "recorded"
+}

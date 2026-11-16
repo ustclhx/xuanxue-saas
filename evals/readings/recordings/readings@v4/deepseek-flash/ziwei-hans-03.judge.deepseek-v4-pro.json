@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:bcf92d71bf92f9e50706fc1aff5a853d982af64ef4a766af93d2a61397d09b32",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"几乎所有宫位、星曜、四化和流年数据都与 data 一致；唯总论中把天梁误写为天良，属一处星名笔误。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每节都锚定具体宫位/星曜/四化：如命宫借太阳天梁、财帛天机化忌、田宅贪狼化禄、流年逐一对应各年四化，换个盘无法套用。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可执行且与盘相关：固定作息、整理经验成成果、简化理财、及时沟通、参与户外社群；五年各有可把握与需留意的方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，用倾向而非断言，无月/日级别预测，健康仅作息习惯并建议咨询专业医师，无投资/法律/医疗决断或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构清晰、分段合理、简体中文流畅；但天梁误为天良，有一处错字。\"\n    }\n  },\n  \"summary\": \"整体高度个性化且准确，结构与建议扎实，仅有一处星名笔误（天良应为天梁）。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7184,
+    "outputTokens": 4464
+  },
+  "recordedAt": "2026-11-16T08:57:00.935Z",
+  "source": "recorded"
+}

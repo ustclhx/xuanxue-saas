@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:a21a2fab825ed7865817e5a70fede648fdead31158e40d50d88e5dc60fdfc6ed",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"准确引用命宫、迁移宫、财帛宫、官禄宫、夫妻宫等宫位星曜、亮度与四化，未发现与数据矛盾或虚构。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各节均以本盘具体星曜组合（如巨门化禄在财帛、太阳化权在迁移、文曲化科文昌化忌在命宫）为核心，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"建议具体可行且紧扣本盘，但完全缺少逐年运势段落，未能满足逐年“可把握/需留意”的要求。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，不恐吓、不铁口直断，健康部分提醒咨询专业医师，无投资/医疗决定或宗教框架。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清楚、小标题明确、简体中文自然流畅，无明显重复或外来词。\"\n    }\n  },\n  \"summary\": \"整体准确且个性化，温暖易读；主要不足是缺少逐年运势，行动性上不够完整。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6169,
+    "outputTokens": 6416
+  },
+  "recordedAt": "2026-11-16T08:31:19.568Z",
+  "source": "recorded"
+}

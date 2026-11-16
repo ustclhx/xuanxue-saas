@@ -2,7 +2,7 @@
 
 `pnpm eval:prompts --suite readings`（模板 0.5.3 `packages/evals`，契约见 `docs/06-ai.md`「提示词版本与评测」
 与「被评正文转换与评测后门槛」）。由 `apps/web/scripts/eval-readings/` 迁移（OpenSpec
-`readings-prompt-v4-yearly` tasks 4.7）；旧脚本在新套件以重录后的录制回放全部通过之前保留。
+`readings-prompt-v4-yearly` tasks 4.7），旧脚本已删除。
 
 | 文件 | 内容 |
 |---|---|
@@ -59,19 +59,19 @@ pnpm test:evals                                                                 
 ```
 
 `--baseline` 的基线以回放运行，生成与评委录制都必须齐全，否则以配置错误（退出码 2）退出。
-模板的 `--record` 会同时重新生成正文与评委，没有「只重录评委」的模式。
+模板的 `--record` 会同时重新生成正文与评委，没有「只重录评委」的模式。真实与录制模式的密钥取自根目录 `.env.local` 或环境变量，不打印。
 
 ## 录制来源
 
 | 日期 | 录制 | 来源 | 生成 / 评委模型 | 说明 |
 |---|---|---|---|---|
-| 2026-11-16 | `recordings/readings@v4/deepseek-flash/*.json`（48，生成） | 私有证据 `readings-prompt-v4/rev4/eval-readings/recordings/<kind>.v4/<id>.md` 与 `.meta.json`（tasks 4.3 rev4，提示词提交 e85da73d，与当前 v4 渲染相同） | deepseek-flash（thinking 关闭）/ — | 迁移 |
-| 2026-11-16 | `recordings/readings@pre-v4/deepseek-flash/*.json`（48，生成） | 私有证据 `readings-prompt-v4/thinking-off/eval-readings/recordings/<真实版本>/<id>.md` 与 `.meta.json`（tasks 4.2 B 轮，提交 f24cb21f；v1–v3 提示词与数据档之后未改） | deepseek-flash（thinking 关闭）/ — | 迁移 |
+| 2026-11-16 | `readings@v4` 与 `readings@pre-v4` 的生成录制（各 48） | 迁移自私有证据 `readings-prompt-v4/rev4/` 与 `thinking-off/` 的旧录制（含旧脚本实测的 `durationMs`；`finishReason` 记为 `unknown`） | deepseek-flash（thinking 关闭）/ — | 迁移，已被下一行替换 |
+| 2026-11-16 | `readings@pre-v4` 全部 96 个文件（48 生成 + 48 评委） | `--prompt readings@pre-v4 --record --budget-usd 2.0 --concurrency 4` | deepseek-flash（thinking 关闭）/ deepseek-v4-pro（thinking 开启） | recorded，$1.5219 |
+| 2026-11-16 | `readings@v4` 全部 96 个文件（48 生成 + 48 评委） | `--prompt readings@v4 --baseline readings@pre-v4 --record --budget-usd 2.3 --concurrency 4` | 同上 | recorded，$1.7073 |
 
-迁移规则：`output` 为旧录制的模型原文；`usage`、`durationMs` 取自旧 `.meta.json`（旧脚本在真实调用中实测，
-并与同次运行目录的 `.check.json` 逐项核对一致）；`recordedAt` 为该样本所在运行目录名的时间（进程开始时间，UTC）；
-`renderedHash` 为当前渲染摘要；旧录制没有保存结束原因，`finishReason` 记为 `unknown`（回放归为 `other`）。
-旧评委分数来自旧评分标准与旧评委提示词，**未迁移**为评委录制；评委需用 `--record` 重录。
+费用为报告按套件单价（DeepSeek 高峰价）结算的估算；报告与日志在私有证据 `readings-prompt-v4/eval-0.5.3/`。
+重录后的 v4 正文与 tasks 4.4 人工审阅的 rev4 批次不同（提示词版本相同）。
+迁移的旧录制与旧评委分数（旧评分标准、旧评委提示词）不再使用，旧评委分数从未迁移为评委录制。
 
 ## 样本说明
 

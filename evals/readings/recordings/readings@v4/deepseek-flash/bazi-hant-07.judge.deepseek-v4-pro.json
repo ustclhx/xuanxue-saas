@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:725e98622fd1f010c634649370951d34db81e2f0286dfa1fb9920b96f9d67e0a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited stems, branches, ten gods, elements, shensha, annual relations and years match the provided data; no invented chart components found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"The report consistently anchors each section in this chart's pillars, ten gods, elements, shensha, and annual relations, making it highly personalized.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions tied to the chart are given, and each annual year has clear lean-in and caution points.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based wording uses tendencies and suitable actions rather than asserting specific events; health advice is habit-focused and refers to professionals.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and appropriate Traditional Chinese, but some core traits (偏印旺, 金旺印重) are repeated across many sections.\"\n    }\n  },\n  \"summary\": \"A highly accurate, personalized and action-oriented BaZi reading in Traditional Chinese, with only minor repetition across sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7213,
+    "outputTokens": 7055
+  },
+  "recordedAt": "2026-11-16T08:40:08.680Z",
+  "source": "recorded"
+}

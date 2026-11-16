@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:d50ce70a5cb8be43d8ba0434c55924341e242a288a3d4e06af35931d2370f54e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的柱、干支、十神、五行、百分比與大運年份均與 data 一致；神煞使用符合 preV4 欄位，未發現矛盾或捏造。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節均錨定本命具體元素，如乙木身強、比肩旺、辛巳七殺坐傷官、己未大運、丙午年等，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建議具體可行且與命盤連結，如表達練習、合作規則、規律運動、穩健財務等，針對性強。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖、避免恐懼，以傾向與可能性描述，未斷言具體事件、月日或病症，健康部分也建議諮詢專業醫師，無宗教或投資法律醫療指示。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"結構清晰、分段合理、長度適中，使用流暢的臺灣繁體中文，無簡體字或混雜外語，重複有限。\"\n    }\n  },\n  \"summary\": \"整體表現優良：命盤解讀準確、內容具體且個人化，建議可行且合規，文字流暢，符合 zh-Hant 臺灣繁體中文要求。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6850,
+    "outputTokens": 5215
+  },
+  "recordedAt": "2026-11-16T08:09:41.815Z",
+  "source": "recorded"
+}

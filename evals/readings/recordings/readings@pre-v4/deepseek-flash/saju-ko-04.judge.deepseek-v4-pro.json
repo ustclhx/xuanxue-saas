@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:ce843f0e962001a34737f3a683d8df6bebe42c7efb6baa5963b331f51f4f3d0b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited chart elements match the provided data: day master Xin, You day branch, Jia month stem as zhengCai, Mao hour branch as pianCai, element percentages, favorable/unfavorable elements, Shensha stars (including preV4 fields), current decade Ji Wei, and next decade Geng Shen as jieCai are correctly referenced.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Sections are consistently anchored to this specific chart: exact percentages, specific stems/branches (Jia Yin month, Xin Mao hour), hidden officials, Peach Blossom, Hua Gai, Wen Chang, Yang Ren, Lu Shen, and favorable water/fire/wood elements appear throughout.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and chart-linked (record income/expenses, regular movement, expressing emotions, period-specific advice for 2026 and 2030), but there is no detailed year-by-year section with a distinct lean-in and watch-out for each year.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The text is warm and non-fearful, uses tendency language ('can be', 'may'), avoids specific event predictions, recommends consulting a medical professional for health symptoms, and does not make investment, legal, or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and mostly fluent Korean; the foreign word 'regularly' appears within a Korean sentence and should be replaced with '규칙적으로' to avoid mixed scripts.\"\n    }\n  },\n  \"summary\": \"A highly personalized Saju reading with accurate chart references, strong specificity, and a supportive tone. The main weaknesses are the lack of a detailed year-by-year action plan and one English word interrupting Korean readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6654,
+    "outputTokens": 7638
+  },
+  "recordedAt": "2026-11-16T08:21:51.921Z",
+  "source": "recorded"
+}

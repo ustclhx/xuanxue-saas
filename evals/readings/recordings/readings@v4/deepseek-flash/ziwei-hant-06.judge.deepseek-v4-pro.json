@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3f62f0594b6a3cf9d87bc63451318fee52a0d7417039f18d6f4352c413f6e583",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly matches data; however in the 2029 year section it states 武曲化祿與武曲化權同落田宅宮, but the data only lists 武曲化祿 in 田宅宮, inventing a second mutagen.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific palaces, stars, brightness, mutagens, auxiliary stars, and year placements; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete doable suggestions tied to chart; each year has specific lean-into and watch items.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tendency-focused without asserting specific events; includes professional medical disclaimer; no fear-based or forbidden advice.\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"Clear structure and fluent Traditional Chinese, but a few Simplified characters (e.g., 钻研, 由于) and minor repeated phrasing lower compliance.\"\n    }\n  },\n  \"summary\": \"Overall strong personalized Ziwei reading with clear structure and practical suggestions; main issues are one invented 2029 mutagen and a few Simplified Chinese characters.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7702,
+    "outputTokens": 9286
+  },
+  "recordedAt": "2026-11-16T08:55:30.662Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:677aef5a3f2ca4a5a138aa929061c42c21b543fb4763a9da33e47c34bd2b375e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly consistent with data: pillars, ten gods, elements, useful gods, and decade info are cited correctly. However, it mentions '將星' as a shensha, which is not present in the provided data or preV4 shensha list, so one chart element is invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly personalized. Each section is anchored in specific chart elements such as 丁火日主, 巳月, 戊午年柱, 金水土喜用, 日支丑藏干, 時柱癸卯, and decade stems/branches. Would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Suggestions are concrete and tied to the chart, e.g., building checklists for metal, waiting before decisions, fixed savings, communication, training, and leaving buffer time. However, there is no year-by-year section despite annual data being available, so the expected year-specific lean-into/watch guidance is absent.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based. Describes tendencies without asserting specific events; no month- or day-level predictions; health section recommends seeing a professional; no investment, legal, or medical decisions; no religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, fluent Traditional Chinese as used in Taiwan, no Simplified characters or leaked JSON, minimal repetition, appropriate length.\"\n    }\n  },\n  \"summary\": \"整體準確且高度個人化，用詞親切合規；但將星未見於資料，且缺少逐年分析，行動建議雖具體但可再加強年份對應。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6761,
+    "outputTokens": 5383
+  },
+  "recordedAt": "2026-11-16T08:13:20.354Z",
+  "source": "recorded"
+}

@@ -2,7 +2,7 @@
 
 新提示词版本（如 v4「流年逐年」）先离线评测、过上线门槛、经使用者审阅，再分别在 staging 与生产通过运行时设置切换；回滚只改设置，不需要重新部署。设计依据见 [readings-prompt-v4-yearly design](../../openspec/changes/readings-prompt-v4-yearly/design.md) 决策 4–7；上一轮人工抽检记录见 [2026-10 staging 抽检](evidence/readings/2026-10-staging-sampling.md)、[复检 r1](evidence/readings/2026-10-staging-sampling-r1.md) 与 [抽检报告正文](evidence/readings/reports/)。
 
-模板发布 R6 提示词评测后，按其升级说明迁移套件与评分标准，本文的评测命令随之替换。
+评测已迁移到模板提示词评测（template 0.5.3，readings-prompt-v4-yearly tasks 4.7）。
 
 
 ## 1. 版本与设置
@@ -16,24 +16,23 @@
 
 ## 2. 离线评测
 
-评测脚本在 `apps/web/scripts/eval-readings/`，不进入 `pnpm test`；检查器与汇总的单测在 `pnpm test` 中运行。输出写入 `EVIDENCE_DIR/eval-readings/<时间戳>/`（未设置时为仓库根目录已忽略的 `test-results/evidence/`），含每份正文、`*.check.json`、`summary.md` 与 `summary.json`。证据只提交到项目私有验收记录，PR 只引用。
+评测套件在 `evals/readings/`，用模板命令 `pnpm eval:prompts`（`packages/evals`，契约见 [AI 文档](../06-ai.md)「提示词版本与评测」）运行，不进入 `pnpm test`；套件单测与类型检查为 `pnpm test:evals`。报告写入 `$EVIDENCE_DIR/prompt-evals/readings/<时间戳>-<版本>-<模式>/`（未设置时为已忽略的 `test-results/evidence/`），含 `report.json`、`report.md` 与 `outputs/`。证据只提交到项目私有验收记录，PR 只引用。
 
 ```sh
-# 离线（默认）：读取 EVIDENCE_DIR/eval-readings/recordings/<版本>/<样本 id>.md，缺录制的样本跳过
-pnpm eval:readings --candidate v4
-pnpm eval:readings --kind bazi-full --locale zh-Hant --baseline default --candidate bazi-full.v4
+# 回放（默认，零费用）：候选 readings@v4 对同次回放的基线 readings@pre-v4，输出逐项门槛
+pnpm eval:prompts --suite readings --baseline readings@pre-v4
 
-# 真实调用（需使用者先批准预算）：必须同时给出次数与费用上限，超限即停，未运行的样本在汇总中标明
-pnpm eval:readings --live --record --candidate v4 \
-  --model <provider:providerModelId> --judge <provider:providerModelId> \
-  --max-calls 120 --max-usd 10 --price-in <美元/1k 输入> --price-out <美元/1k 输出>
+# 录制（需使用者先批准预算）：先录基线，再录候选并同次回放基线；--record 会同时重新生成正文与评委
+pnpm eval:prompts --suite readings --prompt readings@pre-v4 --record --budget-usd <美元> --concurrency 4
+pnpm eval:prompts --suite readings --prompt readings@v4 --baseline readings@pre-v4 --record --budget-usd <美元> --concurrency 4
 ```
 
-- 样本套件 `suites/<kind>.<locale>.json` 只含虚构输入；`requestDate` 固定流年窗口起点，覆盖 1–2 月请求、不知道时辰、窗口内换运、大师数等边界。
-- 消息组装与线上完全相同（`readingDefinition` → `recompute` → `readingMessages`）。真实调用经 `@xuanxue/ai` 的文本模型工厂，服务商密钥与 Gateway 配置读取 `apps/web/.dev.vars`，不打印密钥。
-- `ai_model.pricing` 以积分计价，估算费用的美元单价由 `--price-in` / `--price-out` 按服务商价目表给出；预算按「输入 token + 输出上限」最坏情况估算下一次调用。
-- 评委模型应与生成模型不同，评分标准为同目录 `rubric.<locale>.md`：数据准确、个性化与具体程度、可执行性、语气与合规、可读性，各 1–5 分。
-- 确定性检查：硬性为章节齐全且有序、流年小节年份与窗口一致、年份干支 / 个人年数与数据一致、合规命中 0、繁简字形、就医提示；长度区间与夹杂拉丁字母只作提示。
+- 套件版本按样本的 kind / locale 分派到 `catalog.ts` 的真实版本（基线 `readings@pre-v4`：八字 / 紫微 zh-Hant v2、zh-Hans v3，사주 v2，数字命理 v3）；新版本在 `evals/readings/prompts.ts` 增加 `readings@v5` 等，不改已有版本。
+- 消息组装与线上完全相同（`readingDefinition` → `recompute` → `readingMessages`）；检查与评委都评线上保存的正文（`deliveredReadingText`，`prepareOutput` 版本 `guard.v4`）。
+- 真实调用经 `@xuanxue/ai` 的文本模型工厂，密钥取自根目录 `.env.local`（或环境变量），不打印；模型单价（美元 / 百万 token）写在 `evals/readings/suite.ts`。
+- 评委 `deepseek-v4-pro`，评分标准 `evals/readings/rubric.ts`：数据准确、个性化与具体程度、可执行性、语气与合规、可读性，各 1–5 分。复算数据放在样本 input 中供评委核对，基线与候选共用同一份。
+- 确定性检查（`evals/readings/checks.ts`）：硬性为章节齐全且有序、流年小节年份与窗口一致、年份干支 / 个人年数与数据一致、合规命中 0、繁简字形、就医提示；长度区间与夹杂拉丁字母只作提示（warn）。
+- 第 3 节中可自动判定的门槛由套件 `evaluateRun`（`evals/readings/gates.ts`）整批判定，任一样本缺值即 incomplete；人工与 staging 两项只列为外部证据。
 
 
 ## 3. 上线门槛

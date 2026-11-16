@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:aff450ff106780264f95224a751b7db24a4287b45552f33808d99af876f610ac",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All pillars, ten gods, elements, strength percentages, favorable elements, shensha (using the preV4 profile), decade references, and 2026 annual stem/branch match the provided data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Detailed personalization throughout: references day master Xin metal, specific pillars, hidden stems, element percentages, the 2020-2029 Yiyou decade, the 2026 Bingwu year, and the spouse palace Chou branch.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-linked suggestions: professional specialization, clear contractual boundaries, long-term disciplined saving, active listening in relationships, specific wellness activities, and a professional disclaimer.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language; no month/day-level predictions; wellness limited to habits and advises seeing a professional; no investment, legal, or medical decisions asserted.\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"Well-structured but has noticeable repetition across sections, one traditional character 華 in mixed simplified text, and a leaked JSON field name supportPercent.\"\n    }\n  },\n  \"summary\": \"The output is highly accurate, personalized, actionable, and compliant in tone; readability is reduced by minor repetition, one mixed-script character, and a leaked data field name.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6834,
+    "outputTokens": 5688
+  },
+  "recordedAt": "2026-11-16T08:17:37.262Z",
+  "source": "recorded"
+}

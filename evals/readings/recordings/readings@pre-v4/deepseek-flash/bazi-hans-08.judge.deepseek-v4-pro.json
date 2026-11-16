@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:f051776663832002cb2d7658721ebd562592e4f743bdf55928c6a2c35370ca00",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"大部分柱、十神、藏干、百分比和大运均与数据一致，但将2027丁未归为木火且称气势较顺，与数据中未土、流年不利且冲日支的事实矛盾；另有“身弱财旺”等轻微过度表述。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"几乎每个部分都锚定了具体的丁火日主、庚子年柱、戊寅月柱、丁丑日柱、各藏干十神、神煞、五行百分比及当前/下一步大运，个性化程度很高。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"整体建议较为具体且与命局关联，但缺少逐年建议；未来十年部分仅以流年属性笼统提示，未给出每一年可把握与需注意的具体事项。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖，不恐吓、不武断断言具体事件；健康建议仅涉及生活习惯并建议咨询专业医师，无投资、法律或医疗决策表述。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，用简体中文表达流畅，无明显混合脚本或重复啰嗦，篇幅适中。\"\n    }\n  },\n  \"summary\": \"输出整体结构化良好，个性化强，语气温和合规；主要不足在于对2027流年属性的判断与数据不符，且缺少逐年行动建议。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6410,
+    "outputTokens": 7646
+  },
+  "recordedAt": "2026-11-16T08:19:20.087Z",
+  "source": "recorded"
+}

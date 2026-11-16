@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8e9f9b5c74aa508c26bdd701d33d838dc0519c4e7bbdb60103bd6a28b72b7f9d",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有引用的星曜、宫位、四化、大限与流年均与 data 一致，未发现虚构或矛盾。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个章节均以具体宫位、主星、四化及流年数据为锚点，内容高度个人化，几乎无可通用套话。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可行，流年逐年列出可把握与留意的方向，健康部分仅涉及作息习惯并建议咨询医师。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"措辞温暖、劝导式，未断言具体事件或月日，无恐惧渲染，无投资、法律或医疗建议。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，分段合理，长度适中，全文为简体中文，用词流畅，无明显重复或杂乱。\"\n    }\n  },\n  \"summary\": \"总体优秀：准确引用命盘星曜、宫位与四化，内容高度个人化，建议具体可操作，语气温和且结构清晰，符合简体中文阅读习惯。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7556,
+    "outputTokens": 3241
+  },
+  "recordedAt": "2026-11-16T08:57:19.395Z",
+  "source": "recorded"
+}

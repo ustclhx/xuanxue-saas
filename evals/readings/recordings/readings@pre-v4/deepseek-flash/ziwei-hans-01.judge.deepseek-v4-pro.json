@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:249d123d5e695cbbd6dab8d69977e5c91f34a955d35bd124ec7f954af850c455",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"各宫位、星曜、亮度及四化均与 data 完全吻合，无杜撰或错置。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"每个章节都紧扣命宫太阴化科、事业太阳天梁、财帛借星、夫妻借星等本盘具体结构，未使用泛化模板。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"建议具体且与命盘相关，但缺少逐年流年部分，没有针对 2026–2030 各年的可执行提示。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖、无恐吓断言，未作月/日级预测；健康仅谈作息并建议就医，未给投资/法律/医疗结论。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，分段合理，简体中文流畅，无语言混用或内部字段。\"\n    }\n  },\n  \"summary\": \"报告高度个性化、准确且语气合规；主要不足是缺乏逐年流年行动建议。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6562,
+    "outputTokens": 4901
+  },
+  "recordedAt": "2026-11-16T08:28:05.837Z",
+  "source": "recorded"
+}

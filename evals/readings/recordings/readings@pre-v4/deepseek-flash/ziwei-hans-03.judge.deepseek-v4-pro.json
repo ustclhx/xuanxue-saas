@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:02a1ea382e04f46622fac3df4680af718fc51d7781243a9f1b45e833ca74e1da",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"所有星曜、宫位、四化、亮度均与数据一致，未发现虚构或错误引用。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各段均紧扣命宫空、太阳天梁、天同巨门、天机化忌、贪狼化禄等具体配置，非通用模板。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体、可执行并与命盘挂钩，如重大财务冷静期、培养沟通能力、固定作息等，健康与财务均给出稳妥提醒。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气温暖、无恐吓，以倾向与可能性描述，健康仅给作息习惯并建议专业医师，财务提示审慎评估。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"结构清晰，简体中文流畅，各部分呼应命盘，虽有主题重复但属正常论述，无混杂用语。\"\n    }\n  },\n  \"summary\": \"输出精准引用命盘细节，建议具体可行，语气合规温暖，整体为高质量紫微报告。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6337,
+    "outputTokens": 5694
+  },
+  "recordedAt": "2026-11-16T08:30:03.039Z",
+  "source": "recorded"
+}

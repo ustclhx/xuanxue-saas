@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3da98c01d8b3825eb5f5193a8b9e392a07d8c16ed7e9889b027ad27d377c1cdf",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"整体与命盘数据高度吻合，各宫星曜、四化、大限和流年均正确；唯一明显错误是2030年把‘天同化忌’写成‘天通化忌’。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"几乎每一节都紧扣本命盘的具体星曜、宫位、四化及大限/流年，个人化程度高，难以套用其他命盘。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"建议具体可行并与命盘呼应；逐年流年段也都分别给出可把握和需留意的方向。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"语气平和温暖，使用‘宜’‘适合’等建议式表达，没有断言具体事件或制造恐惧，健康提示也导向专业咨询。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"结构清晰、文字流畅且为规范简体中文；但2030年‘天通’这一错字影响局部阅读流畅度。\"\n    }\n  },\n  \"summary\": \"整体为高度个人化的紫微斗数完整报告，结构清楚，建议实用，语气温和。主要扣分项是2030年将‘天同化忌’误写为‘天通化忌’，其余内容与提供的数据一致。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7561,
+    "outputTokens": 9765
+  },
+  "recordedAt": "2026-11-16T09:00:49.819Z",
+  "source": "recorded"
+}

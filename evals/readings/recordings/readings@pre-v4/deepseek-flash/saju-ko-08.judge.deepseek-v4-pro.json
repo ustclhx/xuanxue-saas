@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:4d668a6dbd0528b731494484c39ad6eb7e5c738910ded70b9c6d8450d45ed738",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"일간 무토, 오행 비율(수 48%, 토 29%, 화 17%, 목 5%, 금 0%), 신약 판정, 용신 화·토, 대운 시작 2세, 편재·정인·정관 등의 십성 배치가 모두 데이터와 일치하며, preV4 신살(도화, 역마, 문창, 양인, 녹신 등)도 적절히 반영함.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"각 섹션이 무토 일간, 연간·시간의 임수 편재, 월간 정화 정인, 일지 진토와 월지 미토, 수·화·토의 세력, 천을귀인·화개 등 실제 사주 구성 요소에 기반해 작성되어 다른 명식에는 적용되기 어려움.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"따뜻한 음식 섭취, 아침 햇빛, 걷기·근력 운동 주 3~4회, 신뢰하는 사람과의 대화 등 구체적 조언이 있으나 연도별 섹션이 2026년과 2033년 정도만 다루어 모든 연도에 대한 실행 지침은 부족함.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"온건하고 따뜻하며 두려움을 유발하는 표현이 없고 특정 사건이나 월·일 단위 예측을 하지 않음. 건강은 생활 습관과 전문 의료진 상담만 권하며 투자·법적·의료 결정을 지시하지 않음.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"구성이 명확하고 자연스러운 한국어이지만 총론·재물운·건강에서 물의 기운과 신약 구조가 반복적으로 서술되고, '天宜貴人'과 같은 한자 오타가 일부 보임.\"\n    }\n  },\n  \"summary\": \"데이터와 정확하게 일치하고 사주 구성 요소를 구체적으로 활용한 좋은 보고서입니다. 연도별 실행 조언이 일부 부족하고 중복 서술과 한자 오타가 있으나 전체적으로 높은 품질을 보입니다.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7351,
+    "outputTokens": 5356
+  },
+  "recordedAt": "2026-11-16T08:23:57.108Z",
+  "source": "recorded"
+}

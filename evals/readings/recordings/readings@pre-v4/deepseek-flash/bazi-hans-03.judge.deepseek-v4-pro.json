@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:ffc9217693e4400228f784461025981dea5d8e9df1f48e3484f19823af81f084",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Pillars, elements, ten gods, and shensha mostly match data; only the hidden stems of Si (丙火、戊土、庚金) are not present in the data.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"Multiple sections are anchored to chart elements such as Ren water, three Zi branches, Pian Cai, Wen Chang, Tian Yi Gui Ren, but health and some advice remain partly generic.\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"Suggestions are doable and chart-related but lack a year-by-year section with specific lean/watch items for each year.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based, avoids specific events or fear; health advice includes consulting professionals.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Simplified Chinese; themes of focus and overthinking are slightly repeated across sections.\"\n    }\n  },\n  \"summary\": \"The output is generally accurate and personalized with a safe tone, but misses yearly action guidance and includes one small invented detail about hidden stems.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6065,
+    "outputTokens": 6359
+  },
+  "recordedAt": "2026-11-16T08:15:19.195Z",
+  "source": "recorded"
+}

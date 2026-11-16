@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:71324ad5471bb9814b87d08039622f8ced3f8a51b6fa695a619f8d209630763f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, master numbers, personal years, pinnacles, challenges and ages match the provided data; no invented chart elements or contradictions found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in this chart's specific numbers and cycles (Life Path 11, birthday 11, 8/5/3 name numbers, current 9 pinnacle, 5 challenge, personal years 5/33/7/8/9) and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable and tied to the chart; each year in the year-by-year section offers clear lean-in and caution guidance, and the final guidance lists specific weekly, monthly, quarterly and seasonal habits.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language throughout; no specific event assertions, no month/day predictions, no fear-based wording; financial and healthcare decisions are directed to qualified professionals.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear, well-structured sections in fluent English with no mixed scripts, JSON field names or foreign words; repetition is minimal and thematic rather than duplicated content.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly personalized, actionable, warm and readable, closely matching the provided numerology data and fully meeting the criteria.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3903,
+    "outputTokens": 1464
+  },
+  "recordedAt": "2026-11-16T08:58:59.602Z",
+  "source": "recorded"
+}

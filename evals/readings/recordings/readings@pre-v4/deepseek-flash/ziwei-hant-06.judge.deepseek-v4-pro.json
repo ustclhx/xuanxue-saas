@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:34aa26238e121d212cb58e46c11f6877be7a85cca3510eebaa63cf38aa760d39",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"大部分星曜、宮位與四化正確，但父母宮描述借對宮天相與文曲化科，與資料中父母宮借入紫微、貪狼不符，明顯誤植；此處發明資料未包含的星曜。\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"各段落大多能引用命盤具體元素（空宮借天機太陰、太陽化權、巨門化祿、天梁、武曲破軍等），非通用模板；僅父母宮錯誤引用且少數建議略泛。\"\n    },\n    \"actionability\": {\n      \"score\": 3,\n      \"reason\": \"建議有與命盤連結的具體方向（溝通留紀錄、專業累積、作息規律），但未提供年份別提醒，部分建議如「設定中長期目標」較為一般。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"語氣溫暖中性，使用傾向性描述而非斷言事件，無恐懼或宗教措辭，健康部分僅建議生活習慣並提醒諮詢專業。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"結構清晰分段合理，繁體中文使用正確；但多處重複「命宮借天機太陰」造成輕微冗餘。\"\n    }\n  },\n  \"summary\": \"整體定位與大部分宮位描述準確，唯父母宮借星有明顯資料誤植；建議溫暖具體，但缺少流年條目使可操作性稍降。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 6150,
+    "outputTokens": 4817
+  },
+  "recordedAt": "2026-11-16T08:26:13.773Z",
+  "source": "recorded"
+}

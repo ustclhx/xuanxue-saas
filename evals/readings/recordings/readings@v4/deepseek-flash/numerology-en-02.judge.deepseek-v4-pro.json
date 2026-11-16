@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3129afcf9e77702c5dff94043519ac2897a3fa5f7d56d519a372e7ea4634bf75",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every number, period, and chart element cited matches the provided data exactly; no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this chart's specific numbers and current period, such as Life Path 7, birthday 6, current 11 pinnacle, 1 challenge, and Personal Year 3, rather than generic descriptions.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to chart elements; each year-by-year entry includes actions to lean into and cautions to watch, and guidance is practical and doable.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm and non-fear-based, uses tendency language rather than asserting specific events, avoids month/day predictions, includes professional referral for health, and makes no investment, legal, or religious claims.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, fluent English, no mixed scripts or leaked data field names, and appropriate length without excessive repetition.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly personalized, actionable, warmly worded, and well organized across all sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4454,
+    "outputTokens": 2314
+  },
+  "recordedAt": "2026-11-16T09:00:12.727Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:b985aa15ef5a1e8f856e01385830adf399f77b93383879d8f86dfc1f646db428",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All numbers cited (Life Path 6, birthday 9, Expression 7, Soul Urge 9, Personality 7, pinnacles 4/11/6/6, challenges 5/7/2/2, personal years 5/6/7/8/9) exactly match the data; no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in chart-specific details (6 pinnacle, 2 challenge, 7 name numbers, 2026 Personal Year 5, etc.) and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Year-by-year sections each give concrete lean-into/watch-out pairs tied to the chart; wellbeing and guidance suggestions are practical and personalised.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and balanced, no fear-based language or specific event assertions; no month/day predictions; wellbeing mentions consulting professionals and avoids medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English, but the 6 pinnacle and 2 challenge combination is repeated in several sections, making it slightly repetitive though not disorganised.\"\n    }\n  },\n  \"summary\": \"Excellent report: fully accurate, personalised, actionable, warm and clear, with minor repetition around the current 6 pinnacle and 2 challenge.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4177,
+    "outputTokens": 2266
+  },
+  "recordedAt": "2026-11-16T09:01:21.445Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c8c23b7787b10ca3a4697be83de4f062a386d584b0cccadbbc819f10d90b3f6b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (Life Path 22, Birthday 3, Personal Year 6) match the data; no invented chart elements; correctly notes name numbers are unavailable.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored to this chart's Life Path 22, Birthday 3, or Personal Year 6, and the interpretations would not fit a different combination.\"\n    },\n    \"actionability\": {\n      \"score\": 4,\n      \"reason\": \"Provides concrete, chart-tied habits (sleep routine, movement tied to 3/22, saying no in the 6 year), but lacks a year-by-year section for 2027-2030 from the personalYears data and some advice is generic.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tentative language (may, likely, often), no specific events or dates, recommends healthcare and financial professionals, no fear-based or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English, but core themes (22 as builder, 3 as creative, 6 as home/care) are repeated across sections, making it slightly long-winded.\"\n    }\n  },\n  \"summary\": \"The report is accurate, warm, and strongly personalized to the Life Path 22, Birthday 3, and Personal Year 6. It gives useful actionable habits but repeats its central themes and omits the provided pinnacle, challenge, and future personal-year data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3296,
+    "outputTokens": 3662
+  },
+  "recordedAt": "2026-11-16T08:32:58.043Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3afea618c6e2aec719bf48a9395db50a92b5f25fc3129cd51cd78e22fb9f683f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers match data exactly (Life Path 11, birthday 3, personal year 7, expression 8, soul urge 7, personality 1), with no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in the exact core numbers and their interactions, making the reading clearly personalised and not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable habits and guidance are tied to the chart (7/11 reflective routines, 8 practical follow-through, 3 creative outlets), though no year-by-year section is present.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language; uses tendencies rather than events; wellbeing covers habits only and directs to a healthcare professional; avoids investment, legal, medical and religious directives.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, fluent English, appropriate length, no mixed scripts or data leaks, and only mild repetition of key themes.\"\n    }\n  },\n  \"summary\": \"A warm, well-structured and accurate numerology reading that personalises core numbers and offers concrete, chart-linked habits without overclaiming.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3132,
+    "outputTokens": 3066
+  },
+  "recordedAt": "2026-11-16T08:34:01.570Z",
+  "source": "recorded"
+}

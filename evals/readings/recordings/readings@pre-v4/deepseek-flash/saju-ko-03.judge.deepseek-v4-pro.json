@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@pre-v4",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:7866dfbfee9674819bbe74b3db77baa536976391db0ed2a11850750f61a5aa3b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited stems, branches, ten gods, elements, percentages, shensha, and decade/year data match the provided data (using preV4Fields for shensha since the report has no year-by-year section); no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart features such as Yi Mao day, Ding Si month, Gui Wei hour, weak strength with 43.5% support, favorable water/wood, and shensha; the content would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and chart-aligned (hydration, regular sleep, exercise 3-4 times weekly, expressing talents through writing/planning/education); current year and decades include lean-in/watch guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; describes tendencies without asserting specific events, avoids month/day-level predictions, limits health to habits with medical referral, and contains no investment, legal, or religious content.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent Korean, no problematic repetition or mixed scripts; Chinese characters in parentheses are expected and correctly used.\"\n    }\n  },\n  \"summary\": \"A highly personalized and accurate Saju reading that effectively ties each section to the chart, offers concrete and warm guidance, and maintains clear Korean prose.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7365,
+    "outputTokens": 7181
+  },
+  "recordedAt": "2026-11-16T08:20:46.385Z",
+  "source": "recorded"
+}
