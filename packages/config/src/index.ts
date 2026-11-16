@@ -35,6 +35,7 @@ export {
   emailSender,
   type LocalizedText,
   localeUrlSegment,
+  type MarketingPerformance,
   type MarketingProduct,
   type MarketingStat,
   type MarketingStep,

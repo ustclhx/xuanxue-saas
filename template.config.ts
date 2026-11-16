@@ -73,7 +73,15 @@ export default defineTemplateConfig({
   // 每日登录赠送：额度、天数上限、有效期与验证邮箱要求用运行时设置默认值 10/10/7 天/要求验证
   // （enable-subscriptions-daily-credits D6）；同一邮箱的两站账户共享每日与每月额度
   credits: { enabled: true, dailyEnabled: true },
-  marketing: { enabled: true },
+  marketing: {
+    enabled: true,
+    // 预渲染营销页的首屏关键路径（模板 0.5.4，docs/02-project-structure.md §3）：
+    // after-paint 首帧后再加载水合脚本；used 只内联本页用到的样式。
+    // homeScriptGzipBudget 暂不设置：设置后首页闭包含 zod schema 即构建失败，而本项目首页闭包仍经 @xuanxue/config 的
+    // env schema、认证 / 账单路由 validateSearch 与 admin list 带入 zod（2026-11-16 实测 gzip 371776 B）；
+    // 预算沿用 apps/web/scripts/check-home-bundle.mjs 的各首页预算 375701 B。设置时写普通字面量（template-sync 静态解析不支持数字分隔符）
+    performance: { hydration: 'after-paint', criticalCss: 'used' },
+  },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css
   // appLayout：App 区布局，'sidebar' 工作台侧边栏 | 'topbar' 原有顶部布局
