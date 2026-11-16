@@ -570,6 +570,9 @@ describe('trusted billing services on PostgreSQL', () => {
         providerPriceId: `price_${key}_${pack}`,
       })),
     )
+    // 有效 TWD 订阅不应限制一次性积分包的结算币种。
+    await db.update(planPrice).set({ currency: 'TWD', amount: 16200 }).where(eq(planPrice.id, sp))
+    await seedSub()
     const buy = async (locale: string, provider: 'stripe' | 'paypal' = 'stripe') => {
       const mock = vi.mocked(ctx.providers[provider]?.createCheckout)
       mock?.mockClear()
@@ -598,6 +601,85 @@ describe('trusted billing services on PostgreSQL', () => {
       .where(eq(planPrice.id, ids.krw))
     expect(await buy('ko')).toMatchObject({ id: ids.usd, currency: 'USD' })
   })
+  it.each(['active', 'trialing', 'past_due'] as const)(
+    're-subscription keeps the %s subscription currency while cancellation is pending',
+    async (status) => {
+      const twd = id()
+      await db.insert(planPrice).values({
+        id: twd,
+        planId: pid,
+        provider: 'stripe',
+        providerPriceId: `price_${twd}`,
+        interval: 'month',
+        amount: 16200,
+        currency: 'TWD',
+      })
+      await seedSub()
+      await db
+        .update(subscription)
+        .set({ planPriceId: twd, status, cancelAtPeriodEnd: true })
+        .where(eq(subscription.id, sid))
+      await createCheckout(ctx, {
+        ...checkout(),
+        presentation: { brandName: 'Test', locale: 'zh-Hans', describe: () => 'credits' },
+      })
+      expect(ctx.providers.stripe?.createCheckout).toHaveBeenCalledWith(
+        expect.objectContaining({ price: expect.objectContaining({ id: twd, currency: 'TWD' }) }),
+      )
+    },
+  )
+  it('re-subscription rejects missing same-currency prices without falling back to USD', async () => {
+    const oldTwd = id()
+    await db.insert(planPrice).values({
+      id: oldTwd,
+      planId: pid,
+      provider: 'stripe',
+      providerPriceId: `price_${oldTwd}`,
+      interval: 'month',
+      amount: 16200,
+      currency: 'TWD',
+      active: false,
+    })
+    await seedSub()
+    await db
+      .update(subscription)
+      .set({ planPriceId: oldTwd, cancelAtPeriodEnd: true })
+      .where(eq(subscription.id, sid))
+    await expect(createCheckout(ctx, checkout())).rejects.toMatchObject({
+      code: 'BILLING_PRICE_UNAVAILABLE',
+      message: 'No active synced TWD price for this plan',
+    })
+    expect(ctx.providers.stripe?.createCheckout).not.toHaveBeenCalled()
+  })
+  it.each(['none', 'canceled', 'expired'] as const)(
+    'subscription checkout follows the interface language with a %s previous subscription',
+    async (status) => {
+      const twd = id()
+      await db.insert(planPrice).values({
+        id: twd,
+        planId: pid,
+        provider: 'stripe',
+        providerPriceId: `price_${twd}`,
+        interval: 'month',
+        amount: 16200,
+        currency: 'TWD',
+      })
+      if (status !== 'none') {
+        await seedSub()
+        await db
+          .update(subscription)
+          .set({ planPriceId: twd, status, cancelAtPeriodEnd: true })
+          .where(eq(subscription.id, sid))
+      }
+      await createCheckout(ctx, {
+        ...checkout(),
+        presentation: { brandName: 'Test', locale: 'zh-Hans', describe: () => 'credits' },
+      })
+      expect(ctx.providers.stripe?.createCheckout).toHaveBeenCalledWith(
+        expect.objectContaining({ price: expect.objectContaining({ id: sp, currency: 'USD' }) }),
+      )
+    },
+  )
   it('plan changes keep the current subscription currency instead of the interface language', async () => {
     await db.update(planPrice).set({ amount: 16200, currency: 'TWD' }).where(eq(planPrice.id, sp))
     await seedSub()

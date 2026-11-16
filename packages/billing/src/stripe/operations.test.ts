@@ -1,4 +1,5 @@
 import type { PlanPrice } from '@xuanxue/db/schema'
+import { AppError } from '@xuanxue/shared'
 import Stripe from 'stripe'
 import { describe, expect, it } from 'vitest'
 import type { CheckoutInput, PlanSyncInput, RefundInput } from '../provider.ts'
@@ -139,6 +140,43 @@ function mockStripe(replies: MockReply[]) {
 }
 
 describe('Stripe checkout and transport', () => {
+  it('maps Stripe customer currency conflicts to a stable billing error', async () => {
+    const mock = mockStripe([
+      {
+        method: 'POST',
+        path: '/v1/checkout/sessions',
+        status: 400,
+        body: {
+          error: {
+            type: 'invalid_request_error',
+            message: 'You cannot combine currencies on a single customer.',
+          },
+        },
+      },
+    ])
+    const error = await mock.operations
+      .createCheckout({ ...checkout, providerCustomerId: 'cus_test' })
+      .catch((error: unknown) => error)
+    expect(error).toBeInstanceOf(AppError)
+    expect(error).toMatchObject({ code: 'BILLING_CURRENCY_CONFLICT', status: 409 })
+    mock.complete()
+  })
+
+  it('preserves unrelated Stripe checkout errors', async () => {
+    const mock = mockStripe([
+      {
+        method: 'POST',
+        path: '/v1/checkout/sessions',
+        status: 400,
+        body: { error: { type: 'invalid_request_error', message: 'No such customer: cus_test' } },
+      },
+    ])
+    await expect(
+      mock.operations.createCheckout({ ...checkout, providerCustomerId: 'cus_test' }),
+    ).rejects.toBeInstanceOf(Stripe.errors.StripeInvalidRequestError)
+    mock.complete()
+  })
+
   it.each(['subscription', 'one_time'] as const)(
     'sets trusted metadata on %s objects and stable request keys',
     async (mode) => {

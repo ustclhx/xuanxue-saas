@@ -1,4 +1,5 @@
 import type { PlanPrice } from '@xuanxue/db/schema'
+import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import Stripe from 'stripe'
 import { assertMinorAmount, enabledCurrency } from '../currency.ts'
@@ -122,32 +123,49 @@ export async function createStripeCheckout(stripe: Stripe, input: CheckoutInput)
   }
   const shown = stripePresentation(input)
   const linePrice = await checkoutPrice(stripe, input)
-  const session = await stripe.checkout.sessions.create(
-    {
-      mode: input.mode === 'one_time' ? 'payment' : 'subscription',
-      ...shown.session,
-      // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
-      managed_payments: { enabled: false },
-      // 结算币种由服务端按界面语言选定价格行：关闭 Adaptive Pricing，避免 Stripe 按买家所在地再换算币种扣款。
-      adaptive_pricing: { enabled: false },
-      line_items: [{ price: linePrice, quantity: 1 }],
-      success_url: input.successUrl,
-      cancel_url: input.cancelUrl,
-      ...(input.providerCustomerId
-        ? { customer: input.providerCustomerId }
-        : {
-            customer_email: input.customerEmail,
-            ...(input.mode === 'one_time' ? { customer_creation: 'always' as const } : {}),
-          }),
-      metadata: { ...metadata, ...shown.metadata },
-      ...(input.mode === 'subscription'
-        ? { subscription_data: { metadata: { ...metadata } } }
-        : {
-            payment_intent_data: { ...shown.intent, metadata: { ...metadata, ...shown.metadata } },
-          }),
-    },
-    options,
-  )
+  const session = await stripe.checkout.sessions
+    .create(
+      {
+        mode: input.mode === 'one_time' ? 'payment' : 'subscription',
+        ...shown.session,
+        // 模板不由 Stripe 代销，避免账户默认的 Managed Payments 改变结算模式。
+        managed_payments: { enabled: false },
+        // 结算币种由服务端按界面语言选定价格行：关闭 Adaptive Pricing，避免 Stripe 按买家所在地再换算币种扣款。
+        adaptive_pricing: { enabled: false },
+        line_items: [{ price: linePrice, quantity: 1 }],
+        success_url: input.successUrl,
+        cancel_url: input.cancelUrl,
+        ...(input.providerCustomerId
+          ? { customer: input.providerCustomerId }
+          : {
+              customer_email: input.customerEmail,
+              ...(input.mode === 'one_time' ? { customer_creation: 'always' as const } : {}),
+            }),
+        metadata: { ...metadata, ...shown.metadata },
+        ...(input.mode === 'subscription'
+          ? { subscription_data: { metadata: { ...metadata } } }
+          : {
+              payment_intent_data: {
+                ...shown.intent,
+                metadata: { ...metadata, ...shown.metadata },
+              },
+            }),
+      },
+      options,
+    )
+    .catch((error: unknown) => {
+      if (
+        error instanceof Stripe.errors.StripeInvalidRequestError &&
+        error.message === 'You cannot combine currencies on a single customer.'
+      ) {
+        throw new AppError(
+          'BILLING_CURRENCY_CONFLICT',
+          'The current billing customer requires a different subscription currency',
+          { status: 409, cause: error },
+        )
+      }
+      throw error
+    })
   if (!session.url) throw new Error('Stripe hosted Checkout session has no URL')
   return { url: session.url, providerRef: session.id }
 }

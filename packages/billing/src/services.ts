@@ -99,6 +99,7 @@ async function selectPrice(
   provider: PaymentProviderId,
   currency: EnabledCurrency,
   fallbackUsd: boolean,
+  checkoutWorkspaceId?: string,
 ) {
   providerFor(ctx, provider)
   const [requested] = await ctx.db
@@ -106,6 +107,29 @@ async function selectPrice(
     .from(planPrice)
     .where(and(eq(planPrice.id, id), eq(planPrice.provider, provider)))
   if (!requested) fail('BILLING_PRICE_UNAVAILABLE', 'Unknown price for this provider', 400)
+  if (requested.interval !== null && checkoutWorkspaceId) {
+    // 周期末取消仍是平台上的有效订阅，重订必须沿用币种；不能用只查续费订阅的 current()。
+    const [existing] = await ctx.db
+      .select({ currency: planPrice.currency })
+      .from(subscription)
+      .innerJoin(planPrice, eq(subscription.planPriceId, planPrice.id))
+      .where(
+        and(
+          eq(subscription.workspaceId, checkoutWorkspaceId),
+          eq(subscription.provider, provider),
+          inArray(subscription.status, ['trialing', 'active', 'past_due']),
+        ),
+      )
+      .orderBy(desc(subscription.createdAt), desc(subscription.id))
+      .limit(1)
+    if (existing) {
+      const existingCurrency = enabledCurrency(existing.currency)
+      if (!existingCurrency)
+        fail('BILLING_PRICE_UNAVAILABLE', 'Current subscription currency unavailable')
+      currency = existingCurrency
+      fallbackUsd = false
+    }
+  }
   const rows = await ctx.db
     .select({ price: planPrice, plan })
     .from(planPrice)
@@ -263,6 +287,7 @@ export async function createCheckout(ctx: BillingServiceContext, input: CreateCh
     input.provider,
     currencyFor(input.presentation?.locale ?? 'en', input.provider),
     true,
+    input.workspaceId,
   )
   const provider = providerFor(ctx, input.provider)
   const mode = selected.type === 'subscription' ? 'subscription' : 'one_time'
