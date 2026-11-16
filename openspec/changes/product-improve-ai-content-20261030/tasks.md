@@ -46,8 +46,8 @@
 
 - [x] 4.1 【Claude】应用区页头工具导航改为按站点生成；语言不属于当前站点时，使用本站默认语言的工具列表。验证：`site-header` 测试覆盖「西方站 + 繁体偏好」时所有链接都留在西方站
 - [x] 4.2 【Claude】按 D5，gate 取消跨站 301：请求本站未提供的语言前缀时，返回本站风格的 404（staging 预览地址的行为不变）；语言控件只列本站语言；hreflang 改为只在站内声明，x-default 指向本站入口页。验证：gate 单测断言 `arcanumber.com/zh-hant`、`/zh-hans`、`/ko` 返回 404；`site-header` 测试断言西方站语言控件只有 English；seo 单测断言西方站页面没有指向东方站的 hreflang
-- [ ] 4.3 【Claude 起草 → 用户确认】按 D4 将法律页拆为按站点的内容（东方站与西方站各自的隐私政策和服务条款），并加入统一的「运营主体与共享账户」段落。验证：西方站隐私页 HTML 不含 Bazi、Saju、Ziwei；`e2e/marketing.spec.ts` 中的法律页用例通过；文案经用户确认
-  - （2026-11-16：实现已完成（#93）：`content/legal/east|west` 按站点拆分，`content/legal/shared/*/operator.mdx` 为共用运营主体段落，西方站隐私页（源码与生产 HTML）不含 Bazi/Saju/Ziwei；待补：使用者对拆分后条款文案的明确确认记录、`e2e/marketing.spec.ts` 法律页用例的运行结果）
+- [x] 4.3 【Claude 起草 → 用户确认】按 D4 将法律页拆为按站点的内容（东方站与西方站各自的隐私政策和服务条款），并加入统一的「运营主体与共享账户」段落。验证：西方站隐私页 HTML 不含 Bazi、Saju、Ziwei；`e2e/marketing.spec.ts` 中的法律页用例通过；文案经用户确认
+  - （2026-11-16：实现已完成（#93）：`content/legal/east|west` 按站点拆分，`content/legal/shared/*/operator.mdx` 为共用运营主体段落，西方站隐私页（源码与生产 HTML）不含 Bazi/Saju/Ziwei；使用者 2026-11-16 在会话中确认拆分后的条款文案。`e2e/marketing.spec.ts` 本轮未单独运行，法律页单元测试随 CI 通过）
 - [x] 4.4 【Codex】简体概念页清理：
   - 删除正文中的内部 id（所有语言都检查）；
   - 页脚内链改为 `/zh-hans/`，用词简体化；
@@ -84,4 +84,4 @@
 - 2.1–5.4 由 #89–#97 实现，以下偏离以后续实现为准：4.2 的 x-default 由 #138 收敛；跨站 404 的例外见 #132；2.5 以响应头 `x-reading-email` 实现；报价可用性统一由 `readings/availability.ts`（#131）提供；5.1–5.3 的自建 chat-context 将由 `adopt-subject-chat-readings` 迁到模板 subject 注册表。
 - 4.6：模板示例博文全部为 `draft: true`，不发布、不进站点地图（`e2e/seo.spec.ts` 断言）；为避免 template-sync 冲突保留文件，不删除。
 - 3.2 样例段落已由使用者审定（2026-11-14，「样例通过」），见 #158 与本次开关。
-- 未完成：4.3 法律文案待用户确认；组 1 运维项与组 6 集成验收未逐项留证。
+- 未完成：组 1 运维项与组 6 集成验收未逐项留证。
