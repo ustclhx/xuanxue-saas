@@ -59,3 +59,4 @@
 - [ ] 4.6 【用户批准 → Codex】生产逐个详批切换到 v4（建议先八字 zh-Hant），观察两周 `readings.sections_incomplete` 与失败率；超过 design 决策 5 阈值时切回并向模板提出通用报告模块需求。验证：切换记录、观测数据与（如有）回滚记录写入私有验收记录
 - [ ] 4.7 【协调者】模板发布 R6 提示词评测后，按其升级说明迁移套件与评分标准并删除 `apps/web/scripts/eval-readings/`。验证：`pnpm eval:prompts`（或模板实际命令）能跑通本项目套件
   - （2026-11-16：模板 0.5.0（#167）已提供 `pnpm eval:prompts`（`packages/evals`），但本项目套件与评分标准尚未迁移，`apps/web/scripts/eval-readings/` 仍在）
+  - （2026-11-16：按模板 0.5.3 建立 `evals/readings/`——`prepareOutput`（guard.v4）、迁移的检查与评分标准、`evaluateRun` 门槛、48 × 2 份迁移的生成录制；离线回放硬性检查 48/48、P95 token 与时长达成，评委门槛因尚无评委录制为 incomplete。评委重录需使用者批准预算；旧脚本在新套件回放全部通过前保留）

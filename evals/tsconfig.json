@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["."],
+  "compilerOptions": {
+    // 与 packages/evals 相同：Node 命令行运行，被导入的 @xuanxue/ai 与 apps/web 源码使用 Web 全局类型
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    // 根目录不另装 @types/node（不新增依赖），复用 @xuanxue/evals 的同一份
+    "typeRoots": ["../packages/evals/node_modules/@types"]
+  }
+}

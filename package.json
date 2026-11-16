@@ -24,7 +24,8 @@
     "production:check-secrets": "node scripts/production/check-secrets.mjs",
     "check:ui": "node scripts/check-ui.mjs",
     "ui:lock": "node scripts/ui-lock.mjs",
-    "eval:prompts": "node --experimental-strip-types packages/evals/src/cli.ts"
+    "eval:prompts": "node --experimental-strip-types packages/evals/src/cli.ts",
+    "test:evals": "tsc -p evals/tsconfig.json && node --experimental-strip-types --test evals/*/*.test.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
