@@ -63,6 +63,15 @@ describe('缓存键与 TTL', () => {
     expect(before).not.toContain('utm_source')
   })
 
+  it('部署版本进键：新版本不命中旧版本缓存的 HTML（旧哈希资源已 404）', () => {
+    const url = new URL('https://arcanumber.com/daily-numerology')
+    const now = new Date('2026-11-16T10:00:00Z')
+    const v1 = dailyCacheKey(url, 'en', now, 'aaa111').url
+    const v2 = dailyCacheKey(url, 'en', now, 'bbb222').url
+    expect(v1).toContain('v=aaa111')
+    expect(v1).not.toBe(v2)
+  })
+
   it('TTL 为距参考日结束的秒数，不超过 3600', () => {
     expect(dailyTtl('zh-Hant', new Date('2026-11-13T15:50:00Z'))).toBe(600)
     expect(dailyTtl('zh-Hant', new Date('2026-11-13T02:00:00Z'))).toBe(3600)
