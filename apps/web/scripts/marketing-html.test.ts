@@ -8,7 +8,9 @@ import {
   fontFaceRules,
   headSignature,
   optimizeHtml,
+  rootAttributes,
   selectorClasses,
+  usedCss,
 } from './marketing-html.mjs'
 
 // 与预渲染产物同形的夹具：字体 preload、modulepreload、外链样式表、SEO head、水合入口
@@ -188,5 +190,47 @@ describe('营销页构建后处理', () => {
       false,
     )
     expect(brandOverridesFontSans(':root{--font-serif:x}')).toBe(false)
+  })
+})
+
+// 项目修正：两站品牌 token 写在 :root[data-site=…] 上，beasties 不认 <html> 属性会把它们整条丢弃
+describe('根元素属性切换的规则（xuanxue 两站 brand.css）', () => {
+  const page =
+    '<!DOCTYPE html><html data-site="east" lang="ko" data-preset="neutral"><head></head><body><p class="a">x</p></body></html>'
+
+  it('读取 <html> 属性', () => {
+    expect(Object.fromEntries(rootAttributes(page))).toEqual({
+      'data-site': 'east',
+      lang: 'ko',
+      'data-preset': 'neutral',
+    })
+  })
+
+  it('属性与 :lang() 条件都相符时保留，不相符时丢弃', async () => {
+    const css = [
+      ':root[data-site=east]{--y:1}',
+      ':root[data-site="east"]:lang(ko){--k:1}',
+      ':root[data-site]{--q:1}',
+      '@supports (color:color-mix(in lab, red, red)){:root[data-site=east]{--s:1}}',
+      ':root.dark[data-site=east]{--d:1}',
+      ':root[data-site=west]{--west:1}',
+      ':root[data-site]:lang(zh){--zh:1}',
+      ':root[data-preset=blue]{--blue:1}',
+    ].join('')
+    const inline = await usedCss(page, css)
+    for (const kept of ['--y', '--k', '--q', '--s', '--d']) expect(inline).toContain(kept)
+    for (const dropped of ['--west', '--zh', '--blue']) expect(inline).not.toContain(dropped)
+  })
+
+  it('保留 ::before / ::after 以外的伪元素规则（preflight 的 ::placeholder 等）', async () => {
+    const css = [
+      '::placeholder{color:currentColor}',
+      '::-webkit-inner-spin-button{height:auto}',
+      '.missing::after{content:"x"}',
+    ].join('')
+    const inline = await usedCss(page, css)
+    expect(inline).toContain('::placeholder')
+    expect(inline).toContain('::-webkit-inner-spin-button')
+    expect(inline).not.toContain('.missing')
   })
 })

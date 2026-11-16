@@ -123,6 +123,58 @@ export function decodeClassAttributes(html) {
   })
 }
 
+/** 预渲染 HTML 中 `<html>` 标签的属性（小写名） */
+export function rootAttributes(html) {
+  const tag = html.match(/<html\b[^>]*>/i)?.[0] ?? ''
+  const attrs = new Map()
+  for (const [, name, value = ''] of tag.matchAll(/\s([\w:-]+)(?:="([^"]*)")?/g))
+    attrs.set(name.toLowerCase(), value)
+  return attrs
+}
+
+const ROOT_COMPOUND = /^(?::root|html)((?:\[[^\]]*\]|:lang\([^)]*\)|\.[\w-]+)*)/
+const ROOT_CONDITION =
+  /\[\s*([\w:-]+)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\]\s]*)))?\s*\]|:lang\(\s*([^)\s]+)\s*\)/g
+
+/**
+ * 项目修正（xuanxue，模板 0.5.4 待上游）：beasties 求值时不认 `<html>` 上的属性，`:root[data-site=east]`、
+ * `:root[data-site]:lang(ko)` 这类按根元素属性切换的品牌 token 规则会被整条丢弃，关键样式失去全部品牌色与站点字体变量。
+ * 选择器开头的根元素复合选择器带属性或 `:lang()` 条件、且条件都与本页 `<html>` 属性相符时保留；
+ * 类名条件（`.dark`）由 DEFAULT_ALLOW_RULES 另行保留。
+ */
+export class RootAttributeRule extends RegExp {
+  constructor(attrs) {
+    // 同 ClassTokenRule：永不匹配的模式，只经 test 判断
+    super('(?!)')
+    this.attrs = attrs
+  }
+
+  test(selector) {
+    const compound = selector.trim().match(ROOT_COMPOUND)?.[1]
+    if (!compound) return false
+    const conditions = [...compound.matchAll(ROOT_CONDITION)]
+    if (conditions.length === 0) return false
+    return conditions.every(([, name, dq, sq, bare, lang]) => {
+      if (lang) {
+        const own = (this.attrs.get('lang') ?? '').toLowerCase()
+        const want = lang.replace(/^["']|["']$/g, '').toLowerCase()
+        return own === want || own.startsWith(`${want}-`)
+      }
+      const key = name.toLowerCase()
+      if (!this.attrs.has(key)) return false
+      const value = dq ?? sq ?? bare
+      return value === undefined || this.attrs.get(key) === value
+    })
+  }
+}
+
+/**
+ * 项目修正（xuanxue，模板 0.5.4 待上游）：beasties 会丢弃 `::before` / `::after` 以外的伪元素规则
+ * （preflight 的 `::placeholder`、`::-webkit-*`、`::file-selector-button` 与 `scrollbar` 工具类等），
+ * 首页起盘表单的占位文字颜色因此与完整样式不一致。这类规则体积很小，全部保留。
+ */
+export const PROJECT_ALLOW_RULES = [/::(?!before\b|after\b)[\w-]/]
+
 /**
  * 用 beasties 按该页 DOM 裁剪样式：只把结果中的 CSS 文本取回，HTML 仍用原文拼接，
  * 避免 beasties 重新序列化文档影响水合。
@@ -144,7 +196,12 @@ export async function usedCss(html, css, { allowRules = DEFAULT_ALLOW_RULES } = 
     compress: false,
     pruneSource: false,
     logLevel: 'error',
-    allowRules: [...allowRules, new ClassTokenRule(documentClasses(decoded))],
+    allowRules: [
+      ...allowRules,
+      new ClassTokenRule(documentClasses(decoded)),
+      new RootAttributeRule(rootAttributes(decoded)),
+      ...PROJECT_ALLOW_RULES,
+    ],
   })
   const out = await beasties.process(marked)
   const match = out.match(new RegExp(`<style ${CRITICAL_MARK}[^>]*>([\\s\\S]*?)</style>`))
