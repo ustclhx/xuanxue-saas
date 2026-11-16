@@ -48,7 +48,13 @@ describe('根布局外壳', () => {
 })
 
 describe('字体预加载扩展点（fonts.project.ts）', () => {
-  it('默认预加载模板的 Inter 拉丁子集', () => {
+  // 本项目两站在 brand.css 覆盖了 --font-sans，fonts.project.ts 关闭了 Inter 预加载（redesign-home-chart-visuals 10.1）
+  it('项目不预加载任何字体', () => {
+    expect(fontLinks(render())).toEqual([])
+  })
+
+  it('模板默认值为 Inter 拉丁子集（项目原样返回 defaults 时）', () => {
+    project.override = (defaults) => defaults
     const links = fontLinks(render())
     expect(links).toHaveLength(1)
     expect(links[0]).toMatch(/rel="preload"/)

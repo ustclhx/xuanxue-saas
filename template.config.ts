@@ -76,8 +76,10 @@ export default defineTemplateConfig({
   marketing: {
     enabled: true,
     // 预渲染营销页的首屏关键路径（模板 0.5.4，docs/02-project-structure.md §3）：
-    // after-paint 首帧后再加载水合脚本；used 只内联本页用到的样式；预算为首页客户端脚本 gzip 合计上限（字节），
-    // 设置后取代 apps/web/scripts/check-home-bundle.mjs 中各首页的预算，数值写普通字面量（template-sync 静态解析不支持数字分隔符）
+    // after-paint 首帧后再加载水合脚本；used 只内联本页用到的样式。
+    // homeScriptGzipBudget 暂不设置：设置后首页闭包含 zod schema 即构建失败，而本项目首页闭包仍经 @xuanxue/config 的
+    // env schema、认证 / 账单路由 validateSearch 与 admin list 带入 zod（2026-11-16 实测 gzip 371776 B）；
+    // 预算沿用 apps/web/scripts/check-home-bundle.mjs 的各首页预算 375701 B。设置时写普通字面量（template-sync 静态解析不支持数字分隔符）
     performance: { hydration: 'after-paint', criticalCss: 'used' },
   },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
