@@ -112,7 +112,13 @@ export function ReadingSettingsForm() {
                   onChange={(event) => update(row.kind, { credits: Number(event.target.value) })}
                 />
               </Field>
-              <Field label={m.admin_reading_model()} htmlFor={`reading-model-${row.kind}`}>
+              {/* 下拉触发器（及其外层包装）默认最小宽度等于文字宽度：较长的模型 key 会撑出本列、盖住相邻的
+                  提示词版本下拉。grid-cols-1（minmax(0,1fr)）把字段限制在列宽内，min-w-0 让触发器文字截断 */}
+              <Field
+                label={m.admin_reading_model()}
+                htmlFor={`reading-model-${row.kind}`}
+                className="grid-cols-1"
+              >
                 <Select
                   value={row.modelKey || UNSET}
                   onValueChange={(value) =>
@@ -121,7 +127,7 @@ export function ReadingSettingsForm() {
                 >
                   <SelectTrigger
                     id={`reading-model-${row.kind}`}
-                    className="w-full"
+                    className="w-full min-w-0"
                     placeholder={m.admin_reading_model_unset()}
                     valueLabel={row.modelKey || m.admin_reading_model_unset()}
                   />
@@ -140,6 +146,7 @@ export function ReadingSettingsForm() {
               <Field
                 label={m.admin_reading_prompt_version()}
                 htmlFor={`reading-prompt-${row.kind}`}
+                className="grid-cols-1"
               >
                 <Select
                   value={row.promptVersion || UNSET}
@@ -149,7 +156,7 @@ export function ReadingSettingsForm() {
                 >
                   <SelectTrigger
                     id={`reading-prompt-${row.kind}`}
-                    className="w-full"
+                    className="w-full min-w-0"
                     placeholder={m.admin_reading_prompt_version_default()}
                     valueLabel={row.promptVersion || m.admin_reading_prompt_version_default()}
                   />
