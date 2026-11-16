@@ -31,7 +31,8 @@ test('public pricing describes unavailable payments without a checkout success',
   // 东方站语言版本
   await page.goto('/ko/pricing')
   await expect(page.getByRole('heading', { name: '요금 안내', exact: true })).toBeVisible()
-  await expect(page.getByTestId('pricing-pack').first()).toContainText('≈ ₩')
+  // 韩语按韩元结算并直接显示韩元价格（按界面语言结算币种，#147），不再是美元价格的约数
+  await expect(page.getByTestId('pricing-pack').first()).toContainText('₩')
 })
 
 test('public pricing renders before hydration', async ({ browser, baseURL }) => {

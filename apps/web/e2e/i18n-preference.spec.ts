@@ -166,6 +166,8 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
+    // 切换语言会保存偏好并刷新路由，等它结束再整页导航，否则 goto 被进行中的导航中止
+    await page.waitForLoadState('networkidle')
     // 紫微斗数没有韩语页面：回到韩语首页
     await page.goto('/zh-hant/紫微斗數排盤')
     await switchTo('ko')
