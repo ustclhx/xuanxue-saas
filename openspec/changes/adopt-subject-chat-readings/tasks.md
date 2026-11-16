@@ -57,4 +57,4 @@
 
 ## 8. 下一次发布：移除旧链接兼容（依赖：7.2 发布至少 30 分钟后的下一个版本）
 
-- [ ] 8.1 【Codex】删除 `legacy-chat-context.ts` 中的旧令牌验签、旧 KV 读取与 `upgradeLegacyChatContext`，`chat/index.tsx` 去掉 `?context=` 分支；保留旧对话摘要解析。验证：旧链接相关测试改为断言 `?context=` 被忽略（显示对话列表）；`pnpm test` 与 e2e 通过；旧对话摘要用例仍通过
+- [x] 8.1 【Codex】删除 `legacy-chat-context.ts` 中的旧令牌验签、旧 KV 读取与 `upgradeLegacyChatContext`，`chat/index.tsx` 去掉 `?context=` 分支；保留旧对话摘要解析。验证：旧链接相关测试改为断言 `?context=` 被忽略（显示对话列表）；`pnpm test` 与 e2e 通过；旧对话摘要用例仍通过

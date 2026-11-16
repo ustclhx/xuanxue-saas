@@ -3,9 +3,6 @@ import { getRequest } from '@tanstack/react-start/server'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { z } from 'zod'
-import { getLocale } from '../../paraglide/runtime.js'
-import { withBilling } from '../../server/feature-gates.ts'
-import { withWorkspace } from '../../server/middleware.ts'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
@@ -74,29 +71,4 @@ export const createChatContextLink = createServerFn({ method: 'POST' })
     )
     log.info('ai.chat_context.issued', { kind: definition.kind })
     return { status: 'ok', href: chartResultChatHref(resolved.workspace.slug, token) }
-  })
-
-/**
- * 旧链接 `chat?context=<token>` 的换发（design 决策 7）：有效时返回新令牌（由路由重定向到临时上下文页），
- * 过期或无效时返回对应状态。**本 change 发布后的下一次发布删除**（tasks.md 8.1）。
- */
-export const upgradeLegacyChatContextLink = createServerFn({ method: 'GET' })
-  .middleware([withBilling, withWorkspace])
-  .inputValidator(
-    z.strictObject({ slug: z.string().min(1).max(64), token: z.string().min(1).max(1024) }),
-  )
-  .handler(async ({ context, data }) => {
-    const runtime = getWebRuntime()
-    const { upgradeLegacyChatContext } = await import('./legacy-chat-context.ts')
-    const upgraded = await upgradeLegacyChatContext(
-      { secret: runtime.config.BETTER_AUTH_SECRET, cache: runtime.cache },
-      {
-        userId: context.user.id,
-        workspaceId: context.workspace.id,
-        token: data.token,
-        locale: getLocale(),
-      },
-    )
-    log.info('ai.chat_context.upgraded', { status: upgraded.status })
-    return upgraded
   })
