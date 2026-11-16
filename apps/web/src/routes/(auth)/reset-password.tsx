@@ -10,6 +10,7 @@ import {
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
 import { AUTH_ERROR_MESSAGES, authErrorMessage } from '../../features/auth/errors.ts'
+import { compactSearch, optionalString } from '../../features/routing/search.ts'
 import { authPageHead } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
@@ -73,7 +74,11 @@ const schema = () =>
 
 export const Route = createFileRoute('/(auth)/reset-password')({
   // 重置链接校验通过时带 ?token=，链接无效 / 过期时带 ?error=INVALID_TOKEN
-  validateSearch: z.object({ token: z.string().optional(), error: z.string().optional() }),
+  validateSearch: (search: Record<string, unknown>) =>
+    compactSearch({
+      token: optionalString(search.token),
+      error: optionalString(search.error),
+    }),
   head: () => authPageHead('/reset-password', getLocale(), COPY.metaTitle),
   component: ResetPasswordPage,
 })

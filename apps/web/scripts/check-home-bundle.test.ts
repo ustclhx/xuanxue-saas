@@ -8,6 +8,8 @@ import {
   checkHomeBundle,
   checkHomePages,
   checkServerHomeBundle,
+  entryDynamicImports,
+  entryScripts,
   HOME_PAGES,
   homeHead,
   htmlScripts,
@@ -151,7 +153,60 @@ describe('zod 标记与首页包预算（模板 add-marketing-critical-path）',
     })
     expect(checkHomeBundle(root).files.sort()).toEqual(['/assets/entry.js', '/assets/schema.js'])
   })
+})
 
+describe('水合闭包中的 zod（0.5.6）', () => {
+  it('入口脚本：module script 与 after-paint 加载器的 js 列表', () => {
+    expect(
+      entryScripts(
+        '<script type="module" async="" src="/assets/index-1.js"></script><script>(function(){var css=[],js=["/assets/index-2.js"];})()</script>',
+      ),
+    ).toEqual(['/assets/index-1.js', '/assets/index-2.js'])
+  })
+
+  it('入口立即 import() 的路由树分包含 zod 时报出，并按 sourcemap 列出引用 zod 的源文件', () => {
+    const root = fixture({
+      'index.html': '<script type="module" src="/assets/index.js"></script>',
+      'assets/index.js': 'const s=async()=>{let{StartClient:e}=await import(`./client.js`)};',
+      'assets/client.js': 'import{a as z}from"./schemas.js";const l=()=>import("./lazy.js");',
+      'assets/client.js.map': JSON.stringify({
+        sources: [
+          '../../../src/routes/login.tsx',
+          '../../../node_modules/x.js',
+          '../../../src/a.ts',
+        ],
+        sourcesContent: ["import { z } from 'zod'\n", "import 'zod'", 'export const a = 1'],
+      }),
+      'assets/schemas.js': 'class ZodError{};const c="invalid_type";',
+      'assets/lazy.js': 'import"./schemas.js";',
+    })
+    expect(entryDynamicImports(root, ['/assets/index.js'])).toEqual(['/assets/client.js'])
+    const result = checkHomeBundle(root)
+    expect(result.files).toEqual(['/assets/index.js'])
+    expect(result.hydration.sort()).toEqual([
+      '/assets/client.js',
+      '/assets/index.js',
+      '/assets/schemas.js',
+    ])
+    expect(result.violations.map(({ marker }) => marker).sort()).toEqual([
+      'ZodError',
+      'invalid_type',
+    ])
+    expect(result.zodSources).toEqual(['src/routes/login.tsx'])
+  })
+
+  it('路由树分包不含 zod 时通过（深层懒加载分包不计入）', () => {
+    const root = fixture({
+      'index.html': '<script type="module" src="/assets/index.js"></script>',
+      'assets/index.js': 'await import("./client.js")',
+      'assets/client.js': 'const l=()=>import("./lazy.js");',
+      'assets/lazy.js': 'class ZodError{}',
+    })
+    expect(checkHomeBundle(root).violations).toEqual([])
+  })
+})
+
+describe('首页包预算（add-marketing-critical-path）', () => {
   it('未设置预算不检查；未超出返回 null；超出给出实际值与预算', () => {
     expect(budgetViolation(500_000, null)).toBeNull()
     expect(budgetViolation(500_000, undefined)).toBeNull()
