@@ -452,6 +452,14 @@ describe('POST /api/readings', () => {
       reading: { id: readingId, status: 'ready' },
     })
     expect((await getCreditBalance(db, who.workspaceId)).available).toBe(200)
+
+    // 同一输入换语言是新的报告，不跳回另一种语言的正文
+    const fourth = deps(reportModel(REPORT), modelKey)
+    const otherLocale = await post(who, { ...unlock(), locale: 'zh-Hans' }, fourth.deps)
+    expect(otherLocale.headers.get('x-reading-id')).not.toBe(readingId)
+    await otherLocale.text()
+    await fourth.settled()
+    expect(await readings(who.workspaceId)).toHaveLength(2)
   })
 
   it('余额不足返回 402 且不留下报告；关闭或未选定模型的详批返回 404', async () => {

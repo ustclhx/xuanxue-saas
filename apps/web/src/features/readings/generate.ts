@@ -148,10 +148,11 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const { workspace } = resolved
   setLogContext({ workspaceId: workspace.id, userId: user.id })
 
-  // 幂等：同一键加事务锁，生成中或已完成的报告直接返回；失败的报告允许重新生成
+  // 幂等：同一键加事务锁，生成中或已完成的报告直接返回；失败的报告允许重新生成。
+  // 语言进键：同一输入换语言（如简中换繁中）是新的报告，不能跳回另一种语言的正文
   const claim = await db.transaction(async (tx) => {
     await tx.execute(
-      sql`select pg_advisory_xact_lock(hashtextextended(${`reading:${user.id}:${definition.kind}:${inputHash}`}, 0))`,
+      sql`select pg_advisory_xact_lock(hashtextextended(${`reading:${user.id}:${definition.kind}:${body.locale}:${inputHash}`}, 0))`,
     )
     const t = scoped(tx, workspace.id)
     const [existing] = await t
@@ -160,6 +161,7 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
           eq(reading.userId, user.id),
           eq(reading.kind, definition.kind),
           eq(reading.inputHash, inputHash),
+          eq(reading.locale, body.locale),
           inArray(reading.status, ['generating', 'ready']),
           gt(reading.createdAt, new Date(now.getTime() - READING_IDEMPOTENCY_MS)),
         ) as SQL,
