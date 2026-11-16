@@ -3,19 +3,31 @@
 ## MODIFIED Requirements
 
 ### Requirement: 多语言关联
-存在多语言版本的公开页面 SHALL 只在同一站点内声明全部语言版本之间的 hreflang 关联（使用绝对地址），并包含指向本站入口页的 `x-default`；MUST NOT 声明另一站点的页面。东方站的繁体、简体与韩语版本 SHALL 彼此互相声明，东方站 `/en` 入口页与三种语言的东方站首页互相声明。
+存在多语言版本的公开页面 SHALL 只在同一站点内声明全部语言版本之间的 hreflang 关联（使用绝对地址，包含页面自身），并包含 `x-default`；MUST NOT 声明另一站点的页面。`x-default` SHALL 指向同一页面在站点默认语言（东方站繁体中文、西方站英语）下的版本，该版本不存在时取站点语言顺序中第一个存在的版本；hreflang 与 `x-default` 的目标 MUST 是直接返回 200 且可索引的规范地址，MUST NOT 是会跳转的地址。站点地图中的语言关联 SHALL 与页面声明一致。
 
 #### Scenario: 定价页的语言版本
 - **WHEN** 搜索引擎抓取西方站英文定价页
-- **THEN** 页面只声明西方站英文定价页自身与 x-default，不出现东方站地址
+- **THEN** 页面只声明西方站英文定价页自身与指向自身的 x-default，不出现东方站地址
 
 #### Scenario: 繁中八字页的语言版本
-- **WHEN** 搜索引擎抓取东方站 `/zh-hant/八字排盤/`
-- **THEN** 页面声明东方站 `/ko/` 对应页（hreflang=ko）与指向东方站入口页的 x-default
+- **WHEN** 搜索引擎抓取东方站 `/zh-hant/八字排盤`
+- **THEN** 页面声明东方站 `/ko` 对应页（hreflang=ko）的绝对地址，x-default 为该繁中页自身
+
+#### Scenario: 东方站内页的 x-default
+- **WHEN** 搜索引擎抓取东方站 `/ko/pricing`
+- **THEN** 页面声明 `/zh-hant/pricing`、`/zh-hans/pricing`、`/ko/pricing` 三个语言版本，x-default 为 `https://ganjiday.com/zh-hant/pricing`，不是东方站根路径
+
+#### Scenario: 东方站首页的 x-default
+- **WHEN** 搜索引擎抓取东方站 `/ko`
+- **THEN** x-default 为 `https://ganjiday.com/zh-hant`，东方站 `/en` 入口页的 x-default 同样为该地址
+
+#### Scenario: 站点地图与页面一致
+- **WHEN** 搜索引擎读取东方站 `/sitemap/zh-hant.xml`
+- **THEN** 每个条目的 hreflang 与 x-default 与该页面 `<link rel="alternate">` 相同，没有条目的 x-default 指向东方站根路径
 
 #### Scenario: 简体八字页的语言版本
-- **WHEN** 搜索引擎抓取东方站 `/zh-hans/八字排盘/`
-- **THEN** 页面声明东方站繁中对应页（hreflang=zh-Hant）与 `/ko/` 对应页（hreflang=ko）的绝对地址
+- **WHEN** 搜索引擎抓取东方站 `/zh-hans/八字排盘`
+- **THEN** 页面声明东方站繁中对应页（hreflang=zh-Hant）与 `/ko` 对应页（hreflang=ko）的绝对地址
 
 #### Scenario: 东方站英文入口页
 - **WHEN** 搜索引擎抓取东方站 `/en`
