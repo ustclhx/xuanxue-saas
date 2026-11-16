@@ -11,6 +11,8 @@ test('signup credits require email verification and repeat claims grant only onc
     templateConfig.auth.requireEmailVerification,
     'This flow begins with an unverified session',
   )
+  // 项目修正：signupBonusCredits 为 0 时不送注册积分（add-reading-monetization 决策 4），无领取入口可测
+  test.skip(templateConfig.billing.signupBonusCredits <= 0, 'Signup bonus is disabled')
   const email = `signup-${randomUUID()}@example.com`
   const sql = fixtureDb()
   try {

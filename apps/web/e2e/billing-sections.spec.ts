@@ -35,21 +35,18 @@ test('账单页三分区按数据来源渲染，窄屏无横向滚动', async ({
     await page.goto(`${workspacePath}/billing`)
 
     await expect(page.getByRole('heading', { name: 'Billing', exact: true })).toBeVisible()
-    const subscription = page.getByRole('region', { name: 'Subscription', exact: true })
-    await expect(subscription.getByRole('heading', { name: 'Free plan' })).toBeVisible()
-    await expect(subscription.getByText('Not subscribed')).toBeVisible()
-    const balance = page.getByRole('region', { name: 'Credit balance' })
-    await expect(balance.getByText('Available credits: 0')).toBeVisible()
-    await expect(balance.getByRole('heading', { name: /Subscription credits/ })).toBeVisible()
-    await expect(balance.getByRole('heading', { name: 'Credit packs', exact: true })).toBeVisible()
-    await expect(balance.getByRole('heading', { name: 'Free credits' })).toBeVisible()
-    const packs = page.getByRole('region', { name: 'Buy credit packs' })
-    // 无支付密钥：购买按钮可见但不可用
-    await expect(packs.getByRole('button', { name: 'Buy Sections Pack' })).toBeDisabled()
+    // 项目修正：账单页沿用项目改版（#153），不渲染模板的「订阅 / 积分余额 / 积分包」三个分区；
+    // 核对同样的数据来源（当前套餐、余额与购买区），窄屏无横向滚动的断言不变
+    const main = page.getByRole('main')
+    await expect(main.getByText('Current plan: Free')).toBeVisible()
+    await expect(main.getByText(/^Available credits: 0 ·/)).toBeVisible()
+    await expect(main.getByRole('heading', { name: 'Choose a plan or credit pack' })).toBeVisible()
+    // 无支付密钥：没有可用的购买入口
+    await expect(main.getByText('Payments are currently unavailable.')).toBeVisible()
 
     await page.setViewportSize({ width: 390, height: 844 })
     await page.reload()
-    await expect(balance.getByRole('heading', { name: 'Free credits' })).toBeVisible()
+    await expect(main.getByText('Current plan: Free')).toBeVisible()
     await expectNoHorizontalScroll(page)
 
     await page.goto('/pricing')

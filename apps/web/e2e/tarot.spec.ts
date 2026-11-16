@@ -119,9 +119,10 @@ for (const { locale, path, shuffle, title, positions } of [
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title)
     // 两站分开经营（D5）：东方站塔罗页不声明西方站英语页
     await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(0)
+    // x-default 指向同一牌阵的繁中版本，不指向会跳转的东方站根路径（fix-seo-canonical-indexing，#138）
     await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
       'href',
-      'https://ganjiday.com/',
+      `https://ganjiday.com/zh-hant${encodeURI('/塔羅')}`,
     )
     await draw(page, shuffle)
     await page.getByRole('button', { name: /全部翻開|모두 열기/ }).click()

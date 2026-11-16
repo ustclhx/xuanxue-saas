@@ -5,6 +5,7 @@ import {
   APP_URL,
   emailLink,
   fixtureDb,
+  HOME_URL,
   login,
   loginOtp,
   seedWorkspaceSeats,
@@ -30,7 +31,10 @@ test('workspace creation, invitation entry and personal switching obey tenancy f
   await form.getByLabel('Email', { exact: true }).fill(`team-${key}@example.com`)
   await form.getByLabel('Password', { exact: true }).fill('correct-horse-battery')
   await form.getByRole('button', { name: 'Create account' }).click()
-  await expect(page).toHaveURL(/\/app\/u-/)
+  // 项目修正：注册后默认回到首页（fixtures.ts register），再进入个人空间
+  await expect(page).toHaveURL(HOME_URL, { timeout: 15_000 })
+  await page.goto('/app')
+  await expect(page).toHaveURL(APP_URL)
   const personalUrl = page.url()
   const ownerEmail = `team-${key}@example.com`
   await page.goto('/account')
@@ -112,7 +116,10 @@ test('workspace creation, invitation entry and personal switching obey tenancy f
   await recipient.getByLabel('Email', { exact: true }).fill(`invite-${key}@example.com`)
   await recipient.getByLabel('Password', { exact: true }).fill('correct-horse-battery')
   await recipient.getByRole('button', { name: 'Create account' }).click()
-  await expect(page).toHaveURL(/\/app\/u-/)
+  // 项目修正：注册后默认回到首页（fixtures.ts register），再进入个人空间
+  await expect(page).toHaveURL(HOME_URL, { timeout: 15_000 })
+  await page.goto('/app')
+  await expect(page).toHaveURL(APP_URL)
   await page.context().clearCookies()
   await page.goto(`/accept-invitation?id=${invitationId}`)
   await expect(page).toHaveURL(/\/login\?redirect=/)

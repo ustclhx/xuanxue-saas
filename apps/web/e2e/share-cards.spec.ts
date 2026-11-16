@@ -42,7 +42,8 @@ test('share page points og:image at a 1200x630 card and both 404 after invalidat
   expect(ogImage).toBeTruthy()
   const card = new URL(ogImage ?? '')
   expect(card.pathname).toBe(`/share-card/sample/${token}.png`)
-  expect(card.searchParams.get('v')).toMatch(/^1-[0-9a-f]{8}$/)
+  // 项目修正：有项目字体或站点覆盖时 v 追加 8 位指纹段（share-cards/meta.ts shareCardVariant）
+  expect(card.searchParams.get('v')).toMatch(/^1-[0-9a-f]{8}(?:-[0-9a-f]{8})?$/)
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', ogImage ?? '')
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
     'content',

@@ -219,7 +219,8 @@ for (const realSubmission of [true, false])
           .click()
         const article = page.getByRole('article', { name: `Refund ${request.id}`, exact: true })
         await article.getByLabel('Review note').fill('Partial review offline')
-        await article.getByLabel('Partial amount (USD cents)').fill('400')
+        // 部分退款金额按币种主单位输入、提交前换算为最小单位（#147）
+        await article.getByLabel('Partial amount (USD)').fill('4.00')
         await article.getByRole('button', { name: 'Approve partial refund' }).click()
         await expect(article.getByText('Status: approved', { exact: false })).toBeVisible()
         expect(calls).toEqual([

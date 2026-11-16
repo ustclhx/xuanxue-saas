@@ -142,6 +142,8 @@
       "r2_buckets": [{ "binding": "FILES", "bucket_name": "xuanxue-files-production" }],
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
+        // 发信经 Resend（product-improve 1.4）：两站 key 为 jobs 的 RESEND_API_KEY_EAST/WEST secret，发件子域 mail.<域名>
+        "EMAIL_TRANSPORT": "resend",
         // 多站：按访问域名选择 site，未登记域名不统计（PLAUSIBLE_DOMAIN 留空，docs/analytics.md §4）；与 jobs 一致
         "PLAUSIBLE_DOMAIN": "",
         "PLAUSIBLE_HOST": "https://stats.ganjiday.com",
