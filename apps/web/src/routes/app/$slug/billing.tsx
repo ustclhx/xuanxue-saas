@@ -78,8 +78,20 @@ function BillingPage() {
     price.available &&
     price.interval === null &&
     planType(price.planId) === 'credit_pack'
-  const isPlan = (price: CatalogPrice) =>
-    price.available && planType(price.planId) === 'subscription'
+  // 周期末取消仍是有效订阅：同一支付平台的新订阅/换档都沿用原币种。
+  const currencySubscription = (providerId: string) =>
+    page.subscriptions.find(
+      (sub) =>
+        sub.provider === providerId && ['active', 'trialing', 'past_due'].includes(sub.status),
+    )
+  const isPlan = (price: CatalogPrice) => {
+    const existing = currencySubscription(price.provider)
+    return (
+      price.available &&
+      planType(price.planId) === 'subscription' &&
+      (!existing || price.currency.toUpperCase() === existing.currency.toUpperCase())
+    )
+  }
   // 支付方式「可选」要求已配置且有可购买的价格：只配置了密钥、价格全部停用（如临时关闭 Stripe 售卖）时
   // 不能默认选中它，否则页面只剩空白、定价页带来的购买也无法继续
   const sells = (providerId: string, planKey?: string) =>
@@ -114,9 +126,15 @@ function BillingPage() {
       !sub.cancelAtPeriodEnd && ['active', 'trialing', 'past_due', 'paused'].includes(sub.status),
   )
   // 积分包一次性购买、不涉及订阅替换：每个积分包一个按钮，点击即跳转支付页；订阅仍走选择 + 确认
-  // 每个 (套餐, 周期) 只显示按界面语言选出的一行（与结账同一选价规则，localize-checkout-currency D5）
+  // 每个 (套餐, 周期) 只显示一行；积分包按语言选价，订阅优先沿用同平台旧订阅币种。
   const packPrices = displayPrices(page.catalog.prices.filter(isPack), getLocale(), provider)
-  const planPrices = displayPrices(page.catalog.prices.filter(isPlan), getLocale(), provider)
+  const existingSubscription = currencySubscription(provider)
+  const planPrices = displayPrices(
+    page.catalog.prices.filter(isPlan),
+    getLocale(),
+    provider,
+    existingSubscription?.currency,
+  )
   const selected = planPrices.find((price) => price.id === priceId)
   const currentProvider = page.catalog.providers.find((p) => p.id === provider)
   const providerLabel = (p: (typeof page.catalog.providers)[number]) =>
@@ -226,8 +244,8 @@ function BillingPage() {
     if (plan?.type === 'subscription') {
       const price = planPrices.find((item) => item.planId === plan.id && item.available)
       if (!price || disabled) return
-      // 已有续费中的订阅时需要换档或确认替换，只预选、不自动结账
-      if (renewing) setPriceId(price.id)
+      // 已有续费或仍未终止的旧订阅时只预选，展示沿用的币种后由用户确认结账
+      if (renewing || existingSubscription) setPriceId(price.id)
       else void checkout(price)
       return
     }
@@ -497,6 +515,7 @@ function BillingPage() {
   )
 }
 function errorMessage(code: string) {
+  if (code === 'BILLING_CURRENCY_CONFLICT') return m.billing_error_currency_conflict()
   if (code === 'WORKSPACE_READ_ONLY') return m.billing_error_readonly()
   if (code === 'BILLING_OWNER_REQUIRED') return m.billing_error_owner()
   if (code === 'BILLING_PROVIDER_DISABLED' || code === 'BILLING_PRICE_UNAVAILABLE')

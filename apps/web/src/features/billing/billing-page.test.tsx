@@ -1,9 +1,12 @@
+// @vitest-environment happy-dom
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ComponentType, ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, expect, it, vi } from 'vitest'
 import { m } from '../../paraglide/messages.js'
 import { baseLocale, locales, overwriteGetLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/app/$slug/billing.tsx'
+import { checkoutCustomer, manageCustomerSubscription } from './customer.functions.ts'
 
 const price = (
   id: string,
@@ -22,6 +25,19 @@ const price = (
 })
 let readingsOpen = true
 let search: { buy?: string } = {}
+const subscriptionFixture = {
+  id: 'sub',
+  name: 'Existing Pro',
+  planPriceId: 'old',
+  provider: 'stripe',
+  amount: 399,
+  currency: 'usd',
+  interval: 'month',
+  priceActive: false,
+  status: 'active',
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+}
 const page = {
   get readingsOpen() {
     return readingsOpen
@@ -30,21 +46,7 @@ const page = {
   entitlements: { key: 'pro' },
   readOnly: false,
   credits: null,
-  subscriptions: [
-    {
-      id: 'sub',
-      name: 'Existing Pro',
-      planPriceId: 'old',
-      provider: 'stripe',
-      amount: 399,
-      currency: 'usd',
-      interval: 'month',
-      priceActive: false,
-      status: 'active',
-      currentPeriodEnd: null,
-      cancelAtPeriodEnd: false,
-    },
-  ],
+  subscriptions: [subscriptionFixture],
   payments: [],
   refunds: [],
   catalog: {
@@ -62,6 +64,7 @@ const page = {
   },
 }
 const original = {
+  subscriptions: page.subscriptions,
   providers: page.catalog.providers,
   plans: page.catalog.plans,
   prices: page.catalog.prices,
@@ -80,15 +83,21 @@ vi.mock('@tanstack/react-router', () => ({
 vi.mock('../app-shell/space-frame.tsx', () => ({
   SpacePage: ({ children }: { children: ReactNode }) => <main>{children}</main>,
 }))
-vi.mock('./customer.functions.ts', () => ({}))
+vi.mock('./customer.functions.ts', () => ({
+  checkoutCustomer: vi.fn(),
+  manageCustomerSubscription: vi.fn(),
+}))
 vi.mock('../readings/readings.functions.ts', () => ({}))
 vi.mock('./refund.functions.ts', () => ({}))
 vi.mock('./refund-section.tsx', () => ({ RefundSection: () => null }))
 vi.mock('../../server/template-config.ts', () => ({
-  templateConfig: { billing: { enabled: true } },
+  templateConfig: { billing: { enabled: true }, features: { analytics: false } },
 }))
 
 afterEach(() => {
+  cleanup()
+  vi.clearAllMocks()
+  page.subscriptions = original.subscriptions
   overwriteGetLocale(() => baseLocale)
   readingsOpen = true
   search = {}
@@ -242,4 +251,87 @@ it.each(locales)('订阅分区的升级、到期、取消保留与自动续费�
   const html = renderToStaticMarkup(<Component />)
   // 现有订阅为 active：显示本期积分到期（日期待定时为「待定」）
   expect(html).not.toContain('billing-sub-period-credits')
+})
+
+it.each([
+  ['zh-Hans', 'TWD', 'NT$325', 'US$1.99'],
+  ['zh-Hant', 'USD', 'US$9.99', 'NT$65'],
+] as const)(
+  '换语言后仍展示现有订阅币种的换档价，积分包按语言（%s）',
+  (locale, currency, expected, pack) => {
+    overwriteGetLocale(() => locale)
+    page.subscriptions = [{ ...subscriptionFixture, currency }]
+    page.catalog.prices = [
+      price('pack-usd', 'pack', 199, true),
+      { ...price('pack-twd', 'pack', 6500, true), currency: 'TWD' },
+      price('plan-usd', 'subscription', 999, true),
+      { ...price('plan-twd', 'subscription', 32500, true), currency: 'TWD' },
+    ]
+    search = { buy: 'pro' }
+    const Component = Route.options.component as ComponentType
+    render(<Component />)
+    expect(screen.getByRole('combobox', { name: m.billing_plan() }).textContent).toContain(expected)
+    expect(
+      screen.getByRole('button', { name: m.billing_buy_pack({ name: 'Credits', amount: pack }) }),
+    ).toBeTruthy()
+    expect(checkoutCustomer).not.toHaveBeenCalled()
+  },
+)
+
+it('周期末取消后从定价页重订先展示旧币种价格，等待确认再结账', () => {
+  overwriteGetLocale(() => 'zh-Hans')
+  page.subscriptions = [{ ...subscriptionFixture, currency: 'TWD', cancelAtPeriodEnd: true }]
+  page.catalog.prices = [
+    price('plan-usd', 'subscription', 999, true),
+    { ...price('plan-twd', 'subscription', 32500, true), currency: 'TWD' },
+  ]
+  search = { buy: 'pro' }
+  const Component = Route.options.component as ComponentType
+  render(<Component />)
+  expect(checkoutCustomer).not.toHaveBeenCalled()
+  expect(screen.getByRole('combobox', { name: m.billing_plan() }).textContent).toContain('NT$325')
+  expect(
+    screen.getByRole('button', { name: m.billing_continue_checkout() }).hasAttribute('disabled'),
+  ).toBe(false)
+})
+
+it('换档遇到 Stripe 币种冲突时给出可操作提示', async () => {
+  overwriteGetLocale(() => 'en')
+  search = { buy: 'pro' }
+  vi.mocked(manageCustomerSubscription).mockResolvedValue({
+    ok: false,
+    error: 'BILLING_CURRENCY_CONFLICT',
+  })
+  const Component = Route.options.component as ComponentType
+  render(<Component />)
+  fireEvent.click(screen.getByRole('button', { name: m.billing_change_plan() }))
+  await waitFor(() =>
+    expect(screen.getByRole('status').textContent).toBe(
+      'Your subscription uses a different currency. Reload billing to use its currency, or contact support if checkout still fails.',
+    ),
+  )
+})
+
+it('同币种目标价不可售时不回退 USD', () => {
+  page.subscriptions = [{ ...subscriptionFixture, currency: 'TWD' }]
+  page.catalog.prices = [
+    price('plan-usd', 'subscription', 999, true),
+    { ...price('plan-twd', 'subscription', 32500, false), currency: 'TWD' },
+  ]
+  expect(purchasesHtml()).not.toContain('role="combobox"')
+  expect(purchasesHtml()).toContain('data-testid="billing-payments-unavailable"')
+})
+
+it('旧订阅已终止后可按当前语言购买新订阅', () => {
+  overwriteGetLocale(() => 'zh-Hant')
+  page.subscriptions = [{ ...subscriptionFixture, status: 'canceled', currency: 'USD' }]
+  page.catalog.prices = [{ ...price('plan-twd', 'subscription', 32500, true), currency: 'TWD' }]
+  expect(purchasesHtml()).toContain('role="combobox"')
+})
+
+it.each(locales)('币种冲突提示已本地化（%s）', (locale) => {
+  overwriteGetLocale(() => locale)
+  expect(m.billing_error_currency_conflict()).not.toMatch(/^billing_/)
+  if (locale !== 'en')
+    expect(m.billing_error_currency_conflict()).not.toContain('Your subscription')
 })
