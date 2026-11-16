@@ -129,6 +129,8 @@
       "preview_urls": false,
       "vars": {
         "SENTRY_ENVIRONMENT": "production",
+        // 发信经 Resend（product-improve 1.4）：两站 key 为 jobs 的 RESEND_API_KEY_EAST/WEST secret，发件子域 mail.<域名>
+        "EMAIL_TRANSPORT": "resend",
         "PAYMENT_MODE": "live",
         // 与 web 一致：多站 Plausible 映射与西方站 APP_URL（未登记 Host 的事件兜底）
         "APP_URL": "https://arcanumber.com",
