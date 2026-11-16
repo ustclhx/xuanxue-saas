@@ -14,8 +14,12 @@ const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'zh-Hans', 'ko']
 for (const lang of languages) {
   const prefix = lang === defaultLocale ? '' : localePrefix(lang)
 
-  test(`首页各区块（${lang}）`, async ({ page }) => {
-    const response = await page.goto(prefix || '/')
+  test(`首页各区块（${lang}）`, async ({ page, baseURL }) => {
+    // 东方站语言在东方站 Host 上访问：两站分开经营（D5），西方站 Host 上的页脚链接指向本站默认语言
+    const east = EAST_TOOL_HOMES.includes(lang)
+    const origin = new URL(baseURL ?? 'http://localhost:3000')
+    if (east) origin.hostname = 'east.localhost'
+    const response = await page.goto(`${east ? origin.origin : ''}${prefix || '/'}`)
     expect(response?.status()).toBe(200)
     await expect(page.locator('html')).toHaveAttribute('lang', lang)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()

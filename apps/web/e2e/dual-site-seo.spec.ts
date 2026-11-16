@@ -16,7 +16,8 @@ test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS �
   // 东方站只提供本站语言，不能把英语工具或无前缀营销地址带到东方站。
   const navigation = page.getByRole('navigation', { name: '도구', exact: true })
   const links = navigation.getByRole('link')
-  await expect(links).toHaveText(['만세력', '사주궁합', '쓰리 카드 타로', '요금제'])
+  // 每日运势（#152）加入工具导航
+  await expect(links).toHaveText(['만세력', '사주궁합', '쓰리 카드 타로', '오늘의 운세', '요금제'])
   for (const link of await links.all()) await expect(link).toHaveAttribute('href', /^\/ko(?:\/|$)/)
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()

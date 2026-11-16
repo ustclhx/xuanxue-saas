@@ -217,6 +217,7 @@ pnpm --filter @xuanxue/web test:e2e:smoke
 
 - `e2e-full`：使用临时 Postgres 17，运行 `pnpm --filter @xuanxue/web test:e2e`，采用默认 `playwright.config.ts` 的离线测试范围，不需要外部服务密钥；不包含 Stripe 专用测试、staging / production 项目及 `ai-chat-disconnect`。
 - `e2e-multi-tenant`：在 runner 的检出副本中用 `sed` 把 `template.config.ts` 改为 `multiTenant: true`，运行 `e2e/workspace.spec.ts` 与 `e2e/app-shell.spec.ts`，覆盖团队空间创建、邀请、成员管理与侧边栏工作区菜单（默认配置只覆盖单空间分支）；使用独立的 `xuanxue_wt_multi_tenant` 库。
+  本项目 `multiTenant: false`，空间布局也不提供工作区切换，已从本项目的 workflow 删除该 job；开启多空间时从模板恢复。
 - `create-project-verify`：运行 `pnpm test:create-project:verify`，验证生成项目的真实副本；衍生项目不包含该模板维护脚本，自动省略此步骤。
 
 失败时上传 Playwright report 与 trace，保留 14 天。失败通知自动创建带 `nightly-failure` 标签的 issue；如果已有未关闭且带同标签的 issue，则追加评论。通知包含运行日期、失败 job 和 Actions run 链接。

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { expect, type Page, test } from '@playwright/test'
 import { newId } from '@xuanxue/shared'
+import { seedChatModel } from './chat-fixtures.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -26,10 +27,12 @@ const slugOf = (page: Page) => new URL(page.url()).pathname.split('/')[2] ?? ''
 test('rates a reply, keeps the down-vote reason and shows it in the admin list', async ({
   page,
 }) => {
-  test.setTimeout(120_000)
+  test.setTimeout(180_000)
   const email = `chat-feedback-${randomUUID()}@example.com`
   await register(page, email)
   const slug = slugOf(page)
+  // 项目修正：空间没有可用对话模型时对话页不显示输入区（specs/ai-chat），先授予夹具模型
+  await seedChatModel(slug)
   const sql = fixtureDb()
   const conversationId = newId()
   const replyId = newId()
@@ -47,7 +50,16 @@ test('rates a reply, keeps the down-vote reason and shows it in the admin list',
       sql`select rating, comment, reason, share_conversation from ai_message_feedback
         where message_id = ${replyId}`
 
-    await page.goto(`/app/${slug}/chat/${conversationId}`)
+    // 模型列表有缓存：重新打开直到输入区出现（同 ai-chat.spec.ts 的轮询）
+    await expect
+      .poll(
+        async () => {
+          await page.goto(`/app/${slug}/chat/${conversationId}`)
+          return page.getByLabel('Message', { exact: true }).count()
+        },
+        { timeout: 90_000, intervals: [2_000, 5_000] },
+      )
+      .toBe(1)
     const messages = page.getByRole('list', { name: 'Messages' }).getByRole('listitem')
     await expect(messages.nth(0)).toContainText('What changed?')
     await expect(messages.nth(1)).toContainText('Costs went up.')

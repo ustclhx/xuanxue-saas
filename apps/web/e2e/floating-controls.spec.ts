@@ -64,29 +64,25 @@ for (const viewport of [
       test.setTimeout(60_000)
       await page.setViewportSize(viewport)
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' })
-      // 手机端（< 768px）语言与主题不再悬浮，移入页脚设置行（0.5.1，设计稿 mobile-footer-controls）
+      // 项目修正：语言是页头 <details> 菜单、主题在页头/页脚设置行，均不悬浮；西方站（localhost）
+      // 只有英语与深色主题，两个控件都不渲染。页面层悬浮按钮只剩手机端预览中 SubjectChat 的触发器，
+      // 桌面端没有悬浮入口，只核对遮罩与焦点。
       const mobile = viewport.width < 768
       await page.goto('/')
-      if (mobile) {
-        await expect(themeControl(page)).toBeHidden()
-        await expect(languageControl(page)).toBeHidden()
-      } else {
-        await expectPageLayer(languageControl(page))
-        await expectPageLayer(themeControl(page))
-      }
+      await expect(themeControl(page)).toHaveCount(0)
+      await expect(languageControl(page)).toHaveCount(0)
       // 营销页没有模态入口，核对真实 AI 入口采用同一个页面层 token。
       if (templateConfig.marketing.aiEntry.enabled) {
         await expectPageLayer(page.locator('a.fixed').filter({ hasText: 'Ask AI' }))
       }
 
       await page.goto('/dev/ui')
-      await expect(
-        page.locator('[data-theme-option="system"]').filter({ visible: true }).first(),
-      ).toBeEnabled({ timeout: 30_000 })
-      // 手机端唯一的页面层悬浮按钮是预览中 SubjectChat 的触发器
+      // 原用例以主题控件可用作为水合完成的信号；西方站没有主题控件，改等网络空闲
+      await page.waitForLoadState('networkidle')
       const floating = mobile
         ? [page.locator('[data-embedded-chat-trigger]').filter({ visible: true }).first()]
-        : [languageControl(page), themeControl(page)]
+        : []
+      for (const control of floating) await expect(control).toBeEnabled({ timeout: 30_000 })
       for (const control of floating) await expectPageLayer(control)
       const positions = await Promise.all(floating.map(center))
       const overlay = page.locator('body > [data-state="open"][class*="--z-overlay"]')

@@ -56,6 +56,8 @@ export default defineConfig({
           },
         ]
       : [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // 项目：离线套件先写入示例目录，避免公开定价缓存按用例顺序缓存到空目录（e2e/catalog-setup.ts）
+  ...(!remoteURL && { globalSetup: './e2e/catalog-setup.ts' }),
   ...(!remoteURL && {
     webServer: [
       {
