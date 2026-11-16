@@ -73,8 +73,8 @@
 
 依赖：4、6 合并（5 合并后补紫微页）。冲突点：`apps/web/scripts/og-images.ts` 只由本组修改。
 
-- [ ] 8.1 为首页与八字 / 紫微 / 命盤查詢 / 만세력 / Life Path / 数字图表页新增样例 OG 模板（标题、站名、样例图形 data URI、「示例」角标），颜色取自 3.2 的 brand.css 解析；resvg 无法渲染嵌入中文时按 D6 回退。验证：`pnpm --filter @xuanxue/web build` 生成 `dist/client/og/` 对应 PNG，人工核对东 / 西各一张存入 `EVIDENCE_DIR`；`seo` 现有单元测试与 `seo.spec.ts` 通过
-- [ ] 8.2 增加测试：带 `#r=` 的分享链接页面 `og:image` 与工具页相同，样例 OG 模板只用于登记页面。验证：单元测试通过
+- [x] 8.1 为首页与八字 / 紫微 / 命盤查詢 / 만세력 / Life Path / 数字图表页新增样例 OG 模板（标题、站名、样例图形 data URI、「示例」角标），颜色取自 3.2 的 brand.css 解析；resvg 无法渲染嵌入中文时按 D6 回退。验证：`pnpm --filter @xuanxue/web build` 生成 `dist/client/og/` 对应 PNG，人工核对东 / 西各一张存入 `EVIDENCE_DIR`；`seo` 现有单元测试与 `seo.spec.ts` 通过
+- [x] 8.2 增加测试：带 `#r=` 的分享链接页面 `og:image` 与工具页相同，样例 OG 模板只用于登记页面。验证：单元测试通过
 
 ## 9. 首页枢纽区块（worktree W7，两站）
 

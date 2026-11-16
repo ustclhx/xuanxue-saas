@@ -39,6 +39,12 @@ EAST_URL=https://east.example.com WEST_URL=https://west.example.com pnpm build
 [分享卡片与分享页](../../../../../docs/share-cards.md)。构建期分享图的版式与运行时分享卡片共用 `features/share-cards/layout.tsx` 的默认版式（设计稿
 `docs/design-system/prototypes/share-cards/Card.dc.html` 的 `default` 变体，浅色主题 token），
 渲染经 `src/node/share-card-renderer.ts`。
+首页（东方站八字 / 만세력、西方站 Life Path）、紫微、命盤查詢与 `/numerology-chart` 改用样例模板
+（`og-sample/`，openspec redesign-home-chart-visuals D6）：左栏同默认版式，右栏为虚构样例命盘图形与「示例」角标，
+颜色由 `scripts/brand-tokens.ts` 从 `brand.css` 解析。登记页面按工具 id 写在 `og-sample/pages.ts`。
+resvg 不为嵌入的 SVG 加载字体，图形中的 `<text>` 会被拆出、由 satori 按原坐标在外层排字（`og-sample/svg-text.ts`）。
+图形组件依赖 Paraglide 文案，构建脚本在 `generateBundle` 中经 vite `runnerImport` 加载 `og-sample/render.tsx`，
+不在 vite 配置中静态导入。
 本项目的站点解析在 `features/share-cards/share-cards.sites.ts`：构建期按页面语言（东方站英文入口页按路径），
 运行时按请求域名，换用站点品牌、规范域名（ganjiday.com / arcanumber.com）与 brand.css 对应的配色。
 

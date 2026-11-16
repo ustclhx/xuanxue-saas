@@ -86,7 +86,10 @@ test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request })
   // 默认 localhost 属于预览 Host，禁止全部抓取；已知 Host 的规则由 dual-site-seo 验证。
   expect(rules).toContain('Disallow: /')
   for (const image of await Promise.all(
-    ['/og/en/terms.png', '/og/en/privacy.png'].map((path) => request.get(path)),
+    // 含样例 OG 模板的登记页面（redesign-home-chart-visuals 8.1）：开发服务器经 runnerImport 加载图形组件
+    ['/og/en/terms.png', '/og/en/privacy.png', '/og/en/index.png', '/og/zh-hant/index.png'].map(
+      (path) => request.get(path),
+    ),
   )) {
     expect(image.status()).toBe(200)
     expect(image.headers()['content-type']).toBe('image/png')
