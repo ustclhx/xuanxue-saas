@@ -144,15 +144,19 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
   const switchTo = async (locale: string) => {
     const menu = page.locator('details').filter({ has: page.locator('button[lang]') })
     await expect
-      .poll(async () => {
-        if (!(await menu.getAttribute('open').then((open) => open !== null)))
-          await menu.locator('summary').click()
-        await menu
-          .locator(`button[lang="${locale}"]`)
-          .click({ timeout: 2_000 })
-          .catch(() => {})
-        return page.locator('html').getAttribute('lang')
-      })
+      .poll(
+        async () => {
+          if (!(await menu.getAttribute('open').then((open) => open !== null)))
+            await menu.locator('summary').click()
+          await menu
+            .locator(`button[lang="${locale}"]`)
+            .click({ timeout: 2_000 })
+            .catch(() => {})
+          return page.locator('html').getAttribute('lang')
+          // dev server 下工具页水合与切换后的整页跳转常超过默认 5 秒，与其他水合等待一致放宽到 30 秒
+        },
+        { timeout: 30_000 },
+      )
       .toBe(locale)
   }
   try {

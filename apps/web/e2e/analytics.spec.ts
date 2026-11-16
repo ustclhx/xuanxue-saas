@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
+import templateConfig from '../../../template.config.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
@@ -49,18 +50,27 @@ test('首触 Cookie 只写一次，注册后绑定到用户，账号归因可查
   }
 })
 
-test('未配置 Plausible 时公开页没有分析脚本，站点资源可用', async ({ page, request }) => {
+test('未配置 Plausible 时公开页没有分析脚本，站点资源可用', async ({ page, request, baseURL }) => {
   await page.goto('/')
   await expect(page.locator('script[data-domain]')).toHaveCount(0)
-  await expect(page.locator('link[rel="icon"]')).toHaveCount(1)
+  // 项目站点图标为 SVG 与 32px PNG 两条（features/site/theme.ts）
+  await expect(page.locator('link[rel="icon"]')).toHaveCount(2)
   expect((await request.get('/favicon.ico')).status()).toBe(200)
-  const llms = await request.get('/llms.txt')
-  expect(llms.status()).toBe(200)
-  expect(await llms.text()).toContain('## Pages')
+  // 项目修正：llms.txt 按站点提供，未登记 Host（localhost）与 robots 一致返回 404；
+  // Node 请求不解析 *.localhost，已登记的本地站点 Host 经浏览器访问
+  expect((await request.get('/llms.txt')).status()).toBe(404)
+  const west = new URL(baseURL ?? 'http://localhost:3000')
+  west.hostname = 'west.localhost'
+  const llms = await page.goto(`${west.origin}/llms.txt`)
+  expect(llms?.status()).toBe(200)
+  // 项目的 llms.txt 按语言分节（features/seo/crawlers.ts）
+  expect(await llms?.text()).toMatch(/^## English$/m)
   expect((await request.get('/indexnow.txt')).status()).toBe(404)
 })
 
 test('答案页结论置顶并输出 FAQ 结构化数据，进入站点地图', async ({ page, request }) => {
+  // 项目修正：答案页属于 features.guides，本项目未开启
+  test.skip(!templateConfig.features.guides, 'Guides are disabled')
   const response = await request.get('/guides/is-it-free')
   expect(response.status()).toBe(200)
   const html = await response.text()
@@ -88,7 +98,8 @@ test('定价页有站点导航，CTA 未登录经登录页；首页 CTA 到注�
     await cta.click()
     await expect(page).toHaveURL(/\/login/)
   }
-  await page.goto('/')
+  // 项目修正：西方站首页是 Life Path 计算器，注册 CTA 在定价页免费档卡片（#153）
+  await page.goto('/pricing')
   const hrefs = await page
     .locator('#pricing a, section a[href$="/register"]')
     .evaluateAll((links) => links.map((link) => link.getAttribute('href')))

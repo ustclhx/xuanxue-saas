@@ -22,7 +22,9 @@ test('public pricing describes unavailable payments without a checkout success',
   await expect(packs).toHaveCount(2)
   await expect(packs.first()).toContainText('Single Reading')
   await expect(packs.first()).toContainText('$1.99')
-  await expect(packs.last()).toContainText('Unlocks 5 full readings')
+  // 积分包按本地化名称与积分数展示（pricing-page.tsx PACK_NAMES）
+  await expect(packs.last()).toContainText('Five Readings')
+  await expect(packs.last()).toContainText('500 credits')
   await expect(page.getByTestId('pricing-pack').getByRole('link')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /checkout|pay now/i })).toHaveCount(0)
 
@@ -41,9 +43,10 @@ test('public pricing renders before hydration', async ({ browser, baseURL }) => 
   try {
     await page.goto('/pricing')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    const language = page.getByRole('combobox', { name: 'Language', exact: true })
-    await expect(language).toHaveText('English')
-    await expect(language).toBeDisabled()
+    // 项目修正：语言切换是页头 <details> 菜单（不依赖水合），西方站只有英语、不显示菜单；
+    // 没有模板的浮动语言下拉可断言禁用状态
+    await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
+    await expect(page.locator('header button[lang]')).toHaveCount(0)
   } finally {
     await context.close()
   }
@@ -86,6 +89,8 @@ test('PayPal return captures once automatically and routes each result', async (
     route.fulfill({ contentType: 'text/html', body: '<title>PayPal sandbox</title>' }),
   )
   const confirmButton = page.getByRole('button', { name: 'Confirm payment' })
+  // 项目修正：侧栏的每日积分提示也是 status（#144/#175），回跳提示只在主内容区内定位
+  const notice = page.getByRole('main').getByRole('status')
 
   await test.step('subscription and canceled returns never capture', async () => {
     for (const [query, text] of [
@@ -95,7 +100,7 @@ test('PayPal return captures once automatically and routes each result', async (
       ],
     ] as const) {
       await page.goto(`${workspacePath}/billing-return?${query}`)
-      await expect(page.getByRole('status')).toContainText(text)
+      await expect(notice).toContainText(text)
       await page.waitForLoadState('networkidle')
     }
     // 从账单页发起（无 returnTo）的取消直接回到账单页并提示
@@ -103,7 +108,7 @@ test('PayPal return captures once automatically and routes each result', async (
       `${workspacePath}/billing-return?provider=paypal&token=ORDER-TOKEN&canceled=true`,
     )
     await expect(page).toHaveURL(/\/billing\?checkout=canceled$/)
-    await expect(page.getByRole('status')).toContainText('Checkout was canceled.')
+    await expect(notice).toContainText('Checkout was canceled.')
     await page.goto(
       `${workspacePath}/billing-return?provider=paypal&token=ORDER-TOKEN&canceled=true&returnTo=${encodeURIComponent('/ko/pricing')}`,
     )
@@ -120,7 +125,7 @@ test('PayPal return captures once automatically and routes each result', async (
       `${workspacePath}/billing-return?provider=paypal&token=ORDER-TOKEN&returnTo=${encodeURIComponent('/ko/pricing')}`,
     )
     await expect(page.getByRole('heading', { name: '결제', exact: true })).toBeVisible()
-    await expect(page.getByRole('status')).toContainText('결제를 확인하지 못했습니다')
+    await expect(notice).toContainText('결제를 확인하지 못했습니다')
     await expect(confirmButton).toHaveCount(0)
     expect(captures).toEqual([
       { slug: expect.any(String), provider: 'paypal', providerRef: 'ORDER-TOKEN' },
@@ -150,6 +155,7 @@ test('PayPal return captures once automatically and routes each result', async (
 test('billing hides the payment method selector unless several providers are available', async ({
   page,
 }) => {
+  await seedBillingCatalog()
   await simulateClientIp(page)
   await stubTurnstile(page)
   await register(page, `billing-providers-${randomUUID()}@example.com`)
@@ -161,8 +167,30 @@ test('billing hides the payment method selector unless several providers are ava
       return route.continue()
     const response = await route.fetch()
     const envelope = serializer.fromCrossJSON(await response.json(), { refs: new Map() })
-    const result = envelope.result as { catalog: { providers: unknown[] } }
+    const result = envelope.result as {
+      catalog: {
+        providers: unknown[]
+        plans: { id: string; type: string }[]
+        prices: Record<string, unknown>[]
+      }
+    }
     result.catalog.providers = providers
+    // 项目修正：支付方式还须有可购买的价格才可选（#134），本地种子价格均未同步，
+    // 为每个可用 Provider 补一条可售的月付订阅价格
+    const subscription = result.catalog.plans.find((plan) => plan.type === 'subscription')
+    if (!subscription) throw new Error('Billing catalog has no active subscription plan')
+    result.catalog.prices = providers
+      .filter((item) => item.available)
+      .map((item) => ({
+        id: randomUUID(),
+        planId: subscription.id,
+        provider: item.id,
+        amount: 499,
+        currency: 'usd',
+        interval: 'month',
+        active: true,
+        available: true,
+      }))
     await route.fulfill({
       status: response.status(),
       headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
