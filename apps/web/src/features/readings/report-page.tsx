@@ -153,7 +153,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           className="print:hidden"
         >
           <Suspense fallback={<ReportChatFallback />}>
-            <ReportChat slug={slug} readingId={view.id} content={view.content} />
+            <ReportChat slug={slug} readingId={view.id} />
           </Suspense>
         </section>
       )}
