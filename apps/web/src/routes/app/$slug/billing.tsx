@@ -5,17 +5,18 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import { enabledCurrency, formatMoney } from '@xuanxue/billing/currency'
-import { Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
+import { Badge, Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useEffect, useId, useRef, useState } from 'react'
 import { z } from 'zod'
 import { trackEvent } from '../../../features/analytics/track.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
-import { entitlementPlanName } from '../../../features/billing/billing-sections.tsx'
+import { entitlementPlanName, formatCredits } from '../../../features/billing/billing-sections.tsx'
 import {
   checkoutCustomer,
   getCustomerBilling,
   manageCustomerSubscription,
 } from '../../../features/billing/customer.functions.ts'
+import { billingDailyClaimState } from '../../../features/billing/daily-claim.ts'
 import { getCustomerRefunds } from '../../../features/billing/refund.functions.ts'
 import { RefundSection } from '../../../features/billing/refund-section.tsx'
 import { displayPrices } from '../../../features/marketing/pricing-data.ts'
@@ -62,6 +63,7 @@ const date = (value: Date | null) =>
   value ? new Date(value).toLocaleDateString('en-US', { timeZone: 'UTC' }) : m.billing_pending()
 function BillingPage() {
   const page = Route.useLoaderData()
+  const dailyClaim = billingDailyClaimState(page.dailyClaim)
   const { slug } = Route.useParams()
   const { returnTo, checkout: checkoutResult, buy } = Route.useSearch()
   const router = useRouter()
@@ -260,13 +262,21 @@ function BillingPage() {
         })}
       </p>
       {page.credits && (
-        <p>
-          {m.billing_credit_balance({
-            available: page.credits.available,
-            held: page.credits.held,
-            debt: page.credits.debt,
-          })}
-        </p>
+        <>
+          <p>
+            {m.billing_credit_balance({
+              available: page.credits.available,
+              held: page.credits.held,
+              debt: page.credits.debt,
+            })}
+          </p>
+          {dailyClaim && (
+            <p role="status" data-status={dailyClaim.status} className="text-muted-foreground">
+              <Badge variant="dot">{m.billing_page_daily_claimed_title()}</Badge>{' '}
+              {m.billing_page_daily_claimed_desc({ count: formatCredits(dailyClaim.credits) })}
+            </p>
+          )}
+        </>
       )}
       <Link to="/app/$slug/usage" params={{ slug }} className="underline">
         {m.billing_credit_usage_link()}

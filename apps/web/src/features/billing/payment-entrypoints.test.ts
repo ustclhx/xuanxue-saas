@@ -1,3 +1,4 @@
+import { getDailyCreditsClaim } from '@xuanxue/credits'
 import { AppError } from '@xuanxue/shared'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 
@@ -17,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   deletion: vi.fn(),
   status: vi.fn(),
   requestUrl: 'https://app.test',
+  dailyClaim: vi.fn(),
 }))
 vi.mock('../../server/runtime.ts', () => ({
   getWebRuntime: () => ({
@@ -77,9 +79,18 @@ vi.mock('@xuanxue/billing', async (original) => ({
   submitRefundRequest: mocks.refund,
   createBillingDeletionStep: mocks.deletion,
 }))
+vi.mock('@xuanxue/credits', async (original) => ({
+  ...(await original<typeof import('@xuanxue/credits')>()),
+  getDailyCreditsClaim: mocks.dailyClaim,
+}))
+vi.mock('./customer-data.ts', async (original) => ({
+  ...(await original<typeof import('./customer-data.ts')>()),
+  customerBilling: vi.fn(async () => ({ credits: { available: 0, held: 0, debt: 0 } })),
+  customerCatalog: vi.fn(async () => mocks.catalog),
+}))
 vi.mock('../../server/template-config.ts', () => ({
   templateConfig: {
-    credits: { enabled: true },
+    credits: { enabled: true, dailyEnabled: true },
     billing: { enabled: true, providers: ['stripe', 'paypal'], refundWindowDays: 30 },
     i18n: { enabled: true, locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
     sites: {
@@ -103,10 +114,17 @@ vi.mock('../marketing/pricing-data.ts', () => ({
 }))
 vi.mock('../marketing/pricing-snapshot.ts', () => ({ pricingSnapshot: {} }))
 
+import type { Database } from '@xuanxue/db'
 import { handlePaymentWebhook } from '../../routes/api/billing/webhooks/$provider.ts'
+import { checkDailyCredits } from '../credits/daily.server.ts'
 import { getMarketingPricing } from '../marketing/pricing.functions.ts'
 import { getAdminBilling, replayAdminWebhook } from './admin.functions.ts'
-import { checkoutCustomer, confirmCustomerCheckout } from './customer.functions.ts'
+import {
+  checkoutCustomer,
+  confirmCustomerCheckout,
+  getCustomerBilling,
+} from './customer.functions.ts'
+import { billingDailyClaimState } from './daily-claim.ts'
 import { createBillingDeletionSteps as billingDeletionSteps } from './deletion.server.ts'
 import { requestCustomerRefund } from './refund.functions.ts'
 
@@ -119,6 +137,49 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
 })
 afterEach(() => vi.restoreAllMocks())
+
+it('KV 已缓存且余额为零时，账单仍按当前用户的领取记录显示今日已领', async () => {
+  mocks.env.PAYMENT_MODE = 'test'
+  const db = mocks.db as unknown as Database
+  const user = { id: 'user', emailVerified: true }
+  const cache = { get: vi.fn(async () => 'checked'), put: vi.fn(), delete: vi.fn() }
+  expect(await checkDailyCredits({ db, cache, user, session: {}, enabled: true })).toEqual({
+    status: 'cached',
+  })
+  mocks.dailyClaim.mockResolvedValue({ credits: 10, day: '2026-11-16' })
+  const read = getCustomerBilling as unknown as (input: unknown) => Promise<{
+    dailyClaim: { credits: number; day: string } | null
+  }>
+  const context = {
+    db,
+    user,
+    workspace: { id: 'user', isPersonal: true },
+    member: { role: 'owner' },
+    workspaceReadOnly: false,
+  }
+  const page = await read({ context, data: { slug: 'personal', userId: 'other-user' } })
+  expect(getDailyCreditsClaim).toHaveBeenCalledWith({ db, userId: 'user' })
+  expect(billingDailyClaimState(page.dailyClaim)).toEqual({ status: 'claimed', credits: 10 })
+})
+
+it.each([
+  { id: 'team', isPersonal: false },
+  { id: 'other-user', isPersonal: true },
+])('不在其他空间展示当前用户的个人每日领取：%j', async (workspace) => {
+  mocks.env.PAYMENT_MODE = 'test'
+  const read = getCustomerBilling as unknown as (input: unknown) => Promise<{ dailyClaim: null }>
+  const page = await read({
+    context: {
+      db: mocks.db,
+      user: { id: 'user' },
+      workspace,
+      member: { role: 'owner' },
+      workspaceReadOnly: false,
+    },
+  })
+  expect(page.dailyClaim).toBeNull()
+  expect(getDailyCreditsClaim).not.toHaveBeenCalled()
+})
 
 it.each([
   { SENTRY_ENVIRONMENT: 'production' },

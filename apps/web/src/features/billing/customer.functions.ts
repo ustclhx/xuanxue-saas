@@ -9,6 +9,7 @@ import {
   getPortalUrl,
   resumeSubscription,
 } from '@xuanxue/billing'
+import { getDailyCreditsClaim } from '@xuanxue/credits'
 import type { Database } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
@@ -100,6 +101,13 @@ export const getCustomerBilling = createServerFn({ method: 'GET' })
       templateConfig.billing.pastDueGraceDays,
     )),
     catalog: await customerCatalog(context.db, runtime(context.db).readiness),
+    dailyClaim:
+      templateConfig.credits.enabled &&
+      templateConfig.credits.dailyEnabled &&
+      context.workspace.isPersonal &&
+      context.workspace.id === context.user.id
+        ? await getDailyCreditsClaim({ db: context.db, userId: context.user.id })
+        : null,
     role: context.member.role,
     readOnly: context.workspaceReadOnly,
   }))
