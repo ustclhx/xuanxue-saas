@@ -766,9 +766,9 @@ describe('Stripe refunds and immutable plan prices', () => {
   describe('localized credit pack variants', () => {
     const hex = planId.replaceAll('-', '')
     const locales = [
-      ['zh-Hant', 'zh_hant', '單次詳批', '100 積分'],
-      ['zh-Hans', 'zh_hans', '单次详批', '100 积分'],
-      ['ko', 'ko', '상세 풀이 1회', '100 크레딧'],
+      ['zh-Hant', 'zh_hant', '入門包', '100 積分'],
+      ['zh-Hans', 'zh_hans', '入门包', '100 积分'],
+      ['ko', 'ko', '스타터 팩', '100 크레딧'],
     ] as const
     const packSync: PlanSyncInput = {
       plan: {

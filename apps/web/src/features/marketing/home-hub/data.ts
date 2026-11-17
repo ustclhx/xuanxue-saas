@@ -65,7 +65,7 @@ export interface HubPrice {
   readonly key: string
   readonly name: string
   readonly credits: number
-  /** 「NT$65」 */
+  /** 「NT$97」 */
   readonly price: string
   /** zh-Hans 的人民币参考价 */
   readonly reference: string | null

@@ -97,9 +97,9 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
     expect(single).toMatchObject({ credits: 100 })
     // 不同支付渠道的同周期同币种报价合并为一项，价目表的每个结算币种各保留一项
     expect(single?.prices.map((p) => [p.interval, p.currency, p.amount])).toEqual([
-      [null, 'USD', 199],
-      [null, 'TWD', 6500],
-      [null, 'KRW', 2800],
+      [null, 'USD', 299],
+      [null, 'TWD', 9700],
+      [null, 'KRW', 4200],
     ])
   })
 })

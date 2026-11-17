@@ -25,17 +25,17 @@ describe('fixed exchange price table', () => {
   })
 
   it('keeps the user-confirmed values', () => {
-    expect(PRICE_TABLE.reading_single.once).toEqual({ USD: 199, TWD: 6500, KRW: 2800, CNY: 1300 })
-    expect(PRICE_TABLE.reading_five.once).toEqual({ USD: 699, TWD: 22700, KRW: 9800, CNY: 4700 })
+    expect(PRICE_TABLE.reading_single.once).toEqual({ USD: 299, TWD: 9700, KRW: 4200, CNY: 2000 })
+    expect(PRICE_TABLE.reading_five.once).toEqual({ USD: 799, TWD: 26000, KRW: 11200, CNY: 5400 })
     expect(PRICE_TABLE.plus.month).toEqual({ USD: 499, TWD: 16200, KRW: 7000, CNY: 3300 })
     expect(PRICE_TABLE.premium.month).toEqual({ USD: 999, TWD: 32500, KRW: 14000, CNY: 6700 })
   })
 
   it('expands settlement currencies only', () => {
     expect(tablePrices('reading_single')).toEqual([
-      { interval: null, amount: 199, currency: 'USD' },
-      { interval: null, amount: 6500, currency: 'TWD' },
-      { interval: null, amount: 2800, currency: 'KRW' },
+      { interval: null, amount: 299, currency: 'USD' },
+      { interval: null, amount: 9700, currency: 'TWD' },
+      { interval: null, amount: 4200, currency: 'KRW' },
     ])
     expect(tablePrices('plus').map((price) => price.interval)).toEqual(['month', 'month', 'month'])
   })
