@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { m } from '../../paraglide/messages.js'
-import { preferredLocale } from './preference.ts'
+import { locales } from '../../paraglide/runtime.js'
+import { preferredLocale, SUGGESTION_ALIASES } from './preference.ts'
 import { localeRewrite } from './routing.ts'
+import { localeSuggestionScript, SUGGESTION_ATTRIBUTE } from './suggestion.ts'
 import { localePrefix } from './url-prefix.ts'
 
 // add-zh-hans-locale tasks.md 6.2：简体前缀、偏好与占位文案
@@ -21,6 +23,34 @@ describe('zh-Hans 路由与占位', () => {
     expect(preferredLocale('zh-SG')).toBe('zh-Hans')
     expect(preferredLocale('zh-TW,zh;q=0.9')).toBe('zh-Hant')
     expect(preferredLocale('zh-HK')).toBe('zh-Hant')
+  })
+
+  it('首帧前语言建议脚本与 preferredLocale 的中文归属一致', () => {
+    const script = localeSuggestionScript({
+      baseLocale: 'en',
+      locales,
+      preferenceCookie: 'locale-preference',
+      localeCookie: 'PARAGLIDE_LOCALE',
+      cookieMaxAge: 1,
+      aliases: SUGGESTION_ALIASES,
+    })
+    const suggest = (language: string) => {
+      const attributes = new Map<string, string>()
+      const document = {
+        cookie: '',
+        documentElement: { lang: 'en', setAttribute: attributes.set.bind(attributes) },
+      }
+      const window = { addEventListener() {} }
+      new Function('document', 'navigator', 'window', 'location', script)(
+        document,
+        { languages: [language] },
+        window,
+        { protocol: 'https:' },
+      )
+      return attributes.get(SUGGESTION_ATTRIBUTE)
+    }
+    for (const tag of ['zh-CN', 'zh-SG', 'zh-TW', 'zh-HK', 'zh', 'zh-Hant-TW', 'ko-KR'])
+      expect(suggest(tag), tag).toBe(preferredLocale(tag))
   })
 
   it('结果页占位文案为简体', () => {

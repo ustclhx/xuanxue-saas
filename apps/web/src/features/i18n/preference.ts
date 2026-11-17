@@ -3,7 +3,8 @@ import { isAppAreaPath } from './app-area.ts'
 
 // 与 Paraglide 自动同步的 Cookie 分开，只有手动选择 / 关闭建议才记为已选择。
 export const PREFERENCE_COOKIE = 'locale-preference'
-const MAX_AGE = 365 * 86400
+/** 语言 Cookie 的有效期（秒）；首帧前脚本（suggestion.ts）写同样的 Cookie */
+export const LOCALE_COOKIE_MAX_AGE = 365 * 86400
 
 export function readCookie(cookie: string, name: string): string | undefined {
   return cookie
@@ -14,7 +15,7 @@ export function readCookie(cookie: string, name: string): string | undefined {
 }
 
 export function localeCookie(locale: Locale, secure = false, name = cookieName): string {
-  return `${name}=${locale}; Path=/; Max-Age=${MAX_AGE}; SameSite=Lax${secure ? '; Secure' : ''}`
+  return `${name}=${locale}; Path=/; Max-Age=${LOCALE_COOKIE_MAX_AGE}; SameSite=Lax${secure ? '; Secure' : ''}`
 }
 
 export function rememberLocale(locale: Locale): void {
@@ -25,7 +26,10 @@ export function rememberLocale(locale: Locale): void {
   document.cookie = localeCookie(locale, secure, PREFERENCE_COOKIE)
 }
 
-/** Accept-Language 按权重匹配配置语言；不跳转，q=0 的语言不参与建议。 */
+/**
+ * Accept-Language 按权重匹配配置语言；q=0 的语言不参与。项目保留（模板 0.5.10 已删除）：
+ * 东方站根路径跳转（east-home.ts）与认证页语言（auth-locale.ts）在服务端使用。
+ */
 export function preferredLocale(header: string | null): Locale {
   const preferences = (header ?? '')
     .split(',')
@@ -58,6 +62,16 @@ function chineseLocale(tag: string, language: string): Locale | undefined {
 
 function languageLocale(language: string): Locale | undefined {
   return locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
+}
+
+/**
+ * 首帧前语言建议脚本（suggestion.ts）的中文标签归属，与 preferredLocale 一致：
+ * zh-CN、zh-SG 归简体，只有 `zh` 或其他地区（zh-TW、zh-HK）按主语言归繁体。
+ */
+export const SUGGESTION_ALIASES: Readonly<Record<string, string>> = {
+  zh: 'zh-Hant',
+  'zh-cn': 'zh-Hans',
+  'zh-sg': 'zh-Hans',
 }
 
 /** Server Functions 复用同源来源页的语言；不接受跨站来源影响本次语言。 */

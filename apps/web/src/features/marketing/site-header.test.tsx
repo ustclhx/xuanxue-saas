@@ -30,7 +30,6 @@ vi.mock('@tanstack/react-router', async () => {
   }
 })
 vi.mock('../i18n/preference.functions.ts', () => ({
-  getLanguageSuggestion: vi.fn(),
   saveLanguagePreference: vi.fn(),
 }))
 vi.mock('../site/account-menu.tsx', () => ({ AccountMenu: () => null }))

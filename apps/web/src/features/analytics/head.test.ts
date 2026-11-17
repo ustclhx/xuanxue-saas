@@ -15,9 +15,11 @@ vi.mock('../i18n/language-controls.tsx', () => ({
   LanguageSuggestion: () => null,
 }))
 
-import { getLocale } from '../../paraglide/runtime.js'
+import { baseLocale, cookieName, getLocale, locales } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
+import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE, SUGGESTION_ALIASES } from '../i18n/preference.ts'
+import { localeSuggestionScript } from '../i18n/suggestion.ts'
 import { SITE_THEME_SCRIPT, siteFontScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
 
@@ -57,16 +59,31 @@ describe('分析脚本页面 head', () => {
       expect(analyticsHeadScripts(pathname, preview, templateConfig, multi)).toEqual([])
   })
 
-  it('默认页面 head 无 PostHog 或 beacon，主题与站点主题内联脚本保持原样', async () => {
+  it('默认页面 head 无 PostHog 或 beacon，主题、站点主题与语言建议内联脚本保持原样', async () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
+    const inline = [
+      { children: themeInitScript() },
+      { children: SITE_THEME_SCRIPT },
+      { children: siteFontScript('west', getLocale()) },
+      ...(templateConfig.i18n.enabled
+        ? [
+            {
+              children: localeSuggestionScript({
+                baseLocale,
+                locales,
+                preferenceCookie: PREFERENCE_COOKIE,
+                localeCookie: cookieName,
+                cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
+                aliases: SUGGESTION_ALIASES,
+              }),
+            },
+          ]
+        : []),
+    ]
     for (const pathname of ['/', '/zh-hant/pricing', '/app/personal/chat', '/admin/users']) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])
-      expect(result?.scripts).toEqual([
-        { children: themeInitScript() },
-        { children: SITE_THEME_SCRIPT },
-        { children: siteFontScript('west', getLocale()) },
-      ])
+      expect(result?.scripts).toEqual(inline)
       // 字体样式表由脚本插入，不以阻塞渲染的 <link rel="stylesheet"> 出现
       expect(result?.links?.filter((link) => link?.rel === 'stylesheet')).toHaveLength(1)
       expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon/i)
