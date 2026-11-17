@@ -4,6 +4,7 @@ import {
   listReadings,
 } from '../../../../features/readings/readings.functions.ts'
 import { ReadingsListPage } from '../../../../features/readings/report-page.tsx'
+import { siteTitle } from '../../../../features/seo/site-title.ts'
 import { m } from '../../../../paraglide/messages.js'
 import { getLocale } from '../../../../paraglide/runtime.js'
 
@@ -20,8 +21,11 @@ export const Route = createFileRoute('/app/$slug/readings/')({
     return { page, unlockable }
   },
   staleTime: 0,
-  head: () => ({
-    meta: [{ title: m.readings_list_title() }, { name: 'robots', content: 'noindex, nofollow' }],
+  head: ({ matches }) => ({
+    meta: [
+      { title: siteTitle(m.readings_list_title(), matches) },
+      { name: 'robots', content: 'noindex, nofollow' },
+    ],
   }),
   component: ReadingsPage,
 })

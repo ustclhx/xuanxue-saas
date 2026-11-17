@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { SignupBonusSection } from '../../features/billing/signup-section.tsx'
 import { DeletionSection } from '../../features/deletion/deletion-section.tsx'
 import { compactSearch, optionalString } from '../../features/routing/search.ts'
+import { siteTitle } from '../../features/seo/site-title.ts'
 import { getAccount } from '../../features/settings/account.functions.ts'
 import {
   EmailVerificationSection,
@@ -20,7 +21,7 @@ export const Route = createFileRoute('/account/')({
       error: optionalString(search.error),
     }),
   loader: () => getAccount(),
-  head: () => ({ meta: [{ title: ACCOUNT_COPY.title }] }),
+  head: ({ matches }) => ({ meta: [{ title: siteTitle(ACCOUNT_COPY.title, matches) }] }),
   component: AccountPage,
 })
 

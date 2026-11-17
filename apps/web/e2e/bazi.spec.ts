@@ -32,7 +32,8 @@ test('繁中首页：提交样例后依次显示 7 个区块与样例命盘的�
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('/zh-hant', HYDRATED)
-  await expect(page).toHaveTitle('免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析')
+  // 首页在第 4 组改为落地页之前仍渲染工具；Title 已是品牌标题，工具主词标题在 /zh-hant/八字排盤（seo.spec.ts）
+  await expect(page).toHaveTitle('干支日｜免費八字排盤、紫微斗數與塔羅')
   await fillBirth(page, zhLabels, sample)
   await page.getByRole('button', { name: '立即排盤' }).click()
 
@@ -145,7 +146,8 @@ test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示�
 
 test('韩语만세력：6 个区块顺序、진태양시提示与韩国夏令时样例', async ({ page }) => {
   await page.goto('/ko', HYDRATED)
-  await expect(page).toHaveTitle('만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)')
+  // 同上：工具主词标题在 /ko/만세력
+  await expect(page).toHaveTitle('간지데이 | 무료 만세력·사주·타로')
   await expect(page.getByLabel('출생지')).toHaveValue('seoul')
   const trueSolar = page.getByLabel('진태양시 보정')
   // 决策 D5：与韩国常见만세력一致，默认开启

@@ -18,16 +18,20 @@ export function NumerologyContentPage({
   tool,
   content,
   calculator,
+  breadcrumb,
 }: {
   tool: string
   content: NumerologyPage
   calculator: ReactNode
+  /** 面包屑（H1 之上），数字页指向父页 `/life-path-number` */
+  breadcrumb?: ReactNode
 }) {
   const fullCalculator = toolHref(NUMEROLOGY_TOOLS['numerology-calculator'].path, NUMEROLOGY_LOCALE)
   return (
     <MarketingShell>
       <ToolPage
         tool={tool}
+        breadcrumb={breadcrumb}
         title={content.title}
         intro={<p className="m-0">{content.description}</p>}
         form={calculator}

@@ -1,12 +1,18 @@
 import { createFileRoute, lazyRouteComponent, redirect } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
-import { originFromMatches, pageBrand, pageHead, staticPage } from '../features/seo/metadata.ts'
+import {
+  absoluteUrl,
+  localizedPath,
+  originFromMatches,
+  pageBrand,
+  pageHead,
+  staticPage,
+} from '../features/seo/metadata.ts'
+import { localeOrigin } from '../features/seo/origins.ts'
 import { organizationData, websiteData } from '../features/seo/structured-data.ts'
-import { easternPageCopy, easternToolHead } from '../features/tools/bazi/head.ts'
 import { getNumerologyPage } from '../features/tools/numerology/content.functions.ts'
 import { NUMEROLOGY_LOCALE } from '../features/tools/numerology/routes.ts'
-import { faqItems, faqPageData } from '../features/tools/numerology/seo.ts'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 
@@ -74,20 +80,18 @@ export const Route = createFileRoute('/')({
     if (!page) await TemplateHome.preload?.()
     return page
   },
-  head: ({ matches, loaderData }) => {
+  head: ({ matches }) => {
     if (!templateConfig.marketing.enabled) return {}
     const locale = getLocale()
     const origin = originFromMatches(matches)
-    if (isEastHome(locale))
-      return easternToolHead({ path: '/', locale, ...easternPageCopy('home') }, origin)
+    // 两站首页同为品牌 head（openspec separate-landing-homepage design.md D3）：品牌标题、Organization 与 WebSite；
+    // 工具的 Title、FAQPage 等随工具迁到主工具页（routes/$slug.tsx、routes/life-path-number/index.tsx）
     const brand = pageBrand({ locale })
-    const data = [organizationData(origin, brand), websiteData(origin, brand)]
-    if (!loaderData) return pageHead(staticPage('/', locale), origin, data)
-    // Title / description 与站点地图（numerologySeoPages）同用首页长文的 frontmatter
-    const { title, description, faq } = loaderData
-    return pageHead({ path: '/', title, description, locale: loaderData.locale }, origin, [
-      ...data,
-      faqPageData(faqItems(faq)),
+    // 结构化数据用语言所属站点的 origin（与 pageHead 的 canonical 相同）；WebSite 的地址为本页 canonical
+    const siteOrigin = localeOrigin(locale)
+    return pageHead(staticPage('/', locale), origin, [
+      organizationData(siteOrigin, brand),
+      websiteData(siteOrigin, brand, absoluteUrl(siteOrigin, localizedPath('/', locale))),
     ])
   },
   component: IndexPage,

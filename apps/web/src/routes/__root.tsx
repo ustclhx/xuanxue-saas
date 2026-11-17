@@ -8,7 +8,7 @@ import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
-import { privateMeta } from '../features/seo/metadata.ts'
+import { privateMeta, titleWithSite } from '../features/seo/metadata.ts'
 import {
   getPlausibleSite,
   getSafeImpersonation,
@@ -48,7 +48,7 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
         title: matches.some((match) => match.status === 'notFound' || match._notFound)
-          ? `${m.common_not_found_title()} | ${rootBrand(loaderData?.site.id ?? 'west')}`
+          ? titleWithSite(m.common_not_found_title(), getLocale(), loaderData?.site.id ?? 'west')
           : rootBrand(loaderData?.site.id ?? 'west'),
       },
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),

@@ -1,5 +1,5 @@
 import type { AnyRouteMatch } from '@tanstack/react-router'
-import { brandName } from '@xuanxue/config'
+import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
@@ -193,7 +193,10 @@ export const AUTH_ROBOTS = 'noindex, nofollow'
  */
 export function authPageHead(path: AuthPagePath, locale: string, title?: string) {
   return {
-    meta: [...(title === undefined ? [] : [{ title }]), { name: 'robots', content: AUTH_ROBOTS }],
+    meta: [
+      ...(title === undefined ? [] : [{ title: titleWithSite(title, locale) }]),
+      { name: 'robots', content: AUTH_ROBOTS },
+    ],
     links: [
       { rel: 'canonical', href: absoluteUrl(localeOrigin(locale), localizedPath(path, locale)) },
     ],
@@ -218,6 +221,29 @@ export function pageBrand(page: Pick<SeoPage, 'locale'>): string {
   return brandName(templateConfig, page.locale)
 }
 
+// 中文标题用全角竖线、两侧不加空格；其余语言用半角竖线加空格
+const TITLE_SEPARATORS: Readonly<Partial<Record<string, string>>> = {
+  'zh-Hant': '｜',
+  'zh-Hans': '｜',
+}
+
+/**
+ * 页面标题带站名（openspec separate-landing-homepage design.md D3a，specs/seo「页面标题带站名」）：
+ * 内页为「<页面标题><分隔符><站名>」，站名取该语言的显示名（繁简中文「干支日」、韩语「간지데이」、英语 Arcanumber）。
+ * 标题已含站名时原样返回：首页标题站名在前，不再追加；同一标题中站名不出现两次。
+ * 公开页的语言只属于一个站点，按语言即可确定站名；应用区、账户页与后台没有语言前缀，
+ * 语言可能来自另一站点留下的 Cookie，须传入当前站点，语言不属于本站时改用本站第一个语言。
+ */
+export function titleWithSite(title: string, locale: string, site?: SiteId): string {
+  const own: readonly string[] = site ? templateConfig.sites[site].locales : []
+  const language = site && !own.includes(locale) ? (own[0] ?? locale) : locale
+  const brand = site
+    ? siteBrandName(templateConfig, site, language)
+    : brandName(templateConfig, language)
+  if (title.includes(brand)) return title
+  return `${title}${TITLE_SEPARATORS[language] ?? ' | '}${brand}`
+}
+
 export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
   const path = page.path.replace(/\/+$/, '') || '/'
   return `/og${localePrefix(page.locale)}${path === '/' ? '/index' : path}.png`
@@ -227,7 +253,7 @@ export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly
   appUrl = localeOrigin(page.locale)
   const url = absoluteUrl(appUrl, localizedPath(page.path, page.locale))
   const brand = pageBrand(page)
-  const title = `${page.title} | ${brand}`
+  const title = titleWithSite(page.title, page.locale)
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
     : absoluteUrl(appUrl, ogImagePath(page))

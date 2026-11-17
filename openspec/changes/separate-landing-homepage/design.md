@@ -107,9 +107,10 @@
 使用者 2026-11-17：「把内页的title都补好，最好每一个title都要带上这个网站的名字」。
 
 - **规则**：内页 `<页面标题>｜干支日`（繁中、简中，全角竖线、两侧不加空格）、`<페이지 제목> | 간지데이`（韩语）、`<Page title> | Arcanumber`（英语）。首页站名在前（D3 的四条 Title），不再追加站名。页面标题本身已以站名结尾时不重复追加。
-- **现状**（2026-11-17 核对）：公开页经 `features/seo/metadata.ts` 的 `pageHead` 统一追加 ` | <站名>`，分隔符对所有语言都是半角 ` | `，韩语站名来自配置，现为 `Ganjiday`。
+- **现状**（2026-11-17 核对）：公开页经 `features/seo/metadata.ts` 的 `pageHead` 统一追加 ` | <站名>`，分隔符对所有语言都是半角 ` | `；东方站排盘页的 `easternToolHead` 又把标题换回不带站名的原文。韩语站名来自配置：`template.config.ts` 已有 `brand.names.ko = '간지데이'`，`brandName(config, 'ko')` 返回它。
 - **要改**：
-  - `pageHead`：分隔符按语言选择；韩语页面的站名显示为「간지데이」（只改 title 用的显示名，不改 `brandName` 的其他用途，除非核对后确认可以一并改）；首页不追加。OG / Twitter 标题同步。
+  - `pageHead`：分隔符按语言选择；首页不追加；东方站排盘页不再去掉站名（Title 原文之后加站名）。OG / Twitter 标题同步。
+  - **韩语站名**（使用者 2026-11-17 决定）：「간지데이」是韩语站各处的品牌名，包括页面标题、页头 / 导航的 logo 文字、分享卡片、邮件发件人显示名与韩语页面结构化数据的 `name`；logo 图形不变。配置已有该名称，实现时核对所有显示东方站品牌的位置都按语言取名（`siteBrandName` / `brandName` 带语言参数），修正写死或未带语言的地方：邮件发件人显示名（`emailSender`，按收件人语言取名，繁简中文因此为「干支日」）与分享页正文中的站名。
   - 没有站名的页面，改为经同一个 title 函数生成：
     - 认证页（`authPageHead` 直接输出传入的标题）：login、register、forgot-password、reset-password、verify-email；accept-invitation 目前没有标题；
     - `routes/account/index.tsx`；

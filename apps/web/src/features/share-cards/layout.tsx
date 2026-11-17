@@ -2,7 +2,7 @@
 // 尺寸与间距照设计稿副本 docs/design-system/prototypes/share-cards/Card.dc.html。
 import type { JSX } from 'react'
 import { templateConfig } from '../../server/template-config.ts'
-import { homePageCopy } from '../seo/home-copy.ts'
+import { homeTagline } from '../seo/home-copy.ts'
 import { projectFonts } from './fonts.ts'
 import type { SampleShareData } from './sample.ts'
 import { defaultShareCardSite, type ShareCardBrand, type ShareCardSite } from './site.ts'
@@ -247,14 +247,14 @@ export function shareCardLayout(
 
 /**
  * 构建期默认分享图：设计稿 `default` 变体，无标签与摘要。副标题为「品牌名 · 标语」，
- * 标语取站点解析的 tagline，未提供时取该语言首页的 SEO 标题（`seo/home-copy.ts`，与 `staticPage('/')` 共用，项目随产品文案修改）。
+ * 标语取站点解析的 tagline，未提供时取该语言的首页标语（`seo/home-copy.ts` 的 homeTagline，不含品牌名，项目随产品文案修改）。
  */
 export function defaultShareCardLayout(
   title: string,
   theme: ShareCardTheme,
   site: ShareCardSite = defaultShareCardSite(),
 ): JSX.Element {
-  const tagline = site.tagline ?? homePageCopy(site.locale ?? templateConfig.i18n.defaultLocale)[0]
+  const tagline = site.tagline ?? homeTagline(site.locale ?? templateConfig.i18n.defaultLocale)
   return shareCardLayout(
     {
       title,

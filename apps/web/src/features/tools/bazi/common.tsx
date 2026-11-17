@@ -39,7 +39,10 @@ export function conceptHref(
 
 export function pageHref(id: EasternPageId | 'home', locale: string): string {
   if (id === 'home') return toolHref('/', locale)
-  const page = EASTERN_PAGES.find((item) => item.id === id)
+  // 同一页面在各语言下 slug 不同（八字排盤 / 八字排盘 / 만세력）：先取该语言的 slug
+  const page =
+    EASTERN_PAGES.find((item) => item.id === id && item.locale === locale) ??
+    EASTERN_PAGES.find((item) => item.id === id)
   return toolHref(`/${page?.slug ?? ''}`, locale)
 }
 

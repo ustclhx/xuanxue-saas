@@ -4,6 +4,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import type { PricingCatalog } from '../marketing/pricing-data.ts'
 import type { SeoPage } from './metadata.ts'
 import { absoluteUrl, localizedPath, ogImagePath, pageBrand } from './metadata.ts'
+import { localeOrigin } from './origins.ts'
 
 const context = 'https://schema.org'
 /** 两站各自的 Organization / WebSite（launch-v1-production design：两站品牌分开） */
@@ -16,12 +17,13 @@ export function organizationData(appUrl: string, brand: string) {
     url: appUrl,
   }
 }
-export function websiteData(appUrl: string, brand: string) {
+/** `url` 省略时为站点根地址；语言首页传入该页的 canonical（东方站根路径会跳转，不作为地址） */
+export function websiteData(appUrl: string, brand: string, url = appUrl) {
   return {
     '@context': context,
     '@type': 'WebSite',
     name: brand,
-    url: appUrl,
+    url,
     publisher: { '@id': absoluteUrl(appUrl, '/#organization') },
   }
 }
@@ -83,6 +85,49 @@ export function faqData(faq: readonly { q: string; a: string }[]) {
       '@type': 'Question',
       name: item.q,
       acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  }
+}
+
+// 与 pageHead 的 canonical 同一算法：按语言所属站点的 origin 与带语言前缀的路径生成绝对地址
+const canonicalUrl = (path: string, locale: string) =>
+  absoluteUrl(localeOrigin(locale), localizedPath(path, locale))
+
+/**
+ * 主工具页的 WebApplication（openspec separate-landing-homepage design.md D3，specs/seo「结构化数据」）：
+ * 免费工具，`url` 与页面 canonical 相同。
+ */
+export function webApplicationData(
+  page: Pick<SeoPage, 'path' | 'locale' | 'description'>,
+  name: string,
+) {
+  return {
+    '@context': context,
+    '@type': 'WebApplication',
+    name,
+    description: page.description,
+    url: canonicalUrl(page.path, page.locale),
+    applicationCategory: 'LifestyleApplication',
+    operatingSystem: 'Any',
+    inLanguage: page.locale,
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+  }
+}
+
+/** 面包屑（首页 › 工具 › 子页）：各级为同一语言下的页面路径，地址与对应页面的 canonical 相同 */
+export function breadcrumbData(
+  items: readonly { readonly name: string; readonly path: string }[],
+  locale: string,
+) {
+  return {
+    '@context': context,
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: canonicalUrl(item.path, locale),
     })),
   }
 }

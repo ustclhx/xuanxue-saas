@@ -9,9 +9,14 @@ async function hydrated(page: import('@playwright/test').Page) {
   await page.waitForLoadState('networkidle')
 }
 
-test('首页：输入 1987-11-29 显示 11、计算步骤与数字页链接', async ({ page }) => {
-  await page.goto('/')
+// Life Path 计算器在 `/life-path-number`（openspec separate-landing-homepage design.md D1），迁移前在首页
+test('Life Path 工具页：输入 1987-11-29 显示 11、计算步骤与数字页链接', async ({ page }) => {
+  await page.goto('/life-path-number')
   await hydrated(page)
+  await expect(page).toHaveTitle(
+    'Life Path Number Calculator: Free, With Every Step Shown | Arcanumber',
+  )
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/life-path-number$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Life Path Number Calculator')
   await page.getByLabel('Date of birth').fill('1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).click()
@@ -26,7 +31,7 @@ test('首页：输入 1987-11-29 显示 11、计算步骤与数字页链接', as
   await expect(link).toHaveAttribute('href', '/life-path-number/11')
   // 分享链接只含日期，打开后直接复现结果
   const shareField = result.getByLabel('Share link')
-  await expect(shareField).toHaveValue(/#r=/)
+  await expect(shareField).toHaveValue(/\/life-path-number#r=/)
   const share = await shareField.inputValue()
   await page.goto('/numerology-calculator')
   await page.goto(share)
@@ -35,12 +40,17 @@ test('首页：输入 1987-11-29 显示 11、计算步骤与数字页链接', as
 })
 
 test('禁用 JS 的请求含 H1、表单标签、数字网格与 FAQPage', async ({ request }) => {
-  const html = await (await request.get('/')).text()
+  const html = await (await request.get('/life-path-number')).text()
   expect(html).toMatch(/<h1[^>]*>Life Path Number Calculator<\/h1>/)
   expect(html).toMatch(/<label[^>]*>Date of birth<input[^>]*type="date"/)
   for (const value of LIFE_PATH_NUMBERS) expect(html).toContain(`href="/life-path-number/${value}"`)
-  expect(html).toContain('"@type":"FAQPage"')
+  for (const type of ['FAQPage', 'WebApplication', 'BreadcrumbList'])
+    expect(html).toContain(`"@type":"${type}"`)
   expect(html).toContain('What is a life path number?')
+  // 首页是品牌 head：不再输出 FAQPage
+  const home = await (await request.get('/')).text()
+  expect(home).not.toContain('"@type":"FAQPage"')
+  expect(home).toContain('"@type":"WebSite"')
 })
 
 test('完整计算器：不填姓名只显示日期类数字，姓名类提示解锁', async ({ page }) => {
@@ -89,6 +99,18 @@ test('数字页 22：完整说明、内嵌计算器与其他 11 个数字页链�
   const response = await page.goto('/life-path-number/22')
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Life Path Number 22')
+  // 面包屑 Home › Life Path Number › 22：第二级链接到父页，并输出 BreadcrumbList
+  const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' })
+  await expect(crumbs.getByRole('link', { name: 'Life Path Number' })).toHaveAttribute(
+    'href',
+    '/life-path-number',
+  )
+  await expect(crumbs.locator('[aria-current="page"]')).toHaveText('22')
+  expect(
+    (await page.locator('script[type="application/ld+json"]').allTextContents()).some(
+      (json) => JSON.parse(json)['@type'] === 'BreadcrumbList',
+    ),
+  ).toBe(true)
   await expect(page.getByRole('form', { name: 'Birth date' })).toBeVisible()
   await expect(page.locator('article')).toContainText('What Life Path Number 22 means')
   for (const value of LIFE_PATH_NUMBERS.filter((value) => value !== 22))

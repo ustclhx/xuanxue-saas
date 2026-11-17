@@ -2,15 +2,18 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { getReading } from '../../../../features/readings/readings.functions.ts'
 import { ReadingReportPage } from '../../../../features/readings/report-page.tsx'
 import { readingTitle } from '../../../../features/readings/title.ts'
+import { siteTitle } from '../../../../features/seo/site-title.ts'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/readings/$readingId')({
   loader: ({ params }) => getReading({ data: { slug: params.slug, id: params.readingId } }),
   staleTime: 0,
   // 报告含个人命盘解读：不进索引（specs/paid-readings「报告保存与查看」）
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, matches }) => ({
     meta: [
-      ...(loaderData ? [{ title: readingTitle(loaderData.kind, loaderData.locale) }] : []),
+      ...(loaderData
+        ? [{ title: siteTitle(readingTitle(loaderData.kind, loaderData.locale), matches) }]
+        : []),
       { name: 'robots', content: 'noindex, nofollow' },
     ],
   }),

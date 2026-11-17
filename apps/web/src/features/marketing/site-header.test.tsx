@@ -92,6 +92,18 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(hrefs(east).some((href) => href.includes('arcanumber'))).toBe(false)
   })
 
+  it('韩语页面的页头与页脚品牌名为「간지데이」，工具入口指向 /ko/만세력', () => {
+    state.locale = 'ko'
+    state.pathname = '/ko'
+    const header = render('east', <SiteHeader />)
+    expect(header).toContain('간지데이')
+    expect(header).not.toContain('Ganjiday')
+    expect(hrefs(header)).toContain(encodeURI('/ko/만세력'))
+    const footer = render('east', <SiteFooter />)
+    expect(footer).toContain('간지데이')
+    expect(footer).not.toContain('Ganjiday')
+  })
+
   it('东方站英文入口页：页头不列工具，品牌回到 /en，页脚链接到繁中页面', () => {
     state.locale = 'en'
     state.pathname = '/en'

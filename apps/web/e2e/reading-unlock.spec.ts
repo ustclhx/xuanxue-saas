@@ -140,6 +140,8 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
 }
 
 test('新访客登录并购买积分包后回到原结果页，自动开始生成', async ({ page }) => {
+  // 回跳多一次到主工具页的跳转，dev server 首次编译工具页分包较慢，默认 30 秒不够
+  test.setTimeout(90_000)
   await stubTurnstile(page)
   await enableReading(page)
   const email = `unlock-${newId()}@example.com`
@@ -177,8 +179,9 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: 'Sign in', exact: true }).click()
 
-  // 回到结果页：输入恢复，积分不足 → 积分包
-  await expect(page).toHaveURL(/\/#r=/)
+  // 回到结果页：输入恢复，积分不足 → 积分包。本用例仍从首页发起（第 4 组改为落地页之前首页仍渲染工具），
+  // 令牌的 returnTo 为语言首页：旧首页查询跳转（separate-landing-homepage design.md D4）把回跳 301 到主工具页
+  await expect(page).toHaveURL(/\/life-path-number#r=/, { timeout: 30_000 })
   const pack = page.getByTestId('reading-pack')
   await expect(pack).toContainText('100 credits')
   expect(generated).toEqual([])
@@ -189,7 +192,8 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await expect(stream.getByRole('heading', { name: 'Overview' })).toBeVisible()
   await expect(stream.getByText('is a master number.')).toBeVisible()
   expect(purchases).toHaveLength(1)
-  expect(purchases[0]).toMatch(/^\/\?unlock=[\w\-.]+$/)
+  // 在工具页上发起购买：新令牌的 returnTo 已是工具页路径
+  expect(purchases[0]).toMatch(/^\/life-path-number\?unlock=[\w\-.]+$/)
   expect(generated).toEqual([
     {
       kind: 'numerology-full',

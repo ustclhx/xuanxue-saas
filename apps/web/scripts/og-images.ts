@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { type Plugin, runnerImport } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
-import { homePageCopy } from '../src/features/seo/home-copy.ts'
+import { homeTagline } from '../src/features/seo/home-copy.ts'
 import { ogImagePath } from '../src/features/seo/metadata.ts'
 import { type OgSampleChart, ogSampleChart } from '../src/features/seo/og-sample/pages.ts'
 import { ogImageTitle } from '../src/features/seo/og-title.ts'
@@ -100,7 +100,7 @@ export async function renderSampleOgImage(
     pathname: page.path,
   })
   const siteId = siteOfLocale(page.locale, templateConfig) ?? 'west'
-  const tagline = site.tagline ?? homePageCopy(page.locale)[0]
+  const tagline = site.tagline ?? homeTagline(page.locale)
   const { ogSampleElement } = await loadSampleModule()
   return renderer.render(
     ogSampleElement({
@@ -161,9 +161,11 @@ export function ogImages(): Plugin {
     },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
-        const path = new URL(request.url ?? '/', 'http://localhost').pathname
-        if (!path.startsWith('/og/')) return next()
+        const raw = new URL(request.url ?? '/', 'http://localhost').pathname
+        if (!raw.startsWith('/og/')) return next()
         try {
+          // 中文 / 韩文路径的分享图（如 /og/zh-hant/八字排盤.png）在请求中是百分号编码
+          const path = decodeURIComponent(raw)
           if (path === EAST_ENGLISH_OG_IMAGE) {
             response.setHeader('Content-Type', 'image/png')
             response.end(await renderEastEnglishOgImage())
