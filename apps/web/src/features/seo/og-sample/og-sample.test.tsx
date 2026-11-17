@@ -107,7 +107,7 @@ describe('带 #r= 的分享链接与工具页使用同一张分享图（tasks 8.
 describe('样例 OG 模板内容（tasks 8.1）', () => {
   const site = { brand: { name: '干支日' }, host: 'ganjiday.com' }
   const render = (chart: OgSampleChart, locale: 'zh-Hant' | 'ko' | 'en') => {
-    const colors = brandChartColors(locale === 'en' ? 'west' : 'east-light')
+    const colors = brandChartColors(locale === 'en' ? 'west-light' : 'east-light')
     const element = ogSampleElement({
       chart,
       locale,

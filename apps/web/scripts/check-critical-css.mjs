@@ -50,6 +50,13 @@ function shotName(path) {
 
 async function shot(browser, url, viewport, colorScheme, fullCss, deferred) {
   const context = await browser.newContext({ viewport, colorScheme, reducedMotion: 'reduce' })
+  // 项目挂载点（docs/design/forks.md）：把主题选择写成与 colorScheme 相同的值，让首次到访固定某一主题、
+  // 不跟随系统的站点（西方站默认浅色）也能截到深色；对跟随系统的站点结果不变
+  await context.addInitScript((theme) => {
+    try {
+      localStorage.setItem('theme', theme)
+    } catch {}
+  }, colorScheme)
   const page = await context.newPage()
   // 两次都不水合：比较的只是样式
   await page.route(/\/assets\/.*\.js$/, (route) => route.abort())

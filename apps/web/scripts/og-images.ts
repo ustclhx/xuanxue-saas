@@ -87,7 +87,7 @@ function loadSampleModule(): Promise<OgSampleModule> {
 /**
  * 登记页面（首页、八字 / 紫微 / 命盤查詢 / 만세력、Life Path、数字图表）的样例 OG 图（openspec
  * redesign-home-chart-visuals design D6）：标题、站名、虚构样例命盘图形与「示例」角标。
- * 颜色取自 brand.css（东方站浅色、西方站深色），品牌、域名与副标题与默认分享图同一来源。
+ * 颜色取自 brand.css（两站均取默认主题：浅色），品牌、域名与副标题与默认分享图同一来源。
  */
 export async function renderSampleOgImage(
   title: string,
@@ -110,7 +110,7 @@ export async function renderSampleOgImage(
       meta: `${site.brand.name} · ${tagline}`,
       brand: site.brand,
       host: site.host,
-      colors: brandChartColors(siteId === 'east' ? 'east-light' : 'west'),
+      colors: brandChartColors(siteId === 'east' ? 'east-light' : 'west-light'),
     }),
   )
 }

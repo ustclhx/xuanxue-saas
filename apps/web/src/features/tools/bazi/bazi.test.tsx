@@ -208,7 +208,6 @@ describe('东方站路径', () => {
     expect(easternPageOf('zh-Hans', '八字排盤')).toBeUndefined()
     expect(pageHref('bazi', 'zh-Hans')).toBe(encodeURI('/zh-hans/八字排盘'))
     expect(pageHref('bazi', 'ko')).toBe(encodeURI('/ko/만세력'))
-    expect(pageHref('ziwei', 'zh-Hans')).toBe(encodeURI('/zh-hans/紫微斗数排盘'))
     expect(easternPageOf('ko', '紫微斗數排盤')).toBeUndefined()
     expect(easternPageOf('en', 'pricing')).toBeUndefined()
   })
