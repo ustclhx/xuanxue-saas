@@ -61,6 +61,8 @@ const preferenceCookie = async (page: Page) =>
 
 test('浏览器语言偏好只建议不跳转，手动选择和关闭建议会记住偏好', async ({ browser, baseURL }) => {
   test.skip(!candidates.includes('zh-Hant'), noTarget('zh-Hant'))
+  // 7 次整页加载与 2 次等待水合；单独运行本文件时是 vite dev 冷启动的首个用例，30 秒不够
+  test.setTimeout(60_000)
   // 建议由首帧前脚本按 navigator.languages 决定（suggestion.ts），locale 同时设置它与 Accept-Language；
   // zh-TW 按书写系统匹配到繁体
   const context = await browser.newContext({ ...(baseURL ? { baseURL } : {}), locale: 'zh-TW' })
