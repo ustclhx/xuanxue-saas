@@ -2,7 +2,9 @@ import { shareCardRevokedKey } from '@xuanxue/storage'
 import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { baseLocale, overwriteGetLocale } from '../../paraglide/runtime.js'
 import { type WebRuntime, withWebRuntime } from '../../server/runtime.ts'
+import { SiteContext } from '../site/context.tsx'
 import { lookupShare, type ShareLookupDeps } from './lookup.ts'
 import { shareCardMeta } from './meta.server.ts'
 import { shareCardImagePath } from './meta.ts'
@@ -334,6 +336,33 @@ describe('share page view', () => {
       const gone = renderToStaticMarkup(<SharePageGone reason={reason} />)
       expect(gone).toContain(`data-share-page="${reason}"`)
       expect(gone).not.toContain('Quarterly')
+    }
+  })
+
+  it('names the current site in the current language, never the other site', () => {
+    const view = {
+      status: 'ok',
+      title: '나의 만세력',
+      description: '',
+      label: null,
+      sharedOn: '2026-11-01',
+      expiresOn: null,
+      card: { image: 'https://app.example/card.png', width: 1200, height: 630, alt: 'Card' },
+      meta: [],
+    } as const
+    overwriteGetLocale(() => 'ko')
+    try {
+      const html = renderToStaticMarkup(
+        <SiteContext value="east">
+          <SharePage view={view} />
+        </SiteContext>,
+      )
+      // 韩语站品牌名为「간지데이」（separate-landing-homepage design.md D3a），不出现西方站的 Arcanumber
+      expect(html).toContain('간지데이 사용자가 공유함')
+      expect(html).not.toContain('Arcanumber 사용자')
+      expect(html).not.toContain('Ganjiday')
+    } finally {
+      overwriteGetLocale(() => baseLocale)
     }
   })
 })

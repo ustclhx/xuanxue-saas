@@ -58,7 +58,11 @@ export function brandName(
   return match ? siteBrandName(config, match.site, match.locale) : config.app.name
 }
 
-/** 优先使用可信站点；兼容旧队列消息时沿用按语言选择站点的规则。 */
+/**
+ * 优先使用可信站点；兼容旧队列消息时沿用按语言选择站点的规则。
+ * 发件人显示名用收件人语言下的品牌名（东方站繁简中文「干支日」、韩语「간지데이」），与邮件主题、正文一致；
+ * 语言不属于该站点或未指定时用站点品牌名。
+ */
 export function emailSender(
   config: {
     readonly app: { readonly name: string; readonly url: string; readonly supportEmail: string }
@@ -67,8 +71,8 @@ export function emailSender(
   site: SiteId | undefined,
   locale?: string | null,
 ): { readonly site: SiteId; readonly from: string; readonly replyTo: string } {
+  const match = localeSite(config, locale)
   if (!site) {
-    const match = localeSite(config, locale)
     if (!match) {
       const domain = new URL(config.app.url).hostname
       return {
@@ -82,7 +86,7 @@ export function emailSender(
   const settings = config.sites[site]
   return {
     site,
-    from: `${settings.brand.name} <noreply@mail.${settings.hosts[0]}>`,
+    from: `${siteBrandName(config, site, match?.site === site ? match.locale : null)} <noreply@mail.${settings.hosts[0]}>`,
     replyTo: settings.supportEmail,
   }
 }
