@@ -9,9 +9,10 @@
 ## 2. 生产环境（decision gate：域名、Stripe live、Resend、Google OAuth、Turnstile、Neon、Sentry 由用户准备）
 
 - [x] 2.1 按 `deploy-cloudflare` 技能做生产资源与密钥预检，`wrangler.jsonc` 生产环境加两条 custom_domain 路由，构建变量 `EAST_URL`/`WEST_URL`；验证：预检脚本无缺失项，`wrangler deploy --dry-run` 通过
-- [ ] 2.2 生产部署（迁移 → seed → jobs → web）与后台配置（模型、详批开关与价格）；验证：两站 `/api/health` 返回部署 SHA，三语冒烟 e2e（`e2e-live`）通过
+- [x] 2.2 生产部署（迁移 → seed → jobs → web）与后台配置（模型、详批开关与价格）；验证：两站 `/api/health` 返回部署 SHA，三语冒烟 e2e（`e2e-live`）通过
   - 部署与删号验收已完成（v0.1.1，见 `docs/runbooks/launch-v1.md`）；未完成：后台配置（模型、详批开关与价格）待 PayPal 上线与 D1 选定模型后完成；`e2e-live` 未运行（只跑了只读 `e2e/production`），补跑或改写验证条款后再勾选
   - （2026-11-16：后台模型、六类详批开关与价格已于 v0.1.20 在生产配置，两站真实生成验证成功；`e2e-live` 仍未运行）
+  - 2026-11-17：验证改以生产只读冒烟代替 `e2e-live`（e2e-live 会在生产注册与写库）：v0.1.24 两站只读冒烟 ganjiday 8 条、arcanumber 5 条通过，health 为部署 SHA；后台模型、六类详批开关与价格在生产生效，两站真实生成与 Chat 扣费已验证；证据 私有验收目录 `release-v0.1.24/results.md`
 - [x] 2.3 Lighthouse 移动端审计两站各 3 个核心页（LCP < 2.5s、CLS < 0.1、INP < 200ms）；验证：报告存入 `docs/runbooks/evidence/launch-v1/`
   - 2026-10-24 结案（v0.1.5，`docs/runbooks/launch-v1.md`）：六页移动端 LCP 与 CLS 全部达标（复测 LCP 1.47–2.31s）。INP 按用户决定不作为本次验收：日期输入框的 INP 来自浏览器原生日期选择器（248–304ms），保留原生选择器；后续如改为文本日期输入，再按 INP 复测。
 
