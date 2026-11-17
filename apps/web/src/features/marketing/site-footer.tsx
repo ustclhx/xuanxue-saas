@@ -76,9 +76,7 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
           <LanguageSetting className="w-full md:w-auto md:justify-start" />
         </div>
         {/* 不加 role="note"：页面正文里的合规声明才是 note，页脚这条是全站通用的小字 */}
-        <p className="m-0 max-w-180 text-caption text-ink-subtle">
-          {m.tools_ai_disclaimer()}
-        </p>
+        <p className="m-0 max-w-180 text-caption text-ink-subtle">{m.tools_ai_disclaimer()}</p>
         <p className="m-0 text-caption text-ink-subtle">
           {m.marketing_footer_copyright({ year: new Date().getFullYear(), name: brand })}
         </p>
