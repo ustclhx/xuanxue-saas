@@ -53,7 +53,7 @@ test('signup credits require email verification and repeat claims grant only onc
     const grants =
       await sql`select amount from credit_grant where workspace_id=${account.id} and source='signup'`
     expect(grants).toEqual([{ amount: templateConfig.billing.signupBonusCredits }])
-    // 2026-11-18「版本 B」：验证后首次进入 App 区再领当天每日积分，新用户首日合计 20（注册 15 + 每日 5）
+    // 2026-11-18「版本 B」：验证时一并领取当天每日积分，新用户首日合计 20（注册 15 + 每日 5），进入 App 区不重复发放
     if (templateConfig.credits.dailyEnabled) {
       await page.goto('/app')
       await expect(page).toHaveURL(APP_URL)
