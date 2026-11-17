@@ -3,13 +3,7 @@ import type { SiteId } from '@xuanxue/config'
 import { Button, Select, SelectContent, SelectItem, SelectTrigger } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
-import {
-  baseLocale,
-  getLocale,
-  isLocale,
-  locales,
-  localizeHref,
-} from '../../paraglide/runtime.js'
+import { baseLocale, getLocale, isLocale, locales, localizeHref } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { useSiteId } from '../site/context.tsx'
