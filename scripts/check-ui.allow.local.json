@@ -38,14 +38,6 @@
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
     ],
-    "apps/web/src/features/i18n/language-controls.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[15px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
     "apps/web/src/features/marketing/east-english/page.tsx": [
       {
         "rule": "arbitrary-class",
@@ -126,28 +118,6 @@
       {
         "rule": "arbitrary-class",
         "value": "[&_table]:min-w-[36rem]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/features/marketing/site-footer.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[1120px]",
-        "count": 2,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/features/marketing/site-header.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[1120px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[15px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
@@ -238,28 +208,6 @@
       {
         "rule": "arbitrary-class",
         "value": "text-[17px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/features/site/account-menu.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "focus-visible:ring-[3px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[15px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/features/site/header-menu.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "focus-visible:ring-[3px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }

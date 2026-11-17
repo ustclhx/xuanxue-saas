@@ -102,15 +102,61 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(footer).not.toContain('/privacy')
   })
 
-  it('当前语言没有已发布文章时不显示博客入口，有文章后恢复', () => {
-    expect(hrefs(render('west', <SiteHeader />))).not.toContain('/blog')
+  it('博客入口只在页脚：当前语言没有已发布文章时不显示，有文章后恢复；页头不列博客', () => {
     expect(hrefs(render('west', <SiteFooter />))).not.toContain('/blog')
     // 其他语言的文章不算
     state.blogLocales = ['zh-Hant']
-    expect(hrefs(render('west', <SiteHeader />))).not.toContain('/blog')
+    expect(hrefs(render('west', <SiteFooter />))).not.toContain('/blog')
     state.blogLocales = ['en']
-    expect(hrefs(render('west', <SiteHeader />))).toContain('/blog')
     expect(hrefs(render('west', <SiteFooter />))).toContain('/blog')
+    expect(hrefs(render('west', <SiteHeader />))).not.toContain('/blog')
+  })
+})
+
+describe('页头导航（refresh-visual-system-warm D7，site-visual-system「页头单行与链接不重复」）', () => {
+  /** 桌面导航（md 及以上显示的 <nav>）里的一级项：工具下拉的 summary 与直接链接 */
+  const desktopNav = (html: string) =>
+    html.match(/<nav[^>]*class="hidden[^"]*md:flex[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? ''
+  const topLevel = (nav: string) =>
+    // 去掉下拉面板里的链接后，统计 summary 与剩余链接
+    (
+      nav.replace(/<details[\s\S]*?<\/details>/g, '<summary></summary>').match(/<summary|<a /g) ??
+      []
+    ).length
+
+  it('东方站：工具下拉、每日運勢、定價三项导航，加语言与账户共不超过 5 项', () => {
+    state.locale = 'zh-Hant'
+    const html = render('east', <SiteHeader />)
+    const nav = desktopNav(html)
+    expect(topLevel(nav)).toBe(3)
+    expect(nav).toContain('排盤工具')
+    expect(nav).toContain('今日運勢')
+    // 工具在下拉面板里，每日运势不进下拉
+    const panel = nav.match(/<details[\s\S]*?<\/details>/)?.[0] ?? ''
+    expect(panel).toContain('紫微斗數')
+    expect(panel).not.toContain('今日運勢')
+  })
+
+  it('西方站：Tools、Number of the Day、Pricing 三项导航', () => {
+    const nav = desktopNav(render('west', <SiteHeader />))
+    expect(topLevel(nav)).toBe(3)
+    expect(nav).toContain('Tools')
+  })
+
+  it('手机导航面板用 <details> 输出完整结构（不依赖水合），含工具、定价、主题切换与语言', () => {
+    state.locale = 'zh-Hant'
+    const html = render('east', <SiteHeader />)
+    const panel = html.match(/<details[^>]*class="[^"]*md:hidden[\s\S]*?<\/details>/)?.[0] ?? ''
+    expect(panel).toContain('aria-label="選單"')
+    expect(panel).toContain('紫微斗數')
+    expect(panel).toContain('/zh-hant/pricing')
+    expect(panel).toContain('data-slot="theme-toggle"')
+    expect(panel).toContain('role="combobox"')
+    // 西方站只有一种语言：面板里没有语言下拉，仍有主题切换
+    const west = render('west', <SiteHeader />)
+    const westPanel = west.match(/<details[^>]*class="[^"]*md:hidden[\s\S]*?<\/details>/)?.[0] ?? ''
+    expect(westPanel).toContain('data-slot="theme-toggle"')
+    expect(westPanel).not.toContain('role="combobox"')
   })
 })
 
@@ -119,12 +165,18 @@ describe('页脚设置行', () => {
     const east = render('east', <SiteFooter />)
     expect(east).toContain('data-site-footer')
     expect(east).toContain('data-slot="theme-toggle"')
-    // 语言切换在页头，设置行不重复语言控件
-    expect(east).not.toContain('role="combobox"')
+    // 东方站设置行含语言下拉；西方站只有一种语言，不渲染
+    expect(east).toContain('role="combobox"')
     const west = render('west', <SiteFooter />)
     expect(west).toContain('data-site-footer')
     expect(west).toContain('data-slot="theme-toggle"')
+    expect(west).not.toContain('role="combobox"')
+    // 合规声明为 caption 小字，用批准的全文
+    expect(west).toContain(
+      'For reference and self-reflection only; it does not predict the future.',
+    )
     // 设置行不再只在手机端显示（refresh-visual-system-warm D4）
-    for (const html of [east, west]) expect(html).not.toMatch(/border-t py-4 md:hidden/)
+    for (const html of [east, west])
+      expect(html).not.toMatch(/md:hidden[^"]*"[^>]*>\s*<span[^>]*>[^<]*<\/span><fieldset/)
   })
 })

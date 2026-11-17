@@ -1,2 +1,2 @@
 // 项目自有组件入口。模板仅初始化此文件，后续组件与导出由衍生项目维护。
-export {}
+export { PageWidth, Prose, Section, type SectionProps, SectionStack } from './section.tsx'

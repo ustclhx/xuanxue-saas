@@ -5,5 +5,8 @@
   "site_nav_languages": "Languages",
   "site_footer_disclaimer": "For reference and self-reflection only. Not a prediction of the future.",
   "site_account_menu": "Account",
-  "site_account_spaces": "Your spaces"
+  "site_account_spaces": "Your spaces",
+  "site_nav_tools_menu": "Tools",
+  "site_nav_menu": "Menu",
+  "site_footer_nav": "Footer"
 }
