@@ -45,7 +45,8 @@
 - [x] 6.1 更新 `site.test.ts`、`routing.test.ts`、`switch-path.test.ts`、`request.test.ts`、`seo.test.tsx` 与 `packages/email` 快照
 - [x] 6.2 新增用例：`/zh-hans/` 路由、`zh-CN` 偏好、简体详批不经繁体转换、简体占位文案（偏好、转换、合规、路径已有用例；路由与占位文案尚无单独用例）
 - [x] 6.3 `pnpm typecheck`、`pnpm check`、`pnpm test` 通过
-- [ ] 6.4 staging 手动验收：简体浏览器首访东方站、切换语言、工具页、一次简体详批生成（不在 PR 中勾选生产验收）
+- [x] 6.4 staging 手动验收：简体浏览器首访东方站、切换语言、工具页、一次简体详批生成（不在 PR 中勾选生产验收）
+  - 2026-11-17：staging 的 workers.dev 只渲染西方站，使用者批准改在本地东方站 east.localhost 验收（生产随 v0.1.24 只读复核）。zh-CN 首访落简体、切换语言、简体工具页、简体详批真实生成 ready、正文常用繁体字命中 0，均通过；证据 私有验收目录 `legacy-pre-0.1.24/B/`
   - （2026-11-16：仍未做。staging 的 workers.dev 地址只按西方站渲染；localize 6.2 的简体 USD 购买在本地 east.localhost 完成，不替代本项）
 
 ## 7. 实施中发现的新增范围（待确认）
