@@ -257,7 +257,15 @@ async function checkFile(collection, locale, slug) {
     for (const other of Object.keys(conceptBlocks[locale]).filter((value) => value !== slug)) {
       assert.ok(links.includes(`/${languagePath}/${other}/`), `missing sibling link: ${other}`)
     }
-    assert.ok(links.includes(`/${languagePrefix}/`), 'home link')
+    // 语言首页是品牌落地页（openspec separate-landing-homepage D5）：排盘入口链接到主工具页，不链接语言首页
+    const toolSlug = { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력' }[locale]
+    assert.ok(links.includes(`/${languagePrefix}/${toolSlug}`), 'main tool page link')
+    assert.ok(
+      !links.some(
+        (link) => link.replace(/[#?].*$/, '').replace(/\/$/, '') === `/${languagePrefix}`,
+      ),
+      'must not link the language home page as the chart tool',
+    )
     if (locale === 'zh-Hans') {
       assert.ok(Array.isArray(data.aliases), 'simplified concepts require aliases')
       assert.ok(
@@ -339,7 +347,12 @@ async function checkFile(collection, locale, slug) {
     for (const other of LIFE_PATH_VALUES.filter((value) => value !== number)) {
       assert.ok(links.includes(`/life-path-number/${other}/`), `missing life path link: ${other}`)
     }
-    assert.ok(links.includes('/'), 'calculator home link')
+    // 西方站首页是品牌落地页（openspec separate-landing-homepage D5）：计算器在 /life-path-number，内容不得以 `/` 作为计算器链接
+    assert.ok(links.includes('/life-path-number'), 'Life Path calculator link')
+    assert.ok(
+      !links.some((link) => link.replace(/[#?].*$/, '') === '/'),
+      'must not link `/` as the calculator',
+    )
     assert.ok(
       content.includes('reviewed by a person') &&
         content.includes('for reference and self-reflection') &&

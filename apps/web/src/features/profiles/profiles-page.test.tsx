@@ -83,6 +83,14 @@ describe('档案管理页', () => {
     expect(mom?.textContent).toContain(m.profiles_time_unknown())
     expect(mom?.textContent).not.toContain(m.profiles_badge_default())
     expect(screen.getByText(`(2/${MAX_PROFILES})`, { exact: false })).toBeTruthy()
+    // 「排盘」进入八字排盤 / 만세력工具页，不是语言首页（separate-landing-homepage D4）
+    expect(toolLink(profile(), 'east', 'zh-Hant').split('#r=')[0]).toBe(
+      encodeURI('/zh-hant/八字排盤'),
+    )
+    expect(toolLink(profile(), 'east', 'zh-Hans').split('#r=')[0]).toBe(
+      encodeURI('/zh-hans/八字排盘'),
+    )
+    expect(toolLink(profile(), 'east', 'ko').split('#r=')[0]).toBe(encodeURI('/ko/만세력'))
   })
 
   it('西方站显示生命灵数，「排盘」链接的片段只含日期', () => {

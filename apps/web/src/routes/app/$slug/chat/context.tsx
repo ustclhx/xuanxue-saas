@@ -3,6 +3,7 @@ import { getPickerModels } from '../../../../features/ai/model-picker.functions.
 import { getTemporarySubjectChat } from '../../../../features/ai/subject-chat.functions.ts'
 import { TemporarySubjectChat } from '../../../../features/ai/subject-chat.tsx'
 import { siteTitle } from '../../../../features/seo/site-title.ts'
+import { m } from '../../../../paraglide/messages.js'
 
 /**
  * 临时上下文对话页（add-subject-chat design 决策 4）：地址只带签名令牌，上下文正文留在服务端 KV。
@@ -22,7 +23,7 @@ export const Route = createFileRoute('/app/$slug/chat/context')({
     return { page, models }
   },
   staleTime: 0,
-  head: ({ matches }) => ({ meta: [{ title: siteTitle('Chat', matches) }] }),
+  head: ({ matches }) => ({ meta: [{ title: siteTitle(m.app_chat(), matches) }] }),
   component: ContextChatPage,
 })
 

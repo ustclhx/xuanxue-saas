@@ -196,7 +196,7 @@ export function GunghapPage() {
         )
       }
       links={[
-        ...link(pageHref('home', LOCALE), m.bazi_link_home(), 'manseryeok'),
+        ...link(pageHref('bazi', LOCALE), m.bazi_link_home(), 'manseryeok'),
         ...link(
           conceptHref(LOCALE, 'day-pillar'),
           m.bazi_gunghap_block_pillars(),

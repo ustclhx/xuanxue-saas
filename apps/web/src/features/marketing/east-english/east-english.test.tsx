@@ -34,6 +34,9 @@ describe('东方站英文入口页', () => {
   it('只链接东方站的繁中、简体与韩语工具，不链接西方站', () => {
     const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1] ?? '')
     for (const href of ['/zh-hant', '/zh-hans', '/ko']) expect(hrefs).toContain(href)
+    // 语言首页是落地页；另有各语言主工具页链接（separate-landing-homepage OQ7）
+    for (const path of ['/zh-hant/八字排盤', '/zh-hans/八字排盘', '/ko/만세력'])
+      expect(hrefs).toContain(encodeURI(path))
     expect(hrefs).toContain(encodeURI('/zh-hant/紫微斗數排盤'))
     expect(hrefs).toContain(encodeURI('/ko/사주궁합'))
     expect(hrefs).toContain(encodeURI('/zh-hans/塔罗'))

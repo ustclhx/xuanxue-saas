@@ -21,8 +21,8 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
     initial: ko ? { trueSolar: KO_TRUE_SOLAR_DEFAULT } : {},
   })
   const Result = ko ? SajuResult : BaziResult
-  // 韩语首页是万岁历（saju-full），中文首页是八字排盘（bazi-full）
-  const home = pageHref('home', page.locale)
+  // 主工具页：韩语是만세력（saju-full），中文是八字排盤（bazi-full）；不链接语言首页（落地页）
+  const home = pageHref('bazi', page.locale)
   return (
     <ToolPage
       tool={`bazi-concept-${page.conceptKey}`}
@@ -55,10 +55,7 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
         )
       }
       faq={page.faq.map(({ q, a }) => ({ question: q, answer: a }))}
-      links={[
-        { href: pageHref('home', page.locale), title: m.bazi_home_title(), target: 'bazi' },
-        ...page.links,
-      ]}
+      links={[{ href: home, title: m.bazi_home_title(), target: 'bazi' }, ...page.links]}
     >
       <ReadingSlots
         tool={ko ? 'manseryeok' : 'bazi'}

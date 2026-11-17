@@ -6,7 +6,7 @@ import { loadBazi } from '../tools/bazi/engine.ts'
 import { TEN_GOD_LABEL } from '../tools/bazi/labels.ts'
 import { Disclaimer } from '../tools/disclaimer.tsx'
 import { tarotPath } from '../tools/tarot/routes.ts'
-import { toolHref } from '../tools/tool-href.ts'
+import { mainToolHref, toolHref } from '../tools/tool-href.ts'
 import {
   branchText,
   branchWithElement,
@@ -202,7 +202,7 @@ export function EastDailyPage({
           {m.daily_more_title()}
         </h2>
         <MoreLink
-          href={toolHref('/', locale)}
+          href={mainToolHref(locale)}
           title={m.daily_more_chart()}
           body={m.daily_more_chart_body()}
         />
