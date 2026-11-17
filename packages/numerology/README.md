@@ -15,7 +15,7 @@ const chart = numerologyChart(birthDate, 2027, 'Hélène Dupont')
 
 `numerologyChart` 在姓名错误时保留日期结果，以 `nameError` 返回字段错误；姓名为空返回 `name: null`。单独调用 `nameNumbers` / `normalizeName` 的非法输入会抛出带 `details.field = 'name'` 的 AppError。
 
-`compatibility(firstDate, secondDate)` 返回双方生命灵数、固定等级和可本地化说明 key；表格行列次序见 `LIFE_PATH_VALUES`。该矩阵为常见流派主题的编辑综合，只供娱乐，不能用来预测关系结果。
+`compatibility(firstDate, secondDate)` 返回双方生命灵数、固定等级和可本地化说明 key；表格行列次序见 `LIFE_PATH_VALUES`。该矩阵为常见流派主题的编辑综合，仅供参考，不能用来预测关系结果。
 
 ## 每日数字
 

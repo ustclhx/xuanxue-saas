@@ -10,7 +10,7 @@
   "numerology_result_example": "範例 · {date}",
   "numerology_master": "大師數",
   "numerology_read_meaning": "閱讀生命靈數{number}的完整含義 →",
-  "numerology_result_note": "僅供娛樂與自我反思，不預測未來。",
+  "numerology_result_note": "僅供參考與潛意識探索，不預測未來。",
   "numerology_step_month": "月",
   "numerology_step_day": "日",
   "numerology_step_year": "年",
@@ -104,7 +104,7 @@
   "numerology_compat_explain_challenging": "表格將{left}與{right}評為需要磨合：在多數解讀中，{leftTheme}與{rightTheme}這兩個主題傾向於不同方向。這不代表關係能否成功，而是提示哪些期待值得提早討論。",
   "numerology_compat_row": "生命靈數{number}與所有數字的配對",
   "numerology_compat_cell": "生命靈數{number}：{level}",
-  "numerology_compat_note": "僅供娛樂。數字表格無法衡量尊重、溝通或對關係的投入。",
+  "numerology_compat_note": "僅供參考。數字表格無法衡量尊重、溝通或對關係的投入。",
   "numerology_faq_calc_q1": "必須輸入姓名嗎？",
   "numerology_faq_calc_a1": "不需要。生命靈數、生日數與個人年數僅根據出生日期計算。表達數、靈魂數與人格數需要姓名，輸入後才會顯示。",
   "numerology_faq_calc_q2": "個人年數使用哪一年的年份？",
@@ -122,5 +122,5 @@
   "numerology_faq_compat_q1": "配對等級來自哪裡？",
   "numerology_faq_compat_a1": "來自彙整常見畢達哥拉斯數字命理解讀的固定12 × 12表格。表格是對稱的，所有訪客使用的表格都相同。",
   "numerology_faq_compat_q2": "需要磨合的配對也能相處得好嗎？",
-  "numerology_faq_compat_a2": "可以。表格僅供娛樂，無法衡量溝通、尊重或對關係的投入。請將配對等級用作交流的契機，而非對關係的定論。"
+  "numerology_faq_compat_a2": "可以。表格僅供參考，無法衡量溝通、尊重或對關係的投入。請將配對等級用作交流的契機，而非對關係的定論。"
 }

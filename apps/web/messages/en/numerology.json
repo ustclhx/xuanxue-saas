@@ -10,7 +10,7 @@
   "numerology_result_example": "Example · {date}",
   "numerology_master": "Master number",
   "numerology_read_meaning": "Read the full meaning of Life Path {number} →",
-  "numerology_result_note": "For entertainment and self-reflection. Not a prediction of the future.",
+  "numerology_result_note": "For reference and self-reflection. Not a prediction of the future.",
   "numerology_step_month": "Month",
   "numerology_step_day": "Day",
   "numerology_step_year": "Year",
@@ -104,7 +104,7 @@
   "numerology_compat_explain_challenging": "The table rates {left} and {right} as challenging: {leftTheme} and {rightTheme} pull in different directions in most descriptions. That says nothing about whether a relationship will work — it suggests which expectations are worth discussing early.",
   "numerology_compat_row": "Life Path {number} with every number",
   "numerology_compat_cell": "Life Path {number}: {level}",
-  "numerology_compat_note": "Entertainment use only. A number table cannot measure respect, communication or commitment.",
+  "numerology_compat_note": "For reference only. A number table cannot measure respect, communication or commitment.",
   "numerology_faq_calc_q1": "Do I have to enter my name?",
   "numerology_faq_calc_a1": "No. Your life path, birthday number and personal year come from your birth date alone. Expression, soul urge and personality numbers need a name, so they stay locked until you add one.",
   "numerology_faq_calc_q2": "Which year does the personal year use?",
@@ -122,5 +122,5 @@
   "numerology_faq_compat_q1": "Where do the compatibility levels come from?",
   "numerology_faq_compat_a1": "From a fixed 12 × 12 table that summarises common Pythagorean numerology descriptions. The table is symmetric and is the same for every visitor.",
   "numerology_faq_compat_q2": "Can a challenging match still work?",
-  "numerology_faq_compat_a2": "Yes. The table is for entertainment and cannot measure communication, respect or commitment. Use the level as a prompt for a conversation, not as a verdict."
+  "numerology_faq_compat_a2": "Yes. The table is for reference only and cannot measure communication, respect or commitment. Use the level as a prompt for a conversation, not as a verdict."
 }

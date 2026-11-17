@@ -202,7 +202,7 @@ export function ChatPage({
             autoFocus
           />
         )}
-        {/* 项目：以合规声明（AI 辅助、仅供娱乐、不预测未来）取代模板的「回答由 AI 生成」说明 */}
+        {/* 项目：以合规声明（AI 辅助解读、仅供参考与潜意识探索、不预测未来）取代模板的「回答由 AI 生成」说明 */}
         <AiDisclaimer className="mt-2.5 bg-transparent px-0 py-0 text-center text-caption" />
       </div>
     </div>

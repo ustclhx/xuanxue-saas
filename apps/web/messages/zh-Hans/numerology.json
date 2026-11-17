@@ -10,7 +10,7 @@
   "numerology_result_example": "示例 · {date}",
   "numerology_master": "大师数",
   "numerology_read_meaning": "阅读生命灵数{number}的完整含义 →",
-  "numerology_result_note": "仅供娱乐与自我反思，不预测未来。",
+  "numerology_result_note": "仅供参考与潜意识探索，不预测未来。",
   "numerology_step_month": "月",
   "numerology_step_day": "日",
   "numerology_step_year": "年",
@@ -104,7 +104,7 @@
   "numerology_compat_explain_challenging": "表格将{left}与{right}评为需要磨合：在多数解读中，{leftTheme}与{rightTheme}这两个主题倾向于不同方向。这不代表关系能否成功，而是提示哪些期待值得提早讨论。",
   "numerology_compat_row": "生命灵数{number}与所有数字的配对",
   "numerology_compat_cell": "生命灵数{number}：{level}",
-  "numerology_compat_note": "仅供娱乐。数字表格无法衡量尊重、沟通或对关系的投入。",
+  "numerology_compat_note": "仅供参考。数字表格无法衡量尊重、沟通或对关系的投入。",
   "numerology_faq_calc_q1": "必须输入姓名吗？",
   "numerology_faq_calc_a1": "不需要。生命灵数、生日数与个人年数仅根据出生日期计算。表达数、灵魂数与人格数需要姓名，输入后才会显示。",
   "numerology_faq_calc_q2": "个人年数使用哪一年的年份？",
@@ -122,5 +122,5 @@
   "numerology_faq_compat_q1": "配对等级来自哪里？",
   "numerology_faq_compat_a1": "来自汇总常见毕达哥拉斯数字命理解读的固定12 × 12表格。表格是对称的，所有访客使用的表格都相同。",
   "numerology_faq_compat_q2": "需要磨合的配对也能相处得好吗？",
-  "numerology_faq_compat_a2": "可以。表格仅供娱乐，无法衡量沟通、尊重或对关系的投入。请将配对等级用作交流的契机，而非对关系的定论。"
+  "numerology_faq_compat_a2": "可以。表格仅供参考，无法衡量沟通、尊重或对关系的投入。请将配对等级用作交流的契机，而非对关系的定论。"
 }

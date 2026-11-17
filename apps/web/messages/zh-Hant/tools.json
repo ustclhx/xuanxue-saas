@@ -1,8 +1,8 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
   "tools_disclaimer_label": "聲明",
-  "tools_disclaimer": "本工具依傳統規則計算，僅供娛樂參考，不預測未來。健康相關問題請諮詢專業醫師。",
-  "tools_ai_disclaimer": "AI 輔助，僅供娛樂參考，不預測未來。健康相關問題請諮詢專業醫師。",
+  "tools_disclaimer": "本工具依傳統規則計算，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。",
+  "tools_ai_disclaimer": "依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。",
   "tools_share_label": "分享連結",
   "tools_share_copy": "複製分享連結",
   "tools_share_copied": "已複製連結",
