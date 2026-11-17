@@ -1,0 +1,65 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-17T10:00:00Z"},
+  "title": "干支日 · Arcanumber 改版画布",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 3840, "title": "首頁 /zh-hant · 桌面 1440 · 淺色"},
+    "LandingEastDark.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 3840, "title": "首頁 /zh-hant · 桌面 1440 · 深色"},
+    "LandingEastMobile.dc.html": {"x": 3040, "y": 0, "w": 390, "h": 5200, "title": "首頁 /zh-hant · 手機 390 · 淺色"},
+    "LandingEastMobileDark.dc.html": {"x": 3510, "y": 0, "w": 390, "h": 5200, "title": "首頁 /zh-hant · 手機 390 · 深色"},
+    "LandingKoMobile.dc.html": {"x": 3980, "y": 0, "w": 390, "h": 5000, "title": "首頁 /ko · 手機 390 · 淺色（韓文字體檢查）"},
+    "CopyReview.dc.html": {"x": 4530, "y": 0, "w": 1100, "h": 1900, "title": "待确认文案（四语）"},
+    "Proposals.dc.html": {"x": 5710, "y": 0, "w": 1100, "h": 2400, "title": "token / 组件变更提议"},
+    "PageTitles.dc.html": {"x": 6890, "y": 0, "w": 1100, "h": 1900, "title": "页面 title 规则：每页带站名"},
+
+    "LandingWest.dc.html": {"x": 0, "y": 5700, "w": 1440, "h": 3900, "title": "Home / · desktop 1440 · Light (default)"},
+    "LandingWestDark.dc.html": {"x": 1520, "y": 5700, "w": 1440, "h": 3900, "title": "Home / · desktop 1440 · Dark"},
+    "LandingWestMobile.dc.html": {"x": 3040, "y": 5700, "w": 390, "h": 5300, "title": "Home / · mobile 390 · Light"},
+    "LandingWestMobileDark.dc.html": {"x": 3510, "y": 5700, "w": 390, "h": 5300, "title": "Home / · mobile 390 · Dark"},
+
+    "ToolBazi.dc.html": {"x": 0, "y": 11500, "w": 1440, "h": 3800, "title": "/zh-hant/八字排盤 · 桌面 · 淺色 · 含結果"},
+    "ToolBaziMobile.dc.html": {"x": 1520, "y": 11500, "w": 390, "h": 5300, "title": "/zh-hant/八字排盤 · 手機 · 淺色 · 含結果"},
+    "ToolBaziMobileDark.dc.html": {"x": 1990, "y": 11500, "w": 390, "h": 5300, "title": "/zh-hant/八字排盤 · 手機 · 深色 · 含結果"},
+    "ToolLifePath.dc.html": {"x": 2460, "y": 11500, "w": 1440, "h": 3750, "title": "/life-path-number · desktop · Light · with result"},
+    "ToolLifePathMobile.dc.html": {"x": 3980, "y": 11500, "w": 390, "h": 5600, "title": "/life-path-number · mobile · Light · with result"},
+
+    "ComponentsEast.dc.html": {"x": 0, "y": 17600, "w": 1280, "h": 4100, "title": "共享組件 · 干支日 · 淺色"},
+    "ComponentsEastDark.dc.html": {"x": 1360, "y": 17600, "w": 1280, "h": 4100, "title": "共享組件 · 干支日 · 深色"},
+    "ComponentsWest.dc.html": {"x": 2720, "y": 17600, "w": 1280, "h": 4100, "title": "Shared components · Arcanumber · Light"},
+    "ComponentsWestDark.dc.html": {"x": 4080, "y": 17600, "w": 1280, "h": 4100, "title": "Shared components · Arcanumber · Dark"},
+
+    "PricingEastMobile.dc.html": {"x": 0, "y": 22200, "w": 390, "h": 2900, "title": "/zh-hant/pricing · 手機 · 淺色"},
+    "PricingWestMobile.dc.html": {"x": 470, "y": 22200, "w": 390, "h": 2900, "title": "/pricing · mobile · Light"},
+    "ReportEastMobile.dc.html": {"x": 940, "y": 22200, "w": 390, "h": 2000, "title": "詳批報告頁 · 手機 · 淺色"},
+    "ReportWestMobile.dc.html": {"x": 1410, "y": 22200, "w": 390, "h": 2000, "title": "Reading report · mobile · Light"},
+
+    "StateError.dc.html": {"x": 2080, "y": 22200, "w": 390, "h": 1150, "title": "狀態 · 表單校驗錯誤 · 手機 · 淺色"},
+    "StateLoading.dc.html": {"x": 2550, "y": 22200, "w": 390, "h": 1600, "title": "狀態 · 結果載入中 · 手機 · 淺色"},
+    "StateEmpty.dc.html": {"x": 3020, "y": 22200, "w": 390, "h": 1550, "title": "State · empty result (example) · mobile · Light"}
+  },
+  "order": [
+    "Main.dc.html", "LandingEastDark.dc.html", "LandingEastMobile.dc.html", "LandingEastMobileDark.dc.html", "LandingKoMobile.dc.html",
+    "CopyReview.dc.html", "Proposals.dc.html", "PageTitles.dc.html",
+    "LandingWest.dc.html", "LandingWestDark.dc.html", "LandingWestMobile.dc.html", "LandingWestMobileDark.dc.html",
+    "ToolBazi.dc.html", "ToolBaziMobile.dc.html", "ToolBaziMobileDark.dc.html", "ToolLifePath.dc.html", "ToolLifePathMobile.dc.html",
+    "ComponentsEast.dc.html", "ComponentsEastDark.dc.html", "ComponentsWest.dc.html", "ComponentsWestDark.dc.html",
+    "PricingEastMobile.dc.html", "PricingWestMobile.dc.html", "ReportEastMobile.dc.html", "ReportWestMobile.dc.html",
+    "StateError.dc.html", "StateLoading.dc.html", "StateEmpty.dc.html"
+  ],
+  "notes": {
+    "t1": {"x": 0, "y": -300, "text": "1 · 落地首頁 · 干支日（東方站）", "kind": "title1", "maxW": 4370},
+    "t7": {"x": 4530, "y": -300, "text": "7 · 待确认：文案、变更提议与页面 title", "kind": "title1", "maxW": 3460},
+    "t2": {"x": 0, "y": 5400, "text": "2 · Landing homepage · Arcanumber (west)", "kind": "title1", "maxW": 3900},
+    "t3": {"x": 0, "y": 11200, "text": "3 · 遷移後的工具頁：表單在前、結果、長文在後", "kind": "title1", "maxW": 4370},
+    "t4": {"x": 0, "y": 17300, "text": "4 · 共享組件（兩站 × 淺 / 深）", "kind": "title1", "maxW": 5360},
+    "t5": {"x": 0, "y": 21900, "text": "5 · 定價頁與報告頁（手機淺色）", "kind": "title1", "maxW": 1800},
+    "t6": {"x": 2080, "y": 21900, "text": "6 · 狀態", "kind": "title1", "maxW": 1330},
+    "n1": {"x": 4530, "y": 2560, "w": 520, "fill": "orange", "text": "待确认文案：首页 H1、副标题、主按钮、证明行、工具区标题、一行价格为新写文案，四语全文见「待确认文案」画板。其余文字取自仓库现有 messages。主题与手机 / 桌面变体共用同一份标记：在浅色桌面的基础画板里改字，深色与手机画板同步更新。"},
+    "n2": {"x": 5090, "y": 2560, "w": 520, "fill": "gray", "text": "示例数据：虚构命盘 1990-05-15 10:30 台北 男（庚午 辛巳 庚辰 辛巳）与 Life Path 3，与仓库样例一致；工具页的五行占比、大运岁数为示意。今日条按 2026-11-17 计算：乙未日 / Universal Day 2。价格与积分按 2026-11-17 定价方案 A：详批每份 10 积分，每天登录送 10 积分；方括号内为待填事实。空 / 载入 / 错误态各一块（手机浅色）；首页为纯静态页，没有载入与错误态。"}
+  },
+  "designSystems": [
+    {"title": "干支日 · Arcanumber 视觉系统", "namespace": "xuanxueds", "artifact": "https://claude.ai/artifact/Vq91QmAGachtxReBdSH5oc", "version": "1794916580-519e", "copiedAt": "2026-11-17T16:35:00Z"}
+  ]
+}

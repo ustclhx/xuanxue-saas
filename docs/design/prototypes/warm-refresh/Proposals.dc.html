@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>token / 组件变更提议</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx board" style="font-family: 'Noto Sans TC', 'Noto Sans SC', 'PingFang TC', sans-serif">
+
+<div class="b-sec">
+<h1 class="t-title">token / 组件变更提议</h1>
+<p class="muted prose">画布只用已确认的设计系统与 @xuanxue/ui 现有组件。下面是超出两者、或与 OpenSpec design.md 初稿不同的地方，逐项等使用者确认。项目 token 进 brand.css，新组件进 packages/ui/src/project/，不改模板文件。</p>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">A · token</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 6%">编号</th><th scope="col" style="width: 30%">提议</th><th scope="col">说明</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td><strong>方向 C · 素（Graphite），两站共用中性色</strong></td><td>2026-11-17 使用者决定：放弃米色、奶油色与深红。浅色：底 #ffffff、表面 #f4f4f5、色带 #eaeaec、文字 #16181b / #4c5055 / #64686e、细线 #e1e2e5、输入框线 #7c8086。深色：底 #121315、表面 #1c1d20、色带 #26282c、文字 #ececee / #c4c6cb / #9c9fa5、细线 #2f3136、输入框线 #73777e。取代 design.md D1 的全部初稿值。</td></tr>
+<tr><td>A2</td><td><strong>主按钮墨黑，强调色只作小标记</strong></td><td>primary #16181b（深色 #ececee），链接与正文同色并加下划线。accent：东方站松绿 #2f5d50（深色 #7fb8a4），用于印章、当前导航标记、工具卡字形、日主高亮；西方站黄铜 #8a6a1c（深色 #d2b15f），用于数字字形与星。illus 为中性灰（东 #9a9ea4、西 #a39a86）。design.md D2 的 --band 改用 surface-2。</td></tr>
+<tr><td>A3</td><td><strong>标题改无衬线粗体，六个字号角色重定</strong></td><td>东方站 Noto Sans TC（韩语 Noto Sans KR）700：44 / 28 / 20 / 18 / 16 / 13（手机 display 32、title 24）。西方站全站 Manrope，标题 700：52 / 32 / 21 / 19 / 17 / 13（手机 36、26），display 与 title 字距 -0.02em。这改变了 design.md「不改字体家族」的非目标，需写入 design.md。</td></tr>
+<tr><td>A4</td><td><strong>组件预览中的 14、15、28px 并入六角色</strong></td><td>设计系统的 ToolCard、Field 预览用了 14px 标签、15px 说明、28px 字形，与「每页不超过 6 种字号」冲突。画布改为：标签用 caption 13，卡片说明用 body，字形用 title。</td></tr>
+<tr><td>A5</td><td><strong>命盘内大字使用 display / title</strong></td><td>工具页四柱干支与 Life Path 数字用 display；首页样例与报告里的小盘用 title。图形内文字仍在六角色内，度量测试无需例外。</td></tr>
+<tr><td>A6</td><td><strong>五行色只作图表语义色，深色主题另有一组</strong></td><td>浅色沿用木 #3e7d4f、火 #b8432f、土 #9a7438、金 #6e7480、水 #2e5e8c；深色为 #6fb583、#e58a6f、#cfa35c、#a7adb8、#78a9dc（在深色三种底上均 ≥5.7:1）。只作圆点与条形并配文字标签，火色不作品牌或界面色。</td></tr>
+<tr><td>A7</td><td><strong>手机间距补充</strong></td><td>设计系统未定义页面边距与手机的 space-block。画布取：页面边距桌面 32、手机 20；手机 space-block 32；手机卡片内边距 24（设计系统已给）。</td></tr>
+<tr><td>A8</td><td><strong>圆角 6 / 14 / pill 与 shadow-raise 只在营销与工具页生效</strong></td><td>应用区（登录后）是否跟随由后续决定，默认不变。shadow-raise 只用于工具表单面板与展开的菜单，深色主题无阴影。</td></tr>
+<tr><td>A9</td><td><strong>焦点环用文字色；新增 danger、on-danger</strong></td><td>焦点环为 2px 文字色、外移 3px，与控件之间留出页面底色间隙，黑色主按钮上同样可见。danger 是低饱和砖色，只用于表单错误与删除类操作：浅色 #96493d（白底 6.33:1、表面 5.76:1），深色 #d9988b（7.80:1、7.07:1）；on-danger 为 #ffffff / #121315，用于实心删除按钮。不是旧的品牌红，不作装饰。</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">B · 组件（新增于 packages/ui/src/project/，或改项目自有文件）</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 6%">编号</th><th scope="col" style="width: 30%">提议</th><th scope="col">说明</th></tr></thead>
+<tbody>
+<tr><td>B1</td><td><strong>Section、Prose</strong></td><td>design.md D6 已列。Section 统一区块间距 112 / 64；Prose 限宽 720。画布中色带不是整宽区块，而是页宽内的圆角条。</td></tr>
+<tr><td>B2</td><td><strong>ToolCard</strong></td><td>字形、标题、一句话、文字链接；整卡可点。手机改为横排（字形在左），不显示第二个链接。</td></tr>
+<tr><td>B3</td><td><strong>Band（今日条、一行价格共用）</strong></td><td>surface-2、radius-md、一行文字加一个文字链接；手机上下排列。今日条水合前后尺寸不变。</td></tr>
+<tr><td>B4</td><td><strong>Segmented 分段切换</strong></td><td>用于曆法、性別与主题切换。优先复用现有 Tabs 与 ThemeToggle 的样式；不能复用时新增 project 组件。</td></tr>
+<tr><td>B5</td><td><strong>Motif 插画</strong></td><td>每站一个母题，内联 SVG，线条用中性灰 illus。首页桌面 320px 在标题右侧，手机 168px 在标题上方。东方站松绿印章是唯一填充形；西方站只有星用黄铜描边。一页只出现一次。</td></tr>
+<tr><td>B6</td><td><strong>页头手机面板与页脚设置行</strong></td><td>改现有 site-header、HeaderMenu（details）与 site-footer。面板含工具列表、主题切换、语言。西方站开始显示主题切换。取消浮动主题按钮。</td></tr>
+<tr><td>B7</td><td><strong>八字表单重排</strong></td><td>原生 select 换成 Select；年、月、日为三个 Select。手机首屏只留出生日期、出生時間、性別、出生地与提交按钮；曆法并入日期标签行，真太陽時与時區收进「進階選項」。</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">C · 版式与内容决定</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 6%">编号</th><th scope="col" style="width: 30%">提议</th><th scope="col">说明</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>首页每个工具只链接一次</strong></td><td>样例报告块不再放「先免費排盤」按钮；首屏次要链接是页内锚点「看詳批樣例 ↓」。首屏共 1 个主按钮加 1 个文字链接。</td></tr>
+<tr><td>C2</td><td><strong>韩语首页 3 张工具卡</strong></td><td>만세력、사주궁합、쓰리 카드 타로。오늘의 운세只在今日条出现，避免同页两次。design.md OQ5 的默认是把它作为第 4 张卡，请二选一。</td></tr>
+<tr><td>C3</td><td><strong>西方站 3 张卡加一个文字链接</strong></td><td>Life Path Number、Numerology Calculator、Three-Card Tarot，卡片下方一行 Compatibility 文字链接。塔罗卡字形用「22」（大阿尔卡那张数）。</td></tr>
+<tr><td>C4</td><td><strong>首页 FAQ 取 3 条定价页现有问答</strong></td><td>免费范围、是否预测、如何付款。不输出 FAQPage。工具专属 FAQ 留在工具页。</td></tr>
+<tr><td>C5</td><td><strong>声明只作 caption</strong></td><td>结果区底部一条、样例报告下一条、页脚一条，均为批准全文；不再有整宽色条。</td></tr>
+<tr><td>C6</td><td><strong>西方站样例为 Life Path 3</strong></td><td>调研简报写的是 LP 11；仓库样例（1990-05-15）实际是 Life Path 3，画布以仓库为准。</td></tr>
+<tr><td>C7</td><td><strong>本画布未画的页面</strong></td><td>/ko/만세력、/ko/사주궁합、紫微斗數、塔羅、每日運勢、法律页与博客、应用区今日面板、东方站 /en 入口页。建议套用本画布的工具页、Prose 与共享组件模式；需要单独画板请指示。</td></tr>
+<tr><td>C8</td><td><strong>待填事实</strong></td><td>定价已按 2026-11-17 的方案 A 填入（详批每份 10 积分；Starter 100 积分、Value 400 积分；Plus 300 积分 / 月、Premium 800 积分 / 月）。积分包购买后 365 天内有效，订阅积分当期有效；已无方括号占位。积分包的中文名「入門包」「超值包」为提议，待确认。</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":2400}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

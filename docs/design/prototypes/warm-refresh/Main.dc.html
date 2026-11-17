@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>干支日首頁（繁體中文）</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主導航">
+<a href="ComponentsEast.dc.html">排盤工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#today">每日運勢</a>
+<a href="PricingEastMobile.dc.html">定價</a>
+<a href="#footer">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登入</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="語言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="帳戶"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主導航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="flow">
+
+<section class="wrap hero" aria-labelledby="hero-h">
+<div class="hero-text">
+<h1 class="t-display" id="hero-h">排一張命盤，讀懂自己</h1>
+<p class="t-lead muted">八字、紫微與塔羅，依傳統規則排盤，每一步都看得到。</p>
+<div class="cta-row">
+<a class="btn btn-primary" href="ToolBazi.dc.html">免費八字排盤</a>
+<a class="link" href="#sample">看詳批樣例 ↓</a>
+</div>
+<p class="t-caption subtle proof">免費 · 不需註冊 · 在你的瀏覽器裡計算</p>
+</div>
+<div class="hero-art">
+<svg viewBox="0 0 280 280" aria-hidden="true">
+<circle class="mo-s" cx="140" cy="140" r="112"/>
+<circle class="mo-s mo-f" cx="140" cy="140" r="86"/>
+<path class="mo-s" d="M48 196 C 90 250, 200 252, 236 180"/>
+<g class="mo-g">
+<text x="140" y="41">甲</text><text x="198.2" y="59.9">乙</text><text x="234.2" y="109.4">丙</text><text x="234.2" y="170.6">丁</text><text x="198.2" y="220.1">戊</text>
+<text x="140" y="239">己</text><text x="81.8" y="220.1">庚</text><text x="45.8" y="170.6">辛</text><text x="45.8" y="109.4">壬</text><text x="81.8" y="59.9">癸</text>
+</g>
+<rect class="mo-seal" x="176" y="176" width="52" height="52" rx="4"/>
+<text class="mo-seal-t" x="202" y="198">干支</text>
+<text class="mo-seal-t" x="202" y="218">日</text>
+</svg>
+</div>
+</section>
+
+<section class="wrap" aria-labelledby="tools-h">
+<div class="sec-head">
+<h2 class="t-title" id="tools-h">從一個工具開始</h2>
+<p class="muted">同一份出生資料，可以在每個工具間直接帶入。</p>
+</div>
+<div class="cards">
+<a class="card" href="ToolBazi.dc.html"><span class="glyph" aria-hidden="true">八</span><h3 class="t-heading">八字排盤</h3><p class="muted">四柱命盤、五行強弱、喜用神、大運流年與神煞。</p><span class="go">開始排盤 →</span></a>
+<a class="card" href="#tools-h"><span class="glyph" aria-hidden="true">紫</span><h3 class="t-heading">紫微斗數</h3><p class="muted">十二宮位、命宮與身宮、十四主星與生年四化。</p><span class="go">開始排盤 →</span></a>
+<a class="card" href="#tools-h"><span class="glyph" aria-hidden="true">牌</span><h3 class="t-heading">三張牌塔羅</h3><p class="muted">洗牌、切牌，翻開過去、現在、未來三張牌。</p><span class="go">開始抽牌 →</span></a>
+<a class="card" href="#tools-h"><span class="glyph" aria-hidden="true">盤</span><h3 class="t-heading">命盤查詢</h3><p class="muted">四柱、藏干、十神與大運流年表。</p><span class="go">查詢命盤 →</span></a>
+</div>
+</section>
+
+<section class="wrap" id="sample" aria-labelledby="sample-h">
+<div class="sec-head">
+<h2 class="t-title" id="sample-h">AI 八字詳批長什麼樣</h2>
+<p class="muted">詳批共 8 個章節，依命盤逐章說明；以下為章節大綱。</p>
+</div>
+<div class="obj sample">
+<div class="stack">
+<h3 class="t-heading">樣例命盤</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">午</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱 · 日主</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">辰</span><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></div>
+<div class="pillar"><span class="t-caption subtle">時柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+</div>
+<p class="t-caption subtle">虛構命盤：1990-05-15 10:30 台北 男</p>
+</div>
+<div class="stack">
+<h3 class="t-heading">報告目錄</h3>
+<ol class="outline">
+<li>總論</li><li>性格</li><li>事業</li><li>財運</li><li>感情</li><li>健康作息提示</li><li>未來十年大運</li><li>建議</li>
+</ol>
+<p class="t-caption subtle">示例段落</p>
+<p class="muted">示例命盤四柱為庚午、辛巳、庚辰、辛巳，日主庚金生於巳月。年干庚金比肩，月干與時干兩見辛金劫財，金約佔五行的五成六，綜合判為身強；月令巳火藏丙火七殺，像爐火鍛金，壓力同時也是成形的力量。</p>
+</div>
+</div>
+<p class="disc" style="margin-top: 16px">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+</section>
+
+<section class="wrap" id="today" aria-label="今日運勢">
+<div class="band">
+<div class="band-main">
+<span class="t-caption subtle">今日 · 2026 年 11 月 17 日 週二</span>
+<span class="t-heading">乙未日</span>
+</div>
+<a class="link" href="#today">看你的今日運勢 →</a>
+</div>
+</section>
+
+<section class="wrap" aria-labelledby="steps-h">
+<div class="sec-head"><h2 class="t-title" id="steps-h">三步看懂自己的命盤</h2></div>
+<ol class="steps">
+<li class="step"><span class="step-n" aria-hidden="true">一</span><h3 class="t-heading">輸入生辰</h3><p class="muted">填寫出生日期、時辰與出生地，不需要註冊。</p></li>
+<li class="step"><span class="step-n" aria-hidden="true">二</span><h3 class="t-heading">免費排盤</h3><p class="muted">四柱、十神、五行、大運與神煞，全部免費。</p></li>
+<li class="step"><span class="step-n" aria-hidden="true">三</span><h3 class="t-heading">AI 詳批</h3><p class="muted">需要更完整的說明時，再用積分解鎖詳批。</p></li>
+</ol>
+</section>
+
+<section class="wrap" aria-label="定價">
+<div class="band">
+<p>排盤免費；AI 詳批每份 10 積分，每天登入送 10 積分，可以先免費體驗。</p>
+<a class="link" href="PricingEastMobile.dc.html">查看定價 →</a>
+</div>
+</section>
+
+<section class="wrap" aria-labelledby="trust-h">
+<div class="sec-head"><h2 class="t-title" id="trust-h">我們怎麼算、怎麼保護資料</h2></div>
+<ul class="trust">
+<li>依子平八字傳統規則計算，可選擇真太陽時校正，月柱依節氣交接劃分。</li>
+<li>免費排盤在你的瀏覽器中完成，分享連結不含你的姓名。</li>
+<li>詳批生成失敗時，積分自動退回。</li>
+<li>刪除帳戶時，詳批報告一併刪除。</li>
+</ul>
+</section>
+
+<section class="wrap" aria-labelledby="faq-h">
+<div class="sec-head"><h2 class="t-title" id="faq-h">常見問題</h2></div>
+<div class="faq">
+<details open>
+<summary>哪些是免費的？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>所有排盤、計算器、牌義與塔羅牌陣及其標準結果都免費，不需要註冊。</p>
+</details>
+<details>
+<summary>詳批是預測嗎？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>不是。排盤依各體系的規則計算；解讀僅供參考與潛意識探索，不是預測，也不是專業建議。</p>
+</details>
+<details>
+<summary>如何付款？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>付款由 Stripe（卡片）與 PayPal 安全處理，我們不會取得或保存你的卡片資料。</p>
+</details>
+</div>
+</section>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">透過命理工具與指南，認識傳統智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="頁尾">
+<a href="#footer">部落格</a><a href="#footer">指南</a><a href="#footer">隱私政策</a><a href="#footer">服務條款</a>
+<a href="#footer">退款政策</a><a href="#footer">免責聲明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有權利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":3840}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+return { theme: theme, cls: 'xx' + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

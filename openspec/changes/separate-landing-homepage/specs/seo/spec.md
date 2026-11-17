@@ -60,3 +60,26 @@
 #### Scenario: llms.txt
 - **WHEN** 请求东方站 `/llms.txt`
 - **THEN** 繁中「八字排盤」条目的地址为 `https://ganjiday.com/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4`，不再是 `https://ganjiday.com/zh-hant`
+
+### Requirement: 页面标题带站名
+每个页面的 `<title>` SHALL 带有当前站点在当前语言下的站名：内页为页面标题在前、站名在后（繁体与简体中文用全角「｜」连接「干支日」，韩语用「 | 」连接「간지데이」，英语用「 | 」连接「Arcanumber」）；首页为站名在前。同一个标题中站名 MUST NOT 出现两次，页面 MUST NOT 使用另一站点的站名。该规则 SHALL 覆盖公开页、认证页、账户页、登录后的应用区页面与分享页；`og:title` 与 `twitter:title` SHALL 与 `<title>` 一致。
+
+#### Scenario: 繁中内页
+- **WHEN** 访客打开东方站 `/zh-hant/pricing`
+- **THEN** 页面标题以「｜干支日」结尾
+
+#### Scenario: 韩语内页
+- **WHEN** 访客打开东方站 `/ko/만세력`
+- **THEN** 页面标题以「 | 간지데이」结尾
+
+#### Scenario: 首页站名在前
+- **WHEN** 访客打开西方站首页
+- **THEN** 页面标题以「Arcanumber」开头，且「Arcanumber」只出现一次
+
+#### Scenario: 认证页与应用区
+- **WHEN** 访客打开东方站繁中登录页，或登录后打开「我的報告」
+- **THEN** 两个页面的标题都以「｜干支日」结尾
+
+#### Scenario: 分享页用当前站点的站名
+- **WHEN** 访客在东方站打开一个分享页
+- **THEN** 页面标题中的站名是东方站的站名，不是「Arcanumber」

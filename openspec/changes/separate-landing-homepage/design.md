@@ -51,13 +51,39 @@
 | 样例报告 | 复用 `home-hub` 样例区块与 `sample-chart-east/west.tsx` | `readings/catalog` 已审定样例（现状不变） |
 | 今日条 | 新建 `home-hub/today-strip.tsx`（D6） | 每日运势页登记 + 浏览器内计算当日公共信息 |
 | 三步说明 | 模板 `Steps` | `landing.json` |
-| 一行价格 | 复用 `home-hub` 价格数据，只取最低起价 | 构建期价格快照（与定价页同源） |
+| 一行价格 | 一行文字加定价页链接：免费工具 + 每份详批所需积分 + 每日登录赠送积分（D2a） | 详批积分数与每日赠送数取与定价页相同的配置；没有可解锁的详批时只显示免费说明 |
 | 信任说明 | 复用 `home-hub` 事实型背书 | 项目常量 |
 | 品牌级 FAQ（3–4 条） | 复用 `features/tools/faq.tsx` 的展示，不输出 `FAQPage` | `landing.json` |
 
 - loader 不再预载工具组件。西方站首页不再依赖内容集合：删除 `TemplateHome` 回退分支（长文缺失只影响 `/life-path-number`，该页按 `numerology-pages` 现有缺失处理返回 404 / 构建失败）。
 - 保留 `data-testid="version"`（生产冒烟依赖）。
 - 页面区块全部静态预渲染，不查库，数据库不可达时完整显示。
+
+### D2a 已确认的文案与精选入口
+
+使用者 2026-11-17 在画布「待确认文案」画板上确认（原话见原型索引）。文案写入 `apps/web/messages/<locale>/landing.json`；未列出的文字沿用现有 `home-hub.json` 等文案。
+
+| 项目 | zh-Hant | zh-Hans | ko | en |
+|---|---|---|---|---|
+| 首屏 H1 | 排一張命盤，讀懂自己 | 排一张命盘，读懂自己 | 내 사주를 차분히 읽어 보세요 | Know your numbers |
+| 副标题 | 八字、紫微與塔羅，依傳統規則排盤，每一步都看得到。 | 八字、紫微与塔罗，依传统规则排盘，每一步都看得到。 | 만세력, 사주궁합, 타로를 전통 규칙대로 계산하고 과정까지 보여 드립니다. | Life path, numerology and tarot, calculated by traditional rules with every step shown. |
+| 主按钮（指向主工具页） | 免費八字排盤 | 免费八字排盘 | 무료 만세력 보기 | Find your life path number |
+| 次要文字链接（页内锚点到样例报告） | 看詳批樣例 ↓ | 看详批样例 ↓ | 상세 풀이 예시 보기 ↓ | See a sample reading ↓ |
+| 证明行 | 免費 · 不需註冊 · 在你的瀏覽器裡計算 | 免费 · 不需注册 · 在你的浏览器里计算 | 무료 · 가입 없이 · 브라우저에서 계산 | Free · No sign-up · Calculated in your browser |
+| 工具区标题 | 從一個工具開始 | 从一个工具开始 | 도구 하나로 시작하세요 | Start with one tool |
+| 工具卡链接文字 | 開始排盤 → / 開始抽牌 → / 查詢命盤 → | 开始排盘 → / 开始抽牌 → / 查询命盘 → | 만세력 보기 → / 궁합 보기 → / 카드 뽑기 → | Find your number → / Open the calculator → / Draw three cards → |
+| 一行价格（定价版本 A） | 排盤免費；AI 詳批每份 10 積分，每天登入送 10 積分，可以先免費體驗。 | 排盘免费；AI 详批每份 10 积分，每天登录送 10 积分，可以先免费体验。 | 만세력은 무료입니다. AI 상세 풀이는 1회 10 크레딧이며, 매일 로그인하면 10 크레딧을 드리니 먼저 무료로 체험해 보세요. | Every calculator is free. A full reading costs 10 credits, and you get 10 free credits each day you sign in, so you can try one first. |
+| 首页 FAQ（问答取定价页现有文案） | 哪些是免費的？／詳批是預測嗎？／如何付款？ | 哪些是免费的？／详批是预测吗？／如何付款？ | 무료로 이용할 수 있는 것은? / 상세 풀이는 예언인가요? / 결제는 어떻게 하나요? | What is free? / Are readings predictions? / How will I pay? |
+
+- 一行价格中的「10」不写死在文案里：详批积分数与每日赠送积分数以消息参数传入，取与定价页相同的配置。
+- **精选入口**：
+  - 繁中、简中 4 个：八字排盤、紫微斗數、三張牌塔羅、命盤查詢；今日運勢只在今日条出现。
+  - 韩语 3 个：만세력、사주궁합、쓰리 카드 타로；오늘의 운세只在今日条出现（同一链接不在一页出现两次）。
+  - 西方站 3 个：Life Path Number、Numerology Calculator、Three-Card Tarot，卡片下方一行 Compatibility 文字链接。
+  - 工具卡字形用站点强调色：八 / 紫 / 牌 / 盤，사 / 합 / 타，1 / 9 / 22。
+- **每个工具在首页只链接一次**：样例报告块不放「先免費排盤」按钮；首屏为 1 个主按钮加 1 个文字链接。
+- **样例**：东方站虚构命盘 1990-05-15 10:30 台北 男（庚午 辛巳 庚辰 辛巳）；西方站 1990-05-15，Life Path 3（与 `readings/samples.ts` 一致，调研简报中的「LP 11」有误）。
+- **工具页长文标题**：繁中「八字命盤怎麼看」/ 简中「八字命盘怎么看」；韩语与英语沿用现有长文标题。
 
 ### D3 首页与工具页的 head
 
@@ -67,7 +93,7 @@
   - 「간지데이 | 무료 만세력·사주·타로」
   - 「Arcanumber — Free Life Path Number Calculator, Numerology & Tarot」
 
-  最终文案由使用者确认（OQ4）。该文件同时是默认分享图副标题来源，分享图随之更新。首页 canonical 与 hreflang 簇不变。
+  以上四条 Title 已由使用者在画布上确认（2026-11-17，原型索引）。首页 Title 站名在前，`pageHead` 不再给首页追加站名（D3a）。该文件同时是默认分享图副标题来源，分享图随之更新。首页 canonical 与 hreflang 簇不变。
 - **工具页**：Title / description / H1 原样沿用迁移前首页。结构化数据：
   - 新增 `webApplicationData`（`applicationCategory: 'LifestyleApplication'`、`offers` 价格 0、`url` = canonical、`inLanguage`）；
   - 新增 `breadcrumbData`（首页 › 工具；西方站数字页为首页 › Life Path Number › n）；
@@ -75,6 +101,23 @@
 
   helper 放 `features/seo/structured-data.ts`。
 - `redesign-home-chart-visuals` 2.3 的首页 head 对照测试更新快照：首页 Title 与 JSON-LD 类型按本设计改变，canonical / hreflang / robots 不变；新增工具页 head 快照。
+
+### D3a 页面 title 带站名
+
+使用者 2026-11-17：「把内页的title都补好，最好每一个title都要带上这个网站的名字」。
+
+- **规则**：内页 `<页面标题>｜干支日`（繁中、简中，全角竖线、两侧不加空格）、`<페이지 제목> | 간지데이`（韩语）、`<Page title> | Arcanumber`（英语）。首页站名在前（D3 的四条 Title），不再追加站名。页面标题本身已以站名结尾时不重复追加。
+- **现状**（2026-11-17 核对）：公开页经 `features/seo/metadata.ts` 的 `pageHead` 统一追加 ` | <站名>`，分隔符对所有语言都是半角 ` | `，韩语站名来自配置，现为 `Ganjiday`。
+- **要改**：
+  - `pageHead`：分隔符按语言选择；韩语页面的站名显示为「간지데이」（只改 title 用的显示名，不改 `brandName` 的其他用途，除非核对后确认可以一并改）；首页不追加。OG / Twitter 标题同步。
+  - 没有站名的页面，改为经同一个 title 函数生成：
+    - 认证页（`authPageHead` 直接输出传入的标题）：login、register、forgot-password、reset-password、verify-email；accept-invitation 目前没有标题；
+    - `routes/account/index.tsx`；
+    - 应用区：`app/$slug/route.tsx`（「<空间名> · Workspace」）、`profiles.tsx`、`readings/index.tsx`、`readings/$readingId.tsx`、`chat/index.tsx`、`chat/$conversationId.tsx`、`chat/context.tsx`（写死「Chat」）、`media/new.tsx`、`tasks/index.tsx`、`tasks/$taskId.tsx`；
+    - `routes/admin/route.tsx`。
+  - 站名不对：分享页 `routes/s.$type.$token.tsx` 追加的是 `templateConfig.app.name`（恒为 Arcanumber），改为当前站点、当前语言的站名。
+  - `routes/dev/*` 为 noindex 的开发页，不在范围内。
+- **测试**：单测覆盖四种语言的分隔符与站名、首页不重复、已含站名不重复；`seo.spec.ts` 抽查两站各一个工具页、定价页、法律页与登录页。
 
 ### D4 旧链接兼容
 
@@ -159,6 +202,13 @@
 4. **发布**：与 `refresh-visual-system-warm` 同批或之后发布生产。上线前一周内由使用者导出 Search Console 基线。
 5. **归档**：`redesign-home-chart-visuals` 先归档（`home-hub` 主规格由它创建），然后本 change 归档。若 `refresh-visual-system-warm` 与本 change 同批归档，两者无同名 requirement 冲突。
 
+### D8a 设计稿关卡记录（`ui-design` 第 1–2 步，任务 1.1）
+
+- **判断**：`docs/design-system.md` §8.1「新增路由文件」「增删或重排页面的顶层区块」均适用，需要设计稿并经使用者本人确认。
+- **页面清单**：东方站 `/zh-hant`、`/zh-hans`、`/ko` 落地页，西方站 `/` 落地页，`/zh-hant/八字排盤`、`/ko/만세력`、`/life-path-number` 工具页，`/life-path-number/7`（面包屑）。
+- **出稿情况**：画布含东方站繁中落地页（桌面 / 手机 × 浅 / 深）、韩语落地页（手机浅色）、西方站落地页（桌面 / 手机 × 浅 / 深）、`/zh-hant/八字排盤`（桌面浅、手机浅 / 深，含结果）与 `/life-path-number`（桌面、手机浅色，含结果），以及表单错误、结果载入、空结果三个状态。`/zh-hans` 与繁中同版式（文案见 D2a）；`/ko/만세력` 套用八字工具页版式；`/life-path-number/7` 的面包屑沿用 `/life-path-number` 画板中的面包屑样式。「每日运势页未上线（无今日条）」「无可解锁的详批（价格行只显示免费说明）」两个异常态没有单独画板，按 `home-hub` 规格实现为不渲染该条 / 只显示免费说明。
+- **token 与组件来源**：`refresh-visual-system-warm` design.md D14。
+
 ### D9 监测
 
 - **上线前**：导出两站 Search Console 近 28 天查询基线，重点是「免費八字排盤」「八字排盤」「八字排盘」「만세력」「무료 만세력」「life path number calculator」「life path number」，包括展示、点击、平均排名与落地 URL，存入 `EVIDENCE_DIR`。
@@ -209,20 +259,17 @@
 
 ## Open Questions
 
-> 2026-11-17 使用者决定：下列问题采用各条默认值；首页每日区块**只显示今日干支 / 当日数字**，不显示宜忌。四语首页 Title / H1 / 副标与 CTA 文案、首页精选的 3–4 个工具、首页 OG 图在设计稿评审时由使用者确认。
+2026-11-17 使用者决定各问题采用默认值，并在画布上确认了文案与精选入口；本 change 没有遗留的开放问题。
 
-1. **西方站首页是否保留单个日期输入**：调研认为可接受（提交后跳到 `/life-path-number` 并带上日期）。默认不保留，首页只有主按钮。
-2. **旧首页查询跳转用 301 还是 302**：默认 301（首页今后不会再使用 `unlock` 参数）。
-3. **首页可见 FAQ 是否输出 `FAQPage`**：默认不输出，FAQ 结构化数据只在工具页。
-4. **首页 Title、H1 品牌承诺、副标题与主按钮文案**：
-   - 四语均需使用者确认；
-   - 初稿：「用千年命理，安靜地認識自己」、「Numbers and cards for quiet self-reflection」；
-   - Title 初稿见 D3；
-   - 须符合合规语境：免费工具不提 AI，不以娱乐定位。
-5. **精选工具入口**：
-   - 中文默认「八字排盤、紫微斗數、三張牌塔羅、命盤查詢」，今日运势单独成条；
-   - 韩语「만세력、사주궁합、쓰리 카드 타로、오늘의 운세」；
-   - 西方站「Life Path、Numerology Calculator、Three-Card Tarot」+ Compatibility 文字链接。
-6. **今日条的内容**：默认只显示当日干支 / Number of the Day 加链接（D6）；是否需要宜忌（需要时改为边缘计算并评估成本）。
-7. **东方站 `/en` 入口页**：默认链接各语言落地页，同时加各语言主工具页链接。
-8. **样例 OG 图**：首页原用八字 / Life Path 样例 OG 图，迁移后改为默认分享图还是品牌插画版（以设计稿为准）。
+1. **西方站首页是否保留单个日期输入**：不保留，首页只有主按钮。
+2. **旧首页查询跳转**：301。
+3. **首页可见 FAQ**：不输出 `FAQPage`。
+4. **首页 Title、H1、副标题与主按钮文案**：见 D3 与 D2a。
+5. **精选工具入口**：见 D2a（韩语为 3 个，오늘의 운세只在今日条）。
+6. **今日条的内容**：只显示当日干支 / Number of the Day 加链接，不显示宜忌。
+7. **东方站 `/en` 入口页**：链接各语言落地页，同时加各语言主工具页链接。
+8. **样例 OG 图**：样例 OG 图随注册表挂到工具页；首页用默认分享图（按站点默认主题取色）。
+
+## 原型索引
+
+设计稿副本与确认记录登记在 `docs/design/prototypes/README.md`（「warm-refresh」各行中所属 change 为本 change 的行，副本目录 `docs/design/prototypes/warm-refresh/`）：两站落地页、韩语落地页、`/zh-hant/八字排盤`、`/life-path-number`、待确认文案。视觉 token 与共享组件见 `refresh-visual-system-warm` design.md D14。实现与验收以副本为准。

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>共享組件 · 干支日</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="xx board">
+
+<div class="b-sec">
+<h1 class="t-title">共享組件 · 干支日</h1>
+<p class="muted prose">兩個改版共用的外殼與區塊。顏色、字號、間距、圓角全部取自已確認的設計系統；每個區塊下方註明對應的現有組件或待新增的 project 組件。</p>
+</div>
+
+<div class="b-sec">
+<span class="b-label">頁頭 · 桌面 · 導航 5 項（排盤工具 ▾、每日運勢、定價、語言、帳戶）· 工具下拉展開 · 現有 site-header + HeaderMenu（details）</span>
+<div class="b-frame" style="background: var(--bg); padding-bottom: 24px">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav" aria-label="主導航">
+<a class="on" href="#">排盤工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12l5-5 5 5"/></svg></a>
+<a href="#">每日運勢</a>
+<a href="#">定價</a>
+<a href="#">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#">登入</a>
+</nav>
+</div>
+</header>
+<div class="wrap" style="display: flex; justify-content: flex-end">
+<div class="menu" style="width: 280px; margin-right: 300px">
+<a href="ToolBazi.dc.html">八字排盤</a>
+<a href="#">紫微斗數</a>
+<a href="#">命盤查詢</a>
+<a href="#">三張牌塔羅</a>
+<a href="#">每日一張塔羅</a>
+<a href="#">是非塔羅</a>
+<a href="#">凱爾特十字塔羅</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">頁頭 · 手機 · 單行 56px（標誌、語言、帳戶、導航按鈕）· 右：details 面板展開，含主題切換 · 不依賴水合</span>
+<div class="b-row">
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="語言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="帳戶"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主導航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+<div class="wrap" style="padding-top: 24px; padding-bottom: 32px">
+<p class="t-display">排一張命盤，讀懂自己</p>
+</div>
+</div>
+</div>
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="語言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="帳戶"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="關閉導航" aria-expanded="true" style="color: var(--ink)"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+</div>
+</div>
+</header>
+<div style="padding: 0 12px 16px">
+<nav class="menu" aria-label="主導航">
+<p class="t-caption subtle menu-label">排盤工具</p>
+<a href="ToolBazi.dc.html">八字排盤</a>
+<a href="#">紫微斗數</a>
+<a href="#">命盤查詢</a>
+<a href="#">三張牌塔羅</a>
+<hr>
+<a href="#">每日運勢</a>
+<a href="#">定價</a>
+<a href="#">登入</a>
+<hr>
+<div class="set" style="padding: 6px 12px; justify-content: space-between"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set" style="padding: 6px 12px; justify-content: space-between"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">工具卡列 · 3–4 張 · surface、radius-md、無邊線無陰影、hover 轉 surface-2 · 待新增 project 組件 ToolCard</span>
+<div class="cards">
+<a class="card" href="ToolBazi.dc.html"><span class="glyph" aria-hidden="true">八</span><h3 class="t-heading">八字排盤</h3><p class="muted">四柱命盤、五行強弱、喜用神、大運流年與神煞。</p><span class="go">開始排盤 →</span></a>
+<a class="card" href="#"><span class="glyph" aria-hidden="true">紫</span><h3 class="t-heading">紫微斗數</h3><p class="muted">十二宮位、命宮與身宮、十四主星與生年四化。</p><span class="go">開始排盤 →</span></a>
+<a class="card" href="#" style="background: var(--surface-2)"><span class="glyph" aria-hidden="true">牌</span><h3 class="t-heading">三張牌塔羅</h3><p class="muted">洗牌、切牌，翻開過去、現在、未來三張牌。（hover 態）</p><span class="go">開始抽牌 →</span></a>
+<a class="card" href="#"><span class="glyph" aria-hidden="true">盤</span><h3 class="t-heading">命盤查詢</h3><p class="muted">四柱、藏干、十神與大運流年表。</p><span class="go">查詢命盤 →</span></a>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">樣例報告塊 · 一個 surface 物件：樣例命盤 + 報告目錄 + 示例段落；聲明小字在物件下方 · 複用 home-hub 樣例與 sample-chart-east</span>
+<div class="obj sample">
+<div class="stack">
+<h3 class="t-heading">樣例命盤</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">午</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱 · 日主</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">辰</span><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></div>
+<div class="pillar"><span class="t-caption subtle">時柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+</div>
+<p class="t-caption subtle">虛構命盤：1990-05-15 10:30 台北 男</p>
+</div>
+<div class="stack">
+<h3 class="t-heading">報告目錄</h3>
+<ol class="outline">
+<li>總論</li><li>性格</li><li>事業</li><li>財運</li><li>感情</li><li>健康作息提示</li><li>未來十年大運</li><li>建議</li>
+</ol>
+<p class="t-caption subtle">示例段落</p>
+<p class="muted">示例命盤四柱為庚午、辛巳、庚辰、辛巳，日主庚金生於巳月。年干庚金比肩，月干與時干兩見辛金劫財，金約佔五行的五成六，綜合判為身強。</p>
+</div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+</div>
+
+<div class="b-sec">
+<span class="b-label">今日條與一行價格 · surface-2 色帶、radius-md · 今日條只顯示當日干支，水合後填入，尺寸固定 · 待新增 TodayStrip；價格複用 hubPricing 最低起價</span>
+<div class="band">
+<div class="band-main">
+<span class="t-caption subtle">今日 · 2026 年 11 月 17 日 週二</span>
+<span class="t-heading">乙未日</span>
+</div>
+<a class="link" href="#">看你的今日運勢 →</a>
+</div>
+<div class="band">
+<p>排盤免費；AI 詳批每份 10 積分，每天登入送 10 積分，可以先免費體驗。</p>
+<a class="link" href="PricingEastMobile.dc.html">查看定價 →</a>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">按鈕與表單 · Button（主 / 次 / 文字連結）、Input、Select（取代原生 select）、分段切換、欄位錯誤與刪除按鈕（danger 只用於錯誤與刪除）· 現有 @xuanxue/ui 組件換新 token</span>
+<div class="b-row" style="align-items: center">
+<button type="button" class="btn btn-primary">免費八字排盤</button>
+<button type="button" class="btn btn-secondary">複製分享連結</button>
+<a class="link" href="#">查看定價 →</a>
+<button type="button" class="btn btn-danger">刪除帳戶</button>
+</div>
+<div class="panel" style="max-width: 760px">
+<div class="field">
+<div class="field-top"><label class="label" for="c-time">出生時間</label></div>
+<input class="input" id="c-time" type="text" value="10:30">
+<p class="hint">不確定時辰可以勾選「不知道出生時辰」。</p>
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="c-place">出生地</span></div>
+<button type="button" class="select" aria-haspopup="listbox" aria-labelledby="c-place">台北<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="c-gender">性別</span></div>
+<div class="seg lg" role="group" aria-labelledby="c-gender"><button type="button" class="on">男</button><button type="button">女</button></div>
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="c-err">出生地（錯誤態）</span></div>
+<button type="button" class="select invalid" aria-haspopup="listbox" aria-labelledby="c-err" style="color: var(--ink-subtle)">請選擇<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<p class="err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg>請填寫此欄。</p>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Section / Prose 節奏 · 區塊間 space-section 112（手機 64）· 標題到內容 space-block 40（手機 32）· 正文最寬 measure-prose 720 · 頁寬 measure-page 1120 · 待新增 project 組件 Section、Prose</span>
+<div class="rhythm">
+<h2 class="t-title">三步看懂自己的命盤</h2>
+<div class="rule" style="height: 40px">space-block 40</div>
+<p class="muted prose">正文寬度不超過 720px：填寫出生日期、時辰與出生地，不需要註冊。四柱、十神、五行、大運與神煞，全部免費。需要更完整的說明時，再用積分解鎖詳批。</p>
+<div class="rule" style="height: 112px">space-section 112（手機 64）</div>
+<h2 class="t-title">我們怎麼算、怎麼保護資料</h2>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">頁尾 · 細線分隔 · 設定列（主題、語言）· 聲明為 caption 小字，不用整寬色條 · 左：桌面，下：手機</span>
+<div class="b-frame" style="background: var(--bg)">
+<footer class="ftr" style="border-top: 0">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">透過命理工具與指南，認識傳統智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="頁尾">
+<a href="#">部落格</a><a href="#">指南</a><a href="#">隱私政策</a><a href="#">服務條款</a>
+<a href="#">退款政策</a><a href="#">免責聲明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有權利。</p>
+</div>
+</footer>
+</div>
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<footer class="ftr" style="border-top: 0">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">透過命理工具與指南，認識傳統智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="頁尾">
+<a href="#">部落格</a><a href="#">指南</a><a href="#">隱私政策</a><a href="#">服務條款</a>
+<a href="#">退款政策</a><a href="#">免責聲明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有權利。</p>
+</div>
+</footer>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"$preview":{"width":1280,"height":4100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'east-light' };
+}
+}
+</script>
+</body>
+</html>

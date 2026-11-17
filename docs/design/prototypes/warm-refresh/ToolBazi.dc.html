@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>免費八字排盤工具頁</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主導航">
+<a class="on" href="ComponentsEast.dc.html">排盤工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="Main.dc.html">每日運勢</a>
+<a href="PricingEastMobile.dc.html">定價</a>
+<a href="#footer">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登入</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="語言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="帳戶"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主導航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap tool-main">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="麵包屑"><a href="Main.dc.html">首頁</a><span aria-hidden="true">›</span><span>八字排盤</span></nav>
+<h1 class="t-title">免費八字排盤</h1>
+<p class="muted">輸入生辰，立即查看四柱命盤、五行強弱、大運流年與喜用神。免註冊、免填信箱，結果在你的瀏覽器裡直接算出。</p>
+</div>
+
+<form class="panel tool-form" aria-label="出生資料">
+<div class="when when-error full">
+<div class="alert" role="alert"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg><span>有 2 個欄位需要修正，修正後再排盤。</span></div>
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="f-date">出生日期</span><div class="seg" role="group" aria-label="曆法"><button type="button" class="on">國曆</button><button type="button">農曆</button></div></div>
+<div class="row3" role="group" aria-labelledby="f-date">
+<button type="button" class="select" aria-haspopup="listbox" aria-label="年">1990 年<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<button type="button" class="select inv" aria-haspopup="listbox" aria-label="月">{{monthTxt}}<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<button type="button" class="select inv" aria-haspopup="listbox" aria-label="日">{{dayTxt}}<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+</div>
+<p class="err when when-error"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg>這一天不存在，請確認日期。</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="f-time">出生時間</label><label class="check"><input type="checkbox">不知道出生時辰</label></div>
+<input class="input" id="f-time" type="text" inputmode="numeric" value="10:30">
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="f-gender">性別</span></div>
+<div class="seg lg" role="group" aria-labelledby="f-gender"><button type="button" class="on">男</button><button type="button">女</button></div>
+</div>
+<div class="field">
+<div class="field-top"><span class="label" id="f-place">出生地</span></div>
+<button type="button" class="select inv2" aria-haspopup="listbox" aria-labelledby="f-place">{{placeTxt}}<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<p class="err when when-error"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg>請填寫此欄。</p>
+</div>
+<div class="full"><button type="button" class="btn btn-primary btn-block">立即排盤</button></div>
+<details class="adv full">
+<summary>進階選項：真太陽時校正、時區<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p class="hint">依出生地經度修正時柱，預設關閉；出生時間接近時辰交界時可開啟比對。</p>
+</details>
+</form>
+
+<section class="result when when-loading" aria-label="結果">
+<h2 class="t-title">結果</h2>
+<p class="t-caption subtle" role="status">計算中…</p>
+<div class="obj blk">
+<span class="sk" style="width: 96px; height: 24px"></span>
+<div class="pillars"><span class="sk" style="height: 220px"></span><span class="sk" style="height: 220px"></span><span class="sk" style="height: 220px"></span><span class="sk" style="height: 220px"></span></div>
+<span class="sk" style="width: 70%; height: 16px"></span>
+</div>
+<div class="obj blk">
+<span class="sk" style="width: 96px; height: 24px"></span>
+<span class="sk" style="height: 12px"></span><span class="sk" style="width: 80%; height: 12px"></span><span class="sk" style="width: 55%; height: 12px"></span><span class="sk" style="width: 30%; height: 12px"></span>
+</div>
+</section>
+
+<section class="result when when-result" aria-labelledby="res-h">
+<div class="stack" style="gap: 4px">
+<h2 class="t-title" id="res-h">結果</h2>
+<p class="t-caption subtle">1990 年 5 月 15 日 10:30 · 台北 · 男 · 國曆（虛構示例）</p>
+</div>
+<div class="result-grid">
+<div class="obj blk chart">
+<h3 class="t-heading">四柱命盤</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="t-caption muted">比肩</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">午</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span><span class="t-caption subtle">藏 丁 己</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="t-caption muted">劫財</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span><span class="t-caption subtle">藏 丙 庚 戊</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱</span><span class="t-caption muted">日主</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">辰</span><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span><span class="t-caption subtle">藏 戊 乙 癸</span></div>
+<div class="pillar"><span class="t-caption subtle">時柱</span><span class="t-caption muted">劫財</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span><span class="t-caption subtle">藏 丙 庚 戊</span></div>
+</div>
+<p class="t-caption subtle">年柱與月柱以節氣交接時刻劃分，日柱於 23 點換日。</p>
+</div>
+<div class="obj blk">
+<h3 class="t-heading">五行強弱</h3>
+<div class="bars">
+<div class="bar"><span>金</span><span class="track"><span class="fill" style="width: 56%; background: var(--wx-metal)"></span></span><span class="pct">56%</span></div>
+<div class="bar"><span>火</span><span class="track"><span class="fill" style="width: 25%; background: var(--wx-fire)"></span></span><span class="pct">25%</span></div>
+<div class="bar"><span>土</span><span class="track"><span class="fill" style="width: 14%; background: var(--wx-earth)"></span></span><span class="pct">14%</span></div>
+<div class="bar"><span>木</span><span class="track"><span class="fill" style="width: 4%; background: var(--wx-wood)"></span></span><span class="pct">4%</span></div>
+<div class="bar"><span>水</span><span class="track"><span class="fill" style="width: 1%; background: var(--wx-water)"></span></span><span class="pct">1%</span></div>
+</div>
+<h3 class="t-heading" style="margin-top: 8px">身強身弱</h3>
+<div class="chips"><span class="chip">身強</span></div>
+<h3 class="t-heading" style="margin-top: 8px">喜用神</h3>
+<div class="chips"><span class="chip"><i class="dot" style="background: var(--wx-water)"></i>水</span><span class="chip"><i class="dot" style="background: var(--wx-wood)"></i>木</span><span class="chip"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<p class="t-caption subtle">流派看法不一，僅供參考。</p>
+</div>
+</div>
+<div class="obj blk">
+<h3 class="t-heading">大運十年軸</h3>
+<ol class="luck">
+<li><span class="gz">壬午</span><span class="t-caption subtle">8–17 歲</span></li>
+<li><span class="gz">癸未</span><span class="t-caption subtle">18–27 歲</span></li>
+<li><span class="gz">甲申</span><span class="t-caption subtle">28–37 歲</span></li>
+<li><span class="gz">乙酉</span><span class="t-caption subtle">38–47 歲</span></li>
+<li><span class="gz">丙戌</span><span class="t-caption subtle">48–57 歲</span></li>
+<li><span class="gz">丁亥</span><span class="t-caption subtle">58–67 歲</span></li>
+</ol>
+<p class="t-caption subtle">陽年男、陰年女順排；起運依出生到前後節氣的時間差換算，歲數為虛歲。</p>
+</div>
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">完整分析</h3>
+<p class="muted">AI 八字詳批共 8 個章節：總論、性格、事業、財運、感情、健康作息提示、未來十年大運、建議。</p>
+<p class="t-caption subtle">生成失敗不扣積分 · 報告永久保存在你的帳戶</p>
+</div>
+<div class="stack" style="gap: 8px; align-items: stretch">
+<p class="t-caption subtle">10 積分 · 每天登入送 10 積分</p>
+<a class="btn btn-primary" href="ReportEastMobile.dc.html">解鎖完整分析</a>
+</div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<div class="stack" style="gap: 4px; align-items: flex-start">
+<button type="button" class="btn btn-secondary">複製分享連結</button>
+<p class="t-caption subtle">打開連結即可看到同一份結果，連結不含你的姓名。</p>
+</div>
+</section>
+
+<article class="article hide-error hide-loading" aria-labelledby="art-h">
+<h2 class="t-title" id="art-h">八字命盤怎麼看</h2>
+<h3 class="t-heading">四柱命盤</h3>
+<p>年、月、日、時四柱各由一個天干與一個地支組成；年柱與月柱以節氣交接時刻劃分，日柱於 23 點換日。</p>
+<h3 class="t-heading">五行強弱</h3>
+<p>長條為加權分數占比：天干 1.0，地支藏干依本氣、中氣、餘氣 0.6／0.3／0.1，月令再乘 1.5；數字為天干與地支本氣的個數。</p>
+<h3 class="t-heading">身強身弱</h3>
+<p>同黨（比劫＋印）分數占總分 50% 以上判為身強，否則為身弱。</p>
+<h3 class="t-heading">喜用神</h3>
+<p>依扶抑法取用：身強取克、洩、耗，身弱取生、扶；依目前分數由低到高排列。流派看法不一，僅供參考。</p>
+<h3 class="t-heading">大運十年軸</h3>
+<p>陽年男、陰年女順排，陰年男、陽年女逆排；起運依出生到前後節氣的時間差換算，歲數為虛歲。</p>
+</article>
+
+<section class="hide-error hide-loading" aria-labelledby="tfaq-h">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="tfaq-h">常見問題</h2></div>
+<div class="faq">
+<details open>
+<summary>八字排盤需要提供哪些資料？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>需要國曆或農曆的出生年月日、出生時間、性別與出生地。出生地用來換算當地標準時間與歷史夏令時；不知道時辰也能排出年、月、日三柱。</p>
+</details>
+<details>
+<summary>我的出生資料會上傳嗎？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>不會。排盤在你的瀏覽器裡直接計算，資料只暫存在本分頁。</p>
+</details>
+<details>
+<summary>台灣夏令時期間出生要怎麼填？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>照出生證明上的鐘錶時間填寫即可。</p>
+</details>
+</div>
+</section>
+
+<section class="stack hide-error hide-loading" aria-labelledby="more-h">
+<h2 class="t-heading" id="more-h">延伸閱讀</h2>
+<div class="linklist">
+<a class="link" href="#more-h">紫微斗數排盤 →</a><a class="link" href="#more-h">命盤查詢 →</a><a class="link" href="#more-h">三張牌塔羅 →</a><a class="link" href="#more-h">八字大運 →</a><a class="link" href="#more-h">喜用神 →</a><a class="link" href="#more-h">五行 →</a>
+</div>
+</section>
+
+</main>
+
+<footer class="ftr hide-error hide-loading" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">透過命理工具與指南，認識傳統智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="頁尾">
+<a href="#footer">部落格</a><a href="#footer">指南</a><a href="#footer">隱私政策</a><a href="#footer">服務條款</a>
+<a href="#footer">退款政策</a><a href="#footer">免責聲明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有權利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","error","loading"],"default":"result"},"$preview":{"width":1440,"height":3800}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const error = state === 'error';
+return {
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : ''),
+monthTxt: error ? '2 月' : '5 月',
+dayTxt: error ? '30 日' : '15 日',
+placeTxt: error ? '請選擇' : '台北'
+};
+}
+}
+</script>
+</body>
+</html>
