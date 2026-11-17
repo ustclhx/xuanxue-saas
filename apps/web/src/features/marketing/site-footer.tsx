@@ -75,7 +75,7 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
         </FooterColumn>
       </div>
       <div className="mx-auto grid max-w-[1120px] gap-1 px-4 text-ink-subtle text-xs sm:px-6 md:pb-8">
-        <SiteSettings className="mb-3 border-line border-t py-4 md:hidden print:hidden" />
+        <SiteSettings className="mb-3 border-line border-t py-4 print:hidden" />
         <p>{m.site_footer_disclaimer()}</p>
         <p>{m.marketing_footer_copyright({ year: new Date().getFullYear(), name: brand })}</p>
       </div>

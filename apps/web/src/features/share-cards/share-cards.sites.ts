@@ -9,36 +9,27 @@ import type { ShareCardTheme } from './types.ts'
 // 主题、品牌、规范域名与副标题覆盖；返回 undefined 时与单站点相同。说明见 docs/share-cards.md 第 6.1 节。
 
 /**
- * 两站分享卡片配色，取值对应 styles/brand.css 中 `:root[data-site]` 的站点 token（服务端渲染无法读取 CSS 变量）：
+ * 两站分享卡片配色，取值对应 styles/brand.css 中各站默认主题（浅色）的站点 token（服务端渲染无法读取 CSS 变量）：
  * background ← --bg，foreground ← --ink，muted / secondary ← --surface-2，mutedForeground ← --ink-subtle，
- * primary / brandAccent ← --accent，primaryText ← --accent-ink，primaryForeground ← --on-accent，border ← --line。
- * 东方站取浅色（2026-11-14 主底改为纯白），西方站本身为深色。
+ * primary ← --primary，primaryText ← --accent-ink，primaryForeground ← --primary-foreground，
+ * brandAccent ← --accent（东方站松绿、西方站黄铜），border ← --line。
+ * 单测（share-cards.sites.test.ts）断言这些值与 brand.css 的解析结果一致。
  */
-const SITE_THEMES: Readonly<Record<SiteId, Partial<ShareCardTheme>>> = {
-  east: {
-    background: '#ffffff',
-    foreground: '#1f1c18',
-    muted: '#f5f2ec',
-    mutedForeground: '#6b6355',
-    secondary: '#f5f2ec',
-    primary: '#b8432f',
-    primaryText: '#9e3a27',
-    primaryForeground: '#fffdf8',
-    brandAccent: '#b8432f',
-    border: '#dcd3c1',
-  },
-  west: {
-    background: '#11162a',
-    foreground: '#ece7da',
-    muted: '#151b33',
-    mutedForeground: '#b9b5aa',
-    secondary: '#151b33',
-    primary: '#e3c36f',
-    primaryText: '#e3c36f',
-    primaryForeground: '#11162a',
-    brandAccent: '#e3c36f',
-    border: '#2a3150',
-  },
+const NEUTRAL_THEME = {
+  background: '#ffffff',
+  foreground: '#16181b',
+  muted: '#eaeaec',
+  mutedForeground: '#64686e',
+  secondary: '#eaeaec',
+  primary: '#16181b',
+  primaryText: '#16181b',
+  primaryForeground: '#ffffff',
+  border: '#e1e2e5',
+} as const satisfies Partial<ShareCardTheme>
+
+export const SITE_THEMES: Readonly<Record<SiteId, Partial<ShareCardTheme>>> = {
+  east: { ...NEUTRAL_THEME, brandAccent: '#2f5d50' },
+  west: { ...NEUTRAL_THEME, brandAccent: '#8a6a1c' },
 }
 
 /** 东方站英文入口页（D5）的副标题；入口页语言 en 归西方站，首页 SEO 标题是西方站文案 */

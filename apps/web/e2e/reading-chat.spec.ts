@@ -124,7 +124,7 @@ async function capture(page: Page, name: string) {
   const viewport = page.viewportSize()
   for (const scheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: scheme })
-    // 西方站默认深色主题不跟随系统：截图时直接切换根元素的 dark 类
+    // 西方站首次到访固定浅色、不跟随系统：截图时直接切换根元素的 dark 类
     await page.evaluate(
       (dark) => document.documentElement.classList.toggle('dark', dark),
       scheme === 'dark',

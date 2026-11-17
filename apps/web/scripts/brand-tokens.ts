@@ -13,14 +13,31 @@ import {
 
 export const BRAND_CSS_PATH = fileURLToPath(new URL('../src/styles/brand.css', import.meta.url))
 
-/** 需要渲染的主题：东方站浅色 / 深色，西方站（固定深色） */
-export type BrandTheme = 'east-light' | 'east-dark' | 'west'
+/** 两站各有浅色与深色（openspec refresh-visual-system-warm design.md D14）；各站默认主题为浅色 */
+export type BrandTheme = 'east-light' | 'east-dark' | 'west-light' | 'west-dark'
+export const BRAND_THEMES: readonly BrandTheme[] = [
+  'east-light',
+  'east-dark',
+  'west-light',
+  'west-dark',
+]
 
 // 每个主题按顺序叠加的选择器块，后者覆盖前者，与浏览器中的层叠一致
 const THEME_SELECTORS: Record<BrandTheme, string[]> = {
   'east-light': [':root[data-site]', ':root[data-site="east"]'],
-  'east-dark': [':root[data-site]', ':root[data-site="east"]', ':root.dark[data-site="east"]'],
-  west: [':root[data-site]', ':root[data-site="west"]'],
+  'east-dark': [
+    ':root[data-site]',
+    ':root[data-site="east"]',
+    ':root.dark[data-site]',
+    ':root.dark[data-site="east"]',
+  ],
+  'west-light': [':root[data-site]', ':root[data-site="west"]'],
+  'west-dark': [
+    ':root[data-site]',
+    ':root[data-site="west"]',
+    ':root.dark[data-site]',
+    ':root.dark[data-site="west"]',
+  ],
 }
 
 function stripComments(css: string) {
@@ -77,4 +94,21 @@ export function brandChartColors(theme: BrandTheme, css = readBrandCss()): Chart
 
 export function readBrandCss(): string {
   return readFileSync(BRAND_CSS_PATH, 'utf8')
+}
+
+/** sRGB 相对亮度（WCAG 2.1）；只接受 #rrggbb */
+function luminance(hex: string): number {
+  const match = /^#([\da-f]{6})$/i.exec(hex.trim())
+  if (!match?.[1]) throw new Error(`不是 #rrggbb 颜色：${hex}`)
+  const channel = (offset: number) => {
+    const value = Number.parseInt(match[1]?.slice(offset, offset + 2) ?? '', 16) / 255
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4)
+}
+
+/** 两个 #rrggbb 颜色的 WCAG 对比度 */
+export function contrastRatio(a: string, b: string): number {
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number]
+  return (light + 0.05) / (dark + 0.05)
 }

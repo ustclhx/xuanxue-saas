@@ -20,7 +20,7 @@ import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
 import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE, SUGGESTION_ALIASES } from '../i18n/preference.ts'
 import { localeSuggestionScript } from '../i18n/suggestion.ts'
-import { SITE_THEME_SCRIPT, siteFontScript } from '../site/theme.ts'
+import { siteFontScript, siteThemeScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
 
 const site = { domain: 'acme-staging', scriptUrl: 'https://plausible.example/js/script.manual.js' }
@@ -63,8 +63,9 @@ describe('分析脚本页面 head', () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
     const inline = [
+      // 站点默认主题须排在模板主题脚本之前（西方站首次到访写入浅色，features/site/theme.ts）
+      { children: siteThemeScript() },
       { children: themeInitScript() },
-      { children: SITE_THEME_SCRIPT },
       { children: siteFontScript('west', getLocale()) },
       ...(templateConfig.i18n.enabled
         ? [
