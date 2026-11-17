@@ -92,7 +92,7 @@ test('是/否显示答案、该牌的理由与判定依据', async ({ page, base
   await draw(page, /^Shuffle the deck$/, 12)
   await page.getByRole('button', { name: /Reveal the/ }).click()
   await expect(page.getByTestId('tarot-answer')).toHaveText(/^(Yes|No|Maybe)$/)
-  await expect(page.getByTestId('tarot-answer-reason')).toContainText('fixed entertainment mapping')
+  await expect(page.getByTestId('tarot-answer-reason')).toContainText('fixed reference mapping')
   await expect(page.locator('#answer')).toContainText('Every card has one fixed answer')
 })
 

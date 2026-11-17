@@ -547,7 +547,7 @@ const entries = {
       en: {
         prompt: NUMEROLOGY_FULL_V3,
         disclaimer:
-          'This report is based on traditional numerology and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
+          'This report is based on traditional numerology methods, with AI-assisted interpretation, and is for reference and self-reflection only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: {
           title: 'Wellbeing Habits',
           notice: 'If you feel unwell, please consult a qualified healthcare professional.',
@@ -564,7 +564,7 @@ const entries = {
       en: {
         prompt: TAROT_SPREAD_V2.en,
         disclaimer:
-          'This reading reflects the symbolism of tarot and is for reflection and entertainment only. It is not medical, legal or financial advice and does not predict specific events.',
+          'This reading follows traditional tarot symbolism, with AI-assisted interpretation, and is for reference and self-reflection only. It is not medical, legal or financial advice and does not predict specific events.',
         healthSection: null,
         sample: READING_SAMPLES['tarot-spread'].en,
       },

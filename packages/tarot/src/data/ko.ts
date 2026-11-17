@@ -8,9 +8,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「무모함、망설임」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Yes: 「시작、열린 마음」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「시작、열린 마음」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「무모함、망설임」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「무모함、망설임」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-01': {
@@ -19,8 +19,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「주도성、기술」의 주제로 현재를 돌아보세요.',
     reversed: '「조종、산만함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「주도성、기술」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「조종、산만함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「주도성、기술」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「조종、산만함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-02': {
@@ -29,9 +29,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「직관、성찰」의 주제로 현재를 돌아보세요.',
     reversed: '「비밀、직관 무시」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「직관、성찰」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「직관、성찰」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「비밀、직관 무시」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「비밀、직관 무시」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-03': {
@@ -40,9 +40,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「창조성、돌봄」의 주제로 현재를 돌아보세요.',
     reversed: '「의존、소홀함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「창조성、돌봄」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「창조성、돌봄」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「의존、소홀함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「의존、소홀함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-04': {
@@ -51,8 +51,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「질서、지도력」의 주제로 현재를 돌아보세요.',
     reversed: '「경직、통제」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「질서、지도력」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「경직、통제」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「질서、지도력」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「경직、통제」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-05': {
@@ -61,9 +61,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「전통、배움」의 주제로 현재를 돌아보세요.',
     reversed: '「순응、의문」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「전통、배움」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「전통、배움」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「순응、의문」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「순응、의문」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-06': {
@@ -72,8 +72,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「조화、선택」의 주제로 현재를 돌아보세요.',
     reversed: '「불화、엇갈림」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「조화、선택」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「불화、엇갈림」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「조화、선택」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「불화、엇갈림」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-07': {
@@ -82,9 +82,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「방향、결단」의 주제로 현재를 돌아보세요.',
     reversed: '「강요、방향 상실」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「방향、결단」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「방향、결단」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「강요、방향 상실」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「강요、방향 상실」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-08': {
@@ -93,9 +93,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「인내、용기」의 주제로 현재를 돌아보세요.',
     reversed: '「자기 의심、조급함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「인내、용기」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「인내、용기」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「자기 의심、조급함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「자기 의심、조급함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-09': {
@@ -104,9 +104,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「고독、통찰」의 주제로 현재를 돌아보세요.',
     reversed: '「고립、위축」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「고독、통찰」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「고독、통찰」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「고립、위축」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「고립、위축」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-10': {
@@ -115,9 +115,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「순환、적응」의 주제로 현재를 돌아보세요.',
     reversed: '「저항、불안정」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「순환、적응」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「순환、적응」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「저항、불안정」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「저항、불안정」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-11': {
@@ -126,8 +126,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「공정、책임」의 주제로 현재를 돌아보세요.',
     reversed: '「편견、회피」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「공정、책임」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「편견、회피」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「공정、책임」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「편견、회피」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-12': {
@@ -137,8 +137,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「지연、저항」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「멈춤、관점 전환」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「지연、저항」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「멈춤、관점 전환」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「지연、저항」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-13': {
@@ -147,9 +147,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「마무리、전환」의 주제로 현재를 돌아보세요.',
     reversed: '「정체、집착」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「마무리、전환」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「마무리、전환」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「정체、집착」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「정체、집착」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-14': {
@@ -158,9 +158,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「균형、절제」의 주제로 현재를 돌아보세요.',
     reversed: '「과도함、불균형」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「균형、절제」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「균형、절제」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「과도함、불균형」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「과도함、불균형」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-15': {
@@ -169,9 +169,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「애착、습관」의 주제로 현재를 돌아보세요.',
     reversed: '「해방、자각」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「애착、습관」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「애착、습관」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「해방、자각」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「해방、자각」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-16': {
@@ -180,9 +180,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「격변、깨달음」의 주제로 현재를 돌아보세요.',
     reversed: '「회피、변화 지연」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「격변、깨달음」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「격변、깨달음」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「회피、변화 지연」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「회피、변화 지연」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-17': {
@@ -191,9 +191,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「희망、회복」의 주제로 현재를 돌아보세요.',
     reversed: '「낙담、단절」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「희망、회복」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「희망、회복」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「낙담、단절」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「낙담、단절」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-18': {
@@ -203,9 +203,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「명료화、불안」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「불확실성、상상」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「불확실성、상상」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「명료화、불안」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「명료화、불안」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-19': {
@@ -214,9 +214,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「기쁨、명료함」의 주제로 현재를 돌아보세요.',
     reversed: '「위축된 기쁨、자만」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「기쁨、명료함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「기쁨、명료함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「위축된 기쁨、자만」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「위축된 기쁨、자만」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-20': {
@@ -226,9 +226,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「자책、회피」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Yes: 「성찰、새 출발」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「성찰、새 출발」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「자책、회피」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「자책、회피」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'major-21': {
@@ -237,9 +237,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「완성、통합」의 주제로 현재를 돌아보세요.',
     reversed: '「미완성、지연」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「완성、통합」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「완성、통합」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「미완성、지연」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「미완성、지연」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-01': {
@@ -248,9 +248,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「영감、시작」의 주제로 현재를 돌아보세요.',
     reversed: '「막힌 영감、지연」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「영감、시작」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「영감、시작」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「막힌 영감、지연」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「막힌 영감、지연」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-02': {
@@ -259,9 +259,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「계획、선택지」의 주제로 현재를 돌아보세요.',
     reversed: '「망설임、좁은 시야」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「계획、선택지」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「계획、선택지」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「망설임、좁은 시야」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「망설임、좁은 시야」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-03': {
@@ -270,9 +270,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「확장、전망」의 주제로 현재를 돌아보세요.',
     reversed: '「차질、조급함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「확장、전망」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「확장、전망」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「차질、조급함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「차질、조급함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-04': {
@@ -281,9 +281,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「축하、소속감」의 주제로 현재를 돌아보세요.',
     reversed: '「불안정、소외」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「축하、소속감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「축하、소속감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「불안정、소외」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「불안정、소외」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-05': {
@@ -292,9 +292,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「경쟁、마찰」의 주제로 현재를 돌아보세요.',
     reversed: '「갈등 회피、타협」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「경쟁、마찰」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「경쟁、마찰」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「갈등 회피、타협」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「갈등 회피、타협」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-06': {
@@ -303,9 +303,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「인정、자신감」의 주제로 현재를 돌아보세요.',
     reversed: '「자만、외면된 노력」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「인정、자신감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「인정、자신감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「자만、외면된 노력」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「자만、외면된 노력」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-07': {
@@ -314,9 +314,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「신념、경계」의 주제로 현재를 돌아보세요.',
     reversed: '「압도감、방어적 태도」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「신념、경계」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「신념、경계」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「압도감、방어적 태도」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「압도감、방어적 태도」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-08': {
@@ -325,9 +325,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「진전、소통」의 주제로 현재를 돌아보세요.',
     reversed: '「성급함、오해」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「진전、소통」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「진전、소통」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「성급함、오해」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「성급함、오해」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-09': {
@@ -337,8 +337,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「피로、불신」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「회복력、경계심」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「피로、불신」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「회복력、경계심」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「피로、불신」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-10': {
@@ -347,9 +347,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「부담、책임」의 주제로 현재를 돌아보세요.',
     reversed: '「내려놓기、위임」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「부담、책임」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「부담、책임」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「내려놓기、위임」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「내려놓기、위임」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-11': {
@@ -358,9 +358,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「호기심、탐색」의 주제로 현재를 돌아보세요.',
     reversed: '「초조함、방향 부족」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「호기심、탐색」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「호기심、탐색」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「초조함、방향 부족」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「초조함、방향 부족」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-12': {
@@ -369,9 +369,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「모험、열정」의 주제로 현재를 돌아보세요.',
     reversed: '「충동、일관성 부족」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「모험、열정」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「모험、열정」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「충동、일관성 부족」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「충동、일관성 부족」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-13': {
@@ -380,9 +380,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「온기、자신감」의 주제로 현재를 돌아보세요.',
     reversed: '「질투、불안감」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「온기、자신감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「온기、자신감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「질투、불안감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「질투、불안감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'wands-14': {
@@ -391,8 +391,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「비전、지도력」의 주제로 현재를 돌아보세요.',
     reversed: '「독단、조급함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「비전、지도력」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「독단、조급함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「비전、지도력」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「독단、조급함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-01': {
@@ -402,9 +402,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「억압、소진」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Yes: 「열린 마음、공감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「열린 마음、공감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「억압、소진」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「억압、소진」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-02': {
@@ -413,8 +413,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「연결、상호성」의 주제로 현재를 돌아보세요.',
     reversed: '「불균형、단절」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「연결、상호성」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「불균형、단절」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「연결、상호성」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「불균형、단절」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-03': {
@@ -423,9 +423,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「우정、축하」의 주제로 현재를 돌아보세요.',
     reversed: '「배제、과도함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「우정、축하」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「우정、축하」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「배제、과도함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「배제、과도함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-04': {
@@ -434,9 +434,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「숙고、불만」의 주제로 현재를 돌아보세요.',
     reversed: '「관심 회복、자각」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「숙고、불만」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「숙고、불만」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「관심 회복、자각」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「관심 회복、자각」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-05': {
@@ -445,9 +445,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「실망、슬픔」의 주제로 현재를 돌아보세요.',
     reversed: '「수용、회복」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「실망、슬픔」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「실망、슬픔」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「수용、회복」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「수용、회복」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-06': {
@@ -456,9 +456,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「추억、친절」의 주제로 현재를 돌아보세요.',
     reversed: '「향수、집착」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「추억、친절」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「추억、친절」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「향수、집착」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「향수、집착」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-07': {
@@ -468,9 +468,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「명료함、선택 집중」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「선택지、환상」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「선택지、환상」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「명료함、선택 집중」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「명료함、선택 집중」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-08': {
@@ -479,9 +479,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「떠남、탐색」의 주제로 현재를 돌아보세요.',
     reversed: '「회피、우유부단」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「떠남、탐색」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「떠남、탐색」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「회피、우유부단」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「회피、우유부단」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-09': {
@@ -490,9 +490,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「만족、감사」의 주제로 현재를 돌아보세요.',
     reversed: '「불만、탐닉」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「만족、감사」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「만족、감사」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「불만、탐닉」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「불만、탐닉」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-10': {
@@ -501,9 +501,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「조화、소속감」의 주제로 현재를 돌아보세요.',
     reversed: '「불화、이상화」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「조화、소속감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「조화、소속감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「불화、이상화」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「불화、이상화」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-11': {
@@ -512,9 +512,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「감수성、상상」의 주제로 현재를 돌아보세요.',
     reversed: '「미숙함、표현의 어려움」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「감수성、상상」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「감수성、상상」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「미숙함、표현의 어려움」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「미숙함、표현의 어려움」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-12': {
@@ -523,9 +523,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「낭만、초대」의 주제로 현재를 돌아보세요.',
     reversed: '「비현실적 이상、변덕」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「낭만、초대」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「낭만、초대」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「비현실적 이상、변덕」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「비현실적 이상、변덕」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-13': {
@@ -535,9 +535,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「과도한 헌신、흐린 경계」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Yes: 「공감、내면의 평온」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「공감、내면의 평온」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「과도한 헌신、흐린 경계」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「과도한 헌신、흐린 경계」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'cups-14': {
@@ -546,8 +546,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「침착、연민」의 주제로 현재를 돌아보세요.',
     reversed: '「억압、조종」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「침착、연민」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「억압、조종」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「침착、연민」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「억압、조종」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-01': {
@@ -556,8 +556,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「명료함、통찰」의 주제로 현재를 돌아보세요.',
     reversed: '「혼란、가혹함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「명료함、통찰」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「혼란、가혹함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「명료함、통찰」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「혼란、가혹함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-02': {
@@ -566,8 +566,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「교착、숙고」의 주제로 현재를 돌아보세요.',
     reversed: '「과부하、회피」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「교착、숙고」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「과부하、회피」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「교착、숙고」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「과부하、회피」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-03': {
@@ -577,9 +577,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「해소、용서」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'No: 「슬픔、아픈 진실」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「슬픔、아픈 진실」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「해소、용서」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「해소、용서」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-04': {
@@ -588,8 +588,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「휴식、숙고」의 주제로 현재를 돌아보세요.',
     reversed: '「초조함、피로」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「휴식、숙고」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「초조함、피로」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「휴식、숙고」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「초조함、피로」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-05': {
@@ -599,9 +599,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「화해、후회」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'No: 「갈등、공허한 승리」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「갈등、공허한 승리」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「화해、후회」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「화해、후회」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-06': {
@@ -610,9 +610,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「전환、관점」의 주제로 현재를 돌아보세요.',
     reversed: '「저항、남은 짐」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「전환、관점」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「전환、관점」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「저항、남은 짐」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「저항、남은 짐」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-07': {
@@ -621,9 +621,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「전략、비밀」의 주제로 현재를 돌아보세요.',
     reversed: '「공개、책임」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「전략、비밀」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「전략、비밀」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「공개、책임」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「공개、책임」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-08': {
@@ -633,9 +633,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「주도성、해방」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'No: 「제약、자기 제한」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「제약、자기 제한」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Yes: 「주도성、해방」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「주도성、해방」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-09': {
@@ -644,9 +644,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「걱정、되새김」의 주제로 현재를 돌아보세요.',
     reversed: '「관점 전환、도움 구하기」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「걱정、되새김」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「걱정、되새김」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「관점 전환、도움 구하기」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「관점 전환、도움 구하기」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-10': {
@@ -655,9 +655,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「끝맺음、소진」의 주제로 현재를 돌아보세요.',
     reversed: '「회복、새로움」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「끝맺음、소진」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「끝맺음、소진」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「회복、새로움」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「회복、새로움」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-11': {
@@ -667,8 +667,8 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「소문、성급함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「탐구、기민함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
-      reversed: 'No: 「소문、성급함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「탐구、기민함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
+      reversed: 'No: 「소문、성급함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-12': {
@@ -677,9 +677,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「추진력、직설」의 주제로 현재를 돌아보세요.',
     reversed: '「무모함、공격성」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「추진력、직설」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「추진력、직설」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「무모함、공격성」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「무모함、공격성」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-13': {
@@ -688,9 +688,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「분별、정직」의 주제로 현재를 돌아보세요.',
     reversed: '「냉담、가혹한 판단」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「분별、정직」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「분별、정직」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「냉담、가혹한 판단」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「냉담、가혹한 판단」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'swords-14': {
@@ -699,9 +699,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「이성、정직」의 주제로 현재를 돌아보세요.',
     reversed: '「경직、권위 남용」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「이성、정직」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「이성、정직」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「경직、권위 남용」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「경직、권위 남용」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-01': {
@@ -710,9 +710,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「기회、안정감」의 주제로 현재를 돌아보세요.',
     reversed: '「놓친 기회、계획 부족」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「기회、안정감」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「기회、안정감」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「놓친 기회、계획 부족」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「놓친 기회、계획 부족」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-02': {
@@ -722,9 +722,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「과부하、불균형」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Maybe: 「적응、우선순위」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「적응、우선순위」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「과부하、불균형」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「과부하、불균형」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-03': {
@@ -733,9 +733,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「협력、숙련」의 주제로 현재를 돌아보세요.',
     reversed: '「협업 부족、기술 경시」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「협력、숙련」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「협력、숙련」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「협업 부족、기술 경시」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「협업 부족、기술 경시」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-04': {
@@ -744,9 +744,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「안정、보존」의 주제로 현재를 돌아보세요.',
     reversed: '「소유욕、내려놓기」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「안정、보존」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「안정、보존」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「소유욕、내려놓기」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「소유욕、내려놓기」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-05': {
@@ -755,9 +755,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「부족、소외」의 주제로 현재를 돌아보세요.',
     reversed: '「지원、재건」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'No: 「부족、소외」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'No: 「부족、소외」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「지원、재건」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「지원、재건」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-06': {
@@ -766,9 +766,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「관대함、교류」의 주제로 현재를 돌아보세요.',
     reversed: '「불균형한 교환、조건부 도움」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「관대함、교류」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「관대함、교류」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「불균형한 교환、조건부 도움」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「불균형한 교환、조건부 도움」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-07': {
@@ -777,9 +777,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「인내、평가」의 주제로 현재를 돌아보세요.',
     reversed: '「조급함、잘못된 노력」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Maybe: 「인내、평가」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Maybe: 「인내、평가」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「조급함、잘못된 노력」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「조급함、잘못된 노력」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-08': {
@@ -788,9 +788,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「연습、성실」의 주제로 현재를 돌아보세요.',
     reversed: '「완벽주의、편법」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「연습、성실」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「연습、성실」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「완벽주의、편법」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「완벽주의、편법」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-09': {
@@ -799,9 +799,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「독립、감사」의 주제로 현재를 돌아보세요.',
     reversed: '「의존、과로」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「독립、감사」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「독립、감사」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「의존、과로」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「의존、과로」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-10': {
@@ -810,9 +810,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「유산、안정」의 주제로 현재를 돌아보세요.',
     reversed: '「가족 갈등、불안정」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「유산、안정」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「유산、안정」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「가족 갈등、불안정」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「가족 갈등、불안정」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-11': {
@@ -822,9 +822,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: '「미루기、산만함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
       upright:
-        'Yes: 「학습、현실적 목표」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Yes: 「학습、현실적 목표」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「미루기、산만함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「미루기、산만함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-12': {
@@ -833,9 +833,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「신뢰、끈기」의 주제로 현재를 돌아보세요.',
     reversed: '「정체、완고함」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「신뢰、끈기」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「신뢰、끈기」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「정체、완고함」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「정체、완고함」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-13': {
@@ -844,9 +844,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「실용성、돌봄」의 주제로 현재를 돌아보세요.',
     reversed: '「자기 소홀、불균형」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「실용성、돌봄」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「실용성、돌봄」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'Maybe: 「자기 소홀、불균형」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'Maybe: 「자기 소홀、불균형」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
   'pentacles-14': {
@@ -855,9 +855,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     upright: '「관리、안정」의 주제로 현재를 돌아보세요.',
     reversed: '「물질주의、통제」이 관점에 미치는 영향을 살펴보세요.',
     yesNoReason: {
-      upright: 'Yes: 「관리、안정」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+      upright: 'Yes: 「관리、안정」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
       reversed:
-        'No: 「물질주의、통제」을 바탕으로 한 오락용 고정 해석이며 미래를 예측하지 않습니다.',
+        'No: 「물질주의、통제」을 바탕으로 한 참고용 고정 해석이며 미래를 예측하지 않습니다.',
     },
   },
 }

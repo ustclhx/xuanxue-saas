@@ -72,9 +72,9 @@ describe('Disclaimer', () => {
   // 合规声明按场景拆分：免费工具写规则引擎，不出现 AI 表述；AI 声明只用于 AI 产物
   it.each([
     ['en', 'traditional rules', 'AI-assisted'],
-    ['zh-Hant', '依傳統規則計算，僅供娛樂參考，不預測未來', 'AI 輔助'],
-    ['zh-Hans', '依传统规则计算，仅供娱乐参考，不预测未来', 'AI 辅助'],
-    ['ko', '전통 규칙에 따라 계산', 'AI의 도움'],
+    ['zh-Hant', '依傳統規則計算，僅供參考與潛意識探索', 'AI輔助解讀'],
+    ['zh-Hans', '依传统规则计算，仅供参考与潜意识探索', 'AI辅助解读'],
+    ['ko', '전통 규칙에 따라 계산', 'AI가 해석을 돕습니다'],
   ])('%s 文案', async (locale, rules, ai) => {
     const { setLocale } = await import('../../paraglide/runtime.js')
     messages.locale = locale

@@ -295,10 +295,10 @@ async function checkFile(collection, locale, slug) {
       assert.ok(
         locale === 'zh-Hans'
           ? content.includes('人工审定') &&
-              content.includes('仅供娱乐') &&
+              content.includes('仅供参考') &&
               content.includes('不预测未来')
           : content.includes('人工審定') &&
-              content.includes('僅供娛樂') &&
+              content.includes('僅供參考') &&
               content.includes('不預測未來'),
       )
     } else {
@@ -310,7 +310,7 @@ async function checkFile(collection, locale, slug) {
       )
       assert.ok(
         content.includes('사람이 검토') &&
-          content.includes('오락용') &&
+          content.includes('자기 탐색') &&
           content.includes('미래를 예측하지 않습니다'),
       )
     }
@@ -342,7 +342,7 @@ async function checkFile(collection, locale, slug) {
     assert.ok(links.includes('/'), 'calculator home link')
     assert.ok(
       content.includes('reviewed by a person') &&
-        content.includes('for entertainment') &&
+        content.includes('for reference and self-reflection') &&
         content.includes('does not predict the future'),
     )
     count = (plain.match(/[A-Za-z0-9]+(?:['’-][A-Za-z0-9]+)*/g) ?? []).length

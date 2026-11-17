@@ -5,19 +5,19 @@
 const HOME_COPY: Readonly<Record<string, readonly [title: string, description: string]>> = {
   en: [
     'Free numerology and tarot tools',
-    'Life Path, numerology chart, name numerology and tarot spreads, calculated by traditional rules in your browser. For entertainment and self-reflection.',
+    'Life Path, numerology chart, name numerology and tarot spreads, calculated by traditional rules in your browser. For reference and self-reflection.',
   ],
   'zh-Hant': [
     '八字排盤、紫微斗數與塔羅',
-    '免費八字排盤、紫微斗數與塔羅工具，依傳統規則在瀏覽器中計算，僅供娛樂與自我反思。',
+    '免費八字排盤、紫微斗數與塔羅工具，依傳統規則在瀏覽器中計算，僅供參考與潛意識探索。',
   ],
   'zh-Hans': [
     '八字排盘、紫微斗数与塔罗',
-    '免费八字排盘、紫微斗数与塔罗工具，依传统规则在浏览器中计算，仅供娱乐与自我反思。',
+    '免费八字排盘、紫微斗数与塔罗工具，依传统规则在浏览器中计算，仅供参考与潜意识探索。',
   ],
   ko: [
     '무료 만세력·사주·타로',
-    '무료 만세력, 사주궁합, 타로 도구. 전통 규칙에 따라 브라우저에서 계산하며 오락과 자기 성찰용입니다.',
+    '무료 만세력, 사주궁합, 타로 도구. 전통 규칙에 따라 브라우저에서 계산하며 참고와 자기 탐색용입니다.',
   ],
 }
 

@@ -45,7 +45,7 @@ export interface ShareCardModel {
   cta: string
   /** 页脚右侧：隐私说明，随是否含出生日期变化 */
   privacy: { withBirth: string; withoutBirth: string }
-  /** 当前语言的合规声明（免费结果：依传统规则计算、仅供娱乐、不预测未来） */
+  /** 当前语言的合规声明（免费结果：依传统规则计算、仅供参考与潜意识探索、不预测未来） */
   disclaimer: string
   /** 下载文件名（不含扩展名），不含任何输入 */
   fileName: string

@@ -48,7 +48,7 @@ const SECTIONS: Record<string, string[]> = {
   ],
 }
 
-const SAMPLE = `> This report is based on traditional numerology and is for reflection and entertainment only.
+const SAMPLE = `> This report is based on traditional numerology methods, with AI-assisted interpretation, and is for reference and self-reflection only.
 
 ## Overview
 

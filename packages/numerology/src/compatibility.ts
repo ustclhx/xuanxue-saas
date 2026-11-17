@@ -6,7 +6,7 @@ const H = 'high',
   M = 'medium',
   C = 'challenging'
 // 常见毕达哥拉斯流派的综合编辑表：大师数沿用 2/4/6 的互动主题。
-// 这是固定、对称的娱乐性解释约定，不是关系质量或未来事件的预测。
+// 这是固定、对称的参考性解释约定，不是关系质量或未来事件的预测。
 export const COMPATIBILITY_MATRIX: readonly (readonly CompatibilityLevel[])[] = [
   [M, M, H, C, H, M, M, H, M, M, C, M],
   [M, H, M, H, C, H, H, M, H, H, H, H],
