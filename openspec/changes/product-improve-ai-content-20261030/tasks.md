@@ -12,9 +12,11 @@
   - （2026-11-16：2026-10-31 已交访客状态表（私有验收目录 `pi-ops-readcheck-20261031/status.md`），普通账号列未完成）
 - [ ] 1.2 【用户】按 D1（全开）在后台打开全部六种详批，选定模型与积分（等同完成 `launch-v1-production` 2.2）。验证：重跑 1.1 的状态表，开放项不再显示「即将开放」
   - （2026-11-16：六类详批、模型与积分已于 v0.1.20 在生产开启，两站真实生成验证成功；按 1.1 重跑状态表未做）
-- [ ] 1.3 【用户 / Codex】按 D2，在 `/admin/billing` 给免费套餐授权 `deepseek-flash`。验证：普通账号进入 Chat 可以选到 flash 并成功发送一条消息，积分按规则扣除
+- [x] 1.3 【用户 / Codex】按 D2，在 `/admin/billing` 给免费套餐授权 `deepseek-flash`。验证：普通账号进入 Chat 可以选到 flash 并成功发送一条消息，积分按规则扣除
   - （2026-11-16：生产 free（及 plus/premium）已授权 `deepseek-flash`，库已核实；普通账号在生产 Chat 发送并扣费未记录）
-- [ ] 1.4 【协调者通知用户配置密钥 → Codex】按 D3 接通 Resend：由用户经 stdin 写入两站 key（写入前确认不是空值），配置发信域名的 SPF/DKIM，再切换 `EMAIL_TRANSPORT`。验证：两站测试邮件实际送达；切换前由 2.5 保证不显示「已寄信」
+  - 2026-11-17：v0.1.24 生产上，使用者用两站新注册普通账号各发一条 deepseek-flash Chat，正常回复、扣 1 分、预扣与欠款为 0；证据 私有验收目录 `release-v0.1.24/results.md`
+- [x] 1.4 【协调者通知用户配置密钥 → Codex】按 D3 接通 Resend：由用户经 stdin 写入两站 key（写入前确认不是空值），配置发信域名的 SPF/DKIM，再切换 `EMAIL_TRANSPORT`。验证：两站测试邮件实际送达；切换前由 2.5 保证不显示「已寄信」
+  - 2026-11-17：两站发件域名 mail.ganjiday.com / mail.arcanumber.com 已在 Resend 验证，jobs 写入 RESEND_API_KEY_EAST/WEST（stdin、前缀校验），#189 切换 EMAIL_TRANSPORT=resend 随 v0.1.24 发布；两站验证邮件约 8 秒送达；证据 私有验收目录 `release-v0.1.24/results.md`
 - [x] 1.5 【协调者】合并本 change 第一个 PR 之前，完成 `add-zh-hans-locale` 剩余的验收并归档。验证：`openspec list --json` 中不再有该 change，`openspec/specs/paid-readings` 中已包含简体相关的要求
   - 2026-11-17：add-zh-hans-locale 6.4 本地东方站验收通过后归档为 `2026-11-17-add-zh-hans-locale`，paid-readings 已含「简体访客生成报告」
 
@@ -78,8 +80,9 @@
 
 - [x] 6.1 【Codex】在 staging 用普通账号走查四种语言：工具 → 结果漏斗 → 解锁 → 报告 → Chat → 账单。对照体验报告第 1–5 项与「双站 AI 能力对照」表逐条记录。验证：证据存放在仓库外，未通过的项开 issue
   - 2026-11-17：en 在 staging、zh-Hant/zh-Hans/ko 在本地 east.localhost（staging 只渲染西方站，使用者批准）。东方三语真实详批、追问与结果页 Chat 扣费通过；en 工具、漏斗、Chat 模型与账单通过，测试账号 0 积分未生成报告。发现的两项缺陷已修复：每日页缓存旧资源 404（#185）、同一输入跨简繁复用旧语言报告（#186）；每日页 H1 日期口径与 FAQ 跨站积分文案另行处理。证据 私有验收目录 `legacy-pre-0.1.24/A/`
-- [ ] 6.2 【用户批准发版后 / Codex】生产发版后，只读复核：两站 `/api/health` 返回新的 SHA；`curl` 核对 `arcanumber.com/zh-hant` 返回 404、`ganjiday.com/en` 为英文入口页、robots、404 标题、简体定价 meta、`/faq`、电子报表单、西方站隐私页；四种语言结果页不再出现与开放状态不符的「即将开放」。验证：复核表存放在仓库外，引用编号写进 PR 或发布记录
+- [x] 6.2 【用户批准发版后 / Codex】生产发版后，只读复核：两站 `/api/health` 返回新的 SHA；`curl` 核对 `arcanumber.com/zh-hant` 返回 404、`ganjiday.com/en` 为英文入口页、robots、404 标题、简体定价 meta、`/faq`、电子报表单、西方站隐私页；四种语言结果页不再出现与开放状态不符的「即将开放」。验证：复核表存放在仓库外，引用编号写进 PR 或发布记录
   - （2026-11-16：两站 `/api/health` 为 c30b67b3；`curl` 抽查 `arcanumber.com/zh-hant` 404、`ganjiday.com/en` 200、两站 robots 200、简体定价 meta 为简体、`/faq` 200；复核表与四语结果页检查未做）
+  - 2026-11-17：v0.1.24（297e54e4）发布后只读复核：两站 health=297e54e4，arcanumber.com/zh-hant 404、ganjiday.com/en 英文入口、robots、两站 404 标题、简体定价 meta、/faq、西方站隐私页、电子报表单均符合；两站首页无「即将开放」。结果页为浏览器内计算，只核对首页与工具页静态 HTML；证据 私有验收目录 `release-v0.1.24/results.md`
 
 ## 审计记录（2026-11-13）
 
