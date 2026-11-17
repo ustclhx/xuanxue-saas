@@ -98,7 +98,7 @@ test('定价页有站点导航，CTA 未登录经登录页；首页 CTA 到注�
     await cta.click()
     await expect(page).toHaveURL(/\/login/)
   }
-  // 项目修正：西方站首页是 Life Path 计算器，注册 CTA 在定价页免费档卡片（#153）
+  // 项目修正：西方站首页没有注册 CTA（主操作指向 Life Path 工具页），注册 CTA 在定价页免费档卡片（#153）
   await page.goto('/pricing')
   const hrefs = await page
     .locator('#pricing a, section a[href$="/register"]')

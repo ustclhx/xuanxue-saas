@@ -380,14 +380,15 @@ test('result page “Ask AI” opens a temporary-context chat with the recompute
     // 等模型出现在空间中（KV 缓存 60 秒），之后以未登录访客身份从结果页进入
     await newConversation(page, slug)
     await page.context().clearCookies()
-    await page.goto('/')
+    // Life Path 计算器在 /life-path-number（separate-landing-homepage D1），首页是落地页
+    await page.goto('/life-path-number')
     await page.getByLabel('Date of birth').fill('1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     await expect(page.locator('#life-path-result')).toContainText('11')
     await page.getByTestId('ask-ai-button').click()
 
     // 未登录：登录后回到结果页并自动继续，进入模板临时上下文页（地址只带签名令牌）
-    await expect(page).toHaveURL(/\/login\?redirect=%2F%3Funlock%3D/)
+    await expect(page).toHaveURL(/\/login\?redirect=%2Flife-path-number%3Funlock%3D/)
     const form = page.getByRole('form', { name: 'Sign in with password' })
     await form.getByLabel('Email', { exact: true }).fill(email)
     await form.getByLabel('Password', { exact: true }).fill(PASSWORD)

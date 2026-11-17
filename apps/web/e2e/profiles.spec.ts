@@ -12,6 +12,8 @@ import { stubTurnstile } from './turnstile.ts'
 const expect = baseExpect.configure({ timeout: 20_000 })
 const EVIDENCE = join(process.env.EVIDENCE_DIR ?? 'test-results/evidence', 'profiles-e2e')
 const HYDRATED = { waitUntil: 'networkidle' } as const
+// 八字排盤工具页（openspec separate-landing-homepage D1）；语言首页是落地页
+const BAZI = `/zh-hant/${encodeURI('八字排盤')}`
 
 async function siteContext(browser: Browser, baseURL: string | undefined, site: 'east' | 'west') {
   const url = new URL(baseURL ?? '')
@@ -130,7 +132,7 @@ test('东方站：档案增改、设为默认、删除，工具页从档案填�
     await expect(page.getByText('已刪除檔案。')).toBeVisible()
 
     // 工具页：从档案填入后提交，结果与手动填写一致
-    await page.goto('/zh-hant', HYDRATED)
+    await page.goto(BAZI, HYDRATED)
     await page.getByRole('button', { name: '從檔案帶入' }).click()
     await page.getByRole('button', { name: /母親/ }).click()
     await expect(page.getByText('已帶入「母親」。')).toBeVisible()
@@ -140,7 +142,7 @@ test('东方站：档案增改、设为默认、删除，工具页从档案填�
     await snap(page, 'east-tool-filled')
 
     await page.evaluate(() => sessionStorage.clear())
-    await page.goto('/zh-hant', HYDRATED)
+    await page.goto(BAZI, HYDRATED)
     await page.getByLabel('年', { exact: true }).fill('1962')
     await page.getByLabel('月', { exact: true }).fill('9')
     await page.getByLabel('日', { exact: true }).fill('3')

@@ -14,12 +14,43 @@ if (isEasternSite) {
     await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
   })
 
-  for (const [prefix, lang, title, birthTime, pricing, packs] of [
-    ['zh-hant', 'zh-Hant', '免費八字排盤', '出生時間', '價格方案', '單次購買積分'],
-    ['ko', 'ko', '무료 만세력', '태어난 시간', '요금 안내', '크레딧 단건 구매'],
+  // 语言首页是品牌落地页，八字排盤 / 만세력在关键词 URL 上（openspec separate-landing-homepage D1）
+  for (const [prefix, lang, homeTitle, tool, title, birthTime, pricing, packs] of [
+    [
+      'zh-hant',
+      'zh-Hant',
+      '干支日｜免費八字排盤、紫微斗數與塔羅',
+      '八字排盤',
+      '免費八字排盤',
+      '出生時間',
+      '價格方案',
+      '單次購買積分',
+    ],
+    [
+      'ko',
+      'ko',
+      '간지데이 | 무료 만세력·사주·타로',
+      '만세력',
+      '무료 만세력',
+      '태어난 시간',
+      '요금 안내',
+      '크레딧 단건 구매',
+    ],
   ] as const) {
-    test(`东方站工具首页渲染（${lang}）`, async ({ page }) => {
+    test(`东方站首页渲染（${lang}）`, async ({ page }) => {
       const response = await page.goto(`/${prefix}/`)
+      expect(response?.status()).toBe(200)
+      await expect(page).toHaveURL(new RegExp(`/${prefix}$`))
+      await expect(page.locator('html')).toHaveAttribute('lang', lang)
+      await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+      await expect(page).toHaveTitle(homeTitle)
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      // 首页指向主工具页的链接（页头导航；落地页上线后还有主按钮）
+      await expect(page.locator(`a[href="/${prefix}/${encodeURI(tool)}"]`).first()).toBeAttached()
+    })
+
+    test(`东方站主工具页渲染（${lang}）`, async ({ page }) => {
+      const response = await page.goto(`/${prefix}/${encodeURI(tool)}`)
       expect(response?.status()).toBe(200)
       await expect(page.locator('html')).toHaveAttribute('lang', lang)
       await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
@@ -37,9 +68,21 @@ if (isEasternSite) {
     })
   }
 } else {
-  // 西方站首页为 Life Path 计算器，只检查标题与日期输入，不提交表单。
+  // 西方站首页是品牌落地页，Life Path 计算器在 /life-path-number（openspec separate-landing-homepage D1）
   test('西方站首页渲染', async ({ page }) => {
     const response = await page.goto('/')
+    expect(response?.status()).toBe(200)
+    await expect(page.locator('html')).toHaveAttribute('data-site', 'west')
+    await expect(page).toHaveTitle(
+      'Arcanumber — Free Life Path Number Calculator, Numerology & Tarot',
+    )
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    await expect(page.locator('a[href="/life-path-number"]').first()).toBeAttached()
+  })
+
+  // 只检查标题与日期输入，不提交表单
+  test('西方站 Life Path 工具页渲染', async ({ page }) => {
+    const response = await page.goto('/life-path-number')
     expect(response?.status()).toBe(200)
     await expect(page.locator('html')).toHaveAttribute('data-site', 'west')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Life Path Number Calculator')
