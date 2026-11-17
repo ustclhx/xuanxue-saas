@@ -14,7 +14,8 @@ const state = vi.hoisted(() => ({ search: {}, verified: false }))
 const runtime = vi.hoisted(() => vi.fn())
 vi.mock('@tanstack/react-start', () => ({
   createServerFn: () => {
-    let validator: { parse(input: unknown): unknown } | undefined
+    // 与 TanStack Start 一致：validator 可以是带 parse 的 schema，也可以是普通函数
+    let validator: { parse(input: unknown): unknown } | ((input: unknown) => unknown) | undefined
     const builder = {
       middleware: () => builder,
       validator: (schema: typeof validator) => {
@@ -24,7 +25,14 @@ vi.mock('@tanstack/react-start', () => ({
       handler:
         (handler: (input: unknown) => unknown) =>
         (input: { data?: unknown } = {}) =>
-          handler({ data: validator ? validator.parse(input.data) : input.data }),
+          handler({
+            data:
+              typeof validator === 'function'
+                ? validator(input.data)
+                : validator
+                  ? validator.parse(input.data)
+                  : input.data,
+          }),
     }
     return builder
   },
@@ -77,14 +85,20 @@ describe('public auth entry guards', () => {
   it.each([{}, { id: '' }, { id: 'invalid' }, { id: ['invalid'] }])(
     'treats missing or malformed invitation input %j as unavailable before session/database access',
     async (data) => {
-      const validate = InvitationRoute.options.validateSearch as { parse(input: unknown): unknown }
-      expect(() => validate.parse(data)).not.toThrow()
+      const validate = InvitationRoute.options.validateSearch as (input: unknown) => unknown
+      expect(validate(data)).toEqual({})
       await expect(getInvitationPage({ data: data as { id: string } })).resolves.toMatchObject({
         error: 'INVITATION_INVALID',
       })
       expect(runtime).not.toHaveBeenCalled()
     },
   )
+
+  it('keeps a valid invitation id in search', () => {
+    const validate = InvitationRoute.options.validateSearch as (input: unknown) => unknown
+    const id = '0190c3b4-1234-7abc-8def-0123456789ab'
+    expect(validate({ id, extra: 'x' })).toEqual({ id })
+  })
 
   it.each(locales)('renders the invalid invitation and return entry in %s', (locale) => {
     overwriteGetLocale(() => locale)

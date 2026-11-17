@@ -77,10 +77,15 @@ export default defineTemplateConfig({
     enabled: true,
     // 预渲染营销页的首屏关键路径（模板 0.5.4，docs/02-project-structure.md §3）：
     // after-paint 首帧后再加载水合脚本；used 只内联本页用到的样式。
-    // homeScriptGzipBudget 暂不设置：设置后首页闭包含 zod schema 即构建失败，而本项目首页闭包仍经 @xuanxue/config 的
-    // env schema、认证 / 账单路由 validateSearch 与 admin list 带入 zod（2026-11-16 实测 gzip 371776 B）；
-    // 预算沿用 apps/web/scripts/check-home-bundle.mjs 的各首页预算 375701 B。设置时写普通字面量（template-sync 静态解析不支持数字分隔符）
-    performance: { hydration: 'after-paint', criticalCss: 'used' },
+    // homeScriptGzipBudget：模板 0.5.6 起首页水合闭包不含 zod（路由 validateSearch 改用 features/routing/search.ts，
+    // 客户端构建摇掉未引用的 schema），设置后含 zod 即构建失败，并取代 check-home-bundle.mjs 的各首页预算。
+    // 取值 = 2026-11-16 本地 `pnpm --filter @xuanxue/web build` 实测四个首页静态闭包 gzip 335403 B（水合闭包相同）× 1.05，向上取整；
+    // 写普通字面量（template-sync 静态解析不支持数字分隔符）
+    performance: {
+      hydration: 'after-paint',
+      criticalCss: 'used',
+      homeScriptGzipBudget: 352174,
+    },
   },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css

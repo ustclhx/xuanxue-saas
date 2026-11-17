@@ -6,10 +6,10 @@ import {
 } from '@tanstack/react-router'
 import { Button } from '@xuanxue/ui'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { z } from 'zod'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import { confirmCustomerCheckout } from '../../../features/billing/customer.functions.ts'
 import { prefixLocale } from '../../../features/i18n/url-prefix.ts'
+import { compactSearch, optionalEnum, optionalString } from '../../../features/routing/search.ts'
 import { safeReturnPath } from '../../../features/site/return-path.ts'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale, locales } from '../../../paraglide/runtime.js'
@@ -63,14 +63,15 @@ export const Route = createFileRoute('/app/$slug/billing-return')({
     if (search.canceled === 'true')
       throw redirect({ href: returnHref(`/app/${params.slug}/billing`, true) })
   },
-  validateSearch: z.object({
-    provider: z.enum(['stripe', 'paypal', 'creem', 'paddle', 'polar']).optional(),
-    token: z.string().max(255).optional(),
-    subscription_id: z.string().max(255).optional(),
-    providerRef: z.string().max(255).optional(),
-    canceled: z.union([z.string(), z.boolean()]).transform(String).optional(),
-    returnTo: z.string().max(1024).optional(),
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    compactSearch({
+      provider: optionalEnum(search.provider, ['stripe', 'paypal', 'creem', 'paddle', 'polar']),
+      token: optionalString(search.token, 255),
+      subscription_id: optionalString(search.subscription_id, 255),
+      providerRef: optionalString(search.providerRef, 255),
+      canceled: optionalString(search.canceled),
+      returnTo: optionalString(search.returnTo, 1024),
+    }),
   component: BillingReturnPage,
 })
 

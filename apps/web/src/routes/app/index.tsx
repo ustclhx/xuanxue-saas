@@ -1,6 +1,7 @@
 import { createFileRoute, isRedirect, redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import { planKey } from '../../features/billing/plan-key.ts'
+import { compactSearch, optionalString } from '../../features/routing/search.ts'
 import { withWorkspace } from '../../server/middleware.ts'
 
 // /app 只做重定向（specs/workspace-tenancy「统一的空间 URL」）：
@@ -12,13 +13,11 @@ const getDefaultWorkspaceSlug = createServerFn({ method: 'GET' })
   .handler(({ context }) => context.workspace.slug)
 
 export const Route = createFileRoute('/app/')({
-  validateSearch: z.object({
-    returnTo: z.string().max(1024).optional(),
-    buy: z
-      .string()
-      .regex(/^[a-z0-9_-]{1,64}$/)
-      .optional(),
-  }),
+  validateSearch: (search: Record<string, unknown>) =>
+    compactSearch({
+      returnTo: optionalString(search.returnTo, 1024),
+      buy: planKey(search.buy),
+    }),
   loaderDeps: ({ search }) => ({ returnTo: search.returnTo, buy: search.buy }),
   loader: async ({ deps }) => {
     const slug = await getDefaultWorkspaceSlug({ data: {} }).catch((error: unknown) => {
