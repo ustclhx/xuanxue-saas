@@ -23,7 +23,7 @@ import {
 import { SiteContext, useSiteId } from '../features/site/context.tsx'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { siteNavLocale } from '../features/site/site.ts'
-import { SITE_THEME_SCRIPT, siteFontScript, siteIconLinks } from '../features/site/theme.ts'
+import { siteFontScript, siteIconLinks, siteThemeScript } from '../features/site/theme.ts'
 import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.ts'
 import { RootDocument } from '../features/theme/root-document.tsx'
 import { SiteSettings } from '../features/theme/site-settings.tsx'
@@ -69,11 +69,11 @@ export const Route = createRootRoute({
     // 全局样式（Tailwind + @xuanxue/ui 主题），SSR 输出的 <head> 中直接引用，避免首屏无样式闪烁
     links: [{ rel: 'stylesheet', href: appCss }, ...siteIconLinks(loaderData?.site.id ?? 'west')],
     // 首屏前按偏好（未设置时跟随系统）给 <html> 设置 dark 类：<head> 内同步执行，避免刷新时先浅后深的闪烁；
-    // 西方站始终为深色（features/site/theme.ts）
+    // 西方站首次到访默认浅色：siteThemeScript 先写入默认选择，再由模板脚本按它设置类名（features/site/theme.ts）
     // 站点字体（docs/design/visual-system.md「字体」）：自托管，只加载本站本语言的一套，由脚本非阻塞插入
     scripts: [
+      { children: siteThemeScript() },
       { children: themeInitScript() },
-      { children: SITE_THEME_SCRIPT },
       { children: siteFontScript(loaderData?.site.id ?? 'west', getLocale()) },
       // 语言建议同样在首帧前决定，横幅随首帧出现在最终位置，不在水合后把整页下推（suggestion.ts）
       ...(templateConfig.i18n.enabled
@@ -168,16 +168,17 @@ function RootComponent() {
     // SiteContext 包在 RootDocument 外：模板在 RootDocument 内渲染浮动 ThemeToggle（与 children 平级），
     // 它按站点决定是否显示，包在 children 内时会读到默认的 west 而在东方站消失。Provider 不输出 DOM。
     <SiteContext value={site.id}>
-      <RootDocument floatingControls={!hasInlineControls} htmlAttributes={htmlAttributes}>
+      <RootDocument floatingControls={false} htmlAttributes={htmlAttributes}>
         <ProductAnalytics />
         <ImpersonationBanner viewer={impersonation} />
         <AnnouncementBanner initial={announcement} />
         {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion site={site} />}
         <Outlet />
-        {/* 手机端没有站点页脚的页面（含 topbar 工作台）：设置行放在页面末尾，底部留 80px 给右下悬浮按钮；
-            有页脚时由页脚渲染，这里隐藏（模板 0.5.1） */}
+        {/* 主题切换不再浮动（refresh-visual-system-warm D4）：RootDocument 的浮动控件始终关闭。
+            没有站点页脚的页面（含 topbar 工作台）把设置行放在页面末尾，手机端底部留 80px 给右下悬浮按钮；
+            有页脚时由页脚渲染，这里隐藏 */}
         {!hasInlineControls && (
-          <SiteSettings className="border-t px-4 pt-4 pb-20 md:hidden print:hidden [body:has([data-site-footer])_&]:hidden" />
+          <SiteSettings className="border-t px-4 pt-4 pb-20 md:pb-4 print:hidden [body:has([data-site-footer])_&]:hidden" />
         )}
       </RootDocument>
     </SiteContext>

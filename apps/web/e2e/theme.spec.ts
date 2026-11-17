@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test'
 
 // 主题切换（openspec add-marketing-i18n-seo tasks.md 2.1）：浅色 / 深色 / 跟随系统三种模式可切换、
 // 刷新后保留；首帧即为所选主题，没有先浅后深的闪烁。
-// 西方站只有深色主题（docs/design/visual-system.md），切换在东方站上验证：
+// 三种模式在东方站上验证（未保存选择时跟随系统）；西方站首次到访默认浅色，见文件末尾的用例。
 // `east.localhost` 由浏览器解析到本机，站点识别见 features/site/site.ts。
 
 const html = (page: Page) => page.locator('html')
@@ -12,7 +12,7 @@ const east = (path: string) => {
   url.hostname = 'east.localhost'
   return url.href
 }
-// 主题切换有浮动（md 及以上）与页脚设置行（手机端）两处，只取当前可见的一组（0.5.1）
+// 主题切换在页脚设置行（不再浮动）；页面上可能有多组（如应用区侧栏），只取当前可见的一组
 const option = (page: Page, value: string) =>
   page.locator(`[data-theme-option="${value}"]`).filter({ visible: true })
 
@@ -104,16 +104,58 @@ test('首帧为浅色：选择浅色后刷新（系统为深色）', async ({ pa
   expect(await screenshotLuminance(page)).toBeGreaterThan(192)
 })
 
-test('西方站始终为深色：浅色偏好与浅色系统下首帧仍为深色，且不显示主题切换', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'light' })
-  await page.goto('/')
-  await page.evaluate(() => localStorage.setItem('theme', 'light'))
-  await page.route('**/*', (route) =>
+// 西方站（refresh-visual-system-warm：site-visual-system「西方站浅色主题为默认」）：首次到访固定浅色、不跟随系统，
+// 之后的选择照常保留；两站都显示主题切换。
+const blockScripts = (page: Page) =>
+  page.route('**/*', (route) =>
     route.request().resourceType() === 'script' ? route.abort() : route.continue(),
   )
-  await page.reload()
+
+test('西方站首次到访：系统为深色时首帧仍为浅色', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await blockScripts(page)
+  await page.goto('/')
   await expect(html(page)).toHaveAttribute('data-site', 'west')
+  await expect(html(page)).not.toHaveClass(/\bdark\b/)
+  expect(await screenshotLuminance(page)).toBeGreaterThan(192)
+})
+
+test('西方站：水合后保持浅色并显示主题切换，选择深色后刷新首帧为深色', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+  await expect(option(page, 'light')).toHaveAttribute('aria-pressed', 'true')
+  await expect(html(page)).not.toHaveClass(/\bdark\b/)
+
+  await option(page, 'dark').click()
   await expect(html(page)).toHaveClass(/\bdark\b/)
-  await expect(option(page, 'dark')).toHaveCount(0)
+  await blockScripts(page)
+  await page.reload()
+  await expect(html(page)).toHaveClass(/\bdark\b/)
   expect(await screenshotLuminance(page)).toBeLessThan(64)
 })
+
+test('西方站：改选跟随系统后不再写回浅色', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+  await option(page, 'system').click()
+  await expect(html(page)).toHaveClass(/\bdark\b/)
+  await page.reload()
+  await expect(option(page, 'system')).toHaveAttribute('aria-pressed', 'true')
+  await expect(html(page)).toHaveClass(/\bdark\b/)
+  expect(await page.evaluate(() => localStorage.getItem('theme'))).toBeNull()
+})
+
+// 主题切换不再浮动（site-visual-system「主题切换不遮挡正文」）：桌面与手机都在页脚设置行
+for (const width of [1440, 390]) {
+  test(`${width}px：两站没有浮动主题控件，页脚设置行可用`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    for (const url of ['/', east('/zh-hant')]) {
+      await page.goto(url)
+      await expect(page.locator('[data-slot="theme-toggle"].fixed')).toHaveCount(0)
+      await expect(page.locator('body[data-floating-controls]')).toHaveCount(0)
+      const toggle = page.locator('[data-site-footer] [data-slot="theme-toggle"]')
+      await expect(toggle).toBeVisible()
+      await expect(toggle.locator('[data-theme-option="dark"]')).toBeEnabled()
+    }
+  })
+}

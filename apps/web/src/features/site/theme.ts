@@ -1,4 +1,5 @@
 import type { SiteId } from '@xuanxue/config'
+import { THEME_STORAGE_KEY } from '@xuanxue/ui'
 import eastKoFonts from '../../styles/fonts/east-ko.css?url'
 import eastZhHantFonts from '../../styles/fonts/east-zh-hant.css?url'
 import westFonts from '../../styles/fonts/west.css?url'
@@ -37,12 +38,21 @@ export function siteFontScript(site: SiteId, locale: string): string {
   return `(function(){var d=0;function a(){if(d)return;d=1;var l=document.createElement('link');l.rel='stylesheet';l.href=${href};document.head.appendChild(l)}try{new PerformanceObserver(function(s){if(s.getEntriesByName('first-contentful-paint').length)setTimeout(a,0)}).observe({type:'paint',buffered:true})}catch(e){addEventListener('load',a)}setTimeout(a,3000)})()`
 }
 
+/** 记录「已写入过站点默认主题」的存储键：访客之后改选「跟随系统」（模板会删掉主题键）时不再写回默认值 */
+export const SITE_THEME_DEFAULT_MARK = 'theme-site-default'
+
 /**
- * 紧跟在 themeInitScript 之后执行：西方站没有浅色主题，始终保留 `dark` 类，
- * 让 Tailwind 的 `dark:` 变体与深色底一致。
+ * 站点默认主题（openspec refresh-visual-system-warm design.md D3、OQ1）：必须排在模板 themeInitScript 之前执行。
+ * 西方站的访客第一次到访、还没有保存过主题选择时，把选择写为浅色，使首帧与水合后都是浅色，不跟随系统；
+ * 模板把「没有保存的选择」一律当作跟随系统（首帧脚本与水合后的 useTheme 都如此），因此用写入默认值而不是
+ * 只改 <html> 类名，否则系统为深色的访客会在水合后被切回深色。只写一次：访客之后选深色或跟随系统都照常生效。
+ * 存储不可用时不处理，按模板的跟随系统降级。东方站不写入，沿用模板默认（跟随系统）。
  */
-export const SITE_THEME_SCRIPT =
-  "(function(){var d=document.documentElement;if(d.getAttribute('data-site')==='west')d.classList.add('dark')})()"
+export function siteThemeScript(storageKey: string = THEME_STORAGE_KEY): string {
+  const key = JSON.stringify(storageKey)
+  const mark = JSON.stringify(SITE_THEME_DEFAULT_MARK)
+  return `(function(){try{if(document.documentElement.getAttribute('data-site')==='west'&&!localStorage.getItem(${key})&&!localStorage.getItem(${mark})){localStorage.setItem(${key},'light');localStorage.setItem(${mark},'1')}}catch(e){}})()`
+}
 
 /** 站点语言入口的自称（语言切换链接使用，不随界面语言翻译） */
 export const LOCALE_AUTONYMS: Record<string, string> = {
