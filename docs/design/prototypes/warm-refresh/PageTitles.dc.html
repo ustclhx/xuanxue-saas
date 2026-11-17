@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>页面 title 规则</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+KR:wght@400;500&family=Noto+Sans+SC:wght@400;500&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx board" style="font-family: 'Noto Sans TC', 'Noto Sans SC', 'Noto Sans KR', 'PingFang TC', sans-serif">
+
+<div class="b-sec">
+<h1 class="t-title">页面 title：每一页都带站名</h1>
+<p class="muted prose">使用者 2026-11-17 要求：内页的 title 都补好，每个 title 带上网站名字。规则如下，站名放在最后；只有首页是站名在前。</p>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">规则</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 22%">语言</th><th scope="col" style="width: 34%">内页</th><th scope="col">首页（站名在前）</th></tr></thead>
+<tbody>
+<tr><td><strong>繁體中文</strong></td><td>&lt;頁面標題&gt;｜干支日</td><td>干支日｜免費八字排盤、紫微斗數與塔羅</td></tr>
+<tr><td><strong>简体中文</strong></td><td>&lt;页面标题&gt;｜干支日</td><td>干支日｜免费八字排盘、紫微斗数与塔罗</td></tr>
+<tr><td><strong>한국어</strong></td><td>&lt;페이지 제목&gt; | 간지데이</td><td>간지데이 | 무료 만세력·사주·타로</td></tr>
+<tr><td><strong>English</strong></td><td>&lt;Page title&gt; | Arcanumber</td><td>Arcanumber — Free Life Path Number Calculator, Numerology &amp; Tarot</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">示例</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 22%">页面</th><th scope="col">title</th></tr></thead>
+<tbody>
+<tr><td><strong>/zh-hant/八字排盤</strong></td><td>免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日</td></tr>
+<tr><td><strong>/zh-hant/紫微斗數排盤</strong></td><td>紫微斗數排盤｜免費紫微命盤十二宮、主星與四化｜干支日</td></tr>
+<tr><td><strong>/ko/만세력</strong></td><td>만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이</td></tr>
+<tr><td><strong>/zh-hant/塔羅</strong></td><td>三張牌塔羅｜干支日</td></tr>
+<tr><td><strong>/zh-hant/每日運勢</strong></td><td>2026 年 11 月 17 日今日運勢：乙未日宜忌與十日主提示｜干支日</td></tr>
+<tr><td><strong>/zh-hant/pricing</strong></td><td>價格方案：免費工具與積分包｜干支日</td></tr>
+<tr><td><strong>/zh-hant/privacy（法律頁）</strong></td><td>隱私政策｜干支日</td></tr>
+<tr><td><strong>/zh-hant/八字/大運（概念頁）</strong></td><td>八字大運｜干支日</td></tr>
+<tr><td><strong>/life-path-number</strong></td><td>Life Path Number Calculator: Free, With Every Step Shown | Arcanumber</td></tr>
+<tr><td><strong>/numerology-chart</strong></td><td>Numerology Chart: See Which Digits Fill Your Birth Grid | Arcanumber</td></tr>
+<tr><td><strong>登入、帳戶、我的報告、報告頁</strong></td><td>登入｜干支日　·　我的報告｜干支日　·　八字詳批｜干支日　·　Sign in | Arcanumber</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">现状与要改的地方</h2>
+<table class="spec">
+<thead><tr><th scope="col" style="width: 22%">范围</th><th scope="col">现状</th></tr></thead>
+<tbody>
+<tr><td><strong>公开页（工具、定价、博客、指南、法律、每日、概念）</strong></td><td>已经由同一个函数加上「 | 站名」。要改的是分隔符与站名：中文改用全角「｜」，韩语站名现在是 Ganjiday，改为 간지데이。</td></tr>
+<tr><td><strong>首页</strong></td><td>现在是「八字排盤、紫微斗數與塔羅 | 干支日」，改为站名在前，不再重复追加站名。</td></tr>
+<tr><td><strong>没有站名的页面</strong></td><td>登入、註冊、忘記密碼、重設密碼、驗證信箱；帳戶；登入后的出生檔案、我的報告、報告頁、對話；后台。</td></tr>
+<tr><td><strong>站名不对的页面</strong></td><td>分享页 /s/… 用的是模板的应用名而不是当前站点的站名。</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":1900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shared components · Arcanumber</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="xx board">
+
+<div class="b-sec">
+<h1 class="t-title">Shared components · Arcanumber</h1>
+<p class="muted prose">The shell and blocks both changes share. Light is the default theme on a first visit; Dark is the saved alternative. The primary button is ink black; brass appears only on digits and the star.</p>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Header · desktop · 4 nav items (Tools ▾, Number of the Day, Pricing, account) · tools menu open</span>
+<div class="b-frame" style="background: var(--bg); padding-bottom: 24px">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<nav class="nav" aria-label="Main">
+<a class="on" href="#">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12l5-5 5 5"/></svg></a>
+<a href="#">Number of the Day</a>
+<a href="#">Pricing</a>
+<a href="#">Sign in</a>
+</nav>
+</div>
+</header>
+<div class="wrap" style="display: flex; justify-content: flex-end">
+<div class="menu" style="width: 300px; margin-right: 280px">
+<a href="ToolLifePath.dc.html">Life Path Number</a>
+<a href="#">Numerology Calculator</a>
+<a href="#">Compatibility</a>
+<a href="#">Three-Card Tarot</a>
+<a href="#">Card of the Day</a>
+<a href="#">Yes or No Tarot</a>
+<a href="#">Celtic Cross Tarot</a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Header · mobile · one 56px row (logo, account, menu) · right: details panel open, with the theme switch · works before hydration</span>
+<div class="b-row">
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+<div class="wrap" style="padding-top: 24px; padding-bottom: 32px">
+<p class="t-display">Know your numbers</p>
+</div>
+</div>
+</div>
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Close menu" aria-expanded="true" style="color: var(--ink)"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+</div>
+</div>
+</header>
+<div style="padding: 0 12px 16px">
+<nav class="menu" aria-label="Main">
+<p class="t-caption subtle menu-label">Tools</p>
+<a href="ToolLifePath.dc.html">Life Path Number</a>
+<a href="#">Numerology Calculator</a>
+<a href="#">Compatibility</a>
+<a href="#">Three-Card Tarot</a>
+<hr>
+<a href="#">Number of the Day</a>
+<a href="#">Pricing</a>
+<a href="#">Sign in</a>
+<hr>
+<div class="set" style="padding: 6px 12px; justify-content: space-between"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</nav>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Tool card row · 3 cards · surface, radius-md, no border, no shadow; hover moves to surface-2 · new project component ToolCard</span>
+<div class="cards c3">
+<a class="card" href="ToolLifePath.dc.html"><span class="glyph" aria-hidden="true">1</span><h3 class="t-heading">Life Path Number</h3><p class="muted">Your core number from your birth date, step by step.</p><span class="go">Find your number →</span></a>
+<a class="card" href="#"><span class="glyph" aria-hidden="true">9</span><h3 class="t-heading">Numerology Calculator</h3><p class="muted">Expression, Soul Urge and Personality from your name.</p><span class="go">Open the calculator →</span></a>
+<a class="card" href="#" style="background: var(--surface-2)"><span class="glyph" aria-hidden="true">22</span><h3 class="t-heading">Three-Card Tarot</h3><p class="muted">Shuffle, cut and reveal past, present and future. (hover state)</p><span class="go">Draw three cards →</span></a>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Sample-report block · one surface object: sample chart, outline, sample paragraph; the disclaimer is a caption under it</span>
+<div class="obj sample">
+<div class="stack">
+<h3 class="t-heading">Sample chart</h3>
+<div class="lp-result">
+<svg class="numring" viewBox="0 0 132 132" role="img" aria-label="Life Path 3">
+<circle class="mo-s" cx="66" cy="66" r="62"/>
+<circle class="mo-s mo-f" cx="66" cy="66" r="50"/>
+<text x="66" y="68" style="fill: var(--ink); font-family: var(--head); font-weight: 700; font-size: 52px; text-anchor: middle; dominant-baseline: central">3</text>
+</svg>
+<dl class="stack">
+<div class="kv"><dt class="t-caption subtle">Life Path</dt><dd>3 · expression</dd></div>
+<div class="kv"><dt class="t-caption subtle">Birthday number</dt><dd>6 · from the 15th</dd></div>
+</dl>
+</div>
+<p class="t-caption subtle">Fictional birth date: May 15, 1990</p>
+</div>
+<div class="stack">
+<h3 class="t-heading">What's inside</h3>
+<ol class="outline">
+<li>Overview</li><li>Life Path</li><li>Core Numbers</li><li>Personal Year</li><li>Love and Relationships</li><li>Career and Money</li><li>Wellbeing Habits</li><li>Guidance</li>
+</ol>
+<p class="t-caption subtle">Sample paragraph</p>
+<p class="muted">Three is the number of expression, sociability and creative range, and it does best when ideas move from conversation into finished work.</p>
+</div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Daily strip and pricing line · surface-2 bands, radius-md · the strip shows only today's number, filled in after hydration at a fixed size</span>
+<div class="band">
+<div class="band-main">
+<span class="t-caption subtle">Today · Tuesday, November 17, 2026</span>
+<span class="t-heading">Universal Day 2</span>
+</div>
+<a class="link" href="#">Your number today →</a>
+</div>
+<div class="band">
+<p>Every calculator is free. A full reading costs 10 credits, and you get 10 free credits each day you sign in, so you can try one first.</p>
+<a class="link" href="PricingWestMobile.dc.html">See pricing →</a>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Buttons and fields · Button (primary, secondary, text link), Input, segmented switch, field error and delete button (danger is for errors and deletion only) · existing @xuanxue/ui components on the new tokens</span>
+<div class="b-row" style="align-items: center">
+<button type="button" class="btn btn-primary">Find your life path number</button>
+<button type="button" class="btn btn-secondary">Copy share link</button>
+<a class="link" href="#">See pricing →</a>
+<button type="button" class="btn btn-danger">Delete account</button>
+</div>
+<div class="panel" style="max-width: 760px">
+<div class="field">
+<div class="field-top"><label class="label" for="w-date">Date of birth</label></div>
+<input class="input" id="w-date" type="text" value="05 / 15 / 1990">
+<p class="hint">Just the date. No sign-up needed.</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="w-err">Date of birth (error state)</label></div>
+<input class="input invalid" id="w-err" type="text" value="02 / 30 / 1990" aria-invalid="true">
+<p class="err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg>Enter a valid birth date (year 1–9999).</p>
+</div>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Section / Prose rhythm · space-section 112 between sections (64 on mobile) · space-block 40 from heading to content (32 on mobile) · measure-prose 720 · measure-page 1120 · new project components Section and Prose</span>
+<div class="rhythm">
+<h2 class="t-title">Three steps to your numbers</h2>
+<div class="rule" style="height: 40px">space-block 40</div>
+<p class="muted prose">Running text never exceeds 720px. Enter your birth date; no sign-up needed. See your Life Path number with every reduction step shown. When you want more depth, unlock a full reading with credits.</p>
+<div class="rule" style="height: 112px">space-section 112 (64 on mobile)</div>
+<h2 class="t-title">How we calculate, and what we keep</h2>
+</div>
+</div>
+
+<div class="b-sec">
+<span class="b-label">Footer · hairline on top · settings row with the theme switch (now shown on Arcanumber) · disclaimer as a caption, never a full-width bar · desktop, then mobile</span>
+<div class="b-frame" style="background: var(--bg)">
+<footer class="ftr" style="border-top: 0">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#">Blog</a><a href="#">Guides</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+<a href="#">Refund Policy</a><a href="#">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+</div>
+<div class="b-phone">
+<div class="xx m" data-theme="{{theme}}" style="min-height: 0">
+<footer class="ftr" style="border-top: 0">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#">Blog</a><a href="#">Guides</a><a href="#">Privacy Policy</a><a href="#">Terms of Service</a>
+<a href="#">Refund Policy</a><a href="#">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"$preview":{"width":1280,"height":4100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'west-light' };
+}
+}
+</script>
+</body>
+</html>

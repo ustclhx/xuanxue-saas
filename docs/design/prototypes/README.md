@@ -5,17 +5,51 @@
 
 | 页面 / 路由 | 画布链接 | 确认日期 | 使用者确认原话 | 副本文件 | 所属 change |
 |---|---|---|---|---|---|
-| 首页（东方站 /、/zh-hans、/ko） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Main.dc.html | redesign-home-chart-visuals |
-| 首页（西方站 /） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/HomeWest.dc.html | redesign-home-chart-visuals |
-| 首页（手机，两站） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/HomeMobile.dc.html | redesign-home-chart-visuals |
-| 命盘图形（八字四柱、五行、紫微十二宫、灵数） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Charts.dc.html | redesign-home-chart-visuals |
-| 命盘图形（手机，紫微盘 + 宫位列表） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ChartsMobile.dc.html | redesign-home-chart-visuals |
-| 结果分享图 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ShareCard.dc.html | redesign-home-chart-visuals |
-| 公开每日运势（东方站） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/DailyPublic.dc.html | add-birth-profiles-daily-horoscope |
-| 每日数字（西方站） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/DailyMobile.dc.html | add-birth-profiles-daily-horoscope |
-| /app/$slug 今日面板 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/TodayPanel.dc.html | add-birth-profiles-daily-horoscope |
-| /app/$slug/profiles 出生档案 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Profiles.dc.html | add-birth-profiles-daily-horoscope |
-| 出生档案编辑抽屉、工具页从档案带入 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ProfileEdit.dc.html | add-birth-profiles-daily-horoscope |
-| /pricing 订阅 + 积分包 + 每日领取 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Pricing.dc.html | enable-subscriptions-daily-credits |
-| 报告页内追问 | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ReportChat.dc.html | adopt-subject-chat-readings |
-| 空 / 加载 / 错误态（档案、今日面板、追问） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/States.dc.html | 上述各 change |
+| 首页（东方站 /、/zh-hans、/ko）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Main.dc.html | redesign-home-chart-visuals |
+| 首页（西方站 /）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/HomeWest.dc.html | redesign-home-chart-visuals |
+| 首页（手机，两站）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/HomeMobile.dc.html | redesign-home-chart-visuals |
+| 命盘图形（八字四柱、五行、紫微十二宫、灵数）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Charts.dc.html | redesign-home-chart-visuals |
+| 命盘图形（手机，紫微盘 + 宫位列表）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ChartsMobile.dc.html | redesign-home-chart-visuals |
+| 结果分享图（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ShareCard.dc.html | redesign-home-chart-visuals |
+| 公开每日运势（东方站）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/DailyPublic.dc.html | add-birth-profiles-daily-horoscope |
+| 每日数字（西方站）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/DailyMobile.dc.html | add-birth-profiles-daily-horoscope |
+| /app/$slug 今日面板（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/TodayPanel.dc.html | add-birth-profiles-daily-horoscope |
+| /app/$slug/profiles 出生档案（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Profiles.dc.html | add-birth-profiles-daily-horoscope |
+| 出生档案编辑抽屉、工具页从档案带入（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ProfileEdit.dc.html | add-birth-profiles-daily-horoscope |
+| /pricing 订阅 + 积分包 + 每日领取（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/Pricing.dc.html | enable-subscriptions-daily-credits |
+| 报告页内追问（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/ReportChat.dc.html | adopt-subject-chat-readings |
+| 空 / 加载 / 错误态（档案、今日面板、追问）（视觉 token 由 refresh-visual-system-warm 取代，布局仍有效） | https://claude.ai/artifact/SbtXaoziCzKRBForwYbXfj | 2026-11-14 | 「设计稿也没啥问题，就是把东方站的整体主体配色换成纯白的吧」；「确认白底。」 | roadmap/States.dc.html | 上述各 change |
+| 落地首页（东方站 /zh-hant，桌面浅色；/zh-hans 同版式） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/Main.dc.html | separate-landing-homepage |
+| 落地首页（东方站 /zh-hant，桌面深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingEastDark.dc.html | separate-landing-homepage |
+| 落地首页（东方站 /zh-hant，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingEastMobile.dc.html | separate-landing-homepage |
+| 落地首页（东方站 /zh-hant，手机深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingEastMobileDark.dc.html | separate-landing-homepage |
+| 落地首页（东方站 /ko，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingKoMobile.dc.html | separate-landing-homepage |
+| 落地首页（西方站 /，桌面浅色，默认主题） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingWest.dc.html | separate-landing-homepage |
+| 落地首页（西方站 /，桌面深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingWestDark.dc.html | separate-landing-homepage |
+| 落地首页（西方站 /，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingWestMobile.dc.html | separate-landing-homepage |
+| 落地首页（西方站 /，手机深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/LandingWestMobileDark.dc.html | separate-landing-homepage |
+| /zh-hant/八字排盤 工具页（桌面浅色，含结果；/zh-hans/八字排盘、/ko/만세력 同版式） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ToolBazi.dc.html | separate-landing-homepage |
+| /zh-hant/八字排盤 工具页（手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ToolBaziMobile.dc.html | separate-landing-homepage |
+| /zh-hant/八字排盤 工具页（手机深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ToolBaziMobileDark.dc.html | separate-landing-homepage |
+| /life-path-number 工具页（桌面浅色，含结果；/life-path-number/7 的面包屑同此） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ToolLifePath.dc.html | separate-landing-homepage |
+| /life-path-number 工具页（手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ToolLifePathMobile.dc.html | separate-landing-homepage |
+| 首页文案（四语 Title、H1、副标题、主按钮、一行价格、FAQ 选题） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/CopyReview.dc.html | separate-landing-homepage |
+| 共享组件（东方站浅色）：页头、手机导航面板、页脚、工具卡、样例报告、今日条、一行价格、按钮与表单、Section / Prose | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ComponentsEast.dc.html | refresh-visual-system-warm |
+| 共享组件（东方站深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ComponentsEastDark.dc.html | refresh-visual-system-warm |
+| 共享组件（西方站浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ComponentsWest.dc.html | refresh-visual-system-warm |
+| 共享组件（西方站深色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ComponentsWestDark.dc.html | refresh-visual-system-warm |
+| /pricing 定价页（东方站，手机浅色，定价版本 A） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/PricingEastMobile.dc.html | refresh-visual-system-warm |
+| /pricing 定价页（西方站，手机浅色，定价版本 A） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/PricingWestMobile.dc.html | refresh-visual-system-warm |
+| /app/$slug/readings/$readingId 报告页（东方站，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ReportEastMobile.dc.html | refresh-visual-system-warm |
+| /app/$slug/readings/$readingId 报告页（西方站，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/ReportWestMobile.dc.html | refresh-visual-system-warm |
+| 状态：工具表单校验错误（东方站，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/StateError.dc.html | refresh-visual-system-warm |
+| 状态：结果载入中（东方站，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/StateLoading.dc.html | refresh-visual-system-warm |
+| 状态：空结果（西方站示例结果，手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/StateEmpty.dc.html | refresh-visual-system-warm |
+| token / 组件变更提议（方向 C 取值、danger、焦点环） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/Proposals.dc.html | refresh-visual-system-warm |
+| 页面 title 规则（每页带站名） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-17 | 「这版看着不错了，开始开发吧」；此前同一画布：「其他的排列我认为都可以」；配色方向：「两站都选C吧」 | warm-refresh/PageTitles.dc.html | separate-landing-homepage |
+
+**warm-refresh 说明**：
+
+- 画布副本在 `warm-refresh/`：各画板 `*.dc.html`、布局索引 `canvas.json`、全部画板共用的样式 `site.css`（四套主题的 token、六个字号角色与组件样式都在这里）、设计系统 token 副本 `ds/xuanxueds/tokens.json`。深色与手机画板通过 `dc-import` 引用对应的浅色桌面画板并传入主题 / 设备参数，对照时读被引用的基础画板与 `site.css`。
+- 设计系统：https://claude.ai/artifact/Vq91QmAGachtxReBdSH5oc ；色彩方向研究（方向 C 的出处）：https://claude.ai/artifact/2BrLjMQvgSp7Hva7cZydky 。取值表见 `openspec/changes/refresh-visual-system-warm/design.md` D14。
+- 未单独出稿、套用上述模式的页面：`/ko/만세력`、`/ko/사주궁합`、紫微斗數、塔羅、每日運勢、法律页与博客、应用区今日面板、东方站 `/en` 入口页。
