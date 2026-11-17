@@ -25,11 +25,11 @@
 
 依赖：无。产出：原型索引行与副本，是第 3–9 组的开工条件。冲突点：`docs/design/prototypes/` 只由协调者修改。
 
-- [ ] 1.1 【协调者】按 `ui-design` 第 1–2 步记录判断（§8.1「建立或改变视觉方向」「改变导航方式或信息层级」→ 需要设计稿）、页面清单（design.md D1 表）、可用组件与 token 来源，写入 design.md D1 下方。验证：记录存在，`openspec validate refresh-visual-system-warm --strict` 通过
-- [ ] 1.2 【Claude】按 `ui-design` 第 3 步，在 Design 画布产出「视觉方向」画板：四套色板与对比度标注、字号六角色取值（营销作用域与应用区）、区块节奏与阅读宽度、控件与色调分层样例；同一画布绘制两站线描插画集（东方墨线 + 朱印、西方金色细线，各 4–6 个母题，SVG）。规范外 token（`--band`、`--illus-*` 等）单列变更提议。验证：画布链接可打开，四套色板均标出正文 / 链接 / 主按钮 / 焦点环对比度
-- [ ] 1.3 【Claude】在同一画布产出「共享组件」与「代表页面」画板（design.md D1 表，桌面 1440 / 手机 390 × 浅 / 深，西方站浅色为默认态），并与 `separate-landing-homepage` 1.2 的落地页画板放在同一画布。验证：画板矩阵完整
-- [ ] 1.4 【用户】确认视觉方向、插画与各画板，并答复 design.md Open Questions 1–6（默认方案可整体采纳）。验证：使用者在会话中明确确认，原话记录；OQ 结论写回 design.md
-- [ ] 1.5 【协调者】保存画布副本到 `docs/design/prototypes/warm-refresh/`（`*.dc.html` 与 `canvas.json`），在 `docs/design/prototypes/README.md` 每个页面 / 画板登记一行（所属 change 填本 change 或 `separate-landing-homepage`），给 2026-11-14 各行加备注「视觉 token 由 refresh-visual-system-warm 取代，布局仍有效」；在 design.md 追加「原型索引」小节与已确认的 token / 组件提议（取值表）。验证：索引行与副本文件存在并提交
+- [x] 1.1 【协调者】按 `ui-design` 第 1–2 步记录判断（§8.1「建立或改变视觉方向」「改变导航方式或信息层级」→ 需要设计稿）、页面清单（design.md D1 表）、可用组件与 token 来源，写入 design.md D1 下方。验证：记录存在，`openspec validate refresh-visual-system-warm --strict` 通过
+- [x] 1.2 【Claude】按 `ui-design` 第 3 步，在 Design 画布产出「视觉方向」画板：四套色板与对比度标注、字号六角色取值（营销作用域与应用区）、区块节奏与阅读宽度、控件与色调分层样例；同一画布绘制两站线描插画集（东方墨线 + 朱印、西方金色细线，各 4–6 个母题，SVG）。规范外 token（`--band`、`--illus-*` 等）单列变更提议。验证：画布链接可打开，四套色板均标出正文 / 链接 / 主按钮 / 焦点环对比度
+- [x] 1.3 【Claude】在同一画布产出「共享组件」与「代表页面」画板（design.md D1 表，桌面 1440 / 手机 390 × 浅 / 深，西方站浅色为默认态），并与 `separate-landing-homepage` 1.2 的落地页画板放在同一画布。验证：画板矩阵完整
+- [x] 1.4 【用户】确认视觉方向、插画与各画板，并答复 design.md Open Questions 1–6（默认方案可整体采纳）。验证：使用者在会话中明确确认，原话记录；OQ 结论写回 design.md
+- [x] 1.5 【协调者】保存画布副本到 `docs/design/prototypes/warm-refresh/`（`*.dc.html` 与 `canvas.json`），在 `docs/design/prototypes/README.md` 每个页面 / 画板登记一行（所属 change 填本 change 或 `separate-landing-homepage`），给 2026-11-14 各行加备注「视觉 token 由 refresh-visual-system-warm 取代，布局仍有效」；在 design.md 追加「原型索引」小节与已确认的 token / 组件提议（取值表）。验证：索引行与副本文件存在并提交
 
 ## 2. 基线（WT-baseline，【Codex】，可与第 1 组同时进行）
 
@@ -41,11 +41,12 @@
 
 依赖：1.5。冲突点：`brand.css`、`visual-system.md`、`features/site/theme.ts`、`features/theme/*`、`share-cards.sites.ts`、`scripts/brand-tokens.ts`、`scripts/og-images.ts`、`e2e/theme.spec.ts`、`e2e/floating-controls.spec.ts` 只由本组修改。
 
-- [ ] 3.1 按 design.md D2 改写 `brand.css`：东方站浅色纸色与深色、西方站浅色羊皮纸（`:root[data-site="west"]`）与深色（`:root.dark[data-site="west"]`）、新增 token 与 `@theme inline` 映射、`--surface-4…8` 混色改挂 `.dark`，以及 D5 的营销作用域字号覆盖（`--text-*`，桌面 / 手机两档，作用域属性名与第 4 组约定）；同步改写 `docs/design/visual-system.md` 的 token 表、暗色模式段落与「2026-11-14 纯白」决定的变更记录。验证：`pnpm check:ui` 通过；`visual-system.md` 表中取值与 `brand.css` 一致
+- [ ] 3.1 按 design.md D2 与 D14 改写 `brand.css`：两站浅色（纯白底、中性灰表面）与深色、西方站浅色（`:root[data-site="west"]`）与深色（`:root.dark[data-site="west"]`）、新增 token（`primary`、`on-primary`、`field-border`、`illus`、`danger`、`on-danger`、深色五行色）与 `@theme inline` 映射、焦点环改为文字色、`--surface-4…8` 混色改挂 `.dark`，以及 D5 的营销作用域字号覆盖（`--text-*`，桌面 / 手机两档，作用域属性名与第 4 组约定）；同步改写 `docs/design/visual-system.md` 的 token 表、暗色模式段落与「2026-11-14 纯白」决定的变更记录。验证：`pnpm check:ui` 通过；`visual-system.md` 表中取值与 `brand.css` 一致
 - [ ] 3.2 `scripts/brand-tokens.ts` 改为四套主题，扩展 `brand-tokens.test.ts`：四套主题的正文、弱化文字、链接、主按钮文字对比度 ≥ 4.5:1，焦点环对页面底与主按钮 ≥ 3:1。验证：测试通过，故意改低一个值时失败
 - [ ] 3.3 按 D3 改主题机制：`SITE_THEME_SCRIPT` 改为站点默认主题脚本（西方站未保存选择时为浅色）、`ThemeToggle` 与 `SiteSettings` 去掉西方站 `null`；按 D4 关闭浮动主题切换，页脚设置行在桌面也显示。更新 `theme.spec.ts`（西方站首次访问为浅色、选择深色后刷新首帧为深色、显示切换控件）、`floating-controls.spec.ts`、`site-header.test.tsx`、`reading-chat.spec.ts` 中的西方站假设。验证：上述测试通过；`pnpm --filter @xuanxue/web test` 通过
 - [ ] 3.4 按 D11 更新 `share-cards.sites.ts` 两站配色与 `og-images.ts` 取色（各站默认主题，OQ2），增加单测断言分享卡配色与 `brand.css` 解析值一致。验证：`pnpm --filter @xuanxue/web build` 生成的东 / 西默认分享图与样例 OG 图各一张存入 `EVIDENCE_DIR` 并与画布对照
 - [ ] 3.5 `check-critical-css.mjs` 截图矩阵加入西方站浅色与深色。验证：在本组分支的生产预览上运行通过
+- [ ] 3.6 按 D14 更换字体：东方站 Noto Sans TC / KR（标题 700、正文 400 / 500），西方站 Manrope（400 / 500 / 700），经 `@fontsource` 自托管并由 `siteFontScript` 按站点与语言加载；移除 Noto Serif 与 Cormorant Garamond、Source Sans 3 的依赖与样式表；重新计算 `brand.css` 中 fallback `@font-face` 的度量；更新 `visual-system.md`「字体」。验证：页面无第三方字体请求（e2e smoke）；两站首页 CLS 中位数不高于 2.1 基线；`pnpm check:singletons`、`pnpm build` 通过
 
 ## 4. 共享外壳组件（WT-shell，【Claude】）
 

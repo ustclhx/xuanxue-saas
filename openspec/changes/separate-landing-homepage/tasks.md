@@ -28,10 +28,10 @@
 
 依赖：无。产出：原型索引行与副本、已确认的文案，是第 4、5 组的开工条件；1.3 是第 2 组的开工条件。
 
-- [ ] 1.1 【协调者】按 `ui-design` 第 1–2 步记录判断（§8.1「新增路由文件」「增删或重排页面的顶层区块」→ 需要设计稿）与页面清单：东方站 `/zh-hant`、`/zh-hans`、`/ko` 落地页、西方站 `/` 落地页、`/zh-hant/八字排盤`、`/ko/만세력`、`/life-path-number` 工具页、`/life-path-number/7`（面包屑）。验证：记录写入 design.md D8 下方
-- [ ] 1.2 【Claude】在 `refresh-visual-system-warm` 的画布中产出「落地页」画板：两站落地页桌面 1440 / 手机 390 × 浅 / 深，异常态包括每日运势页未上线（无今日条）、无可售方案（价格行只显示免费说明），以及三个工具页（紧凑布局、长文在结果后）。验证：画布链接可打开，画板矩阵完整，区块顺序与 `home-hub`「品牌落地页结构」一致
-- [ ] 1.3 【用户】确认四语首页 Title、H1 品牌承诺、副标题、主按钮文案与精选入口（design.md OQ4、OQ5），并答复 OQ1–3、OQ6–8（默认方案可整体采纳）。验证：使用者原话与结论写回 design.md，删去已定的 OQ；`openspec validate separate-landing-homepage --strict` 通过
-- [ ] 1.4 【用户】确认 1.2 的画板（可与 `refresh-visual-system-warm` 1.4 同一次确认）。【协调者】随该 change 1.5 保存副本并登记索引行，所属 change 填本 change。验证：索引行与副本存在
+- [x] 1.1 【协调者】按 `ui-design` 第 1–2 步记录判断（§8.1「新增路由文件」「增删或重排页面的顶层区块」→ 需要设计稿）与页面清单：东方站 `/zh-hant`、`/zh-hans`、`/ko` 落地页、西方站 `/` 落地页、`/zh-hant/八字排盤`、`/ko/만세력`、`/life-path-number` 工具页、`/life-path-number/7`（面包屑）。验证：记录写入 design.md D8 下方
+- [x] 1.2 【Claude】在 `refresh-visual-system-warm` 的画布中产出「落地页」画板：两站落地页桌面 1440 / 手机 390 × 浅 / 深，异常态包括每日运势页未上线（无今日条）、无可售方案（价格行只显示免费说明），以及三个工具页（紧凑布局、长文在结果后）。验证：画布链接可打开，画板矩阵完整，区块顺序与 `home-hub`「品牌落地页结构」一致
+- [x] 1.3 【用户】确认四语首页 Title、H1 品牌承诺、副标题、主按钮文案与精选入口（design.md OQ4、OQ5），并答复 OQ1–3、OQ6–8（默认方案可整体采纳）。验证：使用者原话与结论写回 design.md，删去已定的 OQ；`openspec validate separate-landing-homepage --strict` 通过
+- [x] 1.4 【用户】确认 1.2 的画板（可与 `refresh-visual-system-warm` 1.4 同一次确认）。【协调者】随该 change 1.5 保存副本并登记索引行，所属 change 填本 change。验证：索引行与副本存在
 
 ## 2. 路由、注册表与 SEO（WT-routes，【Claude】）
 
@@ -42,6 +42,7 @@
 - [ ] 2.3 在 `structured-data.ts` 新增 `webApplicationData` 与 `breadcrumbData`，按 D3 接入四个主工具页与 12 个数字页；两站首页 head 改为 `staticPage('/')` + Organization + WebSite，`home-copy.ts` 改用 1.3 确认的品牌标题。更新首页 head 对照测试的快照（Title 与 JSON-LD 类型有意改变，canonical / hreflang / robots 不变），并新增工具页 head 快照。验证：`seo` 单测、`seo.spec.ts` 与 head 对照测试通过；JSON-LD 中的 `url` 等于 canonical
 - [ ] 2.4 按 D4 在 `features/site/gate.ts` 新增 `legacyHomeRedirect`（`unlock` / `checkout` → 301 到主工具页并保留查询；东方站 `/` 直接一次跳转；UTM 不跳转），并实现落地页 `#r=` 片段跳转的内联脚本生成函数（构建期写入工具页地址，由第 4 组挂到首页 head）。验证：单测覆盖四个语言首页 × 有 / 无工具参数 × UTM、HEAD 请求、东方站 `/?unlock=`；脚本函数单测断言只在 hash 含 `r=` 时替换
 - [ ] 2.5 补注册表驱动功能的测试：预渲染清单、站点地图（新地址与 hreflang、首页仍在）、`llms.txt`、语言切换（`八字排盤` ↔ `八字排盘` ↔ `만세력`）、页头导航、OG 样例图挂到工具页、报告空态链接、optin 邮件链接。验证：`pnpm --filter @xuanxue/web test` 通过；`pnpm --filter @xuanxue/web build` 产物含三个新工具页与 `/life-path-number` 的 HTML 与 OG 图
+- [ ] 2.6 按 design.md D3a 实现页面 title 规则：`pageHead` 按语言选择分隔符与站名显示名、首页不追加站名、已含站名不重复；认证页、账户页、应用区各页与后台改为经同一函数生成标题；分享页改用当前站点的站名。验证：单测覆盖四种语言、首页与重复站名；`seo.spec.ts` 抽查两站工具页、定价页、法律页与登录页的标题；`pnpm --filter @xuanxue/web test` 通过
 
 ## 3. 站内链接与测试迁移（WT-links，【Codex】，评审【Claude】）
 
@@ -72,7 +73,7 @@
   - 品牌主视觉；
   - 精选工具入口（`hubTools` 加精选清单与上限）；
   - 样例报告；
-  - 一行价格（最低起价）；
+  - 一行价格（免费工具 + 每份详批积分数 + 每日赠送积分数，design.md D2a）；
   - 信任说明；
   - 品牌级 FAQ（不输出 FAQPage）。
 

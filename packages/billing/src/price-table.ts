@@ -6,7 +6,7 @@
  * 调价流程：改快照或字面量 → 评审 → 重跑种子（新增 unsynced 行）→ 同步脚本创建新的平台价格对象并停用旧行。
  * 已存在的平台价格对象不可改价，历史付款保留原金额。
  *
- * 数值经使用者确认（design.md 决策记录 2026-11-13 第 1 条）。订阅档位 `plus` / `premium` 的套餐目录由
+ * 数值经使用者确认（design.md 决策记录 2026-11-13 第 1 条；积分包金额与积分数 2026-11-17「版本 A」调整）。订阅档位 `plus` / `premium` 的套餐目录由
  * enable-subscriptions-daily-credits 负责，这里只提供价格。
  */
 import type { EnabledCurrency } from './currency.ts'
@@ -34,13 +34,13 @@ export type TablePrices = Readonly<Record<EnabledCurrency, number>> & { readonly
 export type TableInterval = 'once' | 'month' | 'year'
 
 export const PRICE_TABLE = {
-  // 详批积分包：100 积分 $1.99 = NT$65 = ₩2,800（约 ¥13）
-  reading_single: { once: { USD: 199, TWD: 6500, KRW: 2800, CNY: 1300 } },
-  // 500 积分 $6.99 = NT$227 = ₩9,800（约 ¥47）
-  reading_five: { once: { USD: 699, TWD: 22700, KRW: 9800, CNY: 4700 } },
-  // 订阅 400 积分/月 $4.99 = NT$162 = ₩7,000（约 ¥33）
+  // 入门包（key 沿用 reading_single）：100 积分 $2.99 = NT$97 = ₩4,200（约 ¥20）
+  reading_single: { once: { USD: 299, TWD: 9700, KRW: 4200, CNY: 2000 } },
+  // 超值包（key 沿用 reading_five）：400 积分 $7.99 = NT$260 = ₩11,200（约 ¥54）
+  reading_five: { once: { USD: 799, TWD: 26000, KRW: 11200, CNY: 5400 } },
+  // 订阅 300 积分/月 $4.99 = NT$162 = ₩7,000（约 ¥33）
   plus: { month: { USD: 499, TWD: 16200, KRW: 7000, CNY: 3300 } },
-  // 订阅 1000 积分/月 $9.99 = NT$325 = ₩14,000（约 ¥67）
+  // 订阅 800 积分/月 $9.99 = NT$325 = ₩14,000（约 ¥67）
   premium: { month: { USD: 999, TWD: 32500, KRW: 14000, CNY: 6700 } },
 } as const satisfies Record<string, Partial<Record<TableInterval, TablePrices>>>
 

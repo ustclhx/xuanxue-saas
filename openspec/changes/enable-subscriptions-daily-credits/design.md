@@ -171,3 +171,7 @@ Stripe Customer 不能同时持有不同币种的有效订阅。用户先以 TWD
 ## 原型索引（2026-11-14）
 
 设计稿经使用者确认，见 `docs/design/prototypes/README.md` 中所属 change 为本 change 的各行（副本在 `docs/design/prototypes/roadmap/`）。确认时同时变更品牌 token：东方站浅色 `--bg`、`--surface` 改为 `#ffffff`，`--surface-2` 改为 `#f5f2ec`（已写入 `apps/web/src/styles/brand.css` 与 `docs/design/visual-system.md`）。
+
+## 决策记录（2026-11-17，使用者确认「版本 A」调价）
+
+订阅金额不变，每月积分调整：`plus` 400 → **300 积分/月**，`premium` 1000 → **800 积分/月**；每份详批改为 10 积分（约 30 / 80 份）。每日登录赠送（每日 10、每月最多 10 天）与注册赠送（0）不变。完整记录见 `localize-checkout-currency/design.md` 的 2026-11-17 决策记录。

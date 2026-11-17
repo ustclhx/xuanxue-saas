@@ -84,11 +84,12 @@ export const EXAMPLE_CATALOG = [
     active: false,
     prices: [],
   },
-  // 详批积分包（add-reading-monetization design 决策 4）：1 次详批 = 100 积分。
+  // 详批积分包（add-reading-monetization design 决策 4）。2026-11-17「版本 A」：1 次详批 = 10 积分，
+  // 入门包 100 积分、超值包 400 积分；key 保持 reading_single / reading_five（平台价格与历史订单引用），只改展示名。
   // 价格来自价目表，每个结算币种一行（localize-checkout-currency D1/D2）。
   {
     key: 'reading_single',
-    name: 'Single Reading',
+    name: 'Starter Pack',
     type: 'credit_pack',
     credits: 100,
     creditExpiryDays: 365,
@@ -100,9 +101,9 @@ export const EXAMPLE_CATALOG = [
   },
   {
     key: 'reading_five',
-    name: '5-Reading Pack',
+    name: 'Value Pack',
     type: 'credit_pack',
-    credits: 500,
+    credits: 400,
     creditExpiryDays: 365,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -117,7 +118,7 @@ export const EXAMPLE_CATALOG = [
     key: 'plus',
     name: 'Plus',
     type: 'subscription',
-    credits: 400,
+    credits: 300,
     creditExpiryDays: null,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -129,7 +130,7 @@ export const EXAMPLE_CATALOG = [
     key: 'premium',
     name: 'Premium',
     type: 'subscription',
-    credits: 1000,
+    credits: 800,
     creditExpiryDays: null,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -323,7 +324,11 @@ export async function activateCreditPackMappings(
   })
 }
 
-/** Sync only current example tuples; obsolete immutable prices retain their historical mapping. */
+/**
+ * Sync only current example tuples; obsolete immutable prices retain their historical mapping.
+ * 调价后旧金额的价格行在当前元组全部同步成功后停止售卖（只置 active=false，保留平台映射，
+ * 历史付款、退款与在途结账的 Webhook 仍按它对账，见 events.ts 的 requireActive=false）。
+ */
 export async function syncCatalog(
   db: Database,
   providers: readonly PaymentProvider[],
@@ -340,6 +345,7 @@ export async function syncCatalog(
       // 激活订阅价格前检查模型授权，在任何远程调用之前失败
       if (localPlan.type === 'subscription' && providerPrices(example.prices, provider.id).length)
         assertSubscriptionModels(plans, example.key)
+      const currentIds = new Set<string>()
       for (const intended of providerPrices(example.prices, provider.id)) {
         const prices = await db
           .select()
@@ -350,6 +356,7 @@ export async function syncCatalog(
             `Expected one seeded price for ${example.key}/${provider.id}/${intended.currency}`,
           )
         const price = prices[0] as PlanPrice
+        currentIds.add(price.id)
         const existingId = price.providerPriceId.startsWith('unsynced:')
           ? undefined
           : price.providerPriceId
@@ -382,6 +389,19 @@ export async function syncCatalog(
             throw new Error('Concurrent catalog mapping changed')
         }
         synced++
+      }
+      // 同一套餐、同一平台下不在当前目录中的启用价格（旧金额）停止售卖，避免新旧价格同时在售
+      const stale = await db
+        .select()
+        .from(planPrice)
+        .where(and(eq(planPrice.planId, localPlan.id), eq(planPrice.provider, provider.id)))
+      for (const price of stale) {
+        if (currentIds.has(price.id) || !price.active) continue
+        await db
+          .update(planPrice)
+          .set({ active: false })
+          .where(eq(planPrice.id, price.id))
+          .returning()
       }
     }
   }

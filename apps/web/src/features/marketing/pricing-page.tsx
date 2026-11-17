@@ -16,7 +16,7 @@ import { MarketingShell } from './marketing-shell.tsx'
 import { displayProvider, type PricingCatalog, selectDisplayPrice } from './pricing-data.ts'
 
 /** 未读到运行时设置时的每份详批积分（与 packages/db 设置默认值一致） */
-const DEFAULT_READING_CREDITS = 100
+const DEFAULT_READING_CREDITS = 10
 
 const PACK_NAMES: Record<string, () => string> = {
   reading_single: m.pricing_pack_single,

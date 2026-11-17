@@ -42,7 +42,7 @@ export interface PriceDisplay {
   readonly reference: string | null
 }
 
-/** 价格文字：`NT$65`、`₩2,800`、`US$1.99`（en 为 `$1.99`），zh-Hans 另给 `¥13` 参考价 */
+/** 价格文字：`NT$97`、`₩4,200`、`US$2.99`（en 为 `$2.99`），zh-Hans 另给 `¥20` 参考价 */
 export function displayPrice(price: Money, locale: string): PriceDisplay {
   return {
     text: formatMoney(price.amount, price.currency, locale),

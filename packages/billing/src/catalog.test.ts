@@ -119,19 +119,19 @@ describe('offline catalog', () => {
         .map((p) => `${p.provider}:${p.currency}:${p.amount}:${p.interval ?? 'once'}`)
         .sort(),
     ).toEqual([
-      'paypal:USD:199:once',
-      'paypal:USD:699:once',
+      'paypal:USD:299:once',
+      'paypal:USD:799:once',
+      'stripe:KRW:11200:once',
       'stripe:KRW:14000:month',
-      'stripe:KRW:2800:once',
+      'stripe:KRW:4200:once',
       'stripe:KRW:7000:month',
-      'stripe:KRW:9800:once',
       'stripe:TWD:16200:month',
-      'stripe:TWD:22700:once',
+      'stripe:TWD:26000:once',
       'stripe:TWD:32500:month',
-      'stripe:TWD:6500:once',
-      'stripe:USD:199:once',
+      'stripe:TWD:9700:once',
+      'stripe:USD:299:once',
       'stripe:USD:499:month',
-      'stripe:USD:699:once',
+      'stripe:USD:799:once',
       'stripe:USD:999:month',
     ])
     expect(
@@ -152,6 +152,8 @@ describe('offline catalog', () => {
     expect(state.plans).toHaveLength(8)
     expect(state.prices.slice(0, 14)).toEqual(before)
     expect(state.prices).toHaveLength(15)
+    // 调价后的旧金额行保留平台映射，只停止售卖
+    expect(state.prices[14]).toMatchObject({ providerPriceId: 'old-immutable', active: false })
     for (const [adapter, perRun] of [
       [stripe, 12],
       [paypal, 2],
@@ -160,7 +162,7 @@ describe('offline catalog', () => {
       expect(calls).toHaveLength(perRun * 2)
       expect(calls.every(([i]) => i.plan.key !== 'free' && i.price.active)).toBe(true)
       // Stripe 本地化积分包按 plan.key 选译名、按 credits 写说明，同步必须带上两者
-      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toContainEqual(['reading_five', 500])
+      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toContainEqual(['reading_five', 400])
       expect(
         calls
           .slice(perRun)

@@ -25,7 +25,7 @@
 
 **Goals:**
 
-- 两站获得「温暖、简洁」的统一视觉：东方站纸色、西方站羊皮纸浅色默认 + 深色可选，每站一套线描插画。
+- 两站获得简洁、安静的统一视觉：方向 C · 素（Graphite），两站浅色均为纯白底 + 中性灰分层、深色可选，西方站浅色为默认，每站一套线描插画（取值见 D14）。
 - 把调研原则写成可测规则（字号种数、区块间距、首屏 CTA 数、页头单行），用 Playwright 度量测试守住。
 - 清掉触及文件中的规范违例（原生 `<select>`、任意值工具类），不新增例外。
 - 先出设计稿并经使用者确认，再按页面并行实现；性能、对比度与关键样式检查不退化。
@@ -33,7 +33,7 @@
 **Non-Goals:**
 
 - 不改信息架构与 URL：首页拆为落地页、工具迁往关键词 URL 由 `separate-landing-homepage` 负责（同一设计会话出稿）。
-- 不改字体家族（东方 Noto Serif TC/KR + 系统无衬线，西方 Cormorant Garamond + Source Sans 3）与五行色；如设计稿需要调整，作为变更提议单列确认。
+- 不改五行色的语义（木火土金水各一色，只用于图表并配文字标签）；深色主题另补一组提亮值（D14）。字体家族在设计稿评审中已改为无衬线粗体标题（东方 Noto Sans TC / KR，西方 Manrope），见 D14，属本 change 范围。
 - 不修改模板拥有的 `packages/ui/src/components`、`packages/ui/src/styles`；不改邮件模板配色。
 - 不重画命盘图形与分享图版式（`redesign-home-chart-visuals` 已确认），只让它们适配新 token 与西方站浅色。
 
@@ -51,16 +51,23 @@
 | 落地页（`separate-landing-homepage`） | 东方站 `/zh-hant`、`/ko`，西方站 `/`，以及迁移后的工具页 `/zh-hant/八字排盤`、`/ko/만세력`、`/life-path-number` |
 
 状态矩阵：每页桌面 1440 / 手机 390 × 浅 / 深；西方站浅色为默认态。套用现有模式的内页只画正常态与一个异常态。
-token 取值的起点（只作画布初稿，以确认结果为准）：东方站浅色 `--bg` 约 `#FAF6EF`、`--surface` `#FFFFFF`、色带 `#F5EFE4`；西方站浅色 `--bg` 取羊皮纸米色、`--ink` 取深墨蓝、金色只用于主按钮与数字，作文字的 `--accent-ink` 取加深的古铜色以满足 4.5:1；西方站深色把底色从 `#11162A` 柔化为约 `#151A2E`，色带约 `#1B1F33`。
+token 取值以使用者 2026-11-17 确认的方向 C 为准（D14）；提案阶段的纸色 / 羊皮纸初稿值已作废，记录在文末「已取代的配色方案」。
 确认后由协调者写 `brand.css` 与 `docs/design/visual-system.md`，并在本文件追加「原型索引」小节引用索引行。
 
-**推翻 2026-11-14 决定的记录**：2026-11-14 使用者在 `redesign-home-chart-visuals` 画布确认时把东方站浅色主底改为纯白（`docs/design/prototypes/README.md` 原话「把东方站的整体主体配色换成纯白的吧」「确认白底」）。2026-11-17 使用者基于调研改为回到纸色、以色调分层。新画布确认后，原型索引中 2026-11-14 各行保留，备注「视觉 token 由 refresh-visual-system-warm 取代，布局仍有效」；`visual-system.md` 的 token 表注明变更日期与原因。
+**推翻 2026-11-14 决定的记录**：2026-11-14 使用者在 `redesign-home-chart-visuals` 画布确认时把东方站浅色主底改为纯白（`docs/design/prototypes/README.md` 原话「把东方站的整体主体配色换成纯白的吧」「确认白底」）。2026-11-17 使用者基于调研先改为纸色方向，随后在设计稿评审中改回纯白底、并选定方向 C（中性灰分层，D14）。新画布确认后，原型索引中 2026-11-14 各行保留，备注「视觉 token 由 refresh-visual-system-warm 取代，布局仍有效」；`visual-system.md` 的 token 表注明变更日期与原因。
+
+### D1a 设计稿关卡记录（`ui-design` 第 1–2 步，任务 1.1）
+
+- **判断**：`docs/design-system.md` §8.1「建立或改变视觉方向」「改变导航方式或信息层级」均适用，需要设计稿并经使用者本人确认。
+- **页面清单**：本节 D1 表的全部页面；本次画布实际出稿的画板见文末「原型索引」，未单独出稿的页面（`/ko/만세력`、`/ko/사주궁합`、紫微、塔罗、每日页、法律页与博客、应用区今日面板、东方站 `/en` 入口页）套用画布中的工具页、`Prose` 与共享组件模式，实现时按副本的 token 与组件对照截图。
+- **可用组件**：`@xuanxue/ui` 现有组件（Button、Input、Select、Tabs、Sheet、Dropdown、Card 等）；`@xuanxue/ui/project` 目前为空，新增组件见 D14「组件提议」。
+- **token 来源**：设计系统 https://claude.ai/artifact/Vq91QmAGachtxReBdSH5oc（`project/tokens.json`，副本 `docs/design/prototypes/warm-refresh/ds/xuanxueds/tokens.json`）与画布共用样式 `docs/design/prototypes/warm-refresh/site.css`。
 
 ### D2 token 结构：沿用现有名称，补主题维度
 
 - 继续用 `--bg/--surface/--surface-2/--ink*/--line*/--accent*/--inverse` 这组名称，组件与图形不需改引用。
-- 新增少量项目 token（以设计稿为准，预计）：`--band`（交替区块的色带底，东方站纸色上的暖带、西方站浅色上的米色带）、`--illus-line` / `--illus-accent`（插画线条与朱印 / 金色点缀）。新增 token 同时写入 `@theme inline` 映射为工具类（如 `bg-band`、`text-illus-line`）。
-- 西方站拆为 `:root[data-site="west"]`（浅色羊皮纸，`color-scheme: light`）与 `:root.dark[data-site="west"]`（深色）；`--surface-4…8` 的提亮混色改挂在 `:root.dark[data-site]` 上，浅色两站按模板「靠阴影分层」。
+- 新增项目 token（已确认，取值见 D14）：`--primary` / `--on-primary`（主按钮，与 `--accent` 分开）、`--field-border`（输入框线）、`--illus`（插画线条，中性灰）、`--danger` / `--on-danger`（只用于错误态与删除类操作）。色带直接用 `--surface-2`，不再新增 `--band`；插画的印章 / 星用 `--accent`，不再拆 `--illus-line` / `--illus-accent`。新增 token 同时写入 `@theme inline` 映射为工具类。
+- 西方站拆为 `:root[data-site="west"]`（浅色，`color-scheme: light`）与 `:root.dark[data-site="west"]`（深色）；`--surface-4…8` 的提亮混色改挂在 `:root.dark[data-site]` 上，浅色两站按模板「靠阴影分层」。
 - `brand-tokens.ts` 的主题改为 `east-light | east-dark | west-light | west-dark`，对比度测试覆盖四套（正文、弱化文字、链接、主按钮文字、焦点环），沿用 `brand-tokens.test.ts` 的解析方式。
 
 ### D3 西方站主题机制
@@ -75,7 +82,7 @@ token 取值的起点（只作画布初稿，以确认结果为准）：东方�
 
 ### D5 字号角色：营销作用域覆盖，原始字号清零
 
-- 模板 `--fs-*` 面向应用界面，营销页需要更大的 display / title。做法：在 `brand.css` 中按营销外壳作用域（`MarketingShell` 根元素上的 `data-surface="marketing"` 之类的属性）覆盖 Tailwind 的 `--text-*` 变量（不是 `--fs-*`：`@theme` 中 `--text-display: var(--fs-display)` 在 `:root` 求值，后代覆盖 `--fs-*` 不生效），桌面与手机两档用媒体查询。目标取值以设计稿为准，初稿：display 48–56 / 手机 34–36，title 28–32，subtitle 20，body 17（CJK 行高 1.7–1.8），caption 14，micro 12。应用区不覆盖，沿用模板默认。
+- 模板 `--fs-*` 面向应用界面，营销页需要更大的 display / title。做法：在 `brand.css` 中按营销外壳作用域（`MarketingShell` 根元素上的 `data-surface="marketing"` 之类的属性）覆盖 Tailwind 的 `--text-*` 变量（不是 `--fs-*`：`@theme` 中 `--text-display: var(--fs-display)` 在 `:root` 求值，后代覆盖 `--fs-*` 不生效），桌面与手机两档用媒体查询。目标取值已确认（D14 字号表）：东方站 44 / 28 / 20 / 18 / 16 / 13（手机 display 32、title 24），西方站 52 / 32 / 21 / 19 / 17 / 13（手机 36、26）。应用区不覆盖，沿用模板默认。
 - 新增项目检查 `apps/web/scripts/check-type-roles.mjs` 并纳入 web 的 `check`：`apps/web/src`（不含 `routes/dev/`、测试）中出现 `text-(xs|sm|base|lg|xl|[2-9]xl)` 时报错；过渡期允许名单写在同目录 JSON，按页面组清空，本 change 结束时名单为空。
 - Playwright 度量测试 `e2e/visual-rules.spec.ts`：对两站首页、代表工具页、定价页统计可见文字节点的计算字号种数（≤ 6）、首屏按钮与按钮样式链接数（≤ 3，主按钮 1）、首屏文字元素数（≤ 12）、相邻顶层区块间距（桌面 96–128、手机 64–72）、手机页头高度（≤ 64）、段落正文字号（≥ 16）。这些数字与 `site-visual-system` spec 一一对应。
 
@@ -92,7 +99,7 @@ token 取值的起点（只作画布初稿，以确认结果为准）：东方�
 ### D8 插画：画布绘制、内联 SVG 交付
 
 - 在 D1 画布中以 SVG 绘制插画集；确认后把各母题的 SVG 源码转为组件，放 `apps/web/src/features/illustrations/{east,west}/*.tsx`。
-- 线条 `stroke="currentColor"`、点缀 `fill="currentColor"`，颜色由外层 token 工具类（`text-illus-line`、`text-illus-accent`）决定；不写颜色字面量，`check:ui` 无需例外。
+- 线条 `stroke="currentColor"`、点缀 `fill="currentColor"`，颜色由外层 token 工具类（线条 `text-illus`，东方站印章与西方站星 `text-accent`）决定；不写颜色字面量，`check:ui` 无需例外。
 - 装饰图 `aria-hidden="true"`；固定 `width/height` 或 `aspect-ratio`，不引起 CLS；首屏插画不得成为 LCP 元素（体积小、位于 H1 之后的视觉层，H1 仍是 LCP）。
 - 体积：单个母题压缩后约 ≤ 4KB，只在用到的页面内联；首页包预算不放宽（SVG 是 HTML，不计入脚本预算，但计入 HTML 体积，Lighthouse 复测覆盖）。
 - 东方站「天干纹理」类大面积纹理以低不透明度（token 控制）的 SVG 实现，不用位图。
@@ -107,7 +114,7 @@ token 取值的起点（只作画布初稿，以确认结果为准）：东方�
 
 ### D11 分享卡、OG 与图形
 
-- `share-cards.sites.ts`（服务端渲染、无法读 CSS 变量，已有颜色字面量例外）：东方站改为新的纸色值；西方站取默认主题（羊皮纸浅色）的值（OQ2）。单测断言与 `brand.css` 解析结果一致（`brand-tokens.ts` 增加对分享卡配色的比对）。
+- `share-cards.sites.ts`（服务端渲染、无法读 CSS 变量，已有颜色字面量例外）：两站都取默认主题（浅色，方向 C）的值（OQ2）。单测断言与 `brand.css` 解析结果一致（`brand-tokens.ts` 增加对分享卡配色的比对）。
 - `og-images.ts` 的样例图形与默认分享图按各站默认主题取色。
 - 结果分享图（`features/tools/share-card/`）已按页面当前主题解析颜色，西方站浅色 / 深色都需补截图对照。
 - `chart-visuals` spec 的「图形主题与打印」改为覆盖西方站浅色与深色（本 change 的 delta）。
@@ -122,6 +129,78 @@ token 取值的起点（只作画布初稿，以确认结果为准）：东方�
 ### D13 页面应用顺序与所有权
 
 先 token 与共享组件（含 Select、Section、页头页脚、插画组件、度量测试骨架），合并后各页面组并行；每个页面组只改自己的页面文件与对应的 `pendingReplacement` 条目、`check-type-roles` 允许名单条目（按文件删行，冲突时合并两边删除）。首页（`routes/index.tsx`、`features/marketing/home-hub/`）不在本 change 的页面组内，由 `separate-landing-homepage` 在新 token 上直接实现，避免同一文件改两遍。
+
+### D14 已确认的视觉方向：C · 素（Graphite）
+
+使用者 2026-11-17 在色彩方向研究（https://claude.ai/artifact/2BrLjMQvgSp7Hva7cZydky）中选定方向 C，原话「两站都选C吧」；此前否定米色与深红（「浅色系统放弃全部近似于米色和深红色的设计，这个颜色在ai里用的太多了」）。画布确认原话见「原型索引」。本节取值是 `brand.css` 与 `docs/design/visual-system.md` 的依据。
+
+**主题命名**：东方站浅色 / 深色、西方站浅色 / 深色（干支日 · Light / Dark，Arcanumber · Light / Dark）；不再使用「纸 / 墨 / 羊皮纸 / Night」。西方站未保存选择时固定浅色（OQ1）。
+
+**颜色 token**（两站中性色相同，只有 `accent` 与 `illus` 不同）：
+
+| token | 浅色 | 深色 | 用途 |
+|---|---|---|---|
+| `bg` | `#ffffff` | `#121315` | 页面底；`surface` 面板上的输入框填充 |
+| `surface` | `#f4f4f5` | `#1c1d20` | 承载单个对象：工具表单、工具卡、样例报告 |
+| `surface-2` | `#eaeaec` | `#26282c` | 色带（今日条、一行价格）、hover、chips、图表格 |
+| `ink` | `#16181b` | `#ececee` | 标题与正文；焦点环 |
+| `ink-muted` | `#4c5055` | `#c4c6cb` | 说明文字 |
+| `ink-subtle` | `#64686e` | `#9c9fa5` | 小字、声明、元信息 |
+| `line` | `#e1e2e5` | `#2f3136` | 列表行与页脚顶部细线（装饰） |
+| `field-border` | `#7c8086` | `#73777e` | 输入框与 Select 外框 |
+| `primary` / `on-primary` | `#16181b` / `#ffffff` | `#ececee` / `#121315` | 主按钮底与文字 |
+| `accent-ink` | `#16181b` | `#ececee` | 链接，与正文同色并始终加下划线 |
+| `accent`（东方站，松绿） | `#2f5d50` | `#7fb8a4` | 印章、当前导航标记、工具卡字形、日主高亮 |
+| `accent`（西方站，黄铜） | `#8a6a1c` | `#d2b15f` | 数字字形、星 |
+| `illus`（东 / 西） | `#9a9ea4` / `#a39a86` | `#6c7077` / `#7d7667` | 插画线条，纯装饰 |
+| `danger` / `on-danger` | `#96493d` / `#ffffff` | `#d9988b` / `#121315` | 只用于表单错误与删除类操作 |
+| 五行（木 火 土 金 水） | `#3e7d4f` `#b8432f` `#9a7438` `#6e7480` `#2e5e8c` | `#6fb583` `#e58a6f` `#cfa35c` `#a7adb8` `#78a9dc` | 只作图表圆点与条形并配文字标签 |
+
+界面中不出现米色、奶油色、赤陶色或品牌红，不用渐变。`accent` 只用于小标记与大号字形（≥ 3:1），不作正文色或按钮底。
+
+**对比度**（在 `bg` / `surface` / `surface-2` 上；`brand-tokens.test.ts` 按此断言）：
+
+| 组合 | 浅色 | 深色 | 要求 |
+|---|---|---|---|
+| `ink` | 17.79 / 16.18 / 14.81 | 15.76 / 14.29 / 12.51 | 4.5 |
+| `ink-muted` | 8.12 / 7.39 / 6.76 | 10.88 / 9.86 / 8.64 | 4.5 |
+| `ink-subtle` | 5.60 / 5.10 / 4.66 | 7.01 / 6.35 / 5.57 | 4.5 |
+| `on-primary` 对 `primary` | 17.79 | 15.76 | 4.5 |
+| `field-border` | 3.97 / 3.61 / 3.30 | 4.13 / 3.75 / 3.28 | 3 |
+| 东方站 `accent` | 7.49 / 6.82 / 6.24 | 8.23 / 7.46 / 6.53 | 3 |
+| 西方站 `accent` | 5.05 / 4.59 / 4.20 | 9.02 / 8.18 / 7.17 | 3 |
+| `danger` 文字 | 6.33 / 5.76 / 5.27 | 7.80 / 7.07 / 6.20 | 4.5 |
+| `on-danger` 对 `danger` | 6.33 | 7.80 | 4.5 |
+
+`illus` 在浅色下低于 3:1（东 2.69、西 2.79），只用于装饰线条与对读屏隐藏的插画字形，不承载需要阅读的文字。
+
+**焦点环**：2px `ink`，外移 3px，环与控件之间露出页面底色；黑色主按钮上同样可见。焦点环对页面底 17.79（浅）/ 15.76（深）。
+
+**字体**（取代「不改字体家族」）：每站一个家族，标题为无衬线粗体。
+
+| | 东方站 | 西方站 |
+|---|---|---|
+| 家族 | Noto Sans TC（韩语 Noto Sans KR），标题 700、正文 400 | Manrope，标题 700、正文 400 |
+| display | 44 / 56（手机 32 / 42） | 52 / 58（手机 36 / 42） |
+| title | 28 / 38（手机 24 / 32） | 32 / 40（手机 26 / 34） |
+| heading | 20 / 30 | 21 / 30 |
+| lead | 18 / 32 | 19 / 30 |
+| body | 16 / 28 | 17 / 28 |
+| caption | 13 / 20 | 13 / 20 |
+
+按钮与导航用 body 字号、500 字重；西方站 display 与 title 字距 -0.02em。字体仍自托管（`@fontsource`，不请求第三方域名）；更换家族后 `brand.css` 的 fallback `@font-face` 度量须重新计算（`visual-system.md`「字体」）。命盘内的大字（四柱干支、Life Path 数字）用 display，小盘用 title，仍在六角色内。
+
+**间距与形状**：区块间距 112（手机 64），标题到内容 40（手机 32），卡片内边距 32（手机 24），阅读宽度 720，页宽 1120，页面边距桌面 32 / 手机 20；圆角 6（输入）/ 14（对象）/ pill（按钮）；阴影只用于工具表单面板与展开的菜单，深色主题无阴影。圆角与阴影只在营销与工具页生效，应用区默认不变。
+
+**插画**：线条用中性灰 `illus`。东方站：同心环、一道弧线、十天干，松绿方印是唯一填充形；西方站：同心环、数字 1–9，四角星用黄铜描边。一页只出现一次（首页桌面 320px 在标题右侧，手机 168px 在标题上方）。
+
+**组件提议（已随画布确认）**：`packages/ui/src/project/` 新增 `Section`、`Prose`、`ToolCard`、`Band`（今日条与一行价格共用）、分段切换（优先复用 Tabs / ThemeToggle）；`features/illustrations/` 的 Motif；改现有页头手机面板（`details`）与页脚设置行；八字表单重排（年 / 月 / 日三个 Select，曆法并入日期标签行，真太阳时与时区收进「進階選項」）。设计系统组件预览中的 14 / 15 / 28px 并入六角色（标签 caption、卡片说明 body、字形 title）。色带是页宽内的圆角条，不是整宽区块。
+
+**版式决定（已随画布确认）**：首页每个工具只链接一次（样例块不放按钮，首屏次要链接为页内锚点）；声明只作 caption（结果区底部、样例下方、页脚）；表单错误用 `danger` 框线、图标与说明文字。
+
+### D15 页面 title 规则
+
+使用者 2026-11-17 要求「把内页的title都补好，最好每一个title都要带上这个网站的名字」。规则：内页为「<页面标题>｜干支日」（繁中、简中）、「<페이지 제목> | 간지데이」（韩语）、「<Page title> | Arcanumber」（英语）；首页站名在前（标题文案见 `separate-landing-homepage` design.md D3），不再追加站名。实现归 `separate-landing-homepage` 任务 2.6（`features/seo/metadata.ts` 的 `pageHead` 与未带站名的页面清单见该 change design.md D3a）。
 
 ## Risks / Trade-offs
 
@@ -146,11 +225,26 @@ token 取值的起点（只作画布初稿，以确认结果为准）：东方�
 
 ## Open Questions
 
-> 2026-11-17 使用者决定：下列问题采用各条默认值；西方站未保存主题时**固定浅色**（不跟随系统）。展示字号、插画母题等在设计稿评审时确定。
+2026-11-17 使用者决定各问题采用默认值，并在设计稿评审中补充了以下结论；本 change 没有遗留的开放问题。
 
-1. **西方站默认主题是否跟随系统**：本设计按使用者「浅色羊皮纸为默认」理解为「未保存选择时一律浅色」；若希望「跟随系统、系统深色时显示深色」，只改 D3 的默认脚本与 spec 场景。
-2. **西方站 OG 与服务端分享卡用浅色还是深色**：默认取站点默认主题（羊皮纸浅色）；深蓝在社交信息流中辨识度更高，可选择保留深色。
-3. **页头导航项**：东方站是否保留「塔羅」「紫微斗數」为一级导航，还是全部收进「排盤工具 ▾」（默认收进，导航 ≤ 5 项）。
-4. **字号取值与营销作用域**：营销页 display / title 的最终值、是否让应用区标题也用较大的 title（默认应用区不变）。
-5. **插画母题清单**：每站 4–6 个母题的具体选择（初稿见 D1），以及东方站是否使用天干纹理（低不透明度）作为首屏背景。
-6. **度量规则是否进 CI**：`e2e/visual-rules.spec.ts` 默认纳入离线 e2e；若运行时间或波动不可接受，改为 PR 手动运行并在 PR 描述贴结果。
+1. **西方站默认主题**：未保存选择时固定浅色，不跟随系统。
+2. **西方站 OG 与服务端分享卡**：取站点默认主题（浅色）。
+3. **页头导航项**：工具全部收进「排盤工具 ▾ / Tools ▾」；东方站 5 项（工具、每日運勢、定價、语言、账户），西方站 4 项。
+4. **字号取值**：见 D14；应用区沿用模板默认值。
+5. **插画母题**：每站一个母题（D14「插画」），首屏不使用背景纹理。
+6. **度量规则进 CI**：`e2e/visual-rules.spec.ts` 纳入离线 e2e。
+
+## 原型索引
+
+设计稿副本与确认记录登记在 `docs/design/prototypes/README.md`（「warm-refresh」各行，副本目录 `docs/design/prototypes/warm-refresh/`）。本 change 的行：共享组件（两站 × 浅 / 深）、定价页、报告页、状态（表单错误、结果载入、空结果）、token / 组件变更提议、页面 title 规则。落地页与迁移后的工具页画板登记在 `separate-landing-homepage` 名下。实现与验收以副本为准。
+
+## 已取代的配色方案
+
+以下方案在 2026-11-17 的设计会话中先后提出并被使用者否定，不再作为实现依据，保留记录以免重复提出：
+
+| 方案 | 要点 | 结局 |
+|---|---|---|
+| 提案初稿：东方站纸色、西方站羊皮纸 | 浅色底 `#f6f0e4` / `#f4eee1`，朱红主按钮与朱印，西方站深蓝按钮 + 金色，衬线标题（Noto Serif TC、Cormorant Garamond） | 使用者评审：「浅色配色改成纯白的」 |
+| 纯白底 + 暖色表面 | 底 `#ffffff`，表面 `#faf6ef` / `#f8f4ea`，色带 `#f1eadb` / `#eee7d6`，仍为朱红与金色 | 使用者否定：「浅色系统放弃全部近似于米色和深红色的设计，这个颜色在ai里用的太多了」 |
+| 色彩方向研究 A · 墨青、B · 靛藍 | A：青瓷绿 / 午夜蓝；B：靛青 / 深海青；均保留衬线标题 | 未选；使用者选 C：「两站都选C吧」 |
+| 2026-11-14 东方站纯白主底（`redesign-home-chart-visuals`） | `--bg` 与 `--surface` 同为 `#ffffff`，靠 1px 边线分隔 | 页面底仍为纯白，但分层改为中性灰表面；原型索引中该日各行备注「视觉 token 由 refresh-visual-system-warm 取代，布局仍有效」 |

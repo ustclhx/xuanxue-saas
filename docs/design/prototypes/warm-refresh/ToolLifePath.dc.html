@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Life Path Number Calculator tool page</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<nav class="nav d-only" aria-label="Main">
+<a class="on" href="ComponentsWest.dc.html">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="LandingWest.dc.html">Number of the Day</a>
+<a href="PricingWestMobile.dc.html">Pricing</a>
+<a href="#footer">Sign in</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap tool-main">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="LandingWest.dc.html">Home</a><span aria-hidden="true">›</span><span>Life Path Number</span></nav>
+<h1 class="t-title">Life Path Number Calculator</h1>
+<p class="muted">Enter your birth date to find your life path number and see exactly how it is calculated — including master numbers 11, 22 and 33.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birth date">
+<div class="field">
+<div class="field-top"><label class="label" for="lp-date">Date of birth</label></div>
+<input class="input" id="lp-date" type="text" placeholder="MM / DD / YYYY" value="{{dateVal}}">
+</div>
+<div class="field" style="justify-content: flex-end"><button type="button" class="btn btn-primary btn-block">Calculate</button></div>
+</form>
+
+<section class="result" aria-label="Results">
+<div class="obj blk">
+<p class="t-caption subtle">{{resLabel}}</p>
+<div class="lp-result">
+<svg class="numring" viewBox="0 0 132 132" role="img" aria-label="Life Path 3">
+<circle class="mo-s" cx="66" cy="66" r="62"/>
+<circle class="mo-s mo-f" cx="66" cy="66" r="50"/>
+<text x="66" y="68" style="fill: var(--ink); font-family: var(--head); font-weight: 700; font-size: 52px; text-anchor: middle; dominant-baseline: central">3</text>
+</svg>
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">Life Path 3</h2>
+<p class="muted">Life Path 3 is associated with expression: sharing ideas through words, humour and creative work, and finishing what you start.</p>
+<a class="link" href="#lp-grid">Read the full meaning of Life Path 3 →</a>
+</div>
+</div>
+<h3 class="t-heading" style="margin-top: 8px">Calculation steps</h3>
+<ol class="steps-calc">
+<li><span class="subtle">Month</span><span>5</span></li>
+<li><span class="subtle">Day</span><span>15 → 1 + 5 = 6</span></li>
+<li><span class="subtle">Year</span><span>1990 → 1 + 9 + 9 + 0 = 19 → 1 + 9 = 10 → 1 + 0 = 1</span></li>
+<li><span class="subtle">Total</span><span>5 + 6 + 1 = 12 → 1 + 2 = 3</span></li>
+</ol>
+</div>
+<p class="muted when when-initial">This is an example. Enter your birth date above to see your own number and steps.</p>
+<div class="obj unlock hide-initial">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Full reading</h3>
+<p class="muted">A full reading has 8 chapters built from your core numbers: Overview, Life Path, Core Numbers, Personal Year, Love and Relationships, Career and Money, Wellbeing Habits, Guidance.</p>
+<p class="t-caption subtle">No charge if generation fails · Saved to your account</p>
+</div>
+<div class="stack" style="gap: 8px; align-items: stretch">
+<p class="t-caption subtle">10 credits · 10 free credits each day you sign in</p>
+<a class="btn btn-primary" href="ReportWestMobile.dc.html">Unlock the full reading</a>
+</div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<div class="stack hide-initial" style="gap: 4px; align-items: flex-start">
+<button type="button" class="btn btn-secondary">Copy share link</button>
+<p class="t-caption subtle">Anyone with this link sees the same result. It never includes your name.</p>
+</div>
+</section>
+
+<article class="article hide-initial" aria-labelledby="art-h">
+<h2 class="t-title" id="art-h" style="margin-top: 0">What is a life path number?</h2>
+<p>A life path number is a single value that numerology derives from a full birth date. In the Pythagorean method used on this site, it is the most widely discussed number in a numerology chart, because it uses all three parts of the date: the month, the day and the year. Numerologists describe it as a theme for the overall direction of a life. It is better understood as a vocabulary for reflection than as a measurement.</p>
+<h2 class="t-title">How the calculation works</h2>
+<p>The calculation has three steps. First, reduce the month, the day and the year separately. To reduce a number, add its digits together and repeat until you reach a single digit, unless you reach 11, 22 or 33 along the way. Second, add the three reduced parts. Third, reduce that total with the same rule.</p>
+<h2 class="t-title">Master numbers 11, 22 and 33</h2>
+<p>Master numbers are two-digit results that the Pythagorean tradition keeps instead of reducing. In this calculator, 11, 22 and 33 are kept whenever they appear: when a month is November, when a day is the 11th, 22nd or 29th, when a year reduces to one of them, and when the final total does.</p>
+<h2 class="t-title">How to read your number</h2>
+<p>Start with the short summary in your result, then open the full page for your number. Read the descriptions as questions rather than verdicts. If a sentence feels accurate, ask what you have actually done that supports it. If it feels wrong, that is useful too: your experience is better evidence about you than any number.</p>
+</article>
+
+<section class="hide-initial" aria-labelledby="tfaq-h">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="tfaq-h">Frequently asked questions</h2></div>
+<div class="faq">
+<details open>
+<summary>How do I calculate my life path number?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Reduce the month, the day and the year of your birth date separately to a single digit or a master number, add the three results, then reduce the total the same way. The calculator above shows each of those steps.</p>
+</details>
+<details>
+<summary>Is my birth date stored or sent anywhere?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>No. The number is calculated in your browser. The share link only contains the date you choose to share, never your name.</p>
+</details>
+<details>
+<summary>Can a life path number predict my future?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>No. Numerology is a symbolic tradition, not a validated assessment or a forecast.</p>
+</details>
+</div>
+</section>
+
+<section class="stack hide-initial" id="lp-grid" aria-labelledby="grid-h">
+<h2 class="t-heading" id="grid-h">All life path numbers</h2>
+<nav class="numgrid" aria-label="All life path numbers">
+<a href="#lp-grid" aria-label="Life Path 1">1</a><a href="#lp-grid" aria-label="Life Path 2">2</a><a href="#lp-grid" aria-label="Life Path 3">3</a><a href="#lp-grid" aria-label="Life Path 4">4</a><a href="#lp-grid" aria-label="Life Path 5">5</a><a href="#lp-grid" aria-label="Life Path 6">6</a>
+<a href="#lp-grid" aria-label="Life Path 7">7</a><a href="#lp-grid" aria-label="Life Path 8">8</a><a href="#lp-grid" aria-label="Life Path 9">9</a><a href="#lp-grid" aria-label="Life Path 11">11</a><a href="#lp-grid" aria-label="Life Path 22">22</a><a href="#lp-grid" aria-label="Life Path 33">33</a>
+</nav>
+</section>
+
+<section class="stack hide-initial" aria-labelledby="more-h">
+<h2 class="t-heading" id="more-h">More numerology tools</h2>
+<div class="linklist">
+<a class="link" href="#more-h">Full numerology calculator →</a><a class="link" href="#more-h">Numerology chart →</a><a class="link" href="#more-h">Name numerology →</a><a class="link" href="#more-h">Life path compatibility →</a>
+</div>
+</section>
+
+</main>
+
+<footer class="ftr hide-initial" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#footer">Blog</a><a href="#footer">Guides</a><a href="#footer">Privacy Policy</a><a href="#footer">Terms of Service</a>
+<a href="#footer">Refund Policy</a><a href="#footer">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","initial"],"default":"result"},"$preview":{"width":1440,"height":3750}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const initial = state === 'initial';
+return {
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : ''),
+dateVal: initial ? '' : '05 / 15 / 1990',
+resLabel: initial ? 'Example · May 15, 1990' : 'Your life path number'
+};
+}
+}
+</script>
+</body>
+</html>
