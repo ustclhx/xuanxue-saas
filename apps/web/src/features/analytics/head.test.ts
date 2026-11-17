@@ -18,7 +18,7 @@ vi.mock('../i18n/language-controls.tsx', () => ({
 import { getLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
-import { SITE_THEME_SCRIPT, siteFontScript } from '../site/theme.ts'
+import { siteFontScript, siteThemeScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
 
 const site = { domain: 'acme-staging', scriptUrl: 'https://plausible.example/js/script.manual.js' }
@@ -63,8 +63,9 @@ describe('分析脚本页面 head', () => {
     for (const pathname of ['/', '/zh-hant/pricing', '/app/personal/chat', '/admin/users']) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])
       expect(result?.scripts).toEqual([
+        // 站点默认主题须排在模板主题脚本之前（西方站首次到访写入浅色，features/site/theme.ts）
+        { children: siteThemeScript() },
         { children: themeInitScript() },
-        { children: SITE_THEME_SCRIPT },
         { children: siteFontScript('west', getLocale()) },
       ])
       // 字体样式表由脚本插入，不以阻塞渲染的 <link rel="stylesheet"> 出现

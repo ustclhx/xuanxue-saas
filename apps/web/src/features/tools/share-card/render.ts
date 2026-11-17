@@ -5,8 +5,8 @@ import type { ShareCardModel, ShareCardOptions } from './model.ts'
 
 // 分享图生成（openspec redesign-home-chart-visuals design D5、tasks 7.2）：只在访客点击「保存分享图」后
 // 经 import() 加载（结果出现后空闲时预取，便于离线生成），全部在浏览器本地完成，不发出携带结果或输入的请求。
-// 7.1 预研结论：卡片文字用 Canvas 2D 绘制，可使用页面已加载的网页字体（东方站 Noto Serif TC / KR、
-// 西方站 Cormorant Garamond），与设计稿一致；页面图形（紫微盘）克隆为 SVG，经 Image → Canvas 栅格化，
+// 7.1 预研结论：卡片文字用 Canvas 2D 绘制，可使用页面已加载的网页字体（东方站 Noto Sans TC / KR、
+// 西方站 Manrope），与设计稿一致；页面图形（紫微盘）克隆为 SVG，经 Image → Canvas 栅格化，
 // 图中文字按字体栈回退到系统字体。
 
 /**

@@ -10,7 +10,7 @@ import { formatLongDate, lifePathLines } from './calc.ts'
 import { asLifePath, NUMBER_SUMMARY } from './copy.ts'
 import { LIFE_PATH_NUMBERS, lifePathPath } from './routes.ts'
 
-/** 西方站的大号数字（原型：Cormorant 112px、星金色），手机上缩小以免挤压步骤 */
+/** 西方站的大号数字（标题字体，手机上缩小以免挤压步骤） */
 export function BigNumber({ value, className }: { value: number; className?: string }) {
   return (
     <span
