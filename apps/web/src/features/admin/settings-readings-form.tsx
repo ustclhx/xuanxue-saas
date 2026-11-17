@@ -112,8 +112,8 @@ export function ReadingSettingsForm() {
                   onChange={(event) => update(row.kind, { credits: Number(event.target.value) })}
                 />
               </Field>
-              {/* 项目修正：触发器默认 min-w-[160px]，宽屏下本列约 130px，模板 0.5.7 的 max-w-full 压不过最小宽度（min-width 优先），
-                  较长的模型 key 仍会盖住相邻的提示词版本下拉；min-w-0 让触发器收进列宽、文字截断 */}
+              {/* 模板推荐写法（0.5.9 docs/design-system.md）：触发器默认最小宽度 160px，宽屏下本列约 130px，
+                  比最小宽度更窄的列在 SelectTrigger 上传 min-w-0，让触发器收进列宽、长模型 key 截断而不盖住相邻下拉 */}
               <Field label={m.admin_reading_model()} htmlFor={`reading-model-${row.kind}`}>
                 <Select
                   value={row.modelKey || UNSET}
