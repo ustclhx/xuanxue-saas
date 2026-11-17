@@ -108,7 +108,7 @@
   "pricing_faq_refund_q": "Can I get a refund?",
   "pricing_faq_refund_a": "Unused credits can be refunded on request within {days} days of purchase. See the Refund Policy for details.",
   "pricing_faq_accuracy_q": "Are readings predictions?",
-  "pricing_faq_accuracy_a": "No. Calculations follow the rules of each system; interpretations are for entertainment and self-reflection, not predictions or professional advice.",
+  "pricing_faq_accuracy_a": "No. Calculations follow the rules of each system; interpretations are for reference and self-reflection, not predictions or professional advice.",
   "pricing_faq_pay_q": "How will I pay?",
   "pricing_faq_pay_a": "Payments are processed securely by Stripe (card) and PayPal. We never see or store your card details.",
   "pricing_pack_readings_one": "Unlocks 1 full reading",

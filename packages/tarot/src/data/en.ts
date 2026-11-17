@@ -8,9 +8,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how recklessness, hesitation may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of beginnings, openness; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of beginnings, openness; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of recklessness, hesitation; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of recklessness, hesitation; it is not a prediction.',
     },
   },
   'major-01': {
@@ -20,9 +20,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how manipulation, scattered focus may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of initiative, skill; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of initiative, skill; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of manipulation, scattered focus; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of manipulation, scattered focus; it is not a prediction.',
     },
   },
   'major-02': {
@@ -32,9 +32,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how secrecy, ignored intuition may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of intuition, reflection; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of intuition, reflection; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of secrecy, ignored intuition; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of secrecy, ignored intuition; it is not a prediction.',
     },
   },
   'major-03': {
@@ -44,9 +44,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how dependence, neglect may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of creativity, nurture; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of creativity, nurture; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of dependence, neglect; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of dependence, neglect; it is not a prediction.',
     },
   },
   'major-04': {
@@ -56,9 +56,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how rigidity, control may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of structure, leadership; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of structure, leadership; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of rigidity, control; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of rigidity, control; it is not a prediction.',
     },
   },
   'major-05': {
@@ -68,9 +68,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how conformity, questioning may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of tradition, learning; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of tradition, learning; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of conformity, questioning; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of conformity, questioning; it is not a prediction.',
     },
   },
   'major-06': {
@@ -80,9 +80,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how discord, misalignment may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of alignment, choice; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of alignment, choice; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of discord, misalignment; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of discord, misalignment; it is not a prediction.',
     },
   },
   'major-07': {
@@ -92,9 +92,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how force, lost direction may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of direction, resolve; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of direction, resolve; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of force, lost direction; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of force, lost direction; it is not a prediction.',
     },
   },
   'major-08': {
@@ -104,9 +104,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how self-doubt, impatience may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of patience, courage; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of patience, courage; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of self-doubt, impatience; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of self-doubt, impatience; it is not a prediction.',
     },
   },
   'major-09': {
@@ -116,9 +116,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how isolation, withdrawal may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of solitude, insight; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of solitude, insight; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of isolation, withdrawal; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of isolation, withdrawal; it is not a prediction.',
     },
   },
   'major-10': {
@@ -128,9 +128,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how resistance, instability may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of cycles, adaptability; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of cycles, adaptability; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of resistance, instability; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of resistance, instability; it is not a prediction.',
     },
   },
   'major-11': {
@@ -140,9 +140,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how bias, avoidance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of fairness, accountability; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of fairness, accountability; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of bias, avoidance; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of bias, avoidance; it is not a prediction.',
     },
   },
   'major-12': {
@@ -152,9 +152,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how stalling, resistance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of pause, perspective; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of pause, perspective; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of stalling, resistance; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of stalling, resistance; it is not a prediction.',
     },
   },
   'major-13': {
@@ -164,9 +164,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how stagnation, clinging may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of endings, transition; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of endings, transition; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of stagnation, clinging; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of stagnation, clinging; it is not a prediction.',
     },
   },
   'major-14': {
@@ -176,9 +176,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how excess, imbalance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of balance, moderation; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of balance, moderation; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of excess, imbalance; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of excess, imbalance; it is not a prediction.',
     },
   },
   'major-15': {
@@ -188,9 +188,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how release, awareness may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of attachment, habits; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of attachment, habits; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of release, awareness; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of release, awareness; it is not a prediction.',
     },
   },
   'major-16': {
@@ -200,9 +200,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how avoidance, delayed change may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of disruption, revelation; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of disruption, revelation; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of avoidance, delayed change; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of avoidance, delayed change; it is not a prediction.',
     },
   },
   'major-17': {
@@ -212,9 +212,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how discouragement, disconnection may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of hope, renewal; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of hope, renewal; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of discouragement, disconnection; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of discouragement, disconnection; it is not a prediction.',
     },
   },
   'major-18': {
@@ -224,9 +224,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how clarification, unease may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of uncertainty, imagination; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of uncertainty, imagination; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of clarification, unease; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of clarification, unease; it is not a prediction.',
     },
   },
   'major-19': {
@@ -236,9 +236,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how muted joy, overconfidence may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of joy, clarity; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of joy, clarity; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of muted joy, overconfidence; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of muted joy, overconfidence; it is not a prediction.',
     },
   },
   'major-20': {
@@ -248,9 +248,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how self-criticism, avoidance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of reflection, renewal; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of reflection, renewal; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of self-criticism, avoidance; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of self-criticism, avoidance; it is not a prediction.',
     },
   },
   'major-21': {
@@ -260,9 +260,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how unfinished work, delay may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of completion, integration; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of completion, integration; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of unfinished work, delay; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of unfinished work, delay; it is not a prediction.',
     },
   },
   'wands-01': {
@@ -272,9 +272,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how blocked spark, delay may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of inspiration, initiative; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of inspiration, initiative; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of blocked spark, delay; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of blocked spark, delay; it is not a prediction.',
     },
   },
   'wands-02': {
@@ -284,9 +284,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how hesitation, limited vision may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of planning, options; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of planning, options; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of hesitation, limited vision; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of hesitation, limited vision; it is not a prediction.',
     },
   },
   'wands-03': {
@@ -296,9 +296,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how setbacks, impatience may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of expansion, foresight; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of expansion, foresight; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of setbacks, impatience; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of setbacks, impatience; it is not a prediction.',
     },
   },
   'wands-04': {
@@ -308,9 +308,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how instability, exclusion may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of celebration, belonging; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of celebration, belonging; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of instability, exclusion; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of instability, exclusion; it is not a prediction.',
     },
   },
   'wands-05': {
@@ -320,9 +320,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how avoided conflict, compromise may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of competition, friction; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of competition, friction; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of avoided conflict, compromise; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of avoided conflict, compromise; it is not a prediction.',
     },
   },
   'wands-06': {
@@ -332,9 +332,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how ego, overlooked effort may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of recognition, confidence; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of recognition, confidence; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of ego, overlooked effort; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of ego, overlooked effort; it is not a prediction.',
     },
   },
   'wands-07': {
@@ -344,9 +344,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how overwhelm, defensiveness may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of conviction, boundaries; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of conviction, boundaries; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of overwhelm, defensiveness; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of overwhelm, defensiveness; it is not a prediction.',
     },
   },
   'wands-08': {
@@ -356,9 +356,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how haste, miscommunication may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of momentum, communication; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of momentum, communication; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of haste, miscommunication; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of haste, miscommunication; it is not a prediction.',
     },
   },
   'wands-09': {
@@ -368,9 +368,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how exhaustion, distrust may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of resilience, vigilance; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of resilience, vigilance; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of exhaustion, distrust; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of exhaustion, distrust; it is not a prediction.',
     },
   },
   'wands-10': {
@@ -380,9 +380,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how release, delegation may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of burden, responsibility; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of burden, responsibility; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of release, delegation; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of release, delegation; it is not a prediction.',
     },
   },
   'wands-11': {
@@ -392,9 +392,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how restlessness, lack of direction may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of curiosity, exploration; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of curiosity, exploration; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of restlessness, lack of direction; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of restlessness, lack of direction; it is not a prediction.',
     },
   },
   'wands-12': {
@@ -404,9 +404,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how impulsiveness, inconsistency may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of adventure, enthusiasm; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of adventure, enthusiasm; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of impulsiveness, inconsistency; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of impulsiveness, inconsistency; it is not a prediction.',
     },
   },
   'wands-13': {
@@ -416,9 +416,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how jealousy, insecurity may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of warmth, confidence; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of warmth, confidence; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of jealousy, insecurity; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of jealousy, insecurity; it is not a prediction.',
     },
   },
   'wands-14': {
@@ -428,9 +428,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how domination, impatience may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of vision, leadership; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of vision, leadership; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of domination, impatience; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of domination, impatience; it is not a prediction.',
     },
   },
   'cups-01': {
@@ -440,9 +440,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how repression, depletion may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of openness, compassion; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of openness, compassion; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of repression, depletion; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of repression, depletion; it is not a prediction.',
     },
   },
   'cups-02': {
@@ -452,9 +452,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how imbalance, disconnection may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of connection, reciprocity; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of connection, reciprocity; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of imbalance, disconnection; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of imbalance, disconnection; it is not a prediction.',
     },
   },
   'cups-03': {
@@ -464,9 +464,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how exclusion, excess may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of friendship, celebration; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of friendship, celebration; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of exclusion, excess; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of exclusion, excess; it is not a prediction.',
     },
   },
   'cups-04': {
@@ -476,9 +476,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how renewed interest, awareness may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of contemplation, dissatisfaction; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of contemplation, dissatisfaction; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of renewed interest, awareness; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of renewed interest, awareness; it is not a prediction.',
     },
   },
   'cups-05': {
@@ -488,9 +488,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how acceptance, recovery may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of disappointment, grief; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of disappointment, grief; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of acceptance, recovery; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of acceptance, recovery; it is not a prediction.',
     },
   },
   'cups-06': {
@@ -500,9 +500,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how nostalgia, clinging may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of memory, kindness; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of memory, kindness; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of nostalgia, clinging; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of nostalgia, clinging; it is not a prediction.',
     },
   },
   'cups-07': {
@@ -512,9 +512,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how clarity, narrowing options may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of options, fantasy; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of options, fantasy; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of clarity, narrowing options; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of clarity, narrowing options; it is not a prediction.',
     },
   },
   'cups-08': {
@@ -524,9 +524,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how avoidance, indecision may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of departure, searching; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of departure, searching; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of avoidance, indecision; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of avoidance, indecision; it is not a prediction.',
     },
   },
   'cups-09': {
@@ -536,9 +536,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how dissatisfaction, indulgence may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of contentment, gratitude; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of contentment, gratitude; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of dissatisfaction, indulgence; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of dissatisfaction, indulgence; it is not a prediction.',
     },
   },
   'cups-10': {
@@ -548,9 +548,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how discord, idealization may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of harmony, belonging; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of harmony, belonging; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of discord, idealization; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of discord, idealization; it is not a prediction.',
     },
   },
   'cups-11': {
@@ -560,9 +560,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how immaturity, blocked expression may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of sensitivity, imagination; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of sensitivity, imagination; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of immaturity, blocked expression; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of immaturity, blocked expression; it is not a prediction.',
     },
   },
   'cups-12': {
@@ -572,9 +572,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how unrealistic ideals, moodiness may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of romance, invitation; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of romance, invitation; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of unrealistic ideals, moodiness; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of unrealistic ideals, moodiness; it is not a prediction.',
     },
   },
   'cups-13': {
@@ -584,9 +584,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how overgiving, blurred boundaries may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of empathy, inner calm; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of empathy, inner calm; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of overgiving, blurred boundaries; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of overgiving, blurred boundaries; it is not a prediction.',
     },
   },
   'cups-14': {
@@ -596,9 +596,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how suppression, manipulation may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of composure, compassion; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of composure, compassion; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of suppression, manipulation; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of suppression, manipulation; it is not a prediction.',
     },
   },
   'swords-01': {
@@ -608,9 +608,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how confusion, harshness may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of clarity, insight; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of clarity, insight; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of confusion, harshness; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of confusion, harshness; it is not a prediction.',
     },
   },
   'swords-02': {
@@ -620,9 +620,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how overload, avoidance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of stalemate, deliberation; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of stalemate, deliberation; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of overload, avoidance; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of overload, avoidance; it is not a prediction.',
     },
   },
   'swords-03': {
@@ -632,9 +632,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how release, forgiveness may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of sorrow, painful truth; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of sorrow, painful truth; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of release, forgiveness; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of release, forgiveness; it is not a prediction.',
     },
   },
   'swords-04': {
@@ -644,9 +644,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how restlessness, exhaustion may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of rest, contemplation; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of rest, contemplation; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of restlessness, exhaustion; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of restlessness, exhaustion; it is not a prediction.',
     },
   },
   'swords-05': {
@@ -656,9 +656,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how reconciliation, regret may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of conflict, hollow victory; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of conflict, hollow victory; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of reconciliation, regret; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of reconciliation, regret; it is not a prediction.',
     },
   },
   'swords-06': {
@@ -668,9 +668,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how resistance, unfinished baggage may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of transition, perspective; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of transition, perspective; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of resistance, unfinished baggage; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of resistance, unfinished baggage; it is not a prediction.',
     },
   },
   'swords-07': {
@@ -680,9 +680,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how disclosure, accountability may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of strategy, secrecy; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of strategy, secrecy; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of disclosure, accountability; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of disclosure, accountability; it is not a prediction.',
     },
   },
   'swords-08': {
@@ -692,9 +692,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how agency, release may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of restriction, self-limitation; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of restriction, self-limitation; it is not a prediction.',
       reversed:
-        'Yes: this fixed entertainment mapping reflects the themes of agency, release; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of agency, release; it is not a prediction.',
     },
   },
   'swords-09': {
@@ -704,9 +704,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how perspective, seeking support may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of worry, rumination; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of worry, rumination; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of perspective, seeking support; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of perspective, seeking support; it is not a prediction.',
     },
   },
   'swords-10': {
@@ -716,9 +716,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how recovery, renewal may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of ending, exhaustion; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of ending, exhaustion; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of recovery, renewal; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of recovery, renewal; it is not a prediction.',
     },
   },
   'swords-11': {
@@ -728,9 +728,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how gossip, haste may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of inquiry, alertness; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of inquiry, alertness; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of gossip, haste; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of gossip, haste; it is not a prediction.',
     },
   },
   'swords-12': {
@@ -740,9 +740,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how recklessness, aggression may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of drive, directness; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of drive, directness; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of recklessness, aggression; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of recklessness, aggression; it is not a prediction.',
     },
   },
   'swords-13': {
@@ -752,9 +752,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how coldness, harsh judgement may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of discernment, honesty; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of discernment, honesty; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of coldness, harsh judgement; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of coldness, harsh judgement; it is not a prediction.',
     },
   },
   'swords-14': {
@@ -764,9 +764,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how rigidity, misuse of authority may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of reason, integrity; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of reason, integrity; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of rigidity, misuse of authority; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of rigidity, misuse of authority; it is not a prediction.',
     },
   },
   'pentacles-01': {
@@ -776,9 +776,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how missed opportunity, poor planning may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of opportunity, grounding; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of opportunity, grounding; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of missed opportunity, poor planning; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of missed opportunity, poor planning; it is not a prediction.',
     },
   },
   'pentacles-02': {
@@ -788,9 +788,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how overload, imbalance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of adaptability, priorities; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of adaptability, priorities; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of overload, imbalance; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of overload, imbalance; it is not a prediction.',
     },
   },
   'pentacles-03': {
@@ -800,9 +800,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how poor coordination, undervaluing skill may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of teamwork, craftsmanship; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of teamwork, craftsmanship; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of poor coordination, undervaluing skill; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of poor coordination, undervaluing skill; it is not a prediction.',
     },
   },
   'pentacles-04': {
@@ -812,9 +812,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how possessiveness, release may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of security, conservation; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of security, conservation; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of possessiveness, release; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of possessiveness, release; it is not a prediction.',
     },
   },
   'pentacles-05': {
@@ -824,9 +824,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how support, rebuilding may shape your perspective.',
     yesNoReason: {
       upright:
-        'No: this fixed entertainment mapping reflects the themes of scarcity, exclusion; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of scarcity, exclusion; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of support, rebuilding; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of support, rebuilding; it is not a prediction.',
     },
   },
   'pentacles-06': {
@@ -836,9 +836,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how unequal exchange, strings attached may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of generosity, exchange; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of generosity, exchange; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of unequal exchange, strings attached; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of unequal exchange, strings attached; it is not a prediction.',
     },
   },
   'pentacles-07': {
@@ -848,9 +848,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how impatience, misdirected effort may shape your perspective.',
     yesNoReason: {
       upright:
-        'Maybe: this fixed entertainment mapping reflects the themes of patience, assessment; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of patience, assessment; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of impatience, misdirected effort; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of impatience, misdirected effort; it is not a prediction.',
     },
   },
   'pentacles-08': {
@@ -860,9 +860,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how perfectionism, shortcuts may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of practice, diligence; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of practice, diligence; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of perfectionism, shortcuts; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of perfectionism, shortcuts; it is not a prediction.',
     },
   },
   'pentacles-09': {
@@ -872,9 +872,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how dependence, overwork may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of independence, appreciation; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of independence, appreciation; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of dependence, overwork; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of dependence, overwork; it is not a prediction.',
     },
   },
   'pentacles-10': {
@@ -884,9 +884,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how family tension, instability may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of legacy, stability; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of legacy, stability; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of family tension, instability; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of family tension, instability; it is not a prediction.',
     },
   },
   'pentacles-11': {
@@ -896,9 +896,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how procrastination, distraction may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of study, practical goals; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of study, practical goals; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of procrastination, distraction; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of procrastination, distraction; it is not a prediction.',
     },
   },
   'pentacles-12': {
@@ -908,9 +908,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how stagnation, inflexibility may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of reliability, persistence; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of reliability, persistence; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of stagnation, inflexibility; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of stagnation, inflexibility; it is not a prediction.',
     },
   },
   'pentacles-13': {
@@ -920,9 +920,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how self-neglect, imbalance may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of resourcefulness, care; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of resourcefulness, care; it is not a prediction.',
       reversed:
-        'Maybe: this fixed entertainment mapping reflects the themes of self-neglect, imbalance; it is not a prediction.',
+        'Maybe: this fixed reference mapping reflects the themes of self-neglect, imbalance; it is not a prediction.',
     },
   },
   'pentacles-14': {
@@ -932,9 +932,9 @@ export const meanings: Readonly<Record<string, CardMeaning>> = {
     reversed: 'Consider how materialism, control may shape your perspective.',
     yesNoReason: {
       upright:
-        'Yes: this fixed entertainment mapping reflects the themes of stewardship, stability; it is not a prediction.',
+        'Yes: this fixed reference mapping reflects the themes of stewardship, stability; it is not a prediction.',
       reversed:
-        'No: this fixed entertainment mapping reflects the themes of materialism, control; it is not a prediction.',
+        'No: this fixed reference mapping reflects the themes of materialism, control; it is not a prediction.',
     },
   },
 }

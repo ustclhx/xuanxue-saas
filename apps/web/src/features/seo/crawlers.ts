@@ -113,8 +113,8 @@ const LOCALE_NAMES: Readonly<Record<string, string>> = {
 
 // llms.txt 的站点简介：面向 AI 检索的英文概述，与各站点实际提供的体系一致
 const LLMS_INTRO: Record<SiteId, string> = {
-  east: 'Free BaZi (八字, Four Pillars of Destiny) charts, Zi Wei Dou Shu (紫微斗數) charts, Korean Manseryeok (만세력) and Saju compatibility, and tarot spreads in Traditional Chinese, Simplified Chinese and Korean. Free tools calculate by traditional rules in the visitor’s browser; results are for entertainment and self-reflection, not predictions. Optional credit packs unlock full AI-written readings based on the visitor’s own chart.',
-  west: 'Free numerology and tarot tools in English: Life Path number, numerology calculator, Life Path compatibility and tarot spreads. Free tools calculate by traditional rules in the visitor’s browser; results are for entertainment and self-reflection, not predictions. Optional credit packs unlock full AI-written readings based on the visitor’s own numbers and cards.',
+  east: 'Free BaZi (八字, Four Pillars of Destiny) charts, Zi Wei Dou Shu (紫微斗數) charts, Korean Manseryeok (만세력) and Saju compatibility, and tarot spreads in Traditional Chinese, Simplified Chinese and Korean. Free tools calculate by traditional rules in the visitor’s browser; results are for reference and self-reflection, not predictions. Optional credit packs unlock full AI-written readings based on the visitor’s own chart.',
+  west: 'Free numerology and tarot tools in English: Life Path number, numerology calculator, Life Path compatibility and tarot spreads. Free tools calculate by traditional rules in the visitor’s browser; results are for reference and self-reflection, not predictions. Optional credit packs unlock full AI-written readings based on the visitor’s own numbers and cards.',
 }
 
 // 牌义页、命理概念页与单个数字页属于参考内容，不列为核心工具

@@ -26,7 +26,7 @@ describe('东方站英文入口页', () => {
     expect(EAST_ENGLISH_COPY.heading).not.toMatch(/\bAI\b/)
     expect(EAST_ENGLISH_COPY.title).not.toMatch(/\bAI\b/)
     expect(text).not.toMatch(/\bAI\b/)
-    expect(text).toContain('entertainment and self-reflection only')
+    expect(text).toContain('reference and self-reflection only')
     expect(text).toContain('do not predict the future')
     for (const system of ['Bazi', 'Zi Wei Dou Shu', 'Saju', 'Tarot']) expect(text).toContain(system)
   })

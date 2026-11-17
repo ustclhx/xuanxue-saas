@@ -1,6 +1,6 @@
 # @xuanxue/tarot
 
-78 张 RWS 牌的 ID、花色、序号、图片路径、正逆位 Yes/No/Maybe 映射；`CARD_MEANINGS` 提供 en、zh-Hant、ko 牌名、关键词、短义及映射依据。三语名词见 [GLOSSARY.md](GLOSSARY.md)。映射和短义用于娱乐性反思，不预测未来。
+78 张 RWS 牌的 ID、花色、序号、图片路径、正逆位 Yes/No/Maybe 映射；`CARD_MEANINGS` 提供 en、zh-Hant、ko 牌名、关键词、短义及映射依据。三语名词见 [GLOSSARY.md](GLOSSARY.md)。映射和短义仅供参考与反思，不预测未来。
 
 ```ts
 import { shuffleDeck, cutDeck, drawCards, encodeReading, decodeReading } from '@xuanxue/tarot'

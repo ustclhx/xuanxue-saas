@@ -41,9 +41,10 @@ const headings = {
   ],
 }
 const disclosures = {
-  en: 'This interpretation was drafted with AI and reviewed by a person. It is for entertainment only and does not predict the future. It is not medical, legal, or investment advice.',
-  'zh-Hant': '本篇由 AI 起草、經人工審定，僅供娛樂，不預測未來，也不構成醫療、法律或投資建議。',
-  ko: '이 글은 AI가 초안을 작성하고 사람이 검토한 오락용 해석으로 미래를 예측하지 않으며, 의료·법률·투자 조언이 아닙니다.',
+  en: 'This interpretation was drafted with AI and reviewed by a person. It follows traditional tarot symbolism and is for reference and self-reflection only; it does not predict the future. It is not medical, legal, or investment advice.',
+  'zh-Hant':
+    '本篇由 AI 起草、經人工審定，依據傳統塔羅牌義解讀，僅供參考與潛意識探索，不預測未來，也不構成醫療、法律或投資建議。',
+  ko: '이 글은 AI가 초안을 작성하고 사람이 검토한 전통 타로 상징 기반의 해석으로, 참고와 자기 탐색을 위한 것이며 미래를 예측하지 않습니다. 의료·법률·투자 조언이 아닙니다.',
 }
 const spreadLinks = {
   en: ['/tarot', '/tarot/daily', '/tarot/yes-or-no', '/tarot/celtic-cross'],
@@ -218,7 +219,7 @@ for (const locale of locales) {
       'body must use Markdown only, without H1',
     )
     const disclosure = disclosures[locale]
-    check(body.trimEnd().endsWith(disclosure), 'missing final entertainment disclosure')
+    check(body.trimEnd().endsWith(disclosure), 'missing final disclosure')
     check(body.split(disclosure).length === 2, 'disclosure must appear exactly once')
     if (locale === 'en') {
       const count = wordCount(body)

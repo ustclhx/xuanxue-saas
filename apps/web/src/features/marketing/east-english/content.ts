@@ -3,7 +3,7 @@
  *
  * 只有英文一种语言，不进 messages/<locale>/*.json（那里要求四种语言同时提供）。
  * 合规（specs/tool-pages「合规声明」与 proposal「免费层文案」）：只描述依传统规则的计算，
- * 写明仅供娱乐与自我探索、不预测未来；标题与 H1 不以 AI 为卖点。全文不少于 600 词（design.md 风险项）。
+ * 写明仅供参考与自我探索、不预测未来；标题与 H1 不以 AI 为卖点。全文不少于 600 词（design.md 风险项）。
  */
 
 export type EastLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
@@ -138,6 +138,6 @@ export const EAST_ENGLISH_COPY = {
   methodTitle: 'How the charts are calculated, and what they are not',
   method: [
     'Every chart on Ganjiday is computed by fixed traditional rules: the solar-term calendar, the sixty-pair stem-and-branch cycle and the star-placement tables of each school. The same birth data always produces the same chart, wherever and whenever you calculate it.',
-    'The interpretations are offered for entertainment and self-reflection only. They do not predict the future, and they are not a substitute for medical, legal, financial or psychological advice.',
+    'The interpretations are offered for reference and self-reflection only. They do not predict the future, and they are not a substitute for medical, legal, financial or psychological advice.',
   ],
 } as const
