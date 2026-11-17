@@ -231,6 +231,8 @@ function settingsFor(modelKey: string, overrides: Partial<Record<SettingKey, unk
     async find(key) {
       if (key in overrides) return overrides[key]
       if (key.endsWith('.modelKey')) return modelKey
+      // 用例按「设置的积分」结算，固定为 100 积分，与代码默认值（2026-11-17 起为 10）解耦
+      if (key.endsWith('.credits')) return 100
       return undefined
     },
   }

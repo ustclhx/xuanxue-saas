@@ -76,7 +76,7 @@ describe('getSetting', () => {
 describe('详批运行时设置', () => {
   it('每种详批默认启用、100 积分、尚未选定模型', () => {
     expect(settingDefaults['readings.bazi-full.enabled']).toBe(true)
-    expect(settingDefaults['readings.saju-full.credits']).toBe(100)
+    expect(settingDefaults['readings.saju-full.credits']).toBe(10)
     expect(settingDefaults['readings.tarot-spread.modelKey']).toBe('')
   })
 })

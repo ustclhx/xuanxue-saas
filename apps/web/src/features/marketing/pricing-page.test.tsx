@@ -276,17 +276,17 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
       plans: [
         plan('free', 'free', 'subscription', 0),
         plan('single', 'reading_single', 'credit_pack', 100),
-        plan('five', 'reading_five', 'credit_pack', 500),
-        plan('plus', 'plus', 'subscription', 400),
-        plan('premium', 'premium', 'subscription', 1000),
+        plan('five', 'reading_five', 'credit_pack', 400),
+        plan('plus', 'plus', 'subscription', 300),
+        plan('premium', 'premium', 'subscription', 800),
       ],
       prices: [
-        row('single', 'stripe', null, 'USD', 199, true),
-        row('single', 'stripe', null, 'TWD', 6500, true),
-        row('single', 'paypal', null, 'USD', 199, true),
-        row('five', 'stripe', null, 'USD', 699, true),
-        row('five', 'stripe', null, 'TWD', 22700, true),
-        row('five', 'paypal', null, 'USD', 699, true),
+        row('single', 'stripe', null, 'USD', 299, true),
+        row('single', 'stripe', null, 'TWD', 9700, true),
+        row('single', 'paypal', null, 'USD', 299, true),
+        row('five', 'stripe', null, 'USD', 799, true),
+        row('five', 'stripe', null, 'TWD', 26000, true),
+        row('five', 'paypal', null, 'USD', 799, true),
         row('plus', 'stripe', 'month', 'USD', 499, subsAvailable),
         row('plus', 'stripe', 'month', 'TWD', 16200, subsAvailable),
         row('plus', 'stripe', 'month', 'KRW', 7000, subsAvailable),
@@ -299,7 +299,7 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
         { id: 'paypal', available: true },
       ],
     }) as unknown as PricingCatalog
-  const readings = [{ kind: 'numerology-full', credits: 100 }]
+  const readings = [{ kind: 'numerology-full', credits: 10 }]
   const html = (props: Parameters<typeof PricingPage>[0]) =>
     renderToStaticMarkup(<PricingPage {...props} />)
   const count = (text: string, pattern: string) => text.split(pattern).length - 1
@@ -311,8 +311,8 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
     expect(count(page, 'data-testid="pricing-pack"')).toBe(2)
     expect(page).toContain('$4.99')
     expect(page).toContain('$9.99')
-    expect(page).toContain('400 credits every month (about 4 full readings)')
-    expect(page).toContain('1000 credits every month (about 10 full readings)')
+    expect(page).toContain('300 credits every month (about 30 full readings)')
+    expect(page).toContain('800 credits every month (about 80 full readings)')
     expect(page).toContain('Cancel anytime')
     expect(page).toContain('Renews automatically every month in US dollars (USD) through Stripe')
     expect(page).toContain('10 credits each day you sign in (up to 10 days a month)')
@@ -340,7 +340,7 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
       'zh-Hant',
       ['NT$162', 'NT$325', 'NT$0'],
       '以新台幣（TWD）透過 Stripe',
-      '以美元結帳（US$1.99 / US$6.99）',
+      '以美元結帳（US$2.99 / US$7.99）',
     ],
     ['ko', ['₩7,000', '₩14,000', '₩0'], '원화(KRW)로 Stripe', null],
     [

@@ -5,8 +5,8 @@ PayPal 保留，步骤见 [paypal-launch](paypal-launch.md)。
 
 ## 0. 边界
 
-- 一次性积分包：`reading_single` 100 积分 $1.99、`reading_five` 500 积分 $6.99，积分 365 天到期。
-- 月付订阅（change `enable-subscriptions-daily-credits`）：`plus` $4.99 / NT$162 / ₩7,000 每月 400 积分，`premium` $9.99 / NT$325 / ₩14,000 每月 1000 积分；
+- 一次性积分包（2026-11-17「版本 A」）：`reading_single` 入门包 100 积分 $2.99 / NT$97 / ₩4,200、`reading_five` 超值包 400 积分 $7.99 / NT$260 / ₩11,200，积分 365 天到期；每份详批 10 积分。
+- 月付订阅（change `enable-subscriptions-daily-credits`）：`plus` $4.99 / NT$162 / ₩7,000 每月 300 积分，`premium` $9.99 / NT$325 / ₩14,000 每月 800 积分（2026-11-17「版本 A」）；
   积分当期有效（周期末加 24 小时宽限）、不结转；只经 Stripe，PayPal 不卖订阅。模板示例 `pro` / `team` 仍停售、无价格。
   - 创建：`billing:seed` 为每档建 Stripe USD / TWD / KRW 月付占位行（停用）；第 3 节第 4 步的同一条命令负责创建，演练中订阅行显示为
     `+ plus USD 499 /month on canonical product`、`+ plus TWD 16200 /month on zh-Hant localized product` 等，并输出
@@ -26,14 +26,14 @@ PayPal 保留，步骤见 [paypal-launch](paypal-launch.md)。
 | --- | --- | --- |
 | Checkout 页头名称（`branding_settings.display_name`） | 干支日 / 간지데이（按语言） | Arcanumber |
 | Checkout 语言 | zh-TW / zh / ko | en |
-| Checkout 商品行（Product 名称） | 單次詳批 / 单次详批 / 상세 풀이 1회 等（按语言的本地化商品） | Single Reading / 5-Reading Pack |
+| Checkout 商品行（Product 名称） | 入門包 / 入门包 / 스타터 팩 等（按语言的本地化商品） | Starter Pack / Value Pack |
 | 付款说明（PaymentIntent description） | `100 積分 · 干支日` 等 | `100 credits · Arcanumber` |
 | 卡账单后缀（`statement_descriptor_suffix`） | `GANJIDAY` | `ARCANUMBER` |
 | 元数据 `site` | `east` | `west` |
 | 成功 / 取消回跳 | ganjiday.com | arcanumber.com |
 
 - 订单与积分归属只认 Checkout 元数据中的 `workspaceId` / `userId` / `planPriceId`（UUID，服务端生成）；`site` 只用于 Stripe 后台对账，不参与归属。回调列表的站点列由空间推出（`webhook-attribution.ts`）。
-- 本地化商品：`plan_price.providerPriceId` 只记录规范（英文）价格，西方站与订阅照旧使用。积分包另为 zh-Hant / zh-Hans / ko 各建一个 Product（ID `xuanxue_plan_<planId 去横线>_<zh_hant|zh_hans|ko>`，名称与说明如 `單次詳批`、`100 積分`）和同金额 Price（`lookup_key` 为 `xuanxue_<planPriceId>_<语言>`，元数据含 `planPriceId`、`canonicalPriceId`、`locale`）。译名表在 `packages/billing/src/stripe/localized.ts`，对应 `apps/web/messages/*/marketing.json` 的积分包文案，改文案需两处同步。
+- 本地化商品：`plan_price.providerPriceId` 只记录规范（英文）价格，西方站与订阅照旧使用。积分包另为 zh-Hant / zh-Hans / ko 各建一个 Product（ID `xuanxue_plan_<planId 去横线>_<zh_hant|zh_hans|ko>`，名称与说明如 `入門包`、`100 積分`）和同金额 Price（`lookup_key` 为 `xuanxue_<planPriceId>_<语言>`，元数据含 `planPriceId`、`canonicalPriceId`、`locale`）。译名表在 `packages/billing/src/stripe/localized.ts`，对应 `apps/web/messages/*/marketing.json` 的积分包文案，改文案需两处同步。
 - 东方站 Checkout 按语言用 `lookup_key` 查本地化价格，核对 `planPriceId`、`canonicalPriceId`、金额与币种后作为商品行；查不到或不一致时回退到规范价格（英文商品名），不阻断付款，因此先部署代码、后跑映射也安全。订单快照把本地化价格还原为规范价格 ID，入账与对账只看到规范价格。
 - 页头名称之外，Stripe 收据、条款与卡账单前缀仍显示账户的公开商家名（第 4 节）。
 
@@ -103,12 +103,30 @@ charge.dispute.created
      ```
 
      清单经使用者确认后才执行写入命令。TWD 金额不是 100 的倍数（整元）时，种子与同步在写库或调用 Stripe 之前失败。
-   - 调价：改价目表 → 评审合并 → `billing:seed` 新增新金额的占位行 → 演练与写入创建新 Price；旧行保留历史映射，
-     在 Stripe 后台把旧 Price 设为 inactive（Price 不可改价）。
+   - 调价：改价目表 → 评审合并 → `billing:seed` 新增新金额的占位行 → 演练与写入创建新 Price；写入成功后同一套餐、
+     同一平台下不在目录中的旧金额 `plan_price` 行由同步自动设为 `active=false`（保留映射，历史付款、退款与在途结账回调照常对账）。
+     Stripe 上的旧 Price 可在后台设为 inactive（Price 不可改价；本地已停售，不设也不会被结账使用）。
+     **同步不会修改已存在的 Product 名称与说明**：改了展示名或积分数时，需在 Stripe 后台手工修改对应 Product（见下方「版本 A」清单）。
    - 停用本地币种（回滚）：把对应 `plan_price` 行设为 `active=false`（例如
      `update plan_price set active = false where provider = 'stripe' and currency in ('TWD', 'KRW')`，需经使用者批准后在生产库执行）。
      定价页与结账自动回退 USD；已入账的 TWD/KRW 付款仍可正常退款。恢复时把这些行重新设为 `active=true`。
    - 沙盒（staging）用 `BILLING_SYNC_MODE=test pnpm billing:sync`，同样只创建缺少的价格，执行前列出对象清单并获批准。
+
+   - **「版本 A」调价（2026-11-17）上线清单**（使用者执行，生产库写入与 Stripe 写入均需使用者本人操作）：
+     1. 合并并发布 web / jobs（含新价目表、积分数与展示名）。
+     2. 后台 `/admin/settings` 的「Paid readings」把六种详批的积分改为 10：`readings.bazi-full.credits`、`readings.saju-full.credits`、
+        `readings.ziwei-full.credits`、`readings.saju-compat.credits`、`readings.numerology-full.credits`、`readings.tarot-spread.credits`
+        （已保存过的值不会跟随代码默认值变化；最多 60 秒生效）。
+     3. 生产库 `pnpm billing:seed`（`CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=<生产应用库 URL>` 经进程环境注入）：更新套餐积分（reading_five 400、plus 300、premium 800）与展示名，并为积分包新增
+        USD 299 / TWD 9700 / KRW 4200、USD 799 / TWD 26000 / KRW 11200 的 Stripe 占位行和 PayPal USD 行（停用）。
+     4. 演练 `pnpm billing:sync-stripe-live`（只读），确认只新增 6 个积分包 Price、订阅无新增；经使用者确认后写入。
+        写入后旧金额（199/6500/2800、699/22700/9800）的 Stripe 行自动停售。
+     5. PayPal：`BILLING_ACTIVATE_CONFIRM=xuanxue_production pnpm billing:activate-packs`（生产库 URL 经进程环境注入，见 paypal-launch §4 第 4 步），启用新 USD 行并停用旧行。
+     6. Stripe 后台手工改已存在的 Product（同步不改）：规范商品 `xuanxue_plan_<reading_single 的 planId 去横线>` 名称 → `Starter Pack`，
+        `reading_five` 的 → `Value Pack`；本地化商品 `_zh_hant` / `_zh_hans` / `_ko` 名称 → 入門包 / 入门包 / 스타터 팩、超值包 / 超值包 / 실속 팩；
+        `reading_five` 本地化商品说明 `500 積分` / `500 积分` / `500 크레딧` → `400 …`；订阅本地化商品（`_zh_hant` / `_ko`）说明
+        `每月 400 積分` / `매월 400 크레딧` → `每月 300 積分` / `매월 300 크레딧`，`每月 1000 積分` / `매월 1000 크레딧` → `每月 800 積分` / `매월 800 크레딧`。
+     7. 按第 4 节更新 Stripe 业务描述中的价格与积分数。定价页价格缓存最长 1 小时后刷新。
 
 5. 两站各做一笔真实小额购买并退款：核对页头名称、语言、商品行名称（东方站为本地化商品名）、账单描述、到账积分、退款后积分回收、回调列表站点列。
 
@@ -120,11 +138,11 @@ Stripe 后台现有业务描述与实际服务不符时，按下列事实改写�
 - 网站：arcanumber.com（主网址）与 ganjiday.com（同一主体的第二个品牌站，在业务描述中说明，或按 Stripe 要求登记为附加网站）。
 - 建议描述（英文）：
 
-  > Lucinum LLC operates two websites offering free online calculators for Chinese metaphysics (BaZi / Four Pillars, Zi Wei Dou Shu; ganjiday.com, in Chinese and Korean) and numerology and tarot (arcanumber.com, in English). Users can buy one-time digital credit packs (US$1.99 for 100 credits, US$6.99 for 500 credits) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No subscriptions, physical goods, live or phone readings, or guaranteed outcomes. Credits expire 365 days after purchase; unused credits are refundable within 30 days.
+  > Lucinum LLC operates two websites offering free online calculators for Chinese metaphysics (BaZi / Four Pillars, Zi Wei Dou Shu; ganjiday.com, in Chinese and Korean) and numerology and tarot (arcanumber.com, in English). Users can buy one-time digital credit packs (US$2.99 for 100 credits, US$7.99 for 400 credits) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No subscriptions, physical goods, live or phone readings, or guaranteed outcomes. Credits expire 365 days after purchase; unused credits are refundable within 30 days.
 
   启用订阅（change `enable-subscriptions-daily-credits` 任务 1.3）后，把上段第二、第三句改为：
 
-  > Users can buy one-time digital credit packs (US$1.99 for 100 credits, US$6.99 for 500 credits) or subscribe monthly (US$4.99 for 400 credits per month, US$9.99 for 1,000 credits per month; auto-renews until canceled, cancel anytime, effective at the end of the paid period) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No physical goods, live or phone readings, or guaranteed outcomes. Credit pack credits expire 365 days after purchase and subscription credits at the end of each billing period; refund requests are reviewed manually within 30 days.
+  > Users can buy one-time digital credit packs (US$2.99 for 100 credits, US$7.99 for 400 credits) or subscribe monthly (US$4.99 for 300 credits per month, US$9.99 for 800 credits per month; auto-renews until canceled, cancel anytime, effective at the end of the paid period) to unlock AI-generated written reports delivered instantly online, for entertainment and self-reflection. No physical goods, live or phone readings, or guaranteed outcomes. Credit pack credits expire 365 days after purchase and subscription credits at the end of each billing period; refund requests are reviewed manually within 30 days.
 
 - 行业类别：选与「数字内容 / 娱乐类在线服务」最接近的类别，并如实写明命理与塔罗内容。占卜、命理类业务在 Stripe 可能属于需审查的类别，以 Stripe 的回复为准，不以账户已启用为准。
 - 公开商家名与卡账单前缀：建议 `LUCINUM` / `LUCINUM LLC`，与条款中的运营主体一致。
@@ -132,4 +150,4 @@ Stripe 后台现有业务描述与实际服务不符时，按下列事实改写�
 - 业务限制：按界面语言以固定价目表收取美元、新台币或韩元（繁体中文界面 TWD、韩语界面 KRW，其余 USD；PayPal 一律 USD），
   价格不随汇率浮动，已关闭 Adaptive Pricing；未启用 Stripe Tax，税务处理需运营另行确认；退款人工审核（30 天内未使用积分），按原付款币种退回。
   原描述中的「只收美元」须在 live 激活 TWD/KRW 价格之前由运营改写（localize-checkout-currency 任务 1.2）。
-  建议在英文描述中把价格改为 `US$1.99 / NT$65 / ₩2,800 for 100 credits, US$6.99 / NT$227 / ₩9,800 for 500 credits`。
+  建议在英文描述中把价格改为 `US$2.99 / NT$97 / ₩4,200 for 100 credits, US$7.99 / NT$260 / ₩11,200 for 400 credits`。

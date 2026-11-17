@@ -15,11 +15,11 @@ type ReadingSettingValues = {
   [K in ReadingKind as `readings.${K}.promptVersion`]: string
 }
 
-/** 详批价格种子：1 次详批 = 100 积分（design 决策 4），后台可改。 */
+/** 详批价格种子：1 次详批 = 10 积分（2026-11-17「版本 A」，原 design 决策 4 为 100），后台可改。 */
 const readingSettingDefaults = Object.fromEntries(
   READING_KINDS.flatMap((kind) => [
     [`readings.${kind}.enabled`, true],
-    [`readings.${kind}.credits`, 100],
+    [`readings.${kind}.credits`, 10],
     [`readings.${kind}.modelKey`, ''],
     [`readings.${kind}.promptVersion`, ''],
   ]),

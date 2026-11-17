@@ -123,8 +123,8 @@ describe('catalog on isolated PostgreSQL', () => {
         for (const row of usd) expect(after.find((p) => p.id === row.id)).toEqual(row)
         const local = after.filter((p) => p.currency !== 'USD')
         expect(local.map((p) => `${p.provider}:${p.currency}:${p.amount}`).sort()).toEqual([
-          'stripe:KRW:2800',
-          'stripe:TWD:6500',
+          'stripe:KRW:4200',
+          'stripe:TWD:9700',
         ])
         expect(
           local.every((p) => !p.active && p.providerPriceId.startsWith('unsynced:stripe:')),
@@ -155,8 +155,8 @@ describe('catalog on isolated PostgreSQL', () => {
         expect(
           subs.map((row) => [row.key, row.type, row.credits, row.rollover, row.sort]).sort(),
         ).toEqual([
-          ['plus', 'subscription', 400, false, 30],
-          ['premium', 'subscription', 1000, false, 40],
+          ['plus', 'subscription', 300, false, 30],
+          ['premium', 'subscription', 800, false, 40],
         ])
         const prices = await tx
           .select()
@@ -244,8 +244,8 @@ describe('catalog on isolated PostgreSQL', () => {
         encoding: 'utf8',
       },
     )
-    expect(output).toContain('  + reading_single TWD 6500 on zh-Hant localized product')
-    expect(output).toContain('  + reading_five KRW 9800 on ko localized product')
+    expect(output).toContain('  + reading_single TWD 9700 on zh-Hant localized product')
+    expect(output).toContain('  + reading_five KRW 11200 on ko localized product')
     // 订阅月付价格：USD 只建规范价格，本地币种挂本地化商品；并输出模型授权诊断
     expect(output).toContain('  + plus USD 499 /month on canonical product')
     expect(output).toContain('  + plus TWD 16200 /month on zh-Hant localized product')

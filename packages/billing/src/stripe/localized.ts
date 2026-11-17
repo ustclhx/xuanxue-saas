@@ -14,8 +14,9 @@ export const LOCALIZED_PACK_LOCALES = ['zh-Hant', 'zh-Hans', 'ko'] as const
 export type LocalizedPackLocale = (typeof LOCALIZED_PACK_LOCALES)[number]
 
 const PACK_NAMES: Record<string, Record<LocalizedPackLocale, string>> = {
-  reading_single: { 'zh-Hant': '單次詳批', 'zh-Hans': '单次详批', ko: '상세 풀이 1회' },
-  reading_five: { 'zh-Hant': '五次詳批', 'zh-Hans': '五次详批', ko: '상세 풀이 5회' },
+  // 2026-11-17「版本 A」起 1 份详批 = 10 积分，积分包改按容量命名；已存在的 Stripe 商品名不随同步更新
+  reading_single: { 'zh-Hant': '入門包', 'zh-Hans': '入门包', ko: '스타터 팩' },
+  reading_five: { 'zh-Hant': '超值包', 'zh-Hans': '超值包', ko: '실속 팩' },
   // 档位名 Plus / Premium 在各语言保持原文（原型 Pricing.dc.html），附「每月方案」说明商品性质
   plus: { 'zh-Hant': 'Plus 每月方案', 'zh-Hans': 'Plus 每月方案', ko: 'Plus 월간 플랜' },
   premium: {
@@ -73,7 +74,7 @@ const MONTHLY_CREDITS_LABEL: Record<LocalizedPackLocale, (credits: number) => st
   ko: (credits) => `매월 ${credits} 크레딧`,
 }
 
-/** 商品描述：积分包为「100 積分」，订阅为「每月 400 積分」 */
+/** 商品描述：积分包为「100 積分」，订阅为「每月 300 積分」 */
 export function localizedPackDescription(
   credits: number,
   locale: LocalizedPackLocale,
