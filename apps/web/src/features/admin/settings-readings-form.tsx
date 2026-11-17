@@ -112,13 +112,9 @@ export function ReadingSettingsForm() {
                   onChange={(event) => update(row.kind, { credits: Number(event.target.value) })}
                 />
               </Field>
-              {/* 下拉触发器（及其外层包装）默认最小宽度等于文字宽度：较长的模型 key 会撑出本列、盖住相邻的
-                  提示词版本下拉。grid-cols-1（minmax(0,1fr)）把字段限制在列宽内，min-w-0 让触发器文字截断 */}
-              <Field
-                label={m.admin_reading_model()}
-                htmlFor={`reading-model-${row.kind}`}
-                className="grid-cols-1"
-              >
+              {/* 项目修正：触发器默认 min-w-[160px]，宽屏下本列约 130px，模板 0.5.7 的 max-w-full 压不过最小宽度（min-width 优先），
+                  较长的模型 key 仍会盖住相邻的提示词版本下拉；min-w-0 让触发器收进列宽、文字截断 */}
+              <Field label={m.admin_reading_model()} htmlFor={`reading-model-${row.kind}`}>
                 <Select
                   value={row.modelKey || UNSET}
                   onValueChange={(value) =>
@@ -146,7 +142,6 @@ export function ReadingSettingsForm() {
               <Field
                 label={m.admin_reading_prompt_version()}
                 htmlFor={`reading-prompt-${row.kind}`}
-                className="grid-cols-1"
               >
                 <Select
                   value={row.promptVersion || UNSET}

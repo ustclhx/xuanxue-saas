@@ -69,8 +69,8 @@ test('未配置 Plausible 时公开页没有分析脚本，站点资源可用', 
 })
 
 test('答案页结论置顶并输出 FAQ 结构化数据，进入站点地图', async ({ page, request }) => {
-  // 项目修正：答案页属于 features.guides，本项目未开启
-  test.skip(!templateConfig.features.guides, 'Guides are disabled')
+  // 指南页关闭时 /guides 路由 404，答案页不存在。
+  test.skip(!templateConfig.features.guides, 'features.guides 已关闭')
   const response = await request.get('/guides/is-it-free')
   expect(response.status()).toBe(200)
   const html = await response.text()

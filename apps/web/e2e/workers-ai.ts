@@ -1,12 +1,18 @@
 import { readFileSync } from 'node:fs'
+// 复用门禁脚本的 JSONC 解析（容忍注释与尾逗号）
+import { parseJsonc } from '../../../scripts/production/check-wrangler-envs.mjs'
+import templateConfig from '../../../template.config.ts'
 
 /**
- * 项目修正：本项目的 web Worker 不配置 Workers AI 绑定（`wrangler.jsonc` 顶层没有 `ai`），
- * 后台与提交页按运行时可用性过滤掉 workers-ai（features/ai/admin-model-provider.ts）。
- * 依赖 workers-ai 选项的用例据此跳过；配置了绑定后自动恢复运行。
+ * Workers AI 用例的前提（harden-derived-project-checks D1）：项目选择了 workers-ai 媒体服务商，
+ * 且 web 的 wrangler.jsonc 声明了 `ai` 绑定（运行时才能调用）。任一缺失时返回跳过原因，否则返回 null。
  */
-const wrangler = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8')
-  // 去掉整行注释，避免注释里的示例被当作配置
-  .replace(/^\s*\/\/.*$/gm, '')
-
-export const workersAiConfigured = /"ai"\s*:\s*\{\s*"binding"\s*:/.test(wrangler)
+export function workersAiSkipReason(): string | null {
+  if (!templateConfig.ai.mediaProviders.includes('workers-ai'))
+    return 'ai.mediaProviders 未包含 workers-ai'
+  const wrangler = (parseJsonc as (text: string) => { ai?: { binding?: string } })(
+    readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8'),
+  )
+  if (!wrangler.ai?.binding) return 'apps/web/wrangler.jsonc 没有 ai 绑定'
+  return null
+}
