@@ -50,7 +50,11 @@
 
 #### Scenario: 东方站的站点地图
 - **WHEN** 搜索引擎读取东方站 `/sitemap.xml`
-- **THEN** 其中只列出 `zh-hant` 与 `ko` 的子站点地图，不含西方站页面与 `/app`、`/admin`
+- **THEN** 其中只列出 `zh-hant`、`zh-hans` 与 `ko` 的子站点地图，不含西方站页面与 `/app`、`/admin`
+
+#### Scenario: 简体内容回退到英文原文的页面
+- **WHEN** 搜索引擎抓取东方站 `/zh-hans/` 下尚未有简体版本的法律页
+- **THEN** 页面显示英文原文并附简体提示「仅提供英文版本」，声明 `noindex`，且不列入简体站点地图
 
 ### Requirement: 结构化数据
 首页 SHALL 提供组织与网站的结构化数据，博客文章 SHALL 提供文章结构化数据，定价页 SHALL 提供产品与价格的结构化数据。

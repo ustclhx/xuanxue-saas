@@ -15,7 +15,8 @@
 - [ ] 1.3 【用户 / Codex】按 D2，在 `/admin/billing` 给免费套餐授权 `deepseek-flash`。验证：普通账号进入 Chat 可以选到 flash 并成功发送一条消息，积分按规则扣除
   - （2026-11-16：生产 free（及 plus/premium）已授权 `deepseek-flash`，库已核实；普通账号在生产 Chat 发送并扣费未记录）
 - [ ] 1.4 【协调者通知用户配置密钥 → Codex】按 D3 接通 Resend：由用户经 stdin 写入两站 key（写入前确认不是空值），配置发信域名的 SPF/DKIM，再切换 `EMAIL_TRANSPORT`。验证：两站测试邮件实际送达；切换前由 2.5 保证不显示「已寄信」
-- [ ] 1.5 【协调者】合并本 change 第一个 PR 之前，完成 `add-zh-hans-locale` 剩余的验收并归档。验证：`openspec list --json` 中不再有该 change，`openspec/specs/paid-readings` 中已包含简体相关的要求
+- [x] 1.5 【协调者】合并本 change 第一个 PR 之前，完成 `add-zh-hans-locale` 剩余的验收并归档。验证：`openspec list --json` 中不再有该 change，`openspec/specs/paid-readings` 中已包含简体相关的要求
+  - 2026-11-17：add-zh-hans-locale 6.4 本地东方站验收通过后归档为 `2026-11-17-add-zh-hans-locale`，paid-readings 已含「简体访客生成报告」
 
 ## 2. 波次 A：交付卫生（可拆为 2–3 个并行 worktree）
 
@@ -75,7 +76,8 @@
 
 ## 6. 集成验收
 
-- [ ] 6.1 【Codex】在 staging 用普通账号走查四种语言：工具 → 结果漏斗 → 解锁 → 报告 → Chat → 账单。对照体验报告第 1–5 项与「双站 AI 能力对照」表逐条记录。验证：证据存放在仓库外，未通过的项开 issue
+- [x] 6.1 【Codex】在 staging 用普通账号走查四种语言：工具 → 结果漏斗 → 解锁 → 报告 → Chat → 账单。对照体验报告第 1–5 项与「双站 AI 能力对照」表逐条记录。验证：证据存放在仓库外，未通过的项开 issue
+  - 2026-11-17：en 在 staging、zh-Hant/zh-Hans/ko 在本地 east.localhost（staging 只渲染西方站，使用者批准）。东方三语真实详批、追问与结果页 Chat 扣费通过；en 工具、漏斗、Chat 模型与账单通过，测试账号 0 积分未生成报告。发现的两项缺陷已修复：每日页缓存旧资源 404（#185）、同一输入跨简繁复用旧语言报告（#186）；每日页 H1 日期口径与 FAQ 跨站积分文案另行处理。证据 私有验收目录 `legacy-pre-0.1.24/A/`
 - [ ] 6.2 【用户批准发版后 / Codex】生产发版后，只读复核：两站 `/api/health` 返回新的 SHA；`curl` 核对 `arcanumber.com/zh-hant` 返回 404、`ganjiday.com/en` 为英文入口页、robots、404 标题、简体定价 meta、`/faq`、电子报表单、西方站隐私页；四种语言结果页不再出现与开放状态不符的「即将开放」。验证：复核表存放在仓库外，引用编号写进 PR 或发布记录
   - （2026-11-16：两站 `/api/health` 为 c30b67b3；`curl` 抽查 `arcanumber.com/zh-hant` 404、`ganjiday.com/en` 200、两站 robots 200、简体定价 meta 为简体、`/faq` 200；复核表与四语结果页检查未做）
 

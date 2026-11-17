@@ -21,11 +21,15 @@
 - **THEN** 直接返回韩语页面，不跳转到东方站域名，且带 `noindex`
 
 ### Requirement: 语言归属站点
-每种语言 SHALL 只属于一个站点：v1 中 `zh-Hant`、`ko` 属于东方站，`en` 属于西方站；访问不属于当前站点的语言前缀时 SHALL 301 重定向到该语言所属站点的同一路径。
+每种语言 SHALL 只属于一个站点：v1 中 `zh-Hant`、`zh-Hans`、`ko` 属于东方站，`en` 属于西方站；访问不属于当前站点的语言前缀时 SHALL 301 重定向到该语言所属站点的同一路径。
 
 #### Scenario: 在西方站访问韩语路径
 - **WHEN** 访客请求西方站的 `/ko/manseryeok/`
 - **THEN** 返回 301，跳转到东方站的 `/ko/manseryeok/`
+
+#### Scenario: 简体前缀出现在西方站
+- **WHEN** 访客在西方站打开 `/zh-hans/pricing`
+- **THEN** 301 重定向到东方站的 `/zh-hans/pricing`
 
 ### Requirement: 东方站入口页
 东方站根路径 `/` SHALL 跳转到某个东方站语言的首页，不再展示单独的语言选择页。东方站内的手动选择或浏览器语言指向繁体中文以外的东方站语言时 SHALL 302 到该语言首页；其余情况（含不带 Accept-Language 的爬虫）SHALL 301 到繁体中文首页 `/zh-hant`。跳转目标 MUST 是不带结尾斜杠的规范地址，保留查询参数，响应 MUST NOT 被缓存为跨访客共享的结果。
@@ -37,6 +41,10 @@
 #### Scenario: 爬虫访问东方站根路径
 - **WHEN** 不带 Accept-Language 与 Cookie 的请求访问 `https://ganjiday.com/`
 - **THEN** 返回 301，Location 为 `https://ganjiday.com/zh-hant`，该地址直接返回 200
+
+#### Scenario: 简体浏览器访问东方站根路径
+- **WHEN** 浏览器语言为 `zh-CN` 且没有手动选择的访客打开东方站 `/`
+- **THEN** 返回 302，跳转到 `/zh-hans`
 
 ### Requirement: 账号与付费跨站可用
 登录、账户、积分购买与应用区 SHALL 在两个站点上各自可用，并以访客当前站点的语言显示；完成登录或支付后 SHALL 回到发起操作的站点与页面。两个站点的账户、积分余额、购买、付款、退款申请与报告 MUST 彼此独立：在一个站点的操作与记录 MUST NOT 出现在另一个站点，一个站点签发的会话 MUST NOT 能在另一个站点使用。

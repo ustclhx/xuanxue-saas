@@ -90,7 +90,7 @@
 
 - [x] 9.1 【协调者】组 3 合并后，在 main 上运行 `drizzle-kit generate`，生成 `birth_profile` 的扩展型迁移，带 `lock_timeout` 与 `-- rollback-safe:` 注释，并提交 PR。验证：本地空库与已有数据的库都能迁移成功；`pnpm test` 集成测试通过
   - 迁移 `packages/db/migrations/0026_birth_profile.sql`（#146，含 `lock_timeout` 与 `-- rollback-safe:`），v0.1.23 发布流水线已在 staging 与生产应用
-- [ ] 9.2 【Codex】staging 验收（需用户批准合并以触发 staging 部署）：
+- [x] 9.2 【Codex】staging 验收（需用户批准合并以触发 staging 部署）：
   - 两站登录后完成档案增删改与默认切换；
   - 工具页填入并出结果；
   - 用档案预填解锁一份详批；
@@ -102,6 +102,8 @@
   验证：状态表与截图存入 `EVIDENCE_DIR`
 
   （2026-11-16：私有验收目录 `add-birth-profiles-daily-horoscope/wave2/` 只有实施阶段的页面截图（档案页、每日页、今日面板四态、两主题与 390px）；staging 缓存命中在 #152 合并时验过。尚无 staging 状态表，删号后档案为 0、用档案预填解锁详批未记录）
+
+  2026-11-17：西方站在 staging、东方站在本地 east.localhost（使用者批准）完成：档案增删改与默认切换、工具页预填、档案预填解锁详批（本地；staging 测试账号无积分未解锁）、两站删号后档案 1→0（只读查询核对）、四语每日页无 JS 正文与 staging 缓存命中、今日面板四态、390px 两主题无横向滚动。验收中发现每日页缓存命中旧版本 HTML 导致资源 404，已由 #185（缓存键加部署版本）修复并在 staging 复核。证据 私有验收目录 `legacy-pre-0.1.24/C/`
 - [ ] 9.3 【用户批准 → Codex】发布 production（推送 `v*` tag），并检查 `/api/health` 的 SHA 与部署流水线成功。一周内查看 Neon Usage，确认运行时长没有因每日页明显上升。验证：发布记录与 Neon Usage 截图存入 `EVIDENCE_DIR`
   - （2026-11-16：v0.1.23（c30b67b3）已发布生产，deploy-production run 43803684100 成功，两站 `/api/health` 为 c30b67b3；一周内的 Neon Usage 检查未做）
 - [ ] 9.4 【协调者】全部任务合并并验收后，按并行计划同步 specs 并归档本 change。验证：`openspec validate --strict` 通过；`openspec list --json` 中不再有本 change
