@@ -1,14 +1,44 @@
 import { type Browser, expect, type Locator, type Page, test } from '@playwright/test'
+import templateConfig from '../../../template.config.ts'
+import { SUGGESTABLE_LOCALES, suggestionTargets } from '../src/features/i18n/suggestion.ts'
 import { chooseOption } from './select.ts'
 import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'
 
 const password = 'correct-horse-battery-staple'
+// 拓宽为 string：衍生项目的语言集合不同，下面与模板语言的比较仍能通过类型检查
+const { enabled } = templateConfig.i18n
+const locales: readonly string[] = templateConfig.i18n.locales
+const defaultLocale: string = templateConfig.i18n.defaultLocale
 
-/** React 已接管该元素（水合完成）：本项目营销页没有浮动语言下拉，按元素上的 React 内部属性判断 */
-const isHydrated = (locator: Locator) =>
-  locator.evaluate((element) => Object.keys(element).some((key) => key.startsWith('__react')))
-const hydrated = (locator: Locator) =>
-  expect.poll(() => isHydrated(locator), { timeout: 30_000 }).toBe(true)
+/**
+ * 本地 localhost 是未登记 Host，建议全部非默认语言（site-suggestion.ts，同模板 SUGGESTABLE_LOCALES）。
+ * 项目按浏览器地区验证书写系统匹配（模板 0.5.11）：zh-TW → zh-Hant，zh-CN → zh-Hans；不在可建议语言中时跳过
+ */
+const candidates: readonly string[] = enabled
+  ? suggestionTargets({
+      baseLocale: defaultLocale,
+      locales,
+      suggestableLocales: SUGGESTABLE_LOCALES,
+    })
+  : []
+const noTarget = (locale: string) => `${locale} 不在可建议语言中，不会出现该语言的建议横幅`
+
+/**
+ * 某语言的建议横幅；用属性定位，不依赖默认语言的文案。
+ * 每个候选横幅都随 SSR 输出（默认隐藏），只计可见的一条，toHaveCount(0) 即「没有显示横幅」
+ */
+const suggestionBanner = (page: Page, locale: string) =>
+  page.locator(`[data-locale-suggestion-for="${locale}"]`).filter({ visible: true })
+const switchLink = (banner: Locator) => banner.locator('[data-locale-suggestion-action="switch"]')
+const keepButton = (banner: Locator) => banner.locator('[data-locale-suggestion-action="dismiss"]')
+
+/** 水合完成的信号：浮层在挂载 effect 中加上 data-hydrated（模板 0.5.11） */
+const hydrated = (banner: Locator) =>
+  expect(banner).toHaveAttribute('data-hydrated', '', { timeout: 30_000 })
+
+/** 「切换」链接的目标地址（工具页按注册表换路径，不假设语言前缀形式），可附加查询参数与锚点 */
+const switchURL = async (page: Page, banner: Locator, suffix = '') =>
+  new URL(`${await switchLink(banner).getAttribute('href')}${suffix}`, page.url()).href
 
 /** 挂起页面脚本请求，模拟营销页首帧后、水合前的时间窗；返回放行函数 */
 async function holdScripts(page: Page) {
@@ -30,31 +60,34 @@ const preferenceCookie = async (page: Page) =>
   (await page.context().cookies()).find((cookie) => cookie.name === 'locale-preference')?.value
 
 test('浏览器语言偏好只建议不跳转，手动选择和关闭建议会记住偏好', async ({ browser, baseURL }) => {
+  test.skip(!candidates.includes('zh-Hant'), noTarget('zh-Hant'))
   // 建议由首帧前脚本按 navigator.languages 决定（suggestion.ts），locale 同时设置它与 Accept-Language；
-  // localhost 是未登记 Host，建议全部语言；zh-TW 按地区归入繁体（SUGGESTION_ALIASES）
+  // zh-TW 按书写系统匹配到繁体
   const context = await browser.newContext({ ...(baseURL ? { baseURL } : {}), locale: 'zh-TW' })
   const page = await context.newPage()
   try {
     await page.goto('/pricing')
     await expect(page).toHaveURL(/\/pricing$/)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-    const banner = page.getByRole('complementary', { name: 'Language suggestion' })
+    await expect(page.locator('html')).toHaveAttribute('lang', defaultLocale)
+    const banner = suggestionBanner(page, 'zh-Hant')
     await expect(banner).toBeVisible()
     // CI 中这是冷启动 vite dev 的首个用例，首次按需编译客户端模块可能较慢
     await hydrated(banner)
-    await banner.getByRole('link', { name: 'Switch language' }).click()
-    await expect(page).toHaveURL(/\/zh-hant\/pricing$/)
+    const destination = await switchURL(page, banner)
+    expect(new URL(destination).pathname).toBe('/zh-hant/pricing')
+    await switchLink(banner).click()
+    await expect(page).toHaveURL(destination)
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
     expect(await preferenceCookie(page)).toBe('zh-Hant')
     // Cookie 记住选择，但直接访问默认语言 URL 仍显示默认语言。
     await page.goto('/pricing')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.locator('html')).toHaveAttribute('lang', defaultLocale)
     await expect(banner).toHaveCount(0)
     await context.clearCookies()
     await page.reload()
     await expect(banner).toBeVisible()
     await hydrated(banner)
-    await banner.getByRole('button', { name: 'Keep current language' }).click()
+    await keepButton(banner).click()
     await expect(banner).toBeHidden()
     await page.reload()
     await expect(banner).toHaveCount(0)
@@ -64,19 +97,21 @@ test('浏览器语言偏好只建议不跳转，手动选择和关闭建议会�
 })
 
 test('横幅首帧即可操作：水合前点击切换与保留当前语言同样生效', async ({ browser, baseURL }) => {
-  // zh-CN 按地区归入简体
+  test.skip(!candidates.includes('zh-Hans'), noTarget('zh-Hans'))
+  // zh-CN 按书写系统匹配到简体
   const context = await browser.newContext({ ...(baseURL ? { baseURL } : {}), locale: 'zh-CN' })
   const page = await context.newPage()
-  const banner = page.getByRole('complementary', { name: 'Language suggestion' })
+  const banner = suggestionBanner(page, 'zh-Hans')
   try {
     // 保留当前语言：首帧脚本的委托监听写入 Cookie 并隐藏横幅
     let release = await holdScripts(page)
     await page.goto('/pricing', { waitUntil: 'commit' })
     await expect(banner).toBeVisible()
-    expect(await isHydrated(banner)).toBe(false)
-    await banner.getByRole('button', { name: 'Keep current language' }).click()
+    // 脚本被挂起，尚未水合
+    await expect(banner).not.toHaveAttribute('data-hydrated')
+    await keepButton(banner).click()
     await expect(banner).toBeHidden()
-    expect(await preferenceCookie(page)).toBe('en')
+    expect(await preferenceCookie(page)).toBe(defaultLocale)
     await release()
     await page.reload()
     await expect(banner).toHaveCount(0)
@@ -84,11 +119,14 @@ test('横幅首帧即可操作：水合前点击切换与保留当前语言同�
     // 切换：真实链接直接导航，委托监听同时记住选择
     await context.clearCookies()
     release = await holdScripts(page)
-    await page.goto('/pricing', { waitUntil: 'commit' })
+    await page.goto('/pricing?utm_source=e2e#plans', { waitUntil: 'commit' })
     await expect(banner).toBeVisible()
-    expect(await isHydrated(banner)).toBe(false)
-    await banner.getByRole('link', { name: 'Switch language' }).click()
-    await expect(page).toHaveURL(/\/zh-hans\/pricing$/)
+    await expect(banner).not.toHaveAttribute('data-hydrated')
+    const destination = await switchURL(page, banner, '?utm_source=e2e#plans')
+    expect(new URL(destination).pathname).toBe('/zh-hans/pricing')
+    await switchLink(banner).click()
+    // 查询参数（如 UTM）与锚点随导航保留（模板 0.5.11）
+    await expect(page).toHaveURL(destination)
     await release()
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hans')
     expect(await preferenceCookie(page)).toBe('zh-Hans')
@@ -243,7 +281,7 @@ test('西方站只有英文，页头不显示语言菜单', async ({ page }) => 
   await expect(page.locator('header button[lang]')).toHaveCount(0)
 })
 
-test('已登记的西方站只建议本站语言：浏览器为繁体中文时不输出建议横幅', async ({
+test('已登记的西方站与东方站英文入口页：浏览器为繁体中文时不输出建议横幅', async ({
   browser,
   baseURL,
 }) => {
@@ -255,6 +293,13 @@ test('已登记的西方站只建议本站语言：浏览器为繁体中文时�
     await page.goto('/pricing')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.locator('[data-locale-suggestion-for]')).toHaveCount(0)
+    // 首帧脚本取同一可建议语言（模板 0.5.11）：不可建议时不写 <html> 属性
+    await expect(page.locator('html')).not.toHaveAttribute('data-locale-suggestion')
+    // 东方站英文入口页 `/en`：默认语言但带语言前缀，同样不建议
+    await page.goto(`${eastOrigin(baseURL)}/en`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.locator('[data-locale-suggestion-for]')).toHaveCount(0)
+    await expect(page.locator('html')).not.toHaveAttribute('data-locale-suggestion')
   } finally {
     await context.close()
   }

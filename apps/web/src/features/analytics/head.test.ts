@@ -18,7 +18,8 @@ vi.mock('../i18n/language-controls.tsx', () => ({
 import { baseLocale, cookieName, getLocale, locales } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
-import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE, SUGGESTION_ALIASES } from '../i18n/preference.ts'
+import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../i18n/preference.ts'
+import { siteSuggestableLocales } from '../i18n/site-suggestion.ts'
 import { localeSuggestionScript } from '../i18n/suggestion.ts'
 import { SITE_THEME_SCRIPT, siteFontScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
@@ -62,7 +63,7 @@ describe('分析脚本页面 head', () => {
   it('默认页面 head 无 PostHog 或 beacon，主题、站点主题与语言建议内联脚本保持原样', async () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
-    const inline = [
+    const inline = (pathname: string) => [
       { children: themeInitScript() },
       { children: SITE_THEME_SCRIPT },
       { children: siteFontScript('west', getLocale()) },
@@ -75,7 +76,7 @@ describe('分析脚本页面 head', () => {
                 preferenceCookie: PREFERENCE_COOKIE,
                 localeCookie: cookieName,
                 cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
-                aliases: SUGGESTION_ALIASES,
+                suggestableLocales: siteSuggestableLocales({ id: 'west', known: false }, pathname),
               }),
             },
           ]
@@ -83,7 +84,7 @@ describe('分析脚本页面 head', () => {
     ]
     for (const pathname of ['/', '/zh-hant/pricing', '/app/personal/chat', '/admin/users']) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])
-      expect(result?.scripts).toEqual(inline)
+      expect(result?.scripts).toEqual(inline(pathname))
       // 字体样式表由脚本插入，不以阻塞渲染的 <link rel="stylesheet"> 出现
       expect(result?.links?.filter((link) => link?.rel === 'stylesheet')).toHaveLength(1)
       expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon/i)
