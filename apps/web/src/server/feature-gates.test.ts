@@ -10,6 +10,10 @@ const mocks = vi.hoisted(() => ({
 vi.mock('./template-config.ts', () => ({ templateConfig: mocks.template }))
 vi.mock('@xuanxue/auth', () => ({ createAuth: mocks.auth }))
 vi.mock('@xuanxue/billing', () => ({ grantSignupBonus: mocks.grant }))
+// 注册赠送资格按数据库中的注册时间判断（signup-eligibility.ts），这里只验证开关
+vi.mock('../features/billing/signup-eligibility.ts', () => ({
+  signupBonusConfig: vi.fn(async () => ({ signupBonusCredits: 15 })),
+}))
 vi.mock('@tanstack/react-start', () => ({
   createMiddleware: () => ({ server: (handler: unknown) => handler }),
 }))

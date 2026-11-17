@@ -29,7 +29,7 @@ test.beforeAll(async () => {
     await sql`insert into ai_model (id, key, kind, provider, provider_model_id, pricing)
       values (${newId()}, ${MODEL_KEY}, 'text', 'anthropic', 'mock-model', ${sql.json({ mode: 'token', inputPer1k: 1, outputPer1k: 1 })})`
     await sql`insert into plan (id, key, name, type, credits, features, sort, active)
-      values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 100,
+      values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 50,
         '{}'::jsonb, 1000, false)`
     await sql`insert into plan_price (id, plan_id, provider, provider_price_id, interval, amount, currency, active)
       values (${PACK_PRICE}, ${PACK_PLAN}, 'paypal', ${`e2e:${PACK_PRICE}`}, null, 299, 'usd', false)`
@@ -106,7 +106,7 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
             workspaceId: owner.workspaceId,
             source: 'purchase',
             sourceRef: String(data.providerRef),
-            amount: 100,
+            amount: 50,
           })
         } finally {
           await db.$client.end()
@@ -129,7 +129,7 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
     result.packs = [
-      { planPriceId: PACK_PRICE, provider: 'paypal', credits: 100, amount: 299, currency: 'USD' },
+      { planPriceId: PACK_PRICE, provider: 'paypal', credits: 50, amount: 299, currency: 'USD' },
     ]
     await route.fulfill({
       status: response.status(),
@@ -164,9 +164,9 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await page.getByLabel('Date of birth').fill('1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
-  // 每份详批 10 积分（2026-11-17「版本 A」），按 100 积分 $2.99 的积分包折算为 $0.30
+  // 每份详批 10 积分（2026-11-17「版本 A」），按 50 积分 $2.99 的积分包（2026-11-18「版本 B」）折算为 $0.60
   await expect(card.getByText('10 credits', { exact: true })).toBeVisible()
-  await expect(card.getByTestId('reading-price')).toContainText('$0.30')
+  await expect(card.getByTestId('reading-price')).toContainText('$0.60')
   await expect(card.getByRole('listitem').first()).toHaveText('Overview')
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
 
@@ -180,7 +180,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   // 回到结果页：输入恢复，积分不足 → 积分包
   await expect(page).toHaveURL(/\/#r=/)
   const pack = page.getByTestId('reading-pack')
-  await expect(pack).toContainText('100 credits')
+  await expect(pack).toContainText('50 credits')
   expect(generated).toEqual([])
   await completeOfflineCheckout(page, () => pack.click())
 
@@ -207,7 +207,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
 
 /**
  * 离线订阅（enable-subscriptions-daily-credits 4.3）：报价中注入一个 Stripe 月付档位；结账时模拟
- * invoice.paid 首期入账 400 积分，并像 Stripe Checkout 一样直接回到 `returnTo?checkout=success`。
+ * invoice.paid 首期入账 100 积分，并像 Stripe Checkout 一样直接回到 `returnTo?checkout=success`。
  */
 const PLAN_PRICE = newId()
 async function offlineSubscription(page: Page, email: string, subscribed: string[]) {
@@ -224,7 +224,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
           workspaceId: owner.workspaceId,
           source: 'purchase',
           sourceRef: `e2e-subscription:${newId()}`,
-          amount: 400,
+          amount: 100,
         })
       } finally {
         await db.$client.end()
@@ -242,7 +242,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
     result.packs = [
-      { planPriceId: PACK_PRICE, provider: 'stripe', credits: 100, amount: 299, currency: 'USD' },
+      { planPriceId: PACK_PRICE, provider: 'stripe', credits: 50, amount: 299, currency: 'USD' },
     ]
     result.plans = [
       {
@@ -250,7 +250,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
         name: 'Plus',
         planPriceId: PLAN_PRICE,
         provider: 'stripe',
-        credits: 300,
+        credits: 100,
         amount: 499,
         currency: 'USD',
       },
@@ -289,7 +289,7 @@ test('积分不足时选择订阅，首期积分到账后回到原结果页自�
   const card = page.getByTestId('reading-unlock')
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
   const plan = page.getByTestId('reading-plan')
-  await expect(plan).toContainText('Plus · 300 credits a month')
+  await expect(plan).toContainText('Plus · 100 credits a month')
   await expect(plan).toContainText('$4.99/month')
   expect(generated).toEqual([])
   await plan.click()

@@ -1,6 +1,7 @@
 import { type AuthEnv, type CreateAuthDeps, createAuth } from '@xuanxue/auth'
 import { grantSignupBonus } from '@xuanxue/billing'
 import type { Database } from '@xuanxue/db'
+import { signupBonusConfig } from '../features/billing/signup-eligibility.ts'
 import { templateConfig } from './template-config.ts'
 import { resolveWorkspaceMaxSeats } from './workspace-data.ts'
 
@@ -14,7 +15,11 @@ export function createWebAuth(config: AuthEnv, db: Database, deps: Omit<CreateAu
       deps.onEmailVerified ??
       (async (user) => {
         if (templateConfig.credits.enabled)
-          return grantSignupBonus({ db, userId: user.id, config: templateConfig.billing })
+          return grantSignupBonus({
+            db,
+            userId: user.id,
+            config: await signupBonusConfig(db, user.id),
+          })
       }),
   })
 }
