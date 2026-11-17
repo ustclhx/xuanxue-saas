@@ -15,8 +15,8 @@ if (isEasternSite) {
   })
 
   for (const [prefix, lang, title, birthTime, pricing, packs] of [
-    ['zh-hant', 'zh-Hant', '免費八字排盤', '出生時間', '價格方案', '積分包'],
-    ['ko', 'ko', '무료 만세력', '태어난 시간', '요금 안내', '크레딧 팩'],
+    ['zh-hant', 'zh-Hant', '免費八字排盤', '出生時間', '價格方案', '單次購買積分'],
+    ['ko', 'ko', '무료 만세력', '태어난 시간', '요금 안내', '크레딧 단건 구매'],
   ] as const) {
     test(`东方站工具首页渲染（${lang}）`, async ({ page }) => {
       const response = await page.goto(`/${prefix}/`)
