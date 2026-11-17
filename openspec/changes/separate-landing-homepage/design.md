@@ -94,7 +94,7 @@
   - 「Arcanumber — Free Life Path Number Calculator, Numerology & Tarot」
 
   以上四条 Title 已由使用者在画布上确认（2026-11-17，原型索引）。首页 Title 站名在前，`pageHead` 不再给首页追加站名（D3a）。该文件同时是默认分享图副标题来源，分享图随之更新。首页 canonical 与 hreflang 簇不变。
-- **工具页**：Title / description / H1 原样沿用迁移前首页。结构化数据：
+- **工具页**：Title 文案、description、H1 沿用迁移前首页；Title 末尾按 D3a 带站名（东方站工具页此前由 `easternToolHead` 去掉了站名，现统一追加）。结构化数据：
   - 新增 `webApplicationData`（`applicationCategory: 'LifestyleApplication'`、`offers` 价格 0、`url` = canonical、`inLanguage`）；
   - 新增 `breadcrumbData`（首页 › 工具；西方站数字页为首页 › Life Path Number › n）；
   - 加上该页 FAQ 生成的 `FAQPage`。东方站用原首页 `bazi_home_faq_*`，西方站用长文 frontmatter 的 FAQ。

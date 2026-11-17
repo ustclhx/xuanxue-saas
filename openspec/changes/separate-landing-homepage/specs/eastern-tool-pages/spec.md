@@ -4,12 +4,12 @@
 
 ### Requirement: 首页主词工具页
 **Reason**: 八字 / 만세력工具从语言首页迁到关键词 URL，语言首页改为品牌落地页（separate-landing-homepage）。
-**Migration**: 工具页要求见本 capability 新增的「八字主词工具页」；首页要求见 home-hub「品牌落地页结构」「首页标题与 H1」。原 Title 与 H1 原样迁到 `/zh-hant/八字排盤`、`/zh-hans/八字排盘`、`/ko/만세력`。
+**Migration**: 工具页要求见本 capability 新增的「八字主词工具页」；首页要求见 home-hub「品牌落地页结构」「首页标题与 H1」。原 Title 文案（末尾按 seo「页面标题带站名」加上站名）与 H1 迁到 `/zh-hant/八字排盤`、`/zh-hans/八字排盘`、`/ko/만세력`。
 
 ## ADDED Requirements
 
 ### Requirement: 八字主词工具页
-东方站 `/zh-hant/八字排盤` SHALL 为八字排盤工具页，Title 为「免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析」；`/zh-hans/八字排盘` 为其简体版本；`/ko/만세력` SHALL 为만세력工具页，Title 为「만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)」。三页 H1 与迁移前语言首页的 H1 相同。结果区块顺序 SHALL 分别遵循设计文档 §2 P1（7 区块）与 P2（6 区块，신살·귀인·공망 区块为最详细的一块）；四柱与五行区块 SHALL 以图形加文字呈现（见 chart-visuals）。三页 SHALL 互为 hreflang 语言版本。
+东方站 `/zh-hant/八字排盤` SHALL 为八字排盤工具页，Title 为「免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日」；`/zh-hans/八字排盘` 为其简体版本；`/ko/만세력` SHALL 为만세력工具页，Title 为「만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이」。Title 中站名之前的部分与迁移前语言首页的 Title 相同，站名按 seo「页面标题带站名」追加。三页 H1 与迁移前语言首页的 H1 相同。结果区块顺序 SHALL 分别遵循设计文档 §2 P1（7 区块）与 P2（6 区块，신살·귀인·공망 区块为最详细的一块）；四柱与五行区块 SHALL 以图形加文字呈现（见 chart-visuals）。三页 SHALL 互为 hreflang 语言版本。
 
 #### Scenario: 繁中工具页结构
 - **WHEN** 访客在 `/zh-hant/八字排盤` 提交排盘
@@ -17,7 +17,7 @@
 
 #### Scenario: 工具页标题
 - **WHEN** 请求 `/ko/만세력` 的预渲染 HTML
-- **THEN** Title 为「만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)」，H1 为迁移前 `/ko` 首页的 H1
+- **THEN** Title 为「만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이」，H1 为迁移前 `/ko` 首页的 H1
 
 #### Scenario: 未登记语言
 - **WHEN** 访客打开 `/ko/八字排盤` 或 `/zh-hant/만세력`
