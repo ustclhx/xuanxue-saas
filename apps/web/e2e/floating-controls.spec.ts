@@ -66,7 +66,8 @@ for (const viewport of [
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' })
       // 项目修正：语言是页头 <details> 菜单、主题在页头/页脚设置行，均不悬浮；西方站（localhost）
       // 只有英语与深色主题，两个控件都不渲染。页面层悬浮按钮只剩手机端预览中 SubjectChat 的触发器，
-      // 桌面端没有悬浮入口，只核对遮罩与焦点。
+      // 桌面端没有悬浮入口，只核对遮罩与焦点。模板 0.5.7 的跳过条件（首页无 body[data-floating-controls]）
+      // 不适用：本项目根布局仍声明该属性（东方站有浮动主题切换），西方站的 ThemeToggle 渲染为空。
       const mobile = viewport.width < 768
       await page.goto('/')
       await expect(themeControl(page)).toHaveCount(0)

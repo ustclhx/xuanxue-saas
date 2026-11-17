@@ -239,19 +239,10 @@
 }
 
 /*
- * 中性填充：模板 Badge 的灰色实心样式以内联 `background-color: var(--accent)` 取「中性底」
- * （模板 globals.css 的 --accent 是浅/深灰），而本项目的 --accent 是品牌主色（西方站金色），
- * 浅色字压在金底上对比度只有约 1.4:1。只在内联背景色引用 var(--accent) 的元素上把 --accent 换成中性底，
- * 页面其余位置（按钮、焦点环、图形、bg-brand）仍是品牌色。
- * 中性底 = 表面色混入 12% 正文色：两站浅色/深色下与正文色对比度均高于 WCAG AA 4.5:1。
+ * 中性填充（模板 0.5.7 的 --neutral-fill，灰色实心 Badge 等）：模板默认是纯灰 #e5e5e5 / #525252，
+ * 放在西方站深蓝底与东方站暖色底上偏离配色。改为表面色混入 12% 正文色，随站点与主题取色；
+ * 与正文色对比度见 template-sync 0.5.7 证据（两站浅/深色均高于 WCAG AA 4.5:1）。
  */
 :root[data-site] {
   --neutral-fill: color-mix(in oklab, var(--surface) 88%, var(--ink));
-}
-
-/* 只匹配内联背景色取 var(--accent) 的元素（服务端输出无空格、客户端渲染带空格两种写法）；
-   图形里内联 fill/stroke: var(--accent) 的品牌色不受影响 */
-:root[data-site] [style*="background-color:var(--accent)"],
-:root[data-site] [style*="background-color: var(--accent)"] {
-  --accent: var(--neutral-fill);
 }

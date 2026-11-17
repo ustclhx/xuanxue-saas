@@ -6,14 +6,15 @@ import { EMPTY_MEDIA_PARAMETER } from '../src/features/ai-media/schema.ts'
 import { fixtureDb, register, simulateClientIp } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
-import { workersAiConfigured } from './workers-ai.ts'
+import { workersAiSkipReason } from './workers-ai.ts'
 
 // 后台写入、认证、权益与提交页 loader 均为真实本地链路；只 mock 任务 API，避免调用模型。
 test('saved media parameter schemas drive submit fields, defaults and validation', async ({
   page,
 }) => {
-  // 项目修正：用例选择 workers-ai 模型；项目未配置 Workers AI 绑定时该选项不出现（e2e/workers-ai.ts）
-  test.skip(!workersAiConfigured, 'Workers AI binding is not configured')
+  // 用例在后台创建 workers-ai 图片模型；项目未启用 Workers AI 时下拉框没有该服务商。
+  const skipReason = workersAiSkipReason()
+  test.skip(skipReason !== null, skipReason ?? '')
   test.setTimeout(150_000)
   const sql = fixtureDb()
   const email = `admin-schema-${randomUUID()}@example.com`
