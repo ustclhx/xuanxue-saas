@@ -91,7 +91,8 @@ test('答案页结论置顶并输出 FAQ 结构化数据，进入站点地图', 
 
 test('定价页有站点导航，CTA 未登录经登录页；首页 CTA 到注册；404 有回导航', async ({ page }) => {
   await page.goto('/pricing')
-  await expect(page.locator('header nav')).toBeVisible()
+  // 页头有桌面导航与手机面板两个 nav（#205）；桌面视口下只有前者可见
+  await expect(page.locator('header nav').first()).toBeVisible()
   await expect(page.locator('footer')).toBeVisible()
   const cta = page.getByRole('link', { name: /^Subscribe to / }).first()
   if (await cta.count()) {
