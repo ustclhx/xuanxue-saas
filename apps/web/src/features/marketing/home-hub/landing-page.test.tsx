@@ -265,7 +265,7 @@ describe('落地页', () => {
 
   it.each(HOMES)('%s %s：每个站内链接在正文中只出现一次', (site, locale) => {
     const html = render(site, locale)
-    const hrefs = [...html.matchAll(/<a\b[^>]*href="(\/[^"]*)"/g)].map((match) => match[1])
+    const hrefs = [...html.matchAll(/<a\b[^>]*href="(\/[^"]*)"/g)].map((match) => match[1] ?? '')
     // 主工具页出现两次：首屏主按钮与工具入口卡片（设计稿如此），其余各一次
     const counts = new Map<string, number>()
     for (const href of hrefs) counts.set(href, (counts.get(href) ?? 0) + 1)

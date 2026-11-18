@@ -189,7 +189,7 @@ function LandingSteps() {
     [m.landing_step_mark_3(), m.home_hub_step3_title(), m.home_hub_step3_desc()],
   ] as const
   return (
-    <Section id="steps" data-landing-block="steps" title={m.home_hub_steps_title()}>
+    <Section id="how-it-works" data-landing-block="steps" title={m.home_hub_steps_title()}>
       {/* biome-ignore lint/a11y/noRedundantRoles: list-none 会让 Safari 读屏丢失列表语义，需显式声明 */}
       <ol role="list" className="m-0 grid list-none gap-6 p-0 sm:grid-cols-3 sm:gap-12">
         {steps.map(([mark, title, description]) => (

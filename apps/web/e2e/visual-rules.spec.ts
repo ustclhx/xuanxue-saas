@@ -112,7 +112,9 @@ const foldTextElements = (page: Page) =>
           rect.top < fold &&
           rect.bottom > 0 &&
           (element.textContent ?? '').trim().length > 2 &&
-          !element.querySelector('p, li, h1, h2, h3')
+          // 带标题的整卡链接（工具卡）算一个元素：计卡片本身，不计卡内的标题与说明
+          (element.matches('a:has(h2, h3)') ||
+            (!element.querySelector('p, li, h1, h2, h3') && !element.closest('a:has(h2, h3)')))
         )
       },
     ).length

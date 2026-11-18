@@ -68,7 +68,8 @@ for (const locale of locales) {
     }
     // 导航后也必须更换 canonical；localhost 预览使用西方站导航，定价链接为无前缀地址。
     await page.goto(locale === defaultLocale ? '/' : localePrefix(locale))
-    await page.locator('header a[href="/pricing"]').click()
+    // 页头里有两个定价链接：桌面导航与手机导航面板，点可见的桌面导航
+    await page.locator('header nav a[href="/pricing"]').first().click()
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/pricing$/)
   })
 }
