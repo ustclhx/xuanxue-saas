@@ -64,16 +64,6 @@ function languageLocale(language: string): Locale | undefined {
   return locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
 }
 
-/**
- * 首帧前语言建议脚本（suggestion.ts）的中文标签归属，与 preferredLocale 一致：
- * zh-CN、zh-SG 归简体，只有 `zh` 或其他地区（zh-TW、zh-HK）按主语言归繁体。
- */
-export const SUGGESTION_ALIASES: Readonly<Record<string, string>> = {
-  zh: 'zh-Hant',
-  'zh-cn': 'zh-Hans',
-  'zh-sg': 'zh-Hans',
-}
-
 /** Server Functions 复用同源来源页的语言；不接受跨站来源影响本次语言。 */
 export function languageUrl(request: Request): URL {
   const url = new URL(request.url)

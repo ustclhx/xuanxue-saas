@@ -7,6 +7,7 @@ import { AppError } from '@xuanxue/shared'
 import { getLocale } from '../../paraglide/runtime.js'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
+import { signupBonusConfig } from '../billing/signup-eligibility.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
 import { loadAccount } from './account.ts'
 
@@ -39,9 +40,8 @@ export const getAccount = createServerFn({ method: 'GET' }).handler(async () => 
       },
       ...(await loadAccount(db, user, templateConfig)),
       supportEmail: supportEmail(templateConfig, getLocale()),
-      signupBonusCredits: templateConfig.credits.enabled
-        ? templateConfig.billing.signupBonusCredits
-        : 0,
+      // 「版本 B」只送新用户：决策日前注册的账户不显示领取入口
+      signupBonusCredits: (await signupBonusConfig(db, user.id)).signupBonusCredits,
     }
   } catch (error) {
     if (error instanceof AppError) throw redirect({ href: ACCOUNT_LOGIN_HREF })

@@ -24,7 +24,7 @@ test('public pricing describes unavailable payments without a checkout success',
   await expect(packs.first()).toContainText('$2.99')
   // 积分包按本地化名称与积分数展示（pricing-page.tsx PACK_NAMES）
   await expect(packs.last()).toContainText('Value Pack')
-  await expect(packs.last()).toContainText('400 credits')
+  await expect(packs.last()).toContainText('150 credits')
   await expect(page.getByTestId('pricing-pack').getByRole('link')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /checkout|pay now/i })).toHaveCount(0)
 

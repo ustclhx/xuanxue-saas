@@ -135,7 +135,9 @@ describe('跨页保留输入', () => {
       </ToolForm>,
     )
     expect(html).toMatch(/name="year"[^>]*value="1990"|value="1990"[^>]*name="year"/)
-    expect(html).toMatch(/name="time"[^>]*value="10:30"|value="10:30"[^>]*name="time"/)
+    // 时间为时 / 分分段（tools/date-field.tsx），提交值在挂载后写入同名隐藏字段
+    expect(html).toMatch(/data-part="hour"[^>]*value="10"|value="10"[^>]*data-part="hour"/)
+    expect(html).toMatch(/data-part="minute"[^>]*value="30"|value="30"[^>]*data-part="minute"/)
     expect(html).toMatch(/value="female"[^>]*checked|checked[^>]*value="female"/)
   })
 

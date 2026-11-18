@@ -106,13 +106,25 @@ describe('西方站每日页', () => {
     await render(
       <WestDailyPage rules={EN_RULES} data={loadWestDaily({ year: 2026, month: 11, day: 13 })} />,
     )
-    const input = container.querySelector<HTMLInputElement>('input[name="birthDate"]')
-    if (!input) throw new Error('birth date input missing')
-    await act(async () => {
-      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-      setter?.call(input, '1990-05-15')
-      input.dispatchEvent(new Event('input', { bubbles: true }))
-    })
+    // 年 / 月 / 日分段输入（不用原生日期控件，见 tools/date-field.tsx）
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+    for (const [part, value] of [
+      ['year', '1990'],
+      ['month', '5'],
+      ['day', '15'],
+    ] as const) {
+      const input = container.querySelector<HTMLInputElement>(
+        `[data-field="birthDate"] [data-part="${part}"]`,
+      )
+      if (!input) throw new Error(`birth date ${part} input missing`)
+      await act(async () => {
+        setter?.call(input, value)
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      })
+    }
+    expect(container.querySelector<HTMLInputElement>('input[name="birthDate"]')?.value).toBe(
+      '1990-05-15',
+    )
     const result = container.querySelector('[data-testid="daily-personal"]')?.textContent ?? ''
     expect(result).toContain('Personal Year: 5 + 6 + 1 = 12 → 1 + 2 = 3')
     expect(result).toContain('Personal Month: 3 + 11 = 14 → 1 + 4 = 5')

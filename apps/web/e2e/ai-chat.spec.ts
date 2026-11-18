@@ -10,6 +10,7 @@ import {
   UUID,
   uiStream,
 } from './chat-fixtures.ts'
+import { fillDate } from './date-field.ts'
 import { fixtureDb, login, PASSWORD, register, simulateClientIp } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -382,7 +383,7 @@ test('result page “Ask AI” opens a temporary-context chat with the recompute
     await page.context().clearCookies()
     // Life Path 计算器在 /life-path-number（separate-landing-homepage D1），首页是落地页
     await page.goto('/life-path-number')
-    await page.getByLabel('Date of birth').fill('1987-11-29')
+    await fillDate(page, 'Date of birth', '1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     await expect(page.locator('#life-path-result')).toContainText('11')
     await page.getByTestId('ask-ai-button').click()

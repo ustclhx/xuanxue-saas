@@ -2,6 +2,8 @@ import type { NumberResult } from '@xuanxue/numerology'
 import { cn } from '@xuanxue/ui'
 import { useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { DateField } from '../tools/date-field.tsx'
+import { dateValueComplete } from '../tools/date-parts.ts'
 import { Disclaimer } from '../tools/disclaimer.tsx'
 import { parseBirthDate } from '../tools/numerology/calc.ts'
 import { tarotPath } from '../tools/tarot/routes.ts'
@@ -157,7 +159,8 @@ function PersonalDayCalculator({ rules, date }: { rules: WestRules; date: string
   const today = parseDateKey(date)
   const parsed = parseBirthDate(birth)
   let result: WestPersonalFacts | null = null
-  let invalid = false
+  // 三段都填了却解析不出（如 13 月）也提示，与日期不存在一致
+  let invalid = !parsed && dateValueComplete(birth)
   if (parsed && today) {
     try {
       result = westPersonalFacts(parsed, today)
@@ -178,21 +181,14 @@ function PersonalDayCalculator({ rules, date }: { rules: WestRules; date: string
         method="post"
         onSubmit={(event) => event.preventDefault()}
       >
-        <label htmlFor={inputId} className="flex flex-col gap-1.5 text-ink-muted text-sm">
-          {m.daily_west_pd_label()}
-          <input
-            id={inputId}
-            name="birthDate"
-            type="date"
-            min="0001-01-01"
-            max="9999-12-31"
-            value={birth}
-            onChange={(event) => setBirth(event.target.value)}
-            aria-invalid={invalid || undefined}
-            aria-describedby={errorId}
-            className="min-h-11 w-full rounded-lg border border-line-strong bg-background px-3 text-base text-ink"
-          />
-        </label>
+        <DateField
+          label={m.daily_west_pd_label()}
+          name="birthDate"
+          onValueChange={setBirth}
+          invalid={invalid}
+          describedBy={errorId}
+          inputClassName="bg-background"
+        />
       </form>
       <p id={errorId} className="m-0 text-brand-ink text-sm empty:hidden">
         {invalid ? m.daily_form_invalid() : null}

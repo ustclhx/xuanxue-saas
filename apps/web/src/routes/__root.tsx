@@ -7,11 +7,8 @@ import { AnnouncementBanner } from '../features/admin/settings-announcement-bann
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
-import {
-  LOCALE_COOKIE_MAX_AGE,
-  PREFERENCE_COOKIE,
-  SUGGESTION_ALIASES,
-} from '../features/i18n/preference.ts'
+import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../features/i18n/preference.ts'
+import { siteSuggestableLocales } from '../features/i18n/site-suggestion.ts'
 import { localeSuggestionScript } from '../features/i18n/suggestion.ts'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { privateMeta, titleWithSite } from '../features/seo/metadata.ts'
@@ -21,6 +18,7 @@ import {
   getSeoOrigin,
 } from '../features/seo/origin.functions.ts'
 import { SiteContext, useSiteId } from '../features/site/context.tsx'
+import { pvuvHeadScripts } from '../features/site/pvuv.ts'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { siteNavLocale } from '../features/site/site.ts'
 import { siteFontScript, siteIconLinks, siteThemeScript } from '../features/site/theme.ts'
@@ -85,7 +83,11 @@ export const Route = createRootRoute({
                 preferenceCookie: PREFERENCE_COOKIE,
                 localeCookie: cookieName,
                 cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
-                aliases: SUGGESTION_ALIASES,
+                // 与 LanguageSuggestion 同值：已登记站点只建议本站语言，带语言前缀的页面不建议
+                suggestableLocales: siteSuggestableLocales(
+                  loaderData?.site ?? { id: 'west', known: false },
+                  matches.at(-1)?.pathname ?? '/',
+                ),
               }),
             },
           ]
@@ -95,6 +97,11 @@ export const Route = createRootRoute({
         loaderData?.site ?? { id: 'west', known: false },
         templateConfig,
         loaderData?.plausible,
+      ),
+      // pvuv.ai 站点统计：与 Cloudflare beacon 同范围，只在已登记站点的公开页面（features/site/pvuv.ts）
+      ...pvuvHeadScripts(
+        matches.at(-1)?.pathname ?? '/',
+        loaderData?.site ?? { id: 'west', known: false },
       ),
     ],
   }),

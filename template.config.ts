@@ -59,7 +59,9 @@ export default defineTemplateConfig({
     enabled: true, // 计费依赖积分；关闭计费时同时关闭 AI
     providers: ['stripe', 'paypal'], // 结账页展示顺序；Stripe 未配置密钥时显示为不可用，PayPal 照常
     currency: 'usd',
-    signupBonusCredits: 0, // 不送注册积分，避免注册即白拿一次详批（add-reading-monetization 决策 4）
+    // 2026-11-18「版本 B」：新用户首次登录共送 20 积分 = 注册赠送 15（邮箱验证后，每个规范化邮箱一次，两站共享）
+    // + 当天每日领取 5（运行时设置 credits.dailyAmount）。只发给决策日之后注册的账户，见 features/billing/signup-eligibility.ts。
+    signupBonusCredits: 15,
     pastDueGraceDays: 7, // past_due 期间保留权益的天数
     subscriptionCreditGraceHours: 24, // 订阅积分批次在周期末之后的额外有效期
     overage: {
