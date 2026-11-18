@@ -2,6 +2,14 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
+    "typecheck": {
+      // worktree-env.ts 建测试库时读取 initdb 的授权脚本
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/scripts/check-credit-writes.mjs",
+        "$TURBO_ROOT$/infra/local/initdb/02-db-grants.sql"
+      ]
+    },
     "test": {
       "cache": false,
       "passThroughEnv": [
