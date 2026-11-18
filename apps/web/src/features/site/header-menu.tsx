@@ -74,7 +74,8 @@ export function HeaderMenu({
       <div
         className={cn(
           'absolute top-full z-50 grid gap-1 rounded-object bg-surface p-3 shadow-raise dark:bg-surface-2',
-          wide ? 'inset-x-3' : 'right-0 mt-2 min-w-56',
+          // w-max：面板按最长一项的宽度展开，菜单项不折行（如「Numerology Calculator」）
+          wide ? 'inset-x-3' : 'right-0 mt-2 w-max min-w-56',
         )}
       >
         {children}

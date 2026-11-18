@@ -11,8 +11,9 @@ import { NUMEROLOGY_LOCALE, NUMEROLOGY_TOOLS } from './routes.ts'
 import { faqItems } from './seo.ts'
 
 /**
- * 数字页与枢纽页（specs/numerology-pages「数字页」）：H1 与导语来自 frontmatter，首屏内嵌计算器，
- * 之后是正文、12 个数字页网格（当前页高亮）、工具互链与 FAQ（同时输出 FAQPage）。
+ * 数字页与枢纽页（specs/numerology-pages「数字页」）：H1 与导语来自 frontmatter，首屏内嵌计算器与结果，
+ * 正文长文在结果之后（specs/tool-pages「工具页紧凑布局」），再是 FAQ（同时输出 FAQPage）、
+ * 12 个数字页网格（当前页高亮）与工具互链。
  */
 export function NumerologyContentPage({
   tool,
@@ -35,28 +36,31 @@ export function NumerologyContentPage({
         title={content.title}
         intro={<p className="m-0">{content.description}</p>}
         form={calculator}
-        links={numerologyLinks(tool)}
+        article={
+          <>
+            <NumerologyArticle html={content.html} />
+            {/* 只有 12 个生命灵数含义页加入口；枢纽页本身就是姓名计算器 */}
+            {content.number != null && (
+              <ContentFunnel
+                tool={{
+                  href: fullCalculator,
+                  label: m.funnel_content_life_path_tool(),
+                  target: 'numerology-calculator',
+                }}
+                reading={{
+                  kind: 'numerology-full',
+                  href: fullCalculator,
+                  label: m.funnel_content_reading(),
+                  target: 'reading-numerology-full',
+                }}
+              />
+            )}
+          </>
+        }
         faq={faqItems(content.faq)}
-      >
-        <NumerologyArticle html={content.html} />
-        <NumberGrid current={content.number ?? undefined} />
-        {/* 只有 12 个生命灵数含义页加入口；枢纽页本身就是姓名计算器 */}
-        {content.number != null && (
-          <ContentFunnel
-            tool={{
-              href: fullCalculator,
-              label: m.funnel_content_life_path_tool(),
-              target: 'numerology-calculator',
-            }}
-            reading={{
-              kind: 'numerology-full',
-              href: fullCalculator,
-              label: m.funnel_content_reading(),
-              target: 'reading-numerology-full',
-            }}
-          />
-        )}
-      </ToolPage>
+        nav={<NumberGrid current={content.number ?? undefined} />}
+        links={numerologyLinks(tool)}
+      />
     </MarketingShell>
   )
 }

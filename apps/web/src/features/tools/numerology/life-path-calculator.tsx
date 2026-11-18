@@ -1,5 +1,5 @@
 import { type BirthDate, lifePath, type NumberResult } from '@xuanxue/numerology'
-import { type ReactNode, useId, useState } from 'react'
+import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
@@ -66,20 +66,16 @@ export function BirthDateField({
 }
 
 /**
- * Life Path 计算器（首页首屏与数字页内嵌共用，原型 LifePath.dc.html）：
- * 左栏标题、导语与只含出生日期的表单，右栏结果卡；未提交前显示 1987-11-29 的样例算式。
+ * Life Path 计算器（工具页 `/life-path-number` 与 12 个数字页内嵌共用；设计稿 warm-refresh/ToolLifePath.dc.html）：
+ * 表单面板只含出生日期与提交按钮，结果卡紧随其后；未提交前显示样例日期的算式。
  * 结果在浏览器本地计算，分享链接只含日期（`#r=`）。须放在 ToolContext 内（埋点）。
  */
 export function LifePathCalculator({
-  heading,
-  intro,
   example = EXAMPLE,
   unlock = false,
 }: {
-  heading?: ReactNode
-  intro?: ReactNode
   example?: BirthDate
-  /** 显示完整分析解锁卡（只在首页，数字页内嵌时不显示） */
+  /** 显示完整分析解锁卡（只在工具页，数字页内嵌时不显示） */
   unlock?: boolean
 }) {
   const { track } = useTool()
@@ -97,56 +93,37 @@ export function LifePathCalculator({
   useSharedInput((shared) => shared.date && show(shared.date))
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="flex flex-wrap items-start gap-8 sm:gap-10">
-        <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-4">
-          {heading}
-          {intro && (
-            <p className="m-0 max-w-[520px] text-[17px] text-ink-muted leading-relaxed sm:text-lg">
-              {intro}
-            </p>
-          )}
-          <ToolForm
-            label={m.numerology_form_label()}
-            onSubmit={(data) => show(data.get('birthDate'))}
-            className="mt-2 flex flex-wrap items-end gap-3 border-0 bg-transparent p-0 sm:p-0"
-          >
-            <ProfileBar
-              target={{ kind: 'numerology', date: true, name: false }}
-              className="w-full"
-            />
-            <BirthDateField
-              className="min-w-0 flex-[1_1_220px]"
-              errorId={errorId}
-              invalid={invalid}
-            />
-            <SubmitButton className="flex-[0_0_auto] max-[400px]:w-full">
-              {m.numerology_calculate()}
-            </SubmitButton>
-          </ToolForm>
+    <div className="flex flex-col gap-8 sm:gap-10">
+      <ToolForm label={m.numerology_form_label()} onSubmit={(data) => show(data.get('birthDate'))}>
+        <ProfileBar
+          target={{ kind: 'numerology', date: true, name: false }}
+          className="col-span-full"
+        />
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <BirthDateField errorId={errorId} invalid={invalid} />
           <FieldError id={errorId}>{invalid && m.numerology_date_invalid()}</FieldError>
         </div>
-        <div
-          id="life-path-result"
-          aria-live="polite"
-          className="min-w-0 flex-[1_1_380px] scroll-mt-6"
-        >
-          {calculated ? (
-            <LifePathCard
-              result={calculated.result}
-              date={calculated.date}
-              footer={
-                <ShareLink
-                  input={{ date: formatBirthDate(calculated.date) }}
-                  card={() => lifePathShareCard(calculated.result, calculated.date)}
-                />
-              }
-            />
-          ) : (
-            <LifePathCard result={lifePath(example)} date={example} example />
-          )}
-        </div>
-      </section>
+        {/* 桌面与日期并排、对齐输入框底边；手机占满一行 */}
+        <SubmitButton className="sm:col-span-1 sm:self-end">
+          {m.numerology_calculate()}
+        </SubmitButton>
+      </ToolForm>
+      <div id="life-path-result" aria-live="polite" className="min-w-0 scroll-mt-6">
+        {calculated ? (
+          <LifePathCard
+            result={calculated.result}
+            date={calculated.date}
+            footer={
+              <ShareLink
+                input={{ date: formatBirthDate(calculated.date) }}
+                card={() => lifePathShareCard(calculated.result, calculated.date)}
+              />
+            }
+          />
+        ) : (
+          <LifePathCard result={lifePath(example)} date={example} example />
+        )}
+      </div>
       <ReadingSlots
         tool="life-path"
         optin={

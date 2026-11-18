@@ -93,7 +93,7 @@
 
 依赖：同第 4 组。冲突点：`bazi/bazi-home.tsx`、`bazi/manseryeok-home.tsx`、`numerology/home.tsx`、`numerology/content-page.tsx`（长文位置）只由本组修改。
 
-- [ ] 5.1 三个工具组件去掉 `hub` 属性（文件可改名，并同步两份允许名单），按 `tool-pages`「工具页紧凑布局」与设计稿改版：
+- [x] 5.1 三个工具组件去掉 `hub` 属性（文件可改名，并同步两份允许名单），按 `tool-pages`「工具页紧凑布局」与设计稿改版：
   - H1 + 简介 + 表单；
   - 结果；
   - 内链与长文 / FAQ 放在结果之后；

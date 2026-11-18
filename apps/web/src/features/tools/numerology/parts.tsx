@@ -10,11 +10,16 @@ import { formatLongDate, lifePathLines } from './calc.ts'
 import { asLifePath, NUMBER_SUMMARY } from './copy.ts'
 import { LIFE_PATH_NUMBERS, lifePathPath } from './routes.ts'
 
-/** 西方站的大号数字（标题字体，手机上缩小以免挤压步骤） */
-export function BigNumber({ value, className }: { value: number; className?: string }) {
+/**
+ * 大号数字（design.md D14：命盘内的大字用 display，小盘用 title；标题字体、文字色）
+ */
+export function BigNumber({ value, size }: { value: number; size?: 'sm' | undefined }) {
   return (
     <span
-      className={cn('font-heading text-[88px] text-brand leading-[0.9] sm:text-[112px]', className)}
+      className={cn(
+        'font-bold font-heading text-ink',
+        size === 'sm' ? 'text-title' : 'text-display',
+      )}
     >
       {value}
     </span>
@@ -23,7 +28,7 @@ export function BigNumber({ value, className }: { value: number; className?: str
 
 export function MasterPill() {
   return (
-    <span className="inline-flex min-h-8 items-center rounded-full border border-brand px-3 text-[13px] text-brand">
+    <span className="inline-flex min-h-8 items-center rounded-field bg-surface-2 px-3 text-caption text-ink">
       {m.numerology_master()}
     </span>
   )
@@ -33,19 +38,16 @@ export function MasterPill() {
 export function NumberHeadline({ result, size }: { result: NumberResult; size?: 'sm' }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <BigNumber
-        value={result.value}
-        className={size === 'sm' ? 'text-[64px] sm:text-[72px]' : ''}
-      />
+      <BigNumber value={result.value} size={size} />
       {result.master && <MasterPill />}
     </div>
   )
 }
 
-/** 算式行：等宽数字，长算式在窄屏上折行而不是撑出横向滚动 */
+/** 算式行：细线分隔的列表，等宽数字，长算式在窄屏上折行而不是撑出横向滚动 */
 export function StepLines({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col text-[15px] text-ink-muted tabular-nums leading-[1.8] [overflow-wrap:anywhere]">
+    <div className="flex flex-col divide-y divide-line wrap-anywhere text-body text-ink tabular-nums *:py-2.5">
       {children}
     </div>
   )
@@ -61,13 +63,13 @@ export function LifePathSteps({ result, date }: { result: NumberResult; date: Bi
     <StepLines>
       {lifePathLines(result, date).map((line) =>
         line.phase === 'total' ? (
-          <div key={line.phase} className="text-ink">
+          <div key={line.phase} className="font-medium">
             {line.text.replace(/\d+$/, '')}
             <strong>{result.value}</strong>
           </div>
         ) : (
           <div key={line.phase}>
-            {label[line.phase]} {line.input} → {line.text}
+            <span className="text-ink-subtle">{label[line.phase]}</span> {line.input} → {line.text}
             {line.kept && ` ${m.numerology_step_kept()}`}
           </div>
         ),
@@ -76,9 +78,19 @@ export function LifePathSteps({ result, date }: { result: NumberResult; date: Bi
   )
 }
 
+/** 结果卡里的数字环（设计稿 warm-refresh/ToolLifePath.dc.html 的 numring）：两道插画线同心环，数字用 display */
+function NumberRing({ value }: { value: number }) {
+  return (
+    <span className="relative flex size-33 shrink-0 items-center justify-center rounded-full border border-illus">
+      <span aria-hidden="true" className="absolute inset-3 rounded-full border border-illus/55" />
+      <BigNumber value={value} />
+    </span>
+  )
+}
+
 /**
- * 首页结果卡（原型 LifePath.dc.html 右栏）：标签、大号数字、大师数、算式、摘要、数字页链接与短声明。
- * `example` 时标签改为样例说明（首屏未提交前展示 1987-11-29 的计算过程）。
+ * Life Path 结果卡（设计稿 warm-refresh/ToolLifePath.dc.html）：说明标签、数字环、数字标题与摘要、数字页链接，
+ * 之后是计算步骤（推导图形加算式）与短声明。`example` 时标签改为样例说明（未提交前展示样例日期的计算过程）。
  */
 export function LifePathCard({
   result,
@@ -97,46 +109,53 @@ export function LifePathCard({
   return (
     <section
       aria-labelledby={labelId}
-      className="flex min-w-0 flex-col gap-4 rounded-2xl border border-line bg-surface p-5 sm:p-7"
+      className="flex min-w-0 flex-col gap-4 rounded-object bg-surface p-6 sm:p-8"
     >
-      <h2
-        id={labelId}
-        className="m-0 font-normal font-sans text-ink-subtle text-sm uppercase tracking-[1.5px]"
-      >
+      <p className="m-0 text-caption text-ink-subtle">
         {example
           ? m.numerology_result_example({ date: formatLongDate(date) })
           : m.numerology_result_label()}
-      </h2>
-      <NumberHeadline result={result} />
+      </p>
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
+        <NumberRing value={result.value} />
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 id={labelId} className="m-0 font-heading text-ink text-subtitle">
+              {m.numerology_grid_link({ number: value })}
+            </h2>
+            {result.master && <MasterPill />}
+          </div>
+          <p className="m-0 text-body text-ink-muted">{NUMBER_SUMMARY[value]()}</p>
+          <a
+            href={lifePathPath(value)}
+            onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
+            className="inline-flex min-h-11 items-center text-body text-brand-ink hover:decoration-2"
+          >
+            {m.numerology_read_meaning({ number: value })}
+          </a>
+        </div>
+      </div>
+      <h3 className="m-0 mt-2 font-heading text-ink text-subtitle">{m.numerology_steps_label()}</h3>
       <LifePathChart result={result} date={date} />
       <LifePathSteps result={result} date={date} />
-      <p className="m-0 text-[15px] text-ink-muted leading-relaxed">{NUMBER_SUMMARY[value]()}</p>
-      <a
-        href={lifePathPath(value)}
-        onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
-        className="inline-flex min-h-11 items-center text-base text-brand-ink underline-offset-4 hover:underline"
-      >
-        {m.numerology_read_meaning({ number: value })}
-      </a>
-      <p className="m-0 text-ink-subtle text-xs">{m.numerology_result_note()}</p>
+      <p role="note" className="m-0 text-caption text-ink-subtle">
+        {m.numerology_result_note()}
+      </p>
       {footer}
     </section>
   )
 }
 
-/** 1–33 数字网格（原型「All life path numbers」）：当前数字用星金描边 */
+/** 1–33 数字网格（设计稿「All life path numbers」）：surface 方块，当前数字用站点强调色描边 */
 export function NumberGrid({ current, title }: { current?: number | undefined; title?: string }) {
   const headingId = useId()
   const { track } = useTool()
   return (
-    <nav aria-labelledby={headingId} className="flex flex-col gap-3.5">
-      <h2
-        id={headingId}
-        className="m-0 font-heading font-semibold text-[28px] text-ink sm:text-[32px]"
-      >
+    <nav aria-labelledby={headingId} className="flex flex-col gap-4">
+      <h2 id={headingId} className="m-0 font-heading text-ink text-subtitle">
         {title ?? m.numerology_grid_title()}
       </h2>
-      <ul className="m-0 grid list-none grid-cols-4 gap-2.5 p-0 sm:grid-cols-6 lg:grid-cols-12">
+      <ul className="m-0 grid list-none grid-cols-4 gap-2 p-0 sm:grid-cols-6">
         {LIFE_PATH_NUMBERS.map((value) => (
           <li key={value}>
             <a
@@ -144,7 +163,7 @@ export function NumberGrid({ current, title }: { current?: number | undefined; t
               aria-label={m.numerology_grid_link({ number: value })}
               aria-current={value === current ? 'page' : undefined}
               onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
-              className="flex min-h-16 items-center justify-center rounded-xl border border-line bg-surface-2 font-heading text-[28px] text-ink transition-colors hover:border-line-strong aria-[current=page]:border-brand aria-[current=page]:text-brand"
+              className="flex min-h-14 items-center justify-center rounded-field bg-surface font-bold font-heading text-ink text-subtitle no-underline transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 aria-[current=page]:ring-1 aria-[current=page]:ring-mark aria-[current=page]:ring-inset"
             >
               {value}
             </a>
@@ -158,19 +177,19 @@ export function NumberGrid({ current, title }: { current?: number | undefined; t
 /** 表单下方的字段错误（aria-live 播报） */
 export function FieldError({ id, children }: { id: string; children?: ReactNode }) {
   return (
-    <p id={id} aria-live="polite" className="m-0 text-destructive text-sm empty:hidden">
+    <p id={id} aria-live="polite" className="m-0 text-caption text-danger empty:hidden">
       {children}
     </p>
   )
 }
 
-/** MDX 正文（构建期渲染的 HTML），标题用西方站衬线字体，段落宽度对齐原型的 720px */
+/** MDX 正文（构建期渲染的 HTML）：限宽 720px，正文用 body，小标题用 title（工具页长文在结果之后） */
 export function NumerologyArticle({ html }: { html: string }) {
   return (
-    <article className="max-w-[720px] text-[17px] text-ink-muted">
+    <article className="max-w-180 text-ink-muted">
       <RichContent
         html={html}
-        className="leading-[1.75] [&_a]:text-brand-ink [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-heading [&_h2]:font-semibold [&_h2]:text-[28px] [&_h2]:text-ink [&_h2]:leading-tight [&_h2:first-child]:mt-0 sm:[&_h2]:text-[34px] [&_pre]:bg-surface-2 [&_pre]:text-[15px] [&_pre]:text-ink [&_code]:bg-surface-2"
+        className="[&_a]:text-brand-ink [&_code]:bg-surface-2 [&_code]:text-caption [&_h2:first-child]:mt-0 [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:text-balance [&_h2]:font-bold [&_h2]:font-heading [&_h2]:text-ink [&_h2]:text-title [&_h3]:font-heading [&_h3]:text-ink [&_h3]:text-subtitle [&_li]:text-body [&_p]:text-body [&_pre]:bg-surface-2 [&_pre]:text-ink [&_pre_code]:text-body [&_table]:text-caption"
       />
     </article>
   )

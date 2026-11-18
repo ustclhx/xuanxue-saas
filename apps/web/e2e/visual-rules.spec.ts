@@ -20,6 +20,10 @@ interface RulePage {
 const PAGES: readonly RulePage[] = [
   { name: '东方站首页', site: 'east', path: '/zh-hant', landing: true, restyled: true },
   { name: '西方站首页', site: 'west', path: '/', landing: true, restyled: true },
+  // 主工具页（openspec separate-landing-homepage tasks 5.1，specs/tool-pages「工具页紧凑布局」）
+  { name: '八字排盤', site: 'east', path: '/zh-hant/八字排盤', restyled: true },
+  { name: '만세력', site: 'east', path: '/ko/만세력', restyled: true },
+  { name: 'Life Path Number', site: 'west', path: '/life-path-number', restyled: true },
   { name: '紫微斗數排盤', site: 'east', path: '/zh-hant/紫微斗數排盤', restyled: false },
   { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: false },
   { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: false },
@@ -142,8 +146,8 @@ const minParagraphSize = (page: Page) =>
     const sizes = [...document.querySelectorAll('main p:not([role="note"])')]
       .filter((p) => {
         const rect = p.getBoundingClientRect()
-        // 小字说明（声明、元信息、提示）用 caption，不算正文：只看较长的段落
-        return rect.width > 0 && (p.textContent ?? '').trim().length >= 40
+        // 小字说明（声明、元信息、提示）用 caption，不算正文：只看较长的段落；表单内的字段提示（如真太阳时说明）同样是 caption
+        return rect.width > 0 && !p.closest('form') && (p.textContent ?? '').trim().length >= 40
       })
       .map((p) => Number.parseFloat(getComputedStyle(p).fontSize))
     return sizes.length > 0 ? Math.min(...sizes) : null
