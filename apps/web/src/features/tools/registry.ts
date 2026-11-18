@@ -54,11 +54,12 @@ const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
 })
 
 export const TOOL_ROUTES: readonly ToolRoute[] = [
-  // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本
+  // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本；
+  // 路径为关键词 URL（openspec separate-landing-homepage design.md D1），语言首页是品牌落地页
   {
     id: 'bazi',
     site: 'east',
-    paths: { 'zh-Hant': '/', 'zh-Hans': '/', ko: '/' },
+    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력' },
     titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력' },
     descriptions: {
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
@@ -97,12 +98,27 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   },
   ...TAROT_TOOL_ROUTES,
   ...TAROT_MEANING_ROUTES,
-  // openspec add-numerology-tools：西方站首页、工具内页、12 个数字页与两个枢纽页
+  // openspec add-numerology-tools：西方站 Life Path 工具页、工具内页、12 个数字页与两个枢纽页
   ...NUMEROLOGY_ROUTES,
   ...conceptRoutes,
   // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
   ...DAILY_TOOL_ROUTES,
 ]
+
+/**
+ * 各站点的主工具（openspec separate-landing-homepage design.md D1、D4）：迁移前位于语言首页，
+ * 现为关键词 URL。落地页主按钮、旧首页链接的跳转与映射都指向它。
+ */
+export const MAIN_TOOL_IDS: Readonly<Record<SiteId, string>> = { east: 'bazi', west: 'life-path' }
+
+/** 某语言的主工具页路径（不含语言前缀，未编码）；该语言没有主工具页时返回 undefined */
+export function mainToolPath(
+  locale: string,
+  routes: readonly ToolRoute[] = TOOL_ROUTES,
+): string | undefined {
+  return routes.find((route) => MAIN_TOOL_IDS[route.site] === route.id && route.paths[locale])
+    ?.paths[locale]
+}
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */
 export function toolsForLocale(

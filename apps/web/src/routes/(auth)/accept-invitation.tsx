@@ -26,7 +26,7 @@ export const Route = createFileRoute('/(auth)/accept-invitation')({
   beforeLoad: async ({ search }) => ({ invitationPage: await getInvitationPage({ data: search }) }),
   loaderDeps: ({ search }) => search,
   loader: ({ context }) => context.invitationPage,
-  head: () => authPageHead('/accept-invitation', getLocale()),
+  head: () => authPageHead('/accept-invitation', getLocale(), m.auth_accept_invitation()),
   staleTime: 0,
   component: InvitationPage,
 })

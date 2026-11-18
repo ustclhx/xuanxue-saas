@@ -1,7 +1,11 @@
 import { expect, type Page, test } from '@playwright/test'
+import { fillTime, fillTimeByName } from './date-field.ts'
 
 // 东方站排盘页面（openspec add-bazi-saju-chart tasks.md 2.2、2.3、3.1、3.2）。
 // 本地 Host 未登记时按西方站主题渲染，但语言前缀与页面内容相同，足以验证结构与结果。
+// 八字排盤 / 만세력在关键词 URL 上（openspec separate-landing-homepage design.md D1），语言首页是品牌落地页。
+const BAZI = `/zh-hant/${encodeURIComponent('八字排盤')}`
+const MANSERYEOK = `/ko/${encodeURIComponent('만세력')}`
 const ZIWEI = `/zh-hant/${encodeURIComponent('紫微斗數排盤')}`
 const MINGPAN = `/zh-hant/${encodeURIComponent('命盤查詢')}`
 const GUNGHAP = `/ko/${encodeURIComponent('사주궁합')}`
@@ -14,7 +18,7 @@ async function fillBirth(
   await page.getByLabel(labels.year, { exact: true }).fill(value.year)
   await page.getByLabel(labels.month, { exact: true }).fill(value.month)
   await page.getByLabel(labels.day, { exact: true }).fill(value.day)
-  await page.getByLabel(labels.time).fill(value.time)
+  await fillTime(page, labels.time, value.time)
 }
 
 const zhLabels = { year: '年', month: '月', day: '日', time: '出生時間' }
@@ -28,11 +32,12 @@ const blockIds = (page: Page) =>
     .locator('#result > section, #result > div > section, #result > div > div > section')
     .evaluateAll((sections) => sections.map((section) => section.id))
 
-test('繁中首页：提交样例后依次显示 7 个区块与样例命盘的值', async ({ page }) => {
+test('繁中八字排盤：提交样例后依次显示 7 个区块与样例命盘的值', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto('/zh-hant', HYDRATED)
-  await expect(page).toHaveTitle('免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析')
+  await page.goto(BAZI, HYDRATED)
+  await expect(page).toHaveTitle('免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('免費八字排盤')
   await fillBirth(page, zhLabels, sample)
   await page.getByRole('button', { name: '立即排盤' }).click()
 
@@ -79,6 +84,8 @@ test('繁中首页：提交样例后依次显示 7 个区块与样例命盘的�
   await expect(page.getByRole('dialog')).toHaveCount(0)
   // 分享链接复现同一结果
   const href = await page.locator('#result input[readonly]').inputValue()
+  // 分享链接是工具页地址，不是语言首页
+  expect(new URL(href).pathname).toBe(BAZI)
   expect(href).toContain('#r=')
   await page.goto('about:blank')
   await page.goto(href, HYDRATED)
@@ -88,8 +95,8 @@ test('繁中首页：提交样例后依次显示 7 个区块与样例命盘的�
 
 test.describe('禁用脚本', () => {
   test.use({ javaScriptEnabled: false })
-  test('首页仍输出 H1 与表单标签', async ({ page }) => {
-    await page.goto('/zh-hant')
+  test('八字排盤工具页仍输出 H1 与表单标签', async ({ page }) => {
+    await page.goto(BAZI)
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('免費八字排盤')
     const form = page.getByRole('form', { name: '出生資料' })
     for (const label of ['曆法', '性別', '出生日期'])
@@ -103,7 +110,7 @@ test.describe('禁用脚本', () => {
     // 隐私：未水合 / 禁用脚本时不能原生提交（POST 且按钮禁用），并提示需要 JavaScript
     await expect(form.getByRole('button', { name: '立即排盤' })).toBeDisabled()
     await expect(form).toHaveAttribute('method', 'post')
-    expect(await form.getAttribute('action')).toBe('/zh-hant')
+    expect(await form.getAttribute('action')).toBe(BAZI)
     // Playwright 禁用脚本时解析器仍按启用脚本处理 <noscript>（内容为原始文本），因此检查文档 HTML
     expect(await form.innerHTML()).toMatch(
       /<noscript>.*需要啟用 JavaScript 才能排盤。.*<\/noscript>/s,
@@ -112,7 +119,7 @@ test.describe('禁用脚本', () => {
 })
 
 test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示且不出盘', async ({ page }) => {
-  await page.goto('/zh-hant', HYDRATED)
+  await page.goto(BAZI, HYDRATED)
   await fillBirth(page, zhLabels, sample)
   await page.getByLabel('女', { exact: true }).check({ force: true })
   await page
@@ -124,7 +131,7 @@ test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示�
   await expect(page.getByLabel('年', { exact: true })).toHaveValue('1990')
   await expect(page.getByLabel('月', { exact: true })).toHaveValue('5')
   await expect(page.getByLabel('日', { exact: true })).toHaveValue('15')
-  await expect(page.getByLabel('出生時間')).toHaveValue('10:30')
+  await expect(page.locator('input[name="time"]')).toHaveValue('10:30')
   await expect(page.getByLabel('女', { exact: true })).toBeChecked()
 
   await page.getByRole('button', { name: '排紫微命盤' }).click()
@@ -147,8 +154,10 @@ test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示�
 })
 
 test('韩语만세력：6 个区块顺序、진태양시提示与韩国夏令时样例', async ({ page }) => {
-  await page.goto('/ko', HYDRATED)
-  await expect(page).toHaveTitle('만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)')
+  await page.goto(MANSERYEOK, HYDRATED)
+  await expect(page).toHaveTitle(
+    '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이',
+  )
   // 出生地是 @xuanxue/ui 的 Select：触发器显示选项文字，取值在同名的隐藏表单控件上
   await expect(page.getByRole('combobox', { name: '출생지', exact: true })).toHaveText('서울')
   await expect(page.locator('select[name="place"]')).toHaveValue('seoul')
@@ -188,7 +197,7 @@ test('사주궁합：두 사람을 제출하면 점수와 항목별 가감점을
     await page.locator(`input[name="${prefix}year"]`).fill(value.year)
     await page.locator(`input[name="${prefix}month"]`).fill(value.month)
     await page.locator(`input[name="${prefix}day"]`).fill(value.day)
-    await page.locator(`input[name="${prefix}time"]`).fill(value.time)
+    await fillTimeByName(page, `${prefix}time`, value.time)
   }
   await page.getByRole('button', { name: '궁합 보기' }).click()
   const score = page.locator('#score [data-score]')

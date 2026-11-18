@@ -56,7 +56,8 @@ export interface SettingValues extends ReadingSettingValues {
 
 export const settingDefaults: SettingValues = {
   'auth.signupEnabled': true,
-  'credits.dailyAmount': 10,
+  // 2026-11-18「版本 B」：每日登录送 5 积分（已保存的后台值不随默认值变化）
+  'credits.dailyAmount': 5,
   'credits.dailyMaxDaysPerMonth': 10,
   'credits.dailyExpiryDays': 7,
   'credits.dailyRequireVerifiedEmail': true,

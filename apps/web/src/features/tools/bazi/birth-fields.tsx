@@ -2,11 +2,11 @@ import type { InputField, InputIssue } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { useId } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { DatePart, TimeField } from '../date-field.tsx'
 import {
   CheckboxField,
   ChoiceGroup,
   FieldError,
-  fieldControl,
   fieldLabel,
   SelectField,
   TextField,
@@ -50,9 +50,6 @@ export function BirthFields({
   const dateIssue = byField.year ?? byField.month ?? byField.day
   const dateErrorId = useId()
   const hintId = useId()
-  const timeId = useId()
-  const timeErrorId = useId()
-  const timeError = values.unknownTime ? undefined : error('time')
   const lunar = values.calendar === 'lunar'
   const otherPlace = values.place === OTHER_PLACE
   return (
@@ -78,7 +75,7 @@ export function BirthFields({
             ]}
           />
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-[1.3fr_1fr_1fr] gap-2">
           <DatePart
             label={m.bazi_year()}
             name={name('year')}
@@ -121,30 +118,21 @@ export function BirthFields({
           error={lunar && byField.leapMonth ? issueMessage(byField.leapMonth) : undefined}
         />
       </fieldset>
-      {/* 出生时间：标签行右侧是「不知道出生时辰」 */}
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <div className="flex min-h-11 items-center justify-between gap-3">
-          <label htmlFor={timeId} className={fieldLabel}>
-            {m.bazi_time()}
-          </label>
+      {/* 出生时间：时 / 分分段（按页面语言显示），标签行右侧是「不知道出生时辰」 */}
+      <TimeField
+        label={m.bazi_time()}
+        name={name('time')}
+        defaultValue={values.time}
+        disabled={values.unknownTime}
+        error={values.unknownTime ? undefined : error('time')}
+        aside={
           <CheckboxField
             label={m.bazi_unknown_time()}
             name={name('unknownTime')}
             defaultChecked={values.unknownTime}
           />
-        </div>
-        <input
-          id={timeId}
-          name={name('time')}
-          type="time"
-          defaultValue={values.time}
-          disabled={values.unknownTime}
-          aria-invalid={timeError ? true : undefined}
-          aria-describedby={timeError ? timeErrorId : undefined}
-          className={fieldControl}
-        />
-        <FieldError id={timeErrorId} error={timeError} />
-      </div>
+        }
+      />
       <ChoiceGroup
         legend={m.bazi_gender()}
         name={name('gender')}
@@ -231,31 +219,5 @@ export function BirthFields({
         </div>
       </details>
     </>
-  )
-}
-
-function DatePart({
-  label,
-  invalid,
-  ...props
-}: { label: string; invalid: boolean } & Omit<React.ComponentProps<'input'>, 'className'>) {
-  return (
-    // 单位（年 / 月 / 日）显示在输入框内右侧；可读名称用 aria-label，避免与可见单位重复朗读
-    <span className="relative flex min-w-0 items-center">
-      <input
-        inputMode="numeric"
-        autoComplete="off"
-        aria-label={label}
-        aria-invalid={invalid || undefined}
-        className={cn(fieldControl, 'pr-8')}
-        {...props}
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute right-3 text-caption text-ink-subtle"
-      >
-        {label}
-      </span>
-    </span>
   )
 }

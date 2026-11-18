@@ -14,11 +14,14 @@ export function lifePathPath(value: number): string {
   return `/life-path-number/${value}`
 }
 
-/** 内容集合中的 slug → 页面路径；首页长文 `life-path-number` 属于 `/` */
+/** Life Path Number 计算器（主工具页，迁移前在西方站首页；openspec separate-landing-homepage design.md D1） */
+export const LIFE_PATH_TOOL_PATH = '/life-path-number'
+
+/** 内容集合中的 slug → 页面路径；计算器长文 `life-path-number` 属于 `/life-path-number` */
 export function numerologyContentPath(slug: string): string {
   const number = /^life-path-(\d+)$/.exec(slug)?.[1]
   if (number) return lifePathPath(Number(number))
-  return slug === 'life-path-number' ? '/' : `/${slug}`
+  return `/${slug}`
 }
 
 /** 四个工具内页：路径、页头导航名（省略则不进导航）、Title 与 description */
@@ -58,11 +61,16 @@ export const NUMEROLOGY_TOOLS = {
 export type NumerologyToolId = keyof typeof NUMEROLOGY_TOOLS
 
 /**
- * 工具注册表条目：首页与工具内页、12 个数字页与两个枢纽页。没有导航名的条目只用于预渲染与站点地图，
+ * 工具注册表条目：Life Path 工具页与工具内页、12 个数字页与两个枢纽页。没有导航名的条目只用于预渲染与站点地图，
  * toolsForLocale 会跳过它们（页头导航对齐原型：Life Path / Numerology Calculator / Compatibility）。
  */
 export const NUMEROLOGY_ROUTES: readonly ToolRoute[] = [
-  { id: 'life-path', site: 'west', paths: { en: '/' }, titles: { en: 'Life Path' } },
+  {
+    id: 'life-path',
+    site: 'west',
+    paths: { en: LIFE_PATH_TOOL_PATH },
+    titles: { en: 'Life Path' },
+  },
   ...Object.entries(NUMEROLOGY_TOOLS).map(([id, tool]) => ({
     id,
     site: 'west' as const,
@@ -90,7 +98,7 @@ interface NumerologyContent {
   readonly description: string
 }
 
-/** 站点地图与 OG 图片用的页面清单：首页（长文 frontmatter）、四个工具内页、12 个数字页与两个枢纽页 */
+/** 站点地图与 OG 图片用的页面清单：Life Path 工具页（长文 frontmatter）、四个工具内页、12 个数字页与两个枢纽页 */
 export function numerologySeoPages(content: readonly NumerologyContent[]) {
   return [
     ...Object.values(NUMEROLOGY_TOOLS).map(({ path, title, description }) => ({

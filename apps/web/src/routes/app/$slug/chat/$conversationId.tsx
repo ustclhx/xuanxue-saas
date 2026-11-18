@@ -3,6 +3,7 @@ import { ChatContextSummary } from '../../../../features/ai/chat-context-summary
 import { ChatPage } from '../../../../features/ai/chat-page.tsx'
 import { ChatPageSkeleton } from '../../../../features/ai/chat-page-skeleton.tsx'
 import { getConversation } from '../../../../features/ai/conversations.functions.ts'
+import { siteTitle } from '../../../../features/seo/site-title.ts'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
@@ -13,8 +14,10 @@ export const Route = createFileRoute('/app/$slug/chat/$conversationId')({
     return { ...page, models: context.chatModels }
   },
   staleTime: 0,
-  head: ({ loaderData }) => ({
-    meta: loaderData ? [{ title: loaderData.conversation.title || m.chat_ui_untitled() }] : [],
+  head: ({ loaderData, matches }) => ({
+    meta: loaderData
+      ? [{ title: siteTitle(loaderData.conversation.title || m.chat_ui_untitled(), matches) }]
+      : [],
   }),
   component: ConversationPage,
   pendingComponent: ChatPageSkeleton,

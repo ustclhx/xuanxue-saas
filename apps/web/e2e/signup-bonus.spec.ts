@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import templateConfig from '../../../template.config.ts'
-import { emailLink, fixtureDb, register, simulateClientIp } from './fixtures.ts'
+import { APP_URL, emailLink, fixtureDb, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 test('signup credits require email verification and repeat claims grant only once', async ({
@@ -53,6 +53,20 @@ test('signup credits require email verification and repeat claims grant only onc
     const grants =
       await sql`select amount from credit_grant where workspace_id=${account.id} and source='signup'`
     expect(grants).toEqual([{ amount: templateConfig.billing.signupBonusCredits }])
+    // 2026-11-18「版本 B」：验证时一并领取当天每日积分，新用户首日合计 20（注册 15 + 每日 5），进入 App 区不重复发放
+    if (templateConfig.credits.dailyEnabled) {
+      await page.goto('/app')
+      await expect(page).toHaveURL(APP_URL)
+      await expect
+        .poll(
+          async () =>
+            (
+              await sql`select coalesce(sum(amount), 0)::int as total from credit_grant
+                where workspace_id=${account.id} and source in ('signup', 'daily')`
+            )[0]?.total,
+        )
+        .toBe(20)
+    }
   } finally {
     await sql.end()
   }

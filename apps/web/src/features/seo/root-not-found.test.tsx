@@ -36,28 +36,26 @@ afterEach(() => overwriteGetLocale(() => baseLocale))
 
 describe('站点 404', () => {
   it.each([
-    ['west', 'en', 'Page not found', 'Arcanumber', 'The page you are looking for does not exist.'],
-    ['east', 'zh-Hant', '頁面不存在', '干支日', '找不到你要查看的頁面。'],
-    ['east', 'zh-Hans', '页面不存在', '干支日', '找不到你要查看的页面。'],
-    ['east', 'ko', '페이지를 찾을 수 없습니다', '간지데이', '요청하신 페이지가 존재하지 않습니다.'],
-  ] as const)(
-    '为 %s 的 %s 请求输出品牌标题与本语言正文',
-    async (site, locale, title, brand, body) => {
-      overwriteGetLocale(() => locale)
-      vi.mocked(getCurrentSite).mockResolvedValue({ id: site as SiteId, known: true })
-      const router = createRouter({
-        routeTree: Route,
-        history: createMemoryHistory({ initialEntries: ['/missing-page'] }),
-        isServer: true,
-      })
-      await router.load()
-      const html = renderToString(<RouterProvider router={router} />)
-      expect(
-        router.state.matches.some((match) => match._notFound || match.status === 'notFound'),
-      ).toBe(true)
-      expect(html).toContain(`<title>${title} | ${brand}</title>`)
-      expect(html).toContain(body)
-      expect(html.match(/<title>.*?<\/title>/)?.[0]).not.toContain('xuanxue')
-    },
-  )
+    ['west', 'en', 'Page not found | Arcanumber', 'The page you are looking for does not exist.'],
+    // 中文标题用全角竖线连接站名（separate-landing-homepage design.md D3a）
+    ['east', 'zh-Hant', '頁面不存在｜干支日', '找不到你要查看的頁面。'],
+    ['east', 'zh-Hans', '页面不存在｜干支日', '找不到你要查看的页面。'],
+    ['east', 'ko', '페이지를 찾을 수 없습니다 | 간지데이', '요청하신 페이지가 존재하지 않습니다.'],
+  ] as const)('为 %s 的 %s 请求输出品牌标题与本语言正文', async (site, locale, title, body) => {
+    overwriteGetLocale(() => locale)
+    vi.mocked(getCurrentSite).mockResolvedValue({ id: site as SiteId, known: true })
+    const router = createRouter({
+      routeTree: Route,
+      history: createMemoryHistory({ initialEntries: ['/missing-page'] }),
+      isServer: true,
+    })
+    await router.load()
+    const html = renderToString(<RouterProvider router={router} />)
+    expect(
+      router.state.matches.some((match) => match._notFound || match.status === 'notFound'),
+    ).toBe(true)
+    expect(html).toContain(`<title>${title}</title>`)
+    expect(html).toContain(body)
+    expect(html.match(/<title>.*?<\/title>/)?.[0]).not.toContain('xuanxue')
+  })
 })

@@ -11,6 +11,7 @@ import {
 import { resolveShareCardTheme } from '../share-cards/theme.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { AI_CRAWLERS, llmsTxt, robots, sitemap, sitemapIndex } from './crawlers.ts'
+import { homeTagline } from './home-copy.ts'
 import {
   alternateLinks,
   localizedPath,
@@ -127,15 +128,15 @@ describe('公开页面 SEO（4.1–4.3）', () => {
             head.meta.find((meta) => 'property' in meta && meta.property === key)?.content,
           ).toBeTruthy()
         }
-        // 注册在 TOOL_ROUTES 的工具页（繁中首页同为 `/`）只与工具各语言版本互指，
-        // 见 features/tools/bazi/bazi.test.tsx
+        // 注册在 TOOL_ROUTES 的工具页只与工具各语言版本互指，见 features/tools/bazi/bazi.test.tsx
         // 两站分开经营（D5）：只与同站语言互指，x-default 为同一页面的站点默认语言版本
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
         if (!page.alternates) {
           const site = siteOfLocale(locale, config) ?? 'west'
           const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
+          // 东方站各语言首页另与东方站英文入口页 `/en` 互指
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
-            siteLocales.length + 1,
+            siteLocales.length + 1 + (site === 'east' && page.path === '/' ? 1 : 0),
           )
           expect(head.links).toContainEqual({
             rel: 'alternate',
@@ -326,8 +327,12 @@ it('关闭营销时没有公开页面，单语言只生成默认语言页面', (
     i18n: { ...config.i18n, enabled: false, defaultLocale: 'zh-Hant' },
   })
   expect(new Set(single.map((page) => page.locale))).toEqual(new Set(['zh-Hant']))
-  // 繁中首页注册为八字排盤工具（TOOL_ROUTES）
+  // 繁中首页是品牌落地页，八字排盤工具在关键词 URL（TOOL_ROUTES，separate-landing-homepage D1）
   expect(single.find((page) => page.path === '/')).toMatchObject({
+    locale: 'zh-Hant',
+    title: '干支日｜免費八字排盤、紫微斗數與塔羅',
+  })
+  expect(single.find((page) => page.path === '/八字排盤')).toMatchObject({
     locale: 'zh-Hant',
     title: '八字排盤',
   })
@@ -364,7 +369,9 @@ describe('分享图与缓存（4.4）', () => {
     expect(markup).toContain('arcanumber.com')
     expect(markup).toContain(page.title)
     expect(markup).not.toContain('AI workspace')
-    expect(markup).toContain(`Arcanumber · ${staticPage('/', 'en').title}`)
+    // 副标题与品牌名并排，用不含品牌名的标语（首页标题已是品牌在前）
+    expect(markup).toContain(`Arcanumber · ${homeTagline('en')}`)
+    expect(markup).not.toContain('Arcanumber · Arcanumber')
   })
 
   it('东方站各语言与英文入口页的卡片使用东方站品牌、规范域名与配色', () => {
@@ -373,7 +380,7 @@ describe('分享图与缓存（4.4）', () => {
     expect(markup).toContain('ganjiday.com')
     expect(markup).not.toContain('arcanumber.com')
     expect(markup).toContain('#ffffff')
-    expect(markup).toContain(`干支日 · ${staticPage('/', 'zh-Hant').title}`)
+    expect(markup).toContain(`干支日 · ${homeTagline('zh-Hant')}`)
     expect(buildCard('사주', { locale: 'ko' }).site.brand.name).toBe('간지데이')
     expect(buildCard('BaZi', { locale: 'en', path: '/en' }).site).toMatchObject({
       brand: { name: 'Ganjiday' },
@@ -518,9 +525,11 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
   expect(east).toContain('# Ganjiday')
   expect(east).toContain('BaZi')
   for (const url of [
-    'https://ganjiday.com/zh-hant)',
+    // 八字排盤 / 만세력条目指向关键词 URL，不再是语言首页（specs/seo「首页主词迁移」）
+    '[八字排盤](https://ganjiday.com/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4)',
+    `[八字排盘](https://ganjiday.com/zh-hans${encodeURI('/八字排盘')})`,
+    `[만세력](https://ganjiday.com/ko${encodeURI('/만세력')})`,
     `https://ganjiday.com/zh-hans${encodeURI('/紫微斗数排盘')})`,
-    'https://ganjiday.com/ko)',
     'https://ganjiday.com/zh-hant/faq)',
     // 东方站英文入口页（D5）
     'https://ganjiday.com/en)',
@@ -529,7 +538,9 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
   expect(east).toMatch(/\(https:\/\/ganjiday\.com\/zh-hant\/[^)]+\): .*塔羅/)
   expect(east).not.toContain('arcanumber.com')
   expect(east).not.toMatch(/tarot-card|%E5%A4%A7%E9%81%8B/)
+  expect(east).not.toMatch(/\]\(https:\/\/ganjiday\.com\/(zh-hant|zh-hans|ko)\)/)
   const west = llmsTxt('west', true, config)
+  expect(west).toContain('[Life Path](https://arcanumber.com/life-path-number)')
   expect(west).toContain('https://arcanumber.com/numerology-calculator)')
   expect(west).toContain('https://arcanumber.com/faq)')
   expect(west).not.toContain('ganjiday.com')

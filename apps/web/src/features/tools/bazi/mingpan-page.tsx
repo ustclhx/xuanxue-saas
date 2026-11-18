@@ -70,7 +70,7 @@ export function MingpanPage() {
         )
       }
       links={[
-        ...link(pageHref('home', LOCALE), m.bazi_link_home(), 'bazi'),
+        ...link(pageHref('bazi', LOCALE), m.bazi_link_home(), 'bazi'),
         ...link(pageHref('ziwei', LOCALE), m.bazi_link_ziwei(), 'ziwei'),
         ...link(conceptHref(LOCALE, 'ten-gods'), m.bazi_link_ten_gods(), 'concept-ten-gods'),
         ...link(conceptHref(LOCALE, 'luck'), m.bazi_link_luck(), 'concept-luck'),

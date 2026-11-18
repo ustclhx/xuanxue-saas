@@ -56,6 +56,8 @@ describe('今日面板', () => {
     expect(panel.selectedId).toBe(mine.id)
     expect(panel.personal.dayMaster).toBe(panel.natal.dayMaster)
     expect(panel.copy.tip.theme.length).toBeGreaterThan(0)
+    // 「用此档案打开工具」进入八字排盤工具页，不是语言首页（separate-landing-homepage D4）
+    expect(panel.toolHref.split('#')[0]).toBe(encodeURI('/zh-hant/八字排盤'))
     const shared = readShareFragment(new URL(panel.toolHref, 'https://ganjiday.com').hash)
     expect(shared).toMatchObject({ year: '1990', month: '5', day: '15' })
     expect(Object.keys(shared ?? {}).some((key) => /name/i.test(key))).toBe(false)

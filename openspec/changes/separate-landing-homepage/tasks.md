@@ -37,18 +37,18 @@
 
 依赖：1.3。冲突点见执行约定。
 
-- [ ] 2.1 按 design.md D1 增加 `EASTERN_PAGES` 的三条 `bazi`，`$slug.tsx` 改为按 id 懒加载，并把 `bazi` 渲染为八字 / 만세력工具组件（不带 `hub`）；`easternPageCopy('home')` 改为 `'bazi'`；`registry.ts` 中 `bazi.paths` 改为三个关键词 slug。验证：单测断言三个地址可解析、`/ko/八字排盤` 与 `/zh-hant/만세력` 返回 404、Title 与迁移前首页一致；紫微页的静态脚本闭包不含八字主页组件（构建产物检查）
-- [ ] 2.2 新增 `routes/life-path-number/index.tsx`（长文与 FAQ 在结果之后），`numerologyContentPath('life-path-number')` 与 `life-path.paths.en` 改为 `/life-path-number`；`$number.tsx` 加面包屑与父页链接。验证：单测与 `numerology.spec.ts` 中对应用例改到新地址后通过；canonical 为 `https://arcanumber.com/life-path-number`（无结尾斜杠）
-- [ ] 2.3 在 `structured-data.ts` 新增 `webApplicationData` 与 `breadcrumbData`，按 D3 接入四个主工具页与 12 个数字页；两站首页 head 改为 `staticPage('/')` + Organization + WebSite，`home-copy.ts` 改用 1.3 确认的品牌标题。更新首页 head 对照测试的快照（Title 与 JSON-LD 类型有意改变，canonical / hreflang / robots 不变），并新增工具页 head 快照。验证：`seo` 单测、`seo.spec.ts` 与 head 对照测试通过；JSON-LD 中的 `url` 等于 canonical
-- [ ] 2.4 按 D4 在 `features/site/gate.ts` 新增 `legacyHomeRedirect`（`unlock` / `checkout` → 301 到主工具页并保留查询；东方站 `/` 直接一次跳转；UTM 不跳转），并实现落地页 `#r=` 片段跳转的内联脚本生成函数（构建期写入工具页地址，由第 4 组挂到首页 head）。验证：单测覆盖四个语言首页 × 有 / 无工具参数 × UTM、HEAD 请求、东方站 `/?unlock=`；脚本函数单测断言只在 hash 含 `r=` 时替换
-- [ ] 2.5 补注册表驱动功能的测试：预渲染清单、站点地图（新地址与 hreflang、首页仍在）、`llms.txt`、语言切换（`八字排盤` ↔ `八字排盘` ↔ `만세력`）、页头导航、OG 样例图挂到工具页、报告空态链接、optin 邮件链接。验证：`pnpm --filter @xuanxue/web test` 通过；`pnpm --filter @xuanxue/web build` 产物含三个新工具页与 `/life-path-number` 的 HTML 与 OG 图
-- [ ] 2.6 按 design.md D3a 实现页面 title 规则：`pageHead` 按语言选择分隔符与站名显示名、首页不追加站名、已含站名不重复；认证页、账户页、应用区各页与后台改为经同一函数生成标题；分享页改用当前站点的站名。验证：单测覆盖四种语言、首页与重复站名；`seo.spec.ts` 抽查两站工具页、定价页、法律页与登录页的标题；`pnpm --filter @xuanxue/web test` 通过
+- [x] 2.1 按 design.md D1 增加 `EASTERN_PAGES` 的三条 `bazi`，`$slug.tsx` 改为按 id 懒加载，并把 `bazi` 渲染为八字 / 만세력工具组件（不带 `hub`）；`easternPageCopy('home')` 改为 `'bazi'`；`registry.ts` 中 `bazi.paths` 改为三个关键词 slug。验证：单测断言三个地址可解析、`/ko/八字排盤` 与 `/zh-hant/만세력` 返回 404、Title 与迁移前首页一致；紫微页的静态脚本闭包不含八字主页组件（构建产物检查）
+- [x] 2.2 新增 `routes/life-path-number/index.tsx`（长文与 FAQ 在结果之后），`numerologyContentPath('life-path-number')` 与 `life-path.paths.en` 改为 `/life-path-number`；`$number.tsx` 加面包屑与父页链接。验证：单测与 `numerology.spec.ts` 中对应用例改到新地址后通过；canonical 为 `https://arcanumber.com/life-path-number`（无结尾斜杠）
+- [x] 2.3 在 `structured-data.ts` 新增 `webApplicationData` 与 `breadcrumbData`，按 D3 接入四个主工具页与 12 个数字页；两站首页 head 改为 `staticPage('/')` + Organization + WebSite，`home-copy.ts` 改用 1.3 确认的品牌标题。更新首页 head 对照测试的快照（Title 与 JSON-LD 类型有意改变，canonical / hreflang / robots 不变），并新增工具页 head 快照。验证：`seo` 单测、`seo.spec.ts` 与 head 对照测试通过；JSON-LD 中的 `url` 等于 canonical
+- [x] 2.4 按 D4 在 `features/site/gate.ts` 新增 `legacyHomeRedirect`（`unlock` / `checkout` → 301 到主工具页并保留查询；东方站 `/` 直接一次跳转；UTM 不跳转），并实现落地页 `#r=` 片段跳转的内联脚本生成函数（构建期写入工具页地址，由第 4 组挂到首页 head）。验证：单测覆盖四个语言首页 × 有 / 无工具参数 × UTM、HEAD 请求、东方站 `/?unlock=`；脚本函数单测断言只在 hash 含 `r=` 时替换
+- [x] 2.5 补注册表驱动功能的测试：预渲染清单、站点地图（新地址与 hreflang、首页仍在）、`llms.txt`、语言切换（`八字排盤` ↔ `八字排盘` ↔ `만세력`）、页头导航、OG 样例图挂到工具页、报告空态链接、optin 邮件链接。验证：`pnpm --filter @xuanxue/web test` 通过；`pnpm --filter @xuanxue/web build` 产物含三个新工具页与 `/life-path-number` 的 HTML 与 OG 图
+- [x] 2.6 按 design.md D3a 实现页面 title 规则：`pageHead` 按语言选择分隔符与站名显示名、首页不追加站名、已含站名不重复；认证页、账户页、应用区各页与后台改为经同一函数生成标题；分享页改用当前站点的站名。验证：单测覆盖四种语言、首页与重复站名；`seo.spec.ts` 抽查两站工具页、定价页、法律页与登录页的标题；`pnpm --filter @xuanxue/web test` 通过
 
 ## 3. 站内链接与测试迁移（WT-links，【Codex】，评审【Claude】）
 
 依赖：2。冲突点见执行约定。
 
-- [ ] 3.1 按 design.md D5 表把站内仍指向首页工具的链接改为主工具页：
+- [x] 3.1 按 design.md D5 表把站内仍指向首页工具的链接改为主工具页：
   - `bazi/common.tsx` 的 `pageHref('home')` 及其调用处（ziwei、mingpan、gunghap、concept 页），锚文本用关键词；
   - `numerology/copy.ts`；
   - `content/numerology/en/*.mdx` 中 14 处 `[Life Path calculator](/)`；
@@ -57,7 +57,7 @@
   - `east-english/page.tsx` 加主工具页链接（OQ7）。
 
   验证：`check-content` 新增规则（西方站内容不得以 `/` 作为计算器链接）并通过；全站预渲染 HTML 中没有锚文本为工具关键词、目标为语言首页的链接（脚本扫描结果写入 PR）
-- [ ] 3.2 实现 D4 的 `legacyToolPath`，接入显示临时上下文「返回结果」链接的地方。验证：单测覆盖四个语言首页映射与其他路径原样返回
+- [x] 3.2 实现 D4 的 `legacyToolPath`，接入显示临时上下文「返回结果」链接的地方。验证：单测覆盖四个语言首页映射与其他路径原样返回
 - [ ] 3.3 把在首页填写表单或断言首页 H1 / Title 的 e2e 改到工具 URL，首页改为断言落地页。涉及 `bazi`、`numerology`、`reading-unlock`、`reading-optin`、`analytics`、`ai-chat`、`i18n-preference`、`floating-controls`、`theme` 各 spec，以及 `staging/smoke`、`production/smoke`。新增 e2e：旧 `/#r=` 与 `/zh-hant#r=` 分享链接打开后显示结果；`/zh-hant?unlock=<测试令牌>` 跳到工具页并恢复输入。验证：本地离线 e2e 通过；冒烟用例在本组分支的 staging 预览上通过（如可用）
 
 ## 4. 落地页（WT-landing，【Claude】）

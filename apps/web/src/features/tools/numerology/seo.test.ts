@@ -70,7 +70,7 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     expect(titles.size).toBe(14)
   })
 
-  it('站点地图包含首页、四个工具页与 14 个内容页，且都预渲染', () => {
+  it('站点地图包含首页、Life Path 工具页、四个工具页与 14 个内容页，且都预渲染', () => {
     const pages = publicPages(
       { posts: [], legal: [], docs: [], toolPages: numerologySeoPages(content) },
       new Date(),
@@ -80,6 +80,7 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     const xml = sitemap(pages, origin)
     const paths = [
       '/',
+      '/life-path-number',
       '/numerology-calculator',
       '/numerology-chart',
       '/name-numerology',
@@ -92,8 +93,12 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     }
     const entries = prerenderEntryPages(templateConfig).map((entry) => entry.path)
     for (const path of paths) expect(entries, path).toContain(path)
-    // 首页 Title 用长文 frontmatter，不是导航名
-    expect(pages.find((page) => page.path === '/')?.title).toMatch(/Life Path Number Calculator/)
+    // Life Path 工具页的 Title 用长文 frontmatter（迁移前的首页 Title），不是导航名；首页为品牌标题
+    expect(numerologyContentPath('life-path-number')).toBe('/life-path-number')
+    expect(pages.find((page) => page.path === '/life-path-number')?.title).toBe(
+      'Life Path Number Calculator: Free, With Every Step Shown',
+    )
+    expect(pages.find((page) => page.path === '/')?.title).toMatch(/^Arcanumber — /)
     // 东方站语言前缀下没有数字命理页
     expect(isPrerenderedPath('/ko/numerology-calculator', templateConfig.i18n.locales)).toBe(false)
   })

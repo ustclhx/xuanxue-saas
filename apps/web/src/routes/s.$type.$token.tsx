@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { siteTitle } from '../features/seo/site-title.ts'
 import { getSharePage } from '../features/share-cards/page.functions.ts'
 import { SharePage, SharePageGone } from '../features/share-cards/share-page.tsx'
-import { templateConfig } from '../server/template-config.ts'
 
 const noindex = { name: 'robots', content: 'noindex' }
 
@@ -19,10 +19,10 @@ export const Route = createFileRoute('/s/$type/$token')({
     },
   },
   loader: ({ params }) => getSharePage({ data: { type: params.type, token: params.token } }),
-  head: ({ loaderData }) =>
+  head: ({ loaderData, matches }) =>
     loaderData?.status === 'ok'
       ? {
-          meta: [{ title: `${loaderData.title} | ${templateConfig.app.name}` }, ...loaderData.meta],
+          meta: [{ title: siteTitle(loaderData.title, matches) }, ...loaderData.meta],
         }
       : { meta: [noindex] },
   component: SharePageRoute,

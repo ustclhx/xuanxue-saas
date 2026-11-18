@@ -52,7 +52,9 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/zh-hant' },
-      // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）
+      // 东方站排盘工具（TOOL_ROUTES，openspec add-bazi-saju-chart）；
+      // 八字排盤 / 만세력主工具页在关键词 URL（separate-landing-homepage D1），语言首页仍预渲染
+      { path: '/zh-hant/八字排盤' },
       { path: '/zh-hant/紫微斗數排盤' },
       { path: '/zh-hant/命盤查詢' },
       // 塔罗牌阵（openspec add-tarot-reading）
@@ -69,6 +71,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hant/八字/八字重量' },
       { path: '/zh-hant/八字/十神' },
       { path: '/zh-hans' },
+      { path: '/zh-hans/八字排盘' },
       { path: '/zh-hans/紫微斗数排盘' },
       { path: '/zh-hans/命盘查询' },
       { path: '/zh-hans/塔罗' },
@@ -84,6 +87,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hans/八字/八字重量' },
       { path: '/zh-hans/八字/十神' },
       { path: '/ko' },
+      { path: '/ko/만세력' },
       { path: '/ko/사주궁합' },
       { path: '/ko/타로' },
       { path: '/ko/타로/오늘의-카드' },
@@ -105,6 +109,22 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/tarot/yes-or-no' },
       { path: '/tarot/celtic-cross' },
     ])
+  })
+
+  it('主工具页与语言首页都预渲染（separate-landing-homepage D1）', () => {
+    const entries = prerenderEntryPages(templateConfig)
+    for (const path of ['/', '/life-path-number', '/zh-hant', '/zh-hant/八字排盤', '/ko/만세력'])
+      expect(entries, path).toContainEqual({ path })
+    for (const path of [
+      '/life-path-number',
+      '/life-path-number/7',
+      encodeURI('/zh-hant/八字排盤'),
+      encodeURI('/zh-hans/八字排盘'),
+      encodeURI('/ko/만세력'),
+    ])
+      expect(isPrerenderedPath(path, locales), path).toBe(true)
+    // 另一语言的 slug 没有登记
+    expect(isPrerenderedPath(encodeURI('/ko/八字排盤'), locales)).toBe(false)
   })
 })
 

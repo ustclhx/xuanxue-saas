@@ -100,14 +100,14 @@ function useDayMasters(profiles: readonly BirthProfile[], site: SiteId) {
   return values
 }
 
-/** 「排盘」：东方站进入排盘首页，西方站进入完整计算器；输入放在 `#r=` 片段，不含姓名 */
+/** 「排盘」：东方站进入八字排盤 / 만세력工具页（不是语言首页），西方站进入完整计算器；输入放在 `#r=` 片段，不含姓名 */
 export function toolLink(profile: BirthProfile, site: SiteId, locale: string): string {
   if (site === 'west') {
     const date = profileFor('numerology', profile).values.birthDate
     const path = NUMEROLOGY_TOOLS['numerology-calculator'].path
     return date ? `${path}#r=${encodeShareInput({ date })}` : path
   }
-  return `${pageHref('home', locale)}#r=${encodeShareInput(toShareInput(formValuesOf(profile, locale)))}`
+  return `${pageHref('bazi', locale)}#r=${encodeShareInput(toShareInput(formValuesOf(profile, locale)))}`
 }
 
 export function ProfilesPage({

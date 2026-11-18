@@ -5,7 +5,7 @@ import type { BirthProfile } from '../profiles/schema.ts'
 import { listProfiles, type ProfileContext } from '../profiles/service.ts'
 import { defaultBirthValues, toShareInput } from '../tools/bazi/birth-form-state.ts'
 import { encodeShareInput, SHARE_PARAM } from '../tools/share.ts'
-import { toolHref } from '../tools/tool-href.ts'
+import { mainToolHref, toolHref } from '../tools/tool-href.ts'
 import { type CivilDate, type DailyLocale, dateKey } from './date.ts'
 import {
   eastDayFacts,
@@ -122,7 +122,7 @@ export async function computeTodayPanel(
       personal,
       background,
       copy: eastPanelCopy(rules, day, personal),
-      toolHref: `${toolHref('/', input.locale)}#${SHARE_PARAM}=${encodeShareInput(toShareInput(values))}`,
+      toolHref: `${mainToolHref(input.locale)}#${SHARE_PARAM}=${encodeShareInput(toShareInput(values))}`,
     }
   }
   const prefill = profileFor('numerology', selected)

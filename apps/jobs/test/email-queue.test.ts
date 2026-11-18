@@ -94,9 +94,9 @@ describe('EMAIL_QUEUE 消费者：resend 通道', () => {
       expect(headers.get('idempotency-key')).toBe('idem-key-1')
       expect(headers.get('authorization')).toBe('Bearer re_fake_east_key')
       const body = JSON.parse(String(init?.body))
-      // 发件人与回复地址取消息中的东方站配置
+      // 发件人与回复地址取消息中的东方站配置，显示名为收件人语言（zh-CN）下的品牌名
       expect(body).toMatchObject({
-        from: 'Ganjiday <noreply@mail.ganjiday.com>',
+        from: '干支日 <noreply@mail.ganjiday.com>',
         reply_to: 'support@ganjiday.com',
         to: [RECIPIENT],
       })

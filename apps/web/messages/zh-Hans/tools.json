@@ -12,5 +12,6 @@
   "tools_result_loading": "计算中…",
   "tools_links_title": "延伸阅读",
   "tools_faq_title": "常见问题",
-  "tools_requires_js": "需要启用 JavaScript 才能计算结果。"
+  "tools_requires_js": "需要启用 JavaScript 才能计算结果。",
+  "tools_breadcrumb_label": "导航路径"
 }

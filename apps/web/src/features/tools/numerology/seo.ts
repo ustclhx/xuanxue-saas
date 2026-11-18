@@ -32,15 +32,18 @@ export function requireNumerologyLocale() {
   if (getLocale() !== NUMEROLOGY_LOCALE) throw notFound()
 }
 
-/** 页面 head：Title / description / canonical / hreflang，附 FAQPage */
+/**
+ * 页面 head：Title / description / canonical / hreflang，附 FAQPage；
+ * `extra` 为主工具页与数字页另外输出的结构化数据（WebApplication、BreadcrumbList）。
+ */
 export function numerologyHead(
   page: { path: string; title: string; description: string },
   matches: readonly Pick<AnyRouteMatch, 'loaderData' | 'routeId'>[],
   faq: readonly QA[] = [],
+  extra: readonly unknown[] = [],
 ) {
-  return pageHead(
-    { ...page, locale: NUMEROLOGY_LOCALE },
-    originFromMatches(matches),
-    faq.length ? [faqPageData(faq)] : [],
-  )
+  return pageHead({ ...page, locale: NUMEROLOGY_LOCALE }, originFromMatches(matches), [
+    ...extra,
+    ...(faq.length ? [faqPageData(faq)] : []),
+  ])
 }

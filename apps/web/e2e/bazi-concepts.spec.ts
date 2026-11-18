@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { fillTimeByName } from './date-field.ts'
 
 test('简体路径的繁体别名 301 到可正常访问的简体规范页', async ({ request }) => {
   for (const [alias, slug] of [
@@ -33,7 +34,8 @@ for (const [locale, base, slug, title, submit] of [
     await page.locator('input[name="year"]').fill('1990')
     await page.locator('input[name="month"]').fill('5')
     await page.locator('input[name="day"]').fill('15')
-    await page.locator('input[name="time"]').fill('10:30')
+    // 时间为分段字段（#210），提交值在同名隐藏字段中
+    await fillTimeByName(page, 'time', '10:30')
     await page.getByRole('button', { name: submit, exact: true }).click()
     await expect(page.locator('#void')).toHaveAttribute('data-concept-focus', 'true')
     await expect(page.locator('#void')).toHaveCSS('outline-style', 'solid')
@@ -45,10 +47,12 @@ for (const [locale, base, slug, title, submit] of [
           .evaluate((element) => Math.abs(element.getBoundingClientRect().top - 24)),
       )
       .toBeLessThan(8)
-    // 再次提交仍重新滚动并高亮；与首页之间共享输入。
+    // 再次提交仍重新滚动并高亮；与主工具页（八字排盤 / 만세력）之间共享输入。
     await page.getByRole('button', { name: submit, exact: true }).click()
     await expect(page.locator('#void')).toHaveAttribute('data-concept-focus', 'true')
-    await page.goto(`/${locale}`, { waitUntil: 'networkidle' })
+    await page.goto(`/${locale}/${encodeURI(locale === 'ko' ? '만세력' : '八字排盤')}`, {
+      waitUntil: 'networkidle',
+    })
     await expect(page.locator('input[name="year"]')).toHaveValue('1990')
     expect(errors).toEqual([])
   })
@@ -67,4 +71,8 @@ test('概念说明在禁用脚本时可读；不存在的 slug 和错误语言�
   await context.close()
   for (const path of ['/zh-hant/八字/不存在/', '/ko/八字/空亡/', '/zh-hant/사주/공망/'])
     expect((await request.get(path)).status()).toBe(404)
+  // specs/eastern-tool-pages「概念页链接到工具页」：排盘入口指向八字主词工具页，正文不以语言首页为入口
+  const html = await (await request.get(`/zh-hant/${encodeURI('八字/大運')}`)).text()
+  expect(html).toContain(`href="/zh-hant/${encodeURI('八字排盤')}"`)
+  expect(html).not.toMatch(/<a href="\/zh-hant\/?">[^<]*八字排盤/)
 })

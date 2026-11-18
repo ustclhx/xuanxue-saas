@@ -16,9 +16,10 @@ import {
   toBirthInput,
   toShareInput,
 } from './birth-form-state.ts'
+import { pageHref } from './common.tsx'
 import { conceptPath, easternPageOf } from './eastern-routes.ts'
 import { lunarDateZh } from './glyphs.ts'
-import { easternToolHead } from './head.ts'
+import { baziToolStructuredData, easternPageCopy, easternToolHead } from './head.ts'
 
 const messages = vi.hoisted(() => ({ locale: 'zh-Hant' }))
 vi.mock('../../../paraglide/runtime.js', async (original) => {
@@ -134,7 +135,9 @@ describe('跨页保留输入', () => {
       </ToolForm>,
     )
     expect(html).toMatch(/name="year"[^>]*value="1990"|value="1990"[^>]*name="year"/)
-    expect(html).toMatch(/name="time"[^>]*value="10:30"|value="10:30"[^>]*name="time"/)
+    // 时间为时 / 分分段（tools/date-field.tsx），提交值在挂载后写入同名隐藏字段
+    expect(html).toMatch(/data-part="hour"[^>]*value="10"|value="10"[^>]*data-part="hour"/)
+    expect(html).toMatch(/data-part="minute"[^>]*value="30"|value="30"[^>]*data-part="minute"/)
     expect(html).toMatch(/value="female"[^>]*checked|checked[^>]*value="female"/)
   })
 
@@ -203,6 +206,15 @@ describe('东方站路径', () => {
     expect(easternPageOf('zh-Hant', '紫微斗數排盤')).toBe('ziwei')
     expect(easternPageOf('zh-Hant', encodeURIComponent('命盤查詢'))).toBe('mingpan')
     expect(easternPageOf('ko', '사주궁합')).toBe('gunghap')
+    // 八字排盤 / 만세력主工具页（separate-landing-homepage D1）：三个地址可解析，另一语言的 slug 为 404
+    expect(easternPageOf('zh-Hant', '八字排盤')).toBe('bazi')
+    expect(easternPageOf('zh-Hans', encodeURIComponent('八字排盘'))).toBe('bazi')
+    expect(easternPageOf('ko', '만세력')).toBe('bazi')
+    expect(easternPageOf('ko', '八字排盤')).toBeUndefined()
+    expect(easternPageOf('zh-Hant', '만세력')).toBeUndefined()
+    expect(easternPageOf('zh-Hans', '八字排盤')).toBeUndefined()
+    expect(pageHref('bazi', 'zh-Hans')).toBe(encodeURI('/zh-hans/八字排盘'))
+    expect(pageHref('bazi', 'ko')).toBe(encodeURI('/ko/만세력'))
     expect(easternPageOf('ko', '紫微斗數排盤')).toBeUndefined()
     expect(easternPageOf('en', 'pricing')).toBeUndefined()
   })
@@ -217,28 +229,73 @@ describe('东方站路径', () => {
 })
 
 describe('东方站排盘页 head', () => {
-  it('Title 按设计文档原文；八字排盤与만세력、东方站英文入口互指 hreflang，紫微页只有繁中', () => {
-    const title = '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析'
-    const home = easternToolHead(
-      { path: '/', locale: 'zh-Hant', title, description: 'd' },
+  const languages = (links: ReturnType<typeof easternToolHead>['links']) =>
+    links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
+
+  it('八字排盤 / 八字排盘 / 만세력互指 hreflang，不含英文入口页；紫微页只有繁简中文', () => {
+    const bazi = easternToolHead(
+      { path: '/八字排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',
     )
-    expect(home.meta).toContainEqual({ title })
-    const languages = (links: typeof home.links) =>
-      links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
-    expect(languages(home.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en', 'x-default'])
-    // 东方站首页的 en 指向东方站自己的英文入口页，不指向西方站（D5）
-    expect(home.links).toContainEqual({
+    expect(languages(bazi.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'x-default'])
+    expect(bazi.links).toContainEqual({
       rel: 'alternate',
-      hrefLang: 'en',
-      href: 'https://ganjiday.com/en',
+      hrefLang: 'zh-Hans',
+      href: `https://ganjiday.com${encodeURI('/zh-hans/八字排盘')}`,
+    })
+    expect(bazi.links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'ko',
+      href: `https://ganjiday.com${encodeURI('/ko/만세력')}`,
+    })
+    // x-default 为繁中页自身；canonical 为编码后的地址、不带结尾斜杠
+    const canonicalOf = (head: typeof bazi) =>
+      head.links.find((link) => link.rel === 'canonical')?.href ?? ''
+    expect(canonicalOf(bazi)).toBe(
+      'https://ganjiday.com/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4',
+    )
+    expect(bazi.links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'x-default',
+      href: canonicalOf(bazi),
     })
     const ziwei = easternToolHead(
       { path: '/紫微斗數排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',
     )
     expect(languages(ziwei.links)).toEqual(['zh-Hant', 'zh-Hans', 'x-default'])
-    const canonical = ziwei.links.find((link) => link.rel === 'canonical')?.href ?? ''
-    expect(decodeURI(new URL(canonical).pathname)).toBe('/zh-hant/紫微斗數排盤')
+    expect(decodeURI(new URL(canonicalOf(ziwei)).pathname)).toBe('/zh-hant/紫微斗數排盤')
   })
+
+  it.each([
+    ['zh-Hant', '/八字排盤', '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日'],
+    ['zh-Hans', '/八字排盘', '免费八字排盘｜生辰八字命盘查询、大运流年与喜用神线上解析｜干支日'],
+    ['ko', '/만세력', '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이'],
+  ] as const)(
+    '%s 主工具页沿用迁移前首页的 Title（加站名），输出 WebApplication、面包屑与 FAQPage',
+    (locale, path, title) => {
+      messages.locale = locale
+      try {
+        const page = { path, locale, ...easternPageCopy('bazi') }
+        const head = easternToolHead(page, 'http://localhost', baziToolStructuredData(page))
+        expect(head.meta).toContainEqual({ title })
+        const canonical = head.links.find((link) => link.rel === 'canonical')?.href
+        const data = head.scripts.map((script) => JSON.parse(script.children))
+        expect(data.map((item) => item['@type'])).toEqual([
+          'WebApplication',
+          'BreadcrumbList',
+          'FAQPage',
+        ])
+        // 结构化数据中的地址与 canonical 相同；免费工具
+        expect(data[0]).toMatchObject({ url: canonical, inLanguage: locale, offers: { price: 0 } })
+        expect(data[1].itemListElement.map((item: { item: string }) => item.item)).toEqual([
+          new URL(`https://ganjiday.com/${locale.toLowerCase()}`).href,
+          canonical,
+        ])
+        expect(data[2].mainEntity).toHaveLength(3)
+      } finally {
+        messages.locale = 'zh-Hant'
+      }
+    },
+  )
 })

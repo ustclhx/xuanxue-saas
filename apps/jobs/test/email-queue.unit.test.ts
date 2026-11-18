@@ -91,6 +91,8 @@ it('acks malformed messages and retries temporary failures with the original req
 
 it.each([
   ['east', 'en', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  // 发件人显示名用收件人语言下的品牌名：韩语为「간지데이」
+  ['east', 'ko', '간지데이 <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
   ['west', 'ko', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
 ] as const)(
   'routes %s mail by site even when locale is %s',
@@ -107,9 +109,9 @@ it.each([
 )
 
 it.each([
-  ['ko', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['ko', '간지데이 <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
   ['en', 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
-  ['zh-TW', 'Ganjiday <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
+  ['zh-TW', '干支日 <noreply@mail.ganjiday.com>', 'support@ganjiday.com'],
   [null, 'Arcanumber <noreply@mail.arcanumber.com>', 'support@arcanumber.com'],
 ] as const)(
   'sends legacy mail without site using locale %s and warns',
