@@ -10,6 +10,7 @@ import {
   UUID,
   uiStream,
 } from './chat-fixtures.ts'
+import { fillDate } from './date-field.ts'
 import { fixtureDb, login, PASSWORD, register, simulateClientIp } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -381,7 +382,7 @@ test('result page “Ask AI” opens a temporary-context chat with the recompute
     await newConversation(page, slug)
     await page.context().clearCookies()
     await page.goto('/')
-    await page.getByLabel('Date of birth').fill('1987-11-29')
+    await fillDate(page, 'Date of birth', '1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     await expect(page.locator('#life-path-result')).toContainText('11')
     await page.getByTestId('ask-ai-button').click()

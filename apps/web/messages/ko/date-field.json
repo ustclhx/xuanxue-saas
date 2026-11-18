@@ -1,0 +1,10 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "date_field_year": "년",
+  "date_field_month": "월",
+  "date_field_day": "일",
+  "date_field_hour": "시",
+  "date_field_minute": "분",
+  "date_field_time": "시간",
+  "date_field_time_invalid": "올바른 시간을 입력하세요(시 0–23, 분 0–59)."
+}

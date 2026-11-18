@@ -113,3 +113,40 @@ test('live Stripe dry run describes monthly subscription prices beside credit pa
     ),
   )
 })
+
+test('live Stripe dry run ignores unsynced placeholders outside the catalog', async () => {
+  const { describeLiveSync } = await import('./sync-stripe-live.ts')
+  const catalog = new Set(['reading_single|USD|299|'])
+  const lines = describeLiveSync(
+    [
+      {
+        key: 'reading_single',
+        currency: 'USD',
+        amount: 299,
+        mapping: 'unsynced:stripe:a',
+        interval: null,
+      },
+      {
+        key: 'reading_single',
+        currency: 'USD',
+        amount: 99,
+        mapping: 'unsynced:stripe:b',
+        interval: null,
+      },
+      { key: 'reading_single', currency: 'USD', amount: 199, mapping: 'price_old', interval: null },
+    ],
+    catalog,
+  )
+  assert.ok(lines.includes('reading_single USD 99 unsynced (not in catalog, ignored)'))
+  assert.ok(lines.includes('reading_single USD 199 price_old'))
+  assert.ok(lines.includes('Would create 1 live Stripe prices:'))
+  assert.ok(!lines.some((line) => line.startsWith('  + reading_single USD 99 ')))
+})
+
+test('catalog tuples cover every current catalog price', async () => {
+  const { catalogTuples } = await import('./sync-stripe-live.ts')
+  const tuples = catalogTuples()
+  assert.ok(tuples.has('reading_single|USD|299|'))
+  assert.ok(tuples.has('plus|USD|499|month'))
+  assert.ok(!tuples.has('reading_single|USD|99|'))
+})

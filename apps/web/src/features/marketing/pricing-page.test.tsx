@@ -275,10 +275,10 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
     ({
       plans: [
         plan('free', 'free', 'subscription', 0),
-        plan('single', 'reading_single', 'credit_pack', 100),
-        plan('five', 'reading_five', 'credit_pack', 400),
-        plan('plus', 'plus', 'subscription', 300),
-        plan('premium', 'premium', 'subscription', 800),
+        plan('single', 'reading_single', 'credit_pack', 50),
+        plan('five', 'reading_five', 'credit_pack', 150),
+        plan('plus', 'plus', 'subscription', 100),
+        plan('premium', 'premium', 'subscription', 250),
       ],
       prices: [
         row('single', 'stripe', null, 'USD', 299, true),
@@ -311,11 +311,13 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
     expect(count(page, 'data-testid="pricing-pack"')).toBe(2)
     expect(page).toContain('$4.99')
     expect(page).toContain('$9.99')
-    expect(page).toContain('300 credits every month (about 30 full readings)')
-    expect(page).toContain('800 credits every month (about 80 full readings)')
+    expect(page).toContain('100 credits every month (about 10 full readings)')
+    expect(page).toContain('250 credits every month (about 25 full readings)')
     expect(page).toContain('Cancel anytime')
     expect(page).toContain('Renews automatically every month in US dollars (USD) through Stripe')
-    expect(page).toContain('10 credits each day you sign in (up to 10 days a month)')
+    expect(page).toContain('New accounts get 20 credits in total on first sign-in')
+    expect(page).toContain('5 credits each day you sign in (up to 10 days a month)')
+    expect(page).toContain('New accounts get 20 free credits on first sign-in')
     expect(page).toContain('daily free credits → subscription credits → purchased credits')
     // 订阅入口与积分包入口都在：2 档订阅 + 2 个积分包
     expect(count(page, 'href="/app"')).toBe(4)

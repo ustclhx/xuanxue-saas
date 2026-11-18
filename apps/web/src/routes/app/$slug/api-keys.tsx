@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createKey, editKey, listKeys } from '../../../features/api-keys/functions.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import { appTableLabels } from '../../../features/app-shell/table-labels.ts'
+import { DateField, TimeField } from '../../../features/tools/date-field.tsx'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 
@@ -18,6 +19,17 @@ export const Route = createFileRoute('/app/$slug/api-keys')({
   loader: ({ params, deps }) => listKeys({ data: { slug: params.slug, page: deps.page } }),
   component: ApiKeysPage,
 })
+
+/**
+ * 过期时间（本地时间）→ ISO：未填日期为空串（永不过期），时间缺省为当天 00:00；
+ * 日期或时间无效时返回 null。日期、时间分段输入代替 datetime-local，避免控件文字随浏览器语言显示。
+ */
+function expiresAt(date: string, time: string): string | null {
+  if (!date) return time ? null : ''
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || (time && !/^\d{2}:\d{2}$/.test(time))) return null
+  const value = new Date(`${date}T${time || '00:00'}`)
+  return Number.isNaN(value.getTime()) ? null : value.toISOString()
+}
 
 function ApiKeysPage() {
   const { slug } = Route.useParams()
@@ -57,14 +69,21 @@ function ApiKeysPage() {
           event.preventDefault()
           const form = event.currentTarget
           const values = new FormData(form)
-          const expires = String(values.get('expires') ?? '')
+          const expires = expiresAt(
+            String(values.get('expiresDate') ?? ''),
+            String(values.get('expiresTime') ?? ''),
+          )
           setSecret(null)
+          if (expires === null) {
+            setError(m.api_keys_error())
+            return
+          }
           void action(async () => {
             const key = await createKey({
               data: {
                 slug,
                 name: String(values.get('name') ?? ''),
-                ...(expires ? { expiresAt: new Date(expires).toISOString() } : {}),
+                ...(expires ? { expiresAt: expires } : {}),
               },
             })
             setSecret(key.key)
@@ -74,8 +93,10 @@ function ApiKeysPage() {
       >
         <Label htmlFor="key-name">{m.api_keys_name()}</Label>
         <Input id="key-name" name="name" required maxLength={80} />
-        <Label htmlFor="key-expires">{m.api_keys_expires_label()}</Label>
-        <Input id="key-expires" name="expires" type="datetime-local" />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <DateField label={m.api_keys_expires_label()} name="expiresDate" />
+          <TimeField label={m.date_field_time()} name="expiresTime" />
+        </div>
         <Button disabled={pending} type="submit">
           {m.api_keys_create()}
         </Button>

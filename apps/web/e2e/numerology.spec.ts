@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { compatibility } from '@xuanxue/numerology'
 import { LIFE_PATH_NUMBERS } from '../src/features/tools/numerology/routes.ts'
+import { fillDate } from './date-field.ts'
 
 // 西方站数字命理页面（openspec add-numerology-tools tasks.md 2.1–2.3）：结果在浏览器本地计算；
 // 等水合完成（主题按钮在西方站不显示，改等表单的提交按钮可用后再填写）。
@@ -18,7 +19,7 @@ test('Life Path 工具页：输入 1987-11-29 显示 11、计算步骤与数字�
   )
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/life-path-number$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Life Path Number Calculator')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).click()
   const result = page.locator('#life-path-result')
   await expect(result).toContainText('Your life path number')
@@ -42,7 +43,9 @@ test('Life Path 工具页：输入 1987-11-29 显示 11、计算步骤与数字�
 test('禁用 JS 的请求含 H1、表单标签、数字网格与 FAQPage', async ({ request }) => {
   const html = await (await request.get('/life-path-number')).text()
   expect(html).toMatch(/<h1[^>]*>Life Path Number Calculator<\/h1>/)
-  expect(html).toMatch(/<label[^>]*>Date of birth<input[^>]*type="date"/)
+  // 日期为年 / 月 / 日分段（不用原生日期控件，其占位符随浏览器语言显示）
+  expect(html).toMatch(/<legend[^>]*>Date of birth<\/legend>/)
+  expect(html).not.toContain('type="date"')
   for (const value of LIFE_PATH_NUMBERS) expect(html).toContain(`href="/life-path-number/${value}"`)
   for (const type of ['FAQPage', 'WebApplication', 'BreadcrumbList'])
     expect(html).toContain(`"@type":"${type}"`)
@@ -56,7 +59,7 @@ test('禁用 JS 的请求含 H1、表单标签、数字网格与 FAQPage', async
 test('完整计算器：不填姓名只显示日期类数字，姓名类提示解锁', async ({ page }) => {
   await page.goto('/numerology-calculator')
   await hydrated(page)
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).click()
   await expect(page.locator('section#life-path')).toContainText('11')
   await expect(page.locator('section#birthday')).toContainText('Day 29 → 2 + 9 = 11 (kept)')
@@ -84,8 +87,8 @@ test('相性：两个生日输出双方生命灵数与固定表等级', async ({
   const expected = compatibility(first, second)
   await page.goto('/life-path-compatibility')
   await hydrated(page)
-  await page.getByLabel('Your date of birth').fill('1987-11-29')
-  await page.getByLabel('Their date of birth').fill('1990-05-15')
+  await fillDate(page, 'Your date of birth', '1987-11-29')
+  await fillDate(page, 'Their date of birth', '1990-05-15')
   await page.getByRole('button', { name: 'Calculate' }).click()
   const level = { high: 'High', medium: 'Medium', challenging: 'Challenging' }[expected.level]
   await expect(page.locator('section#compatibility')).toContainText(

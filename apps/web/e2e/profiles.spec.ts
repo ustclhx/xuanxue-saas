@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { type Browser, expect as baseExpect, type Page, test } from '@playwright/test'
+import { fillDate, fillTime } from './date-field.ts'
 import { AUTH_FORM_COPY, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
@@ -82,7 +83,7 @@ test('东方站：档案增改、设为默认、删除，工具页从档案填�
     await create.getByLabel('年', { exact: true }).fill('1990')
     await create.getByLabel('月', { exact: true }).fill('5')
     await create.getByLabel('日', { exact: true }).fill('15')
-    await create.getByLabel('出生時間').fill('10:30')
+    await fillTime(create, '出生時間', '10:30')
     await snap(page, 'east-editor')
     await create.getByRole('button', { name: '儲存' }).click()
     await expect(row(page, '我')).toContainText('預設')
@@ -98,7 +99,7 @@ test('东方站：档案增改、设为默认、删除，工具页从档案填�
     await second.getByLabel('年', { exact: true }).fill('1962')
     await second.getByLabel('月', { exact: true }).fill('9')
     await second.getByLabel('日', { exact: true }).fill('3')
-    await second.getByLabel('出生時間').fill('06:15')
+    await fillTime(second, '出生時間', '06:15')
     await second.getByRole('button', { name: '儲存' }).click()
     await expect(row(page, '媽媽')).toContainText('家人')
     await expect(row(page, '媽媽')).not.toContainText('預設')
@@ -144,7 +145,7 @@ test('东方站：档案增改、设为默认、删除，工具页从档案填�
     await page.getByLabel('年', { exact: true }).fill('1962')
     await page.getByLabel('月', { exact: true }).fill('9')
     await page.getByLabel('日', { exact: true }).fill('3')
-    await page.getByLabel('出生時間').fill('06:15')
+    await fillTime(page, '出生時間', '06:15')
     await page.getByRole('button', { name: '立即排盤' }).click()
     await expect(page.locator('#pillars')).toContainText('1962-09-03 06:15')
     expect(await page.locator('#pillars [data-pillar]').allInnerTexts()).toEqual(filled)
@@ -176,7 +177,7 @@ test('西方站：档案只需日期，数字命理计算器从档案填入后�
     await clickUntil(page, 'Add your first profile', 'New birth profile')
     const create = page.getByRole('form', { name: 'New birth profile' })
     await create.getByLabel('Name (only you see this)').fill('Me')
-    await create.getByLabel('Date of birth').fill('1987-11-29')
+    await fillDate(create, 'Date of birth', '1987-11-29')
     await create.getByLabel(/Full birth name/).fill('Jane Doe')
     await create.getByRole('button', { name: 'Save' }).click()
     await expect(row(page, 'Me')).toContainText('Default')
@@ -187,7 +188,7 @@ test('西方站：档案只需日期，数字命理计算器从档案填入后�
     const second = page.getByRole('form', { name: 'New birth profile' })
     await second.getByLabel('Name (only you see this)').fill('Sam')
     await chooseRelation(page, 'New birth profile', 'Relation', 'Partner')
-    await second.getByLabel('Date of birth').fill('1991-12-24')
+    await fillDate(second, 'Date of birth', '1991-12-24')
     await second.getByRole('button', { name: 'Save' }).click()
     await expect(row(page, 'Sam')).toContainText('Partner')
 
@@ -213,7 +214,7 @@ test('西方站：档案只需日期，数字命理计算器从档案填入后�
     await page.goto('/numerology-calculator', HYDRATED)
     await page.getByRole('button', { name: 'Fill from profile' }).click()
     await page.getByRole('button', { name: /Me/ }).click()
-    await expect(page.getByLabel('Date of birth')).toHaveValue('1987-11-29')
+    await expect(page.locator('input[name="birthDate"]')).toHaveValue('1987-11-29')
     await expect(page.getByLabel('Full name (optional)')).toHaveValue('Jane Doe')
     await context.setOffline(true)
     await page.getByRole('button', { name: 'Calculate' }).click()

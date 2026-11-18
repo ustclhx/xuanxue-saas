@@ -1,3 +1,5 @@
+import { PVUV_API_ORIGIN, PVUV_SCRIPT_ORIGIN } from './features/site/pvuv.ts'
+
 export interface SecurityHeaderOptions {
   readonly https: boolean
   readonly nonce?: string | undefined
@@ -37,6 +39,8 @@ export function contentSecurityPolicy(options: SecurityHeaderOptions): string {
     ...(options.scriptHashes ?? []),
     turnstile,
     analyticsScript,
+    // 项目自有：公开页的 pvuv.ai 统计脚本（features/site/pvuv.ts）
+    PVUV_SCRIPT_ORIGIN,
     ...(analytics ? [analytics] : []),
     ...(options.clarity ? ['https://www.clarity.ms', 'https://*.clarity.ms'] : []),
   ]
@@ -49,7 +53,7 @@ export function contentSecurityPolicy(options: SecurityHeaderOptions): string {
     `img-src 'self' data: blob: ${r2} ${storage} ${clarity}`.replace(/ +/g, ' ').trim(),
     `media-src 'self' blob: ${r2} ${storage}`.trim(),
     "font-src 'self' data:",
-    `connect-src 'self' ${turnstile} ${analyticsBeacon} ${r2} ${storage} ${sentry} ${analytics} ${clarity}`
+    `connect-src 'self' ${turnstile} ${analyticsBeacon} ${PVUV_API_ORIGIN} ${r2} ${storage} ${sentry} ${analytics} ${clarity}`
       .replace(/ +/g, ' ')
       .trim(),
     `frame-src ${turnstile}`,
