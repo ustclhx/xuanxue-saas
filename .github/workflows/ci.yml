@@ -78,6 +78,9 @@ jobs:
       - run: pnpm build
       - name: Check eastern pages and bazi engine size
         run: node apps/web/scripts/check-bazi-build.mjs
+      # 预渲染 HTML 中不得有「锚文本为工具关键词、目标为语言首页」的链接（separate-landing-homepage 3.1）
+      - name: Check tool links in prerendered HTML
+        run: node apps/web/scripts/check-tool-links.mjs apps/web/dist/client
 
   e2e-smoke:
     runs-on: ubuntu-latest

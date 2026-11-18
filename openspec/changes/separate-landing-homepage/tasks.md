@@ -48,7 +48,7 @@
 
 依赖：2。冲突点见执行约定。
 
-- [ ] 3.1 按 design.md D5 表把站内仍指向首页工具的链接改为主工具页：
+- [x] 3.1 按 design.md D5 表把站内仍指向首页工具的链接改为主工具页：
   - `bazi/common.tsx` 的 `pageHref('home')` 及其调用处（ziwei、mingpan、gunghap、concept 页），锚文本用关键词；
   - `numerology/copy.ts`；
   - `content/numerology/en/*.mdx` 中 14 处 `[Life Path calculator](/)`；
@@ -57,7 +57,7 @@
   - `east-english/page.tsx` 加主工具页链接（OQ7）。
 
   验证：`check-content` 新增规则（西方站内容不得以 `/` 作为计算器链接）并通过；全站预渲染 HTML 中没有锚文本为工具关键词、目标为语言首页的链接（脚本扫描结果写入 PR）
-- [ ] 3.2 实现 D4 的 `legacyToolPath`，接入显示临时上下文「返回结果」链接的地方。验证：单测覆盖四个语言首页映射与其他路径原样返回
+- [x] 3.2 实现 D4 的 `legacyToolPath`，接入显示临时上下文「返回结果」链接的地方。验证：单测覆盖四个语言首页映射与其他路径原样返回
 - [ ] 3.3 把在首页填写表单或断言首页 H1 / Title 的 e2e 改到工具 URL，首页改为断言落地页。涉及 `bazi`、`numerology`、`reading-unlock`、`reading-optin`、`analytics`、`ai-chat`、`i18n-preference`、`floating-controls`、`theme` 各 spec，以及 `staging/smoke`、`production/smoke`。新增 e2e：旧 `/#r=` 与 `/zh-hant#r=` 分享链接打开后显示结果；`/zh-hant?unlock=<测试令牌>` 跳到工具页并恢复输入。验证：本地离线 e2e 通过；冒烟用例在本组分支的 staging 预览上通过（如可用）
 
 ## 4. 落地页（WT-landing，【Claude】）

@@ -64,6 +64,10 @@ describe('东方站每日页', () => {
     )
     expect(h1).toContain(ganzhiText('zh-Hant', local.stem, local.branch))
     expect(h1).not.toContain(ganzhiText('zh-Hant', data.facts.stem, data.facts.branch))
+    // 「八字排盤」入口指向工具页，不是语言首页（separate-landing-homepage D5）
+    const hrefs = [...container.querySelectorAll('a')].map((a) => a.getAttribute('href'))
+    expect(hrefs).toContain(encodeURI('/zh-hant/八字排盤'))
+    expect(hrefs).not.toContain('/zh-hant')
   })
 
   it('spec「查看日主提示」：丙日选择庚金日主显示七殺', async () => {

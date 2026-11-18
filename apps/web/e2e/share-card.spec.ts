@@ -14,7 +14,8 @@ function eastUrl(path: string): string {
 }
 
 async function chartZhHant(page: Page) {
-  await page.goto(eastUrl('/zh-hant'), HYDRATED)
+  // 八字排盤在关键词 URL 上（separate-landing-homepage D1），语言首页是落地页
+  await page.goto(eastUrl(`/zh-hant/${encodeURI('八字排盤')}`), HYDRATED)
   await page.getByLabel('年', { exact: true }).fill('1990')
   await page.getByLabel('月', { exact: true }).fill('5')
   await page.getByLabel('日', { exact: true }).fill('15')
@@ -80,7 +81,7 @@ test('画布导出失败时提示重试，结果与分享链接仍可用', async
 })
 
 test('西方站生命灵数：生成分享图', async ({ page }) => {
-  await page.goto('/', HYDRATED)
+  await page.goto('/life-path-number', HYDRATED)
   await fillDate(page, 'Date of birth', '1990-05-15')
   await page.getByRole('button', { name: 'Calculate' }).click()
   await page.getByRole('button', { name: 'Save share image' }).click()

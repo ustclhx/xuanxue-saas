@@ -20,6 +20,8 @@ import { stubTurnstile } from './turnstile.ts'
 // 本地没有真实模型：POST /api/readings 被拦截并返回模拟的 UI message 流（生成管线由
 // test/readings.test.ts 以 fake provider 覆盖），这里断言请求体是恢复后的原始输入。
 
+// Life Path 计算器在 `/life-path-number`（openspec separate-landing-homepage design.md D1），不在首页
+const TOOL = '/life-path-number'
 const MODEL_KEY = `e2e-reading-${newId()}`
 const PACK_PLAN = newId()
 const PACK_PRICE = newId()
@@ -141,7 +143,7 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
 }
 
 test('新访客登录并购买积分包后回到原结果页，自动开始生成', async ({ page }) => {
-  // 回跳多一次到主工具页的跳转，dev server 首次编译工具页分包较慢，默认 30 秒不够
+  // dev server 首次编译工具页分包较慢，默认 30 秒不够
   test.setTimeout(90_000)
   await stubTurnstile(page)
   await enableReading(page)
@@ -163,7 +165,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
     })
   })
 
-  await page.goto('/')
+  await page.goto(TOOL)
   await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
@@ -174,14 +176,13 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
 
   // 未登录：本语言登录页，redirect 带签名的 unlock 参数
-  await expect(page).toHaveURL(/\/login\?redirect=%2F%3Funlock%3D/)
+  await expect(page).toHaveURL(/\/login\?redirect=%2Flife-path-number%3Funlock%3D/)
   const form = page.getByRole('form', { name: 'Sign in with password' })
   await form.getByLabel('Email', { exact: true }).fill(email)
   await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: 'Sign in', exact: true }).click()
 
-  // 回到结果页：输入恢复，积分不足 → 积分包。本用例仍从首页发起（第 4 组改为落地页之前首页仍渲染工具），
-  // 令牌的 returnTo 为语言首页：旧首页查询跳转（separate-landing-homepage design.md D4）把回跳 301 到主工具页
+  // 回到结果页（工具页，令牌的 returnTo 为发起时的路径）：输入恢复，积分不足 → 积分包
   await expect(page).toHaveURL(/\/life-path-number#r=/, { timeout: 30_000 })
   const pack = page.getByTestId('reading-pack')
   await expect(pack).toContainText('50 credits')
@@ -193,7 +194,6 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await expect(stream.getByRole('heading', { name: 'Overview' })).toBeVisible()
   await expect(stream.getByText('is a master number.')).toBeVisible()
   expect(purchases).toHaveLength(1)
-  // 在工具页上发起购买：新令牌的 returnTo 已是工具页路径
   expect(purchases[0]).toMatch(/^\/life-path-number\?unlock=[\w\-.]+$/)
   expect(generated).toEqual([
     {
@@ -288,7 +288,7 @@ test('积分不足时选择订阅，首期积分到账后回到原结果页自�
     })
   })
 
-  await page.goto('/')
+  await page.goto(TOOL)
   await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
@@ -327,7 +327,9 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
       exp: Date.now() + 60_000,
     }),
   ).toString('base64url')
+  // 迁移前签发的令牌 returnTo 为首页：旧首页查询跳转（separate-landing-homepage design.md D4）301 到工具页并保留查询
   await page.goto(`/?unlock=${body}.forged`)
+  await expect(page).toHaveURL((url) => url.pathname === TOOL)
   // 结果按令牌中的日期复现（1990-02-03 → 生命灵数 6），解锁卡出现但不自动生成
   await expect(page.locator('#life-path-result')).toContainText('6')
   await expect(page.getByTestId('reading-unlock')).toBeVisible()
@@ -338,7 +340,7 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
 test('支付未开通（没有可购买的积分包）时不显示解锁卡，免费结果照常', async ({ page }) => {
   await stubTurnstile(page)
   await enableReading(page)
-  await page.goto('/')
+  await page.goto(TOOL)
   await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await expect(page.locator('#life-path-result')).toContainText('11')
@@ -374,7 +376,7 @@ test('新用户验证邮箱后经解锁卡登录回到结果页，首日共 20 �
     })
   })
 
-  await page.goto('/')
+  await page.goto(TOOL)
   await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await page
@@ -414,7 +416,7 @@ test('已验证邮箱的用户只停留在公开结果页时，解锁卡报价�
     // 直接在库中标记已验证：不经验证回调，因此只有解锁卡报价路径会发每日积分（无注册赠送）
     await sql`update "user" set email_verified = true where email = ${email}`
     await offlinePayPal(page, email, [])
-    await page.goto('/')
+    await page.goto(TOOL)
     await fillDate(page, 'Date of birth', '1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     const card = page.getByTestId('reading-unlock')

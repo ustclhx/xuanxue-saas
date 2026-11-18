@@ -4,10 +4,11 @@ import { encodeShareInput } from '../src/features/tools/share.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // API 的确认与投递由 growth 集成测试覆盖；这里验证真实页面的结果接线与三语表单。
+// Life Path 与八字在关键词 URL 上（openspec separate-landing-homepage design.md D1），不在语言首页。
 const scenarios = [
   {
     locale: 'en',
-    path: '/',
+    path: '/life-path-number',
     sourceTool: 'life-path',
     share: { date: '1987-11-29' },
     result: { kind: 'numerology', lifePath: 11 },
@@ -15,7 +16,7 @@ const scenarios = [
   },
   {
     locale: 'zh-Hant',
-    path: '/zh-hant',
+    path: `/zh-hant/${encodeURI('八字排盤')}`,
     sourceTool: 'bazi',
     share: { year: '1990', month: '5', day: '15', time: '10:30' },
     result: { kind: 'bazi', dayMaster: 'geng' },
