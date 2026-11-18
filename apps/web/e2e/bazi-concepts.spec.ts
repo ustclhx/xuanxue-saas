@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { fillTimeByName } from './date-field.ts'
 
 test('简体路径的繁体别名 301 到可正常访问的简体规范页', async ({ request }) => {
   for (const [alias, slug] of [
@@ -33,7 +34,8 @@ for (const [locale, base, slug, title, submit] of [
     await page.locator('input[name="year"]').fill('1990')
     await page.locator('input[name="month"]').fill('5')
     await page.locator('input[name="day"]').fill('15')
-    await page.locator('input[name="time"]').fill('10:30')
+    // 时间为分段字段（#210），提交值在同名隐藏字段中
+    await fillTimeByName(page, 'time', '10:30')
     await page.getByRole('button', { name: submit, exact: true }).click()
     await expect(page.locator('#void')).toHaveAttribute('data-concept-focus', 'true')
     await expect(page.locator('#void')).toHaveCSS('outline-style', 'solid')
