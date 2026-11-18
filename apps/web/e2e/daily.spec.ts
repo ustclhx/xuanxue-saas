@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { newId } from '@xuanxue/shared'
+import { fillDate } from './date-field.ts'
 import { fixtureDb, PASSWORD } from './fixtures.ts'
 import { DUMMY_TURNSTILE_TOKEN } from './turnstile.ts'
 
@@ -83,7 +84,7 @@ test('西方站个人日计算只在浏览器中进行', async ({ page, baseURL 
   page.on('request', (request) => requests.push(request.url()))
   // 水合前的输入会被受控组件重置：重复填写直到结果出现
   await expect(async () => {
-    await page.getByLabel('Birth date (stays in your browser)').fill('1990-05-15')
+    await fillDate(page, 'Birth date (stays in your browser)', '1990-05-15')
     await expect(page.getByTestId('daily-personal')).toContainText('Personal Day', {
       timeout: 1000,
     })

@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { fillTime, fillTimeByName } from './date-field.ts'
 
 // 东方站排盘页面（openspec add-bazi-saju-chart tasks.md 2.2、2.3、3.1、3.2）。
 // 本地 Host 未登记时按西方站主题渲染，但语言前缀与页面内容相同，足以验证结构与结果。
@@ -14,7 +15,7 @@ async function fillBirth(
   await page.getByLabel(labels.year, { exact: true }).fill(value.year)
   await page.getByLabel(labels.month, { exact: true }).fill(value.month)
   await page.getByLabel(labels.day, { exact: true }).fill(value.day)
-  await page.getByLabel(labels.time).fill(value.time)
+  await fillTime(page, labels.time, value.time)
 }
 
 const zhLabels = { year: '年', month: '月', day: '日', time: '出生時間' }
@@ -121,7 +122,7 @@ test('八字切到紫微与命盘查询时保留输入，紫微无时辰提示�
   await expect(page.getByLabel('年', { exact: true })).toHaveValue('1990')
   await expect(page.getByLabel('月', { exact: true })).toHaveValue('5')
   await expect(page.getByLabel('日', { exact: true })).toHaveValue('15')
-  await expect(page.getByLabel('出生時間')).toHaveValue('10:30')
+  await expect(page.locator('input[name="time"]')).toHaveValue('10:30')
   await expect(page.getByLabel('女', { exact: true })).toBeChecked()
 
   await page.getByRole('button', { name: '排紫微命盤' }).click()
@@ -183,7 +184,7 @@ test('사주궁합：두 사람을 제출하면 점수와 항목별 가감점을
     await page.locator(`input[name="${prefix}year"]`).fill(value.year)
     await page.locator(`input[name="${prefix}month"]`).fill(value.month)
     await page.locator(`input[name="${prefix}day"]`).fill(value.day)
-    await page.locator(`input[name="${prefix}time"]`).fill(value.time)
+    await fillTimeByName(page, `${prefix}time`, value.time)
   }
   await page.getByRole('button', { name: '궁합 보기' }).click()
   const score = page.locator('#score [data-score]')

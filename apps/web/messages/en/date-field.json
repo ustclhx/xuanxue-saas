@@ -1,0 +1,10 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "date_field_year": "Year",
+  "date_field_month": "Month",
+  "date_field_day": "Day",
+  "date_field_hour": "Hour",
+  "date_field_minute": "Minute",
+  "date_field_time": "Time",
+  "date_field_time_invalid": "Enter a valid time (hour 0–23, minute 0–59)."
+}

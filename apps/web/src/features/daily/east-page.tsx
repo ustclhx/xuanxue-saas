@@ -4,6 +4,7 @@ import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'reac
 import { m } from '../../paraglide/messages.js'
 import { loadBazi } from '../tools/bazi/engine.ts'
 import { TEN_GOD_LABEL } from '../tools/bazi/labels.ts'
+import { DateField, TimeField } from '../tools/date-field.tsx'
 import { Disclaimer } from '../tools/disclaimer.tsx'
 import { tarotPath } from '../tools/tarot/routes.ts'
 import { toolHref } from '../tools/tool-href.ts'
@@ -411,10 +412,16 @@ function PersonalForm({
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const birth = parseDateKey(String(form.get('birthDate') ?? ''))
-    const time = /^(\d{2}):(\d{2})$/.exec(String(form.get('birthTime') ?? ''))
+    const timeText = String(form.get('birthTime') ?? '')
+    const time = /^(\d{2}):(\d{2})$/.exec(timeText)
     const today = parseDateKey(date)
     if (!birth || !today) {
       setError(m.daily_form_invalid())
+      return
+    }
+    // 时间可不填；填了但不完整（如只填时）时提示，避免静默按无时辰排盘
+    if (timeText && !time) {
+      setError(m.date_field_time_invalid())
       return
     }
     setBusy(true)
@@ -458,27 +465,14 @@ function PersonalForm({
       onSubmit={(event) => void submit(event)}
       className="grid gap-4 rounded-xl border border-line bg-surface-2 p-4 sm:grid-cols-3 sm:items-end"
     >
-      <label className="flex flex-col gap-1.5 text-ink-muted text-sm">
-        {m.daily_form_date()}
-        <input
-          name="birthDate"
-          type="date"
-          required
-          min="1900-01-01"
-          max="2100-12-31"
-          aria-invalid={error ? true : undefined}
-          aria-describedby={errorId}
-          className="min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink"
-        />
-      </label>
-      <label className="flex flex-col gap-1.5 text-ink-muted text-sm">
-        {m.daily_form_time()}
-        <input
-          name="birthTime"
-          type="time"
-          className="min-h-11 w-full rounded-lg border border-line-strong bg-surface px-3 text-base text-ink"
-        />
-      </label>
+      <DateField
+        label={m.daily_form_date()}
+        name="birthDate"
+        required
+        invalid={Boolean(error)}
+        describedBy={errorId}
+      />
+      <TimeField label={m.daily_form_time()} name="birthTime" />
       <button
         type="submit"
         disabled={busy}
