@@ -87,7 +87,7 @@
   - 每日运势页未登记时不渲染。
 
   验证：纯函数与 `packages/bazi` 的 `dayPillarOf` 对拍 1,000 天一致；组件测试覆盖有 / 无运势页；Playwright 断言填入前后今日条尺寸不变
-- [ ] 4.4 【Codex】按副本对照截图（两站落地页 390 / 1440 × 浅 / 深，加上两个异常态），运行 `refresh-visual-system-warm` 的 `visual-rules.spec.ts` 启用四个首页，并做 axe 检查。验证：截图与结果存入 `EVIDENCE_DIR`；度量规则全部通过，差异逐项交 4.2 修正或记为使用者确认的偏离
+- [x] 4.4 【Codex】按副本对照截图（两站落地页 390 / 1440 × 浅 / 深，加上两个异常态），运行 `refresh-visual-system-warm` 的 `visual-rules.spec.ts` 启用四个首页，并做 axe 检查。验证：截图与结果存入 `EVIDENCE_DIR`；度量规则全部通过，差异逐项交 4.2 修正或记为使用者确认的偏离
 
 ## 5. 工具页改版（WT-tool-pages，【Claude】）
 
@@ -100,18 +100,18 @@
   - 替换原始字号与任意值。
 
   验证：`visual-rules.spec.ts` 启用 `/zh-hant/八字排盤`、`/ko/만세력`、`/life-path-number`；390×844 首屏可见提交按钮；`bazi.test.tsx`、数字命理单测与 e2e 通过；本组条目从允许名单删除
-- [ ] 5.2 【Codex】按副本对照截图（三个工具页 390 / 1440 × 浅 / 深 + 打印预览），并做 axe 检查。验证：同 4.4
+- [x] 5.2 【Codex】按副本对照截图（三个工具页 390 / 1440 × 浅 / 深 + 打印预览），并做 axe 检查。验证：同 4.4
 
 ## 6. 验收、发布与监测（协调者；外部动作需使用者授权）
 
 依赖：2–5 全部合并。
 
-- [ ] 6.1 【Codex】在 main 本地生产预览上按 design.md D7 测 Lighthouse：四个落地页与四个主工具页，基线为 `refresh-visual-system-warm` 2.1 的首页数值。同时检查：禁用 JavaScript 时首页与工具页含 H1、表单标签与区块文字；数据库不可达时完整显示。验证：
+- [x] 6.1 【Codex】在 main 本地生产预览上按 design.md D7 测 Lighthouse：四个落地页与四个主工具页，基线为 `refresh-visual-system-warm` 2.1 的首页数值。同时检查：禁用 JavaScript 时首页与工具页含 H1、表单标签与区块文字；数据库不可达时完整显示。验证：
   - 工具页 LCP 中位数不高于基线的 110%；
   - 落地页 LCP 不高于基线；
   - CLS 中位数 < 0.1；
   - 记录存入 `EVIDENCE_DIR`
-- [ ] 6.2 【Codex】【需使用者授权】部署 staging 后逐项核对：
+- [x] 6.2 【Codex】【需使用者授权】部署 staging 后逐项核对：
   - 旧首页 `?unlock=` 与 `?checkout=` 跳转为 301 且保留查询，UTM 不跳转；
   - 旧 `#r=` 链接（四个语言首页）显示结果；
   - 四个首页与工具页的 canonical、hreflang、JSON-LD；
@@ -121,8 +121,8 @@
   - 手机实机走查落地页 → 工具页 → 结果 → 解锁回跳。
 
   验证：核对表存入 `EVIDENCE_DIR`
-- [ ] 6.3 【用户】上线前一周内导出 Search Console 基线（design.md D9 的查询清单，近 28 天，两站），也可授权【Codex】在使用者已登录的浏览器中导出。验证：基线文件存入 `EVIDENCE_DIR`
-- [ ] 6.4 【用户】审阅 6.1–6.3 证据，授权生产发布。验证：使用者在会话中确认
-- [ ] 6.5 【协调者】随常规版本发布生产（与 `refresh-visual-system-warm` 同批或之后），确认 main 部署流水线成功、两站 `/api/health` 版本 SHA、发布流水线的 IndexNow 提交日志；【Codex】在 Search Console 提交站点地图，并对三个新工具页与 `/life-path-number` 请求编入索引。验证：发布记录、健康检查与 IndexNow 日志存入 `EVIDENCE_DIR`
+- [x] 6.3 【用户】上线前一周内导出 Search Console 基线（design.md D9 的查询清单，近 28 天，两站），也可授权【Codex】在使用者已登录的浏览器中导出。验证：基线文件存入 `EVIDENCE_DIR`
+- [x] 6.4 【用户】审阅 6.1–6.3 证据，授权生产发布。验证：使用者在会话中确认
+- [x] 6.5 【协调者】随常规版本发布生产（与 `refresh-visual-system-warm` 同批或之后），确认 main 部署流水线成功、两站 `/api/health` 版本 SHA、发布流水线的 IndexNow 提交日志；【Codex】在 Search Console 提交站点地图，并对三个新工具页与 `/life-path-number` 请求编入索引。验证：发布记录、健康检查与 IndexNow 日志存入 `EVIDENCE_DIR`
 - [ ] 6.6 【Codex】上线两周后按 D9 对照基线检查：新 URL 收录、落地 URL、主词展示与排名、首页与工具页是否争同一查询。【协调者】把结论写入项目日志（`kb_journal`），未达标时提出内链与文案调整（不做首页跳转）。验证：对照表存入 `EVIDENCE_DIR`，日志条目存在
 - [ ] 6.7 【协调者】`redesign-home-chart-visuals` 归档后再归档本 change（`home-hub` 主规格须先存在）。验证：`openspec archive` 成功，主规格 `home-hub`、`eastern-tool-pages`、`numerology-pages`、`seo` 含本 change 的要求
