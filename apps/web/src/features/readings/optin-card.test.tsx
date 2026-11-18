@@ -53,7 +53,8 @@ describe('结果后订阅卡', () => {
       expect(document.querySelector(scriptSelector)).toBeNull()
       expect(appendScript).not.toHaveBeenCalled()
       expect(container.querySelector('[data-testid="turnstile"]')).toBeNull()
-      const button = container.querySelector('button') as HTMLButtonElement
+      // 主题下拉的触发器也是 button，这里取提交按钮
+      const button = container.querySelector('button[type="submit"]') as HTMLButtonElement
       expect(button.disabled).toBe(false)
       // 模拟自动填充而没有焦点或输入事件，首次有效提交仍不能绕过验证。
       const email = container.querySelector('input[name="email"]') as HTMLInputElement
@@ -98,7 +99,7 @@ describe('结果后订阅卡', () => {
     ['en', ['Love', 'Career', 'Money', 'Reconnection', 'Personal growth']],
     ['zh-Hant', ['愛情', '事業', '財運', '復合', '自我成長']],
     ['ko', ['연애', '직업', '재물', '재회', '자기 성장']],
-  ] as const)('%s 内联卡仅在结果后、解锁前出现，并提供五个本语言主题', (locale, topics) => {
+  ] as const)('%s 内联卡仅在结果后、解锁前出现，并提供五个本语言主题', async (locale, topics) => {
     language.locale = locale
     expect(page(false)).not.toContain('data-slot="reading-optin"')
     const html = page(true)
@@ -108,9 +109,25 @@ describe('结果后订阅卡', () => {
     expect(html.indexOf('data-slot="reading-optin"')).toBeLessThan(
       html.indexOf('data-slot="reading-unlock"'),
     )
-    for (const topic of topics) expect(html).toContain(`>${topic}</option>`)
+    // 主题是 @xuanxue/ui 的 Select：服务端输出默认主题的文字，五个选项在客户端挂载后进入表单控件
+    expect(html).toContain(topics[4])
     expect(html).toContain('type="email"')
     expect(html).not.toContain('role="dialog"')
-    language.locale = 'en'
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+    vi.mocked(getGrowthFormOptions).mockResolvedValue({ siteKey: '' })
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    try {
+      await act(async () => root.render(<ReadingOptinCard tool="life-path" data={optin} />))
+      const select = container.querySelector('select[name="topic"]') as HTMLSelectElement
+      expect(Array.from(select.options, (option) => option.textContent)).toEqual([...topics])
+      expect(select.value).toBe('growth')
+    } finally {
+      await act(async () => root.unmount())
+      container.remove()
+      vi.unstubAllGlobals()
+      language.locale = 'en'
+    }
   })
 })

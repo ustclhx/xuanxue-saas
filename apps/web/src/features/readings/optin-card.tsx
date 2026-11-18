@@ -60,7 +60,8 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
       <form
         className="grid gap-4 sm:grid-cols-2"
         onFocus={(event) => {
-          if (event.target.matches('input, select')) setInteracted(true)
+          // 主题下拉是 @xuanxue/ui 的 Select，可聚焦的是 combobox 触发器
+          if (event.target.matches('input, select, [role="combobox"]')) setInteracted(true)
         }}
         onInput={() => setInteracted(true)}
         onChange={() => setInteracted(true)}

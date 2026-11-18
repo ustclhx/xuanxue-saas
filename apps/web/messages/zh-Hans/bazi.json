@@ -235,5 +235,6 @@
   "bazi_mingpan_faq_a1": "一样。两页使用同一个排盘引擎与同一份出生资料，命盘查询改用表格呈现，方便逐栏对照。",
   "bazi_mingpan_faq_q2": "表格中的岁数怎么算？",
   "bazi_mingpan_faq_a2": "大运岁数采虚岁，与常见万年历一致；起运时间依出生到前后节气的时间差换算。",
-  "bazi_requires_js": "需要启用 JavaScript 才能排盘。"
+  "bazi_requires_js": "需要启用 JavaScript 才能排盘。",
+  "bazi_advanced_options": "进阶选项：真太阳时校正"
 }
