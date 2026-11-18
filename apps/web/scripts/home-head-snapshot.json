@@ -6,7 +6,7 @@
       "x-default": "/"
     },
     "robots": null,
-    "jsonLd": ["FAQPage", "Organization", "WebSite"]
+    "jsonLd": ["Organization", "WebSite"]
   },
   "zh-hant": {
     "canonical": "/zh-hant",
@@ -18,7 +18,7 @@
       "zh-Hant": "/zh-hant"
     },
     "robots": null,
-    "jsonLd": []
+    "jsonLd": ["Organization", "WebSite"]
   },
   "zh-hans": {
     "canonical": "/zh-hans",
@@ -30,7 +30,7 @@
       "zh-Hant": "/zh-hant"
     },
     "robots": null,
-    "jsonLd": []
+    "jsonLd": ["Organization", "WebSite"]
   },
   "ko": {
     "canonical": "/ko",
@@ -42,6 +42,48 @@
       "zh-Hant": "/zh-hant"
     },
     "robots": null,
-    "jsonLd": []
+    "jsonLd": ["Organization", "WebSite"]
+  },
+  "tool-west": {
+    "canonical": "/life-path-number",
+    "hreflang": {
+      "en": "/life-path-number",
+      "x-default": "/life-path-number"
+    },
+    "robots": null,
+    "jsonLd": ["BreadcrumbList", "FAQPage", "WebApplication"]
+  },
+  "tool-zh-hant": {
+    "canonical": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+    "hreflang": {
+      "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
+      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
+      "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
+    },
+    "robots": null,
+    "jsonLd": ["BreadcrumbList", "FAQPage", "WebApplication"]
+  },
+  "tool-zh-hans": {
+    "canonical": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
+    "hreflang": {
+      "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
+      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
+      "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
+    },
+    "robots": null,
+    "jsonLd": ["BreadcrumbList", "FAQPage", "WebApplication"]
+  },
+  "tool-ko": {
+    "canonical": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
+    "hreflang": {
+      "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
+      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
+      "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
+    },
+    "robots": null,
+    "jsonLd": ["BreadcrumbList", "FAQPage", "WebApplication"]
   }
 }

@@ -1,4 +1,5 @@
 import { expect, type Page, test } from '@playwright/test'
+import { fillDate, fillTime } from './date-field.ts'
 
 // 结果分享图（openspec redesign-home-chart-visuals tasks 7.2、7.3；specs/share-cards）：
 // 浏览器本地生成 1080×1350 PNG，生成期间没有携带出生信息或结果的请求，结果出现后断网仍可生成，
@@ -13,11 +14,12 @@ function eastUrl(path: string): string {
 }
 
 async function chartZhHant(page: Page) {
-  await page.goto(eastUrl('/zh-hant'), HYDRATED)
+  // 八字排盤在关键词 URL 上（separate-landing-homepage D1），语言首页是落地页
+  await page.goto(eastUrl(`/zh-hant/${encodeURI('八字排盤')}`), HYDRATED)
   await page.getByLabel('年', { exact: true }).fill('1990')
   await page.getByLabel('月', { exact: true }).fill('5')
   await page.getByLabel('日', { exact: true }).fill('15')
-  await page.getByLabel('出生時間').fill('10:30')
+  await fillTime(page, '出生時間', '10:30')
   await page.getByRole('button', { name: '立即排盤' }).click()
   await expect(page.getByRole('button', { name: '保存分享圖' })).toBeVisible()
 }
@@ -79,8 +81,8 @@ test('画布导出失败时提示重试，结果与分享链接仍可用', async
 })
 
 test('西方站生命灵数：生成分享图', async ({ page }) => {
-  await page.goto('/', HYDRATED)
-  await page.getByLabel('Date of birth').fill('1990-05-15')
+  await page.goto('/life-path-number', HYDRATED)
+  await fillDate(page, 'Date of birth', '1990-05-15')
   await page.getByRole('button', { name: 'Calculate' }).click()
   await page.getByRole('button', { name: 'Save share image' }).click()
   expect(await generatedSize(page)).toEqual({ width: 1080, height: 1350 })

@@ -9,7 +9,8 @@ import {
   requestData,
   serializer,
 } from './billing-actions-helper.ts'
-import { fixtureDb, login, PASSWORD, register } from './fixtures.ts'
+import { fillDate } from './date-field.ts'
+import { emailLink, fixtureDb, login, PASSWORD, register } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
@@ -19,6 +20,8 @@ import { stubTurnstile } from './turnstile.ts'
 // 本地没有真实模型：POST /api/readings 被拦截并返回模拟的 UI message 流（生成管线由
 // test/readings.test.ts 以 fake provider 覆盖），这里断言请求体是恢复后的原始输入。
 
+// Life Path 计算器在 `/life-path-number`（openspec separate-landing-homepage design.md D1），不在首页
+const TOOL = '/life-path-number'
 const MODEL_KEY = `e2e-reading-${newId()}`
 const PACK_PLAN = newId()
 const PACK_PRICE = newId()
@@ -29,7 +32,7 @@ test.beforeAll(async () => {
     await sql`insert into ai_model (id, key, kind, provider, provider_model_id, pricing)
       values (${newId()}, ${MODEL_KEY}, 'text', 'anthropic', 'mock-model', ${sql.json({ mode: 'token', inputPer1k: 1, outputPer1k: 1 })})`
     await sql`insert into plan (id, key, name, type, credits, features, sort, active)
-      values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 100,
+      values (${PACK_PLAN}, ${`e2e-reading-pack-${PACK_PLAN}`}, 'E2E Reading', 'credit_pack', 50,
         '{}'::jsonb, 1000, false)`
     await sql`insert into plan_price (id, plan_id, provider, provider_price_id, interval, amount, currency, active)
       values (${PACK_PRICE}, ${PACK_PLAN}, 'paypal', ${`e2e:${PACK_PRICE}`}, null, 299, 'usd', false)`
@@ -106,7 +109,7 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
             workspaceId: owner.workspaceId,
             source: 'purchase',
             sourceRef: String(data.providerRef),
-            amount: 100,
+            amount: 50,
           })
         } finally {
           await db.$client.end()
@@ -129,7 +132,7 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
     result.packs = [
-      { planPriceId: PACK_PRICE, provider: 'paypal', credits: 100, amount: 299, currency: 'USD' },
+      { planPriceId: PACK_PRICE, provider: 'paypal', credits: 50, amount: 299, currency: 'USD' },
     ]
     await route.fulfill({
       status: response.status(),
@@ -140,6 +143,8 @@ async function offlinePayPal(page: Page, email: string, purchases: string[]) {
 }
 
 test('新访客登录并购买积分包后回到原结果页，自动开始生成', async ({ page }) => {
+  // dev server 首次编译工具页分包较慢，默认 30 秒不够
+  test.setTimeout(90_000)
   await stubTurnstile(page)
   await enableReading(page)
   const email = `unlock-${newId()}@example.com`
@@ -160,27 +165,27 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
     })
   })
 
-  await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await page.goto(TOOL)
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
-  // 每份详批 10 积分（2026-11-17「版本 A」），按 100 积分 $2.99 的积分包折算为 $0.30
+  // 每份详批 10 积分（2026-11-17「版本 A」），按 50 积分 $2.99 的积分包（2026-11-18「版本 B」）折算为 $0.60
   await expect(card.getByText('10 credits', { exact: true })).toBeVisible()
-  await expect(card.getByTestId('reading-price')).toContainText('$0.30')
+  await expect(card.getByTestId('reading-price')).toContainText('$0.60')
   await expect(card.getByRole('listitem').first()).toHaveText('Overview')
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
 
   // 未登录：本语言登录页，redirect 带签名的 unlock 参数
-  await expect(page).toHaveURL(/\/login\?redirect=%2F%3Funlock%3D/)
+  await expect(page).toHaveURL(/\/login\?redirect=%2Flife-path-number%3Funlock%3D/)
   const form = page.getByRole('form', { name: 'Sign in with password' })
   await form.getByLabel('Email', { exact: true }).fill(email)
   await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
   await form.getByRole('button', { name: 'Sign in', exact: true }).click()
 
-  // 回到结果页：输入恢复，积分不足 → 积分包
-  await expect(page).toHaveURL(/\/#r=/)
+  // 回到结果页（工具页，令牌的 returnTo 为发起时的路径）：输入恢复，积分不足 → 积分包
+  await expect(page).toHaveURL(/\/life-path-number#r=/, { timeout: 30_000 })
   const pack = page.getByTestId('reading-pack')
-  await expect(pack).toContainText('100 credits')
+  await expect(pack).toContainText('50 credits')
   expect(generated).toEqual([])
   await completeOfflineCheckout(page, () => pack.click())
 
@@ -189,7 +194,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await expect(stream.getByRole('heading', { name: 'Overview' })).toBeVisible()
   await expect(stream.getByText('is a master number.')).toBeVisible()
   expect(purchases).toHaveLength(1)
-  expect(purchases[0]).toMatch(/^\/\?unlock=[\w\-.]+$/)
+  expect(purchases[0]).toMatch(/^\/life-path-number\?unlock=[\w\-.]+$/)
   expect(generated).toEqual([
     {
       kind: 'numerology-full',
@@ -207,7 +212,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
 
 /**
  * 离线订阅（enable-subscriptions-daily-credits 4.3）：报价中注入一个 Stripe 月付档位；结账时模拟
- * invoice.paid 首期入账 400 积分，并像 Stripe Checkout 一样直接回到 `returnTo?checkout=success`。
+ * invoice.paid 首期入账 100 积分，并像 Stripe Checkout 一样直接回到 `returnTo?checkout=success`。
  */
 const PLAN_PRICE = newId()
 async function offlineSubscription(page: Page, email: string, subscribed: string[]) {
@@ -224,7 +229,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
           workspaceId: owner.workspaceId,
           source: 'purchase',
           sourceRef: `e2e-subscription:${newId()}`,
-          amount: 400,
+          amount: 100,
         })
       } finally {
         await db.$client.end()
@@ -242,7 +247,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
     if (!result || !('packs' in result) || !result.available)
       return route.fulfill({ response, json: body })
     result.packs = [
-      { planPriceId: PACK_PRICE, provider: 'stripe', credits: 100, amount: 299, currency: 'USD' },
+      { planPriceId: PACK_PRICE, provider: 'stripe', credits: 50, amount: 299, currency: 'USD' },
     ]
     result.plans = [
       {
@@ -250,7 +255,7 @@ async function offlineSubscription(page: Page, email: string, subscribed: string
         name: 'Plus',
         planPriceId: PLAN_PRICE,
         provider: 'stripe',
-        credits: 300,
+        credits: 100,
         amount: 499,
         currency: 'USD',
       },
@@ -283,13 +288,13 @@ test('积分不足时选择订阅，首期积分到账后回到原结果页自�
     })
   })
 
-  await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await page.goto(TOOL)
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
   const plan = page.getByTestId('reading-plan')
-  await expect(plan).toContainText('Plus · 300 credits a month')
+  await expect(plan).toContainText('Plus · 100 credits a month')
   await expect(plan).toContainText('$4.99/month')
   expect(generated).toEqual([])
   await plan.click()
@@ -322,7 +327,9 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
       exp: Date.now() + 60_000,
     }),
   ).toString('base64url')
+  // 迁移前签发的令牌 returnTo 为首页：旧首页查询跳转（separate-landing-homepage design.md D4）301 到工具页并保留查询
   await page.goto(`/?unlock=${body}.forged`)
+  await expect(page).toHaveURL((url) => url.pathname === TOOL)
   // 结果按令牌中的日期复现（1990-02-03 → 生命灵数 6），解锁卡出现但不自动生成
   await expect(page.locator('#life-path-result')).toContainText('6')
   await expect(page.getByTestId('reading-unlock')).toBeVisible()
@@ -333,9 +340,99 @@ test('外部构造的 unlock 链接只恢复输入，不自动扣费', async ({ 
 test('支付未开通（没有可购买的积分包）时不显示解锁卡，免费结果照常', async ({ page }) => {
   await stubTurnstile(page)
   await enableReading(page)
-  await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await page.goto(TOOL)
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await expect(page.locator('#life-path-result')).toContainText('11')
   await expect(page.getByTestId('reading-unlock')).toHaveCount(0)
+})
+
+// 2026-11-18「版本 B」：新用户首次登录共 20 积分 = 注册赠送 15 + 当天每日 5。登录后回到公开结果页
+// （不进 App 区）也要到账：验证邮箱时一并领取当天每日积分，解锁卡报价也为已登录访客检查每日积分。
+test('新用户验证邮箱后经解锁卡登录回到结果页，首日共 20 积分并直接生成', async ({ page }) => {
+  await stubTurnstile(page)
+  await enableReading(page)
+  const email = `first-login-${newId()}@example.com`
+  await register(page, email, 'First Login')
+  await page.goto('/account')
+  await page.getByRole('button', { name: 'Verify email to claim 15 credits' }).click()
+  await expect(
+    page.getByText('Verification email sent. Your credits will be added after verification.'),
+  ).toBeVisible()
+  await page.goto(await emailLink(email))
+  await expect(page).toHaveURL(/\/account\/?$/)
+  await page.context().clearCookies()
+  await offlinePayPal(page, email, [])
+  const generated: unknown[] = []
+  await page.route('**/api/readings', async (route) => {
+    generated.push(route.request().postDataJSON())
+    await route.fulfill({
+      status: 200,
+      headers: {
+        'content-type': 'text/event-stream',
+        'x-reading-id': '01900000-0000-7000-8000-000000000003',
+      },
+      body: REPORT_STREAM,
+    })
+  })
+
+  await page.goto(TOOL)
+  await fillDate(page, 'Date of birth', '1987-11-29')
+  await page.getByRole('button', { name: 'Calculate' }).first().click()
+  await page
+    .getByTestId('reading-unlock')
+    .getByRole('button', { name: 'Unlock the full reading' })
+    .click()
+  await expect(page).toHaveURL(/\/login\?redirect=/)
+  const form = page.getByRole('form', { name: 'Sign in with password' })
+  await form.getByLabel('Email', { exact: true }).fill(email)
+  await form.getByLabel('Password', { exact: true }).fill(PASSWORD)
+  await form.getByRole('button', { name: 'Sign in', exact: true }).click()
+
+  // 20 积分足够一份 10 积分的详批：回到结果页直接生成，不经 App 区
+  await expect(page.getByTestId('reading-stream').getByText('is a master number.')).toBeVisible()
+  expect(generated).toHaveLength(1)
+  const sql = fixtureDb()
+  try {
+    const owner = await actor(email)
+    const grants = await sql`select source, amount from credit_grant
+      where workspace_id = ${owner.workspaceId} and source in ('signup', 'daily') order by source`
+    expect(grants).toEqual([
+      { source: 'daily', amount: 5 },
+      { source: 'signup', amount: 15 },
+    ])
+  } finally {
+    await sql.end()
+  }
+})
+
+test('已验证邮箱的用户只停留在公开结果页时，解锁卡报价也领取当天每日积分', async ({ page }) => {
+  await stubTurnstile(page)
+  await enableReading(page)
+  const email = `daily-offer-${newId()}@example.com`
+  await register(page, email, 'Daily Offer')
+  const sql = fixtureDb()
+  try {
+    // 直接在库中标记已验证：不经验证回调，因此只有解锁卡报价路径会发每日积分（无注册赠送）
+    await sql`update "user" set email_verified = true where email = ${email}`
+    await offlinePayPal(page, email, [])
+    await page.goto(TOOL)
+    await fillDate(page, 'Date of birth', '1987-11-29')
+    await page.getByRole('button', { name: 'Calculate' }).first().click()
+    const card = page.getByTestId('reading-unlock')
+    await card.getByRole('button', { name: 'Unlock the full reading' }).click()
+    await expect(card.getByText('Your balance: 5 credits')).toBeVisible()
+    const owner = await actor(email)
+    const grants = await sql`select source, amount from credit_grant
+      where workspace_id = ${owner.workspaceId} and source in ('signup', 'daily')`
+    expect(grants).toEqual([{ source: 'daily', amount: 5 }])
+    // 刷新后再次报价不重复发放
+    await page.reload()
+    await expect(page.locator('#life-path-result')).toBeVisible()
+    expect(
+      await sql`select id from credit_grant where workspace_id = ${owner.workspaceId} and source = 'daily'`,
+    ).toHaveLength(1)
+  } finally {
+    await sql.end()
+  }
 })

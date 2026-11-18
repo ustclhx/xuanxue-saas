@@ -67,3 +67,19 @@ export function budgetViolation(gzipBytes: number, budget: number | null | undef
 export function readPerformanceOptions(
   distDir: string,
 ): { homeScriptGzipBudget?: number | null } | null
+export const TOOL_PAGES: readonly { id: string; file: string }[]
+export const SPLIT_PAGES: readonly { file: string; forbiddenSources: readonly string[] }[]
+export function checkToolPages(
+  clientDir: string,
+  pages?: readonly { id: string; file: string }[],
+  snapshot?: Record<string, HomeHead>,
+): { id: string; file: string; headDiffs: string[] }[]
+export function closureSources(clientDir: string, file: string): string[]
+export function checkSplitPages(
+  clientDir: string,
+  pages?: readonly { file: string; forbiddenSources: readonly string[] }[],
+): { file: string; unmapped: boolean; found: string[] }[]
+export function reportToolPages(
+  tools: ReturnType<typeof checkToolPages>,
+  splits: ReturnType<typeof checkSplitPages>,
+): { ok: boolean; lines: string[] }

@@ -61,10 +61,15 @@ const MISSING_TEXT: Record<BirthPrefillField | NumerologyPrefillField, () => str
   birthDate: m.profiles_missing_birth_date,
 }
 
-/** 给非受控控件写值（数字命理表单） */
+/**
+ * 给非受控控件写值（数字命理表单）。派发 change：日期字段经隐藏字段提交，
+ * 由该事件把新值同步到年 / 月 / 日分段（date-field.tsx）。
+ */
 function setControl(form: HTMLFormElement | null, name: string, value: string) {
   const control = form?.elements.namedItem(name)
-  if (control instanceof HTMLInputElement) control.value = value
+  if (!(control instanceof HTMLInputElement)) return
+  control.value = value
+  control.dispatchEvent(new Event('change'))
 }
 
 /**

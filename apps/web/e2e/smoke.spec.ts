@@ -68,8 +68,10 @@ test('register, sign out/in, and buy a credit pack through the local provider', 
 })
 
 // openspec add-dual-site-foundation 3.2：东方站登录与支付都回到发起页面，界面仍为韩语。
+// 购买从만세력主工具页发起（separate-landing-homepage D1）：语言首页是落地页，旧首页带 checkout 的回跳
+// 由 legacyHomeRedirect 301 到主工具页（D4，gate 单测覆盖），这里直接以工具页为发起页面。
 // 本地用 east.localhost 访问东方站（features/site/site.ts），支付使用 smoke 的本地服务商。
-test('east site sign-in and checkout return to the originating /ko page', async ({
+test('east site sign-in and checkout return to the originating /ko/만세력 page', async ({
   browser,
   baseURL,
 }) => {
@@ -93,6 +95,7 @@ test('east site sign-in and checkout return to the originating /ko page', async 
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
   }
 
+  const tool = `/ko/${encodeURI('만세력')}`
   const email = `ci-smoke-east-${randomUUID()}@example.com`
   // 东方站无前缀认证页跳到繁体中文（auth-locale.ts），表单按繁体文案填写
   await register(page, email, undefined, AUTH_FORM_COPY['zh-Hant'])
@@ -106,20 +109,15 @@ test('east site sign-in and checkout return to the originating /ko page', async 
     return response.ok
   })
   expect(signedOut).toBe(true)
-  await login(
-    page,
-    email,
-    `/login?redirect=${encodeURIComponent('/ko')}`,
-    AUTH_FORM_COPY['zh-Hant'],
-  )
-  await korean(new RegExp(`^${east.origin}/ko/?$`))
+  await login(page, email, `/login?redirect=${encodeURIComponent(tool)}`, AUTH_FORM_COPY['zh-Hant'])
+  await korean(new RegExp(`^${east.origin}${tool}$`))
 
   // 公开页面的购买入口：/app?returnTo=&buy= 进入计费页后直接跳转支付页，
   // 支付回跳经 billing-return 回到发起页面
   await completeOfflineCheckout(page, async () => {
-    await page.goto(`/app?returnTo=${encodeURIComponent('/ko')}&buy=${SMOKE_PACK_KEY}`)
+    await page.goto(`/app?returnTo=${encodeURIComponent(tool)}&buy=${SMOKE_PACK_KEY}`)
   })
-  await korean(new RegExp(`^${east.origin}/ko/?\\?checkout=success$`))
+  await korean(new RegExp(`^${east.origin}${tool}\\?checkout=success$`))
   expect(externalRequests).toEqual([])
   await context.close()
 })

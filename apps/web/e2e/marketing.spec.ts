@@ -23,13 +23,10 @@ for (const lang of languages) {
     expect(response?.status()).toBe(200)
     await expect(page.locator('html')).toHaveAttribute('lang', lang)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    // 东方站语言首页是排盘工具页（openspec add-bazi-saju-chart，见 e2e/bazi.spec.ts）
-    if (EAST_TOOL_HOMES.includes(lang)) await expect(page.locator('main form')).toBeVisible()
-    else {
-      // 西方站英语首页为 Life Path 计算器，原营销板块迁往 /pricing（openspec add-numerology-tools 决策 3）
-      await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-        'Life Path Number Calculator',
-      )
+    // 语言首页是品牌落地页（openspec separate-landing-homepage）：工具表单与主词 H1 在关键词 URL 上，
+    // 见 e2e/bazi.spec.ts、numerology.spec.ts；落地页区块由该 change 第 4 组的用例覆盖
+    if (!EAST_TOOL_HOMES.includes(lang)) {
+      // 西方站原营销板块迁往 /pricing（openspec add-numerology-tools 决策 3）
       // 定价页只卖积分包，不再有模板的功能/评价区块（Stripe 审核不接受虚构评价）
       await seedBillingCatalog()
       await page.goto('/pricing')

@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { isValidElement } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
-import { staticPage } from '../seo/metadata.ts'
+import { homeTagline } from '../seo/home-copy.ts'
 import {
   defaultShareCardLayout,
   metaLimit,
@@ -109,8 +109,8 @@ describe('分享卡片版式（4.2）', () => {
   it('默认版式（构建期分享图）用大标题、无标签与摘要', () => {
     const tree = defaultShareCardLayout('定价与套餐', resolveShareCardTheme('light'))
     expect(withText(tree, '定价与套餐').props.style).toMatchObject({ fontSize: 76, maxHeight: 184 })
-    // 副标题取默认语言首页的 SEO 标题，不再写死英文
-    const tagline = staticPage('/', templateConfig.i18n.defaultLocale).title
+    // 副标题取默认语言的首页标语（不含品牌名），不再写死英文
+    const tagline = homeTagline(templateConfig.i18n.defaultLocale)
     expect(collectText(tree)).toContain(`${templateConfig.app.name} · ${tagline}`)
     expect(elements(tree).some((node) => node.props.style?.height === 44)).toBe(false)
   })
@@ -119,9 +119,7 @@ describe('分享卡片版式（4.2）', () => {
     // 衍生项目的语言列表不同（xuanxue 没有 zh），取配置中的最后一个语言
     const pageLocale = templateConfig.i18n.locales.at(-1) ?? 'en'
     const tree = defaultShareCardLayout('定价与套餐', light, defaultShareCardSite(pageLocale))
-    expect(collectText(tree)).toContain(
-      `${templateConfig.app.name} · ${staticPage('/', pageLocale).title}`,
-    )
+    expect(collectText(tree)).toContain(`${templateConfig.app.name} · ${homeTagline(pageLocale)}`)
   })
 
   it('未提供品牌与域名时与模板配置一致；提供时替换品牌行、首字与域名', () => {

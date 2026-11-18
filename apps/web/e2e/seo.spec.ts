@@ -4,11 +4,16 @@ import templateConfig from '../../../template.config.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 
 const { locales, defaultLocale } = templateConfig.i18n
-const easternHomeTitles: Partial<Record<(typeof locales)[number], string>> = {
-  'zh-Hant': '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析',
-  'zh-Hans': '免费八字排盘｜生辰八字命盘查询、大运流年与喜用神线上解析',
-  ko: '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살)',
+// 首页为品牌标题（站名在前、不再追加站名）；内页为「页面标题 + 分隔符 + 站名」
+// （openspec separate-landing-homepage design.md D3、D3a）
+const homeTitles: Record<(typeof locales)[number], string> = {
+  en: 'Arcanumber — Free Life Path Number Calculator, Numerology & Tarot',
+  'zh-Hant': '干支日｜免費八字排盤、紫微斗數與塔羅',
+  'zh-Hans': '干支日｜免费八字排盘、紫微斗数与塔罗',
+  ko: '간지데이 | 무료 만세력·사주·타로',
 }
+const titleSuffix = (locale: string) =>
+  `${locale.startsWith('zh') ? '｜' : ' | '}${brandName(templateConfig, locale)}`
 const legalPaths = ['/privacy', '/terms', '/refund']
 const publicPaths = ['/', '/pricing', ...legalPaths]
 if (templateConfig.features.blog)
@@ -36,10 +41,11 @@ for (const locale of locales) {
       const response = await page.goto(`${prefix}${path === '/' ? '' : path}` || '/')
       expect(response?.status(), path).toBe(200)
       const title = await page.title()
-      // 东方站首页按工具页的精确主词标题验收，简体与繁体、韩语遵循同一模式。
-      const homeTitle = path === '/' ? easternHomeTitles[locale] : undefined
-      if (homeTitle) expect(title, path).toBe(homeTitle)
-      else expect(title, path).toContain(brandName(templateConfig, locale))
+      if (path === '/') expect(title, path).toBe(homeTitles[locale])
+      else expect(title.endsWith(titleSuffix(locale)), `${path}: ${title}`).toBe(true)
+      // 站名只出现一次；og:title 与 <title> 一致
+      expect(title.split(brandName(templateConfig, locale)), path).toHaveLength(2)
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title)
       expect(titles.has(title), path).toBe(false)
       titles.add(title)
       const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
@@ -67,6 +73,45 @@ for (const locale of locales) {
   })
 }
 
+test('主工具页与登录页的标题带站名（D3a）', async ({ page }) => {
+  for (const [path, title] of [
+    ['/life-path-number', 'Life Path Number Calculator: Free, With Every Step Shown | Arcanumber'],
+    ['/zh-hant/八字排盤', '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日'],
+    ['/zh-hans/八字排盘', '免费八字排盘｜生辰八字命盘查询、大运流年与喜用神线上解析｜干支日'],
+    ['/ko/만세력', '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이'],
+    ['/zh-hant/紫微斗數排盤', '紫微斗數排盤｜免費紫微命盤十二宮、主星與四化｜干支日'],
+  ] as const) {
+    const response = await page.goto(path)
+    expect(response?.status(), path).toBe(200)
+    await expect(page, path).toHaveTitle(title)
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+    expect(decodeURI(new URL(canonical ?? '').pathname), path).toBe(path)
+    // 主工具页输出 WebApplication、BreadcrumbList 与 FAQPage，其中的 url 与 canonical 相同
+    if (!path.includes('紫微')) {
+      const data = (await page.locator('script[type="application/ld+json"]').allTextContents()).map(
+        (json) => JSON.parse(json),
+      )
+      expect(data.map((item) => item['@type']).sort(), path).toEqual([
+        'BreadcrumbList',
+        'FAQPage',
+        'WebApplication',
+      ])
+      expect(data.find((item) => item['@type'] === 'WebApplication')?.url, path).toBe(canonical)
+    }
+  }
+  // 另一语言的 slug 没有登记
+  expect((await page.goto('/ko/八字排盤'))?.status()).toBe(404)
+  expect((await page.goto('/zh-hant/만세력'))?.status()).toBe(404)
+  for (const [path, title] of [
+    ['/login', 'Sign in | Arcanumber'],
+    ['/zh-hant/login', /｜干支日$/],
+    ['/ko/login', / \| 간지데이$/],
+  ] as const) {
+    await page.goto(path)
+    await expect(page, path).toHaveTitle(title)
+  }
+})
+
 test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request }) => {
   const response = await request.get('/sitemap/en.xml')
   expect(response.status()).toBe(200)
@@ -85,13 +130,19 @@ test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request })
   const rules = await (await request.get('/robots.txt')).text()
   // 默认 localhost 属于预览 Host，禁止全部抓取；已知 Host 的规则由 dual-site-seo 验证。
   expect(rules).toContain('Disallow: /')
-  for (const image of await Promise.all(
-    // 含样例 OG 模板的登记页面（redesign-home-chart-visuals 8.1）：开发服务器经 runnerImport 加载图形组件
-    ['/og/en/terms.png', '/og/en/privacy.png', '/og/en/index.png', '/og/zh-hant/index.png'].map(
-      (path) => request.get(path),
-    ),
-  )) {
-    expect(image.status()).toBe(200)
+  // 含样例 OG 模板的登记页面（redesign-home-chart-visuals 8.1）：开发服务器经 runnerImport 加载图形组件；
+  // 样例图随注册表挂到主工具页（separate-landing-homepage OQ8），首页沿用默认分享图。
+  // 渲染器有并发上限（超出时返回 500「renderer is busy」）：逐个请求
+  for (const path of [
+    '/og/en/terms.png',
+    '/og/en/privacy.png',
+    '/og/en/index.png',
+    '/og/zh-hant/index.png',
+    '/og/en/life-path-number.png',
+    `/og/zh-hant/${encodeURIComponent('八字排盤')}.png`,
+  ]) {
+    const image = await request.get(path)
+    expect(image.status(), path).toBe(200)
     expect(image.headers()['content-type']).toBe('image/png')
     const data = await image.body()
     expect([...data.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10])

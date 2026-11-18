@@ -1,13 +1,19 @@
 import { Link } from '@tanstack/react-router'
+import { siteBrandName } from '@xuanxue/config'
 import { Badge, Button } from '@xuanxue/ui'
 import { Link2Off } from '@xuanxue/ui/icons'
 import type { ReactNode } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { MarketingShell } from '../marketing/marketing-shell.tsx'
+import { useSiteId } from '../site/context.tsx'
 import type { SharePageView } from './page.ts'
 
-const site = templateConfig.app.name
+// 当前站点在当前语言下的品牌名（东方站分享页不显示西方站的 Arcanumber，韩语为「간지데이」）
+function useSiteName(): string {
+  return siteBrandName(templateConfig, useSiteId(), getLocale())
+}
 
 /** 设计稿 share-cards/SharePage(.Mobile).dc.html：复用营销页头尾；关闭营销站时只保留正文。 */
 function Shell({ children }: { children: ReactNode }) {
@@ -24,6 +30,7 @@ function Shell({ children }: { children: ReactNode }) {
 }
 
 export function SharePage({ view }: { view: Extract<SharePageView, { status: 'ok' }> }) {
+  const site = useSiteName()
   return (
     <Shell>
       <article className="flex flex-col gap-5 sm:gap-6" data-share-page="ok">

@@ -56,7 +56,7 @@ export function ZiweiPage() {
         )
       }
       links={[
-        ...link(pageHref('home', LOCALE), m.bazi_link_home(), 'bazi'),
+        ...link(pageHref('bazi', LOCALE), m.bazi_link_home(), 'bazi'),
         ...link(pageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
       ]}
       faq={[

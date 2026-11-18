@@ -12,6 +12,7 @@ import { History, SquarePen } from '@xuanxue/ui/icons'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { FormAlert } from '../auth/auth-layout.tsx'
+import { legacyToolPath } from '../tools/tool-href.ts'
 import { ChatComposer } from './chat-composer.tsx'
 import { SuggestionChips } from './chat-extras.tsx'
 import { ChatSession } from './chat-session.ts'
@@ -425,8 +426,8 @@ export function TemporarySubjectChat({
       </section>
     )
   const back = (
-    // returnTo 已在签发时校验为站内路径
-    <a href={page.returnTo} className="underline">
+    // returnTo 已在签发时校验为站内路径；迁移前签发的可能是语言首页，映射到主工具页
+    <a href={legacyToolPath(page.returnTo)} className="underline">
       {m.subject_chat_context_back()}
     </a>
   )

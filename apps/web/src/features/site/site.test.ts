@@ -1,7 +1,13 @@
 import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { NOT_FOUND_PATH } from '../admin/gate.ts'
-import { canonicalUrl, gateSiteRequest, notFoundPath, routeSite } from './gate.ts'
+import {
+  canonicalUrl,
+  gateSiteRequest,
+  legacyHashRedirectScript,
+  notFoundPath,
+  routeSite,
+} from './gate.ts'
 import {
   accountSiteOf,
   requestSiteOrigin,
@@ -417,5 +423,93 @@ describe('两站各自登录的 Host 白名单（决策 4）', () => {
         'http://localhost:27070',
       ),
     ).toBe('http://east.localhost:27070')
+  })
+})
+
+// openspec separate-landing-homepage design.md D4：工具从语言首页迁到关键词 URL，
+// 已签发的解锁 / 结账回跳（returnTo 为语言首页）与旧分享片段继续可用
+describe('旧首页链接兼容', () => {
+  const next = () => new Response('page')
+  const gate = (url: string, init?: RequestInit) =>
+    gateSiteRequest(new Request(url, init), config, next)
+  const TOOLS = [
+    [`${EAST}/zh-hant`, `${EAST}${encodeURI('/zh-hant/八字排盤')}`],
+    [`${EAST}/zh-hans`, `${EAST}${encodeURI('/zh-hans/八字排盘')}`],
+    [`${EAST}/ko`, `${EAST}${encodeURI('/ko/만세력')}`],
+    [`${WEST}/`, `${WEST}/life-path-number`],
+  ] as const
+
+  it.each(TOOLS)(
+    '%s 带 unlock / checkout 参数时 301 到主工具页并保留查询串',
+    async (home, tool) => {
+      for (const query of [
+        '?unlock=tok.en',
+        '?checkout=success&unlock=tok.en',
+        '?utm_source=x&unlock=t',
+      ])
+        for (const method of ['GET', 'HEAD']) {
+          const response = await gate(`${home}${query}`, { method })
+          expect(response.status, `${method} ${query}`).toBe(301)
+          expect(response.headers.get('location')).toBe(`${tool}${query}`)
+        }
+    },
+  )
+
+  it.each(TOOLS)('%s 没有工具参数（含 UTM、gclid）时不跳转', async (home) => {
+    for (const query of [
+      '',
+      '?utm_source=newsletter&utm_medium=email',
+      '?gclid=abc',
+      '?unlocked=1',
+    ]) {
+      const response = await gate(`${home}${query}`)
+      expect(response.status, query).toBe(200)
+    }
+  })
+
+  it('东方站 /?unlock= 按访客语言一次跳到工具页，不先跳语言首页', async () => {
+    const crawler = await gate(`${EAST}/?unlock=t`)
+    expect(crawler.status).toBe(301)
+    expect(crawler.headers.get('location')).toBe(
+      `${EAST}${encodeURI('/zh-hant/八字排盤')}?unlock=t`,
+    )
+    const korean = await gate(`${EAST}/?unlock=t`, {
+      headers: { 'accept-language': 'ko-KR,ko;q=0.9' },
+    })
+    expect(korean.status).toBe(301)
+    expect(korean.headers.get('location')).toBe(`${EAST}${encodeURI('/ko/만세력')}?unlock=t`)
+    // 目标随访客偏好变化，不让中间缓存复用
+    expect(korean.headers.get('cache-control')).toBe('private, no-store')
+    // 东方站 `/` 没有工具参数时仍跳语言首页
+    expect((await gate(`${EAST}/?utm_source=x`)).headers.get('location')).toBe(
+      `${EAST}/zh-hant?utm_source=x`,
+    )
+  })
+
+  it('只处理语言首页的 GET / HEAD：内页、POST 与工具页自身不跳转', async () => {
+    expect((await gate(`${EAST}/zh-hant/pricing?checkout=success`)).status).toBe(200)
+    expect((await gate(`${EAST}${encodeURI('/zh-hant/八字排盤')}?unlock=t`)).status).toBe(200)
+    expect((await gate(`${WEST}/life-path-number?unlock=t`)).status).toBe(200)
+    expect((await gate(`${WEST}/?unlock=t`, { method: 'POST' })).status).toBe(200)
+    // 预渲染请求不跳转
+    const build = await gateSiteRequest(new Request(`${WEST}/?unlock=t`), config, next, {
+      canonicalize: false,
+    })
+    expect(build.status).toBe(200)
+  })
+
+  it('片段跳转脚本只在 hash 含 r= 时替换到工具页并保留片段', () => {
+    const href = encodeURI('/zh-hant/八字排盤')
+    const script = legacyHashRedirectScript(href)
+    expect(script.length).toBeLessThan(260)
+    const run = (hash: string) => {
+      const replaced: string[] = []
+      new Function('location', script)({ hash, replace: (url: string) => replaced.push(url) })
+      return replaced
+    }
+    expect(run('#r=eyJ5IjoxOTkwfQ')).toEqual([`${href}#r=eyJ5IjoxOTkwfQ`])
+    expect(run('#x=1&r=abc')).toEqual([`${href}#x=1&r=abc`])
+    for (const hash of ['', '#sample', '#result', '#for=1', '#r'])
+      expect(run(hash), hash).toEqual([])
   })
 })

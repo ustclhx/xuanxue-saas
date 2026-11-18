@@ -1,20 +1,25 @@
 /**
  * 东方站排盘页面的 slug ↔ 页面映射（openspec add-bazi-saju-chart 决策 7）：
  * 路由文件用 `$slug` 参数，中文 / 韩文路径段直接使用 Unicode，生成链接时由 toolHref 统一 encodeURI。
- * 首页（`/`）不在这里，由 routes/index.tsx 按语言渲染。
+ * 八字排盤 / 만세력主工具页也在这里（openspec separate-landing-homepage design.md D1）：
+ * 工具从语言首页迁到关键词 URL，`bazi` 在中文渲染八字排盤、在韩语渲染만세력；语言首页是品牌落地页，
+ * 由 routes/index.tsx 渲染。
  * 预渲染与注册表也会引用路径，因此不引用任何运行时模块。
  */
-export type EasternPageId = 'ziwei' | 'mingpan' | 'gunghap'
+export type EasternPageId = 'bazi' | 'ziwei' | 'mingpan' | 'gunghap'
 
 export const EASTERN_PAGES: readonly {
   readonly id: EasternPageId
   readonly locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   readonly slug: string
 }[] = [
+  { id: 'bazi', locale: 'zh-Hant', slug: '八字排盤' },
   { id: 'ziwei', locale: 'zh-Hant', slug: '紫微斗數排盤' },
   { id: 'mingpan', locale: 'zh-Hant', slug: '命盤查詢' },
+  { id: 'bazi', locale: 'zh-Hans', slug: '八字排盘' },
   { id: 'ziwei', locale: 'zh-Hans', slug: '紫微斗数排盘' },
   { id: 'mingpan', locale: 'zh-Hans', slug: '命盘查询' },
+  { id: 'bazi', locale: 'ko', slug: '만세력' },
   { id: 'gunghap', locale: 'ko', slug: '사주궁합' },
 ]
 

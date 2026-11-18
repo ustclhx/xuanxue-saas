@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { ChatUnavailable } from '../../../../features/ai/chat-unavailable.tsx'
 import { ConversationList } from '../../../../features/ai/conversation-list.tsx'
 import { listConversations } from '../../../../features/ai/conversations.functions.ts'
+import { siteTitle } from '../../../../features/seo/site-title.ts'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/chat/')({
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/app/$slug/chat/')({
     return { kind: 'list' as const, page: await listConversations({ data: { slug: params.slug } }) }
   },
   staleTime: 0,
-  head: () => ({ meta: [{ title: m.ai_chat_list_title() }] }),
+  head: ({ matches }) => ({ meta: [{ title: siteTitle(m.ai_chat_list_title(), matches) }] }),
   component: ConversationsPage,
 })
 

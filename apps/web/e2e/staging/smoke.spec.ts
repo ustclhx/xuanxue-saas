@@ -43,9 +43,18 @@ async function waitHydrated(page: Page, field: Locator, problems: string[]) {
   }
 }
 
-// 西方站首页为 Life Path 计算器（openspec add-numerology-tools 2.1），只检查标题与日期输入，不提交表单
+// 西方站首页是品牌落地页，Life Path 计算器在 /life-path-number（openspec separate-landing-homepage D1）
 test('首页渲染', async ({ page }) => {
   const response = await page.goto('/')
+  expect(response?.status()).toBe(200)
+  await expect(page).toHaveTitle(/^Arcanumber — /)
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.locator('a[href="/life-path-number"]').first()).toBeAttached()
+})
+
+// 只检查标题与日期输入，不提交表单
+test('Life Path 工具页渲染', async ({ page }) => {
+  const response = await page.goto('/life-path-number')
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Life Path Number Calculator')
   await expect(page.getByLabel('Date of birth')).toBeVisible()

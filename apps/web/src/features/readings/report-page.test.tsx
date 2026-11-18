@@ -72,7 +72,9 @@ describe('报告列表空态', () => {
     await render(false, 'east')
     expect(empty()?.textContent).not.toContain('解锁')
     const hrefs = [...(empty()?.querySelectorAll('a') ?? [])].map((a) => a.getAttribute('href'))
-    expect(hrefs).toContain('/zh-hans')
+    // 八字排盘入口是关键词 URL，不再是语言首页（separate-landing-homepage D1）
+    expect(hrefs).toContain(encodeURI('/zh-hans/八字排盘'))
+    expect(hrefs).not.toContain('/zh-hans')
     expect(hrefs).not.toContain('/numerology-calculator')
   })
 })

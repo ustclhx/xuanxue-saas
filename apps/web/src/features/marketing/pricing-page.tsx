@@ -146,6 +146,8 @@ export function PricingPage({
   const perReading = Math.min(...readings.map((r) => r.credits), DEFAULT_READING_CREDITS)
   const refundDays = String(templateConfig.billing.refundWindowDays)
   const daily = templateConfig.credits.enabled && templateConfig.credits.dailyEnabled
+  // 「版本 B」新用户首次登录共 20 积分 = 注册赠送 + 当天每日领取（文案写死合计数，与每日数一样）
+  const firstLogin = daily && templateConfig.billing.signupBonusCredits > 0
   const subCurrency = subs.find((sub) => sub.amount !== null)?.currency.toUpperCase() ?? 'USD'
   const subReference = subs.some((sub) => money(sub, locale)?.reference)
   const subFaq: Faq[] = subs.length
@@ -183,7 +185,7 @@ export function PricingPage({
           {/* 补充句自带前导空格（en / ko），中文直接衔接 */}
           <p className="m-0 text-ink-muted text-lg leading-relaxed">
             {m.pricing_lead()}
-            {daily && m.pricing_lead_daily()}
+            {firstLogin ? m.pricing_lead_first_login() : daily && m.pricing_lead_daily()}
           </p>
           {!anyPurchasable && (
             <p
@@ -210,6 +212,7 @@ export function PricingPage({
                 <p className="m-0 font-bold text-3xl">{zeroPrice(subCurrency, locale)}</p>
                 <ul className="m-0 flex flex-1 flex-col gap-1 pl-5 text-ink-muted leading-relaxed">
                   <li>{m.pricing_free_tools()}</li>
+                  {firstLogin && <li>{m.pricing_free_first_login()}</li>}
                   {daily && <li>{m.pricing_free_daily()}</li>}
                   {daily && <li>{m.pricing_free_daily_expiry()}</li>}
                 </ul>

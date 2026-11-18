@@ -1,7 +1,12 @@
 import type { compatibility } from '@xuanxue/numerology'
 import { m } from '../../../paraglide/messages.js'
 import type { ToolLink } from '../tool-links.tsx'
-import { type LifePathValue, NUMEROLOGY_TOOLS, type NumerologyToolId } from './routes.ts'
+import {
+  LIFE_PATH_TOOL_PATH,
+  type LifePathValue,
+  NUMEROLOGY_TOOLS,
+  type NumerologyToolId,
+} from './routes.ts'
 
 export type CompatibilityLevel = ReturnType<typeof compatibility>['level']
 
@@ -59,7 +64,7 @@ export function asLifePath(value: number): LifePathValue {
 /** 数字命理工具与枢纽页的内链矩阵；`current` 为当前页 id，不链接自身 */
 export function numerologyLinks(current?: string): ToolLink[] {
   const links: ToolLink[] = [
-    { href: '/', title: m.numerology_home_title(), target: 'life-path' },
+    { href: LIFE_PATH_TOOL_PATH, title: m.numerology_home_title(), target: 'life-path' },
     {
       href: NUMEROLOGY_TOOLS['numerology-calculator'].path,
       title: m.numerology_link_calculator(),

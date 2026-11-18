@@ -43,6 +43,8 @@ describe('统一安全响应头', () => {
       "script-src 'self' 'nonce-request-nonce' https://challenges.cloudflare.com",
     )
     expect(csp).toContain('https://static.cloudflareinsights.com')
+    expect(csp).toMatch(/script-src [^;]*https:\/\/www\.pvuv\.ai/)
+    expect(csp).toMatch(/connect-src [^;]*https:\/\/in\.pvuv\.ai/)
     expect(csp).toContain('https://checkout.stripe.com')
     expect(csp).toContain('https://billing.stripe.com')
     expect(csp).toContain(`https://${'a'.repeat(32)}.r2.cloudflarestorage.com`)

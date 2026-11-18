@@ -8,6 +8,8 @@ import {
   checkHomeBundle,
   checkHomePages,
   checkServerHomeBundle,
+  checkSplitPages,
+  checkToolPages,
   decodeMappings,
   entryDynamicImports,
   entryScripts,
@@ -17,8 +19,10 @@ import {
   readHomeHeadSnapshot,
   readPerformanceOptions,
   reportHomePages,
+  reportToolPages,
   SHARE_CARD_MARKER,
   staticClosure,
+  TOOL_PAGES,
   zodBindings,
   zodSources,
 } from './check-home-bundle.mjs'
@@ -443,13 +447,64 @@ describe('首页 head 对照', () => {
     expect(page?.headDiffs).toEqual(['robots: 期望 null，实际 "index, follow"'])
   })
 
-  // 快照取自改版前 main 的预渲染输出（redesign-home-chart-visuals 2.1）；首页改版必须保持一致
-  it('快照覆盖全部首页，东方站 x-default 指向繁中首页', () => {
+  // 首页快照的 canonical / hreflang / robots 取自改版前 main 的预渲染输出（redesign-home-chart-visuals 2.1），
+  // 首页改版必须保持一致；JSON-LD 类型按 separate-landing-homepage design.md D3 改为品牌首页的
+  // Organization + WebSite，工具的 WebApplication / BreadcrumbList / FAQPage 在主工具页
+  it('快照覆盖全部首页与主工具页，东方站 x-default 指向繁中页面', () => {
     const snapshot = readHomeHeadSnapshot()
-    expect(Object.keys(snapshot).sort()).toEqual(HOME_PAGES.map((page) => page.id).sort())
+    expect(Object.keys(snapshot).sort()).toEqual(
+      [...HOME_PAGES, ...TOOL_PAGES].map((page) => page.id).sort(),
+    )
     expect(snapshot.west?.canonical).toBe('/')
-    expect(snapshot.west?.jsonLd).toEqual(['FAQPage', 'Organization', 'WebSite'])
+    for (const id of ['west', 'zh-hant', 'zh-hans', 'ko']) {
+      expect(snapshot[id]?.jsonLd, id).toEqual(['Organization', 'WebSite'])
+      expect(snapshot[id]?.robots, id).toBeNull()
+    }
     for (const id of ['zh-hant', 'zh-hans', 'ko'])
       expect(snapshot[id]?.hreflang['x-default'], id).toBe('/zh-hant')
+    for (const { id } of TOOL_PAGES)
+      expect(snapshot[id]?.jsonLd, id).toEqual(['BreadcrumbList', 'FAQPage', 'WebApplication'])
+    expect(snapshot['tool-west']?.canonical).toBe('/life-path-number')
+    expect(decodeURI(snapshot['tool-ko']?.canonical ?? '')).toBe('/ko/만세력')
+    expect(decodeURI(snapshot['tool-zh-hans']?.hreflang['x-default'] ?? '')).toBe(
+      '/zh-hant/八字排盤',
+    )
+  })
+
+  it('主工具页 head 与快照对照，缺少预渲染产物时失败', () => {
+    const root = fixture({ 'tool.html': html('https://ganjiday.com') })
+    const pages = [
+      { id: 'tool', file: 'tool.html' },
+      { id: 'missing', file: 'missing.html' },
+    ]
+    const results = checkToolPages(root, pages, { tool: homeHead(html('https://ganjiday.com')) })
+    expect(results.map((page) => page.headDiffs)).toEqual([[], ['预渲染 HTML 不存在']])
+    expect(reportToolPages(results, []).ok).toBe(false)
+    expect(reportToolPages(results.slice(0, 1), []).ok).toBe(true)
+  })
+
+  it('按页面懒加载：静态闭包的 sourcemap 映射到禁止的源文件时失败', () => {
+    // mappings "AAAA" 指向 sources[0]；"ACAA" 指向 sources[1]
+    const page = (mappings: string) =>
+      fixture({
+        'ziwei.html': '<script type="module" src="/assets/entry.js"></script>',
+        'assets/entry.js': 'console.log(1)',
+        'assets/entry.js.map': JSON.stringify({
+          sources: ['../../src/features/tools/bazi/bazi-home.tsx', '../../src/routes/$slug.tsx'],
+          mappings,
+        }),
+      })
+    const pages = [
+      { file: 'ziwei.html', forbiddenSources: ['src/features/tools/bazi/bazi-home.tsx'] },
+    ]
+    const bad = checkSplitPages(page('AAAA'), pages)
+    expect(bad).toEqual([
+      { file: 'ziwei.html', unmapped: false, found: ['src/features/tools/bazi/bazi-home.tsx'] },
+    ])
+    expect(reportToolPages([], bad).ok).toBe(false)
+    rmSync(dir, { recursive: true, force: true })
+    const good = checkSplitPages(page('ACAA'), pages)
+    expect(good).toEqual([{ file: 'ziwei.html', unmapped: false, found: [] }])
+    expect(reportToolPages([], good).ok).toBe(true)
   })
 })
