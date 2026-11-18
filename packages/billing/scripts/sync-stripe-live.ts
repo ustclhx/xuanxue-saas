@@ -63,12 +63,45 @@ function target(row: LiveSyncRow) {
 const label = (row: LiveSyncRow) =>
   `${row.key} ${row.currency} ${row.amount}${row.interval ? ` /${row.interval}` : ''}`
 
-/** 现状清单与演练要创建的价格；只用数据库数据，不调用 Stripe */
-export function describeLiveSync(rows: readonly LiveSyncRow[]): string[] {
+const tupleKey = (row: Pick<LiveSyncRow, 'key' | 'currency' | 'amount' | 'interval'>) =>
+  `${row.key}|${row.currency}|${row.amount}|${row.interval ?? ''}`
+
+/** 当前目录中的价格元组；写入（syncCatalog）只遍历这些元组 */
+export function catalogTuples(): Set<string> {
+  return new Set(
+    EXAMPLE_CATALOG.flatMap((entry) =>
+      entry.prices.map((price) =>
+        tupleKey({
+          key: entry.key,
+          currency: price.currency,
+          amount: price.amount,
+          interval: price.interval,
+        }),
+      ),
+    ),
+  )
+}
+
+/**
+ * 现状清单与演练要创建的价格；只用数据库数据，不调用 Stripe。
+ * 传入 catalog 时，目录外的未映射占位（历史 seed 留下的旧金额）单独标注且不计入新增，
+ * 与写入实际创建的范围一致（2026-11-18 演练把 USD 99/399 旧占位算进新增，造成误判）。
+ */
+export function describeLiveSync(
+  rows: readonly LiveSyncRow[],
+  catalog?: ReadonlySet<string>,
+): string[] {
   const unsynced = (row: LiveSyncRow) => row.mapping.startsWith('unsynced:')
-  const pending = rows.filter(unsynced)
+  const inCatalog = (row: LiveSyncRow) => !catalog || catalog.has(tupleKey(row))
+  const pending = rows.filter((row) => unsynced(row) && inCatalog(row))
+  const status = (row: LiveSyncRow) =>
+    !unsynced(row)
+      ? row.mapping
+      : inCatalog(row)
+        ? 'unsynced'
+        : 'unsynced (not in catalog, ignored)'
   return [
-    ...rows.map((row) => `${label(row)} ${unsynced(row) ? 'unsynced' : row.mapping}`),
+    ...rows.map((row) => `${label(row)} ${status(row)}`),
     `Would create ${pending.length} live Stripe prices:`,
     ...pending.map((row) => `  + ${label(row)} on ${target(row)}`),
   ]
@@ -98,7 +131,7 @@ async function run(config: ReturnType<typeof liveSyncConfig>) {
         ),
       )
       .orderBy(plan.key, planPrice.currency)
-    for (const line of describeLiveSync(rows)) console.log(line)
+    for (const line of describeLiveSync(rows, catalogTuples())) console.log(line)
     // 只读诊断：订阅激活前模型授权须覆盖免费档（D2），不满足时写入会在调用 Stripe 前失败
     for (const line of await describeSubscriptionModels(db)) console.log(line)
     if (!config.apply) {
