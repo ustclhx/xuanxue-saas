@@ -2,6 +2,7 @@ import type { InputField, InputIssue } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { useId } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import { DatePart, TimeField } from '../date-field.tsx'
 import { CheckboxField, ChoiceGroup, SelectField, TextField } from '../form.tsx'
 import {
   type BirthFormValues,
@@ -116,10 +117,9 @@ export function BirthFields({
           </span>
         )}
       </fieldset>
-      <TextField
+      <TimeField
         label={m.bazi_time()}
         name={name('time')}
-        type="time"
         defaultValue={values.time}
         disabled={values.unknownTime}
         error={values.unknownTime ? undefined : error('time')}
@@ -186,24 +186,5 @@ export function BirthFields({
         </p>
       </div>
     </>
-  )
-}
-
-function DatePart({
-  label,
-  invalid,
-  ...props
-}: { label: string; invalid: boolean } & Omit<React.ComponentProps<'input'>, 'className'>) {
-  return (
-    <label className="flex min-w-0 flex-col gap-1 text-ink-subtle text-xs">
-      {label}
-      <input
-        inputMode="numeric"
-        autoComplete="off"
-        aria-invalid={invalid || undefined}
-        className="min-h-11 w-full min-w-0 rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-1 aria-invalid:border-brand"
-        {...props}
-      />
-    </label>
   )
 }

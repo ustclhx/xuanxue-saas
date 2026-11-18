@@ -9,6 +9,7 @@ import {
   requestData,
   serializer,
 } from './billing-actions-helper.ts'
+import { fillDate } from './date-field.ts'
 import { emailLink, fixtureDb, login, PASSWORD, register } from './fixtures.ts'
 import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
@@ -161,7 +162,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   })
 
   await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
   // 每份详批 10 积分（2026-11-17「版本 A」），按 50 积分 $2.99 的积分包（2026-11-18「版本 B」）折算为 $0.60
@@ -284,7 +285,7 @@ test('积分不足时选择订阅，首期积分到账后回到原结果页自�
   })
 
   await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
   await card.getByRole('button', { name: 'Unlock the full reading' }).click()
@@ -334,7 +335,7 @@ test('支付未开通（没有可购买的积分包）时不显示解锁卡，�
   await stubTurnstile(page)
   await enableReading(page)
   await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await expect(page.locator('#life-path-result')).toContainText('11')
   await expect(page.getByTestId('reading-unlock')).toHaveCount(0)
@@ -370,7 +371,7 @@ test('新用户验证邮箱后经解锁卡登录回到结果页，首日共 20 �
   })
 
   await page.goto('/')
-  await page.getByLabel('Date of birth').fill('1987-11-29')
+  await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await page
     .getByTestId('reading-unlock')
@@ -410,7 +411,7 @@ test('已验证邮箱的用户只停留在公开结果页时，解锁卡报价�
     await sql`update "user" set email_verified = true where email = ${email}`
     await offlinePayPal(page, email, [])
     await page.goto('/')
-    await page.getByLabel('Date of birth').fill('1987-11-29')
+    await fillDate(page, 'Date of birth', '1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     const card = page.getByTestId('reading-unlock')
     await card.getByRole('button', { name: 'Unlock the full reading' }).click()

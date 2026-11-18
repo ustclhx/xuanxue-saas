@@ -1,0 +1,10 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "date_field_year": "年",
+  "date_field_month": "月",
+  "date_field_day": "日",
+  "date_field_hour": "时",
+  "date_field_minute": "分",
+  "date_field_time": "时间",
+  "date_field_time_invalid": "请输入有效的时间（时 0–23，分 0–59）。"
+}

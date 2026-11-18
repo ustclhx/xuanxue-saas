@@ -5,7 +5,8 @@ import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { numerologyUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
-import { SubmitButton, TextField, ToolForm } from '../form.tsx'
+import { DateField } from '../date-field.tsx'
+import { SubmitButton, ToolForm } from '../form.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
 import { lifePathShareCard } from '../share-card/sources-life-path.ts'
 import { ShareLink } from '../share-link.tsx'
@@ -32,7 +33,10 @@ export function calculateLifePath(value: unknown): Calculated | null {
   }
 }
 
-/** 出生日期输入：原生日期控件，移动端调起系统日期选择器 */
+/**
+ * 出生日期输入：年 / 月 / 日分段，提交 YYYY-MM-DD。
+ * 不用原生日期控件：其占位符随浏览器界面语言显示（中文浏览器在英文站显示「年/月/日」）。
+ */
 export function BirthDateField({
   name = 'birthDate',
   label = m.numerology_date_label(),
@@ -49,16 +53,13 @@ export function BirthDateField({
   className?: string
 }) {
   return (
-    <TextField
+    <DateField
       label={label}
       name={name}
-      type="date"
       required
-      min="0001-01-01"
-      max="9999-12-31"
       defaultValue={defaultValue}
-      aria-invalid={invalid || undefined}
-      aria-describedby={errorId}
+      invalid={invalid}
+      describedBy={errorId}
       className={className}
     />
   )
