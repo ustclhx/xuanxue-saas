@@ -114,8 +114,8 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
   })
 })
 
-describe('页脚的手机端设置行（模板 0.5.1）', () => {
-  it('东方站页脚带 data-site-footer 并在版权上方渲染主题切换；西方站只有深色主题，不渲染设置行', () => {
+describe('页脚设置行', () => {
+  it('两站页脚都带 data-site-footer 并在版权上方渲染主题切换，桌面与手机同样显示', () => {
     const east = render('east', <SiteFooter />)
     expect(east).toContain('data-site-footer')
     expect(east).toContain('data-slot="theme-toggle"')
@@ -123,6 +123,8 @@ describe('页脚的手机端设置行（模板 0.5.1）', () => {
     expect(east).not.toContain('role="combobox"')
     const west = render('west', <SiteFooter />)
     expect(west).toContain('data-site-footer')
-    expect(west).not.toContain('data-slot="theme-toggle"')
+    expect(west).toContain('data-slot="theme-toggle"')
+    // 设置行不再只在手机端显示（refresh-visual-system-warm D4）
+    for (const html of [east, west]) expect(html).not.toMatch(/border-t py-4 md:hidden/)
   })
 })

@@ -84,14 +84,14 @@ export const EXAMPLE_CATALOG = [
     active: false,
     prices: [],
   },
-  // 详批积分包（add-reading-monetization design 决策 4）。2026-11-17「版本 A」：1 次详批 = 10 积分，
-  // 入门包 100 积分、超值包 400 积分；key 保持 reading_single / reading_five（平台价格与历史订单引用），只改展示名。
+  // 详批积分包（add-reading-monetization design 决策 4）。1 次详批 = 10 积分（2026-11-17「版本 A」）；
+  // 2026-11-18「版本 B」金额不变、积分下调：入门包 50 积分（约 5 份）、超值包 150 积分（约 15 份）；key 保持 reading_single / reading_five（平台价格与历史订单引用），只改展示名。
   // 价格来自价目表，每个结算币种一行（localize-checkout-currency D1/D2）。
   {
     key: 'reading_single',
     name: 'Starter Pack',
     type: 'credit_pack',
-    credits: 100,
+    credits: 50,
     creditExpiryDays: 365,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -103,7 +103,7 @@ export const EXAMPLE_CATALOG = [
     key: 'reading_five',
     name: 'Value Pack',
     type: 'credit_pack',
-    credits: 400,
+    credits: 150,
     creditExpiryDays: 365,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -114,11 +114,12 @@ export const EXAMPLE_CATALOG = [
   // 两档月付订阅（enable-subscriptions-daily-credits D1）：不复用模板示例 pro/team。只有月付价格，
   // 每期积分在周期末加宽限后过期、不结转；权益沿用免费档，模型授权由后台给予，激活前须覆盖免费档（D2）。
   // 放在积分包之后：同步按数组顺序进行，订阅模型检查不通过时积分包已同步完成、不受阻塞。
+  // 2026-11-18「版本 B」：plus 每月 100 积分（约 10 份）、premium 每月 250 积分（约 25 份），金额不变。
   {
     key: 'plus',
     name: 'Plus',
     type: 'subscription',
-    credits: 300,
+    credits: 100,
     creditExpiryDays: null,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,
@@ -130,7 +131,7 @@ export const EXAMPLE_CATALOG = [
     key: 'premium',
     name: 'Premium',
     type: 'subscription',
-    credits: 800,
+    credits: 250,
     creditExpiryDays: null,
     rollover: false,
     features: DEFAULT_FREE_FEATURES,

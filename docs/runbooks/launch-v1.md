@@ -147,7 +147,8 @@ Lighthouse 每页 ZIP 包含该次未改写的 `.report.html` 与 `.report.json`
 
 | 来源 | 当前数量 | 依据 |
 | --- | --- | --- |
-| 注册赠送 | 0 | `template.config.ts` `billing.signupBonusCredits: 0`；`packages/billing/src/signup.ts` 在值 ≤ 0 时返回 disabled |
+| 注册赠送 | 15（2026-11-18「版本 B」起；此前为 0） | `template.config.ts` `billing.signupBonusCredits: 15`，邮箱验证后每个规范化邮箱一次、两站共享；只发给 2026-11-18 00:00（UTC+8）起注册的账户（`apps/web/src/features/billing/signup-eligibility.ts`） |
+| 每日登录 | 5 / 天，每月最多 10 天，7 天有效（2026-11-18「版本 B」，此前 10） | 运行时设置 `credits.dailyAmount`（默认 5，生产后台需手工改）、`credits.dailyMaxDaysPerMonth`；新用户首日合计 20 = 注册 15 + 每日 5 |
 | 免费档（`free`） | 0 | `packages/billing/src/catalog.ts` 的 free 计划 `credits: 0`，无价格 |
 | 订阅月度积分（已停用） | 原 pro 1000 / team 5000 每月 | 停用后不再发放 |
 | 管理员后台调整 | 不定 | 后台 `adjust` 流水，需人工操作并留审计 |

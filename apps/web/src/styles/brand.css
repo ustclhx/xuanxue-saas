@@ -13,170 +13,182 @@
  * 两站主题 token（docs/design/visual-system.md「设计 token」，openspec add-dual-site-foundation tasks.md 4.1）。
  * 根布局在 <html> 上输出 data-site="east|west"；token 名与视觉规范一致，同时映射到 @xuanxue/ui 的
  * shadcn 变量，让认证页、应用区等既有组件自动换成站点配色，组件中不写死颜色。
- * 西方站本身为深色，不随浅色偏好变化；东方站在 .dark 下使用视觉规范给出的暗色基准。
+ * 两站都有浅色与深色（.dark）；西方站未保存选择时固定浅色（features/site/theme.ts）。
  */
 
 /*
  * 字体替换前的度量匹配 fallback（docs/design/visual-system.md「字体」）：站点字体样式表非阻塞加载，
  * 首屏先用本机字体渲染；以下 @font-face 只引用 local() 字体，不发请求，按自托管字体的度量调整
  * size-adjust / ascent-override / descent-override，减少字体到达后的换行与行高位移（CLS）。
- * 数值由 @fontsource latin 分片与 macOS 本机字体的 hhea/OS2 度量及英文样本平均字宽算出；
- * Liberation 与 Arial / Times New Roman 度量兼容。本机没有这些字体时落到下一项系统字体。
+ * Manrope（unitsPerEm 2000，hhea ascent 2132、descent 600、lineGap 0）对 Arial 的英文样本平均字宽比：
+ * 400 为 1.0252、500 为 1.0436、700（对 Arial Bold）为 0.9992；400 与 500 共用 Arial Regular，取两者之间的 1.034。
+ * ascent / descent = 字体自身比例 ÷ size-adjust。Liberation Sans 与 Arial 度量兼容。本机没有这些字体时落到下一项系统字体。
+ * 更换字体或字重时须重新计算（2026-11-17 由 @fontsource/manrope 5.3.0 的 latin 分片算出）。
  */
 @font-face {
-  font-family: "Source Sans 3 Fallback";
+  font-family: "Manrope Fallback";
   src: local("Arial"), local("ArialMT"), local("Liberation Sans");
-  font-weight: 400;
-  size-adjust: 94.49%;
-  ascent-override: 108.37%;
-  descent-override: 42.33%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: "Source Sans 3 Fallback";
-  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
-  font-weight: 600 700;
-  size-adjust: 90.18%;
-  ascent-override: 113.55%;
-  descent-override: 44.36%;
-  line-gap-override: 0%;
-}
-
-/* 标题只用 600/700，对应本机粗体 */
-@font-face {
-  font-family: "Cormorant Garamond Fallback";
-  src:
-    local("Times New Roman Bold"), local("TimesNewRomanPS-BoldMT"), local("Liberation Serif Bold");
-  font-weight: 600 700;
-  size-adjust: 91.16%;
-  ascent-override: 101.36%;
-  descent-override: 31.48%;
-  line-gap-override: 0%;
-}
-
-/* CJK 字形为全角方块，字宽无需缩放；只把纵向度量对齐 Noto Serif CJK（ascent 1.151、descent 0.286） */
-@font-face {
-  font-family: "Noto Serif TC Fallback";
-  src: local("Songti TC Regular"), local("STSongti-TC-Regular"), local("Noto Serif CJK TC");
   font-weight: 400 500;
-  ascent-override: 115.1%;
-  descent-override: 28.6%;
+  size-adjust: 103.4%;
+  ascent-override: 103.09%;
+  descent-override: 29.01%;
   line-gap-override: 0%;
 }
 
 @font-face {
-  font-family: "Noto Serif TC Fallback";
-  src: local("Songti TC Bold"), local("STSongti-TC-Bold"), local("Noto Serif CJK TC Bold");
-  font-weight: 600 700;
-  ascent-override: 115.1%;
-  descent-override: 28.6%;
+  font-family: "Manrope Fallback";
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Liberation Sans Bold");
+  font-weight: 600 800;
+  size-adjust: 99.92%;
+  ascent-override: 106.69%;
+  descent-override: 30.02%;
+  line-gap-override: 0%;
+}
+
+/* CJK 字形为全角方块，字宽无需缩放；只把纵向度量对齐 Noto Sans CJK（hhea ascent 1.16、descent 0.288）。标题只用 700 */
+@font-face {
+  font-family: "Noto Sans TC Fallback";
+  src:
+    local("PingFang TC Semibold"), local("PingFangTC-Semibold"), local("Microsoft JhengHei Bold"),
+    local("Noto Sans CJK TC Bold");
+  font-weight: 600 800;
+  ascent-override: 116%;
+  descent-override: 28.8%;
   line-gap-override: 0%;
 }
 
 @font-face {
-  font-family: "Noto Serif KR Fallback";
-  src: local("AppleMyungjo"), local("Noto Serif CJK KR");
-  ascent-override: 115.1%;
-  descent-override: 28.6%;
+  font-family: "Noto Sans KR Fallback";
+  src:
+    local("Apple SD Gothic Neo Bold"), local("AppleSDGothicNeo-Bold"), local("Malgun Gothic Bold"),
+    local("Noto Sans CJK KR Bold");
+  font-weight: 600 800;
+  ascent-override: 116%;
+  descent-override: 28.8%;
   line-gap-override: 0%;
-}
-
-:root[data-site="east"] {
-  color-scheme: light;
-  /* 2026-11-14 使用者确认：东方站浅色主底改为纯白，卡片以边线区分；悬停与弱化底改为浅暖灰 */
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f5f2ec;
-  --ink: #1f1c18;
-  --ink-muted: #4a443b;
-  --ink-subtle: #6b6355;
-  --line: #dcd3c1;
-  --line-strong: #c9bea8;
-  --accent: #b8432f;
-  --accent-ink: #9e3a27;
-  --on-accent: #fffdf8;
-  --inverse: #1f1c18;
-  --on-inverse: #fffdf8;
-  --site-font-heading:
-    "Noto Serif TC", "Noto Serif TC Fallback", "Songti TC", "Noto Serif CJK TC", serif;
-  --site-font-body: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-}
-
-/* 韩语页只加载 Noto Serif KR，正文用韩文系统字体 */
-:root[data-site="east"]:lang(ko) {
-  --site-font-heading:
-    "Noto Serif KR", "Noto Serif KR Fallback", "AppleMyungjo", "Noto Serif CJK KR", serif;
-  --site-font-body:
-    -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-}
-
-/* 视觉规范只给出 bg/surface/ink/line/朱砂 的暗色基准，其余按同一明度关系推出 */
-:root.dark[data-site="east"] {
-  color-scheme: dark;
-  --bg: #1a1815;
-  --surface: #24211c;
-  --surface-2: #2c2823;
-  --ink: #ece5d6;
-  --ink-muted: #cfc6b4;
-  --ink-subtle: #a89f8e;
-  --line: #3a352d;
-  --line-strong: #4e473c;
-  --accent: #d0583f;
-  --accent-ink: #e58a72;
-  --inverse: #ece5d6;
-  --on-inverse: #1f1c18;
-}
-
-:root[data-site="west"] {
-  color-scheme: dark;
-  --bg: #11162a;
-  --surface: #181f3a;
-  --surface-2: #151b33;
-  --ink: #ece7da;
-  --ink-muted: #c9c4b7;
-  --ink-subtle: #b9b5aa;
-  --line: #2a3150;
-  --line-strong: #3a4266;
-  --accent: #e3c36f;
-  --accent-ink: #e3c36f;
-  --on-accent: #11162a;
-  --inverse: #ece7da;
-  --on-inverse: #11162a;
-  --site-font-heading: "Cormorant Garamond", "Cormorant Garamond Fallback", Georgia, serif;
-  --site-font-body:
-    "Source Sans 3", "Source Sans 3 Fallback", -apple-system, "Segoe UI", sans-serif;
 }
 
 :root[data-site] {
-  /* 五行色两站共用，配合文字标签使用 */
+  color-scheme: light;
+  /*
+   * 方向 C · 素（Graphite），使用者 2026-11-17 确认（openspec refresh-visual-system-warm design.md D14）：
+   * 两站中性色相同，浅色为纯白底 + 中性灰表面，层次靠色调与留白；只有 --accent 与 --illus 按站点不同。
+   * 取代 2026-11-14 的「纯白底 + 卡片以边线区分」与提案阶段的纸色 / 羊皮纸方案。
+   */
+  --bg: #ffffff;
+  --surface: #f4f4f5;
+  --surface-2: #eaeaec;
+  --ink: #16181b;
+  --ink-muted: #4c5055;
+  --ink-subtle: #64686e;
+  --line: #e1e2e5;
+  /* 可交互卡片、表格等需要比 --line 更明显的装饰线；输入框外框用对比度 ≥ 3:1 的 --field-border */
+  --line-strong: #c9cbd0;
+  --field-border: #7c8086;
+  /* 主按钮底与其上的文字：浅色为墨黑；链接（--accent-ink）与正文同色，靠下划线区分 */
+  --primary: #16181b;
+  --primary-foreground: #ffffff;
+  --accent-ink: #16181b;
+  /* 强调色上的文字（印章、日主高亮等） */
+  --on-accent: #ffffff;
+  --inverse: #16181b;
+  --on-inverse: #ffffff;
+  /* 只用于错误态与删除类操作的低饱和砖色，不作装饰 */
+  --danger: #96493d;
+  --on-danger: #ffffff;
+  /* 五行色只作图表圆点与条形，配合文字标签使用；火色不作品牌或界面色 */
   --wx-metal: #6e7480;
   --wx-wood: #3e7d4f;
   --wx-water: #2e5e8c;
   --wx-fire: #b8432f;
   --wx-earth: #9a7438;
+}
 
+:root.dark[data-site] {
+  color-scheme: dark;
+  --bg: #121315;
+  --surface: #1c1d20;
+  --surface-2: #26282c;
+  --ink: #ececee;
+  --ink-muted: #c4c6cb;
+  --ink-subtle: #9c9fa5;
+  --line: #2f3136;
+  --line-strong: #45484e;
+  --field-border: #73777e;
+  --primary: #ececee;
+  --primary-foreground: #121315;
+  --accent-ink: #ececee;
+  --on-accent: #121315;
+  --inverse: #ececee;
+  --on-inverse: #121315;
+  --danger: #d9988b;
+  --on-danger: #121315;
+  --wx-metal: #a7adb8;
+  --wx-wood: #6fb583;
+  --wx-water: #78a9dc;
+  --wx-fire: #e58a6f;
+  --wx-earth: #cfa35c;
+}
+
+/* 东方站：强调色松绿，只用于小标记与大号字形（印章、当前导航标记、工具卡字形、日主高亮） */
+:root[data-site="east"] {
+  --accent: #2f5d50;
+  --illus: #9a9ea4;
+  --site-font-heading:
+    "Noto Sans TC", "Noto Sans TC Fallback", -apple-system, "PingFang TC", "Microsoft JhengHei",
+    sans-serif;
+  --site-font-body: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* 韩语页只加载 Noto Sans KR，正文用韩文系统字体 */
+:root[data-site="east"]:lang(ko) {
+  --site-font-heading:
+    "Noto Sans KR", "Noto Sans KR Fallback", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic",
+    sans-serif;
+  --site-font-body:
+    -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+:root.dark[data-site="east"] {
+  --accent: #7fb8a4;
+  --illus: #6c7077;
+}
+
+/* 西方站：强调色黄铜，只用于数字字形与星；浅色为默认主题，深色可切换（features/site/theme.ts） */
+:root[data-site="west"] {
+  --accent: #8a6a1c;
+  --illus: #a39a86;
+  --site-font-heading: "Manrope", "Manrope Fallback", -apple-system, "Segoe UI", sans-serif;
+  --site-font-body: "Manrope", "Manrope Fallback", -apple-system, "Segoe UI", sans-serif;
+}
+
+:root.dark[data-site="west"] {
+  --accent: #d2b15f;
+  --illus: #7d7667;
+}
+
+:root[data-site] {
   --background: var(--bg);
   --foreground: var(--ink);
   --card: var(--surface);
   --card-foreground: var(--ink);
   --popover: var(--surface);
   --popover-foreground: var(--ink);
-  --primary: var(--accent);
-  --primary-foreground: var(--on-accent);
   --secondary: var(--surface-2);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-2);
   --muted-foreground: var(--ink-subtle);
   --border: var(--line);
-  --input: var(--line-strong);
-  --ring: var(--accent);
+  --input: var(--field-border);
+  --ring: var(--ink);
+  --destructive: var(--danger);
+  --destructive-light: color-mix(in oklab, var(--danger) 12%, var(--bg));
 }
 
 /*
  * 模板的表面阶梯 --surface-1…8 供弹层、底部面板、对话框按层级取底色（surfaceClasses）。
- * 未映射时会回落到模板的中性灰（西方站弹层变成灰色而非深蓝）：1 为页面底，3 起为卡片底；
- * 暗色下逐级向文字色微提亮，保持模板「越高越亮」的层次。2 仍是项目的悬停/弱化底，不在此改动。
+ * 1 为页面底，3 起为卡片底；暗色下逐级向文字色微提亮，保持模板「越高越亮」的层次，浅色两站靠阴影分层。
+ * 2 仍是项目的悬停/弱化底，不在此改动。
  */
 :root[data-site] {
   --surface-1: var(--bg);
@@ -188,8 +200,7 @@
   --surface-8: var(--surface);
 }
 
-:root[data-site="west"],
-:root.dark[data-site="east"] {
+:root.dark[data-site] {
   --surface-4: color-mix(in oklab, var(--surface) 96%, var(--ink));
   --surface-5: color-mix(in oklab, var(--surface) 93%, var(--ink));
   --surface-6: color-mix(in oklab, var(--surface) 90%, var(--ink));
@@ -198,17 +209,38 @@
 }
 
 /*
- * 模板 0.3.0 新增的交互 token 指向站点配色：焦点环、链接文字、Fluid 强调色与输入框边框沿用
- * 原 --ring / --accent-ink / --input 的取值，保持同步前的视觉。
+ * 模板的交互 token 指向站点配色：焦点环为文字色（2px、外移后与控件之间露出页面底色，黑色主按钮上同样可见）；
+ * 链接文字与正文同色；Fluid 强调色跟随主按钮。
  * 注意：模板基线也定义了 --accent（较重的灰色强调底）与 --surface-1…8 表面阶梯，本文件中的同名
  * --accent、--surface-2 会覆盖它们；--color-accent 已在下方 @theme 中改回 surface-2。
  */
 :root[data-site] {
-  --focus-ring: var(--accent);
+  --focus-ring: var(--ink);
   --primary-text: var(--accent-ink);
-  --fluid-accent: var(--accent);
-  --field-border: var(--line-strong);
+  --fluid-accent: var(--primary);
   --hover: var(--surface-2);
+}
+
+/*
+ * 反色块（付费卡、日柱）里的主按钮与链接反过来取色，避免墨黑按钮落在墨黑底上。
+ */
+.bg-inverse {
+  --primary: var(--on-inverse);
+  --primary-foreground: var(--inverse);
+  --accent-ink: var(--on-inverse);
+}
+
+/*
+ * 链接与正文同色，靠下划线区分（方向 C）：带链接色类名的 <a> / <button> 一律加下划线。
+ */
+/* 标题字体一律粗体（方向 C：无衬线粗体标题）；Tailwind 的 font-heading 只设置家族 */
+.font-heading {
+  font-weight: 700;
+}
+
+:where(a, button).text-brand-ink {
+  text-decoration-line: underline;
+  text-underline-offset: 0.25em;
 }
 
 @theme inline {
@@ -223,9 +255,17 @@
   --color-ink-subtle: var(--ink-subtle);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  --color-brand: var(--accent);
+  /* brand 系列类名（bg-brand、text-on-brand、border-brand）是主按钮与选中态：墨黑；链接为 brand-ink */
+  --color-brand: var(--primary);
   --color-brand-ink: var(--accent-ink);
-  --color-on-brand: var(--on-accent);
+  --color-on-brand: var(--primary-foreground);
+  /* mark 系列是站点强调色（东方站松绿、西方站黄铜），只用于小标记与大号字形 */
+  --color-mark: var(--accent);
+  --color-on-mark: var(--on-accent);
+  --color-illus: var(--illus);
+  --color-field-border: var(--field-border);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
   --color-inverse: var(--inverse);
   --color-on-inverse: var(--on-inverse);
   --color-wx-metal: var(--wx-metal);
@@ -239,8 +279,70 @@
 }
 
 /*
+ * 营销作用域的字号角色（refresh-visual-system-warm design.md D5、D14）：模板的 --fs-* 面向应用界面（display 28px、
+ * body 14px），营销页与工具页需要更大的字号。MarketingShell 根元素带 data-surface="marketing"，在该作用域内覆盖
+ * Tailwind 的 --text-*（不是 --fs-*：@theme 中 --text-display: var(--fs-display) 在 :root 求值，后代覆盖 --fs-* 不生效）。
+ * 六个角色与类名：display → text-display，title → text-title，heading → text-subtitle，lead → text-lead（项目新增），
+ * body → text-body，caption → text-caption；作用域内 text-micro 与 caption 同值，页面仍只有六种字号。
+ * 应用区不带该属性，沿用模板默认值。
+ */
+@theme {
+  --text-lead: 18px;
+  --text-lead--line-height: 32px;
+  /* 让 text-display / text-title 输出字距声明，西方站在营销作用域内收紧（Manrope 粗体） */
+  --text-display--letter-spacing: 0em;
+  --text-title--letter-spacing: 0em;
+}
+
+[data-surface="marketing"] {
+  --text-display: 32px;
+  --text-display--line-height: 42px;
+  --text-title: 24px;
+  --text-title--line-height: 32px;
+  --text-subtitle: 20px;
+  --text-subtitle--line-height: 30px;
+  --text-lead: 18px;
+  --text-lead--line-height: 32px;
+  --text-body: 16px;
+  --text-body--line-height: 28px;
+  --text-caption: 13px;
+  --text-caption--line-height: 20px;
+  --text-micro: 13px;
+  --text-micro--line-height: 20px;
+}
+
+:root[data-site="west"] [data-surface="marketing"] {
+  --text-display: 36px;
+  --text-display--line-height: 42px;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 26px;
+  --text-title--line-height: 34px;
+  --text-title--letter-spacing: -0.02em;
+  --text-subtitle: 21px;
+  --text-lead: 19px;
+  --text-lead--line-height: 30px;
+  --text-body: 17px;
+}
+
+@media (min-width: 640px) {
+  [data-surface="marketing"] {
+    --text-display: 44px;
+    --text-display--line-height: 56px;
+    --text-title: 28px;
+    --text-title--line-height: 38px;
+  }
+
+  :root[data-site="west"] [data-surface="marketing"] {
+    --text-display: 52px;
+    --text-display--line-height: 58px;
+    --text-title: 32px;
+    --text-title--line-height: 40px;
+  }
+}
+
+/*
  * 中性填充（模板 0.5.7 的 --neutral-fill，灰色实心 Badge 等）：模板默认是纯灰 #e5e5e5 / #525252，
- * 放在西方站深蓝底与东方站暖色底上偏离配色。改为表面色混入 12% 正文色，随站点与主题取色；
+ * 改为表面色混入 12% 正文色，随站点与主题取色；
  * 与正文色对比度见 template-sync 0.5.7 证据（两站浅/深色均高于 WCAG AA 4.5:1）。
  */
 :root[data-site] {

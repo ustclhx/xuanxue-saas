@@ -99,7 +99,7 @@ describe('ai.freeFailures', () => {
 describe('每日赠送设置读取边界', () => {
   it('缺失时使用数量、月天数、有效期及邮箱验证默认值', async () => {
     const { store } = memoryStore({})
-    expect(await getSetting({ store }, 'credits.dailyAmount')).toBe(10)
+    expect(await getSetting({ store }, 'credits.dailyAmount')).toBe(5)
     expect(await getSetting({ store }, 'credits.dailyMaxDaysPerMonth')).toBe(10)
     expect(await getSetting({ store }, 'credits.dailyExpiryDays')).toBe(7)
     expect(await getSetting({ store }, 'credits.dailyRequireVerifiedEmail')).toBe(true)

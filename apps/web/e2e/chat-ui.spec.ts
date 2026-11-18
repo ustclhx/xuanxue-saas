@@ -226,9 +226,12 @@ test('chat page renders Markdown replies, copies code, stops and fits 390px (4.5
     await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(CODE)
 
     await shoot(page, 'chat-page-desktop-light')
+    // 西方站首次到访固定浅色、不跟随系统（refresh-visual-system-warm D3）：深色截图直接切换根元素的 dark 类
     await page.emulateMedia({ colorScheme: 'dark' })
+    await page.evaluate(() => document.documentElement.classList.add('dark'))
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)
     await shoot(page, 'chat-page-desktop-dark')
+    await page.evaluate(() => document.documentElement.classList.remove('dark'))
 
     // 390px：页面没有横向滚动，长代码行只在代码块内滚动
     await page.setViewportSize({ width: 390, height: 844 })
