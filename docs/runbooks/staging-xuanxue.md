@@ -109,3 +109,9 @@ Cloudflare account：`170a06d37ad50396b19943eb6b77a21d`。目标地址：`https:
 - 协调者单独分支修复报告邮件 siteOrigin；当前默认 log 通道未发送实际邮件。
 - D2 正式域名与真实 Google OAuth（当前只有启动占位）；东方站域名访问不在本轮 workers.dev 验收范围。
 - Resend 实际投递、Sentry、R2 签名凭据未配置；这些可选能力不计作已验收。
+
+## CI 与部署用时（template-v0.6.0 起）
+
+- PR 全量 CI 约 6 min（lint / build / test-packages / test-web / e2e-smoke 并行）；只改文档的 PR 只跑 lint。
+- 合并到 main 后 CI 复用 PR 已测过的同一棵树（只跑 changes），staging 部署约 4 min；部署冒烟经 `.github/actions/install-chromium` 复用浏览器缓存。
+- 规则与模式判定见 [docs/ci.md](../ci.md)。
