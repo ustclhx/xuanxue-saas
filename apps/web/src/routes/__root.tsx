@@ -18,6 +18,7 @@ import {
   getSeoOrigin,
 } from '../features/seo/origin.functions.ts'
 import { SiteContext, useSiteId } from '../features/site/context.tsx'
+import { pvuvHeadScripts } from '../features/site/pvuv.ts'
 import { getCurrentSite } from '../features/site/site.functions.ts'
 import { siteNavLocale } from '../features/site/site.ts'
 import { siteFontScript, siteIconLinks, siteThemeScript } from '../features/site/theme.ts'
@@ -96,6 +97,11 @@ export const Route = createRootRoute({
         loaderData?.site ?? { id: 'west', known: false },
         templateConfig,
         loaderData?.plausible,
+      ),
+      // pvuv.ai 站点统计：与 Cloudflare beacon 同范围，只在已登记站点的公开页面（features/site/pvuv.ts）
+      ...pvuvHeadScripts(
+        matches.at(-1)?.pathname ?? '/',
+        loaderData?.site ?? { id: 'west', known: false },
       ),
     ],
   }),

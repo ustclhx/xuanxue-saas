@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: What personal data Arcanumber collects, why, who processes it, how long we keep it and how to delete it.
-updatedAt: 2026-11-13
+updatedAt: 2026-11-18
 ---
 
 The privacy of your data is a big deal to us. This policy explains what data we collect and why, how
@@ -146,6 +146,25 @@ not use cookies and does not store your IP address, and it is not loaded in the 
 which campaigns or websites bring visitors, we set one first-party cookie, `xuanxue_ft`, described
 under "Cookies".
 
+On our public pages we also use pvuv.ai, a hosted analytics service, to understand page visits and
+where visitors come from. When a public page loads, its script sends pvuv.ai the page address, the
+referring website and campaign tags, your browser language, time zone and screen size, and a summary
+of how you use the page: time on the page, how far you scroll, clicks on links and buttons (with their
+short label), when a form is started or submitted (not what you type in it), links you follow to other
+websites, page load performance and script errors. To filter out automated traffic it also checks
+browser characteristics and pointer movement patterns. pvuv.ai receives your IP address with each
+request; according to pvuv.ai, its analytics records keep a keyed hash of it rather than the address
+itself. pvuv.ai keeps a random visitor identifier in first-party cookies and in your browser's local
+storage, described under "Cookies". It is not loaded in your account area or the admin area, and it
+stops reporting if you move from a public page into those areas.
+
+On public pages we also send pvuv.ai the same product interaction events we count with Plausible,
+such as using a free tool, opening a result section, seeing an upgrade prompt or starting checkout. Each event
+carries only its name and the same non-personal details: the tool or section, language, site, device
+type, plan, and the campaign or website that first brought you to us. Events never include your name,
+email address, birth data or account identifiers, and we do not send them if your browser sends Do
+Not Track or Global Privacy Control.
+
 ### Voluntary correspondence
 
 When you email us with a question or to ask for help, we keep that correspondence, including your
@@ -159,6 +178,7 @@ their service to us.
 | Provider | Purpose | Data involved |
 | --- | --- | --- |
 | Cloudflare (United States) | Hosting, content delivery, storage, background jobs, Turnstile and Web Analytics | All requests to the Services |
+| pvuv.ai (location not stated by the provider) | Website analytics on public pages | The page visit and usage information and identifiers described under "Website analytics", and your IP address |
 | Neon (United States) | Database | Account, report, birth profile, subscription and payment records |
 | DeepSeek (China) | AI model that writes full readings | The AI prompts described above |
 | Resend (United States) | Sending email | Your email address and the email content |
@@ -171,7 +191,8 @@ table and the date below.
 
 **Location of data.** Our database is located in the United States, and AI prompts are processed
 where our AI model provider operates, currently China. If you are located elsewhere, please be aware
-that the information you provide will be transferred to and processed in those countries. By using
+that the information you provide will be transferred to and processed in those countries. Our
+website analytics provider, pvuv.ai, does not state where it stores data. By using
 the Services and providing your personal information, you consent to this transfer.
 
 We may also disclose information when required by law, for example in response to a valid court
@@ -185,12 +206,22 @@ to work:
 - **Session cookie** — keeps you signed in.
 - **Language cookies** — remember the language you chose for the site.
 
-We also use one analytics cookie:
+We also use analytics cookies:
 
 - **First-visit cookie (`xuanxue_ft`)** — kept for up to 180 days. It records how you first reached
   us: the campaign tag or referring website, your landing page and your device type. When you sign
   up, this is saved with your account so that we can see which channels bring users. We do not set
   it if your browser sends Do Not Track or Global Privacy Control.
+- **pvuv.ai visitor cookie (`_pv_id`)** — a random visitor identifier, kept for up to 396 days (about
+  13 months). The same identifier is also kept in your browser's local storage until you clear it.
+- **pvuv.ai session cookie (`_pv_sid`)** — groups page views into one visit. It is kept for up to 24
+  hours, and a new visit starts after 30 minutes without activity or on a new day.
+- **pvuv.ai first-touch cookie (`_pv_ft`)** — records the campaign tags and referring website of your
+  first visit, kept for up to 396 days.
+
+The pvuv.ai cookies are first-party cookies on our own domain and are set only when you visit our
+public pages. While setting them, the script briefly creates and removes a test cookie (`_pv_t`). They
+are set whether or not your browser sends Do Not Track or Global Privacy Control.
 
 We do not use advertising or cross-site tracking cookies. You can block or delete cookies in your
 browser settings, but you will not be able to sign in without the session cookie.
@@ -212,6 +243,8 @@ browser settings, but you will not be able to sign in without the session cookie
   require, including after your account is deleted.
 - **Security records** of account events, including IP addresses: may be kept after your account is
   deleted, for fraud prevention and legal compliance.
+- **Website analytics (pvuv.ai)**: the cookies last as described under "Cookies". pvuv.ai keeps the
+  analytics records under its own retention practices and does not state a fixed period.
 - **Backups**: deleted data may remain in database backups for up to 7 days.
 
 ## How to delete your data

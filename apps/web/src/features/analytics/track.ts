@@ -15,6 +15,7 @@ import {
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
+import { sendPvuvEvent } from '../site/pvuv.ts'
 import { captureProductEvent, mayCapture } from './client.ts'
 import { type MultiSiteConfig, PLAUSIBLE_CONFIG_ID } from './head.ts'
 
@@ -163,6 +164,8 @@ function sendPlausible(name: string, props: Record<string, string>) {
 export function trackEvent(event: ClientAnalyticsEvent, input: { plan?: string } = {}) {
   if (!trackingAllowed() || !providerAllowed()) return
   const props = baseProps(input)
+  // 项目改动：同步给 pvuv.ai（features/site/pvuv.ts），页面浏览由 f.js 自行统计
+  if (event !== 'page_view') sendPvuvEvent(event, props)
   if (templateConfig.features.analytics === 'posthog') {
     // 页面浏览由 startPostHog 负责，避免重复计数。
     if (event !== 'page_view') (window as AnalyticsWindow).posthog?.capture(event, { ...props })
@@ -177,6 +180,8 @@ export function trackEvent(event: ClientAnalyticsEvent, input: { plan?: string }
  */
 export function trackProductEvent(event: string, payload: Record<string, string>) {
   if (!trackingAllowed() || !providerAllowed()) return
+  // 项目改动：同一组归因属性与白名单载荷同步给 pvuv.ai（features/site/pvuv.ts）
+  sendPvuvEvent(event, { ...baseProps(), ...payload })
   if (templateConfig.features.analytics === 'posthog') {
     captureProductEvent(templateConfig, event, payload)
     return
