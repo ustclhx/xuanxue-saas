@@ -7,11 +7,8 @@ import { AnnouncementBanner } from '../features/admin/settings-announcement-bann
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
 import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
-import {
-  LOCALE_COOKIE_MAX_AGE,
-  PREFERENCE_COOKIE,
-  SUGGESTION_ALIASES,
-} from '../features/i18n/preference.ts'
+import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../features/i18n/preference.ts'
+import { siteSuggestableLocales } from '../features/i18n/site-suggestion.ts'
 import { localeSuggestionScript } from '../features/i18n/suggestion.ts'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { privateMeta } from '../features/seo/metadata.ts'
@@ -85,7 +82,11 @@ export const Route = createRootRoute({
                 preferenceCookie: PREFERENCE_COOKIE,
                 localeCookie: cookieName,
                 cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
-                aliases: SUGGESTION_ALIASES,
+                // 与 LanguageSuggestion 同值：已登记站点只建议本站语言，带语言前缀的页面不建议
+                suggestableLocales: siteSuggestableLocales(
+                  loaderData?.site ?? { id: 'west', known: false },
+                  matches.at(-1)?.pathname ?? '/',
+                ),
               }),
             },
           ]
