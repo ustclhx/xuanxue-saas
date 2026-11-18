@@ -1,6 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 
-/** 站点标志：东方站为阴阳圆（朱砂点），西方站为四角星；内联描边 SVG，1.5px，装饰性 */
+/** 站点标志：东方站为阴阳圆（强调色点），西方站为四角星（强调色描边）；内联描边 SVG，1.5px，装饰性 */
 export function SiteLogo({ site }: { site: SiteId }) {
   if (site === 'east')
     return (
@@ -12,7 +12,7 @@ export function SiteLogo({ site }: { site: SiteId }) {
           stroke="currentColor"
           strokeWidth="1.5"
         />
-        <circle cx="14" cy="7.75" r="1.6" className="fill-brand" />
+        <circle cx="14" cy="7.75" r="1.6" className="fill-mark" />
         <circle cx="14" cy="20.25" r="1.6" fill="currentColor" />
       </svg>
     )
@@ -21,7 +21,7 @@ export function SiteLogo({ site }: { site: SiteId }) {
       <path
         d="M13 2l2.6 7.4L23 13l-7.4 2.6L13 23l-2.6-7.4L3 13l7.4-3.6z"
         fill="none"
-        className="stroke-brand"
+        className="stroke-mark"
         strokeWidth="1.5"
         strokeLinejoin="round"
       />

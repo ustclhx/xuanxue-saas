@@ -52,11 +52,11 @@
 
 依赖：3。冲突点：`packages/ui/src/project/`（新增 `Section`、`Prose` 并导出）、`features/marketing/marketing-shell.tsx`、`site-header.tsx`、`site-footer.tsx`、`features/site/header-menu.tsx`、`account-menu.tsx`、`features/i18n/language-controls.tsx`、`features/tools/disclaimer.tsx`、新增 `apps/web/scripts/check-type-roles.mjs` 与允许名单、新增 `e2e/visual-rules.spec.ts` 只由本组修改。
 
-- [ ] 4.1 按 D5 在 `MarketingShell` 根元素输出 3.1 约定的营销作用域属性，使 3.1 的字号覆盖生效；新增 `check-type-roles.mjs` 纳入 web `check`，生成过渡允许名单（当前全部含原始字号的文件）。验证：脚本单测覆盖命中、允许名单与 `routes/dev` 排除；`pnpm check` 通过
-- [ ] 4.2 在 `packages/ui/src/project/` 新增 `Section`（素色 / 色带）与 `Prose`，加入 `/dev/ui` 预览。验证：组件测试与预览页在 390px 无横向滚动；`pnpm check:deps` 通过
-- [ ] 4.3 按 D7 重做页头与页脚：导航 ≤ 5 项（工具下拉）、手机单行页头 + `<details>` 导航面板（含主题切换）、页脚设置行与合规声明；按 D9 把 `Disclaimer` 改为说明文字样式。验证：组件测试覆盖导航项数、面板键盘 / Esc / 焦点返回；390 / 1440 × 两站 × 浅 / 深截图与「共享组件」副本对照存入 `EVIDENCE_DIR`
-- [ ] 4.4 新建 `e2e/visual-rules.spec.ts`（D5 的度量：字号种数、首屏按钮数与文字元素数、区块间距、页头高度、正文字号），先以 `test.fixme` 登记尚未改版的页面，各页面组完成时逐页启用。验证：已启用页面在本地离线 e2e 中通过
-- [ ] 4.5 清理本组文件在 `check-ui.allow.local.json` 与 `check-type-roles` 允许名单中的条目。验证：`pnpm check:ui`、`pnpm check` 通过且相应条目已删除
+- [x] 4.1 按 D5 在 `MarketingShell` 根元素输出 3.1 约定的营销作用域属性，使 3.1 的字号覆盖生效；新增 `check-type-roles.mjs` 纳入 web `check`，生成过渡允许名单（当前全部含原始字号的文件）。验证：脚本单测覆盖命中、允许名单与 `routes/dev` 排除；`pnpm check` 通过
+- [x] 4.2 在 `packages/ui/src/project/` 新增 `Section`（素色 / 色带）与 `Prose`，加入 `/dev/ui` 预览。验证：组件测试与预览页在 390px 无横向滚动；`pnpm check:deps` 通过
+- [x] 4.3 按 D7 重做页头与页脚：导航 ≤ 5 项（工具下拉）、手机单行页头 + `<details>` 导航面板（含主题切换）、页脚设置行与合规声明；按 D9 把 `Disclaimer` 改为说明文字样式。验证：组件测试覆盖导航项数、面板键盘 / Esc / 焦点返回；390 / 1440 × 两站 × 浅 / 深截图与「共享组件」副本对照存入 `EVIDENCE_DIR`
+- [x] 4.4 新建 `e2e/visual-rules.spec.ts`（D5 的度量：字号种数、首屏按钮数与文字元素数、区块间距、页头高度、正文字号），先以 `test.fixme` 登记尚未改版的页面，各页面组完成时逐页启用。验证：已启用页面在本地离线 e2e 中通过
+- [x] 4.5 清理本组文件在 `check-ui.allow.local.json` 与 `check-type-roles` 允许名单中的条目。验证：`pnpm check:ui`、`pnpm check` 通过且相应条目已删除
 
 ## 5. 表单控件与插画（WT-forms-illus，【Claude】）
 

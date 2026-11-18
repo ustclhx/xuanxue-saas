@@ -84,7 +84,9 @@ token 取值以使用者 2026-11-17 确认的方向 C 为准（D14）；提案�
 
 ### D5 字号角色：营销作用域覆盖，原始字号清零
 
-- 模板 `--fs-*` 面向应用界面，营销页需要更大的 display / title。做法：在 `brand.css` 中按营销外壳作用域（`MarketingShell` 根元素上的 `data-surface="marketing"` 之类的属性）覆盖 Tailwind 的 `--text-*` 变量（不是 `--fs-*`：`@theme` 中 `--text-display: var(--fs-display)` 在 `:root` 求值，后代覆盖 `--fs-*` 不生效），桌面与手机两档用媒体查询。目标取值已确认（D14 字号表）：东方站 44 / 28 / 20 / 18 / 16 / 13（手机 display 32、title 24），西方站 52 / 32 / 21 / 19 / 17 / 13（手机 36、26）。应用区不覆盖，沿用模板默认。
+- 模板 `--fs-*` 面向应用界面，营销页需要更大的 display / title。做法：在 `brand.css` 中按营销外壳作用域（`MarketingShell` 根元素上的 `data-surface="marketing"`）覆盖模板的 `--fs-*` / `--lh-*`，桌面与手机两档用媒体查询。
+  - 实现时核对：模板用 `@theme inline` 定义 `--text-*`，工具类直接引用 `var(--fs-*)`，所以要覆盖的是 `--fs-*` 而不是 `--text-*`（本条原设想相反，实测不生效）。
+  - 六个角色与类名：display → `text-display`，title → `text-title`，heading → `text-subtitle`，lead → `text-lead`（项目在 `brand.css` 的 `@theme` 中新增），body → `text-body`，caption → `text-caption`；作用域内 `text-micro` 与 caption 同值。取值见 D14 字号表。应用区不覆盖，沿用模板默认。
 - 新增项目检查 `apps/web/scripts/check-type-roles.mjs` 并纳入 web 的 `check`：`apps/web/src`（不含 `routes/dev/`、测试）中出现 `text-(xs|sm|base|lg|xl|[2-9]xl)` 时报错；过渡期允许名单写在同目录 JSON，按页面组清空，本 change 结束时名单为空。
 - Playwright 度量测试 `e2e/visual-rules.spec.ts`：对两站首页、代表工具页、定价页统计可见文字节点的计算字号种数（≤ 6）、首屏按钮与按钮样式链接数（≤ 3，主按钮 1）、首屏文字元素数（≤ 12）、相邻顶层区块间距（桌面 96–128、手机 64–72）、手机页头高度（≤ 64）、段落正文字号（≥ 16）。这些数字与 `site-visual-system` spec 一一对应。
 
@@ -96,6 +98,7 @@ token 取值以使用者 2026-11-17 确认的方向 C 为准（D14）；提案�
 
 - 页头导航收敛为 ≤ 5 项：东方站「排盤工具 ▾、每日運勢、定價」+ 语言 + 账户；西方站「Tools ▾、Number of the Day、Pricing」+ 账户。工具下拉列出 `toolsForLocale` 的条目。
 - 手机：单行页头（标志、导航按钮、语言、账户），导航面板沿用 `HeaderMenu` 的 `<details>` 方案（服务端输出完整结构，水合前即可展开，符合首帧后水合），而不是依赖水合的 Radix `Sheet`；面板内含主题切换。键盘与焦点行为补测试。
+- 实现记录（第 4 组）：博客、指南与文档的入口从页头移到页脚（页头只剩工具下拉、每日运势、定价、语言、账户）；页脚链接为常见问题、博客、指南、文档与四个法律页，定价与注册入口不在页脚重复。手机导航面板含工具、每日运势、定价、主题切换与语言；登录入口是页头同一行的账户图标，面板内不重复（画布面板中另列了「登入」）。`Section` / `Prose` 的演示在项目自有的开发路由 `/dev/shell`，没有改模板的 `/dev/ui` 预览页。
 - 「延伸閱讀」等重复链接块从首页移除（首页结构由 `separate-landing-homepage` 规定），工具页内链矩阵保留但放在结果与长文之后。
 
 ### D8 插画：画布绘制、内联 SVG 交付
