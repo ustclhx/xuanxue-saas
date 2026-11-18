@@ -108,13 +108,18 @@ export const LANDING_FORBIDDEN_SOURCES = [
 ]
 
 /**
- * 首页 HTML 静态闭包（入口与整棵路由树的静态部分，各页面相同）的禁止源文件：同上，但不含数字命理包。
- * 每日数字页（features/daily/west-page.tsx、copy.ts）由路由静态导入，数字命理计算因此在所有页面的闭包里；
- * 那是每日运势路由的拆分问题，不属于落地页，拆分后可把这里换回 LANDING_FORBIDDEN_SOURCES。
+ * 首页 HTML 静态闭包（入口与整棵路由树的静态部分，各页面相同）的禁止源文件：同上，去掉经每日运势路由
+ * 进入全站闭包的三项——每日数字页（features/daily/west-page.tsx、copy.ts）由路由静态导入，带入数字命理计算
+ * 与日期字段所用的 tools/form.tsx。那是每日运势路由的拆分问题，不属于落地页；拆分后可把这里换回
+ * LANDING_FORBIDDEN_SOURCES。
  */
+const SHARED_VIA_DAILY_ROUTE = [
+  'packages/numerology/src/',
+  'src/features/tools/numerology/calc.ts',
+  'src/features/tools/form.tsx',
+]
 export const HOME_FORBIDDEN_SOURCES = LANDING_FORBIDDEN_SOURCES.filter(
-  (source) =>
-    source !== 'packages/numerology/src/' && source !== 'src/features/tools/numerology/calc.ts',
+  (source) => !SHARED_VIA_DAILY_ROUTE.includes(source),
 )
 
 /** 落地页组件所在目录：含该目录源文件的分包即落地页分包 */

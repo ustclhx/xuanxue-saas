@@ -37,6 +37,15 @@ const WestSampleChart = lazyRouteComponent(
   () => import('../features/marketing/home-hub/sample-chart-west.tsx'),
   'WestSampleChart',
 )
+// 首屏线描插画（refresh-visual-system-warm D8）：每站一个母题，同样按站点加载
+const StemWheel = lazyRouteComponent(
+  () => import('../features/illustrations/east/stem-wheel.tsx'),
+  'StemWheel',
+)
+const NumberWheel = lazyRouteComponent(
+  () => import('../features/illustrations/west/number-wheel.tsx'),
+  'NumberWheel',
+)
 
 const isEastLocale = (locale: string) => siteOfLocale(locale, templateConfig) === 'east'
 
@@ -47,7 +56,9 @@ export const Route = createFileRoute('/')({
   loader: async () => {
     await Promise.all([
       LandingPage.preload?.(),
-      isEastLocale(getLocale()) ? EastSampleChart.preload?.() : WestSampleChart.preload?.(),
+      ...(isEastLocale(getLocale())
+        ? [EastSampleChart.preload?.(), StemWheel.preload?.()]
+        : [WestSampleChart.preload?.(), NumberWheel.preload?.()]),
     ])
     return null
   },
@@ -82,9 +93,11 @@ function IndexPage() {
   return (
     <MarketingShell>
       <Suspense>
-        {/* 首屏插画（refresh-visual-system-warm 第 5 组的 features/illustrations/）合并后经 art 传入；
-            在此之前 LandingHero 保留同样大小的空位，换入插画不引起布局位移 */}
-        <LandingPage sampleChart={east ? <EastSampleChart /> : <WestSampleChart />} />
+        {/* 插画填满 LandingHero 的固定尺寸插画位（手机 168px、桌面 320px），不引起布局位移 */}
+        <LandingPage
+          art={east ? <StemWheel className="size-full" /> : <NumberWheel className="size-full" />}
+          sampleChart={east ? <EastSampleChart /> : <WestSampleChart />}
+        />
       </Suspense>
       {/* 页面版本标记：对读屏以外不可见，核对部署版本时使用（tasks.md 4.1 要求保留） */}
       <p data-testid="version" className="sr-only">

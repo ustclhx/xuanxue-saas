@@ -10,7 +10,7 @@ export const SAMPLE_ANCHOR = 'sample'
  * LandingWest.dc.html）：H1 品牌承诺、一句副标题、唯一的主按钮（指向本语言主工具页，锚文本含工具关键词）、
  * 一个页内文字链接与一行证明。首屏只有一个主任务，文案不写 AI。
  * 插画位固定尺寸（手机 168px 在标题上方，桌面 320px 在标题右侧）并对读屏隐藏：
- * 插画由首页路由按站点传入，是否传入都不改变布局。
+ * 插画（features/illustrations/）由首页路由按站点传入并填满插画位，是否传入都不改变布局。
  */
 export function LandingHero({ toolHref, art }: { toolHref: string; art?: ReactNode }) {
   return (
