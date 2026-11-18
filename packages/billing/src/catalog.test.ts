@@ -162,7 +162,7 @@ describe('offline catalog', () => {
       expect(calls).toHaveLength(perRun * 2)
       expect(calls.every(([i]) => i.plan.key !== 'free' && i.price.active)).toBe(true)
       // Stripe 本地化积分包按 plan.key 选译名、按 credits 写说明，同步必须带上两者
-      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toContainEqual(['reading_five', 400])
+      expect(calls.map(([i]) => [i.plan.key, i.plan.credits])).toContainEqual(['reading_five', 150])
       expect(
         calls
           .slice(perRun)

@@ -73,7 +73,7 @@ describe('daily credits on PostgreSQL', () => {
 
     expect(
       await getDailyCreditsClaim({ db, userId: id, now: new Date('2026-11-01T23:59:59Z') }),
-    ).toEqual({ credits: 10, day: '2026-11-01' })
+    ).toEqual({ credits: 5, day: '2026-11-01' })
   })
 
   it('returns no claim before claiming or after the next UTC day starts', async () => {
@@ -81,7 +81,7 @@ describe('daily credits on PostgreSQL', () => {
     const today = { db, userId: id, now: new Date('2026-11-01T23:59:59Z') }
     expect(await getDailyCreditsClaim(today)).toBeNull()
     expect((await claim(id)).status).toBe('granted')
-    expect(await getDailyCreditsClaim(today)).toEqual({ credits: 10, day: '2026-11-01' })
+    expect(await getDailyCreditsClaim(today)).toEqual({ credits: 5, day: '2026-11-01' })
     expect(
       await getDailyCreditsClaim({ db, userId: id, now: new Date('2026-11-02T00:00:00Z') }),
     ).toBeNull()
@@ -99,7 +99,7 @@ describe('daily credits on PostgreSQL', () => {
     expect((await claim(east)).status).toBe('granted')
     const now = new Date('2026-11-01T12:34:56Z')
     expect(await getDailyCreditsClaim({ db, userId: west, now })).toEqual({
-      credits: 10,
+      credits: 5,
       day: '2026-11-01',
     })
     expect(await getDailyCreditsClaim({ db, userId: unrelated, now })).toBeNull()
@@ -127,7 +127,7 @@ describe('daily credits on PostgreSQL', () => {
     ])
     const result = results.find((r) => r.status === 'granted')
     expect(result).toMatchObject({
-      credits: 10,
+      credits: 5,
       day: '2026-11-01',
       daysThisMonth: 1,
       maxDaysPerMonth: 10,
@@ -136,7 +136,7 @@ describe('daily credits on PostgreSQL', () => {
     const [batch] = await db.select().from(creditGrant).where(eq(creditGrant.workspaceId, id))
     expect(batch).toMatchObject({
       id: result?.grantId,
-      amount: 10,
+      amount: 5,
       paymentId: null,
       source: 'daily',
       sourceRef: `${id}:2026-11-01`,

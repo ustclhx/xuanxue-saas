@@ -155,8 +155,8 @@ describe('catalog on isolated PostgreSQL', () => {
         expect(
           subs.map((row) => [row.key, row.type, row.credits, row.rollover, row.sort]).sort(),
         ).toEqual([
-          ['plus', 'subscription', 300, false, 30],
-          ['premium', 'subscription', 800, false, 40],
+          ['plus', 'subscription', 100, false, 30],
+          ['premium', 'subscription', 250, false, 40],
         ])
         const prices = await tx
           .select()

@@ -94,7 +94,7 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
   it('区块展示积分包的积分与价格，并合并不同支付渠道的同周期报价', () => {
     const plans = marketingPlans(examplePricingCatalog())
     const single = plans.find((plan) => plan.key === 'reading_single')
-    expect(single).toMatchObject({ credits: 100 })
+    expect(single).toMatchObject({ credits: 50 })
     // 不同支付渠道的同周期同币种报价合并为一项，价目表的每个结算币种各保留一项
     expect(single?.prices.map((p) => [p.interval, p.currency, p.amount])).toEqual([
       [null, 'USD', 299],

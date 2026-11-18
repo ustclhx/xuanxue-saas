@@ -15,6 +15,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { customerCatalog } from '../billing/customer-data.ts'
+import { checkDailyCredits } from '../credits/daily.server.ts'
 import { readRequestSession } from '../i18n/session.server.ts'
 import { displayPrices } from '../marketing/pricing-data.ts'
 import { siteReadingPricing } from '../marketing/reading-pricing.server.ts'
@@ -117,16 +118,27 @@ async function viewerIsPlatformAdmin(): Promise<boolean> {
 }
 
 async function viewerOf(): Promise<ReadingOffer['viewer']> {
-  const { db, auth, site } = getWebRuntime()
-  let user: { id: string }
+  const { db, auth, site, cache } = getWebRuntime()
+  let session: Awaited<ReturnType<typeof readRequestSession>>
   try {
-    ;({ user } = await readRequestSession({ auth, db, headers: getRequest().headers }))
+    session = await readRequestSession({ auth, db, headers: getRequest().headers })
   } catch (error) {
     if (error instanceof AppError && (error.status === 401 || error.status === 403)) return null
     throw error
   }
+  const { user } = session
   const resolved = await resolveDefaultWorkspace(db, user, null, site)
   if (!resolved) return null
+  // 「版本 B」登录后多回到公开结果页而不进 App 区：已登录访客在解锁卡也检查当天每日积分，
+  // 与 App 区同一路径（KV 防重复检查、事务按「邮箱 + 日期」幂等、要求已验证邮箱）；匿名访客不触发。
+  // 先领取再读余额，解锁卡显示的余额已包含当天积分。
+  await checkDailyCredits({
+    db,
+    cache,
+    user: session.user,
+    session: session.session,
+    enabled: templateConfig.credits.enabled && templateConfig.credits.dailyEnabled,
+  })
   const [balance, renewing] = await Promise.all([
     getCreditBalance(db, resolved.workspace.id),
     scoped(db, resolved.workspace.id).select(subscription, {
