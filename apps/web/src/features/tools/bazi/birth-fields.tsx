@@ -32,6 +32,7 @@ export function BirthFields({
   prefix = '',
   issues = [],
   trueSolarCallout = false,
+  advancedCollapsed = false,
 }: {
   /** 当前值：决定默认值与条件字段（闰月、手选时区） */
   values: BirthFormValues
@@ -40,6 +41,8 @@ export function BirthFields({
   issues?: readonly InputIssue[]
   /** 韩语页：진태양시 开关默认开启，并用醒目提示说明可关闭（决策 D5） */
   trueSolarCallout?: boolean
+  /** 双人表单（궁합）：进阶选项即使默认开启也先收起，只有真太阳时有错误时展开 */
+  advancedCollapsed?: boolean
 }) {
   const name = (field: keyof BirthFormValues) => `${prefix}${field}`
   const byField = issuesByField(issues)
@@ -184,7 +187,11 @@ export function BirthFields({
       */}
       <details
         className="group order-last col-span-full"
-        open={trueSolarCallout || values.trueSolar || Boolean(byField.trueSolarTime) || undefined}
+        open={
+          (!advancedCollapsed && (trueSolarCallout || values.trueSolar)) ||
+          Boolean(byField.trueSolarTime) ||
+          undefined
+        }
       >
         <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 text-brand-ink text-caption underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden">
           {m.bazi_advanced_options()}

@@ -1,14 +1,16 @@
 import type { BaziChart } from '@xuanxue/bazi'
-import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { Breadcrumb } from '../breadcrumb.tsx'
 import { ElementsChart } from '../charts/elements-chart.tsx'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { baziShareCard } from '../share-card/sources-bazi.ts'
+import { ToolArticle } from '../tool-article.tsx'
+import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
@@ -32,31 +34,34 @@ import {
   ReadingSlots,
   ResultFooter,
   ResultStatus,
-  twoColumns,
   usePrefetch,
 } from './common.tsx'
 import { loadBazi } from './engine.ts'
 import { useBirthTool } from './use-birth-tool.ts'
 
+/** 结果区内的两栏：手机单列 */
+const twoColumns = 'grid grid-cols-1 gap-6 md:grid-cols-2'
+
 /**
- * 繁中 `/zh-hant/` 八字排盤首页（tasks.md 2.2，原型 Main.dc.html）：七个结果区块依次为
- * 四柱、五行强弱、身強身弱、喜用神、大運十年轴、神煞、八字重量。
+ * 八字排盤工具页 `/zh-hant/八字排盤`、`/zh-hans/八字排盘`（openspec separate-landing-homepage design.md D1；
+ * 设计稿 warm-refresh/ToolBazi.dc.html）：H1 + 简介 + 表单 → 结果 → 「八字命盤怎麼看」长文 → FAQ → 内链。
+ * 七个结果区块依次为四柱、五行强弱、身強身弱、喜用神、大運十年轴、神煞、八字重量。
  */
-export function BaziHome({
-  focusBlock,
-  hub,
-}: {
-  focusBlock?: string
-  /** 首页枢纽区块，由首页路由传入 */
-  hub?: ReactNode
-}) {
+export function BaziHome({ focusBlock }: { focusBlock?: string }) {
   const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeBaziChart, focusBlock })
   usePrefetch(loadBazi)
   return (
     <ToolPage
-      hub={hub}
       tool="bazi"
+      breadcrumb={
+        <Breadcrumb
+          items={[
+            { name: m.marketing_nav_home(), href: toolHref('/', LOCALE) },
+            { name: m.bazi_link_home() },
+          ]}
+        />
+      }
       title={m.bazi_home_title()}
       intro={<p className="m-0">{m.bazi_home_intro()}</p>}
       form={
@@ -89,6 +94,20 @@ export function BaziHome({
         ...link(conceptHref(LOCALE, 'strength'), m.bazi_link_strength(), 'concept-strength'),
         ...link(conceptHref(LOCALE, 'ten-gods'), m.bazi_link_ten_gods(), 'concept-ten-gods'),
       ]}
+      article={
+        <ToolArticle
+          title={m.bazi_home_article_title()}
+          sections={[
+            { heading: m.bazi_block_pillars(), body: m.bazi_desc_pillars() },
+            { heading: m.bazi_block_elements(), body: m.bazi_desc_elements() },
+            { heading: m.bazi_block_strength(), body: m.bazi_desc_strength() },
+            { heading: m.bazi_block_useful(), body: m.bazi_desc_useful() },
+            { heading: m.bazi_block_luck(), body: m.bazi_desc_luck() },
+            { heading: m.bazi_block_shensha(), body: m.bazi_desc_shensha() },
+            { heading: m.bazi_block_weight(), body: m.bazi_desc_weight() },
+          ]}
+        />
+      }
       faq={[
         { question: m.bazi_home_faq_q1(), answer: m.bazi_home_faq_a1() },
         { question: m.bazi_home_faq_q2(), answer: m.bazi_home_faq_a2() },
@@ -144,7 +163,7 @@ export function BaziResult({
         >
           <ElementsChart elements={chart.strength.elements} />
         </ResultBlock>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <ResultBlock
             id="strength"
             index={3}
@@ -182,7 +201,7 @@ export function BaziResult({
         >
           <ShenshaChips chart={chart} />
           {!chart.hourKnown && (
-            <p className="m-0 text-ink-subtle text-sm">{m.bazi_shensha_hour_note()}</p>
+            <p className="m-0 text-caption text-ink-subtle">{m.bazi_shensha_hour_note()}</p>
           )}
           <div className="flex flex-wrap gap-x-5">
             <ConceptLink href={conceptHref(LOCALE, 'void')}>{m.bazi_void_link()}</ConceptLink>

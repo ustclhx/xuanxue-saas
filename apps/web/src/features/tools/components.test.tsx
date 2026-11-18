@@ -62,9 +62,40 @@ describe('ToolPage', () => {
     expect(html).toContain('<summary')
   })
 
-  it('两站标题字号不同（东方站粗体衬线，西方站大号）', () => {
-    expect(page('east')).toContain('sm:text-[40px]')
-    expect(page('west')).toContain('sm:text-[56px]')
+  it('两站 H1 都用 title 字号角色，不写原始字号', () => {
+    for (const site of ['east', 'west'] as const)
+      expect(page(site)).toMatch(/<h1 class="[^"]*\btext-title\b[^"]*">/)
+    expect(page('west')).not.toMatch(/text-\[\d+px\]/)
+  })
+
+  it('紧凑布局：长文、FAQ 与内链依次排在表单与结果容器之后；未出结果时页面中不显示声明', () => {
+    const html = render(
+      <ToolPage
+        tool="demo"
+        title="Tool"
+        intro={<p>Intro</p>}
+        form={<form aria-label="Demo" />}
+        result={null}
+        article={<article>Long read</article>}
+        nav={<nav aria-label="Numbers" />}
+        links={[{ href: '/a', title: 'Guide', target: 'guide' }]}
+        faq={[{ question: 'Q1?', answer: 'A1' }]}
+      />,
+      'east',
+    )
+    const order = [
+      '<h1',
+      '<form',
+      'id="result"',
+      'Long read',
+      'Q1?',
+      'aria-label="Numbers"',
+      'href="/a"',
+    ]
+    const positions = order.map((marker) => html.indexOf(marker))
+    expect(positions.every((position) => position >= 0)).toBe(true)
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+    expect(html).not.toContain('role="note"')
   })
 })
 

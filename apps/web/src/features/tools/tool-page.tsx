@@ -1,7 +1,6 @@
-import { cn } from '@xuanxue/ui'
+import { PageWidth } from '@xuanxue/ui/project'
 import { type ReactNode, useEffect, useMemo } from 'react'
 import { m } from '../../paraglide/messages.js'
-import { useSiteId } from '../site/context.tsx'
 import { ToolContext } from './context.tsx'
 import { Disclaimer } from './disclaimer.tsx'
 import { type FaqItem, ToolFaq } from './faq.tsx'
@@ -9,9 +8,10 @@ import { type ToolLink, ToolLinks } from './tool-links.tsx'
 import { useToolEvents } from './use-tool-events.ts'
 
 /**
- * 工具页外壳（openspec add-dual-site-foundation 决策 5，specs/tool-pages）：
- * H1、导语、首屏内联表单、结果区、合规声明、订阅 / 解锁插槽、内链矩阵与 FAQ。
- * 标题、导语、表单标签与区块说明都在服务端输出，禁用脚本时可抓取；结果在浏览器本地计算后填入。
+ * 工具页外壳（specs/tool-pages「工具页紧凑布局」；设计稿 docs/design/prototypes/warm-refresh/ToolBazi.dc.html）：
+ * 面包屑、H1、一到两句简介、表单 → 结果（底部是合规声明）→ 订阅 / 解锁插槽 → 说明长文 → FAQ → 内链。
+ * 长文、FAQ 与内链都在结果之后，不放在 H1 与表单之间；手机首屏（390×844）内可见提交按钮。
+ * 标题、导语、表单标签与长文都在服务端输出，禁用脚本时可抓取；结果在浏览器本地计算后填入。
  */
 export function ToolPage({
   tool,
@@ -20,9 +20,11 @@ export function ToolPage({
   form,
   result,
   links = [],
+  linksTitle,
   faq = [],
+  article,
+  nav,
   children,
-  hub,
   breadcrumb,
 }: {
   /** 工具标识（注册表 id），埋点 tool 字段 */
@@ -30,18 +32,23 @@ export function ToolPage({
   title: string
   intro: ReactNode
   form: ReactNode
-  /** 结果区块；为 null 时只显示表单与声明 */
+  /**
+   * 结果区块。传 null 表示尚未出结果：此时页面中不显示声明（声明在页脚）；
+   * 不传表示结果由 form 插槽自己渲染（数字命理计算器），声明固定显示在其后。
+   */
   result?: ReactNode
   links?: readonly ToolLink[]
+  linksTitle?: string
   faq?: readonly FaqItem[]
+  /** 说明长文、概念解释等：位于结果与订阅 / 解锁插槽之后、FAQ 之前 */
+  article?: ReactNode
+  /** FAQ 与内链之间的附加导航（如 1–33 数字网格） */
+  nav?: ReactNode
   /** 结果之后的订阅卡与付费卡（不得以弹窗出现） */
   children?: ReactNode
-  /** 首页枢纽区块（redesign-home-chart-visuals home-hub）：位于内链之后、FAQ 之前 */
-  hub?: ReactNode
-  /** 面包屑（H1 之上）：有父页的页面传入，如 12 个生命灵数页 */
+  /** 面包屑（H1 之上）：与页面 head 的 BreadcrumbList 同一组层级 */
   breadcrumb?: ReactNode
 }) {
-  const site = useSiteId()
   const track = useToolEvents(tool)
   const context = useMemo(() => ({ tool, track }), [tool, track])
   const hasResult = result != null
@@ -50,36 +57,28 @@ export function ToolPage({
   }, [hasResult, track])
   return (
     <ToolContext value={context}>
-      <div className="mx-auto flex max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-16 sm:px-6">
-        <header className="flex flex-col gap-2.5">
+      <PageWidth className="flex flex-col gap-8 pb-16 sm:gap-10 sm:pb-28">
+        <header className="flex max-w-180 flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
           {breadcrumb}
-          <h1
-            className={cn(
-              'm-0 font-heading text-ink',
-              site === 'east'
-                ? 'font-bold text-[32px] leading-tight sm:text-[40px]'
-                : 'font-semibold text-[40px] leading-[1.05] sm:text-[56px]',
-            )}
-          >
-            {title}
-          </h1>
-          <div className="max-w-[720px] text-[17px] text-ink-muted leading-relaxed">{intro}</div>
+          <h1 className="m-0 text-balance font-heading text-ink text-title">{title}</h1>
+          <div className="text-body text-ink-muted">{intro}</div>
         </header>
         {form}
         <section
           id="result"
           aria-label={m.tools_results_label()}
           aria-live="polite"
-          className="flex scroll-mt-6 flex-col gap-5 empty:hidden"
+          className="flex scroll-mt-6 flex-col gap-6 empty:hidden"
         >
           {result}
         </section>
-        <Disclaimer />
+        {(hasResult || result === undefined) && <Disclaimer />}
         {children}
-        <ToolLinks links={links} />
-        {hub}
+        {article}
         <ToolFaq items={faq} />
-      </div>
+        {nav}
+        <ToolLinks links={links} title={linksTitle} />
+      </PageWidth>
     </ToolContext>
   )
 }

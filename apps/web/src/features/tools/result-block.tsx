@@ -9,7 +9,8 @@ export function circledNumber(index: number): string {
 }
 
 /**
- * 结果区块（视觉规范「布局与组件」）：`<section>` + `<h2>`，带锚点 id，可折叠。
+ * 结果区块（视觉规范「布局与组件」；设计稿 warm-refresh/ToolBazi.dc.html 的 `.obj.blk`）：
+ * surface 底、14px 圆角、不画边框；`<section>` + `<h2>`，带锚点 id，可折叠。
  * 说明文字与内容在服务端输出（默认展开），禁用脚本时仍可阅读；折叠按钮用 aria-expanded 表达状态。
  * 编号（①–⑦）只在东方站显示；展开时上报 block_open。
  */
@@ -48,12 +49,12 @@ export function ResultBlock({
       id={id}
       aria-labelledby={`${id}-title`}
       className={cn(
-        'flex scroll-mt-6 flex-col gap-3.5 rounded-xl border border-line bg-surface p-5',
+        'flex scroll-mt-6 flex-col gap-4 rounded-object bg-surface p-6 sm:p-8',
         className,
       )}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 id={`${id}-title`} className="m-0 font-heading text-ink text-xl">
+        <h2 id={`${id}-title`} className="m-0 font-heading text-ink text-subtitle">
           <button
             type="button"
             aria-expanded={open}
@@ -76,13 +77,11 @@ export function ResultBlock({
             </svg>
           </button>
         </h2>
-        {aside && <span className="text-ink-subtle text-sm">{aside}</span>}
+        {aside && <span className="text-caption text-ink-subtle">{aside}</span>}
       </div>
       <div id={bodyId} hidden={!open} className="flex flex-col gap-3">
         {children}
-        {description && (
-          <p className="m-0 text-ink-subtle text-sm leading-relaxed">{description}</p>
-        )}
+        {description && <p className="m-0 text-caption text-ink-subtle">{description}</p>}
       </div>
     </section>
   )

@@ -1,14 +1,16 @@
 import type { BaziChart } from '@xuanxue/bazi'
-import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
+import { Breadcrumb } from '../breadcrumb.tsx'
 import { ElementsChart } from '../charts/elements-chart.tsx'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { baziShareCard } from '../share-card/sources-bazi.ts'
+import { ToolArticle } from '../tool-article.tsx'
+import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { KO_TRUE_SOLAR_DEFAULT, toShareInput } from './birth-form-state.ts'
@@ -38,18 +40,12 @@ import { useBirthTool } from './use-birth-tool.ts'
 const LOCALE = 'ko'
 
 /**
- * 韩语 `/ko/` 만세력首页（tasks.md 3.1，原型 Manseryeok.dc.html）：六个结果区块依次为
- * 사주팔자、오행 분포、신강·신약、용신、대운·세운、신살·귀인·공망（最详细的一块，反色）。
+ * 만세력工具页 `/ko/만세력`（openspec separate-landing-homepage design.md D1；套用设计稿
+ * warm-refresh/ToolBazi.dc.html 的版式）：H1 + 简介 + 表单 → 结果 → 说明长文 → FAQ → 内链。
+ * 六个结果区块依次为 사주팔자、오행 분포、신강·신약、용신、대운·세운、신살·귀인·공망（最详细的一块，反色）。
  * 默认出生地首尔；手机优先。
  */
-export function ManseryeokHome({
-  focusBlock,
-  hub,
-}: {
-  focusBlock?: string
-  /** 首页枢纽区块，由首页路由传入 */
-  hub?: ReactNode
-}) {
+export function ManseryeokHome({ focusBlock }: { focusBlock?: string }) {
   const tool = useBirthTool({
     locale: LOCALE,
     compute: computeBaziChart,
@@ -59,8 +55,15 @@ export function ManseryeokHome({
   usePrefetch(loadBazi)
   return (
     <ToolPage
-      hub={hub}
       tool="manseryeok"
+      breadcrumb={
+        <Breadcrumb
+          items={[
+            { name: m.marketing_nav_home(), href: toolHref('/', LOCALE) },
+            { name: m.bazi_link_home() },
+          ]}
+        />
+      }
       title={m.bazi_home_title()}
       intro={<p className="m-0">{m.bazi_home_intro()}</p>}
       form={
@@ -93,6 +96,19 @@ export function ManseryeokHome({
         ...link(conceptHref(LOCALE, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
         ...link(conceptHref(LOCALE, 'strength'), m.bazi_link_strength(), 'concept-strength'),
       ]}
+      article={
+        <ToolArticle
+          title={m.bazi_home_article_title()}
+          sections={[
+            { heading: m.bazi_block_pillars(), body: m.bazi_desc_pillars() },
+            { heading: m.bazi_block_elements(), body: m.bazi_desc_elements() },
+            { heading: m.bazi_block_strength(), body: m.bazi_desc_strength() },
+            { heading: m.bazi_block_useful(), body: m.bazi_desc_useful() },
+            { heading: m.bazi_block_luck(), body: m.bazi_desc_luck() },
+            { heading: m.bazi_block_shensha(), body: m.bazi_desc_shensha() },
+          ]}
+        />
+      }
       faq={[
         { question: m.bazi_home_faq_q1(), answer: m.bazi_home_faq_a1() },
         { question: m.bazi_home_faq_q2(), answer: m.bazi_home_faq_a2() },
@@ -133,26 +149,23 @@ export function SajuResult({
         title={m.bazi_block_pillars()}
         aside={usedTimeText(chart, LOCALE)}
         description={m.bazi_desc_pillars()}
-        className="p-4 sm:p-5"
       >
         <PillarsChart pillars={chart.pillars} locale={LOCALE} />
-        <p className="m-0 text-ink-subtle text-xs">{m.bazi_pillars_order_note()}</p>
+        <p className="m-0 text-caption text-ink-subtle">{m.bazi_pillars_order_note()}</p>
         <HiddenStemsTable chart={chart} locale={LOCALE} />
       </ResultBlock>
       <ResultBlock
         id="elements"
         title={m.bazi_block_elements()}
         description={m.bazi_desc_elements()}
-        className="p-4 sm:p-5"
       >
         <ElementsChart elements={chart.strength.elements} />
       </ResultBlock>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(min(160px,100%),1fr))] gap-2.5 sm:gap-5">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <ResultBlock
           id="strength"
           title={m.bazi_block_strength()}
           description={m.bazi_desc_strength()}
-          className="p-3.5 sm:p-5"
         >
           <StrengthBody chart={chart} compact />
         </ResultBlock>
@@ -161,7 +174,6 @@ export function SajuResult({
           title={m.bazi_block_useful()}
           aside={m.bazi_useful_reference()}
           description={m.bazi_desc_useful()}
-          className="p-3.5 sm:p-5"
         >
           <UsefulBody chart={chart} />
         </ResultBlock>
@@ -171,7 +183,6 @@ export function SajuResult({
         title={m.bazi_block_luck()}
         aside={luckAside(chart)}
         description={m.bazi_desc_luck()}
-        className="p-4 sm:p-5"
       >
         <LuckAxis chart={chart} locale={LOCALE} conceptHref={conceptHref(LOCALE, 'luck', 'luck')} />
       </ResultBlock>
@@ -179,10 +190,10 @@ export function SajuResult({
         id="shensha"
         title={m.bazi_block_shensha()}
         description={m.bazi_desc_shensha()}
-        className="border-inverse bg-inverse p-4 text-on-inverse sm:p-5 [&_h2]:text-on-inverse [&_p]:text-on-inverse/80 [&_svg]:text-on-inverse/70"
+        className="bg-inverse text-on-inverse [&_h2]:text-on-inverse [&_p]:text-on-inverse/80 [&_svg]:text-on-inverse/70"
       >
         <ShenshaTable chart={chart} />
-        {!chart.hourKnown && <p className="m-0 text-sm">{m.bazi_shensha_hour_note()}</p>}
+        {!chart.hourKnown && <p className="m-0 text-caption">{m.bazi_shensha_hour_note()}</p>}
         <div className="flex flex-wrap gap-x-5 [&_a]:text-on-inverse [&_a]:underline">
           <ConceptLink href={conceptHref(LOCALE, 'shensha')}>{m.bazi_shensha_link()}</ConceptLink>
           <ConceptLink href={conceptHref(LOCALE, 'void')}>{m.bazi_void_link()}</ConceptLink>
