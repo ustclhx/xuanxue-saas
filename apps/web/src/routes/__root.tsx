@@ -11,7 +11,7 @@ import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../features/i18n/prefe
 import { siteSuggestableLocales } from '../features/i18n/site-suggestion.ts'
 import { localeSuggestionScript } from '../features/i18n/suggestion.ts'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
-import { privateMeta } from '../features/seo/metadata.ts'
+import { privateMeta, titleWithSite } from '../features/seo/metadata.ts'
 import {
   getPlausibleSite,
   getSafeImpersonation,
@@ -59,7 +59,7 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
         title: matches.some((match) => match.status === 'notFound' || match._notFound)
-          ? `${m.common_not_found_title()} | ${rootBrand(loaderData?.site.id ?? 'west')}`
+          ? titleWithSite(m.common_not_found_title(), getLocale(), loaderData?.site.id ?? 'west')
           : rootBrand(loaderData?.site.id ?? 'west'),
       },
       ...privateMeta(matches.at(-1)?.pathname ?? '/'),

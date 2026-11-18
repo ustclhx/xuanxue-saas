@@ -23,6 +23,7 @@ export function ToolPage({
   faq = [],
   children,
   hub,
+  breadcrumb,
 }: {
   /** 工具标识（注册表 id），埋点 tool 字段 */
   tool: string
@@ -37,6 +38,8 @@ export function ToolPage({
   children?: ReactNode
   /** 首页枢纽区块（redesign-home-chart-visuals home-hub）：位于内链之后、FAQ 之前 */
   hub?: ReactNode
+  /** 面包屑（H1 之上）：有父页的页面传入，如 12 个生命灵数页 */
+  breadcrumb?: ReactNode
 }) {
   const site = useSiteId()
   const track = useToolEvents(tool)
@@ -49,6 +52,7 @@ export function ToolPage({
     <ToolContext value={context}>
       <div className="mx-auto flex max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-16 sm:px-6">
         <header className="flex flex-col gap-2.5">
+          {breadcrumb}
           <h1
             className={cn(
               'm-0 font-heading text-ink',

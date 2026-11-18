@@ -30,16 +30,19 @@ const numerologyPages = [
 ]
 const pages = publicPages({ ...content, toolPages: numerologyPages }, new Date(), config)
 
-/** 登记页面：首页（东方站八字 / 만세력、西方站 Life Path）、紫微、命盤查詢与数字图表页 */
+/**
+ * 登记页面：主工具页（东方站八字排盤 / 만세력、西方站 Life Path）、紫微、命盤查詢与数字图表页。
+ * 样例图随注册表挂到工具页，语言首页沿用默认分享图（separate-landing-homepage OQ8）。
+ */
 const REGISTERED: Record<string, OgSampleChart> = {
-  'zh-Hant /': 'pillars',
-  'zh-Hans /': 'pillars',
-  'ko /': 'pillars',
+  'zh-Hant /八字排盤': 'pillars',
+  'zh-Hans /八字排盘': 'pillars',
+  'ko /만세력': 'pillars',
   'zh-Hant /命盤查詢': 'pillars',
   'zh-Hans /命盘查询': 'pillars',
   'zh-Hant /紫微斗數排盤': 'ziwei',
   'zh-Hans /紫微斗数排盘': 'ziwei',
-  'en /': 'life-path',
+  'en /life-path-number': 'life-path',
   'en /numerology-chart': 'digit-grid',
 }
 
@@ -57,6 +60,9 @@ describe('样例 OG 模板只用于登记页面（tasks 8.2）', () => {
     expect(used).toEqual(REGISTERED)
     // 其他页面（定价、FAQ、塔罗、合婚、数字命理其他页与数字页）沿用默认版式
     for (const [locale, path] of [
+      ['en', '/'],
+      ['zh-Hant', '/'],
+      ['ko', '/'],
       ['en', '/pricing'],
       ['en', '/faq'],
       ['en', '/numerology-calculator'],

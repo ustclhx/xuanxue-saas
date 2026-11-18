@@ -6,6 +6,7 @@ import { DailyCreditsNotice } from '../../../features/credits/daily-notice.tsx'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationBell } from '../../../features/notifications/bell.tsx'
 import { NotificationsProvider } from '../../../features/notifications/store.tsx'
+import { siteTitle } from '../../../features/seo/site-title.ts'
 import { getWorkspacePage } from '../../../features/workspace/workspace.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -23,8 +24,10 @@ export const Route = createFileRoute('/app/$slug')({
   },
   loader: ({ context }) => ({ ...context.workspacePage, chatAvailable: context.chatAvailable }),
   staleTime: 0,
-  head: ({ loaderData }) => ({
-    meta: loaderData ? [{ title: `${loaderData.workspace.name} · Workspace` }] : [],
+  head: ({ loaderData, matches }) => ({
+    meta: loaderData
+      ? [{ title: siteTitle(`${loaderData.workspace.name} · Workspace`, matches) }]
+      : [],
   }),
   component: WorkspaceLayout,
   notFoundComponent: () => (

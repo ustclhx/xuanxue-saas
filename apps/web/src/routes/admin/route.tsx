@@ -7,6 +7,7 @@ import { getAdminNavGroups } from '../../features/admin/nav.ts'
 import { siteLabel } from '../../features/admin/site-ui.tsx'
 import { authClient } from '../../features/auth/auth-client.ts'
 import { LanguageSelect } from '../../features/i18n/language-controls.tsx'
+import { siteTitle } from '../../features/seo/site-title.ts'
 import { ThemeToggle } from '../../features/theme/theme-toggle.tsx'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
@@ -16,7 +17,7 @@ import { templateConfig } from '../../server/template-config.ts'
 // 侧栏导航见 features/admin/nav.ts（add-admin-console tasks.md 1.3）。
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => ({ admin: await getAdminViewer() }),
-  head: () => ({ meta: [{ title: ADMIN_COPY.title }] }),
+  head: ({ matches }) => ({ meta: [{ title: siteTitle(ADMIN_COPY.title, matches) }] }),
   component: AdminLayout,
 })
 

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { listBirthProfiles } from '../../../features/profiles/profiles.functions.ts'
 import { ProfilesPage } from '../../../features/profiles/profiles-page.tsx'
+import { siteTitle } from '../../../features/seo/site-title.ts'
 import { useSiteId } from '../../../features/site/context.tsx'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
@@ -9,8 +10,11 @@ import { getLocale } from '../../../paraglide/runtime.js'
 export const Route = createFileRoute('/app/$slug/profiles')({
   loader: ({ params }) => listBirthProfiles({ data: { slug: params.slug } }),
   staleTime: 0,
-  head: () => ({
-    meta: [{ title: m.profiles_title() }, { name: 'robots', content: 'noindex, nofollow' }],
+  head: ({ matches }) => ({
+    meta: [
+      { title: siteTitle(m.profiles_title(), matches) },
+      { name: 'robots', content: 'noindex, nofollow' },
+    ],
   }),
   component: ProfilesRoute,
 })

@@ -63,14 +63,15 @@ function createDeliver(transport: JobsEmailTransport, injectedSender?: EmailSend
       return null
     }
   }
-  // 每站一个 key（Resend 只能限定单个域名），发件人由消息携带的可信站点决定
-  const senders = new Map<'east' | 'west', EmailSender>()
+  // 每站一个 key（Resend 只能限定单个域名），发件人由消息携带的可信站点决定；
+  // 发件人显示名随收件人语言变化（地址含本站域名），因此按完整发件人缓存
+  const senders = new Map<string, EmailSender>()
   const senderFor = (site: 'east' | 'west', from: string): EmailSender => {
     if (injectedSender) return injectedSender
-    let sender = senders.get(site)
+    let sender = senders.get(from)
     if (!sender) {
       sender = createResendSender({ apiKey: transport.apiKeys[site], from })
-      senders.set(site, sender)
+      senders.set(from, sender)
     }
     return sender
   }

@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { MediaTaskDetailPage } from '../../../../features/ai-media/tasks-page.tsx'
+import { siteTitle } from '../../../../features/seo/site-title.ts'
 import { m } from '../../../../paraglide/messages.js'
 
 export const Route = createFileRoute('/app/$slug/tasks/$taskId')({
-  head: () => ({ meta: [{ title: m.media_tasks_detail() }] }),
+  head: ({ matches }) => ({ meta: [{ title: siteTitle(m.media_tasks_detail(), matches) }] }),
   component: TaskDetail,
 })
 

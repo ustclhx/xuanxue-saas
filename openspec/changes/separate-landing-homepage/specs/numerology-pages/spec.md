@@ -17,7 +17,7 @@
 
 #### Scenario: 标题沿用
 - **WHEN** 请求 `/life-path-number` 的预渲染 HTML
-- **THEN** Title 为「Life Path Number Calculator: Free, With Every Step Shown」，H1 为「Life Path Number Calculator」
+- **THEN** Title 为「Life Path Number Calculator: Free, With Every Step Shown | Arcanumber」（站名按 seo「页面标题带站名」追加，与迁移前首页相同），H1 为「Life Path Number Calculator」
 
 ## MODIFIED Requirements
 

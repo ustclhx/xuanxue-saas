@@ -11,6 +11,8 @@
 // 模板 0.5.6：zod 检查改看「水合闭包」——静态闭包加上水合入口直接 import() 的分包（TanStack Start 入口立即动态加载
 // StartClient 与整棵路由树，水合必然下载）；发现 zod 时按 sourcemap 列出引用 zod 的源文件，便于定位
 // （0.5.8 起只列生成代码实际使用 zod 绑定的文件）。
+// openspec separate-landing-homepage tasks 2.1、2.3：工具迁到关键词 URL 后，四个主工具页的 head 也与快照对照
+// （TOOL_PAGES）；紫微页的静态闭包不得含八字 / 만세력主页组件（SPLIT_PAGES，按 sourcemap 的源文件判断）。
 // 用法：node scripts/check-home-bundle.mjs [dist/client] [dist/server]；`pnpm build` 在预渲染后自动执行。
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, resolve } from 'node:path'
@@ -71,6 +73,28 @@ export const HOME_PAGES = [
   { id: 'zh-hant', file: 'zh-hant.html', budget: 375701 }, // 实测 335447 B
   { id: 'zh-hans', file: 'zh-hans.html', budget: 375701 }, // 实测 335447 B
   { id: 'ko', file: 'ko.html', budget: 375701 }, // 实测 335447 B
+]
+
+/** 主工具页（迁移前在语言首页）：只对照 head 快照，不计入首页脚本预算 */
+export const TOOL_PAGES = [
+  { id: 'tool-west', file: 'life-path-number.html' },
+  { id: 'tool-zh-hant', file: 'zh-hant/八字排盤.html' },
+  { id: 'tool-zh-hans', file: 'zh-hans/八字排盘.html' },
+  { id: 'tool-ko', file: 'ko/만세력.html' },
+]
+
+/**
+ * 同一路由（routes/$slug.tsx）按页面懒加载：列出的页面静态闭包中不得出现这些源文件的代码，
+ * 紫微页因此不下载八字 / 만세력主页组件。
+ */
+export const SPLIT_PAGES = [
+  {
+    file: 'zh-hant/紫微斗數排盤.html',
+    forbiddenSources: [
+      'src/features/tools/bazi/bazi-home.tsx',
+      'src/features/tools/bazi/manseryeok-home.tsx',
+    ],
+  },
 ]
 
 // 压缩后的静态导入 / 再导出：`import{a}from"./x.js"`、`import"./x.js"`、`export*from"./x.js"`；
@@ -445,6 +469,72 @@ export function checkHomePages(
   })
 }
 
+/** 主工具页 head 与快照对照；预渲染产物缺失也算失败 */
+export function checkToolPages(clientDir, pages = TOOL_PAGES, snapshot = readHomeHeadSnapshot()) {
+  return pages.map(({ id, file }) => {
+    const path = join(clientDir, file)
+    if (!existsSync(path)) return { id, file, headDiffs: ['预渲染 HTML 不存在'] }
+    return { id, file, headDiffs: diffHomeHead(homeHead(readFileSync(path, 'utf8')), snapshot[id]) }
+  })
+}
+
+/** 页面静态闭包中有生成代码的项目源文件（按 sourcemap 的 mappings，不含只列在 sources 中而被摇掉的模块） */
+export function closureSources(clientDir, file) {
+  const html = readFileSync(join(clientDir, file), 'utf8')
+  const sources = new Set()
+  for (const asset of staticClosure(clientDir, htmlScripts(html))) {
+    const mapFile = join(clientDir, `${asset}.map`)
+    if (!existsSync(mapFile)) continue
+    const map = JSON.parse(readFileSync(mapFile, 'utf8'))
+    if (!Array.isArray(map.sources) || typeof map.mappings !== 'string') continue
+    for (const [index] of decodeMappings(map.mappings)) {
+      const source = map.sources[index]
+      if (typeof source === 'string' && !source.includes('node_modules'))
+        sources.add(source.replace(/^(?:\.\.\/)+/, '').replace(/\?.*$/, ''))
+    }
+  }
+  return [...sources].sort()
+}
+
+/** 按页面懒加载的检查：返回闭包中出现的禁止源文件 */
+export function checkSplitPages(clientDir, pages = SPLIT_PAGES) {
+  return pages.map(({ file, forbiddenSources }) => {
+    const sources = closureSources(clientDir, file)
+    return {
+      file,
+      // 没有任何源文件说明缺少 sourcemap，检查无从谈起，按失败处理
+      unmapped: sources.length === 0,
+      found: forbiddenSources.filter((item) => sources.some((source) => source.endsWith(item))),
+    }
+  })
+}
+
+/** 主工具页与懒加载检查的输出行 */
+export function reportToolPages(tools, splits) {
+  const lines = []
+  let ok = true
+  for (const page of tools) {
+    if (page.headDiffs.length > 0) {
+      ok = false
+      lines.push(
+        `工具页 head 检查失败：${page.id}（${page.file}）`,
+        ...page.headDiffs.map((diff) => `  - head 与 home-head-snapshot.json 不一致：${diff}`),
+      )
+    } else lines.push(`工具页 head 检查通过：${page.id}（${page.file}）与快照一致`)
+  }
+  for (const page of splits) {
+    if (page.unmapped || page.found.length > 0) {
+      ok = false
+      lines.push(
+        `页面懒加载检查失败：${page.file}`,
+        ...(page.unmapped ? ['  - 静态闭包没有 sourcemap，无法判断'] : []),
+        ...page.found.map((source) => `  - 静态闭包含 ${source}（应按页面懒加载）`),
+      )
+    } else lines.push(`页面懒加载检查通过：${page.file} 的静态闭包不含其他页面的组件`)
+  }
+  return { ok, lines }
+}
+
 /** 把检查结果整理为输出行；有任何问题时 ok 为 false */
 export function reportHomePages(results) {
   const lines = []
@@ -492,7 +582,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   if (args.includes('--write-head-snapshot')) {
     // 仅在有意修改首页元数据、并在 PR 中说明后使用；写入后运行 biome format 统一格式
     const snapshot = Object.fromEntries(
-      HOME_PAGES.map(({ id, file }) => [id, homeHead(readFileSync(join(clientDir, file), 'utf8'))]),
+      [...HOME_PAGES, ...TOOL_PAGES].map(({ id, file }) => [
+        id,
+        homeHead(readFileSync(join(clientDir, file), 'utf8')),
+      ]),
     )
     writeFileSync(SNAPSHOT_PATH, `${JSON.stringify(snapshot, null, 2)}\n`)
     console.log(`已写入 ${SNAPSHOT_PATH}`)
@@ -511,7 +604,21 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         }
       }
     }
-    for (const { ok, lines, warnings = [] } of [reportServerHomeBundle(serverDir), client()]) {
+    const tools = () => {
+      try {
+        return reportToolPages(checkToolPages(clientDir), checkSplitPages(clientDir))
+      } catch (error) {
+        return {
+          ok: false,
+          lines: [`工具页检查失败：${error instanceof Error ? error.message : error}`],
+        }
+      }
+    }
+    for (const { ok, lines, warnings = [] } of [
+      reportServerHomeBundle(serverDir),
+      client(),
+      tools(),
+    ]) {
       for (const line of warnings) console.warn(line)
       for (const line of lines) (ok ? console.log : console.error)(line)
       if (!ok) process.exitCode = 1
