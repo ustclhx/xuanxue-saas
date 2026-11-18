@@ -35,7 +35,8 @@
   "landing_step_mark_2": "二",
   "landing_step_mark_3": "三",
   "landing_price_label": "定價",
-  "landing_price_line": "排盤免費；AI 詳批每份 {reading} 積分，每天登入送 {daily} 積分，可以先免費體驗。",
+  "landing_price_line": "排盤免費；AI 詳批每份 {reading} 積分。新用戶首次登入送 {first} 積分，之後每天登入再送 {daily} 積分。",
+  "landing_price_line_daily": "排盤免費；AI 詳批每份 {reading} 積分，每天登入送 {daily} 積分。",
   "landing_price_line_no_daily": "排盤免費；AI 詳批每份 {reading} 積分。",
   "landing_price_cta": "查看定價 →"
 }

@@ -165,6 +165,8 @@ export interface HubPriceLine {
   readonly readingCredits: number
   /** 每日登录赠送积分；未开启每日赠送时为 null */
   readonly dailyCredits: number | null
+  /** 新用户首次登录共得积分（注册赠送 + 当天每日领取，与定价页「首次登录共送」一致）；无注册赠送时为 null */
+  readonly firstLoginCredits: number | null
 }
 
 /**
@@ -176,11 +178,15 @@ export function hubPriceLine(
   catalog: PricingCatalog,
   locale: string,
   credits: { readonly enabled: boolean; readonly dailyEnabled: boolean } = templateConfig.credits,
+  signupBonus: number = templateConfig.billing.signupBonusCredits,
 ): HubPriceLine | null {
   if (hubPricing(catalog, locale).length === 0) return null
+  const daily = credits.enabled && credits.dailyEnabled ? DAILY_LOGIN_CREDITS : null
   return {
     readingCredits: DEFAULT_READING_CREDITS,
-    dailyCredits: credits.enabled && credits.dailyEnabled ? DAILY_LOGIN_CREDITS : null,
+    dailyCredits: daily,
+    // 单日 5 积分不够一份 10 积分的详批，首页改写首次登录合计（2026-11-18 使用者确认）
+    firstLoginCredits: daily !== null && signupBonus > 0 ? signupBonus + daily : null,
   }
 }
 

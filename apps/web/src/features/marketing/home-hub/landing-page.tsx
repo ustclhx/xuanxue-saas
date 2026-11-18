@@ -229,7 +229,16 @@ function PriceLine({ line, href }: { line: HubPriceLine | null; href: string }) 
           ? m.home_hub_plans_free()
           : line.dailyCredits === null
             ? m.landing_price_line_no_daily({ reading: line.readingCredits })
-            : m.landing_price_line({ reading: line.readingCredits, daily: line.dailyCredits })}
+            : line.firstLoginCredits === null
+              ? m.landing_price_line_daily({
+                  reading: line.readingCredits,
+                  daily: line.dailyCredits,
+                })
+              : m.landing_price_line({
+                  reading: line.readingCredits,
+                  first: line.firstLoginCredits,
+                  daily: line.dailyCredits,
+                })}
       </p>
       <a href={href} className={`${textLink} shrink-0`}>
         {m.landing_price_cta()}

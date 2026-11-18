@@ -35,7 +35,8 @@
   "landing_step_mark_2": "二",
   "landing_step_mark_3": "三",
   "landing_price_label": "定价",
-  "landing_price_line": "排盘免费；AI 详批每份 {reading} 积分，每天登录送 {daily} 积分，可以先免费体验。",
+  "landing_price_line": "排盘免费；AI 详批每份 {reading} 积分。新用户首次登录送 {first} 积分，之后每天登录再送 {daily} 积分。",
+  "landing_price_line_daily": "排盘免费；AI 详批每份 {reading} 积分，每天登录送 {daily} 积分。",
   "landing_price_line_no_daily": "排盘免费；AI 详批每份 {reading} 积分。",
   "landing_price_cta": "查看定价 →"
 }

@@ -170,9 +170,12 @@ describe('落地页数据', () => {
     for (const [, locale] of HOMES) {
       language.locale = locale
       expect(m.pricing_free_daily()).toContain(String(DAILY_LOGIN_CREDITS))
+      // 首次登录合计与定价页「首次登录共送 20」一致（注册赠送 15 + 当天每日 5）
+      expect(m.pricing_free_first_login()).toContain('20')
       expect(hubPriceLine(catalog(true), locale, { enabled: true, dailyEnabled: true })).toEqual({
         readingCredits: DEFAULT_READING_CREDITS,
         dailyCredits: DAILY_LOGIN_CREDITS,
+        firstLoginCredits: 20,
       })
       // 是否有可购买方案与定价页同一快照、同一选价规则
       expect(hubPricing(catalog(true), locale).map((p) => [p.key, p.credits])).toEqual(
@@ -185,7 +188,13 @@ describe('落地页数据', () => {
     expect(hubPriceLine(catalog(true), 'en', { enabled: true, dailyEnabled: false })).toEqual({
       readingCredits: DEFAULT_READING_CREDITS,
       dailyCredits: null,
+      firstLoginCredits: null,
     })
+    // 没有注册赠送时不写首次登录合计
+    expect(
+      hubPriceLine(catalog(true), 'en', { enabled: true, dailyEnabled: true }, 0)
+        ?.firstLoginCredits,
+    ).toBeNull()
     expect(hubPriceLine(catalog(false), 'zh-Hant')).toBeNull()
     expect(hubPriceLine({ plans: [], prices: [], providers: [] } as never, 'en')).toBeNull()
   })
@@ -312,19 +321,19 @@ describe('落地页', () => {
     [
       'east',
       'zh-Hant',
-      '排盤免費；AI 詳批每份 10 積分，每天登入送 5 積分，可以先免費體驗。',
+      '排盤免費；AI 詳批每份 10 積分。新用戶首次登入送 20 積分，之後每天登入再送 5 積分。',
       '/zh-hant/pricing',
     ],
     [
       'east',
       'ko',
-      '만세력은 무료입니다. AI 상세 풀이는 1회 10 크레딧이며, 매일 로그인하면 5 크레딧을 드리니 먼저 무료로 체험해 보세요.',
+      '만세력은 무료입니다. AI 상세 풀이는 1회 10 크레딧이며, 신규 회원은 첫 로그인 시 20 크레딧을 받고 이후 매일 로그인할 때마다 5 크레딧을 더 받습니다.',
       '/ko/pricing',
     ],
     [
       'west',
       'en',
-      'Every calculator is free. A full reading costs 10 credits, and you get 5 free credits each day you sign in, so you can try one first.',
+      'Every calculator is free. A full reading costs 10 credits — new accounts get 20 credits on first sign-in, plus 5 each day you sign in.',
       '/pricing',
     ],
   ] as const)('%s %s：一行价格写积分数并链接定价页，不显示金额', (site, locale, line, href) => {
