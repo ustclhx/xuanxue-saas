@@ -120,7 +120,8 @@ describe('结果后订阅卡', () => {
     const root = createRoot(container)
     try {
       await act(async () => root.render(<ReadingOptinCard tool="life-path" data={optin} />))
-      const select = container.querySelector('select[name="topic"]') as HTMLSelectElement
+      // 隐藏的原生控件由 Select 渲染；测试环境的 DOM 类型里 Element 与 HTMLSelectElement 不直接兼容
+      const select = container.querySelector('select[name="topic"]') as unknown as HTMLSelectElement
       expect(Array.from(select.options, (option) => option.textContent)).toEqual([...topics])
       expect(select.value).toBe('growth')
     } finally {

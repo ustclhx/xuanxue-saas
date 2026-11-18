@@ -121,7 +121,7 @@ function ToolsDemoPage() {
                 aside={`${input.year}-${input.month}-${input.day} ${input.time}`}
                 description="Each pillar pairs a heavenly stem with an earthly branch."
               >
-                <div className="grid grid-cols-4 gap-3 text-center font-heading text-[44px] leading-tight">
+                <div className="grid grid-cols-4 gap-3 text-center font-heading text-display">
                   <span className="text-wx-metal">庚</span>
                   <span className="text-wx-metal">辛</span>
                   <span className="text-wx-metal">庚</span>

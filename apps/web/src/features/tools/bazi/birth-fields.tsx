@@ -75,7 +75,7 @@ export function BirthFields({
             ]}
           />
         </div>
-        <div className="grid grid-cols-[1.3fr_1fr_1fr] gap-2">
+        <div className="grid grid-cols-7 gap-2">
           <DatePart
             label={m.bazi_year()}
             name={name('year')}
@@ -83,6 +83,7 @@ export function BirthFields({
             placeholder="1990"
             maxLength={4}
             invalid={Boolean(byField.year)}
+            className="col-span-3"
           />
           <DatePart
             label={m.bazi_month()}
@@ -91,6 +92,7 @@ export function BirthFields({
             placeholder="5"
             maxLength={2}
             invalid={Boolean(byField.month)}
+            className="col-span-2"
           />
           <DatePart
             label={m.bazi_day()}
@@ -99,6 +101,7 @@ export function BirthFields({
             placeholder="15"
             maxLength={2}
             invalid={Boolean(byField.day)}
+            className="col-span-2"
           />
         </div>
         {lunar && (
