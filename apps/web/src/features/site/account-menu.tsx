@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 import { useViewer } from '../workspace/viewer-store.ts'
-import { closeHeaderMenu, HeaderMenu, UserIcon } from './header-menu.tsx'
+import { closeHeaderMenu, HeaderMenu, headerMenuItem, UserIcon } from './header-menu.tsx'
 
 /**
  * 登录入口附加回跳地址（specs/user-auth「登录后的去向」）：`here` 为当前页面的路径与查询（含语言前缀）。
@@ -43,27 +43,31 @@ export function AccountMenu() {
         onClick={goLogin}
         aria-label={m.marketing_nav_sign_in()}
         title={m.marketing_nav_sign_in()}
-        className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-line text-ink transition-colors hover:bg-surface-2 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="flex min-h-11 min-w-11 items-center justify-center rounded-field text-body text-ink-muted no-underline transition-colors hover:text-ink md:min-w-0"
       >
-        <UserIcon />
+        {/* 手机为图标按钮，桌面为文字「登入」（refresh-visual-system-warm D7） */}
+        <span className="flex md:hidden">
+          <UserIcon />
+        </span>
+        <span className="hidden md:inline">{m.marketing_nav_sign_in()}</span>
       </a>
     )
 
   return (
-    <HeaderMenu label={m.site_account_menu()} icon={<UserIcon />}>
-      <p className="px-3 pt-1 pb-0.5 text-ink-muted text-sm">{viewer.name}</p>
-      <p className="px-3 pb-1 font-semibold text-xs text-ink-subtle">{m.site_account_spaces()}</p>
+    <HeaderMenu label={m.site_account_menu()} icon={<UserIcon />} text={m.site_account_menu()}>
+      <p className="px-3 pt-1 pb-0.5 text-body text-ink-muted">{viewer.name}</p>
+      <p className="px-3 pb-1 text-caption text-ink-subtle">{m.site_account_spaces()}</p>
       {viewer.spaces.map((space) => (
         <Link
           key={space.id}
           to="/app/$slug"
           params={{ slug: space.slug }}
           onClick={(event) => closeHeaderMenu(event.currentTarget)}
-          className="flex min-h-11 items-center justify-between gap-6 rounded-lg px-3 text-[15px] text-ink transition-colors hover:bg-surface-2"
+          className={headerMenuItem}
         >
           <span>{space.name}</span>
           {space.isPersonal ? (
-            <span className="text-ink-subtle text-xs">{m.app_personal_workspace()}</span>
+            <span className="text-caption text-ink-subtle">{m.app_personal_workspace()}</span>
           ) : null}
         </Link>
       ))}

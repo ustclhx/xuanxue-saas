@@ -7,7 +7,7 @@ import { baseLocale, getLocale, isLocale, locales, localizeHref } from '../../pa
 import { templateConfig } from '../../server/template-config.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { useSiteId } from '../site/context.tsx'
-import { closeHeaderMenu, GlobeIcon, HeaderMenu } from '../site/header-menu.tsx'
+import { closeHeaderMenu, GlobeIcon, HeaderMenu, headerMenuItem } from '../site/header-menu.tsx'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { LOCALE_AUTONYMS } from '../site/theme.ts'
 import { useLocaleSwitch } from './locale-switch.ts'
@@ -22,8 +22,7 @@ import {
 } from './suggestion.ts'
 import { switchLocalePath } from './switch-path.ts'
 
-const languageItem =
-  'flex min-h-11 w-full items-center justify-between gap-6 rounded-lg px-3 text-left text-[15px] text-ink transition-colors hover:bg-surface-2 aria-[current=true]:font-semibold aria-[current=page]:font-semibold'
+const languageItem = headerMenuItem
 
 /**
  * 页头右上角的语言菜单（specs/i18n「语言切换控件位于站点页头右上角」）。
@@ -38,7 +37,11 @@ export function LanguageMenu() {
   const englishEntry = siteId === 'east' && locales.some((item) => item === EAST_ENGLISH_LOCALE)
   if (!templateConfig.i18n.enabled || siteLocales.length + (englishEntry ? 1 : 0) < 2) return null
   return (
-    <HeaderMenu label={m.i18n_language()} icon={<GlobeIcon />}>
+    <HeaderMenu
+      label={m.i18n_language()}
+      icon={<GlobeIcon />}
+      text={LOCALE_AUTONYMS[locale] ?? locale}
+    >
       {siteLocales.map((item) => (
         <button
           key={item}
@@ -70,7 +73,7 @@ export function LanguageMenu() {
         </a>
       )}
       {error ? (
-        <p role="alert" className="px-3 pb-1 text-destructive text-sm">
+        <p role="alert" className="px-3 pb-1 text-caption text-destructive">
           {error}
         </p>
       ) : null}
@@ -217,7 +220,7 @@ export function LanguageSelect() {
         </Select>
       </div>
       {error && (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-caption text-destructive">
           {error}
         </p>
       )}

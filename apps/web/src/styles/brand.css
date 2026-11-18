@@ -96,6 +96,7 @@
   /* 只用于错误态与删除类操作的低饱和砖色，不作装饰 */
   --danger: #96493d;
   --on-danger: #ffffff;
+  --site-shadow-raise: 0 1px 2px rgb(22 24 27 / 0.06), 0 8px 24px rgb(22 24 27 / 0.06);
   /* 五行色只作图表圆点与条形，配合文字标签使用；火色不作品牌或界面色 */
   --wx-metal: #6e7480;
   --wx-wood: #3e7d4f;
@@ -123,6 +124,7 @@
   --on-inverse: #121315;
   --danger: #d9988b;
   --on-danger: #121315;
+  --site-shadow-raise: none;
   --wx-metal: #a7adb8;
   --wx-wood: #6fb583;
   --wx-water: #78a9dc;
@@ -266,6 +268,12 @@
   --color-field-border: var(--field-border);
   --color-danger: var(--danger);
   --color-on-danger: var(--on-danger);
+
+  /* 方向 C 的圆角与阴影（design.md D14）：输入 6px（rounded-field）、承载对象 14px（rounded-object）；
+     阴影只用于工具表单面板与展开的菜单（shadow-raise），深色主题无阴影 */
+  --radius-field: 6px;
+  --radius-object: 14px;
+  --shadow-raise: var(--site-shadow-raise);
   --color-inverse: var(--inverse);
   --color-on-inverse: var(--on-inverse);
   --color-wx-metal: var(--wx-metal);
@@ -281,7 +289,8 @@
 /*
  * 营销作用域的字号角色（refresh-visual-system-warm design.md D5、D14）：模板的 --fs-* 面向应用界面（display 28px、
  * body 14px），营销页与工具页需要更大的字号。MarketingShell 根元素带 data-surface="marketing"，在该作用域内覆盖
- * Tailwind 的 --text-*（不是 --fs-*：@theme 中 --text-display: var(--fs-display) 在 :root 求值，后代覆盖 --fs-* 不生效）。
+ * 模板的 --fs-* / --lh-*：模板用 @theme inline 定义 --text-*，工具类直接引用 var(--fs-*)，因此在作用域内覆盖 --fs-* 即可
+ * （design.md D5 原设想覆盖 --text-*，实测 inline 主题下不生效）。text-lead 与字距变量由本文件的 @theme 定义，直接覆盖。
  * 六个角色与类名：display → text-display，title → text-title，heading → text-subtitle，lead → text-lead（项目新增），
  * body → text-body，caption → text-caption；作用域内 text-micro 与 caption 同值，页面仍只有六种字号。
  * 应用区不带该属性，沿用模板默认值。
@@ -295,48 +304,48 @@
 }
 
 [data-surface="marketing"] {
-  --text-display: 32px;
-  --text-display--line-height: 42px;
-  --text-title: 24px;
-  --text-title--line-height: 32px;
-  --text-subtitle: 20px;
-  --text-subtitle--line-height: 30px;
+  --fs-display: 32px;
+  --lh-display: 42px;
+  --fs-title: 24px;
+  --lh-title: 32px;
+  --fs-subtitle: 20px;
+  --lh-subtitle: 30px;
   --text-lead: 18px;
   --text-lead--line-height: 32px;
-  --text-body: 16px;
-  --text-body--line-height: 28px;
-  --text-caption: 13px;
-  --text-caption--line-height: 20px;
-  --text-micro: 13px;
-  --text-micro--line-height: 20px;
+  --fs-body: 16px;
+  --lh-body: 28px;
+  --fs-caption: 13px;
+  --lh-caption: 20px;
+  --fs-micro: 13px;
+  --lh-micro: 20px;
 }
 
 :root[data-site="west"] [data-surface="marketing"] {
-  --text-display: 36px;
-  --text-display--line-height: 42px;
+  --fs-display: 36px;
+  --lh-display: 42px;
   --text-display--letter-spacing: -0.02em;
-  --text-title: 26px;
-  --text-title--line-height: 34px;
+  --fs-title: 26px;
+  --lh-title: 34px;
   --text-title--letter-spacing: -0.02em;
-  --text-subtitle: 21px;
+  --fs-subtitle: 21px;
   --text-lead: 19px;
   --text-lead--line-height: 30px;
-  --text-body: 17px;
+  --fs-body: 17px;
 }
 
 @media (min-width: 640px) {
   [data-surface="marketing"] {
-    --text-display: 44px;
-    --text-display--line-height: 56px;
-    --text-title: 28px;
-    --text-title--line-height: 38px;
+    --fs-display: 44px;
+    --lh-display: 56px;
+    --fs-title: 28px;
+    --lh-title: 38px;
   }
 
   :root[data-site="west"] [data-surface="marketing"] {
-    --text-display: 52px;
-    --text-display--line-height: 58px;
-    --text-title: 32px;
-    --text-title--line-height: 40px;
+    --fs-display: 52px;
+    --lh-display: 58px;
+    --fs-title: 32px;
+    --lh-title: 40px;
   }
 }
 

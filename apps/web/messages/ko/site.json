@@ -5,5 +5,8 @@
   "site_nav_languages": "언어",
   "site_footer_disclaimer": "참고와 자기 탐색을 위한 것이며 미래를 예측하지 않습니다.",
   "site_account_menu": "계정",
-  "site_account_spaces": "내 워크스페이스"
+  "site_account_spaces": "내 워크스페이스",
+  "site_nav_tools_menu": "도구",
+  "site_nav_menu": "메뉴",
+  "site_footer_nav": "바닥글"
 }
