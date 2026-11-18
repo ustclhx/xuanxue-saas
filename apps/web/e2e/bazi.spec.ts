@@ -101,8 +101,11 @@ test.describe('禁用脚本', () => {
     const form = page.getByRole('form', { name: '出生資料' })
     for (const label of ['曆法', '性別', '出生日期'])
       await expect(form.locator('legend', { hasText: label })).toBeVisible()
-    for (const label of ['出生時間', '不知道出生時辰', '真太陽時校正'])
+    for (const label of ['出生時間', '不知道出生時辰'])
       await expect(form.getByLabel(label, { exact: true })).toBeVisible()
+    // 进阶选项默认收起（原生 <details>，禁用脚本时仍可展开）；真太阳时字段仍在表单里
+    await expect(form.locator('details > summary')).toBeVisible()
+    await expect(form.getByLabel('真太陽時校正', { exact: true })).toBeAttached()
     await expect(form.getByRole('combobox', { name: '出生地' })).toBeVisible()
     // 隐私：未水合 / 禁用脚本时不能原生提交（POST 且按钮禁用），并提示需要 JavaScript
     await expect(form.getByRole('button', { name: '立即排盤' })).toBeDisabled()
@@ -155,7 +158,9 @@ test('韩语만세력：6 个区块顺序、진태양시提示与韩国夏令时
   await expect(page).toHaveTitle(
     '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이',
   )
-  await expect(page.getByLabel('출생지')).toHaveValue('seoul')
+  // 出生地是 @xuanxue/ui 的 Select：触发器显示选项文字，取值在同名的隐藏表单控件上
+  await expect(page.getByRole('combobox', { name: '출생지', exact: true })).toHaveText('서울')
+  await expect(page.locator('select[name="place"]')).toHaveValue('seoul')
   const trueSolar = page.getByLabel('진태양시 보정')
   // 决策 D5：与韩国常见만세력一致，默认开启
   await expect(trueSolar).toBeChecked()

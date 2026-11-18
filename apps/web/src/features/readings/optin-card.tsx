@@ -51,16 +51,17 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
       data-slot="reading-optin"
       data-tool={tool}
       aria-labelledby={id}
-      className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 sm:p-6"
+      className="flex flex-col gap-4 rounded-object bg-surface p-6 sm:p-8"
     >
-      <h2 id={id} className="m-0 font-heading text-2xl text-ink">
+      <h2 id={id} className="m-0 font-bold font-heading text-ink text-subtitle">
         {m.optin_title()}
       </h2>
-      <p className="m-0 text-sm text-ink-muted">{m.optin_intro()}</p>
+      <p className="m-0 text-body text-ink-muted">{m.optin_intro()}</p>
       <form
-        className="grid gap-4 sm:grid-cols-2"
+        className="grid gap-x-6 gap-y-4 sm:grid-cols-2"
         onFocus={(event) => {
-          if (event.target.matches('input, select')) setInteracted(true)
+          // 主题下拉是 @xuanxue/ui 的 Select，可聚焦的是 combobox 触发器
+          if (event.target.matches('input, select, [role="combobox"]')) setInteracted(true)
         }}
         onInput={() => setInteracted(true)}
         onChange={() => setInteracted(true)}
@@ -120,15 +121,16 @@ function EnabledOptinCard({ tool, data }: { tool: string; data: ReadingOptinData
         <button
           type="submit"
           onClick={() => setInteracted(true)}
-          className="min-h-12 self-end rounded-lg border border-brand bg-transparent px-5 py-2 font-semibold text-brand-ink disabled:cursor-not-allowed disabled:opacity-50"
+          // 次级按钮（设计稿 btn-secondary）：药丸形、透明底、控件外框色的内描边；页面上的主按钮只留给工具表单
+          className="min-h-12 self-end rounded-full bg-transparent px-7 font-medium text-body text-ink ring-1 ring-field-border ring-inset transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={busy || loading}
           aria-busy={busy || loading}
         >
           {busy ? m.optin_busy() : loading ? m.optin_loading() : m.optin_submit()}
         </button>
         <div className="sm:col-span-2">{turnstile.widget}</div>
-        <p className="m-0 text-xs text-ink-subtle sm:col-span-2">{m.optin_consent()}</p>
-        <p role="status" className="m-0 text-sm text-ink-muted sm:col-span-2">
+        <p className="m-0 text-caption text-ink-subtle sm:col-span-2">{m.optin_consent()}</p>
+        <p role="status" className="m-0 text-caption text-ink-muted sm:col-span-2">
           {message}
         </p>
       </form>

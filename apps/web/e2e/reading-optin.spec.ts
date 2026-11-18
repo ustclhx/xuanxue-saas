@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { encodeReading } from '@xuanxue/tarot'
 import { encodeShareInput } from '../src/features/tools/share.ts'
+import { chooseOption } from './select.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // API 的确认与投递由 growth 集成测试覆盖；这里验证真实页面的结果接线与三语表单。
@@ -53,11 +54,15 @@ for (const scenario of scenarios)
     await expect(card.getByTestId('turnstile')).toHaveCount(0)
     // 三种字段都能以聚焦启动验证；填写前即可挂载小组件。
     const firstField = { en: 'name', 'zh-Hant': 'email', ko: 'topic' }[scenario.locale]
-    await card.locator(`[name="${firstField}"]`).focus()
+    // 主题是 @xuanxue/ui 的 Select：可聚焦的是 combobox 触发器，不是带 name 的隐藏原生控件
+    await (firstField === 'topic'
+      ? card.getByRole('combobox')
+      : card.locator(`[name="${firstField}"]`)
+    ).focus()
     await expect(card.getByTestId('turnstile')).toBeVisible()
     await card.locator('input[name="email"]').fill('reader@example.test')
     await card.locator('input[name="name"]').fill('Reader')
-    await card.locator('select').selectOption('career')
+    await chooseOption(card.getByRole('combobox'), { value: 'career' })
     let submission: unknown
     await page.route('**/api/newsletter', async (route) => {
       submission = route.request().postDataJSON()
