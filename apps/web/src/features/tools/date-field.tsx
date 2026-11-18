@@ -1,5 +1,5 @@
 import { cn } from '@xuanxue/ui'
-import { type ComponentProps, useEffect, useId, useRef } from 'react'
+import { type ComponentProps, type ReactNode, useEffect, useId, useRef } from 'react'
 import { m } from '../../paraglide/messages.js'
 import {
   type DateParts,
@@ -9,6 +9,7 @@ import {
   splitTimeValue,
   type TimeParts,
 } from './date-parts.ts'
+import { FieldError, fieldLabel } from './form.tsx'
 
 /**
  * 按页面语言显示的日期 / 时间字段：用带标签的数字分段代替原生 date / time 控件
@@ -19,7 +20,11 @@ import {
  * 错误状态标在每个分段上，并用 aria-describedby 关联错误文字。
  */
 
-/** 单个数字分段（东方站出生年月日同样使用，保持一致的尺寸与焦点样式） */
+/**
+ * 单个数字分段（东方站出生年月日同样使用，保持一致的尺寸与焦点样式）。
+ * 外框是 <label>：单位（年 / 月 / 日、时 / 分）排在数字右侧（设计稿 ToolBazi 的「1990 年」），同时是输入框的标签文字；
+ * 焦点、错误与禁用状态由内部输入框决定，画在外框上。`className` 作用于外框（如所在卡片需要不同底色）。
+ */
 export function DatePart({
   label,
   invalid,
@@ -27,27 +32,30 @@ export function DatePart({
   ...props
 }: { label: string; invalid: boolean } & ComponentProps<'input'>) {
   return (
-    <label className="flex min-w-0 flex-col gap-1 text-ink-subtle text-xs">
-      {label}
+    <label className={cn(segmentBox, className)}>
       <input
         inputMode="numeric"
         autoComplete="off"
         aria-invalid={invalid || undefined}
-        className={cn(
-          'min-h-11 w-full min-w-0 rounded-lg border border-line-strong bg-surface px-3 text-base text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-1 disabled:opacity-50 aria-invalid:border-brand',
-          className,
-        )}
+        className="w-full min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-subtle"
         {...props}
       />
+      <span className="shrink-0 text-caption text-ink-subtle">{label}</span>
     </label>
   )
 }
+
+/** 分段外框：与 form.tsx 的 fieldControl 同一套尺寸与色调，状态取自内部输入框 */
+const segmentBox =
+  'flex min-h-12 w-full min-w-0 cursor-text items-center gap-1 rounded-field border border-field-border bg-background px-3 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2 has-aria-invalid:border-danger has-aria-invalid:ring-1 has-aria-invalid:ring-danger has-disabled:opacity-50'
 
 interface PartSpec<K extends string> {
   readonly key: K
   readonly label: string
   readonly placeholder: string
   readonly maxLength: number
+  /** 该段在栅格中占的列数（年份四位数，比月 / 日宽） */
+  readonly span?: string
 }
 
 interface FieldProps {
@@ -65,8 +73,10 @@ interface FieldProps {
   /** 每次值变化时收到新的表单值（受控用法，如个人日即时计算） */
   onValueChange?: ((value: string) => void) | undefined
   className?: string | undefined
-  /** 分段输入框的额外样式（如所在卡片底色不同） */
+  /** 分段外框的额外样式（如所在卡片底色不同） */
   inputClassName?: string | undefined
+  /** 标题行右侧的附属控件（如「不知道出生时辰」） */
+  aside?: ReactNode
 }
 
 function SegmentedField<P extends Readonly<Record<string, string>>>({
@@ -81,6 +91,7 @@ function SegmentedField<P extends Readonly<Record<string, string>>>({
   onValueChange,
   className,
   inputClassName,
+  aside,
   specs,
   split,
   join,
@@ -157,9 +168,18 @@ function SegmentedField<P extends Readonly<Record<string, string>>>({
       data-field={name}
       className={cn('m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0', className)}
     >
-      <legend id={labelId} className="mb-1.5 p-0 text-ink-muted text-sm">
+      {/* 有附属控件时标题与它排成一行（legend 不能参与弹性布局）：legend 只给读屏，可见标题另行输出 */}
+      <legend id={labelId} className={aside ? 'sr-only' : cn('mb-1.5 p-0', fieldLabel)}>
         {label}
       </legend>
+      {aside ? (
+        <div className="flex items-center justify-between gap-3">
+          <span aria-hidden="true" className={fieldLabel}>
+            {label}
+          </span>
+          {aside}
+        </div>
+      ) : null}
       <div className={cn('grid gap-2', gridClassName)}>
         {specs.map((spec) => (
           <DatePart
@@ -177,26 +197,34 @@ function SegmentedField<P extends Readonly<Record<string, string>>>({
             disabled={disabled}
             invalid={isInvalid}
             aria-describedby={described}
-            className={inputClassName}
+            className={cn(spec.span, inputClassName)}
           />
         ))}
       </div>
       {/* 隐藏字段的值只由本组件写入（挂载时与每次输入）：不交给 React 的 defaultValue，
           否则重新渲染时 React 会把属性（即隐藏字段的值）改回初始值 */}
       <input ref={hidden} type="hidden" name={name} disabled={disabled} />
-      {error ? (
-        <span id={errorId} className="text-brand-ink text-sm">
-          {error}
-        </span>
-      ) : null}
+      <FieldError id={errorId} error={error} />
     </fieldset>
   )
 }
 
 const dateSpecs = (): readonly PartSpec<keyof DateParts>[] => [
-  { key: 'year', label: m.date_field_year(), placeholder: '1990', maxLength: 4 },
-  { key: 'month', label: m.date_field_month(), placeholder: '5', maxLength: 2 },
-  { key: 'day', label: m.date_field_day(), placeholder: '15', maxLength: 2 },
+  {
+    key: 'year',
+    label: m.date_field_year(),
+    placeholder: '1990',
+    maxLength: 4,
+    span: 'col-span-3',
+  },
+  {
+    key: 'month',
+    label: m.date_field_month(),
+    placeholder: '5',
+    maxLength: 2,
+    span: 'col-span-2',
+  },
+  { key: 'day', label: m.date_field_day(), placeholder: '15', maxLength: 2, span: 'col-span-2' },
 ]
 
 const timeSpecs = (): readonly PartSpec<keyof TimeParts>[] => [
@@ -212,7 +240,7 @@ export function DateField(props: FieldProps) {
       specs={dateSpecs()}
       split={splitDateValue}
       join={joinDateParts}
-      gridClassName="grid-cols-[1.5fr_1fr_1fr]"
+      gridClassName="grid-cols-7"
     />
   )
 }

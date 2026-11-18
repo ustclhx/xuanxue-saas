@@ -62,9 +62,11 @@
 
 依赖：3。冲突点：`features/tools/form.tsx`、`features/tools/bazi/birth-fields.tsx`、`features/readings/optin-card.tsx`、`routes/dev/tools.tsx`、`e2e/select.ts` 及调用 `selectOption` 的 e2e、新增 `features/illustrations/` 只由本组修改。
 
-- [ ] 5.1 按 D10 把 `SelectField` 改用 `@xuanxue/ui` 的 `Select`，调整 `birth-fields.tsx`（出生地）、`optin-card.tsx`、`routes/dev/tools.tsx`；`reading-optin.spec.ts`、`reading-unlock.spec.ts` 改用 `e2e/select.ts`；删除 `form.tsx` 的 `native-select` 例外。验证：`pnpm check:ui` 不再报原生 `<select>`；八字表单提交、`#r=` 分享恢复、optin 提交的现有单测与 e2e 通过
+- [x] 5.1 按 D10 把 `SelectField` 改用 `@xuanxue/ui` 的 `Select`，调整 `birth-fields.tsx`（出生地）、`optin-card.tsx`、`routes/dev/tools.tsx`；`reading-optin.spec.ts`、`reading-unlock.spec.ts` 改用 `e2e/select.ts`；删除 `form.tsx` 的 `native-select` 例外。验证：`pnpm check:ui` 不再报原生 `<select>`；八字表单提交、`#r=` 分享恢复、optin 提交的现有单测与 e2e 通过
 - [ ] 5.2 按设计稿重做表单控件样式（输入、单选组、复选框、Select 的尺寸与色调），出生信息表单的进阶字段（真太阳时、出生地）默认收起，满足 `tool-pages`「工具页紧凑布局」的手机首屏可提交。验证：390×844 下 `/zh-hant/紫微斗數排盤` 与 `/ko/사주궁합` 首屏可见提交按钮（Playwright 断言）；组件测试覆盖收起 / 展开与已填值保留
-- [ ] 5.3 按 D8 把确认的插画转为 `features/illustrations/{east,west}/*.tsx`（`currentColor`、token 工具类、`aria-hidden`、固定宽高比），加入 `/dev/ui` 预览。验证：`pnpm check:ui` 无颜色字面量；预览页两站 × 浅 / 深截图与副本对照；单个组件 SSR 输出 gzip ≤ 4KB（单测断言）
+  - 进度（第 5 组 PR）：控件样式、进阶选项收起、组件测试与 `/zh-hant/紫微斗數排盤` 的首屏断言已完成并通过；日期 / 时间沿用 #210 的分段字段并按设计稿重新着色。`/ko/사주궁합` 两组出生信息在 390×844 下超过一屏，需要页面布局配合（`gunghap-page.tsx` 属第 6 组），该断言在 `e2e/tool-form.spec.ts` 以 `test.fixme` 登记，通过后再勾选本项。
+- [x] 5.3 按 D8 把确认的插画转为 `features/illustrations/{east,west}/*.tsx`（`currentColor`、token 工具类、`aria-hidden`、固定宽高比），加入 `/dev/ui` 预览。验证：`pnpm check:ui` 无颜色字面量；预览页两站 × 浅 / 深截图与副本对照；单个组件 SSR 输出 gzip ≤ 4KB（单测断言）
+  - 预览放在 `/dev/tools`（本组文件），未改第 4 组的 `/dev/ui`。
 
 ## 6. 东方站工具页（WT-pages-east，【Claude】）
 

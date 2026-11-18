@@ -1,5 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { StemWheel } from '../../features/illustrations/east/stem-wheel.tsx'
+import { NumberWheel } from '../../features/illustrations/west/number-wheel.tsx'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import {
   CheckboxField,
@@ -17,6 +19,7 @@ import { ToolPage } from '../../features/tools/tool-page.tsx'
 // 工具页外壳的组件演示（openspec add-dual-site-foundation tasks.md 4.2），只在本地开发服务器可用。
 // 东方站样式：`http://east.localhost:<WEB_PORT>/zh-hant/dev/tools`；西方站：`/dev/tools`。
 // 演示文案不进入 messages，结果为固定样例，不代表任何排盘引擎。
+// 页面顶部并排展示两站的线描插画（refresh-visual-system-warm 5.3），对照 Main / LandingWest 设计稿。
 export const Route = createFileRoute('/dev/tools')({
   beforeLoad: () => {
     if (!import.meta.env.DEV) throw notFound()
@@ -57,6 +60,13 @@ function ToolsDemoPage() {
   }
   return (
     <MarketingShell>
+      <div
+        data-testid="illustrations"
+        className="mx-auto flex w-full max-w-280 flex-wrap items-center justify-center gap-8 px-5 pt-10 sm:px-8"
+      >
+        <StemWheel className="w-42 sm:w-80" />
+        <NumberWheel className="w-42 sm:w-80" />
+      </div>
       <ToolPage
         tool="demo"
         title="Tool shell demo"
@@ -92,6 +102,7 @@ function ToolsDemoPage() {
             <SelectField
               label="Birthplace"
               name="place"
+              defaultValue="taipei"
               options={[
                 { value: 'taipei', label: 'Taipei' },
                 { value: 'seoul', label: 'Seoul' },
@@ -110,7 +121,7 @@ function ToolsDemoPage() {
                 aside={`${input.year}-${input.month}-${input.day} ${input.time}`}
                 description="Each pillar pairs a heavenly stem with an earthly branch."
               >
-                <div className="grid grid-cols-4 gap-3 text-center font-heading text-[44px] leading-tight">
+                <div className="grid grid-cols-4 gap-3 text-center font-heading text-display">
                   <span className="text-wx-metal">庚</span>
                   <span className="text-wx-metal">辛</span>
                   <span className="text-wx-metal">庚</span>

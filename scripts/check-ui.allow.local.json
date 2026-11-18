@@ -212,14 +212,6 @@
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
     ],
-    "apps/web/src/features/tools/bazi/birth-fields.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "grid-cols-[1.5fr_1fr_1fr]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
     "apps/web/src/features/tools/bazi/chart-parts.tsx": [
       {
         "rule": "arbitrary-class",
@@ -386,38 +378,6 @@
       {
         "rule": "arbitrary-class",
         "value": "max-w-[720px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/features/tools/form.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "grid-cols-[repeat(auto-fit,minmax(200px,1fr))]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "native-select",
-        "value": "<select>",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量原生下拉，待替换为 @xuanxue/ui 的 Select。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[15px]",
-        "count": 2,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "accent-[var(--accent)]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[17px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
@@ -920,14 +880,6 @@
       {
         "rule": "arbitrary-class",
         "value": "grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/routes/dev/tools.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "text-[44px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }

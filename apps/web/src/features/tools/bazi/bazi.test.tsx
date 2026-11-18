@@ -192,7 +192,12 @@ describe('出生信息字段', () => {
     expect(html).toContain('閏月')
     expect(html).toContain('該年沒有這個閏月。')
     expect(html).toContain('不知道出生時辰')
-    expect(html).toMatch(/<option value="taipei"[^>]*>台北<\/option>/)
+    // 出生地是 @xuanxue/ui 的 Select：服务端直接输出当前选项文字，选项列表在客户端挂载
+    expect(html).toMatch(/<button[^>]*role="combobox"[^>]*>[\s\S]*?台北[\s\S]*?<\/button>/)
+    expect(html).not.toContain('<option value="taipei"')
+    // 进阶选项（真太阳时）默认收起，字段仍在表单里
+    expect(html).toMatch(/<details class="[^"]*">/)
+    expect(html).toContain('name="trueSolar"')
   })
 })
 

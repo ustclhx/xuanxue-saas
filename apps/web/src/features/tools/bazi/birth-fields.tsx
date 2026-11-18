@@ -3,7 +3,14 @@ import { cn } from '@xuanxue/ui'
 import { useId } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { DatePart, TimeField } from '../date-field.tsx'
-import { CheckboxField, ChoiceGroup, SelectField, TextField } from '../form.tsx'
+import {
+  CheckboxField,
+  ChoiceGroup,
+  FieldError,
+  fieldLabel,
+  SelectField,
+  TextField,
+} from '../form.tsx'
 import {
   type BirthFormValues,
   formatUtcOffset,
@@ -44,33 +51,91 @@ export function BirthFields({
   const dateErrorId = useId()
   const hintId = useId()
   const lunar = values.calendar === 'lunar'
+  const otherPlace = values.place === OTHER_PLACE
   return (
     <>
-      <div className="flex min-w-0 flex-col gap-2">
-        <ChoiceGroup
-          legend={m.bazi_calendar()}
-          name={name('calendar')}
-          defaultValue={values.calendar}
-          options={[
-            { value: 'solar', label: m.bazi_calendar_solar() },
-            { value: 'lunar', label: m.bazi_calendar_lunar() },
-          ]}
-        />
+      {/* 出生日期：标签行右侧是曆法切换（设计稿 ToolBazi：手机首屏只留日期、时间、性别、出生地与提交） */}
+      <fieldset
+        className="m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0"
+        aria-describedby={dateIssue ? dateErrorId : undefined}
+      >
+        <legend className="sr-only">{m.bazi_birth_date()}</legend>
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <span aria-hidden="true" className={fieldLabel}>
+            {m.bazi_birth_date()}
+          </span>
+          <ChoiceGroup
+            compact
+            legend={m.bazi_calendar()}
+            name={name('calendar')}
+            defaultValue={values.calendar}
+            options={[
+              { value: 'solar', label: m.bazi_calendar_solar() },
+              { value: 'lunar', label: m.bazi_calendar_lunar() },
+            ]}
+          />
+        </div>
+        <div className="grid grid-cols-7 gap-2">
+          <DatePart
+            label={m.bazi_year()}
+            name={name('year')}
+            defaultValue={values.year}
+            placeholder="1990"
+            maxLength={4}
+            invalid={Boolean(byField.year)}
+            className="col-span-3"
+          />
+          <DatePart
+            label={m.bazi_month()}
+            name={name('month')}
+            defaultValue={values.month}
+            placeholder="5"
+            maxLength={2}
+            invalid={Boolean(byField.month)}
+            className="col-span-2"
+          />
+          <DatePart
+            label={m.bazi_day()}
+            name={name('day')}
+            defaultValue={values.day}
+            placeholder="15"
+            maxLength={2}
+            invalid={Boolean(byField.day)}
+            className="col-span-2"
+          />
+        </div>
         {lunar && (
-          <div className="flex flex-col">
-            <CheckboxField
-              label={m.bazi_leap_month()}
-              name={name('leap')}
-              defaultChecked={values.leap}
-            />
-            {byField.leapMonth && (
-              <span role="alert" className="text-brand-ink text-sm">
-                {issueMessage(byField.leapMonth)}
-              </span>
-            )}
-          </div>
+          <CheckboxField
+            label={m.bazi_leap_month()}
+            name={name('leap')}
+            defaultChecked={values.leap}
+          />
         )}
-      </div>
+        <FieldError
+          id={dateErrorId}
+          alert
+          error={dateIssue ? issueMessage(dateIssue) : undefined}
+        />
+        <FieldError
+          alert
+          error={lunar && byField.leapMonth ? issueMessage(byField.leapMonth) : undefined}
+        />
+      </fieldset>
+      {/* 出生时间：时 / 分分段（按页面语言显示），标签行右侧是「不知道出生时辰」 */}
+      <TimeField
+        label={m.bazi_time()}
+        name={name('time')}
+        defaultValue={values.time}
+        disabled={values.unknownTime}
+        error={values.unknownTime ? undefined : error('time')}
+        aside={
+          <CheckboxField
+            label={m.bazi_unknown_time()}
+            name={name('unknownTime')}
+            defaultChecked={values.unknownTime}
+          />
+        }
+      />
       <ChoiceGroup
         legend={m.bazi_gender()}
         name={name('gender')}
@@ -80,67 +145,18 @@ export function BirthFields({
           { value: 'female', label: m.bazi_gender_female() },
         ]}
       />
-      <fieldset
-        className="m-0 flex min-w-0 flex-col gap-1.5 border-0 p-0"
-        aria-describedby={dateIssue ? dateErrorId : undefined}
-      >
-        <legend className="mb-1.5 p-0 text-ink-muted text-sm">{m.bazi_birth_date()}</legend>
-        <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-2">
-          <DatePart
-            label={m.bazi_year()}
-            name={name('year')}
-            defaultValue={values.year}
-            placeholder="1990"
-            maxLength={4}
-            invalid={Boolean(byField.year)}
-          />
-          <DatePart
-            label={m.bazi_month()}
-            name={name('month')}
-            defaultValue={values.month}
-            placeholder="5"
-            maxLength={2}
-            invalid={Boolean(byField.month)}
-          />
-          <DatePart
-            label={m.bazi_day()}
-            name={name('day')}
-            defaultValue={values.day}
-            placeholder="15"
-            maxLength={2}
-            invalid={Boolean(byField.day)}
-          />
-        </div>
-        {dateIssue && (
-          <span id={dateErrorId} role="alert" className="text-brand-ink text-sm">
-            {issueMessage(dateIssue)}
-          </span>
-        )}
-      </fieldset>
-      <TimeField
-        label={m.bazi_time()}
-        name={name('time')}
-        defaultValue={values.time}
-        disabled={values.unknownTime}
-        error={values.unknownTime ? undefined : error('time')}
-      />
-      <CheckboxField
-        label={m.bazi_unknown_time()}
-        name={name('unknownTime')}
-        defaultChecked={values.unknownTime}
-        className="self-end"
-      />
       <SelectField
         label={m.bazi_place()}
         name={name('place')}
         defaultValue={values.place}
-        error={values.place === OTHER_PLACE ? undefined : error('location')}
+        error={otherPlace ? undefined : error('location')}
         options={[
           ...PLACE_IDS[locale].map((id) => ({ value: id, label: CITY_LABEL[id]() })),
           { value: OTHER_PLACE, label: m.bazi_place_other() },
         ]}
       />
-      {values.place === OTHER_PLACE && (
+      {/* 手选地点时必须填写时区，直接显示在出生地之后，不收进进阶选项 */}
+      {otherPlace && (
         <>
           <SelectField
             label={m.bazi_utc_offset()}
@@ -162,29 +178,49 @@ export function BirthFields({
           />
         </>
       )}
-      <div
-        className={cn(
-          'flex min-w-0 flex-col justify-end',
-          trueSolarCallout &&
-            'gap-1 rounded-lg border border-brand border-l-4 bg-surface-2 px-3 py-2',
-        )}
+      {/*
+        进阶选项默认收起（tool-pages「工具页紧凑布局」：手机首屏可见提交按钮）；收起时字段仍在表单里，照常提交。
+        已勾选真太阳时、真太阳时有错误，或韩语页（진태양시 默认开启并需要说明，决策 D5）时默认展开。
+      */}
+      <details
+        className="group order-last col-span-full"
+        open={trueSolarCallout || values.trueSolar || Boolean(byField.trueSolarTime) || undefined}
       >
-        <CheckboxField
-          label={m.bazi_true_solar()}
-          name={name('trueSolar')}
-          defaultChecked={values.trueSolar}
-          aria-describedby={hintId}
-        />
-        <p
-          id={hintId}
+        <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 text-brand-ink text-caption underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden">
+          {m.bazi_advanced_options()}
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="transition-transform group-open:rotate-180"
+          >
+            <path d="M5 8l5 5 5-5" />
+          </svg>
+        </summary>
+        <div
           className={cn(
-            'm-0 text-xs leading-relaxed',
-            trueSolarCallout ? 'text-ink-muted' : 'text-ink-subtle',
+            'flex min-w-0 flex-col',
+            trueSolarCallout && 'rounded-field bg-surface-2 px-3 py-2',
           )}
         >
-          {m.bazi_true_solar_hint()}
-        </p>
-      </div>
+          <CheckboxField
+            label={m.bazi_true_solar()}
+            name={name('trueSolar')}
+            defaultChecked={values.trueSolar}
+            aria-describedby={hintId}
+            className="text-body text-ink"
+          />
+          <p id={hintId} className="m-0 text-caption text-ink-subtle">
+            {m.bazi_true_solar_hint()}
+          </p>
+        </div>
+      </details>
     </>
   )
 }
