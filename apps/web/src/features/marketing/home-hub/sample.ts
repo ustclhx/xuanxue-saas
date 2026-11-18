@@ -48,6 +48,12 @@ export function hubSampleParagraphs(
 
 export const HUB_SAMPLE_PARAGRAPHS = hubSampleParagraphs(SAMPLES_APPROVED)
 
+/**
+ * 西方站样例的核心数字：虚构生日 1990-05-15（tools/charts/samples.ts 的 SAMPLE_BIRTH_DATE）的
+ * Life Path 与生日数。固化为常量，首页不为此加载数字命理包；测试与 `@xuanxue/numerology` 对拍。
+ */
+export const WEST_SAMPLE = { lifePath: 3, birthday: 6 } as const
+
 export function isHubSampleLocale(locale: string): locale is HubSampleLocale {
   return Object.hasOwn(HUB_SAMPLE_KIND, locale)
 }

@@ -7,20 +7,24 @@ import {
   budgetViolation,
   checkHomeBundle,
   checkHomePages,
+  checkLandingChunks,
   checkServerHomeBundle,
   checkSplitPages,
   checkToolPages,
   decodeMappings,
   entryDynamicImports,
   entryScripts,
+  HOME_FORBIDDEN_SOURCES,
   HOME_PAGES,
   homeHead,
   htmlScripts,
+  LANDING_FORBIDDEN_SOURCES,
   readHomeHeadSnapshot,
   readPerformanceOptions,
   reportHomePages,
   reportToolPages,
   SHARE_CARD_MARKER,
+  SPLIT_PAGES,
   staticClosure,
   TOOL_PAGES,
   zodBindings,
@@ -506,5 +510,48 @@ describe('首页 head 对照', () => {
     const good = checkSplitPages(page('ACAA'), pages)
     expect(good).toEqual([{ file: 'ziwei.html', unmapped: false, found: [] }])
     expect(reportToolPages([], good).ok).toBe(true)
+  })
+
+  it('落地页：首页静态闭包与落地页分包不得含工具代码，目录条目按路径包含判断', () => {
+    for (const { file } of HOME_PAGES)
+      expect(SPLIT_PAGES.find((page) => page.file === file)?.forbiddenSources).toBe(
+        HOME_FORBIDDEN_SOURCES,
+      )
+    expect(HOME_FORBIDDEN_SOURCES).toEqual(
+      expect.arrayContaining(['packages/bazi/src/', 'src/features/tools/bazi/birth-fields.tsx']),
+    )
+    expect(LANDING_FORBIDDEN_SOURCES).toEqual(
+      expect.arrayContaining([...HOME_FORBIDDEN_SOURCES, 'packages/numerology/src/']),
+    )
+    // 落地页分包 landing.js 静态导入 dep.js；dep.js 的源文件决定结果
+    const build = (dependency: string) =>
+      fixture({
+        'index.html': '<script type="module" src="/assets/entry.js"></script>',
+        'assets/entry.js': 'import("./landing.js")',
+        'assets/entry.js.map': JSON.stringify({
+          sources: ['../../src/client.tsx'],
+          mappings: 'AAAA',
+        }),
+        'assets/landing.js': 'import"./dep.js";console.log(1)',
+        'assets/landing.js.map': JSON.stringify({
+          sources: ['../../src/features/marketing/home-hub/landing-page.tsx'],
+          mappings: 'AAAA',
+        }),
+        'assets/dep.js': 'console.log(2)',
+        'assets/dep.js.map': JSON.stringify({ sources: [dependency], mappings: 'AAAA' }),
+      })
+    const bad = checkLandingChunks(build('../../../../packages/numerology/src/numbers.ts'))
+    expect(bad).toMatchObject({ unmapped: false, found: ['packages/numerology/src/'] })
+    expect(reportToolPages([], [bad]).ok).toBe(false)
+    // 首页 HTML 的静态闭包不含落地页分包（它由 import() 加载），因此另行检查
+    expect(
+      checkSplitPages(dir, [{ file: 'index.html', forbiddenSources: LANDING_FORBIDDEN_SOURCES }]),
+    ).toEqual([{ file: 'index.html', unmapped: false, found: [] }])
+    rmSync(dir, { recursive: true, force: true })
+    const good = checkLandingChunks(build('../../src/features/daily/public-day.ts'))
+    expect(good).toMatchObject({ unmapped: false, found: [] })
+    expect(reportToolPages([], [good]).ok).toBe(true)
+    // 找不到落地页分包按失败处理
+    expect(checkLandingChunks(dir, 'src/features/marketing/renamed/').unmapped).toBe(true)
   })
 })

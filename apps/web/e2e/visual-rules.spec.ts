@@ -18,8 +18,8 @@ interface RulePage {
 }
 
 const PAGES: readonly RulePage[] = [
-  { name: '东方站首页', site: 'east', path: '/zh-hant', landing: true, restyled: false },
-  { name: '西方站首页', site: 'west', path: '/', landing: true, restyled: false },
+  { name: '东方站首页', site: 'east', path: '/zh-hant', landing: true, restyled: true },
+  { name: '西方站首页', site: 'west', path: '/', landing: true, restyled: true },
   { name: '紫微斗數排盤', site: 'east', path: '/zh-hant/紫微斗數排盤', restyled: false },
   { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: false },
   { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: false },
@@ -89,7 +89,9 @@ const foldActions = (page: Page) =>
           rect.height >= 32 &&
           rect.width >= 64 &&
           (filled || bordered) &&
-          style.visibility !== 'hidden'
+          style.visibility !== 'hidden' &&
+          // 带标题的整卡链接（工具卡）是内容卡片，不是按钮
+          !element.querySelector('h2, h3')
         )
       })
       .map((element) => ({
@@ -110,7 +112,9 @@ const foldTextElements = (page: Page) =>
           rect.top < fold &&
           rect.bottom > 0 &&
           (element.textContent ?? '').trim().length > 2 &&
-          !element.querySelector('p, li, h1, h2, h3')
+          // 带标题的整卡链接（工具卡）算一个元素：计卡片本身，不计卡内的标题与说明
+          (element.matches('a:has(h2, h3)') ||
+            (!element.querySelector('p, li, h1, h2, h3') && !element.closest('a:has(h2, h3)')))
         )
       },
     ).length
@@ -134,7 +138,8 @@ const sectionGaps = (page: Page) =>
 /** 段落正文的最小字号 */
 const minParagraphSize = (page: Page) =>
   page.evaluate(() => {
-    const sizes = [...document.querySelectorAll('main p')]
+    // 合规声明与证明行等附注（role="note"）按设计用 caption，不是正文
+    const sizes = [...document.querySelectorAll('main p:not([role="note"])')]
       .filter((p) => {
         const rect = p.getBoundingClientRect()
         // 小字说明（声明、元信息、提示）用 caption，不算正文：只看较长的段落

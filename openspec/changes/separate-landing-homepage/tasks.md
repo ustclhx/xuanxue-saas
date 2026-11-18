@@ -64,12 +64,12 @@
 
 依赖：1.4、本 change 第 2 组，以及 `refresh-visual-system-warm` 第 3、4、5 组合并。冲突点：`routes/index.tsx`、`features/marketing/home-hub/`、`messages/<locale>/landing.json` 只由本组修改。
 
-- [ ] 4.1 按 D2 改写 `routes/index.tsx` 为两站落地页：
+- [x] 4.1 按 D2 改写 `routes/index.tsx` 为两站落地页：
   - loader 不再预载工具组件，删除 `TemplateHome` 回退，保留 `data-testid="version"`；
   - head 中挂上 2.4 的片段跳转脚本。
 
   验证：预渲染 HTML 不含表单输入控件；`check-home-bundle.mjs` 新增工具代码禁止标记后通过；`homeScriptGzipBudget` 检查通过，四个首页的实测体积写入 PR
-- [ ] 4.2 按设计稿实现以下区块（复用 `Section`、站点插画与模板 `Steps`）：
+- [x] 4.2 按设计稿实现以下区块（复用 `Section`、站点插画与模板 `Steps`）：
   - 品牌主视觉；
   - 精选工具入口（`hubTools` 加精选清单与上限）；
   - 样例报告；
@@ -81,7 +81,7 @@
   - 组件测试断言区块顺序、入口 3–4 个、主按钮唯一且指向主工具页；
   - 价格行起价与定价页快照一致、无可售方案时无金额；
   - `readings/compliance.ts` 检查样例与首页文案（免费区块无 AI 字样）
-- [ ] 4.3 按 D6 实现今日条：
+- [x] 4.3 按 D6 实现今日条：
   - 服务端只输出骨架；
   - 浏览器内计算东方站当日干支 / 西方站 Number of the Day；
   - 每日运势页未登记时不渲染。

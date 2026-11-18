@@ -13,8 +13,11 @@
 // （0.5.8 起只列生成代码实际使用 zod 绑定的文件）。
 // openspec separate-landing-homepage tasks 2.1、2.3：工具迁到关键词 URL 后，四个主工具页的 head 也与快照对照
 // （TOOL_PAGES）；紫微页的静态闭包不得含八字 / 만세력主页组件（SPLIT_PAGES，按 sourcemap 的源文件判断）。
+// openspec separate-landing-homepage tasks 4.1：四个语言首页是品牌落地页，不得含工具代码（按 sourcemap 判断）：
+// 落地页自身的分包（由路由 import() 加载，不在 HTML 的静态闭包里）及其静态依赖按 LANDING_FORBIDDEN_SOURCES 检查，
+// 首页 HTML 的静态闭包按 HOME_FORBIDDEN_SOURCES 检查。
 // 用法：node scripts/check-home-bundle.mjs [dist/client] [dist/server]；`pnpm build` 在预渲染后自动执行。
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
@@ -84,10 +87,51 @@ export const TOOL_PAGES = [
 ]
 
 /**
- * 同一路由（routes/$slug.tsx）按页面懒加载：列出的页面静态闭包中不得出现这些源文件的代码，
- * 紫微页因此不下载八字 / 만세력主页组件。
+ * 落地页不得含的工具代码（design.md D5、D7）：按 sourcemap 的源文件路径判断，以 `/` 结尾的是目录。
+ * 八字引擎（含历法库的调用方）、数字命理计算、出生表单、工具页组件、图形布局与解锁卡都只在工具页加载；
+ * 首页的今日条用 features/daily/public-day.ts 的整数算术，样例为固化数据。
+ * 塔罗牌名单（packages/tarot/src/cards.ts）是工具注册表的数据，页头导航也用，不在此列。
+ */
+export const LANDING_FORBIDDEN_SOURCES = [
+  'packages/bazi/src/',
+  'packages/numerology/src/',
+  'src/features/tools/form.tsx',
+  'src/features/tools/bazi/birth-fields.tsx',
+  'src/features/tools/bazi/bazi-home.tsx',
+  'src/features/tools/bazi/manseryeok-home.tsx',
+  'src/features/tools/numerology/home.tsx',
+  'src/features/tools/numerology/calc.ts',
+  'src/features/tools/numerology/life-path-calculator.tsx',
+  'src/features/tools/numerology/full-calculator.tsx',
+  'src/features/tools/charts/layout/',
+  'src/features/readings/unlock-card.tsx',
+]
+
+/**
+ * 首页 HTML 静态闭包（入口与整棵路由树的静态部分，各页面相同）的禁止源文件：同上，去掉经每日运势路由
+ * 进入全站闭包的三项——每日数字页（features/daily/west-page.tsx、copy.ts）由路由静态导入，带入数字命理计算
+ * 与日期字段所用的 tools/form.tsx。那是每日运势路由的拆分问题，不属于落地页；拆分后可把这里换回
+ * LANDING_FORBIDDEN_SOURCES。
+ */
+const SHARED_VIA_DAILY_ROUTE = [
+  'packages/numerology/src/',
+  'src/features/tools/numerology/calc.ts',
+  'src/features/tools/form.tsx',
+]
+export const HOME_FORBIDDEN_SOURCES = LANDING_FORBIDDEN_SOURCES.filter(
+  (source) => !SHARED_VIA_DAILY_ROUTE.includes(source),
+)
+
+/** 落地页组件所在目录：含该目录源文件的分包即落地页分包 */
+export const LANDING_SOURCE_DIR = 'src/features/marketing/home-hub/'
+
+/**
+ * 按页面拆分的检查：列出的页面静态闭包中不得出现这些源文件的代码。
+ * 同一路由（routes/$slug.tsx）按页面懒加载，紫微页因此不下载八字 / 만세력主页组件；
+ * 四个语言首页的静态闭包不含工具代码。
  */
 export const SPLIT_PAGES = [
+  ...HOME_PAGES.map(({ file }) => ({ file, forbiddenSources: HOME_FORBIDDEN_SOURCES })),
   {
     file: 'zh-hant/紫微斗數排盤.html',
     forbiddenSources: [
@@ -504,9 +548,66 @@ export function checkSplitPages(clientDir, pages = SPLIT_PAGES) {
       file,
       // 没有任何源文件说明缺少 sourcemap，检查无从谈起，按失败处理
       unmapped: sources.length === 0,
-      found: forbiddenSources.filter((item) => sources.some((source) => source.endsWith(item))),
+      // 条目是源文件路径的结尾，或以 `/` 结尾的目录
+      found: forbiddenSources.filter((item) =>
+        sources.some((source) =>
+          item.endsWith('/') ? source.includes(item) : source.endsWith(item),
+        ),
+      ),
     }
   })
+}
+
+/**
+ * 落地页分包检查：落地页组件由首页路由 import() 加载，不在 HTML 的静态闭包里，单独找出来检查。
+ * 找出生成代码来自 `sourceDir` 的全部分包，沿静态 import 求闭包，去掉首页 HTML 静态闭包已有的分包
+ * （入口与路由树的静态部分，由 SPLIT_PAGES 按 HOME_FORBIDDEN_SOURCES 检查），其余即落地页额外下载的代码，
+ * 返回其中出现的禁止源文件。一个落地页分包也没找到（目录改名或缺少 sourcemap）按失败处理。
+ */
+export function checkLandingChunks(
+  clientDir,
+  sourceDir = LANDING_SOURCE_DIR,
+  forbiddenSources = LANDING_FORBIDDEN_SOURCES,
+  homeFile = HOME_PAGES[0].file,
+) {
+  const assetsDir = join(clientDir, 'assets')
+  const chunks = (existsSync(assetsDir) ? readdirSync(assetsDir) : [])
+    .filter((name) => name.endsWith('.js'))
+    .map((name) => `/assets/${name}`)
+    .filter((asset) => ownSources(clientDir, asset).some((source) => source.includes(sourceDir)))
+  const homePath = join(clientDir, homeFile)
+  const shared = new Set(
+    existsSync(homePath)
+      ? staticClosure(clientDir, htmlScripts(readFileSync(homePath, 'utf8')))
+      : [],
+  )
+  const sources = staticClosure(clientDir, chunks)
+    .filter((asset) => !shared.has(asset))
+    .flatMap((asset) => ownSources(clientDir, asset))
+  return {
+    file: `落地页分包（${sourceDir}，${chunks.length} 个）`,
+    unmapped: chunks.length === 0,
+    found: forbiddenSources.filter((item) =>
+      sources.some((source) =>
+        item.endsWith('/') ? source.includes(item) : source.endsWith(item),
+      ),
+    ),
+  }
+}
+
+/** 单个分包自身（不含依赖）有生成代码的源文件 */
+function ownSources(clientDir, asset) {
+  const mapFile = join(clientDir, `${asset}.map`)
+  if (!existsSync(mapFile)) return []
+  const map = JSON.parse(readFileSync(mapFile, 'utf8'))
+  if (!Array.isArray(map.sources) || typeof map.mappings !== 'string') return []
+  const sources = new Set()
+  for (const [index] of decodeMappings(map.mappings)) {
+    const source = map.sources[index]
+    if (typeof source === 'string' && !source.includes('node_modules'))
+      sources.add(source.replace(/^(?:\.\.\/)+/, '').replace(/\?.*$/, ''))
+  }
+  return [...sources]
 }
 
 /** 主工具页与懒加载检查的输出行 */
@@ -530,7 +631,7 @@ export function reportToolPages(tools, splits) {
         ...(page.unmapped ? ['  - 静态闭包没有 sourcemap，无法判断'] : []),
         ...page.found.map((source) => `  - 静态闭包含 ${source}（应按页面懒加载）`),
       )
-    } else lines.push(`页面懒加载检查通过：${page.file} 的静态闭包不含其他页面的组件`)
+    } else lines.push(`页面懒加载检查通过：${page.file} 的静态闭包不含其他页面的组件与工具代码`)
   }
   return { ok, lines }
 }
@@ -606,7 +707,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     }
     const tools = () => {
       try {
-        return reportToolPages(checkToolPages(clientDir), checkSplitPages(clientDir))
+        return reportToolPages(checkToolPages(clientDir), [
+          ...checkSplitPages(clientDir),
+          checkLandingChunks(clientDir),
+        ])
       } catch (error) {
         return {
           ok: false,

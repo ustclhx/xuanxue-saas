@@ -47,11 +47,8 @@ test('/zh-hant?unlock=<令牌> 跳到八字排盤工具页并恢复输入', asyn
 })
 
 // 片段不发往服务器，由落地页 head 中的内联脚本（features/site/gate.ts 的 legacyHashRedirectScript）
-// 在首帧前替换到主工具页。该脚本由第 4 组（tasks.md 4.1）随落地页挂到首页 head；挂载前首页仍渲染工具、
-// 地址不会被替换，因此先标为 fixme，4.1 合并时去掉。
+// 在首帧前替换到主工具页；脚本随落地页挂在首页 head（routes/index.tsx，tasks.md 4.1）。
 test.describe('旧 #r= 分享链接', () => {
-  test.fixme(true, 'legacyHashRedirectScript 由 separate-landing-homepage tasks 4.1 挂到首页 head')
-
   test('/zh-hant#r= 替换到八字排盤工具页并显示结果', async ({ page }) => {
     const hash = `#r=${encodeShareInput(baziShare)}`
     await page.goto(`/zh-hant${hash}`, HYDRATED)
