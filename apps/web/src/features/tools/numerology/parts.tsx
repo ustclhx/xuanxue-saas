@@ -135,9 +135,14 @@ export function LifePathCard({
           </a>
         </div>
       </div>
-      <h3 className="m-0 mt-2 font-heading text-ink text-subtitle">{m.numerology_steps_label()}</h3>
-      <LifePathChart result={result} date={date} />
-      <LifePathSteps result={result} date={date} />
+      {/* 打印时「计算步骤」标题、推导图与算式同页，续页不从无标题的算式开始 */}
+      <div className="flex flex-col gap-4 print:break-inside-avoid">
+        <h3 className="m-0 mt-2 font-heading text-ink text-subtitle">
+          {m.numerology_steps_label()}
+        </h3>
+        <LifePathChart result={result} date={date} />
+        <LifePathSteps result={result} date={date} />
+      </div>
       <p role="note" className="m-0 text-caption text-ink-subtle">
         {m.numerology_result_note()}
       </p>

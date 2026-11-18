@@ -38,11 +38,11 @@
 | `--on-inverse` | `#ffffff` | `#121315` |
 | `--danger` | `#96493d` | `#d9988b` |
 | `--on-danger` | `#ffffff` | `#121315` |
-| `--wx-metal` | `#6e7480` | `#a7adb8` |
-| `--wx-wood` | `#3e7d4f` | `#6fb583` |
+| `--wx-metal` | `#646974` | `#a7adb8` |
+| `--wx-wood` | `#3a754a` | `#6fb583` |
 | `--wx-water` | `#2e5e8c` | `#78a9dc` |
-| `--wx-fire` | `#b8432f` | `#e58a6f` |
-| `--wx-earth` | `#9a7438` | `#cfa35c` |
+| `--wx-fire` | `#b6422f` | `#e58a6f` |
+| `--wx-earth` | `#846330` | `#cfa35c` |
 
 按站点不同的 token：
 

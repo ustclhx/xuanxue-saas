@@ -49,11 +49,12 @@ export function ResultBlock({
       id={id}
       aria-labelledby={`${id}-title`}
       className={cn(
-        'flex scroll-mt-6 flex-col gap-4 rounded-object bg-surface p-6 sm:p-8',
+        // 打印：放得下一页的区块整块换页，放不下时标题行至少与正文开头同页，续页不出现无标题的半块
+        'flex scroll-mt-6 flex-col gap-4 rounded-object bg-surface p-6 sm:p-8 print:break-inside-avoid',
         className,
       )}
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 print:break-after-avoid">
         <h2 id={`${id}-title`} className="m-0 font-heading text-ink text-subtitle">
           <button
             type="button"
