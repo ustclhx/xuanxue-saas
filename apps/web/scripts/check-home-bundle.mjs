@@ -13,6 +13,8 @@
 // （0.5.8 起只列生成代码实际使用 zod 绑定的文件）。
 // openspec separate-landing-homepage tasks 2.1、2.3：工具迁到关键词 URL 后，四个主工具页的 head 也与快照对照
 // （TOOL_PAGES）；紫微页的静态闭包不得含八字 / 만세력主页组件（SPLIT_PAGES，按 sourcemap 的源文件判断）。
+// openspec separate-landing-homepage tasks 4.1：四个语言首页是品牌落地页，静态闭包不得含工具代码
+// （LANDING_FORBIDDEN_SOURCES：排盘引擎、数字命理与塔罗计算、出生表单、工具页组件；同样按 sourcemap 判断）。
 // 用法：node scripts/check-home-bundle.mjs [dist/client] [dist/server]；`pnpm build` 在预渲染后自动执行。
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, posix, resolve } from 'node:path'
@@ -84,10 +86,33 @@ export const TOOL_PAGES = [
 ]
 
 /**
- * 同一路由（routes/$slug.tsx）按页面懒加载：列出的页面静态闭包中不得出现这些源文件的代码，
- * 紫微页因此不下载八字 / 만세력主页组件。
+ * 落地页不得含的工具代码（design.md D5、D7）：按 sourcemap 的源文件路径判断，以 `/` 结尾的是目录。
+ * 八字引擎（含历法库的调用方）、数字命理与塔罗计算、出生表单、工具页组件与图形布局都只在工具页加载；
+ * 首页的今日条用 features/daily/public-day.ts 的整数算术，样例为固化数据。
+ */
+export const LANDING_FORBIDDEN_SOURCES = [
+  'packages/bazi/src/',
+  'packages/numerology/src/',
+  'packages/tarot/src/',
+  'src/features/tools/form.tsx',
+  'src/features/tools/bazi/birth-fields.tsx',
+  'src/features/tools/bazi/bazi-home.tsx',
+  'src/features/tools/bazi/manseryeok-home.tsx',
+  'src/features/tools/numerology/home.tsx',
+  'src/features/tools/numerology/calc.ts',
+  'src/features/tools/numerology/life-path-calculator.tsx',
+  'src/features/tools/numerology/full-calculator.tsx',
+  'src/features/tools/charts/layout/',
+  'src/features/readings/unlock-card.tsx',
+]
+
+/**
+ * 按页面拆分的检查：列出的页面静态闭包中不得出现这些源文件的代码。
+ * 同一路由（routes/$slug.tsx）按页面懒加载，紫微页因此不下载八字 / 만세력主页组件；
+ * 四个语言首页不下载任何工具代码。
  */
 export const SPLIT_PAGES = [
+  ...HOME_PAGES.map(({ file }) => ({ file, forbiddenSources: LANDING_FORBIDDEN_SOURCES })),
   {
     file: 'zh-hant/紫微斗數排盤.html',
     forbiddenSources: [
@@ -504,7 +529,12 @@ export function checkSplitPages(clientDir, pages = SPLIT_PAGES) {
       file,
       // 没有任何源文件说明缺少 sourcemap，检查无从谈起，按失败处理
       unmapped: sources.length === 0,
-      found: forbiddenSources.filter((item) => sources.some((source) => source.endsWith(item))),
+      // 条目是源文件路径的结尾，或以 `/` 结尾的目录
+      found: forbiddenSources.filter((item) =>
+        sources.some((source) =>
+          item.endsWith('/') ? source.includes(item) : source.endsWith(item),
+        ),
+      ),
     }
   })
 }
@@ -530,7 +560,7 @@ export function reportToolPages(tools, splits) {
         ...(page.unmapped ? ['  - 静态闭包没有 sourcemap，无法判断'] : []),
         ...page.found.map((source) => `  - 静态闭包含 ${source}（应按页面懒加载）`),
       )
-    } else lines.push(`页面懒加载检查通过：${page.file} 的静态闭包不含其他页面的组件`)
+    } else lines.push(`页面懒加载检查通过：${page.file} 的静态闭包不含其他页面的组件与工具代码`)
   }
   return { ok, lines }
 }

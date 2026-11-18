@@ -68,6 +68,7 @@ export function readPerformanceOptions(
   distDir: string,
 ): { homeScriptGzipBudget?: number | null } | null
 export const TOOL_PAGES: readonly { id: string; file: string }[]
+export const LANDING_FORBIDDEN_SOURCES: readonly string[]
 export const SPLIT_PAGES: readonly { file: string; forbiddenSources: readonly string[] }[]
 export function checkToolPages(
   clientDir: string,

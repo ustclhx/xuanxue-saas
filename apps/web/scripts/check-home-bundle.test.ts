@@ -16,11 +16,13 @@ import {
   HOME_PAGES,
   homeHead,
   htmlScripts,
+  LANDING_FORBIDDEN_SOURCES,
   readHomeHeadSnapshot,
   readPerformanceOptions,
   reportHomePages,
   reportToolPages,
   SHARE_CARD_MARKER,
+  SPLIT_PAGES,
   staticClosure,
   TOOL_PAGES,
   zodBindings,
@@ -506,5 +508,33 @@ describe('首页 head 对照', () => {
     const good = checkSplitPages(page('ACAA'), pages)
     expect(good).toEqual([{ file: 'ziwei.html', unmapped: false, found: [] }])
     expect(reportToolPages([], good).ok).toBe(true)
+  })
+
+  it('落地页：四个语言首页的静态闭包不得含工具代码，目录条目按路径包含判断', () => {
+    for (const { file } of HOME_PAGES)
+      expect(SPLIT_PAGES.find((page) => page.file === file)?.forbiddenSources).toBe(
+        LANDING_FORBIDDEN_SOURCES,
+      )
+    expect(LANDING_FORBIDDEN_SOURCES).toEqual(
+      expect.arrayContaining([
+        'packages/bazi/src/',
+        'packages/numerology/src/',
+        'src/features/tools/bazi/birth-fields.tsx',
+      ]),
+    )
+    const page = (source: string) =>
+      fixture({
+        'index.html': '<script type="module" src="/assets/entry.js"></script>',
+        'assets/entry.js': 'console.log(1)',
+        'assets/entry.js.map': JSON.stringify({ sources: [source], mappings: 'AAAA' }),
+      })
+    const pages = [{ file: 'index.html', forbiddenSources: LANDING_FORBIDDEN_SOURCES }]
+    expect(checkSplitPages(page('../../../../packages/bazi/src/pillars.ts'), pages)).toEqual([
+      { file: 'index.html', unmapped: false, found: ['packages/bazi/src/'] },
+    ])
+    rmSync(dir, { recursive: true, force: true })
+    expect(
+      checkSplitPages(page('../../src/features/marketing/home-hub/landing-page.tsx'), pages),
+    ).toEqual([{ file: 'index.html', unmapped: false, found: [] }])
   })
 })
