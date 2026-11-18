@@ -46,6 +46,36 @@ export function fontFaceRules(css) {
   return css.match(/@font-face\s*\{[^}]*\}/g) ?? []
 }
 
+const PROPERTY_RULE = /@property\s+(--[\w-]+)\s*\{[^}]*\}/g
+
+/**
+ * 关键样式里只留首帧可能用到的 @font-face 与 @property（xuanxue 发布前验收：东方站首页 HTML 超过 105KB，
+ * Lighthouse 模拟的慢速 4G 多一个往返，LCP +150ms）。
+ * - @font-face：字体族名出现在内联规则（含经 var() 引用的字体变量定义）或 HTML 中才保留；
+ *   其他字体族首帧不会用到，完整样式表首帧后仍带全部规则。
+ * - @property：只有被 var() 读取的自定义属性需要注册的初始值；只写不读或未出现的注册对首帧没有影响。
+ */
+export function pruneCriticalAtRules(css, used, html) {
+  const rules = used.replace(/@font-face\s*\{[^}]*\}/g, '')
+  const body = `${rules.replace(PROPERTY_RULE, '')}${html}`
+  const fonts = fontFaceRules(css).filter((rule) => {
+    const family = rule.match(/font-family:\s*(["']?)([^;}]+?)\1\s*[;}]/)?.[2]
+    return !family || body.includes(family)
+  })
+  const read = (name) => body.includes(`var(${name}`)
+  const properties = rules
+    .replace(PROPERTY_RULE, (rule, name) => (read(name) ? rule : ''))
+    // 不支持 @property 的浏览器由 Tailwind 的 `@layer properties` 兜底写初始值，同样只留被读取的
+    .replace(/(@layer properties\{@supports[^{]*\{[^{]*\{)([^}]*)(\})/, (_, open, decls, close) => {
+      const kept = decls.split(';').filter((decl) => {
+        const name = decl.match(/^\s*(--[\w-]+)\s*:/)?.[1]
+        return !name || read(name)
+      })
+      return `${open}${kept.join(';')}${close}`
+    })
+  return `${fonts.join('')}${properties}`
+}
+
 /**
  * 首帧后加载器：见到 first-contentful-paint 后（下一个任务中）先追加样式表，再插入水合入口；
  * 只有不支持 paint 观察时才用 load 事件（小页面的 load 可能早于首帧），最晚 3 秒兜底。内联脚本由静态页 CSP 的脚本哈希授权，
@@ -212,7 +242,7 @@ export async function usedCss(html, css, { allowRules = DEFAULT_ALLOW_RULES } = 
 
 /**
  * 按 `marketing.performance` 改写一个预渲染 HTML。
- * - criticalCss full：整份样式表内联（改动前的行为）；used：只内联该页用到的规则并补回全部 @font-face，
+ * - criticalCss full：整份样式表内联（改动前的行为）；used：只内联该页用到的规则与首帧可能用到的 @font-face / @property，
  *   完整样式表由首帧后加载器追加。
  * - hydration after-paint：去掉 modulepreload，水合入口改由首帧后加载器插入。
  * 处理前后 head 的 SEO 内容必须一致，否则抛错。
@@ -231,7 +261,7 @@ export async function optimizeHtml(html, performance, readCss, { allowRules } = 
     if (css.includes('</style')) throw new Error(`${href} 含有 </style>，无法内联`)
     let inline = css
     if (options.criticalCss === 'used') {
-      inline = `${fontFaceRules(css).join('')}${await usedCss(html, css, { allowRules })}`
+      inline = pruneCriticalAtRules(css, await usedCss(html, css, { allowRules }), html)
       styles.push(href)
     }
     // 用函数替换，避免 CSS 中的 `$&`、`$'` 等被当作替换模式

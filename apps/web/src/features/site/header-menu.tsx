@@ -52,7 +52,11 @@ export function HeaderMenu({
   return (
     <details ref={ref} className={cn('group', !wide && 'relative', className)}>
       <summary
-        aria-label={text && !icon ? undefined : label}
+        // 桌面显示文字时，可访问名称须包含可见文字（WCAG 2.5.3，axe label-content-name-mismatch）：
+        // 「語言」菜单在桌面显示「繁體中文」，名称写作「語言 繁體中文」；手机只显示图标，同一名称也成立
+        aria-label={
+          text && !icon ? undefined : text && !text.includes(label) ? `${label} ${text}` : label
+        }
         title={text && !icon ? undefined : label}
         data-active={active || undefined}
         className={cn(

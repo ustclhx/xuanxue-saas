@@ -7,6 +7,7 @@ export const DEFAULT_PERFORMANCE: MarketingPerformance
 export function headSignature(html: string): string
 export function brandOverridesFontSans(brandCss: string): boolean
 export function fontFaceRules(css: string): string[]
+export function pruneCriticalAtRules(css: string, used: string, html: string): string
 export function afterPaintLoader(options: { styles?: string[]; scripts?: string[] }): string
 export function usedCss(
   html: string,

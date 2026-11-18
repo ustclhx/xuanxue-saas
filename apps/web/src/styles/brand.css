@@ -97,39 +97,49 @@
   --danger: #96493d;
   --on-danger: #ffffff;
   --site-shadow-raise: 0 1px 2px rgb(22 24 27 / 0.06), 0 8px 24px rgb(22 24 27 / 0.06);
-  /* 五行色只作图表圆点与条形，配合文字标签使用；火色不作品牌或界面色 */
-  --wx-metal: #6e7480;
-  --wx-wood: #3e7d4f;
+  /*
+   * 五行色只作图表圆点与条形，配合文字标签使用；火色不作品牌或界面色。
+   * 命盘里也用作小号粗体文字（身强弱的日主「庚金」等）：色相与饱和度不变，只降明度，
+   * 使五色在三种浅色底（含 --surface-2）上都 ≥ 4.5:1（2026-11-18 发布前 axe 验收，原金色在 --surface 上 4.27:1）
+   */
+  --wx-metal: #646974;
+  --wx-wood: #3a754a;
   --wx-water: #2e5e8c;
-  --wx-fire: #b8432f;
-  --wx-earth: #9a7438;
+  --wx-fire: #b6422f;
+  --wx-earth: #846330;
 }
 
-:root.dark[data-site] {
-  color-scheme: dark;
-  --bg: #121315;
-  --surface: #1c1d20;
-  --surface-2: #26282c;
-  --ink: #ececee;
-  --ink-muted: #c4c6cb;
-  --ink-subtle: #9c9fa5;
-  --line: #2f3136;
-  --line-strong: #45484e;
-  --field-border: #73777e;
-  --primary: #ececee;
-  --primary-foreground: #121315;
-  --accent-ink: #ececee;
-  --on-accent: #121315;
-  --inverse: #ececee;
-  --on-inverse: #121315;
-  --danger: #d9988b;
-  --on-danger: #121315;
-  --site-shadow-raise: none;
-  --wx-metal: #a7adb8;
-  --wx-wood: #6fb583;
-  --wx-water: #78a9dc;
-  --wx-fire: #e58a6f;
-  --wx-earth: #cfa35c;
+/*
+ * 深色 token 只用于屏幕：浏览器打印默认不输出背景，深色主题的浅色文字会印在白纸上（Life Path 数字环约 2.35:1）。
+ * 打印时 .dark 仍在 <html> 上，但以下各处深色 token 不生效，全页回到浅色墨色（2026-11-18 发布前打印验收）。
+ */
+@media not print {
+  :root.dark[data-site] {
+    color-scheme: dark;
+    --bg: #121315;
+    --surface: #1c1d20;
+    --surface-2: #26282c;
+    --ink: #ececee;
+    --ink-muted: #c4c6cb;
+    --ink-subtle: #9c9fa5;
+    --line: #2f3136;
+    --line-strong: #45484e;
+    --field-border: #73777e;
+    --primary: #ececee;
+    --primary-foreground: #121315;
+    --accent-ink: #ececee;
+    --on-accent: #121315;
+    --inverse: #ececee;
+    --on-inverse: #121315;
+    --danger: #d9988b;
+    --on-danger: #121315;
+    --site-shadow-raise: none;
+    --wx-metal: #a7adb8;
+    --wx-wood: #6fb583;
+    --wx-water: #78a9dc;
+    --wx-fire: #e58a6f;
+    --wx-earth: #cfa35c;
+  }
 }
 
 /* 东方站：强调色松绿，只用于小标记与大号字形（印章、当前导航标记、工具卡字形、日主高亮） */
@@ -151,9 +161,11 @@
     -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
-:root.dark[data-site="east"] {
-  --accent: #7fb8a4;
-  --illus: #6c7077;
+@media not print {
+  :root.dark[data-site="east"] {
+    --accent: #7fb8a4;
+    --illus: #6c7077;
+  }
 }
 
 /* 西方站：强调色黄铜，只用于数字字形与星；浅色为默认主题，深色可切换（features/site/theme.ts） */
@@ -164,9 +176,11 @@
   --site-font-body: "Manrope", "Manrope Fallback", -apple-system, "Segoe UI", sans-serif;
 }
 
-:root.dark[data-site="west"] {
-  --accent: #d2b15f;
-  --illus: #7d7667;
+@media not print {
+  :root.dark[data-site="west"] {
+    --accent: #d2b15f;
+    --illus: #7d7667;
+  }
 }
 
 :root[data-site] {
@@ -202,12 +216,14 @@
   --surface-8: var(--surface);
 }
 
-:root.dark[data-site] {
-  --surface-4: color-mix(in oklab, var(--surface) 96%, var(--ink));
-  --surface-5: color-mix(in oklab, var(--surface) 93%, var(--ink));
-  --surface-6: color-mix(in oklab, var(--surface) 90%, var(--ink));
-  --surface-7: color-mix(in oklab, var(--surface) 87%, var(--ink));
-  --surface-8: color-mix(in oklab, var(--surface) 84%, var(--ink));
+@media not print {
+  :root.dark[data-site] {
+    --surface-4: color-mix(in oklab, var(--surface) 96%, var(--ink));
+    --surface-5: color-mix(in oklab, var(--surface) 93%, var(--ink));
+    --surface-6: color-mix(in oklab, var(--surface) 90%, var(--ink));
+    --surface-7: color-mix(in oklab, var(--surface) 87%, var(--ink));
+    --surface-8: color-mix(in oklab, var(--surface) 84%, var(--ink));
+  }
 }
 
 /*
@@ -230,6 +246,14 @@
   --primary: var(--on-inverse);
   --primary-foreground: var(--inverse);
   --accent-ink: var(--on-inverse);
+}
+
+/* 打印默认不输出背景色，反色块（만세력 신살 등）的白字会印成白纸上的浅灰：按图形打印约定改为浅底深字 */
+@media print {
+  .bg-inverse {
+    --inverse: var(--bg);
+    --on-inverse: var(--ink);
+  }
 }
 
 /*

@@ -43,6 +43,9 @@ async function renderMdx(context: CompileContext, document: { _meta: Meta; conte
             { className: 'rich-table-scroll', tabIndex: 0, role: 'group' },
             React.createElement('table', props, children),
           ),
+        // 代码块（如数字学算例）在窄屏横向滚动：同样允许键盘聚焦后滚动（axe scrollable-region-focusable）
+        pre: (props: React.ComponentProps<'pre'>) =>
+          React.createElement('pre', { ...props, tabIndex: 0 }),
       },
     }),
   )

@@ -8,6 +8,7 @@ import {
   fontFaceRules,
   headSignature,
   optimizeHtml,
+  pruneCriticalAtRules,
   RootAttributeRule,
   rootAttributes,
   selectorClasses,
@@ -32,7 +33,7 @@ const BODY =
   '<main class="hero"><h1 class="title">Hi</h1></main><script type="module" async="" src="/assets/index-1.js" nonce="n1"></script>'
 const HTML = `<!DOCTYPE html><html lang="en"><head>${HEAD}</head><body>${BODY}</body></html>`
 const CSS = [
-  '@layer base{:root{--fg:#111}}',
+  '@layer base{:root{--fg:#111;--font-sans:Inter Variable,sans-serif}}',
   '@font-face{font-family:Inter Variable;src:url(/assets/inter.woff2) format("woff2")}',
   '@font-face{font-family:Other;src:url(/assets/other.woff2)}',
   '.hero{display:grid}',
@@ -57,7 +58,7 @@ describe('营销页构建后处理', () => {
     expect(result).toMatchObject({ inlined: 1, styles: [], scripts: [] })
   })
 
-  it('criticalCss used：只内联用到的规则，保留全部 @font-face、深色规则与媒体查询，完整样式表首帧后加载', async () => {
+  it('criticalCss used：只内联用到的规则与引用到的 @font-face、深色规则与媒体查询，完整样式表首帧后加载', async () => {
     const { html, styles } = await optimizeHtml(HTML, { criticalCss: 'used' }, readCss)
     const inline = html.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? ''
     expect(inline).toContain('.hero')
@@ -66,8 +67,8 @@ describe('营销页构建后处理', () => {
     expect(inline).toContain('@media (min-width:48rem)')
     expect(inline).toContain('--fg:#111')
     expect(inline).not.toContain('unused-panel')
-    // beasties 解析不了 var(--font-sans) 引用的字体族，全部 @font-face 由后处理补回
-    expect(fontFaceRules(inline)).toHaveLength(2)
+    // beasties 解析不了 var(--font-sans) 引用的字体族，由后处理补回；内联规则中没有出现的字体族（Other）不补
+    expect(fontFaceRules(inline)).toEqual([expect.stringContaining('Inter Variable')])
     expect(styles).toEqual(['/assets/app-1.css'])
     // 关闭 JS 时由 noscript 引入完整样式表
     expect(html).toContain(
@@ -244,6 +245,23 @@ describe('关键样式保留规则（衍生项目反馈，0.5.5）', () => {
     expect(out).toContain('::file-selector-button')
     expect(out).not.toContain('data-site="west"')
     expect(out).not.toContain('.unused')
+  })
+
+  it('pruneCriticalAtRules 只留被 var() 读取的 @property 与 properties 层兜底值', () => {
+    const used = [
+      '@layer properties{@supports (-moz-orient:inline){*,:before,:after{--tw-a:0;--tw-b:initial;--tw-c:0}}}',
+      '.x{--tw-b:1px;translate:var(--tw-a) 0}',
+      '@property --tw-a{syntax:"*";inherits:false;initial-value:0}',
+      '@property --tw-b{syntax:"*";inherits:false}',
+      '@property --tw-c{syntax:"*";inherits:false;initial-value:0}',
+    ].join('')
+    const out = pruneCriticalAtRules('', used, '<p style="width:var(--tw-c)">x</p>')
+    expect(out).toContain('@property --tw-a{')
+    // 只写不读的 --tw-b 不需要注册；--tw-c 由 HTML 内联样式读取，保留
+    expect(out).not.toContain('@property --tw-b')
+    expect(out).toContain('@property --tw-c{')
+    expect(out).toContain('{--tw-a:0;--tw-c:0}')
+    expect(out).toContain('.x{--tw-b:1px;translate:var(--tw-a) 0}')
   })
 
   it('optimizeHtml 接受项目追加的保留规则', async () => {
