@@ -66,7 +66,7 @@ export const ZOD_MARKERS: readonly string[]
 export function budgetViolation(gzipBytes: number, budget: number | null | undefined): string | null
 export function readPerformanceOptions(
   distDir: string,
-): { homeScriptGzipBudget?: number | null } | null
+): { prerender?: boolean; homeScriptGzipBudget?: number | null } | null
 export const TOOL_PAGES: readonly { id: string; file: string }[]
 export const LANDING_FORBIDDEN_SOURCES: readonly string[]
 export const HOME_FORBIDDEN_SOURCES: readonly string[]
