@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>博客列表</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主导航">
+<a href="ComponentsEast.dc.html">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyEast.dc.html">每日运势</a>
+<a href="PricingEastMobile.dc.html">定价</a>
+<a href="#footer">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登录</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主导航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap page-main">
+
+<div class="tool-head">
+<h1 class="t-title">博客</h1>
+<p class="muted">讲清楚排盘工具背后的方法，也记录每次更新了什么。</p>
+</div>
+
+<div class="when when-list">
+<div class="bstack">
+<nav class="toc" aria-label="分类">
+<a class="on" aria-current="page" href="#footer">全部</a><a href="#footer">八字入门</a><a href="#footer">紫微斗数</a><a href="#footer">塔罗</a>
+</nav>
+<ul class="bstack" aria-label="精选文章">
+<li class="bcard feat">
+<div class="cover" role="img" aria-label="写着四柱干支的纸页"><span>封面图 · 16:9<br>取自文章的 cover 字段</span></div>
+<div class="btxt">
+<p class="t-caption subtle">八字入门 · <time datetime="2026-11-10">2026 年 11 月 10 日</time></p>
+<h2 class="t-title"><a href="BlogPost.dc.html">什么是日主？读懂八字命盘的第一步</a></h2>
+<p class="muted">八个字同时出现时，先找日柱的天干。它代表命盘的主人，其余七个字都相对于它来读。</p>
+</div>
+</li>
+</ul>
+<ul class="bgrid">
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">紫</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">紫微斗数 · <time datetime="2026-11-03">2026 年 11 月 3 日</time></p>
+<h2 class="t-heading"><a href="#footer">紫微斗数十二宫怎么看</a></h2>
+<p class="muted">命宫、财帛、官禄各管什么，以及为什么要连同对宫一起读。</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">时</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">八字入门 · <time datetime="2026-10-27">2026 年 10 月 27 日</time></p>
+<h2 class="t-heading"><a href="#footer">真太阳时是什么，排盘为什么要校正</a></h2>
+<p class="muted">钟表时间与太阳位置之间差了多少，什么情况下会改变时柱。</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">逆</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">塔罗 · <time datetime="2026-10-20">2026 年 10 月 20 日</time></p>
+<h2 class="t-heading"><a href="#footer">塔罗逆位怎么解读</a></h2>
+<p class="muted">三种常见的读法，以及怎样选定一种并保持一致。</p>
+</div>
+</li>
+</ul>
+<nav class="pager" aria-label="分页">
+<span class="t-caption subtle">第 1 页，共 2 页</span>
+<a class="link" href="#footer">更早的文章 →</a>
+</nav>
+</div>
+</div>
+
+<div class="when when-empty">
+<section class="obj stack" aria-labelledby="be-hans" style="max-width: var(--measure-prose)">
+<h2 class="t-heading" id="be-hans">还没有文章。</h2>
+<p class="muted">干支日还没有发布文章。免费工具已经可以使用：先做<a class="il" href="ToolBazi.dc.html">八字排盘</a>，或抽一次<a class="il" href="TarotEast.dc.html">三张牌塔罗</a>。</p>
+</section>
+</div>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">通过命理工具与指南，认识传统智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="页脚">
+<a href="#footer">常见问题</a><a href="#footer">博客</a><a href="#footer">指南</a><a href="#footer">文档</a><a href="#footer">隐私政策</a><a href="#footer">服务条款</a><a href="#footer">退款政策</a><a href="#footer">免责声明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主题</span><div class="seg" role="group" aria-label="主题"><button type="button" class="is-light">浅色</button><button type="button" class="is-dark">深色</button><button type="button">跟随系统</button></div></div>
+<div class="set"><span class="t-caption subtle">语言</span><button type="button" class="select sm" aria-haspopup="listbox">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依据传统命理方法推算，AI辅助解读，仅供参考与潜意识探索。不预测未来，健康相关问题请咨询专业医师。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有权利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"mobile"},"state":{"editor":"enum","options":["list","empty"],"default":"list"},"$preview":{"width":390,"height":4000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'mobile';
+const state = this.props.state ?? 'list';
+const more = {};
+return Object.assign({
+theme: theme,
+cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>

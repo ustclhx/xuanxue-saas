@@ -9,6 +9,7 @@ type CopyState = 'idle' | 'copied' | 'failed'
 /**
  * 分享结果链接：显示可选中的完整地址与复制按钮。地址在浏览器中按当前页面生成（`#r=` 片段），
  * 复制失败时提示手动选取；状态通过 aria-live 播报。
+ * 样式（设计稿 warm-refresh/ToolBazi.dc.html 结果区末尾）：地址框与表单输入同款，复制是次要按钮（药丸形、细线框），提示为 caption。
  * 传入 `card` 时在下方提供「保存分享图」（redesign-home-chart-visuals tasks 7.3），按点击生成模型。
  */
 export function ShareLink({
@@ -36,7 +37,7 @@ export function ShareLink({
   }
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={fieldId} className="text-ink-muted text-sm">
+      <label htmlFor={fieldId} className="text-caption text-ink-muted">
         {m.tools_share_label()}
       </label>
       <div className="flex flex-wrap gap-2">
@@ -45,18 +46,18 @@ export function ShareLink({
           readOnly
           value={href}
           onFocus={(event) => event.currentTarget.select()}
-          className="min-h-11 min-w-0 flex-1 basis-60 rounded-lg border border-line-strong bg-surface px-3 text-base text-ink"
+          className="min-h-12 min-w-0 flex-1 basis-60 rounded-field border border-field-border bg-background px-3 text-body text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
         />
         <button
           type="button"
           onClick={copy}
           disabled={!href}
-          className="min-h-11 rounded-lg border border-ink px-4 text-base text-ink transition-colors hover:bg-surface-2 disabled:opacity-50"
+          className="min-h-12 rounded-full px-7 font-medium text-body text-ink ring-1 ring-field-border ring-inset transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:opacity-50 print:hidden"
         >
           {m.tools_share_copy()}
         </button>
       </div>
-      <p aria-live="polite" className="m-0 text-ink-subtle text-xs">
+      <p aria-live="polite" className="m-0 text-caption text-ink-subtle print:hidden">
         {state === 'copied'
           ? m.tools_share_copied()
           : state === 'failed'

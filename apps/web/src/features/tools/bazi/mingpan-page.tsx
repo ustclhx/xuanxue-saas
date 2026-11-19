@@ -23,21 +23,17 @@ import {
   usePrefetch,
 } from './common.tsx'
 import { loadBazi } from './engine.ts'
-import {
-  BRANCH_ELEMENT,
-  BRANCH_HANZI,
-  ELEMENT_TEXT,
-  ganzhi,
-  STEM_ELEMENT,
-  STEM_HANZI,
-} from './glyphs.ts'
+import { BRANCH_HANZI, ganzhi, STEM_HANZI } from './glyphs.ts'
 import { PILLAR_LABEL, TEN_GOD_LABEL } from './labels.ts'
 import { useBirthTool } from './use-birth-tool.ts'
 
 // 传统命盘表由右至左为年月日時，表格按阅读习惯列为時日月年（与常见万年历一致）
 const ORDER: PillarKey[] = ['hour', 'day', 'month', 'year']
 
-/** 繁中 `/zh-hant/命盤查詢`（tasks.md 2.3）：同一八字引擎，以表格呈现四柱与大运流年 */
+/**
+ * 繁中 `/zh-hant/命盤查詢`（tasks.md 2.3）：同一八字引擎，以表格呈现四柱与大运流年。
+ * 版式套用工具页模板（设计稿 warm-refresh/ToolBazi.dc.html）：H1、简介、表单 → 结果 → FAQ → 内链。
+ */
 export function MingpanPage() {
   const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeBaziChart })
@@ -101,7 +97,10 @@ export function MingpanPage() {
 }
 
 const cell = 'border-line border-t px-1 py-2 text-center align-top'
-const head = 'w-14 border-line border-t py-2 pr-1 text-left font-normal text-ink-subtle text-xs'
+/** 天干地支：title 字号的标题字体；五行已在上方的四柱图形中以色点和文字标出，这里不再用颜色区分 */
+const glyph = 'font-heading text-ink text-title'
+const head =
+  'w-14 border-line border-t py-2 pr-1 text-left font-normal text-caption text-ink-subtle'
 
 export function MingpanResult({
   chart,
@@ -122,12 +121,12 @@ export function MingpanResult({
         description={m.bazi_mingpan_desc_table()}
       >
         <PillarsChart pillars={chart.pillars} locale={LOCALE} order={ORDER} />
-        <table id="ten-gods" className="w-full scroll-mt-6 border-collapse text-[15px]">
+        <table id="ten-gods" className="w-full scroll-mt-6 border-collapse text-body text-ink">
           <thead>
             <tr>
               <td className="w-14" />
               {ORDER.map((k) => (
-                <th key={k} scope="col" className="pb-2 font-normal text-ink-subtle text-sm">
+                <th key={k} scope="col" className="pb-2 font-normal text-caption text-ink-subtle">
                   {PILLAR_LABEL[k]()}
                 </th>
               ))}
@@ -141,7 +140,7 @@ export function MingpanResult({
               {ORDER.map((k) => {
                 const p = chart.pillars[k]
                 return (
-                  <td key={k} className={cn(cell, 'text-ink-muted text-sm')}>
+                  <td key={k} className={cn(cell, 'text-caption text-ink-muted')}>
                     {k === 'day'
                       ? m.bazi_day_master()
                       : p?.tenGod
@@ -158,18 +157,13 @@ export function MingpanResult({
               {ORDER.map((k) => {
                 const p = chart.pillars[k]
                 return (
-                  <td
-                    key={k}
-                    className={cn(
-                      cell,
-                      'font-heading text-[28px]',
-                      p && ELEMENT_TEXT[STEM_ELEMENT[p.stem]],
-                    )}
-                  >
+                  <td key={k} className={cn(cell, glyph)}>
                     {p ? (
                       STEM_HANZI[p.stem]
                     ) : (
-                      <span className="text-ink-subtle text-xs">{m.bazi_requires_hour()}</span>
+                      <span className="font-normal font-sans text-caption text-ink-subtle">
+                        {m.bazi_requires_hour()}
+                      </span>
                     )}
                   </td>
                 )
@@ -182,14 +176,7 @@ export function MingpanResult({
               {ORDER.map((k) => {
                 const p = chart.pillars[k]
                 return (
-                  <td
-                    key={k}
-                    className={cn(
-                      cell,
-                      'font-heading text-[28px]',
-                      p && ELEMENT_TEXT[BRANCH_ELEMENT[p.branch]],
-                    )}
-                  >
+                  <td key={k} className={cn(cell, glyph)}>
                     {p ? BRANCH_HANZI[p.branch] : '—'}
                   </td>
                 )
@@ -201,11 +188,13 @@ export function MingpanResult({
               </th>
               {ORDER.map((k) => (
                 <td key={k} className={cell}>
-                  <ul className="m-0 flex list-none flex-col gap-1 p-0 text-sm">
+                  <ul className="m-0 flex list-none flex-col gap-1 p-0">
                     {chart.pillars[k]?.hiddenStems.map((h) => (
                       <li key={h.qi}>
                         <span className="font-heading">{STEM_HANZI[h.stem]}</span>{' '}
-                        <span className="text-ink-muted text-xs">{TEN_GOD_LABEL[h.tenGod]()}</span>
+                        <span className="text-caption text-ink-muted">
+                          {TEN_GOD_LABEL[h.tenGod]()}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -222,10 +211,16 @@ export function MingpanResult({
         aside={luckAside(chart, false)}
         description={m.bazi_mingpan_desc_fortune()}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[520px] border-collapse text-sm">
+        {/* 手机上表格比容器宽，横向滚动：容器可用键盘聚焦并滚动（axe scrollable-region-focusable），以区块标题命名 */}
+        <section
+          aria-label={m.bazi_mingpan_block_fortune()}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: 可滚动区域需要键盘焦点才能用方向键滚动
+          tabIndex={0}
+          className="overflow-x-auto rounded-field focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+        >
+          <table className="w-full min-w-130 border-collapse text-body text-ink">
             <thead>
-              <tr className="text-left text-ink-subtle text-xs">
+              <tr className="text-left text-caption text-ink-subtle">
                 <th scope="col" className="py-2 font-normal">
                   {m.bazi_mingpan_col_decade()}
                 </th>
@@ -245,16 +240,24 @@ export function MingpanResult({
                 <tr
                   key={d.index}
                   data-decade={d.index}
+                  aria-current={d.index === current ? 'true' : undefined}
                   className={cn(
                     'border-line border-t align-top',
-                    d.index === current && 'bg-brand/8',
+                    // 目前所在的大运：整行换成 surface-2 底，干支旁加强调色圆点
+                    d.index === current && 'bg-surface-2',
                   )}
                 >
-                  <th scope="row" className="py-2 pr-2 text-left font-normal">
-                    <span className="font-heading text-lg text-ink">
+                  <th scope="row" className="px-2 py-2 text-left font-normal">
+                    <span className="font-heading text-ink text-subtitle">
                       {ganzhi(d.stem, d.branch)}
                     </span>{' '}
-                    <span className="text-ink-muted text-xs">{TEN_GOD_LABEL[d.tenGod]()}</span>
+                    <span className="text-caption text-ink-muted">{TEN_GOD_LABEL[d.tenGod]()}</span>
+                    {d.index === current && (
+                      <span
+                        aria-hidden="true"
+                        className="ml-1.5 inline-block size-2 rounded-full bg-mark align-middle"
+                      />
+                    )}
                   </th>
                   <td className="py-2 pr-2 text-ink-muted tabular-nums">
                     {d.startYear}–{d.endYear}
@@ -269,7 +272,7 @@ export function MingpanResult({
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </ResultBlock>
       <ResultFooter share={share} engineVersion={chart.engineVersion} />
     </>

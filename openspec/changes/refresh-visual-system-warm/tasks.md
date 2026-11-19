@@ -63,8 +63,9 @@
 依赖：3。冲突点：`features/tools/form.tsx`、`features/tools/bazi/birth-fields.tsx`、`features/readings/optin-card.tsx`、`routes/dev/tools.tsx`、`e2e/select.ts` 及调用 `selectOption` 的 e2e、新增 `features/illustrations/` 只由本组修改。
 
 - [x] 5.1 按 D10 把 `SelectField` 改用 `@xuanxue/ui` 的 `Select`，调整 `birth-fields.tsx`（出生地）、`optin-card.tsx`、`routes/dev/tools.tsx`；`reading-optin.spec.ts`、`reading-unlock.spec.ts` 改用 `e2e/select.ts`；删除 `form.tsx` 的 `native-select` 例外。验证：`pnpm check:ui` 不再报原生 `<select>`；八字表单提交、`#r=` 分享恢复、optin 提交的现有单测与 e2e 通过
-- [ ] 5.2 按设计稿重做表单控件样式（输入、单选组、复选框、Select 的尺寸与色调），出生信息表单的进阶字段（真太阳时、出生地）默认收起，满足 `tool-pages`「工具页紧凑布局」的手机首屏可提交。验证：390×844 下 `/zh-hant/紫微斗數排盤` 与 `/ko/사주궁합` 首屏可见提交按钮（Playwright 断言）；组件测试覆盖收起 / 展开与已填值保留
+- [x] 5.2 按设计稿重做表单控件样式（输入、单选组、复选框、Select 的尺寸与色调），出生信息表单的进阶字段（真太阳时、出生地）默认收起，满足 `tool-pages`「工具页紧凑布局」的手机首屏可提交。验证：390×844 下 `/zh-hant/紫微斗數排盤` 与 `/ko/사주궁합` 首屏可见提交按钮（Playwright 断言）；组件测试覆盖收起 / 展开与已填值保留
   - 进度（第 5 组 PR）：控件样式、进阶选项收起、组件测试与 `/zh-hant/紫微斗數排盤` 的首屏断言已完成并通过；日期 / 时间沿用 #210 的分段字段并按设计稿重新着色。`/ko/사주궁합` 两组出生信息在 390×844 下超过一屏，需要页面布局配合（`gunghap-page.tsx` 属第 6 组），该断言在 `e2e/tool-form.spec.ts` 以 `test.fixme` 登记，通过后再勾选本项。
+  - 完成（第 6 组 PR）：`/ko/사주궁합` 的提交按钮在手机上吸附在视口底部（#216 已实现，首屏断言已启用并通过）；进阶选项在韩语页（`/ko/만세력`、사주概念页）也默认收起，只有真太阳时取值与本页默认不同或有错误时展开，组件测试与 `e2e/bazi.spec.ts` 已覆盖。
 - [x] 5.3 按 D8 把确认的插画转为 `features/illustrations/{east,west}/*.tsx`（`currentColor`、token 工具类、`aria-hidden`、固定宽高比），加入 `/dev/ui` 预览。验证：`pnpm check:ui` 无颜色字面量；预览页两站 × 浅 / 深截图与副本对照；单个组件 SSR 输出 gzip ≤ 4KB（单测断言）
   - 预览放在 `/dev/tools`（本组文件），未改第 4 组的 `/dev/ui`。
 
@@ -72,7 +73,8 @@
 
 依赖：3、4、5。冲突点：`features/tools/bazi/`（除 `bazi-home.tsx`、`manseryeok-home.tsx`、`birth-fields.tsx`）、`features/tools/tool-page.tsx`、`tool-links.tsx`、`reading-guide.tsx`、`faq.tsx`、`features/tools/charts/`（仅样式适配）、`routes/八字/`、`routes/사주/`、`routes/$slug.tsx`（仅样式；`separate-landing-homepage` 也改它，后合并方 rebase）。
 
-- [ ] 6.1 紫微、命盤查詢、사주궁합、概念页按新 token、`Section`、字号角色与紧凑布局改版；长文与内链矩阵移到结果之后；替换原始字号与任意值。验证：`visual-rules.spec.ts` 启用这些页面并通过；`pnpm check`、相关单测与 e2e 通过；本组条目从两份允许名单删除
+- [x] 6.1 紫微、命盤查詢、사주궁합、概念页按新 token、`Section`、字号角色与紧凑布局改版；长文与内链矩阵移到结果之后；替换原始字号与任意值。验证：`visual-rules.spec.ts` 启用这些页面并通过；`pnpm check`、相关单测与 e2e 通过；本组条目从两份允许名单删除
+  - 记录：`features/tools/share-link.tsx`、`share-card/share-card-action.tsx`（结果末尾的分享区，两站共用）不在第 6、7 组的文件范围内，仍在 `check-type-roles` 允许名单中，需由协调者指定负责人；四柱图形（`charts/pillars-chart.tsx`）的日柱仍为反色块，与设计稿「日主用强调色细框」不同，属 `redesign-home-chart-visuals` 已确认的图形，未改。
 - [ ] 6.2 【Codex】按副本对照截图（390 / 1440 × 浅 / 深 + 打印预览），axe 检查无新增问题。验证：截图与 axe 结果存入 `EVIDENCE_DIR`，差异逐项列给 6.1 负责人修正或记为使用者确认的偏离
 
 ## 7. 西方站工具页与塔罗、每日页（WT-pages-west，【Claude】）

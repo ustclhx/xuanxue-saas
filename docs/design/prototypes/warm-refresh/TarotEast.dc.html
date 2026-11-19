@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>三张牌塔罗 抽牌页</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主导航">
+<a class="on" href="ComponentsEast.dc.html">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyEast.dc.html">每日运势</a>
+<a href="PricingEastMobile.dc.html">定价</a>
+<a href="#footer">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登录</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主导航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap tool-main">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><span>三张牌塔罗</span></nav>
+<h1 class="t-title">三张牌塔罗</h1>
+<p class="muted">洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，作为自我省思的参考。每张牌都可以在<a class="il" href="TarotIndexEast.dc.html">塔罗牌义</a>里查到。</p>
+</div>
+
+<form class="panel tool-form" style="grid-template-columns: minmax(0, 1fr)" aria-label="你的牌阵">
+<div class="field">
+<div class="field-top"><label class="label" for="tq-hans">你的问题（可不填）</label></div>
+<input class="input" id="tq-hans" type="text" placeholder="在心中想好问题，或写在这里" value="{{question}}">
+</div>
+<details class="adv">
+<summary>可以这样问<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<div class="scroller" style="padding-top: 8px">
+<button type="button" class="chip tap">这个月我该把心力放在哪里？</button><button type="button" class="chip tap">关于这个选择，我忽略了什么？</button><button type="button" class="chip tap">怎样能让这次谈话更顺利？</button>
+</div>
+</details>
+<div class="form-foot">
+<label class="check"><input type="checkbox" checked>包含逆位牌</label>
+<button type="button" class="btn btn-primary"><span class="hide-result">洗牌</span><span class="when when-result">重新洗牌</span></button>
+</div>
+</form>
+
+<div class="when when-error">
+<div class="alert" role="alert" style="max-width: 760px"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg><p>这个分享链接不完整，已为你准备好新的一副牌。</p></div>
+</div>
+
+<section class="obj blk" aria-label="牌阵" style="max-width: 760px">
+<ol class="tsteps" aria-label="步骤">
+<li class="{{s1}}">洗牌</li><li aria-hidden="true"><i></i></li><li class="{{s2}}">切牌</li><li aria-hidden="true"><i></i></li><li class="{{s3}}">翻牌</li>
+</ol>
+<div class="tcards">
+<div class="tslot">
+<span class="t-caption subtle">过去</span>
+<div class="hide-result" style="width: 100%"><button type="button" class="tcard tback" aria-label="翻开「过去」这张牌"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="ring" cx="22" cy="22" r="19"/><path class="star" d="M22 6l3.5 12.5L38 22l-12.5 3.5L22 38l-3.5-12.5L6 22l12.5-3.5z"/></svg></button></div>
+<div class="when when-result" style="width: 100%"><span class="tcard tface rev" role="img" aria-label="星星，逆位"><svg viewBox="0 0 120 140" aria-hidden="true"><path d="M60 28l8 24 24 8-24 8-8 24-8-24-24-8 24-8z"/><circle cx="26" cy="34" r="3"/><circle cx="96" cy="38" r="3"/><circle cx="92" cy="104" r="3"/><circle cx="28" cy="100" r="3"/></svg><span class="tname">XVII · 星星</span></span></div>
+</div>
+<div class="tslot">
+<span class="t-caption subtle">现在</span>
+<div class="hide-result" style="width: 100%"><button type="button" class="tcard tback" aria-label="翻开「现在」这张牌"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="ring" cx="22" cy="22" r="19"/><path class="star" d="M22 6l3.5 12.5L38 22l-12.5 3.5L22 38l-3.5-12.5L6 22l12.5-3.5z"/></svg></button></div>
+<div class="when when-result" style="width: 100%"><span class="tcard tface" role="img" aria-label="圣杯二，正位"><svg viewBox="0 0 120 140" aria-hidden="true"><path d="M26 44h28v14a14 14 0 0 1-28 0zM40 72v22M30 94h20M66 44h28v14a14 14 0 0 1-28 0zM80 72v22M70 94h20M18 122h84"/></svg><span class="tname">圣杯二</span></span></div>
+</div>
+<div class="tslot">
+<span class="t-caption subtle">未来</span>
+<div class="hide-result" style="width: 100%"><button type="button" class="tcard tback" aria-label="翻开「未来」这张牌"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="ring" cx="22" cy="22" r="19"/><path class="star" d="M22 6l3.5 12.5L38 22l-12.5 3.5L22 38l-3.5-12.5L6 22l12.5-3.5z"/></svg></button></div>
+<div class="when when-result" style="width: 100%"><span class="tcard tface" role="img" aria-label="太阳，正位"><svg viewBox="0 0 120 140" aria-hidden="true"><circle cx="60" cy="62" r="20"/><path d="M60 30v-12M60 106V94M28 62H16M104 62H92M37 39l-8-8M91 93l-8-8M37 85l-8 8M91 31l-8 8M18 128h84"/></svg><span class="tname">XIX · 太阳</span></span></div>
+</div>
+</div>
+<div class="hide-result">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+<p class="t-caption subtle" style="text-align: center">点选牌面即可翻开。</p>
+<button type="button" class="link" style="background: none; border: 0; font-family: var(--text); font-size: var(--fs-body); cursor: pointer">全部翻开</button>
+</div>
+</div>
+</section>
+
+<div class="when when-result">
+<section class="result" aria-label="你的三张牌">
+<p class="muted">你的问题：<q style="color: var(--ink)">这个月我该把心力放在哪里？</q></p>
+<div class="treads">
+<div class="tread">
+<span class="t-caption subtle">过去</span>
+<h3 class="t-heading">星星 · 逆位</h3>
+<p class="t-caption subtle">关键词：怀疑 · 延迟 · 重建信任</p>
+<p class="muted">逆位的星星指向一段较难保持希望的时期。可以问问自己：那时是什么让你撑了下来。</p>
+<a class="link" href="#footer">星星牌义</a>
+</div>
+<div class="tread">
+<span class="t-caption subtle">现在</span>
+<h3 class="t-heading">圣杯二 · 正位</h3>
+<p class="t-caption subtle">关键词：伙伴 · 互相尊重 · 交流</p>
+<p class="muted">圣杯二讲的是对等的交流。留意眼下已经可以坦诚谈一谈的地方。</p>
+<a class="link" href="#footer">圣杯二牌义</a>
+</div>
+<div class="tread">
+<span class="t-caption subtle">未来</span>
+<h3 class="t-heading">太阳 · 正位</h3>
+<p class="t-caption subtle">关键词：喜悦 · 清晰 · 活力</p>
+<p class="muted">太阳提示的是敞开与直说这个方向，可以朝它走，但不是保证的结果。</p>
+<a class="link" href="#footer">太阳牌义</a>
+</div>
+</div>
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">完整解读</h3>
+<p class="muted">完整解读把三张牌与你的问题连成一篇：每个牌位、牌与牌之间的关系，以及可以带走的提问。</p>
+<p class="t-caption subtle">生成失败不扣积分 · 保存在你的账户</p>
+</div>
+<div class="stack" style="gap: 8px; align-items: stretch">
+<p class="t-caption subtle">10 积分 · 每天登录送 10 积分</p>
+<a class="btn btn-secondary" href="#footer">解锁完整解读</a>
+</div>
+</div>
+<p class="disc">依据传统命理方法推算，AI辅助解读，仅供参考与潜意识探索。不预测未来，健康相关问题请咨询专业医师。</p>
+<div class="stack" style="gap: 4px; align-items: flex-start">
+<button type="button" class="link" style="background: none; border: 0; font-family: var(--text); font-size: var(--fs-body); cursor: pointer">复制分享链接</button>
+<p class="t-caption subtle">拿到链接的人会看到同样的三张牌，其中不含你的问题。</p>
+</div>
+</section>
+</div>
+
+<article class="article hide-error" aria-labelledby="ta-hans">
+<h2 class="t-title" id="ta-hans" style="margin-top: 0">牌位说明</h2>
+<ol class="pl">
+<li><strong style="color: var(--ink); font-weight: 500">过去</strong> — 到目前为止，是什么塑造了这件事。</li>
+<li><strong style="color: var(--ink); font-weight: 500">现在</strong> — 事情目前的状态，以及你现在能做的。</li>
+<li><strong style="color: var(--ink); font-weight: 500">未来</strong> — 如果一切照旧，值得留意的方向；不是预测。</li>
+</ol>
+<h2 class="t-title">不适合问的问题</h2>
+<p>塔罗适合问与自己选择有关的开放式问题，以下三类请避免：</p>
+<ul class="pl">
+<li>确切的名字、数字或日期，例如彩票号码、某件事发生在哪一天。</li>
+<li>关于别人选择的绝对是非，例如某人会不会回来。</li>
+<li>健康或医疗问题，请咨询专业人士。</li>
+</ul>
+<h2 class="t-title">其他塔罗牌阵</h2>
+<p>想每天早上有一个省思主题，可以抽<a class="il" href="#footer">每日一张塔罗</a>；想问一个直接的问题，<a class="il" href="#footer">是非塔罗</a>用一张牌给出固定的答案；事情牵涉的面向较多时，十张牌的<a class="il" href="#footer">凯尔特十字塔罗</a>会逐个牌位展开。</p>
+</article>
+
+<section class="hide-error" aria-labelledby="tf-hans">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="tf-hans">常见问题</h2></div>
+<div class="faq">
+<details open>
+<summary>抽牌是真的随机吗？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>是。牌在你的浏览器里用加密级随机数洗牌，抽牌过程不会传到我们的服务器。</p>
+</details>
+<details>
+<summary>逆位牌是什么意思？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>逆位通常读作同一主题向内、延迟或受阻。洗牌前可以关闭逆位。</p>
+</details>
+<details>
+<summary>塔罗能预测会发生什么吗？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>不能。牌面是省思的提示，不预测事件，也不能代替专业意见。</p>
+</details>
+</div>
+</section>
+
+</main>
+
+<footer class="ftr hide-error" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">通过命理工具与指南，认识传统智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="页脚">
+<a href="#footer">常见问题</a><a href="#footer">博客</a><a href="#footer">指南</a><a href="#footer">文档</a><a href="#footer">隐私政策</a><a href="#footer">服务条款</a><a href="#footer">退款政策</a><a href="#footer">免责声明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主题</span><div class="seg" role="group" aria-label="主题"><button type="button" class="is-light">浅色</button><button type="button" class="is-dark">深色</button><button type="button">跟随系统</button></div></div>
+<div class="set"><span class="t-caption subtle">语言</span><button type="button" class="select sm" aria-haspopup="listbox">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依据传统命理方法推算，AI辅助解读，仅供参考与潜意识探索。不预测未来，健康相关问题请咨询专业医师。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有权利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"mobile"},"state":{"editor":"enum","options":["result","initial","error"],"default":"result"},"$preview":{"width":390,"height":5100}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'mobile';
+const state = this.props.state ?? 'result';
+const result = state === 'result';
+const more = {
+question: result ? '这个月我该把心力放在哪里？' : '',
+s1: result ? '' : 'on', s2: '', s3: result ? 'on' : ''
+};
+return Object.assign({
+theme: theme,
+cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>

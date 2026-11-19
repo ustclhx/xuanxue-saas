@@ -25,8 +25,9 @@ function loadRenderer() {
 
 const PREFETCH_DELAY_MS = 1500
 
+/** 次要按钮：药丸形、细线框（设计稿的 `.btn-secondary`） */
 const buttonClass =
-  'min-h-11 rounded-lg border border-ink px-4 text-base text-ink transition-colors hover:bg-surface-2 disabled:opacity-50'
+  'min-h-12 rounded-full px-7 font-medium text-body text-ink ring-1 ring-field-border ring-inset transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:opacity-50'
 
 export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
   const checkboxId = useId()
@@ -72,7 +73,7 @@ export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
   }
 
   return (
-    <div ref={rootRef} data-share-card-action="" className="flex flex-col gap-3">
+    <div ref={rootRef} data-share-card-action="" className="flex flex-col gap-3 print:hidden">
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <button
           type="button"
@@ -85,7 +86,7 @@ export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
         </button>
         <label
           htmlFor={checkboxId}
-          className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-ink-muted text-sm"
+          className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-caption text-ink-muted"
         >
           <input
             id={checkboxId}
@@ -96,7 +97,7 @@ export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
               // 已生成的图片与勾选不一致，回到初始状态重新生成
               if (state.status !== 'generating') setState({ status: 'idle' })
             }}
-            className="size-4 accent-brand"
+            className="size-5 shrink-0 accent-primary"
           />
           {m.share_card_include_birth()}
         </label>
@@ -104,9 +105,9 @@ export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
       {state.status === 'failed' && (
         <div
           role="alert"
-          className="flex flex-wrap items-center gap-3 rounded-lg border border-brand px-4 py-3 text-ink"
+          className="flex flex-wrap items-center gap-3 rounded-field bg-surface-2 px-4 py-3 text-ink"
         >
-          <p className="m-0 min-w-0 flex-1 basis-60 text-sm">{m.share_card_failed()}</p>
+          <p className="m-0 min-w-0 flex-1 basis-60 text-body">{m.share_card_failed()}</p>
           <button type="button" onClick={generate} className={buttonClass}>
             {m.share_card_retry()}
           </button>
@@ -119,17 +120,17 @@ export function ShareCardAction({ build }: { build: () => ShareCardModel }) {
             alt={m.share_card_preview_alt()}
             width={1080}
             height={1350}
-            className="h-auto w-32 rounded-lg border border-line"
+            className="h-auto w-32 rounded-field border border-line"
           />
           <div className="flex min-w-0 flex-1 basis-48 flex-col gap-2">
-            <p role="status" className="m-0 text-ink-muted text-sm">
+            <p role="status" className="m-0 text-caption text-ink-muted">
               {m.share_card_ready()}
             </p>
             <div className="flex flex-wrap gap-2">
               <a
                 href={state.url}
                 download={state.file.name}
-                className="inline-flex min-h-11 items-center rounded-lg bg-brand px-4 text-base text-on-brand no-underline"
+                className="inline-flex min-h-12 items-center rounded-full bg-primary px-7 font-medium text-body text-primary-foreground no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
               >
                 {m.share_card_download()}
               </a>

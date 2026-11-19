@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Newsletter sign-up</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<nav class="nav d-only" aria-label="Main">
+<a href="ComponentsWest.dc.html">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyWest.dc.html">Number of the Day</a>
+<a href="PricingWestMobile.dc.html">Pricing</a>
+<a href="#footer">Sign in</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap page-main">
+
+<div class="tool-head">
+<h1 class="t-title">{{title}}</h1>
+<p class="muted">{{intro}}</p>
+</div>
+
+<form class="panel narrow hide-success" style="grid-template-columns: minmax(0, 1fr)" aria-label="{{title}}">
+<div class="field">
+<div class="field-top"><label class="label" for="g-email">Email address</label></div>
+<input class="input inv" id="g-email" type="email" placeholder="you@example.com" value="{{email}}">
+<p class="err when when-error"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg>Unable to submit. Please try again.</p>
+</div>
+<button type="button" class="btn btn-primary btn-block">{{submit}}</button>
+<p class="t-caption subtle">We only use this address for these emails. See the <a class="il" href="Legal.dc.html">Privacy Policy</a>; you can unsubscribe from any message.</p>
+</form>
+
+<div class="when when-success">
+<p class="okmsg narrow" role="status">{{success}}</p>
+</div>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#footer">FAQ</a><a href="BlogList.dc.html">Blog</a><a href="#footer">Guides</a><a href="Docs.dc.html">Docs</a><a href="Legal.dc.html">Privacy Policy</a><a href="#footer">Terms of Service</a><a href="#footer">Refund Policy</a><a href="#footer">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"mobile"},"state":{"editor":"enum","options":["idle","error","success"],"default":"idle"},"variant":{"editor":"enum","options":["newsletter","waitlist"],"default":"newsletter"},"$preview":{"width":390,"height":1700}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'mobile';
+const state = this.props.state ?? 'idle';
+const wl = (this.props.variant ?? 'newsletter') === 'waitlist';
+const more = {
+title: wl ? 'Join the waitlist' : 'Subscribe to our newsletter',
+intro: wl ? 'Leave your email and we will tell you when [FEATURE] opens.' : 'Get occasional updates on our divination tools and guides for self-reflection.',
+submit: wl ? 'Join waitlist' : 'Subscribe',
+success: wl ? 'You are on the waitlist.' : 'Check your email to confirm your subscription.',
+email: state === 'idle' ? '' : 'reader@example.com'
+};
+return Object.assign({
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>
