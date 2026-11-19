@@ -2,9 +2,9 @@ import { Link } from '@tanstack/react-router'
 import { Button, Input, Label } from '@xuanxue/ui'
 import { useEffect, useRef, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
-import { getLocale } from '../../paraglide/runtime.js'
 import { trackEvent } from '../analytics/track.ts'
 import { createFileShareToken, revokeFileShareToken } from '../files/files.functions.ts'
+import { LocalDateTime } from '../shared/local-date-time.tsx'
 import type { WorkspacePage } from '../workspace/components.tsx'
 import { pollMediaTask } from './polling.ts'
 import {
@@ -75,16 +75,7 @@ export function CancelConfirmation({
 }
 
 function TaskTime({ value }: { value: string | null }) {
-  return value ? (
-    <time dateTime={value}>
-      {new Intl.DateTimeFormat(getLocale(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }).format(new Date(value))}
-    </time>
-  ) : (
-    <>—</>
-  )
+  return value ? <LocalDateTime value={value} /> : <>—</>
 }
 
 export function MediaTasksPage({ page }: { page: WorkspacePage }) {

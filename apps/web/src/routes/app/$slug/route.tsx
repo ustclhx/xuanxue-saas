@@ -74,9 +74,13 @@ function WorkspaceLayout() {
   return (
     <NotificationsProvider key={page.workspace.slug} slug={page.workspace.slug}>
       <div className="flex min-h-svh flex-col bg-background text-foreground">
-        <SiteHeader />
+        {/* 打印只输出页面正文：站点页头（含帐户菜单）与左侧空间摘要、导航不进入打印，
+            避免报告 PDF 带出空间名、帐户名与邮箱。contents 让屏幕上的布局与粘性页头保持原样 */}
+        <div className="contents print:hidden">
+          <SiteHeader />
+        </div>
         <PageWidth className="flex flex-1 flex-col gap-8 py-8 lg:flex-row lg:items-start">
-          <aside className="grid content-start gap-6 lg:w-58 lg:shrink-0">
+          <aside className="grid content-start gap-6 lg:w-58 lg:shrink-0 print:hidden">
             <section
               aria-labelledby="space-summary"
               className="grid gap-2 rounded-xl bg-surface p-4"
