@@ -8,6 +8,8 @@
     "./schema": "./src/schema/index.ts",
     "./test/global-setup": "./test/global-setup.ts",
     "./worktree-env": "./worktree-env.ts",
+    "./test-database": "./test-database.ts",
+    "./test-database.local": "./test-database.local.ts",
     "./test/postgres-socket-rejection": "./test/postgres-socket-rejection.ts"
   },
   "scripts": {

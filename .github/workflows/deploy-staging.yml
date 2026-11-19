@@ -141,8 +141,13 @@ jobs:
       # 模板 0.2.1 的 Check site isolation 不在 staging 运行（2026-11-06 用户决定）：两站 SEO 源在构建期固定为
       # 正式域名，workers.dev 上的 canonical / sitemap 必然指向 arcanumber.com；生产发布后仍运行该门禁。
 
-      # 与 CI 共用浏览器缓存与 apt 超时重试（template-v0.6.0 install-chromium）。
-      - uses: ./.github/actions/install-chromium
+      # 本地 action 必须位于 workspace，使用发布工具版本，兼容较旧的部署提交。
+      - name: Prepare Chromium installer
+        run: |
+          mkdir .release-tools
+          cp -R "$RUNNER_TEMP/release-tools/.github/actions/install-chromium" .release-tools/
+
+      - uses: ./.release-tools/install-chromium
 
       - name: Smoke test staging
         env:

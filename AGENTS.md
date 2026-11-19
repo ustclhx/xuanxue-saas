@@ -59,6 +59,9 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 
 在根目录运行，Node >=22 与 package.json 声明的 pnpm 版本为前提。
 数据库命令及集成测试需要已启动的本地 PG；Orca worktree 使用自己的 `.env.worktree`。
+测试只连接隔离库（`xuanxue_wt_*`、`xuanxue_test*`，CI 另接受 `xuanxue_ci`），规则见 `packages/db/test-database.ts`。
+没有 `.env.worktree` 时，db/auth/jobs/web 改用自动创建的 `xuanxue_test`（`packages/db/test-database.local.ts`），
+billing/credits/storage/entitlements 只跑离线用例；绝不回退到开发库 `xuanxue_dev`，不设置 `ALLOW_TEST_ON_DEV_DATABASE`。
 
 | 命令 | 用途 |
 |---|---|

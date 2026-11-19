@@ -185,8 +185,13 @@ jobs:
           node scripts/staging/check-site-isolation.mjs production "$EAST_URL"
           node scripts/staging/check-site-isolation.mjs production "$WEST_URL"
 
-      # 与 CI 共用浏览器缓存与 apt 超时重试（template-v0.6.0 install-chromium）。
-      - uses: ./.github/actions/install-chromium
+      # 本地 action 必须位于 workspace，使用发布工具版本，兼容较旧的回滚 tag。
+      - name: Prepare Chromium installer
+        run: |
+          mkdir .release-tools
+          cp -R "$RUNNER_TEMP/release-tools/.github/actions/install-chromium" .release-tools/
+
+      - uses: ./.release-tools/install-chromium
 
       - name: Read-only smoke test eastern production site
         env:

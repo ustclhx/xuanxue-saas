@@ -98,11 +98,8 @@ jobs:
       - run: pnpm typecheck
       # turbo run build：没有 build 脚本的包会被跳过
       - run: pnpm build
-      # 以下项目自有检查读取 web 构建产物；build 命中 Turbo 缓存时 dist/** 随缓存恢复，
-      # 但 .content-collections 不是任务输出（typecheck/build 命中缓存时不会生成），需单独生成。
-      - name: Generate web content
-        working-directory: apps/web
-        run: node scripts/build-content.mjs
+      # 以下项目自有检查读取 web 构建产物与 .content-collections/generated；
+      # 二者都是 web build 的 outputs（template-v0.7.0），命中 Turbo 缓存时随缓存恢复。
       - name: Check eastern pages and bazi engine size
         run: node apps/web/scripts/check-bazi-build.mjs
       # 预渲染 HTML 中不得有「锚文本为工具关键词、目标为语言首页」的链接（separate-landing-homepage 3.1）
@@ -116,7 +113,7 @@ jobs:
     if: needs.changes.outputs.mode == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # 集成测试（@xuanxue/db、@xuanxue/auth、@xuanxue/jobs 的 vitest-plugin 项目）使用的本地 Postgres，
+    # 集成测试（db、auth、billing、credits、entitlements、storage、jobs）使用的本地 Postgres，
     # 账号与权限按 infra/local/initdb 的约定初始化。
     services:
       postgres:
@@ -133,7 +130,7 @@ jobs:
           --health-timeout 3s
           --health-retries 30
     env:
-      # 设置后各包的 vitest.config.ts 才会运行集成测试（CI 中缺省时跳过）
+      # 设置后各包的 vitest.config.ts 才会运行集成测试（CI 中缺省时跳过）；各包 test 任务须在 turbo.json 透传
       CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE: postgres://app:app@localhost:5432/xuanxue_ci
       MIGRATION_DATABASE_URL: postgres://migrator:migrator@localhost:5432/xuanxue_ci
       TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo/cache

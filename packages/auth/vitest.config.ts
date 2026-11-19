@@ -1,14 +1,15 @@
 import { cloudflareTest } from '@cloudflare/vitest-plugin'
 import { isPostgresSocketRejection } from '@xuanxue/db/test/postgres-socket-rejection'
-import { readTestDbUrls } from '@xuanxue/db/worktree-env'
+import { resolveLocalTestDatabase } from '@xuanxue/db/test-database.local'
 import { defineConfig } from 'vitest/config'
 
-// 集成测试连接的本地库：环境变量 → .env.worktree → 本机专用测试库 xuanxue_test，
-// 不回退到开发库 xuanxue_dev；CI 中未显式提供连接串时跳过集成测试。见 readTestDbUrls。
+// 集成测试连接的本地库：环境变量 → .env.worktree（必须是隔离库，见 @xuanxue/db/test-database）
+// → 本机自动创建的专用测试库 xuanxue_test；不回退到开发库 xuanxue_dev。
+// CI 中未显式提供连接串时跳过集成测试，只跑单元测试。见 @xuanxue/db/test-database.local。
 const HYPERDRIVE_ENV = 'CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE'
-const urls = readTestDbUrls('@xuanxue/auth')
-const appUrl = urls?.appUrl
-const migratorUrl = urls?.migratorUrl
+const database = resolveLocalTestDatabase('@xuanxue/auth')
+const appUrl = database?.appUrl
+const migratorUrl = database?.migratorUrl
 
 const integration = appUrl && migratorUrl
 if (integration) {
@@ -54,7 +55,7 @@ export default defineConfig({
             },
           ]
         : []),
-      // 2.4 的 CPU 时间测量（probe/README.md），只在 `pnpm probe:cpu` 时运行
+      // 2.4 的 CPU 时间测量（probe/README.md），只在 `pnpm probe:cpu` 时运行，不经 turbo（turbo-env-ignore）
       ...(integration && process.env.AUTH_CPU_PROBE
         ? [
             {
