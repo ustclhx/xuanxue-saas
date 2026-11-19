@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blog list</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<nav class="nav d-only" aria-label="Main">
+<a href="ComponentsWest.dc.html">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyWest.dc.html">Number of the Day</a>
+<a href="PricingWestMobile.dc.html">Pricing</a>
+<a href="#footer">Sign in</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap page-main">
+
+<div class="tool-head">
+<h1 class="t-title">Blog</h1>
+<p class="muted">Guides to the methods behind the calculators, and notes on what changed.</p>
+</div>
+
+<div class="when when-list">
+<div class="bstack">
+<nav class="toc" aria-label="Topics">
+<a class="on" aria-current="page" href="#footer">All</a><a href="#footer">Numerology</a><a href="#footer">Tarot</a><a href="#footer">Updates</a>
+</nav>
+<ul class="bstack" aria-label="Featured post">
+<li class="bcard feat">
+<div class="cover" role="img" aria-label="Hand writing a column of numbers on paper"><span>Cover image · 16:9<br>from the post's cover field</span></div>
+<div class="btxt">
+<p class="t-caption subtle">Numerology · <time datetime="2026-11-12">November 12, 2026</time></p>
+<h2 class="t-title"><a href="BlogPost.dc.html">How to Calculate Your Life Path Number by Hand</a></h2>
+<p class="muted">The three reductions, where master numbers are kept, and the two shortcuts that give a wrong answer.</p>
+</div>
+</li>
+</ul>
+<ul class="bgrid">
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">11</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">Numerology · <time datetime="2026-11-05">November 5, 2026</time></p>
+<h2 class="t-heading"><a href="#footer">Master Numbers 11, 22 and 33 Explained</a></h2>
+<p class="muted">Why some traditions stop reducing at these three values, and what that changes in a chart.</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" role="img" aria-label="A tarot card lying upside down on a table"><span>Cover image · 16:9</span></div>
+<div class="btxt">
+<p class="t-caption subtle">Tarot · <time datetime="2026-10-28">October 28, 2026</time></p>
+<h2 class="t-heading"><a href="#footer">Tarot Reversals: How to Read a Reversed Card</a></h2>
+<p class="muted">Three common ways readers treat an upside-down card, and how to pick one and stay consistent.</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">9</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">Numerology · <time datetime="2026-10-19">October 19, 2026</time></p>
+<h2 class="t-heading"><a href="#footer">Personal Year Numbers: A Month-by-Month Guide</a></h2>
+<p class="muted">How the nine-year cycle is counted, and a plain way to use it for planning rather than prediction.</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">XIX</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">Tarot · <time datetime="2026-10-12">October 12, 2026</time></p>
+<h2 class="t-heading"><a href="#footer">How to Ask a Good Tarot Question</a></h2>
+<p class="muted">Open questions about your own choices get further than yes-or-no questions about other people.</p>
+</div>
+</li>
+<li class="bcard">
+<div class="cover" aria-hidden="true"><svg viewBox="0 0 320 180"><circle class="mo-s" cx="160" cy="90" r="68"/><circle class="mo-s mo-f" cx="160" cy="90" r="50"/><text class="cg" x="160" y="93">7</text></svg></div>
+<div class="btxt">
+<p class="t-caption subtle">Updates · <time datetime="2026-10-03">October 3, 2026</time></p>
+<h2 class="t-heading"><a href="#footer">What Changed in the Numerology Calculator</a></h2>
+<p class="muted">Every reduction step is now shown, and the share link no longer includes a name.</p>
+</div>
+</li>
+</ul>
+<nav class="pager" aria-label="Pages">
+<span class="t-caption subtle">Page 1 of 3</span>
+<a class="link" href="#footer">Older posts →</a>
+</nav>
+</div>
+</div>
+
+<div class="when when-empty">
+<section class="obj stack" aria-labelledby="be-west" style="max-width: var(--measure-prose)">
+<h2 class="t-heading" id="be-west">No posts yet.</h2>
+<p class="muted">There are no published articles on Arcanumber yet. The free tools are ready: start with the <a class="il" href="ToolLifePath.dc.html">life path number</a> calculator, or draw a <a class="il" href="TarotDraw.dc.html">three-card tarot</a> spread.</p>
+</section>
+</div>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#footer">FAQ</a><a href="BlogList.dc.html">Blog</a><a href="#footer">Guides</a><a href="Docs.dc.html">Docs</a><a href="Legal.dc.html">Privacy Policy</a><a href="#footer">Terms of Service</a><a href="#footer">Refund Policy</a><a href="#footer">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["list","empty"],"default":"list"},"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'list';
+const more = {};
+return Object.assign({
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>

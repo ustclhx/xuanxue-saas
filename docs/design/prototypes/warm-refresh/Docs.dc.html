@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Documentation page</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="LandingWest.dc.html">Arcanumber</a>
+<nav class="nav d-only" aria-label="Main">
+<a href="ComponentsWest.dc.html">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyWest.dc.html">Number of the Day</a>
+<a href="PricingWestMobile.dc.html">Pricing</a>
+<a href="#footer">Sign in</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap">
+<div class="docs" style="padding-bottom: var(--space-section)">
+
+<aside class="stack" aria-label="Documentation">
+<div class="field">
+<label class="label" for="doc-q">Search documentation</label>
+<input class="input" id="doc-q" type="search" placeholder="Search…">
+</div>
+<nav class="docnav" aria-label="Documentation">
+<a class="on" href="#doc-a" aria-current="page">Getting started</a>
+<a href="#doc-a">Configuration</a>
+<a href="#doc-a">Content</a>
+<a href="#doc-a">Public API</a>
+</nav>
+</aside>
+
+<article class="article" aria-labelledby="doc-a">
+<p class="t-caption subtle">Documentation</p>
+<h1 class="t-title" id="doc-a">Getting started</h1>
+<p class="t-lead" style="color: var(--ink)">The public API returns the same calculations the tools on this site use. This page shows one request from start to finish.</p>
+
+<h2 class="t-title">Make a request</h2>
+<p>Send the birth date as an ISO date. No key is needed for the free endpoints, which are rate limited per address.</p>
+<pre class="code">GET /api/v1/numerology/life-path?date=1990-05-15
+
+{
+  "value": 3,
+  "master": false,
+  "steps": ["5", "15 → 6", "1990 → 19 → 10 → 1", "5 + 6 + 1 = 12 → 3"]
+}</pre>
+
+<h2 class="t-title">Read the response</h2>
+<p><code>value</code> is the reduced number. <code>master</code> is true when the total stopped at 11, 22 or 33. <code>steps</code> lists each reduction in the order the <a class="il" href="ToolLifePath.dc.html">life path number</a> calculator shows them.</p>
+<p class="note">The endpoint paths above are placeholders: [API BASE PATH]. Check the Public API page for the current list.</p>
+
+<h2 class="t-title">Next</h2>
+<p>Field names, limits and error codes are listed under <a class="il" href="#doc-a">Public API</a>. Site settings are covered in <a class="il" href="#doc-a">Configuration</a>.</p>
+</article>
+
+</div>
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">Arcanumber</span>
+<p class="t-caption subtle">Explore divination traditions through tools and guides for self-reflection.</p>
+</div>
+<nav class="ftr-links" aria-label="Footer">
+<a href="#footer">FAQ</a><a href="BlogList.dc.html">Blog</a><a href="#footer">Guides</a><a href="Docs.dc.html">Docs</a><a href="Legal.dc.html">Privacy Policy</a><a href="#footer">Terms of Service</a><a href="#footer">Refund Policy</a><a href="#footer">Disclaimer</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">Theme</span><div class="seg" role="group" aria-label="Theme"><button type="button" class="is-light">Light</button><button type="button" class="is-dark">Dark</button><button type="button">System</button></div></div>
+</div>
+<p class="disc">Calculated with traditional methods, with AI-assisted interpretation. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.</p>
+<p class="t-caption subtle">© 2026 Arcanumber. All rights reserved.</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const more = {};
+return Object.assign({
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>
