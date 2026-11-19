@@ -89,7 +89,8 @@ export function EastDailyPage({
 }) {
   const [facts, setFacts] = useState(data.facts)
   const [localDate, setLocalDate] = useState<CivilDate | null>(null)
-  const [selected, setSelected] = useState<Stem>('jia')
+  // 未选日主、未填生日时只显示通用部分（设计稿状态表），不默认展开某个日主
+  const [selected, setSelected] = useState<Stem | null>(null)
   const [personal, setPersonal] = useState<Personal | null>(null)
   const date = parseDateKey(facts.date) ?? { year: 1970, month: 1, day: 1 }
 
@@ -290,7 +291,7 @@ function DayMasterSection({
   locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   rules: EastRules
   facts: EastDayFacts
-  selected: Stem
+  selected: Stem | null
   onSelect: (stem: Stem) => void
   personal: Personal | null
   onPersonal: (personal: Personal) => void
@@ -329,15 +330,21 @@ function DayMasterSection({
             </button>
           )
         })}
-        <button
-          type="button"
-          aria-expanded={formOpen}
-          onClick={() => setFormOpen((open) => !open)}
-          className="min-h-12 rounded-field border border-field-border bg-transparent px-4 text-body text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-        >
-          {m.daily_unknown_master()}
-        </button>
       </div>
+      {/* 「输入生日」不是页签：放在页签列表之外（tablist 里只能有 tab） */}
+      <button
+        type="button"
+        aria-expanded={formOpen}
+        onClick={() => setFormOpen((open) => !open)}
+        className="min-h-12 self-start rounded-field border border-field-border bg-transparent px-4 text-body text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+      >
+        {m.daily_unknown_master()}
+      </button>
+      {selected === null && (
+        <p className="m-0 text-body text-ink-muted" data-testid="daily-master-neutral">
+          {m.daily_master_neutral()}
+        </p>
+      )}
       {formOpen && <PersonalForm locale={locale} date={facts.date} onResult={onPersonal} />}
       {stemOrder().map((stem) => {
         const tenGod = tenGodFor(stem, facts.stem)

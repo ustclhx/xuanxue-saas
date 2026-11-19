@@ -130,5 +130,7 @@
   "numerology_neighbors_root": "As a master number, {number} is also read next to its root, [Life Path Number {root}], the theme of {theme}.",
   "numerology_band_number": "The full calculator sets your life path beside your name numbers and personal year on one page.",
   "numerology_band_hub": "The full calculator combines your birth date and name: Life Path, Destiny, Soul Urge, Personality and Personal Year on one page.",
-  "numerology_band_link": "Numerology calculator"
+  "numerology_band_link": "Numerology calculator",
+  "numerology_name_example": "Example · {name} (fictional)",
+  "numerology_name_example_note": "This is an example. Enter a name above to see its own letters and steps."
 }

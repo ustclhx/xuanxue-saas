@@ -130,5 +130,7 @@
   "numerology_neighbors_root": "作為大師數，{number} 也常與它的根數一起看：[生命靈數{root}]，主題是{theme}。",
   "numerology_band_number": "完整計算器會把生命靈數、姓名數字與個人年放在同一頁。",
   "numerology_band_hub": "完整計算器結合出生日期與姓名：生命靈數、命運數、靈魂渴望數、人格數與個人年都在同一頁。",
-  "numerology_band_link": "靈數計算器"
+  "numerology_band_link": "靈數計算器",
+  "numerology_name_example": "範例 · {name}（虛構）",
+  "numerology_name_example_note": "這是範例。在上方輸入姓名，即可看到它自己的字母與步驟。"
 }

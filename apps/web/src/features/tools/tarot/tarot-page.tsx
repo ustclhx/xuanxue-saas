@@ -481,10 +481,11 @@ function TarotResult({
               data-card={card.cardId}
             >
               <span className="text-caption text-ink-subtle">{position.name}</span>
-              <h3 className="m-0 font-heading text-ink text-subtitle">
+              {/* 结果区的第一层标题：页面 H1 之后直接是 H2，标题层级不跳级 */}
+              <h2 className="m-0 font-heading text-ink text-subtitle">
                 {meaning.name} ·{' '}
                 <span data-testid="tarot-orientation">{orientationLabel(card.reversed)}</span>
-              </h3>
+              </h2>
               <p className="m-0 text-caption text-ink-subtle">
                 {m.tarot_keywords_label()}: {meaning.keywords.join(' · ')}
               </p>

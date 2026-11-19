@@ -130,5 +130,7 @@
   "numerology_neighbors_root": "마스터 넘버인 {number}는 뿌리 숫자와 함께 읽기도 합니다. [라이프 패스 넘버 {root}]의 주제는 {theme}입니다.",
   "numerology_band_number": "전체 계산기는 라이프 패스와 이름 숫자, 개인 연도를 한 페이지에 함께 보여 줍니다.",
   "numerology_band_hub": "전체 계산기는 생년월일과 이름을 함께 사용해 라이프 패스, 데스티니, 소울 어지, 퍼스널리티, 개인 연도를 한 페이지에 보여 줍니다.",
-  "numerology_band_link": "수비학 계산기"
+  "numerology_band_link": "수비학 계산기",
+  "numerology_name_example": "예시 · {name}(가상의 이름)",
+  "numerology_name_example_note": "예시입니다. 위에 이름을 입력하면 그 이름의 글자와 계산 과정을 볼 수 있습니다."
 }

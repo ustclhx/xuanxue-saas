@@ -24,7 +24,7 @@ export const Route = createFileRoute('/destiny-number')({
     <NumerologyContentPage
       tool="destiny-number"
       content={Route.useLoaderData()}
-      calculator={<NameCalculator focus="expression" />}
+      calculator={<NameCalculator focus="expression" example="Morgan Avery Lee" />}
     />
   ),
 })

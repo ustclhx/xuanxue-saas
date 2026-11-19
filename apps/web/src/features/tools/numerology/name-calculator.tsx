@@ -71,11 +71,25 @@ export function LetterTable({ normalized }: { normalized: string }) {
   )
 }
 
-export function NameNumberBlock({ which, result }: { which: NameNumberKey; result: NumberResult }) {
+export function NameNumberBlock({
+  which,
+  result,
+  example,
+}: {
+  which: NameNumberKey
+  result: NumberResult
+  /** 未提交前的样例：说明文字按正文字号放在数字下方（设计稿样例卡），不作区块底部的小字 */
+  example?: boolean
+}) {
   const copy = NAME_NUMBER_COPY[which]
   return (
-    <ResultBlock id={copy.id} title={copy.title()} description={copy.description()}>
+    <ResultBlock
+      id={copy.id}
+      title={copy.title()}
+      description={example ? undefined : copy.description()}
+    >
       <NumberHeadline result={result} size="sm" />
+      {example && <p className="m-0 text-body text-ink-muted">{copy.description()}</p>}
       <NameNumberSteps result={result} />
     </ResultBlock>
   )
@@ -85,7 +99,14 @@ export function NameNumberBlock({ which, result }: { which: NameNumberKey; resul
  * 姓名数字计算器（/name-numerology 与 soul urge / destiny 枢纽页共用）：只要求姓名，
  * 输出表达数、灵魂数、人格数与逐字母取值；`focus` 指定的数字排在最前。姓名不进入分享链接与埋点。
  */
-export function NameCalculator({ focus = 'expression' }: { focus?: NameNumberKey }) {
+export function NameCalculator({
+  focus = 'expression',
+  example,
+}: {
+  focus?: NameNumberKey
+  /** 未提交前展示的样例姓名（枢纽页；设计稿状态表「未输入 = 示例结果」），只算 `focus` 这一个数字 */
+  example?: string
+}) {
   const { track } = useTool()
   const errorId = useId()
   const [result, setResult] = useState<NameResult | null>(null)
@@ -121,6 +142,17 @@ export function NameCalculator({ focus = 'expression' }: { focus?: NameNumberKey
         <SubmitButton>{m.numerology_calculate()}</SubmitButton>
       </ToolForm>
       <FieldError id={errorId}>{error}</FieldError>
+      {!result && example && (
+        <div className="flex max-w-190 flex-col gap-3" data-testid="name-example">
+          <p role="note" className="m-0 text-caption text-ink-subtle">
+            {m.numerology_name_example({ name: example })}
+          </p>
+          <NameNumberBlock which={focus} result={nameNumbers(example)[focus]} example />
+          <p role="note" className="m-0 text-caption text-ink-subtle">
+            {m.numerology_name_example_note()}
+          </p>
+        </div>
+      )}
       {result && (
         <div className="flex flex-col gap-5">
           <div className="grid gap-5 md:grid-cols-3">
