@@ -12,5 +12,5 @@
   "growth_submit_failed": "无法提交，请再试一次。",
   "growth_newsletter_success": "请查看电子邮件并确认订阅。",
   "growth_waitlist_success": "你已加入候补名单。",
-  "growth_back_home": "返回首页"
+  "growth_privacy_note": "这个地址只用于发送这些邮件。详见[隐私政策](privacy)；每封邮件都可以退订。"
 }

@@ -11,6 +11,9 @@ import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../features/i18n/prefe
 import { siteSuggestableLocales } from '../features/i18n/site-suggestion.ts'
 import { localeSuggestionScript } from '../features/i18n/suggestion.ts'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
+import { contentLinks } from '../features/marketing/content-links.ts'
+import { ContentHead, ContentPage, inlineLinks } from '../features/marketing/content-page.tsx'
+import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { privateMeta, titleWithSite } from '../features/seo/metadata.ts'
 import {
   getPlausibleSite,
@@ -121,33 +124,38 @@ function rootBrand(site: SiteId): string {
 }
 
 /**
- * 404 页（保持 404 状态，不跳转首页）：给出回到本站首页与定价页的入口。
+ * 404 页（保持 404 状态，不跳转首页；设计稿 warm-refresh/NotFound.dc.html）：小字「错误 404」、H1、一句说明
+ * 与回到本站首页的主按钮。说明里链接本站的主工具与三张牌塔罗（正文内链 2 条）。
  * 链接按本站导航语言生成完整地址（siteNavLocale），不落到另一站点或本站不存在的语言路径。
+ * 营销站点开启时带站点页头与页脚；关闭时只输出正文。
  */
 function NotFoundPage() {
   const site = useSiteId()
   const locale = siteNavLocale(site, getLocale(), templateConfig) as Locale
-  const pricing = templateConfig.marketing.enabled && templateConfig.billing.enabled
-  return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-24 text-center">
-      <h1 className="font-heading text-3xl font-semibold">{m.common_not_found_title()}</h1>
-      <p className="text-ink-muted">{m.common_not_found_body()}</p>
-      <nav className="mt-4 flex flex-wrap items-center justify-center gap-3">
-        <a
-          href={localizeHref('/', { locale })}
-          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 font-semibold text-on-brand"
-        >
-          {m.common_not_found_home({ brand: siteBrandName(templateConfig, site, locale) })}
-        </a>
-        {pricing && (
+  const body = (
+    <ContentPage>
+      <ContentHead
+        eyebrow={<p className="m-0 text-caption text-ink-subtle">{m.common_not_found_eyebrow()}</p>}
+        title={m.common_not_found_title()}
+      >
+        <p className="m-0 text-body text-ink-muted">
+          {inlineLinks(m.common_not_found_body({}, { locale }), contentLinks(locale))}
+        </p>
+        <p className="m-0 mt-3 flex">
           <a
-            href={localizeHref('/pricing', { locale })}
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-5 font-semibold text-ink"
+            href={localizeHref('/', { locale })}
+            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-brand px-7 font-medium text-body text-on-brand no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3 sm:w-auto"
           >
-            {m.common_not_found_pricing()}
+            {m.common_not_found_home({ brand: siteBrandName(templateConfig, site, locale) })}
           </a>
-        )}
-      </nav>
+        </p>
+      </ContentHead>
+    </ContentPage>
+  )
+  if (templateConfig.marketing.enabled) return <MarketingShell>{body}</MarketingShell>
+  return (
+    <main data-surface="marketing" className="text-body">
+      {body}
     </main>
   )
 }

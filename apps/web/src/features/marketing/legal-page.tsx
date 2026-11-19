@@ -5,6 +5,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { ogImagePath, originFromMatches, pageHead } from '../seo/metadata.ts'
 import { formatDate } from './blog/post-list.tsx'
 import { getLegalPage } from './content.functions.ts'
+import { ContentHead, ContentPage, MetaLine } from './content-page.tsx'
 import { type LegalSlug, SUPPORT_EMAIL_TOKEN } from './legal-tokens.ts'
 import { MarketingShell } from './marketing-shell.tsx'
 import { RichContent } from './rich-content.tsx'
@@ -50,6 +51,10 @@ export function legalRouteOptions(slug: LegalSlug) {
   }
 }
 
+/**
+ * 法律页版式（设计稿 warm-refresh/Legal.dc.html）：H1、一行「最后更新」元信息，正文限宽 720px。
+ * 正文内链（服务条款、退款政策等）写在各页的 MDX 里；联系邮箱在正文末尾。
+ */
 export function LegalPage({ page }: { page: LegalPageData }) {
   const fallback = page.locale !== getLocale()
   // 联系邮箱按当前站点替换构建时留下的标记
@@ -57,31 +62,31 @@ export function LegalPage({ page }: { page: LegalPageData }) {
   const html = page.html.replaceAll(SUPPORT_EMAIL_TOKEN, email)
   return (
     <MarketingShell>
-      <div className="mx-auto grid max-w-3xl gap-4 px-4 py-16">
-        {fallback && (
-          <p
-            role="note"
-            className="m-0 rounded-lg border border-line px-4 py-3 text-ink-muted text-sm"
-          >
-            {m.marketing_legal_english_only()}
-          </p>
-        )}
-        <article lang={page.locale} className="grid min-w-0 gap-4">
-          <h1 className="font-bold text-4xl tracking-tight">{page.title}</h1>
+      <ContentPage>
+        <ContentHead title={<span lang={page.locale}>{page.title}</span>}>
+          <MetaLine
+            items={[m.marketing_legal_updated({ date: formatDate(page.updatedAt, page.locale) })]}
+          />
+          {fallback && (
+            <p role="note" className="m-0 rounded-field bg-surface-2 px-4 py-3 text-body text-ink">
+              {m.marketing_legal_english_only()}
+            </p>
+          )}
+        </ContentHead>
+        <article
+          lang={page.locale}
+          aria-label={page.title}
+          className="flex max-w-180 flex-col gap-5"
+        >
           <RichContent html={html} />
-          <footer className="mt-8 grid gap-1 border-line border-t pt-4 text-muted-foreground text-sm">
-            <p className="m-0">
-              {m.marketing_legal_updated({ date: formatDate(page.updatedAt, page.locale) })}
-            </p>
-            <p className="m-0">
-              {m.marketing_legal_contact()}{' '}
-              <a href={`mailto:${email}`} className="underline">
-                {email}
-              </a>
-            </p>
-          </footer>
+          <p className="m-0 text-caption text-ink-subtle">
+            {m.marketing_legal_contact()}{' '}
+            <a href={`mailto:${email}`} className="text-brand-ink">
+              {email}
+            </a>
+          </p>
         </article>
-      </div>
+      </ContentPage>
     </MarketingShell>
   )
 }

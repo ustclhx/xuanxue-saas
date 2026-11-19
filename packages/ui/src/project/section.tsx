@@ -66,11 +66,32 @@ export function Section({
   )
 }
 
+/**
+ * 正文内各元素的排版（设计稿 warm-refresh/BlogPost.dc.html、Proposals79 B「Prose 补样式」）：
+ * 小标题、链接、列表、提示块（blockquote，surface 圆角块）、行内代码与代码块（模板已有的等宽字体，caption 字号）。
+ * 只定样式不定间距：`Prose` 用 flex 间距，构建期 HTML 正文（应用层的 RichContent）用外边距。
+ */
+export const PROSE_ELEMENTS = [
+  '[&_h2]:text-balance [&_h2]:font-bold [&_h2]:font-heading [&_h2]:text-ink [&_h2]:text-title',
+  '[&_h3]:font-bold [&_h3]:font-heading [&_h3]:text-ink [&_h3]:text-subtitle',
+  '[&_a]:text-brand-ink [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:decoration-2',
+  '[&_strong]:font-semibold [&_strong]:text-ink',
+  '[&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-2',
+  '[&_blockquote]:rounded-object [&_blockquote]:bg-surface [&_blockquote]:px-6 [&_blockquote]:py-5',
+  '[&_code]:rounded-sm [&_code]:bg-surface-2 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-caption [&_code]:text-ink',
+  '[&_pre]:overflow-x-auto [&_pre]:rounded-field [&_pre]:bg-surface [&_pre]:px-5 [&_pre]:py-4 [&_pre]:font-mono [&_pre]:text-caption [&_pre]:text-ink',
+  '[&_pre_code]:bg-transparent [&_pre_code]:p-0',
+].join(' ')
+
 /** 正文：限宽 720px，段落之间 16px；CJK 与拉丁正文都用营销作用域的 body 行高 */
 export function Prose({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
-      className={cn('flex max-w-180 flex-col gap-4 text-body text-ink-muted', className)}
+      className={cn(
+        'flex max-w-180 flex-col gap-4 text-body text-ink-muted',
+        PROSE_ELEMENTS,
+        className,
+      )}
       {...props}
     />
   )

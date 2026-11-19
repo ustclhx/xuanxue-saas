@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { getGuideIndex } from '../../features/marketing/content.functions.ts'
+import { ContentHead, ContentPage } from '../../features/marketing/content-page.tsx'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import { originFromMatches, pageHead, staticPage } from '../../features/seo/metadata.ts'
 import { m } from '../../paraglide/messages.js'
-import { getLocale } from '../../paraglide/runtime.js'
+import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 
 export const Route = createFileRoute('/guides/')({
   loader: () => getGuideIndex({ data: { locale: getLocale() } }),
@@ -11,30 +12,32 @@ export const Route = createFileRoute('/guides/')({
   component: GuideIndexPage,
 })
 
+/** 指南列表：细线分隔的列表，标题是每条唯一的链接（锚文本为指南标题） */
 function GuideIndexPage() {
   const guides = Route.useLoaderData()
+  const locale = getLocale()
   return (
     <MarketingShell>
-      <div className="mx-auto grid max-w-3xl gap-10 px-4 py-16">
-        <header className="grid gap-3">
-          <h1 className="font-bold text-4xl tracking-tight">{m.marketing_guides_title()}</h1>
-          <p className="text-muted-foreground">{m.marketing_guides_subtitle()}</p>
-        </header>
-        <ul className="grid gap-6">
+      <ContentPage>
+        <ContentHead title={m.marketing_guides_title()}>
+          <p className="m-0 text-body text-ink-muted">{m.marketing_guides_subtitle()}</p>
+        </ContentHead>
+        <ul className="m-0 flex max-w-180 list-none flex-col border-line border-t p-0">
           {guides.map((guide) => (
-            <li key={guide.slug} className="grid gap-1">
-              <Link
-                to="/guides/$slug"
-                params={{ slug: guide.slug }}
-                className="font-semibold text-xl hover:underline"
-              >
-                {guide.title}
-              </Link>
-              <p className="text-muted-foreground">{guide.answer_summary}</p>
+            <li key={guide.slug} className="flex flex-col gap-2 border-line border-b py-7">
+              <h2 className="m-0 font-heading text-ink text-subtitle">
+                <a
+                  href={localizeHref(`/guides/${encodeURIComponent(guide.slug)}`, { locale })}
+                  className="text-brand-ink"
+                >
+                  {guide.title}
+                </a>
+              </h2>
+              <p className="m-0 text-body text-ink-muted">{guide.answer_summary}</p>
             </li>
           ))}
         </ul>
-      </div>
+      </ContentPage>
     </MarketingShell>
   )
 }

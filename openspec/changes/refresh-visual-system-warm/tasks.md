@@ -93,7 +93,7 @@
 
 依赖：3、4、5。冲突点：`features/marketing/legal-page.tsx`、`rich-content.tsx`、`blog/`、`docs-layout.tsx`、`east-english/page.tsx`、`routes/faq.tsx`、`newsletter.tsx`、`waitlist.tsx`、`disclaimer.tsx`、404 页。
 
-- [ ] 9.1 法律页、博客列表与文章、文档、FAQ、newsletter / waitlist、东方站 `/en` 入口页与 404 按新视觉改版，正文使用 `Prose`（≤ 720px、CJK 行高）。验证：`visual-rules.spec.ts` 启用法律页与博客文章；`legal-pages` 测试通过；本组条目从允许名单删除
+- [x] 9.1 法律页、博客列表与文章、文档、FAQ、newsletter / waitlist、东方站 `/en` 入口页与 404 按新视觉改版，正文使用 `Prose`（≤ 720px、CJK 行高）。验证：`visual-rules.spec.ts` 启用法律页与博客文章；`legal-pages` 测试通过；本组条目从允许名单删除
 - [ ] 9.2 【Codex】按副本对照截图，axe 检查。验证：同 6.2
 
 ## 10. 集成验收与发布（协调者；外部动作需使用者授权）
