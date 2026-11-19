@@ -60,7 +60,8 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 在根目录运行，Node >=22 与 package.json 声明的 pnpm 版本为前提。
 数据库命令及集成测试需要已启动的本地 PG；Orca worktree 使用自己的 `.env.worktree`。
 测试只连接隔离库（`xuanxue_wt_*`、`xuanxue_test*`，CI 另接受 `xuanxue_ci`），规则见 `packages/db/test-database.ts`。
-没有 `.env.worktree` 时，db/auth/jobs/web 改用自动创建的 `xuanxue_test`（`packages/db/test-database.local.ts`），
+未配置连接串且不在 CI 时，db/auth/jobs/web 回落到本地 `xuanxue_test`（端口按 `apps/web/.dev.vars`、`.env`、
+`infra/local/docker-compose.yml` 推导，即 5433）；首次使用前按[本地集成测试数据库](docs/02-project-structure.md#5-本地集成测试数据库)创建该库。
 billing/credits/storage/entitlements 只跑离线用例；绝不回退到开发库 `xuanxue_dev`，不设置 `ALLOW_TEST_ON_DEV_DATABASE`。
 
 | 命令 | 用途 |
@@ -71,7 +72,7 @@ billing/credits/storage/entitlements 只跑离线用例；绝不回退到开发�
 | `pnpm typecheck` | 所有包和应用类型检查，生成路由与文案 |
 | `pnpm check:deps` | 内部依赖方向检查 |
 | `pnpm check:singletons` | 关键依赖唯一实例检查 |
-| `pnpm test` | 各包测试；有隔离数据库配置时包含集成测试 |
+| `pnpm test` | 单元测试与已启用的集成测试 |
 | `pnpm build` | web 生产构建与 jobs 部署 dry-run |
 | `pnpm eval:prompts --suite <name>` | 提示词评测，默认离线回放；真实调用须 `--live`/`--record` 与 `--budget-usd` |
 | `openspec list --json` | 查看当前 change 与项目根 |

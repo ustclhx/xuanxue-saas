@@ -1,12 +1,12 @@
 import { cloudflareTest } from '@cloudflare/vitest-plugin'
 import { defineConfig } from 'vitest/config'
-import { resolveLocalTestDatabase } from './test-database.local.ts'
+import { resolveTestDatabase } from './test-database.ts'
 
-// 集成测试连接的本地库：环境变量 → .env.worktree（必须是隔离库，见 @xuanxue/db/test-database）
-// → 本机自动创建的专用测试库 xuanxue_test；不回退到开发库 xuanxue_dev。
-// CI 中未显式提供连接串时跳过集成测试，只跑单元测试。见 @xuanxue/db/test-database.local。
+// 测试库按环境变量、.env.worktree、本地 <项目>_test 的顺序解析。
+// ALLOW_TEST_ON_DEV_DATABASE=1 时允许使用开发库。
+// CI 中没有本地 Postgres 时（未显式提供连接串）跳过集成测试，只跑单元测试。
 const HYPERDRIVE_ENV = 'CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE'
-const database = resolveLocalTestDatabase('@xuanxue/db')
+const database = resolveTestDatabase('@xuanxue/db', { devFallback: true })
 const appUrl = database?.appUrl
 const migratorUrl = database?.migratorUrl
 
