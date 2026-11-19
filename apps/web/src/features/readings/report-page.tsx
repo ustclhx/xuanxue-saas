@@ -13,6 +13,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { formatDisplayTime, LocalDateTime, useHydrated } from '../shared/local-date-time.tsx'
 import { useSiteId } from '../site/context.tsx'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { TOOL_ROUTES, toolsForLocale } from '../tools/registry.ts'
@@ -40,12 +41,6 @@ const POLL_MS = 3000
 // 报告追问（adopt-subject-chat-readings tasks.md 5.1）：对话组件较大，懒加载，不进入报告正文的首屏 bundle
 const ReportChat = lazy(() => import('./report-chat.tsx'))
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }).format(
-    new Date(iso),
-  )
-}
-
 function StatusLabel({ status }: { status: ReadingView['status'] }) {
   const text =
     status === 'ready'
@@ -65,6 +60,8 @@ function StatusLabel({ status }: { status: ReadingView['status'] }) {
 
 export function ReadingReportPage({ slug, initial }: { slug: string; initial: ReadingView }) {
   const [view, setView] = useState(initial)
+  // 创建时间：SSR 与水合首帧按 UTC，之后切到浏览器时区，避免 React #418
+  const hydrated = useHydrated()
   useEffect(() => setView(initial), [initial])
   useEffect(() => {
     if (view.status !== 'generating') return
@@ -100,7 +97,7 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
           </h1>
           <p className="m-0 flex flex-wrap items-center gap-3 text-caption text-ink-subtle">
             <StatusLabel status={view.status} />
-            {m.readings_report_created({ date: formatDate(view.createdAt) })}
+            {m.readings_report_created({ date: formatDisplayTime(view.createdAt, hydrated) })}
           </p>
         </header>
         {view.status === 'generating' && (
@@ -317,7 +314,7 @@ export function ReadingsListPage({
                 </Link>
                 <span className="flex flex-wrap items-center gap-2 text-caption text-ink-subtle">
                   <StatusLabel status={item.status} />
-                  {formatDate(item.createdAt)}
+                  <LocalDateTime value={item.createdAt} />
                 </span>
               </div>
               <div className="flex gap-2">
