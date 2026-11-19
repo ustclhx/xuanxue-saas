@@ -1,65 +1,697 @@
 {
-  "v": 3,
-  "createdOnFiles": {"v": 1, "at": "2026-11-17T10:00:00Z"},
-  "title": "干支日 · Arcanumber 改版画布",
-  "launch": {"view": "canvas"},
-  "pages": [],
-  "boards": {
-    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 3840, "title": "首頁 /zh-hant · 桌面 1440 · 淺色"},
-    "LandingEastDark.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 3840, "title": "首頁 /zh-hant · 桌面 1440 · 深色"},
-    "LandingEastMobile.dc.html": {"x": 3040, "y": 0, "w": 390, "h": 5200, "title": "首頁 /zh-hant · 手機 390 · 淺色"},
-    "LandingEastMobileDark.dc.html": {"x": 3510, "y": 0, "w": 390, "h": 5200, "title": "首頁 /zh-hant · 手機 390 · 深色"},
-    "LandingKoMobile.dc.html": {"x": 3980, "y": 0, "w": 390, "h": 5000, "title": "首頁 /ko · 手機 390 · 淺色（韓文字體檢查）"},
-    "CopyReview.dc.html": {"x": 4530, "y": 0, "w": 1100, "h": 1900, "title": "待确认文案（四语）"},
-    "Proposals.dc.html": {"x": 5710, "y": 0, "w": 1100, "h": 2400, "title": "token / 组件变更提议"},
-    "PageTitles.dc.html": {"x": 6890, "y": 0, "w": 1100, "h": 1900, "title": "页面 title 规则：每页带站名"},
-
-    "LandingWest.dc.html": {"x": 0, "y": 5700, "w": 1440, "h": 3900, "title": "Home / · desktop 1440 · Light (default)"},
-    "LandingWestDark.dc.html": {"x": 1520, "y": 5700, "w": 1440, "h": 3900, "title": "Home / · desktop 1440 · Dark"},
-    "LandingWestMobile.dc.html": {"x": 3040, "y": 5700, "w": 390, "h": 5300, "title": "Home / · mobile 390 · Light"},
-    "LandingWestMobileDark.dc.html": {"x": 3510, "y": 5700, "w": 390, "h": 5300, "title": "Home / · mobile 390 · Dark"},
-
-    "ToolBazi.dc.html": {"x": 0, "y": 11500, "w": 1440, "h": 3800, "title": "/zh-hant/八字排盤 · 桌面 · 淺色 · 含結果"},
-    "ToolBaziMobile.dc.html": {"x": 1520, "y": 11500, "w": 390, "h": 5300, "title": "/zh-hant/八字排盤 · 手機 · 淺色 · 含結果"},
-    "ToolBaziMobileDark.dc.html": {"x": 1990, "y": 11500, "w": 390, "h": 5300, "title": "/zh-hant/八字排盤 · 手機 · 深色 · 含結果"},
-    "ToolLifePath.dc.html": {"x": 2460, "y": 11500, "w": 1440, "h": 3750, "title": "/life-path-number · desktop · Light · with result"},
-    "ToolLifePathMobile.dc.html": {"x": 3980, "y": 11500, "w": 390, "h": 5600, "title": "/life-path-number · mobile · Light · with result"},
-
-    "ComponentsEast.dc.html": {"x": 0, "y": 17600, "w": 1280, "h": 4100, "title": "共享組件 · 干支日 · 淺色"},
-    "ComponentsEastDark.dc.html": {"x": 1360, "y": 17600, "w": 1280, "h": 4100, "title": "共享組件 · 干支日 · 深色"},
-    "ComponentsWest.dc.html": {"x": 2720, "y": 17600, "w": 1280, "h": 4100, "title": "Shared components · Arcanumber · Light"},
-    "ComponentsWestDark.dc.html": {"x": 4080, "y": 17600, "w": 1280, "h": 4100, "title": "Shared components · Arcanumber · Dark"},
-
-    "PricingEastMobile.dc.html": {"x": 0, "y": 22200, "w": 390, "h": 2900, "title": "/zh-hant/pricing · 手機 · 淺色"},
-    "PricingWestMobile.dc.html": {"x": 470, "y": 22200, "w": 390, "h": 2900, "title": "/pricing · mobile · Light"},
-    "ReportEastMobile.dc.html": {"x": 940, "y": 22200, "w": 390, "h": 2000, "title": "詳批報告頁 · 手機 · 淺色"},
-    "ReportWestMobile.dc.html": {"x": 1410, "y": 22200, "w": 390, "h": 2000, "title": "Reading report · mobile · Light"},
-
-    "StateError.dc.html": {"x": 2080, "y": 22200, "w": 390, "h": 1150, "title": "狀態 · 表單校驗錯誤 · 手機 · 淺色"},
-    "StateLoading.dc.html": {"x": 2550, "y": 22200, "w": 390, "h": 1600, "title": "狀態 · 結果載入中 · 手機 · 淺色"},
-    "StateEmpty.dc.html": {"x": 3020, "y": 22200, "w": 390, "h": 1550, "title": "State · empty result (example) · mobile · Light"}
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-17T10:00:00Z"
+ },
+ "title": "干支日 · Arcanumber 改版画布",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3840,
+   "title": "首頁 /zh-hant · 桌面 1440 · 淺色"
   },
-  "order": [
-    "Main.dc.html", "LandingEastDark.dc.html", "LandingEastMobile.dc.html", "LandingEastMobileDark.dc.html", "LandingKoMobile.dc.html",
-    "CopyReview.dc.html", "Proposals.dc.html", "PageTitles.dc.html",
-    "LandingWest.dc.html", "LandingWestDark.dc.html", "LandingWestMobile.dc.html", "LandingWestMobileDark.dc.html",
-    "ToolBazi.dc.html", "ToolBaziMobile.dc.html", "ToolBaziMobileDark.dc.html", "ToolLifePath.dc.html", "ToolLifePathMobile.dc.html",
-    "ComponentsEast.dc.html", "ComponentsEastDark.dc.html", "ComponentsWest.dc.html", "ComponentsWestDark.dc.html",
-    "PricingEastMobile.dc.html", "PricingWestMobile.dc.html", "ReportEastMobile.dc.html", "ReportWestMobile.dc.html",
-    "StateError.dc.html", "StateLoading.dc.html", "StateEmpty.dc.html"
-  ],
-  "notes": {
-    "t1": {"x": 0, "y": -300, "text": "1 · 落地首頁 · 干支日（東方站）", "kind": "title1", "maxW": 4370},
-    "t7": {"x": 4530, "y": -300, "text": "7 · 待确认：文案、变更提议与页面 title", "kind": "title1", "maxW": 3460},
-    "t2": {"x": 0, "y": 5400, "text": "2 · Landing homepage · Arcanumber (west)", "kind": "title1", "maxW": 3900},
-    "t3": {"x": 0, "y": 11200, "text": "3 · 遷移後的工具頁：表單在前、結果、長文在後", "kind": "title1", "maxW": 4370},
-    "t4": {"x": 0, "y": 17300, "text": "4 · 共享組件（兩站 × 淺 / 深）", "kind": "title1", "maxW": 5360},
-    "t5": {"x": 0, "y": 21900, "text": "5 · 定價頁與報告頁（手機淺色）", "kind": "title1", "maxW": 1800},
-    "t6": {"x": 2080, "y": 21900, "text": "6 · 狀態", "kind": "title1", "maxW": 1330},
-    "n1": {"x": 4530, "y": 2560, "w": 520, "fill": "orange", "text": "待确认文案：首页 H1、副标题、主按钮、证明行、工具区标题、一行价格为新写文案，四语全文见「待确认文案」画板。其余文字取自仓库现有 messages。主题与手机 / 桌面变体共用同一份标记：在浅色桌面的基础画板里改字，深色与手机画板同步更新。"},
-    "n2": {"x": 5090, "y": 2560, "w": 520, "fill": "gray", "text": "示例数据：虚构命盘 1990-05-15 10:30 台北 男（庚午 辛巳 庚辰 辛巳）与 Life Path 3，与仓库样例一致；工具页的五行占比、大运岁数为示意。今日条按 2026-11-17 计算：乙未日 / Universal Day 2。价格与积分按 2026-11-17 定价方案 A：详批每份 10 积分，每天登录送 10 积分；方括号内为待填事实。空 / 载入 / 错误态各一块（手机浅色）；首页为纯静态页，没有载入与错误态。"}
+  "LandingEastDark.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 3840,
+   "title": "首頁 /zh-hant · 桌面 1440 · 深色"
   },
-  "designSystems": [
-    {"title": "干支日 · Arcanumber 视觉系统", "namespace": "xuanxueds", "artifact": "https://claude.ai/artifact/Vq91QmAGachtxReBdSH5oc", "version": "1794916580-519e", "copiedAt": "2026-11-17T16:35:00Z"}
-  ]
+  "LandingEastMobile.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 390,
+   "h": 5200,
+   "title": "首頁 /zh-hant · 手機 390 · 淺色"
+  },
+  "LandingEastMobileDark.dc.html": {
+   "x": 3510,
+   "y": 0,
+   "w": 390,
+   "h": 5200,
+   "title": "首頁 /zh-hant · 手機 390 · 深色"
+  },
+  "LandingKoMobile.dc.html": {
+   "x": 3980,
+   "y": 0,
+   "w": 390,
+   "h": 5000,
+   "title": "首頁 /ko · 手機 390 · 淺色（韓文字體檢查）"
+  },
+  "CopyReview.dc.html": {
+   "x": 4530,
+   "y": 0,
+   "w": 1100,
+   "h": 1900,
+   "title": "待确认文案（四语）"
+  },
+  "Proposals.dc.html": {
+   "x": 5710,
+   "y": 0,
+   "w": 1100,
+   "h": 2400,
+   "title": "token / 组件变更提议"
+  },
+  "PageTitles.dc.html": {
+   "x": 6890,
+   "y": 0,
+   "w": 1100,
+   "h": 1900,
+   "title": "页面 title 规则：每页带站名"
+  },
+  "LandingWest.dc.html": {
+   "x": 0,
+   "y": 5700,
+   "w": 1440,
+   "h": 3900,
+   "title": "Home / · desktop 1440 · Light (default)"
+  },
+  "LandingWestDark.dc.html": {
+   "x": 1520,
+   "y": 5700,
+   "w": 1440,
+   "h": 3900,
+   "title": "Home / · desktop 1440 · Dark"
+  },
+  "LandingWestMobile.dc.html": {
+   "x": 3040,
+   "y": 5700,
+   "w": 390,
+   "h": 5300,
+   "title": "Home / · mobile 390 · Light"
+  },
+  "LandingWestMobileDark.dc.html": {
+   "x": 3510,
+   "y": 5700,
+   "w": 390,
+   "h": 5300,
+   "title": "Home / · mobile 390 · Dark"
+  },
+  "ToolBazi.dc.html": {
+   "x": 0,
+   "y": 11500,
+   "w": 1440,
+   "h": 3800,
+   "title": "/zh-hant/八字排盤 · 桌面 · 淺色 · 含結果"
+  },
+  "ToolBaziMobile.dc.html": {
+   "x": 1520,
+   "y": 11500,
+   "w": 390,
+   "h": 5300,
+   "title": "/zh-hant/八字排盤 · 手機 · 淺色 · 含結果"
+  },
+  "ToolBaziMobileDark.dc.html": {
+   "x": 1990,
+   "y": 11500,
+   "w": 390,
+   "h": 5300,
+   "title": "/zh-hant/八字排盤 · 手機 · 深色 · 含結果"
+  },
+  "ToolLifePath.dc.html": {
+   "x": 2460,
+   "y": 11500,
+   "w": 1440,
+   "h": 3750,
+   "title": "/life-path-number · desktop · Light · with result"
+  },
+  "ToolLifePathMobile.dc.html": {
+   "x": 3980,
+   "y": 11500,
+   "w": 390,
+   "h": 5600,
+   "title": "/life-path-number · mobile · Light · with result"
+  },
+  "ComponentsEast.dc.html": {
+   "x": 0,
+   "y": 17600,
+   "w": 1280,
+   "h": 4100,
+   "title": "共享組件 · 干支日 · 淺色"
+  },
+  "ComponentsEastDark.dc.html": {
+   "x": 1360,
+   "y": 17600,
+   "w": 1280,
+   "h": 4100,
+   "title": "共享組件 · 干支日 · 深色"
+  },
+  "ComponentsWest.dc.html": {
+   "x": 2720,
+   "y": 17600,
+   "w": 1280,
+   "h": 4100,
+   "title": "Shared components · Arcanumber · Light"
+  },
+  "ComponentsWestDark.dc.html": {
+   "x": 4080,
+   "y": 17600,
+   "w": 1280,
+   "h": 4100,
+   "title": "Shared components · Arcanumber · Dark"
+  },
+  "PricingEastMobile.dc.html": {
+   "x": 0,
+   "y": 22200,
+   "w": 390,
+   "h": 2900,
+   "title": "/zh-hant/pricing · 手機 · 淺色"
+  },
+  "PricingWestMobile.dc.html": {
+   "x": 470,
+   "y": 22200,
+   "w": 390,
+   "h": 2900,
+   "title": "/pricing · mobile · Light"
+  },
+  "ReportEastMobile.dc.html": {
+   "x": 940,
+   "y": 22200,
+   "w": 390,
+   "h": 2000,
+   "title": "詳批報告頁 · 手機 · 淺色"
+  },
+  "ReportWestMobile.dc.html": {
+   "x": 1410,
+   "y": 22200,
+   "w": 390,
+   "h": 2000,
+   "title": "Reading report · mobile · Light"
+  },
+  "StateError.dc.html": {
+   "x": 2080,
+   "y": 22200,
+   "w": 390,
+   "h": 1150,
+   "title": "狀態 · 表單校驗錯誤 · 手機 · 淺色"
+  },
+  "StateLoading.dc.html": {
+   "x": 2550,
+   "y": 22200,
+   "w": 390,
+   "h": 1600,
+   "title": "狀態 · 結果載入中 · 手機 · 淺色"
+  },
+  "StateEmpty.dc.html": {
+   "x": 3020,
+   "y": 22200,
+   "w": 390,
+   "h": 1550,
+   "title": "State · empty result (example) · mobile · Light"
+  },
+  "NumPage.dc.html": {
+   "x": 0,
+   "y": 26000,
+   "w": 1440,
+   "h": 5000,
+   "title": "/life-path-number/7 · desktop 1440 · Light"
+  },
+  "NumPageMobile.dc.html": {
+   "x": 1520,
+   "y": 26000,
+   "w": 390,
+   "h": 6600,
+   "title": "/life-path-number/7 · mobile 390 · Light"
+  },
+  "NumPageMobileDark.dc.html": {
+   "x": 1990,
+   "y": 26000,
+   "w": 390,
+   "h": 6600,
+   "title": "/life-path-number/7 · mobile 390 · Dark"
+  },
+  "NumHub.dc.html": {
+   "x": 2460,
+   "y": 26000,
+   "w": 1440,
+   "h": 4600,
+   "title": "/destiny-number · desktop 1440 · Dark"
+  },
+  "NumHubMobile.dc.html": {
+   "x": 3980,
+   "y": 26000,
+   "w": 390,
+   "h": 5900,
+   "title": "/destiny-number · mobile 390 · Light"
+  },
+  "Proposals79.dc.html": {
+   "x": 4530,
+   "y": 26000,
+   "w": 1100,
+   "h": 5200,
+   "title": "第 7、9 组 · 变更提议、内链规则、状态说明"
+  },
+  "TarotDraw.dc.html": {
+   "x": 0,
+   "y": 33220,
+   "w": 1440,
+   "h": 4400,
+   "title": "/tarot · desktop 1440 · Light · cards revealed"
+  },
+  "TarotDrawMobile.dc.html": {
+   "x": 1520,
+   "y": 33220,
+   "w": 390,
+   "h": 5800,
+   "title": "/tarot · mobile 390 · Light · cards revealed"
+  },
+  "TarotDrawMobileDark.dc.html": {
+   "x": 1990,
+   "y": 33220,
+   "w": 390,
+   "h": 5800,
+   "title": "/tarot · mobile 390 · Dark · cards revealed"
+  },
+  "TarotDrawInitialDark.dc.html": {
+   "x": 2460,
+   "y": 33220,
+   "w": 390,
+   "h": 4600,
+   "title": "/tarot · mobile 390 · Dark · before reveal (card backs)"
+  },
+  "TarotDrawError.dc.html": {
+   "x": 2930,
+   "y": 33220,
+   "w": 390,
+   "h": 1500,
+   "title": "State · /tarot invalid shared link · mobile 390 · Light"
+  },
+  "TarotEast.dc.html": {
+   "x": 3400,
+   "y": 33220,
+   "w": 390,
+   "h": 5100,
+   "title": "/zh-hans/塔罗 · 手机 390 · 浅色 · 已翻牌"
+  },
+  "TarotEastDark.dc.html": {
+   "x": 3870,
+   "y": 33220,
+   "w": 390,
+   "h": 5100,
+   "title": "/zh-hans/塔罗 · 手机 390 · 深色 · 已翻牌"
+  },
+  "TarotCard.dc.html": {
+   "x": 0,
+   "y": 39640,
+   "w": 1440,
+   "h": 4800,
+   "title": "/tarot/cards/the-sun · desktop 1440 · Light"
+  },
+  "TarotCardMobile.dc.html": {
+   "x": 1520,
+   "y": 39640,
+   "w": 390,
+   "h": 6300,
+   "title": "/tarot/cards/the-sun · mobile 390 · Light"
+  },
+  "TarotCardMobileDark.dc.html": {
+   "x": 1990,
+   "y": 39640,
+   "w": 390,
+   "h": 6300,
+   "title": "/tarot/cards/the-sun · mobile 390 · Dark"
+  },
+  "TarotIndex.dc.html": {
+   "x": 2460,
+   "y": 39640,
+   "w": 1440,
+   "h": 2700,
+   "title": "/tarot/cards (new) · desktop 1440 · Light"
+  },
+  "TarotIndexDark.dc.html": {
+   "x": 3980,
+   "y": 39640,
+   "w": 1440,
+   "h": 2700,
+   "title": "/tarot/cards (new) · desktop 1440 · Dark"
+  },
+  "TarotIndexMobile.dc.html": {
+   "x": 5500,
+   "y": 39640,
+   "w": 390,
+   "h": 5600,
+   "title": "/tarot/cards (new) · mobile 390 · Light"
+  },
+  "DailyWest.dc.html": {
+   "x": 0,
+   "y": 46560,
+   "w": 390,
+   "h": 3200,
+   "title": "/daily-numerology · mobile 390 · Light"
+  },
+  "DailyWestDark.dc.html": {
+   "x": 470,
+   "y": 46560,
+   "w": 390,
+   "h": 3200,
+   "title": "/daily-numerology · mobile 390 · Dark"
+  },
+  "DailyEast.dc.html": {
+   "x": 940,
+   "y": 46560,
+   "w": 390,
+   "h": 3100,
+   "title": "/zh-hans/每日运势 · 手机 390 · 浅色"
+  },
+  "DailyEastDark.dc.html": {
+   "x": 1410,
+   "y": 46560,
+   "w": 390,
+   "h": 3100,
+   "title": "/zh-hans/每日运势 · 手机 390 · 深色"
+  },
+  "BlogList.dc.html": {
+   "x": 0,
+   "y": 50380,
+   "w": 1440,
+   "h": 2700,
+   "title": "/blog · desktop 1440 · Light · cards with covers"
+  },
+  "BlogListDark.dc.html": {
+   "x": 1520,
+   "y": 50380,
+   "w": 1440,
+   "h": 2700,
+   "title": "/blog · desktop 1440 · Dark · cards with covers"
+  },
+  "BlogListMobile.dc.html": {
+   "x": 3040,
+   "y": 50380,
+   "w": 390,
+   "h": 4200,
+   "title": "/blog · mobile 390 · Light · cards with covers"
+  },
+  "BlogListEmpty.dc.html": {
+   "x": 3510,
+   "y": 50380,
+   "w": 390,
+   "h": 1500,
+   "title": "State · /blog empty list · mobile 390 · Light"
+  },
+  "BlogPost.dc.html": {
+   "x": 3980,
+   "y": 50380,
+   "w": 1440,
+   "h": 2700,
+   "title": "/zh-hant/blog/$slug · 桌面 1440 · 淺色 · Prose 720"
+  },
+  "BlogPostDark.dc.html": {
+   "x": 5500,
+   "y": 50380,
+   "w": 1440,
+   "h": 2700,
+   "title": "/zh-hant/blog/$slug · 桌面 1440 · 深色"
+  },
+  "BlogPostMobile.dc.html": {
+   "x": 7020,
+   "y": 50380,
+   "w": 390,
+   "h": 3300,
+   "title": "/zh-hant/blog/$slug · 手機 390 · 淺色"
+  },
+  "Legal.dc.html": {
+   "x": 0,
+   "y": 55200,
+   "w": 390,
+   "h": 3300,
+   "title": "/privacy (legal page) · mobile 390 · Light"
+  },
+  "Docs.dc.html": {
+   "x": 470,
+   "y": 55200,
+   "w": 1440,
+   "h": 2300,
+   "title": "/docs/$slug · desktop 1440 · Light"
+  },
+  "Faq.dc.html": {
+   "x": 1990,
+   "y": 55200,
+   "w": 390,
+   "h": 2900,
+   "title": "/zh-hant/faq · 手機 390 · 淺色"
+  },
+  "Newsletter.dc.html": {
+   "x": 2460,
+   "y": 55200,
+   "w": 390,
+   "h": 1700,
+   "title": "/newsletter · mobile 390 · Light"
+  },
+  "Waitlist.dc.html": {
+   "x": 2930,
+   "y": 55200,
+   "w": 390,
+   "h": 1700,
+   "title": "/waitlist · mobile 390 · Light · submit failed"
+  },
+  "NewsletterSuccess.dc.html": {
+   "x": 3400,
+   "y": 55200,
+   "w": 390,
+   "h": 1500,
+   "title": "State · /newsletter submitted · mobile 390 · Light"
+  },
+  "EastEn.dc.html": {
+   "x": 3870,
+   "y": 55200,
+   "w": 390,
+   "h": 4100,
+   "title": "ganjiday.com/en guide page · mobile 390 · Light"
+  },
+  "NotFound.dc.html": {
+   "x": 4340,
+   "y": 55200,
+   "w": 390,
+   "h": 1700,
+   "title": "404 · mobile 390 · Light"
+  },
+  "TarotIndexEast.dc.html": {
+   "x": 5970,
+   "y": 39640,
+   "w": 390,
+   "h": 4500,
+   "title": "/zh-hans/塔罗/牌义（新增；/zh-hant/塔羅/牌義、/ko/타로/카드 同版式）· 手机 390 · 浅色"
+  },
+  "BlogListEast.dc.html": {
+   "x": 7490,
+   "y": 50380,
+   "w": 390,
+   "h": 4000,
+   "title": "/zh-hans/blog · 手机 390 · 浅色 · 封面卡片（/zh-hant、/ko 同版式）"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "LandingEastDark.dc.html",
+  "LandingEastMobile.dc.html",
+  "LandingEastMobileDark.dc.html",
+  "LandingKoMobile.dc.html",
+  "CopyReview.dc.html",
+  "Proposals.dc.html",
+  "PageTitles.dc.html",
+  "LandingWest.dc.html",
+  "LandingWestDark.dc.html",
+  "LandingWestMobile.dc.html",
+  "LandingWestMobileDark.dc.html",
+  "ToolBazi.dc.html",
+  "ToolBaziMobile.dc.html",
+  "ToolBaziMobileDark.dc.html",
+  "ToolLifePath.dc.html",
+  "ToolLifePathMobile.dc.html",
+  "ComponentsEast.dc.html",
+  "ComponentsEastDark.dc.html",
+  "ComponentsWest.dc.html",
+  "ComponentsWestDark.dc.html",
+  "PricingEastMobile.dc.html",
+  "PricingWestMobile.dc.html",
+  "ReportEastMobile.dc.html",
+  "ReportWestMobile.dc.html",
+  "StateError.dc.html",
+  "StateLoading.dc.html",
+  "StateEmpty.dc.html",
+  "NumPage.dc.html",
+  "NumPageMobile.dc.html",
+  "NumPageMobileDark.dc.html",
+  "NumHub.dc.html",
+  "NumHubMobile.dc.html",
+  "Proposals79.dc.html",
+  "TarotDraw.dc.html",
+  "TarotDrawMobile.dc.html",
+  "TarotDrawMobileDark.dc.html",
+  "TarotDrawInitialDark.dc.html",
+  "TarotDrawError.dc.html",
+  "TarotEast.dc.html",
+  "TarotEastDark.dc.html",
+  "TarotCard.dc.html",
+  "TarotCardMobile.dc.html",
+  "TarotCardMobileDark.dc.html",
+  "TarotIndex.dc.html",
+  "TarotIndexDark.dc.html",
+  "TarotIndexMobile.dc.html",
+  "DailyWest.dc.html",
+  "DailyWestDark.dc.html",
+  "DailyEast.dc.html",
+  "DailyEastDark.dc.html",
+  "BlogList.dc.html",
+  "BlogListDark.dc.html",
+  "BlogListMobile.dc.html",
+  "BlogListEmpty.dc.html",
+  "BlogPost.dc.html",
+  "BlogPostDark.dc.html",
+  "BlogPostMobile.dc.html",
+  "Legal.dc.html",
+  "Docs.dc.html",
+  "Faq.dc.html",
+  "Newsletter.dc.html",
+  "Waitlist.dc.html",
+  "NewsletterSuccess.dc.html",
+  "EastEn.dc.html",
+  "NotFound.dc.html",
+  "TarotIndexEast.dc.html",
+  "BlogListEast.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "1 · 落地首頁 · 干支日（東方站）",
+   "kind": "title1",
+   "maxW": 4370
+  },
+  "t7": {
+   "x": 4530,
+   "y": -300,
+   "text": "7 · 待确认：文案、变更提议与页面 title",
+   "kind": "title1",
+   "maxW": 3460
+  },
+  "t2": {
+   "x": 0,
+   "y": 5400,
+   "text": "2 · Landing homepage · Arcanumber (west)",
+   "kind": "title1",
+   "maxW": 3900
+  },
+  "t3": {
+   "x": 0,
+   "y": 11200,
+   "text": "3 · 遷移後的工具頁：表單在前、結果、長文在後",
+   "kind": "title1",
+   "maxW": 4370
+  },
+  "t4": {
+   "x": 0,
+   "y": 17300,
+   "text": "4 · 共享組件（兩站 × 淺 / 深）",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "t5": {
+   "x": 0,
+   "y": 21900,
+   "text": "5 · 定價頁與報告頁（手機淺色）",
+   "kind": "title1",
+   "maxW": 1800
+  },
+  "t6": {
+   "x": 2080,
+   "y": 21900,
+   "text": "6 · 狀態",
+   "kind": "title1",
+   "maxW": 1330
+  },
+  "n1": {
+   "x": 4530,
+   "y": 2560,
+   "w": 520,
+   "fill": "orange",
+   "text": "待确认文案：首页 H1、副标题、主按钮、证明行、工具区标题、一行价格为新写文案，四语全文见「待确认文案」画板。其余文字取自仓库现有 messages。主题与手机 / 桌面变体共用同一份标记：在浅色桌面的基础画板里改字，深色与手机画板同步更新。"
+  },
+  "n2": {
+   "x": 5090,
+   "y": 2560,
+   "w": 520,
+   "fill": "gray",
+   "text": "示例数据：虚构命盘 1990-05-15 10:30 台北 男（庚午 辛巳 庚辰 辛巳）与 Life Path 3，与仓库样例一致；工具页的五行占比、大运岁数为示意。今日条按 2026-11-17 计算：乙未日 / Universal Day 2。价格与积分按 2026-11-17 定价方案 A：详批每份 10 积分，每天登录送 10 积分；方括号内为待填事实。空 / 载入 / 错误态各一块（手机浅色）；首页为纯静态页，没有载入与错误态。"
+  },
+  "g79_A": {
+   "x": 0,
+   "y": 25700,
+   "text": "8 · 第 7 组 · 数字页与枢纽页（Arcanumber）",
+   "kind": "title1",
+   "maxW": 4370
+  },
+  "g79_P": {
+   "x": 4530,
+   "y": 25700,
+   "text": "14 · 变更提议与内链规则（2026-11-19 已按审阅意见更新）",
+   "kind": "title1",
+   "maxW": 2300
+  },
+  "g79_n1": {
+   "x": 5710,
+   "y": 26000,
+   "w": 520,
+   "fill": "orange",
+   "text": "2026-11-19 使用者审阅：「1. Anchor text中index的card name也带上tarot 如\"The Moon Tarot\" 2. 博客页面丰富下……用卡片形式，可以配图。其他的都确认你的建议和设计」。本轮修改：牌义索引锚文本改为「牌名 + Tarot」；新增东方站牌义索引（简体手机）；博客列表改为封面卡片（西方站 4 块 + 东方站简体 1 块）；延伸牌义改为前 1 + 后 2 + 主题对应 1；简体页换用 Noto Sans SC。还需要再看的只有：博客卡片版式与封面方案、东方站索引的中文锚文本写法。"
+  },
+  "g79_n2": {
+   "x": 5710,
+   "y": 26760,
+   "w": 520,
+   "fill": "gray",
+   "text": "示例数据：Life Path 7 的示例日期 1991-07-07；Destiny Number 示例姓名 Morgan Avery Lee（虚构）；每日页按 2026-11-17（乙未日 / Universal Day 2）计算，个人日以 1990-05-15 为例。塔罗牌面为线描占位，不是真实图稿。方括号内为待填事实（宜忌、是非对应、日期、邮箱、接口路径）。深色、手机与状态画板通过引用基础画板生成：改基础画板的文字，其余同步更新。"
+  },
+  "g79_B": {
+   "x": 0,
+   "y": 32920,
+   "text": "9 · 第 7 组 · 塔罗抽牌页（西方站 + 东方站简体）",
+   "kind": "title1",
+   "maxW": 4260
+  },
+  "g79_C": {
+   "x": 0,
+   "y": 39340,
+   "text": "10 · 第 7 组 · 牌义页与新增的牌义索引 /tarot/cards",
+   "kind": "title1",
+   "maxW": 6360
+  },
+  "g79_D": {
+   "x": 0,
+   "y": 46260,
+   "text": "11 · 第 7 组 · 每日页（两站，手机）",
+   "kind": "title1",
+   "maxW": 2400
+  },
+  "g79_E": {
+   "x": 0,
+   "y": 50080,
+   "text": "12 · 第 9 组 · 博客列表与文章（Prose 720）",
+   "kind": "title1",
+   "maxW": 7880
+  },
+  "g79_F": {
+   "x": 0,
+   "y": 54900,
+   "text": "13 · 第 9 组 · 法律页、文档、FAQ、订阅、/en 入口页、404",
+   "kind": "title1",
+   "maxW": 4730
+  }
+ },
+ "designSystems": [
+  {
+   "title": "干支日 · Arcanumber 视觉系统",
+   "namespace": "xuanxueds",
+   "artifact": "https://claude.ai/artifact/Vq91QmAGachtxReBdSH5oc",
+   "version": "1794916580-519e",
+   "copiedAt": "2026-11-17T16:35:00Z"
+  }
+ ]
 }

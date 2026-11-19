@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>部落格文章</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主導航">
+<a href="ComponentsEast.dc.html">排盤工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="DailyEast.dc.html">每日運勢</a>
+<a href="PricingEastMobile.dc.html">定價</a>
+<a href="#footer">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登入</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="語言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="帳戶"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主導航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap page-main">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="麵包屑"><a href="Main.dc.html">首頁</a><span aria-hidden="true">›</span><a href="BlogList.dc.html">部落格</a><span aria-hidden="true">›</span><span>什麼是日主</span></nav>
+<h1 class="t-title">什麼是日主？讀懂八字命盤的第一步</h1>
+<p class="meta"><time datetime="2026-11-10">2026 年 11 月 10 日</time><span>閱讀約 5 分鐘</span><span>八字入門</span></p>
+</div>
+
+<article class="article" aria-label="文章內文">
+<p class="t-lead" style="color: var(--ink)">拿到一張八字命盤，八個字、十神、五行同時出現，很容易不知道從哪裡看起。答案是先找到「日主」——日柱的天干，它代表命盤的主人。</p>
+
+<h2 class="t-title">日主在命盤的哪裡</h2>
+<p>八字由年、月、日、時四柱組成，每一柱有一個天干和一個地支。日柱的天干就是日主，也叫「日元」。在<a class="il" href="ToolBazi.dc.html">八字排盤</a>的結果裡，日柱會以外框標出，一眼就能找到。</p>
+<p>以 1990 年 5 月 15 日上午 10 點 30 分出生為例，四柱是庚午、辛巳、庚辰、辛巳，日柱是庚辰，所以日主是庚金。</p>
+
+<h2 class="t-title">為什麼先看日主</h2>
+<p>命盤裡其他七個字的意義，都是相對於日主來說的。同樣一個「乙木」，對庚金日主是正財，對甲木日主卻是劫財。沒有日主，十神就無從談起。</p>
+<ul class="pl">
+<li>生我者為印，我生者為食傷。</li>
+<li>剋我者為官殺，我剋者為財。</li>
+<li>與我相同者為比劫。</li>
+</ul>
+<p class="note">這些關係是一套描述用的語言，用來整理自己的習慣與處境，不是對未來的判定。</p>
+
+<h2 class="t-title">日主強弱只是一個起點</h2>
+<p>傳統上會再看日主得令與否、得地與否，判斷「身強」或「身弱」，再談喜用神。這一步各家說法不一，初學時先記住：強弱是比較出來的，不是好壞之分。</p>
+<h3 class="t-heading">和每天的干支對照</h3>
+<p>知道日主之後，最簡單的練習是每天看一次當日的天干和它的關係。<a class="il" href="DailyEast.dc.html">每日運勢</a>頁可以選擇日主，直接看到今天的十神。</p>
+
+<h2 class="t-title">下一步</h2>
+<p>熟悉日主與十神之後，可以換一個角度：<a class="il" href="#footer">紫微斗數排盤</a>不比較五行強弱，而是看十四主星落在哪一個宮位，兩者對照著讀會更立體。</p>
+
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+</article>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">透過命理工具與指南，認識傳統智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="頁尾">
+<a href="Faq.dc.html">常見問題</a><a href="BlogPost.dc.html">部落格</a><a href="#footer">指南</a><a href="#footer">文件</a><a href="#footer">隱私政策</a><a href="#footer">服務條款</a><a href="#footer">退款政策</a><a href="#footer">免責聲明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主題</span><div class="seg" role="group" aria-label="主題"><button type="button" class="is-light">淺色</button><button type="button" class="is-dark">深色</button><button type="button">跟隨系統</button></div></div>
+<div class="set"><span class="t-caption subtle">語言</span><button type="button" class="select sm" aria-haspopup="listbox">繁體中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依據傳統命理方法推算，AI輔助解讀，僅供參考與潛意識探索。不預測未來，健康相關問題請諮詢專業醫師。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有權利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const more = {};
+return Object.assign({
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>

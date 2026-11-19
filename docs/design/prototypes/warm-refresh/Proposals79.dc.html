@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>第 7、9 组变更提议</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="xx board">
+
+<div class="b-sec">
+<h1 class="t-title">第 7、9 组 · token / 组件变更提议、内链规则与状态说明</h1>
+<p class="muted prose">本组画板只用方向 C 已确认的 token（site.css）与六个字号角色，没有新增颜色、字号、圆角或阴影。2026-11-19 使用者审阅后的原话：「1. Anchor text中index的card name也带上tarot 如"The Moon Tarot" 2. 博客页面丰富下……用卡片形式，可以配图。其他的都确认你的建议和设计」。下表已按此更新；标「本轮新增」的是这次修改后才出现、还需要再看一眼的内容。</p>
+</div>
+
+<div class="b-sec">
+<span class="b-label">A · token</span>
+<table class="spec">
+<thead><tr><th>项目</th><th>现状</th><th>提议</th><th>是否新 token</th></tr></thead>
+<tbody>
+<tr><td><strong>塔罗牌面底色</strong></td><td><code>card.tsx</code> 写死 <code>bg-[#ECE7DA]</code>（图片载入前的底色，接近图稿纸色）</td><td>图片载入前的占位改用 <code>surface-2</code>，外框 <code>line-strong</code> 1px，圆角 <code>radius-sm</code>。图稿本身是图片，颜色不随主题；画板里的牌面是固定色的线描占位，不是真实图稿</td><td>否</td></tr>
+<tr><td><strong>塔罗牌背</strong></td><td><code>border-brand</code>（方向 C 后变成墨黑粗框）</td><td><code>surface-2</code> 底、<code>line-strong</code> 外框、<code>illus</code> 圆环、<code>accent</code> 星（西方站黄铜，东方站松绿）</td><td>否</td></tr>
+<tr><td><strong>line-strong</strong></td><td><code>brand.css</code> 已有（#c9cbd0 / #45484e），画布 <code>site.css</code> 未收录</td><td>本组画板在 <code>pages.css</code> 补入，用于牌的外框</td><td>否</td></tr>
+<tr><td><strong>简体中文字体</strong>（已确认）</td><td>标题只加载 Noto Sans TC，缺部分简体字形</td><td>简体中文页改为加载 Noto Sans SC（<code>@fontsource/noto-sans-sc</code>，自托管），fallback 度量按 SC 重新计算；本画布的简体画板已换用</td><td>否（新增一个字体依赖）</td></tr>
+<tr><td><strong>牌面图稿</strong>（已确认）</td><td>Rider–Waite–Smith 原图</td><td>保留原图，不改色</td><td>否</td></tr>
+<tr><td><strong>等宽字体</strong></td><td>文档页代码块</td><td>用模板已有的 <code>font-mono</code>，字号 caption；底色 <code>surface</code> / 行内 <code>surface-2</code></td><td>否</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<span class="b-label">B · 组件（放 packages/ui/src/project/ 或对应 feature，不改模板组件）</span>
+<table class="spec">
+<thead><tr><th>组件</th><th>用途</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>RelatedLinks</strong>（新）</td><td>正文内的相关链接块：H2 + 一句说明 + 2–5 条链接，每条为「小字说明 / 链接 / 一句描述」</td><td>服务端渲染，取代牌义页侧栏的 <code>ToolLinks</code>；牌义页固定 4 条</td></tr>
+<tr><td><strong>CardIndex</strong>（新，页面级）</td><td><code>/tarot/cards</code> 的分组链接列表：大阿尔卡那 22 张 + 四个花色各 14 张</td><td>每项是真实 <code>&lt;a&gt;</code>，锚文本为完整牌名；大牌的罗马数字在链接之外。桌面 4 列、手机 2 列，首屏不加载任何牌图</td></tr>
+<tr><td><strong>PostCard / PostCover</strong>（本轮新增）</td><td>博客列表的文章卡片：封面 16:9、分类 · 日期、标题、摘要；第一篇为横向大卡</td><td>标题是唯一的 <code>&lt;a&gt;</code>，锚文本为文章标题，点击区域用伪元素铺满整张卡；不出现「阅读更多」。封面来源：文章 frontmatter 新增 <code>cover</code>（图片路径）与 <code>coverAlt</code>（必填的替代文字）；没有 <code>cover</code> 时用生成封面（<code>surface-2</code> 底、<code>illus</code> 圆环、<code>accent</code> 字形，纯装饰，<code>aria-hidden</code>）。封面固定宽高比，不引起位移；图片自托管，列表首屏之外懒加载</td></tr>
+<tr><td><strong>Prose</strong>（已有）补样式</td><td>列表、提示块（<code>surface</code> 圆角块）、行内代码与代码块</td><td>只加 Prose 内的排版规则，不新增组件</td></tr>
+<tr><td><strong>Band</strong>（已确认）</td><td>页尾的一行转化条（详批入口）</td><td>每页最多一条，条内只有一个链接</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<span class="b-label">C · 相对现有页面的结构变化（为满足「正文内 2–5 条链接、不堆链接」）</span>
+<table class="spec">
+<thead><tr><th>页面</th><th>现状</th><th>画板中的做法</th></tr></thead>
+<tbody>
+<tr><td>牌义页 <code>/tarot/cards/$slug</code></td><td>右侧栏：抽一张 + 延伸牌义链接；页尾 ContentFunnel 两个入口</td><td>单栏。延伸牌义移到正文 H2「Related card meanings」下，4 条；「抽一张」是正文里的一个面板；页尾只留一条 Band</td></tr>
+<tr><td>延伸牌义的取法（已确认）</td><td><code>relatedCards()</code>：同花色相邻序号（大牌只有 2 张），小牌另加同序号跨花色</td><td>固定 4 条：同序列 / 同花色的前 1 张 + 后 2 张 + 1 张主题对应牌。主题对应牌取自一张人工维护的配对表；小牌取另一花色的同序号牌。锚文本为「The Moon tarot card meaning」</td></tr>
+<tr><td>牌义索引的锚文本（已确认）</td><td>—</td><td>「牌名 + Tarot」，如 The Moon Tarot、Ace of Wands Tarot；罗马数字在链接之外。东方站对应为「月亮塔罗」「权杖王牌塔罗」（<strong>本轮新增，中文写法请确认</strong>；韩语按同一规则）</td></tr>
+<tr><td>东方站牌义索引（已确认新增）</td><td>没有索引页</td><td><code>/zh-hant/塔羅/牌義</code>、<code>/zh-hans/塔罗/牌义</code>、<code>/ko/타로/카드</code> 用同一版式；画了简体手机浅色一块。东方站抽牌页导语因此改为链接本站的牌义索引</td></tr>
+<tr><td>数字页 <code>/life-path-number/7</code></td><td>页尾 12 个数字的网格 + 「More numerology tools」链接行</td><td>去掉网格与链接行（网格只留在父页 <code>/life-path-number</code>）；正文里链接相邻两个数字、配对、命盘，页尾一条 Band</td></tr>
+<tr><td>枢纽页 <code>/destiny-number</code></td><td>同上</td><td>同上，正文内 4 条 + Band 1 条</td></tr>
+<tr><td>抽牌页 <code>/tarot</code></td><td>首屏有问题模板 chips、牌阵互导矩阵在页尾</td><td>模板 chips 收进「Questions you can ask」折叠（首屏类按钮元素只剩 1 个主按钮）；其他牌阵改成 H2 下的一段话，3 条链接</td></tr>
+<tr><td>博客列表（本轮新增）</td><td>纯文字列表，每篇文章下有标签链接</td><td>卡片网格：顶部分类筛选（链接到已有的标签页）、第一篇横向大卡、其余桌面 3 列 / 手机 1 列、底部分页（每页 1 + 6 篇）。卡片上分类只作小字；每张卡只有标题一个链接。没有侧栏</td></tr>
+<tr><td>FAQ 账户一问（已确认）</td><td>答案里以文字提到另一个站点</td><td>从正式文案中删去对另一站点的提及（画板样例本来就没有这一条）</td></tr>
+<tr><td>FAQ</td><td>页尾一行 4 个链接</td><td>链接移入对应答案（定价、退款政策、隐私政策）</td></tr>
+<tr><td>newsletter / waitlist</td><td>顶部「← 返回首页」</td><td>去掉（页头标志已是首页入口），表单下方链接隐私政策</td></tr>
+<tr><td>东方站 <code>/en</code></td><td>每个体系 2–3 个链接，另有 3 张语言卡，合计约 12 个</td><td>每个体系 1 条链接 + 简体中文入口 1 条，共 5 条；语言切换仍在页头与页脚</td></tr>
+<tr><td>文档页</td><td>左侧文档导航</td><td>保留（4 项，属于文档自身的导航）；正文内另有 2–3 条链接</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<span class="b-label">D · 每页的正文内链（均为服务端输出的真实 &lt;a&gt;，锚文本 = 目标页主关键词，位于首段或某个 H2 之后；两站之间不互链）</span>
+<table class="spec">
+<thead><tr><th>页面</th><th>数量</th><th>锚文本 → 位置</th></tr></thead>
+<tbody>
+<tr><td>/life-path-number/7</td><td>5</td><td>numerology chart（首个 H2 下）· life path compatibility · Life Path Number 6 · Life Path Number 8 · Numerology calculator（Band）</td></tr>
+<tr><td>/destiny-number</td><td>5</td><td>life path number（首个 H2 下）· soul urge number · name numerology · life path compatibility · Numerology calculator（Band）</td></tr>
+<tr><td>/tarot</td><td>4</td><td>tarot card meanings（导语）· card of the day · yes or no tarot · Celtic Cross tarot（H2「More tarot spreads」下）。翻牌后的「The Sun meaning」等是客户端结果，不计入</td></tr>
+<tr><td>/tarot/cards/the-sun</td><td>5</td><td>The Moon / Judgement / The World / Strength tarot card meaning（H2「Related card meanings」下）· Three-card tarot（Band）</td></tr>
+<tr><td>/tarot/cards</td><td>2 + 78</td><td>three-card tarot · card of the day（导语）；78 个「牌名 + Tarot」链接是本页主体，按 H2 分组，不受 2–5 条限制</td></tr>
+<tr><td>/zh-hans/塔罗/牌义</td><td>2 + 78</td><td>三张牌塔罗 · 每日一张塔罗（导语）；78 个「牌名 + 塔罗」链接</td></tr>
+<tr><td>/zh-hans/塔罗</td><td>4</td><td>塔罗牌义（导语）· 每日一张塔罗 · 是非塔罗 · 凯尔特十字塔罗（H2「其他塔罗牌阵」下）</td></tr>
+<tr><td>/daily-numerology</td><td>3</td><td>life path number · numerology calculator · card of the day（H2「Go further」下）</td></tr>
+<tr><td>/zh-hans/每日运势</td><td>3</td><td>八字排盘（日主面板下）· 紫微斗数排盘 · 每日一张塔罗（H2「想看得更完整」下）</td></tr>
+<tr><td>/blog、/zh-hans/blog</td><td>每篇 1</td><td>文章标题即链接；另有分类筛选与分页（列表页自身的导航）。空列表时 2 条：life path number · three-card tarot（东方站：八字排盘 · 三张牌塔罗）</td></tr>
+<tr><td>/zh-hant/blog/$slug</td><td>3</td><td>八字排盤（首个 H2 下）· 每日運勢 · 紫微斗數排盤</td></tr>
+<tr><td>/privacy</td><td>2</td><td>Terms of Service（首段）· Refund Policy</td></tr>
+<tr><td>/docs/$slug</td><td>3</td><td>life path number · Public API · Configuration</td></tr>
+<tr><td>/zh-hant/faq</td><td>3</td><td>定價 · 退款政策 · 隱私政策（在答案里）</td></tr>
+<tr><td>/newsletter、/waitlist</td><td>1</td><td>Privacy Policy（表单下）</td></tr>
+<tr><td>ganjiday.com/en</td><td>5</td><td>八字排盤 · 简体中文 · 紫微斗數排盤 · 만세력 · 三張牌塔羅（各体系 H2 下）</td></tr>
+<tr><td>404</td><td>2</td><td>life path number · three-card tarot</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec">
+<span class="b-label">E · 状态</span>
+<table class="spec">
+<thead><tr><th>页面</th><th>空</th><th>载入</th><th>错误</th></tr></thead>
+<tbody>
+<tr><td>抽牌页</td><td>未翻牌 = 牌背（另出一块深色画板）</td><td>不适用：洗牌在浏览器内完成，只有洗牌动效（reduced-motion 时淡入）</td><td>分享链接无效：提示条 + 一副新牌（已出画板）</td></tr>
+<tr><td>牌义页、牌义索引（两站）</td><td>不适用：内容在构建期生成</td><td>不适用</td><td>不存在的牌 → 404 画板</td></tr>
+<tr><td>数字页、枢纽页</td><td>未输入 = 示例结果（即画板所示）</td><td>不适用：浏览器内计算</td><td>日期 / 姓名校验错误沿用已确认的「表单校验错误」画板</td></tr>
+<tr><td>每日页</td><td>未选日主 / 未填生日时只显示通用部分</td><td>不适用：由构建期或边缘计算给出，不查库</td><td>不适用</td></tr>
+<tr><td>博客列表</td><td>空列表（已出画板）</td><td>不适用：预渲染</td><td>不存在的文章 → 404</td></tr>
+<tr><td>newsletter / waitlist</td><td>—</td><td>按钮文字变为 Submitting…</td><td>提交失败（已出画板）；另有提交成功画板</td></tr>
+<tr><td>法律页、文档、FAQ、/en</td><td>不适用：纯静态</td><td>不适用</td><td>不适用</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1100,"height":5200}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const more = {};
+return Object.assign({
+theme: theme,
+cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '')
+}, more);
+}
+}
+</script>
+</body>
+</html>
