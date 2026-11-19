@@ -350,7 +350,7 @@ export function budgetViolation(gzipBytes, budget) {
     : null
 }
 
-/** 构建时写出的 marketing.performance（dist/.build/marketing-performance.json），缺失时为 null */
+/** 构建时写出的预渲染开关与 marketing.performance，文件缺失时为 null */
 export function readPerformanceOptions(distDir) {
   const file = join(distDir, '.build/marketing-performance.json')
   return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null
@@ -680,6 +680,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const [clientArg, serverArg] = args.filter((arg) => !arg.startsWith('--'))
   const clientDir = resolve(clientArg ?? join(dirname(process.argv[1]), '../dist/client'))
   const serverDir = resolve(serverArg ?? join(clientDir, '../server'))
+  const options = readPerformanceOptions(join(clientDir, '..'))
+  if (options?.prerender === false) {
+    console.log('首页包检查：本次构建未启用营销预渲染，跳过检查')
+    process.exit(0)
+  }
   if (args.includes('--write-head-snapshot')) {
     // 仅在有意修改首页元数据、并在 PR 中说明后使用；写入后运行 biome format 统一格式
     const snapshot = Object.fromEntries(
@@ -694,7 +699,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     // 唯一调用方是 `pnpm build`（Cloudflare 构建，必有 dist/server）；一侧产物缺失时另一侧照常报告
     const client = () => {
       try {
-        const budget = readPerformanceOptions(join(clientDir, '..'))?.homeScriptGzipBudget ?? null
+        const budget = options?.homeScriptGzipBudget ?? null
         return reportHomePages(
           checkHomePages(clientDir, HOME_PAGES, readHomeHeadSnapshot(), budget),
         )
