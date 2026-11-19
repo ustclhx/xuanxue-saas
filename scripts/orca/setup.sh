@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 # Orca worktree setup：在新 worktree 根目录运行。
-# 每一步在前置条件不满足时跳过并提示，而不是失败，使脚手架尚未完成时也能创建 worktree。
+# 确认为 linked worktree 后，每一步在前置条件不满足时跳过并提示，而不是失败。
 set -euo pipefail
 
 cd "${ORCA_WORKTREE_PATH:-$PWD}"
+# 主 checkout 写出 .env.worktree 会使开发服务器从 xuanxue_dev 切到 wt 库（同 template-v0.7.2），只在 linked worktree 运行。
+if ! git_dir="$(git rev-parse --path-format=absolute --git-dir 2>/dev/null)" ||
+  ! git_common_dir="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" ||
+  [[ "$git_dir" == "$git_common_dir" ]]; then
+  echo '[orca-setup] 仅可在 linked worktree 运行。主 checkout 跑集成测试请使用 xuanxue_test（见 docs/02-project-structure.md §5）；.env.worktree 会将开发环境切换到 worktree 库。' >&2
+  exit 1
+fi
 # shellcheck source=scripts/orca/lib.sh
 source "$(dirname "$0")/lib.sh"
 
