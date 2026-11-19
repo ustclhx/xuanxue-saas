@@ -14,7 +14,7 @@ import { siteAccountNames } from './site-account-names.ts'
 export function SiteAccountsHint({ kind }: { kind: 'signin' | 'signup' }) {
   const names = siteAccountNames(useSiteId(), getLocale())
   return (
-    <p role="note" className="text-muted-foreground text-sm leading-relaxed">
+    <p role="note" className="text-body text-muted-foreground">
       {kind === 'signin'
         ? m.auth_site_accounts_signin_hint(names)
         : m.auth_site_accounts_signup_hint(names)}

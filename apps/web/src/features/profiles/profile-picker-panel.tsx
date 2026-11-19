@@ -136,19 +136,19 @@ export default function ProfilePickerPanel({
 
   if (state.status === 'loading')
     return (
-      <p role="status" className="m-0 text-ink-muted text-sm">
+      <p role="status" className="m-0 text-caption text-ink-muted">
         {m.profiles_pick_loading()}
       </p>
     )
   if (state.status === 'error')
     return (
-      <p role="alert" className="m-0 text-brand-ink text-sm">
+      <p role="alert" className="m-0 text-caption text-danger">
         {m.profiles_pick_error()}
       </p>
     )
   if (state.profiles.length === 0)
     return (
-      <p className="m-0 flex flex-wrap items-center gap-x-3 text-ink-muted text-sm">
+      <p className="m-0 flex flex-wrap items-center gap-x-3 text-caption text-ink-muted">
         {m.profiles_pick_empty()}
         <ManageLink slug={slug} />
       </p>
@@ -157,25 +157,25 @@ export default function ProfilePickerPanel({
     <div className="flex flex-col gap-1">
       <ul
         aria-label={m.profiles_pick_label()}
-        className="m-0 flex list-none flex-col rounded-xl border border-line bg-background p-1"
+        className="m-0 flex list-none flex-col rounded-field bg-background p-1"
       >
         {state.profiles.map((profile) => (
           <li key={profile.id}>
             <button
               type="button"
               onClick={() => onDone(fillFromProfile(target, profile, form(), onBeforeFill))}
-              className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-left text-base text-ink transition-colors hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring"
+              className="flex min-h-11 w-full items-center justify-between gap-3 rounded-field px-3 text-left text-body text-ink transition-colors hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring"
             >
               <span className="min-w-0 break-words">
                 {profileName(profile)}
                 {profile.label ? (
-                  <span className="text-ink-subtle text-sm">
+                  <span className="text-caption text-ink-subtle">
                     {' · '}
                     {RELATION_LABEL[profile.relation]()}
                   </span>
                 ) : null}
               </span>
-              <span className="shrink-0 text-ink-subtle text-sm tabular-nums">
+              <span className="shrink-0 text-caption text-ink-subtle tabular-nums">
                 {birthDateText(profile.birth)}
               </span>
             </button>
@@ -193,7 +193,7 @@ function ManageLink({ slug, className }: { slug: string; className?: string }) {
       to="/app/$slug/profiles"
       params={{ slug }}
       className={cn(
-        'inline-flex min-h-11 items-center text-brand-ink text-sm underline-offset-4 hover:underline',
+        'inline-flex min-h-11 items-center text-brand-ink text-caption underline-offset-4 hover:underline',
         className,
       )}
     >
@@ -311,7 +311,7 @@ export function SaveProfileDialog({
           className="grid gap-4"
         >
           {message ? <FormAlert title={m.profiles_failed_title()}>{message}</FormAlert> : null}
-          <p className="m-0 text-ink-muted text-sm tabular-nums">{birthDateText(draft.birth)}</p>
+          <p className="m-0 text-body text-ink-muted tabular-nums">{birthDateText(draft.birth)}</p>
           <TextField
             label={m.profiles_field_label()}
             name="label"

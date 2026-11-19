@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createKey, editKey, listKeys } from '../../../features/api-keys/functions.ts'
 import { SpacePage } from '../../../features/app-shell/space-frame.tsx'
 import { appTableLabels } from '../../../features/app-shell/table-labels.ts'
+import { LocalDateTime } from '../../../features/shared/local-date-time.tsx'
 import { DateField, TimeField } from '../../../features/tools/date-field.tsx'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -141,7 +142,7 @@ function ApiKeysPage() {
             id: 'expiry',
             header: m.api_keys_expiry(),
             cell: (row) =>
-              row.expiresAt ? new Date(row.expiresAt).toLocaleString() : m.api_keys_never_expires(),
+              row.expiresAt ? <LocalDateTime value={row.expiresAt} /> : m.api_keys_never_expires(),
           },
           {
             id: 'status',

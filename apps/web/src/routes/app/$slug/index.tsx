@@ -53,7 +53,7 @@ function SpaceOverviewPage() {
               <Link
                 to={item.to}
                 params={{ slug }}
-                className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-line bg-background px-4 font-semibold text-ink transition-colors hover:border-line-strong hover:bg-surface-2"
+                className="flex min-h-14 items-center justify-between gap-3 rounded-xl bg-background px-4 font-medium text-body text-ink transition-colors hover:bg-surface-2"
               >
                 {item.label}
                 <span aria-hidden="true" className="text-ink-subtle">
@@ -66,7 +66,7 @@ function SpaceOverviewPage() {
       </SpacePanel>
       {page.multiTenant ? (
         <SpacePanel title={m.app_team_spaces()}>
-          <p className="m-0 text-ink-muted text-sm">{m.app_team_spaces_note()}</p>
+          <p className="m-0 text-ink-muted text-body">{m.app_team_spaces_note()}</p>
           <HydratedControls>
             <CreateTeam />
           </HydratedControls>

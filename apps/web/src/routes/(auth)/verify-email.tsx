@@ -55,7 +55,7 @@ function VerifyEmailPage() {
     return (
       <AuthLayout title={error ? COPY.failureTitle : COPY.metaTitle}>
         <FormAlert message={error ? authErrorMessage(error) : m.auth_verification_link_invalid()} />
-        <p className="text-muted-foreground text-sm">{COPY.failureHint}</p>
+        <p className="text-muted-foreground text-body">{COPY.failureHint}</p>
         <Button asChild variant="outline">
           <Link to="/login">{COPY.signIn}</Link>
         </Button>

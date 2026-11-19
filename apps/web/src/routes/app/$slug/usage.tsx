@@ -56,7 +56,7 @@ function UsagePage() {
     >
       {page.batches && (
         <SpacePanel title={m.billing_usage_batches()}>
-          <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
+          <table className="w-full text-left text-body [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
             <thead>
               <tr>
                 <th>{m.billing_usage_source()}</th>
@@ -92,7 +92,7 @@ function UsagePage() {
         </SpacePanel>
       )}
       <SpacePanel title={m.billing_usage_ledger()}>
-        <table className="w-full text-left text-sm [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
+        <table className="w-full text-left text-body [&_td]:border-line [&_td]:border-b [&_td]:py-3 [&_th]:border-line [&_th]:border-b [&_th]:py-2 [&_th]:font-semibold [&_th]:text-ink-muted">
           <thead>
             <tr>
               <th>{m.billing_date()}</th>

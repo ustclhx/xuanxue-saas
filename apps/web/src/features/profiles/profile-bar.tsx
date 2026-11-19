@@ -51,7 +51,7 @@ const carryKey = (target: ProfileBarTarget) =>
   target.kind === 'birth' ? `birth:${target.prefix ?? ''}` : 'numerology'
 
 const pill =
-  'inline-flex h-9 items-center gap-1 rounded-full border px-3 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2'
+  'inline-flex h-9 items-center gap-1 rounded-full border px-3 text-caption transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2'
 
 export function ProfileBar({
   target,
@@ -75,7 +75,7 @@ export function ProfileBar({
   if (!space) return null
   const canSave = target.kind === 'birth' || target.date
   const loading = (
-    <p role="status" className="m-0 text-ink-muted text-sm">
+    <p role="status" className="m-0 text-caption text-ink-muted">
       {m.profiles_pick_loading()}
     </p>
   )
@@ -128,7 +128,7 @@ export function ProfileBar({
         </Suspense>
       ) : null}
       {notice ? (
-        <div role="status" className="flex flex-col gap-0.5 text-sm">
+        <div role="status" className="flex flex-col gap-0.5 text-caption">
           <span className="text-ink-muted">{notice.text}</span>
           {notice.hints.map((hint) => (
             <span key={hint} className="text-brand-ink">

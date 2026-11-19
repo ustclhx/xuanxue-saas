@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { cn } from '@xuanxue/ui'
+import { PageWidth } from '@xuanxue/ui/project'
 import { useEffect } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
@@ -7,6 +8,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { trackEvent } from '../analytics/track.ts'
 import { siteAccountNames } from '../auth/site-account-names.ts'
 import { GrowthForm } from '../growth/forms.tsx'
+import { primaryButton, secondaryButton, textLink } from '../readings/buttons.ts'
 import { displayPrice, type PriceDisplay } from '../readings/price.ts'
 import type { ReadingPricing } from '../readings/readings.functions.ts'
 import { readingTitle } from '../readings/title.ts'
@@ -122,9 +124,18 @@ function zeroPrice(currency: string, locale: string): string {
 
 type Faq = readonly [string, string]
 
+// 设计稿 warm-refresh/Pricing{East,West}Mobile.dc.html：区块标题用 heading 角色，方案卡是 surface 上的对象，不画边框
+const sectionTitle = 'm-0 font-heading text-ink text-subtitle'
+const planCard = 'flex flex-col gap-3 rounded-object bg-surface p-6 sm:p-8'
+const planName = 'm-0 font-heading text-ink text-subtitle'
+const planList = 'm-0 flex list-none flex-col gap-1 p-0 text-body text-ink-muted'
+const badge =
+  'inline-flex min-h-6 shrink-0 items-center rounded-full bg-surface-2 px-2.5 text-caption text-ink-muted'
+
 /**
- * 定价页（launch-v1-production 1.3，enable-subscriptions-daily-credits 4.1，原型 Pricing.dc.html）：
- * 每月方案（免费档 + 订阅两档）、单次购买积分包、积分扣用顺序、本语言可解锁的详批与常见问题。
+ * 定价页（launch-v1-production 1.3，enable-subscriptions-daily-credits 4.1；版式见设计稿
+ * warm-refresh/Pricing{East,West}Mobile.dc.html，refresh-visual-system-warm 8.1）：
+ * 单次购买积分包、免费档、每月方案、积分扣用顺序、本语言可解锁的详批与常见问题。
  * 详批尚未开放时说明暂不出售；订阅价格不可购买时显示「即将开放」、积分包不显示购买入口。
  * 页面只依赖传入的目录与详批清单，预渲染不读数据库。
  */
@@ -175,13 +186,15 @@ export function PricingPage({
     [m.pricing_faq_pay_q(), m.pricing_faq_pay_a()],
     [m.pricing_faq_currency_q(), m.pricing_faq_currency_a()],
   ]
+  // 设计稿把「最划算」标在积分最多的积分包上，它也是页面上唯一的主按钮
+  const bestPack = packs.length > 1 ? packs.at(-1) : undefined
   return (
     <MarketingShell>
-      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-12 px-4 py-12 sm:px-6">
-        <header className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
-          <h1 className="m-0 font-bold font-heading text-4xl text-ink">{m.pricing_h1()}</h1>
+      <PageWidth className="flex flex-col gap-12 pb-16 sm:pb-28">
+        <header className="flex max-w-180 flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
+          <h1 className="m-0 text-balance font-heading text-ink text-title">{m.pricing_h1()}</h1>
           {/* 补充句自带前导空格（en / ko），中文直接衔接 */}
-          <p className="m-0 text-ink-muted text-lg leading-relaxed">
+          <p className="m-0 text-body text-ink-muted">
             {m.pricing_lead()}
             {firstLogin ? m.pricing_lead_first_login() : daily && m.pricing_lead_daily()}
           </p>
@@ -189,72 +202,106 @@ export function PricingPage({
             <p
               role="status"
               data-testid="pricing-not-purchasable"
-              className="m-0 rounded-lg border border-line bg-surface-2 px-4 py-3 text-ink text-sm"
+              className="m-0 mt-2 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
             >
               {readingsOpen ? m.pricing_payments_soon() : m.readings_packs_not_open()}
             </p>
           )}
         </header>
 
+        <section aria-labelledby="pricing-packs" className="flex flex-col gap-4">
+          <h2 id="pricing-packs" className={sectionTitle}>
+            {subs.length > 0 ? m.pricing_packs_once_title() : m.pricing_packs_title()}
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* 积分多的在前（设计稿：超值包、入门包） */}
+            {[...packs].reverse().map((pack) => {
+              const price = money(pack, locale)
+              const best = pack === bestPack
+              return (
+                <article key={pack.key} data-testid="pricing-pack" className={planCard}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className={planName}>{pack.name}</h3>
+                    {best && <span className={badge}>{m.pricing_pack_best_value()}</span>}
+                  </div>
+                  {price && (
+                    <p
+                      className="m-0 font-heading text-ink text-title"
+                      data-testid="pricing-pack-price"
+                    >
+                      {price.text}
+                    </p>
+                  )}
+                  <ul className={planList}>
+                    <li>{m.pricing_pack_credits({ credits: String(pack.credits) })}</li>
+                  </ul>
+                  {price?.reference && (
+                    <p className="m-0 text-caption text-ink-subtle">
+                      {m.billing_cny_reference({ price: price.reference })}
+                    </p>
+                  )}
+                  {packPurchasable(pack, readingsOpen) && (
+                    <Link
+                      to="/app"
+                      search={{ buy: pack.key }}
+                      className={cn(best ? primaryButton : secondaryButton, 'mt-auto w-full')}
+                    >
+                      {m.pricing_pack_buy()}
+                    </Link>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+          <PayNote catalog={catalog} packs={packs} locale={locale} />
+        </section>
+
+        {subs.length > 0 && (
+          <section aria-labelledby="pricing-free" className="flex flex-col gap-4">
+            <h2 id="pricing-free" className={sectionTitle}>
+              {m.pricing_free_name()}
+            </h2>
+            <article data-testid="pricing-free" className={planCard}>
+              <p className="m-0 font-heading text-ink text-title">
+                {zeroPrice(subCurrency, locale)}
+              </p>
+              <ul className={planList}>
+                <li>{m.pricing_free_tools()}</li>
+                {firstLogin && <li>{m.pricing_free_first_login()}</li>}
+                {daily && <li>{m.pricing_free_daily()}</li>}
+                {daily && <li>{m.pricing_free_daily_expiry()}</li>}
+              </ul>
+              <Link to="/register" className={cn(textLink, 'gap-1 self-start')}>
+                {m.pricing_free_cta()}
+                <span aria-hidden="true">→</span>
+              </Link>
+            </article>
+          </section>
+        )}
+
         {subs.length > 0 && (
           <section aria-labelledby="pricing-subs" className="flex flex-col gap-4">
-            <h2 id="pricing-subs" className="m-0 font-heading font-semibold text-2xl text-ink">
+            <h2 id="pricing-subs" className={sectionTitle}>
               {m.pricing_subs_title()}
             </h2>
-            <div className="grid items-stretch gap-4 md:grid-cols-3">
-              <article
-                data-testid="pricing-free"
-                className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-6 text-ink"
-              >
-                <h3 className="m-0 font-semibold text-lg">{m.pricing_free_name()}</h3>
-                <p className="m-0 font-bold text-3xl">{zeroPrice(subCurrency, locale)}</p>
-                <ul className="m-0 flex flex-1 flex-col gap-1 pl-5 text-ink-muted leading-relaxed">
-                  <li>{m.pricing_free_tools()}</li>
-                  {firstLogin && <li>{m.pricing_free_first_login()}</li>}
-                  {daily && <li>{m.pricing_free_daily()}</li>}
-                  {daily && <li>{m.pricing_free_daily_expiry()}</li>}
-                </ul>
-                <Link
-                  to="/register"
-                  className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line-strong px-5 text-ink hover:bg-surface-2"
-                >
-                  {m.pricing_free_cta()}
-                </Link>
-              </article>
+            <div className="grid gap-4 sm:grid-cols-2">
               {subs.map((sub) => {
-                const best = subs.length > 1 && sub === subs.at(-1)
                 const price = money(sub, locale)
                 return (
-                  <article
-                    key={sub.key}
-                    data-testid="pricing-sub"
-                    className={cn(
-                      'flex flex-col gap-3 rounded-xl bg-surface p-6 text-ink',
-                      best ? 'border-2 border-brand' : 'border border-line-strong',
+                  <article key={sub.key} data-testid="pricing-sub" className={planCard}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                      <h3 className={planName}>{sub.name}</h3>
+                      <p className={cn(planName, 'flex items-baseline gap-x-1')}>
+                        {price && <span data-testid="pricing-sub-price">{price.text}</span>}
+                        <span>{m.pricing_per_month()}</span>
+                      </p>
+                    </div>
+                    {price?.reference && (
+                      <p className="m-0 text-caption text-ink-subtle">
+                        {m.billing_cny_reference({ price: price.reference })}
+                      </p>
                     )}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="m-0 font-semibold text-lg">{sub.name}</h3>
-                      {best && (
-                        <span className="rounded-full bg-brand px-2.5 py-0.5 text-on-brand text-xs">
-                          {m.pricing_pack_best_value()}
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <p className="m-0 flex flex-wrap items-baseline gap-x-1">
-                        {price && (
-                          <span className="font-bold text-3xl" data-testid="pricing-sub-price">
-                            {price.text}
-                          </span>
-                        )}
-                        <span className="text-ink-muted">{m.pricing_per_month()}</span>
-                      </p>
-                      <p className="m-0 min-h-5 text-ink-subtle text-sm">
-                        {price?.reference && m.billing_cny_reference({ price: price.reference })}
-                      </p>
-                    </div>
-                    <ul className="m-0 flex flex-1 flex-col gap-1 pl-5 text-ink-muted leading-relaxed">
+                    <ul className={planList}>
                       <li>
                         {m.pricing_sub_credits({
                           credits: String(sub.credits),
@@ -268,14 +315,14 @@ export function PricingPage({
                       <Link
                         to="/app"
                         search={{ buy: sub.key }}
-                        className="inline-flex min-h-11 items-center justify-center rounded-lg bg-brand px-5 font-semibold text-on-brand hover:opacity-90"
+                        className={cn(secondaryButton, 'mt-auto w-full')}
                       >
                         {m.pricing_sub_cta()}
                       </Link>
                     ) : (
                       <span
                         data-testid="pricing-sub-soon"
-                        className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-5 text-ink-muted"
+                        className="mt-auto inline-flex min-h-12 items-center justify-center rounded-full bg-surface-2 px-7 text-body text-ink-muted"
                       >
                         {m.pricing_sub_soon()}
                       </span>
@@ -284,116 +331,90 @@ export function PricingPage({
                 )
               })}
             </div>
-            <p className="m-0 text-ink-subtle text-sm" data-testid="pricing-sub-note">
+            <p
+              role="note"
+              className="m-0 max-w-180 text-caption text-ink-subtle"
+              data-testid="pricing-sub-note"
+            >
               {m.pricing_sub_note({ currency: CURRENCY_NAMES[subCurrency]?.() ?? subCurrency })}
               {subReference && m.pricing_sub_reference_note()}
             </p>
           </section>
         )}
 
-        <section aria-labelledby="pricing-packs" className="flex flex-col gap-4">
-          <h2 id="pricing-packs" className="m-0 font-heading font-semibold text-2xl text-ink">
-            {subs.length > 0 ? m.pricing_packs_once_title() : m.pricing_packs_title()}
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {packs.map((pack) => {
-              const price = money(pack, locale)
-              return (
-                <article
-                  key={pack.key}
-                  data-testid="pricing-pack"
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-surface px-6 py-5 text-ink"
-                >
-                  <div className="flex min-w-0 flex-col">
-                    <h3 className="m-0 font-semibold text-lg">{pack.name}</h3>
-                    <p className="m-0 text-ink-muted text-sm">
-                      {m.pricing_pack_credits({ credits: String(pack.credits) })}
-                    </p>
-                  </div>
-                  <div className="ml-auto flex items-center gap-4">
-                    <div className="text-right">
-                      {price && (
-                        <p className="m-0 font-bold text-2xl" data-testid="pricing-pack-price">
-                          {price.text}
-                        </p>
-                      )}
-                      {price?.reference && (
-                        <p className="m-0 text-ink-subtle text-xs">
-                          {m.billing_cny_reference({ price: price.reference })}
-                        </p>
-                      )}
-                    </div>
-                    {packPurchasable(pack, readingsOpen) && (
-                      <Link
-                        to="/app"
-                        search={{ buy: pack.key }}
-                        className="inline-flex min-h-11 items-center justify-center rounded-lg border border-line-strong px-4 font-semibold text-ink hover:bg-surface-2"
-                      >
-                        {m.pricing_pack_buy()}
-                      </Link>
-                    )}
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-          <PayNote catalog={catalog} packs={packs} locale={locale} />
-        </section>
-
         {subs.length > 0 && (
           <section
             aria-labelledby="pricing-order"
-            className="flex flex-col gap-2 rounded-xl bg-surface-2 px-6 py-5"
+            className="flex flex-col gap-1 rounded-object bg-surface-2 p-6 sm:px-8"
           >
-            <h2 id="pricing-order" className="m-0 font-semibold text-ink text-lg">
+            <h2 id="pricing-order" className={sectionTitle}>
               {m.pricing_order_title()}
             </h2>
-            <p className="m-0 text-ink-muted leading-relaxed">
+            <p className="m-0 max-w-180 text-body text-ink-muted">
               {daily ? m.pricing_order_desc() : m.pricing_order_desc_no_daily()}
             </p>
           </section>
         )}
 
         {readings.length > 0 && (
-          <section aria-labelledby="pricing-readings" className="flex flex-col gap-3">
-            <h2 id="pricing-readings" className="m-0 font-heading font-semibold text-2xl text-ink">
+          <section aria-labelledby="pricing-readings" className="flex flex-col gap-4">
+            <h2 id="pricing-readings" className={sectionTitle}>
               {m.pricing_unlock_title()}
             </h2>
-            <ul className="m-0 grid gap-2 pl-5 text-ink sm:grid-cols-2">
+            <ul className="m-0 grid list-none gap-x-6 p-0 text-body text-ink sm:grid-cols-2 [&>li]:border-line [&>li]:border-b [&>li]:py-2">
               {readings.map((reading) => (
                 <li key={reading.kind}>{readingTitle(reading.kind)}</li>
               ))}
             </ul>
-            <p className="m-0 text-ink-muted text-sm">
+            <p role="note" className="m-0 text-caption text-ink-subtle">
               {m.pricing_unlock_note({ credits: String(perReading) })}
             </p>
           </section>
         )}
 
-        <section aria-labelledby="pricing-faq" className="flex max-w-3xl flex-col gap-4">
-          <h2 id="pricing-faq" className="m-0 font-heading font-semibold text-2xl text-ink">
+        <section aria-labelledby="pricing-faq" className="flex max-w-180 flex-col gap-4">
+          <h2 id="pricing-faq" className={sectionTitle}>
             {m.pricing_faq_title()}
           </h2>
-          {faq.map(([question, answer]) => (
-            <div key={question} className="flex flex-col gap-1">
-              <h3 className="m-0 font-semibold text-ink">{question}</h3>
-              <p className="m-0 text-ink-muted leading-relaxed">{answer}</p>
-            </div>
-          ))}
-          <p className="m-0 flex flex-wrap gap-x-4 text-sm">
-            <Link to="/refund" className="text-brand-ink underline">
+          {/* 原生 details：无需脚本即可展开，答案始终在服务端输出的 HTML 中 */}
+          <div className="border-line border-t">
+            {faq.map(([question, answer], index) => (
+              <details key={question} open={index === 0} className="group border-line border-b">
+                <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-3 font-medium text-body text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3 [&::-webkit-details-marker]:hidden">
+                  {question}
+                  <svg
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                    className="size-5 shrink-0 text-ink-subtle transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                  >
+                    <path
+                      d="M5 8l5 5 5-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </summary>
+                <p className="m-0 pb-5 text-body text-ink-muted">{answer}</p>
+              </details>
+            ))}
+          </div>
+          <p className="m-0 flex flex-wrap gap-x-6">
+            <Link to="/refund" className={textLink}>
               {m.marketing_footer_refund()}
             </Link>
-            <Link to="/terms" className="text-brand-ink underline">
+            <Link to="/terms" className={textLink}>
               {m.marketing_footer_terms()}
             </Link>
-            <Link to="/disclaimer" className="text-brand-ink underline">
+            <Link to="/disclaimer" className={textLink}>
               {m.marketing_footer_disclaimer()}
             </Link>
           </p>
           <AiDisclaimer />
         </section>
-      </div>
+      </PageWidth>
       {templateConfig.features.newsletter ? <GrowthForm feature="newsletter" /> : null}
     </MarketingShell>
   )
@@ -437,7 +458,11 @@ function PayNote({
           })
         : m.pricing_pack_expiry({ days: String(days) })
   return (
-    <p className="m-0 text-ink-subtle text-sm" data-testid="pricing-pay-note">
+    <p
+      role="note"
+      className="m-0 max-w-180 text-caption text-ink-subtle"
+      data-testid="pricing-pay-note"
+    >
       {text}
     </p>
   )

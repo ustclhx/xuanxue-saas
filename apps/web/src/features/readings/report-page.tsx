@@ -1,13 +1,24 @@
 import { Link } from '@tanstack/react-router'
 import type { SiteId } from '@xuanxue/config'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@xuanxue/ui'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { formatDisplayTime, LocalDateTime, useHydrated } from '../shared/local-date-time.tsx'
 import { useSiteId } from '../site/context.tsx'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { TOOL_ROUTES, toolsForLocale } from '../tools/registry.ts'
 import { toolHref } from '../tools/tool-href.ts'
+import { secondaryButton, textLink } from './buttons.ts'
 import { toTraditional } from './hant.ts'
 import { Markdown, parseMarkdown, sectionId } from './markdown.tsx'
 import {
@@ -30,12 +41,6 @@ const POLL_MS = 3000
 // 报告追问（adopt-subject-chat-readings tasks.md 5.1）：对话组件较大，懒加载，不进入报告正文的首屏 bundle
 const ReportChat = lazy(() => import('./report-chat.tsx'))
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(getLocale(), { dateStyle: 'medium', timeStyle: 'short' }).format(
-    new Date(iso),
-  )
-}
-
 function StatusLabel({ status }: { status: ReadingView['status'] }) {
   const text =
     status === 'ready'
@@ -46,7 +51,7 @@ function StatusLabel({ status }: { status: ReadingView['status'] }) {
   return (
     <span
       data-status={status}
-      className="inline-flex min-h-7 items-center rounded-full border border-line-strong px-3 text-ink-muted text-xs"
+      className="inline-flex min-h-6 items-center rounded-full bg-surface-2 px-2.5 text-caption text-ink-muted"
     >
       {text}
     </span>
@@ -55,6 +60,8 @@ function StatusLabel({ status }: { status: ReadingView['status'] }) {
 
 export function ReadingReportPage({ slug, initial }: { slug: string; initial: ReadingView }) {
   const [view, setView] = useState(initial)
+  // 创建时间：SSR 与水合首帧按 UTC，之后切到浏览器时区，避免 React #418
+  const hydrated = useHydrated()
   useEffect(() => setView(initial), [initial])
   useEffect(() => {
     if (view.status !== 'generating') return
@@ -69,82 +76,92 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
   // 生成中轮询到的是模型原文，与保存时同样把简体字换成繁体（已保存的正文不变）
   const content = toTraditional(view.content, view.locale)
   const contents = tableOfContents(content)
+  const subsections = contents.filter((section) => section.children.length > 0)
   return (
     <article
       lang={view.locale}
       data-testid="reading-report"
-      className="mx-auto flex w-full max-w-[760px] flex-col gap-6 pb-12"
+      className="mx-auto flex w-full max-w-180 flex-col gap-6 pb-12"
     >
-      <Link
-        to="/app/$slug/readings"
-        params={{ slug }}
-        className="inline-flex min-h-11 items-center self-start text-ink-muted text-sm"
-      >
-        ← {m.readings_report_back()}
-      </Link>
-      <header className="flex flex-col gap-2.5">
-        <h1 className="m-0 font-heading font-bold text-[28px] text-ink leading-tight sm:text-[36px]">
-          {readingTitle(view.kind, view.locale)}
-        </h1>
-        <p className="m-0 flex flex-wrap items-center gap-3 text-ink-subtle text-sm">
-          <StatusLabel status={view.status} />
-          {m.readings_report_created({ date: formatDate(view.createdAt) })}
-        </p>
-      </header>
-      {view.status === 'generating' && (
-        <p role="status" className="m-0 rounded-lg bg-surface-2 px-4 py-3 text-ink-muted text-sm">
-          {m.readings_report_generating_note()}
-        </p>
-      )}
-      {view.status === 'failed' && (
-        <p role="alert" className="m-0 rounded-lg border border-brand px-4 py-3 text-ink">
-          {m.readings_report_failed()}
-        </p>
-      )}
-      {view.status === 'ready' && contents.length > 2 && (
-        <nav
-          aria-label={m.readings_report_contents()}
-          className="rounded-xl border border-line bg-surface px-5 py-4 print:hidden"
-        >
-          <h2 className="m-0 mb-2 font-semibold text-ink-muted text-sm">
-            {m.readings_report_contents()}
-          </h2>
-          <ol className="m-0 grid gap-x-6 gap-y-1 pl-5 text-[15px] sm:grid-cols-2">
-            {contents.map((section) => (
-              <li key={section.id}>
-                <a href={`#${section.id}`} className="text-brand-ink">
-                  {section.text}
-                </a>
-                {section.children.length > 0 && (
-                  <ul className="m-0 mt-1 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-sm">
-                    {section.children.map((child) => (
-                      <li key={child.id}>
-                        <a href={`#${child.id}`} className="text-ink-muted">
-                          {child.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
+      {/*
+        报告是供阅读的长文（设计稿 warm-refresh/Report{East,West}Mobile.dc.html）：标题、目录与正文放进营销作用域，
+        取阅读字号（title / body / caption 角色）；应用区的框架与下方的追问对话仍用模板默认字号。
+      */}
+      <div data-surface="marketing" className="flex flex-col gap-6 text-body">
+        <header className="flex flex-col gap-2">
+          <Link to="/app/$slug/readings" params={{ slug }} className={`${textLink} self-start`}>
+            ← {m.readings_report_back()}
+          </Link>
+          <h1 className="m-0 text-balance font-heading text-ink text-title">
+            {readingTitle(view.kind, view.locale)}
+          </h1>
+          <p className="m-0 flex flex-wrap items-center gap-3 text-caption text-ink-subtle">
+            <StatusLabel status={view.status} />
+            {m.readings_report_created({ date: formatDisplayTime(view.createdAt, hydrated) })}
+          </p>
+        </header>
+        {view.status === 'generating' && (
+          <p role="status" className="m-0 rounded-field bg-surface-2 px-4 py-3 text-ink-muted">
+            {m.readings_report_generating_note()}
+          </p>
+        )}
+        {view.status === 'failed' && (
+          <p
+            role="alert"
+            className="m-0 flex items-start gap-2.5 rounded-field bg-surface-2 px-4 py-3 text-ink"
+          >
+            <AlertIcon />
+            {m.readings_report_failed()}
+          </p>
+        )}
+        {view.status === 'ready' && contents.length > 2 && (
+          // 目录：一行可横向滚动的章节标签；逐年小节（v4 `### 年份 干支`）列在标签行下方
+          <nav
+            aria-label={m.readings_report_contents()}
+            className="flex flex-col gap-2 print:hidden"
+          >
+            <ol className="m-0 flex list-none gap-2 overflow-x-auto p-0 pb-1">
+              {contents.map((section) => (
+                <li key={section.id} className="shrink-0">
+                  <a
+                    href={`#${section.id}`}
+                    className="inline-flex min-h-11 items-center rounded-field bg-surface-2 px-3.5 text-caption text-ink-muted no-underline transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:-outline-offset-2"
+                  >
+                    {section.text}
+                  </a>
+                </li>
+              ))}
+            </ol>
+            {subsections.map((section) => (
+              <ul
+                key={section.id}
+                aria-label={section.text}
+                className="m-0 flex list-none flex-wrap gap-x-4 p-0"
+              >
+                {section.children.map((child) => (
+                  <li key={child.id}>
+                    <a
+                      href={`#${child.id}`}
+                      className="inline-flex min-h-11 items-center text-caption text-ink-muted"
+                    >
+                      {child.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             ))}
-          </ol>
-        </nav>
-      )}
-      {content && (
-        <div className="rounded-xl border border-line bg-surface p-5 sm:p-8">
-          <Markdown source={content} />
-        </div>
-      )}
-      {view.status === 'ready' && (
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="min-h-11 self-start rounded-lg border border-line-strong px-5 text-ink print:hidden"
-        >
-          {m.readings_report_print()}
-        </button>
-      )}
+          </nav>
+        )}
+        {content && <Markdown source={content} />}
+        {view.status === 'ready' && (
+          <div className="flex flex-col items-start gap-2 print:hidden">
+            <button type="button" onClick={() => window.print()} className={secondaryButton}>
+              {m.readings_report_print()}
+            </button>
+            <p className="m-0 text-caption text-ink-subtle">{m.readings_report_saved()}</p>
+          </div>
+        )}
+      </div>
       {view.status === 'ready' && (
         // 标题与说明由 ReportChat 按状态渲染（对话就绪时为模板 EmbeddedChat 卡片，手机上为悬浮按钮 + 底部抽屉）
         <section
@@ -165,6 +182,24 @@ export function ReadingReportPage({ slug, initial }: { slug: string; initial: Re
 /** 懒加载期间的占位：与对话区读取中的骨架同高，避免版面位移 */
 function ReportChatFallback() {
   return <div role="status" aria-busy="true" className="min-h-40 rounded-lg bg-surface-2" />
+}
+
+/** 错误提示前的图标：danger 色只用于错误态（设计稿 site.css 的 .alert） */
+function AlertIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      className="mt-1 size-5 shrink-0 text-danger"
+    >
+      <circle cx="10" cy="10" r="7" />
+      <path d="M10 6.5v4M10 13.5v.01" />
+    </svg>
+  )
 }
 
 /**
@@ -195,22 +230,19 @@ function EmptyReadings({ unlockable }: { unlockable: boolean }) {
   const site = useSiteId()
   if (unlockable)
     return (
-      <p data-testid="readings-empty" className="m-0 text-ink-muted">
+      <p data-testid="readings-empty" className="m-0 text-body text-ink-muted">
         {m.readings_list_empty()}
       </p>
     )
   const links = freeToolLinks(getLocale(), site)
   return (
     <div data-testid="readings-empty" className="flex flex-col gap-3">
-      <p className="m-0 text-ink-muted">{m.readings_list_empty_neutral()}</p>
+      <p className="m-0 text-body text-ink-muted">{m.readings_list_empty_neutral()}</p>
       {links.length > 0 && (
         <ul className="m-0 flex list-none flex-wrap gap-2.5 p-0">
           {links.map((link) => (
             <li key={link.href}>
-              <a
-                href={link.href}
-                className="inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4 text-ink text-sm no-underline hover:bg-surface-2"
-              >
+              <a href={link.href} className={listAction}>
                 {link.title}
               </a>
             </li>
@@ -250,15 +282,16 @@ export function ReadingsListPage({
       setBusy(false)
     }
   }
+  // 删除前用 AlertDialog 确认（docs/design-system.md：不用 window.confirm）
+  const [deleting, setDeleting] = useState<string | null>(null)
   const remove = async (id: string) => {
-    if (!window.confirm(m.readings_delete_confirm())) return
     await deleteReading({ data: { slug, id } })
     setItems((current) => current.filter((item) => item.id !== id))
   }
 
   return (
     <section aria-labelledby="readings-title" className="flex flex-col gap-5">
-      <h2 id="readings-title" className="m-0 font-heading font-semibold text-2xl text-ink">
+      <h2 id="readings-title" className="m-0 font-heading text-display text-ink">
         {m.readings_list_title()}
       </h2>
       {items.length === 0 ? (
@@ -269,34 +302,34 @@ export function ReadingsListPage({
             <li
               key={item.id}
               data-reading-id={item.id}
-              className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-line bg-surface px-4 py-3"
+              className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-surface px-4 py-3"
             >
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <Link
                   to="/app/$slug/readings/$readingId"
                   params={{ slug, readingId: item.id }}
-                  className="font-semibold text-ink"
+                  className="font-semibold text-ink text-title"
                 >
                   {readingTitle(item.kind, item.locale)}
                 </Link>
-                <span className="flex flex-wrap items-center gap-2 text-ink-subtle text-xs">
+                <span className="flex flex-wrap items-center gap-2 text-caption text-ink-subtle">
                   <StatusLabel status={item.status} />
-                  {formatDate(item.createdAt)}
+                  <LocalDateTime value={item.createdAt} />
                 </span>
               </div>
               <div className="flex gap-2">
                 <Link
                   to="/app/$slug/readings/$readingId"
                   params={{ slug, readingId: item.id }}
-                  className="inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4 text-ink text-sm"
+                  className={listAction}
                 >
                   {m.readings_open()}
                 </Link>
                 {item.status !== 'generating' && (
                   <button
                     type="button"
-                    onClick={() => void remove(item.id)}
-                    className="min-h-11 rounded-lg px-4 text-ink-muted text-sm hover:bg-surface-2"
+                    onClick={() => setDeleting(item.id)}
+                    className="min-h-11 rounded-lg px-4 text-body text-ink-muted hover:bg-surface-2"
                   >
                     {m.readings_delete()}
                   </button>
@@ -311,14 +344,38 @@ export function ReadingsListPage({
           type="button"
           onClick={() => void more()}
           disabled={busy}
-          className="min-h-11 self-start rounded-lg border border-line-strong px-5 text-ink"
+          className={`${listAction} self-start`}
         >
           {m.readings_load_more()}
         </button>
       )}
+      <AlertDialog open={deleting !== null} onOpenChange={(open) => !open && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{m.readings_delete_confirm()}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{m.common_cancel()}</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={() => {
+                const id = deleting
+                setDeleting(null)
+                if (id) void remove(id)
+              }}
+            >
+              {m.readings_delete()}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   )
 }
+
+/** 应用区列表里的次要操作：沿用模板的形状与字号，细框落在 surface 卡片上 */
+const listAction =
+  'inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4 text-body text-ink no-underline hover:bg-surface-2'
 
 interface ContentsEntry {
   readonly id: string
