@@ -110,11 +110,15 @@ export function sectionId(text: string, index: number): string {
   return `s${index + 1}${slug ? `-${slug}` : ''}`
 }
 
+/**
+ * 版式见设计稿 warm-refresh/Report{East,West}Mobile.dc.html 的 .report：章节标题用 title 角色、正文用 body 角色的弱化文字色，
+ * 章节之间靠留白分隔，不画分隔线。字号是角色类，须在营销作用域（data-surface="marketing"）内渲染才是阅读字号。
+ */
 export function Markdown({ source }: { source: string }) {
   const blocks = parseMarkdown(source)
   let headingIndex = 0
   return (
-    <div className="flex flex-col gap-4 text-[17px] text-ink leading-[1.8]">
+    <div className="flex flex-col gap-4 text-body text-ink-muted [&_strong]:font-semibold [&_strong]:text-ink">
       {blocks.map((block, index) => {
         const key = `${block.type}-${index}`
         switch (block.type) {
@@ -124,12 +128,12 @@ export function Markdown({ source }: { source: string }) {
               <h2
                 key={key}
                 id={id}
-                className="m-0 mt-4 scroll-mt-6 border-line border-t pt-6 font-heading font-semibold text-[24px] text-ink leading-snug first:mt-0 first:border-0 first:pt-0"
+                className="m-0 mt-4 scroll-mt-6 text-balance font-heading text-ink text-title first:mt-0"
               >
                 {renderInline(block.text)}
               </h2>
             ) : (
-              <h3 key={key} className="m-0 mt-2 font-semibold text-ink text-lg">
+              <h3 key={key} className="m-0 mt-2 font-heading text-ink text-subtitle">
                 {renderInline(block.text)}
               </h3>
             )
@@ -138,7 +142,7 @@ export function Markdown({ source }: { source: string }) {
             return (
               <blockquote
                 key={key}
-                className="m-0 rounded-lg bg-surface-2 px-4 py-3 text-[15px] text-ink-muted leading-relaxed"
+                className="m-0 rounded-field bg-surface-2 px-4 py-3 text-ink-muted"
               >
                 {renderInline(block.text)}
               </blockquote>

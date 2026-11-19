@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
+import { PageWidth } from '@xuanxue/ui/project'
 import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts'
 import { resolveAppNav, TEMPLATE_NAV_IDS } from '../../../features/app-shell/registry.ts'
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
@@ -41,7 +42,7 @@ export const Route = createFileRoute('/app/$slug')({
 
 // 导航项的激活态：当前分区用品牌色下划线与加粗标出，其余为弱化文字
 const navItemClass =
-  'flex min-h-11 items-center rounded-lg px-3 text-[15px] transition-colors hover:bg-surface-2 hover:text-ink'
+  'flex min-h-11 items-center rounded-lg px-3 text-body transition-colors hover:bg-surface-2 hover:text-ink'
 const activeProps = {
   className: `${navItemClass} bg-surface-2 font-semibold text-ink`,
   'aria-current': 'page' as const,
@@ -74,32 +75,32 @@ function WorkspaceLayout() {
     <NotificationsProvider key={page.workspace.slug} slug={page.workspace.slug}>
       <div className="flex min-h-svh flex-col bg-background text-foreground">
         <SiteHeader />
-        <div className="mx-auto grid w-full max-w-[1120px] flex-1 items-start gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[232px_minmax(0,1fr)]">
-          <aside className="grid content-start gap-6">
+        <PageWidth className="flex flex-1 flex-col gap-8 py-8 lg:flex-row lg:items-start">
+          <aside className="grid content-start gap-6 lg:w-58 lg:shrink-0">
             <section
               aria-labelledby="space-summary"
-              className="grid gap-2 rounded-xl border border-line bg-surface p-4"
+              className="grid gap-2 rounded-xl bg-surface p-4"
             >
               <div className="flex items-start justify-between gap-2">
                 <h2
                   id="space-summary"
                   data-testid="workspace-name"
-                  className="m-0 min-w-0 break-words font-semibold text-ink text-base"
+                  className="m-0 min-w-0 break-words font-semibold text-ink text-title"
                 >
                   {page.workspace.name}
                 </h2>
                 <NotificationBell />
               </div>
-              <p className="m-0 text-ink-subtle text-sm">
+              <p className="m-0 text-ink-subtle text-body">
                 {page.workspace.isPersonal ? m.app_personal_workspace() : m.app_team_workspace()}
                 {' · '}
                 {m.app_role({ role: page.role })}
               </p>
-              <p data-testid="current-user" className="m-0 break-all text-ink-muted text-sm">
+              <p data-testid="current-user" className="m-0 break-all text-ink-muted text-body">
                 {page.user.name} ({page.user.email})
               </p>
               {page.readOnly ? (
-                <p role="status" className="m-0 text-ink-muted text-sm">
+                <p role="status" className="m-0 text-ink-muted text-body">
                   {m.app_readonly()}
                 </p>
               ) : null}
@@ -209,10 +210,10 @@ function WorkspaceLayout() {
               </Link>
             </nav>
           </aside>
-          <main id="main" className="min-w-0">
+          <main id="main" className="min-w-0 flex-1">
             <Outlet />
           </main>
-        </div>
+        </PageWidth>
       </div>
     </NotificationsProvider>
   )

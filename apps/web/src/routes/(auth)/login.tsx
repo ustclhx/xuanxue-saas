@@ -232,7 +232,7 @@ function PasswordSignIn({ siteKey }: { siteKey: string | null }) {
         <div className="-mt-2 flex justify-end">
           <Link
             to="/forgot-password"
-            className="text-muted-foreground text-sm underline-offset-4 hover:text-foreground hover:underline"
+            className="text-muted-foreground text-body underline-offset-4 hover:text-foreground hover:underline"
           >
             {COPY.forgotPassword}
           </Link>

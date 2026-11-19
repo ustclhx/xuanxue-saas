@@ -20,7 +20,7 @@ function WorkspaceSettingsPage() {
       <WorkspaceSettings page={page} />
       {!page.workspace.isPersonal && !page.readOnly && page.role === 'owner' ? (
         <SpacePanel title={m.deletion_danger_zone()} className="border-destructive/40">
-          <p className="m-0 text-ink-muted text-sm">{m.deletion_team_warning()}</p>
+          <p className="m-0 text-ink-muted text-body">{m.deletion_team_warning()}</p>
           <a
             className="inline-flex min-h-11 w-fit items-center rounded-lg border border-destructive px-4 font-semibold text-destructive"
             href={`/app/${page.workspace.slug}/delete`}

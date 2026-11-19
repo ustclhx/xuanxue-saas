@@ -42,12 +42,12 @@ export function profileName(profile: TodayProfileOption): string {
   return profile.label ?? RELATION_LABEL[profile.relation]?.() ?? profile.relation
 }
 
-const shell = 'flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 sm:p-6'
+const shell = 'flex flex-col gap-5 rounded-xl bg-surface p-5 sm:p-6'
 const card = 'flex flex-col gap-1 rounded-xl bg-surface-2 p-3.5'
 const primaryAction =
-  'inline-flex min-h-11 items-center rounded-lg bg-brand px-4.5 font-semibold text-on-brand no-underline transition-opacity hover:opacity-90 disabled:opacity-70'
+  'inline-flex min-h-11 items-center rounded-lg bg-brand px-4.5 font-medium text-body text-on-brand no-underline transition-opacity hover:opacity-90 disabled:opacity-70'
 const secondaryAction =
-  'inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4.5 text-ink no-underline transition-colors hover:bg-surface-2'
+  'inline-flex min-h-11 items-center rounded-lg border border-line-strong px-4.5 text-body text-ink no-underline transition-colors hover:bg-surface-2'
 
 /**
  * 工作台首页的今日面板（原型 TodayPanel.dc.html；空、加载状态见 States.dc.html）：
@@ -99,10 +99,10 @@ export function TodayPanel({
     return (
       <section aria-labelledby="today-empty" className={`${shell} items-center text-center`}>
         <EmptyIcon />
-        <h2 id="today-empty" className="m-0 font-semibold text-ink text-lg">
+        <h2 id="today-empty" className="m-0 font-semibold text-ink text-title">
           {m.daily_panel_empty_title()}
         </h2>
-        <p className="m-0 text-ink-muted text-sm leading-relaxed">{m.daily_panel_empty_body()}</p>
+        <p className="m-0 text-body text-ink-muted">{m.daily_panel_empty_body()}</p>
         <a href={profilesHref} className={primaryAction}>
           {m.daily_panel_empty_cta()}
         </a>
@@ -112,12 +112,12 @@ export function TodayPanel({
     return (
       <section aria-labelledby="today-missing" className={shell}>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="today-missing" className="m-0 font-semibold text-ink text-lg">
+          <h2 id="today-missing" className="m-0 font-semibold text-ink text-title">
             {m.daily_panel_missing_title()}
           </h2>
           <ProfileSwitcher profiles={panel.profiles} selectedId={panel.selectedId} />
         </div>
-        <p className="m-0 text-ink-muted text-sm leading-relaxed">
+        <p className="m-0 text-body text-ink-muted">
           {m.daily_panel_missing_body({
             fields: panel.missing
               .map((field) => FIELD_LABEL[field]())
@@ -171,7 +171,7 @@ function OkPanelView({
   return (
     <section aria-labelledby={titleId} className={shell} data-testid="today-panel">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id={titleId} className="m-0 font-bold font-heading text-ink text-xl">
+        <h2 id={titleId} className="m-0 font-heading text-ink text-title">
           {panel.site === 'east'
             ? m.daily_panel_title_east({
                 date: shortDate,
@@ -217,7 +217,7 @@ function OkPanelView({
           </a>
         )}
       </div>
-      <p className="m-0 text-ink-subtle text-xs">{m.daily_panel_disclaimer()}</p>
+      <p className="m-0 text-ink-subtle text-caption">{m.daily_panel_disclaimer()}</p>
     </section>
   )
 }
@@ -227,23 +227,25 @@ function EastBody({ panel }: { panel: Extract<OkPanel, { site: 'east' }> }) {
   return (
     <>
       <div className="flex flex-wrap items-stretch gap-4">
-        <div className="flex w-22 flex-none flex-col items-center justify-center rounded-xl bg-inverse py-3 font-heading text-4xl text-on-inverse leading-tight">
+        <div className="flex w-22 flex-none flex-col items-center justify-center rounded-xl bg-surface-2 py-3 font-heading text-display text-ink ring-1 ring-mark ring-inset">
           <span>{STEM_HANZI[day.stem]}</span>
           <span>{BRANCH_HANZI[day.branch]}</span>
         </div>
         <dl className="m-0 grid min-w-0 flex-1 basis-72 gap-3 sm:grid-cols-3">
           <Card term={m.daily_card_stem()}>
-            <span className="font-bold text-ink text-xl">{TEN_GOD_LABEL[personal.tenGod]()}</span>
+            <span className="font-bold text-ink text-title">
+              {TEN_GOD_LABEL[personal.tenGod]()}
+            </span>
           </Card>
           <Card term={m.daily_panel_card_relation()}>
-            <span className="font-bold text-ink text-xl">
+            <span className="font-bold text-ink text-title">
               {copy.relationLabels.length > 0
                 ? copy.relationLabels.join(m.daily_list_separator())
                 : m.daily_no_relation()}
             </span>
           </Card>
           <Card term={m.daily_panel_card_yiji()}>
-            <span className="text-base text-ink">
+            <span className="text-body text-ink">
               {copy.recommends.join(m.daily_list_separator()) || '—'} /{' '}
               {copy.avoids.join(m.daily_list_separator()) || '—'}
             </span>
@@ -261,7 +263,7 @@ function EastBody({ panel }: { panel: Extract<OkPanel, { site: 'east' }> }) {
           </p>
         ))}
         {background && (
-          <p className="m-0 text-ink-subtle text-sm">
+          <p className="m-0 text-ink-subtle text-body">
             {background.decade
               ? m.daily_panel_luck({
                   decade: ganzhiText(
@@ -284,7 +286,7 @@ function EastBody({ panel }: { panel: Extract<OkPanel, { site: 'east' }> }) {
 function Card({ term, children }: { term: string; children: ReactNode }) {
   return (
     <div className={card}>
-      <dt className="text-ink-subtle text-sm">{term}</dt>
+      <dt className="text-ink-subtle text-body">{term}</dt>
       <dd className="m-0">{children}</dd>
     </div>
   )
@@ -369,7 +371,7 @@ function AskAi({
       >
         {m.daily_panel_ask_ai()}
       </button>
-      <span id={noteId} className="max-w-xs text-ink-subtle text-xs">
+      <span id={noteId} className="max-w-xs text-ink-subtle text-caption">
         {error ? m.daily_panel_ask_ai_failed() : m.daily_panel_ask_ai_note()}
       </span>
     </div>
@@ -388,14 +390,14 @@ function PanelSkeleton() {
           <div className="h-3.5 w-1/2 rounded-md bg-surface-2" />
         </div>
       </div>
-      <span className="text-ink-subtle text-sm">{m.daily_panel_loading()}</span>
+      <span className="text-ink-subtle text-body">{m.daily_panel_loading()}</span>
     </section>
   )
 }
 
 function EmptyIcon() {
   return (
-    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" className="text-line-strong">
+    <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" className="text-illus">
       <rect
         x="8"
         y="6"

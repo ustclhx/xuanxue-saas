@@ -28,7 +28,7 @@ export function DailyGrantNotice({
   onDismiss,
 }: Omit<Granted, 'status' | 'grantId' | 'day'> & { onDismiss(): void }) {
   return (
-    <section role="status" className="grid gap-2 rounded-xl border border-line p-4 text-sm">
+    <section role="status" className="grid gap-2 rounded-lg bg-surface-2 p-3 text-body">
       <p className="m-0">{m.daily_credits_granted({ credits, daysThisMonth, maxDaysPerMonth })}</p>
       <p className="m-0 text-ink-muted">
         {m.daily_credits_expiry({ expiresAt: formatExpiry(expiresAt) })}
@@ -69,7 +69,7 @@ export function DailyCreditsNotice({ result }: { result: DailyCreditsCheck | nul
     const locale = getLocale()
     const names = siteAccountNames(siteOfLocale(locale, templateConfig) ?? 'west', locale)
     return (
-      <p role="status" className="m-0 text-ink-muted text-sm">
+      <p role="status" className="m-0 text-ink-muted text-body">
         {result.status === 'already_claimed'
           ? m.daily_credits_already_claimed()
           : m.daily_credits_monthly_limit()}{' '}

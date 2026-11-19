@@ -164,10 +164,10 @@ export function ProfilesPage({
     <section aria-labelledby="profiles-title" className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex min-w-0 flex-col gap-1.5">
-          <h1 id="profiles-title" className="m-0 font-heading font-semibold text-2xl text-ink">
+          <h1 id="profiles-title" className="m-0 font-heading text-display text-ink">
             {m.profiles_title()}
           </h1>
-          <p className="m-0 text-base text-ink-muted">
+          <p className="m-0 text-body text-ink-muted">
             {m.profiles_intro()}
             {profiles.length > 0
               ? m.profiles_count({ count: profiles.length, max: MAX_PROFILES })
@@ -183,7 +183,7 @@ export function ProfilesPage({
 
       <div aria-live="polite">
         {notice?.kind === 'status' ? (
-          <p role="status" className="m-0 text-ink-muted text-sm">
+          <p role="status" className="m-0 text-ink-muted text-body">
             {notice.text}
           </p>
         ) : notice?.kind === 'error' ? (
@@ -196,8 +196,8 @@ export function ProfilesPage({
       {profiles.length === 0 ? (
         <EmptyProfiles onCreate={openNew} />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-line bg-surface">
-          <table aria-label={m.profiles_list_label()} className="w-full border-collapse text-base">
+        <div className="overflow-hidden rounded-xl bg-surface">
+          <table aria-label={m.profiles_list_label()} className="w-full border-collapse text-body">
             <thead className="hidden bg-surface-2 text-left md:table-header-group">
               <tr>
                 <th className="px-4 py-3 font-semibold">{m.profiles_col_name()}</th>
@@ -237,7 +237,7 @@ export function ProfilesPage({
         </div>
       )}
 
-      <p className="m-0 text-ink-subtle text-sm">{m.profiles_footnote()}</p>
+      <p className="m-0 text-ink-subtle text-body">{m.profiles_footnote()}</p>
 
       <ProfileEditor
         open={editing.open}
@@ -370,14 +370,8 @@ function ProfileRow({
 
 function EmptyProfiles({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-line bg-surface px-5 py-7 text-center">
-      <svg
-        width="40"
-        height="40"
-        viewBox="0 0 40 40"
-        aria-hidden="true"
-        className="text-line-strong"
-      >
+    <div className="flex flex-col items-center gap-3 rounded-xl bg-surface px-5 py-7 text-center">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true" className="text-illus">
         <rect
           x="8"
           y="6"
@@ -390,8 +384,8 @@ function EmptyProfiles({ onCreate }: { onCreate: () => void }) {
         />
         <path d="M14 14h12M14 20h12M14 26h7" stroke="currentColor" strokeWidth="1.5" />
       </svg>
-      <h2 className="m-0 font-semibold text-ink text-lg">{m.profiles_empty_title()}</h2>
-      <p className="m-0 text-ink-muted text-sm leading-relaxed">{m.profiles_empty_body()}</p>
+      <h2 className="m-0 font-semibold text-ink text-title">{m.profiles_empty_title()}</h2>
+      <p className="m-0 text-body text-ink-muted">{m.profiles_empty_body()}</p>
       <Button size="lg" className="h-11" onClick={onCreate}>
         {m.profiles_empty_cta()}
       </Button>

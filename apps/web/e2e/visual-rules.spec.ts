@@ -69,8 +69,8 @@ const PAGES: readonly RulePage[] = [
   { name: '八字概念页（十神）', site: 'east', path: '/zh-hant/八字/十神', restyled: true },
   { name: '사주 개념 페이지（공망）', site: 'east', path: '/ko/사주/공망', restyled: true },
   { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: false },
-  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: false },
-  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: false },
+  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: true },
+  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: true },
 ]
 
 const MOBILE = { width: 390, height: 844 }
