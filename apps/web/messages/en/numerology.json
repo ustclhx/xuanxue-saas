@@ -122,5 +122,13 @@
   "numerology_faq_compat_q1": "Where do the compatibility levels come from?",
   "numerology_faq_compat_a1": "From a fixed 12 × 12 table that summarises common Pythagorean numerology descriptions. The table is symmetric and is the same for every visitor.",
   "numerology_faq_compat_q2": "Can a challenging match still work?",
-  "numerology_faq_compat_a2": "Yes. The table is for reference only and cannot measure communication, respect or commitment. Use the level as a prompt for a conversation, not as a verdict."
+  "numerology_faq_compat_a2": "Yes. The table is for reference only and cannot measure communication, respect or commitment. Use the level as a prompt for a conversation, not as a verdict.",
+  "numerology_number_link": "Life Path Number {number}",
+  "numerology_neighbors_title": "Explore the other numbers",
+  "numerology_neighbors": "The neighbors of {number} make a useful contrast: [Life Path Number {a}] is read through {themeA}, and [Life Path Number {b}] through {themeB}.",
+  "numerology_neighbors_master": "The other master numbers make a useful contrast with {number}: [Life Path Number {a}] is read through {themeA}, and [Life Path Number {b}] through {themeB}.",
+  "numerology_neighbors_root": "As a master number, {number} is also read next to its root, [Life Path Number {root}], the theme of {theme}.",
+  "numerology_band_number": "The full calculator sets your life path beside your name numbers and personal year on one page.",
+  "numerology_band_hub": "The full calculator combines your birth date and name: Life Path, Destiny, Soul Urge, Personality and Personal Year on one page.",
+  "numerology_band_link": "Numerology calculator"
 }

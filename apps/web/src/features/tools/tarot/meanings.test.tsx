@@ -9,9 +9,17 @@ import { sitemap } from '../../seo/crawlers.ts'
 import { pageHead } from '../../seo/metadata.ts'
 import { publicPages } from '../../seo/pages.ts'
 import { CardFace } from './card.tsx'
+import { TarotIndexContent } from './index-page.tsx'
 import type { TarotMeaningPage } from './meaning.functions.ts'
-import { relatedCards, tarotMeaningPath, tarotMeaningSeoPages } from './meaning-routes.ts'
-import { TAROT_LOCALES } from './routes.ts'
+import { splitMeaningHtml } from './meaning-page.tsx'
+import {
+  tarotIndexPath,
+  tarotIndexSeo,
+  tarotMeaningPath,
+  tarotMeaningSeoPages,
+} from './meaning-routes.ts'
+import { majorNumeral, relatedCards, THEME_PAIRS } from './pairings.ts'
+import { TAROT_LOCALES, tarotPath } from './routes.ts'
 
 const messages = vi.hoisted(() => ({ locale: 'en' }))
 vi.mock('../../../paraglide/runtime.js', async (original) => {
@@ -135,16 +143,119 @@ describe('三语牌义内容与 SEO', () => {
     ).toEqual([])
   })
 
-  it('权杖王牌链接权杖二及其他三张王牌，大牌与小牌序号不混用', () => {
-    const ace = CARDS.find((card) => card.id === 'wands-01')
-    const fool = CARDS.find((card) => card.id === 'major-00')
-    if (!ace || !fool) throw new Error('Required cards missing')
-    expect(relatedCards(ace).map((card) => card.id)).toEqual([
-      'wands-02',
-      'cups-01',
-      'swords-01',
-      'pentacles-01',
-    ])
-    expect(relatedCards(fool).map((card) => card.id)).toEqual(['major-01'])
+  it('延伸牌义固定 4 条：同序列前 1 张、后 2 张与 1 张主题对应牌，78 张牌都不重复、不指向自己', () => {
+    expect(Object.keys(THEME_PAIRS).sort()).toEqual(CARDS.map((card) => card.id).sort())
+    for (const card of CARDS) {
+      const related = relatedCards(card)
+      expect(related.map((item) => item.role)).toEqual(['before', 'after', 'after-2', 'pair'])
+      const ids = related.map((item) => item.card.id)
+      expect(new Set([...ids, card.id]).size, card.id).toBe(5)
+      // 前后三张与本牌同序列；大牌的对应牌仍是大牌，小牌的对应牌是另一花色的同序号牌
+      for (const item of related.slice(0, 3)) expect(item.card.suit).toBe(card.suit)
+      const pair = related[3]?.card
+      if (card.suit === 'major') expect(pair?.suit).toBe('major')
+      else {
+        expect(pair?.suit).not.toBe(card.suit)
+        expect(pair?.suit).not.toBe('major')
+        expect(pair?.number).toBe(card.number)
+      }
+      // 配对是相互的
+      expect(THEME_PAIRS[THEME_PAIRS[card.id] ?? '']).toBe(card.id)
+    }
+    const ids = (id: string) =>
+      relatedCards(CARDS.find((card) => card.id === id) as (typeof CARDS)[number]).map(
+        (item) => item.card.id,
+      )
+    // 设计稿样例：太阳 → 月亮、审判、世界、力量
+    expect(ids('major-19')).toEqual(['major-18', 'major-20', 'major-21', 'major-08'])
+    // 序列首尾相接：世界之后是愚者、魔术师；国王之后是王牌、二
+    expect(ids('major-21')).toEqual(['major-20', 'major-00', 'major-01', 'major-10'])
+    expect(ids('wands-14')).toEqual(['wands-13', 'wands-01', 'wands-02', 'swords-14'])
+    expect([0, 4, 9, 14, 19, 21].map(majorNumeral)).toEqual(['0', 'IV', 'IX', 'XIV', 'XIX', 'XXI'])
+  })
+
+  it('牌义索引页：四语各 78 条服务端输出的牌义链接，锚文本带「Tarot / 塔罗牌」，罗马数字在链接之外', () => {
+    const anchors = {
+      en: ['The Moon Tarot', 'Ace of Wands Tarot'],
+      'zh-Hans': ['月亮塔罗牌', '权杖王牌塔罗牌'],
+      'zh-Hant': ['月亮塔羅牌', '權杖王牌塔羅牌'],
+      ko: ['달 타로 카드', '완드 에이스 타로 카드'],
+    } as const
+    for (const locale of TAROT_LOCALES) {
+      messages.locale = locale
+      setLocale(locale, { reload: false })
+      const main = renderToString(<TarotIndexContent locale={locale} />)
+      const links = [...main.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/g)].map(
+        ([, href = '', text = '']) => ({
+          href: decodeURI(href),
+          text: text.replace(/<[^>]+>/g, ''),
+        }),
+      )
+      const prefix = locale === 'en' ? '' : `/${locale.toLowerCase()}`
+      const cards = links.filter((link) =>
+        link.href.startsWith(`${prefix}${tarotIndexPath(locale)}/`),
+      )
+      expect(cards, locale).toHaveLength(78)
+      expect(new Set(cards.map((link) => link.href)).size).toBe(78)
+      for (const anchor of anchors[locale]) expect(cards.map((link) => link.text)).toContain(anchor)
+      // 罗马数字不在锚文本里
+      expect(cards.some((link) => /^[IVX0]+\b/.test(link.text))).toBe(false)
+      expect(main).toContain('>XVIII</span>')
+      // 导语里的两条牌阵链接；其余只有面包屑的首页与页内目录锚点
+      const others = links.filter((link) => !cards.includes(link))
+      expect(others.filter((link) => link.href.startsWith('#'))).toHaveLength(5)
+      expect(others.filter((link) => !link.href.startsWith('#')).map((link) => link.href)).toEqual([
+        prefix || '/',
+        ...[tarotPath('three-card', locale), tarotPath('daily', locale)].map(
+          (path) => `${prefix}${path}`,
+        ),
+      ])
+      // 索引页不加载牌图，也不跨站链接
+      expect(main).not.toContain('<img')
+      expect(main).not.toMatch(/https?:\/\//)
+    }
+  })
+
+  it('牌义索引进站点地图与预渲染，hreflang 只在同站内互指', () => {
+    const entries = new Set(prerenderEntryPages(templateConfig).map((entry) => entry.path))
+    for (const site of ['west', 'east'] as const) {
+      const pages = publicPages(
+        { posts: [], legal: [], docs: [] },
+        new Date(),
+        templateConfig,
+        site,
+      )
+      const xml = sitemap(pages, '')
+      for (const locale of TAROT_LOCALES) {
+        const seo = tarotIndexSeo(locale)
+        const listed = pages.filter((page) => page.path === seo.path && page.locale === locale)
+        expect(listed, `${site} ${locale}`).toHaveLength(
+          (site === 'west') === (locale === 'en') ? 1 : 0,
+        )
+        if (listed.length === 0) continue
+        const head = pageHead(seo, '')
+        const alternate = Object.fromEntries(
+          head.links.flatMap((link) => ('hrefLang' in link ? [[link.hrefLang, link.href]] : [])),
+        )
+        expect(Object.keys(alternate).sort()).toEqual(
+          locale === 'en' ? ['en', 'x-default'] : ['ko', 'x-default', 'zh-Hans', 'zh-Hant'],
+        )
+        expect(xml).toContain(`<loc>${alternate[locale]}</loc>`)
+        expect(entries.has(`${locale === 'en' ? '' : `/${locale.toLowerCase()}`}${seo.path}`)).toBe(
+          true,
+        )
+      }
+    }
+  })
+
+  it('牌义正文拆分：FAQ 与文末声明移出长文，正文里的牌阵链接只保留文字', () => {
+    for (const page of content) {
+      const { body, note } = splitMeaningHtml(page.html)
+      expect(body.match(/<h2>/g), page.cardId).toHaveLength(9)
+      expect(body).not.toContain('<a ')
+      expect(note.length, page.cardId).toBeGreaterThan(20)
+      expect(note).not.toMatch(/[<>]|&\w+;/)
+      for (const faq of page.faq) expect(body).not.toContain(renderToString(<h3>{faq.q}</h3>))
+    }
   })
 })

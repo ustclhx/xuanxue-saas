@@ -260,6 +260,9 @@ importers:
       '@fontsource/noto-sans-kr':
         specifier: ^5.3.1
         version: 5.3.1
+      '@fontsource/noto-sans-sc':
+        specifier: ^5.3.1
+        version: 5.3.1
       '@fontsource/noto-sans-tc':
         specifier: ^5.3.1
         version: 5.3.1
@@ -2048,6 +2051,9 @@ packages:
 
   '@fontsource/noto-sans-kr@5.3.1':
     resolution: {integrity: sha512-aKnPug5P6zBHaiLbGEVNyBQesyOeEUYl6C3Xedb00xO3iAHJZPQs2JOsPNVqHanKSVe1fTVmTPuYIao4noImXw==}
+
+  '@fontsource/noto-sans-sc@5.3.1':
+    resolution: {integrity: sha512-YxZ/VWAWo9FWzH08Q6fGTzIW6vYNP2TMhUFCnfhlimbhdXnWrxJLrzX3KWt2FKnV0s8XiM5vjpGHQiyFRlTj0w==}
 
   '@fontsource/noto-sans-tc@5.3.1':
     resolution: {integrity: sha512-kiOTKRnkEV4dsMqfmIuH3TnkYp5Rqq2f4LgAArx0Y5eVzCebU2TgWup5TWCWWSk28nBf4mgunLTyQP+xQ74gcQ==}
@@ -7288,6 +7294,8 @@ snapshots:
   '@fontsource/manrope@5.3.0': {}
 
   '@fontsource/noto-sans-kr@5.3.1': {}
+
+  '@fontsource/noto-sans-sc@5.3.1': {}
 
   '@fontsource/noto-sans-tc@5.3.1': {}
 

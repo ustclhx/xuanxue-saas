@@ -122,5 +122,13 @@
   "numerology_faq_compat_q1": "配對等級來自哪裡？",
   "numerology_faq_compat_a1": "來自彙整常見畢達哥拉斯數字命理解讀的固定12 × 12表格。表格是對稱的，所有訪客使用的表格都相同。",
   "numerology_faq_compat_q2": "需要磨合的配對也能相處得好嗎？",
-  "numerology_faq_compat_a2": "可以。表格僅供參考，無法衡量溝通、尊重或對關係的投入。請將配對等級用作交流的契機，而非對關係的定論。"
+  "numerology_faq_compat_a2": "可以。表格僅供參考，無法衡量溝通、尊重或對關係的投入。請將配對等級用作交流的契機，而非對關係的定論。",
+  "numerology_number_link": "生命靈數{number}",
+  "numerology_neighbors_title": "看看其他數字",
+  "numerology_neighbors": "與 {number} 相鄰的數字可以拿來對照：[生命靈數{a}]的主題是{themeA}，[生命靈數{b}]的主題是{themeB}。",
+  "numerology_neighbors_master": "另外兩個大師數可以和 {number} 對照：[生命靈數{a}]的主題是{themeA}，[生命靈數{b}]的主題是{themeB}。",
+  "numerology_neighbors_root": "作為大師數，{number} 也常與它的根數一起看：[生命靈數{root}]，主題是{theme}。",
+  "numerology_band_number": "完整計算器會把生命靈數、姓名數字與個人年放在同一頁。",
+  "numerology_band_hub": "完整計算器結合出生日期與姓名：生命靈數、命運數、靈魂渴望數、人格數與個人年都在同一頁。",
+  "numerology_band_link": "靈數計算器"
 }

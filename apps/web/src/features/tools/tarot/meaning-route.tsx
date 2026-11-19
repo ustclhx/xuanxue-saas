@@ -4,8 +4,16 @@ import { templateConfig } from '../../../server/template-config.ts'
 import { originFromMatches, pageHead } from '../../seo/metadata.ts'
 import { faqItems, faqPageData } from '../numerology/seo.ts'
 import type { TarotMeaningPage } from './meaning.functions.ts'
-import { tarotMeaningSeoPages } from './meaning-routes.ts'
+import { tarotIndexSeo, tarotMeaningSeoPages } from './meaning-routes.ts'
 import type { TarotLocale } from './routes.ts'
+
+/** 牌义索引页的 head：Title、description、canonical 与同站 hreflang（与牌阵页相同的写法） */
+export function tarotIndexHead(
+  locale: TarotLocale,
+  matches: readonly Pick<AnyRouteMatch, 'loaderData' | 'routeId'>[],
+) {
+  return pageHead(tarotIndexSeo(locale), originFromMatches(matches))
+}
 
 export function requireMeaningLocale(locale: TarotLocale) {
   if (!templateConfig.marketing.enabled || getLocale() !== locale) throw notFound()

@@ -28,7 +28,7 @@ test('Life Path 工具页：输入 1987-11-29 显示 11、计算步骤与数字�
   await expect(result).toContainText('Day 29 → 2 + 9 = 11 (kept)')
   await expect(result).toContainText('Year 1987 → 1 + 9 + 8 + 7 = 25 → 2 + 5 = 7')
   await expect(result).toContainText('11 + 11 + 7 = 29 → 2 + 9 = 11')
-  const link = result.getByRole('link', { name: 'Read the full meaning of Life Path 11 →' })
+  const link = result.getByRole('link', { name: 'Life Path Number 11' })
   await expect(link).toHaveAttribute('href', '/life-path-number/11')
   // 分享链接只含日期，打开后直接复现结果
   const shareField = result.getByLabel('Share link')
@@ -98,7 +98,73 @@ test('相性：两个生日输出双方生命灵数与固定表等级', async ({
   await expect(page.locator('section#row li')).toHaveCount(12)
 })
 
-test('数字页 22：完整说明、内嵌计算器与其他 11 个数字页链接', async ({ page }) => {
+// specs/chart-visuals「西方站浅色与深色」：出结果后在浅色与深色之间切换，推导图形与数字网格的文字
+// 随 token 切换，两种主题下对比度均不低于 4.5:1（背景取文字所在格子的填充色，没有填充时取所在区块的底色）。
+test('数字分布图在西方站浅色与深色下可读', async ({ page }) => {
+  await page.goto('/numerology-chart')
+  await hydrated(page)
+  await fillDate(page, 'Date of birth', '1987-11-29')
+  await page.getByLabel('Full name (optional)').fill('Morgan Avery Lee')
+  await page.getByRole('button', { name: 'Calculate' }).click()
+  await expect(page.locator('section#birth-grid svg[data-chart]')).toBeVisible()
+  await expect(page.locator('section#life-path svg[data-chart]')).toBeVisible()
+  const fills: Record<string, string[]> = {}
+  for (const theme of ['light', 'dark'] as const) {
+    await page.locator(`footer [data-theme-option="${theme}"]`).click()
+    await expect(page.locator('html')).toHaveClass(
+      theme === 'dark' ? /\bdark\b/ : /^(?!.*\bdark\b)/,
+    )
+    const texts = await page.evaluate(() => {
+      const parse = (color: string) => {
+        const probe = document.createElement('canvas').getContext('2d')
+        if (!probe || color === 'none') return null
+        probe.fillStyle = color
+        probe.fillRect(0, 0, 1, 1)
+        const [r = 0, g = 0, b = 0, a = 0] = probe.getImageData(0, 0, 1, 1).data
+        return a === 0 ? null : ([r, g, b] as const)
+      }
+      const luminance = (rgb: readonly number[]) => {
+        const [r = 0, g = 0, b = 0] = rgb.map((value) => {
+          const channel = value / 255
+          return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+        })
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+      const backdrop = (text: Element) => {
+        // 同组里有填充的格子优先；否则向上找第一个有底色的 HTML 元素
+        for (const rect of text.parentElement?.querySelectorAll(':scope > rect') ?? []) {
+          const fill = parse(getComputedStyle(rect).fill)
+          if (fill) return fill
+        }
+        for (let node = text.closest('svg')?.parentElement; node; node = node.parentElement) {
+          const color = parse(getComputedStyle(node).backgroundColor)
+          if (color) return color
+        }
+        return null
+      }
+      return [...document.querySelectorAll('svg[data-chart] text')].map((text) => {
+        const style = getComputedStyle(text)
+        const ink = parse(style.fill)
+        const ground = backdrop(text)
+        if (!ink || !ground) return { text: text.textContent, fill: style.fill, ratio: 0 }
+        const [high, low] = [luminance(ink), luminance(ground)].sort((a, b) => b - a)
+        return {
+          text: text.textContent,
+          fill: style.fill,
+          ratio: ((high ?? 0) + 0.05) / ((low ?? 0) + 0.05),
+        }
+      })
+    })
+    expect(texts.length).toBeGreaterThan(20)
+    for (const item of texts)
+      expect(item.ratio, `${theme}: “${item.text}” ${item.fill}`).toBeGreaterThanOrEqual(4.5)
+    fills[theme] = texts.map((item) => item.fill)
+  }
+  // 颜色确实随主题切换，而不是写死的同一组值
+  expect(fills.light).not.toEqual(fills.dark)
+})
+
+test('数字页 22：完整说明、内嵌计算器与正文内 3 个相邻数字的链接', async ({ page }) => {
   const response = await page.goto('/life-path-number/22')
   expect(response?.status()).toBe(200)
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Life Path Number 22')
@@ -116,11 +182,21 @@ test('数字页 22：完整说明、内嵌计算器与其他 11 个数字页链�
   ).toBe(true)
   await expect(page.getByRole('form', { name: 'Birth date' })).toBeVisible()
   await expect(page.locator('article')).toContainText('What Life Path Number 22 means')
-  for (const value of LIFE_PATH_NUMBERS.filter((value) => value !== 22))
-    await expect(page.locator(`nav a[href="/life-path-number/${value}"]`).first()).toBeVisible()
-  await expect(
-    page.locator('nav a[href="/life-path-number/22"][aria-current="page"]'),
-  ).toBeVisible()
+  // 12 个数字的网格只留在父页；数字页在句子里链接相邻数字（大师数：另外两个大师数与根数），锚文本为目标页主关键词
+  const main = page.locator('main')
+  await expect(main.locator('a[href^="/life-path-number/"]')).toHaveText([
+    'Life Path Number 11',
+    'Life Path Number 33',
+    'Life Path Number 4',
+  ])
+  await expect(main.locator('nav a[href^="/life-path-number/"]')).toHaveCount(0)
+  // 正文内链合计 5 条：相性（长文里的一句）、3 个相邻数字、页尾转化条
+  await expect(main.locator('article a')).toHaveText(['life path compatibility'])
+  await expect(main.getByTestId('link-band').getByRole('link')).toHaveAttribute(
+    'href',
+    '/numerology-calculator',
+  )
+  await expect(main.locator('a:not(nav[aria-label="Breadcrumb"] a)')).toHaveCount(5)
   expect((await page.goto('/life-path-number/10'))?.status()).toBe(404)
   expect((await page.goto('/ko/numerology-calculator'))?.status()).toBe(404)
 })

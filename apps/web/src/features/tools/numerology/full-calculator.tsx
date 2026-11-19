@@ -84,9 +84,9 @@ export function FullCalculator() {
               <LifePathSteps result={chart.lifePath} date={state.date} />
               <a
                 href={lifePathPath(chart.lifePath.value)}
-                className="inline-flex min-h-11 items-center text-brand-ink underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
               >
-                {m.numerology_read_meaning({ number: chart.lifePath.value })}
+                {m.numerology_number_link({ number: chart.lifePath.value })}
               </a>
             </ResultBlock>
             {(['expression', 'soulUrge', 'personality'] as NameNumberKey[]).map((key) =>

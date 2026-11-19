@@ -49,7 +49,7 @@ export function NameNumberSteps({ result }: { result: NumberResult }) {
 export function LetterTable({ normalized }: { normalized: string }) {
   return (
     <ResultBlock id="letters" title={m.numerology_name_letters()}>
-      <p className="m-0 text-ink-subtle text-sm">
+      <p className="m-0 text-caption text-ink-subtle">
         {m.numerology_name_normalized({ name: normalized })}
       </p>
       <div className="flex flex-wrap gap-x-5 gap-y-3">
@@ -58,10 +58,10 @@ export function LetterTable({ normalized }: { normalized: string }) {
             {word.map(({ letter, value, position }) => (
               <li
                 key={position}
-                className="flex w-8 flex-col items-center rounded-md bg-surface-2 py-1"
+                className="flex w-8 flex-col items-center rounded-field bg-surface-2 py-1"
               >
                 <span className="text-ink">{letter}</span>
-                <span className="text-brand text-sm tabular-nums">{value}</span>
+                <span className="text-caption text-ink-muted tabular-nums">{value}</span>
               </li>
             ))}
           </ol>

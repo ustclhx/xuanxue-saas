@@ -54,13 +54,16 @@ describe('塔罗路由', () => {
       }
   })
 
-  it('站点地图与预渲染按所属站点收录 12 个牌阵页', () => {
+  it('站点地图与预渲染按所属站点收录 12 个牌阵页与牌义索引页', () => {
     const west = publicPages(noContent, new Date(), templateConfig, 'west')
     const east = publicPages(noContent, new Date(), templateConfig, 'east')
     const tarot = (pages: typeof west) =>
       pages.filter((page) => /^\/(tarot|塔羅|타로)(?:\/[^/]+)?$/.test(page.path)).map((p) => p.path)
-    expect(tarot(west)).toHaveLength(4)
-    expect(tarot(east)).toHaveLength(8)
+    // 4 个牌阵页加 1 个牌义索引页（/tarot/cards）；东方站这里只数繁中与韩语
+    expect(tarot(west)).toHaveLength(5)
+    expect(tarot(east)).toHaveLength(10)
+    expect(tarot(west)).toContain('/tarot/cards')
+    expect(tarot(east)).toContain('/塔羅/牌義')
     expect(tarot(east)).toContain('/타로/켈틱-크로스')
     const entries = prerenderEntryPages(templateConfig).map((entry) => entry.path)
     expect(entries).toEqual(
@@ -102,10 +105,25 @@ describe('TarotSpreadPage', () => {
       </SiteContext>,
     )
 
-  it('服务端输出 H1、问句模板、互导矩阵、不能问的问题、牌位说明与 FAQ', () => {
+  it('服务端输出 H1、收起的问句模板、正文内的牌阵与牌义索引链接、不能问的问题、牌位说明与 FAQ', () => {
     const html = render('three-card')
     expect(html).toMatch(/<h1[^>]*>Free Three-Card Tarot<\/h1>/)
-    expect(html.match(/<button type="button"[^>]*rounded-full/g)).toHaveLength(6)
+    // 问句模板收在 <details> 里（默认收起），页面上只有「洗牌」一个主按钮
+    const templates = html.slice(html.indexOf('<details'), html.indexOf('</details>'))
+    expect(templates).not.toContain('<details open')
+    expect(templates.match(/<button type="button"/g)).toHaveLength(6)
+    expect(html.match(/<button[^>]*bg-primary/g)).toHaveLength(1)
+    // 正文内链：导语 1 条（牌义索引）+「其他牌阵」3 条，都是服务端输出的 <a>，锚文本为目标页主关键词
+    const main = html.slice(html.indexOf('<h1'))
+    const links = [...main.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/g)].map(
+      ([, href, text]) => [href, text],
+    )
+    expect(links).toEqual([
+      ['/tarot/cards', 'tarot card meanings'],
+      ['/tarot/daily', 'card of the day'],
+      ['/tarot/yes-or-no', 'yes or no tarot'],
+      ['/tarot/celtic-cross', 'Celtic Cross tarot'],
+    ])
     expect(html).toContain('href="/tarot/daily"')
     expect(html).toContain('href="/tarot/yes-or-no"')
     expect(html).toContain('href="/tarot/celtic-cross"')

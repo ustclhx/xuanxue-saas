@@ -74,7 +74,7 @@
 
 标题为无衬线粗体，每站一个家族（方向 C；取代 Noto Serif、Cormorant Garamond 与 Source Sans 3）：
 
-- 东方站：标题 `Noto Sans TC` / `Noto Sans KR` 700（按语言只引入一种，CJK 分片按需下载），fallback 为度量对齐的本机黑体（`PingFang TC` / `Apple SD Gothic Neo`）再落到系统无衬线；正文用系统字体栈 `-apple-system, 'PingFang TC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans KR', 'Microsoft JhengHei'|'Malgun Gothic', sans-serif`，不下载正文字重（CJK 正文字体分片会在首屏下载上百 KB）。
+- 东方站：标题 `Noto Sans TC`（繁中）/ `Noto Sans SC`（简中，2026-11-19 确认：TC 缺一部分简体字形）/ `Noto Sans KR`（韩语）700（按语言只引入一种，CJK 分片按需下载），fallback 为度量对齐的本机黑体（`PingFang TC` / `PingFang SC` / `Apple SD Gothic Neo`）再落到系统无衬线；正文用系统字体栈 `-apple-system, 'PingFang TC'|'PingFang SC'|'Apple SD Gothic Neo', 'Noto Sans TC'|'Noto Sans SC'|'Noto Sans KR', 'Microsoft JhengHei'|'Microsoft YaHei'|'Malgun Gothic', sans-serif`，不下载正文字重（CJK 正文字体分片会在首屏下载上百 KB）。
 - 西方站：标题与正文都用 `Manrope`（400 / 500 / 700）；fallback 为度量匹配的 Arial（Linux 上为度量兼容的 Liberation Sans），再落到系统无衬线。
 - **字体样式表不阻塞首屏**：根布局 `<head>` 中的内联脚本（`features/site/theme.ts` 的 `siteFontScript`）插入本站本语言的 `@fontsource` 样式表，首屏先用 fallback 渲染，字体到达后按 `font-display: swap` 替换；换语言为整页导航，只在首次加载插入一次。未启用脚本时保持系统字体。
 - **减少替换位移（CLS）**：`styles/brand.css` 中的 `* Fallback` `@font-face` 只引用 `local()` 本机字体，用 `size-adjust`、`ascent-override`、`descent-override`、`line-gap-override` 对齐自托管字体的度量（拉丁字体按字宽与纵向度量，CJK 全角字形只对齐纵向度量）。更换字体或字重时须重新计算这些数值。

@@ -73,8 +73,11 @@ export function BirthDateField({
 export function LifePathCalculator({
   example = EXAMPLE,
   unlock = false,
+  current,
 }: {
   example?: BirthDate
+  /** 内嵌在某个数字页时为该页的数字：结果正好是它时不再链接到本页 */
+  current?: number
   /** 显示完整分析解锁卡（只在工具页，数字页内嵌时不显示） */
   unlock?: boolean
 }) {
@@ -113,6 +116,7 @@ export function LifePathCalculator({
           <LifePathCard
             result={calculated.result}
             date={calculated.date}
+            current={current}
             footer={
               <ShareLink
                 input={{ date: formatBirthDate(calculated.date) }}
@@ -121,7 +125,7 @@ export function LifePathCalculator({
             }
           />
         ) : (
-          <LifePathCard result={lifePath(example)} date={example} example />
+          <LifePathCard result={lifePath(example)} date={example} current={current} example />
         )}
       </div>
       <ReadingSlots

@@ -46,7 +46,7 @@ function useEntered(): boolean {
   return entered
 }
 
-const enter = 'transition-[opacity,transform] duration-500 ease-out motion-reduce:translate-y-0'
+const enter = 'transition duration-500 ease-out motion-reduce:translate-y-0'
 
 /** 洗牌前后的牌堆 */
 export function DeckStack({ frame, shuffling }: { frame: number; shuffling: boolean }) {
@@ -54,7 +54,7 @@ export function DeckStack({ frame, shuffling }: { frame: number; shuffling: bool
     <div
       role="img"
       aria-label={m.tarot_deck_label()}
-      className="relative mx-auto aspect-[0.58] w-28 sm:w-32"
+      className="relative mx-auto aspect-240/416 w-28 sm:w-32"
     >
       {Array.from({ length: STACK_LAYERS }, (_, layer) => {
         const offset = shuffling && frame % 2 === 1 ? (layer % 2 === 0 ? -1 : 1) : 0
@@ -102,14 +102,15 @@ export function CutSpread({ onCut }: { onCut: (position: number) => void }) {
   }
   return (
     <div className="flex flex-col gap-3">
-      <p id="tarot-cut-prompt" className="m-0 text-center text-ink-muted text-sm">
+      <p id="tarot-cut-prompt" className="m-0 text-center text-caption text-ink-subtle">
         {m.tarot_cut_prompt()}
       </p>
       <div
         ref={grid}
         data-testid="tarot-cut-spread"
         className={cn(
-          'mx-auto grid w-full max-w-[720px] auto-rows-[44px] grid-cols-8 pb-[34px] sm:auto-rows-[48px] sm:grid-cols-13 sm:pb-[48px]',
+          // 每张牌只露出上端 44px（桌面 48px）作点击区域，最后一行的牌身靠底部留白露出
+          'mx-auto grid w-full max-w-180 grid-cols-8 pb-9 sm:grid-cols-13 sm:pb-12',
           enter,
           entered ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0',
         )}
@@ -125,10 +126,10 @@ export function CutSpread({ onCut }: { onCut: (position: number) => void }) {
             onClick={() => onCut(index)}
             onKeyDown={(event) => move(event, index)}
             onFocus={() => setFocus(index)}
-            className="group relative min-w-0 rounded-[10px] focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            className="group relative h-11 min-w-0 rounded-field focus-visible:z-10 sm:h-12 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
           >
-            <span className="absolute inset-x-0.5 top-0 block aspect-[0.58] transition-transform duration-200 group-hover:-translate-y-1.5 group-focus-visible:-translate-y-1.5 motion-reduce:transition-none">
-              <CardBack className="shadow-[0_-2px_6px_rgba(0,0,0,0.25)]" />
+            <span className="absolute inset-x-0.5 top-0 block aspect-240/416 transition-transform duration-200 group-hover:-translate-y-1.5 group-focus-visible:-translate-y-1.5 motion-reduce:transition-none">
+              <CardBack />
             </span>
           </button>
         ))}
@@ -169,11 +170,9 @@ function Slot({
       data-revealed={revealed}
     >
       {label === 'above' && (
-        <span className="text-center text-ink-subtle text-xs uppercase tracking-[1px]">
-          {position.name}
-        </span>
+        <span className="text-center text-caption text-ink-subtle">{position.name}</span>
       )}
-      <div className="relative aspect-[0.58] w-full perspective-[900px]">
+      <div className="relative aspect-240/416 w-full perspective-distant">
         <div
           className={cn(
             'relative size-full transition-transform duration-500 ease-out transform-3d motion-reduce:transition-none',
@@ -189,7 +188,7 @@ function Slot({
               onClick={() => onReveal(index)}
               data-slot-index={index}
               className={cn(
-                'absolute inset-0 cursor-pointer rounded-[10px] backface-hidden transition-opacity duration-300 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-default',
+                'absolute inset-0 cursor-pointer rounded-field backface-hidden transition-opacity duration-300 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-default',
                 revealed && 'motion-reduce:opacity-0',
               )}
             >
@@ -208,7 +207,7 @@ function Slot({
         {label === 'badge' && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute top-1 left-1 z-10 flex size-6 items-center justify-center rounded-full border border-line-strong bg-surface text-ink text-xs"
+            className="pointer-events-none absolute top-1 left-1 z-10 flex size-6 items-center justify-center rounded-full bg-background text-caption text-ink ring-1 ring-line-strong"
           >
             {index + 1}
           </span>
@@ -270,13 +269,13 @@ export function SpreadTable({
   }
   if (spread === 'celtic-cross')
     return (
-      <div className="mx-auto grid w-full max-w-[560px] grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,1fr)] grid-rows-8 gap-x-2 gap-y-1 [&>*:nth-child(n+7)]:ml-2 sm:gap-x-4">
+      <div className="mx-auto grid w-full max-w-140 grid-cols-4 grid-rows-8 gap-x-2 gap-y-1 [&>*:nth-child(n+7)]:ml-2 sm:gap-x-4">
         {positions.map((_, index) => slot(index, 'badge', CELTIC_AREAS[index]))}
       </div>
     )
   if (positions.length === 1) return <div className="mx-auto w-40 sm:w-48">{slot(0, 'above')}</div>
   return (
-    <div className="mx-auto grid w-full max-w-[520px] grid-cols-3 gap-2.5 sm:gap-5">
+    <div className="mx-auto grid w-full max-w-130 grid-cols-3 gap-3 sm:gap-6">
       {positions.map((_, index) => slot(index, 'above'))}
     </div>
   )

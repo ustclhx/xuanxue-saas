@@ -19,10 +19,16 @@ import { BirthDateField } from './life-path-calculator.tsx'
 import { FieldError, LifePathSteps, NumberHeadline } from './parts.tsx'
 import { useSharedInput } from './use-shared-input.ts'
 
+/**
+ * 数字格的底色改用页面底（specs/chart-visuals「西方站浅色与深色」：两种主题下图形文字对比度 ≥ 4.5:1）：
+ * 结果区块本身是 surface，格子再用 surface-2 时，黄铜色的数字在浅色主题只有 4.2:1；页面底上为 5.05:1（深色 9.02:1）。
+ */
+const GRID_COLORS = { surface2: 'var(--bg)' } as const
+
 function ChartFacts({ counts }: { counts: Record<number, number> }) {
   const { missing, repeated } = chartSummary(counts)
   return (
-    <dl className="m-0 grid gap-2 text-[15px]">
+    <dl className="m-0 grid gap-2 text-body">
       <div className="flex flex-wrap gap-x-2">
         <dt className="text-ink-subtle">{m.numerology_chart_missing()}:</dt>
         <dd className="m-0 text-ink">
@@ -111,7 +117,11 @@ export function ChartCalculator() {
               aside={formatBirthDate(state.date)}
               description={m.numerology_chart_birth_desc()}
             >
-              <DigitGridChart counts={state.birth} caption={m.numerology_chart_birth_grid()} />
+              <DigitGridChart
+                counts={state.birth}
+                caption={m.numerology_chart_birth_grid()}
+                colors={GRID_COLORS}
+              />
               <ChartFacts counts={state.birth} />
             </ResultBlock>
             <ResultBlock
@@ -129,7 +139,11 @@ export function ChartCalculator() {
                 title={m.numerology_chart_name_grid()}
                 description={m.numerology_chart_name_desc()}
               >
-                <DigitGridChart counts={state.name} caption={m.numerology_chart_name_grid()} />
+                <DigitGridChart
+                  counts={state.name}
+                  caption={m.numerology_chart_name_grid()}
+                  colors={GRID_COLORS}
+                />
                 <ChartFacts counts={state.name} />
               </ResultBlock>
             )}

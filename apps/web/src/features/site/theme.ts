@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { THEME_STORAGE_KEY } from '@xuanxue/ui'
 import eastKoFonts from '../../styles/fonts/east-ko.css?url'
+import eastZhHansFonts from '../../styles/fonts/east-zh-hans.css?url'
 import eastZhHantFonts from '../../styles/fonts/east-zh-hant.css?url'
 import westFonts from '../../styles/fonts/west.css?url'
 
@@ -11,7 +12,9 @@ import westFonts from '../../styles/fonts/west.css?url'
  */
 export function siteFontHref(site: SiteId, locale: string): string {
   if (site === 'west') return westFonts
-  return locale === 'ko' ? eastKoFonts : eastZhHantFonts
+  if (locale === 'ko') return eastKoFonts
+  // 简中页用 Noto Sans SC：TC 缺一部分简体字形（使用者 2026-11-19 确认）
+  return locale === 'zh-Hans' ? eastZhHansFonts : eastZhHantFonts
 }
 
 /** 站点图标（public/images/favicon-<site>.*）：与页头标志一致；/favicon.ico 由同名路由按 Host 指向对应站点 */
