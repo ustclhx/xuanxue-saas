@@ -187,7 +187,7 @@ export function GunghapPage() {
             两组出生信息在手机上超过一屏（390×844）：提交按钮吸附在视口底部，首屏即可见（tool-pages「工具页紧凑布局」），
             滚到表单末尾时回到原位。底色与表单面板相同，避免字段从按钮下方透出。
           */}
-          <div className="sticky bottom-0 z-10 -mx-6 -mb-6 rounded-b-object bg-surface px-6 py-3 sm:static sm:m-0 sm:p-0 print:hidden">
+          <div className="sticky bottom-0 z-10 -mx-6 -mb-6 rounded-b-object bg-surface px-6 py-3 sm:static sm:m-0 sm:p-0 print:static">
             <SubmitButton>{m.bazi_gunghap_submit()}</SubmitButton>
           </div>
         </ToolForm>
