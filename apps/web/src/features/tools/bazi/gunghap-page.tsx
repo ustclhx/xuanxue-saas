@@ -66,6 +66,7 @@ type Issues = { a: readonly InputIssue[]; b: readonly InputIssue[] }
 /**
  * 韩语 `/ko/사주궁합`（tasks.md 3.2）：同一张表单放两个人（字段加前缀），
  * 本人沿用만세력页面保存的输入，对方单独保存。分数的每一项可展开查看。
+ * 版式套用工具页模板（设计稿 warm-refresh/ToolBazi.dc.html）：H1、简介、表单 → 结果 → FAQ → 内链。
  */
 export function GunghapPage() {
   const initial = { trueSolar: KO_TRUE_SOLAR_DEFAULT }
@@ -272,27 +273,24 @@ export function GunghapResult({
         description={m.bazi_gunghap_desc_score({ base: String(result.base) })}
       >
         <p className="m-0 flex items-baseline gap-3">
-          <span
-            data-score={result.score}
-            className="font-heading text-[48px] text-ink leading-none"
-          >
+          <span data-score={result.score} className="font-heading text-display text-ink">
             {m.bazi_gunghap_score({ score: String(result.score) })}
           </span>
-          <span className="text-ink-subtle text-sm">{m.bazi_gunghap_score_label()}</span>
+          <span className="text-caption text-ink-subtle">{m.bazi_gunghap_score_label()}</span>
         </p>
-        <span className="h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
+        <span className="block h-2.5 overflow-hidden rounded-full bg-surface-2" aria-hidden="true">
           <span
             className="block h-full rounded-full bg-brand"
             style={{ width: `${result.score}%` }}
           />
         </span>
         <details
-          className="group rounded-lg border border-line"
+          className="group rounded-field bg-surface-2"
           onToggle={(event) => {
             if (event.currentTarget.open) track('block_open', { block: 'score-breakdown' })
           }}
         >
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-4 text-ink marker:hidden">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-field px-4 text-body text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden">
             {m.bazi_gunghap_breakdown()}
             <svg
               width="16"
@@ -304,7 +302,7 @@ export function GunghapResult({
               <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </summary>
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full border-collapse text-body text-ink">
             <tbody>
               <tr className="border-line border-t">
                 <th scope="row" className="px-4 py-2.5 text-left font-normal text-ink">
@@ -316,16 +314,13 @@ export function GunghapResult({
                 <tr key={item.key} data-item={item.key} className="border-line border-t">
                   <th scope="row" className="px-4 py-2.5 text-left font-normal">
                     <span className="block text-ink">{ITEM_LABEL[item.key]()}</span>
-                    <span className="block text-ink-subtle text-xs">{itemDetail(item)}</span>
+                    <span className="block text-caption text-ink-subtle">{itemDetail(item)}</span>
                   </th>
                   <td
                     className={cn(
-                      'px-4 py-2.5 text-right font-semibold tabular-nums',
-                      item.delta > 0
-                        ? 'text-wx-wood'
-                        : item.delta < 0
-                          ? 'text-brand-ink'
-                          : 'text-ink-subtle',
+                      // 加减分靠正负号区分，不用五行色
+                      'px-4 py-2.5 text-right font-medium tabular-nums',
+                      item.delta === 0 && 'text-ink-subtle',
                     )}
                   >
                     {signed(item.delta)}
@@ -336,7 +331,7 @@ export function GunghapResult({
                 <th scope="row" className="px-4 py-2.5 text-left font-normal text-ink-muted">
                   {m.bazi_gunghap_total()}
                 </th>
-                <td className="px-4 py-2.5 text-right font-semibold tabular-nums">
+                <td className="px-4 py-2.5 text-right font-medium tabular-nums">
                   {raw === result.score ? result.score : `${raw} → ${result.score}`}
                 </td>
               </tr>
@@ -351,7 +346,7 @@ export function GunghapResult({
       >
         {result.charts.map((chart, i) => (
           <div key={chart.input.year + String(i)} className="flex flex-col gap-2">
-            <h3 className="m-0 font-heading text-base text-ink">
+            <h3 className="m-0 font-heading text-body text-ink">
               {i === 0 ? m.bazi_gunghap_person_a() : m.bazi_gunghap_person_b()} ·{' '}
               {m.bazi_gunghap_day_pillar({
                 gz: ganzhi(chart.pillars.day.stem, chart.pillars.day.branch),

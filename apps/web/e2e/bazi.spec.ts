@@ -162,8 +162,12 @@ test('韩语만세력：6 个区块顺序、진태양시提示与韩国夏令时
   await expect(page.getByRole('combobox', { name: '출생지', exact: true })).toHaveText('서울')
   await expect(page.locator('select[name="place"]')).toHaveValue('seoul')
   const trueSolar = page.getByLabel('진태양시 보정')
-  // 决策 D5：与韩国常见만세력一致，默认开启
+  // 决策 D5：与韩国常见만세력一致，默认开启；进阶选项默认收起（refresh-visual-system-warm 5.2），展开后可见说明并可关闭
   await expect(trueSolar).toBeChecked()
+  const advanced = page.locator('form details')
+  await expect(advanced).not.toHaveAttribute('open', '')
+  await expect(trueSolar).toBeHidden()
+  await advanced.locator('summary').click()
   await expect(page.getByText('국내 만세력과 같이 진태양시 보정을 기본으로 켭니다')).toBeVisible()
 
   // 1987-07-01 10:30 서울：关闭진태양시后只按서머타임换算为표준시 09:30

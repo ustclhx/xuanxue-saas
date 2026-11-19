@@ -23,7 +23,10 @@ async function computeZiweiChart(input: BirthInput): Promise<ZiweiChart> {
   return (await loadZiwei()).computeZiwei(input)
 }
 
-/** 繁中 `/zh-hant/紫微斗數排盤`（tasks.md 2.3）：与八字共用表单，只切换引擎 */
+/**
+ * 繁中 `/zh-hant/紫微斗數排盤`（tasks.md 2.3）：与八字共用表单，只切换引擎。
+ * 版式套用工具页模板（设计稿 warm-refresh/ToolBazi.dc.html）：H1、简介、表单 → 结果 → FAQ → 内链。
+ */
 export function ZiweiPage() {
   const LOCALE = eastChineseLocale()
   const tool = useBirthTool({ locale: LOCALE, compute: computeZiweiChart })
@@ -85,7 +88,7 @@ const PALACE_ORDER = Object.keys(PALACE_LABEL) as PalaceKey[]
 function PalaceList({ chart }: { chart: Extract<ZiweiChart, { status: 'ok' }> }) {
   return (
     <section aria-labelledby="ziwei-palace-list" className="flex flex-col gap-2.5">
-      <h3 id="ziwei-palace-list" className="m-0 font-semibold text-base text-ink">
+      <h3 id="ziwei-palace-list" className="m-0 font-medium text-body text-ink">
         {m.chart_ziwei_list_title()}
       </h3>
       <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
@@ -99,36 +102,37 @@ function PalaceList({ chart }: { chart: Extract<ZiweiChart, { status: 'ok' }> })
                 key={palace.key}
                 data-palace-item={palace.key}
                 className={cn(
-                  'flex min-w-0 flex-col gap-1 rounded-lg bg-surface px-3.5 py-3',
-                  isSoul ? 'border-2 border-brand' : 'border border-line',
+                  // 宫位格是 surface 面板上的 surface-2 格（图表格），不画边框；命宫用强调色细框
+                  'flex min-w-0 flex-col gap-1 rounded-field bg-surface-2 px-3.5 py-3',
+                  isSoul && 'ring-1 ring-mark ring-inset',
                 )}
               >
                 <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <span className="font-semibold text-ink">{PALACE_LABEL[palace.key]()}</span>
-                  <span className="font-heading text-ink-subtle text-sm">
+                  <span className="font-medium text-body text-ink">
+                    {PALACE_LABEL[palace.key]()}
+                  </span>
+                  <span className="font-heading text-caption text-ink-subtle">
                     {STEM_HANZI[palace.stem]}
                     {BRANCH_HANZI[palace.branch]}
                   </span>
                   {isSoul && (
-                    <span className="rounded-full bg-brand px-1.5 text-on-brand text-xs">
+                    <span className="rounded-field bg-mark px-2 text-caption text-on-mark">
                       {m.bazi_ziwei_soul()}
                     </span>
                   )}
                   {palace.isBodyPalace && (
-                    <span className="rounded-full bg-inverse px-1.5 text-on-inverse text-xs">
+                    <span className="rounded-field bg-inverse px-2 text-caption text-on-inverse">
                       {m.bazi_ziwei_body()}
                     </span>
                   )}
                 </span>
-                <span className="text-ink-muted text-sm">
+                <span className="text-body text-ink-muted">
                   {palace.majorStars.length === 0
                     ? m.bazi_ziwei_empty()
                     : palace.majorStars.map((s, index) => (
                         <span key={s.star}>
                           {index > 0 && '、'}
-                          <strong className="font-heading font-normal text-brand-ink">
-                            {STAR_LABEL[s.star]()}
-                          </strong>
+                          <strong className="font-medium text-ink">{STAR_LABEL[s.star]()}</strong>
                           {s.brightness && label(BRIGHTNESS_LABEL, s.brightness)}
                           {s.mutagen && ` ${MUTAGEN_LABEL[s.mutagen]()}`}
                         </span>
@@ -154,7 +158,7 @@ export function ZiweiResult({
       <p
         role="status"
         data-ziwei="requires-hour"
-        className="m-0 rounded-xl border border-brand border-l-4 bg-surface p-5 text-ink leading-relaxed"
+        className="m-0 rounded-object bg-surface p-6 text-body text-ink sm:p-8"
       >
         {m.bazi_ziwei_requires_hour()}
       </p>
@@ -179,14 +183,14 @@ export function ZiweiResult({
         title={m.bazi_ziwei_block_mutagens()}
         description={m.bazi_ziwei_desc_mutagens()}
       >
-        <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-2 p-0">
+        <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 lg:grid-cols-4">
           {chart.mutagens.map((item) => {
             const palace = palaceOf(item.palace)
             return (
               <li
                 key={item.mutagen}
                 data-mutagen={item.mutagen}
-                className="rounded-lg bg-surface-2 px-3 py-2.5 text-ink"
+                className="rounded-field bg-surface-2 px-3 py-2.5 text-body text-ink"
               >
                 {m.bazi_ziwei_mutagen_row({
                   star: label(STAR_LABEL, item.star),

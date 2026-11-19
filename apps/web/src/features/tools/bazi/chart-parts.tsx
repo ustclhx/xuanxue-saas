@@ -9,7 +9,6 @@ import {
   BRANCH_HANGUL,
   BRANCH_HANZI,
   ELEMENT_BG,
-  ELEMENT_TEXT,
   formatDateTime,
   ganzhi,
   ganzhiHangul,
@@ -30,11 +29,12 @@ import {
 
 /**
  * 八字结果的各区块内容（繁中首页 7 区块与韩语만세력 6 区块共用）。
- * 五行色只作辅助，每处都同时给出文字标签（视觉规范「设计 token」）。
+ * 五行色只作色点，每处都同时给出文字标签（视觉规范「设计 token」）；字号只用六个角色类。
  */
 export type EastLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
 
-const serif = 'font-heading'
+/** 干支等字形用标题字体（无衬线粗体） */
+const heading = 'font-heading'
 
 /** 「排盤時間：1990-05-15 10:30（台北，國曆）· 農曆四月廿一」及夏令时 / 真太阳时说明 */
 export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
@@ -66,7 +66,17 @@ export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
   return parts.join(' · ')
 }
 
-/** 一柱：天干、地支（五行色 + 文字），十神与藏干 */
+/** 五行名前的色点：颜色只作辅助，旁边始终有文字 */
+function ElementDot({ element }: { element: Element }) {
+  return (
+    <span className={cn('size-2 shrink-0 rounded-full', ELEMENT_BG[element])} aria-hidden="true" />
+  )
+}
+
+/**
+ * 一柱（设计稿 warm-refresh/ToolBazi.dc.html 的 `.pillar`）：surface-2 底、6px 圆角；干支用 title 字号（小盘），
+ * 五行以色点加文字标出；日柱用强调色细框标记，不整块反色。
+ */
 function PillarCard({
   k,
   pillar,
@@ -83,47 +93,42 @@ function PillarCard({
     : pillar?.tenGod
       ? `${PILLAR_LABEL[k]()} · ${TEN_GOD_LABEL[pillar.tenGod]()}`
       : PILLAR_LABEL[k]()
-  const glyph = cn(
-    serif,
-    ko ? 'text-[30px] leading-tight' : 'text-[36px] leading-tight sm:text-[44px]',
-  )
-  const sub = cn('text-xs', isDay ? 'text-on-inverse/80' : 'text-ink-subtle')
+  const glyph = cn(heading, 'text-ink text-title')
+  const sub = 'inline-flex items-center gap-1 text-caption text-ink-muted'
   return (
     <div
       data-pillar={k}
+      data-day-master={isDay || undefined}
       className={cn(
-        'flex min-w-0 flex-col items-center gap-0.5 rounded-xl text-center',
-        ko ? 'px-1 py-2.5' : 'p-3 sm:p-4',
-        isDay ? 'bg-inverse text-on-inverse' : 'border border-line bg-surface',
+        'flex min-w-0 flex-col items-center gap-1 rounded-field bg-surface-2 px-1 py-3 text-center',
+        isDay && 'ring-1 ring-mark ring-inset',
       )}
     >
-      <span
-        className={cn('text-xs sm:text-[13px]', isDay ? 'text-on-inverse/80' : 'text-ink-subtle')}
-      >
+      <span className={cn('text-caption', isDay ? 'text-ink' : 'text-ink-subtle')}>
         {ko ? PILLAR_LABEL[k]() : label}
       </span>
       {pillar ? (
         <>
-          <span className={cn(glyph, !isDay && ELEMENT_TEXT[STEM_ELEMENT[pillar.stem]])}>
-            {STEM_HANZI[pillar.stem]}
-          </span>
+          <span className={glyph}>{STEM_HANZI[pillar.stem]}</span>
           <span className={sub}>
+            <ElementDot element={STEM_ELEMENT[pillar.stem]} />
             {ko ? `${STEM_HANGUL[pillar.stem]} · ` : ''}
             {ELEMENT_LABEL[STEM_ELEMENT[pillar.stem]]()}
           </span>
-          <span className={cn(glyph, !isDay && ELEMENT_TEXT[BRANCH_ELEMENT[pillar.branch]])}>
-            {BRANCH_HANZI[pillar.branch]}
-          </span>
+          <span className={glyph}>{BRANCH_HANZI[pillar.branch]}</span>
           <span className={sub}>
+            <ElementDot element={BRANCH_ELEMENT[pillar.branch]} />
             {ko ? `${BRANCH_HANGUL[pillar.branch]} · ` : ''}
             {ELEMENT_LABEL[BRANCH_ELEMENT[pillar.branch]]()}
           </span>
           {ko && !isDay && pillar.tenGod && (
-            <span className={cn(sub, 'mt-1')}>{TEN_GOD_LABEL[pillar.tenGod]()}</span>
+            <span className="mt-1 text-caption text-ink-subtle">
+              {TEN_GOD_LABEL[pillar.tenGod]()}
+            </span>
           )}
         </>
       ) : (
-        <span className="flex min-h-24 items-center px-1 text-ink-subtle text-sm">
+        <span className="flex min-h-24 items-center px-1 text-caption text-ink-subtle">
           {m.bazi_requires_hour()}
         </span>
       )}
@@ -150,12 +155,12 @@ export function HiddenStemsTable({ chart, locale }: { chart: BaziChart; locale: 
     locale === 'ko' ? ['hour', 'day', 'month', 'year'] : ['year', 'month', 'day', 'hour']
   return (
     <div id="ten-gods" className="max-w-2xl scroll-mt-6 overflow-x-auto">
-      <table className="w-full min-w-0 border-collapse text-center text-sm">
+      <table className="w-full min-w-0 border-collapse text-center text-body text-ink">
         <caption className="sr-only">
           {m.bazi_hidden_stems()} · {m.bazi_ten_gods()}
         </caption>
         <thead>
-          <tr className="text-ink-subtle text-xs">
+          <tr className="text-caption text-ink-subtle">
             <td className="w-14" />
             {order.map((k) => (
               <th key={k} scope="col" className="py-1 font-normal">
@@ -166,7 +171,7 @@ export function HiddenStemsTable({ chart, locale }: { chart: BaziChart; locale: 
         </thead>
         <tbody>
           <tr className="border-line border-t align-top">
-            <th scope="row" className="py-2 text-left font-normal text-ink-subtle text-xs">
+            <th scope="row" className="py-2 text-left font-normal text-caption text-ink-subtle">
               {m.bazi_hidden_stems()}
               <br />
               {m.bazi_ten_gods()}
@@ -179,17 +184,15 @@ export function HiddenStemsTable({ chart, locale }: { chart: BaziChart; locale: 
                     <ul className="m-0 flex list-none flex-col gap-1 p-0">
                       {pillar.hiddenStems.map((h) => (
                         <li key={h.qi} className="leading-tight">
-                          <span className={cn(serif, ELEMENT_TEXT[STEM_ELEMENT[h.stem]])}>
-                            {STEM_HANZI[h.stem]}
-                          </span>{' '}
-                          <span className="text-ink-muted text-xs">
+                          <span className={heading}>{STEM_HANZI[h.stem]}</span>{' '}
+                          <span className="text-caption text-ink-muted">
                             {TEN_GOD_LABEL[h.tenGod]()}
                           </span>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <span className="text-ink-subtle text-xs">—</span>
+                    <span className="text-caption text-ink-subtle">—</span>
                   )}
                 </td>
               )
@@ -206,14 +209,18 @@ export function StrengthBody({ chart, compact = false }: { chart: BaziChart; com
   const verdict = strength.verdict === 'strong' ? m.bazi_strength_strong() : m.bazi_strength_weak()
   return (
     <div className="flex flex-col gap-2">
-      <p className={cn('m-0 text-ink', compact ? 'text-[15px]' : 'text-base')}>
-        {m.bazi_day_master()}{' '}
-        <strong className={cn(serif, ELEMENT_TEXT[STEM_ELEMENT[dayMaster]])}>
+      <p className="m-0 flex flex-wrap items-center gap-x-1.5 text-body text-ink">
+        {m.bazi_day_master()}
+        <ElementDot element={STEM_ELEMENT[dayMaster]} />
+        <strong className={heading}>
           {STEM_HANZI[dayMaster]}
           {ELEMENT_LABEL[STEM_ELEMENT[dayMaster]]()}
-        </strong>{' '}
-        ·{' '}
-        <strong data-verdict={strength.verdict} className={cn(serif, 'text-lg')}>
+        </strong>
+        <span aria-hidden="true">·</span>
+        <strong
+          data-verdict={strength.verdict}
+          className={cn(heading, compact ? 'text-body' : 'text-subtitle')}
+        >
           {verdict}
         </strong>
       </p>
@@ -224,7 +231,7 @@ export function StrengthBody({ chart, compact = false }: { chart: BaziChart; com
         />
         <span className="absolute -inset-y-1 left-1/2 w-px bg-ink-subtle" />
       </div>
-      <p className="m-0 text-ink-muted text-sm leading-relaxed">
+      <p className="m-0 text-caption text-ink-muted">
         {m.bazi_strength_detail({
           support: String(strength.support),
           total: String(strength.total),
@@ -239,11 +246,12 @@ function ElementChip({ element, muted = false }: { element: Element; muted?: boo
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm',
-        muted ? 'border-line text-ink-subtle' : 'border-line-strong text-ink',
+        // 设计稿的 `.chip`：surface-2 底、6px 圆角、caption 字号，不画边框
+        'inline-flex min-h-8 items-center gap-1.5 rounded-field bg-surface-2 px-3 text-caption',
+        muted ? 'text-ink-muted' : 'text-ink',
       )}
     >
-      <span className={cn('size-2 rounded-full', ELEMENT_BG[element])} aria-hidden="true" />
+      <ElementDot element={element} />
       {ELEMENT_LABEL[element]()}
     </span>
   )
@@ -254,20 +262,20 @@ export function UsefulBody({ chart }: { chart: BaziChart }) {
   return (
     <div className="flex flex-col gap-2.5">
       {primary && (
-        <p className="m-0 font-heading text-ink text-lg">
+        <p className="m-0 font-heading text-body text-ink">
           {m.bazi_useful_primary({
             primary: ELEMENT_LABEL[primary](),
             secondary: secondary ? ELEMENT_LABEL[secondary]() : '—',
           })}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 text-caption">
         <span className="text-ink-subtle">{m.bazi_useful_favorable()}</span>
         {chart.useful.favorable.map((e) => (
           <ElementChip key={e} element={e} />
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2 text-caption">
         <span className="text-ink-subtle">{m.bazi_useful_unfavorable()}</span>
         {chart.useful.unfavorable.map((e) => (
           <ElementChip key={e} element={e} muted />
@@ -289,7 +297,7 @@ export function luckAside(chart: BaziChart, withHint = true): string {
 
 /**
  * 大运十年轴（specs/eastern-tool-pages「大运可点进」）：每格是按钮，展开该十年的干支、十神与流年，
- * 并链接到大运概念页。目前所在的一步以朱砂框标出。
+ * 并链接到大运概念页。目前所在的一步以强调色细框与「目前」字样标出（设计稿 ToolBazi 的 `.luck`：手机 3 列、桌面 6 列）。
  */
 export function LuckAxis({
   chart,
@@ -308,26 +316,19 @@ export function LuckAxis({
   const selected = open === null ? undefined : chart.fortune.decades[open]
   return (
     <div className="flex flex-col gap-3">
-      <p className="m-0 text-ink-muted text-sm">
+      <p className="m-0 text-caption text-ink-muted">
         {m.bazi_current_year({
           year: String(chart.currentYear.year),
           gz: ganzhi(chart.currentYear.stem, chart.currentYear.branch),
           tenGod: TEN_GOD_LABEL[chart.currentYear.tenGod](),
         })}
       </p>
-      <ol
-        className={cn(
-          'm-0 list-none p-0',
-          ko
-            ? '-mx-1 flex gap-2 overflow-x-auto px-1 pb-1'
-            : 'grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-2',
-        )}
-      >
+      <ol className="m-0 grid list-none grid-cols-3 gap-2 p-0 sm:grid-cols-6">
         {chart.fortune.decades.map((d) => {
           const isCurrent = d.index === current
           const isOpen = d.index === open
           return (
-            <li key={d.index} className={ko ? 'shrink-0' : undefined}>
+            <li key={d.index}>
               <button
                 type="button"
                 data-decade={d.index}
@@ -338,33 +339,31 @@ export function LuckAxis({
                   setOpen(isOpen ? null : d.index)
                 }}
                 className={cn(
-                  'flex w-full flex-col items-center justify-center gap-1 rounded-[10px] border text-ink transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2',
-                  ko ? 'min-h-[72px] w-[76px]' : 'min-h-[84px]',
-                  isCurrent ? 'border-2 border-brand bg-brand/8' : 'border-line bg-surface',
-                  isOpen && 'bg-surface-2 ring-2 ring-ink/20',
+                  'flex min-h-20 w-full flex-col items-center justify-center gap-0.5 rounded-field px-1 py-2.5 text-ink transition-colors hover:bg-background focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2',
+                  // 展开的一步改用页面底色（与分段切换的选中项相同）；目前所在的一步始终带强调色细框
+                  isOpen ? 'bg-background' : 'bg-surface-2',
+                  isCurrent
+                    ? 'ring-1 ring-mark ring-inset'
+                    : isOpen && 'ring-1 ring-line-strong ring-inset',
                 )}
               >
-                <span className={cn(serif, ko ? 'text-lg' : 'text-[22px]')}>
-                  {ganzhi(d.stem, d.branch)}
-                </span>
-                <span className={cn('text-xs', isCurrent ? 'text-brand-ink' : 'text-ink-subtle')}>
+                <span className={cn(heading, 'text-subtitle')}>{ganzhi(d.stem, d.branch)}</span>
+                <span className="text-caption text-ink-subtle">
                   {m.bazi_luck_age({ age: String(d.startAge) })}
                   {ko ? '' : ` · ${d.startYear}`}
                 </span>
                 {isCurrent && (
-                  <span className="text-brand-ink text-xs font-semibold">
-                    {m.bazi_luck_current()}
-                  </span>
+                  <span className="font-medium text-caption text-ink">{m.bazi_luck_current()}</span>
                 )}
               </button>
             </li>
           )
         })}
       </ol>
-      <div id={panelId} hidden={!selected} className="rounded-[10px] bg-surface-2 p-4">
+      <div id={panelId} hidden={!selected} className="rounded-field bg-surface-2 p-4">
         {selected && (
           <div className="flex flex-col gap-3" data-decade-panel={selected.index}>
-            <p className="m-0 font-heading text-ink">
+            <p className="m-0 font-heading text-body text-ink">
               {m.bazi_luck_detail({
                 gz: ko
                   ? `${ganzhi(selected.stem, selected.branch)}(${ganzhiHangul(selected.stem, selected.branch)})`
@@ -374,20 +373,20 @@ export function LuckAxis({
                 end: String(selected.endYear),
               })}
             </p>
-            <h3 className="m-0 font-normal text-ink-subtle text-sm">{m.bazi_luck_years()}</h3>
-            <ol className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(92px,1fr))] gap-1.5 p-0 text-sm">
+            <h3 className="m-0 font-normal text-caption text-ink-subtle">{m.bazi_luck_years()}</h3>
+            <ol className="m-0 grid list-none grid-cols-3 gap-1.5 p-0 text-body text-ink sm:grid-cols-5">
               {selected.years.map((y) => (
                 <li
                   key={y.year}
                   className={cn(
-                    'flex flex-col rounded-lg bg-surface px-2 py-1.5',
-                    y.year === chart.currentYear.year && 'outline-2 outline-brand',
+                    'flex flex-col rounded-field bg-surface px-2 py-1.5',
+                    y.year === chart.currentYear.year && 'ring-1 ring-mark ring-inset',
                   )}
                 >
-                  <span className="text-ink-subtle text-xs tabular-nums">{y.year}</span>
+                  <span className="text-caption text-ink-subtle tabular-nums">{y.year}</span>
                   <span>
                     <span className="font-heading">{ganzhi(y.stem, y.branch)}</span>{' '}
-                    <span className="text-ink-muted text-xs">{TEN_GOD_LABEL[y.tenGod]()}</span>
+                    <span className="text-caption text-ink-muted">{TEN_GOD_LABEL[y.tenGod]()}</span>
                   </span>
                 </li>
               ))}
@@ -395,7 +394,7 @@ export function LuckAxis({
             {conceptHref && (
               <a
                 href={conceptHref}
-                className="inline-flex min-h-11 items-center text-brand-ink text-sm"
+                className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
               >
                 {m.bazi_luck_concept_link()}
               </a>
@@ -404,7 +403,7 @@ export function LuckAxis({
         )}
       </div>
       {chart.fortune.approximate && (
-        <p className="m-0 text-ink-subtle text-xs">{m.bazi_luck_approximate()}</p>
+        <p className="m-0 text-caption text-ink-subtle">{m.bazi_luck_approximate()}</p>
       )}
     </div>
   )
@@ -443,8 +442,8 @@ export function ShenshaChips({ chart }: { chart: BaziChart }) {
             data-shensha={s.key}
             data-hit={hit}
             className={cn(
-              'scroll-mt-6 rounded-full px-3 py-1.5 text-sm',
-              hit ? 'bg-inverse text-on-inverse' : 'border border-line-strong text-ink',
+              'scroll-mt-6 rounded-field px-3 py-1.5 text-caption',
+              hit ? 'bg-inverse text-on-inverse' : 'bg-surface-2 text-ink',
             )}
           >
             {SHENSHA_LABEL[s.key]()} · {branchesText(s.targets)}
@@ -469,19 +468,19 @@ export function ShenshaTable({ chart }: { chart: BaziChart }) {
             data-shensha={s.key}
             data-hit={hit}
             className={cn(
-              'flex scroll-mt-6 items-start justify-between gap-3 rounded-lg px-3 py-2.5',
+              'flex scroll-mt-6 items-start justify-between gap-3 rounded-field px-3 py-2.5 text-body',
               hit ? 'bg-on-inverse/20 ring-1 ring-on-inverse/40' : 'bg-on-inverse/10',
             )}
           >
             <span className="flex min-w-0 flex-col">
-              <span className="font-semibold">{SHENSHA_LABEL[s.key]()}</span>
-              <span className="text-xs opacity-75">{BASIS_LABEL[s.basis]()}</span>
+              <span className="font-medium">{SHENSHA_LABEL[s.key]()}</span>
+              <span className="text-caption opacity-75">{BASIS_LABEL[s.basis]()}</span>
             </span>
             <span className="flex flex-col items-end text-right">
               <span className="font-heading">
                 {branchesText(s.targets)} ({s.targets.map((t) => BRANCH_HANGUL[t]).join('')})
               </span>
-              <span className="text-xs opacity-75">
+              <span className="text-caption opacity-75">
                 {hit
                   ? m.bazi_shensha_in({ pillars: pillarList(s.pillars, '·') })
                   : m.bazi_shensha_none()}
@@ -498,7 +497,7 @@ export function WeightBody({ chart }: { chart: BaziChart }) {
   const { weight } = chart
   if (weight.status === 'requiresHour')
     return (
-      <p data-weight="requires-hour" className="m-0 text-ink-muted leading-relaxed">
+      <p data-weight="requires-hour" className="m-0 text-body text-ink-muted">
         <strong className="text-ink">{m.bazi_requires_hour()}</strong> ·{' '}
         {m.bazi_weight_requires_hour({
           year: String(weight.parts.year),
@@ -509,10 +508,10 @@ export function WeightBody({ chart }: { chart: BaziChart }) {
     )
   return (
     <div className="flex flex-col gap-1">
-      <p data-weight={weight.totalQian} className="m-0 font-heading text-[32px] text-ink">
+      <p data-weight={weight.totalQian} className="m-0 font-heading text-ink text-title">
         {m.bazi_weight_value({ liang: String(weight.liang), qian: String(weight.qian) })}
       </p>
-      <p className="m-0 text-ink-subtle text-sm">
+      <p className="m-0 text-caption text-ink-subtle">
         {m.bazi_weight_parts({
           year: String(weight.parts.year),
           month: String(weight.parts.month),
@@ -527,7 +526,10 @@ export function WeightBody({ chart }: { chart: BaziChart }) {
 export function ConceptLink({ href, children }: { href?: string | undefined; children: string }) {
   if (!href) return null
   return (
-    <a href={href} className="inline-flex min-h-11 items-center self-start text-brand-ink text-sm">
+    <a
+      href={href}
+      className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
+    >
       {children}
     </a>
   )
