@@ -7,7 +7,7 @@ import {
   offsetOfPage,
 } from '../../../features/admin/list.ts'
 import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
-import { AdminPage, adminTableLabels } from '../../../features/admin/ui.tsx'
+import { AdminPage, adminTableLabels, formatDateTime } from '../../../features/admin/ui.tsx'
 import { getAdminSubscriptions } from '../../../features/billing/admin.functions.ts'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
@@ -51,14 +51,12 @@ function List() {
           {
             id: 'start',
             header: m.admin_period_start(),
-            cell: (row) =>
-              row.currentPeriodStart ? new Date(row.currentPeriodStart).toLocaleString() : '—',
+            cell: (row) => (row.currentPeriodStart ? formatDateTime(row.currentPeriodStart) : '—'),
           },
           {
             id: 'end',
             header: m.admin_period_end(),
-            cell: (row) =>
-              row.currentPeriodEnd ? new Date(row.currentPeriodEnd).toLocaleString() : '—',
+            cell: (row) => (row.currentPeriodEnd ? formatDateTime(row.currentPeriodEnd) : '—'),
           },
         ]}
         page={adminListPage(search.offset, data)}

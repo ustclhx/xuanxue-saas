@@ -11,6 +11,7 @@ import { siteOfLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { useToolEvents } from '../tools/use-tool-events.ts'
+import { primaryButton, secondaryButton } from './buttons.ts'
 import { toTraditional } from './hant.ts'
 import { Markdown } from './markdown.tsx'
 import { displayPrice, paypalUsdNotice, priceForCredits } from './price.ts'
@@ -29,8 +30,8 @@ import { readingTitle } from './title.ts'
 import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
 
 /**
- * 结果页的「完整分析」解锁卡（add-reading-monetization tasks.md 3.1，原型 Main.dc.html 付费卡）：
- * 反色块依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与按界面语言结算的价格
+ * 结果页的「完整分析」解锁卡（add-reading-monetization tasks.md 3.1；版式见设计稿 warm-refresh/ToolBazi.dc.html，
+ * refresh-visual-system-warm 8.1）：surface 卡片依次显示章节目录、样例段落（虚构命盘，标明示例）、所需积分与按界面语言结算的价格
  * （zh-Hans 附人民币参考价，localize-checkout-currency），位于免费结果与订阅卡之后，不以弹窗出现。
  *
  * 点击后：未登录 → 本语言登录页；积分不足 → 选择积分包或月付订阅（enable-subscriptions-daily-credits 4.3）
@@ -367,13 +368,13 @@ function ReadingUnlockCard({
         aria-labelledby="reading-full-title"
         aria-busy={phase.name === 'streaming'}
         data-testid="reading-stream"
-        className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 sm:p-8"
+        className={cn(shell, 'gap-5')}
       >
-        <header className="flex flex-col gap-1.5">
-          <h2 id="reading-full-title" className="m-0 font-heading font-semibold text-2xl text-ink">
+        <header className="flex flex-col gap-1">
+          <h2 id="reading-full-title" className="m-0 font-heading text-ink text-title">
             {readingTitle(kind)}
           </h2>
-          <p role="status" className="m-0 text-ink-muted text-sm">
+          <p role="status" className="m-0 text-caption text-ink-subtle">
             {phase.name === 'streaming'
               ? m.readings_generating()
               : phase.emailed
@@ -383,10 +384,7 @@ function ReadingUnlockCard({
         </header>
         {phase.text && <Markdown source={toTraditional(phase.text, locale)} />}
         {href && phase.name === 'done' && (
-          <a
-            href={href}
-            className="inline-flex min-h-11 items-center self-start rounded-lg border border-line-strong px-5 text-ink no-underline hover:bg-surface-2"
-          >
+          <a href={href} className={cn(secondaryButton, 'self-start')}>
             {m.readings_open_report()} →
           </a>
         )}
@@ -412,16 +410,14 @@ function ReadingUnlockCard({
     <section
       aria-labelledby="reading-unlock-title"
       data-testid="reading-unlock"
-      className="flex flex-col gap-3.5 rounded-xl bg-inverse p-5 text-on-inverse sm:p-6"
+      className={cn(shell, 'gap-4')}
     >
-      <h2 id="reading-unlock-title" className="m-0 font-heading font-semibold text-[22px]">
+      <h2 id="reading-unlock-title" className="m-0 font-heading text-ink text-subtitle">
         {readingTitle(kind)}
       </h2>
       <div className="flex flex-col gap-1">
-        <h3 className="m-0 font-normal text-on-inverse/75 text-sm">
-          {m.readings_unlock_contents()}
-        </h3>
-        <ol className="m-0 pl-5 text-[15px] text-on-inverse/90 leading-[1.9]">
+        <h3 className={label}>{m.readings_unlock_contents()}</h3>
+        <ol className="m-0 list-decimal pl-5 text-body text-ink-muted">
           {offer.sections.map((section) => (
             <li key={section}>{section}</li>
           ))}
@@ -429,23 +425,19 @@ function ReadingUnlockCard({
       </div>
       {offer.sample && (
         <figure data-testid="reading-sample" className="m-0 flex flex-col gap-1">
-          <figcaption className="text-on-inverse/75 text-sm">
-            {m.readings_unlock_sample()}
-          </figcaption>
-          <blockquote className="m-0 border-on-inverse/30 border-l-2 pl-3 text-[15px] text-on-inverse/90 leading-relaxed">
+          <figcaption className={label}>{m.readings_unlock_sample()}</figcaption>
+          <blockquote className="m-0 border-line-strong border-l-2 pl-3 text-body text-ink-muted">
             {offer.sample}
           </blockquote>
         </figure>
       )}
       <p className="m-0 flex flex-wrap items-baseline gap-x-2.5" data-testid="reading-price">
-        <span className="font-bold text-[28px]">
+        <span className="font-heading text-ink text-title">
           {m.readings_unlock_credits({ credits: String(offer.credits) })}
         </span>
-        {price && <span className="text-on-inverse/75 text-sm">{price.text}</span>}
+        {price && <span className={label}>{price.text}</span>}
         {price?.reference && (
-          <span className="text-on-inverse/75 text-sm">
-            {m.billing_cny_reference({ price: price.reference })}
-          </span>
+          <span className={label}>{m.billing_cny_reference({ price: price.reference })}</span>
         )}
       </p>
       {phase.name === 'packs' ? (
@@ -462,7 +454,7 @@ function ReadingUnlockCard({
           onClick={unlock}
           disabled={busy || !request}
           data-testid="reading-unlock-button"
-          className="min-h-12 rounded-lg bg-brand px-6 font-semibold text-[17px] text-on-brand transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-on-inverse focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+          className={cn(primaryButton, 'w-full sm:w-auto sm:min-w-56 sm:self-start')}
         >
           {busy
             ? phase.label
@@ -472,11 +464,21 @@ function ReadingUnlockCard({
         </button>
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />
-      <p className="m-0 text-on-inverse/75 text-xs">{m.readings_unlock_note()}</p>
-      <AiDisclaimer className="bg-transparent p-0 text-on-inverse/75 text-xs" />
+      <p role="note" className={cn(label, 'max-w-180')}>
+        {m.readings_unlock_note()}
+      </p>
+      <AiDisclaimer />
     </section>
   )
 }
+
+// 设计稿 warm-refresh/ToolBazi.dc.html「完整分析」：解锁卡是结果区里的一个 surface 对象（14px 圆角、不画边框、不再反色），
+// 主按钮为文字色药丸；字号取营销作用域的角色类
+const shell = 'flex flex-col rounded-object bg-surface p-6 sm:p-8'
+const label = 'm-0 text-caption text-ink-subtle'
+/** 积分包、订阅选项：整行可点，左侧名称、右侧价格 */
+const option =
+  'flex min-h-12 items-center justify-between gap-3 rounded-field px-4 text-left font-medium text-body transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3'
 
 /** 运营关闭时的占位：只显示名称与「即将开放」，不显示价格、解锁按钮或目录 */
 function ComingSoon({ kind }: { kind: string }) {
@@ -484,15 +486,12 @@ function ComingSoon({ kind }: { kind: string }) {
     <section
       aria-labelledby="reading-coming-soon-title"
       data-testid="reading-coming-soon"
-      className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-5 sm:p-6"
+      className={cn(shell, 'gap-1')}
     >
-      <h2
-        id="reading-coming-soon-title"
-        className="m-0 font-heading font-semibold text-xl text-ink"
-      >
+      <h2 id="reading-coming-soon-title" className="m-0 font-heading text-ink text-subtitle">
         {readingTitle(kind)}
       </h2>
-      <p className="m-0 text-ink-muted text-sm">{m.readings_coming_soon()}</p>
+      <p className="m-0 text-body text-ink-muted">{m.readings_coming_soon()}</p>
     </section>
   )
 }
@@ -514,19 +513,15 @@ function PhaseMessage({
         : null
   if (text)
     return (
-      <div role="alert" className="flex flex-wrap items-center gap-3 text-sm">
+      <div role="alert" className="flex flex-wrap items-center gap-3 text-body text-danger">
         <span>{text}</span>
-        <button
-          type="button"
-          onClick={onRetry}
-          className="min-h-11 rounded-lg border border-on-inverse/40 px-4 text-on-inverse"
-        >
+        <button type="button" onClick={onRetry} className={cn(secondaryButton, 'min-h-11 px-5')}>
           {m.readings_retry()}
         </button>
       </div>
     )
   if (!signedIn && phase.name === 'idle')
-    return <p className="m-0 text-on-inverse/75 text-sm">{m.readings_unlock_signin_note()}</p>
+    return <p className={label}>{m.readings_unlock_signin_note()}</p>
   return null
 }
 
@@ -551,20 +546,23 @@ function PackChooser({
   const shownPlans = plans.filter((plan) => plan.provider === (provider ?? providers[0]))
   return (
     <fieldset className="m-0 flex min-w-0 flex-col gap-2.5 border-0 p-0">
-      <legend className="mb-2 p-0 text-sm">
+      <legend className="mb-2 p-0 text-body text-ink">
         {m.readings_unlock_need_credits()}{' '}
-        <span className="text-on-inverse/75">
+        <span className="text-ink-subtle">
           {m.readings_unlock_balance({ balance: String(balance) })}
         </span>
       </legend>
       {providers.length > 1 && (
-        <div className="flex gap-1 rounded-lg border border-on-inverse/40 p-1">
+        // 分段切换（设计稿 site.css 的 .seg）：surface-2 底，选中项回到页面底色
+        <div className="flex gap-0.5 rounded-field bg-surface-2 p-1">
           {providers.map((id) => (
             <label
               key={id}
               className={cn(
-                'flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-md px-3 font-semibold text-sm transition-colors has-focus-visible:outline-2 has-focus-visible:outline-on-inverse has-focus-visible:outline-offset-2',
-                id === provider ? 'bg-on-inverse/20 text-on-inverse' : 'text-on-inverse/75',
+                'flex min-h-10 flex-1 cursor-pointer items-center justify-center rounded-sm px-3 text-body transition-colors has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2',
+                id === provider
+                  ? 'bg-background font-medium text-ink ring-1 ring-line'
+                  : 'text-ink-muted',
               )}
             >
               <input
@@ -591,14 +589,14 @@ function PackChooser({
             onClick={() => onPick(pack)}
             data-testid="reading-pack"
             className={cn(
-              'flex min-h-12 items-center justify-between gap-3 rounded-lg px-4 text-left font-semibold transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-on-inverse focus-visible:outline-offset-2',
+              option,
               index === 0
-                ? 'bg-brand text-on-brand'
-                : 'border border-on-inverse/40 bg-transparent text-on-inverse',
+                ? 'bg-brand text-on-brand hover:opacity-90 print:bg-transparent print:text-ink print:ring-1 print:ring-field-border print:ring-inset'
+                : 'bg-background text-ink ring-1 ring-field-border ring-inset hover:bg-surface-2',
             )}
           >
             <span>{m.readings_pack_credits({ credits: String(pack.credits) })}</span>
-            <span className="font-normal text-sm">
+            <span className="font-normal text-caption">
               {price.text}
               {price.reference && ` · ${m.billing_cny_reference({ price: price.reference })}`}
             </span>
@@ -607,7 +605,7 @@ function PackChooser({
       })}
       {shownPlans.length > 0 && (
         <div className="flex flex-col gap-2" data-testid="reading-plans">
-          <p className="m-0 mt-1 text-sm">{m.readings_unlock_or_subscribe()}</p>
+          <p className="m-0 mt-1 text-body text-ink">{m.readings_unlock_or_subscribe()}</p>
           {shownPlans.map((plan) => {
             const price = displayPrice(plan, locale)
             return (
@@ -616,27 +614,34 @@ function PackChooser({
                 type="button"
                 onClick={() => onPick(plan)}
                 data-testid="reading-plan"
-                className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-on-inverse/40 bg-transparent px-4 text-left font-semibold text-on-inverse transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-on-inverse focus-visible:outline-offset-2"
+                className={cn(
+                  option,
+                  'bg-background text-ink ring-1 ring-field-border ring-inset hover:bg-surface-2',
+                )}
               >
                 <span>
                   {m.readings_plan_option({ name: plan.name, credits: String(plan.credits) })}
                 </span>
-                <span className="font-normal text-sm">
+                <span className="font-normal text-caption">
                   {m.readings_plan_price({ price: price.text })}
                   {price.reference && ` · ${m.billing_cny_reference({ price: price.reference })}`}
                 </span>
               </button>
             )
           })}
-          <p className="m-0 text-on-inverse/75 text-xs">{m.readings_plan_note()}</p>
+          <p role="note" className={label}>
+            {m.readings_plan_note()}
+          </p>
         </div>
       )}
       {paypalUsdNotice(locale, provider ?? providers[0] ?? '') && (
-        <p className="m-0 text-sm" data-testid="reading-paypal-usd">
+        <p className="m-0 text-body text-ink" data-testid="reading-paypal-usd">
           {m.billing_paypal_usd_note()}
         </p>
       )}
-      <p className="m-0 text-on-inverse/75 text-xs">{m.readings_pack_price_note()}</p>
+      <p role="note" className={label}>
+        {m.readings_pack_price_note()}
+      </p>
     </fieldset>
   )
 }

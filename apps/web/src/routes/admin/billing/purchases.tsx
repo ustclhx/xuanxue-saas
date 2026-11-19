@@ -7,7 +7,7 @@ import {
   offsetOfPage,
 } from '../../../features/admin/list.ts'
 import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
-import { AdminPage, adminTableLabels } from '../../../features/admin/ui.tsx'
+import { AdminPage, adminTableLabels, formatDateTime } from '../../../features/admin/ui.tsx'
 import { getAdminPurchases } from '../../../features/billing/admin.functions.ts'
 import { adminMoney } from '../../../features/billing/admin-display.ts'
 import { m } from '../../../paraglide/messages.js'
@@ -51,7 +51,7 @@ function List() {
           {
             id: 'paid',
             header: m.admin_paid_at(),
-            cell: (row) => (row.paidAt ? new Date(row.paidAt).toLocaleString() : '—'),
+            cell: (row) => (row.paidAt ? formatDateTime(row.paidAt) : '—'),
           },
         ]}
         page={adminListPage(search.offset, data)}

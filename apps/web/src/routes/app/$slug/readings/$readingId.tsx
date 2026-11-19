@@ -22,7 +22,7 @@ export const Route = createFileRoute('/app/$slug/readings/$readingId')({
     const { slug } = Route.useParams()
     return (
       <section className="grid gap-2">
-        <h2 className="text-2xl font-semibold">{m.app_workspace_not_found()}</h2>
+        <h2 className="text-display font-semibold">{m.app_workspace_not_found()}</h2>
         <Link to="/app/$slug/readings" params={{ slug }} className="underline">
           {m.readings_report_back()}
         </Link>

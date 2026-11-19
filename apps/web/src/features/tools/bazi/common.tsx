@@ -61,13 +61,31 @@ export function ResultStatus<R>({
 }) {
   if (state.status === 'loading')
     return (
-      <p role="status" className="m-0 text-ink-muted">
+      <p role="status" className="m-0 text-caption text-ink-subtle">
         {m.tools_result_loading()}
       </p>
     )
   if (state.status === 'error')
     return (
-      <p role="alert" className="m-0 rounded-lg border border-brand px-4 py-3 text-ink">
+      // 设计稿的 `.alert`：surface-2 底、6px 圆角，danger 色只用在图标上
+      <p
+        role="alert"
+        className="m-0 flex items-start gap-2.5 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          className="mt-1 shrink-0 text-danger"
+        >
+          <circle cx="10" cy="10" r="7" />
+          <path d="M10 6.5v4.5M10 13.6v.2" />
+        </svg>
         {m.bazi_engine_error()}
       </p>
     )
@@ -89,7 +107,7 @@ export function ResultFooter({
   return (
     <div className="flex flex-col gap-2">
       <ShareLink input={share} card={card} />
-      <p className="m-0 text-ink-subtle text-xs">
+      <p className="m-0 text-caption text-ink-subtle">
         {m.bazi_engine_version({ version: engineVersion })}
       </p>
     </div>
@@ -97,6 +115,3 @@ export function ResultFooter({
 }
 
 export { ReadingSlots } from '../reading-slots.tsx'
-
-/** 结果区内的两栏网格；最小列宽不超过容器，避免窄屏横向滚动 */
-export const twoColumns = 'grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5'

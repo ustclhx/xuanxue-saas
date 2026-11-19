@@ -126,7 +126,7 @@ export function useTurnstile(siteKey: string | null, action?: string): Turnstile
       <div className="grid min-h-[65px] gap-1">
         <div ref={containerRef} data-testid="turnstile" />
         {failed ? (
-          <p className="text-destructive text-sm">
+          <p className="text-destructive text-body">
             {m.auth_human_verification_could_not_load_refresh_the_page()}{' '}
           </p>
         ) : null}

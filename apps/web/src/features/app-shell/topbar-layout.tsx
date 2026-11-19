@@ -21,7 +21,7 @@ export function TopbarLayout({ page }: { page: WorkspacePage }) {
     <div className="mx-auto grid max-w-4xl gap-8 p-6">
       <header className="grid gap-4">
         <div className="flex items-center justify-between gap-4">
-          <h1 data-testid="workspace-name" className="text-2xl font-semibold">
+          <h1 data-testid="workspace-name" className="text-display font-semibold">
             {page.workspace.name}
           </h1>
           <NotificationBell />

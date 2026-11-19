@@ -39,9 +39,9 @@ export function BirthFields({
   locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   prefix?: string
   issues?: readonly InputIssue[]
-  /** 韩语页：진태양시 开关默认开启，并用醒目提示说明可关闭（决策 D5） */
+  /** 韩语页：진태양시 开关默认开启，展开进阶选项后用醒目提示说明可关闭（决策 D5） */
   trueSolarCallout?: boolean
-  /** 双人表单（궁합）：进阶选项即使默认开启也先收起，只有真太阳时有错误时展开 */
+  /** 双人表单（궁합）：进阶选项始终先收起，只有真太阳时有错误时展开 */
   advancedCollapsed?: boolean
 }) {
   const name = (field: keyof BirthFormValues) => `${prefix}${field}`
@@ -182,13 +182,14 @@ export function BirthFields({
         </>
       )}
       {/*
-        进阶选项默认收起（tool-pages「工具页紧凑布局」：手机首屏可见提交按钮）；收起时字段仍在表单里，照常提交。
-        已勾选真太阳时、真太阳时有错误，或韩语页（진태양시 默认开启并需要说明，决策 D5）时默认展开。
+        进阶选项默认收起（tool-pages「工具页紧凑布局」：手机首屏可见提交按钮），韩语页同样收起；收起时字段仍在表单里，照常提交。
+        真太阳时的取值与本页默认值不同（中文页已勾选、韩语页已关闭：分享恢复、跨页带入或访客改过）或真太阳时有错误时展开，
+        让访客看得到非默认的设置。韩语页默认开启진태양시（决策 D5），是否校正与校正分钟数写在结果的排盘时间里。
       */}
       <details
         className="group order-last col-span-full"
         open={
-          (!advancedCollapsed && (trueSolarCallout || values.trueSolar)) ||
+          (!advancedCollapsed && values.trueSolar !== trueSolarCallout) ||
           Boolean(byField.trueSolarTime) ||
           undefined
         }

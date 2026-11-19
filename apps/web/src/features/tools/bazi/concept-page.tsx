@@ -11,6 +11,16 @@ import type { ConceptPageData } from './concepts.ts'
 import { SajuResult } from './manseryeok-home.tsx'
 import { useBirthTool } from './use-birth-tool.ts'
 
+/**
+ * 概念长文的排版（设计稿 warm-refresh/ToolBazi.dc.html 的 `.article`）：小节标题用 heading 角色、正文为弱化文字色，
+ * 表格用 caption；覆盖 RichContent 默认的原始字号，页面只出现六个字号角色。
+ */
+const conceptProse =
+  'text-body text-ink-muted [&_h2]:font-bold [&_h2]:font-heading [&_h2]:text-ink [&_h2]:text-subtitle [&_h3]:font-bold [&_h3]:font-heading [&_h3]:text-body [&_h3]:text-ink [&_strong]:text-ink [&_a]:text-brand-ink [&_table]:text-caption [&_code]:text-caption'
+
+/**
+ * 八字 / 사주概念页（`/八字/<slug>`、`/사주/<slug>`）：套用工具页模板，H1、简介、表单 → 结果 → 概念长文 → FAQ → 内链。
+ */
 export function ConceptPage({ page }: { page: ConceptPageData }) {
   const ko = page.locale === 'ko'
   const tool = useBirthTool({
@@ -68,12 +78,9 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
             : null
         }
       />
-      <article
-        lang={page.locale}
-        aria-label={page.title}
-        className="max-w-[720px] text-ink [&_h2]:font-heading [&_h3]:font-heading [&_a]:text-brand-ink"
-      >
-        <RichContent html={page.html} />
+      {/* 概念长文在表单与结果之后（tool-pages「工具页紧凑布局」）；限宽 720px，标题与正文只用字号角色 */}
+      <article lang={page.locale} aria-label={page.title} className="max-w-180">
+        <RichContent html={page.html} className={conceptProse} />
       </article>
       <ContentFunnel
         tool={{

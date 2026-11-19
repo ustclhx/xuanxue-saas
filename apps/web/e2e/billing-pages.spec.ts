@@ -20,11 +20,11 @@ test('public pricing describes unavailable payments without a checkout success',
   )
   const packs = page.getByTestId('pricing-pack')
   await expect(packs).toHaveCount(2)
-  await expect(packs.first()).toContainText('Starter Pack')
-  await expect(packs.first()).toContainText('$2.99')
-  // 积分包按本地化名称与积分数展示（pricing-page.tsx PACK_NAMES）
-  await expect(packs.last()).toContainText('Value Pack')
-  await expect(packs.last()).toContainText('150 credits')
+  // 积分多的在前（设计稿 warm-refresh/PricingWestMobile.dc.html）；按本地化名称与积分数展示（pricing-page.tsx PACK_NAMES）
+  await expect(packs.first()).toContainText('Value Pack')
+  await expect(packs.first()).toContainText('150 credits')
+  await expect(packs.last()).toContainText('Starter Pack')
+  await expect(packs.last()).toContainText('$2.99')
   await expect(page.getByTestId('pricing-pack').getByRole('link')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /checkout|pay now/i })).toHaveCount(0)
 

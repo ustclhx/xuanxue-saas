@@ -27,10 +27,10 @@ type Loaded = SubjectChatData & { readOnly: boolean; models: readonly PickerMode
 function ReportChatHeader({ className }: { className?: string }) {
   return (
     <div className={cn('flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1', className)}>
-      <h2 id="reading-chat-title" className="m-0 font-heading font-bold text-ink text-xl">
+      <h2 id="reading-chat-title" className="m-0 font-heading text-ink text-title">
         {m.readings_chat_title()}
       </h2>
-      <span className="text-ink-subtle text-sm">{m.readings_chat_note()}</span>
+      <span className="text-ink-subtle text-body">{m.readings_chat_note()}</span>
     </div>
   )
 }
@@ -38,7 +38,7 @@ function ReportChatHeader({ className }: { className?: string }) {
 /** 读取中、出错与没有模型时的卡片 */
 function ReportChatPanel({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5 sm:p-6">
+    <div className="flex flex-col gap-4 rounded-xl bg-surface p-5 sm:p-6">
       <ReportChatHeader />
       {children}
     </div>
@@ -138,15 +138,13 @@ export function ReportChatSkeleton() {
 export function ReportChatUnavailable({ slug }: { slug: string }) {
   return (
     <div data-testid="report-chat-unavailable" className="flex flex-col gap-2.5">
-      <strong className="text-base text-ink">{m.readings_chat_unavailable_title()}</strong>
-      <p className="m-0 text-ink-muted text-sm leading-relaxed">
-        {m.readings_chat_unavailable_body()}
-      </p>
+      <strong className="text-ink text-title">{m.readings_chat_unavailable_title()}</strong>
+      <p className="m-0 text-body text-ink-muted">{m.readings_chat_unavailable_body()}</p>
       <Link
         to="/app/$slug/billing"
         params={{ slug }}
         hash="credit-packs"
-        className="inline-flex min-h-11 items-center self-start rounded-lg bg-brand px-5 font-semibold text-on-brand no-underline hover:opacity-90"
+        className="inline-flex min-h-11 items-center self-start rounded-lg bg-brand px-5 font-medium text-body text-on-brand no-underline hover:opacity-90"
       >
         {m.ai_chat_unavailable_cta()}
       </Link>

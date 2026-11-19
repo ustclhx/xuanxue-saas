@@ -15,16 +15,59 @@ interface RulePage {
   readonly landing?: boolean
   /** 页面已按新视觉改版：启用字号、正文字号等规则 */
   readonly restyled: boolean
+  /** 出生信息表单的字段名前缀：提供时另查提交后（已出结果）的字号种数；合盘为两个人 */
+  readonly birthForm?: readonly string[]
+}
+
+// 出结果状态的样例（与 e2e/bazi.spec.ts 相同）
+const PEOPLE = [
+  { year: '1990', month: '5', day: '15', hour: '10', minute: '30' },
+  { year: '1992', month: '8', day: '3', hour: '07', minute: '00' },
+] as const
+
+/** 填出生信息并提交，等结果区出现 */
+async function submitBirthForm(page: Page, prefixes: readonly string[]) {
+  // 提交按钮在水合后才可用
+  const submit = page.locator('main form button[type="submit"]')
+  await expect(submit).toBeEnabled()
+  for (const [index, prefix] of prefixes.entries()) {
+    const person = PEOPLE[index] ?? PEOPLE[0]
+    for (const key of ['year', 'month', 'day'] as const)
+      await page.locator(`input[name="${prefix}${key}"]`).fill(person[key])
+    const time = page.locator(`[data-field="${prefix}time"]`)
+    await time.locator('[data-part="hour"]').fill(person.hour)
+    await time.locator('[data-part="minute"]').fill(person.minute)
+  }
+  await submit.click()
+  await expect(page.locator('#result section').first()).toBeVisible()
 }
 
 const PAGES: readonly RulePage[] = [
   { name: '东方站首页', site: 'east', path: '/zh-hant', landing: true, restyled: true },
   { name: '西方站首页', site: 'west', path: '/', landing: true, restyled: true },
   // 主工具页（openspec separate-landing-homepage tasks 5.1，specs/tool-pages「工具页紧凑布局」）
-  { name: '八字排盤', site: 'east', path: '/zh-hant/八字排盤', restyled: true },
-  { name: '만세력', site: 'east', path: '/ko/만세력', restyled: true },
+  { name: '八字排盤', site: 'east', path: '/zh-hant/八字排盤', restyled: true, birthForm: [''] },
+  { name: '만세력', site: 'east', path: '/ko/만세력', restyled: true, birthForm: [''] },
   { name: 'Life Path Number', site: 'west', path: '/life-path-number', restyled: true },
-  { name: '紫微斗數排盤', site: 'east', path: '/zh-hant/紫微斗數排盤', restyled: false },
+  // 东方站其余工具页与概念页（openspec refresh-visual-system-warm tasks 6.1）
+  {
+    name: '紫微斗數排盤',
+    site: 'east',
+    path: '/zh-hant/紫微斗數排盤',
+    restyled: true,
+    birthForm: [''],
+  },
+  { name: '紫微斗数排盘', site: 'east', path: '/zh-hans/紫微斗数排盘', restyled: true },
+  { name: '命盤查詢', site: 'east', path: '/zh-hant/命盤查詢', restyled: true, birthForm: [''] },
+  {
+    name: '사주궁합',
+    site: 'east',
+    path: '/ko/사주궁합',
+    restyled: true,
+    birthForm: ['a_', 'b_'],
+  },
+  { name: '八字概念页（十神）', site: 'east', path: '/zh-hant/八字/十神', restyled: true },
+  { name: '사주 개념 페이지（공망）', site: 'east', path: '/ko/사주/공망', restyled: true },
   { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: true },
   // 第 7 组：西方站数字页与枢纽页、两站塔罗抽牌 / 牌义 / 牌义索引页、两站每日页（tasks 7.1）
   { name: '数字页 Life Path 7', site: 'west', path: '/life-path-number/7', restyled: true },
@@ -36,8 +79,8 @@ const PAGES: readonly RulePage[] = [
   { name: '牌义索引（简中）', site: 'east', path: '/zh-hans/塔罗/牌义', restyled: true },
   { name: 'Daily Numerology', site: 'west', path: '/daily-numerology', restyled: true },
   { name: '每日运势（简中）', site: 'east', path: '/zh-hans/每日运势', restyled: true },
-  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: false },
-  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: false },
+  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: true },
+  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: true },
 ]
 
 const MOBILE = { width: 390, height: 844 }
@@ -221,6 +264,18 @@ for (const target of PAGES) {
         expect(sizes.length, `${viewport.width}px: ${sizes.join(', ')}`).toBeLessThanOrEqual(6)
       }
     })
+
+    if (target.birthForm) {
+      const { birthForm } = target
+      content('出结果后页面仍只用六种字号', async ({ page }) => {
+        for (const viewport of [MOBILE, DESKTOP]) {
+          await open(page, target, viewport)
+          await submitBirthForm(page, birthForm)
+          const sizes = await fontSizes(page)
+          expect(sizes.length, `${viewport.width}px: ${sizes.join(', ')}`).toBeLessThanOrEqual(6)
+        }
+      })
+    }
 
     content('段落正文不小于 16px', async ({ page }) => {
       await open(page, target, MOBILE)
