@@ -86,7 +86,9 @@
 
 依赖：3、4、5。冲突点：`features/marketing/pricing-page.tsx`、`features/readings/`（`report-page.tsx`、`unlock-card.tsx`、`markdown.tsx`）、`features/app-shell/`、`routes/app/`、`routes/(auth)/`、`features/site/account-menu.tsx` 以外的应用区组件。与 `enable-subscriptions-daily-credits`、`adopt-subject-chat-readings` 在定价页与报告页上可能冲突，由协调者安排先后。
 
-- [ ] 8.1 定价页、解锁卡、报告页、应用区（空间框架、今日面板、出生档案、报告列表）与认证页按新视觉改版；应用区沿用模板字号默认值，只换色调与间距。验证：`visual-rules.spec.ts` 启用定价页；应用区组件测试与 e2e 通过；本组条目从允许名单删除
+- [x] 8.1 定价页、解锁卡、报告页、应用区（空间框架、今日面板、出生档案、报告列表）与认证页按新视觉改版；应用区沿用模板字号默认值，只换色调与间距。验证：`visual-rules.spec.ts` 启用定价页；应用区组件测试与 e2e 通过；本组条目从允许名单删除
+  - 实现记录（第 8 组 PR）：定价页按 `PricingEastMobile` / `PricingWestMobile` 的顺序排为积分包（积分多的在前，「最划算」与唯一的主按钮在它上面）→ 免费 → 每月方案；文案与价格未改，设计稿「版本 A」里仓库没有的文案（每份约价、「一次性购买」）没有新增，免费档保留 0 元价格、积分扣用顺序与可解锁详批清单两个区块保留。解锁卡改为 surface 卡片（不再反色）。报告页的标题、目录与正文放进营销作用域取阅读字号，应用区框架与追问对话仍用模板字号；设计稿中的命盘卡片需要报告携带命盘数据，未做；目录标签没有当前章节高亮。报告列表的删除确认由 `window.confirm` 改为 AlertDialog。
+  - 未处理：`features/tools/form.tsx` 的 `SubmitButton` 打印时白字无底（第 5 组文件）；`features/ai/`、`ai-media/`、`settings/`、`deletion/`、`routes/account/`、`admin` 的原始字号条目不在本组冲突边界内，仍在允许名单。
 - [ ] 8.2 【Codex】按副本对照截图（含登录后页面，用 e2e 夹具），axe 检查。验证：同 6.2
 
 ## 9. 内容页（WT-pages-content，【Claude】）

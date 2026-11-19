@@ -34,7 +34,7 @@ function ConversationNotFound() {
   const Heading = 'h1'
   return (
     <section className="grid gap-2">
-      <Heading className="text-2xl font-semibold">{m.chat_ui_not_found_title()}</Heading>
+      <Heading className="text-display font-semibold">{m.chat_ui_not_found_title()}</Heading>
       <p>{m.chat_ui_not_found_body()}</p>
       <Link to="/app/$slug/chat" params={{ slug }} className="underline">
         {m.chat_ui_back_to_chats()}

@@ -94,7 +94,7 @@ export function RelationSelect({
   const labelId = useId()
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <span id={labelId} className="text-ink-muted text-sm">
+      <span id={labelId} className="text-body text-ink-muted">
         {m.profiles_field_relation()}
       </span>
       <Select value={value} onValueChange={(next) => onChange(next as BirthProfileRelation)}>
@@ -119,11 +119,8 @@ export function RelationSelect({
 
 export function FormAlert({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <div
-      role="alert"
-      className="flex flex-col gap-1 rounded-xl border border-brand bg-surface px-4 py-3 text-sm"
-    >
-      {title ? <strong className="text-base text-ink">{title}</strong> : null}
+    <div role="alert" className="flex flex-col gap-1 rounded-xl bg-surface-2 px-4 py-3 text-body">
+      {title ? <strong className="text-ink text-title">{title}</strong> : null}
       <p className="m-0 text-ink-muted leading-relaxed">{children}</p>
     </div>
   )
@@ -315,7 +312,7 @@ export function ProfileForm({
             invalid={dateMissing || Boolean(fieldIssue('day') ?? fieldIssue('year'))}
           />
           {dateMissing || fieldIssue('day') || fieldIssue('year') ? (
-            <span role="alert" className="-mt-2 text-brand-ink text-sm">
+            <span role="alert" className="-mt-2 text-body text-danger">
               {m.numerology_date_invalid()}
             </span>
           ) : null}

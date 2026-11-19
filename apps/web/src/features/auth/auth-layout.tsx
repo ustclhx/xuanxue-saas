@@ -32,7 +32,7 @@ export function AuthLayout({
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
   return (
-    <main className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-muted/40 px-4 py-8 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_button]:min-h-11 [&_button]:min-w-11 [&_input]:min-h-11">
+    <main className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background px-4 py-8 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center [&_button]:min-h-11 [&_button]:min-w-11 [&_input]:min-h-11 [&_input]:bg-background">
       {/* 语言菜单与页头一致放在右上角；认证页没有公共页头，只保留这一个入口 */}
       <div className="absolute top-3 right-4">
         <LanguageMenu />
@@ -40,13 +40,14 @@ export function AuthLayout({
       {/* 应用名取模板配置，作为回到首页的出口；不是标题，页面只保留卡片内一个 h1 */}
       <Link
         to="/"
-        className="rounded-sm font-semibold text-foreground text-lg tracking-tight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+        className="rounded-sm font-semibold text-foreground text-title tracking-tight outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
       >
         {brandName(templateConfig, getLocale())}
       </Link>
-      <Card className="w-full max-w-sm">
+      {/* 方向 C：卡片是页面底上的 surface 对象，不画边框与阴影；输入框以页面底色填充 */}
+      <Card className="w-full max-w-sm border-0 shadow-none">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl tracking-tight">
+          <CardTitle className="text-display tracking-tight">
             <h1>{title}</h1>
           </CardTitle>
           {description ? <CardDescription>{description}</CardDescription> : null}
@@ -58,7 +59,7 @@ export function AuthLayout({
           </fieldset>
         </CardContent>
         {footer ? (
-          <CardFooter className="flex-wrap justify-center border-t pt-6 text-center text-muted-foreground text-sm">
+          <CardFooter className="flex-wrap justify-center border-t pt-6 text-center text-muted-foreground text-body">
             {footer}
           </CardFooter>
         ) : null}
@@ -74,7 +75,7 @@ export function AuthLayout({
 /** 带文字的横向分隔线（如 OAuth 按钮与邮箱表单之间） */
 export function AuthDivider({ children }: { children: ReactNode }) {
   return (
-    <div className="flex items-center gap-3 text-muted-foreground text-xs">
+    <div className="flex items-center gap-3 text-muted-foreground text-caption">
       <Separator className="flex-1" />
       <span className="shrink-0">{children}</span>
       <Separator className="flex-1" />

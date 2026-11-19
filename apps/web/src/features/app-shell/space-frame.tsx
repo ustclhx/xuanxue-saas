@@ -19,11 +19,9 @@ export function SpacePage({
     <div className="grid min-w-0 gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4 border-line border-b pb-5">
         <div className="grid min-w-0 gap-2">
-          <h1 className="m-0 font-heading font-bold text-3xl text-ink leading-tight sm:text-[34px]">
-            {title}
-          </h1>
+          <h1 className="m-0 font-heading text-display text-ink">{title}</h1>
           {description ? (
-            <p className="m-0 max-w-2xl text-ink-muted leading-relaxed">{description}</p>
+            <p className="m-0 max-w-2xl text-body text-ink-muted">{description}</p>
           ) : null}
         </div>
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
@@ -44,10 +42,8 @@ export function SpacePanel({
   className?: string
 }) {
   return (
-    <section
-      className={`grid min-w-0 gap-4 rounded-xl border border-line bg-surface p-5 sm:p-6 ${className}`}
-    >
-      {title ? <h2 className="m-0 font-semibold text-ink text-lg">{title}</h2> : null}
+    <section className={`grid min-w-0 gap-4 rounded-xl bg-surface p-5 sm:p-6 ${className}`}>
+      {title ? <h2 className="m-0 font-semibold text-ink text-title">{title}</h2> : null}
       {children}
     </section>
   )

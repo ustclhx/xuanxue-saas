@@ -26,8 +26,8 @@ const PAGES: readonly RulePage[] = [
   { name: 'Life Path Number', site: 'west', path: '/life-path-number', restyled: true },
   { name: '紫微斗數排盤', site: 'east', path: '/zh-hant/紫微斗數排盤', restyled: false },
   { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: false },
-  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: false },
-  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: false },
+  { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: true },
+  { name: '西方站定价页', site: 'west', path: '/pricing', restyled: true },
 ]
 
 const MOBILE = { width: 390, height: 844 }
