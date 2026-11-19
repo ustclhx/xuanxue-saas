@@ -282,8 +282,9 @@ export function SubmitButton({ children, className }: { children: ReactNode; cla
       type="submit"
       disabled={!ready}
       className={cn(
-        // 主按钮：药丸形、文字色填充；手机占满一行，桌面按内容宽度靠左，单独占一行
-        'col-span-full inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-7 font-medium text-body text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-56 sm:justify-self-start',
+        // 主按钮：药丸形、文字色填充；手机占满一行，桌面按内容宽度靠左，单独占一行。
+        // 打印默认不输出背景色，白字会印不出来：改为细线框加正文色文字（与 #227 的主按钮相同）
+        'col-span-full inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-7 font-medium text-body text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-56 sm:justify-self-start print:bg-transparent print:text-ink print:ring-1 print:ring-field-border print:ring-inset',
         className,
       )}
     >

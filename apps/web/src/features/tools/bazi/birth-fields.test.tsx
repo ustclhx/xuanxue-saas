@@ -87,12 +87,20 @@ describe('出生信息字段的进阶选项', () => {
     expect(read().year).toBe('1988')
   })
 
-  it('已开启真太阳时（分享恢复、跨页带入）或韩语页的醒目提示时默认展开', async () => {
+  it('已开启真太阳时（分享恢复、跨页带入）时默认展开', async () => {
     const restored = await mount({ ...filled, trueSolar: true })
     expect(restored.details.open).toBe(true)
     expect(restored.trueSolar.checked).toBe(true)
+  })
+
+  it('韩语页（진태양시 默认开启）同样默认收起并照常提交；访客关闭后再进入时展开', async () => {
+    const korean = await mount({ ...filled, trueSolar: true }, true)
+    expect(korean.details.open).toBe(false)
+    expect(korean.trueSolar.checked).toBe(true)
+    expect(korean.read()).toMatchObject({ year: '1990', time: '10:30', trueSolar: true })
     cleanup()
-    const korean = await mount(filled, true)
-    expect(korean.details.open).toBe(true)
+    const turnedOff = await mount({ ...filled, trueSolar: false }, true)
+    expect(turnedOff.details.open).toBe(true)
+    expect(turnedOff.trueSolar.checked).toBe(false)
   })
 })
