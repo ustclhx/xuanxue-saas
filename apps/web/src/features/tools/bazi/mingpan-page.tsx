@@ -211,7 +211,13 @@ export function MingpanResult({
         aside={luckAside(chart, false)}
         description={m.bazi_mingpan_desc_fortune()}
       >
-        <div className="overflow-x-auto">
+        {/* 手机上表格比容器宽，横向滚动：容器可用键盘聚焦并滚动（axe scrollable-region-focusable），以区块标题命名 */}
+        <section
+          aria-label={m.bazi_mingpan_block_fortune()}
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: 可滚动区域需要键盘焦点才能用方向键滚动
+          tabIndex={0}
+          className="overflow-x-auto rounded-field focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+        >
           <table className="w-full min-w-130 border-collapse text-body text-ink">
             <thead>
               <tr className="text-left text-caption text-ink-subtle">
@@ -266,7 +272,7 @@ export function MingpanResult({
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       </ResultBlock>
       <ResultFooter share={share} engineVersion={chart.engineVersion} />
     </>

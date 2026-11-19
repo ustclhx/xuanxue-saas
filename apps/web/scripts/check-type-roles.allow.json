@@ -48,8 +48,6 @@
   "src/features/share-cards/share-page.tsx": 3,
   "src/features/tools/numerology/compatibility.tsx": 5,
   "src/features/tools/numerology/name-calculator.tsx": 2,
-  "src/features/tools/share-card/share-card-action.tsx": 5,
-  "src/features/tools/share-link.tsx": 4,
   "src/features/tools/tarot/meaning-page.tsx": 4,
   "src/features/tools/tarot/table.tsx": 3,
   "src/features/tools/tarot/tarot-page.tsx": 14,

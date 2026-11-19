@@ -455,10 +455,13 @@ export function ShenshaChips({ chart }: { chart: BaziChart }) {
   )
 }
 
-/** 韩语：最详细的一块，逐个查法列出地支（含韩文读音）与是否见于原国 */
+/**
+ * 韩语：最详细的一块，逐个查法列出地支（含韩文读音）与是否见于原国。
+ * 打印时排成两列：单列 13 行加标题与说明超过一页 A4，区块会被拆开、续页没有标题；两列后整块放得下一页。
+ */
 export function ShenshaTable({ chart }: { chart: BaziChart }) {
   return (
-    <ul className="m-0 flex list-none flex-col gap-2 p-0">
+    <ul className="m-0 flex list-none flex-col gap-2 p-0 print:grid print:grid-cols-2">
       {chart.shensha.map((s) => {
         const hit = s.pillars.length > 0
         return (
@@ -468,7 +471,7 @@ export function ShenshaTable({ chart }: { chart: BaziChart }) {
             data-shensha={s.key}
             data-hit={hit}
             className={cn(
-              'flex scroll-mt-6 items-start justify-between gap-3 rounded-field px-3 py-2.5 text-body',
+              'flex scroll-mt-6 items-start justify-between gap-3 rounded-field px-3 py-2.5 text-body print:break-inside-avoid',
               hit ? 'bg-on-inverse/20 ring-1 ring-on-inverse/40' : 'bg-on-inverse/10',
             )}
           >

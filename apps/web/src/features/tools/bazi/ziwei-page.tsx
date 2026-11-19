@@ -87,8 +87,15 @@ const PALACE_ORDER = Object.keys(PALACE_LABEL) as PalaceKey[]
 /** 宫位列表（图形的等价文字内容，「紫微盘手机版」画布）：每宫的宫名、干支、命身宫标记与全部主星 */
 function PalaceList({ chart }: { chart: Extract<ZiweiChart, { status: 'ok' }> }) {
   return (
-    <section aria-labelledby="ziwei-palace-list" className="flex flex-col gap-2.5">
-      <h3 id="ziwei-palace-list" className="m-0 font-medium text-body text-ink">
+    // 打印：宫位列表与标题整块换页，续页不出现没有标题的半截列表
+    <section
+      aria-labelledby="ziwei-palace-list"
+      className="flex flex-col gap-2.5 print:break-inside-avoid"
+    >
+      <h3
+        id="ziwei-palace-list"
+        className="m-0 font-medium text-body text-ink print:break-after-avoid"
+      >
         {m.chart_ziwei_list_title()}
       </h3>
       <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
@@ -103,7 +110,7 @@ function PalaceList({ chart }: { chart: Extract<ZiweiChart, { status: 'ok' }> })
                 data-palace-item={palace.key}
                 className={cn(
                   // 宫位格是 surface 面板上的 surface-2 格（图表格），不画边框；命宫用强调色细框
-                  'flex min-w-0 flex-col gap-1 rounded-field bg-surface-2 px-3.5 py-3',
+                  'flex min-w-0 flex-col gap-1 rounded-field bg-surface-2 px-3.5 py-3 print:break-inside-avoid',
                   isSoul && 'ring-1 ring-mark ring-inset',
                 )}
               >
