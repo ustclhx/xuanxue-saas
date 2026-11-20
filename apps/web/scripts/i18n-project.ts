@@ -6,9 +6,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { type CompilerOptions, compile, paraglideVitePlugin } from '@inlang/paraglide-js'
-import { localeUrlSegment } from '@xuanxue/config'
 import { EMAIL_LOCALES } from '@xuanxue/email/queue'
 import type { Plugin } from 'vite'
+import { localeUrlPatterns } from '../src/features/i18n/locale-url.ts'
 
 export interface I18nConfig {
   readonly enabled?: boolean
@@ -71,6 +71,7 @@ export function writeInlangProject(i18n: I18nConfig, root = WEB_ROOT): void {
  * 其他配置语言 `/<小写语言 id>/...`（`zh-Hant` → `/zh-hant/`，openspec add-dual-site-foundation 决策 2）；
  * 应用区不进入 URL，按 Cookie 取语言、没有时用默认语言。
  * 两者都不含 preferredLanguage，首次访问不会按浏览器语言自动跳转。
+ * 大小写不同的前缀与站点默认语言前缀由站点守卫（features/site/gate.ts）在进入 Paraglide 前 301。
  */
 export function paraglideOptions(
   i18n: I18nConfig,
@@ -78,28 +79,17 @@ export function paraglideOptions(
   root = WEB_ROOT,
 ): CompilerOptions {
   const enabled = i18n.enabled !== false
-  const origin = ':protocol://:domain(.*)::port?'
   return {
     project: join(root, 'project.inlang'),
     outdir: join(root, 'src/paraglide'),
     // tsconfig 未开启 allowJs，生成 .d.ts 供类型检查
     emitTsDeclarations: true,
     strategy: enabled ? ['url', 'baseLocale'] : ['baseLocale'],
-    // 默认 URL 模式直接使用语言 id 作前缀；这里显式映射为小写前缀，默认语言放最后作兜底
-    urlPatterns: [
-      {
-        pattern: `${origin}/:path(.*)?`,
-        localized: [
-          ...activeLocales(i18n)
-            .filter((locale) => locale !== i18n.defaultLocale)
-            .map((locale): [string, string] => [
-              locale,
-              `${origin}/${localeUrlSegment(locale)}/:path(.*)?`,
-            ]),
-          [i18n.defaultLocale, `${origin}/:path(.*)?`],
-        ],
-      },
-    ],
+    // 小写语言前缀、默认语言放最后作兜底（模板 locale-url.ts，含只差大小写的语言 id 校验）
+    urlPatterns: localeUrlPatterns({
+      locales: activeLocales(i18n),
+      defaultLocale: i18n.defaultLocale,
+    }),
     // 与路由器一致：去掉末尾的 `/`（否则 `/ko` 会被本地化为 `/ko/`，再被路由器 307 回来）
     trailingSlash: 'never',
     routeStrategies: (enabled ? [...appAreaPrefixes, '/_serverFn'] : []).map((prefix) => ({

@@ -8,6 +8,7 @@ import {
 } from 'better-auth/client/plugins'
 import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { forgetSignedIn } from '../i18n/home-locale.ts'
 import { safeReturnPath } from '../site/return-path.ts'
 
 /**
@@ -81,4 +82,13 @@ export function signInErrorCallbackURL() {
 /** 整页跳转：让服务端以新的会话 Cookie 渲染应用区 */
 export function goAfterSignIn() {
   window.location.assign(signInCallbackURL())
+}
+
+/**
+ * 退出登录：先清除客户端登录信号与首页语言标记（multilingual-seo 4.4，home-locale.ts），再调用 Better Auth。
+ * 所有退出入口都应经过这里，公开页才不会在退出后继续按旧登录状态跳转。
+ */
+export function signOut() {
+  forgetSignedIn()
+  return authClient().signOut()
 }

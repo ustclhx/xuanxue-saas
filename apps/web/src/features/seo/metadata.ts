@@ -20,7 +20,6 @@ export interface SeoPage {
   title: string
   description: string
   locale: string
-  alternates?: Readonly<Partial<Record<string, string>>>
   cover?: string | undefined
   date?: string | undefined
   /** 上级页面；除首页外每个可索引页面都必须声明，且指向存在的可索引页面 */
@@ -39,6 +38,20 @@ export interface SeoPage {
   priority?: 'money' | undefined
   /** 内容的真实语言；与 `locale` 不同表示缺少译文、以该语言内容回退显示的页面 */
   sourceLocale?: string | undefined
+  /**
+   * 各语言版本的地址（语言 → 不带语言前缀的 path），用于各语言路径不同的页面（本地化 slug，
+   * openspec multilingual-seo 决策 4）。声明后 hreflang 与语言切换器只用这些地址（自身总在其中）；
+   * 每个语言版本都要出现在清单中并声明同一组地址，构建期校验（linking.ts）。未声明时按同路径加前缀关联。
+   * 项目：可以列出另一站点的语言（工具路由的 `paths`），hreflang 只取同站点的版本（alternateLinks）。
+   */
+  alternates?: Readonly<Record<string, string>> | undefined
+}
+
+/** 页面声明的完整语言版本组（含自身）；未声明 `alternates` 时返回 undefined */
+export function pageAlternates(
+  page: Pick<SeoPage, 'path' | 'locale' | 'alternates'>,
+): Record<string, string> | undefined {
+  return page.alternates ? { ...page.alternates, [page.locale]: page.path } : undefined
 }
 
 /**
@@ -101,6 +114,7 @@ export function absoluteUrl(appUrl: string, path: string): string {
  * 东方站各语言首页另与东方站英文入口页 `/en` 互指。
  * 项目改动（openspec add-locales-eu-ja 决策 5）：未发布语言（features/i18n/rollout.ts）不出现在其他页面的
  * hreflang 中；页面自身语言保留（未发布语言页面只在预览主机可访问且整体 noindex）。
+ * `translations`：页面声明的各语言地址（`pageAlternates()`，模板 0.8.0 本地化 slug），未声明时按同路径关联。
  */
 export function alternateLinks(
   _appUrl: string,
@@ -322,6 +336,7 @@ export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
  * 省略时与模板 0.7.3 之前的输出相同。
  * 回退页（`sourceLocale` 与 `locale` 不同且同站点，模板 0.7.4 fallbackSourceLocale）的 canonical 与 og:url
  * 指向原语言地址；原语言在另一站点（东方站显示英文条目）时 canonical 指向本页，不跨站。
+ * 页面声明了 `alternates` 时 hreflang 改用声明的地址（模板 0.8.0）；`'hide'` 模式下回退页不发布，构建期校验拒绝。
  */
 export function pageHead(
   page: SeoPage,
@@ -357,7 +372,7 @@ export function pageHead(
     ],
     links: [
       { rel: 'canonical', href: url },
-      ...alternateLinks(appUrl, page.path, languages, page.alternates, page.locale),
+      ...alternateLinks(appUrl, page.path, languages, pageAlternates(page), page.locale),
     ],
     scripts: structuredData.map((data) => ({
       type: 'application/ld+json',

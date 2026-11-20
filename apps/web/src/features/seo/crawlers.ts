@@ -6,7 +6,14 @@ import { EAST_ENGLISH_COPY } from '../marketing/east-english/content.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import type { SeoPage } from './metadata.ts'
-import { absoluteUrl, alternateLinks, indexedPages, localizedPath, staticPage } from './metadata.ts'
+import {
+  absoluteUrl,
+  alternateLinks,
+  indexedPages,
+  localizedPath,
+  pageAlternates,
+  staticPage,
+} from './metadata.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
 export function escapeXml(text: string): string {
@@ -31,11 +38,11 @@ export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: stri
   const urls = listed
     .filter((page) => !locale || page.locale === locale)
     .map((page) => {
-      // hreflang 只关联真实存在译文的语言
+      // hreflang 只关联真实存在译文的语言；声明了 alternates 的页面用声明的各语言地址
       const languages = listed
         .filter((other) => other.path === page.path)
         .map((other) => other.locale)
-      const links = alternateLinks(appUrl, page.path, languages, page.alternates, page.locale)
+      const links = alternateLinks(appUrl, page.path, languages, pageAlternates(page), page.locale)
         .map(
           (link) =>
             `<xhtml:link rel="alternate" hreflang="${escapeXml(link.hrefLang)}" href="${escapeXml(link.href)}"/>`,

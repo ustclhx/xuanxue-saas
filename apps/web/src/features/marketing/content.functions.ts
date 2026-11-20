@@ -27,10 +27,12 @@ import {
  * 语言由调用方传入：server function 的请求地址不带语言前缀，服务端无法从 URL 得到页面语言。
  * 详情数据附带 `translations`（真实存在译文的语言），条目自身的 `locale` 是内容的真实语言，
  * 页面据此输出回退页的 canonical 与 hreflang（openspec seo-internal-linking 2.2）。
+ * 缺少译文的条目按 `i18n.untranslated` 处理：默认 `'hide'` 时详情 404、列表不列出（multilingual-seo 3.1）。
+ * hub（列表、标签与分页）的 `translations` 取公开页面清单中存在该地址的语言，hreflang 只列真实版本。
  * `links` 是面包屑与内链区块（seo-internal-linking 3.1–3.3），由公开页面清单在服务端计算。
  */
 
-const { locales, defaultLocale } = templateConfig.i18n
+const { locales, defaultLocale, untranslated } = templateConfig.i18n
 const locale = z
   .string()
   .transform((value) => ((locales as readonly string[]).includes(value) ? value : defaultLocale))
@@ -55,7 +57,7 @@ export const getBlogIndex = createServerFn({ method: 'GET' })
   .handler(({ data }) => {
     requireBlog()
     const now = new Date()
-    const options = { locale: data.locale, defaultLocale, now }
+    const options = { locale: data.locale, defaultLocale, now, untranslated }
     const all = listPosts(allPosts, { ...options, tag: data.tag }).map(
       ({ html, ...summary }) => summary,
     )
@@ -82,7 +84,7 @@ export const getBlogPost = createServerFn({ method: 'GET' })
   .handler(({ data }) => {
     requireBlog()
     const now = new Date()
-    const post = findPost(allPosts, { ...data, defaultLocale, now })
+    const post = findPost(allPosts, { ...data, defaultLocale, now, untranslated })
     if (!post) throw notFound()
     const published = allPosts.filter((entry) => isPublished(entry, now))
     return {
@@ -101,7 +103,7 @@ export const getLegalPage = createServerFn({ method: 'GET' })
   .handler(({ data }) => {
     // 站点由语言决定（两站语言不重叠）；正文只取该站点的版本
     const site = siteOfLocale(data.locale, templateConfig) ?? 'west'
-    const page = findLegalPage(allLegalPages, { ...data, site, defaultLocale })
+    const page = findLegalPage(allLegalPages, { ...data, site, defaultLocale, untranslated })
     if (!page) throw notFound()
     // 法律页在根路径（/privacy 等），由 legal-route.ts 输出 head；缺少本站该语言原文时回退页 noindex，
     // 不采用模板 0.7.3 /legal/<slug> 的回退 canonical 与内链区块
@@ -116,6 +118,7 @@ export const getDocsPage = createServerFn({ method: 'GET' })
       slug: data.slug,
       locale: data.locale,
       defaultLocale,
+      untranslated,
     })
     if (!result) throw notFound()
     // 文档站本项目未开启（features.docs=false）：沿用项目版式，不接模板 0.7.3 的面包屑与内链区块
@@ -130,7 +133,7 @@ export const getGuideIndex = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ locale }))
   .handler(({ data }) => {
     requireGuides()
-    return localizedEntries(allGuides, data.locale, defaultLocale).map(
+    return localizedEntries(allGuides, data.locale, defaultLocale, untranslated).map(
       ({ html, faq, ...summary }) => summary,
     )
   })
@@ -139,7 +142,7 @@ export const getGuide = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ locale, slug }))
   .handler(({ data }) => {
     requireGuides()
-    const guide = findLocalized(allGuides, data.slug, data.locale, defaultLocale)
+    const guide = findLocalized(allGuides, data.slug, data.locale, defaultLocale, untranslated)
     if (!guide) throw notFound()
     // 答案页本项目未开启（features.guides=false）：沿用项目版式，不接模板 0.7.3 的面包屑与内链区块
     return guide

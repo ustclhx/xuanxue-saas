@@ -235,6 +235,12 @@ export interface SeoLinkingConfig {
    * - 构建后链接图检查：声明了 `previewHost` 的站点各自成图，以该主机名作 Host 请求 preview，不做 DNS 解析。
    */
   readonly sites: readonly SeoLinkingSite[]
+  /**
+   * 链接图多语言检查中额外视为「语言 Cookie」的名称（公开页响应不得 `Set-Cookie`，ML-03／ML-05）。
+   * Paraglide 的 Cookie 名与旧版偏好 Cookie 名已内置，名称含 lang／locale 的 Cookie 也会被识别；只在项目用了
+   * 其他名称时填写。
+   */
+  readonly languageCookies: readonly string[]
 }
 
 export interface SeoLinkingSite {
@@ -258,6 +264,7 @@ export interface SeoLinkingInput {
   hubPageSize?: number
   groupLinksMax?: number
   sites?: readonly SeoLinkingSite[]
+  languageCookies?: readonly string[]
 }
 
 /** 主题预设名单（packages/ui/src/styles/presets/*.css）；@xuanxue/web 的测试断言它与 @xuanxue/ui 的 UI_PRESETS 一致 */
@@ -313,6 +320,9 @@ export const textConfigSchema = z.strictObject({
 
 export type TextConfig = z.infer<typeof textConfigSchema>
 
+/** 缺少译文时的处理方式：`hide` 不发布（404），`fallback` 以默认语言内容回退显示。 */
+export type UntranslatedMode = 'hide' | 'fallback'
+
 /** 解析后的完整配置：所有选项都有值。 */
 export interface TemplateConfig<L extends string = string> {
   readonly app: {
@@ -324,6 +334,13 @@ export interface TemplateConfig<L extends string = string> {
     readonly enabled: boolean
     readonly locales: readonly L[]
     readonly defaultLocale: L
+    /**
+     * 缺少译文的公开内容如何处理（ML-04）：`'hide'`（默认）不发布，该语言地址返回 404，
+     * 不进站点地图、hreflang 与站内链接；`'fallback'` 以默认语言内容显示，canonical 指向原语言页
+     */
+    readonly untranslated: UntranslatedMode
+    /** 已登录且主动切换过语言的用户打开默认语言首页时，带到所选语言首页（ML-09），默认关闭 */
+    readonly rememberHomeLocale: boolean
   }
   /** 每种语言恰好属于一个站点；未配置时全部语言属于西方站（`app.url` 的域名） */
   readonly sites: { readonly [S in SiteId]: SiteConfig<L> }
@@ -468,6 +485,8 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
     locales?: readonly L[]
     /** 必须是 `locales` 之一；省略时取 `locales[0]` */
     defaultLocale?: NoInfer<L>
+    untranslated?: UntranslatedMode
+    rememberHomeLocale?: boolean
   }
   sites?: {
     readonly [S in SiteId]: {
@@ -512,7 +531,13 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
 
 /** 除 `app` 外的默认值，与 docs/02-project-structure.md §3 草案一致。 */
 export const templateConfigDefaults = {
-  i18n: { enabled: true, locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'], defaultLocale: 'en' },
+  i18n: {
+    enabled: true,
+    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
+    defaultLocale: 'en',
+    untranslated: 'hide',
+    rememberHomeLocale: false,
+  },
   tenancy: { multiTenant: false, maxWorkspacesPerUser: 5 },
   auth: {
     emailPassword: true,
@@ -561,6 +586,7 @@ export const templateConfigDefaults = {
       hubPageSize: 100,
       groupLinksMax: 5,
       sites: [],
+      languageCookies: [],
     },
   },
   ui: { preset: 'neutral', shape: 'rounded', density: 'default', appLayout: 'sidebar' },
@@ -663,6 +689,7 @@ export function resolveSeoLinking(input: SeoLinkingInput | undefined): SeoLinkin
       locales: [...site.locales],
       ...(site.previewHost !== undefined && { previewHost: site.previewHost.toLowerCase() }),
     })),
+    languageCookies: [...(input?.languageCookies ?? d.languageCookies)],
   }
   if (!['report', 'enforce'].includes(linking.mode)) fail("mode must be 'report' or 'enforce'")
   const count = (value: number, path: string, min = 0) => {
@@ -700,6 +727,10 @@ export function resolveSeoLinking(input: SeoLinkingInput | undefined): SeoLinkin
     if (previewHosts.has(host)) fail(`sites declares previewHost ${host} more than once`)
     previewHosts.add(host)
   }
+  // Cookie 名为 RFC 6265 的 token
+  for (const name of linking.languageCookies)
+    if (!/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name))
+      fail(`languageCookies must be cookie names (got ${JSON.stringify(name)})`)
   const groups = new Set<string>()
   for (const series of linking.series) {
     path(series.group, 'series[].group')
@@ -728,7 +759,13 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
 
   const config: TemplateConfig<L> = {
     app: { ...input.app },
-    i18n: { enabled: input.i18n?.enabled ?? d.i18n.enabled, locales, defaultLocale },
+    i18n: {
+      enabled: input.i18n?.enabled ?? d.i18n.enabled,
+      locales,
+      defaultLocale,
+      untranslated: input.i18n?.untranslated ?? (d.i18n.untranslated as UntranslatedMode),
+      rememberHomeLocale: input.i18n?.rememberHomeLocale ?? d.i18n.rememberHomeLocale,
+    },
     sites: resolveSites(input, locales, defaultLocale),
     tenancy: { ...d.tenancy, ...input.tenancy },
     auth: { ...d.auth, ...input.auth },
@@ -758,6 +795,12 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
     features: { ...d.features, ...input.features },
     analytics: { ...d.analytics, ...input.analytics },
   }
+
+  // 配置文件可能由 JS 或生成器写入，运行时再校验一次取值
+  if (!['hide', 'fallback'].includes(config.i18n.untranslated))
+    throw new RangeError("template config: i18n.untranslated must be 'hide' or 'fallback'")
+  if (typeof config.i18n.rememberHomeLocale !== 'boolean')
+    throw new RangeError('template config: i18n.rememberHomeLocale must be a boolean')
 
   for (const site of config.seo.linking.sites)
     for (const locale of site.locales)

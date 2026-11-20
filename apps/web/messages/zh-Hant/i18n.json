@@ -1,8 +1,8 @@
 {
   "i18n_language": "語言",
-  "i18n_suggestion_label": "語言建議",
-  "i18n_suggestion": "要使用{language}瀏覽本站嗎？",
-  "i18n_switch": "切換語言",
-  "i18n_dismiss": "保留目前語言",
+  "i18n_prompt_region": "語言建議",
+  "i18n_prompt_message": "本頁有繁體中文版",
+  "i18n_prompt_action": "查看繁體中文版",
+  "i18n_prompt_close": "關閉語言建議",
   "i18n_save_failed": "無法儲存語言設定，請重試。"
 }

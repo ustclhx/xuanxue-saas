@@ -215,3 +215,46 @@ it('浏览器语言按主语言匹配新语言；带地区的 pt-BR 不匹配 pt
   expect(languageLocale('pt-PT', locales)).toBeUndefined()
   expect(languageLocale('ko-KR', ['en', 'ko'])).toBe('ko')
 })
+
+// 模板 0.8.0 同类用例（multilingual-seo 2.4）按两站改写：默认语言前缀与大小写的 301 由站点守卫负责（site/gate.test.ts），
+// 这里只验证公开页语言不受请求头与 Cookie 影响、不写语言 Cookie
+describe.runIf(templateConfig.i18n.enabled)('公开页语言只由 URL 决定（template 0.8.0）', () => {
+  const render = (url: string, headers: Record<string, string>) =>
+    localizeRequest(new Request(url, { headers }), runtime, async () =>
+      Response.json({ locale: getLocale() }),
+    )
+  const variants: Record<string, string>[] = [
+    {},
+    { 'accept-language': 'zh-CN,zh;q=0.9' },
+    { 'accept-language': 'en-US,en;q=0.9' },
+    { 'accept-language': 'ar' },
+    { cookie: 'PARAGLIDE_LOCALE=ko' },
+    { cookie: 'PARAGLIDE_LOCALE=en' },
+    {
+      'sec-fetch-dest': 'document',
+      'accept-language': 'zh-CN',
+      cookie: 'PARAGLIDE_LOCALE=zh-Hans',
+    },
+  ]
+
+  it('不同 Accept-Language 与 Cookie 下状态、Location 与语言一致，且没有语言 Set-Cookie', async () => {
+    for (const [url, locale] of [
+      [`${origin}/`, 'en'],
+      [`${origin}/pricing`, 'en'],
+      [`${east}/`, 'en'],
+      [`${east}/zh-hant`, 'zh-Hant'],
+      [`${east}/zh-hans/pricing`, 'zh-Hans'],
+      [`${east}/ko/pricing`, 'ko'],
+    ] as const) {
+      for (const headers of variants) {
+        const response = await render(url, headers)
+        expect(response.headers.get('set-cookie'), url).toBeNull()
+        expect(
+          { status: response.status, location: response.headers.get('location') },
+          url,
+        ).toEqual({ status: 200, location: null })
+        expect(await response.json(), url).toEqual({ locale })
+      }
+    }
+  })
+})

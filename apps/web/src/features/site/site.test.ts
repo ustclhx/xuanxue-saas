@@ -340,6 +340,11 @@ describe('地址规范化（specs/seo「规范地址收敛」）', () => {
         `${WEST}/login?redirect=/life-path-number/22`,
       ],
       ['https://arcanumber.com/blog/', `${WEST}/blog`],
+      // 大小写不同的语言前缀 301 到小写前缀，与默认语言前缀跳转合并为一次（template 0.8.0 ML-01）
+      ['https://ganjiday.com/ZH-HANT/pricing', `${EAST}/zh-hant/pricing`],
+      ['https://ganjiday.com/Zh-Hans?a=1', `${EAST}/zh-hans?a=1`],
+      ['https://arcanumber.com/EN/pricing?ref=a', `${WEST}/pricing?ref=a`],
+      ['https://arcanumber.com/En', `${WEST}/`],
     ] as const
     for (const [from, to] of cases) {
       const response = await gateSiteRequest(new Request(from), config, next)

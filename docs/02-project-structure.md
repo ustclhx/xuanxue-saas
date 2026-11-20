@@ -128,7 +128,12 @@ server function 的 schema 写在 `.validator()` / `.inputValidator()` 调用内
 ```ts
 export default defineTemplateConfig({
   app: { name: 'Arcanumber', url: 'https://arcanumber.com', supportEmail: 'support@arcanumber.com' },
-  i18n: { locales: ['en', 'zh-Hant', 'ko'], defaultLocale: 'en' },
+  i18n: {
+    locales: ['en', 'zh-Hant', 'ko'],
+    defaultLocale: 'en',
+    untranslated: 'hide',        // 缺少译文：'hide' 不发布（404）；'fallback' 以默认语言内容回退显示
+    rememberHomeLocale: false,   // 已登录且主动选过语言的用户打开首页时带到所选语言首页
+  },
   // 站点注册表：同一个 Worker 按 Host 区分站点，每种语言只属于一个站点（第一个 host 为规范域名）。
   // brand.names 为各语言显示名，页面标题、og:site_name、结构化数据与邮件经 brandName() 按语言取用
   sites: {
