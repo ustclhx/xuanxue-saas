@@ -4,6 +4,7 @@ import { getChatAvailable } from '../../../features/ai/model-picker.functions.ts
 import { resolveAppNav, TEMPLATE_NAV_IDS } from '../../../features/app-shell/registry.ts'
 import { spaceSections } from '../../../features/app-shell/space-frame.tsx'
 import { DailyCreditsNotice } from '../../../features/credits/daily-notice.tsx'
+import { useSignedInHint } from '../../../features/i18n/signed-in.ts'
 import { SiteHeader } from '../../../features/marketing/site-header.tsx'
 import { NotificationBell } from '../../../features/notifications/bell.tsx'
 import { NotificationsProvider } from '../../../features/notifications/store.tsx'
@@ -50,6 +51,7 @@ const activeProps = {
 const inactiveProps = { className: `${navItemClass} text-ink-muted` }
 
 function WorkspaceLayout() {
+  useSignedInHint()
   const page = Route.useLoaderData()
   const { slug } = Route.useParams()
   const canManageKeys = page.role === 'owner' || page.role === 'admin'

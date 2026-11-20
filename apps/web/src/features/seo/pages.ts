@@ -68,7 +68,10 @@ function contentPage(
   }
 }
 
-/** 地图与 OG 共用公开页面清单，始终排除草稿、未来文章和关闭的功能。 */
+/**
+ * 地图与 OG 共用公开页面清单，始终排除草稿、未来文章和关闭的功能。缺少译文的内容按 `i18n.untranslated`
+ * 处理：`'hide'`（默认）不生成该语言的条目，`'fallback'` 生成回退页（`sourceLocale` 为原语言）。
+ */
 export function publicPages(
   content: {
     posts: readonly Post[]
@@ -88,7 +91,7 @@ export function publicPages(
   const result = locales
     .filter((locale) => !site || config.sites[site].locales.some((l) => l === locale))
     .flatMap((locale) => {
-      const { defaultLocale } = config.i18n
+      const { defaultLocale, untranslated } = config.i18n
       const paths: StaticPath[] = [
         '/',
         ...(config.billing.enabled ? ['/pricing' as const] : []),
@@ -102,8 +105,9 @@ export function publicPages(
       if (config.features.blog && publishedPostLocales(published, now).includes(locale)) {
         const blog = staticPage('/blog', locale)
         pages.push(blog)
-        const posts = listPosts(published, { locale, defaultLocale, now })
-        // 文章层级与主词（模板 0.7.3）：缺少译文、以默认语言原文显示的文章为回退页，不进站点地图
+        const posts = listPosts(published, { locale, defaultLocale, now, untranslated })
+        // 文章层级与主词（模板 0.7.3）：缺少译文的文章按 i18n.untranslated 处理（模板 0.8.0 默认 'hide' 不生成条目；
+        // 'fallback' 下以默认语言原文显示的回退页不进站点地图）
         pages.push(
           ...posts.map((post) => ({
             ...contentPage(
@@ -153,6 +157,7 @@ export function publicPages(
             (content.guides ?? []).filter((guide) => !guide.draft),
             locale,
             defaultLocale,
+            untranslated,
           ).map((guide) => ({
             ...contentPage(
               guide,
@@ -167,7 +172,7 @@ export function publicPages(
       if (config.features.docs) {
         pages.push(staticPage('/docs', locale))
         pages.push(
-          ...localizedEntries(content.docs, locale, defaultLocale).map((page) => ({
+          ...localizedEntries(content.docs, locale, defaultLocale, untranslated).map((page) => ({
             ...contentPage(
               page,
               locale,
@@ -187,7 +192,12 @@ export function publicPages(
           locale,
           title,
           description: tool.descriptions?.[locale] ?? title,
-          alternates: tool.paths,
+          // SeoPage.alternates（模板 0.8.0 本地化 slug）只收已声明的语言
+          alternates: Object.fromEntries(
+            Object.entries(tool.paths).filter(
+              (entry): entry is [string, string] => entry[1] !== undefined,
+            ),
+          ),
         }
         const existing = pages.findIndex((entry) => entry.path === path)
         if (existing === -1) pages.push(page)

@@ -10,7 +10,8 @@ import { hasForeignPrefix } from './site-locale.ts'
  * （url-prefix.ts；`zh-Hant` → `/zh-hant/`）。
  *
  * - 语言识别与 URL 映射由 Paraglide 负责（src/server.ts 的 `paraglideMiddleware` 与这里的 rewrite）；
- *   `/<默认语言>/...` 由站点守卫 307 到无前缀地址，语言前缀的站点归属见 features/site/gate.ts。
+ *   前缀为语言 id 的小写形式（locale-url.ts）；站点默认语言前缀与大小写不同的前缀由站点守卫在进入 Paraglide 前
+ *   301 到唯一地址，语言前缀的站点归属见 features/site/gate.ts。
  * - 未配置的前缀（如 `/fr/pricing`）不会被去掉，路由器找不到对应页面而返回 404。
  * - 应用区不加语言前缀：带前缀访问由 gate.ts 改写到 404，生成链接时也不给应用区加前缀。
  */

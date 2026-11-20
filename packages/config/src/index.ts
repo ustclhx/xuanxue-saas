@@ -62,6 +62,7 @@ export {
   type UiDensity,
   type UiPreset,
   type UiShape,
+  type UntranslatedMode,
   uiAppLayouts,
   uiConfigSchema,
   uiDensities,

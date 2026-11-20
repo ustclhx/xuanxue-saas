@@ -122,11 +122,19 @@ describe('法律页内容（按站点）', () => {
     expect(text(page('east', 'zh-Hant', 'refund').html)).toContain('僅適用於在干支日')
   })
 
-  it('站点缺少某种语言时回退到同站点默认语言，不借用另一站点的正文', () => {
-    const lookup = (site: string, locale: string) =>
-      findLegalPage(allLegalPages, { site, locale, slug: 'privacy', defaultLocale: 'en' })
-    expect(lookup('west', 'fr')?.site).toBe('west')
-    expect(lookup('east', 'ja')).toBeUndefined()
+  it("站点缺少某种语言时：默认 'hide' 不发布（404）；'fallback' 回退到同站点默认语言，不借用另一站点的正文", () => {
+    const lookup = (site: string, locale: string, untranslated?: 'hide' | 'fallback') =>
+      findLegalPage(allLegalPages, {
+        site,
+        locale,
+        slug: 'privacy',
+        defaultLocale: 'en',
+        untranslated,
+      })
+    expect(lookup('west', 'fr')).toBeUndefined()
+    expect(lookup('west', 'fr', 'fallback')?.site).toBe('west')
+    expect(lookup('east', 'ja', 'fallback')).toBeUndefined()
+    expect(lookup('east', 'zh-Hant')?.site).toBe('east')
   })
 
   it('条款与退款页说明订阅自动续费、周期末取消、不按天退款与每日积分两站共享额度', () => {

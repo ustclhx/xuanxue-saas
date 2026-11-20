@@ -395,19 +395,6 @@ describe('分享图与缓存（4.4）', () => {
     expect(buildCard('Life Path', { locale: 'en', path: '/' }).site.host).toBe('arcanumber.com')
   })
 
-  it('多站点：原语言在另一站点时不算回退页，canonical 不跨站（seo.linking.sites）', () => {
-    const page = { locale: 'b', sourceLocale: 'a' }
-    // 未配置分组（模板默认）时全部语言同站
-    expect(fallbackSourceLocale(page, [])).toBe('a')
-    expect(fallbackSourceLocale(page, [{ locales: ['a', 'b'] }])).toBe('a')
-    expect(fallbackSourceLocale(page, [{ locales: ['a'] }, { locales: ['b'] }])).toBeUndefined()
-    // 未列入分组的语言同属隐含站点
-    expect(fallbackSourceLocale(page, [{ locales: ['c'] }])).toBe('a')
-    expect(fallbackSourceLocale(page, [{ locales: ['a'] }])).toBeUndefined()
-    expect(fallbackSourceLocale({ locale: 'a', sourceLocale: 'a' }, [])).toBeUndefined()
-    expect(sameSiteLocales('a', 'b', [{ locales: ['b', 'a'] }])).toBe(true)
-  })
-
   it('运行时按请求域名解析，www 与未登记域名的绝对地址总是规范域名', () => {
     const app = 'https://arcanumber.com'
     for (const [url, host] of [

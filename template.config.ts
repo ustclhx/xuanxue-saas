@@ -14,7 +14,16 @@ export default defineTemplateConfig({
   },
   // 分享卡片默认有效天数（模板 0.4.0）；null 表示永不过期
   shareCards: { defaultTtlDays: 90 },
-  i18n: { enabled: true, locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'], defaultLocale: 'en' },
+  // untranslated（模板 0.8.0，ML-04）：缺少译文的博客、法律页等在该语言下 404，不进站点地图与 hreflang；
+  // 新语言的整体上线仍由 features/i18n/rollout.ts 的发布状态控制。
+  // rememberHomeLocale（ML-09）：使用者 2026-11-20 决定暂缓，保持关闭。
+  i18n: {
+    enabled: true,
+    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
+    defaultLocale: 'en',
+    untranslated: 'hide',
+    rememberHomeLocale: false,
+  },
   // 站点注册表：同一个 Worker 按 Host 区分东方站与西方站，每种语言只属于一个站点。
   // 第一个 host 为规范域名；www 由 Cloudflare 重定向规则跳到裸域（决策 D2，docs/v1-decisions.md）。
   // 两站品牌分开，搜索引擎不把两站视为同一实体（launch-v1-production design）。

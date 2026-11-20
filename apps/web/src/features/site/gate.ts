@@ -1,6 +1,7 @@
 import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
+import { prefixLocale as segmentLocale } from '../i18n/locale-url.ts'
 import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable } from '../i18n/rollout.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { mainToolPath } from '../tools/registry.ts'
@@ -115,6 +116,8 @@ export function routeSite(
  *   本地 `<站点>.localhost` 与未登记的预览 Host 不升级。
  * - GET/HEAD 的非根路径去掉结尾斜杠（站内链接、canonical 与站点地图都不带斜杠）；
  *   `/api/` 与 `_` 开头的内部路径保持原样，不改变第三方回调地址。
+ * - GET/HEAD 的语言前缀大小写不同（`/ZH-HANT/…`）时改为小写前缀（template 0.8.0 ML-01），
+ *   再由站点判定处理默认语言前缀，两者合并为一次 301。
  */
 export function canonicalUrl(url: URL, method: string, config: SitesConfig): URL | null {
   const result = new URL(url.href)
@@ -130,6 +133,13 @@ export function canonicalUrl(url: URL, method: string, config: SitesConfig): URL
     !first.startsWith('_')
   )
     result.pathname = result.pathname.replace(/\/+$/, '') || '/'
+  const locale = segmentLocale(first, config.i18n.locales)
+  if (
+    ['GET', 'HEAD'].includes(method) &&
+    locale !== undefined &&
+    first !== localeUrlSegment(locale)
+  )
+    result.pathname = `/${localeUrlSegment(locale)}${result.pathname.slice(first.length + 1)}`
   return result.href === url.href ? null : result
 }
 

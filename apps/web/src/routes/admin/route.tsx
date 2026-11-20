@@ -5,8 +5,9 @@ import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'
 import { siteLabel } from '../../features/admin/site-ui.tsx'
-import { authClient } from '../../features/auth/auth-client.ts'
+import { signOut as signOutClient } from '../../features/auth/auth-client.ts'
 import { LanguageSelect } from '../../features/i18n/language-controls.tsx'
+import { useSignedInHint } from '../../features/i18n/signed-in.ts'
 import { siteTitle } from '../../features/seo/site-title.ts'
 import { ThemeToggle } from '../../features/theme/theme-toggle.tsx'
 import { m } from '../../paraglide/messages.js'
@@ -22,6 +23,7 @@ export const Route = createFileRoute('/admin')({
 })
 
 function AdminLayout() {
+  useSignedInHint()
   const { admin } = Route.useRouteContext()
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -93,7 +95,7 @@ function SignOutButton() {
     setBusy(true)
     setError('')
     try {
-      const result = await authClient().signOut()
+      const result = await signOutClient()
       if (result.error) throw new Error(result.error.message)
       window.location.assign('/login')
     } catch {

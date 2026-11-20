@@ -9,7 +9,12 @@ import { languageUrl, localeCookie, readCookie, usesAccountLocale } from './pref
 import { isLocaleLive } from './rollout.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
 
-/** 中间件内用修改后的 Cookie 决定语言，交给路由器的仍是原地址与原请求头。 */
+/**
+ * 中间件内用修改后的 Cookie 决定语言，交给路由器的仍是原地址与原请求头。
+ * 地址规范化（站点默认语言前缀与大小写不同的前缀 301，只看路径）在此之前由站点守卫按站点完成
+ * （features/site/gate.ts；模板的 localeRedirect 只认全局默认语言，会把东方站预渲染的 `/en` 也跳走，项目不用）。
+ * 公开页的语言只由 URL 决定，不读 Accept-Language、IP、UA 或 Cookie，也不写 Cookie。
+ */
 export function localizeRequest(
   request: Request,
   runtime: Pick<WebRuntime, 'db' | 'auth'>,

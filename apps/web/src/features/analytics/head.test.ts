@@ -72,7 +72,7 @@ describe('分析脚本页面 head', () => {
       expect(result?.scripts).toEqual(inline(pathname))
       // 字体样式表由脚本插入，不以阻塞渲染的 <link rel="stylesheet"> 出现
       expect(result?.links?.filter((link) => link?.rel === 'stylesheet')).toHaveLength(1)
-      expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon/i)
+      expect(JSON.stringify(result?.scripts)).not.toMatch(/posthog|beacon|locale-suggestion/i)
     }
   })
 

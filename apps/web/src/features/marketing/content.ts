@@ -2,9 +2,13 @@
  * 博客、法律页与文档的查询规则（openspec add-marketing-i18n-seo tasks.md 3.3、3.4）。
  * 只处理 content-collections 生成的数据，不引用生成模块本身，便于单元测试。
  *
- * - 内容按 `<locale>/<slug>` 组织；某语言没有对应版本时回退到默认语言的版本。
+ * - 内容按 `<locale>/<slug>` 组织。某语言没有对应版本时按 `i18n.untranslated` 处理（openspec multilingual-seo 3.1）：
+ *   `'hide'`（默认）只返回真实译文，详情找不到条目即 404；`'fallback'` 用默认语言的版本补齐。
  * - 草稿在生产构建中已被跳过（content-collections.ts），这里只按发布时间过滤定时发布的文章。
  */
+
+/** 与 `@xuanxue/config` 的 `i18n.untranslated` 相同；这里不引用配置，便于单元测试 */
+export type UntranslatedMode = 'hide' | 'fallback'
 
 interface Localized {
   readonly locale: string
@@ -29,14 +33,19 @@ export function isPublished(post: Pick<PostLike, 'date'>, now: Date): boolean {
   return new Date(post.date).getTime() <= now.getTime()
 }
 
-/** 当前语言的条目，缺失的 slug 用默认语言的版本补齐 */
+/**
+ * 当前语言的条目。`'hide'` 只返回该语言的真实条目；`'fallback'` 时缺失的 slug 用默认语言的版本补齐
+ * （回退条目的 `locale` 仍是默认语言，页面据此输出指向原语言的 canonical）。
+ */
 export function localizedEntries<T extends Localized>(
   entries: readonly T[],
   locale: string,
   defaultLocale: string,
+  untranslated: UntranslatedMode = 'hide',
 ): T[] {
   const bySlug = new Map<string, T>()
-  for (const entry of entries) if (entry.locale === defaultLocale) bySlug.set(entry.slug, entry)
+  if (untranslated === 'fallback')
+    for (const entry of entries) if (entry.locale === defaultLocale) bySlug.set(entry.slug, entry)
   for (const entry of entries) if (entry.locale === locale) bySlug.set(entry.slug, entry)
   return [...bySlug.values()]
 }
@@ -51,31 +60,53 @@ export function findLocalized<T extends Localized>(
   slug: string,
   locale: string,
   defaultLocale: string,
+  untranslated: UntranslatedMode = 'hide',
 ): T | undefined {
   return (
     entries.find((entry) => entry.slug === slug && entry.locale === locale) ??
-    entries.find((entry) => entry.slug === slug && entry.locale === defaultLocale)
+    (untranslated === 'fallback'
+      ? entries.find((entry) => entry.slug === slug && entry.locale === defaultLocale)
+      : undefined)
   )
 }
 
 /**
- * 法律页按站点分开（product-improve-ai-content D4）：只在语言所属站点的正文中查找，
- * 该站点缺少这种语言时回退到同站点的默认语言版本（页面标注并 noindex），不借用另一站点的正文。
+ * 法律页按站点分开（product-improve-ai-content D4）：只在语言所属站点的正文中查找，不借用另一站点的正文。
+ * 该站点缺少这种语言时按 `untranslated` 处理（模板 0.8.0）：`'hide'` 返回 undefined（404），
+ * `'fallback'` 回退到同站点的默认语言版本（页面标注并 noindex）。
  */
 export function findLegalPage<T extends Localized & { readonly site: string }>(
   pages: readonly T[],
-  options: { slug: string; locale: string; site: string; defaultLocale: string },
+  options: {
+    slug: string
+    locale: string
+    site: string
+    defaultLocale: string
+    untranslated?: UntranslatedMode | undefined
+  },
 ): T | undefined {
   const own = pages.filter((page) => page.site === options.site)
-  return findLocalized(own, options.slug, options.locale, options.defaultLocale)
+  return findLocalized(
+    own,
+    options.slug,
+    options.locale,
+    options.defaultLocale,
+    options.untranslated,
+  )
 }
 
 /** 博客列表：已发布、可按标签筛选，按发布时间倒序 */
 export function listPosts<T extends PostLike>(
   posts: readonly T[],
-  options: { locale: string; defaultLocale: string; now: Date; tag?: string | undefined },
+  options: {
+    locale: string
+    defaultLocale: string
+    now: Date
+    tag?: string | undefined
+    untranslated?: UntranslatedMode | undefined
+  },
 ): T[] {
-  return localizedEntries(posts, options.locale, options.defaultLocale)
+  return localizedEntries(posts, options.locale, options.defaultLocale, options.untranslated)
     .filter((post) => isPublished(post, options.now))
     .filter((post) => options.tag === undefined || post.tags.includes(options.tag))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -136,9 +167,21 @@ export function listTags(posts: readonly PostLike[]): string[] {
 
 export function findPost<T extends PostLike>(
   posts: readonly T[],
-  options: { slug: string; locale: string; defaultLocale: string; now: Date },
+  options: {
+    slug: string
+    locale: string
+    defaultLocale: string
+    now: Date
+    untranslated?: UntranslatedMode | undefined
+  },
 ): T | undefined {
-  const post = findLocalized(posts, options.slug, options.locale, options.defaultLocale)
+  const post = findLocalized(
+    posts,
+    options.slug,
+    options.locale,
+    options.defaultLocale,
+    options.untranslated,
+  )
   return post && isPublished(post, options.now) ? post : undefined
 }
 
@@ -195,10 +238,21 @@ export function searchDocs(index: readonly DocsSearchEntry[], query: string): Do
  */
 export function loadDocsPage<T extends DocLike>(
   docs: readonly T[],
-  options: { enabled: boolean; slug?: string | undefined; locale: string; defaultLocale: string },
+  options: {
+    enabled: boolean
+    slug?: string | undefined
+    locale: string
+    defaultLocale: string
+    untranslated?: UntranslatedMode | undefined
+  },
 ): { page: T; nav: DocsNavSection[]; searchIndex: DocsSearchEntry[] } | null {
   if (!options.enabled) return null
-  const entries = localizedEntries(docs, options.locale, options.defaultLocale)
+  const entries = localizedEntries(
+    docs,
+    options.locale,
+    options.defaultLocale,
+    options.untranslated,
+  )
   const nav = docsNav(entries)
   const slug = options.slug ?? nav[0]?.items[0]?.slug
   const page = slug === undefined ? undefined : entries.find((doc) => doc.slug === slug)

@@ -1,5 +1,14 @@
+import { scriptKey } from './browser-locale.ts'
 import { languageLocale } from './preference.ts'
-import { regionOf, scriptKey } from './suggestion.ts'
+
+/** 语言标签中的地区子标签（两位字母或三位数字，小写）；没有时为 undefined（原 suggestion.ts，模板 0.8.0 已删除该文件） */
+export function regionOf(tag: string): string | undefined {
+  return tag
+    .toLowerCase()
+    .split('-')
+    .slice(1)
+    .find((part) => /^(?:[a-z]{2}|\d{3})$/.test(part))
+}
 
 /**
  * 语言建议提示的匹配（使用者 2026-11-20 网址规则；设计稿 LocalePromptSpec「B · 行为规则」）：
