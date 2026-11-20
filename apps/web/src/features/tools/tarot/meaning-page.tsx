@@ -237,10 +237,13 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
             <div className="flex shrink-0 gap-4">
               {[false, true].map((reversed) => (
                 <figure key={String(reversed)} className="m-0 flex w-33 flex-col gap-2">
+                  {/* 首屏牌面：改版后正文段落变窄，132px 宽的牌面成为手机首屏最大元素（LCP）。
+                      懒加载要等布局后才发请求，Lighthouse 模拟下 LCP 1.8–6.9 秒；正逆位同一张图，
+                      直接加载并提高优先级，只多一次约 30KB 的请求（warm-lcp 修复） */}
                   <CardFace
                     card={{ cardId: card.id, reversed }}
                     locale={locale}
-                    loading="lazy"
+                    fetchPriority="high"
                     sizes="132px"
                     className="h-auto w-full"
                   />
