@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { type Plugin, runnerImport } from 'vite'
+import { tarotFeelingsSeoPages } from '../src/features/east-en/seo-pages.ts'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
 import { homeTagline } from '../src/features/seo/home-copy.ts'
@@ -42,6 +43,10 @@ function pages() {
     toolPages: [
       ...numerologySeoPages(read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies')),
       ...tarotMeaningSeoPages(read<Parameters<typeof tarotMeaningSeoPages>[0]>('allTarots')),
+      // 东方站根路径英文的 as feelings 牌页（5b）
+      ...tarotFeelingsSeoPages(
+        read<Parameters<typeof tarotFeelingsSeoPages>[0]>('allTarotFeelings'),
+      ),
     ],
     guides: read<NonNullable<Content['guides']>>('allGuides'),
   })
@@ -101,7 +106,9 @@ export async function renderSampleOgImage(
     locale: page.locale,
     pathname: page.path,
   })
-  const siteId = siteOfLocale(page.locale, templateConfig) ?? 'west'
+  const siteId = page.path.startsWith(`${EAST_ENGLISH_PATH}/`)
+    ? 'east'
+    : (siteOfLocale(page.locale, templateConfig) ?? 'west')
   const tagline = site.tagline ?? homeTagline(page.locale)
   const { ogSampleElement } = await loadSampleModule()
   return renderer.render(
@@ -118,10 +125,20 @@ export async function renderSampleOgImage(
 }
 
 /** 公开页面的分享图：登记页面用样例模板，其余沿用默认版式 */
-export function renderPageOgImage(page: { locale: string; path: string; title: string }) {
+export function renderPageOgImage(page: {
+  locale: string
+  path: string
+  title: string
+  site?: string | undefined
+}) {
   const title = ogImageTitle(page.title)
   const chart = ogSampleChart(page)
-  return chart ? renderSampleOgImage(title, page, chart) : renderOgImage(title, page)
+  // 东方站根路径英文（5b）：站点按预渲染文件命名空间 `/en/…` 识别为东方站
+  const target =
+    page.site === 'east' && page.locale === EAST_ENGLISH_LOCALE
+      ? { ...page, path: `${EAST_ENGLISH_PATH}${page.path === '/' ? '' : page.path}` }
+      : page
+  return chart ? renderSampleOgImage(title, target, chart) : renderOgImage(title, target)
 }
 
 /** 东方站英文入口页（D5）：语言 en 归西方站，站点解析按路径识别为东方站 */

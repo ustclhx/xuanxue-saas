@@ -116,9 +116,12 @@ function localeSite(
   const all = SITE_IDS.flatMap((site) =>
     config.sites[site].locales.map((item) => ({ site, locale: item as string })),
   )
+  // 同一语言属于多个站点（项目：东方站根路径英文）时，以它为默认语言的站点为归属站点
+  const owner = (item: { site: SiteId; locale: string }) =>
+    config.sites[item.site].defaultLocale === item.locale
+  const exact = all.filter((item) => item.locale === locale)
   return (
-    all.find((item) => item.locale === locale) ??
-    all.find((item) => primary(item.locale) === primary(locale))
+    exact.find(owner) ?? exact[0] ?? all.find((item) => primary(item.locale) === primary(locale))
   )
 }
 
@@ -711,14 +714,15 @@ export function resolveSeoLinking(input: SeoLinkingInput | undefined): SeoLinkin
   for (const host of linking.sisterDomains)
     if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host))
       fail(`sisterDomains must be bare host names (got ${JSON.stringify(host)})`)
-  const siteLocales = new Set<string>()
   const previewHosts = new Set<string>()
   for (const site of linking.sites) {
     if (site.locales.length === 0) fail('sites[].locales must not be empty')
+    // 一种语言可以出现在多个站点分组中（项目扩展 TR-1：东方站根路径英文），同一分组内不重复
+    const own = new Set<string>()
     for (const locale of site.locales) {
       if (!locale) fail('sites[].locales must not contain empty entries')
-      if (siteLocales.has(locale)) fail(`sites lists locale ${locale} more than once`)
-      siteLocales.add(locale)
+      if (own.has(locale)) fail(`sites lists locale ${locale} more than once`)
+      own.add(locale)
     }
     const host = site.previewHost
     if (host === undefined) continue
@@ -890,9 +894,11 @@ function resolveSites<L extends string>(
     for (const locale of site.locales) {
       if (!locales.includes(locale))
         throw new RangeError(`template config: sites.${id} locale ${locale} is not in i18n.locales`)
-      if (owners.has(locale))
-        throw new RangeError(`template config: locale ${locale} belongs to more than one site`)
-      owners.set(locale, id)
+      // 一种语言可以在多个站点各有页面（项目扩展，openspec add-locales-eu-ja 模板需求 TR-1：
+      // 东方站根路径英文页面）；但只能是一个站点的无前缀默认语言（见下方 defaultLocale 校验）
+      if (site.locales.indexOf(locale) !== site.locales.lastIndexOf(locale))
+        throw new RangeError(`template config: sites.${id} lists locale ${locale} more than once`)
+      if (!owners.has(locale) || site.defaultLocale === locale) owners.set(locale, id)
     }
     for (const locale of Object.keys(site.brand.names))
       if (!site.locales.includes(locale as L))
@@ -918,5 +924,8 @@ function resolveSites<L extends string>(
   // 只有站点默认语言使用无前缀地址；i18n.defaultLocale 是 Paraglide 的 baseLocale，必须是其中之一
   if (!SITE_IDS.some((id) => sites[id].defaultLocale === defaultLocale))
     throw new RangeError('template config: i18n.defaultLocale must be the defaultLocale of a site')
+  const defaults = SITE_IDS.map((id) => sites[id].defaultLocale).filter((l) => l !== null)
+  if (new Set(defaults).size !== defaults.length)
+    throw new RangeError('template config: a locale is the defaultLocale of more than one site')
   return sites
 }

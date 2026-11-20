@@ -12,6 +12,7 @@ import { primaryButton, secondaryButton, textLink } from '../readings/buttons.ts
 import { displayPrice, type PriceDisplay } from '../readings/price.ts'
 import type { ReadingPricing } from '../readings/readings.functions.ts'
 import { readingTitle } from '../readings/title.ts'
+import { useSiteId } from '../site/context.tsx'
 import { siteOfLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { MarketingShell } from './marketing-shell.tsx'
@@ -147,6 +148,9 @@ export function PricingPage({
   readings: ReadingPricing['readings']
 }) {
   const locale = getLocale()
+  // 东方站根路径英文（5b）：同一语言在两站各有定价页，免费工具与品牌按站点
+  const siteId = useSiteId()
+  const eastEnglish = siteId === 'east' && locale === 'en'
   useEffect(() => trackEvent('paywall_view'), [])
   const packs = creditPacks(catalog, locale)
   const subs = subscriptionPlans(catalog, locale)
@@ -171,7 +175,10 @@ export function PricingPage({
         [
           m.daily_credits_faq_q(),
           m.daily_credits_faq_a(
-            siteAccountNames(siteOfLocale(locale, templateConfig) ?? 'west', locale),
+            siteAccountNames(
+              eastEnglish ? 'east' : (siteOfLocale(locale, templateConfig) ?? 'west'),
+              locale,
+            ),
           ),
         ],
       ]
@@ -266,7 +273,11 @@ export function PricingPage({
                 {zeroPrice(subCurrency, locale)}
               </p>
               <ul className={planList}>
-                <li>{m.pricing_free_tools()}</li>
+                <li>
+                  {eastEnglish
+                    ? 'All BaZi, Zi Wei Dou Shu and tarot tools'
+                    : m.pricing_free_tools()}
+                </li>
                 {firstLogin && <li>{m.pricing_free_first_login()}</li>}
                 {daily && <li>{m.pricing_free_daily()}</li>}
                 {daily && <li>{m.pricing_free_daily_expiry()}</li>}

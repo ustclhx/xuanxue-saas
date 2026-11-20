@@ -100,24 +100,68 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
   },
 }
 
-/** 牌阵页路径（不含语言前缀） */
-export function tarotPath(spread: SpreadId, locale: TarotLocale): string {
+/**
+ * 东方站根路径英文的牌阵页（openspec add-locales-eu-ja 5b，关键词地图方案 A）：与西方站英文分主词——
+ * 「past present future」「one card pull」「pick a card」「Celtic Cross spread positions」，路径在 `/tarot-spreads`。
+ * 同一语言在两站各有一套页面，路径、标题与描述按站点取；其他语言两站共用。
+ */
+export const EAST_EN_TAROT_ROOT = '/tarot-spreads'
+const EAST_EN_SLUGS: Readonly<Record<SpreadId, string>> = {
+  'three-card': '',
+  daily: 'one-card',
+  'yes-or-no': 'pick-a-card',
+  'celtic-cross': 'celtic-cross',
+}
+const EAST_EN_NAV: Readonly<Record<SpreadId, string>> = {
+  'three-card': 'Past, Present, Future Tarot',
+  daily: 'One Card Tarot Pull',
+  'yes-or-no': 'Pick a Card Tarot',
+  'celtic-cross': 'Celtic Cross Spread',
+}
+
+type TarotSite = 'east' | 'west'
+/** 东方站根路径英文：站点为东方站且语言为 en */
+const eastEnglish = (locale: TarotLocale, site?: TarotSite) => site === 'east' && locale === 'en'
+
+/** 牌阵页路径（不含语言前缀）；`site` 只影响 en（东方站根路径英文） */
+export function tarotPath(spread: SpreadId, locale: TarotLocale, site?: TarotSite): string {
+  if (eastEnglish(locale, site)) {
+    const slug = EAST_EN_SLUGS[spread]
+    return slug ? `${EAST_EN_TAROT_ROOT}/${slug}` : EAST_EN_TAROT_ROOT
+  }
   const slug = SLUGS[spread][locale]
   return slug ? `${TAROT_ROOTS[locale]}/${slug}` : TAROT_ROOTS[locale]
 }
 
 /** 当前语言下子路径段对应的牌阵；根路径为三张牌，其他语言的路径段不匹配 */
-export function spreadForSlug(locale: TarotLocale, slug?: string): SpreadId | undefined {
+export function spreadForSlug(
+  locale: TarotLocale,
+  slug?: string,
+  site?: TarotSite,
+): SpreadId | undefined {
   const value = slug ?? ''
-  return TAROT_SPREADS.find((spread) => SLUGS[spread][locale] === value)
+  return TAROT_SPREADS.find((spread) =>
+    eastEnglish(locale, site) ? EAST_EN_SLUGS[spread] === value : SLUGS[spread][locale] === value,
+  )
 }
 
+/** SEO 标题；东方站英文的标题与描述在 features/east-en（按需加载，不进注册表与入口包） */
 export function tarotTitle(spread: SpreadId, locale: TarotLocale): string {
   return TITLES[spread][locale]
 }
 
+/** 导航名与面包屑（主词）：东方站英文为短主词，其他语言与标题相同 */
+export function tarotNavTitle(spread: SpreadId, locale: TarotLocale, site?: TarotSite): string {
+  return eastEnglish(locale, site) ? EAST_EN_NAV[spread] : TITLES[spread][locale]
+}
+
 export function tarotDescription(spread: SpreadId, locale: TarotLocale): string {
   return DESCRIPTIONS[spread][locale]
+}
+
+/** 牌阵页在本站各语言下的地址（hreflang）：东方站页面的 en 指向东方站根路径英文 */
+export function tarotAlternates(spread: SpreadId, site: TarotSite): Record<string, string> {
+  return Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l, site)]))
 }
 
 function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, string> {
@@ -130,16 +174,21 @@ function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, s
 }
 
 /**
- * 每个牌阵在两站各登记一条：同一组三语路径互为 hreflang，站点地图与预渲染按所属站点的语言筛选。
+ * 每个牌阵在两站各登记一条：同一组路径互为 hreflang，站点地图与预渲染按所属站点的语言筛选。
+ * en 按站点分开：西方站 `/tarot/…`，东方站根路径英文 `/tarot-spreads/…`（5b）。
  * 只有主牌阵进页头导航，其余牌阵经页内互导矩阵到达。
  */
 export const TAROT_TOOL_ROUTES: readonly ToolRoute[] = TAROT_SPREADS.flatMap((spread) =>
   (['west', 'east'] as const).map((site) => ({
     id: `tarot-${spread}`,
     site,
-    paths: byLocale((locale) => tarotPath(spread, locale)),
-    titles: byLocale((locale) => tarotTitle(spread, locale)),
-    descriptions: byLocale((locale) => tarotDescription(spread, locale)),
+    paths: byLocale((locale) => tarotPath(spread, locale, site)),
+    titles: byLocale((locale) => tarotNavTitle(spread, locale, site)),
+    // 东方站英文的描述不登记（publicPages 以导航名代替；页面 head 取 features/east-en 的文案）
+    descriptions:
+      site === 'east'
+        ? { ...byLocale((locale) => tarotDescription(spread, locale)), en: undefined }
+        : byLocale((locale) => tarotDescription(spread, locale)),
     ...(spread === 'three-card' ? {} : { nav: false }),
   })),
 )

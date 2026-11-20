@@ -37,14 +37,23 @@ const GunghapPage = lazyRouteComponent(
   () => import('../features/tools/bazi/gunghap-page.tsx'),
   'GunghapPage',
 )
+// 东方站根路径英文（openspec add-locales-eu-ja 5b）：`/bazi-calculator`、`/zi-wei-dou-shu`
+const EastEnBaziPage = lazyRouteComponent(
+  () => import('../features/east-en/tool-pages.tsx'),
+  'EastEnBaziPage',
+)
+const EastEnZiweiPage = lazyRouteComponent(
+  () => import('../features/east-en/tool-pages.tsx'),
+  'EastEnZiweiPage',
+)
 
-/** `bazi` 在韩语渲染만세력组件，在中文渲染八字组件 */
+/** `bazi` 在韩语渲染만세력组件，在中文渲染八字组件，在东方站英文渲染英文计算器 */
 function pageComponent(id: EasternPageId, locale: string) {
   switch (id) {
     case 'bazi':
-      return locale === 'ko' ? ManseryeokHome : BaziHome
+      return locale === 'en' ? EastEnBaziPage : locale === 'ko' ? ManseryeokHome : BaziHome
     case 'ziwei':
-      return ZiweiPage
+      return locale === 'en' ? EastEnZiweiPage : ZiweiPage
     case 'mingpan':
       return MingpanPage
     case 'gunghap':
@@ -52,16 +61,36 @@ function pageComponent(id: EasternPageId, locale: string) {
   }
 }
 
+// 东方站根路径英文的塔罗索引页 `/tarot-spreads`、`/tarot-feelings`（5b）；两段地址见 routes/$section/$item.tsx
+const EastEnTarotPage = lazyRouteComponent(
+  () => import('../features/east-en/tarot-pages.tsx'),
+  'EastEnTarotPage',
+)
+
 export const Route = createFileRoute('/$slug')({
-  beforeLoad: ({ params }) => {
-    if (!easternPageOf(getLocale(), params.slug)) throw notFound()
-  },
   loader: async ({ params }) => {
     const locale = getLocale()
     const id = easternPageOf(locale, params.slug)
-    if (id) await pageComponent(id, locale).preload?.()
+    if (!id) {
+      if (locale !== 'en') throw notFound()
+      const [{ eastEnTarotData }] = await Promise.all([
+        import('../features/east-en/route-data.ts'),
+        EastEnTarotPage.preload?.(),
+      ])
+      const tarot = await eastEnTarotData(`/${params.slug}`)
+      if (!tarot) throw notFound()
+      return { tarot, eastEn: tarot.head }
+    }
+    await pageComponent(id, locale).preload?.()
+    // 东方站英文的 head 数据按需加载（不把英文文案带进入口包，features/east-en/route-data.ts）
+    if (locale === 'en' && (id === 'bazi' || id === 'ziwei')) {
+      const { eastEnToolHead, toHead } = await import('../features/east-en/route-data.ts')
+      return { eastEn: toHead(eastEnToolHead(id)) }
+    }
+    return {}
   },
-  head: ({ params, matches }) => {
+  head: ({ params, matches, loaderData }) => {
+    if (loaderData?.eastEn) return loaderData.eastEn
     const locale = getLocale()
     const id = easternPageOf(locale, params.slug)
     if (!id) return {}
@@ -77,6 +106,8 @@ export const Route = createFileRoute('/$slug')({
 
 function EasternToolRoute() {
   const { slug } = Route.useParams()
+  const tarot = Route.useLoaderData()?.tarot
+  if (tarot) return <EastEnTarotPage data={tarot} />
   const locale = getLocale()
   const id = easternPageOf(locale, slug)
   if (!id) return null

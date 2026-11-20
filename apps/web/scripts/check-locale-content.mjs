@@ -116,6 +116,32 @@ export function checkLocaleContent({ root = WEB_ROOT, locales, sites }) {
   return problems
 }
 
+/**
+ * 同一语言在另一站点的页面（东方站根路径英文，openspec add-locales-eu-ja 5b）：东方站列出 en 时，
+ * 78 张「as feelings」牌页（content/tarot-feelings/en）与东方站法律页英文版必须齐全，不回退到西方站英文。
+ */
+export function checkEastEnglishContent({ root = WEB_ROOT, sites }) {
+  if (!sites.east.locales.includes('en')) return []
+  const content = join(root, 'content')
+  const problems = []
+  const require = (collection, expected, dir) => {
+    for (const name of missingEntries(expected, entries(dir)))
+      problems.push(`east/en: 缺少 ${collection} 条目 ${name}（${dir}）`)
+  }
+  require('tarot-feelings', entries(join(content, 'tarot', 'en')), join(
+    content,
+    'tarot-feelings',
+    'en',
+  ))
+  require('legal', entries(join(content, 'legal', 'east', LEGAL_SOURCE_LOCALES.east)), join(
+    content,
+    'legal',
+    'east',
+    'en',
+  ))
+  return problems
+}
+
 async function main() {
   const { values } = parseArgs({ options: { root: { type: 'string' } } })
   const root = values.root ? resolve(values.root) : WEB_ROOT
@@ -125,7 +151,10 @@ async function main() {
   const { STRICT_MESSAGE_LOCALES } = await import('../src/features/i18n/rollout.ts')
   const enabled = config.i18n.enabled ? config.i18n.locales : [config.i18n.defaultLocale]
   const locales = enabled.filter((locale) => STRICT_MESSAGE_LOCALES.includes(locale))
-  const problems = checkLocaleContent({ root, locales, sites: config.sites })
+  const problems = [
+    ...checkLocaleContent({ root, locales, sites: config.sites }),
+    ...checkEastEnglishContent({ root, sites: config.sites }),
+  ]
   if (problems.length > 0) {
     console.error(
       `新语言内容检查失败（${problems.length} 项）：\n${problems.map((p) => `  - ${p}`).join('\n')}`,

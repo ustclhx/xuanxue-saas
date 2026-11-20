@@ -1,5 +1,6 @@
 import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
+import { isEastEnglishOnlyPath, isEastEnglishPath } from '../east-en/paths.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale as segmentLocale } from '../i18n/locale-url.ts'
 import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable } from '../i18n/rollout.ts'
@@ -33,15 +34,9 @@ export type SiteDecision =
   | { readonly kind: 'pass'; readonly noindex: boolean }
   | { readonly kind: 'not-found' }
 
-/** 东方站上不跳转到入口页的无前缀路径（应用区另见 APP_AREA_PREFIXES） */
-export const EAST_UNPREFIXED_PREFIXES = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/verify-email',
-  '/accept-invitation',
-] as const
+import { EAST_UNPREFIXED_PREFIXES } from './unprefixed.ts'
+
+export { EAST_UNPREFIXED_PREFIXES }
 
 // 形如语言代码的首段（`/fr`、`/zh`、`/zh-cn`）交给路由器返回 404，而不是跳转到入口页
 const LANGUAGE_LIKE = /^[a-z]{2}(-[a-z0-9]+)*$/i
@@ -86,6 +81,12 @@ export function routeSite(
     // 旧英文入口页地址 `/en` 301 到东方站英文首页 `/`（使用者 2026-11-20）；构建期预渲染照常生成 en.html
     if (eastEnglish)
       return release === null ? { kind: 'pass', noindex } : redirect(301, url.origin, '/')
+    // 东方站英文页面在根路径（5b），`/en/*` 不是任何页面：认证页照旧 302 到无前缀地址，其余 404
+    if (site.known && site.id === 'east' && locale === EAST_ENGLISH_LOCALE) {
+      if (EAST_UNPREFIXED_PREFIXES.some((p) => rest === p || rest.startsWith(`${p}/`)))
+        return redirect(302, url.origin, rest)
+      return { kind: 'not-found' }
+    }
     if (site.known && !siteHasLocale(site.id, locale, config)) {
       // 认证页没有语言也能访问：外站语言前缀的认证页（旧状态生成的 `/zh-hans/login?redirect=…`）
       // 302 到本站无前缀认证页、保留查询参数，再由认证页语言跳转选择本站语言；不跨站
@@ -99,6 +100,24 @@ export function routeSite(
     return { kind: 'pass', noindex }
   }
 
+  // 东方站根路径英文页面（5b）：本站英文已发布（或预览主机、构建期预渲染）时放行；
+  // 正式域名上未发布前维持下方的 301（与发布前完全相同）
+  if (
+    site.known &&
+    site.id === 'east' &&
+    siteHasLocale('east', EAST_ENGLISH_LOCALE, config) &&
+    isEastEnglishPath(pathname) &&
+    (release === null || isLocaleLive(EAST_ENGLISH_LOCALE, url.host, config, release))
+  )
+    return { kind: 'pass', noindex }
+  // 只属于东方站英文的地址（`/bazi-calculator` 等）不是西方站页面：西方站返回本站 404，不跨站
+  if (
+    site.known &&
+    site.id === 'west' &&
+    siteHasLocale('east', EAST_ENGLISH_LOCALE, config) &&
+    isEastEnglishOnlyPath(pathname)
+  )
+    return { kind: 'not-found' }
   if (
     site.known &&
     config.sites[site.id].defaultLocale === null &&
@@ -178,14 +197,7 @@ export function legacyHomeRedirect(request: Request, config: SitesConfig): Respo
   })
 }
 
-/**
- * 落地页 head 中的内联脚本（design.md D4）：旧分享链接是 `<语言首页>#r=…`，片段不发往服务器。
- * 首帧前检查 `location.hash`，含 `r=` 参数时替换到主工具页并带上原片段；其他片段（页内锚点）不处理。
- * `toolHref` 为站内地址（已含语言前缀并编码，如 toolHref 的返回值），在构建期写入脚本，不依赖水合。
- */
-export function legacyHashRedirectScript(toolHref: string): string {
-  return `(function(){var h=location.hash;if(/[#&]r=/.test(h))location.replace(${JSON.stringify(toolHref)}+h)})()`
-}
+export { legacyHashRedirectScript } from './legacy-hash.ts'
 
 /**
  * 改写到的 404 路径：带上本次应使用的语言前缀，使 404 页的服务端渲染与客户端水合使用同一语言。

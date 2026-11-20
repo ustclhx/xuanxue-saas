@@ -20,7 +20,7 @@ import {
 import { SiteContext, useSiteId } from '../features/site/context.tsx'
 import { pvuvHeadScripts } from '../features/site/pvuv.ts'
 import { getCurrentSite } from '../features/site/site.functions.ts'
-import { siteNavLocale } from '../features/site/site.ts'
+import { siteNavLocale, siteServesLocale } from '../features/site/site.ts'
 import { siteFontScript, siteIconLinks, siteThemeScript } from '../features/site/theme.ts'
 import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.ts'
 import { RootDocument } from '../features/theme/root-document.tsx'
@@ -91,7 +91,8 @@ function rootBrand(site: SiteId): string {
   return siteBrandName(
     templateConfig,
     site,
-    config.locales.some((value) => value === locale) ? locale : config.locales[0],
+    // 另一站点的同语言（东方站 en）只在本站已发布时算本站语言（site.ts siteServesLocale）
+    siteServesLocale(site, locale, templateConfig) ? locale : config.locales[0],
   )
 }
 

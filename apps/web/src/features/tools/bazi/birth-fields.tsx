@@ -37,7 +37,8 @@ export function BirthFields({
 }: {
   /** 当前值：决定默认值与条件字段（闰月、手选时区） */
   values: BirthFormValues
-  locale: EastLocale
+  /** en：东方站根路径英文（5b） */
+  locale: EastLocale | 'en'
   prefix?: string
   issues?: readonly InputIssue[]
   /** 韩语页：진태양시 开关默认开启，展开进阶选项后用醒目提示说明可关闭（决策 D5） */

@@ -38,6 +38,13 @@ const SPREAD_SEGMENTS = {
     'yes-or-no': '/イエスノー',
     'celtic-cross': '/ケルト十字',
   },
+  // 东方站英文（根路径，openspec add-locales-eu-ja 5b；关键词地图 keyword-maps/east-en.md 方案 A）
+  'en-east': {
+    'three-card': '',
+    daily: '/one-card',
+    'yes-or-no': '/pick-a-card',
+    'celtic-cross': '/celtic-cross',
+  },
   es: {
     'three-card': '',
     daily: '/carta-del-dia',
@@ -46,8 +53,30 @@ const SPREAD_SEGMENTS = {
   },
 }
 
-/** 各语言第一期页面（design 决策 2、9）；sources 为 hreflang 对应语言（只列路径，不读正文） */
+/**
+ * 各语言第一期页面（design 决策 2、9）；sources 为 hreflang 对应语言（只列路径，不读正文）。
+ * 键为术语表文件名：同一语言在两站各有页面时按站点区分（`en-east`，东方站根路径英文；
+ * crossSite 为另一站点同语言的同类页，只用于核对事实单不含其正文）。
+ */
 export const LOCALES = Object.freeze({
+  'en-east': {
+    site: 'east',
+    sources: ['zh-Hant', 'zh-Hans', 'ko'],
+    crossSite: ['en'],
+    home: '/',
+    tarotBase: '/tarot-spreads',
+    cardBase: '/tarot-feelings',
+    tools: { shichu: '/bazi-calculator', ziwei: '/zi-wei-dou-shu' },
+    numbers: null,
+    exampleCity: 'newYork',
+    lengthRule:
+      '工具页正文 ≥600 词；牌页（as feelings）不少于西方站英文对应牌义页的 70%（约 450 词以上）',
+    questionSources: [
+      'Google（gl=us）「People also ask」与自动补全：「bazi calculator with location」「purple star astrology vs bazi」「{card} as feelings for an ex」等',
+      'Reddit：r/bazi、r/ChineseAstrology、r/tarot、r/TarotReading 的提问（只取问法，不引用个人信息）',
+      'Quora 与 YouTube 评论中「how does he feel about me tarot」「is bazi accurate」一类的问法',
+    ],
+  },
   ja: {
     site: 'east',
     sources: ['zh-Hans', 'zh-Hant', 'ko'],
@@ -353,6 +382,23 @@ function engineFacts(page, locale, glossary) {
       '候选示例日期（引擎复算为该数）',
       sampleDatesFor(page.number).join('、') || '（自行选择后用 --compute life-path 复算）',
     )
+  } else if (page.kind === 'tool' && page.tool === 'shichu' && locale === 'en-east') {
+    push('引擎', `@xuanxue/bazi ${ENGINE_VERSION}；可排 1900–2100 年`)
+    push(
+      '出生地',
+      '内置城市含 New York、Los Angeles、Toronto、Vancouver、London、Sydney、Singapore、Kuala Lumpur 等（IANA 时区，历史夏令时自动处理）；其他地点手选 UTC 偏移',
+    )
+    push('节气', '月柱在节气（solar term）交界换月，不在公历 1 日；年柱在立春换年')
+    push('真太阳时', '默认关闭；开启时按经度与均时差修正')
+    push('时辰不明', '可不填出生时间，按 12:00 估算，时柱不显示')
+    const ex = baziFacts(
+      { date: '1991-07-04', time: '09:15', city: 'newYork', gender: 'male' },
+      loadGlossary('ja'),
+    )
+    push(
+      '夏令时示例（复算，纽约 EDT）',
+      `钟表 ${ex.clock} → 排盘 ${ex.used}；四柱 ${ex.pillars}；日干 ${ex.dayMaster}；${ex.luck.replace('順行', 'forward').replace('逆行', 'backward').replace('歳', '')}`,
+    )
   } else if (page.kind === 'tool' && page.tool === 'shichu') {
     push('引擎', `@xuanxue/bazi ${ENGINE_VERSION}；可排 1900–2100 年`)
     push(
@@ -421,6 +467,12 @@ function examplesFor(page, locale) {
       '- 每个数值用引擎复算：`node apps/web/scripts/generate-locale-fact-sheet.mjs --compute life-path YYYY-MM-DD`，',
       '  姓名用 `--compute name "<姓名>"`；页面中的数字序列与英文页重合度须 ≤0.50。',
     ].join('\n')
+  if (page.kind === 'tool' && page.tool === 'shichu' && locale === 'en-east')
+    return [
+      '- 示例出生地用英语读者的城市（New York、London、Sydney、Singapore 等）与当地时间；至少一个示例覆盖夏令时或节气交界。',
+      '- 复算：`node apps/web/scripts/generate-locale-fact-sheet.mjs --compute bazi 1991-07-04T09:15 newYork male`；',
+      '  数字序列与繁中、简中、韩语页示例重合度须 ≤0.50。',
+    ].join('\n')
   if (page.kind === 'tool' && page.tool === 'shichu')
     return [
       '- 示例出生地用日本城市（东京等）与日本标准时间；至少一个示例覆盖 1948–1951 年サマータイム或节入り前后。',
@@ -428,7 +480,7 @@ function examplesFor(page, locale) {
       '  数字序列与繁中页示例重合度须 ≤0.50。',
     ].join('\n')
   if (page.kind === 'tarot-card' || page.kind === 'tarot-draw')
-    return '- 示例问题用本地常见情境（ja：就活・受験・婚活など；es：trabajo, pareja a distancia, estudios），不要沿用其他语言页的问题。'
+    return '- 示例问题用本地常见情境（ja：就活・受験・婚活など；es：trabajo, pareja a distancia, estudios；en-east：exes, situationships, long-distance, a crush at work），不要沿用其他语言页或另一站点同语言页面的问题。'
   return '- 本页不需要计算示例。'
 }
 
@@ -541,7 +593,7 @@ export function renderFactSheet({
 export function sourceSentences(page, locale) {
   const files = []
   const cfg = LOCALES[locale]
-  for (const source of cfg.sources) {
+  for (const source of [...cfg.sources, ...(cfg.crossSite ?? [])]) {
     if (page.card) files.push(join(WEB_ROOT, 'content/tarot', source, `${page.card.id}.mdx`))
     if (page.number)
       files.push(join(WEB_ROOT, 'content/numerology', source, `life-path-${page.number}.mdx`))

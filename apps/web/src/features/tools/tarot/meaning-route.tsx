@@ -12,7 +12,11 @@ export function tarotIndexHead(
   locale: TarotLocale,
   matches: readonly Pick<AnyRouteMatch, 'loaderData' | 'routeId'>[],
 ) {
-  return pageHead(tarotIndexSeo(locale), originFromMatches(matches))
+  // 现有牌义索引页：en 为西方站，其他语言为东方站（东方站英文 as feelings 索引见 features/east-en）
+  return pageHead(
+    tarotIndexSeo(locale, locale === 'en' ? 'west' : 'east'),
+    originFromMatches(matches),
+  )
 }
 
 export function requireMeaningLocale(locale: TarotLocale) {

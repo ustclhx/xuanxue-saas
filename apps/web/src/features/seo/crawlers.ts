@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
+import { eastEnglishStaticPage } from '../east-en/static-seo.ts'
 import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_COPY } from '../marketing/east-english/content.ts'
@@ -12,6 +13,7 @@ import {
   indexedPages,
   localizedPath,
   pageAlternates,
+  pageSite,
   staticPage,
 } from './metadata.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
@@ -33,22 +35,35 @@ export function isSharePath(path: string): boolean {
 const indexable = (pages: readonly SeoPage[]) =>
   indexedPages(pages).filter((page) => !isSharePath(page.path))
 
-export function sitemap(pages: readonly SeoPage[], appUrl: string, locale?: string): string {
-  const listed = indexable(pages)
+export function sitemap(
+  pages: readonly SeoPage[],
+  appUrl: string,
+  locale?: string,
+  /** 项目扩展（5b）：只列该站点的页面（同一语言在两站各有页面时按站点区分）；省略时不按站点筛选 */
+  site?: SiteId,
+): string {
+  const listed = indexable(pages).filter((page) => !site || pageSite(page) === site)
   const urls = listed
     .filter((page) => !locale || page.locale === locale)
     .map((page) => {
       // hreflang 只关联真实存在译文的语言；声明了 alternates 的页面用声明的各语言地址
       const languages = listed
-        .filter((other) => other.path === page.path)
+        .filter((other) => other.path === page.path && pageSite(other) === pageSite(page))
         .map((other) => other.locale)
-      const links = alternateLinks(appUrl, page.path, languages, pageAlternates(page), page.locale)
+      const links = alternateLinks(
+        appUrl,
+        page.path,
+        languages,
+        pageAlternates(page),
+        page.locale,
+        page.site,
+      )
         .map(
           (link) =>
             `<xhtml:link rel="alternate" hreflang="${escapeXml(link.hrefLang)}" href="${escapeXml(link.href)}"/>`,
         )
         .join('')
-      return `<url><loc>${escapeXml(absoluteUrl(localeOrigin(page.locale), localizedPath(page.path, page.locale)))}</loc>${links}</url>`
+      return `<url><loc>${escapeXml(absoluteUrl(localeOrigin(page.locale, page.site), localizedPath(page.path, page.locale)))}</loc>${links}</url>`
     })
     .join('')
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`
@@ -183,16 +198,20 @@ export function llmsTxt(
         ...(config.billing.enabled ? ['/pricing' as const] : []),
         '/faq' as const,
       ]) {
-        const page = staticPage(path, locale)
+        const page =
+          site === 'east' && locale === EAST_ENGLISH_LOCALE
+            ? eastEnglishStaticPage(path)
+            : staticPage(path, locale)
         lines.push(`- [${page.title}](${url(path, locale)}): ${page.description}`)
       }
       return [`## ${LOCALE_NAMES[locale] ?? locale}`, '', ...lines].join('\n')
     })
-  // 东方站英文入口页（D5）：en 归西方站，东方站只有这一页英文
+  // 东方站英文入口页（D5）：东方站根路径英文（5b）发布前东方站只有这一页英文
   if (
     site === 'east' &&
     config.i18n.enabled &&
-    config.i18n.locales.some((l) => l === EAST_ENGLISH_LOCALE)
+    config.i18n.locales.some((l) => l === EAST_ENGLISH_LOCALE) &&
+    !releasedSiteLocales(site, config).some((l) => l === EAST_ENGLISH_LOCALE)
   )
     sections.push(
       [

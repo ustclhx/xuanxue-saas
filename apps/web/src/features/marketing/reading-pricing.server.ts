@@ -3,6 +3,7 @@ import { READING_KINDS } from '@xuanxue/db'
 import { templateConfig } from '../../server/template-config.ts'
 import { loadReadingAvailability, type ReadingAvailabilityDeps } from '../readings/availability.ts'
 import { readingDefinition } from '../readings/catalog.ts'
+import { siteServesLocale } from '../site/site.ts'
 
 /**
  * 公开定价只承诺本站、本语言目录中已开放且可生成的详批（与结果页解锁卡同一判定）。
@@ -13,7 +14,8 @@ export async function siteReadingPricing(
   locale: string,
   deps: ReadingAvailabilityDeps,
 ) {
-  if (!templateConfig.sites[site].locales.some((value) => value === locale)) return []
+  // 另一站点的同语言（东方站 en，5b）在本站发布前不出售（site.ts siteServesLocale）
+  if (!siteServesLocale(site, locale, templateConfig)) return []
   const readings = []
   for (const kind of READING_KINDS) {
     if (!readingDefinition(kind, locale)) continue

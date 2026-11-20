@@ -27,10 +27,13 @@ export function legalRouteOptions(slug: LegalSlug) {
       if (!loaderData) return {}
       const locale = getLocale()
       const fallback = loaderData.locale !== locale
+      // 东方站根路径英文（5b）：同一地址在两站各有法律页，canonical 与品牌按站点
+      const site = loaderData.site
       const head = pageHead(
         {
           path: `/${slug}`,
           locale,
+          ...(site === 'east' && locale === 'en' ? { site } : {}),
           title: loaderData.title,
           description: loaderData.description,
           // 分享图只为有原文的语言生成

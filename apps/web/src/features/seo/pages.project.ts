@@ -1,4 +1,4 @@
-import { brandName, type TemplateConfig } from '@xuanxue/config'
+import { brandName, siteBrandName, type TemplateConfig } from '@xuanxue/config'
 import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
 import { templateConfig } from '../../server/template-config.ts'
 import type { AppLocale } from '../i18n/locales.ts'
@@ -125,12 +125,20 @@ export function projectPageLinking(page: SeoPage): SeoPage {
 function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; parent: string } {
   const { locale } = page
   const navTitle = route.titles[locale] || undefined
+  // 东方站根路径英文（5b）：as feelings 牌页的主词为「<牌名> as feelings」，上级为 as feelings 索引页
+  const eastEnglish = page.site === 'east' && locale === 'en'
   if (route.id === 'tarot-card-index' && isTarotLocale(locale))
-    return { titleMain: TAROT_INDEX_MAIN[locale], parent: '/' }
+    return {
+      titleMain: eastEnglish ? (navTitle ?? page.title) : TAROT_INDEX_MAIN[locale],
+      parent: '/',
+    }
   if (route.id.startsWith('tarot-card-') && isTarotLocale(locale)) {
     const id = route.id.slice('tarot-card-'.length)
     const name = cardById.has(id) ? CARD_MEANINGS[locale][id]?.name : undefined
-    return { titleMain: name ?? page.title, parent: tarotIndexPath(locale) }
+    return {
+      titleMain: name ? (eastEnglish ? `${name} as feelings` : name) : page.title,
+      parent: tarotIndexPath(locale, eastEnglish ? 'east' : undefined),
+    }
   }
   const lifePath = /^life-path-(\d+)$/.exec(route.id)?.[1]
   if (lifePath) return { titleMain: `Life Path ${lifePath}`, parent: LIFE_PATH_TOOL_PATH }
@@ -146,7 +154,13 @@ function staticPageLinking(page: SeoPage): SeoPage {
   )[page.locale]?.[page.path as StaticPath]
   if (!entry || page.titleMain !== undefined) return page
   const [main, anchorShort] = entry
-  const titleMain = page.path === '/' ? brandName(templateConfig, page.locale) : main
+  // 首页主词为站名：按页面所属站点（东方站根路径英文为 Ganjiday，不是 en 归属站点的品牌）
+  const titleMain =
+    page.path === '/'
+      ? page.site
+        ? siteBrandName(templateConfig, page.site, page.locale)
+        : brandName(templateConfig, page.locale)
+      : main
   return {
     ...page,
     titleMain,

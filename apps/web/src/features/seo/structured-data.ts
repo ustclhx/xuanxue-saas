@@ -1,5 +1,5 @@
 import { toMajor } from '@xuanxue/billing/currency'
-import { brandName } from '@xuanxue/config'
+import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import type { PricingCatalog } from '../marketing/pricing-data.ts'
 import type { SeoPage } from './metadata.ts'
@@ -60,7 +60,12 @@ export function articleData(page: SeoPage, appUrl: string) {
 }
 
 /** 金额转换与定价页一致：套餐目录中的整数以最小货币单位保存。 */
-export function pricingData(catalog: PricingCatalog, appUrl: string, locale: string) {
+export function pricingData(
+  catalog: PricingCatalog,
+  appUrl: string,
+  locale: string,
+  site?: SiteId,
+) {
   return catalog.plans.flatMap((plan) => {
     const prices = catalog.prices.filter((price) => price.planId === plan.id)
     if (prices.length === 0) return []
@@ -71,8 +76,13 @@ export function pricingData(catalog: PricingCatalog, appUrl: string, locale: str
         name: plan.name,
         description: `${plan.credits} credits`,
         productID: plan.key,
-        brand: { '@type': 'Brand', name: brandName(templateConfig, locale) },
-        image: absoluteUrl(appUrl, ogImagePath({ path: '/pricing', locale })),
+        brand: {
+          '@type': 'Brand',
+          name: site
+            ? siteBrandName(templateConfig, site, locale)
+            : brandName(templateConfig, locale),
+        },
+        image: absoluteUrl(appUrl, ogImagePath({ path: '/pricing', locale, site })),
         offers: prices.map((price) => ({
           '@type': 'Offer',
           // 按币种指数换算主单位（KRW 无小数）
@@ -101,15 +111,16 @@ export function faqData(faq: readonly { q: string; a: string }[]) {
 }
 
 // 与 pageHead 的 canonical 同一算法：按语言所属站点的 origin 与带语言前缀的路径生成绝对地址
-const canonicalUrl = (path: string, locale: string) =>
-  absoluteUrl(localeOrigin(locale), localizedPath(path, locale))
+// `site`：同一语言在两站各有页面时的页面站点（东方站根路径英文，5b）
+const canonicalUrl = (path: string, locale: string, site?: SiteId) =>
+  absoluteUrl(localeOrigin(locale, site), localizedPath(path, locale))
 
 /**
  * 主工具页的 WebApplication（openspec separate-landing-homepage design.md D3，specs/seo「结构化数据」）：
  * 免费工具，`url` 与页面 canonical 相同。
  */
 export function webApplicationData(
-  page: Pick<SeoPage, 'path' | 'locale' | 'description'>,
+  page: Pick<SeoPage, 'path' | 'locale' | 'description' | 'site'>,
   name: string,
 ) {
   return {
@@ -117,7 +128,7 @@ export function webApplicationData(
     '@type': 'WebApplication',
     name,
     description: page.description,
-    url: canonicalUrl(page.path, page.locale),
+    url: canonicalUrl(page.path, page.locale, page.site),
     applicationCategory: 'LifestyleApplication',
     operatingSystem: 'Any',
     inLanguage: page.locale,
@@ -130,6 +141,7 @@ export function webApplicationData(
 export function breadcrumbData(
   items: readonly { readonly name: string; readonly path: string }[],
   locale: string,
+  site?: SiteId,
 ) {
   return {
     '@context': context,
@@ -138,7 +150,7 @@ export function breadcrumbData(
       '@type': 'ListItem',
       position: index + 1,
       name: item.name,
-      item: canonicalUrl(item.path, locale),
+      item: canonicalUrl(item.path, locale, site),
     })),
   }
 }

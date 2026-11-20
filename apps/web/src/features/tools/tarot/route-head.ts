@@ -4,8 +4,8 @@ import { getLocale } from '../../../paraglide/runtime.js'
 import { originFromMatches, pageHead } from '../../seo/metadata.ts'
 import {
   spreadForSlug,
-  TAROT_LOCALES,
   type TarotLocale,
+  tarotAlternates,
   tarotDescription,
   tarotPath,
   tarotTitle,
@@ -34,7 +34,8 @@ export function tarotHead(
       locale,
       title: tarotTitle(spread, locale),
       description: tarotDescription(spread, locale),
-      alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l)])),
+      // 现有牌阵页：en 为西方站，其他语言为东方站（东方站页面的 en 指向根路径英文 /tarot-spreads，5b）
+      alternates: tarotAlternates(spread, locale === 'en' ? 'west' : 'east'),
     },
     originFromMatches(matches),
   )

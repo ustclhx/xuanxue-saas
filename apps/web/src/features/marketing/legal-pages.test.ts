@@ -133,7 +133,10 @@ describe('法律页内容（按站点）', () => {
       })
     expect(lookup('west', 'fr')).toBeUndefined()
     expect(lookup('west', 'fr', 'fallback')?.site).toBe('west')
-    expect(lookup('east', 'ja', 'fallback')).toBeUndefined()
+    expect(lookup('east', 'ja')).toBeUndefined()
+    // 东方站有自己的英文法律页（5b 根路径英文）：回退到东方站英文，不借用西方站正文
+    expect(lookup('east', 'ja', 'fallback')?.site).toBe('east')
+    expect(lookup('east', 'en')?.site).toBe('east')
     expect(lookup('east', 'zh-Hant')?.site).toBe('east')
   })
 

@@ -5,7 +5,12 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import templateConfig from '../../../template.config.ts'
 import { APP_AREA_PREFIXES } from '../src/features/i18n/app-area.ts'
-import { LENIENT_MESSAGE_FEATURES, STRICT_MESSAGE_LOCALES } from '../src/features/i18n/rollout.ts'
+import {
+  LENIENT_MESSAGE_FEATURES,
+  parseReleasePreview,
+  type ReleasePreview,
+  STRICT_MESSAGE_LOCALES,
+} from '../src/features/i18n/rollout.ts'
 import { isPrerenderedPath, prerenderEntryPages } from '../src/features/marketing/prerender.ts'
 import { clientPureSchemas } from './client-pure-schemas.ts'
 import { clientTemplateConfig } from './client-template-config.ts'
@@ -15,6 +20,19 @@ import { prerenderToken, siteOrigins } from './site-build.ts'
 
 const templateConfigFile = fileURLToPath(new URL('../../../template.config.ts', import.meta.url))
 
+/**
+ * 本地「模拟发布」（features/i18n/rollout.ts）：LOCALE_RELEASE_PREVIEW=east:en 时构建产物把这些语言当作已发布，
+ * 只供本地验收发布后的链接图与 SEO；部署构建（CLOUDFLARE_ENV）不允许设置。
+ */
+function localeReleasePreview(): ReleasePreview {
+  const value = process.env.LOCALE_RELEASE_PREVIEW?.trim() ?? ''
+  if (!value) return []
+  if (process.env.CLOUDFLARE_ENV)
+    throw new Error('LOCALE_RELEASE_PREVIEW 只用于本地验收构建，不能与 CLOUDFLARE_ENV 一起使用')
+  console.warn(`[rollout] 模拟发布：${value}（仅本地验收，勿部署）`)
+  return parseReleasePreview(value)
+}
+
 /** 两目标共用内容、文案与预渲染范围；平台插件留在各自配置中。 */
 export function sitePlugins(serverEntry?: string) {
   const { i18n, marketing } = templateConfig
@@ -22,7 +40,12 @@ export function sitePlugins(serverEntry?: string) {
   return [
     {
       name: 'saas:site-origins',
-      config: () => ({ define: { __SITE_ORIGINS__: JSON.stringify(siteOrigins) } }),
+      config: () => ({
+        define: {
+          __SITE_ORIGINS__: JSON.stringify(siteOrigins),
+          __LOCALE_RELEASE_PREVIEW__: JSON.stringify(localeReleasePreview()),
+        },
+      }),
     },
     clientTemplateConfig(templateConfigFile, templateConfig),
     clientPureSchemas(),
@@ -52,7 +75,7 @@ export function sitePlugins(serverEntry?: string) {
         autoStaticPathsDiscovery: false,
         autoSubfolderIndex: false,
         filter: (page) => {
-          if (!isPrerenderedPath(page.path, locales)) return false
+          if (!isPrerenderedPath(page.path, locales, undefined, true)) return false
           page.prerender = {
             ...page.prerender,
             outputPath: decodeURI(page.path).replace(/\/+$/, '') || '/',

@@ -1,5 +1,6 @@
 import type { BaziChart } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
+import { getLocale } from '../../../paraglide/runtime.js'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
@@ -141,7 +142,10 @@ export function BaziResult({
   chart: BaziChart
   share: Readonly<Record<string, unknown>>
 }) {
+  // 图表按中文排列（东方站根路径英文同样按年月日时、干支用汉字）；概念页链接按页面语言取，
+  // 英文没有概念页（5b 暂缓），conceptHref 返回 undefined，链接不渲染
   const LOCALE = eastChineseLocale()
+  const conceptLocale = getLocale() === 'en' ? 'en' : LOCALE
   return (
     <>
       <ResultBlock
@@ -190,7 +194,11 @@ export function BaziResult({
         aside={luckAside(chart)}
         description={m.bazi_desc_luck()}
       >
-        <LuckAxis chart={chart} locale={LOCALE} conceptHref={conceptHref(LOCALE, 'luck', 'luck')} />
+        <LuckAxis
+          chart={chart}
+          locale={LOCALE}
+          conceptHref={conceptHref(conceptLocale, 'luck', 'luck')}
+        />
       </ResultBlock>
       <div className={twoColumns}>
         <ResultBlock
@@ -204,8 +212,12 @@ export function BaziResult({
             <p className="m-0 text-caption text-ink-subtle">{m.bazi_shensha_hour_note()}</p>
           )}
           <div className="flex flex-wrap gap-x-5">
-            <ConceptLink href={conceptHref(LOCALE, 'void')}>{m.bazi_void_link()}</ConceptLink>
-            <ConceptLink href={conceptHref(LOCALE, 'shensha')}>{m.bazi_shensha_link()}</ConceptLink>
+            <ConceptLink href={conceptHref(conceptLocale, 'void')}>
+              {m.bazi_void_link()}
+            </ConceptLink>
+            <ConceptLink href={conceptHref(conceptLocale, 'shensha')}>
+              {m.bazi_shensha_link()}
+            </ConceptLink>
           </div>
         </ResultBlock>
         <ResultBlock
@@ -215,7 +227,9 @@ export function BaziResult({
           description={m.bazi_desc_weight()}
         >
           <WeightBody chart={chart} />
-          <ConceptLink href={conceptHref(LOCALE, 'weight')}>{m.bazi_weight_link()}</ConceptLink>
+          <ConceptLink href={conceptHref(conceptLocale, 'weight')}>
+            {m.bazi_weight_link()}
+          </ConceptLink>
         </ResultBlock>
       </div>
       <ResultFooter

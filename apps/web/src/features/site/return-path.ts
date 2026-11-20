@@ -1,5 +1,5 @@
 import { localeUrlSegment } from '@xuanxue/config'
-import { EAST_UNPREFIXED_PREFIXES } from './gate.ts'
+import { EAST_UNPREFIXED_PREFIXES } from './unprefixed.ts'
 
 /**
  * 登录与支付完成后回到发起页面（specs/multi-site「账号与付费跨站可用」，决策 4）。

@@ -44,6 +44,9 @@ const REGISTERED: Record<string, OgSampleChart> = {
   'zh-Hans /紫微斗数排盘': 'ziwei',
   'en /life-path-number': 'life-path',
   'en /numerology-chart': 'digit-grid',
+  // 东方站根路径英文（5b）的八字与紫微页沿用同一样例版式
+  'en /bazi-calculator': 'pillars',
+  'en /zi-wei-dou-shu': 'ziwei',
 }
 
 const ogImage = (head: ReturnType<typeof pageHead>) =>

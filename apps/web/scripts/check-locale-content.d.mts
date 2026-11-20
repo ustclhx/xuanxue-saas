@@ -7,3 +7,7 @@ export function checkLocaleContent(input: {
   locales: readonly string[]
   sites: { readonly [site: string]: { readonly locales: readonly string[] } }
 }): string[]
+export function checkEastEnglishContent(input: {
+  root?: string
+  sites: { readonly [site: string]: { readonly locales: readonly string[] } }
+}): string[]

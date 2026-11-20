@@ -295,6 +295,53 @@ const tarot = defineCollection({
   },
 })
 
+/**
+ * 东方站根路径英文的 78 张「as feelings」牌页（openspec add-locales-eu-ja 5b，关键词地图方案 A）：
+ * 独立内容源，不复用 content/tarot/en（西方站英文牌义），跨站相似度门槛按同类页比较。
+ * 正文不含 FAQ、链接与文末声明：FAQ 由页面按 frontmatter 渲染（与 FAQPage 同源），链接由页面模板给出。
+ */
+const tarotFeelings = defineCollection({
+  name: 'tarotFeelings',
+  directory: 'content/tarot-feelings',
+  include: 'en/*.mdx',
+  schema: z.object({
+    title: z.string().min(1).max(49),
+    description: z.string().min(1).max(160),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    locale: z.literal('en'),
+    cardId: z.string(),
+    arcana: z.enum(['major', 'minor']),
+    suit: z.enum(['wands', 'cups', 'swords', 'pentacles']).optional(),
+    updated: isoDate,
+    faq: z
+      .array(
+        z.object({
+          q: z.string().min(1),
+          a: z.string().min(1),
+          origin: z.enum(['local', 'adapted']),
+        }),
+      )
+      .min(3)
+      .max(5)
+      .refine((items) => items.filter((item) => item.origin === 'local').length >= 2, {
+        message: 'at least 2 FAQ questions must be local',
+      }),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const path = localeAndSlug(document._meta)
+    const card = CARDS.find((card) => card.id === data.cardId)
+    if (!card || card.slug !== data.slug || path.slug !== data.cardId)
+      throw new Error(`Invalid tarot feelings identity: ${document._meta.path}`)
+    if (/\]\(|<a\b|^##\s*FAQ/im.test(content))
+      throw new Error(
+        `Tarot feelings body must not contain links or a FAQ section: ${document._meta.path}`,
+      )
+    return { ...data, html: await renderMdx(context, document) }
+  },
+})
+
 const concepts = defineCollection({
   name: 'concepts',
   directory: 'content/concepts',
@@ -384,5 +431,15 @@ const guides = defineCollection({
 })
 
 export default defineConfig({
-  content: [posts, legalShared, legalPages, docs, numerology, tarot, concepts, guides],
+  content: [
+    posts,
+    legalShared,
+    legalPages,
+    docs,
+    numerology,
+    tarot,
+    tarotFeelings,
+    concepts,
+    guides,
+  ],
 })

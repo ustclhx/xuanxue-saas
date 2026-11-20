@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs'
+import { SITE_IDS } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
 import { eastEnglishAlternates } from '../marketing/east-english/head.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
 import { tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
 import { sitemap } from './crawlers.ts'
-import { absoluteUrl, localizedPath, pageHead } from './metadata.ts'
+import { absoluteUrl, localizedPath, pageHead, pageSite } from './metadata.ts'
 import { localeOrigin } from './origins.ts'
 import { publicPages } from './pages.ts'
 
@@ -24,7 +26,9 @@ function generated<T>(name: string): T[] {
   ) as T[]
 }
 
-const pages = publicPages(
+// 只检查已发布的「站点 × 语言」（rollout.ts）：未发布的东方站根路径英文页面（5b）不在站点地图中，
+// 也不出现在已发布页面的 hreflang 中
+const allPages = publicPages(
   {
     posts: generated('allPosts'),
     legal: generated('allLegalPages'),
@@ -37,22 +41,25 @@ const pages = publicPages(
   },
   new Date(),
 )
+const pages = allPages.filter((page) =>
+  isLocaleReleased(page.locale, templateConfig, pageSite(page)),
+)
 
 type Alternates = Record<string, string>
 
 /** 站点地图中每个 <loc> 的 hreflang → href */
 function sitemapEntries(): Map<string, Alternates> {
   const entries = new Map<string, Alternates>()
-  const siteLocales = templateConfig.i18n.locales
-  for (const locale of siteLocales) {
-    const xml = sitemap(pages, '', locale)
-    for (const [, loc = '', body = ''] of xml.matchAll(/<url><loc>(.*?)<\/loc>(.*?)<\/url>/g)) {
-      const links: Alternates = {}
-      for (const [, lang = '', href = ''] of body.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g))
-        links[lang] = href.replaceAll('&amp;', '&')
-      entries.set(loc.replaceAll('&amp;', '&'), links)
+  for (const site of SITE_IDS)
+    for (const locale of releasedSiteLocales(site, templateConfig)) {
+      const xml = sitemap(pages, '', locale, site)
+      for (const [, loc = '', body = ''] of xml.matchAll(/<url><loc>(.*?)<\/loc>(.*?)<\/url>/g)) {
+        const links: Alternates = {}
+        for (const [, lang = '', href = ''] of body.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g))
+          links[lang] = href.replaceAll('&amp;', '&')
+        entries.set(loc.replaceAll('&amp;', '&'), links)
+      }
     }
-  }
   return entries
 }
 
@@ -138,7 +145,7 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
   it('规范地址按语言所属站点生成', () => {
     for (const page of pages)
       expect(headAlternates(page).canonical).toBe(
-        absoluteUrl(localeOrigin(page.locale), localizedPath(page.path, page.locale)),
+        absoluteUrl(localeOrigin(page.locale, page.site), localizedPath(page.path, page.locale)),
       )
   })
 })

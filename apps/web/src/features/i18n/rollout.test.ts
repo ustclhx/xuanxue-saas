@@ -194,14 +194,37 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     expect(siteHasLocale('west', 'en', perSite)).toBe(true)
   })
 
-  it('东方站 en 未发布：旧地址 /en 301 到英文首页 /，其他 /en/* 在正式域名返回 404', () => {
+  it('东方站 en 未发布：旧地址 /en 301 到英文首页 /，其他 /en/* 一律 404；根路径英文页面在正式域名维持原跳转', () => {
     expect(route(`${EAST}/en`, perSite)).toEqual({
       kind: 'redirect',
       status: 301,
       location: `${EAST}/`,
     })
+    // 东方站英文在根路径（5b），`/en/*` 不是任何页面
     expect(route(`${EAST}/en/tarot`, perSite)).toEqual(notFound)
-    expect(route('http://east.localhost:3000/en/tarot', perSite)).toEqual(pass())
+    expect(route('http://east.localhost:3000/en/tarot', perSite)).toEqual(notFound)
+    // 认证页仍 302 到无前缀地址
+    expect(route(`${EAST}/en/login`, perSite)).toEqual({
+      kind: 'redirect',
+      status: 302,
+      location: `${EAST}/login`,
+    })
+    // 正式域名上未发布：与发布前相同，301 到繁中同路径；预览主机放行
+    expect(route(`${EAST}/tarot-spreads`, perSite)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/zh-hant/tarot-spreads`,
+    })
+    expect(route(`${EAST}/faq`, perSite)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/zh-hant/faq`,
+    })
+    expect(route('http://east.localhost:3000/tarot-spreads', perSite)).toEqual(pass())
+    // 只属于东方站英文的地址在西方站 404，不跨站
+    expect(route(`${WEST}/bazi-calculator`, perSite)).toEqual(notFound)
+    expect(route(`${WEST}/tarot-feelings/the-sun`, perSite)).toEqual(notFound)
+    expect(route(`${WEST}/faq`, perSite)).toEqual(pass())
     // 西方站的 en 不受东方站状态影响：默认语言前缀仍 301 到无前缀地址
     expect(route(`${WEST}/en/pricing`, perSite)).toEqual({
       kind: 'redirect',
@@ -210,12 +233,20 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     })
   })
 
-  it('东方站 en 发布后 /en/* 在东方站放行，不跳到西方站', () => {
+  it('东方站 en 发布后根路径英文页面在东方站放行；/en/* 仍 404', () => {
     const released: ReleaseTable = {
       ...LOCALE_RELEASE,
       east: { ...LOCALE_RELEASE.east, en: 'released' },
     }
-    expect(route(`${EAST}/en/tarot`, perSite, released)).toEqual(pass())
+    expect(route(`${EAST}/tarot-spreads/one-card`, perSite, released)).toEqual(pass())
+    expect(route(`${EAST}/pricing`, perSite, released)).toEqual(pass())
+    expect(route(`${EAST}/en/tarot`, perSite, released)).toEqual(notFound)
+    // 不是东方站英文页面的无前缀地址维持原跳转
+    expect(route(`${EAST}/tarot`, perSite, released)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/zh-hant/tarot`,
+    })
   })
 
   it('现状（en 只属于西方站）：东方站 /en 301 到 /（预渲染照常生成），/en/* 返回 404', () => {
