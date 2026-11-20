@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { assertSeoPages, validateSeoPages } from './linking.ts'
 import type { SeoPage } from './metadata.ts'
+import { isFallbackPage, localizedPath, sameSiteLocales } from './metadata.ts'
 import { publicPages } from './pages.ts'
 
 const en = templateConfig.i18n.defaultLocale
+// 另一种语言取项目配置中的非默认语言（衍生项目不一定有 zh，默认语言也不一定是 en）
+const other = templateConfig.i18n.locales.find((locale) => locale !== en) ?? `${en}-x`
 const page = (path: string, fields: Partial<SeoPage> = {}): SeoPage => ({
   path,
   locale: en,
@@ -85,7 +88,7 @@ describe('页面层级与主词声明（1.2–1.4）', () => {
     expect(find('/blog/tags/intro')).toMatchObject({ parent: '/blog', anchorShort: 'intro' })
   })
 
-  it('东方站语言回退显示的英文文章是跨站回退：不声明 sourceLocale，canonical 与站点地图保持原样（D5）', () => {
+  it('东方站语言回退显示的英文文章是跨站回退：声明 sourceLocale，但不按回退页处理，canonical 与站点地图保持原样（D5，模板 0.7.4 seo.linking.sites）', () => {
     const own = {
       slug: 'own',
       locale: 'zh-Hant',
@@ -104,7 +107,8 @@ describe('页面层级与主词声明（1.2–1.4）', () => {
       list.find((page) => page.locale === locale && page.path === path)
     expect(at('zh-Hant', '/blog/own')?.sourceLocale).toBe('zh-Hant')
     expect(at('zh-Hant', '/blog/hello')).toMatchObject({ parent: '/blog', titleMain: 'Hello' })
-    expect(at('zh-Hant', '/blog/hello')?.sourceLocale).toBeUndefined()
+    expect(at('zh-Hant', '/blog/hello')?.sourceLocale).toBe('en')
+    expect(isFallbackPage(at('zh-Hant', '/blog/hello') ?? { locale: 'zh-Hant' })).toBe(false)
     expect(at('en', '/blog/hello')?.sourceLocale).toBe('en')
   })
 
@@ -146,8 +150,8 @@ describe('元数据静态校验（1.5）', () => {
       home,
       page('/a'),
       page('/a', { title: 'Again' }),
-      { ...page('/a'), locale: 'zh' },
-      { ...home, locale: 'zh' },
+      { ...page('/a'), locale: other },
+      { ...home, locale: other },
     ])
     expect(errors).toEqual([expect.stringMatching(/^\/a: 同一语言中地址重复/)])
   })
@@ -213,16 +217,23 @@ describe('元数据静态校验（1.5）', () => {
   it('回退页与不可索引页不检查自身声明，地址按语言加前缀', () => {
     const zh = (path: string, fields: Partial<SeoPage> = {}) => ({
       ...page(path, fields),
-      locale: 'zh',
+      locale: other,
     })
+    const sameSiteSource =
+      templateConfig.i18n.locales.find(
+        (locale) => locale !== other && sameSiteLocales(locale, other),
+      ) ?? en
     const report = validateSeoPages([
       zh('/'),
-      zh('/fallback', { sourceLocale: en, parent: '/missing' }),
+      // 回退页的原语言须与页面语言同站（seo.linking.sites）：本项目 en 在西方站，取东方站的另一种语言
+      zh('/fallback', { sourceLocale: sameSiteSource, parent: '/missing' }),
       zh('/private', { indexable: false, parent: undefined }),
       zh('/broken', { parent: '/missing' }),
     ])
     expect(report.errors).toEqual([
-      expect.stringMatching(/^\/zh\/broken: parent 指向不存在的页面 \/zh\/missing/),
+      expect.stringContaining(
+        `${localizedPath('/broken', other)}: parent 指向不存在的页面 ${localizedPath('/missing', other)}（`,
+      ),
     ])
   })
 
@@ -231,8 +242,8 @@ describe('元数据静态校验（1.5）', () => {
       home,
       page('/a', { titleMain: 'Tarot' }),
       page('/b', { titleMain: 'Tarot' }),
-      { ...page('/c', { titleMain: 'Tarot' }), locale: 'zh' },
-      { ...home, locale: 'zh' },
+      { ...page('/c', { titleMain: 'Tarot' }), locale: other },
+      { ...home, locale: other },
     ])
     expect(report.errors).toEqual([])
     expect(report.warnings).toEqual([`主词「Tarot」在 ${en} 中重复：/a、/b`])

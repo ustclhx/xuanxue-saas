@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { createBuilder } from '@content-collections/core'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -10,11 +10,12 @@ const appRoot = new URL('..', import.meta.url).pathname
 // 编译后的配置从这里解析依赖，临时目录需位于 apps/web 下（.content-collections 已 gitignore）
 const tempRoot = new URL('../.content-collections/test', import.meta.url).pathname
 const outputs: string[] = []
-const templateSlugs = ['draft-example', 'scheduled-example', 'welcome', 'writing-posts']
 
 async function buildPosts(
   nodeEnv: string,
-): Promise<{ slug: string; draft: boolean; parent: string; related: string[] }[]> {
+): Promise<
+  { slug: string; draft: boolean; parent: string; related: string[]; _meta: { path: string } }[]
+> {
   mkdirSync(tempRoot, { recursive: true })
   const outputDir = mkdtempSync(join(tempRoot, 'build-'))
   outputs.push(outputDir)
@@ -52,17 +53,42 @@ afterAll(() => {
   for (const dir of outputs) rmSync(dir, { recursive: true, force: true })
 })
 
+// 断言按仓库里实际的博客源文件推出，衍生项目替换或删除示例文章后同样成立
+const blogRoot = new URL('../content/blog', import.meta.url).pathname
+const sources = new Map(
+  readdirSync(blogRoot, { recursive: true, encoding: 'utf8' })
+    .filter((file) => file.endsWith('.mdx'))
+    .map((file) => {
+      const text = readFileSync(join(blogRoot, file), 'utf8')
+      const front = /^---\n([\s\S]*?)\n---/.exec(text)?.[1] ?? ''
+      return [file.replace(/\.mdx$/, ''), front] as const
+    }),
+)
+const drafts = [...sources].filter(([, front]) => /^draft:\s*true\s*$/m.test(front))
+
 describe('博客草稿', () => {
   it('生产构建中不包含草稿', async () => {
     const posts = await buildPosts('production')
     expect(posts.filter((post) => post.draft)).toEqual([])
-    expect(posts.filter((post) => templateSlugs.includes(post.slug))).toEqual([])
+    const draftPaths = new Set(drafts.map(([path]) => path))
+    expect(posts.filter((post) => draftPaths.has(post._meta.path))).toEqual([])
+    // 内链字段（seo-internal-linking 1.3）：未写 parent 时取集合的列表页，未写 related 时为空
+    for (const post of posts) {
+      const front = sources.get(post._meta.path) ?? ''
+      if (!/^parent:/m.test(front)) expect(post.parent).toBe('/blog')
+      if (!/^related:/m.test(front)) expect(post.related).toEqual([])
+      else expect(post.related.length).toBeGreaterThan(0)
+    }
     // 整套内容集合（含三语牌义与概念页）真实构建，CI 上超过默认 5 秒
   }, 60_000)
 
-  it('开发环境保留草稿供预览', async () => {
-    const posts = await buildPosts('development')
-    for (const slug of templateSlugs)
-      expect(posts.some((post) => post.draft && post.slug === slug)).toBe(true)
-  }, 60_000)
+  it.skipIf(drafts.length === 0)(
+    '开发环境保留草稿供预览',
+    async () => {
+      const posts = await buildPosts('development')
+      const paths = posts.filter((post) => post.draft).map((post) => post._meta.path)
+      expect(paths.sort()).toEqual(drafts.map(([path]) => path).sort())
+    },
+    60_000,
+  )
 })

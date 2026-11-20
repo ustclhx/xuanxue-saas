@@ -18,3 +18,7 @@ GOOGLE_CLIENT_SECRET=fake-google-client-secret
 R2_ACCOUNT_ID=
 R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
+
+# 构建期预渲染令牌（features/site/static-pages.ts）：构建时由 prerender-env.ts 随机生成并写入 dist 的 .dev.vars，
+# 这里留空即可（空值不接受任何预渲染请求）。链接图检查补写 .dev.vars 时同样按空值随机生成（模板 0.7.4）
+SITE_PRERENDER_TOKEN=
