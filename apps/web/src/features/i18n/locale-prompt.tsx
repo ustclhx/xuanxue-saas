@@ -1,10 +1,9 @@
 import { useLocation } from '@tanstack/react-router'
-import { Button } from '@xuanxue/ui'
+import { Button, cn } from '@xuanxue/ui'
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { getLocale, locales } from '../../paraglide/runtime.js'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { useSiteId } from '../site/context.tsx'
-import { GlobeIcon } from '../site/header-menu.tsx'
 import { CHINESE_PAIR_COPY, PROMPT_COPY, PROMPT_LANGUAGE_NAMES } from './locale-prompt-copy.ts'
 import { promptDismissedKey, promptLocales } from './prompt-match.ts'
 
@@ -16,11 +15,14 @@ import { promptDismissedKey, promptLocales } from './prompt-match.ts'
  * - 不自动跳转、不写 Cookie：「切换」是指向当前页对应语言版本的真实 `<a href hreflang>`，点了才整页导航。
  * - 候选只取当前页 `<link rel="alternate" hreflang>` 中列出的语言（hreflang 只含本站已发布、且该页确有的版本），
  *   当前页没有浏览器语言的版本时不提示。不带地区的 `zh` 在简繁都有时并列两个候选。
- * - 固定在视口底部、不占文档流（CLS 0），出现时只淡入上移；显示期间给 <html> 加 scroll-padding-bottom。
+ * - 固定在视口底部、不占文档流（CLS 0），出现时只淡入上移 8px（200ms，减少动态效果时只淡入）；
+ *   显示期间给 <html> 加 scroll-padding-bottom（提示实际占用的底部高度 + 12px，随提示高度变化更新）。
  * - 关闭或点切换后在 localStorage 按站点永久记住（promptDismissedKey）；语言控件手动选择也写同一记录。
  * - 无障碍：<section aria-label lang>（地标，名称用目标语言），提示句 role="status" 下一帧填入；Esc 关闭，
  *   键盘关闭后焦点移到 <main>。不锁焦点。
- * 视觉细节（尺寸、两候选手机两行）按画板用现有 token 实现，后续由设计统一精修。
+ * 视觉按画板（prompt.css）：桌面居中、最宽 600px、单行高 62px；手机左右下各 12px 另加安全区。
+ *   挂在根布局（营销外壳之外），自带 data-surface="marketing" 才取到营销字号（东方站 16px、西方站 17px，行高 28px）。
+ *   按钮是画板的胶囊形（高 44px、字重 500）；两个候选时手机排两行，第二行两个等宽按钮。
  */
 export function LocalePrompt() {
   const siteId = useSiteId()
@@ -75,10 +77,23 @@ export function LocalePrompt() {
     // 先插入空的 status，下一帧再填入文字：读屏在当前内容读完后播报一次；同一帧开始淡入上移 8px
     const frame = window.requestAnimationFrame(() => setAnnounced(true))
     const root = document.documentElement
-    const height = section.current?.offsetHeight ?? 0
-    root.style.scrollPaddingBottom = `${height + 24}px`
+    const element = section.current
+    // 键盘焦点滚动到的元素停在提示上方：提示高度 + 距视口底部的距离（含安全区）+ 12px 间距。
+    // 提示句下一帧才填入、手机上会折行，字体载入与旋转屏幕也会改变高度，所以随尺寸变化重新计算
+    const reserve = () => {
+      if (!element) return
+      const style = window.getComputedStyle(element)
+      const offset =
+        (Number.parseFloat(style.bottom) || 0) + (Number.parseFloat(style.marginBottom) || 0)
+      root.style.scrollPaddingBottom = `${Math.ceil(element.offsetHeight + offset) + 12}px`
+    }
+    // 这里读取一次布局，起始状态（透明、下移 8px）先生效，下一帧的过渡才会播放
+    reserve()
+    const observer = element ? new ResizeObserver(reserve) : null
+    if (element) observer?.observe(element)
     return () => {
       window.cancelAnimationFrame(frame)
+      observer?.disconnect()
       root.style.scrollPaddingBottom = ''
     }
   }, [offer])
@@ -124,18 +139,46 @@ export function LocalePrompt() {
       aria-label={pair ? CHINESE_PAIR_COPY.region : copy.region}
       data-nosnippet=""
       data-locale-prompt={offer.targets.join(' ')}
+      // 根布局在营销外壳之外：自带作用域，text-body 才是营销字号
+      data-surface="marketing"
       onKeyDown={onKeyDown}
       // 手机底部另留安全区（刘海屏 home indicator）
       style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
-      className={`fixed inset-x-3 bottom-3 z-sticky flex flex-wrap items-center gap-3 rounded-object border border-line-strong bg-surface py-2 pr-1 pl-4 text-ink shadow-raise transition duration-200 motion-reduce:transition-opacity md:inset-x-auto md:bottom-6 md:left-1/2 md:max-w-150 md:-translate-x-1/2 md:gap-4 md:pr-2 md:pl-5 dark:bg-surface-2 dark:shadow-none ${announced ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0 motion-reduce:translate-y-0'}`}
+      className={cn(
+        'fixed inset-x-3 bottom-3 z-(--z-sticky) flex items-center gap-3 rounded-object border border-line-strong bg-surface py-2 pr-1 pl-4 text-body text-ink shadow-raise dark:bg-surface-2',
+        // 桌面：水平居中、宽度随文字（w-max），最宽 600px
+        'md:inset-x-0 md:bottom-6 md:mx-auto md:w-max md:max-w-150 md:gap-4 md:pr-2 md:pl-5',
+        // 两个候选的手机版：第一行提示句与关闭，第二行两个等宽按钮
+        pair && 'max-md:flex-wrap max-md:gap-x-2 max-md:gap-y-1 max-md:pt-1 max-md:pb-3',
+        // 进场只动 opacity 与 translate，不触发布局
+        'transition duration-200 ease-out motion-reduce:transition-opacity',
+        announced
+          ? 'translate-y-0 opacity-100'
+          : 'translate-y-2 opacity-0 motion-reduce:translate-y-0',
+      )}
     >
-      <span aria-hidden="true" className="hidden text-ink-muted md:inline-flex">
-        <GlobeIcon />
-      </span>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="hidden size-5 flex-none text-ink-muted md:block"
+      >
+        <circle cx="10" cy="10" r="7" />
+        <path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14" />
+      </svg>
       <p role="status" className="min-w-0 flex-1 py-1">
         {announced ? message : ''}
       </p>
-      <div className="flex flex-none items-center gap-2">
+      <div
+        className={cn(
+          'flex flex-none items-center gap-2',
+          pair && 'max-md:order-last max-md:basis-full max-md:pr-3',
+        )}
+      >
         {offer.targets.map((locale) => {
           const own = PROMPT_COPY[locale]
           const visible = pair ? (PROMPT_LANGUAGE_NAMES[locale] ?? locale) : (own?.switch ?? locale)
@@ -144,7 +187,10 @@ export function LocalePrompt() {
               key={locale}
               asChild
               variant={pair ? 'outline' : 'default'}
-              className="min-h-11 min-w-16 px-4 md:px-5"
+              className={cn(
+                'min-h-11 min-w-16 rounded-full px-4 font-medium md:px-5',
+                pair && 'before:ring-field-border max-md:flex-1',
+              )}
             >
               <a
                 href={offer.hrefs[locale]}
@@ -158,27 +204,26 @@ export function LocalePrompt() {
             </Button>
           )
         })}
-        <Button
-          type="button"
-          variant="ghost"
-          className="size-11 p-0"
-          aria-label={dismissLabel}
-          onClick={(event) => close(event.detail === 0)}
-        >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          >
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </Button>
       </div>
+      {/* 与页头图标按钮同款（画板 .iconbtn）：44×44、ink-muted、6px 圆角，不画底色 */}
+      <button
+        type="button"
+        className="flex size-11 flex-none cursor-pointer items-center justify-center rounded-field text-ink-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+        aria-label={dismissLabel}
+        onClick={(event) => close(event.detail === 0)}
+      >
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          className="size-5"
+        >
+          <path d="M5 5l10 10M15 5L5 15" />
+        </svg>
+      </button>
     </section>
   )
 }
