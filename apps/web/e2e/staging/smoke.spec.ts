@@ -47,7 +47,8 @@ async function waitHydrated(page: Page, field: Locator, problems: string[]) {
 test('首页渲染', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.status()).toBe(200)
-  await expect(page).toHaveTitle(/^Arcanumber — /)
+  // 首页 Title 自 SEO 修复（#236）起为「Numerology & Tarot Calculators, Free | Arcanumber」
+  await expect(page).toHaveTitle(/\| Arcanumber$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.locator('a[href="/life-path-number"]').first()).toBeAttached()
 })
