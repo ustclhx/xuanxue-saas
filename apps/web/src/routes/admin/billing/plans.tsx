@@ -126,28 +126,28 @@ function PlanEditor({ plan, models }: { plan: Data['rows'][number]; models: Data
       id={`plan-${plan.id}`}
       className={panelClass()}
     >
-      <h3 className="font-semibold text-lg">
+      <h3 className="font-semibold text-title">
         {plan.name} ({plan.key})
       </h3>
       {plan.type === 'credit_pack' && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           {m.admin_credit_pack_these_selections_do_not_grant_model()}
         </p>
       )}
       {historical.length > 0 && (
-        <p role="alert" className="text-destructive text-sm">
+        <p role="alert" className="text-destructive text-body">
           {m.admin_historical_model_keys_are_missing_they_remain_selected({
             keys: historical.join(', '),
           })}
         </p>
       )}
       <fieldset disabled={busy || !ready} className="grid min-w-0 gap-2 sm:grid-cols-2">
-        <legend className="mb-2 font-medium text-sm">{m.admin_allowed_models()}</legend>
+        <legend className="mb-2 font-medium text-body">{m.admin_allowed_models()}</legend>
         {options.map((option) => (
           <Label
             key={option.key}
             htmlFor={`plan-${plan.id}-model-${option.key}`}
-            className="font-normal text-sm leading-normal break-all"
+            className="font-normal text-body leading-normal break-all"
           >
             <Checkbox
               id={`plan-${plan.id}-model-${option.key}`}
@@ -166,7 +166,7 @@ function PlanEditor({ plan, models }: { plan: Data['rows'][number]; models: Data
         <Button type="button" disabled={busy || !ready} onClick={() => void save()}>
           {m.admin_save_model_access()}
         </Button>
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       </div>

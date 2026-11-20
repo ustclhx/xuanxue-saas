@@ -29,11 +29,11 @@ function AdminLayout() {
       <div className="border-b bg-muted/30 md:w-60 md:shrink-0 md:border-r md:border-b-0">
         <aside className="flex min-w-0 flex-col gap-4 p-4 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
           <header className="flex flex-col gap-1">
-            <h1 className="font-semibold text-lg">{ADMIN_COPY.heading}</h1>
-            <p className="break-all text-muted-foreground text-xs">
+            <h1 className="font-semibold text-title">{ADMIN_COPY.heading}</h1>
+            <p className="break-all text-muted-foreground text-caption">
               {ADMIN_COPY.signedInAs} {admin.email}
             </p>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-caption">
               {m.admin_current_site({ site: siteLabel(admin.site) })}
             </p>
           </header>
@@ -41,14 +41,16 @@ function AdminLayout() {
             {getAdminNavGroups().map((group) => (
               <div key={group.id} className="flex flex-col gap-1">
                 {group.label && (
-                  <p className="px-3 font-medium text-muted-foreground text-xs">{group.label}</p>
+                  <p className="px-3 font-medium text-muted-foreground text-caption">
+                    {group.label}
+                  </p>
                 )}
                 <ul className="flex flex-wrap gap-1 md:flex-col">
                   {group.items.map(({ label, ...link }) => (
                     <li key={link.to}>
                       <Link
                         {...link}
-                        className="block rounded-md px-3 py-1.5 text-sm hover:bg-hover"
+                        className="block rounded-md px-3 py-1.5 text-body hover:bg-hover"
                         activeProps={{ className: 'bg-active font-medium', 'aria-current': 'page' }}
                       >
                         {label}
@@ -111,7 +113,7 @@ function SignOutButton() {
         {busy ? ADMIN_COPY.signingOut : ADMIN_COPY.signOut}
       </Button>
       {error && (
-        <p role="alert" className="w-full text-destructive text-sm">
+        <p role="alert" className="w-full text-destructive text-body">
           {error}
         </p>
       )}

@@ -198,7 +198,7 @@ function ParamsSchemaEditor({
   )
   return (
     <>
-      <label className="grid gap-2 text-sm font-medium" htmlFor={`${id}-schema`}>
+      <label className="grid gap-2 text-body font-medium" htmlFor={`${id}-schema`}>
         {label}
       </label>
       <Textarea
@@ -209,7 +209,7 @@ function ParamsSchemaEditor({
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-      <label className="grid gap-2 text-sm font-medium" htmlFor={`${id}-template`}>
+      <label className="grid gap-2 text-body font-medium" htmlFor={`${id}-template`}>
         {m.admin_insert_reference_template()}
       </label>
       {/* 动作型选择：值固定为 ''，选中后执行插入，触发器回到占位文字 */}
@@ -242,7 +242,7 @@ function ParamsSchemaEditor({
           ))}
         </SelectContent>
       </Select>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground text-body">
         {m.admin_templates_replace_the_schema_check_the_parameters_against()}
       </p>
     </>
@@ -451,17 +451,17 @@ function ModelEditor({
       id={model ? `model-${model.id}` : 'new-model-editor'}
       className="grid min-w-0 gap-5 rounded-lg border bg-card p-5 text-card-foreground"
     >
-      <h3 className="font-semibold text-lg">
+      <h3 className="font-semibold text-title">
         {title}
         {model && !model.enabled && m.admin_disabled_suffix()}
       </h3>
       <fieldset disabled={disabled} className="grid gap-4 sm:grid-cols-2">
         <legend className="mb-3 font-medium">{m.admin_model()}</legend>
-        <label className="grid gap-2 text-sm font-medium" htmlFor={`${model?.id ?? 'new'}-key`}>
+        <label className="grid gap-2 text-body font-medium" htmlFor={`${model?.id ?? 'new'}-key`}>
           {m.admin_key()} <Input required maxLength={64} {...field('key')} />
         </label>
         <div className="grid gap-2">
-          <label className="font-medium text-sm" htmlFor={`${model?.id ?? 'new'}-kind`}>
+          <label className="font-medium text-body" htmlFor={`${model?.id ?? 'new'}-kind`}>
             {m.admin_kind()}
           </label>
           <Select
@@ -498,14 +498,14 @@ function ModelEditor({
         </div>
         {draft.kind === 'text' ? (
           <label
-            className="grid gap-2 text-sm font-medium"
+            className="grid gap-2 text-body font-medium"
             htmlFor={`${model?.id ?? 'new'}-provider`}
           >
             {m.admin_provider()} <Input required maxLength={64} {...field('provider')} />
           </label>
         ) : (
           <div className="grid gap-2">
-            <label className="font-medium text-sm" htmlFor={`${model?.id ?? 'new'}-provider`}>
+            <label className="font-medium text-body" htmlFor={`${model?.id ?? 'new'}-provider`}>
               {m.admin_provider()}
             </label>
             <Select
@@ -531,19 +531,19 @@ function ModelEditor({
           </div>
         )}
         <label
-          className="grid gap-2 text-sm font-medium"
+          className="grid gap-2 text-body font-medium"
           htmlFor={`${model?.id ?? 'new'}-providerModelId`}
         >
           {m.admin_provider_model_id()}{' '}
           <Input required maxLength={200} {...field('providerModelId')} />
         </label>
-        <label className="grid gap-2 text-sm font-medium" htmlFor={`${model?.id ?? 'new'}-tags`}>
+        <label className="grid gap-2 text-body font-medium" htmlFor={`${model?.id ?? 'new'}-tags`}>
           {m.admin_plan_tags_comma_separated()} <Input {...field('tags')} />
         </label>
-        <label className="grid gap-2 text-sm font-medium" htmlFor={`${model?.id ?? 'new'}-sort`}>
+        <label className="grid gap-2 text-body font-medium" htmlFor={`${model?.id ?? 'new'}-sort`}>
           {m.admin_sort()} <Input type="number" step="1" {...field('sort')} />
         </label>
-        <label className="flex items-center gap-2 text-sm font-medium">
+        <label className="flex items-center gap-2 text-body font-medium">
           <input
             className="size-4 accent-primary"
             type="checkbox"
@@ -569,7 +569,7 @@ function ModelEditor({
       <fieldset disabled={disabled} className="grid gap-4 sm:grid-cols-2">
         <legend className="mb-3 font-medium">{m.admin_pricing()}</legend>
         <div className="grid gap-2">
-          <label className="font-medium text-sm" htmlFor={`${model?.id ?? 'new'}-mode`}>
+          <label className="font-medium text-body" htmlFor={`${model?.id ?? 'new'}-mode`}>
             {m.admin_pricing_mode()}
           </label>
           <Select
@@ -598,14 +598,14 @@ function ModelEditor({
         {draft.mode === 'per_call' && (
           <>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-credits`}
             >
               {m.admin_credits_per_call()}{' '}
               <Input type="number" min="0" step="1" {...field('credits')} />
             </label>
             <div className="grid gap-2">
-              <label className="font-medium text-sm" htmlFor={`${model?.id ?? 'new'}-chargeOn`}>
+              <label className="font-medium text-body" htmlFor={`${model?.id ?? 'new'}-chargeOn`}>
                 {m.admin_charge_on()}
               </label>
               <Select
@@ -639,14 +639,14 @@ function ModelEditor({
               </Select>
             </div>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-maxInputTokens`}
             >
               {m.admin_max_input_tokens()}{' '}
               <Input type="number" min="1" step="1" {...field('maxInputTokens')} />
             </label>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-maxOutputTokens`}
             >
               {m.admin_max_output_tokens()}{' '}
@@ -657,21 +657,21 @@ function ModelEditor({
         {draft.mode === 'token' && (
           <>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-inputPer1k`}
             >
               {m.admin_input_credits_1k()}{' '}
               <Input type="number" min="0" step="any" {...field('inputPer1k')} />
             </label>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-outputPer1k`}
             >
               {m.admin_output_credits_1k()}{' '}
               <Input type="number" min="0" step="any" {...field('outputPer1k')} />
             </label>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-minCharge`}
             >
               {m.admin_minimum_charge()}{' '}
@@ -682,7 +682,7 @@ function ModelEditor({
         {draft.mode === 'per_unit' && (
           <>
             <div className="grid gap-2">
-              <label className="font-medium text-sm" htmlFor={`${model?.id ?? 'new'}-unit`}>
+              <label className="font-medium text-body" htmlFor={`${model?.id ?? 'new'}-unit`}>
                 {m.admin_unit()}
               </label>
               <Select
@@ -706,7 +706,7 @@ function ModelEditor({
               </Select>
             </div>
             <label
-              className="grid gap-2 text-sm font-medium"
+              className="grid gap-2 text-body font-medium"
               htmlFor={`${model?.id ?? 'new'}-perUnit`}
             >
               {m.admin_credits_per_unit()}{' '}
@@ -716,7 +716,7 @@ function ModelEditor({
         )}
         {draft.mode !== 'token' && (
           <label
-            className="grid gap-2 text-sm font-medium"
+            className="grid gap-2 text-body font-medium"
             htmlFor={`${model?.id ?? 'new'}-multipliers`}
           >
             {m.admin_multipliers_json_optional()}{' '}
@@ -744,7 +744,7 @@ function ModelEditor({
       {model && (
         <fieldset disabled={disabled} className="grid min-w-0 gap-3 rounded-md border p-4">
           <legend className="px-2 font-medium">{m.admin_copy_saved_model()}</legend>
-          <label className="grid gap-2 text-sm font-medium" htmlFor={`${model?.id}-copy-key`}>
+          <label className="grid gap-2 text-body font-medium" htmlFor={`${model?.id}-copy-key`}>
             {m.admin_copy_key()}{' '}
             <Input
               id={`${model?.id}-copy-key`}
@@ -766,12 +766,12 @@ function ModelEditor({
           <Button type="button" variant="outline" className="w-fit" onClick={copy}>
             {m.admin_copy_model()}
           </Button>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body">
             {m.admin_the_copy_is_disabled_until_you_enable_it()}
           </p>
         </fieldset>
       )}
-      <p role="status" className="min-h-5 text-sm">
+      <p role="status" className="min-h-5 text-body">
         {ready ? message : m.admin_loading_editor()}
       </p>
     </article>

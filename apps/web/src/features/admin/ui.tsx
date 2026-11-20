@@ -23,7 +23,7 @@ export function Field({
     <div className={cn('grid min-w-0 gap-2', className)}>
       <Label htmlFor={htmlFor}>{label}</Label>
       {children}
-      {description ? <p className="text-muted-foreground text-sm">{description}</p> : null}
+      {description ? <p className="text-muted-foreground text-body">{description}</p> : null}
     </div>
   )
 }
@@ -49,8 +49,8 @@ export function AdminPage({
     <section className={cn('grid min-w-0 grid-cols-1 content-start gap-6', className)}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="grid min-w-0 gap-1">
-          <h2 className="font-semibold text-2xl tracking-tight">{title}</h2>
-          {description ? <p className="text-muted-foreground text-sm">{description}</p> : null}
+          <h2 className="font-semibold text-display tracking-tight">{title}</h2>
+          {description ? <p className="text-muted-foreground text-body">{description}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </header>
@@ -74,7 +74,7 @@ export function AdminSection({
   return (
     <section className={cn('grid min-w-0 grid-cols-1 gap-3', className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-lg">{title}</h3>
+        <h3 className="font-semibold text-title">{title}</h3>
         {actions}
       </div>
       {children}
@@ -101,7 +101,7 @@ export function Panel({
 
 export function EmptyState({ children }: { children?: ReactNode }) {
   return (
-    <p className="rounded-md border border-dashed p-4 text-center text-muted-foreground text-sm">
+    <p className="rounded-md border border-dashed p-4 text-center text-muted-foreground text-body">
       {children ?? ADMIN_COPY.empty}
     </p>
   )

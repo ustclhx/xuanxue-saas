@@ -49,9 +49,9 @@ function StatsTable({ title, rows }: { title: string; rows: readonly Satisfactio
     <Panel className="grid gap-2">
       <h2 className="font-medium">{title}</h2>
       {rows.length === 0 ? (
-        <p className="text-muted-foreground text-sm">{m.admin_feedback_no_ratings()}</p>
+        <p className="text-muted-foreground text-body">{m.admin_feedback_no_ratings()}</p>
       ) : (
-        <table className="w-full text-sm">
+        <table className="w-full text-body">
           <thead>
             <tr className="text-left text-muted-foreground">
               <th className="py-1 font-medium">{title}</th>
@@ -97,11 +97,11 @@ function ConversationDialog({ view, onClose }: { view: ConversationView | null; 
           </DialogDescription>
         </DialogHeader>
         {view?.status === 'loading' ? (
-          <p role="status" className="text-muted-foreground text-sm">
+          <p role="status" className="text-muted-foreground text-body">
             {m.subject_chat_loading()}
           </p>
         ) : view?.status === 'failed' ? (
-          <p role="alert" className="text-destructive text-sm">
+          <p role="alert" className="text-destructive text-body">
             {m.admin_feedback_conversation_failed()}
           </p>
         ) : view?.status === 'ready' ? (
@@ -113,8 +113,8 @@ function ConversationDialog({ view, onClose }: { view: ConversationView | null; 
           >
             <ol className="grid gap-3">
               {view.messages.map((message) => (
-                <li key={message.id} className="grid gap-1 rounded-md border p-3 text-sm">
-                  <span className="font-medium text-muted-foreground text-xs">
+                <li key={message.id} className="grid gap-1 rounded-md border p-3 text-body">
+                  <span className="font-medium text-muted-foreground text-caption">
                     {message.role === 'user'
                       ? m.admin_feedback_role_user()
                       : m.admin_feedback_role_assistant()}
@@ -180,7 +180,7 @@ function FeedbackAdmin() {
         <StatsTable title={m.admin_feedback_by_model()} rows={data.stats.byModel} />
         <StatsTable title={m.admin_feedback_by_subject()} rows={data.stats.bySubject} />
       </div>
-      <p role="status" className="min-h-5 text-sm">
+      <p role="status" className="min-h-5 text-body">
         {message}
       </p>
       <fieldset disabled={!ready} className="min-w-0">
@@ -241,7 +241,7 @@ function FeedbackAdmin() {
             {
               id: 'message',
               header: m.admin_feedback_message_id(),
-              cell: (row) => <code className="text-xs">{row.messageId}</code>,
+              cell: (row) => <code className="text-caption">{row.messageId}</code>,
             },
             {
               id: 'actions',

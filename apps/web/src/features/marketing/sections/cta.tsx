@@ -10,7 +10,7 @@ export function Cta() {
   return (
     <section className="px-4 pb-24">
       <div className="mx-auto grid max-w-6xl justify-items-center gap-4 rounded-xl bg-card px-6 py-12 text-center shadow-surface-2">
-        <h2 className="font-bold text-3xl tracking-tight">{m.marketing_cta_title()}</h2>
+        <h2 className="font-bold text-title tracking-tight">{m.marketing_cta_title()}</h2>
         <p className="max-w-xl text-body text-muted-foreground">{m.marketing_cta_body()}</p>
         <Button asChild size="lg">
           <Link to="/register">{m.marketing_cta_button()}</Link>

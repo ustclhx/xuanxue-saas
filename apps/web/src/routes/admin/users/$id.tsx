@@ -93,7 +93,7 @@ function UserDetail() {
             {data.workspaces.map((ws) => (
               <li
                 key={ws.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-3 py-2 text-body"
               >
                 <span className="min-w-0 break-all">
                   <Link to="/admin/workspaces/$id" params={{ id: ws.id }} className="underline">
@@ -132,7 +132,7 @@ function UserDetail() {
               >
                 {m.admin_impersonate_user()}
               </Button>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-body">
                 {m.admin_administrators_and_banned_users_cannot_be_impersonated()}
               </p>
             </div>
@@ -146,8 +146,10 @@ function UserDetail() {
             }}
           >
             <div className="grid gap-1">
-              <h3 className="font-semibold text-destructive text-lg">{m.admin_ban_management()}</h3>
-              <p className="text-muted-foreground text-sm">
+              <h3 className="font-semibold text-destructive text-title">
+                {m.admin_ban_management()}
+              </h3>
+              <p className="text-muted-foreground text-body">
                 {data.user.banned
                   ? m.admin_restores_sign_in_for_this_user_the_reason()
                   : m.admin_signs_the_user_out_and_blocks_sign_in()}
@@ -163,7 +165,7 @@ function UserDetail() {
                 required
               />
             </Field>
-            <Label htmlFor="confirm-user-status" className="font-normal text-sm leading-normal">
+            <Label htmlFor="confirm-user-status" className="font-normal text-body leading-normal">
               <Checkbox
                 id="confirm-user-status"
                 disabled={!ready}
@@ -187,12 +189,12 @@ function UserDetail() {
               {data.user.banned ? m.admin_unban_user() : m.admin_ban_user()}
             </Button>
             {data.user.id === admin.id && (
-              <p className="text-muted-foreground text-sm">{m.admin_you_cannot_ban_yourself()}</p>
+              <p className="text-muted-foreground text-body">{m.admin_you_cannot_ban_yourself()}</p>
             )}
           </form>
         </>
       )}
-      <p role="status" className="min-h-5 text-sm">
+      <p role="status" className="min-h-5 text-body">
         {message}
       </p>
     </AdminPage>

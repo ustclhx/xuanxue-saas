@@ -104,7 +104,7 @@ export function AskAiEntry({ kind, request }: { kind: string; request: UnlockReq
       >
         {state === 'busy' ? m.ai_chat_ask_busy() : m.ai_chat_ask()}
       </button>
-      <p className="m-0 text-ink-muted text-xs">
+      <p className="m-0 text-ink-muted text-caption">
         {state === 'error' ? (
           <span role="alert">{m.ai_chat_ask_error()}</span>
         ) : (

@@ -118,7 +118,7 @@ function Refund({ row }: { row: RefundRow }) {
       <h3 className="break-all font-semibold">
         {m.admin_refund_label()} {row.id}
       </h3>
-      <div className="grid gap-1 break-words text-sm">
+      <div className="grid gap-1 break-words text-body">
         <p>
           {m.admin_workspace_label()}{' '}
           <Link to="/admin/workspaces/$id" params={{ id: row.workspaceId }} className="underline">
@@ -149,18 +149,18 @@ function Refund({ row }: { row: RefundRow }) {
         </p>
       </div>
       {otherSite && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           {m.admin_other_site_billing_record({ site: siteLabel(row.site) })}
         </p>
       )}
       {!otherSite && !row.providerAvailable && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           {m.admin_provider_not_configured_approval_manual_completion_and_api()}
         </p>
       )}
       {!otherSite && row.status === 'pending' && (
         <fieldset disabled={busy} className={panelClass('default', 'max-w-2xl')}>
-          <legend className="px-1 font-medium text-sm">{m.admin_review_decision()}</legend>
+          <legend className="px-1 font-medium text-body">{m.admin_review_decision()}</legend>
           <Field label={m.admin_review_note_field()} htmlFor={`${row.id}-note`}>
             <Textarea
               id={`${row.id}-note`}
@@ -240,7 +240,7 @@ function Refund({ row }: { row: RefundRow }) {
       )}
       {!otherSite && row.status === 'approved' && row.manualAvailable && (
         <fieldset disabled={busy} className={panelClass('default', 'max-w-2xl')}>
-          <legend className="px-1 font-medium text-sm">
+          <legend className="px-1 font-medium text-body">
             {m.admin_manual_platform_completion()}
           </legend>
           <Field label={m.admin_platform_refund_id()} htmlFor={`${row.id}-refund-id`}>
@@ -287,7 +287,7 @@ function Refund({ row }: { row: RefundRow }) {
           {m.admin_retry_refund_email()}
         </Button>
       )}
-      <p role="status" className="text-sm">
+      <p role="status" className="text-body">
         {message}
       </p>
     </article>

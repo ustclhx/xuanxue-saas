@@ -95,9 +95,9 @@ export function Pricing({ plans: initialPlans }: { plans: readonly PricingPlan[]
           <PlanCard key={plan.key} plan={plan} interval={interval} />
         ))}
       </div>
-      <p className="text-center text-sm text-muted-foreground">{m.billing_coexist_order()}</p>
+      <p className="text-center text-caption text-muted-foreground">{m.billing_coexist_order()}</p>
       <p className="text-center">
-        <Link to="/pricing" className="text-sm underline underline-offset-4">
+        <Link to="/pricing" className="text-body underline underline-offset-4">
           {m.marketing_pricing_details()}
         </Link>
       </p>
@@ -132,16 +132,16 @@ function PlanCard({ plan, interval }: { plan: PricingPlan; interval: BillingInte
       </CardHeader>
       <CardContent className="grid gap-4">
         <p>
-          <span className="font-semibold text-3xl">
+          <span className="font-semibold text-title">
             {price
               ? formatPrice(price.amount, price.currency, locale)
               : plan.key === 'free'
                 ? formatPrice(0, 'usd', locale)
                 : '—'}
           </span>{' '}
-          {price && <span className="text-muted-foreground text-sm">{suffix}</span>}
+          {price && <span className="text-caption text-muted-foreground">{suffix}</span>}
         </p>
-        <ul className="grid gap-1.5 text-muted-foreground text-sm">
+        <ul className="grid gap-1.5 text-muted-foreground text-body">
           {details.map((item) => (
             <li key={item}>{item}</li>
           ))}

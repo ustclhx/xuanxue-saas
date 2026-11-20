@@ -35,12 +35,12 @@ function AdminOverview() {
               [copy.creditsConsumed, metrics.creditsConsumed],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border bg-card p-4">
-                <dt className="text-muted-foreground text-sm">{label}</dt>
-                <dd className="mt-2 font-semibold text-2xl">{value}</dd>
+                <dt className="text-muted-foreground text-body">{label}</dt>
+                <dd className="mt-2 font-semibold text-display">{value}</dd>
               </div>
             ))}
           </dl>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body">
             {metrics.latest ? copy.metricsRange(metrics.from, metrics.to) : copy.noSummaries}{' '}
             <Link to="/admin/metrics" search={{ offset: 0 }} className="underline">
               {ADMIN_COPY.nav.metrics}
@@ -48,7 +48,7 @@ function AdminOverview() {
           </p>
         </div>
       ) : (
-        <p role="status" className="text-muted-foreground text-sm">
+        <p role="status" className="text-muted-foreground text-body">
           {copy.metricsUnavailable}
         </p>
       )}
@@ -57,10 +57,10 @@ function AdminOverview() {
           {groups.map((group) => (
             <Card key={group.id} className="gap-3 py-4">
               <CardHeader className="px-4">
-                <CardTitle className="text-base">{group.label}</CardTitle>
+                <CardTitle className="text-title">{group.label}</CardTitle>
               </CardHeader>
               <CardContent className="px-4">
-                <ul className="grid gap-1 text-sm">
+                <ul className="grid gap-1 text-body">
                   {group.items.map(({ label, ...link }) => (
                     <li key={link.to}>
                       <Link {...link} className="underline-offset-4 hover:underline">

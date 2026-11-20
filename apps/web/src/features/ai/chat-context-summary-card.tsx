@@ -16,11 +16,11 @@ export function ChatContextSummary({ context }: { context: ChatContext }) {
       data-testid="chat-context-summary"
       className="grid gap-2 rounded-xl border border-line bg-surface p-4"
     >
-      <h3 className="m-0 font-semibold text-base text-ink">
+      <h3 className="m-0 font-semibold text-title text-ink">
         {m.ai_chat_context_title({ title: readingTitle(context.kind) })}
       </h3>
       {items.length > 0 ? (
-        <dl className="m-0 grid gap-1 text-sm">
+        <dl className="m-0 grid gap-1 text-body">
           {items.map((item) => (
             <div key={item.label} className="flex flex-wrap gap-x-3">
               <dt className="text-ink-subtle">{item.label}</dt>
@@ -29,7 +29,7 @@ export function ChatContextSummary({ context }: { context: ChatContext }) {
           ))}
         </dl>
       ) : null}
-      <p className="m-0 text-ink-muted text-xs">{m.ai_chat_context_hint()}</p>
+      <p className="m-0 text-ink-muted text-caption">{m.ai_chat_context_hint()}</p>
     </section>
   )
 }

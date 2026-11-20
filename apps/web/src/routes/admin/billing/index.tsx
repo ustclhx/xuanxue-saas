@@ -32,7 +32,7 @@ function BillingAdmin() {
   const { admin } = Route.useRouteContext()
   return (
     <AdminPage title={m.admin_billing_administration()}>
-      <div className="grid gap-2 rounded-lg border bg-card p-4 text-sm">
+      <div className="grid gap-2 rounded-lg border bg-card p-4 text-body">
         <p>
           <span className="text-muted-foreground">{m.admin_payment_mode()}</span>{' '}
           <span className="font-medium">{data.mode}</span>

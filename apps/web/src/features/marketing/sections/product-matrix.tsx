@@ -105,7 +105,7 @@ export function ProductsSection({ children }: { children: ReactNode }) {
             <p className="font-medium text-caption text-muted-foreground">
               {m.marketing_products_eyebrow()}
             </p>
-            <h2 id="products-title" className="font-bold text-3xl tracking-tight">
+            <h2 id="products-title" className="font-bold text-title tracking-tight">
               {m.marketing_products_title()}
             </h2>
           </div>

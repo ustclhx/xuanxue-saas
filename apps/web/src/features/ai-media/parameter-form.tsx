@@ -178,7 +178,7 @@ export function MediaParameterFields({
           />
         )}
         {field.description ? (
-          <p id={descriptionId} className="text-muted-foreground text-sm">
+          <p id={descriptionId} className="text-muted-foreground text-body">
             {field.description}
           </p>
         ) : null}

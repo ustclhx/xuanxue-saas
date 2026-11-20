@@ -28,7 +28,7 @@ export function MediaSubmitPage({
   const model = page.models.find((model) => model.key === modelKey)
   return (
     <div className="grid gap-6">
-      <h2 className="text-2xl font-semibold">{m.media_title()}</h2>
+      <h2 className="text-display font-semibold">{m.media_title()}</h2>
       {model ? (
         <>
           <Label htmlFor="media-model">{m.media_model()}</Label>
@@ -222,7 +222,7 @@ function ParameterForm({
             onUpload={(name, file) => void upload(name, file)}
           />
         </fieldset>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           {m.media_quota({ bytes: files.reduce((sum, file) => sum + file.size, 0) })}
         </p>
         <p data-testid="media-credit-estimate">

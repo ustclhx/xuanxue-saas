@@ -54,7 +54,7 @@ export function DeletionSection({
   }
   return (
     <section className="grid gap-3 rounded-lg border border-destructive p-6">
-      <h2 className="font-semibold text-xl">
+      <h2 className="font-semibold text-title">
         {workspace ? m.deletion_team_title() : m.deletion_account_title()}
       </h2>
       <p>{workspace ? m.deletion_team_description() : m.deletion_account_description()}</p>

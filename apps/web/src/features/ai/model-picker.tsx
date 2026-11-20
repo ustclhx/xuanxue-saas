@@ -90,7 +90,7 @@ export function CreditEstimateText({
 }: { model: PickerModel | undefined } & EstimateOptions) {
   if (!model) return null
   return (
-    <span data-testid="credit-estimate" className="text-muted-foreground text-sm">
+    <span data-testid="credit-estimate" className="text-muted-foreground text-body">
       <span className="sr-only">{MODEL_PICKER_COPY.estimate}: </span>
       {formatEstimate(creditEstimate(model.pricing, options))}
     </span>

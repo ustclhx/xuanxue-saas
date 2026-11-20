@@ -25,13 +25,13 @@ export function siteFilter(current: SiteId): DataTableFilter {
 /** 全部站点视图的提示：另一站的记录只读 */
 export function AllSitesNotice({ site }: { site: string | undefined }) {
   if (site !== ADMIN_ALL_SITES) return null
-  return <p className="text-muted-foreground text-sm">{m.admin_all_sites_read_only()}</p>
+  return <p className="text-muted-foreground text-body">{m.admin_all_sites_read_only()}</p>
 }
 
 /** 详情页：记录属于另一站时说明只读，写操作须到该站后台 */
 export function OtherSiteNotice({ site }: { site: SiteId }) {
   return (
-    <p role="note" className="rounded-md border border-dashed p-3 text-muted-foreground text-sm">
+    <p role="note" className="rounded-md border border-dashed p-3 text-muted-foreground text-body">
       {m.admin_other_site_record({ site: siteLabel(site) })}
     </p>
   )

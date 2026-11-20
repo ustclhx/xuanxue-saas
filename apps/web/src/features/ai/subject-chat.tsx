@@ -442,7 +442,7 @@ export function TemporarySubjectChat({
   return (
     <section className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="font-semibold text-2xl">{m.subject_chat_context_title()}</h1>
+        <h1 className="font-semibold text-display">{m.subject_chat_context_title()}</h1>
         {back}
       </div>
       {page.status === 'expired' ? (

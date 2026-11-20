@@ -72,7 +72,7 @@ function Audit() {
               cell: ({ log }) => (
                 <details>
                   <summary>{m.admin_view_details()}</summary>
-                  <pre className="max-w-sm whitespace-pre-wrap break-all text-xs">
+                  <pre className="max-w-sm whitespace-pre-wrap break-all text-caption">
                     {JSON.stringify(log.meta, null, 2)}
                   </pre>
                 </details>

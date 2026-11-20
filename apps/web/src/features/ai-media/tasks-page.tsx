@@ -106,7 +106,7 @@ export function MediaTasksPage({ page }: { page: WorkspacePage }) {
   return (
     <section className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-semibold">{m.media_tasks_title()}</h2>
+        <h2 className="text-display font-semibold">{m.media_tasks_title()}</h2>
         <Link
           to="/app/$slug/media/new"
           params={{ slug: page.workspace.slug }}
@@ -267,7 +267,7 @@ export function MediaTaskDetailPage({ page, taskId }: { page: WorkspacePage; tas
       <Link to="/app/$slug/tasks" params={{ slug: page.workspace.slug }} className="underline">
         {m.media_tasks_back()}
       </Link>
-      <h2 className="text-2xl font-semibold">{m.media_tasks_detail()}</h2>
+      <h2 className="text-display font-semibold">{m.media_tasks_detail()}</h2>
       <p className="break-all">{taskId}</p>
       {error ? <p role="alert">{error}</p> : null}
       <Button disabled={busy} onClick={() => polling.current?.refresh()}>
@@ -332,7 +332,7 @@ export function MediaTaskDetailPage({ page, taskId }: { page: WorkspacePage; tas
           ) : null}
           {task.status === 'succeeded' ? (
             <section className="grid gap-4" aria-label={m.media_tasks_results()}>
-              <h3 className="text-lg font-semibold">{m.media_tasks_results()}</h3>
+              <h3 className="text-title font-semibold">{m.media_tasks_results()}</h3>
               {task.files.map((file, index) => (
                 <TaskResult
                   key={file.id}

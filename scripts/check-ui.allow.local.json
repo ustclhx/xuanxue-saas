@@ -29,42 +29,5 @@
       }
     ]
   },
-  "pendingReplacement": {
-    "apps/web/src/routes/dev/readings.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[1120px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/routes/faq.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[1120px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      },
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[720px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ],
-    "apps/web/src/routes/newsletter.tsx": [
-      {
-        "rule": "arbitrary-class",
-        "value": "max-w-[1120px]",
-        "count": 1,
-        "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
-      }
-    ]
-  }
+  "pendingReplacement": {}
 }

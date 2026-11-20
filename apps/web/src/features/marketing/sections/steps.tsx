@@ -19,7 +19,7 @@ export function Steps({ steps }: { steps: readonly StepItem[] }) {
           <p className="font-medium text-caption text-muted-foreground">
             {m.marketing_steps_eyebrow()}
           </p>
-          <h2 id="steps-title" className="font-bold text-3xl tracking-tight">
+          <h2 id="steps-title" className="font-bold text-title tracking-tight">
             {m.marketing_steps_title()}
           </h2>
         </div>
