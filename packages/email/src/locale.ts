@@ -20,8 +20,27 @@ export function resolveEmailLocale(
   const language = tag.split('-')[0]
   if (language === 'zh') return SIMPLIFIED_REGIONS.has(tag) ? 'zh-Hans' : 'zh-Hant'
   return (
-    EMAIL_LOCALES.find((l) => l.toLowerCase().split('-')[0] === language) ??
+    matchLanguageTag(tag, EMAIL_LOCALES) ??
     EMAIL_LOCALES.find((l) => l === defaultLocale) ??
     DEFAULT_EMAIL_LOCALE
   )
+}
+
+const REGION = /^(?:[a-z]{2}|\d{3})$/
+
+/**
+ * 按主语言匹配（`es-MX` → `es`、`ja-JP` → `ja`）。带地区的语言（`pt-BR`）只匹配同地区或不带地区的标签：
+ * `pt`、`pt-BR` → `pt-BR`，`pt-PT` 不匹配（openspec add-locales-eu-ja tasks 1.7）。`tag` 须为小写、连字符分隔。
+ */
+export function matchLanguageTag<L extends string>(
+  tag: string,
+  locales: readonly L[],
+): L | undefined {
+  const [language, ...rest] = tag.split('-')
+  const region = rest.find((part) => REGION.test(part))
+  return locales.find((locale) => {
+    const [own, ...parts] = locale.toLowerCase().split('-')
+    const ownRegion = parts.find((part) => REGION.test(part))
+    return own === language && (!ownRegion || !region || ownRegion === region)
+  })
 }

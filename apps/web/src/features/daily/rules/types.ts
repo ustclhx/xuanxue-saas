@@ -1,4 +1,5 @@
 import type { DailyRelationKind, DutyKey, PillarKey, TenGod } from '@xuanxue/bazi'
+import type { EastV1Locale } from '../../i18n/locales.ts'
 
 /**
  * 每日规则文案表（add-birth-profiles-daily-horoscope tasks 7.1）。
@@ -20,7 +21,7 @@ export interface DailyTip {
 
 /** 东方站（繁中、简中、韩语）：十神提示、地支关系、建除与宜忌词条 */
 export interface EastRules {
-  readonly locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  readonly locale: EastV1Locale
   /** 今日日干相对日主的十神，每个十神至少 3 条 */
   readonly tenGod: Readonly<Record<TenGod, readonly DailyTip[]>>
   /** 十神的一句话关键词（日主选择区块的副标题） */

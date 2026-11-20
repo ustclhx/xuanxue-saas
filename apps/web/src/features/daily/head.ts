@@ -2,6 +2,7 @@ import type { AnyRouteMatch } from '@tanstack/react-router'
 import { notFound } from '@tanstack/react-router'
 import { m } from '../../paraglide/messages.js'
 import { getLocale } from '../../paraglide/runtime.js'
+import type { EastV1Locale } from '../i18n/locales.ts'
 import { absoluteUrl, localizedPath, originFromMatches, pageHead } from '../seo/metadata.ts'
 import { localeOrigin } from '../seo/origins.ts'
 import { ganzhiText } from './copy.ts'
@@ -48,11 +49,7 @@ function dailyHead(
   }
 }
 
-export function eastDailyHead(
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko',
-  data: EastDailyData,
-  matches: Matches,
-) {
+export function eastDailyHead(locale: EastV1Locale, data: EastDailyData, matches: Matches) {
   const date = parseDateKey(data.date)
   const dateText = date ? formatDate(date, locale) : data.date
   const ganzhi = ganzhiText(locale, data.facts.stem, data.facts.branch)

@@ -18,6 +18,7 @@ import {
   HOME_FORBIDDEN_SOURCES,
   HOME_PAGES,
   homeHead,
+  homePagesFor,
   htmlScripts,
   LANDING_FORBIDDEN_SOURCES,
   readHomeHeadSnapshot,
@@ -183,6 +184,24 @@ describe('首页包检查', () => {
       'ko.html',
     ])
     for (const page of HOME_PAGES) expect(page.budget).toBeGreaterThan(0)
+  })
+
+  it('首页清单由站点语言生成：新语言（含未发布）加入配置后自动纳入检查', () => {
+    const config = {
+      i18n: { enabled: true, defaultLocale: 'en' },
+      sites: {
+        west: { locales: ['en', 'es'], defaultLocale: 'en' },
+        east: { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'], defaultLocale: null },
+      },
+    }
+    expect(homePagesFor(config, 1).map(({ id, file }) => [id, file])).toEqual([
+      ['west', 'index.html'],
+      ['es', 'es.html'],
+      ['zh-hant', 'zh-hant.html'],
+      ['zh-hans', 'zh-hans.html'],
+      ['ko', 'ko.html'],
+      ['ja', 'ja.html'],
+    ])
   })
 })
 

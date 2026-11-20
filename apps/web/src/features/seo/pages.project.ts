@@ -1,6 +1,7 @@
 import { brandName, type TemplateConfig } from '@xuanxue/config'
 import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
 import { templateConfig } from '../../server/template-config.ts'
+import type { AppLocale } from '../i18n/locales.ts'
 import { LIFE_PATH_TOOL_PATH } from '../tools/numerology/routes.ts'
 import { mainToolPath, TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { tarotIndexPath } from '../tools/tarot/meaning-routes.ts'
@@ -40,7 +41,8 @@ export function projectPages(_context: {
  * 静态页的主词与面包屑短变体（模板 0.7.3 seo-internal-linking：主词是面包屑和内链区块的锚文本，取频道名而不是 SEO 标题）。
  * 首页主词为该语言的站名，短变体与页头、面包屑的「首页」文案一致。
  */
-const STATIC_MAIN: Readonly<Record<string, Record<StaticPath, readonly [string, string?]>>> = {
+// 按全部配置语言必填（openspec add-locales-eu-ja tasks 1.3）：加语言时类型检查要求登记该语言的频道名
+const STATIC_MAIN: Readonly<Record<AppLocale, Record<StaticPath, readonly [string, string?]>>> = {
   en: {
     '/': ['', 'Home'],
     '/pricing': ['Pricing'],
@@ -139,7 +141,9 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
 
 /** 静态页（metadata.ts staticPage，首页、定价、常见问题等）：上级是首页，主词取频道名，首页主词为站名 */
 function staticPageLinking(page: SeoPage): SeoPage {
-  const entry = STATIC_MAIN[page.locale]?.[page.path as StaticPath]
+  const entry = (
+    STATIC_MAIN as Partial<Record<string, Record<StaticPath, readonly [string, string?]>>>
+  )[page.locale]?.[page.path as StaticPath]
   if (!entry || page.titleMain !== undefined) return page
   const [main, anchorShort] = entry
   const titleMain = page.path === '/' ? brandName(templateConfig, page.locale) : main

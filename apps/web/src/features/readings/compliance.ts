@@ -1,3 +1,4 @@
+import type { AppLocale } from '../i18n/locales.ts'
 /**
  * 生成后的合规规则检查（add-reading-monetization design 决策 3 第二、三层，tasks.md 2.3）：
  * 提示词约束之外，按禁止词表检查具体日期预言、病名诊断与投资标的，命中的段落（列表按条）
@@ -57,7 +58,7 @@ const both = (date: RegExp, assert: RegExp): Matcher => ({
   test: (text: string) => date.test(text) && assert.test(text),
 })
 
-const RULES: Record<'zh-Hant' | 'zh-Hans' | 'ko' | 'en', LocaleRules> = {
+const RULES: Record<AppLocale, LocaleRules> = {
   'zh-Hant': {
     patterns: {
       'date-prediction': [both(ZH_DATE, ZH_ASSERT)],

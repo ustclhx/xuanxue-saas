@@ -1,5 +1,6 @@
 import type { BaziChart, PillarKey } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
+import type { EastLocale } from '../../i18n/locales.ts'
 import {
   BRANCH_HANGUL,
   BRANCH_HANZI,
@@ -25,7 +26,7 @@ function baziBirth(chart: BaziChart): string {
 export function baziShareCard(
   chart: BaziChart,
   tool: 'bazi' | 'manseryeok',
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko',
+  locale: EastLocale,
 ): ShareCardModel {
   const korean = locale === 'ko'
   const order: readonly PillarKey[] = korean ? PILLAR_ORDER.korean : PILLAR_ORDER.chinese

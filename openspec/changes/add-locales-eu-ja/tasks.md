@@ -7,20 +7,20 @@
 
 ## 0. 基线（Opus，第 1 组开始前）
 
-- [ ] 0.1 在 origin/main 生产构建上保存基线：两站 seo-snapshot（canonical/hreflang/sitemap/robots）、`check:links` 与 `audit:seo` 报告、四个首页的 HTML 原始与 gzip 大小、首页包 gzip、Lighthouse 移动端（两站首页与主工具页）、全量构建与预渲染耗时、Worker 上传体积；写入 `EVIDENCE_DIR`
+- [ ] 0.1（除 Lighthouse 外已完成，见 phase0/baseline；Lighthouse 移动端待补）在 origin/main 生产构建上保存基线：两站 seo-snapshot（canonical/hreflang/sitemap/robots）、`check:links` 与 `audit:seo` 报告、四个首页的 HTML 原始与 gzip 大小、首页包 gzip、Lighthouse 移动端（两站首页与主工具页）、全量构建与预渲染耗时、Worker 上传体积；写入 `EVIDENCE_DIR`
 
 ## 1. 语言基础设施（第 0 期，Opus；可合入 main，正式站无可见变化）
 
-- [ ] 1.1 新增 `features/i18n/rollout.ts`（发布状态与 `isLocaleLive(locale, host)`）及单元测试；现有四种语言为 released
-- [ ] 1.2 在站点守卫、站点地图、`alternateLinks()`、语言菜单与建议、`llms.txt`、东方站根路径跳转、认证页语言进入处接入发布状态；未发布前缀在正式主机返回 404、不做跨站 301
-- [ ] 1.3 集中硬编码语言：`packages/config` 的 `DefaultLocale`、`packages/tarot` 的 `Locale`、`readings/catalog.ts`、`daily/rules/types.ts`、bazi 组件、`tarot/routes.ts`、content-collections 的 `z.enum` 等改为从配置推导或显式按语言登记；类型检查在漏登记时报错
-- [ ] 1.4 `scripts/i18n-project.ts` 增加严格语言：公开、认证、账户、计费、邮件相关功能文件缺键时构建失败（后台功能文件允许回退）；补测试；整理成模板需求
-- [ ] 1.5 内容完整性检查：新语言第一期页面集合（tarot 78、numerology、legal）缺条目时构建失败；`ja` 页面正文文字检测（含假名、拉丁比例阈值）
-- [ ] 1.6 首页包测量：模拟加 2 种语言的文案，测每个首页闭包 gzip 增量；评估并实现 Paraglide 按语言拆分（或减少首页文案）；`HOME_PAGES` 与 head 快照改为由站点语言生成；预算不上调（D-9）
-- [ ] 1.7 浏览器语言匹配：`ja-*` → `ja`、`es-*` → `es`、`pt`/`pt-BR` → `pt-BR`（`pt-PT` 不匹配）；`resolveEmailLocale` 同步；测试覆盖
-- [ ] 1.8 `LOCALE_AUTONYMS` 补日本語、Español、Português (Brasil)、Français、Deutsch、Italiano
-- [ ] 1.9 [Codex] 姓名数字的特殊字母映射（ß→SS、ł→L、æ→AE、ø→O、œ→OE）与本语言错误提示键；`packages/numerology` 单元测试
-- [ ] 1.10 验收：既有页面 seo-snapshot 与 0.1 逐字节一致；`pnpm check`、`typecheck`、`test`、`build`、两站 `check:links`、`audit:seo` 通过
+- [x] 1.1 新增 `features/i18n/rollout.ts`（发布状态与 `isLocaleLive(locale, host)`）及单元测试；现有四种语言为 released
+- [x] 1.2 在站点守卫、站点地图、`alternateLinks()`、语言菜单与建议、`llms.txt`、东方站根路径跳转、认证页语言进入处接入发布状态；未发布前缀在正式主机返回 404、不做跨站 301
+- [x] 1.3 集中硬编码语言：`packages/config` 的 `DefaultLocale`、`packages/tarot` 的 `Locale`、`readings/catalog.ts`、`daily/rules/types.ts`、bazi 组件、`tarot/routes.ts`、content-collections 的 `z.enum` 等改为从配置推导或显式按语言登记；类型检查在漏登记时报错
+- [x] 1.4 `scripts/i18n-project.ts` 增加严格语言：公开、认证、账户、计费、邮件相关功能文件缺键时构建失败（后台功能文件允许回退）；补测试；整理成模板需求
+- [x] 1.5 内容完整性检查：新语言第一期页面集合（tarot 78、numerology、legal）缺条目时构建失败；`ja` 页面正文文字检测（含假名、拉丁比例阈值）
+- [x] 1.6 首页包测量：模拟加 2 种语言的文案，测每个首页闭包 gzip 增量；评估并实现 Paraglide 按语言拆分（或减少首页文案）；`HOME_PAGES` 与 head 快照改为由站点语言生成；预算不上调（D-9）
+- [x] 1.7 浏览器语言匹配：`ja-*` → `ja`、`es-*` → `es`、`pt`/`pt-BR` → `pt-BR`（`pt-PT` 不匹配）；`resolveEmailLocale` 同步；测试覆盖
+- [x] 1.8 `LOCALE_AUTONYMS` 补日本語、Español、Português (Brasil)、Français、Deutsch、Italiano
+- [x] 1.9 [Codex] 姓名数字的特殊字母映射（ß→SS、ł→L、æ→AE、ø→O、œ→OE）与本语言错误提示键；`packages/numerology` 单元测试
+- [x] 1.10 验收：既有页面 seo-snapshot 与 0.1 逐字节一致；`pnpm check`、`typecheck`、`test`、`build`、两站 `check:links`、`audit:seo` 通过
 
 ## 2. 本地化质量工具（Opus，可与第 1 组并行）
 

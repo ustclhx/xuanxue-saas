@@ -1,4 +1,5 @@
 import type { BirthInput, CityId, InputField, InputIssue } from '@xuanxue/bazi'
+import type { EastLocale } from '../../i18n/locales.ts'
 import type { ShareInput, ShareValue } from '../share.ts'
 
 /**
@@ -32,7 +33,7 @@ export const OTHER_PLACE = 'other'
 export const KO_TRUE_SOLAR_DEFAULT = true
 
 /** 出生地下拉的内置城市（与引擎 CITIES 同 id）；按语言把常用城市放在前面 */
-export const PLACE_IDS: Record<'zh-Hant' | 'zh-Hans' | 'ko', readonly CityId[]> = {
+export const PLACE_IDS: Record<EastLocale, readonly CityId[]> = {
   'zh-Hant': [
     'taipei',
     'taichung',

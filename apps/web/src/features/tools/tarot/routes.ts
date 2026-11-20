@@ -1,12 +1,20 @@
 import type { SpreadId } from '@xuanxue/tarot'
+import type { AppLocale, Assert, Covers } from '../../i18n/locales.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
  * 塔罗牌阵页路由（openspec add-tarot-reading 决策 5）：西方站 `/tarot/…`，东方站 `/塔羅/…`、`/타로/…`。
  * 注册表、预渲染与站点地图都从这里读取，因此只引用类型，不引用任何运行时模块。
  */
-export type TarotLocale = 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
-export const TAROT_LOCALES: readonly TarotLocale[] = ['en', 'zh-Hant', 'zh-Hans', 'ko']
+export type TarotLocale = AppLocale
+// 塔罗在全部语言提供：加语言时下面的覆盖检查与 Record<TarotLocale, …> 在类型检查时要求补登记
+export const TAROT_LOCALES = [
+  'en',
+  'zh-Hant',
+  'zh-Hans',
+  'ko',
+] as const satisfies readonly TarotLocale[]
+export type _TarotLocalesCoverConfig = Assert<Covers<(typeof TAROT_LOCALES)[number], AppLocale>>
 
 /** 牌阵顺序：三张牌是主牌阵（根路径），其余为子路径；互导矩阵按此顺序排列 */
 export const TAROT_SPREADS: readonly SpreadId[] = [

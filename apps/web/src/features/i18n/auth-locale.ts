@@ -3,6 +3,7 @@ import { baseLocale } from '../../paraglide/runtime.js'
 import { resolveSite, type SitesConfig } from '../site/site.ts'
 import { eastLocale } from './east-home.ts'
 import { PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
+import { isLocaleReleased } from './rollout.ts'
 import { localePrefix, prefixLocale } from './url-prefix.ts'
 
 /** 没有语言前缀时也可访问的认证页（specs/i18n「认证页首次访问」） */
@@ -45,7 +46,12 @@ export function authLocaleRedirect(request: Request, config: SitesConfig): Respo
   else {
     if (readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE)) return null
     locale = preferredLocale(request.headers.get('accept-language'))
-    if (locale === baseLocale || !config.sites[site.id].locales.includes(locale)) return null
+    if (
+      locale === baseLocale ||
+      !config.sites[site.id].locales.includes(locale) ||
+      !isLocaleReleased(locale, config, site.id)
+    )
+      return null
   }
   const location = `/${localeUrlSegment(locale)}${url.pathname}${url.search}`
   return new Response(null, {

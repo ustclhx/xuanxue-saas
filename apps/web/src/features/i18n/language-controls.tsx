@@ -12,6 +12,7 @@ import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { LOCALE_AUTONYMS } from '../site/theme.ts'
 import { useLocaleSwitch } from './locale-switch.ts'
 import { rememberLocale } from './preference.ts'
+import { releasedSiteLocales } from './rollout.ts'
 import { siteSuggestableLocales } from './site-suggestion.ts'
 import {
   detachPrehydrationListener,
@@ -28,13 +29,17 @@ const languageItem = headerMenuItem
  * 页头右上角的语言菜单（specs/i18n「语言切换控件位于站点页头右上角」）。
  * 只列出当前站点的语言，语言名用各语言自己的写法（specs/multi-site「语言控件只列本站语言」）：
  * 西方站只有英语，不显示菜单；东方站另有 English，指向东方站英文入口页 `/en`，不跳到西方站。
+ * 只列已发布的语言（rollout.ts，openspec add-locales-eu-ja 决策 5）：菜单随预渲染 HTML 输出，不按主机区分。
  */
 export function LanguageMenu() {
   const locale = getLocale()
   const siteId = useSiteId()
   const { busy, error, select } = useLocaleSwitch()
-  const siteLocales = templateConfig.sites[siteId].locales
-  const englishEntry = siteId === 'east' && locales.some((item) => item === EAST_ENGLISH_LOCALE)
+  const siteLocales = releasedSiteLocales(siteId, templateConfig)
+  const englishEntry =
+    siteId === 'east' &&
+    locales.some((item) => item === EAST_ENGLISH_LOCALE) &&
+    !siteLocales.includes(EAST_ENGLISH_LOCALE)
   if (!templateConfig.i18n.enabled || siteLocales.length + (englishEntry ? 1 : 0) < 2) return null
   return (
     <HeaderMenu
@@ -187,8 +192,8 @@ export function LanguageSuggestion({ site }: { site: { id: SiteId; known: boolea
 /** 后台侧栏使用的语言下拉（自带位置，不做浮层） */
 export function LanguageSelect() {
   const locale = getLocale()
-  // 与页头菜单相同只列本站语言；另一站语言在本站应用区不生效（request.server.ts accountLocale）
-  const siteLocales = templateConfig.sites[useSiteId()].locales
+  // 与页头菜单相同只列本站已发布语言；另一站语言在本站应用区不生效（request.server.ts accountLocale）
+  const siteLocales = releasedSiteLocales(useSiteId(), templateConfig)
   const { busy, error, select } = useLocaleSwitch()
   const [ready, setReady] = useState(false)
   useEffect(() => setReady(true), [])

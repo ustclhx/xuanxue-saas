@@ -63,4 +63,11 @@ export const LOCALE_AUTONYMS: Record<string, string> = {
   'zh-Hant': '繁體中文',
   'zh-Hans': '简体中文',
   ko: '한국어',
+  // 第一至三期新语言（openspec add-locales-eu-ja tasks 1.8）
+  ja: '日本語',
+  es: 'Español',
+  'pt-BR': 'Português (Brasil)',
+  fr: 'Français',
+  de: 'Deutsch',
+  it: 'Italiano',
 }

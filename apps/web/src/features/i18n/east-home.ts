@@ -1,6 +1,7 @@
 import { localeUrlSegment } from '@xuanxue/config'
 import { resolveSite, type SitesConfig } from '../site/site.ts'
 import { PREFERENCE_COOKIE, preferredLocale, readCookie } from './preference.ts'
+import { releasedSiteLocales } from './rollout.ts'
 
 /**
  * 东方站根路径不再展示语言选择页：没有语言前缀的 `/` 直接跳到某个语言的首页（specs/multi-site「东方站入口页」）。
@@ -20,7 +21,7 @@ export function eastHomeRedirect(request: Request, config: SitesConfig): Respons
   if (resolveSite(url.host, config).id !== 'east') return null
   const locale = eastLocale(request, config)
   return new Response(null, {
-    status: locale === config.sites.east.locales[0] ? 301 : 302,
+    status: locale === releasedSiteLocales('east', config)[0] ? 301 : 302,
     headers: {
       location: `${url.origin}/${localeUrlSegment(locale)}${url.search}`,
       vary: 'accept-language, cookie',
@@ -32,9 +33,10 @@ export function eastHomeRedirect(request: Request, config: SitesConfig): Respons
 /**
  * 东方站无前缀地址要落到的语言（根路径与认证页共用）：属于东方站的手动选择优先，
  * 其次是东方站语言内的浏览器语言，都不匹配时取东方站第一个语言（繁体中文）。
+ * 只在已发布的东方站语言中选择（rollout.ts）：未发布语言不是跳转目标，staging 上也一样。
  */
 export function eastLocale(request: Request, config: SitesConfig): string {
-  const east: readonly string[] = config.sites.east.locales
+  const east: readonly string[] = releasedSiteLocales('east', config)
   const cookie = readCookie(request.headers.get('cookie') ?? '', PREFERENCE_COOKIE)
   const preferred: string =
     cookie !== undefined && east.includes(cookie)

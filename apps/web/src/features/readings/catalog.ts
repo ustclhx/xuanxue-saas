@@ -27,6 +27,7 @@ import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/tarot'
 import { z } from 'zod'
+import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
@@ -427,7 +428,7 @@ const tarotInputSchema = z.object({
 
 /** 塔罗不重抽：校验牌与牌阵后按 id 在服务端查牌名、牌位与牌义，客户端的牌义文本一律不用 */
 function recomputeTarot(raw: unknown, _now: Date, locale: string): RecomputedReading {
-  const tarotLocale = locale as 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
+  const tarotLocale = locale as AppLocale
   const parsed = tarotInputSchema.safeParse(raw)
   if (!parsed.success) invalidInput()
   let reading: ReturnType<typeof decodeReading>

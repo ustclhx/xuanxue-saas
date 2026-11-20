@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
+import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_COPY } from '../marketing/east-english/content.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
@@ -56,13 +57,21 @@ export function sitemapIndex(site: SiteId): string {
   return `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</sitemapindex>`
 }
 
-/** 站点地图索引中的子图语言；东方站另有只含英文入口页的 en 子图（D5） */
+/**
+ * 站点地图索引中的子图语言；东方站另有只含英文入口页的 en 子图（D5）。
+ * 只列已发布语言（features/i18n/rollout.ts，openspec add-locales-eu-ja 决策 5），未发布语言的子图返回 404。
+ */
 export function sitemapLocales(site: SiteId): string[] {
   const { enabled, defaultLocale, locales } = templateConfig.i18n
-  const own: string[] = templateConfig.sites[site].locales.filter(
+  const own: string[] = releasedSiteLocales(site, templateConfig).filter(
     (locale) => enabled || locale === defaultLocale,
   )
-  if (site === 'east' && enabled && locales.some((locale) => locale === EAST_ENGLISH_LOCALE))
+  if (
+    site === 'east' &&
+    enabled &&
+    locales.some((locale) => locale === EAST_ENGLISH_LOCALE) &&
+    !own.includes(EAST_ENGLISH_LOCALE)
+  )
     own.push(EAST_ENGLISH_LOCALE)
   return own
 }
@@ -85,7 +94,12 @@ export function robots(appUrl: string, known = true): string {
 
   const prefixes = [
     '',
-    ...(templateConfig.i18n.enabled ? templateConfig.i18n.locales.map(localePrefix) : []),
+    // 未发布语言不写进 robots.txt（不暴露前缀；正式域名上这些前缀本来就返回 404）
+    ...(templateConfig.i18n.enabled
+      ? templateConfig.i18n.locales
+          .filter((locale) => isLocaleReleased(locale, templateConfig))
+          .map(localePrefix)
+      : []),
   ]
   const rules = [
     ...prefixes.flatMap((prefix) =>
@@ -113,6 +127,13 @@ const LOCALE_NAMES: Readonly<Record<string, string>> = {
   'zh-Hant': '繁體中文',
   'zh-Hans': '简体中文',
   ko: '한국어',
+  // 第一至三期新语言（openspec add-locales-eu-ja tasks 1.8）
+  ja: '日本語',
+  es: 'Español',
+  'pt-BR': 'Português (Brasil)',
+  fr: 'Français',
+  de: 'Deutsch',
+  it: 'Italiano',
 }
 
 // llms.txt 的站点简介：面向 AI 检索的英文概述，与各站点实际提供的体系一致
@@ -137,7 +158,8 @@ export function llmsTxt(
   if (!known || !config.marketing.enabled) return null
   const origin = seoSiteOrigin(site)
   const url = (path: string, locale: string) => absoluteUrl(origin, localizedPath(path, locale))
-  const sections = config.sites[site].locales
+  // 只列已发布语言（rollout.ts）
+  const sections = releasedSiteLocales(site, config)
     .filter((locale) => config.i18n.enabled || locale === config.i18n.defaultLocale)
     .map((locale) => {
       const seen = new Set<string>()

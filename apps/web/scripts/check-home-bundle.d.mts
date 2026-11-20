@@ -6,6 +6,14 @@ export interface HomePage {
   file: string
   budget: number
 }
+export const HOME_PAGE_BUDGET: number
+export function homePagesFor(
+  config: {
+    i18n: { enabled?: boolean; defaultLocale: string }
+    sites: { [site: string]: { locales: readonly string[]; defaultLocale: string | null } }
+  },
+  budget?: number,
+): HomePage[]
 export const HOME_PAGES: readonly HomePage[]
 export interface HomeHead {
   canonical: string | null

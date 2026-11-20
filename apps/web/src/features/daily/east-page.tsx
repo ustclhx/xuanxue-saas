@@ -3,6 +3,7 @@ import { cn } from '@xuanxue/ui'
 import { PageWidth } from '@xuanxue/ui/project'
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import type { EastV1Locale } from '../i18n/locales.ts'
 import { defaultPlace } from '../tools/bazi/birth-form-state.ts'
 import { loadBazi } from '../tools/bazi/engine.ts'
 import { TEN_GOD_LABEL } from '../tools/bazi/labels.ts'
@@ -84,7 +85,7 @@ export function EastDailyPage({
   rules,
   data,
 }: {
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  locale: EastV1Locale
   rules: EastRules
   data: EastDailyData
 }) {
@@ -289,7 +290,7 @@ function DayMasterSection({
   personal,
   onPersonal,
 }: {
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  locale: EastV1Locale
   rules: EastRules
   facts: EastDayFacts
   selected: Stem | null
@@ -433,7 +434,7 @@ function PersonalForm({
   date,
   onResult,
 }: {
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  locale: EastV1Locale
   date: string
   onResult: (personal: Personal) => void
 }) {

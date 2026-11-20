@@ -301,3 +301,56 @@
 - 使用者补充（2026-11-20）：每种语言使用独立子目录网址（`/ja/`、`/es/`），文案各语言独立维护，不由其他语言自动生成；**每种语言的内页关键词须单独设计**——上线前为每个页面确定当地主词（slug、Title、H1、锚文本），依据当地搜索词调研而非直译。做完 `ja`、`es` 后暂停加语言，先做 content growth，之后再回来做第 7 组（pt-BR、fr、de、it）。
 
 - 使用者补充（2026-11-20）：第一期同时给东方站补完整英文页面（`ganjiday.com/en/…`：四柱八字 / Four Pillars、紫微、塔罗等），不只现有 `/en` 导览页（原 SEO 任务书「不扩英文工具页」作废）。`en` 因此按站点各自登记：两站各有英文页面与各自的 hreflang 组，互不跨 host、互不链接；东方站英文塔罗文案须与西方站英文不同，跨站也执行相似度门槛（结构、回译之外，同语言同类页段落 Dice ≤0.30）。基础设施（第 1 组）须支持「一种语言属于多个站点」，现有输出逐字节不变。
+
+## 第 0 期实施记录（第 1 组，2026-11-20）
+
+本节记录任务 0.1、1.1–1.10 落地时对上文决策的细化与偏差，证据在 `~/workspace/xuanxue-saas-evidence/locales-eu-ja/phase0/`。
+
+### 发布状态的范围（细化决策 5）
+
+- 第 0 期**不把** `ja`、`es` 写进 `template.config.ts`（仍由 4.1 / 5.1 写入）：写入后 Paraglide 会编译该语言、严格文案与内容检查会因缺内容而失败。
+  `rollout.ts` 预先登记 `east.ja`、`west.es`、`east.en` 为 pending，写入配置后自动按 pending 处理；未登记的组合一律按 pending。
+- **按「站点 × 语言」登记**（使用者补充：东方站完整英文页面）：`LOCALE_RELEASE.east.en` 与 `west.en` 各自发布。站点守卫按「本站语言列表」
+  判断归属（`siteHasLocale`），不再经 `siteOfLocale` 的单一归属；`siteOfLocale` 在一种语言属于多站时取以它为默认语言的站点（`en` → 西方站），
+  使只知道语言的场景（规范域名、品牌名）保持现状。东方站现有英文入口页 `/en` 不受 `east.en` 状态影响。
+- **可发现位置不看主机**：hreflang、语言菜单、语言建议随预渲染 HTML 在构建期生成，同一份文件在正式域名与 staging 都会返回，
+  因此这些位置（以及站点地图、`robots.txt`、`llms.txt`、东方站根路径跳转、认证页语言跳转）一律只列已发布语言；
+  未发布语言在 staging / 本地只能按地址直接访问（预览主机整体 noindex）。未发布语言页面自身的 hreflang 保留自指。
+- **访问控制看主机**：正式域名（`sites.*.hosts`）上未发布语言前缀返回本站导航语言的 404，不跨站；`*.localhost` 与 `*.workers.dev` 放行。
+  构建期预渲染以正式域名为 Host 请求页面，守卫对预渲染请求不按发布状态拦截（`gateSiteRequest({ prerender })`），pending 页面照常预渲染供 staging 使用；
+  浏览器端的外站前缀判断（`hasForeignPrefix`）只在浏览器中考虑发布状态，服务端由守卫负责。
+- 应用区：正式域名上未发布语言不作为账户语言（`request.server.ts ownsLocale`）。
+
+### 首页包测量与按语言拆分（任务 1.6，细化决策 11）
+
+- 模拟两种新语言的完整文案（ja = 繁中逐字 CJK 码位 +1，es = 英文 rot13，字数与熵不变）：每个首页闭包 gzip 从 350,023 B 增至 374,078 B（+24,055 B，约每种语言 +12KB），
+  超出预算 352,174 B。首页闭包约有 492 条文案（daily 105、bazi 82、auth 58、account 57、numerology 56 …，来自路由树的静态部分）。
+- Paraglide 自带方案不适用：`experimentalStaticLocale` / per-locale build 要按语言各构建一份客户端图并分发静态资源，与 TanStack Start 的 buildApp 编排冲突；
+  `experimentalMiddlewareLocaleSplitting` 不支持客户端路由。
+- 实现项目插件 `scripts/locale-split.ts`：客户端构建中把严格语言（v1 之后的新语言）的文案函数移出文案模块，每种语言生成一个字典分包；
+  文案回退行改为 `splitMessage(locale, 序号, en_x)(inputs)`，v1 四种语言照旧内联。客户端入口在水合前按当前语言加载字典（与 StartClient 并行），
+  v1 语言页面不加载。服务端不拆分，SSR / 预渲染输出完整文案。拆分后首页闭包只多一次性的查表开销，与新语言数量无关；
+  新语言页面另下载本语言字典（模拟全量文案约 46–50KB gzip，含后台文案；实际后台文案不翻译会更小）。实测数字见 PR。
+- `HOME_PAGES` 改为由站点语言生成（`homePagesFor`），新语言首页（含 pending）自动纳入预算与 head 快照检查；新首页的快照在写入语言的 PR 中用 `--write-head-snapshot` 补上。
+
+### 模板需求（第 0 期改动的模板文件，需整理给 template supervisor）
+
+| 编号 | 模板文件 | 需求 |
+|---|---|---|
+| TR-1 | `packages/config` `resolveSites`、`resolveSeoLinking` | 允许一种语言属于多个站点（按站点登记语言）；`seo.linking.sites` 不再拒绝重复语言（东方站 `/en/…`） |
+| TR-2 | `features/seo/metadata.ts`、`origins.ts`、`pages.ts` | `alternateLinks` / `pageHead` / `sameSiteLocales` / `fallbackSourceLocale` / `localeOrigin` 按页面所属站点（`SeoPage.site`）而不是按语言推断；提供发布状态过滤钩子（本期在 `alternateLinks` 内调用项目的 `isLocaleReleased`） |
+| TR-3 | `scripts/i18n-project.ts` | 严格语言选项：指定语言缺键时构建失败，后台等功能文件可豁免（本期已加 `strict` 选项） |
+| TR-4 | `scripts/check-home-bundle.mjs` | 首页清单由站点配置生成（本期 `homePagesFor`） |
+| TR-5 | `scripts/vite-shared.ts`、`src/client.tsx` | 项目插件与水合前钩子的扩展点（本期直接注册 `localeSplit` 并在入口调用 `loadSplitMessages`）；或模板内置按语言拆分 |
+| TR-6 | `features/i18n/suggestion.ts`、`preference.ts`、`packages/email` `locale.ts` | 带地区的语言（`pt-BR`）只匹配同地区或不带地区的标签，`pt-PT` 不匹配（模板测试原期望 `pt-PT` → `pt-BR`） |
+| TR-7 | `features/seo/crawlers.ts`、`features/i18n/language-controls.tsx`、`request.server.ts`、`src/server.ts` | 站点地图、robots、llms.txt、语言菜单、应用区语言与预渲染请求的发布状态钩子 |
+| TR-8 | `apps/web/content-collections.ts`、`apps/web/package.json` | 内容集合语言枚举由配置推导；构建前运行项目的内容完整性检查 |
+
+### 东方站英文（5b 组）的风险
+
+- `en` 只有一套 Paraglide 文案：东方站英文页面的品牌、导航与工具文案不能直接复用西方站英文（Arcanumber、数字命理导航），
+  需要按站点区分的文案层（例如东方站英文专用的功能文件与键，或站点作用域的 message 包装）。
+- 内容集合与站点地图按语言取条目：`content/tarot/en` 同时被两站使用会造成两站同语言同主题的重复内容。
+  东方站英文塔罗须独立内容源（例如 `content/tarot/en-east` 映射到东方站），并按决策 10 跨站测相似度（同语言同类页段落 Dice ≤0.30）。
+- `seo.linking.sites`、链接图检查、`localeOrigin`、`publicPages` 的站点过滤都按「一种语言一个站点」写成，需 TR-1/TR-2 后再接入；
+  在此之前把 `en` 加进东方站会让 `siteOfLocale` 之外的这些位置把东方站英文页当作西方站页面。
