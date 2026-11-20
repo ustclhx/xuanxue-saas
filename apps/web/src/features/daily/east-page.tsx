@@ -1,11 +1,13 @@
 import type { Stem } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
+import { PageWidth } from '@xuanxue/ui/project'
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { loadBazi } from '../tools/bazi/engine.ts'
 import { TEN_GOD_LABEL } from '../tools/bazi/labels.ts'
 import { DateField, TimeField } from '../tools/date-field.tsx'
 import { Disclaimer } from '../tools/disclaimer.tsx'
+import { TOOL_ROUTES } from '../tools/registry.ts'
 import { tarotPath } from '../tools/tarot/routes.ts'
 import { mainToolHref, toolHref } from '../tools/tool-href.ts'
 import {
@@ -62,11 +64,17 @@ export function eastHeading(locale: string, facts: EastDayFacts): string {
 
 type Personal = { natal: NatalSummary; facts: EastPersonalFacts; date: string }
 
-const card = 'flex flex-col gap-1 rounded-xl bg-surface-2 p-4'
-const cardLabel = 'text-ink-subtle text-sm'
+const card = 'flex flex-col gap-1 rounded-field bg-surface-2 p-4'
+const cardLabel = 'text-caption text-ink-subtle'
+const cardValue = 'font-bold font-heading text-ink text-subtitle'
+/** 页首的农历 / 今日干支格（设计稿 `.pillar`）：surface-2 底、6px 圆角 */
+const pillar =
+  'flex flex-col items-center justify-center gap-1 rounded-field bg-surface-2 px-2 py-3'
+/** 正文内链接：与正文同色并始终带下划线（text-brand-ink 的 <a> 由 brand.css 加下划线） */
+const bodyLink = 'text-brand-ink hover:decoration-2'
 
 /**
- * 东方站公开每日运势页（原型 DailyPublic.dc.html）：今日干支、宜忌与建除，十个日主的今日提示，
+ * 东方站公开每日运势页（设计稿 warm-refresh/DailyEast.dc.html）：今日干支、宜忌与建除，十个日主的今日提示，
  * 以及在浏览器本地计算的个人化入口。服务端输出参考日期的全部规则内容；水合后若访客本地日期不同，
  * 在本地重算并替换日期相关的区块，不发网络请求（引擎 chunk 除外）。
  */
@@ -81,7 +89,8 @@ export function EastDailyPage({
 }) {
   const [facts, setFacts] = useState(data.facts)
   const [localDate, setLocalDate] = useState<CivilDate | null>(null)
-  const [selected, setSelected] = useState<Stem>('jia')
+  // 未选日主、未填生日时只显示通用部分（设计稿状态表），不默认展开某个日主
+  const [selected, setSelected] = useState<Stem | null>(null)
   const [personal, setPersonal] = useState<Personal | null>(null)
   const date = parseDateKey(facts.date) ?? { year: 1970, month: 1, day: 1 }
 
@@ -130,59 +139,74 @@ export function EastDailyPage({
   const glosses = tabooGlosses(rules, [...facts.recommends, ...facts.avoids])
   const duty = rules.duty[facts.duty]
 
+  const ziwei = TOOL_ROUTES.find((route) => route.id === 'ziwei')?.paths[locale]
+
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pt-10 pb-16 sm:px-6">
-      <section aria-labelledby="daily-h1" className="flex flex-wrap items-center gap-8">
-        <div className="flex gap-2">
-          <div className="flex h-30 w-24 flex-col items-center justify-center gap-1 rounded-xl border border-line bg-surface-2 px-2 text-center">
-            <span className="text-ink-subtle text-xs">{m.daily_lunar_label()}</span>
-            <span className="font-heading text-ink text-lg leading-snug">
+    <PageWidth className="flex flex-col gap-8 pb-16 sm:gap-10 sm:pb-28">
+      <header className="flex flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
+        <p role="note" className="m-0 text-caption text-ink-subtle" data-testid="daily-date">
+          {formatLongDate(date, locale)} ·{' '}
+          {localDate ? m.daily_local_note() : m.daily_reference_note()}
+        </p>
+        <h1 id="daily-h1" className="m-0 text-balance font-heading text-ink text-title">
+          {m.daily_east_h1({ ganzhi: ganzhiText(locale, facts.stem, facts.branch) })}
+        </h1>
+        {/* 农历与今日干支两格（设计稿的年 / 月 / 日三柱需要年柱、月柱，流日引擎只给日柱） */}
+        <div className="mt-2 grid w-full max-w-90 grid-cols-2 gap-2">
+          <div className={pillar}>
+            <span className="text-caption text-ink-subtle">{m.daily_lunar_label()}</span>
+            <span className="text-center font-bold font-heading text-ink text-subtitle">
               {lunarText(locale, facts.lunar)}
             </span>
           </div>
-          <div className="flex h-38 w-30 flex-col items-center justify-center rounded-xl bg-inverse text-on-inverse">
-            <span className="text-xs">{m.daily_today_label()}</span>
-            <span className="font-heading text-5xl leading-tight">
+          <div className={cn(pillar, 'ring-1 ring-mark ring-inset')}>
+            <span className="text-caption text-ink-subtle">{m.daily_today_label()}</span>
+            <span className="font-bold font-heading text-ink text-title">
               {stemText(locale, facts.stem)}
-            </span>
-            <span className="font-heading text-5xl leading-tight">
               {branchText(locale, facts.branch)}
             </span>
           </div>
         </div>
-        <div className="flex min-w-0 flex-1 basis-96 flex-col gap-4">
-          <p className="m-0 text-ink-subtle text-sm" data-testid="daily-date">
-            {formatLongDate(date, locale)} ·{' '}
-            {localDate ? m.daily_local_note() : m.daily_reference_note()}
-          </p>
-          <h1 id="daily-h1" className="m-0 font-bold font-heading text-4xl text-ink">
-            {m.daily_east_h1({ ganzhi: ganzhiText(locale, facts.stem, facts.branch) })}
-          </h1>
-          <dl className="m-0 flex flex-col gap-2 text-base">
-            <Row term={m.daily_yi()} termClass="text-brand-ink">
+      </header>
+
+      <section
+        aria-label={`${m.daily_yi()} / ${m.daily_ji()}`}
+        className="flex max-w-190 flex-col gap-4"
+      >
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1 rounded-object bg-surface p-5">
+            <h2 className="m-0 font-heading text-ink text-subtitle">{m.daily_yi()}</h2>
+            <p className="m-0 text-body text-ink-muted">
               {recommends.join(m.daily_list_separator()) || '—'}
-            </Row>
-            <Row term={m.daily_ji()}>{avoids.join(m.daily_list_separator()) || '—'}</Row>
-            <Row term={m.daily_duty()}>
-              {m.daily_duty_value({ name: duty.name })}
-              {duty.gloss}
-            </Row>
-          </dl>
-          {glosses.length > 0 && (
-            <details className="text-ink-muted text-sm">
-              <summary className="min-h-11 cursor-pointer content-center">
-                {m.daily_gloss_title()}
-              </summary>
-              <dl className="m-0 flex flex-col gap-1">
-                {glosses.map((item) => (
-                  <Row key={item.name} term={item.name} termClass="text-ink">
-                    {item.gloss}
-                  </Row>
-                ))}
-              </dl>
-            </details>
-          )}
+            </p>
+          </div>
+          <div className="flex flex-col gap-1 rounded-object bg-surface p-5">
+            <h2 className="m-0 font-heading text-ink text-subtitle">{m.daily_ji()}</h2>
+            <p className="m-0 text-body text-ink-muted">
+              {avoids.join(m.daily_list_separator()) || '—'}
+            </p>
+          </div>
         </div>
+        <p className="m-0 text-body text-ink-muted">
+          <strong className="font-medium text-ink">
+            {m.daily_duty()} · {m.daily_duty_value({ name: duty.name })}
+          </strong>
+          {duty.gloss}
+        </p>
+        {glosses.length > 0 && (
+          <details className="text-caption text-ink-subtle">
+            <summary className="min-h-11 cursor-pointer content-center">
+              {m.daily_gloss_title()}
+            </summary>
+            <dl className="m-0 flex flex-col gap-1">
+              {glosses.map((item) => (
+                <Row key={item.name} term={item.name} termClass="text-ink">
+                  {item.gloss}
+                </Row>
+              ))}
+            </dl>
+          </details>
+        )}
       </section>
 
       <DayMasterSection
@@ -198,34 +222,42 @@ export function EastDailyPage({
         }}
       />
 
-      <section aria-labelledby="daily-more" className="grid gap-4 sm:grid-cols-3">
-        <h2 id="daily-more" className="m-0 font-semibold text-ink text-lg sm:col-span-3">
+      {/* 正文内链（设计稿 warm-refresh/DailyEast.dc.html）：H2 之后的一段话里链接相关工具，不另设卡片行 */}
+      <article className="flex max-w-180 flex-col gap-5">
+        <h2 className="m-0 text-balance font-heading text-ink text-title">{m.daily_how_title()}</h2>
+        <p className="m-0 text-body text-ink-muted">{m.daily_how_body()}</p>
+        <h2 id="daily-more" className="m-0 mt-5 text-balance font-heading text-ink text-title">
           {m.daily_more_title()}
         </h2>
-        <MoreLink
-          href={mainToolHref(locale)}
-          title={m.daily_more_chart()}
-          body={m.daily_more_chart_body()}
-        />
-        <MoreLink
-          href={toolHref(tarotPath('daily', locale), locale)}
-          title={m.daily_more_tarot()}
-          body={m.daily_more_tarot_body()}
-        />
-        <MoreLink
-          href={toolHref('/pricing', locale)}
-          title={m.daily_more_reading()}
-          body={m.daily_more_reading_body()}
-        />
-      </section>
+        <p className="m-0 text-body text-ink-muted">
+          {m.daily_east_more_lead()}
+          {/* 韩语没有紫微页：不为放链接另造目标，这一句整句省略 */}
+          {ziwei ? (
+            <>
+              {m.daily_east_more_ziwei_before()}
+              <a href={toolHref(ziwei, locale)} className={bodyLink}>
+                {m.daily_east_more_ziwei_link()}
+              </a>
+              {m.daily_east_more_ziwei_after()}
+            </>
+          ) : (
+            ' '
+          )}
+          {m.daily_east_more_tarot_before()}
+          <a href={toolHref(tarotPath('daily', locale), locale)} className={bodyLink}>
+            {m.daily_east_more_tarot_link()}
+          </a>
+          {m.daily_east_more_tarot_after()}
+        </p>
+      </article>
 
       <div className="flex flex-col gap-3">
         <Disclaimer />
-        <p className="m-0 text-ink-subtle text-xs leading-relaxed">
+        <p role="note" className="m-0 max-w-180 text-caption text-ink-subtle">
           {m.daily_rules_note({ version: facts.rulesVersion })}
         </p>
       </div>
-    </div>
+    </PageWidth>
   )
 }
 
@@ -241,21 +273,9 @@ function Row({
 }) {
   return (
     <div className="flex gap-3">
-      <dt className={cn('min-w-12 shrink-0 whitespace-nowrap font-bold', termClass)}>{term}</dt>
+      <dt className={cn('min-w-12 shrink-0 whitespace-nowrap font-medium', termClass)}>{term}</dt>
       <dd className="m-0 min-w-0 flex-1 text-ink">{children}</dd>
     </div>
-  )
-}
-
-function MoreLink({ href, title, body }: { href: string; title: string; body: string }) {
-  return (
-    <a
-      href={href}
-      className="flex flex-col gap-1.5 rounded-xl border border-line bg-surface p-5 text-ink no-underline transition-colors hover:border-line-strong"
-    >
-      <strong>{title}</strong>
-      <span className="text-ink-muted text-sm">{body}</span>
-    </a>
   )
 }
 
@@ -271,7 +291,7 @@ function DayMasterSection({
   locale: 'zh-Hant' | 'zh-Hans' | 'ko'
   rules: EastRules
   facts: EastDayFacts
-  selected: Stem
+  selected: Stem | null
   onSelect: (stem: Stem) => void
   personal: Personal | null
   onPersonal: (personal: Personal) => void
@@ -281,13 +301,13 @@ function DayMasterSection({
   return (
     <section
       aria-labelledby={`${baseId}-title`}
-      className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5 sm:p-7"
+      className="flex max-w-190 flex-col gap-5 rounded-object bg-surface p-6 shadow-raise sm:p-8"
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-4">
-        <h2 id={`${baseId}-title`} className="m-0 font-bold font-heading text-2xl text-ink">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 id={`${baseId}-title`} className="m-0 font-heading text-ink text-subtitle">
           {m.daily_mine_title()}
         </h2>
-        <span className="text-ink-subtle text-sm">{m.daily_mine_privacy()}</span>
+        <span className="text-caption text-ink-subtle">{m.daily_mine_privacy()}</span>
       </div>
       <div role="tablist" aria-label={m.daily_pick_label()} className="flex flex-wrap gap-2">
         {stemOrder().map((stem) => {
@@ -302,25 +322,29 @@ function DayMasterSection({
               aria-controls={`${baseId}-panel-${stem}`}
               onClick={() => onSelect(stem)}
               className={cn(
-                'size-13 rounded-lg border font-heading text-xl transition-colors',
-                active
-                  ? 'border-brand bg-brand text-on-brand'
-                  : 'border-line-strong bg-transparent text-ink hover:bg-surface-2',
+                'size-12 rounded-field font-bold font-heading text-subtitle transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2',
+                active ? 'bg-brand text-on-brand' : 'bg-surface-2 text-ink hover:bg-background',
               )}
             >
               {stemText(locale, stem)}
             </button>
           )
         })}
-        <button
-          type="button"
-          aria-expanded={formOpen}
-          onClick={() => setFormOpen((open) => !open)}
-          className="min-h-13 rounded-lg border border-line-strong border-dashed bg-transparent px-4 text-ink text-sm"
-        >
-          {m.daily_unknown_master()}
-        </button>
       </div>
+      {/* 「输入生日」不是页签：放在页签列表之外（tablist 里只能有 tab） */}
+      <button
+        type="button"
+        aria-expanded={formOpen}
+        onClick={() => setFormOpen((open) => !open)}
+        className="min-h-12 self-start rounded-field border border-field-border bg-transparent px-4 text-body text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+      >
+        {m.daily_unknown_master()}
+      </button>
+      {selected === null && (
+        <p className="m-0 text-body text-ink-muted" data-testid="daily-master-neutral">
+          {m.daily_master_neutral()}
+        </p>
+      )}
       {formOpen && <PersonalForm locale={locale} date={facts.date} onResult={onPersonal} />}
       {stemOrder().map((stem) => {
         const tenGod = tenGodFor(stem, facts.stem)
@@ -336,21 +360,19 @@ function DayMasterSection({
             className="flex flex-col gap-4"
             data-stem={stem}
           >
-            <h3 className="m-0 font-semibold text-base text-ink">
+            <h3 className="m-0 font-medium text-body text-ink">
               {m.daily_master_heading({ master: stemWithElement(locale, stem) })}
             </h3>
             <div className="grid gap-4 md:grid-cols-3">
               <div className={card}>
                 <span className={cardLabel}>{m.daily_card_stem()}</span>
-                <strong className="text-2xl text-ink">{TEN_GOD_LABEL[tenGod]()}</strong>
-                <span className="text-ink-muted text-sm">{rules.tenGodKeyword[tenGod]}</span>
+                <strong className={cardValue}>{TEN_GOD_LABEL[tenGod]()}</strong>
+                <span className="text-caption text-ink-subtle">{rules.tenGodKeyword[tenGod]}</span>
               </div>
               <div className={card}>
                 <span className={cardLabel}>{m.daily_card_branch()}</span>
-                <strong className="text-2xl text-ink">
-                  {branchWithElement(locale, facts.branch)}
-                </strong>
-                <span className="text-ink-muted text-sm">
+                <strong className={cardValue}>{branchWithElement(locale, facts.branch)}</strong>
+                <span className="text-caption text-ink-subtle">
                   {mine
                     ? mine.relations.length > 0
                       ? mine.relations
@@ -362,10 +384,10 @@ function DayMasterSection({
               </div>
               <div className={card}>
                 <span className={cardLabel}>{m.daily_card_tip()}</span>
-                <p className="m-0 text-base text-ink leading-relaxed">{tip.theme}</p>
+                <p className="m-0 text-body text-ink">{tip.theme}</p>
               </div>
             </div>
-            <dl className="m-0 flex flex-col gap-2 text-base leading-relaxed">
+            <dl className="m-0 flex flex-col gap-2 text-body">
               <Row term={m.daily_tip_advice()} termClass="text-ink">
                 <span className="text-ink-muted">{tip.advice}</span>
               </Row>
@@ -376,7 +398,10 @@ function DayMasterSection({
             {mine && (
               <ul className="m-0 flex list-none flex-col gap-2 p-0" data-testid="daily-relations">
                 {relationLines(rules, mine.relations, facts.date).map((line) => (
-                  <li key={line} className="rounded-lg bg-surface-2 px-4 py-3 text-ink">
+                  <li
+                    key={line}
+                    className="rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
+                  >
                     {line}
                   </li>
                 ))}
@@ -385,11 +410,17 @@ function DayMasterSection({
           </div>
         )
       })}
-      <p className="m-0 text-ink-muted text-sm">
-        {m.daily_profile_cta()}{' '}
-        <a href="/app" className="font-semibold text-brand-ink">
-          {m.daily_profile_cta_link()}
+      {/* 不知道日主的访客先去排盘：本页唯一指向主工具的正文链接 */}
+      <p role="note" className="m-0 text-caption text-ink-subtle">
+        {m.daily_master_hint_before()}
+        <a href={mainToolHref(locale)} className={bodyLink}>
+          {m.daily_more_chart()}
         </a>
+        {m.daily_master_hint_after()}
+      </p>
+      {/* 设计稿中这一句是说明文字，不放链接：登录入口在页头 */}
+      <p role="note" className="m-0 text-caption text-ink-subtle">
+        {m.daily_profile_cta()}
       </p>
     </section>
   )
@@ -463,7 +494,7 @@ function PersonalForm({
       aria-label={m.daily_form_label()}
       method="post"
       onSubmit={(event) => void submit(event)}
-      className="grid gap-4 rounded-xl border border-line bg-surface-2 p-4 sm:grid-cols-3 sm:items-end"
+      className="grid gap-4 rounded-field bg-surface-2 p-4 sm:grid-cols-3 sm:items-end"
     >
       <DateField
         label={m.daily_form_date()}
@@ -477,11 +508,11 @@ function PersonalForm({
         type="submit"
         disabled={busy}
         aria-busy={busy || undefined}
-        className="min-h-11 rounded-lg bg-brand px-5 font-semibold text-on-brand disabled:opacity-70"
+        className="min-h-11 rounded-full bg-brand px-5 font-medium text-body text-on-brand focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3 disabled:opacity-70"
       >
         {m.daily_form_submit()}
       </button>
-      <p id={errorId} className="m-0 text-brand-ink text-sm empty:hidden sm:col-span-3">
+      <p id={errorId} className="m-0 text-caption text-danger empty:hidden sm:col-span-3">
         {error}
       </p>
     </form>

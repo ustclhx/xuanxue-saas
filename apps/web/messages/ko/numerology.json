@@ -122,5 +122,15 @@
   "numerology_faq_compat_q1": "궁합 단계는 무엇을 기준으로 정하나요?",
   "numerology_faq_compat_a1": "널리 알려진 피타고라스 수비학 해석을 정리한 고정 12 × 12 표를 사용해요. 두 숫자의 순서를 바꿔도 결과는 같으며, 모든 방문자에게 같은 표를 적용해요.",
   "numerology_faq_compat_q2": "조율이 필요한 궁합이어도 좋은 관계를 이어 갈 수 있나요?",
-  "numerology_faq_compat_a2": "네. 이 표는 참고용으로, 소통과 존중, 관계에 기울이는 노력을 평가할 수 없어요. 궁합 단계를 관계에 대한 판정이 아닌 대화의 계기로 활용해 주세요."
+  "numerology_faq_compat_a2": "네. 이 표는 참고용으로, 소통과 존중, 관계에 기울이는 노력을 평가할 수 없어요. 궁합 단계를 관계에 대한 판정이 아닌 대화의 계기로 활용해 주세요.",
+  "numerology_number_link": "라이프 패스 넘버 {number}",
+  "numerology_neighbors_title": "다른 숫자 살펴보기",
+  "numerology_neighbors": "{number}와 이웃한 숫자를 견주어 보면 도움이 됩니다. [라이프 패스 넘버 {a}]의 주제는 {themeA}, [라이프 패스 넘버 {b}]의 주제는 {themeB}입니다.",
+  "numerology_neighbors_master": "다른 두 마스터 넘버를 {number}와 견주어 보면 도움이 됩니다. [라이프 패스 넘버 {a}]의 주제는 {themeA}, [라이프 패스 넘버 {b}]의 주제는 {themeB}입니다.",
+  "numerology_neighbors_root": "마스터 넘버인 {number}는 뿌리 숫자와 함께 읽기도 합니다. [라이프 패스 넘버 {root}]의 주제는 {theme}입니다.",
+  "numerology_band_number": "전체 계산기는 라이프 패스와 이름 숫자, 개인 연도를 한 페이지에 함께 보여 줍니다.",
+  "numerology_band_hub": "전체 계산기는 생년월일과 이름을 함께 사용해 라이프 패스, 데스티니, 소울 어지, 퍼스널리티, 개인 연도를 한 페이지에 보여 줍니다.",
+  "numerology_band_link": "수비학 계산기",
+  "numerology_name_example": "예시 · {name}(가상의 이름)",
+  "numerology_name_example_note": "예시입니다. 위에 이름을 입력하면 그 이름의 글자와 계산 과정을 볼 수 있습니다."
 }

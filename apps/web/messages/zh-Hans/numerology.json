@@ -122,5 +122,15 @@
   "numerology_faq_compat_q1": "配对等级来自哪里？",
   "numerology_faq_compat_a1": "来自汇总常见毕达哥拉斯数字命理解读的固定12 × 12表格。表格是对称的，所有访客使用的表格都相同。",
   "numerology_faq_compat_q2": "需要磨合的配对也能相处得好吗？",
-  "numerology_faq_compat_a2": "可以。表格仅供参考，无法衡量沟通、尊重或对关系的投入。请将配对等级用作交流的契机，而非对关系的定论。"
+  "numerology_faq_compat_a2": "可以。表格仅供参考，无法衡量沟通、尊重或对关系的投入。请将配对等级用作交流的契机，而非对关系的定论。",
+  "numerology_number_link": "生命灵数{number}",
+  "numerology_neighbors_title": "看看其他数字",
+  "numerology_neighbors": "与 {number} 相邻的数字可以拿来对照：[生命灵数{a}]的主题是{themeA}，[生命灵数{b}]的主题是{themeB}。",
+  "numerology_neighbors_master": "另外两个大师数可以和 {number} 对照：[生命灵数{a}]的主题是{themeA}，[生命灵数{b}]的主题是{themeB}。",
+  "numerology_neighbors_root": "作为大师数，{number} 也常与它的根数一起看：[生命灵数{root}]，主题是{theme}。",
+  "numerology_band_number": "完整计算器会把生命灵数、姓名数字与个人年放在同一页。",
+  "numerology_band_hub": "完整计算器结合出生日期与姓名：生命灵数、命运数、灵魂渴望数、人格数与个人年都在同一页。",
+  "numerology_band_link": "灵数计算器",
+  "numerology_name_example": "示例 · {name}（虚构）",
+  "numerology_name_example_note": "这是示例。在上方输入姓名，即可看到它自己的字母与步骤。"
 }

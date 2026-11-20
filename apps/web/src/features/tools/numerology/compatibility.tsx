@@ -44,7 +44,7 @@ export function LevelBadge({
   return (
     <span
       className={cn(
-        'inline-flex min-h-8 items-center rounded-full border px-3 font-semibold text-sm',
+        'inline-flex min-h-8 items-center rounded-full border px-3 font-medium text-caption',
         levelStyle[level],
         className,
       )}
@@ -70,10 +70,10 @@ export function CompatibilityRow({ value }: { value: number }) {
                   number: other,
                   level: LEVEL_LABEL[level](),
                 })}
-                className="flex min-h-11 items-center justify-between gap-2 rounded-lg border border-line bg-surface-2 px-3 transition-colors hover:border-line-strong"
+                className="flex min-h-11 items-center justify-between gap-2 rounded-field bg-surface-2 px-3 no-underline ring-line-strong ring-inset transition-shadow hover:ring-1 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
               >
-                <span className="font-heading text-ink text-xl">{other}</span>
-                <LevelBadge level={level} className="min-h-7 px-2.5 text-xs" />
+                <span className="font-bold font-heading text-ink text-subtitle">{other}</span>
+                <LevelBadge level={level} className="min-h-7 px-2.5" />
               </a>
             </li>
           )
@@ -141,12 +141,12 @@ export function CompatibilityCalculator() {
         <div className="flex flex-col gap-5">
           <ResultBlock id="compatibility" title={m.numerology_compat_result()}>
             <div className="flex flex-wrap items-center gap-4">
-              <span className="font-heading text-[56px] text-brand leading-none">
+              <span className="font-bold font-heading text-display text-ink">
                 {left} &amp; {right}
               </span>
-              <LevelBadge level={result.level} className="min-h-10 px-4 text-base" />
+              <LevelBadge level={result.level} className="min-h-10 px-4 text-body" />
             </div>
-            <p className="m-0 max-w-[720px] text-ink-muted leading-relaxed">
+            <p className="m-0 max-w-180 text-body text-ink-muted">
               {LEVEL_EXPLAIN[result.level]({
                 left: String(left),
                 right: String(right),
@@ -154,7 +154,7 @@ export function CompatibilityCalculator() {
                 rightTheme: NUMBER_THEME[right](),
               })}
             </p>
-            <p className="m-0 text-ink-subtle text-xs">{m.numerology_compat_note()}</p>
+            <p className="m-0 text-caption text-ink-subtle">{m.numerology_compat_note()}</p>
           </ResultBlock>
           <div className="grid gap-5 md:grid-cols-2">
             {(
@@ -168,9 +168,9 @@ export function CompatibilityCalculator() {
                 <LifePathSteps result={value} date={date} />
                 <a
                   href={lifePathPath(value.value)}
-                  className="inline-flex min-h-11 items-center text-brand-ink underline-offset-4 hover:underline"
+                  className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
                 >
-                  {m.numerology_read_meaning({ number: value.value })}
+                  {m.numerology_number_link({ number: value.value })}
                 </a>
               </ResultBlock>
             ))}

@@ -81,7 +81,7 @@
 
 依赖：3、4、5。冲突点：`features/tools/numerology/`（除 `home.tsx`）、`features/tools/tarot/`、`features/daily/` 页面组件、`routes/numerology-*.tsx`、`routes/life-path-*.tsx`、`routes/life-path-number/$number.tsx`、`routes/tarot/`、`routes/塔羅/` 等塔罗路由、`routes/daily-numerology.tsx` 与三个东方每日页路由。
 
-- [ ] 7.1 数字命理工具页、12 个数字页、两个枢纽页、塔罗抽牌与牌义页、每日页按新视觉改版（西方站浅色默认、深色可切换；塔罗牌面与图形在两种主题下可读）。验证：`visual-rules.spec.ts` 启用并通过；`chart-visuals`「西方站浅色与深色」场景的对比度断言通过；本组条目从允许名单删除
+- [x] 7.1 数字命理工具页、12 个数字页、两个枢纽页、塔罗抽牌与牌义页、每日页按新视觉改版（西方站浅色默认、深色可切换；塔罗牌面与图形在两种主题下可读）。验证：`visual-rules.spec.ts` 启用并通过；`chart-visuals`「西方站浅色与深色」场景的对比度断言通过；本组条目从允许名单删除
 - [ ] 7.2 【Codex】按副本对照截图（西方站 390 / 1440 × 浅 / 深，东方站塔罗与每日页 × 浅 / 深），axe 检查。验证：同 6.2
 
 ## 8. 定价、详批与应用区（WT-pages-commerce，【Claude】）

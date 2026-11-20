@@ -91,6 +91,45 @@ export function numerologyLinks(current?: string): ToolLink[] {
   return links.filter((link) => link.target !== current)
 }
 
+/**
+ * 四个工具内页页尾的相关工具：每页只列语义上最接近的 3–4 个（内链规则：每页正文链接 2–5 条、只链接相关页面），
+ * 不再把全部工具排成一行。Life Path 工具页（父页）仍用 numerologyLinks 的完整列表。
+ */
+const RELATED_TOOLS: Readonly<Record<NumerologyToolId, readonly string[]>> = {
+  'numerology-calculator': [
+    'life-path',
+    'numerology-chart',
+    'name-numerology',
+    'life-path-compatibility',
+  ],
+  'numerology-chart': ['numerology-calculator', 'life-path', 'name-numerology'],
+  'name-numerology': ['destiny-number', 'soul-urge-number', 'numerology-calculator'],
+  'life-path-compatibility': ['life-path', 'numerology-calculator', 'numerology-chart'],
+}
+
+export function relatedNumerologyLinks(id: NumerologyToolId): ToolLink[] {
+  const links = numerologyLinks(id)
+  return RELATED_TOOLS[id].flatMap((target) => links.find((link) => link.target === target) ?? [])
+}
+
+/**
+ * 数字页正文里链接的相邻数字（使用者 2026-11-19 确认：每页 2–3 个，写在句子里，不再放 12 个数字的网格）：
+ * 1–9 首尾相接取前后各一个；大师数取另外两个大师数，再加它约简后的根数（11→2、22→4、33→6）。
+ */
+export function neighborNumbers(value: LifePathValue): {
+  readonly pair: readonly [LifePathValue, LifePathValue]
+  readonly root?: LifePathValue
+} {
+  if (value > 9) {
+    const masters = ([11, 22, 33] as const).filter((master) => master !== value)
+    return {
+      pair: [masters[0] as LifePathValue, masters[1] as LifePathValue],
+      root: asLifePath((value / 11) * 2),
+    }
+  }
+  return { pair: [asLifePath(((value + 7) % 9) + 1), asLifePath((value % 9) + 1)] }
+}
+
 /** 四个工具内页的 FAQ（页面 ToolFaq 与 FAQPage 共用） */
 export function toolFaq(id: NumerologyToolId): { question: string; answer: string }[] {
   const pairs: Record<NumerologyToolId, [() => string, () => string][]> = {

@@ -68,7 +68,17 @@ const PAGES: readonly RulePage[] = [
   },
   { name: '八字概念页（十神）', site: 'east', path: '/zh-hant/八字/十神', restyled: true },
   { name: '사주 개념 페이지（공망）', site: 'east', path: '/ko/사주/공망', restyled: true },
-  { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: false },
+  { name: 'Numerology Calculator', site: 'west', path: '/numerology-calculator', restyled: true },
+  // 第 7 组：西方站数字页与枢纽页、两站塔罗抽牌 / 牌义 / 牌义索引页、两站每日页（tasks 7.1）
+  { name: '数字页 Life Path 7', site: 'west', path: '/life-path-number/7', restyled: true },
+  { name: '枢纽页 Destiny Number', site: 'west', path: '/destiny-number', restyled: true },
+  { name: 'Three-Card Tarot', site: 'west', path: '/tarot', restyled: true },
+  { name: '牌义页 The Sun', site: 'west', path: '/tarot/cards/the-sun', restyled: true },
+  { name: '牌义索引（西方站）', site: 'west', path: '/tarot/cards', restyled: true },
+  { name: '三张牌塔罗（简中）', site: 'east', path: '/zh-hans/塔罗', restyled: true },
+  { name: '牌义索引（简中）', site: 'east', path: '/zh-hans/塔罗/牌义', restyled: true },
+  { name: 'Daily Numerology', site: 'west', path: '/daily-numerology', restyled: true },
+  { name: '每日运势（简中）', site: 'east', path: '/zh-hans/每日运势', restyled: true },
   { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: true },
   { name: '西方站定价页', site: 'west', path: '/pricing', restyled: true },
 ]
