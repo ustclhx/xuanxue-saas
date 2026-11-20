@@ -3,6 +3,7 @@ import { cn } from '@xuanxue/ui'
 import { PageWidth } from '@xuanxue/ui/project'
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { defaultPlace } from '../tools/bazi/birth-form-state.ts'
 import { loadBazi } from '../tools/bazi/engine.ts'
 import { TEN_GOD_LABEL } from '../tools/bazi/labels.ts'
 import { DateField, TimeField } from '../tools/date-field.tsx'
@@ -468,7 +469,7 @@ function PersonalForm({
           day: birth.day,
           time: time ? { hour: Number(time[1]), minute: Number(time[2]) } : null,
           gender: 'female',
-          location: { city: locale === 'ko' ? 'seoul' : 'taipei' },
+          location: { city: defaultPlace(locale) },
           trueSolarTime: false,
         },
         { referenceYear: today.year },

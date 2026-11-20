@@ -56,14 +56,14 @@ export const PLACE_IDS: Record<'zh-Hant' | 'zh-Hans' | 'ko', readonly CityId[]> 
     'sydney',
   ],
   'zh-Hans': [
-    'taipei',
-    'taichung',
-    'kaohsiung',
-    'hongKong',
-    'macau',
     'beijing',
     'shanghai',
     'guangzhou',
+    'hongKong',
+    'macau',
+    'taipei',
+    'taichung',
+    'kaohsiung',
     'seoul',
     'busan',
     'daegu',
@@ -115,6 +115,14 @@ export function formatUtcOffset(minutes: number): string {
   return `UTC${sign}${Math.floor(abs / 60)}:${String(abs % 60).padStart(2, '0')}`
 }
 
+/**
+ * 各语言表单的默认出生地：简体页面向大陆读者默认北京，繁体页默认台北，韩语页默认首尔
+ * （SEO 内容差异化，2026-11-20 使用者决定）。未知语言按繁体处理。
+ */
+export function defaultPlace(locale: string): CityId {
+  return locale === 'ko' ? 'seoul' : locale === 'zh-Hans' ? 'beijing' : 'taipei'
+}
+
 export function defaultBirthValues(locale: string): BirthFormValues {
   return {
     calendar: 'solar',
@@ -125,7 +133,7 @@ export function defaultBirthValues(locale: string): BirthFormValues {
     day: '',
     time: '',
     unknownTime: false,
-    place: locale === 'ko' ? 'seoul' : 'taipei',
+    place: defaultPlace(locale),
     utcOffset: locale === 'ko' ? '540' : '480',
     longitude: '',
     trueSolar: false,

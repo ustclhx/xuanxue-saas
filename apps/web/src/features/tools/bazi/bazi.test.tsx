@@ -1,3 +1,4 @@
+import { computeChart } from '@xuanxue/bazi'
 import type { ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -11,6 +12,7 @@ import {
   fromShareInput,
   KO_TRUE_SOLAR_DEFAULT,
   loadBirthValues,
+  PLACE_IDS,
   readBirthForm,
   saveBirthValues,
   toBirthInput,
@@ -118,6 +120,37 @@ describe('出生信息表单状态', () => {
   it('韩语页진태양시默认开启（决策 D5 的单一常量）', () => {
     expect(KO_TRUE_SOLAR_DEFAULT).toBe(true)
     expect(defaultBirthValues('ko').place).toBe('seoul')
+  })
+
+  it('默认出生地按语言区分：简体北京、繁体台北、韩语首尔，且排在下拉首位', () => {
+    expect(defaultBirthValues('zh-Hans').place).toBe('beijing')
+    expect(defaultBirthValues('zh-Hant').place).toBe('taipei')
+    expect(defaultBirthValues('ko').place).toBe('seoul')
+    for (const locale of ['zh-Hans', 'zh-Hant', 'ko'] as const)
+      expect(PLACE_IDS[locale][0]).toBe(defaultBirthValues(locale).place)
+  })
+
+  it('简体默认的北京出生地：真太阳时按东经 116.4° 修正，标准时为 UTC+8', () => {
+    const values = {
+      ...defaultBirthValues('zh-Hans'),
+      year: '1995',
+      month: '5',
+      day: '15',
+      time: '10:30',
+    }
+    const off = toBirthInput(values)
+    const on = toBirthInput({ ...values, trueSolar: true })
+    if (!off.ok || !on.ok) throw new Error('invalid input')
+    expect(off.input.location).toEqual({ city: 'beijing' })
+    const plain = computeChart(off.input, { referenceYear: 2026 })
+    const solar = computeChart(on.input, { referenceYear: 2026 })
+    expect(plain.time.offsetSeconds).toBe(8 * 3600)
+    expect(plain.time.trueSolarCorrectionMinutes).toBeNull()
+    // 经度差 (116.4074 − 120) × 4 ≈ −14.4 分钟，再加 5 月中旬约 +3.6 分钟的均时差
+    const correction = solar.time.trueSolarCorrectionMinutes ?? 0
+    expect(correction).toBeGreaterThan(-12)
+    expect(correction).toBeLessThan(-9)
+    expect(solar.time.trueSolar).toMatchObject({ year: 1995, month: 5, day: 15, hour: 10 })
   })
 })
 
