@@ -57,6 +57,18 @@
   line-gap-override: 0%;
 }
 
+/* 简中：Noto Sans SC 与 TC 同属 Noto Sans CJK，纵向度量相同，只换本机简体黑体 */
+@font-face {
+  font-family: "Noto Sans SC Fallback";
+  src:
+    local("PingFang SC Semibold"), local("PingFangSC-Semibold"), local("Microsoft YaHei Bold"),
+    local("Noto Sans CJK SC Bold");
+  font-weight: 600 800;
+  ascent-override: 116%;
+  descent-override: 28.8%;
+  line-gap-override: 0%;
+}
+
 @font-face {
   font-family: "Noto Sans KR Fallback";
   src:
@@ -150,6 +162,14 @@
     "Noto Sans TC", "Noto Sans TC Fallback", -apple-system, "PingFang TC", "Microsoft JhengHei",
     sans-serif;
   --site-font-body: -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* 简中页只加载 Noto Sans SC（TC 缺一部分简体字形），正文用简体系统字体 */
+:root[data-site="east"]:lang(zh-Hans) {
+  --site-font-heading:
+    "Noto Sans SC", "Noto Sans SC Fallback", -apple-system, "PingFang SC", "Microsoft YaHei",
+    sans-serif;
+  --site-font-body: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 /* 韩语页只加载 Noto Sans KR，正文用韩文系统字体 */

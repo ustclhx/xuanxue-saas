@@ -67,7 +67,12 @@ function LifePathNumberPage() {
           ]}
         />
       }
-      calculator={<LifePathCalculator example={exampleDateFor(Number(content.number))} />}
+      calculator={
+        <LifePathCalculator
+          example={exampleDateFor(Number(content.number))}
+          current={Number(content.number)}
+        />
+      }
     />
   )
 }

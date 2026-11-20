@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 import { MarketingShell } from '../../marketing/marketing-shell.tsx'
 import { ToolPage } from '../tool-page.tsx'
-import { numerologyLinks, toolFaq } from './copy.ts'
+import { relatedNumerologyLinks, toolFaq } from './copy.ts'
 import type { NumerologyToolId } from './routes.ts'
 
-/** 四个工具内页的统一外壳：ToolPage（H1、导语、表单与结果、声明、内链、FAQ） */
+/** 四个工具内页的统一外壳：ToolPage（H1、导语、表单与结果、声明、FAQ、3–4 个相关工具） */
 export function NumerologyToolPage({
   id,
   title,
@@ -23,7 +23,7 @@ export function NumerologyToolPage({
         title={title}
         intro={<p className="m-0">{intro}</p>}
         form={children}
-        links={numerologyLinks(id)}
+        links={relatedNumerologyLinks(id)}
         faq={toolFaq(id)}
       />
     </MarketingShell>

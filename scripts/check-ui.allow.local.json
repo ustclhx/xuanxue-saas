@@ -30,6 +30,7 @@
     ]
   },
   "pendingReplacement": {
+<<<<<<< HEAD
     "apps/web/src/features/tools/numerology/chart.tsx": [
       {
         "rule": "arbitrary-class",
@@ -85,6 +86,9 @@
       }
     ],
     "apps/web/src/features/tools/tarot/meaning-page.tsx": [
+=======
+    "apps/web/src/features/marketing/east-english/page.tsx": [
+>>>>>>> origin/main
       {
         "rule": "arbitrary-class",
         "value": "max-w-[1120px]",
@@ -93,8 +97,13 @@
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "max-w-[820px]",
         "count": 1,
+=======
+        "value": "max-w-[760px]",
+        "count": 2,
+>>>>>>> origin/main
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
       {
@@ -105,7 +114,11 @@
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "sm:text-[44px]",
+=======
+        "value": "sm:text-[40px]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
@@ -117,12 +130,17 @@
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "lg:grid-cols-[minmax(0,720px)_280px]",
+=======
+        "value": "text-[24px]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "w-[140px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
@@ -138,17 +156,25 @@
       {
         "rule": "arbitrary-class",
         "value": "max-w-[720px]",
+=======
+        "value": "text-[22px]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "auto-rows-[44px]",
+=======
+        "value": "text-[16px]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
       {
         "rule": "arbitrary-class",
+<<<<<<< HEAD
         "value": "pb-[34px]",
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
@@ -168,12 +194,16 @@
       {
         "rule": "arbitrary-class",
         "value": "transition-[opacity,transform]",
+=======
+        "value": "text-[20px]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
       {
         "rule": "arbitrary-class",
         "value": "rounded-[10px]",
+<<<<<<< HEAD
         "count": 2,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       },
@@ -210,10 +240,13 @@
       {
         "rule": "arbitrary-class",
         "value": "max-w-[520px]",
+=======
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }
     ],
+<<<<<<< HEAD
     "apps/web/src/features/tools/tarot/tarot-page.tsx": [
       {
         "rule": "arbitrary-class",
@@ -230,6 +263,12 @@
       {
         "rule": "arbitrary-class",
         "value": "[scrollbar-width:none]",
+=======
+    "apps/web/src/features/marketing/rich-content.tsx": [
+      {
+        "rule": "arbitrary-class",
+        "value": "[&_table]:min-w-[36rem]",
+>>>>>>> origin/main
         "count": 1,
         "reason": "采纳模板 0.3.0 前的存量任意值工具类（字号、版心宽度、栅格等），待按 docs/design/visual-system.md 补充 token 工具类后替换。"
       }

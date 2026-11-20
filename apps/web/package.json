@@ -18,6 +18,7 @@
     "@ai-sdk/react": "^4.0.130",
     "@fontsource/manrope": "^5.3.0",
     "@fontsource/noto-sans-kr": "^5.3.1",
+    "@fontsource/noto-sans-sc": "^5.3.1",
     "@fontsource/noto-sans-tc": "^5.3.1",
     "@sentry/cloudflare": "^11.6.0",
     "@tanstack/react-form": "^1.33.5",

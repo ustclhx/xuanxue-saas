@@ -47,14 +47,14 @@ export function DatePart({
 
 /** 分段外框：与 form.tsx 的 fieldControl 同一套尺寸与色调，状态取自内部输入框 */
 const segmentBox =
-  'flex min-h-12 w-full min-w-0 cursor-text items-center gap-1 rounded-field border border-field-border bg-background px-3 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2 has-aria-invalid:border-danger has-aria-invalid:ring-1 has-aria-invalid:ring-danger has-disabled:opacity-50'
+  'flex min-h-12 w-full min-w-0 cursor-text items-center gap-1 rounded-field border border-field-border bg-background px-2.5 has-focus-visible:outline-2 has-focus-visible:outline-ring has-focus-visible:outline-offset-2 has-aria-invalid:border-danger has-aria-invalid:ring-1 has-aria-invalid:ring-danger has-disabled:opacity-50'
 
 interface PartSpec<K extends string> {
   readonly key: K
   readonly label: string
   readonly placeholder: string
   readonly maxLength: number
-  /** 该段在栅格中占的列数（年份四位数，比月 / 日宽） */
+  /** 该段的最小宽度与伸展比例（年份四位数，比月 / 日宽） */
   readonly span?: string
 }
 
@@ -209,22 +209,28 @@ function SegmentedField<P extends Readonly<Record<string, string>>>({
   )
 }
 
+// 日期三段按 3 : 2 : 2 伸展，并各有最小宽度：单位写在数字右侧，英语的 “Month” 比「月」宽得多，
+// 按比例平分时窄容器（手机上的卡片、平板两列表单）里两位数会被裁掉。最小宽度按
+// 「数字 + 最长的单位 + 内边距」取值；一行放不下时换行，不裁切数字。
+const YEAR_SEGMENT = 'min-w-26 grow-3 basis-0'
+const SHORT_SEGMENT = 'min-w-22 grow-2 basis-0'
+
 const dateSpecs = (): readonly PartSpec<keyof DateParts>[] => [
   {
     key: 'year',
     label: m.date_field_year(),
     placeholder: '1990',
     maxLength: 4,
-    span: 'col-span-3',
+    span: YEAR_SEGMENT,
   },
   {
     key: 'month',
     label: m.date_field_month(),
     placeholder: '5',
     maxLength: 2,
-    span: 'col-span-2',
+    span: SHORT_SEGMENT,
   },
-  { key: 'day', label: m.date_field_day(), placeholder: '15', maxLength: 2, span: 'col-span-2' },
+  { key: 'day', label: m.date_field_day(), placeholder: '15', maxLength: 2, span: SHORT_SEGMENT },
 ]
 
 const timeSpecs = (): readonly PartSpec<keyof TimeParts>[] => [
@@ -240,7 +246,7 @@ export function DateField(props: FieldProps) {
       specs={dateSpecs()}
       split={splitDateValue}
       join={joinDateParts}
-      gridClassName="grid-cols-7"
+      gridClassName="flex flex-wrap"
     />
   )
 }

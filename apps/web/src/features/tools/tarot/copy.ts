@@ -1,4 +1,4 @@
-import type { SpreadId } from '@xuanxue/tarot'
+import type { SpreadId, Suit } from '@xuanxue/tarot'
 import { m } from '../../../paraglide/messages.js'
 
 type Message = () => string
@@ -95,4 +95,22 @@ export function answerLabel(answer: 'Yes' | 'No' | 'Maybe'): string {
 
 export function orientationLabel(reversed: boolean): string {
   return reversed ? m.tarot_reversed() : m.tarot_upright()
+}
+
+/** 牌义索引的分组名：大阿尔卡那与四个花色（花色名只是「权杖」一词，标题另加「牌组」） */
+export const GROUP_NAME: Readonly<Record<Suit, Message>> = {
+  major: m.tarot_group_major,
+  wands: m.tarot_group_wands,
+  cups: m.tarot_group_cups,
+  swords: m.tarot_group_swords,
+  pentacles: m.tarot_group_pentacles,
+}
+
+/** 分组标题旁的一行说明：张数、元素与主题 */
+export const GROUP_NOTE: Readonly<Record<Suit, Message>> = {
+  major: m.tarot_group_major_note,
+  wands: m.tarot_group_wands_note,
+  cups: m.tarot_group_cups_note,
+  swords: m.tarot_group_swords_note,
+  pentacles: m.tarot_group_pentacles_note,
 }

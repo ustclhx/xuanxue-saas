@@ -37,7 +37,19 @@ test('英语三张牌：模板填入问题，键盘逐张翻牌，分享链接�
   // 首屏不加载牌面图片
   await expect(page.locator('img[src^="/tarot/"]')).toHaveCount(0)
   await hydrated(page)
-  await page.getByRole('button', { name: 'What should I focus on in love?' }).click()
+  // 问句模板默认收起：页面上只有「洗牌」一个主按钮（设计稿 warm-refresh/TarotDraw.dc.html）
+  const template = page.getByRole('button', { name: 'What should I focus on in love?' })
+  await expect(template).toBeHidden()
+  await expect(page.locator('main button.bg-primary')).toHaveCount(1)
+  // 导语链接牌义索引；其他牌阵是正文里的一段话（3 条链接），都是真实 <a>
+  await expect(page.locator('main header p a')).toHaveAttribute('href', '/tarot/cards')
+  await expect(page.locator('main article a')).toHaveText([
+    'card of the day',
+    'yes or no tarot',
+    'Celtic Cross tarot',
+  ])
+  await page.getByText('Questions you can ask').click()
+  await template.click()
   await expect(page.getByLabel('Your question')).toHaveValue('What should I focus on in love?')
   await draw(page, /^Shuffle the deck$/)
   // 发牌后焦点在第一张，Enter 连续翻开

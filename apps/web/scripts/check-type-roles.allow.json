@@ -11,8 +11,6 @@
   "src/features/ai/conversation-list.tsx": 2,
   "src/features/ai/model-picker.tsx": 1,
   "src/features/ai/subject-chat.tsx": 1,
-  "src/features/daily/east-page.tsx": 26,
-  "src/features/daily/west-page.tsx": 18,
   "src/features/deletion/deletion-section.tsx": 1,
   "src/features/marketing/sections/cta.tsx": 1,
   "src/features/marketing/sections/hero.tsx": 4,
@@ -23,11 +21,15 @@
   "src/features/marketing/sections/testimonials.tsx": 2,
   "src/features/settings/account-sections.tsx": 1,
   "src/features/share-cards/share-page.tsx": 3,
+<<<<<<< HEAD
   "src/features/tools/numerology/compatibility.tsx": 5,
   "src/features/tools/numerology/name-calculator.tsx": 2,
   "src/features/tools/tarot/meaning-page.tsx": 4,
   "src/features/tools/tarot/table.tsx": 3,
   "src/features/tools/tarot/tarot-page.tsx": 14,
+=======
+  "src/routes/__root.tsx": 1,
+>>>>>>> origin/main
   "src/routes/account/index.tsx": 1,
   "src/routes/admin/audit.tsx": 1,
   "src/routes/admin/billing/index.tsx": 1,

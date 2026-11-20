@@ -96,11 +96,14 @@ export function LifePathCard({
   result,
   date,
   example,
+  current,
   footer,
 }: {
   result: NumberResult
   date: BirthDate
   example?: boolean
+  /** 所在数字页的数字：结果与它相同时不输出数字页链接（否则是指向本页的链接） */
+  current?: number | undefined
   footer?: ReactNode
 }) {
   const labelId = useId()
@@ -126,13 +129,16 @@ export function LifePathCard({
             {result.master && <MasterPill />}
           </div>
           <p className="m-0 text-body text-ink-muted">{NUMBER_SUMMARY[value]()}</p>
-          <a
-            href={lifePathPath(value)}
-            onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
-            className="inline-flex min-h-11 items-center text-body text-brand-ink hover:decoration-2"
-          >
-            {m.numerology_read_meaning({ number: value })}
-          </a>
+          {value !== current && (
+            <a
+              href={lifePathPath(value)}
+              onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
+              className="inline-flex min-h-11 items-center text-body text-brand-ink hover:decoration-2"
+            >
+              {m.numerology_number_link({ number: value })}
+              <span aria-hidden="true">&nbsp;→</span>
+            </a>
+          )}
         </div>
       </div>
       {/* 打印时「计算步骤」标题、推导图与算式同页，续页不从无标题的算式开始 */}
@@ -165,7 +171,7 @@ export function NumberGrid({ current, title }: { current?: number | undefined; t
           <li key={value}>
             <a
               href={lifePathPath(value)}
-              aria-label={m.numerology_grid_link({ number: value })}
+              aria-label={m.numerology_number_link({ number: value })}
               aria-current={value === current ? 'page' : undefined}
               onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
               className="flex min-h-14 items-center justify-center rounded-field bg-surface font-bold font-heading text-ink text-subtitle no-underline transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 aria-[current=page]:ring-1 aria-[current=page]:ring-mark aria-[current=page]:ring-inset"

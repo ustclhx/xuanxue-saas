@@ -1,0 +1,3 @@
+/* 东方站简中标题字体（自托管 @fontsource，按 unicode-range 分片，浏览器只下载页面用到的分片）；正文用系统字体栈。
+   简体字形与繁体不同，Noto Sans TC 缺一部分简体字（使用者 2026-11-19 确认改用 Noto Sans SC） */
+@import "@fontsource/noto-sans-sc/700.css";

@@ -34,20 +34,31 @@ export function prefetchCards(cards: readonly DrawnCard[]) {
   }
 }
 
-/** 内联牌背：首屏不请求任何图片；颜色取站点 token（西方夜蓝 + 星金，东方纸色 + 朱砂） */
+/**
+ * 内联牌背（设计稿 warm-refresh/Proposals79.dc.html A 表）：首屏不请求任何图片。
+ * surface-2 底、line-strong 1px 外框、插画色圆环、站点强调色的星（西方站黄铜，东方站松绿），两种主题下都可辨认。
+ */
 export function CardBack({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
       className={cn(
-        'flex size-full items-center justify-center rounded-[10px] border border-brand bg-surface-2 text-brand',
+        'flex size-full items-center justify-center rounded-field bg-surface-2 ring-1 ring-line-strong ring-inset',
         className,
       )}
     >
-      <svg viewBox="0 0 44 44" className="w-1/2 max-w-11" fill="none" aria-hidden="true">
-        <circle cx="22" cy="22" r="19" stroke="currentColor" strokeWidth="1.2" />
+      <svg viewBox="0 0 44 44" className="w-1/2 max-w-14" fill="none" aria-hidden="true">
+        <circle
+          cx="22"
+          cy="22"
+          r="19"
+          className="text-illus"
+          stroke="currentColor"
+          strokeWidth="1.2"
+        />
         <path
           d="M22 6l3.5 12.5L38 22l-12.5 3.5L22 38l-3.5-12.5L6 22l12.5-3.5z"
+          className="text-mark"
           stroke="currentColor"
           strokeWidth="1.2"
           strokeLinejoin="round"
@@ -57,7 +68,10 @@ export function CardBack({ className }: { className?: string }) {
   )
 }
 
-/** 牌面图：逆位旋转 180°；只在翻开后渲染，首屏不加载 */
+/**
+ * 牌面图：逆位旋转 180°；只在翻开后渲染，首屏不加载。
+ * 图稿（Rider–Waite–Smith）自带底色、不随主题变化；载入前的占位用 surface-2，外框 line-strong。
+ */
 export function CardFace({
   card,
   locale,
@@ -76,7 +90,7 @@ export function CardFace({
       height={416}
       decoding="async"
       className={cn(
-        'size-full rounded-[10px] border border-line-strong bg-[#ECE7DA] object-cover',
+        'size-full rounded-field border border-line-strong bg-surface-2 object-cover',
         card.reversed && 'rotate-180',
         className,
       )}
