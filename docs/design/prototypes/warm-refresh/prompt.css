@@ -1,0 +1,33 @@
+/* 语言建议提示（LocalePrompt）画板的补充样式（2026-11-20，待确认）。
+   只引用 site.css / pages.css 已有的 token 与字号角色；已确认的 site.css、pages.css 不改动。
+   对应实现：position: fixed 的浮层，不占文档流；画板里用 absolute 贴在视口框底部来表示。 */
+
+/* 视口框：桌面 1440×900、手机 390×844，只显示首屏，超出部分裁掉 */
+.xx.lp-view{display:block;position:relative;overflow:hidden;height:900px;min-height:0}
+.xx.lp-view.m{height:844px}
+
+/* 提示本体：surface 底（深色 surface-2，与展开的菜单相同）、radius-md、shadow-raise、line-strong 细线 */
+.xx .lp{position:absolute;z-index:5;left:50%;bottom:24px;transform:translateX(-50%);width:max-content;max-width:min(600px,calc(100% - 48px));display:flex;align-items:center;gap:16px;padding:8px 8px 8px 20px;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius-md);box-shadow:var(--shadow-raise);color:var(--ink)}
+.xx[data-theme$="dark"] .lp{background:var(--surface-2)}
+.xx .lp-ico{color:var(--ink-muted)}
+.xx .lp-msg{flex:1 1 auto;min-width:0;font-size:var(--fs-body);line-height:var(--lh-body);padding:4px 0}
+.xx .lp-go{display:flex;align-items:center;gap:8px;flex:none}
+.xx .lp .btn{min-height:44px;padding:8px 20px}
+.xx .lp .iconbtn{flex:none}
+
+/* 手机：左右各 12px，底部 12px（实现时再加 env(safe-area-inset-bottom)）；不显示地球图标 */
+.xx.m .lp{left:12px;right:12px;bottom:12px;transform:none;width:auto;max-width:none;gap:12px;padding:8px 4px 8px 16px}
+.xx.m .lp-ico{display:none}
+.xx.m .lp .btn{padding:8px 16px}
+
+/* 两个候选语言（仅浏览器语言为不带地区的 zh 时）：手机上两行，第二行两个等宽按钮 */
+.xx.m .lp.two{display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;gap:4px 8px;padding:4px 4px 12px 16px}
+.xx.m .lp.two .lp-msg{grid-column:1;grid-row:1}
+.xx.m .lp.two .iconbtn{grid-column:2;grid-row:1}
+.xx.m .lp.two .lp-go{grid-column:1 / -1;grid-row:2;padding-right:12px}
+.xx.m .lp.two .lp-go .btn{flex:1}
+
+/* 说明板里并排展示各语言文案：不定位 */
+.xx .lp.static{position:static;transform:none;max-width:600px}
+.xx.m .lp.static{width:366px}
+.xx .lp-list{display:flex;flex-direction:column;gap:16px;align-items:flex-start}

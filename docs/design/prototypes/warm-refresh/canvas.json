@@ -485,6 +485,83 @@
    "w": 390,
    "h": 4000,
    "title": "/zh-hans/blog · 手机 390 · 浅色 · 封面卡片（/zh-hant、/ko 同版式）"
+  },
+  "LocalePromptEast.dc.html": {
+   "x": 0,
+   "y": 59920,
+   "w": 1440,
+   "h": 900,
+   "title": "语言建议 · 干支日 /zh-hans/每日运势 → English · 桌面 1440 · 浅色"
+  },
+  "LocalePromptEastDark.dc.html": {
+   "x": 1520,
+   "y": 59920,
+   "w": 1440,
+   "h": 900,
+   "title": "语言建议 · 干支日 /zh-hans/每日运势 → English · 桌面 1440 · 深色"
+  },
+  "LocalePromptEastMobile.dc.html": {
+   "x": 3040,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "语言建议 · 干支日 → English · 手机 390 · 浅色"
+  },
+  "LocalePromptEastMobileDark.dc.html": {
+   "x": 3510,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "语言建议 · 干支日 → English · 手机 390 · 深色"
+  },
+  "LocalePromptWest.dc.html": {
+   "x": 3980,
+   "y": 59920,
+   "w": 1440,
+   "h": 900,
+   "title": "Language prompt · Arcanumber / → Español · desktop 1440 · Light"
+  },
+  "LocalePromptWestDark.dc.html": {
+   "x": 5500,
+   "y": 59920,
+   "w": 1440,
+   "h": 900,
+   "title": "Language prompt · Arcanumber / → Español · desktop 1440 · Dark"
+  },
+  "LocalePromptWestMobile.dc.html": {
+   "x": 7020,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "Language prompt · Arcanumber / → Español · mobile 390 · Light"
+  },
+  "LocalePromptWestMobileDark.dc.html": {
+   "x": 7490,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "Language prompt · Arcanumber / → Español · mobile 390 · Dark"
+  },
+  "LocalePromptDismissed.dc.html": {
+   "x": 7960,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "State · dismissed (prompt removed) · mobile 390 · Light"
+  },
+  "LocalePromptTwo.dc.html": {
+   "x": 8430,
+   "y": 59920,
+   "w": 390,
+   "h": 844,
+   "title": "状态 · 两个候选（浏览器语言 zh，干支日英文页）· 手机 390 · 浅色"
+  },
+  "LocalePromptSpec.dc.html": {
+   "x": 8900,
+   "y": 59920,
+   "w": 1100,
+   "h": 4300,
+   "title": "语言建议提示 · 位置与 CLS、行为、无障碍、六语文案、变更提议、待确认问题"
   }
  },
  "order": [
@@ -555,7 +632,18 @@
   "EastEn.dc.html",
   "NotFound.dc.html",
   "TarotIndexEast.dc.html",
-  "BlogListEast.dc.html"
+  "BlogListEast.dc.html",
+  "LocalePromptEast.dc.html",
+  "LocalePromptEastDark.dc.html",
+  "LocalePromptEastMobile.dc.html",
+  "LocalePromptEastMobileDark.dc.html",
+  "LocalePromptWest.dc.html",
+  "LocalePromptWestDark.dc.html",
+  "LocalePromptWestMobile.dc.html",
+  "LocalePromptWestMobileDark.dc.html",
+  "LocalePromptDismissed.dc.html",
+  "LocalePromptTwo.dc.html",
+  "LocalePromptSpec.dc.html"
  ],
  "notes": {
   "t1": {
@@ -683,6 +771,27 @@
    "text": "13 · 第 9 组 · 法律页、文档、FAQ、订阅、/en 入口页、404",
    "kind": "title1",
    "maxW": 4730
+  },
+  "lp_T": {
+   "x": 0,
+   "y": 59620,
+   "text": "15 · 语言建议提示（新增，2026-11-20 待确认）",
+   "kind": "title1",
+   "maxW": 10000
+  },
+  "lp_n1": {
+   "x": 0,
+   "y": 60960,
+   "w": 520,
+   "fill": "orange",
+   "text": "待确认（2026-11-20）：本行为新增画板，上方已确认的画板与样式文件没有改动。位置是固定在视口底部的浮层：不占文档流，出现与关闭都不移动页面，CLS 为 0；理由、行为规则、无障碍、六种语言文案、组件提议与 6 个待确认问题见本行最右的说明板。"
+  },
+  "lp_n2": {
+   "x": 560,
+   "y": 60960,
+   "w": 520,
+   "fill": "gray",
+   "text": "画板是 1440×900 与 390×844 的首屏视口，只为表示提示在载入时的位置；下方页面引用已确认的画板（简体每日运势、西方站首页、东方站英文页），其中简体每日运势此前只确认过手机版，桌面版在这里仅作背景。东方站建议 English 以东方站英文页已发布为前提，西方站建议 Español 以 es 已发布为前提。"
   }
  },
  "designSystems": [
