@@ -20,6 +20,8 @@ const app = {
   url: 'https://arcanumber.com',
   supportEmail: 'support@arcanumber.com',
 }
+// 多语言文案的夹具语言：显式传入，不依赖项目的默认语言（衍生项目可能没有 zh）
+const i18n = { locales: ['en', 'zh'] } as const
 
 describe('defineTemplateConfig', () => {
   it('fills every omitted option with the documented default', () => {
@@ -142,6 +144,34 @@ describe('defineTemplateConfig', () => {
     ])
   })
 
+  it('seo.linking.sites groups locales per site and validates them', () => {
+    expect(defineTemplateConfig({ app }).seo.linking.sites).toEqual([])
+    const sites = defineTemplateConfig({
+      app,
+      i18n: { locales: ['en', 'zh'] },
+      seo: {
+        linking: { sites: [{ locales: ['en'], previewHost: 'LocalHost' }, { locales: ['zh'] }] },
+      },
+    }).seo.linking.sites
+    expect(sites).toEqual([{ locales: ['en'], previewHost: 'localhost' }, { locales: ['zh'] }])
+    expect(resolveSeoLinking({ sites })).toEqual(resolveSeoLinking({ sites }))
+    const bad = [
+      [{ locales: [] }],
+      [{ locales: ['en'] }, { locales: ['en'] }],
+      [{ locales: ['en'], previewHost: 'http://localhost' }],
+      [
+        { locales: ['en'], previewHost: 'a.localhost' },
+        { locales: ['zh'], previewHost: 'a.localhost' },
+      ],
+      [{ locales: ['fr'] }],
+    ]
+    for (const entry of bad)
+      expect(
+        () => defineTemplateConfig({ app, i18n, seo: { linking: { sites: entry } } }),
+        JSON.stringify(entry),
+      ).toThrow(/template config: seo\.linking\.sites/)
+  })
+
   it('resolveSeoLinking is idempotent on a resolved config', () => {
     const linking = defineTemplateConfig({
       app,
@@ -175,26 +205,15 @@ describe('defineTemplateConfig', () => {
   it('merges marketing blocks and rejects malformed stats', () => {
     const config = defineTemplateConfig({
       app,
+      i18n,
       marketing: {
-        stats: {
-          items: [
-            {
-              value: '1,000+',
-              label: { en: 'Users', 'zh-Hant': '用戶', 'zh-Hans': '用户', ko: '사용자' },
-            },
-          ],
-        },
+        stats: { items: [{ value: '1,000+', label: { en: 'Users', zh: '用户' } }] },
         aiEntry: { enabled: true },
       },
     })
     expect(config.marketing.enabled).toBe(true)
     expect(config.marketing.stats).toEqual({
-      items: [
-        {
-          value: '1,000+',
-          label: { en: 'Users', 'zh-Hant': '用戶', 'zh-Hans': '用户', ko: '사용자' },
-        },
-      ],
+      items: [{ value: '1,000+', label: { en: 'Users', zh: '用户' } }],
       source: null,
     })
     expect(config.marketing.aiEntry).toEqual({ enabled: true, href: '/app' })
@@ -210,11 +229,8 @@ describe('defineTemplateConfig', () => {
     expect(() =>
       defineTemplateConfig({
         app,
-        marketing: {
-          stats: {
-            items: [{ value: { en: '1', 'zh-Hant': '1', 'zh-Hans': '', ko: '1' }, label: 'Users' }],
-          },
-        },
+        i18n,
+        marketing: { stats: { items: [{ value: { en: '1', zh: '' }, label: 'Users' }] } },
       }),
     ).toThrow(/stats.items\[0\].value/)
     const product = {
@@ -235,14 +251,8 @@ describe('defineTemplateConfig', () => {
     expect(() =>
       defineTemplateConfig({
         app,
-        marketing: {
-          products: [
-            {
-              ...product,
-              secondaryLabel: { en: 'Features', 'zh-Hant': ' ', 'zh-Hans': '功能', ko: '기능' },
-            },
-          ],
-        },
+        i18n,
+        marketing: { products: [{ ...product, secondaryLabel: { en: 'Features', zh: ' ' } }] },
       }),
     ).toThrow(/products\[0\].secondaryLabel/)
     expect(() =>
@@ -252,6 +262,7 @@ describe('defineTemplateConfig', () => {
     expect(() =>
       defineTemplateConfig({
         app,
+        i18n,
         // @ts-expect-error zh 缺失
         marketing: { stats: { items: [{ value: '1', label: { en: 'Users' } }] } },
       }),

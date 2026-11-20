@@ -10,7 +10,7 @@ import { siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { contentParents } from './content-parents.ts'
 import type { SeoPage, StaticPath } from './metadata.ts'
-import { localizedPath, sameSiteSourceLocale, staticPage, tagPageTitle } from './metadata.ts'
+import { localizedPath, staticPage, tagPageTitle } from './metadata.ts'
 import { projectPageLinking, projectPages } from './pages.project.ts'
 
 /** 内容集合 frontmatter 中的内链字段（content-collections.ts 已按集合补上默认 parent） */
@@ -48,7 +48,7 @@ interface LegalPage extends Page {
   site?: string
 }
 
-/** 内容条目的公共字段：主词默认取标题；条目语言与当前语言不同且同站时为回退页（模板 0.7.3） */
+/** 内容条目的公共字段：主词默认取标题；条目语言与当前语言不同且同站时为回退页（模板 0.7.3、0.7.4） */
 function contentPage(
   entry: Linking & { locale: string; title: string },
   locale: string,
@@ -61,8 +61,8 @@ function contentPage(
     title: entry.title,
     titleMain: entry.title,
     parent: entry.parent ?? defaultParent,
-    // 跨站回退（东方站语言显示英文条目）不声明 sourceLocale，见 metadata.ts sameSiteSourceLocale
-    ...(sameSiteSourceLocale(locale, entry.locale) !== undefined && { sourceLocale: entry.locale }),
+    // 原语言在另一站点（东方站语言显示英文条目）时 fallbackSourceLocale 按普通页处理（模板 0.7.4 seo.linking.sites）
+    sourceLocale: entry.locale,
     ...(entry.anchor_short !== undefined && { anchorShort: entry.anchor_short }),
     ...(entry.related?.length ? { related: entry.related } : {}),
   }

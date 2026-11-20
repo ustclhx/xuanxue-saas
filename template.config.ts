@@ -91,6 +91,17 @@ export default defineTemplateConfig({
   },
   // 站内链接规范（docs/seo-internal-linking.md）：未配置 seo.linking 时构建后链接图检查为 report（只报告）；
   // 报告中的孤岛、死链与指向不可索引页清零后再设 seo: { linking: { mode: 'enforce' } }
+  // sites（模板 0.7.4，规范 §7）：按站点分组语言，与上方 sites 注册表一致。东方站语言显示英文条目时原语言在西方站，
+  // 按普通页面处理（canonical 不跨站、留在东方站站点地图）；东方站英文入口页 `/en` 的语言归西方站，不在东方站分组里。
+  // previewHost：链接图检查以该主机名作 Host 访问 preview，两站各自成图（本地 `<站点 id>.localhost`，features/site/site.ts）
+  seo: {
+    linking: {
+      sites: [
+        { locales: ['en'], previewHost: 'west.localhost' },
+        { locales: ['zh-Hant', 'zh-Hans', 'ko'], previewHost: 'east.localhost' },
+      ],
+    },
+  },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；
   // density 'default'（36px 控件）| 'compact'（28px）。品牌色写在 apps/web/src/styles/brand.css
   // appLayout：App 区布局，'sidebar' 工作台侧边栏 | 'topbar' 原有顶部布局

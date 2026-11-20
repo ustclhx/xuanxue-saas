@@ -6,7 +6,7 @@ import { readingMinutes } from '../../features/marketing/content.ts'
 import { ContentHead, ContentPage, MetaLine } from '../../features/marketing/content-page.tsx'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import { RichContent } from '../../features/marketing/rich-content.tsx'
-import { originFromMatches, pageHead, sameSiteSourceLocale } from '../../features/seo/metadata.ts'
+import { fallbackSourceLocale, originFromMatches, pageHead } from '../../features/seo/metadata.ts'
 import { articleData, breadcrumbData } from '../../features/seo/structured-data.ts'
 import { Breadcrumb } from '../../features/tools/breadcrumb.tsx'
 import { AiDisclaimer } from '../../features/tools/disclaimer.tsx'
@@ -18,10 +18,6 @@ export const Route = createFileRoute('/blog/$slug')({
   head: ({ loaderData, params, matches }) => {
     if (!loaderData) return {}
     const locale = getLocale()
-    // 同站回退：canonical 指向原语言、hreflang 只列真实译文（模板 0.7.3）；
-    // 跨站回退（东方站显示英文文章）保持 0.7.3 之前的输出（metadata.ts sameSiteSourceLocale）
-    const sourceLocale = sameSiteSourceLocale(locale, loaderData.locale)
-    const crossSite = loaderData.locale !== locale && sourceLocale === undefined
     const page = {
       path: `/blog/${encodeURIComponent(params.slug)}`,
       locale,
@@ -29,8 +25,11 @@ export const Route = createFileRoute('/blog/$slug')({
       description: loaderData.summary,
       cover: loaderData.cover,
       date: loaderData.date,
-      sourceLocale,
+      sourceLocale: loaderData.locale,
     }
+    // 同站回退：canonical 指向原语言、hreflang 只列真实译文（模板 0.7.3）；跨站回退（东方站显示英文文章，
+    // 模板 0.7.4 seo.linking.sites）canonical 指向本页，hreflang 按站点规则列出全部语言，保持 0.7.3 之前的输出
+    const crossSite = loaderData.locale !== locale && fallbackSourceLocale(page) === undefined
     const appUrl = originFromMatches(matches)
     return pageHead(
       page,

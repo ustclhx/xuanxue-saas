@@ -3,7 +3,13 @@ import { brandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import type { PricingCatalog } from '../marketing/pricing-data.ts'
 import type { SeoPage } from './metadata.ts'
-import { absoluteUrl, localizedPath, ogImagePath, pageBrand } from './metadata.ts'
+import {
+  absoluteUrl,
+  fallbackSourceLocale,
+  localizedPath,
+  ogImagePath,
+  pageBrand,
+} from './metadata.ts'
 import { localeOrigin } from './origins.ts'
 
 const context = 'https://schema.org'
@@ -28,11 +34,11 @@ export function websiteData(appUrl: string, brand: string, url = appUrl) {
   }
 }
 export function articleData(page: SeoPage, appUrl: string) {
-  // 回退页与 canonical 一致，指向原语言地址并标注内容的真实语言
-  const contentLocale = page.sourceLocale ?? page.locale
+  // 地址与 canonical 一致（同站点回退页指向原语言地址，原语言在另一站点时为本页地址）；inLanguage 标注内容的真实语言
+  const source = fallbackSourceLocale(page) ?? page.locale
   const url = absoluteUrl(
-    contentLocale === page.locale ? appUrl : localeOrigin(contentLocale),
-    localizedPath(page.path, contentLocale),
+    source === page.locale ? appUrl : localeOrigin(source),
+    localizedPath(page.path, source),
   )
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
@@ -49,7 +55,7 @@ export function articleData(page: SeoPage, appUrl: string) {
     mainEntityOfPage: url,
     url,
     image,
-    inLanguage: contentLocale,
+    inLanguage: page.sourceLocale ?? page.locale,
   }
 }
 
