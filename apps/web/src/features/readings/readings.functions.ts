@@ -29,6 +29,7 @@ import {
 import { readingDefinition, resolveReadingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeRecordedReading } from './generate.ts'
+import { readingReleased } from './release.ts'
 import { SAMPLES_APPROVED } from './samples.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
@@ -210,7 +211,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<ReadingOffer> => {
     if (!templateConfig.billing.enabled || !templateConfig.ai.text.enabled) return UNAVAILABLE
     const definition = readingDefinition(data.kind, data.locale)
-    if (!definition) return UNAVAILABLE
+    // 待评测的组合直接隐藏解锁卡（不显示「即将开放」），见 release.ts
+    if (!definition || !readingReleased(data.kind, data.locale)) return UNAVAILABLE
     try {
       const deps = publicAvailabilityDeps()
       const adminPreview = await viewerIsPlatformAdmin()

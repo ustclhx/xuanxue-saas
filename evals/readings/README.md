@@ -16,6 +16,9 @@
 | `recordings/` | 生成录制（与评委录制，重录后） |
 | `readings.test.ts` | 离线单测：`pnpm test:evals`（含 `evals/tsconfig.json` 类型检查） |
 
+检查与转换也以 `createReadingChecks(resolve)`、`createPrepareOutput(resolve)` 导出，供按自己版本分派的同级套件复用
+（东方站英文 `evals/readings-east-en/`，判定逻辑相同；本套件仍用 `prompts.ts` 的 `resolveReading`）。
+
 ## 版本
 
 | 套件版本 | 八字 zh-Hant | 八字 zh-Hans | 사주 ko | 紫微 zh-Hant | 紫微 zh-Hans | 数字命理 en |

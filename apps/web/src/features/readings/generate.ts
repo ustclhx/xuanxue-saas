@@ -21,7 +21,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
-import { siteOfLocale, siteOrigin } from '../site/site.ts'
+import { siteOrigin } from '../site/site.ts'
 import { loadReadingAvailability } from './availability.ts'
 import {
   ensureHealthNotice,
@@ -42,6 +42,7 @@ import {
   readingGuardYears,
 } from './guard.ts'
 import { toTraditional } from './hant.ts'
+import { readingOffered } from './release.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 import { readingTitle } from './title.ts'
 
@@ -119,7 +120,8 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const body = parsed.data
   if (!readingDefinition(body.kind)) throw notFound()
   const base = readingDefinition(body.kind, body.locale)
-  if (!base || siteOfLocale(body.locale, templateConfig) !== body.site)
+  // 站点按「类型 × 语言」判定（东方站英文与西方站共用 `en`）；待评测的组合与未注册的语言同样拒绝
+  if (!base || !readingOffered(body.kind, body.locale, body.site))
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
   // 与结果页、定价页同一判定（availability.ts）；业务写入前读取，模型行用业务连接以免读到陈旧状态
   const status = await loadReadingAvailability(

@@ -7,7 +7,6 @@ import { AskAiEntry } from '../ai/ask-ai-entry.tsx'
 import { trackEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
-import { siteOfLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { useToolEvents } from '../tools/use-tool-events.ts'
@@ -25,6 +24,7 @@ import {
   type ReadingPlan,
   type ReadingView,
 } from './readings.functions.ts'
+import { readingSite } from './release.ts'
 import { EMAIL_DELIVERY_HEADER, readReadingStream } from './stream.ts'
 import { readingTitle } from './title.ts'
 import { PAYMENT_POLL_DELAYS, peekUnlockToken, UNLOCK_PARAM, unlockReturnPath } from './unlock.ts'
@@ -176,9 +176,10 @@ function ReadingUnlockCard({
 }: ReadingUnlockProps & { onOffer?: (offer: ReadingOffer) => void }) {
   const hostSite = useSiteId()
   const locale = getLocale()
-  // 报告站点取语言归属：已登记 Host 上两者一致（gate 跨站重定向）；未登记的 workers.dev
-  // staging 两站页面都按西方站外观渲染，若用 Host 站点，繁中/韩语详批会被服务端拒绝
-  const site = siteOfLocale(locale, templateConfig) ?? hostSite
+  // 报告站点取「类型 × 语言」的归属（release.ts）：已登记 Host 上两者一致（gate 跨站重定向）；未登记的 workers.dev
+  // staging 两站页面都按西方站外观渲染，若用 Host 站点，繁中/韩语详批会被服务端拒绝；
+  // 东方站英文与西方站共用 `en`，不能只按语言推断
+  const site = readingSite(kind, locale) ?? hostSite
   const [offer, setOffer] = useState<ReadingOffer | null>(previewOffer ?? null)
   const [phase, setPhase] = useState<Phase>({ name: 'idle' })
   const resumeToken = useRef<string | null>(null)

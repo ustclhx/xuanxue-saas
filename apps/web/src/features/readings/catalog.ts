@@ -29,6 +29,7 @@ import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/t
 import { z } from 'zod'
 import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
+import { BAZI_FULL_V4_EN } from './prompts/bazi-full.en.v4.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
@@ -39,6 +40,7 @@ import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
+import { ZIWEI_FULL_V4_EN } from './prompts/ziwei-full.en.v4.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
@@ -472,6 +474,12 @@ const KO_HEALTH = {
   notice: '불편한 증상이 있으면 전문 의료진과 상담하세요.',
 }
 
+// 东方站英文（add-locales-eu-ja 5b.3）：与西方站数字命理同一句就医提示
+const EN_HEALTH = {
+  title: 'Wellbeing Habits',
+  notice: 'If you feel unwell, please consult a qualified healthcare professional.',
+}
+
 const entries = {
   'bazi-full': {
     kind: 'bazi-full',
@@ -490,8 +498,17 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['bazi-full']['zh-Hans'],
       },
+      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文没有 v4 之前的版本，代码默认即 v4
+      en: {
+        prompt: BAZI_FULL_V4_EN,
+        disclaimer:
+          'This report follows the traditional rules of BaZi (Four Pillars) astrology, with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
+        healthSection: EN_HEALTH,
+        sample: READING_SAMPLES['bazi-full'].en,
+      },
     },
-    versions: { 'bazi-full.v4': BAZI_FULL_V4 },
+    // v4 的英文是新增的语言，已有的繁中 / 简中 v4 文本不变
+    versions: { 'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN } },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -525,8 +542,15 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
+      en: {
+        prompt: ZIWEI_FULL_V4_EN,
+        disclaimer:
+          'This report follows the traditional rules of Zi Wei Dou Shu (Purple Star Astrology), with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
+        healthSection: EN_HEALTH,
+        sample: READING_SAMPLES['ziwei-full'].en,
+      },
     },
-    versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
+    versions: { 'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN } },
     recompute: recomputeZiwei,
   },
   'saju-compat': {
