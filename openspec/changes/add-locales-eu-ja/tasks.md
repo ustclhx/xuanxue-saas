@@ -39,6 +39,7 @@
 
 ## 4. 日语（东方站，第一期）
 
+- [ ] 4.0 [Opus] 日语关键词地图（先于 4.1–4.2）：为第一期每个页面（落地页、四柱推命、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价）调研当地搜索词，定主词与次词、slug、Title、H1、≤2 种锚文本，避免页面间抢词；依据写明来源（搜索建议、竞品页、可得的量级数据），存 `EVIDENCE_DIR`，使用者过目后再定 slug
 - [ ] 4.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.east.locales` 末尾追加 `ja`，`brand.names.ja = '干支日'`，`seo.linking.sites` 东方站组加 `ja`；`rollout.ts` 设为 pending
 - [ ] 4.2 [Opus] 注册表与路由：`/ja/四柱推命`、`/ja/紫微斗数`、塔罗四页、`/ja/タロット/カード` 与 78 张牌义；`pages.project.ts` 的 STATIC_MAIN、主词与 parent；`switchLocalePath` 测试
 - [ ] 4.3 [Opus] 四柱推命呈现：命式、通変星、蔵干、十二運星、天中殺等日语标签；日本标准时间与 1948–1951 夏令时（引擎复算测试）；默认出生地为东京；概念页链接在 `ja` 不渲染
@@ -53,6 +54,7 @@
 
 ## 5. 西班牙语（西方站，第一期）
 
+- [ ] 5.0 [Opus] 西班牙语关键词地图（先于 5.1–5.2）：同 4.0，覆盖数字命理工具与 12 个数字页、两个枢纽页、塔罗四页、牌义索引与 78 张牌义、FAQ、定价；按西语当地搜索词（如 número de vida / camino de vida、numerología、significado de las cartas del tarot）定主词，使用者过目后再定 slug
 - [ ] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
 - [ ] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
 - [ ] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
@@ -73,7 +75,7 @@
 - [ ] 6.4 Stripe live JPY 价格创建（使用者批准后执行）并在生产只读核对
 - [ ] 6.5 发布后 4 周 GSC 覆盖率复盘（「已抓取-尚未编入索引」占比），结论决定第二期是否开工；Search Console 站点地图重提留到全部工作完成后交 Grok bot
 
-## 7. 第二、三期（每种语言一组，复用第 4/5 组流程）
+## 7. 第二、三期（使用者 2026-11-20：`ja`、`es` 上线后暂停，先做 content growth，之后再开始本组）（每种语言一组，复用第 4/5 组流程）
 
 - [ ] 7.0 [Opus] 第二期开工前用 Keyword Planner 或 Ahrefs 导出复核 research.md 中各语言主词与顺序，定稿各语言路径段与术语表初稿
 
