@@ -37,11 +37,12 @@ describe('页面标题带站名', () => {
     ['zh-Hant', '干支日｜免費八字排盤、紫微斗數與塔羅', '干支日'],
     ['zh-Hans', '干支日｜免费八字排盘、紫微斗数与塔罗', '干支日'],
     ['ko', '간지데이 | 무료 만세력·사주·타로', '간지데이'],
-    ['en', 'Arcanumber — Free Life Path Number Calculator, Numerology & Tarot', 'Arcanumber'],
-  ])('%s 首页站名在前，不再追加站名', (locale, title, brand) => {
+    // 西方站品类主词在前、站名在后（openspec seo-fix-tdk-links 决策 3）
+    ['en', 'Numerology & Tarot Calculators, Free | Arcanumber', 'Arcanumber'],
+  ])('%s 首页标题含站名，不再追加站名', (locale, title, brand) => {
     const head = pageHead(staticPage('/', locale), 'http://localhost')
     expect(titleOf(head)).toBe(title)
-    expect(title.startsWith(brand)).toBe(true)
+    expect(title.startsWith(brand) || title.endsWith(brand)).toBe(true)
     expect(title.split(brand)).toHaveLength(2)
     expect(content(head, 'og:title')).toBe(title)
   })

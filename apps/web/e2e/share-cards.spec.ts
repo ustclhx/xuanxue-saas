@@ -36,8 +36,12 @@ test('share page points og:image at a 1200x630 card and both 404 after invalidat
 
   const response = await page.goto(sharePath)
   expect(response?.status()).toBe(200)
-  expect(response?.headers()['x-robots-tag']).toBe('noindex')
-  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute('content', /noindex/)
+  // 本地 dev 的 Host 未登记，站点守卫把响应头统一覆盖为 noindex（features/site/gate.ts）；页面 meta 为 noindex, follow
+  expect(response?.headers()['x-robots-tag']).toMatch(/^noindex/)
+  await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
+    'content',
+    'noindex, follow',
+  )
   const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content')
   expect(ogImage).toBeTruthy()
   const card = new URL(ogImage ?? '')

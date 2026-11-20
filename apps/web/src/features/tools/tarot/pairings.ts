@@ -121,6 +121,29 @@ export function relatedCards(card: Card): readonly RelatedCard[] {
   ]
 }
 
+/**
+ * 延伸牌义的锚文本表述（openspec seo-fix-tdk-links 决策 5，锚文本 ≤2 种、top1 ≤70%）：每张牌恰好被 4 张牌的
+ * 延伸牌义链接；按来源牌在 CARDS 中的顺序排列，第 1、3 个来源用「<牌名> tarot card meaning」，第 2、4 个来源用
+ * 与牌义索引相同的「<牌名> Tarot」（tarot_index_link）。加上索引页的 1 条，每张牌 5 条入链为 2 : 3，两种表述。
+ */
+const SHORT_ANCHOR = (() => {
+  const inbound = new Map<string, string[]>()
+  for (const source of CARDS)
+    for (const { card } of relatedCards(source))
+      inbound.set(card.id, [...(inbound.get(card.id) ?? []), source.id])
+  const short = new Set<string>()
+  for (const [target, sources] of inbound)
+    sources.forEach((source, index) => {
+      if (index % 2 === 1) short.add(`${source} ${target}`)
+    })
+  return short
+})()
+
+/** 来源牌的延伸牌义链接到目标牌时，是否用牌义索引的短表述「<牌名> Tarot」 */
+export function relatedAnchorIsShort(source: Card, target: Card): boolean {
+  return SHORT_ANCHOR.has(`${source.id} ${target.id}`)
+}
+
 /** 牌义索引的分组：大阿尔卡那 22 张与四个花色各 14 张，组内按序号排列 */
 export const CARD_GROUPS = (['major', 'wands', 'cups', 'swords', 'pentacles'] as const).map(
   (suit) => ({

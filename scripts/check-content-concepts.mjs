@@ -362,8 +362,9 @@ async function checkFile(collection, locale, slug) {
     assert.ok(count >= 900 && count <= 1300, `English prose: ${count} words, expected 900–1300`)
     checkExamples(tree, number)
     if (number !== null) {
+      // 锚文本可以包住「… compatibility matrix」（openspec seo-fix-tdk-links 决策 5），链接收尾 `](…)` 在 matrix 之后
       const pairs = content.match(
-        /matrix labels (\d+) with (\d+) as (high|medium|challenging) and (\d+) with (\d+) as (high|medium|challenging)/,
+        /matrix(?:\]\([^)]*\))? labels (\d+) with (\d+) as (high|medium|challenging) and (\d+) with (\d+) as (high|medium|challenging)/,
       )
       assert.ok(pairs, 'two explicit compatibility examples required')
       for (const offset of [1, 4]) {

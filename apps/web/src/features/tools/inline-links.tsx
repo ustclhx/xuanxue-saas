@@ -46,6 +46,8 @@ export function InlineLinks({
 
 /**
  * 页尾的一行转化条（设计稿 `.band`）：surface-2 圆角条，一句说明加一个链接；每页最多一条。
+ * 标 `data-link-zone="action"`（docs/seo-internal-linking.md §3 转化入口）：不计入正文内链数与锚文本统计
+ * （openspec seo-fix-tdk-links 决策 5）。
  */
 export function LinkBand({
   children,
@@ -61,6 +63,7 @@ export function LinkBand({
   return (
     <div
       data-testid="link-band"
+      data-link-zone="action"
       className="flex flex-col gap-1 rounded-object bg-surface-2 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-8"
     >
       <p className="m-0 max-w-180 text-body text-ink">{children}</p>

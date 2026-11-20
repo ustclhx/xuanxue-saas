@@ -3,7 +3,8 @@ import { siteTitle } from '../features/seo/site-title.ts'
 import { getSharePage } from '../features/share-cards/page.functions.ts'
 import { SharePage, SharePageGone } from '../features/share-cards/share-page.tsx'
 
-const noindex = { name: 'robots', content: 'noindex' }
+// 分享页不进索引、但跟随页内链接（openspec seo-fix-tdk-links 决策 2）；robots.txt 不变
+const noindex = { name: 'robots', content: 'noindex, follow' }
 
 /** 通用分享页（openspec add-og-images design 第 8 条）；不预渲染、不进站点地图与 llms.txt。 */
 export const Route = createFileRoute('/s/$type/$token')({

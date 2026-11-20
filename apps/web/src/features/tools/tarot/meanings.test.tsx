@@ -18,7 +18,7 @@ import {
   tarotMeaningPath,
   tarotMeaningSeoPages,
 } from './meaning-routes.ts'
-import { majorNumeral, relatedCards, THEME_PAIRS } from './pairings.ts'
+import { majorNumeral, relatedAnchorIsShort, relatedCards, THEME_PAIRS } from './pairings.ts'
 import { TAROT_LOCALES, tarotPath } from './routes.ts'
 
 const messages = vi.hoisted(() => ({ locale: 'en' }))
@@ -172,6 +172,19 @@ describe('三语牌义内容与 SEO', () => {
     expect(ids('major-21')).toEqual(['major-20', 'major-00', 'major-01', 'major-10'])
     expect(ids('wands-14')).toEqual(['wands-13', 'wands-01', 'wands-02', 'swords-14'])
     expect([0, 4, 9, 14, 19, 21].map(majorNumeral)).toEqual(['0', 'IV', 'IX', 'XIV', 'XIX', 'XXI'])
+  })
+
+  it('延伸牌义锚文本两种表述各半：每张牌的 4 条入链 2 条用牌义索引的短表述（seo-fix-tdk-links 决策 5）', () => {
+    const counts = new Map<string, { short: number; long: number }>()
+    for (const source of CARDS)
+      for (const { card } of relatedCards(source)) {
+        const entry = counts.get(card.id) ?? { short: 0, long: 0 }
+        if (relatedAnchorIsShort(source, card)) entry.short += 1
+        else entry.long += 1
+        counts.set(card.id, entry)
+      }
+    expect(counts.size).toBe(78)
+    for (const [id, entry] of counts) expect(entry, id).toEqual({ short: 2, long: 2 })
   })
 
   it('牌义索引页：四语各 78 条服务端输出的牌义链接，锚文本带「Tarot / 塔罗牌」，罗马数字在链接之外', () => {

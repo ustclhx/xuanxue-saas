@@ -73,9 +73,7 @@ if (isEasternSite) {
     const response = await page.goto('/')
     expect(response?.status()).toBe(200)
     await expect(page.locator('html')).toHaveAttribute('data-site', 'west')
-    await expect(page).toHaveTitle(
-      'Arcanumber — Free Life Path Number Calculator, Numerology & Tarot',
-    )
+    await expect(page).toHaveTitle('Numerology & Tarot Calculators, Free | Arcanumber')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await expect(page.locator('a[href="/life-path-number"]').first()).toBeAttached()
   })

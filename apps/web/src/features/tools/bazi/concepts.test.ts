@@ -4,7 +4,13 @@ import { templateConfig } from '../../../server/template-config.ts'
 import { isPrerenderedPath, prerenderEntryPages } from '../../marketing/prerender.ts'
 import { publicPages } from '../../seo/pages.ts'
 import { TOOL_ROUTES } from '../registry.ts'
-import { type ConceptPage, conceptHead, conceptPageData, conceptPagePath } from './concepts.ts'
+import {
+  type ConceptPage,
+  conceptHead,
+  conceptPageData,
+  conceptPagePath,
+  SIBLING_CONCEPTS,
+} from './concepts.ts'
 
 // typecheck / build-content 生成实际 MDX 集合，避免用手写 fixture 掩盖内容和注册表不同步。
 const pages = JSON.parse(
@@ -39,7 +45,17 @@ describe('八字与 사주概念页 SEO', () => {
           item.acceptedAnswer.text,
         ]),
       ).toEqual(page.faq.map(({ q, a }) => [q, a]))
-      expect(data.links).toHaveLength(7)
+      expect(data.links).toHaveLength(SIBLING_CONCEPTS)
+    }
+    // 同语言概念首尾相接：每页链接其后 3 页，每个概念恰好有 3 条同组入链
+    for (const locale of ['zh-Hant', 'zh-Hans', 'ko'] as const) {
+      const local = pages.filter((page) => page.locale === locale)
+      const inbound = new Map<string, number>()
+      for (const page of local)
+        for (const link of conceptPageData(pages, page).links)
+          inbound.set(link.href, (inbound.get(link.href) ?? 0) + 1)
+      expect(inbound.size).toBe(local.length)
+      expect(new Set(inbound.values())).toEqual(new Set([SIBLING_CONCEPTS]))
     }
   })
 

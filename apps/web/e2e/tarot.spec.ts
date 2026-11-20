@@ -44,7 +44,7 @@ test('英语三张牌：模板填入问题，键盘逐张翻牌，分享链接�
   // 导语链接牌义索引；其他牌阵是正文里的一段话（3 条链接），都是真实 <a>
   await expect(page.locator('main header p a')).toHaveAttribute('href', '/tarot/cards')
   await expect(page.locator('main article a')).toHaveText([
-    'card of the day',
+    'tarot card of the day',
     'yes or no tarot',
     'Celtic Cross tarot',
   ])

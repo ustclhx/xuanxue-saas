@@ -23,7 +23,7 @@ import { CardFace, prefetchCards } from './card.tsx'
 import { answerLabel, GROUP_NAME, orientationLabel } from './copy.ts'
 import type { TarotMeaningPage } from './meaning.functions.ts'
 import { tarotIndexPath, tarotMeaningPath } from './meaning-routes.ts'
-import { majorNumeral, type RelatedRole, relatedCards } from './pairings.ts'
+import { majorNumeral, type RelatedRole, relatedAnchorIsShort, relatedCards } from './pairings.ts'
 import { type TarotLocale, tarotPath, tarotTitle } from './routes.ts'
 import { SpreadTable } from './table.tsx'
 
@@ -156,7 +156,8 @@ function groupLabel(card: Card): string {
 
 /**
  * 延伸牌义（设计稿 `.rel`；使用者 2026-11-19 确认）：正文里的一个 H2 区块，固定 4 条服务端输出的链接，
- * 每条为「小字说明 / 链接 / 一句描述」。锚文本为「<牌名> tarot card meaning」（各语言见 tarot_meaning_link）。
+ * 每条为「小字说明 / 链接 / 一句描述」。锚文本为「<牌名> tarot card meaning」（各语言见 tarot_meaning_link），
+ * 每张目标牌的一半来源改用牌义索引的「<牌名> Tarot」（tarot_index_link，pairings.ts relatedAnchorIsShort）。
  */
 function RelatedMeanings({ card, locale }: { card: Card; locale: TarotLocale }) {
   const { track } = useTool()
@@ -186,7 +187,9 @@ function RelatedMeanings({ card, locale }: { card: Card; locale: TarotLocale }) 
                 onClick={() => track('tool_link_click', { target: `tarot-card-${other.id}` })}
                 className={`self-start text-body ${inlineLinkClass}`}
               >
-                {m.tarot_meaning_link({ name: meaning?.name ?? other.slug })}
+                {(relatedAnchorIsShort(card, other) ? m.tarot_index_link : m.tarot_meaning_link)({
+                  name: meaning?.name ?? other.slug,
+                })}
               </a>
               <span className="text-body text-ink-muted">{meaning?.keywords.join(' · ')}</span>
             </li>

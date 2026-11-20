@@ -36,7 +36,7 @@ test('繁中八字排盤：提交样例后依次显示 7 个区块与样例命�
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(BAZI, HYDRATED)
-  await expect(page).toHaveTitle('免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日')
+  await expect(page).toHaveTitle('免費八字排盤｜線上排出四柱八字，看大運流年與喜用神｜干支日')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('免費八字排盤')
   await fillBirth(page, zhLabels, sample)
   await page.getByRole('button', { name: '立即排盤' }).click()

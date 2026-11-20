@@ -27,14 +27,32 @@ export function conceptPageData(pages: readonly ConceptPage[], page: ConceptPage
         .filter((entry) => entry.conceptKey === page.conceptKey)
         .map((entry) => [entry.locale, conceptPagePath(entry)]),
     ),
-    links: pages
-      .filter((entry) => entry.locale === page.locale && entry.conceptKey !== page.conceptKey)
-      .map((entry) => ({
-        href: toolHref(conceptPagePath(entry), entry.locale),
-        title: entry.slug,
-        target: `bazi-concept-${entry.conceptKey}`,
-      })),
+    links: siblingConcepts(pages, page).map((entry) => ({
+      href: toolHref(conceptPagePath(entry), entry.locale),
+      title: entry.slug,
+      target: `bazi-concept-${entry.conceptKey}`,
+    })),
   }
+}
+
+/** 每页列出的同组概念数：加上主工具页，正文内链为 4 条（每页 2–5 条，openspec seo-fix-tdk-links 决策 5） */
+export const SIBLING_CONCEPTS = 3
+
+/**
+ * 同语言概念页按内容集合顺序首尾相接，每页链接其后的 3 页：每个概念恰好有 3 条同组入链，
+ * 页尾链接矩阵不再列出全部 7 个概念（7 条同名锚文本会让目标页的单一表述超过 70%）。
+ */
+export function siblingConcepts<T extends Pick<ConceptPage, 'locale' | 'conceptKey'>>(
+  pages: readonly T[],
+  page: T,
+): T[] {
+  const ring = pages.filter((entry) => entry.locale === page.locale)
+  const index = ring.findIndex((entry) => entry.conceptKey === page.conceptKey)
+  if (index < 0) return []
+  return Array.from(
+    { length: Math.min(SIBLING_CONCEPTS, ring.length - 1) },
+    (_, offset) => ring[(index + offset + 1) % ring.length] as T,
+  )
 }
 
 export type ConceptPageData = ReturnType<typeof conceptPageData>
