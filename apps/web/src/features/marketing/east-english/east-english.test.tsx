@@ -31,16 +31,22 @@ describe('东方站英文入口页', () => {
     for (const system of ['Bazi', 'Zi Wei Dou Shu', 'Saju', 'Tarot']) expect(text).toContain(system)
   })
 
-  it('只链接东方站的繁中、简体与韩语工具，不链接西方站', () => {
-    const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1] ?? '')
-    for (const href of ['/zh-hant', '/zh-hans', '/ko']) expect(hrefs).toContain(href)
-    // 语言首页是落地页；另有各语言主工具页链接（separate-landing-homepage OQ7）
-    for (const path of ['/zh-hant/八字排盤', '/zh-hans/八字排盘', '/ko/만세력'])
-      expect(hrefs).toContain(encodeURI(path))
-    expect(hrefs).toContain(encodeURI('/zh-hant/紫微斗數排盤'))
-    expect(hrefs).toContain(encodeURI('/ko/사주궁합'))
-    expect(hrefs).toContain(encodeURI('/zh-hans/塔罗'))
-    for (const href of hrefs) expect(href, href).toMatch(/^\/(zh-hant|zh-hans|ko)(\/|$)/)
+  it('正文共 5 条链接：只链接东方站的繁中、简体与韩语页面，锚文本为原文主关键词', () => {
+    const links = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].map((match) => [
+      match[1],
+      match[2],
+    ])
+    // 设计稿 warm-refresh/EastEn.dc.html：每个体系一条 + 简体中文入口一条；语言切换在页头与页脚
+    expect(links).toEqual([
+      [encodeURI('/zh-hant/八字排盤'), '八字排盤'],
+      ['/zh-hans', '简体中文'],
+      [encodeURI('/zh-hant/紫微斗數排盤'), '紫微斗數排盤'],
+      [encodeURI('/ko/만세력'), '만세력'],
+      [encodeURI('/zh-hant/塔羅'), '三張牌塔羅'],
+    ])
+    expect(html).toContain('hrefLang="zh-Hant" lang="zh-Hant"')
+    expect(html).not.toMatch(/\]\(\w+\)/)
+    expect(html).not.toMatch(/arcanumber/i)
   })
 
   it('head：东方站 canonical，可索引，hreflang 与东方站三种语言首页互指', () => {

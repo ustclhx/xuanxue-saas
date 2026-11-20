@@ -81,6 +81,11 @@ const PAGES: readonly RulePage[] = [
   { name: '每日运势（简中）', site: 'east', path: '/zh-hans/每日运势', restyled: true },
   { name: '东方站定价页', site: 'east', path: '/zh-hant/pricing', restyled: true },
   { name: '西方站定价页', site: 'west', path: '/pricing', restyled: true },
+  // 内容页（refresh-visual-system-warm 9.1）：法律页与博客文章，正文用 Prose 的排版规则
+  { name: '西方站隐私政策', site: 'west', path: '/privacy', restyled: true },
+  { name: '东方站服務條款', site: 'east', path: '/zh-hant/terms', restyled: true },
+  { name: '西方站博客文章', site: 'west', path: '/blog/writing-posts', restyled: true },
+  { name: '东方站博客文章', site: 'east', path: '/zh-hant/blog/welcome', restyled: true },
 ]
 
 const MOBILE = { width: 390, height: 844 }

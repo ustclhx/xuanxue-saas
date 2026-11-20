@@ -12,5 +12,5 @@
   "growth_submit_failed": "無法提交，請再試一次。",
   "growth_newsletter_success": "請查看電子郵件並確認訂閱。",
   "growth_waitlist_success": "你已加入候補名單。",
-  "growth_back_home": "返回首頁"
+  "growth_privacy_note": "這個地址只用於寄送這些郵件。詳見[隱私政策](privacy)；每封郵件都可以退訂。"
 }

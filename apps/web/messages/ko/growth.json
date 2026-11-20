@@ -12,5 +12,5 @@
   "growth_submit_failed": "제출하지 못했습니다. 다시 시도해 주세요.",
   "growth_newsletter_success": "이메일을 확인하고 구독을 확정해 주세요.",
   "growth_waitlist_success": "대기 명단에 등록되었습니다.",
-  "growth_back_home": "홈으로 돌아가기"
+  "growth_privacy_note": "이 주소는 이 메일을 보내는 데에만 사용합니다. 자세한 내용은 [개인정보처리방침](privacy)을 확인하세요. 모든 메일에서 수신을 거부할 수 있습니다."
 }

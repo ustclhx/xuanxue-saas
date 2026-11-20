@@ -1,10 +1,14 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
+import { PageWidth } from '@xuanxue/ui/project'
 import { GrowthForm } from '../features/growth/forms.tsx'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
 import { m } from '../paraglide/messages.js'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
+
+// 电子报订阅页（设计稿 warm-refresh/Newsletter.dc.html）：页头标志已是首页入口，不再放「返回首页」；
+// 表单下方链接隐私政策，提交成功与失败各有状态。
 export const Route = createFileRoute('/newsletter')({
   beforeLoad: () => {
     if (!templateConfig.features.newsletter) throw notFound()
@@ -20,15 +24,9 @@ export const Route = createFileRoute('/newsletter')({
     ),
   component: () => (
     <MarketingShell>
-      <div className="mx-auto w-full max-w-[1120px] px-4 py-12 sm:px-6">
-        <Link
-          to="/"
-          className="inline-flex min-h-11 items-center text-brand-ink text-sm hover:underline"
-        >
-          ← {m.growth_back_home()}
-        </Link>
+      <PageWidth className="pb-16 sm:pb-28">
         <GrowthForm feature="newsletter" headingLevel={1} />
-      </div>
+      </PageWidth>
     </MarketingShell>
   ),
 })

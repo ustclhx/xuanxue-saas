@@ -1,12 +1,17 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { formatDate, TagLinks } from '../../features/marketing/blog/post-list.tsx'
+import { createFileRoute } from '@tanstack/react-router'
+import { PostCover } from '@xuanxue/ui/project'
+import { formatDate } from '../../features/marketing/blog/post-list.tsx'
 import { getBlogPost } from '../../features/marketing/content.functions.ts'
+import { readingMinutes } from '../../features/marketing/content.ts'
+import { ContentHead, ContentPage, MetaLine } from '../../features/marketing/content-page.tsx'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import { RichContent } from '../../features/marketing/rich-content.tsx'
 import { originFromMatches, pageHead } from '../../features/seo/metadata.ts'
 import { articleData } from '../../features/seo/structured-data.ts'
+import { Breadcrumb } from '../../features/tools/breadcrumb.tsx'
+import { AiDisclaimer } from '../../features/tools/disclaimer.tsx'
 import { m } from '../../paraglide/messages.js'
-import { getLocale } from '../../paraglide/runtime.js'
+import { getLocale, localizeHref } from '../../paraglide/runtime.js'
 
 export const Route = createFileRoute('/blog/$slug')({
   loader: ({ params }) => getBlogPost({ data: { locale: getLocale(), slug: params.slug } }),
@@ -26,26 +31,47 @@ export const Route = createFileRoute('/blog/$slug')({
   component: BlogPostPage,
 })
 
+/**
+ * 博客文章（设计稿 warm-refresh/BlogPost.dc.html）：面包屑、H1、一行元信息（日期、阅读时间、分类），
+ * 正文限宽 720px。分类只作小字说明；回到列表经面包屑。正文内链写在文章的 MDX 里。
+ */
 function BlogPostPage() {
   const post = Route.useLoaderData()
+  const locale = getLocale()
+  const topic = post.tags[0]
   return (
     <MarketingShell>
-      <article lang={post.locale} className="mx-auto grid max-w-3xl gap-6 px-4 py-16">
-        <Link to="/blog" className="text-muted-foreground text-sm hover:text-foreground">
-          ← {m.marketing_blog_back()}
-        </Link>
-        <header className="grid gap-3">
-          <p className="text-muted-foreground text-sm">
-            <time dateTime={post.date}>{formatDate(post.date, getLocale())}</time>
-            {post.draft && ` · ${m.marketing_blog_draft()}`}
-          </p>
-          <h1 className="font-bold text-4xl tracking-tight">{post.title}</h1>
-          <p className="text-lg text-muted-foreground">{post.summary}</p>
-          <TagLinks tags={post.tags} />
-        </header>
-        {post.cover && <img src={post.cover} alt="" className="w-full rounded-xl border" />}
-        <RichContent html={post.html} />
-      </article>
+      <ContentPage>
+        <ContentHead
+          eyebrow={
+            <Breadcrumb
+              items={[
+                { name: m.marketing_nav_home(), href: localizeHref('/', { locale }) },
+                { name: m.marketing_blog_title(), href: localizeHref('/blog', { locale }) },
+                { name: post.title },
+              ]}
+            />
+          }
+          title={<span lang={post.locale}>{post.title}</span>}
+        >
+          <MetaLine
+            items={[
+              <time key="date" dateTime={post.date}>
+                {formatDate(post.date, locale)}
+              </time>,
+              m.marketing_blog_reading_time({ minutes: String(readingMinutes(post.html)) }),
+              topic,
+              post.draft && m.marketing_blog_draft(),
+            ]}
+          />
+        </ContentHead>
+        <article lang={post.locale} className="flex max-w-180 flex-col gap-5">
+          <p className="m-0 text-ink text-lead">{post.summary}</p>
+          {post.cover && <PostCover src={post.cover} alt={post.coverAlt} loading="eager" />}
+          <RichContent html={post.html} />
+          <AiDisclaimer />
+        </article>
+      </ContentPage>
     </MarketingShell>
   )
 }

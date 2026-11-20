@@ -84,20 +84,37 @@ export function fillPlaceholders(text: string, overrides: Record<string, string>
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:\d{2}))?$/)
 
-const posts = defineCollection({
-  name: 'posts',
-  directory: 'content/blog',
-  include: '*/**/*.mdx',
-  schema: z.object({
+/**
+ * 博客文章的 frontmatter。`cover` 与 `coverAlt` 供列表卡片使用（设计稿 warm-refresh/BlogList.dc.html）：
+ * 有封面图就必须写替代文字，缺少时该文档校验失败、不进入构建产物。
+ */
+export const postSchema = z
+  .object({
     title: z.string(),
     summary: z.string(),
     /** 发布时间（ISO 日期或日期时间）；晚于当前时间的文章在到期前不出现 */
     date: isoDate,
-    cover: z.string().optional(),
+    /** 封面图的站内路径（自托管，如 `/images/blog/<slug>.webp`，16:9）；省略时列表显示生成封面 */
+    cover: z
+      .string()
+      .regex(/^\/(?!\/)/, 'cover must be a site-relative path such as /images/blog/post.webp')
+      .optional(),
+    /** 封面图的替代文字；有 cover 时必填 */
+    coverAlt: z.string().min(1).optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
     content: z.string(),
-  }),
+  })
+  .refine((post) => !post.cover || Boolean(post.coverAlt), {
+    path: ['coverAlt'],
+    message: 'coverAlt is required when cover is set',
+  })
+
+const posts = defineCollection({
+  name: 'posts',
+  directory: 'content/blog',
+  include: '*/**/*.mdx',
+  schema: postSchema,
   transform: async (document, context) => {
     if (!templateConfig.features.blog) return context.skip('features.blog=false')
     if (document.draft && !includeDrafts) return context.skip('draft')

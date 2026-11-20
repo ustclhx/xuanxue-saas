@@ -12,6 +12,7 @@ import {
   listTags,
   loadDocsPage,
   localizedEntries,
+  paginate,
   publishedPostLocales,
 } from './content.ts'
 
@@ -33,7 +34,13 @@ function requireBlog() {
 }
 
 export const getBlogIndex = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ locale, tag: z.string().max(64).optional() }))
+  .inputValidator(
+    z.object({
+      locale,
+      tag: z.string().max(64).optional(),
+      page: z.number().int().min(1).max(10_000).optional(),
+    }),
+  )
   .handler(({ data }) => {
     requireBlog()
     const now = new Date()
@@ -42,7 +49,16 @@ export const getBlogIndex = createServerFn({ method: 'GET' })
       ({ html, ...summary }) => summary,
     )
     if (data.tag !== undefined && posts.length === 0) throw notFound()
-    return { posts, tags: listTags(listPosts(allPosts, options)) }
+    // 标签页不分页（一页列出该标签的全部文章）；列表页每页 1 + 6 篇
+    const paged =
+      data.tag === undefined ? paginate(posts, data.page ?? 1) : { items: posts, page: 1, pages: 1 }
+    if (!paged) throw notFound()
+    return {
+      posts: paged.items,
+      page: paged.page,
+      pages: paged.pages,
+      tags: listTags(listPosts(allPosts, options)),
+    }
   })
 
 /** 页头与页脚的博客入口按语言显示（根布局 loader 读取一次）；内容在构建期生成，不访问数据库 */

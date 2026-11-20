@@ -76,6 +76,34 @@ export function listPosts<T extends PostLike>(
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
+/** 博客列表每页的篇数：第一篇为横向大卡，其余 6 篇排成卡片网格（设计稿 warm-refresh/BlogList.dc.html） */
+export const POSTS_PER_PAGE = 7
+
+/** 列表分页：`page` 从 1 开始；超出范围（含非整数）时返回 undefined，由路由回 404 */
+export function paginate<T>(
+  items: readonly T[],
+  page: number,
+  perPage: number = POSTS_PER_PAGE,
+): { items: T[]; page: number; pages: number } | undefined {
+  const pages = Math.max(1, Math.ceil(items.length / perPage))
+  if (!Number.isInteger(page) || page < 1 || page > pages) return undefined
+  return { items: items.slice((page - 1) * perPage, page * perPage), page, pages }
+}
+
+/**
+ * 文章的大致阅读时间（分钟，至少 1）：中日韩文字按每分钟 400 字、其余按每分钟 220 个词估算。
+ * 只用于文章页的元信息行，是给读者的参考，不进结构化数据。
+ */
+export function readingMinutes(html: string): number {
+  const text = html.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/gi, ' ')
+  const cjk = text.match(/[㐀-鿿가-힯぀-ヿ]/g)?.length ?? 0
+  const words = text
+    .replace(/[㐀-鿿가-힯぀-ヿ]/g, ' ')
+    .split(/\s+/)
+    .filter((word) => /[\p{L}\p{N}]/u.test(word)).length
+  return Math.max(1, Math.round(cjk / 400 + words / 220))
+}
+
 /**
  * 自己有已发布文章的语言（specs/marketing-site「博客为空时隐藏入口」）：只计该语言本身的文章，
  * 不计默认语言的回退文章——两站分开经营，东方站不因西方站的英文文章显示博客入口。

@@ -12,5 +12,5 @@
   "growth_submit_failed": "Unable to submit. Please try again.",
   "growth_newsletter_success": "Check your email to confirm your subscription.",
   "growth_waitlist_success": "You are on the waitlist.",
-  "growth_back_home": "Back to home"
+  "growth_privacy_note": "We only use this address for these emails. See the [Privacy Policy](privacy); you can unsubscribe from any message."
 }

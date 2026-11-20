@@ -53,4 +53,70 @@ describe('电子报表单', () => {
       vi.unstubAllGlobals()
     }
   })
+
+  async function submitWith(status: number) {
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+    vi.mocked(getGrowthFormOptions).mockResolvedValue({ siteKey: null })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () => new Response('{}', { status, headers: { 'content-type': 'application/json' } }),
+      ),
+    )
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    await act(async () => root.render(<GrowthForm feature="newsletter" />))
+    const input = container.querySelector('input[type="email"]') as HTMLInputElement
+    const status1 = container.querySelector('[role="status"]')
+    await act(async () => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+      setter?.call(input, 'reader@example.com')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await act(async () => {
+      ;(container.querySelector('form') as HTMLFormElement).requestSubmit()
+    })
+    const cleanup = async () => {
+      await act(async () => root.unmount())
+      container.remove()
+      vi.unstubAllGlobals()
+    }
+    return { container, status1, cleanup }
+  }
+
+  it('服务错误（503）提示重试，但不把合法邮箱标成无效', async () => {
+    const { container, cleanup } = await submitWith(503)
+    try {
+      expect(
+        container.querySelector('input[type="email"]')?.getAttribute('aria-invalid'),
+      ).toBeNull()
+      expect(container.querySelector('[role="status"]')?.textContent).not.toBe('')
+    } finally {
+      await cleanup()
+    }
+  })
+
+  it('服务端判定邮箱无效（400）时标记 aria-invalid', async () => {
+    const { container, cleanup } = await submitWith(400)
+    try {
+      expect(container.querySelector('input[type="email"]')?.getAttribute('aria-invalid')).toBe(
+        'true',
+      )
+    } finally {
+      await cleanup()
+    }
+  })
+
+  it('提交成功时播报节点保持挂载，表单换成确认信息', async () => {
+    const { container, status1, cleanup } = await submitWith(200)
+    try {
+      expect(container.querySelector('form')).toBeNull()
+      const status2 = container.querySelector('[role="status"]')
+      expect(status2).toBe(status1)
+      expect(status2?.textContent).not.toBe('')
+    } finally {
+      await cleanup()
+    }
+  })
 })

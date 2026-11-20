@@ -6,7 +6,9 @@ import {
   listTags,
   loadDocsPage,
   type PostLike,
+  paginate,
   publishedPostLocales,
+  readingMinutes,
   searchDocs,
 } from './content.ts'
 
@@ -116,5 +118,24 @@ describe('文档站（tasks.md 3.4）', () => {
     const zh = loadDocsPage(docs, { locale: 'zh-Hant', defaultLocale: 'en', enabled: true })
     expect(zh?.page.locale).toBe('zh-Hant')
     expect(zh?.nav.map((s) => s.title)).toEqual(['基础', 'Basics', 'Guides'])
+  })
+})
+
+describe('博客列表分页与阅读时间（refresh-visual-system-warm 9.1）', () => {
+  it('每页 7 篇（1 篇大卡 + 6 篇网格），页码超出范围时返回 undefined', () => {
+    const items = Array.from({ length: 16 }, (_, index) => index)
+    expect(paginate(items, 1)).toEqual({ items: [0, 1, 2, 3, 4, 5, 6], page: 1, pages: 3 })
+    expect(paginate(items, 3)).toEqual({ items: [14, 15], page: 3, pages: 3 })
+    expect(paginate(items, 4)).toBeUndefined()
+    expect(paginate(items, 0)).toBeUndefined()
+    expect(paginate(items, 1.5)).toBeUndefined()
+    // 空列表仍是第 1 页（页面显示空状态）
+    expect(paginate([], 1)).toEqual({ items: [], page: 1, pages: 1 })
+  })
+
+  it('阅读时间：中日韩按字、其余按词估算，至少 1 分钟', () => {
+    expect(readingMinutes('<p>short</p>')).toBe(1)
+    expect(readingMinutes(`<p>${'word '.repeat(660)}</p>`)).toBe(3)
+    expect(readingMinutes(`<p>${'字'.repeat(2000)}</p>`)).toBe(5)
   })
 })

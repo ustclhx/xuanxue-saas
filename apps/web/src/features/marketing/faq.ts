@@ -92,12 +92,13 @@ export function faqSections(locale: Locale): FaqSection[] {
       ],
     },
     {
-      // 两站账户分开（split-site-accounts D3）：语言只属于一个站点，按语言取本站与另一站的品牌名
+      // 两站账户分开（split-site-accounts D3）。问答只说本站账号是独立的，不提另一个站点的名字
+      // （refresh-visual-system-warm Proposals79 C「FAQ 账户一问」：两站之间不互相提及）
       title: m.marketing_faq_section_account({}, options),
       items: [
         {
-          question: m.marketing_faq_accounts_q(names, options),
-          answer: m.marketing_faq_accounts_a(names, options),
+          question: m.marketing_faq_accounts_q({ site: names.site }, options),
+          answer: m.marketing_faq_accounts_a({ site: names.site }, options),
         },
       ],
     },
