@@ -24,11 +24,11 @@
 
 ## 2. 本地化质量工具（Opus，可与第 1 组并行）
 
-- [ ] 2.1 移植 part-b 测量为 `apps/web/scripts/measure-locale-similarity.mjs`（happy-dom 解析；按站点地图与 hreflang 配对；结构直译分、数字序列重合、同语言按位置段落 Dice、同文字变体 Dice/整句复现、FAQ `origin` 统计、长度下限）；输出 JSON/Markdown 到 `EVIDENCE_DIR`；单元测试用小样例
+- [x] 2.1 移植 part-b 测量为 `apps/web/scripts/measure-locale-similarity.mjs`（happy-dom 解析；按站点地图与 hreflang 配对；结构直译分、数字序列重合、同语言按位置段落 Dice、同文字变体 Dice/整句复现、FAQ `origin` 统计、长度下限）；输出 JSON/Markdown 到 `EVIDENCE_DIR`；单元测试用小样例
 - [ ] 2.2 回译相似度：固定模型与温度 0 回译、词二元组 Dice；用每语言 3 页机器直译对照组校准阈值，写入报告；成本记录（真实调用需使用者批准预算）
-- [ ] 2.3 术语表格式 `apps/web/i18n/glossary/<locale>.json` 与 `check-locale-glossary.mjs`（禁用写法、合规表述、「娱乐」定位禁用词），接入 `pnpm check`
-- [ ] 2.4 `ja`、`es` 术语表初稿（塔罗牌名/花色/正逆位、数字命理术语、四柱推命与紫微术语、合规表述、每个目标页的 ≤2 种锚文本）；Opus 起草，另一模型交叉审阅定稿
-- [ ] 2.5 写作事实单模板与生成脚本（引擎事实、关键词、本地问题来源、术语、锚文本），不含源语言正文
+- [x] 2.3 术语表格式 `apps/web/i18n/glossary/<locale>.json` 与 `check-locale-glossary.mjs`（禁用写法、合规表述、「娱乐」定位禁用词），接入 `pnpm check`
+- [x] 2.4 `ja`、`es` 术语表初稿（塔罗牌名/花色/正逆位、数字命理术语、四柱推命与紫微术语、合规表述、每个目标页的 ≤2 种锚文本）；Opus 起草，另一模型交叉审阅定稿
+- [x] 2.5 写作事实单模板与生成脚本（引擎事实、关键词、本地问题来源、术语、锚文本），不含源语言正文
 
 ## 3. 视觉（Fable）
 

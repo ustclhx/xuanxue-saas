@@ -7,6 +7,7 @@ export interface LinkResponse {
   cancel(): Promise<void>
 }
 export function fetchRequest(url: string): Promise<LinkResponse>
+export function startPreview(): Promise<{ baseUrl: string; stop: () => void }>
 export function hostRequest(
   baseUrl: string,
   hosts: ReadonlySet<string>,
