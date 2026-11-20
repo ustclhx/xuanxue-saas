@@ -235,7 +235,14 @@ describe('defineTemplateConfig', () => {
     expect(() =>
       defineTemplateConfig({
         app,
-        marketing: { products: [{ ...product, secondaryLabel: { en: 'Features', zh: ' ' } }] },
+        marketing: {
+          products: [
+            {
+              ...product,
+              secondaryLabel: { en: 'Features', 'zh-Hant': ' ', 'zh-Hans': '功能', ko: '기능' },
+            },
+          ],
+        },
       }),
     ).toThrow(/products\[0\].secondaryLabel/)
     expect(() =>

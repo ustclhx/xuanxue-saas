@@ -86,7 +86,15 @@ describe('页面层级与主词声明（1.2–1.4）', () => {
   })
 
   it('东方站语言回退显示的英文文章是跨站回退：不声明 sourceLocale，canonical 与站点地图保持原样（D5）', () => {
-    const own = { ...content.posts[0], slug: 'own', locale: 'zh-Hant', title: '自己的文章' }
+    const own = {
+      slug: 'own',
+      locale: 'zh-Hant',
+      title: '自己的文章',
+      summary: '摘要',
+      date: '2026-01-01',
+      tags: [],
+      draft: false,
+    }
     const list = publicPages(
       { ...content, posts: [...content.posts, own] },
       new Date('2026-10-01'),
