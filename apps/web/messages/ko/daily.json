@@ -15,7 +15,7 @@
   "daily_gloss_title": "용어 풀이",
   "daily_rules_note": "의기와 건제는 tyme4ts 택일 규칙(규칙 버전 {version})을 따르며, 다른 만세력과 조금 다를 수 있습니다. 이 페이지는 자정(0시)에 날짜를 바꾸며, 자시(23시)에 날을 바꾸는 유파는 따르지 않습니다.",
   "daily_mine_title": "오늘, 내 일간에게는",
-  "daily_mine_privacy": "브라우저에서 계산하며 생일은 전송하지 않습니다",
+  "daily_mine_privacy": "생일은 서버로 보내지 않고 이 브라우저 안에서만 계산합니다",
   "daily_pick_label": "일간 선택",
   "daily_unknown_master": "일간을 모르나요? 생일 입력",
   "daily_master_heading": "{master} 일간",
@@ -95,10 +95,10 @@
   "daily_ai_suggest_2": "오늘은 어떤 일에 힘을 쓰면 좋을까요?",
   "daily_ai_suggest_3": "오늘 조금 더 살필 점은 무엇인가요?",
   "daily_how_title": "의기와 건제는 어떻게 정하나요",
-  "daily_how_body": "그날의 간지는 역법으로 정해지고, 의기와 건제 십이신은 전통 택일서의 규칙표에서 찾으며 모든 사람에게 같습니다. 「오늘, 내 일간에게는」은 오늘의 천간을 내 일간과 견주어 십성 관계를 보여 주므로 사람마다 다릅니다.",
+  "daily_how_body": "날마다 바뀌는 간지는 역법으로 정해지고, 의기(宜忌)와 건제 십이신은 전통 택일서의 표를 그대로 찾아 쓰므로 누구에게나 같습니다. 반면 「오늘, 내 일간에게는」은 오늘의 천간을 내 일간과 비교해 십성 관계로 보여 주기 때문에 사람마다 결과가 달라집니다.",
   "daily_master_hint_before": "내 일간을 모르나요? 먼저 ",
   "daily_master_hint_after": "으로 사주를 뽑아 보세요. 일주의 천간이 일간입니다.",
-  "daily_east_more_lead": "오늘의 운세는 하루만 봅니다.",
+  "daily_east_more_lead": "오늘의 운세는 딱 하루치만 보여 줍니다.",
   "daily_east_more_ziwei_before": "한 해의 흐름은 ",
   "daily_east_more_ziwei_link": "자미두수 명반",
   "daily_east_more_ziwei_after": "에서 볼 수 있습니다.",
@@ -114,5 +114,5 @@
   "daily_west_go_3": "는 그 사이의 퍼스널 이어를 보여 줍니다. 다른 방식의 하루 주제가 필요하다면 타로 ",
   "daily_west_go_tarot": "오늘의 카드",
   "daily_west_go_4": "를 뽑아 보세요.",
-  "daily_master_neutral": "일간을 고르거나 생일을 입력하면 오늘의 안내를 볼 수 있습니다."
+  "daily_master_neutral": "일간을 직접 고르거나 생일을 넣으면, 오늘 나에게 맞춘 안내가 나옵니다."
 }
