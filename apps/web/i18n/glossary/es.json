@@ -1,0 +1,814 @@
+{
+  "locale": "es",
+  "site": "west",
+  "status": "reviewed",
+  "review": "跨模型审阅记录：私有证据目录 locales-eu-ja/quality-tools/glossary-review.md",
+  "cardName": "{rank} de {suit}",
+  "terms": [
+    {
+      "id": "tarot.major.major-00",
+      "en": "The Fool",
+      "preferred": "El Loco",
+      "banned": [
+        {
+          "text": "The Fool",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-01",
+      "en": "The Magician",
+      "preferred": "El Mago",
+      "banned": [
+        {
+          "text": "The Magician",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-02",
+      "en": "The High Priestess",
+      "preferred": "La Sacerdotisa",
+      "variants": ["La Suma Sacerdotisa", "La Papisa"],
+      "banned": [
+        {
+          "text": "The High Priestess",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-03",
+      "en": "The Empress",
+      "preferred": "La Emperatriz",
+      "banned": [
+        {
+          "text": "The Empress",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-04",
+      "en": "The Emperor",
+      "preferred": "El Emperador",
+      "banned": [
+        {
+          "text": "The Emperor",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-05",
+      "en": "The Hierophant",
+      "preferred": "El Hierofante",
+      "variants": ["El Sumo Sacerdote", "El Papa"],
+      "banned": [
+        {
+          "text": "The Hierophant",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-06",
+      "en": "The Lovers",
+      "preferred": "Los Enamorados",
+      "variants": ["Los Amantes"],
+      "banned": [
+        {
+          "text": "The Lovers",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-07",
+      "en": "The Chariot",
+      "preferred": "El Carro",
+      "banned": [
+        {
+          "text": "The Chariot",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-08",
+      "en": "Strength",
+      "preferred": "La Fuerza",
+      "banned": [
+        {
+          "text": "Strength",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-09",
+      "en": "The Hermit",
+      "preferred": "El Ermitaño",
+      "banned": [
+        {
+          "text": "The Hermit",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-10",
+      "en": "Wheel of Fortune",
+      "preferred": "La Rueda de la Fortuna",
+      "banned": [
+        {
+          "text": "Wheel of Fortune",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-11",
+      "en": "Justice",
+      "preferred": "La Justicia",
+      "banned": [
+        {
+          "text": "Justice",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-12",
+      "en": "The Hanged Man",
+      "preferred": "El Colgado",
+      "variants": ["El Ahorcado"],
+      "banned": [
+        {
+          "text": "The Hanged Man",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-13",
+      "en": "Death",
+      "preferred": "La Muerte",
+      "banned": [
+        {
+          "text": "Death",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-14",
+      "en": "Temperance",
+      "preferred": "La Templanza",
+      "banned": [
+        {
+          "text": "Temperance",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-15",
+      "en": "The Devil",
+      "preferred": "El Diablo",
+      "banned": [
+        {
+          "text": "The Devil",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-16",
+      "en": "The Tower",
+      "preferred": "La Torre",
+      "banned": [
+        {
+          "text": "The Tower",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-17",
+      "en": "The Star",
+      "preferred": "La Estrella",
+      "banned": [
+        {
+          "text": "The Star",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-18",
+      "en": "The Moon",
+      "preferred": "La Luna",
+      "banned": [
+        {
+          "text": "The Moon",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-19",
+      "en": "The Sun",
+      "preferred": "El Sol",
+      "banned": [
+        {
+          "text": "The Sun",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-20",
+      "en": "Judgement",
+      "preferred": "El Juicio",
+      "banned": [
+        {
+          "text": "Judgement",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-21",
+      "en": "The World",
+      "preferred": "El Mundo",
+      "banned": [
+        {
+          "text": "The World",
+          "reason": "nombre en inglés sin traducir"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major-arcana",
+      "en": "Major Arcana",
+      "preferred": "Arcanos Mayores",
+      "variants": ["arcanos mayores"],
+      "banned": ["Major Arcana"],
+      "note": "en prosa se acepta minúscula; títulos según la spec tarot-pages"
+    },
+    {
+      "id": "tarot.minor-arcana",
+      "en": "Minor Arcana",
+      "preferred": "Arcanos Menores",
+      "variants": ["arcanos menores"],
+      "banned": ["Minor Arcana"]
+    },
+    {
+      "id": "tarot.court-cards",
+      "en": "Court cards",
+      "preferred": "cartas de la corte",
+      "variants": ["figuras de la corte"],
+      "banned": ["Court cards"]
+    },
+    {
+      "id": "tarot.pip-cards",
+      "en": "Pip cards",
+      "preferred": "cartas numéricas"
+    },
+    {
+      "id": "tarot.suit.wands",
+      "en": "Wands",
+      "preferred": "Bastos",
+      "banned": [
+        {
+          "regex": "\\bde Varas\\b",
+          "use": "de Bastos"
+        },
+        "Wands"
+      ]
+    },
+    {
+      "id": "tarot.suit.cups",
+      "en": "Cups",
+      "preferred": "Copas",
+      "banned": [
+        {
+          "regex": "\\bde C[aá]lices\\b",
+          "use": "de Copas"
+        },
+        "Cups"
+      ]
+    },
+    {
+      "id": "tarot.suit.swords",
+      "en": "Swords",
+      "preferred": "Espadas",
+      "banned": ["Swords"]
+    },
+    {
+      "id": "tarot.suit.pentacles",
+      "en": "Pentacles",
+      "preferred": "Oros",
+      "banned": [
+        {
+          "regex": "\\b(?:de|De) (?:Pent[aá]culos|Monedas|Discos)\\b",
+          "use": "de Oros",
+          "reason": "el palo se llama Oros (design 决策 10)"
+        },
+        {
+          "regex": "\\b[Pp]alo de (?:[Pp]ent[aá]culos|[Mm]onedas|[Dd]iscos)\\b",
+          "use": "palo de Oros"
+        },
+        "Pentacles"
+      ],
+      "note": "el pentáculo como símbolo dibujado en la carta puede nombrarse en la descripción; el palo siempre es Oros"
+    },
+    {
+      "id": "tarot.rank.01",
+      "en": "Ace",
+      "preferred": "As",
+      "banned": ["Ace"]
+    },
+    {
+      "id": "tarot.rank.02",
+      "en": "2",
+      "preferred": "Dos"
+    },
+    {
+      "id": "tarot.rank.03",
+      "en": "3",
+      "preferred": "Tres"
+    },
+    {
+      "id": "tarot.rank.04",
+      "en": "4",
+      "preferred": "Cuatro"
+    },
+    {
+      "id": "tarot.rank.05",
+      "en": "5",
+      "preferred": "Cinco"
+    },
+    {
+      "id": "tarot.rank.06",
+      "en": "6",
+      "preferred": "Seis"
+    },
+    {
+      "id": "tarot.rank.07",
+      "en": "7",
+      "preferred": "Siete"
+    },
+    {
+      "id": "tarot.rank.08",
+      "en": "8",
+      "preferred": "Ocho"
+    },
+    {
+      "id": "tarot.rank.09",
+      "en": "9",
+      "preferred": "Nueve"
+    },
+    {
+      "id": "tarot.rank.10",
+      "en": "10",
+      "preferred": "Diez"
+    },
+    {
+      "id": "tarot.rank.11",
+      "en": "Page",
+      "preferred": "Sota",
+      "variants": ["Paje"],
+      "banned": [
+        {
+          "regex": "\\bPage of\\b",
+          "use": "Sota de"
+        }
+      ],
+      "note": "Sota en nombres de carta; «Paje» (frecuente en ediciones RWS latinoamericanas) se acepta en prosa — confirmar con la investigación de palabras clave"
+    },
+    {
+      "id": "tarot.rank.12",
+      "en": "Knight",
+      "preferred": "Caballero",
+      "banned": [
+        {
+          "regex": "\\bKnight of\\b",
+          "use": "Caballero de"
+        }
+      ]
+    },
+    {
+      "id": "tarot.rank.13",
+      "en": "Queen",
+      "preferred": "Reina",
+      "banned": [
+        {
+          "regex": "\\bDama de (?:Bastos|Copas|Espadas|Oros)\\b",
+          "use": "Reina de"
+        },
+        {
+          "regex": "\\bQueen of\\b",
+          "use": "Reina de"
+        }
+      ]
+    },
+    {
+      "id": "tarot.rank.14",
+      "en": "King",
+      "preferred": "Rey",
+      "banned": [
+        {
+          "regex": "\\bKing of\\b",
+          "use": "Rey de"
+        }
+      ]
+    },
+    {
+      "id": "tarot.upright",
+      "en": "Upright",
+      "preferred": "al derecho",
+      "variants": ["derecha", "posición derecha"],
+      "banned": [
+        "Upright",
+        {
+          "text": "posición vertical",
+          "use": "al derecho",
+          "reason": "calco del inglés"
+        }
+      ]
+    },
+    {
+      "id": "tarot.reversed",
+      "en": "Reversed",
+      "preferred": "invertida",
+      "variants": ["invertido", "al revés"],
+      "banned": [
+        "Reversed",
+        {
+          "regex": "\\b(?:carta|cartas|posición|posiciones) (?:revertidas?|revertidos?|en reversa)\\b",
+          "use": "invertida",
+          "reason": "calco del inglés"
+        }
+      ]
+    },
+    {
+      "id": "tarot.spread",
+      "en": "Spread",
+      "preferred": "tirada",
+      "banned": [
+        {
+          "text": "spread",
+          "use": "tirada"
+        },
+        {
+          "text": "Spread",
+          "use": "tirada"
+        }
+      ]
+    },
+    {
+      "id": "tarot.three-card",
+      "en": "Three-card spread",
+      "preferred": "tirada de tres cartas"
+    },
+    {
+      "id": "tarot.daily",
+      "en": "Card of the day",
+      "preferred": "carta del día",
+      "variants": ["tarot del día"]
+    },
+    {
+      "id": "tarot.yes-no",
+      "en": "Yes or No tarot",
+      "preferred": "tarot del sí o no",
+      "variants": ["tarot sí o no", "sí o no"],
+      "banned": ["Yes or No"]
+    },
+    {
+      "id": "tarot.celtic-cross",
+      "en": "Celtic Cross",
+      "preferred": "cruz celta",
+      "banned": ["Celtic Cross"]
+    },
+    {
+      "id": "tarot.reading",
+      "en": "Reading",
+      "preferred": "lectura",
+      "variants": ["lectura de tarot"]
+    },
+    {
+      "id": "numerology.name",
+      "en": "Numerology",
+      "preferred": "numerología"
+    },
+    {
+      "id": "numerology.life-path",
+      "en": "Life Path Number",
+      "preferred": "número del camino de vida",
+      "variants": ["número de vida", "camino de vida"],
+      "banned": [
+        "Life Path",
+        {
+          "text": "ruta de vida",
+          "use": "camino de vida"
+        },
+        {
+          "text": "sendero de vida",
+          "use": "camino de vida"
+        }
+      ],
+      "note": "«número de vida» es la forma corta más buscada (ruta /es/numero-de-vida); en definiciones usar la forma completa"
+    },
+    {
+      "id": "numerology.destiny",
+      "en": "Destiny / Expression Number",
+      "preferred": "número del destino",
+      "variants": ["número de expresión"],
+      "banned": ["Destiny Number", "Expression Number"]
+    },
+    {
+      "id": "numerology.soul-urge",
+      "en": "Soul Urge Number",
+      "preferred": "número del alma",
+      "variants": ["número del deseo del alma", "impulso del alma"],
+      "banned": ["Soul Urge"]
+    },
+    {
+      "id": "numerology.personality",
+      "en": "Personality Number",
+      "preferred": "número de la personalidad",
+      "banned": ["Personality Number"]
+    },
+    {
+      "id": "numerology.master",
+      "en": "Master numbers",
+      "preferred": "números maestros",
+      "variants": ["número maestro"],
+      "banned": [
+        "números master",
+        {
+          "regex": "\\bmaster numbers?\\b",
+          "flags": "i",
+          "use": "números maestros"
+        }
+      ]
+    },
+    {
+      "id": "numerology.reduce",
+      "en": "Reduce to a single digit",
+      "preferred": "reducir a un solo dígito",
+      "variants": ["reducción"]
+    },
+    {
+      "id": "numerology.compatibility",
+      "en": "Life path compatibility",
+      "preferred": "compatibilidad numerológica"
+    },
+    {
+      "id": "numerology.chart",
+      "en": "Numerology chart",
+      "preferred": "carta numerológica",
+      "variants": ["mapa numerológico"]
+    },
+    {
+      "id": "numerology.name-numerology",
+      "en": "Name numerology",
+      "preferred": "numerología del nombre"
+    },
+    {
+      "id": "numerology.pythagorean",
+      "en": "Pythagorean letter table",
+      "preferred": "tabla pitagórica",
+      "variants": ["sistema pitagórico", "numerología pitagórica"]
+    },
+    {
+      "id": "numerology.birth-date",
+      "en": "Birth date",
+      "preferred": "fecha de nacimiento"
+    },
+    {
+      "id": "numerology.personal-day",
+      "en": "Personal day number",
+      "preferred": "número personal del día",
+      "note": "segunda fase"
+    }
+  ],
+  "banned": [
+    {
+      "text": "vosotros",
+      "use": "ustedes",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "vosotras",
+      "use": "ustedes",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "vuestro",
+      "use": "su",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "vuestra",
+      "use": "su",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "vuestros",
+      "use": "sus",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "vuestras",
+      "use": "sus",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "habéis",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "tenéis",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "podéis",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "ordenador",
+      "use": "computadora",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "regex": "(?<![\\p{L}])\\p{L}{2,}(?:áis|éis)(?![\\p{L}])",
+      "reason": "conjugación de vosotros; español neutro latinoamericano"
+    },
+    {
+      "regex": "\\b[Cc]og(?:e|ed|er|emos|es|en|iendo)\\b",
+      "use": "elige / toma",
+      "reason": "vulgar en México y Argentina"
+    },
+    {
+      "regex": "\\b(?:el|tu|su) móvil\\b",
+      "use": "el celular",
+      "reason": "español neutro latinoamericano («dispositivo móvil» es correcto)"
+    },
+    {
+      "regex": "\\b[Pp]inch(?:a|ar|ad|e|en)\\b",
+      "use": "haz clic",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "ratón",
+      "use": "mouse",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "fichero",
+      "use": "archivo",
+      "reason": "español neutro latinoamericano"
+    },
+    {
+      "text": "tenés",
+      "use": "tienes",
+      "reason": "voseo; usar tuteo neutro"
+    },
+    {
+      "text": "podés",
+      "use": "puedes",
+      "reason": "voseo; usar tuteo neutro"
+    },
+    {
+      "text": "querés",
+      "use": "quieres",
+      "reason": "voseo; usar tuteo neutro"
+    }
+  ],
+  "compliance": {
+    "required": [
+      {
+        "id": "traditional-method",
+        "phrases": [
+          "según métodos tradicionales",
+          "con el método tradicional",
+          "con métodos tradicionales",
+          "basado en métodos tradicionales",
+          "basados en métodos tradicionales"
+        ],
+        "requiredIn": ["apps/web/content/legal/*/es/disclaimer.mdx"]
+      },
+      {
+        "id": "reference-only",
+        "phrases": [
+          "solo como referencia",
+          "sólo como referencia",
+          "únicamente como referencia",
+          "con fines de referencia",
+          "como referencia para reflexionar"
+        ]
+      },
+      {
+        "id": "no-prediction",
+        "phrases": [
+          "no predice el futuro",
+          "no predicen el futuro",
+          "no pretende predecir el futuro",
+          "no pretenden predecir el futuro",
+          "no adivina el futuro",
+          "no son una predicción"
+        ]
+      }
+    ],
+    "banned": [
+      {
+        "regex": "\\b[Ee]ntretenimientos?\\b",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "text": "para divertirse",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "text": "por diversión",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "regex": "\\b[Rr]ecreativ[oa]s?\\b",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "regex": "\\b[Pp]asatiempos?\\b",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "text": "para pasar el rato",
+        "reason": "no usar el posicionamiento de «entretenimiento»"
+      },
+      {
+        "text": "resultados garantizados",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "text": "predicción garantizada",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "text": "acierto garantizado",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "regex": "\\b(?:te )?garantizamos\\b",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "regex": "100 ?% (?:de acierto|acertad[oa])",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "text": "siempre acierta",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "text": "predicción exacta",
+        "reason": "no garantizar resultados"
+      },
+      {
+        "regex": "(?<![Nn]o es )(?<![Nn]ingún método es )(?<![Nn]ada es )\\binfalibles?\\b",
+        "reason": "no garantizar resultados (la negación se permite)"
+      },
+      {
+        "regex": "\\bdestino (?:ya )?est[aá] escrito",
+        "reason": "evitar el determinismo"
+      }
+    ]
+  },
+  "anchors": {
+    "/es": ["Arcanumber", "numerología y tarot"],
+    "/es/numero-de-vida": ["número de vida", "calcular tu número de vida"],
+    "/es/numero-de-vida/*": ["número de vida {n}", "número {n} en numerología"],
+    "/es/calculadora-numerologia": [
+      "calculadora de numerología",
+      "calculadora de numerología gratis"
+    ],
+    "/es/numerologia-del-nombre": ["numerología del nombre", "numerología de tu nombre"],
+    "/es/compatibilidad-numerologica": [
+      "compatibilidad numerológica",
+      "compatibilidad por número de vida"
+    ],
+    "/es/carta-numerologica": ["carta numerológica", "carta numerológica completa"],
+    "/es/numero-del-destino": ["número del destino", "número de expresión"],
+    "/es/numero-del-alma": ["número del alma", "número del deseo del alma"],
+    "/es/tarot": ["tarot gratis", "tirada de tres cartas"],
+    "/es/tarot/carta-del-dia": ["carta del día", "tarot del día"],
+    "/es/tarot/si-o-no": ["tarot del sí o no", "tarot sí o no"],
+    "/es/tarot/cruz-celta": ["cruz celta", "tirada de la cruz celta"],
+    "/es/tarot/cartas": ["significado de las cartas del tarot", "las 78 cartas"],
+    "/es/tarot/cartas/*": ["{card}", "significado de {card}"]
+  }
+}

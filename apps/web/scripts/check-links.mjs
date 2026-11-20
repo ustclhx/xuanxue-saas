@@ -51,7 +51,7 @@ function freePort() {
 }
 
 /** 与构建期预渲染相同：`vite preview` 在 workerd 中运行 dist 产物；只结束自己启动的进程组 */
-async function startPreview() {
+export async function startPreview() {
   if (!existsSync(resolve(WEB_ROOT, 'dist/server/index.js')))
     throw new Error('缺少构建产物 apps/web/dist，请先运行 pnpm --filter @xuanxue/web build')
   // Turbo 缓存命中恢复的产物不含 .dev.vars（刻意不缓存），没有它时 Worker 启动校验让所有页面返回 500；

@@ -1,0 +1,962 @@
+{
+  "locale": "ja",
+  "site": "east",
+  "status": "reviewed",
+  "review": "跨模型审阅记录：私有证据目录 locales-eu-ja/quality-tools/glossary-review.md",
+  "cardName": "{suit}の{rank}",
+  "terms": [
+    {
+      "id": "tarot.major.major-00",
+      "en": "The Fool",
+      "preferred": "愚者",
+      "variants": ["ザ・フール"],
+      "banned": ["愚人"]
+    },
+    {
+      "id": "tarot.major.major-01",
+      "en": "The Magician",
+      "preferred": "魔術師",
+      "banned": ["魔术师"]
+    },
+    {
+      "id": "tarot.major.major-02",
+      "en": "The High Priestess",
+      "preferred": "女教皇",
+      "variants": ["女司祭"],
+      "banned": ["女祭司"]
+    },
+    {
+      "id": "tarot.major.major-03",
+      "en": "The Empress",
+      "preferred": "女帝",
+      "banned": [
+        {
+          "regex": "皇后(?:牌|のカード)|(?:ワンド|カップ|ソード|ペンタクル|权杖|權杖|圣杯|聖杯|宝剑|寶劍|钱币|錢幣)の?皇后",
+          "use": "女帝 / クイーン",
+          "reason": "中国語の牌名（「皇后陛下」など一般語は対象外）"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-04",
+      "en": "The Emperor",
+      "preferred": "皇帝"
+    },
+    {
+      "id": "tarot.major.major-05",
+      "en": "The Hierophant",
+      "preferred": "法王",
+      "variants": ["教皇"]
+    },
+    {
+      "id": "tarot.major.major-06",
+      "en": "The Lovers",
+      "preferred": "恋人",
+      "variants": ["恋人たち"],
+      "banned": ["戀人"]
+    },
+    {
+      "id": "tarot.major.major-07",
+      "en": "The Chariot",
+      "preferred": "戦車",
+      "banned": ["战车", "戰車"]
+    },
+    {
+      "id": "tarot.major.major-08",
+      "en": "Strength",
+      "preferred": "力",
+      "banned": [
+        {
+          "text": "力量牌",
+          "reason": "中国語の牌名"
+        }
+      ]
+    },
+    {
+      "id": "tarot.major.major-09",
+      "en": "The Hermit",
+      "preferred": "隠者",
+      "banned": ["隐者", "隱者"]
+    },
+    {
+      "id": "tarot.major.major-10",
+      "en": "Wheel of Fortune",
+      "preferred": "運命の輪",
+      "banned": ["命运之轮", "命運之輪"]
+    },
+    {
+      "id": "tarot.major.major-11",
+      "en": "Justice",
+      "preferred": "正義",
+      "banned": ["正义"]
+    },
+    {
+      "id": "tarot.major.major-12",
+      "en": "The Hanged Man",
+      "preferred": "吊るされた男",
+      "variants": ["吊された男"],
+      "banned": ["倒吊人", "ハングドマン"]
+    },
+    {
+      "id": "tarot.major.major-13",
+      "en": "Death",
+      "preferred": "死神"
+    },
+    {
+      "id": "tarot.major.major-14",
+      "en": "Temperance",
+      "preferred": "節制",
+      "banned": ["节制"]
+    },
+    {
+      "id": "tarot.major.major-15",
+      "en": "The Devil",
+      "preferred": "悪魔",
+      "banned": ["恶魔", "惡魔"]
+    },
+    {
+      "id": "tarot.major.major-16",
+      "en": "The Tower",
+      "preferred": "塔",
+      "banned": ["高塔"]
+    },
+    {
+      "id": "tarot.major.major-17",
+      "en": "The Star",
+      "preferred": "星",
+      "banned": ["星星"]
+    },
+    {
+      "id": "tarot.major.major-18",
+      "en": "The Moon",
+      "preferred": "月",
+      "banned": ["月亮"]
+    },
+    {
+      "id": "tarot.major.major-19",
+      "en": "The Sun",
+      "preferred": "太陽",
+      "banned": ["太阳"]
+    },
+    {
+      "id": "tarot.major.major-20",
+      "en": "Judgement",
+      "preferred": "審判",
+      "banned": ["审判"]
+    },
+    {
+      "id": "tarot.major.major-21",
+      "en": "The World",
+      "preferred": "世界"
+    },
+    {
+      "id": "tarot.tarot",
+      "en": "Tarot",
+      "preferred": "タロット",
+      "banned": ["塔罗", "塔羅"]
+    },
+    {
+      "id": "tarot.major-arcana",
+      "en": "Major Arcana",
+      "preferred": "大アルカナ",
+      "variants": ["メジャーアルカナ"],
+      "banned": ["大阿尔卡那", "大阿爾克那", "大阿爾卡那"]
+    },
+    {
+      "id": "tarot.minor-arcana",
+      "en": "Minor Arcana",
+      "preferred": "小アルカナ",
+      "variants": ["マイナーアルカナ"],
+      "banned": ["小阿尔卡那", "小阿爾克那", "小阿爾卡那"]
+    },
+    {
+      "id": "tarot.court-cards",
+      "en": "Court cards",
+      "preferred": "コートカード",
+      "variants": ["人物カード"],
+      "banned": ["宫廷牌", "宮廷牌"]
+    },
+    {
+      "id": "tarot.pip-cards",
+      "en": "Pip cards",
+      "preferred": "数札",
+      "variants": ["ヌーメラルカード"]
+    },
+    {
+      "id": "tarot.suit.wands",
+      "en": "Wands",
+      "preferred": "ワンド",
+      "variants": ["棒"],
+      "banned": ["权杖", "權杖", "権杖"]
+    },
+    {
+      "id": "tarot.suit.cups",
+      "en": "Cups",
+      "preferred": "カップ",
+      "variants": ["聖杯"],
+      "banned": ["圣杯"]
+    },
+    {
+      "id": "tarot.suit.swords",
+      "en": "Swords",
+      "preferred": "ソード",
+      "variants": ["剣"],
+      "banned": ["宝剑", "寶劍"]
+    },
+    {
+      "id": "tarot.suit.pentacles",
+      "en": "Pentacles",
+      "preferred": "ペンタクル",
+      "variants": ["金貨"],
+      "banned": ["钱币", "錢幣", "星币", "星幣"]
+    },
+    {
+      "id": "tarot.rank.01",
+      "en": "Ace",
+      "preferred": "エース",
+      "banned": [
+        {
+          "text": "王牌",
+          "reason": "中国語のエース表記"
+        }
+      ]
+    },
+    {
+      "id": "tarot.rank.02",
+      "en": "2",
+      "preferred": "2"
+    },
+    {
+      "id": "tarot.rank.03",
+      "en": "3",
+      "preferred": "3"
+    },
+    {
+      "id": "tarot.rank.04",
+      "en": "4",
+      "preferred": "4"
+    },
+    {
+      "id": "tarot.rank.05",
+      "en": "5",
+      "preferred": "5"
+    },
+    {
+      "id": "tarot.rank.06",
+      "en": "6",
+      "preferred": "6"
+    },
+    {
+      "id": "tarot.rank.07",
+      "en": "7",
+      "preferred": "7"
+    },
+    {
+      "id": "tarot.rank.08",
+      "en": "8",
+      "preferred": "8"
+    },
+    {
+      "id": "tarot.rank.09",
+      "en": "9",
+      "preferred": "9"
+    },
+    {
+      "id": "tarot.rank.10",
+      "en": "10",
+      "preferred": "10"
+    },
+    {
+      "id": "tarot.rank.11",
+      "en": "Page",
+      "preferred": "ペイジ",
+      "variants": ["ページ"],
+      "banned": ["侍者", "侍从", "侍從"],
+      "note": "ページ（頁）と紛れやすいため牌名は「ペイジ」に統一。「ページ」は本文で許容（一般語と同形のため禁止しない）"
+    },
+    {
+      "id": "tarot.rank.12",
+      "en": "Knight",
+      "preferred": "ナイト",
+      "variants": ["騎士"],
+      "banned": ["骑士"]
+    },
+    {
+      "id": "tarot.rank.13",
+      "en": "Queen",
+      "preferred": "クイーン",
+      "note": "中国語の「皇后」は女帝の項で禁止済み"
+    },
+    {
+      "id": "tarot.rank.14",
+      "en": "King",
+      "preferred": "キング"
+    },
+    {
+      "id": "tarot.upright",
+      "en": "Upright",
+      "preferred": "正位置",
+      "banned": [
+        {
+          "text": "正位",
+          "use": "正位置",
+          "reason": "中国語の略記。日本語は「正位置」"
+        },
+        {
+          "text": "アップライト",
+          "use": "正位置",
+          "reason": "英語の音写"
+        }
+      ]
+    },
+    {
+      "id": "tarot.reversed",
+      "en": "Reversed",
+      "preferred": "逆位置",
+      "banned": [
+        {
+          "text": "逆位",
+          "use": "逆位置",
+          "reason": "中国語の略記。日本語は「逆位置」"
+        },
+        {
+          "text": "リバースド",
+          "use": "逆位置",
+          "reason": "英語の音写"
+        }
+      ]
+    },
+    {
+      "id": "tarot.meaning",
+      "en": "Card meaning",
+      "preferred": "カードの意味",
+      "variants": ["意味"],
+      "banned": ["牌义", "牌義", "牌意"]
+    },
+    {
+      "id": "tarot.spread",
+      "en": "Spread",
+      "preferred": "スプレッド",
+      "variants": ["展開法"],
+      "banned": ["牌阵", "牌陣"]
+    },
+    {
+      "id": "tarot.three-card",
+      "en": "Three-card spread",
+      "preferred": "スリーカード",
+      "variants": ["スリーカード・スプレッド"]
+    },
+    {
+      "id": "tarot.daily",
+      "en": "Daily card",
+      "preferred": "今日の一枚",
+      "variants": ["ワンオラクル"]
+    },
+    {
+      "id": "tarot.yes-no",
+      "en": "Yes or No",
+      "preferred": "イエス・ノー",
+      "variants": ["イエスノー"]
+    },
+    {
+      "id": "tarot.celtic-cross",
+      "en": "Celtic Cross",
+      "preferred": "ケルト十字",
+      "variants": ["ケルティッククロス"],
+      "banned": ["凯尔特十字", "凱爾特十字"]
+    },
+    {
+      "id": "tarot.reading",
+      "en": "Reading",
+      "preferred": "リーディング",
+      "variants": ["鑑定"]
+    },
+    {
+      "id": "shichu.name",
+      "en": "Four Pillars (BaZi)",
+      "preferred": "四柱推命",
+      "banned": ["八字排盘", "八字排盤", "排盘", "解盘", "占卜"],
+      "note": "「八字」単独は説明文で可（例：四柱推命（八字））。ツール名・見出しは「四柱推命」"
+    },
+    {
+      "id": "shichu.chart",
+      "en": "BaZi chart",
+      "preferred": "命式",
+      "banned": [
+        {
+          "regex": "(?<!紫微斗数の)(?<!紫微斗数で)(?<!紫微斗数)命盤",
+          "use": "命式",
+          "reason": "四柱推命の表は「命式」（design 決定済み）。紫微斗数の命盤は対象外",
+          "allowIn": [
+            "apps/web/messages/ja/*ziwei*.json",
+            "apps/web/content/*/ja/*ziwei*",
+            "apps/web/content/*/ja/*紫微*"
+          ],
+          "allowFor": ["ziwei.chart"]
+        },
+        "命盘"
+      ]
+    },
+    {
+      "id": "shichu.ten-gods",
+      "en": "Ten Gods",
+      "preferred": "通変星",
+      "variants": ["変通星"],
+      "banned": [
+        {
+          "text": "十神",
+          "use": "通変星",
+          "reason": "中国語の用語（design 決定済み）"
+        }
+      ]
+    },
+    {
+      "id": "shichu.ten-gods.bijian",
+      "en": "Friend (比肩)",
+      "preferred": "比肩"
+    },
+    {
+      "id": "shichu.ten-gods.jiecai",
+      "en": "Rob Wealth (劫財)",
+      "preferred": "劫財",
+      "banned": ["劫财"]
+    },
+    {
+      "id": "shichu.ten-gods.shishen",
+      "en": "Eating God (食神)",
+      "preferred": "食神"
+    },
+    {
+      "id": "shichu.ten-gods.shangguan",
+      "en": "Hurting Officer (傷官)",
+      "preferred": "傷官",
+      "banned": ["伤官"]
+    },
+    {
+      "id": "shichu.ten-gods.piancai",
+      "en": "Indirect Wealth (偏財)",
+      "preferred": "偏財",
+      "banned": ["偏财"]
+    },
+    {
+      "id": "shichu.ten-gods.zhengcai",
+      "en": "Direct Wealth (正財)",
+      "preferred": "正財",
+      "banned": ["正财"]
+    },
+    {
+      "id": "shichu.ten-gods.pianguan",
+      "en": "Seven Killings (偏官)",
+      "preferred": "偏官",
+      "variants": ["七殺"],
+      "banned": ["七杀"],
+      "note": "「七殺」は別名として本文で可。紫微斗数の主星「七殺」とも同形"
+    },
+    {
+      "id": "shichu.ten-gods.zhengguan",
+      "en": "Direct Officer (正官)",
+      "preferred": "正官"
+    },
+    {
+      "id": "shichu.ten-gods.pianyin",
+      "en": "Indirect Resource (偏印)",
+      "preferred": "偏印",
+      "variants": ["倒食", "梟神"],
+      "banned": ["枭神"]
+    },
+    {
+      "id": "shichu.ten-gods.yinshou",
+      "en": "Direct Resource (印綬)",
+      "preferred": "印綬",
+      "banned": [
+        {
+          "text": "正印",
+          "use": "印綬",
+          "reason": "中国語の通変星名"
+        }
+      ]
+    },
+    {
+      "id": "shichu.hidden-stems",
+      "en": "Hidden stems",
+      "preferred": "蔵干",
+      "banned": [
+        {
+          "text": "藏干",
+          "use": "蔵干",
+          "reason": "日本語は新字体「蔵」"
+        }
+      ]
+    },
+    {
+      "id": "shichu.twelve-stages",
+      "en": "Twelve life stages",
+      "preferred": "十二運星",
+      "variants": ["十二運", "十二長生"],
+      "banned": ["十二长生"]
+    },
+    {
+      "id": "shichu.stage.changsheng",
+      "en": "Birth",
+      "preferred": "長生",
+      "banned": ["长生"]
+    },
+    {
+      "id": "shichu.stage.muyu",
+      "en": "Bath",
+      "preferred": "沐浴"
+    },
+    {
+      "id": "shichu.stage.guandai",
+      "en": "Crown Belt",
+      "preferred": "冠帯",
+      "banned": ["冠带", "冠帶"]
+    },
+    {
+      "id": "shichu.stage.jianlu",
+      "en": "Coming of Age",
+      "preferred": "建禄",
+      "variants": ["臨官"],
+      "banned": ["临官", "建祿"],
+      "note": "「建禄（臨官）」の併記可"
+    },
+    {
+      "id": "shichu.stage.diwang",
+      "en": "Peak",
+      "preferred": "帝旺"
+    },
+    {
+      "id": "shichu.stage.shuai",
+      "en": "Decline",
+      "preferred": "衰"
+    },
+    {
+      "id": "shichu.stage.bing",
+      "en": "Sickness",
+      "preferred": "病"
+    },
+    {
+      "id": "shichu.stage.si",
+      "en": "Death",
+      "preferred": "死"
+    },
+    {
+      "id": "shichu.stage.mu",
+      "en": "Tomb",
+      "preferred": "墓",
+      "variants": ["庫"]
+    },
+    {
+      "id": "shichu.stage.jue",
+      "en": "Extinction",
+      "preferred": "絶",
+      "banned": ["绝", "絕"]
+    },
+    {
+      "id": "shichu.stage.tai",
+      "en": "Conceived",
+      "preferred": "胎"
+    },
+    {
+      "id": "shichu.stage.yang",
+      "en": "Nurture",
+      "preferred": "養",
+      "banned": ["养"]
+    },
+    {
+      "id": "shichu.void",
+      "en": "Void (空亡)",
+      "preferred": "空亡",
+      "variants": ["天中殺"],
+      "note": "四柱推命の用語は「空亡」。「天中殺」は算命学由来の通称で検索需要が大きいため併記可（例：空亡（天中殺））。design 決定 7 の用語表は「天中殺」— 協調者確認待ち"
+    },
+    {
+      "id": "shichu.strength",
+      "en": "Strong / weak day master",
+      "preferred": "身強・身弱",
+      "variants": ["身旺・身弱", "身強", "身弱"],
+      "banned": ["身强"]
+    },
+    {
+      "id": "shichu.day-master",
+      "en": "Day master",
+      "preferred": "日干",
+      "variants": ["日主"]
+    },
+    {
+      "id": "shichu.luck-pillars",
+      "en": "Luck pillars",
+      "preferred": "大運",
+      "banned": ["大运"]
+    },
+    {
+      "id": "shichu.annual",
+      "en": "Annual luck",
+      "preferred": "年運",
+      "variants": ["流年"]
+    },
+    {
+      "id": "shichu.useful-god",
+      "en": "Useful god",
+      "preferred": "用神",
+      "variants": ["喜神", "忌神", "喜用神"]
+    },
+    {
+      "id": "shichu.shensha",
+      "en": "Symbolic stars",
+      "preferred": "神殺",
+      "variants": ["神煞"]
+    },
+    {
+      "id": "shichu.solar-term",
+      "en": "Solar term boundary",
+      "preferred": "節入り",
+      "variants": ["節入"],
+      "banned": ["交节"]
+    },
+    {
+      "id": "shichu.true-solar-time",
+      "en": "True solar time",
+      "preferred": "真太陽時",
+      "variants": ["均時差"],
+      "banned": ["真太阳时"]
+    },
+    {
+      "id": "shichu.jst",
+      "en": "Japan Standard Time",
+      "preferred": "日本標準時",
+      "variants": ["JST"],
+      "banned": ["北京时间"]
+    },
+    {
+      "id": "shichu.dst",
+      "en": "Daylight saving time (Japan 1948–1951)",
+      "preferred": "サマータイム",
+      "variants": ["夏時刻"],
+      "banned": ["夏令时", "夏令時"]
+    },
+    {
+      "id": "shichu.generating-controlling",
+      "en": "Generating / controlling cycles",
+      "preferred": "相生・相剋",
+      "variants": ["相生", "相剋", "相克"]
+    },
+    {
+      "id": "shichu.stems-branches",
+      "en": "Stems and branches",
+      "preferred": "干支",
+      "variants": ["十干", "十二支", "天干", "地支"]
+    },
+    {
+      "id": "ziwei.name",
+      "en": "Zi Wei Dou Shu",
+      "preferred": "紫微斗数",
+      "banned": ["紫微斗數", "紫微斗数排盘"]
+    },
+    {
+      "id": "ziwei.chart",
+      "en": "Zi Wei chart",
+      "preferred": "命盤",
+      "note": "紫微斗数の表は「命盤」（四柱推命の「命式」と区別）"
+    },
+    {
+      "id": "ziwei.palace",
+      "en": "Palace",
+      "preferred": "宮",
+      "banned": [
+        {
+          "text": "宫",
+          "use": "宮",
+          "reason": "簡体字。日本語は「宮」"
+        }
+      ]
+    },
+    {
+      "id": "ziwei.life-palace",
+      "en": "Life palace",
+      "preferred": "命宮"
+    },
+    {
+      "id": "ziwei.body-palace",
+      "en": "Body palace",
+      "preferred": "身宮"
+    },
+    {
+      "id": "ziwei.twelve-palaces",
+      "en": "Twelve palaces",
+      "preferred": "十二宮"
+    },
+    {
+      "id": "ziwei.palace.wealth",
+      "en": "Wealth palace",
+      "preferred": "財帛宮",
+      "banned": ["财帛"]
+    },
+    {
+      "id": "ziwei.palace.travel",
+      "en": "Travel palace",
+      "preferred": "遷移宮",
+      "banned": ["迁移"]
+    },
+    {
+      "id": "ziwei.palace.friends",
+      "en": "Friends palace",
+      "preferred": "奴僕宮",
+      "variants": ["交友宮"],
+      "banned": ["仆役"]
+    },
+    {
+      "id": "ziwei.palace.career",
+      "en": "Career palace",
+      "preferred": "官禄宮",
+      "banned": ["官祿"]
+    },
+    {
+      "id": "ziwei.palace.fortune",
+      "en": "Fortune palace",
+      "preferred": "福徳宮",
+      "banned": ["福德"]
+    },
+    {
+      "id": "ziwei.palace.health",
+      "en": "Health palace",
+      "preferred": "疾厄宮"
+    },
+    {
+      "id": "ziwei.palace.siblings",
+      "en": "Siblings palace",
+      "preferred": "兄弟宮"
+    },
+    {
+      "id": "ziwei.palace.spouse",
+      "en": "Spouse palace",
+      "preferred": "夫妻宮"
+    },
+    {
+      "id": "ziwei.palace.children",
+      "en": "Children palace",
+      "preferred": "子女宮"
+    },
+    {
+      "id": "ziwei.palace.property",
+      "en": "Property palace",
+      "preferred": "田宅宮"
+    },
+    {
+      "id": "ziwei.palace.parents",
+      "en": "Parents palace",
+      "preferred": "父母宮"
+    },
+    {
+      "id": "ziwei.star.ziwei",
+      "en": "Zi Wei",
+      "preferred": "紫微"
+    },
+    {
+      "id": "ziwei.star.tianfu",
+      "en": "Tian Fu",
+      "preferred": "天府"
+    },
+    {
+      "id": "ziwei.star.taiyang",
+      "en": "Tai Yang",
+      "preferred": "太陽",
+      "banned": ["太阳"]
+    },
+    {
+      "id": "ziwei.star.wuqu",
+      "en": "Wu Qu",
+      "preferred": "武曲"
+    },
+    {
+      "id": "ziwei.star.tiantong",
+      "en": "Tian Tong",
+      "preferred": "天同"
+    },
+    {
+      "id": "ziwei.star.tianxiang",
+      "en": "Tian Xiang",
+      "preferred": "天相"
+    },
+    {
+      "id": "ziwei.star.tianliang",
+      "en": "Tian Liang",
+      "preferred": "天梁"
+    },
+    {
+      "id": "ziwei.star.tianji",
+      "en": "Tian Ji",
+      "preferred": "天機",
+      "banned": ["天机"]
+    },
+    {
+      "id": "ziwei.star.taiyin",
+      "en": "Tai Yin",
+      "preferred": "太陰",
+      "banned": ["太阴"]
+    },
+    {
+      "id": "ziwei.star.lianzhen",
+      "en": "Lian Zhen",
+      "preferred": "廉貞",
+      "banned": ["廉贞"]
+    },
+    {
+      "id": "ziwei.star.tanlang",
+      "en": "Tan Lang",
+      "preferred": "貪狼",
+      "banned": ["贪狼"]
+    },
+    {
+      "id": "ziwei.star.jumen",
+      "en": "Ju Men",
+      "preferred": "巨門",
+      "banned": ["巨门"]
+    },
+    {
+      "id": "ziwei.star.pojun",
+      "en": "Po Jun",
+      "preferred": "破軍",
+      "banned": ["破军"]
+    },
+    {
+      "id": "ziwei.star.qisha",
+      "en": "Qi Sha",
+      "preferred": "七殺",
+      "banned": ["七杀"]
+    },
+    {
+      "id": "ziwei.four-transformations",
+      "en": "Four transformations",
+      "preferred": "四化",
+      "variants": ["化禄", "化権", "化科", "化忌"],
+      "banned": ["化权", "化權"]
+    },
+    {
+      "id": "ziwei.major-period",
+      "en": "Decade period",
+      "preferred": "大限"
+    },
+    {
+      "id": "numerology.name",
+      "en": "Numerology",
+      "preferred": "数秘術",
+      "banned": ["数字命理", "數字命理"],
+      "note": "第二期（D-3）。日本語では数秘術"
+    },
+    {
+      "id": "numerology.life-path",
+      "en": "Life Path Number",
+      "preferred": "ライフパスナンバー",
+      "variants": ["運命数", "誕生数"]
+    },
+    {
+      "id": "numerology.master-number",
+      "en": "Master number",
+      "preferred": "マスターナンバー"
+    }
+  ],
+  "banned": [
+    {
+      "regex": "[们这运势测盘说时间关门问题个车见现对为过还爱东书应气]",
+      "reason": "簡体字のみの字形（中国語からの混入）"
+    }
+  ],
+  "compliance": {
+    "required": [
+      {
+        "id": "traditional-method",
+        "phrases": ["伝統的な方法に基づいて算出", "伝統的な計算方法に基づ"],
+        "requiredIn": ["apps/web/content/legal/*/ja/disclaimer.mdx"]
+      },
+      {
+        "id": "reference-only",
+        "phrases": [
+          "参考情報としてご覧ください",
+          "参考としてお読みください",
+          "参考としてご覧ください",
+          "参考情報です",
+          "参考程度に"
+        ]
+      },
+      {
+        "id": "no-prediction",
+        "phrases": [
+          "未来を予言するものではありません",
+          "未来を予言するものではなく",
+          "将来を予測するものではありません",
+          "未来を予測・保証するものではありません"
+        ]
+      }
+    ],
+    "banned": [
+      {
+        "text": "娯楽",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "エンターテインメント",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "エンターテイメント",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "エンタメ",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "遊び感覚",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "暇つぶし",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "お遊び",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "遊び半分",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "text": "ゲーム感覚",
+        "reason": "「娯楽」定位は使わない"
+      },
+      {
+        "regex": "(?:必ず|絶対|確実に|100%|100％)当たる(?!とは|わけ)",
+        "reason": "的中を保証する表現は使わない（否定文は可）"
+      },
+      {
+        "text": "百発百中",
+        "reason": "的中を保証する表現は使わない"
+      },
+      {
+        "text": "100パーセント",
+        "reason": "的中を保証する表現は使わない"
+      },
+      {
+        "regex": "的中率(?!を保証|は保証)",
+        "reason": "的中を保証する表現は使わない（否定文は可）"
+      },
+      {
+        "regex": "運命が決まる(?!わけ|とは)",
+        "reason": "決定論的な表現は使わない（否定文は可）"
+      }
+    ]
+  },
+  "anchors": {
+    "/ja": ["干支日", "干支日 トップページ"],
+    "/ja/四柱推命": ["四柱推命", "四柱推命で命式を出す"],
+    "/ja/紫微斗数": ["紫微斗数", "紫微斗数で命盤を出す"],
+    "/ja/タロット": ["タロット占い", "無料タロット占い"],
+    "/ja/タロット/今日の一枚": ["今日の一枚", "今日のタロット"],
+    "/ja/タロット/イエスノー": ["イエス・ノー占い", "タロットのイエス・ノー"],
+    "/ja/タロット/ケルト十字": ["ケルト十字", "ケルト十字スプレッド"],
+    "/ja/タロット/カード": ["タロットカードの意味", "タロットカード一覧"],
+    "/ja/タロット/カード/*": ["{card}", "{card}の意味"]
+  }
+}
