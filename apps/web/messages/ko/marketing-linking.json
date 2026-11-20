@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "marketing_linking_breadcrumb": "이동 경로",
+  "marketing_linking_series": "시리즈 탐색",
+  "marketing_linking_previous": "이전 글",
+  "marketing_linking_next": "다음 글",
+  "marketing_linking_related": "관련 글",
+  "marketing_linking_group": "{group} · 같은 그룹의 다른 페이지",
+  "marketing_linking_group_other": "같은 그룹의 다른 페이지",
+  "marketing_linking_pagination": "페이지 이동",
+  "marketing_linking_previous_page": "이전 페이지",
+  "marketing_linking_next_page": "다음 페이지",
+  "marketing_linking_page": "{page}페이지",
+  "marketing_linking_page_title": "{title} · {page}페이지",
+  "marketing_linking_page_summary": "총 {total}개 글 · {pageCount}페이지 중 {page}페이지."
+}

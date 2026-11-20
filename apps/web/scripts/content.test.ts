@@ -12,7 +12,9 @@ const tempRoot = new URL('../.content-collections/test', import.meta.url).pathna
 const outputs: string[] = []
 const templateSlugs = ['draft-example', 'scheduled-example', 'welcome', 'writing-posts']
 
-async function buildPosts(nodeEnv: string): Promise<{ slug: string; draft: boolean }[]> {
+async function buildPosts(
+  nodeEnv: string,
+): Promise<{ slug: string; draft: boolean; parent: string; related: string[] }[]> {
   mkdirSync(tempRoot, { recursive: true })
   const outputDir = mkdtempSync(join(tempRoot, 'build-'))
   outputs.push(outputDir)
@@ -28,6 +30,7 @@ const templateConfig = defineTemplateConfig({
 })`,
     )
     .replaceAll("directory: 'content/", `directory: '${relative(outputDir, appRoot)}/content/`)
+    .replaceAll("from './src/", `from '${relative(outputDir, appRoot)}/src/`)
   writeFileSync(fixturePath, fixture)
   const previous = process.env.NODE_ENV
   process.env.NODE_ENV = nodeEnv

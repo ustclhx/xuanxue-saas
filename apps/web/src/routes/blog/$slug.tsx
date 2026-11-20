@@ -6,8 +6,8 @@ import { readingMinutes } from '../../features/marketing/content.ts'
 import { ContentHead, ContentPage, MetaLine } from '../../features/marketing/content-page.tsx'
 import { MarketingShell } from '../../features/marketing/marketing-shell.tsx'
 import { RichContent } from '../../features/marketing/rich-content.tsx'
-import { originFromMatches, pageHead } from '../../features/seo/metadata.ts'
-import { articleData } from '../../features/seo/structured-data.ts'
+import { originFromMatches, pageHead, sameSiteSourceLocale } from '../../features/seo/metadata.ts'
+import { articleData, breadcrumbData } from '../../features/seo/structured-data.ts'
 import { Breadcrumb } from '../../features/tools/breadcrumb.tsx'
 import { AiDisclaimer } from '../../features/tools/disclaimer.tsx'
 import { m } from '../../paraglide/messages.js'
@@ -17,19 +17,42 @@ export const Route = createFileRoute('/blog/$slug')({
   loader: ({ params }) => getBlogPost({ data: { locale: getLocale(), slug: params.slug } }),
   head: ({ loaderData, params, matches }) => {
     if (!loaderData) return {}
+    const locale = getLocale()
+    // 同站回退：canonical 指向原语言、hreflang 只列真实译文（模板 0.7.3）；
+    // 跨站回退（东方站显示英文文章）保持 0.7.3 之前的输出（metadata.ts sameSiteSourceLocale）
+    const sourceLocale = sameSiteSourceLocale(locale, loaderData.locale)
+    const crossSite = loaderData.locale !== locale && sourceLocale === undefined
     const page = {
       path: `/blog/${encodeURIComponent(params.slug)}`,
-      locale: getLocale(),
+      locale,
       title: loaderData.title,
       description: loaderData.summary,
       cover: loaderData.cover,
       date: loaderData.date,
+      sourceLocale,
     }
     const appUrl = originFromMatches(matches)
-    return pageHead(page, appUrl, [articleData(page, appUrl)])
+    return pageHead(
+      page,
+      appUrl,
+      [
+        articleData(page, appUrl),
+        // BreadcrumbList 与页面上的面包屑同一来源：公开页面清单的 parent 链（模板 0.7.3 getPageLinks）
+        breadcrumbData(
+          [...crumbs(loaderData.links.breadcrumb), { name: loaderData.title, path: page.path }],
+          page.locale,
+        ),
+      ],
+      crossSite ? undefined : loaderData.translations,
+    )
   },
   component: BlogPostPage,
 })
+
+/** 清单上级链（不带语言前缀的 path 与主词）转为项目面包屑的条目 */
+function crumbs(trail: readonly { href: string; label: string }[]) {
+  return trail.map((item) => ({ name: item.label, path: item.href }))
+}
 
 /**
  * 博客文章（设计稿 warm-refresh/BlogPost.dc.html）：面包屑、H1、一行元信息（日期、阅读时间、分类），
@@ -46,8 +69,10 @@ function BlogPostPage() {
           eyebrow={
             <Breadcrumb
               items={[
-                { name: m.marketing_nav_home(), href: localizeHref('/', { locale }) },
-                { name: m.marketing_blog_title(), href: localizeHref('/blog', { locale }) },
+                ...crumbs(post.links.breadcrumb).map((crumb) => ({
+                  name: crumb.name,
+                  href: localizeHref(crumb.path, { locale }),
+                })),
                 { name: post.title },
               ]}
             />

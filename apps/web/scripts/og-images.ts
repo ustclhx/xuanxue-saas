@@ -4,6 +4,7 @@ import { type Plugin, runnerImport } from 'vite'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
 import { homeTagline } from '../src/features/seo/home-copy.ts'
+import { assertSeoPages } from '../src/features/seo/linking.ts'
 import { ogImagePath } from '../src/features/seo/metadata.ts'
 import { type OgSampleChart, ogSampleChart } from '../src/features/seo/og-sample/pages.ts'
 import { ogImageTitle } from '../src/features/seo/og-title.ts'
@@ -42,6 +43,7 @@ function pages() {
       ...numerologySeoPages(read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies')),
       ...tarotMeaningSeoPages(read<Parameters<typeof tarotMeaningSeoPages>[0]>('allTarots')),
     ],
+    guides: read<NonNullable<Content['guides']>>('allGuides'),
   })
 }
 
@@ -137,7 +139,14 @@ export function ogImages(): Plugin {
     enforce: 'pre',
     applyToEnvironment: (environment) => environment.name === 'client',
     async generateBundle() {
-      for (const page of pages()) {
+      const list = pages()
+      // 页面层级与主词的静态校验（openspec seo-internal-linking 1.5）：两种构建目标都经过这里，失败时中止构建
+      try {
+        assertSeoPages(list, (message) => this.warn(message))
+      } catch (error) {
+        this.error(error instanceof Error ? error.message : String(error))
+      }
+      for (const page of list) {
         this.emitFile({
           type: 'asset',
           fileName: decodeURIComponent(ogImagePath(page).slice(1)),

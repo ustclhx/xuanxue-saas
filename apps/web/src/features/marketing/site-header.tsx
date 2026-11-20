@@ -34,6 +34,7 @@ const DAILY_TOOL_IDS = new Set(['daily', 'daily-numerology'])
  * 两站分开经营（openspec product-improve-ai-content-20261030 D5，specs/multi-site「应用区导航按站点生成」）：
  * 导航只列当前站点的工具；应用区按账号语言渲染，语言不属于本站时改用本站默认语言的工具与链接，
  * 不生成跨站或本站不存在的地址。
+ * data-link-zone="nav"：链接图检查（scripts/check-links.mjs）据此把页头当作导航层，登录等入口不算正文链接。
  */
 export function SiteHeader() {
   const siteId = useSiteId()
@@ -59,7 +60,7 @@ export function SiteHeader() {
     </a>
   ))
   return (
-    <header className="relative bg-background">
+    <header data-link-zone="nav" className="relative bg-background">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-field focus:bg-surface focus:px-4 focus:py-3"

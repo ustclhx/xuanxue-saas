@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "marketing_linking_breadcrumb": "麵包屑",
+  "marketing_linking_series": "系列導覽",
+  "marketing_linking_previous": "上一篇",
+  "marketing_linking_next": "下一篇",
+  "marketing_linking_related": "相關內容",
+  "marketing_linking_group": "{group} · 同組其他頁面",
+  "marketing_linking_group_other": "同組其他頁面",
+  "marketing_linking_pagination": "分頁",
+  "marketing_linking_previous_page": "上一頁",
+  "marketing_linking_next_page": "下一頁",
+  "marketing_linking_page": "第 {page} 頁",
+  "marketing_linking_page_title": "{title} · 第 {page} 頁",
+  "marketing_linking_page_summary": "共 {total} 篇，第 {page} / {pageCount} 頁。"
+}

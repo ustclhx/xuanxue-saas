@@ -15,7 +15,7 @@
 - **THEN** 预览显示该文章的标题、摘要与封面图
 
 ### Requirement: 多语言关联
-存在多语言版本的公开页面 SHALL 只在同一站点内声明全部语言版本之间的 hreflang 关联（使用绝对地址，包含页面自身），并包含 `x-default`；MUST NOT 声明另一站点的页面。`x-default` SHALL 指向同一页面在站点默认语言（东方站繁体中文、西方站英语）下的版本，该版本不存在时取站点语言顺序中第一个存在的版本；hreflang 与 `x-default` 的目标 MUST 是直接返回 200 且可索引的规范地址，MUST NOT 是会跳转的地址。站点地图中的语言关联 SHALL 与页面声明一致。
+存在多语言版本的公开页面 SHALL 只在同一站点内声明全部语言版本之间的 hreflang 关联（使用绝对地址，包含页面自身），并包含 `x-default`；MUST NOT 声明另一站点的页面。`x-default` SHALL 指向同一页面在站点默认语言（东方站繁体中文、西方站英语）下的版本，该版本不存在时取站点语言顺序中第一个存在的版本；hreflang 与 `x-default` 的目标 MUST 是直接返回 200 且可索引的规范地址，MUST NOT 是会跳转的地址。站点地图中的语言关联 SHALL 与页面声明一致。hreflang MUST 只列出真实存在译文的语言版本；缺少译文、以其他语言内容回退显示且声明了 `sourceLocale` 的内容页（博客文章），其 canonical MUST 指向原语言页，且 MUST NOT 出现在站点地图中（模板 0.7.3）。
 
 #### Scenario: 定价页的语言版本
 - **WHEN** 搜索引擎抓取西方站英文定价页
@@ -40,6 +40,10 @@
 #### Scenario: 简体八字页的语言版本
 - **WHEN** 搜索引擎抓取东方站 `/zh-hans/八字排盘`
 - **THEN** 页面声明东方站繁中对应页（hreflang=zh-Hant）与 `/ko` 对应页（hreflang=ko）的绝对地址
+
+#### Scenario: 缺少中文译文的文章
+- **WHEN** 一篇文章只有英文版本，访客打开 `/zh/blog/<slug>`
+- **THEN** 页面显示英文内容，canonical 指向 `/blog/<slug>`，hreflang 不包含 `zh`，站点地图不包含 `/zh/blog/<slug>`
 
 ### Requirement: 站点地图与抓取规则
 每个站点 SHALL 提供只包含本站点公开、已发布页面的站点地图索引（按语言拆分子站点地图）与 robots 规则；应用区（`/app`）、后台（`/admin`）、接口路径与分享结果链接 MUST 被禁止抓取或带 noindex。

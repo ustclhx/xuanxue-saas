@@ -41,6 +41,11 @@ export function localizedEntries<T extends Localized>(
   return [...bySlug.values()]
 }
 
+/** 某 slug 真实存在译文的语言（不含回退），供 hreflang 只关联真实译文 */
+export function translationLocales(entries: readonly Localized[], slug: string): string[] {
+  return [...new Set(entries.filter((entry) => entry.slug === slug).map((entry) => entry.locale))]
+}
+
 export function findLocalized<T extends Localized>(
   entries: readonly T[],
   slug: string,
@@ -110,6 +115,18 @@ export function readingMinutes(html: string): number {
  */
 export function publishedPostLocales(posts: readonly PostLike[], now: Date): string[] {
   return [...new Set(posts.filter((post) => isPublished(post, now)).map((post) => post.locale))]
+}
+
+/** hub 列表的页数：至少 1 页（没有下级时仍有空列表页） */
+export function hubPageCount(total: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(total / pageSize))
+}
+
+/** hub 列表第 `page` 页的条目；页码超出范围时返回 null（路由返回 404） */
+export function hubSlice<T>(items: readonly T[], page: number, pageSize: number): T[] | null {
+  if (!Number.isInteger(page) || page < 1 || page > hubPageCount(items.length, pageSize))
+    return null
+  return items.slice((page - 1) * pageSize, page * pageSize)
 }
 
 /** 已发布文章中出现过的标签，按名称排序 */

@@ -9,10 +9,15 @@ export interface Crumb {
 /**
  * 面包屑（openspec separate-landing-homepage specs/numerology-pages「数字页」，原型 ToolLifePath.dc.html）：
  * 位于 H1 之上，指向首页与父工具页；与页面 head 中的 BreadcrumbList 同一组层级。
+ * data-link-zone="nav"：链接图检查把面包屑当作导航层（模板 0.7.3 docs/seo-internal-linking.md §3）。
  */
 export function Breadcrumb({ items }: { items: readonly Crumb[] }) {
   return (
-    <nav aria-label={m.tools_breadcrumb_label()} className="text-caption text-ink-muted">
+    <nav
+      aria-label={m.tools_breadcrumb_label()}
+      data-link-zone="nav"
+      className="text-caption text-ink-muted"
+    >
       <ol className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0">
         {items.map((item, index) => (
           <li key={item.name} className="flex items-center gap-1.5">
