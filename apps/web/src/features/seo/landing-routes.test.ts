@@ -56,15 +56,16 @@ describe('主工具页的注册表驱动功能', () => {
     expect(west).toContain('<loc>https://arcanumber.com/</loc>')
   })
 
-  it('首页 hreflang 簇不变：东方站三种语言加英文入口页，x-default 为繁中首页', () => {
+  // 使用者 2026-11-20：东方站 `/` 是英文首页，en 与 x-default 都指向它
+  it('首页 hreflang 簇：东方站三种语言加英文首页 /，x-default 为 /', () => {
     expect(
       alternateLinks(EAST, '/', locales, undefined, 'ko').map((link) => [link.hrefLang, link.href]),
     ).toEqual([
       ['zh-Hant', `${EAST}/zh-hant`],
       ['zh-Hans', `${EAST}/zh-hans`],
       ['ko', `${EAST}/ko`],
-      ['en', `${EAST}/en`],
-      ['x-default', `${EAST}/zh-hant`],
+      ['en', `${EAST}/`],
+      ['x-default', `${EAST}/`],
     ])
     expect(
       alternateLinks(EAST, '/', locales, undefined, 'en').map((link) => [link.hrefLang, link.href]),

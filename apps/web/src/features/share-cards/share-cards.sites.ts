@@ -1,6 +1,12 @@
 import { type SiteId, siteBrandName } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, resolveSite, siteOfLocale } from '../site/site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  EAST_ENGLISH_PATH,
+  EAST_ENGLISH_URL,
+  resolveSite,
+  siteOfLocale,
+} from '../site/site.ts'
 import type { ProjectShareCardSite, ShareCardSiteContext } from './site.ts'
 import type { ShareCardTheme } from './types.ts'
 
@@ -53,8 +59,12 @@ function siteOf(context: ShareCardSiteContext): SiteId {
   return resolveSite((context.host ?? '').replace(/^www\./i, ''), templateConfig).id
 }
 
+// 东方站英文首页：旧路由地址 `/en`，或东方站主机上的 `/`（site.ts EAST_ENGLISH_URL）
 const isEastEnglish = (context: ShareCardSiteContext) =>
-  context.locale === EAST_ENGLISH_LOCALE && context.pathname === EAST_ENGLISH_PATH
+  context.locale === EAST_ENGLISH_LOCALE &&
+  (context.pathname === EAST_ENGLISH_PATH ||
+    (context.pathname === EAST_ENGLISH_URL &&
+      resolveSite((context.host ?? '').replace(/^www\./i, ''), templateConfig).id === 'east'))
 
 /**
  * 能说明站点的语言。模板 0.5.0 起运行时卡片的 locale 总有值（地址没有 `l` 时为默认语言 en），

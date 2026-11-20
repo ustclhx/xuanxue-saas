@@ -6,13 +6,25 @@ const localSite = (baseURL: string | undefined, site: string) => {
   return url.origin
 }
 
-test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS 同样跳转', async ({ browser, baseURL }) => {
+// 使用者 2026-11-20 网址规则：两站 `/` 都是英文首页，不按浏览器语言跳转；韩语页面在 /ko，由访客点击提示或语言菜单进入
+test('韩语浏览器打开东方站根路径停在英文首页，禁用 JS 同样不跳转；/ko 页头只链接本站韩语页面', async ({
+  browser,
+  baseURL,
+}) => {
   const east = localSite(baseURL, 'east')
   const context = await browser.newContext({ locale: 'ko-KR' })
   const page = await context.newPage()
   await page.goto(`${east}/`)
-  await expect(page).toHaveURL(`${east}/ko`)
+  await expect(page).toHaveURL(`${east}/`)
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+  // 客户端提示建议韩语，点了才导航
+  await expect(page.locator('[data-locale-prompt="ko"] a[hreflang="ko"]')).toHaveAttribute(
+    'href',
+    '/ko',
+    { timeout: 30_000 },
+  )
+  await page.goto(`${east}/ko`)
   // 东方站只提供本站语言，不能把英语工具或无前缀营销地址带到东方站。
   const navigation = page.getByRole('navigation', { name: '도구', exact: true })
   const links = navigation.getByRole('link')
@@ -23,21 +35,22 @@ test('韩语浏览器从东方站根路径直接进入韩语首页，禁用 JS �
   for (const link of await links.all()) await expect(link).toHaveAttribute('href', /^\/ko(?:\/|$)/)
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()
-  // 302 由服务端完成，禁用 JS 时也应落在语言首页
   await staticPage.goto(`${east}/`)
-  await expect(staticPage).toHaveURL(`${east}/ko`)
+  await expect(staticPage).toHaveURL(`${east}/`)
+  await expect(staticPage.locator('[data-locale-prompt]')).toHaveCount(0)
   await noJs.close()
   await context.close()
 })
 
 // openspec fix-seo-canonical-indexing：规范地址收敛、认证页 noindex、匿名可访问公开内容与 x-default
-test('规范地址：根路径、结尾斜杠与东方站裸路径一次永久跳转，保留路径与查询', async ({
+test('规范地址：旧英文入口页、结尾斜杠与东方站裸路径一次永久跳转，保留路径与查询', async ({
   request,
   baseURL,
 }) => {
   const local = baseURL ?? 'http://localhost:3000'
   for (const [site, from, to] of [
-    ['east', '/', '/zh-hant'],
+    // 使用者 2026-11-20：东方站 `/` 是英文首页（不跳转），旧地址 /en 301 过去
+    ['east', '/en', '/'],
     ['east', '/zh-hant/', '/zh-hant'],
     ['east', '/zh-hant/pricing/?a=1', '/zh-hant/pricing?a=1'],
     ['east', '/pricing?ref=x', '/zh-hant/pricing?ref=x'],
@@ -105,11 +118,11 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   const index = await request.get(`${east}/sitemap.xml`, eastOptions)
   expect(index.status()).toBe(200)
   expect(await index.text()).toContain('https://ganjiday.com/sitemap/ko.xml')
-  // 东方站 en 子图只有英文入口页（D5）
+  // 东方站 en 子图只有英文首页 `/`（使用者 2026-11-20）
   expect(await index.text()).toContain('https://ganjiday.com/sitemap/en.xml')
   const english = await (await request.get(`${east}/sitemap/en.xml`, eastOptions)).text()
   expect(english.match(/<loc>/g)).toHaveLength(1)
-  expect(english).toContain('<loc>https://ganjiday.com/en</loc>')
+  expect(english).toContain('<loc>https://ganjiday.com/</loc>')
   const korean = await request.get(`${east}/sitemap/ko.xml`, eastOptions)
   expect(korean.status()).toBe(200)
   expect(await korean.text()).toContain('<loc>https://ganjiday.com/ko</loc>')
@@ -127,7 +140,7 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   ).toContain('noindex')
 })
 
-test('两站分开经营：不属于本站的语言返回本站 404，东方站 /en 为英文入口页', async ({
+test('两站分开经营：不属于本站的语言返回本站 404，东方站 / 为英文首页且不按浏览器语言跳转', async ({
   page,
   request,
   baseURL,
@@ -148,14 +161,26 @@ test('两站分开经营：不属于本站的语言返回本站 404，东方站 
   expect(await missing.text()).toMatch(/<title>[^<]*\| Arcanumber<\/title>/)
   const east = localSite(baseURL, 'east')
 
-  const response = await page.goto(`${east}/en`)
+  for (const language of [undefined, 'zh-CN', 'ko-KR', 'ja-JP']) {
+    const root = await request.get(`${local}/`, {
+      ...as('east'),
+      headers: { ...as('east').headers, ...(language ? { 'accept-language': language } : {}) },
+    })
+    expect(root.status(), language).toBe(200)
+    expect(root.headers().location, language).toBeUndefined()
+  }
+  const response = await page.goto(`${east}/`)
   expect(response?.status()).toBe(200)
   await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
   await expect(page.getByRole('heading', { level: 1 })).not.toContainText('AI')
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    'https://ganjiday.com/en',
+    'https://ganjiday.com/',
+  )
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
+    'href',
+    'https://ganjiday.com/',
   )
   await expect(page.locator('link[rel="alternate"][hreflang="ko"]')).toHaveAttribute(
     'href',

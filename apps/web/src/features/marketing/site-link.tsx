@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { type Locale, localizeHref } from '../../paraglide/runtime.js'
-import { EAST_ENGLISH_PATH } from '../site/site.ts'
+import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL } from '../site/site.ts'
 
 type SitePath =
   | '/'
@@ -33,9 +33,10 @@ export function SiteLink({
   className: string
   children: ReactNode
 }) {
+  // 东方站英文首页：对外地址是 `/`（site.ts EAST_ENGLISH_URL），不经路由器按当前语言加前缀
   if (path === EAST_ENGLISH_PATH)
     return (
-      <a href={path} className={className}>
+      <a href={EAST_ENGLISH_URL} className={className}>
         {children}
       </a>
     )

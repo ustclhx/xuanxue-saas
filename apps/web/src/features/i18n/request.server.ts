@@ -4,7 +4,7 @@ import { paraglideMiddleware } from '../../paraglide/server.js'
 import type { WebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { resolveSite } from '../site/site.ts'
-import { eastLocale } from './east-home.ts'
+import { eastDefaultLocale } from './east-home.ts'
 import { languageUrl, localeCookie, readCookie, usesAccountLocale } from './preference.ts'
 import { isLocaleLive } from './rollout.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
@@ -67,14 +67,14 @@ export function localizeRequest(
 /**
  * 应用区语言：账号保存的语言属于本站时采用；否则按本站规则回退。
  * 东方站没有英文应用区，未保存语言（或保存了另一站语言，如迁移出的副本账户）时
- * 与东方站无前缀页相同按 eastLocale 选择，不能落到 baseLocale（西方站英文）。
+ * 与东方站无前缀认证页相同取东方站第一个已发布语言（eastDefaultLocale，不看浏览器语言），不能落到 baseLocale（西方站英文）。
  * 未登记的 Host（staging / 预览）不限制站点语言。
  */
 function accountLocale(saved: string | null | undefined, request: Request): Locale {
   const site = resolveSite(new URL(request.url).host, templateConfig)
   if (isLocale(saved) && ownsLocale(saved, request)) return saved
   if (site.id === 'east') {
-    const east = eastLocale(request, templateConfig)
+    const east = eastDefaultLocale(templateConfig)
     if (isLocale(east)) return east
   }
   const fallback = templateConfig.sites[site.id].defaultLocale

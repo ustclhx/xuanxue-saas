@@ -55,13 +55,14 @@ describe('东方站英文入口页', () => {
     expect(head.meta).toContainEqual({ title: `${EAST_ENGLISH_COPY.title} | Ganjiday` })
     expect(head.meta.some((meta) => 'name' in meta && meta.name === 'robots')).toBe(false)
     expect(head.links).toEqual([
-      { rel: 'canonical', href: 'https://ganjiday.com/en' },
-      { rel: 'alternate', hrefLang: 'en', href: 'https://ganjiday.com/en' },
+      // 使用者 2026-11-20：东方站英文首页对外地址为 `/`（原 /en 301 过来）
+      { rel: 'canonical', href: 'https://ganjiday.com/' },
+      { rel: 'alternate', hrefLang: 'en', href: 'https://ganjiday.com/' },
       { rel: 'alternate', hrefLang: 'zh-Hant', href: 'https://ganjiday.com/zh-hant' },
       { rel: 'alternate', hrefLang: 'zh-Hans', href: 'https://ganjiday.com/zh-hans' },
       { rel: 'alternate', hrefLang: 'ko', href: 'https://ganjiday.com/ko' },
-      // x-default 为繁中首页（规范首页），不是会跳转的根路径
-      { rel: 'alternate', hrefLang: 'x-default', href: 'https://ganjiday.com/zh-hant' },
+      // x-default 为英文首页 `/`（两站默认语言都是英语，`/` 不再跳转）
+      { rel: 'alternate', hrefLang: 'x-default', href: 'https://ganjiday.com/' },
     ])
     expect(JSON.stringify(head)).not.toContain('arcanumber.com')
   })
@@ -71,7 +72,7 @@ describe('东方站英文入口页', () => {
     expect(sitemapLocales('west')).toEqual(['en'])
     const xml = eastEnglishSitemap()
     expect(xml.match(/<loc>/g)).toHaveLength(1)
-    expect(xml).toContain('<loc>https://ganjiday.com/en</loc>')
+    expect(xml).toContain('<loc>https://ganjiday.com/</loc>')
     expect(xml).not.toContain('arcanumber.com')
   })
 })

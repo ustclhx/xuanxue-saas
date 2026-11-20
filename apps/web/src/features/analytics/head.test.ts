@@ -15,12 +15,9 @@ vi.mock('../i18n/language-controls.tsx', () => ({
   LanguageSuggestion: () => null,
 }))
 
-import { baseLocale, cookieName, getLocale, locales } from '../../paraglide/runtime.js'
+import { getLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
 import { templateConfig } from '../../server/template-config.ts'
-import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../i18n/preference.ts'
-import { siteSuggestableLocales } from '../i18n/site-suggestion.ts'
-import { localeSuggestionScript } from '../i18n/suggestion.ts'
 import { siteFontScript, siteThemeScript } from '../site/theme.ts'
 import { analyticsHeadScripts } from './head.ts'
 
@@ -60,28 +57,15 @@ describe('分析脚本页面 head', () => {
       expect(analyticsHeadScripts(pathname, preview, templateConfig, multi)).toEqual([])
   })
 
-  it('默认页面 head 无 PostHog 或 beacon，主题、站点主题与语言建议内联脚本保持原样', async () => {
+  it('默认页面 head 无 PostHog 或 beacon，主题与站点主题内联脚本保持原样，没有语言建议脚本', async () => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
-    const inline = (pathname: string) => [
+    const inline = (_pathname: string) => [
       // 站点默认主题须排在模板主题脚本之前（西方站首次到访写入浅色，features/site/theme.ts）
       { children: siteThemeScript() },
       { children: themeInitScript() },
       { children: siteFontScript('west', getLocale()) },
-      ...(templateConfig.i18n.enabled
-        ? [
-            {
-              children: localeSuggestionScript({
-                baseLocale,
-                locales,
-                preferenceCookie: PREFERENCE_COOKIE,
-                localeCookie: cookieName,
-                cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
-                suggestableLocales: siteSuggestableLocales({ id: 'west', known: false }, pathname),
-              }),
-            },
-          ]
-        : []),
+      // 语言切换提示只在客户端出现，head 中没有语言建议脚本（使用者 2026-11-20）
     ]
     for (const pathname of ['/', '/zh-hant/pricing', '/app/personal/chat', '/admin/users']) {
       const result = await head({ matches: [{ pathname }] } as Parameters<typeof head>[0])

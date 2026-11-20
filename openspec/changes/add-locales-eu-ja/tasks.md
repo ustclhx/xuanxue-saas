@@ -22,6 +22,10 @@
 - [x] 1.9 [Codex] 姓名数字的特殊字母映射（ß→SS、ł→L、æ→AE、ø→O、œ→OE）与本语言错误提示键；`packages/numerology` 单元测试
 - [x] 1.10 验收：既有页面 seo-snapshot 与 0.1 逐字节一致；`pnpm check`、`typecheck`、`test`、`build`、两站 `check:links`、`audit:seo` 通过
 
+- [x] 1.11 网址与切换规则（使用者 2026-11-20 重定，多语言 SEO 规范 ML-01～ML-03）：两站 `/` 为英文首页、不按 Accept-Language/Cookie 跳转；东方站过渡期 `/` 显示原英文入口页内容、`/en` 301 到 `/`，东方站 hreflang 的 en 与首页组 x-default 改为 `/`；无前缀认证页与应用区回退改为固定语言；去掉模板 SSR 语言建议横幅与首帧脚本，改为客户端 `LocalePrompt`（按设计稿行为与无障碍要求，视觉由 Fable 精修）；更新相关单测与 e2e
+- [x] 1.12 多语言 SEO 自动验收 `apps/web/scripts/check-i18n-seo.mjs` + 测试，接入 CI build job（ML「六、验收」1–6）
+- [ ] 1.13（后续）ML-09：已登录且主动切换过语言的用户打开 `/` 时跳到所选语言首页；需先区分「主动切换」与注册时写入的账号语言，并评估 `/` 读会话对静态首页与 Neon 成本的影响
+
 ## 2. 本地化质量工具（Opus，可与第 1 组并行）
 
 - [x] 2.1 移植 part-b 测量为 `apps/web/scripts/measure-locale-similarity.mjs`（happy-dom 解析；按站点地图与 hreflang 配对；结构直译分、数字序列重合、同语言按位置段落 Dice、同文字变体 Dice/整句复现、FAQ `origin` 统计、长度下限）；输出 JSON/Markdown 到 `EVIDENCE_DIR`；单元测试用小样例
@@ -67,14 +71,14 @@
 - [ ] 5.10 [Opus] 门槛验收（同 4.10，源语言为 `en`）
 - [ ] 5.11 [Opus] staging 验收与 e2e 补 `es` 用例
 
-## 5b. 东方站英文（ganjiday `/en/…`，第一期，使用者 2026-11-20 新增）
+## 5b. 东方站英文（ganjiday `/…`（根路径英文），第一期，使用者 2026-11-20 新增）
 
 - [ ] 5b.0 [Opus] 英文关键词地图（东方站）：Four Pillars / BaZi calculator、Zi Wei Dou Shu chart、Chinese astrology birth chart、tarot（与西方站英文页面分主词，避免两站同词竞争）等，定每页主词、slug、Title、H1、≤2 种锚文本；使用者过目后定 slug
-- [ ] 5b.1 [Opus] 站点配置：东方站 `en` 作为独立发布项登记（pending）；现有 `/en` 导览页保持不变并成为东方站英文枢纽的一部分
+- [ ] 5b.1 [Opus] 站点配置：东方站 `en` 作为独立发布项登记（pending）；东方站英文页面放在根路径下（`/` 已是英文首页，`/en` 已 301 到 `/`，1.11），内页路径按 5b.0 关键词地图定
 - [ ] 5b.2 [Opus] 路由与内容：八字（Four Pillars）、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价、法律页的东方站英文版；事实单写作，不给西方站英文正文；概念页按 4.x 同样暂缓
 - [ ] 5b.3 [Opus] AI 详批：东方站英文的八字、紫微提示词与评测（每组合 ≥8 样本，预算按每语言 ≤US$15）
 - [ ] 5b.4 [Opus] 门槛验收：与东方站其他语言、与西方站英文同类页（塔罗）分别测相似度；术语检查；跨模型审阅
-- [ ] 5b.5 [Opus] staging 验收与 e2e（东方站 `/en/*`），两站英文页面互不链接、hreflang 不跨 host
+- [ ] 5b.5 [Opus] staging 验收与 e2e（东方站根路径下的英文页面），两站英文页面互不链接、hreflang 不跨 host
 
 ## 6. 第一期发布（协调者，需使用者授权）
 

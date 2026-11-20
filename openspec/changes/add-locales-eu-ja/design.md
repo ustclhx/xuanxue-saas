@@ -300,7 +300,7 @@
 
 - 使用者补充（2026-11-20）：每种语言使用独立子目录网址（`/ja/`、`/es/`），文案各语言独立维护，不由其他语言自动生成；**每种语言的内页关键词须单独设计**——上线前为每个页面确定当地主词（slug、Title、H1、锚文本），依据当地搜索词调研而非直译。做完 `ja`、`es` 后暂停加语言，先做 content growth，之后再回来做第 7 组（pt-BR、fr、de、it）。
 
-- 使用者补充（2026-11-20）：第一期同时给东方站补完整英文页面（`ganjiday.com/en/…`：四柱八字 / Four Pillars、紫微、塔罗等），不只现有 `/en` 导览页（原 SEO 任务书「不扩英文工具页」作废）。`en` 因此按站点各自登记：两站各有英文页面与各自的 hreflang 组，互不跨 host、互不链接；东方站英文塔罗文案须与西方站英文不同，跨站也执行相似度门槛（结构、回译之外，同语言同类页段落 Dice ≤0.30）。基础设施（第 1 组）须支持「一种语言属于多个站点」，现有输出逐字节不变。
+- 使用者补充（2026-11-20）：第一期同时给东方站补完整英文页面（`ganjiday.com/en/…`：四柱八字 / Four Pillars、紫微、塔罗等），不只现有 `/en` 导览页（原 SEO 任务书「不扩英文工具页」作废）。**网址已由下文「网址与切换规则（2026-11-20 重定）」取代：东方站英文在根路径 `/…`，不在 `/en/…`。**`en` 因此按站点各自登记：两站各有英文页面与各自的 hreflang 组，互不跨 host、互不链接；东方站英文塔罗文案须与西方站英文不同，跨站也执行相似度门槛（结构、回译之外，同语言同类页段落 Dice ≤0.30）。基础设施（第 1 组）须支持「一种语言属于多个站点」，现有输出逐字节不变。
 
 ## 第 0 期实施记录（第 1 组，2026-11-20）
 
@@ -337,7 +337,7 @@
 
 | 编号 | 模板文件 | 需求 |
 |---|---|---|
-| TR-1 | `packages/config` `resolveSites`、`resolveSeoLinking` | 允许一种语言属于多个站点（按站点登记语言）；`seo.linking.sites` 不再拒绝重复语言（东方站 `/en/…`） |
+| TR-1 | `packages/config` `resolveSites`、`resolveSeoLinking` | 允许一种语言属于多个站点（按站点登记语言）；`seo.linking.sites` 不再拒绝重复语言（东方站根路径英文页面） |
 | TR-2 | `features/seo/metadata.ts`、`origins.ts`、`pages.ts` | `alternateLinks` / `pageHead` / `sameSiteLocales` / `fallbackSourceLocale` / `localeOrigin` 按页面所属站点（`SeoPage.site`）而不是按语言推断；提供发布状态过滤钩子（本期在 `alternateLinks` 内调用项目的 `isLocaleReleased`） |
 | TR-3 | `scripts/i18n-project.ts` | 严格语言选项：指定语言缺键时构建失败，后台等功能文件可豁免（本期已加 `strict` 选项） |
 | TR-4 | `scripts/check-home-bundle.mjs` | 首页清单由站点配置生成（本期 `homePagesFor`） |
@@ -354,3 +354,38 @@
   东方站英文塔罗须独立内容源（例如 `content/tarot/en-east` 映射到东方站），并按决策 10 跨站测相似度（同语言同类页段落 Dice ≤0.30）。
 - `seo.linking.sites`、链接图检查、`localeOrigin`、`publicPages` 的站点过滤都按「一种语言一个站点」写成，需 TR-1/TR-2 后再接入；
   在此之前把 `en` 加进东方站会让 `siteOfLocale` 之外的这些位置把东方站英文页当作西方站页面。
+
+## 网址与切换规则（使用者 2026-11-20 重定；多语言 SEO 规范 ML-01～ML-10）
+
+规范全文见 `~/workspace/xuanxue-saas-evidence/i18n-spec/multilingual-seo-spec.md`。与上文冲突时以本节为准。
+
+- **`/` 是两站的英文首页，不跳转**。英语是两站的默认语言，其他语言各占小写前缀（`/zh-hant`、`/zh-hans`、`/ko`、`/ja`、`/es`），
+  地址不变、不合并成 `/zh/`。东方站英文页面放在根路径下（内页 slug 由 5b.0 关键词地图定），不放在 `/en/…`。
+- **过渡（1.11 已实现）**：东方站完整英文页面上线前，`/` 显示原英文入口页的内容（预渲染文件仍为 en.html，
+  `static-pages.ts` 在东方站 `/` 读取它；路由改写把东方站 `/` 映射到路由 `/en`），`/en` 301 到 `/`。
+  东方站各页 hreflang 的 `en` 改为 `https://ganjiday.com/`；首页组（`/`、`/zh-hant`、`/zh-hans`、`/ko`）的 x-default 改为 `/`；
+  其余东方站页面没有英文版本，x-default 暂为繁中同页（ML-05「x-default 指向英文版本」在有英文版本时成立，5b 组上线英文页面后随之改变）。
+  zh-hant / zh-hans / ko 首页的 canonical 不变。与 0.1 基线的全部差异逐行列在 1.11 的 PR 中。
+- **只按地址区分语言**：去掉东方站根路径按 Accept-Language / Cookie 的 301/302；无前缀认证页（东方站）与应用区的回退
+  改为固定的东方站第一个已发布语言（繁中），不看浏览器语言与偏好 Cookie；西方站认证页不再按浏览器语言跳转。
+  应用区仍按账号语言与 `PARAGLIDE_LOCALE` Cookie 选语言（应用区没有语言前缀，属登录后界面，不被收录）——
+  若要严格做到「Cookie 不决定语言」，需要应用区也带语言前缀，列为待定。
+- **语言建议提示 LocalePrompt**（`features/i18n/locale-prompt.tsx`）：取代模板的 SSR `LanguageSuggestion` 横幅与 `<head>` 首帧脚本
+  （二者把候选横幅写进 SSR HTML、并用 Cookie 记住选择，违反 ML-02/03）。只在客户端水合后空闲时出现；候选取当前页
+  `<link rel="alternate" hreflang>`（即本站已发布、且该页确有的版本）；不带地区的 `zh` 给简繁两个候选；文案用目标语言
+  （`locale-prompt-copy.ts`，不走 Paraglide：新语言文案按语言拆分，当前页取不到目标语言）；关闭、切换或在语言控件手动选择后
+  按站点写入 localStorage，永久不再提示；固定在底部、不占文档流；无障碍按设计稿 D 节（region 地标、role=status 下一帧填入、
+  Esc 关闭、键盘关闭后焦点回到 `<main>`）。视觉细节由 Fable 按画板精修。
+- **自动验收** `check:i18n-seo`（1.12）：接入 CI build job，见 seo spec「多语言 SEO 验收检查」。
+- **ML-09（账号语言首页跳转）**：账号语言字段已存在，但注册时也会写入，无法区分「主动切换」；且 `/` 是静态预渲染页，
+  读会话会让每个带 Cookie 的首页请求访问数据库（Neon 成本基线）。记为后续任务 1.13。
+- **ML-04 回退页**：现有 `zh-hans` 法律页等「显示原文的回退页」按规范的例外处理（canonical 指原语言、noindex、不进 hreflang 与站点地图），
+  新语言不使用回退页（1.5 内容完整性检查）。
+
+新增模板需求：
+
+| 编号 | 模板文件 | 需求 |
+|---|---|---|
+| TR-9 | `features/i18n/language-controls.tsx`（LanguageSuggestion）、`suggestion.ts`（localeSuggestionScript）、`routes/__root.tsx` | 语言建议改为客户端提示，不输出 SSR 横幅与首帧脚本、不写 Cookie（本项目已停用并以 LocalePrompt 取代） |
+| TR-10 | `features/i18n/auth-locale.ts`、`request.server.ts`、`preference.ts`（preferredLocale） | 不按 Accept-Language / 偏好 Cookie 选择公开页与认证页语言 |
+| TR-11 | — | 模板加入多语言 SEO 验收检查（本项目 `check-i18n-seo.mjs` 可作参考） |

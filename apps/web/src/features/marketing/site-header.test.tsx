@@ -78,7 +78,7 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(links).not.toContain('/pricing')
   })
 
-  it('语言控件只列本站语言：西方站没有中文与韩语项，东方站另有指向 /en 的 English', () => {
+  it('语言控件只列本站语言：西方站没有中文与韩语项，东方站另有指向英文首页 / 的 English', () => {
     const west = render('west', <SiteHeader />)
     expect(languageItems(west)).not.toContain('zh-Hant')
     expect(languageItems(west)).not.toContain('ko')
@@ -87,7 +87,8 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     state.pathname = '/'
     const east = render('east', <SiteHeader />)
     expect(languageItems(east)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
-    expect(east).toContain('href="/en"')
+    // 使用者 2026-11-20：东方站英文首页对外地址为 `/`
+    expect(east).toMatch(/<a[^>]*href="\/"[^>]*hrefLang="en"/)
     expect(hrefs(east).some((href) => href.includes('arcanumber'))).toBe(false)
   })
 

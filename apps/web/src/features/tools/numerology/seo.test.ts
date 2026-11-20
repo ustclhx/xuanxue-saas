@@ -111,14 +111,14 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
         (link) => (link.rel === 'alternate' && 'hrefLang' in link ? [link.hrefLang] : []),
       )
     expect(hreflangs('en')).toEqual(['en', 'x-default'])
-    // 东方站首页的 en 是东方站自己的英文入口页（D5），不是西方站首页
+    // 东方站首页的 en 是东方站自己的英文首页 `/`（使用者 2026-11-20），不是西方站首页
     for (const locale of ['zh-Hant', 'ko']) {
       const head = pageHead({ path: '/', title: 'Home', description: 'Home', locale }, origin)
       expect(JSON.stringify(head.links)).not.toContain('arcanumber.com')
       expect(head.links).toContainEqual({
         rel: 'alternate',
         hrefLang: 'en',
-        href: 'https://ganjiday.com/en',
+        href: 'https://ganjiday.com/',
       })
     }
   })

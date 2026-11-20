@@ -1,7 +1,6 @@
 import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
-import { eastHomeRedirect, eastLocale } from '../i18n/east-home.ts'
 import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable } from '../i18n/rollout.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { mainToolPath } from '../tools/registry.ts'
@@ -81,9 +80,12 @@ export function routeSite(
     // 带语言前缀的应用区地址交给语言守卫返回 404（features/i18n/gate.ts），不跳转
     if (isAppAreaPath(rest)) return { kind: 'pass', noindex }
     // 已登记的站点只提供自己的语言；预览地址可浏览全部语言
-    const eastEnglish = site.id === 'east' && locale === EAST_ENGLISH_LOCALE && rest === '/'
+    const eastEnglish =
+      site.known && site.id === 'east' && locale === EAST_ENGLISH_LOCALE && rest === '/'
+    // 旧英文入口页地址 `/en` 301 到东方站英文首页 `/`（使用者 2026-11-20）；构建期预渲染照常生成 en.html
+    if (eastEnglish)
+      return release === null ? { kind: 'pass', noindex } : redirect(301, url.origin, '/')
     if (site.known && !siteHasLocale(site.id, locale, config)) {
-      if (eastEnglish) return { kind: 'pass', noindex }
       // 认证页没有语言也能访问：外站语言前缀的认证页（旧状态生成的 `/zh-hans/login?redirect=…`）
       // 302 到本站无前缀认证页、保留查询参数，再由认证页语言跳转选择本站语言；不跨站
       if (EAST_UNPREFIXED_PREFIXES.some((p) => rest === p || rest.startsWith(`${p}/`)))
@@ -138,7 +140,7 @@ export const LEGACY_TOOL_PARAMS = ['unlock', 'checkout'] as const
  * 旧首页查询跳转（openspec separate-landing-homepage design.md D4）：工具从语言首页迁到关键词 URL 后，
  * 已签发、`returnTo` 为语言首页的解锁令牌（6 小时内的结账与登录回跳）仍会回到首页。
  * GET/HEAD 请求本站某语言首页且带 `unlock` 或 `checkout` 参数时，301 到该语言主工具页并保留查询串；
- * 东方站 `/` 按 eastLocale 选语言后直接跳到工具页，不先跳语言首页。
+ * 东方站 `/` 是英文首页（没有英文工具页），不跳转。
  * 只带 `utm_*`、`gclid` 等参数的首页请求不跳转（广告与外链落地页仍是首页）。
  * `#r=` 分享片段服务器看不到，由落地页的内联脚本处理（legacyHashRedirectScript）。
  */
@@ -152,11 +154,8 @@ export function legacyHomeRedirect(request: Request, config: SitesConfig): Respo
   // 语言首页：`/<语言前缀>`，或无前缀的 `/`（西方站默认语言首页、东方站按访客偏好选语言）
   if (!root && (prefixed === undefined || url.pathname !== `/${localeUrlSegment(prefixed)}`))
     return null
-  const locale = root
-    ? site.id === 'east'
-      ? eastLocale(request, config)
-      : config.sites[site.id].defaultLocale
-    : prefixed
+  // 东方站 `/` 是英文首页（没有英文工具页），旧首页查询不跳转
+  const locale = root ? config.sites[site.id].defaultLocale : prefixed
   const path = locale ? mainToolPath(locale) : undefined
   if (!locale || !path) return null
   const prefix =
@@ -165,10 +164,6 @@ export function legacyHomeRedirect(request: Request, config: SitesConfig): Respo
     status: 301,
     headers: {
       location: `${url.origin}${prefix}${encodeURI(path)}${url.search}`,
-      // 东方站 `/` 的目标随访客语言偏好变化，不让中间缓存复用
-      ...(root && site.id === 'east'
-        ? { vary: 'accept-language, cookie', 'cache-control': 'private, no-store' }
-        : {}),
     },
   })
 }
@@ -239,11 +234,10 @@ export async function gateSiteRequest(
   // 不属于本站的地址直接给 404，不先跳到规范形式
   if (decision.kind === 'not-found')
     return next(new Request(new URL(notFoundPath(url, config), url), request))
-  // 只对 GET/HEAD 复制请求：带请求体的请求复制后原请求体会被占用
+  // 只对 GET/HEAD 复制请求：带请求体的请求复制后原请求体会被占用。
+  // 东方站根路径不再按浏览器语言跳转（使用者 2026-11-20：两站 `/` 都是英文首页，不自动选语言）
   if (canonicalize && ['GET', 'HEAD'].includes(request.method)) {
-    const home =
-      legacyHomeRedirect(new Request(url, request), config) ??
-      eastHomeRedirect(new Request(url, request), config)
+    const home = legacyHomeRedirect(new Request(url, request), config)
     if (home) return home
   }
   if (canonical)

@@ -33,7 +33,9 @@
   共用 `.github/actions/setup-workspace`（安装约 20–30 秒）。新增检查放进已有 job，确有并行收益再拆新 job。
 - `build` 在 `pnpm build` 之后运行构建后链接图检查 `pnpm --filter @xuanxue/web check:links`
   （[站内链接规范](seo-internal-linking.md)）：复用同一 job 的 web 生产构建产物启动 `vite preview` 抓取，
-  不重复构建、不需要数据库，模板约 30 个地址实测约 5 秒。`e2e-smoke` 跑的是 `vite dev`，没有生产产物，不放在那里。
+  不重复构建、不需要数据库，模板约 30 个地址实测约 5 秒。
+  随后运行项目自有的多语言 SEO 验收 `pnpm --filter @xuanxue/web check:i18n-seo`（`apps/web/scripts/check-i18n-seo.mjs`，
+  多语言 SEO 规范 ML-01～ML-10 的验收项），同样复用该构建产物，有违规即失败。`e2e-smoke` 跑的是 `vite dev`，没有生产产物，不放在那里。
   Turbo 缓存命中时恢复的 `dist` 不含 `.dev.vars`（刻意不缓存），检查脚本会按 `.dev.vars.example` 临时补一份。
   `vite preview` 还读取 Cloudflare 插件写出的 `.wrangler/deploy/config.json`，因此它在 web 的 build `outputs` 中，缓存命中时一并恢复。
 - `build` 与 `test-packages` 用 Turbo 本地缓存（actions/cache，键含 OS、job、lockfile 与 sha）。

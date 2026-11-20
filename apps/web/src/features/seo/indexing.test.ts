@@ -82,10 +82,13 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
     }
   })
 
-  it('x-default 指向同一页面的站点默认语言版本，不指向东方站根路径', () => {
+  // 使用者 2026-11-20：两站默认语言都是英语，东方站 `/` 是英文首页（不跳转）；
+  // 有英文版本的页面（目前只有东方站首页一组）x-default 指向英文版本 `/`，其余东方站页面仍指向繁中同页
+  it('x-default 指向同一页面的站点默认语言版本：英文版本优先，其余为繁中同页', () => {
     for (const [loc, alternates] of entries) {
       expect(alternates['x-default'], loc).toBeDefined()
-      expect(alternates['x-default'], loc).not.toBe(EAST_ROOT)
+      if (alternates.en === EAST_ROOT) expect(alternates['x-default'], loc).toBe(EAST_ROOT)
+      else expect(alternates['x-default'], loc).not.toBe(EAST_ROOT)
       // x-default 必须是该组语言版本之一（同一页面），不是站点入口
       expect(
         Object.entries(alternates).some(
@@ -93,7 +96,7 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
         ),
         loc,
       ).toBe(true)
-      if (loc.startsWith('https://ganjiday.com/') && alternates['zh-Hant'])
+      if (loc.startsWith('https://ganjiday.com/') && alternates['zh-Hant'] && !alternates.en)
         expect(alternates['x-default'], loc).toBe(alternates['zh-Hant'])
       if (loc.startsWith('https://arcanumber.com/')) expect(alternates['x-default'], loc).toBe(loc)
     }
@@ -103,8 +106,8 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
     for (const [loc, alternates] of entries) {
       for (const [lang, href] of Object.entries(alternates)) {
         if (lang === 'x-default') continue
-        // 东方站首页的 en 指向 /en 入口页，它在 en 子图中另行生成
-        if (href === 'https://ganjiday.com/en') continue
+        // 东方站首页的 en 指向英文首页 `/`，它在东方站 en 子图中另行生成
+        if (href === EAST_ROOT) continue
         const target = entries.get(href)
         expect(target, `${loc} → ${lang} ${href}`).toBeDefined()
         expect(target?.[lang], href).toBe(href)
@@ -115,18 +118,17 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
     }
   })
 
-  it('东方站内页与首页示例：/ko/pricing 与 /ko 的 x-default 为繁中同页', () => {
+  it('东方站内页与首页示例：/ko/pricing 的 x-default 为繁中同页，/ko 的 x-default 为英文首页 /', () => {
     expect(entries.get('https://ganjiday.com/ko/pricing')).toEqual({
       'zh-Hant': 'https://ganjiday.com/zh-hant/pricing',
       'zh-Hans': 'https://ganjiday.com/zh-hans/pricing',
       ko: 'https://ganjiday.com/ko/pricing',
       'x-default': 'https://ganjiday.com/zh-hant/pricing',
     })
-    expect(entries.get('https://ganjiday.com/ko')?.['x-default']).toBe(
-      'https://ganjiday.com/zh-hant',
-    )
+    expect(entries.get('https://ganjiday.com/ko')?.['x-default']).toBe(EAST_ROOT)
+    expect(entries.get('https://ganjiday.com/ko')?.en).toBe(EAST_ROOT)
     expect(eastEnglishAlternates().find((link) => link.hrefLang === 'x-default')?.href).toBe(
-      'https://ganjiday.com/zh-hant',
+      EAST_ROOT,
     )
     // 规范地址都不带结尾斜杠（根路径除外），与站点跳转的规范形式一致
     for (const loc of entries.keys())

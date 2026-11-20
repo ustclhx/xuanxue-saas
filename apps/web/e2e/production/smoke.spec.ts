@@ -110,7 +110,7 @@ test('健康接口返回本次版本且数据库可用', async ({ request }) => 
 // 规范地址与认证页索引（openspec fix-seo-canonical-indexing，specs/seo「规范地址收敛」「认证页不进索引」），只读 GET
 const origin = new URL(process.env.PRODUCTION_URL ?? 'https://arcanumber.com').origin
 
-test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根路径与裸路径保留路径跳到繁中', async ({
+test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站旧 /en 跳到英文首页 /、裸路径保留路径跳到繁中', async ({
   request,
   baseURL,
 }) => {
@@ -118,7 +118,8 @@ test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根�
   const requestOrigin = new URL(baseURL ?? origin).origin
   const cases: [string, string][] = isEasternSite
     ? [
-        ['/', '/zh-hant'],
+        // 使用者 2026-11-20：东方站 `/` 是英文首页（不跳转），旧英文入口页 /en 301 到 `/`
+        ['/en', '/'],
         ['/zh-hant/', '/zh-hant'],
         ['/pricing?ref=smoke', '/zh-hant/pricing?ref=smoke'],
       ]
@@ -127,7 +128,7 @@ test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站根�
         ['/en/pricing', '/pricing'],
       ]
   for (const [from, to] of cases) {
-    // 不属于东方站其他语言的浏览器语言（与不带 Accept-Language 的爬虫相同）落到繁中并永久跳转
+    // 跳转只取决于地址，与浏览器语言无关
     const response = await request.get(from, {
       maxRedirects: 0,
       headers: { 'accept-language': 'en-US' },

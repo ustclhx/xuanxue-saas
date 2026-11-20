@@ -1,7 +1,7 @@
 import { templateConfig } from '../../server/template-config.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
-import { EAST_ENGLISH_PATH, resolveSite, siteOfLocale } from './site.ts'
+import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL, resolveSite, siteOfLocale } from './site.ts'
 
 /** 构建期用仅存在于本地 preview 的随机令牌授权内部入口，并按语言还原真实站点 Host。 */
 export function prerenderRequest(request: Request, token?: string): Request | null {
@@ -17,6 +17,9 @@ export function prerenderRequest(request: Request, token?: string): Request | nu
           templateConfig,
         ) ?? 'west')
   url.host = templateConfig.sites[site].hosts[0] ?? url.host
+  // 东方站英文首页的对外地址是 `/`（使用者 2026-11-20）：以东方站 `/` 渲染、输出到 en.html，
+  // 不请求 `/en`（运行时 `/en` 301 到 `/`，路由器也会把 `/en` 规范化为 `/`）
+  if (path === EAST_ENGLISH_PATH) url.pathname = EAST_ENGLISH_URL
   return new Request(url, request)
 }
 
@@ -55,8 +58,13 @@ export async function staticPageResponse(
   )
     return null
   const path = url.pathname.replace(/\/+$/, '') || '/'
-  // 东方站根路径已由站点守卫跳转到语言首页（features/site/gate.ts），这里只会遇到西方站与关闭多语言时的根路径
-  url.pathname = path === '/' ? '/index.html' : `${path}.html`
+  // 东方站 `/` 是英文首页：读取预渲染的英文入口页 en.html（site.ts EAST_ENGLISH_URL）
+  url.pathname =
+    path === '/'
+      ? site.id === 'east'
+        ? `${EAST_ENGLISH_PATH}.html`
+        : '/index.html'
+      : `${path}.html`
   url.search = ''
   const response = await fetchAsset(new Request(url, request))
   if (!response.ok) return null

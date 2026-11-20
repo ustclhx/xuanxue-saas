@@ -11,9 +11,9 @@
   "zh-hant": {
     "canonical": "/zh-hant",
     "hreflang": {
-      "en": "/en",
+      "en": "/",
       "ko": "/ko",
-      "x-default": "/zh-hant",
+      "x-default": "/",
       "zh-Hans": "/zh-hans",
       "zh-Hant": "/zh-hant"
     },
@@ -23,9 +23,9 @@
   "zh-hans": {
     "canonical": "/zh-hans",
     "hreflang": {
-      "en": "/en",
+      "en": "/",
       "ko": "/ko",
-      "x-default": "/zh-hant",
+      "x-default": "/",
       "zh-Hans": "/zh-hans",
       "zh-Hant": "/zh-hant"
     },
@@ -35,9 +35,9 @@
   "ko": {
     "canonical": "/ko",
     "hreflang": {
-      "en": "/en",
+      "en": "/",
       "ko": "/ko",
-      "x-default": "/zh-hant",
+      "x-default": "/",
       "zh-Hans": "/zh-hans",
       "zh-Hant": "/zh-hant"
     },

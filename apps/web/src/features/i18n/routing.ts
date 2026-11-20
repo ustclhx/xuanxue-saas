@@ -1,6 +1,7 @@
 import type { LocationRewrite } from '@tanstack/react-router'
 import { deLocalizeUrl, localizeUrl } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL, isEastEnglishHome } from '../site/site.ts'
 import { isAppAreaPath } from './app-area.ts'
 import { hasForeignPrefix } from './site-locale.ts'
 
@@ -19,14 +20,27 @@ import { hasForeignPrefix } from './site-locale.ts'
  * 已登记站点上外站语言前缀的地址（西方站 `/zh-hans/...`）两个方向都原样保留，客户端与服务端一样按 404 处理。
  */
 export const localeRewrite = {
-  input: ({ url }) =>
-    templateConfig.i18n.enabled && !hasForeignPrefix(url, templateConfig)
+  input: ({ url }) => {
+    // 东方站 `/` 是英文首页：路由到英文入口页的路由 `/en`（site.ts EAST_ENGLISH_URL，使用者 2026-11-20）
+    if (templateConfig.i18n.enabled && isEastEnglishHome(url, templateConfig)) {
+      const result = new URL(url.href)
+      result.pathname = EAST_ENGLISH_PATH
+      return result
+    }
+    return templateConfig.i18n.enabled && !hasForeignPrefix(url, templateConfig)
       ? deLocalizeUrl(url)
-      : url,
-  output: ({ url }) =>
-    !templateConfig.i18n.enabled ||
-    isAppAreaPath(url.pathname) ||
-    hasForeignPrefix(url, templateConfig)
+      : url
+  },
+  output: ({ url }) => {
+    if (templateConfig.i18n.enabled && url.pathname === EAST_ENGLISH_PATH) {
+      const home = new URL(url.href)
+      home.pathname = EAST_ENGLISH_URL
+      if (isEastEnglishHome(home, templateConfig)) return home
+    }
+    return !templateConfig.i18n.enabled ||
+      isAppAreaPath(url.pathname) ||
+      hasForeignPrefix(url, templateConfig)
       ? url
-      : localizeUrl(url),
+      : localizeUrl(url)
+  },
 } satisfies LocationRewrite
