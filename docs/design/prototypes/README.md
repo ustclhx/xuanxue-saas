@@ -66,6 +66,11 @@
 | 东方站 /en 入口页（手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-19 | 「1. Anchor text中index的card name也带上tarot 如"The Moon Tarot" 2. 博客页面丰富下……用卡片形式，可以配图。 其他的都确认你的建议和设计」；修订后：「确认新的设计」 | warm-refresh/EastEn.dc.html | refresh-visual-system-warm |
 | 404（手机浅色） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-19 | 「1. Anchor text中index的card name也带上tarot 如"The Moon Tarot" 2. 博客页面丰富下……用卡片形式，可以配图。 其他的都确认你的建议和设计」；修订后：「确认新的设计」 | warm-refresh/NotFound.dc.html | refresh-visual-system-warm |
 | 第 7、9 组 token / 组件提议、各页正文链接表与状态表 | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-19 | 「1. Anchor text中index的card name也带上tarot 如"The Moon Tarot" 2. 博客页面丰富下……用卡片形式，可以配图。 其他的都确认你的建议和设计」；修订后：「确认新的设计」 | warm-refresh/Proposals79.dc.html | refresh-visual-system-warm |
+| 语言建议提示（东方站，桌面/手机 × 浅/深） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptEast.dc.html | add-locales-eu-ja |
+| 语言建议提示（西方站，桌面/手机 × 浅/深） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptWest.dc.html | add-locales-eu-ja |
+| 语言建议提示（关闭后状态） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptDismissed.dc.html | add-locales-eu-ja |
+| 语言建议提示（两个候选：浏览器语言为 zh） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptTwo.dc.html | add-locales-eu-ja |
+| 语言建议提示规格（位置与 CLS、行为、无障碍、六语文案、提议） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptSpec.dc.html | add-locales-eu-ja |
 
 **warm-refresh 说明**：
 
