@@ -68,7 +68,8 @@ export function GrowthForm({
   )
 }
 
-type Outcome = { kind: 'success' | 'error'; text: string } | null
+// invalid 只在服务端判定邮箱本身不合格（400/422）时为真；503 等服务错误不把合法邮箱标成无效
+type Outcome = { kind: 'success' | 'error'; text: string; invalid?: boolean } | null
 
 function EmailForm({
   feature,
@@ -91,102 +92,119 @@ function EmailForm({
   const errorId = `${feature}-email-error`
   const error = outcome?.kind === 'error' ? outcome.text : unavailable ? m.growth_unavailable() : ''
 
+  // 常驻的读屏播报区域：成功态会卸载表单，新挂载的 role=status 不一定被播报，所以播报放在始终存在的节点里
+  const announcement = outcome?.kind === 'success' ? outcome.text : error
+  const live = (
+    <p role="status" className="sr-only">
+      {announcement}
+    </p>
+  )
+
   // 提交成功：表单换成一条确认信息（设计稿的成功态），不再显示输入框
   if (outcome?.kind === 'success')
     return (
-      <p
-        role="status"
-        className="m-0 w-full max-w-130 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
-      >
-        {outcome.text}
-      </p>
+      <>
+        {live}
+        <p
+          aria-hidden="true"
+          className="m-0 w-full max-w-130 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
+        >
+          {outcome.text}
+        </p>
+      </>
     )
 
   return (
-    <form
-      className="flex w-full max-w-130 flex-col gap-4 rounded-object bg-surface p-6 shadow-raise sm:p-8"
-      onSubmit={async (event) => {
-        event.preventDefault()
-        setBusy(true)
-        try {
-          const response = await fetch(`/api/${feature}`, {
-            method: 'POST',
-            headers: { 'content-type': 'application/json', ...turnstile.headers() },
-            body: JSON.stringify({ email }),
-          })
-          const data = (await response.json()) as { error?: { message: string } }
-          setOutcome(
-            response.ok
-              ? {
-                  kind: 'success',
-                  text:
-                    feature === 'waitlist'
-                      ? m.growth_waitlist_success()
-                      : m.growth_newsletter_success(),
-                }
-              : { kind: 'error', text: data.error?.message ?? m.growth_retry() },
-          )
-        } catch {
-          setOutcome({ kind: 'error', text: m.growth_submit_failed() })
-        } finally {
-          turnstile.reset()
-          setBusy(false)
-        }
-      }}
-    >
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${feature}-email`} className="text-caption text-ink-muted">
-          {m.growth_email_label()}
-        </label>
-        <Input
-          id={`${feature}-email`}
-          type="email"
-          autoComplete="email"
-          className="min-h-12 bg-background"
-          required
-          maxLength={254}
-          value={email}
-          aria-invalid={outcome?.kind === 'error' ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        {/* 失败态（设计稿）：danger 色的图标与说明；role="status" 让读屏播报结果 */}
-        <p
-          id={errorId}
-          role="status"
-          className="m-0 flex items-start gap-1.5 text-caption text-danger empty:hidden"
-        >
-          {error && (
-            <>
-              <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 size-4 shrink-0">
-                <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <circle cx="10" cy="10" r="7" />
-                  <path d="M10 6.5v4.5M10 13.6v.2" />
-                </g>
-              </svg>
-              {error}
-            </>
-          )}
-        </p>
-      </div>
-      {turnstile.widget}
-      {/* 主按钮：药丸形、文字色填充；手机占满一行，桌面按内容宽度靠左（与工具表单的提交按钮一致） */}
-      <button
-        type="submit"
-        className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-7 font-medium text-body text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-56 sm:self-start"
-        disabled={busy || !configured || !turnstile.ready}
+    <>
+      {live}
+      <form
+        className="flex w-full max-w-130 flex-col gap-4 rounded-object bg-surface p-6 shadow-raise sm:p-8"
+        onSubmit={async (event) => {
+          event.preventDefault()
+          setBusy(true)
+          try {
+            const response = await fetch(`/api/${feature}`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json', ...turnstile.headers() },
+              body: JSON.stringify({ email }),
+            })
+            const data = (await response.json()) as { error?: { message: string } }
+            setOutcome(
+              response.ok
+                ? {
+                    kind: 'success',
+                    text:
+                      feature === 'waitlist'
+                        ? m.growth_waitlist_success()
+                        : m.growth_newsletter_success(),
+                  }
+                : {
+                    kind: 'error',
+                    text: data.error?.message ?? m.growth_retry(),
+                    invalid: response.status === 400 || response.status === 422,
+                  },
+            )
+          } catch {
+            setOutcome({ kind: 'error', text: m.growth_submit_failed() })
+          } finally {
+            turnstile.reset()
+            setBusy(false)
+          }
+        }}
       >
-        {busy
-          ? m.growth_submitting()
-          : feature === 'waitlist'
-            ? m.growth_waitlist_submit()
-            : m.growth_newsletter_submit()}
-      </button>
-      {standalone && (
-        <p className="m-0 text-caption text-ink-subtle">
-          {inlineLinks(m.growth_privacy_note(), contentLinks(getLocale()))}
-        </p>
-      )}
-    </form>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${feature}-email`} className="text-caption text-ink-muted">
+            {m.growth_email_label()}
+          </label>
+          <Input
+            id={`${feature}-email`}
+            type="email"
+            autoComplete="email"
+            className="min-h-12 bg-background"
+            required
+            maxLength={254}
+            value={email}
+            aria-invalid={outcome?.kind === 'error' && outcome.invalid ? true : undefined}
+            aria-describedby={error ? errorId : undefined}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+          {/* 失败态（设计稿）：danger 色的图标与说明；播报由上方常驻的 role=status 负责 */}
+          <p
+            id={errorId}
+            className="m-0 flex items-start gap-1.5 text-caption text-danger empty:hidden"
+          >
+            {error && (
+              <>
+                <svg viewBox="0 0 20 20" aria-hidden="true" className="mt-0.5 size-4 shrink-0">
+                  <g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                    <circle cx="10" cy="10" r="7" />
+                    <path d="M10 6.5v4.5M10 13.6v.2" />
+                  </g>
+                </svg>
+                {error}
+              </>
+            )}
+          </p>
+        </div>
+        {turnstile.widget}
+        {/* 主按钮：药丸形、文字色填充；手机占满一行，桌面按内容宽度靠左（与工具表单的提交按钮一致） */}
+        <button
+          type="submit"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-primary px-7 font-medium text-body text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:min-w-56 sm:self-start"
+          disabled={busy || !configured || !turnstile.ready}
+        >
+          {busy
+            ? m.growth_submitting()
+            : feature === 'waitlist'
+              ? m.growth_waitlist_submit()
+              : m.growth_newsletter_submit()}
+        </button>
+        {standalone && (
+          <p className="m-0 text-caption text-ink-subtle">
+            {inlineLinks(m.growth_privacy_note(), contentLinks(getLocale()))}
+          </p>
+        )}
+      </form>
+    </>
   )
 }
