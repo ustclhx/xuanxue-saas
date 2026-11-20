@@ -8,6 +8,9 @@ const state = vi.hoisted(() => ({
   locale: 'en',
   pathname: '/',
   blogLocales: [] as string[],
+  // 浏览器地址（含语言前缀）与本页 head 中的 hreflang；未设置时按没有 hreflang 的页面处理
+  publicHref: undefined as string | undefined,
+  links: [] as { rel: string; hrefLang: string; href: string }[],
 }))
 
 vi.mock('../../paraglide/runtime.js', async (original) => {
@@ -23,10 +26,20 @@ vi.mock('@tanstack/react-router', async () => {
         {children}
       </a>
     ),
-    useLocation: ({ select }: { select: (location: { pathname: string }) => string }) =>
-      select({ pathname: state.pathname }),
+    useLocation: ({
+      select,
+    }: {
+      select: (location: { pathname: string; publicHref: string; searchStr: string }) => string
+    }) =>
+      select({
+        pathname: state.pathname,
+        publicHref: state.publicHref ?? state.pathname,
+        searchStr: '',
+      }),
     useRouterState: ({ select }: { select: (value: unknown) => unknown }) =>
-      select({ matches: [{ loaderData: { blogLocales: state.blogLocales } }] }),
+      select({
+        matches: [{ loaderData: { blogLocales: state.blogLocales }, links: state.links }],
+      }),
   }
 })
 vi.mock('../i18n/preference.functions.ts', () => ({
@@ -42,13 +55,35 @@ function render(site: SiteId, node: ReactNode) {
 }
 
 const hrefs = (html: string) => [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1] ?? '')
-const languageItems = (html: string) =>
-  [...html.matchAll(/<(?:button|a)[^>]*lang="([^"]+)"/g)].map((match) => match[1])
+/** 语言控件的各项：`<a href hreflang lang>`（多语言 SEO 规范 ML-08，不再有按钮） */
+const languageLinks = (html: string) =>
+  [
+    ...html.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*hrefLang="([^"]+)"[^>]*lang="([^"]+)"[^>]*>/g),
+  ].map(([tag, href, hrefLang, lang]) => ({
+    href,
+    hrefLang,
+    lang,
+    current: tag.includes('aria-current="page"'),
+  }))
+const languageItems = (html: string) => languageLinks(html).map((link) => link.lang)
+/** 页头右上角的语言菜单（第一个含语言链接的 <details>；手机导航面板里的设置行在它之后） */
+const headerLanguageMenu = (html: string) =>
+  html
+    .split('<details')
+    .map((part) => part.split('</details>')[0] ?? '')
+    .find((part) => part.includes('hrefLang=')) ?? ''
+const alternate = (hrefLang: string, path: string) => ({
+  rel: 'alternate',
+  hrefLang,
+  href: `https://ganjiday.com${path}`,
+})
 
 beforeEach(() => {
   state.locale = 'en'
   state.pathname = '/'
   state.blogLocales = []
+  state.publicHref = undefined
+  state.links = []
 })
 
 describe('页头按站点生成（openspec product-improve-ai-content-20261030 4.1、4.2、4.6）', () => {
@@ -86,10 +121,56 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     state.locale = 'zh-Hant'
     state.pathname = '/'
     const east = render('east', <SiteHeader />)
-    expect(languageItems(east)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
+    expect(languageItems(headerLanguageMenu(east))).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
+    expect(headerLanguageMenu(east)).not.toContain('<button')
     // 使用者 2026-11-20：东方站英文首页对外地址为 `/`
     expect(east).toMatch(/<a[^>]*href="\/"[^>]*hrefLang="en"/)
     expect(hrefs(east).some((href) => href.includes('arcanumber'))).toBe(false)
+  })
+
+  it('语言菜单每一项是指向对应页面的链接：取本页 hreflang 的地址，没有对应页面的语言去该语言首页', () => {
+    state.locale = 'zh-Hant'
+    state.pathname = '/紫微斗數排盤'
+    state.publicHref = encodeURI('/zh-hant/紫微斗數排盤')
+    // 紫微斗数只有繁中与简中版本
+    state.links = [
+      alternate('zh-Hant', encodeURI('/zh-hant/紫微斗數排盤')),
+      alternate('zh-Hans', encodeURI('/zh-hans/紫微斗数排盘')),
+      alternate('x-default', encodeURI('/zh-hant/紫微斗數排盤')),
+    ]
+    const html = render('east', <SiteHeader />)
+    expect(languageLinks(headerLanguageMenu(html))).toEqual([
+      {
+        href: encodeURI('/zh-hant/紫微斗數排盤'),
+        hrefLang: 'zh-Hant',
+        lang: 'zh-Hant',
+        current: true,
+      },
+      {
+        href: encodeURI('/zh-hans/紫微斗数排盘'),
+        hrefLang: 'zh-Hans',
+        lang: 'zh-Hans',
+        current: false,
+      },
+      { href: '/ko', hrefLang: 'ko', lang: 'ko', current: false },
+      { href: '/', hrefLang: 'en', lang: 'en', current: false },
+    ])
+    // 页脚设置行同样是链接，不列只有首页的 English
+    const footer = render('east', <SiteFooter />)
+    expect(languageLinks(footer).map((link) => link.href)).toEqual([
+      encodeURI('/zh-hant/紫微斗數排盤'),
+      encodeURI('/zh-hans/紫微斗数排盘'),
+      '/ko',
+    ])
+    expect(footer).not.toContain('role="combobox"')
+  })
+
+  it('应用区没有语言版本：各语言指向语言首页，当前语言指向当前页', () => {
+    state.locale = 'ko'
+    state.pathname = '/app/personal'
+    const links = languageLinks(headerLanguageMenu(render('east', <SiteHeader />)))
+    expect(links.map((link) => link.href)).toEqual(['/zh-hant', '/zh-hans', '/app/personal', '/'])
+    expect(links.find((link) => link.current)?.lang).toBe('ko')
   })
 
   it('韩语页面的页头与页脚品牌名为「간지데이」，工具入口指向 /ko/만세력', () => {
@@ -164,12 +245,13 @@ describe('页头导航（refresh-visual-system-warm D7，site-visual-system「�
     expect(panel).toContain('紫微斗數')
     expect(panel).toContain('/zh-hant/pricing')
     expect(panel).toContain('data-slot="theme-toggle"')
-    expect(panel).toContain('role="combobox"')
+    // 语言下拉是 <details> 加链接，不依赖水合（不再是 Select）
+    expect(html).not.toContain('role="combobox"')
+    expect(html.slice(html.indexOf('md:hidden'))).toContain('hrefLang="ko"')
     // 西方站只有一种语言：面板里没有语言下拉，仍有主题切换
     const west = render('west', <SiteHeader />)
-    const westPanel = west.match(/<details[^>]*class="[^"]*md:hidden[\s\S]*?<\/details>/)?.[0] ?? ''
-    expect(westPanel).toContain('data-slot="theme-toggle"')
-    expect(westPanel).not.toContain('role="combobox"')
+    expect(west).toContain('data-slot="theme-toggle"')
+    expect(languageItems(west)).toEqual([])
   })
 })
 
@@ -178,12 +260,12 @@ describe('页脚设置行', () => {
     const east = render('east', <SiteFooter />)
     expect(east).toContain('data-site-footer')
     expect(east).toContain('data-slot="theme-toggle"')
-    // 东方站设置行含语言下拉；西方站只有一种语言，不渲染
-    expect(east).toContain('role="combobox"')
+    // 东方站设置行含语言下拉（链接）；西方站只有一种语言，不渲染
+    expect(languageItems(east)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
     const west = render('west', <SiteFooter />)
     expect(west).toContain('data-site-footer')
     expect(west).toContain('data-slot="theme-toggle"')
-    expect(west).not.toContain('role="combobox"')
+    expect(languageItems(west)).toEqual([])
     // 合规声明为 caption 小字，用批准的全文
     expect(west).toContain(
       'For reference and self-reflection only; it does not predict the future.',
