@@ -73,7 +73,10 @@ export function LanguageDropdown() {
         aria-label={`${label} ${text}`}
         className="inline-flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-field-border px-3 text-body text-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
       >
-        <span lang={locale}>{text}</span>
+        {/* 下移 1px：与原 Select 触发器的文字位置一致（它按大写字母高度裁切行框后居中） */}
+        <span lang={locale} className="translate-y-px">
+          {text}
+        </span>
         <svg
           aria-hidden="true"
           viewBox="0 0 24 24"
