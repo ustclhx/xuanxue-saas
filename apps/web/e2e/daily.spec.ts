@@ -20,7 +20,7 @@ const PAGES = [
     h1: /오늘의 운세 · .+일/,
     hreflang: ['zh-Hant', 'zh-Hans'],
   },
-  { site: 'west', path: '/daily-numerology', h1: /Your Number Today/, hreflang: [] },
+  { site: 'west', path: '/daily-numerology', h1: /Your Number of the Day/, hreflang: [] },
 ] as const
 
 for (const item of PAGES) {

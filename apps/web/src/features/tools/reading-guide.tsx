@@ -73,6 +73,8 @@ export function ContentFunnel({
     <nav
       aria-labelledby={headingId}
       data-testid="content-funnel"
+      // 转化入口（docs/seo-internal-linking.md §3）：不计入正文内链数与锚文本统计（openspec seo-fix-tdk-links 决策 5）
+      data-link-zone="action"
       className="flex max-w-180 flex-col gap-3"
     >
       <h2 id={headingId} className="m-0 font-heading text-ink text-subtitle">

@@ -100,6 +100,28 @@ export default defineTemplateConfig({
         { locales: ['en'], previewHost: 'west.localhost' },
         { locales: ['zh-Hant', 'zh-Hans', 'ko'], previewHost: 'east.localhost' },
       ],
+      // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；
+      // 地址不带语言前缀，东方站只有首页命中
+      moneyPages: [
+        '/',
+        '/destiny-number',
+        '/name-numerology',
+        '/numerology-calculator',
+        '/life-path-number/11',
+        '/tarot/cards/the-sun',
+        '/tarot/cards/the-magician',
+        '/tarot/cards/death',
+        '/tarot/cards/judgement',
+        '/tarot/cards/the-hermit',
+        '/tarot/cards/the-world',
+        '/tarot/cards/eight-of-pentacles',
+        '/tarot/cards/strength',
+        '/tarot/cards/the-devil',
+        '/tarot/cards/knight-of-pentacles',
+        '/tarot/cards/the-moon',
+        '/tarot/cards/five-of-swords',
+        '/tarot/cards/the-high-priestess',
+      ],
     },
   },
   // 界面主题：preset 'neutral' | 'blue' | 'violet' | 'green'；shape 'sharp' | 'rounded' | 'pill'；

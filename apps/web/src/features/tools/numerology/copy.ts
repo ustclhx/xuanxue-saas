@@ -96,12 +96,8 @@ export function numerologyLinks(current?: string): ToolLink[] {
  * 不再把全部工具排成一行。Life Path 工具页（父页）仍用 numerologyLinks 的完整列表。
  */
 const RELATED_TOOLS: Readonly<Record<NumerologyToolId, readonly string[]>> = {
-  'numerology-calculator': [
-    'life-path',
-    'numerology-chart',
-    'name-numerology',
-    'life-path-compatibility',
-  ],
+  // 计算器结果含 Expression（Destiny）数；钱页 /destiny-number 由此补足站内入链（openspec seo-fix-tdk-links 决策 6）
+  'numerology-calculator': ['life-path', 'numerology-chart', 'name-numerology', 'destiny-number'],
   'numerology-chart': ['numerology-calculator', 'life-path', 'name-numerology'],
   'name-numerology': ['destiny-number', 'soul-urge-number', 'numerology-calculator'],
   'life-path-compatibility': ['life-path', 'numerology-calculator', 'numerology-chart'],

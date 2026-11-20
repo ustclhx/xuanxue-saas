@@ -165,6 +165,7 @@ const foldActions = (page: Page) =>
 /** 首屏内的文字元素数（标题、段落、列表项、按钮与链接；不含包着这些元素的容器） */
 const foldTextElements = (page: Page) =>
   page.evaluate(() => {
+    const CARD = 'a:has(h2, h3), li:has(:is(h2, h3) > a)'
     const fold = window.innerHeight
     return [...document.querySelectorAll('main :is(h1, h2, h3, p, li, button, a)')].filter(
       (element) => {
@@ -174,9 +175,10 @@ const foldTextElements = (page: Page) =>
           rect.top < fold &&
           rect.bottom > 0 &&
           (element.textContent ?? '').trim().length > 2 &&
-          // 带标题的整卡链接（工具卡）算一个元素：计卡片本身，不计卡内的标题与说明
-          (element.matches('a:has(h2, h3)') ||
-            (!element.querySelector('p, li, h1, h2, h3') && !element.closest('a:has(h2, h3)')))
+          // 带标题的整卡链接（工具卡）算一个元素：计卡片本身，不计卡内的标题与说明。
+          // 首页工具卡的链接只包住标题、伪元素铺满卡片（openspec seo-fix-tdk-links 决策 5），卡片是含 `h3 > a` 的列表项
+          (element.matches(CARD) ||
+            (!element.querySelector('p, li, h1, h2, h3') && !element.closest(CARD)))
         )
       },
     ).length

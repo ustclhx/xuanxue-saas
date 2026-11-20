@@ -142,14 +142,15 @@ test('禁用脚本：牌义索引 78 条链接、牌义页 4 条延伸牌义、�
     )
     await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(2)
 
-    // 牌义页：太阳 → 月亮、审判、世界（同序列）与力量（主题对应）
+    // 牌义页：太阳 → 月亮、审判、世界（同序列）与力量（主题对应）；
+    // 每张目标牌一半来源用牌义索引的短表述（openspec seo-fix-tdk-links 决策 5）
     await page.goto(`${origin('west')}/tarot/cards/the-sun`)
     const related = page.locator('section[aria-labelledby="tarot-related-title"] a')
     await expect(related).toHaveText([
-      'The Moon tarot card meaning',
+      'The Moon Tarot',
       'Judgement tarot card meaning',
       'The World tarot card meaning',
-      'Strength tarot card meaning',
+      'Strength Tarot',
     ])
     await expect(related.nth(3)).toHaveAttribute('href', '/tarot/cards/strength')
     await expect(

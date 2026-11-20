@@ -31,7 +31,7 @@ export const NUMEROLOGY_TOOLS = {
     nav: 'Numerology Calculator',
     title: 'Numerology Calculator: Life Path, Expression, Soul Urge and More',
     description:
-      'Free numerology calculator: enter your name and birth date to get your life path, expression, soul urge, personality, birthday number and personal year, with every step shown.',
+      'Free numerology calculator: enter your name and birth date for life path, expression, soul urge, personality, birthday number and personal year, step by step.',
   },
   'numerology-chart': {
     path: '/numerology-chart',
