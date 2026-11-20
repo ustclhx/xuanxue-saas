@@ -6,13 +6,11 @@ export function Hero() {
   return (
     <section className="py-24">
       <div className="mx-auto grid max-w-3xl justify-items-center gap-6 px-4 text-center">
-        <span className="rounded-full border px-3 py-1 text-muted-foreground text-xs">
+        <span className="rounded-full border px-3 py-1 text-muted-foreground text-caption">
           {m.marketing_hero_badge()}
         </span>
-        <h1 className="font-bold text-4xl tracking-tight sm:text-5xl">
-          {m.marketing_hero_title()}
-        </h1>
-        <p data-testid="tagline" className="text-lg text-muted-foreground">
+        <h1 className="font-bold text-display tracking-tight">{m.marketing_hero_title()}</h1>
+        <p data-testid="tagline" className="text-lead text-muted-foreground">
           {m.marketing_hero_subtitle()}
         </p>
         <div className="flex flex-wrap justify-center gap-3">

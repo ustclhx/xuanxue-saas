@@ -40,7 +40,7 @@ function WaitlistAdmin() {
       >
         {m.admin_invite_selected({ count: selected.length })}
       </Button>
-      <p role="status" className="min-h-5 text-sm">
+      <p role="status" className="min-h-5 text-body">
         {message}
       </p>
       <DataTable

@@ -63,7 +63,7 @@ function Section({ title, children }: { readonly title: string; readonly childre
       aria-labelledby={id}
       className="rounded-xl border bg-card p-6 shadow-sm [&_form]:grid [&_form]:gap-4 [&_form_p]:grid [&_form_p]:gap-2"
     >
-      <h2 id={id} className="mb-4 font-semibold text-lg">
+      <h2 id={id} className="mb-4 font-semibold text-title">
         {title}
       </h2>
       {children}

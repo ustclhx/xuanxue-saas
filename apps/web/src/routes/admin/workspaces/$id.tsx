@@ -128,8 +128,11 @@ function WorkspaceDetail() {
       {otherSite && <OtherSiteNotice site={data.workspace.site} />}
       {data.workspace.deletedAt && !otherSite && (
         <div className={panelClass('danger', 'max-w-xl')}>
-          <p className="text-sm">{m.admin_restore_within_the_30_day_retention_period_only()} </p>
-          <Label htmlFor="confirm-workspace-restore" className="font-normal text-sm leading-normal">
+          <p className="text-body">{m.admin_restore_within_the_30_day_retention_period_only()} </p>
+          <Label
+            htmlFor="confirm-workspace-restore"
+            className="font-normal text-body leading-normal"
+          >
             <Checkbox
               id="confirm-workspace-restore"
               disabled={!ready}
@@ -148,7 +151,7 @@ function WorkspaceDetail() {
         </div>
       )}
       {message && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       )}
@@ -156,7 +159,7 @@ function WorkspaceDetail() {
         {data.members.length ? (
           <ul className="grid gap-2">
             {data.members.map((m) => (
-              <li key={m.id} className="break-all rounded-md border px-3 py-2 text-sm">
+              <li key={m.id} className="break-all rounded-md border px-3 py-2 text-body">
                 <Link to="/admin/users/$id" params={{ id: m.userId }} className="underline">
                   {m.email}
                 </Link>{' '}
@@ -170,13 +173,13 @@ function WorkspaceDetail() {
       </AdminSection>
       {data.entitlements && (
         <AdminSection title={m.admin_subscriptions_and_overlapping_periods()}>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-body">
             {m.admin_all_subscription_periods_are_shown_effective_entitlements_use()}
           </p>
           {data.subscriptions.length ? (
             <ul className="grid gap-2">
               {data.subscriptions.map(({ subscription: sub, planName }, index) => (
-                <li key={sub.id} className="break-words rounded-md border px-3 py-2 text-sm">
+                <li key={sub.id} className="break-words rounded-md border px-3 py-2 text-body">
                   {planName} · {sub.provider} · {sub.status} · {sub.id}
                   <br />
                   {m.admin_period()}{' '}
@@ -207,7 +210,7 @@ function WorkspaceDetail() {
             {batches.items.length ? (
               <ul className="grid gap-2">
                 {batches.items.map((batch) => (
-                  <li key={batch.id} className="break-words rounded-md border px-3 py-2 text-sm">
+                  <li key={batch.id} className="break-words rounded-md border px-3 py-2 text-body">
                     {batch.id} · {batch.source} · {batch.status} {m.admin_remaining()}{' '}
                     {batch.remaining} / {batch.amount} {m.admin_expires()}{' '}
                     {batch.expiresAt ? formatDateTime(batch.expiresAt) : m.admin_never()}
@@ -233,7 +236,7 @@ function WorkspaceDetail() {
             {ledger.items.length ? (
               <ul className="grid gap-2">
                 {ledger.items.map((entry) => (
-                  <li key={entry.id} className="break-words rounded-md border px-3 py-2 text-sm">
+                  <li key={entry.id} className="break-words rounded-md border px-3 py-2 text-body">
                     {formatDateTime(entry.createdAt)} · {entry.type} · {entry.delta} · {entry.id}
                   </li>
                 ))}

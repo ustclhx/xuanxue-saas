@@ -73,7 +73,7 @@ function Settings() {
       <form onSubmit={submit} aria-label={m.admin_runtime_settings()} className={panelClass()}>
         <fieldset disabled={!hydrated || busy} className="grid min-w-0 gap-5">
           <div className="grid gap-2">
-            <Label htmlFor="registration-enabled" className="font-normal text-sm leading-normal">
+            <Label htmlFor="registration-enabled" className="font-normal text-body leading-normal">
               <Checkbox
                 id="registration-enabled"
                 checked={signupEnabled}
@@ -81,7 +81,7 @@ function Settings() {
               />
               {m.admin_registration_enabled()}
             </Label>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-body">
               {m.admin_when_registration_is_closed_only_valid_waitlist_invitations()}
             </p>
           </div>
@@ -146,7 +146,7 @@ function Settings() {
           </div>
           <section className="grid gap-4" aria-label={m.admin_daily_credits_settings()}>
             <h2 className="font-semibold">{m.admin_daily_credits_settings()}</h2>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-body">
               {m.admin_daily_credits_template_switch_note()}
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
@@ -188,7 +188,10 @@ function Settings() {
               </Field>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="daily-verified-email" className="font-normal text-sm leading-normal">
+              <Label
+                htmlFor="daily-verified-email"
+                className="font-normal text-body leading-normal"
+              >
                 <Checkbox
                   id="daily-verified-email"
                   checked={dailyVerifiedEmail}
@@ -196,7 +199,7 @@ function Settings() {
                 />
                 {m.admin_daily_credits_require_verified_email()}
               </Label>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-body">
                 {m.admin_daily_credits_unverified_email_warning()}
               </p>
             </div>
@@ -207,7 +210,7 @@ function Settings() {
         </fieldset>
       </form>
       {message && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       )}

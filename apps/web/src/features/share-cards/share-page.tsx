@@ -49,8 +49,8 @@ export function SharePage({ view }: { view: Extract<SharePageView, { status: 'ok
           />
         </div>
         <div className="flex flex-col gap-2">
-          <h1 className="font-semibold text-xl tracking-tight sm:text-display">{view.title}</h1>
-          <p className="text-base text-muted-foreground">{view.description}</p>
+          <h1 className="font-semibold text-title tracking-tight sm:text-display">{view.title}</h1>
+          <p className="text-body text-muted-foreground">{view.description}</p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button asChild size="lg">
@@ -90,7 +90,7 @@ export function SharePageGone({ reason }: { reason: SharePageGoneReason }) {
         <div className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
           <Link2Off aria-hidden className="size-6" strokeWidth={1.75} />
         </div>
-        <h1 className="font-semibold text-xl">{title}</h1>
+        <h1 className="font-semibold text-title">{title}</h1>
         <p className="max-w-md text-body text-muted-foreground">{body}</p>
         <Button asChild>
           <Link to={templateConfig.marketing.enabled ? '/' : '/app'}>{m.share_page_home()}</Link>

@@ -55,7 +55,7 @@ function Metrics() {
           <Button type="submit">{m.admin_apply()}</Button>
         </form>
       </fieldset>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground text-body">
         {data.latest
           ? m.admin_data_through_exclusive_last_computed({
               dataThrough: data.latest.dataThrough.toISOString(),
@@ -63,7 +63,7 @@ function Metrics() {
             })
           : m.admin_no_daily_summaries_yet()}
       </p>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground text-body">
         {m.admin_daily_summaries_in_this_range_paid_conversion_paid({ count: data.rows.length })}
       </p>
       <dl className="grid gap-4 sm:grid-cols-3">
@@ -81,18 +81,18 @@ function Metrics() {
           ],
         ].map(([label, value]) => (
           <div key={label} className="rounded-lg border p-4">
-            <dt className="text-muted-foreground text-sm">{label}</dt>
-            <dd className="mt-2 font-semibold text-2xl">{value}</dd>
+            <dt className="text-muted-foreground text-body">{label}</dt>
+            <dd className="mt-2 font-semibold text-display">{value}</dd>
           </div>
         ))}
       </dl>
       <section className="grid gap-2" aria-labelledby="metrics-by-site">
-        <h3 id="metrics-by-site" className="font-semibold text-lg">
+        <h3 id="metrics-by-site" className="font-semibold text-title">
           {m.admin_metrics_by_site()}
         </h3>
-        <p className="text-muted-foreground text-sm">{m.admin_metrics_by_site_description()}</p>
+        <p className="text-muted-foreground text-body">{m.admin_metrics_by_site_description()}</p>
         <div className="overflow-x-auto rounded-md border">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-body">
             <thead className="bg-muted/50">
               <tr className="border-b">
                 {[
@@ -124,9 +124,9 @@ function Metrics() {
           </table>
         </div>
       </section>
-      <h3 className="font-semibold text-lg">{m.admin_mrr_monthly_latest_snapshot()}</h3>
+      <h3 className="font-semibold text-title">{m.admin_mrr_monthly_latest_snapshot()}</h3>
       {data.latest && Object.entries(data.latest.mrrByCurrency).length ? (
-        <ul className="grid gap-1 text-sm">
+        <ul className="grid gap-1 text-body">
           {Object.entries(data.latest.mrrByCurrency).map(([currency, cents]) => (
             <li key={currency}>
               {currency}: {(cents / 100).toFixed(2)}
@@ -136,10 +136,10 @@ function Metrics() {
       ) : (
         <EmptyState>{m.admin_no_paid_subscriptions()}</EmptyState>
       )}
-      <h3 className="font-semibold text-lg">{m.admin_platform_overage_by_model()}</h3>
+      <h3 className="font-semibold text-title">{m.admin_platform_overage_by_model()}</h3>
       {Object.entries(data.overageByModel).length ? (
         <div className="overflow-x-auto rounded-md border">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-left text-body">
             <thead className="bg-hover">
               <tr className="border-b">
                 <th className="h-10 px-3 font-medium text-muted-foreground">{m.admin_model()}</th>

@@ -66,11 +66,11 @@ export function OperationsSettingsForm() {
       aria-label={m.admin_operations_notifications()}
       className={panelClass()}
     >
-      <h3 className="font-semibold text-lg">{m.admin_operations_notifications()}</h3>
+      <h3 className="font-semibold text-title">{m.admin_operations_notifications()}</h3>
       <fieldset disabled={!saved || busy} className="grid min-w-0 gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid content-start gap-3">
-            <p className="text-sm">
+            <p className="text-body">
               {m.admin_telegram_bot()}{' '}
               {saved?.telegramConfigured ? m.admin_configured() : m.admin_not_configured()}
             </p>
@@ -83,7 +83,7 @@ export function OperationsSettingsForm() {
                 onChange={(event) => setToken(event.target.value)}
               />
             </Field>
-            <Label htmlFor="clear-telegram-token" className="font-normal text-sm leading-normal">
+            <Label htmlFor="clear-telegram-token" className="font-normal text-body leading-normal">
               <Checkbox
                 id="clear-telegram-token"
                 checked={clearToken}
@@ -100,7 +100,7 @@ export function OperationsSettingsForm() {
             </Field>
           </div>
           <div className="grid content-start gap-3">
-            <p className="text-sm">
+            <p className="text-body">
               {m.admin_discord_webhook()}{' '}
               {saved?.discordConfigured ? m.admin_configured() : m.admin_not_configured()}
             </p>
@@ -113,7 +113,7 @@ export function OperationsSettingsForm() {
                 onChange={(event) => setWebhook(event.target.value)}
               />
             </Field>
-            <Label htmlFor="clear-discord-webhook" className="font-normal text-sm leading-normal">
+            <Label htmlFor="clear-discord-webhook" className="font-normal text-body leading-normal">
               <Checkbox
                 id="clear-discord-webhook"
                 checked={clearWebhook}
@@ -123,7 +123,7 @@ export function OperationsSettingsForm() {
             </Label>
           </div>
           <div className="grid content-start gap-3">
-            <p className="text-sm">
+            <p className="text-body">
               {m.admin_https_webhook()}{' '}
               {saved?.webhookUrlConfigured && saved.webhookSecretConfigured
                 ? m.admin_configured()
@@ -149,7 +149,7 @@ export function OperationsSettingsForm() {
                 onChange={(event) => setHttpsKey(event.target.value)}
               />
             </Field>
-            <Label htmlFor="clear-https-webhook" className="font-normal text-sm leading-normal">
+            <Label htmlFor="clear-https-webhook" className="font-normal text-body leading-normal">
               <Checkbox
                 id="clear-https-webhook"
                 checked={clearHttps}
@@ -159,7 +159,7 @@ export function OperationsSettingsForm() {
             </Label>
           </div>
         </div>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-body">
           {m.admin_leave_secret_inputs_empty_to_keep_configured_values()}
         </p>
         <Button type="submit" className="w-fit">
@@ -167,7 +167,7 @@ export function OperationsSettingsForm() {
         </Button>
       </fieldset>
       {message && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       )}

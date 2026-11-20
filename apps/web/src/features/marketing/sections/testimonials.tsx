@@ -31,8 +31,8 @@ export function Testimonials() {
               <blockquote className="text-pretty">“{item.quote()}”</blockquote>
             </CardContent>
             <CardFooter className="grid gap-0.5">
-              <p className="font-medium text-sm">{item.name()}</p>
-              <p className="text-muted-foreground text-sm">{item.role()}</p>
+              <p className="font-medium text-body">{item.name()}</p>
+              <p className="text-caption text-muted-foreground">{item.role()}</p>
             </CardFooter>
           </Card>
         ))}

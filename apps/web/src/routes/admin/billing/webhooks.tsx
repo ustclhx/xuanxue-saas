@@ -50,7 +50,7 @@ function Webhooks() {
       description={m.admin_events_without_an_associated_workspace_appear_only_when()}
     >
       {message && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       )}

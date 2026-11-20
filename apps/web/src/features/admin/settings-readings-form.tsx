@@ -74,8 +74,8 @@ export function ReadingSettingsForm() {
 
   return (
     <form onSubmit={submit} aria-label={m.admin_paid_readings()} className={panelClass()}>
-      <h3 className="font-semibold text-lg">{m.admin_paid_readings()}</h3>
-      <p className="text-muted-foreground text-sm">{m.admin_paid_readings_description()}</p>
+      <h3 className="font-semibold text-title">{m.admin_paid_readings()}</h3>
+      <p className="text-muted-foreground text-body">{m.admin_paid_readings_description()}</p>
       <fieldset disabled={!models || busy} className="grid min-w-0 gap-4">
         {rows.map((row) => {
           // 已保存的模型被停用后仍显示，避免保存时被悄悄清空
@@ -88,10 +88,10 @@ export function ReadingSettingsForm() {
               key={row.kind}
               className="grid min-w-0 gap-3 border-border border-b pb-4 last:border-b-0 sm:grid-cols-2 sm:items-end lg:grid-cols-5"
             >
-              <p className="font-medium text-sm">{KIND_LABELS[row.kind]()}</p>
+              <p className="font-medium text-body">{KIND_LABELS[row.kind]()}</p>
               <Label
                 htmlFor={`reading-enabled-${row.kind}`}
-                className="font-normal text-sm leading-normal"
+                className="font-normal text-body leading-normal"
               >
                 <Checkbox
                   id={`reading-enabled-${row.kind}`}
@@ -175,7 +175,7 @@ export function ReadingSettingsForm() {
         </Button>
       </fieldset>
       {message && (
-        <p role="status" className="text-sm">
+        <p role="status" className="text-body">
           {message}
         </p>
       )}

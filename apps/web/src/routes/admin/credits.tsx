@@ -135,7 +135,7 @@ function Credits() {
       description={m.admin_grant_or_revoke_credits_for_one_workspace_filter()}
     >
       {data.balance && (
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-body">
           <div className="flex gap-1">
             <dt className="text-muted-foreground">{m.admin_available()}</dt>
             <dd className="font-medium">{data.balance.available}</dd>
@@ -164,7 +164,7 @@ function Credits() {
           <fieldset disabled={busy || !search.workspaceId} className="grid min-w-0 gap-4">
             <legend className="mb-3 font-semibold">{m.admin_add_credits()}</legend>
             {!search.workspaceId && (
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-body">
                 {m.admin_enter_a_workspace_id_in_the_filter_below()}
               </p>
             )}
@@ -227,7 +227,7 @@ function Credits() {
           </fieldset>
         </Panel>
       )}
-      <p role="status" className="min-h-5 text-sm">
+      <p role="status" className="min-h-5 text-body">
         {message}
       </p>
       <DataTable

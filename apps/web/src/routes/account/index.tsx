@@ -31,7 +31,7 @@ function AccountPage() {
   const { user } = account
   return (
     <main className="mx-auto grid max-w-2xl gap-6 px-4 py-12">
-      <h1 className="font-semibold text-3xl">{ACCOUNT_COPY.heading}</h1>
+      <h1 className="font-semibold text-display">{ACCOUNT_COPY.heading}</h1>
       <ProfileSection user={user} />
       <PreferencesSection user={user} locales={account.locales} />
       <EmailVerificationSection user={user} callbackError={error} />

@@ -104,7 +104,7 @@
 
 依赖：3–9 全部合并（`separate-landing-homepage` 的首页可同批验收）。
 
-- [ ] 10.1 【Claude】确认 `check-type-roles` 允许名单为空、`check-ui.allow.local.json` 中本 change 触及文件无待替换条目、`visual-rules.spec.ts` 不再有 `fixme`。验证：三项检查结果写入 PR
+- [x] 10.1 【Claude】确认 `check-type-roles` 允许名单为空、`check-ui.allow.local.json` 中本 change 触及文件无待替换条目、`visual-rules.spec.ts` 不再有 `fixme`。验证：三项检查结果写入 PR
 - [ ] 10.2 【Codex】在 main 本地生产预览上按 2.1 同一方法复测 Lighthouse 与密度指标。验证：各页 LCP 中位数不高于 2.1 基线的 110%，CLS 中位数 < 0.1；`homeScriptGzipBudget` 检查通过；`check-critical-css.mjs` 四个主题组合通过；对照表存入 `EVIDENCE_DIR`
 - [ ] 10.3 【Codex】数据库不可达时（本地停 PG）两站营销页与工具页完整显示；禁用 JavaScript 时页头导航面板可展开。验证：记录存入 `EVIDENCE_DIR`
 - [ ] 10.4 【用户】审阅 10.1–10.3 证据与关键页面截图，确认上线。验证：使用者在会话中确认

@@ -45,7 +45,7 @@ export function ConversationList({ slug, page }: { slug: string; page: Conversat
   return (
     <HydratedControls>
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold">{m.ai_chat_list_title()}</h2>
+        <h2 className="text-display font-semibold">{m.ai_chat_list_title()}</h2>
         <Button disabled={pending || page.readOnly} onClick={() => void create()}>
           {m.ai_chat_new_chat()}
         </Button>
@@ -158,7 +158,7 @@ function ConversationRow({
       </Link>
       {item.subjectLabel ? (
         <span
-          className="rounded-full border px-2 py-0.5 text-muted-foreground text-xs"
+          className="rounded-full border px-2 py-0.5 text-muted-foreground text-caption"
           data-testid="conversation-subject"
         >
           {item.subjectLabel}

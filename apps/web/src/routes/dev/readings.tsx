@@ -105,9 +105,9 @@ function ReadingsDemoPage() {
   }))
   return (
     <MarketingShell>
-      <div className="mx-auto flex max-w-[1120px] flex-col gap-8 px-4 pt-10 pb-16 sm:px-6">
+      <div className="mx-auto flex max-w-280 flex-col gap-8 px-4 pt-10 pb-16 sm:px-6">
         <Disclaimer />
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(300px,100%),1fr))] gap-5">
+        <div className="grid gap-5 md:grid-cols-2">
           <div className="rounded-xl border border-line bg-surface p-6 text-ink-muted">
             reading-optin slot
           </div>
