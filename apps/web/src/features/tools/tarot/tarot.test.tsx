@@ -120,7 +120,7 @@ describe('TarotSpreadPage', () => {
     )
     expect(links).toEqual([
       ['/tarot/cards', 'tarot card meanings'],
-      ['/tarot/daily', 'card of the day'],
+      ['/tarot/daily', 'tarot card of the day'],
       ['/tarot/yes-or-no', 'yes or no tarot'],
       ['/tarot/celtic-cross', 'Celtic Cross tarot'],
     ])

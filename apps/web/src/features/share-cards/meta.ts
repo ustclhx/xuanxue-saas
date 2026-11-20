@@ -73,8 +73,9 @@ export function buildShareCardMeta<T>(input: {
     title: page.title,
     description: page.description,
     meta: [
-      // 分享页与卡片都不进入搜索索引；卡片地址另由路由响应头 X-Robots-Tag 声明。
-      { name: 'robots', content: 'noindex' },
+      // 分享页与卡片都不进入搜索索引；分享页仍跟随页内链接（openspec seo-fix-tdk-links 决策 2），
+      // 卡片地址是图片，另由路由响应头 X-Robots-Tag 声明。
+      { name: 'robots', content: 'noindex, follow' },
       { name: 'description', content: page.description },
       { property: 'og:type', content: 'website' },
       { property: 'og:site_name', content: input.siteName },

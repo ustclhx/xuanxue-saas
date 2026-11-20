@@ -25,6 +25,9 @@ export function LandingHero({ toolHref, art }: { toolHref: string; art?: ReactNo
             <a
               href={toolHref}
               data-landing-cta
+              // 首屏唯一主按钮是转化入口（docs/seo-internal-linking.md §3）：不计入正文内链与锚文本统计
+              // （openspec seo-fix-tdk-links 决策 5）
+              data-link-zone="action"
               className="inline-flex min-h-12 items-center justify-center whitespace-nowrap rounded-full bg-brand px-7 font-medium text-body text-on-brand no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3"
             >
               {m.landing_cta()}

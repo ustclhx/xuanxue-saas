@@ -201,7 +201,7 @@ describe('share page loader and metadata', () => {
     const d = deps()
     const { response, view } = await documentRequest(d.deps, 'page-test', token)
     expect(response?.headers.get('cache-control')).toBe('public, s-maxage=300')
-    expect(response?.headers.get('x-robots-tag')).toBe('noindex')
+    expect(response?.headers.get('x-robots-tag')).toBe('noindex, follow')
     // 文档请求只查找一次：限流配额与 resolve 都不因页面 loader 重复消耗。
     expect(d.limit).toHaveBeenCalledTimes(1)
     expect(resolve).toHaveBeenCalledTimes(1)
@@ -216,7 +216,7 @@ describe('share page loader and metadata', () => {
     })
     expect(view.meta).toEqual(
       expect.arrayContaining([
-        { name: 'robots', content: 'noindex' },
+        { name: 'robots', content: 'noindex, follow' },
         { property: 'og:image', content: image },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
@@ -251,7 +251,7 @@ describe('share page loader and metadata', () => {
     current.request = new Request('https://app.example/s/page-test/soon-again')
     const nearly = await documentRequest(deps({ now: new Date() }).deps, 'page-test', soon)
     expect(nearly.view).toEqual({ status: 'expired' })
-    expect(nearly.response?.headers.get('x-robots-tag')).toBe('noindex')
+    expect(nearly.response?.headers.get('x-robots-tag')).toBe('noindex, follow')
     expect(nearly.response?.status).toBe(404)
   })
 
@@ -276,7 +276,7 @@ describe('share page loader and metadata', () => {
       const { response, view } = await documentRequest(d.deps, type, value)
       expect(view).toEqual({ status })
       expect(response?.status).toBe(404)
-      expect(response?.headers.get('x-robots-tag')).toBe('noindex')
+      expect(response?.headers.get('x-robots-tag')).toBe('noindex, follow')
     }
     d.limit.mockResolvedValueOnce({ success: false })
     current.request = new Request('https://app.example/s/page-test/limited')

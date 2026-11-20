@@ -1,6 +1,6 @@
 {
   "$schema": "https://inlang.com/schema/inlang-message-format",
-  "landing_h1": "Know your numbers",
+  "landing_h1": "Numerology & Tarot, Calculated Step by Step",
   "landing_subtitle": "Life path, numerology and tarot, calculated by traditional rules with every step shown.",
   "landing_cta": "Find your life path number",
   "landing_sample_link": "See a sample reading ↓",
@@ -21,7 +21,7 @@
   "landing_tool_glyph_tarot": "22",
   "landing_tool_glyph_life_path": "1",
   "landing_tool_glyph_numerology_calculator": "9",
-  "landing_more_tool_link": "Life path compatibility for two birth dates →",
+  "landing_more_tool_link": "Life path compatibility →",
   "landing_sample_outline_title": "What's inside",
   "landing_sample_number_label": "Life Path {value}",
   "landing_sample_life_path_label": "Life Path",

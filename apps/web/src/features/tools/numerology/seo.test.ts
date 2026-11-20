@@ -98,7 +98,9 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     expect(pages.find((page) => page.path === '/life-path-number')?.title).toBe(
       'Life Path Number Calculator: Free, With Every Step Shown',
     )
-    expect(pages.find((page) => page.path === '/')?.title).toMatch(/^Arcanumber — /)
+    expect(pages.find((page) => page.path === '/')?.title).toBe(
+      'Numerology & Tarot Calculators, Free | Arcanumber',
+    )
     // 东方站语言前缀下没有数字命理页
     expect(isPrerenderedPath('/ko/numerology-calculator', templateConfig.i18n.locales)).toBe(false)
   })

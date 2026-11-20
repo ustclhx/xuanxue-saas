@@ -7,7 +7,7 @@ const { locales, defaultLocale } = templateConfig.i18n
 // 首页为品牌标题（站名在前、不再追加站名）；内页为「页面标题 + 分隔符 + 站名」
 // （openspec separate-landing-homepage design.md D3、D3a）
 const homeTitles: Record<(typeof locales)[number], string> = {
-  en: 'Arcanumber — Free Life Path Number Calculator, Numerology & Tarot',
+  en: 'Numerology & Tarot Calculators, Free | Arcanumber',
   'zh-Hant': '干支日｜免費八字排盤、紫微斗數與塔羅',
   'zh-Hans': '干支日｜免费八字排盘、紫微斗数与塔罗',
   ko: '간지데이 | 무료 만세력·사주·타로',

@@ -19,7 +19,7 @@ export function sharePageHeaders(result: ShareLookup, now = new Date()) {
     result.status === 'ok'
       ? Math.min(SHARE_PAGE_MAX_AGE, remainingSeconds(result.expiresAt, now))
       : SHARE_PAGE_MAX_AGE
-  return { 'cache-control': `public, s-maxage=${seconds}`, 'x-robots-tag': 'noindex' }
+  return { 'cache-control': `public, s-maxage=${seconds}`, 'x-robots-tag': 'noindex, follow' }
 }
 
 /**
@@ -49,7 +49,7 @@ export async function handleSharePageRequest<N>({
         'content-type': 'text/plain; charset=utf-8',
         'cache-control': 'no-store',
         'retry-after': '60',
-        'x-robots-tag': 'noindex',
+        'x-robots-tag': 'noindex, follow',
       },
     })
   documentLookups.set(request, result)

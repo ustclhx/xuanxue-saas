@@ -33,9 +33,9 @@ export interface EnglishSection {
 export const EAST_ENGLISH_COPY = {
   title: 'Bazi, Zi Wei Dou Shu, Saju and Tarot in English',
   description:
-    'An English guide to Ganjiday: free Four Pillars (Bazi), Zi Wei Dou Shu, Korean Saju and tarot tools in Traditional Chinese, Simplified Chinese and Korean, and where to start.',
+    'An English guide to Ganjiday: free Bazi Four Pillars, Zi Wei Dou Shu, Korean Saju and tarot tools in Chinese and Korean, and which page to open first.',
   eyebrow: 'Ganjiday · 干支日 · English guide',
-  heading: 'Chinese and Korean birth charts, explained in English',
+  heading: 'Bazi, Zi Wei and Saju birth charts, explained in English',
   lead: [
     'Ganjiday (干支日, “stem-and-branch day”) is a free set of tools for the traditional East Asian calendar arts: Bazi Four Pillars, Zi Wei Dou Shu, Korean Saju and tarot. The calculators themselves are written in Traditional Chinese, Simplified Chinese and Korean, the languages these systems are practised in.',
     'This page is a short English introduction: what each system looks at, how our charts are calculated, and which page to open first. No account or email address is needed for the free tools, and charts are calculated directly in your browser.',

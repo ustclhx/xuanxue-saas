@@ -66,7 +66,7 @@ export function LandingPage({
   )
 }
 
-/** 精选工具入口：整张卡片是一个链接，字形用站点强调色并对读屏隐藏 */
+/** 精选工具入口：整张卡片可点（链接只包住工具名），字形用站点强调色并对读屏隐藏 */
 function FeaturedTools({ tools, more }: { tools: HubTool[]; more: { href: string } | null }) {
   if (tools.length === 0) return null
   return (
@@ -84,26 +84,36 @@ function FeaturedTools({ tools, more }: { tools: HubTool[]; more: { href: string
         }
       >
         {tools.map((tool) => (
-          <li key={tool.id} className="flex">
-            <a
-              href={tool.href}
-              data-tool={tool.id}
-              className="flex w-full gap-3 rounded-object bg-surface px-6 py-5 text-ink no-underline transition-colors hover:bg-surface-2 sm:flex-col sm:gap-2.5 sm:p-7"
+          <li
+            key={tool.id}
+            className="relative flex w-full gap-3 rounded-object bg-surface px-6 py-5 text-ink transition-colors hover:bg-surface-2 sm:flex-col sm:gap-2.5 sm:p-7"
+          >
+            <span
+              aria-hidden="true"
+              className="w-11 shrink-0 font-heading text-mark text-title sm:w-auto"
             >
+              {tool.glyph}
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-2.5">
+              {/* 链接只包住工具名（锚文本 = 目标页主词，openspec seo-fix-tdk-links 决策 5），
+                  伪元素铺满卡片：整张卡仍可点，焦点环画在卡片外沿 */}
+              <h3 className="m-0 font-heading text-ink text-subtitle">
+                <a
+                  href={tool.href}
+                  data-tool={tool.id}
+                  className="text-ink no-underline after:absolute after:inset-0 after:rounded-object focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ring focus-visible:after:outline-offset-3"
+                >
+                  {tool.title}
+                </a>
+              </h3>
+              <p className="m-0 text-body text-ink-muted">{tool.summary}</p>
               <span
                 aria-hidden="true"
-                className="w-11 shrink-0 font-heading text-mark text-title sm:w-auto"
+                className="mt-auto text-body text-brand-ink underline underline-offset-4"
               >
-                {tool.glyph}
+                {tool.action}
               </span>
-              <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-2.5">
-                <h3 className="m-0 font-heading text-ink text-subtitle">{tool.title}</h3>
-                <p className="m-0 text-body text-ink-muted">{tool.summary}</p>
-                <span className="mt-auto text-body text-brand-ink underline underline-offset-4">
-                  {tool.action}
-                </span>
-              </div>
-            </a>
+            </div>
           </li>
         ))}
       </ul>
