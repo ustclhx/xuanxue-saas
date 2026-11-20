@@ -1,80 +1,61 @@
 import { renderToString } from 'react-dom/server'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { baseLocale, locales, overwriteGetLocale } from '../../paraglide/runtime.js'
-import { templateConfig } from '../../server/template-config.ts'
+import { describe, expect, it, vi } from 'vitest'
 
 const route = vi.hoisted(() => ({ pathname: '/' }))
-vi.mock('@tanstack/react-router', () => ({ useLocation: () => route }))
-vi.mock('./preference.functions.ts', () => ({ saveLanguagePreference: vi.fn() }))
+vi.mock('@tanstack/react-router', () => ({
+  useLocation: ({ select }: { select: (location: { pathname: string }) => unknown }) =>
+    select(route),
+}))
 
-import { LanguageSuggestion } from './language-controls.tsx'
-import { siteSuggestableLocales } from './site-suggestion.ts'
-import { localePrefix } from './url-prefix.ts'
+import { LocalePrompt } from './locale-prompt.tsx'
+import { matchBrowserLocale, promptDismissedKey, promptLocales } from './prompt-match.ts'
 
-const preview = { id: 'west', known: false } as const
-const candidates = locales.filter((locale) => locale !== baseLocale)
-const banners = (html: string) =>
-  html.match(/<aside\b[^>]*data-locale-suggestion-for="[^"]+"[^>]*>/g) ?? []
-
-afterEach(() => {
-  route.pathname = '/'
-  overwriteGetLocale(() => baseLocale)
-})
-
-describe('语言建议浮层（首帧即在最终位置）', () => {
-  it.skipIf(candidates.length === 0)(
-    '默认语言营销页服务端输出每个候选语言的隐藏浮层与显示规则，由首帧前脚本选择显示哪一条',
-    () => {
-      for (const pathname of ['/', '/pricing']) {
-        route.pathname = pathname
-        const html = renderToString(<LanguageSuggestion site={preview} />)
-        expect(banners(html)).toHaveLength(candidates.length)
-        for (const banner of banners(html)) {
-          expect(banner).toMatch(/class="hidden /)
-          // 水合标记只在客户端 effect 中加上，服务端输出不带
-          expect(banner).not.toContain('data-hydrated')
-        }
-        expect(html).toContain(`[data-locale-suggestion-for="${candidates[0]}"]{display:flex}`)
-        // 「切换」是指向目标语言地址的真实链接（水合前、无 JS 也可用），两个按钮带委托监听识别的属性
-        const target = `${localePrefix(candidates[0] ?? '')}${pathname === '/' ? '' : pathname}`
-        expect(html).toMatch(
-          new RegExp(`<a[^>]*href="${target}"[^>]*data-locale-suggestion-action="switch"`),
-        )
-        expect(html).toMatch(/<button[^>]*data-locale-suggestion-action="dismiss"/)
-        // 横幅文案不进入搜索摘要
-        expect(html.match(/<div data-nosnippet=""/g)).toHaveLength(candidates.length)
-      }
-    },
-  )
-
-  it('已登记站点只输出本站语言的浮层（两站分开经营），与首帧脚本取同一个可建议语言', () => {
-    route.pathname = '/pricing'
-    for (const id of ['west', 'east'] as const) {
-      const own = templateConfig.sites[id].locales.filter((locale) => locale !== baseLocale)
-      const html = renderToString(<LanguageSuggestion site={{ id, known: true }} />)
-      expect(banners(html)).toHaveLength(own.length)
-      expect(siteSuggestableLocales({ id, known: true }, '/pricing')).toEqual(
-        templateConfig.sites[id].locales,
-      )
+/**
+ * 语言切换提示（使用者 2026-11-20 网址规则）：不自动跳转、不进入 SSR HTML，只在客户端按浏览器语言提示。
+ */
+describe('语言切换提示', () => {
+  it('服务端渲染不输出提示（爬虫与首帧 HTML 中没有提示）', () => {
+    for (const pathname of ['/', '/zh-hant', '/pricing']) {
+      route.pathname = pathname
+      expect(renderToString(<LocalePrompt />)).toBe('')
     }
-    // 未登记 Host 沿用模板默认（全部非默认语言），带语言前缀的页面不建议
-    expect(siteSuggestableLocales(preview, '/pricing')).toBeUndefined()
-    expect(siteSuggestableLocales(preview, localePrefix(baseLocale))).toEqual([])
   })
 
-  it('非营销页、带语言前缀的页面与非默认语言页不输出浮层', () => {
-    route.pathname = '/login'
-    expect(banners(renderToString(<LanguageSuggestion site={preview} />))).toHaveLength(0)
-    // 东方站英文入口页 `/en`：语言是默认语言但带前缀
-    route.pathname = localePrefix(baseLocale)
-    expect(
-      banners(renderToString(<LanguageSuggestion site={{ id: 'east', known: true }} />)),
-    ).toHaveLength(0)
-    const other = candidates[0]
-    if (other) {
-      overwriteGetLocale(() => other)
-      route.pathname = localePrefix(other)
-      expect(banners(renderToString(<LanguageSuggestion site={preview} />))).toHaveLength(0)
+  it('按浏览器偏好匹配配置语言：完整标签、书写系统、主语言；pt-PT 不匹配 pt-BR', () => {
+    const locales = ['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja', 'es', 'pt-BR'] as const
+    expect(matchBrowserLocale(['zh-TW'], locales)).toBe('zh-Hant')
+    expect(matchBrowserLocale(['zh-CN'], locales)).toBe('zh-Hans')
+    expect(matchBrowserLocale(['ko-KR'], locales)).toBe('ko')
+    expect(matchBrowserLocale(['ja-JP'], locales)).toBe('ja')
+    expect(matchBrowserLocale(['es-MX'], locales)).toBe('es')
+    expect(matchBrowserLocale(['pt'], locales)).toBe('pt-BR')
+    expect(matchBrowserLocale(['pt-PT'], locales)).toBeUndefined()
+    expect(matchBrowserLocale(['fr', 'ko'], locales)).toBe('ko')
+  })
+
+  it('只提示当前页确有的语言版本、不是当前语言；关闭过不再提示；不带地区的 zh 给简繁两个候选', () => {
+    const locales = ['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja'] as const
+    const base = {
+      locales,
+      offerable: ['zh-Hant', 'zh-Hans', 'ko', 'en'],
+      current: 'en',
+      dismissed: false,
     }
+    expect(promptLocales({ ...base, languages: ['zh-TW', 'en'] })).toEqual(['zh-Hant'])
+    // 最想要的语言就是当前语言：不提示后面的偏好
+    expect(promptLocales({ ...base, languages: ['en-US', 'ko'] })).toEqual([])
+    // 当前页没有该语言版本（或未发布）：不提示
+    expect(promptLocales({ ...base, languages: ['ja-JP'] })).toEqual([])
+    expect(promptLocales({ ...base, offerable: ['en', 'zh-Hant'], languages: ['ko'] })).toEqual([])
+    expect(promptLocales({ ...base, languages: ['ko'], dismissed: true })).toEqual([])
+    expect(promptLocales({ ...base, languages: ['zh', 'en'] })).toEqual(['zh-Hans', 'zh-Hant'])
+    // 当前页已是中文：不再给中文候选
+    expect(promptLocales({ ...base, current: 'zh-Hant', languages: ['zh'] })).toEqual([])
+    // 东方站繁中页面，英文浏览器：英文版本可提示
+    expect(promptLocales({ ...base, current: 'zh-Hant', languages: ['en-GB'] })).toEqual(['en'])
+  })
+
+  it('关闭记录按站点分开保存', () => {
+    expect(promptDismissedKey('east')).not.toBe(promptDismissedKey('west'))
   })
 })

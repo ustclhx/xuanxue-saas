@@ -6,10 +6,7 @@ import { getAnnouncement } from '../features/admin/settings-announcement.functio
 import { AnnouncementBanner } from '../features/admin/settings-announcement-banner.tsx'
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
-import { LanguageSuggestion } from '../features/i18n/language-controls.tsx'
-import { LOCALE_COOKIE_MAX_AGE, PREFERENCE_COOKIE } from '../features/i18n/preference.ts'
-import { siteSuggestableLocales } from '../features/i18n/site-suggestion.ts'
-import { localeSuggestionScript } from '../features/i18n/suggestion.ts'
+import { LocalePromptLoader } from '../features/i18n/locale-prompt-loader.tsx'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
 import { contentLinks } from '../features/marketing/content-links.ts'
 import { ContentHead, ContentPage, inlineLinks } from '../features/marketing/content-page.tsx'
@@ -29,14 +26,7 @@ import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.
 import { RootDocument } from '../features/theme/root-document.tsx'
 import { SiteSettings } from '../features/theme/site-settings.tsx'
 import { m } from '../paraglide/messages.js'
-import {
-  baseLocale,
-  cookieName,
-  getLocale,
-  type Locale,
-  locales,
-  localizeHref,
-} from '../paraglide/runtime.js'
+import { getLocale, type Locale, localizeHref } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 import appCss from '../styles/app.css?url'
 
@@ -76,25 +66,7 @@ export const Route = createRootRoute({
       { children: siteThemeScript() },
       { children: themeInitScript() },
       { children: siteFontScript(loaderData?.site.id ?? 'west', getLocale()) },
-      // 语言建议同样在首帧前决定，横幅随首帧出现在最终位置，不在水合后把整页下推（suggestion.ts）
-      ...(templateConfig.i18n.enabled
-        ? [
-            {
-              children: localeSuggestionScript({
-                baseLocale,
-                locales,
-                preferenceCookie: PREFERENCE_COOKIE,
-                localeCookie: cookieName,
-                cookieMaxAge: LOCALE_COOKIE_MAX_AGE,
-                // 与 LanguageSuggestion 同值：已登记站点只建议本站语言，带语言前缀的页面不建议
-                suggestableLocales: siteSuggestableLocales(
-                  loaderData?.site ?? { id: 'west', known: false },
-                  matches.at(-1)?.pathname ?? '/',
-                ),
-              }),
-            },
-          ]
-        : []),
+      // 语言切换提示只在客户端按浏览器语言出现（features/i18n/locale-prompt.tsx），不在首帧脚本与 SSR HTML 中
       ...analyticsHeadScripts(
         matches.at(-1)?.pathname ?? '/',
         loaderData?.site ?? { id: 'west', known: false },
@@ -187,7 +159,7 @@ function RootComponent() {
         <ProductAnalytics />
         <ImpersonationBanner viewer={impersonation} />
         <AnnouncementBanner initial={announcement} />
-        {templateConfig.i18n.enabled && !hasInlineControls && <LanguageSuggestion site={site} />}
+        {templateConfig.i18n.enabled && !hasInlineControls && <LocalePromptLoader />}
         <Outlet />
         {/* 主题切换不再浮动（refresh-visual-system-warm D4）：RootDocument 的浮动控件始终关闭。
             没有站点页脚的页面（含 topbar 工作台）把设置行放在页面末尾，手机端底部留 80px 给右下悬浮按钮；

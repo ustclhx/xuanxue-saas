@@ -6,7 +6,7 @@ import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../site/site.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { homePageCopy } from './home-copy.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
@@ -139,10 +139,12 @@ export function alternateLinks(
     links.push({
       rel: 'alternate',
       hrefLang: EAST_ENGLISH_LOCALE,
-      href: absoluteUrl(origin, EAST_ENGLISH_PATH),
+      href: absoluteUrl(origin, EAST_ENGLISH_URL),
     })
   const { defaultLocale: siteDefault, locales: siteLocales } = templateConfig.sites[site]
-  const fallback = [siteDefault, ...siteLocales]
+  // 两站的默认语言都是英语（使用者 2026-11-20）：东方站有英文版本（目前只有首页 `/`）时 x-default 指向它，
+  // 没有英文版本的页面仍取东方站第一个语言（繁体中文）
+  const fallback = [siteDefault ?? (site === 'east' ? EAST_ENGLISH_LOCALE : null), ...siteLocales]
     .map((language) => links.find((link) => link.hrefLang === language))
     .find((link) => link !== undefined)
   return fallback

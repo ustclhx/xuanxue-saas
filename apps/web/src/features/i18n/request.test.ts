@@ -131,18 +131,19 @@ describe.runIf(templateConfig.i18n.enabled)('应用区按本站语言回退', ()
     return response.text()
   }
 
-  it('东方站未保存语言时按浏览器语言选东方站语言，都不匹配时用繁体中文', async () => {
-    expect(await localeOf(`${east}/app`, { 'accept-language': 'ko-KR,ko;q=0.9' })).toBe('ko')
-    expect(await localeOf(`${east}/app`, { 'accept-language': 'zh-CN' })).toBe('zh-Hans')
+  // 使用者 2026-11-20：不按浏览器语言或偏好 Cookie 选语言；没有账号语言时固定为东方站第一个语言
+  it('东方站未保存语言时固定用繁体中文，不看浏览器语言', async () => {
+    expect(await localeOf(`${east}/app`, { 'accept-language': 'ko-KR,ko;q=0.9' })).toBe('zh-Hant')
+    expect(await localeOf(`${east}/app`, { 'accept-language': 'zh-CN' })).toBe('zh-Hant')
     expect(await localeOf(`${east}/app`, { 'accept-language': 'en-US' })).toBe('zh-Hant')
     expect(await localeOf(`${east}/app`, {})).toBe('zh-Hant')
   })
 
-  it('东方站保存了另一站语言时不显示英文，东方站内的手动选择优先', async () => {
+  it('东方站保存了另一站语言时不显示英文，回退到繁体中文；本站账号语言照用', async () => {
     expect(await localeOf(`${east}/app`, { 'x-locale': 'en' })).toBe('zh-Hant')
     expect(
       await localeOf(`${east}/app`, { 'x-locale': 'en', cookie: 'locale-preference=ko' }),
-    ).toBe('ko')
+    ).toBe('zh-Hant')
     expect(await localeOf(`${east}/app`, { 'x-locale': 'zh-Hans' })).toBe('zh-Hans')
   })
 
@@ -175,11 +176,11 @@ describe.runIf(templateConfig.i18n.enabled)('未登录的应用区不沿用外�
     expect(result.setCookie).toMatch(/^PARAGLIDE_LOCALE=en;/)
   })
 
-  it('东方站残留 en Cookie 按东方站语言回退；本站语言 Cookie 与无 Cookie 不改动', async () => {
+  it('东方站残留 en Cookie 回退到繁体中文（不看浏览器语言）；本站语言 Cookie 与无 Cookie 不改动', async () => {
     const east1 = await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=en', 'ko-KR')
     expect(east1).toEqual({
-      locale: 'ko',
-      setCookie: expect.stringMatching(/^PARAGLIDE_LOCALE=ko;/),
+      locale: 'zh-Hant',
+      setCookie: expect.stringMatching(/^PARAGLIDE_LOCALE=zh-Hant;/),
     })
     expect(await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=zh-Hans')).toEqual({
       locale: 'zh-Hans',

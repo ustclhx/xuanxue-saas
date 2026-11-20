@@ -36,11 +36,23 @@ export function accountSiteOf(request: Pick<Request, 'url'>, config: SitesConfig
 }
 
 /**
- * 东方站的英文入口页（openspec product-improve-ai-content-20261030 D5，specs/multi-site「东方站英文入口页」）：
- * en 归西方站，东方站只有 `/en` 这一页英文介绍，其他 `/en/*` 返回 404。
+ * 东方站的英文首页（openspec product-improve-ai-content-20261030 D5；使用者 2026-11-20 网址规则）：
+ * 两站的 `/` 都是英文首页、不跳转。东方站完整英文页面上线前，`/` 显示原英文入口页的内容（过渡），
+ * 旧地址 `/en` 301 到 `/`，其他 `/en/*` 返回 404。
+ * - `EAST_ENGLISH_URL`：对外地址（canonical、hreflang、站点地图、链接）；
+ * - `EAST_ENGLISH_PATH`：路由器内的路由路径与预渲染文件（`/en` → en.html）。东方站 `/` 在路由改写中映射到它
+ *   （features/i18n/routing.ts），静态页按它读取（static-pages.ts）。
  */
 export const EAST_ENGLISH_LOCALE = 'en'
 export const EAST_ENGLISH_PATH = '/en'
+export const EAST_ENGLISH_URL = '/'
+
+/** 东方站英文首页的请求（对外地址 `/`）：只在已登记为东方站的主机上成立 */
+export function isEastEnglishHome(url: URL, config: SitesConfig): boolean {
+  if (url.pathname !== EAST_ENGLISH_URL) return false
+  const site = resolveSite(url.host, config)
+  return site.known && site.id === 'east'
+}
 
 /**
  * 站点导航（页头工具、定价链接）使用的语言：当前语言属于该站点时原样使用，否则取站点默认语言；

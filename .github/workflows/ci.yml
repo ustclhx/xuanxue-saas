@@ -109,6 +109,10 @@ jobs:
       # 不重复构建、不需要数据库；模式取 template.config.ts 的 seo.linking.mode（本项目未设置，为 report：只报告不失败）
       - name: Check internal link graph
         run: pnpm --filter @xuanxue/web check:links
+      # 多语言 SEO 验收（多语言 SEO 规范 ML-01～ML-10）：同一份构建产物，不同 Accept-Language 结果相同且不跳转、
+      # canonical 指向自身、hreflang 完整互指且只有一条 x-default、html lang 正确、无语言 Cookie、站点地图 = 可索引页面
+      - name: Check multilingual SEO rules
+        run: pnpm --filter @xuanxue/web check:i18n-seo
 
   # pnpm test 拆成两个 job：web 的 vitest 最慢，且它与 jobs 共享 jobs.lastCronAt 键而在同一库中串行；
   # 各用独立的临时 Postgres 后可以并行。两个 job 合起来仍是 turbo run test 的全部任务。

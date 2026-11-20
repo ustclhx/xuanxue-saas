@@ -4,7 +4,6 @@ import { templateConfig } from '../../server/template-config.ts'
 import { gateSiteRequest, notFoundPath, routeSite } from '../site/gate.ts'
 import { type SitesConfig, siteHasLocale, siteOfLocale } from '../site/site.ts'
 import { authLocaleRedirect } from './auth-locale.ts'
-import { eastHomeRedirect } from './east-home.ts'
 import {
   isLocaleLive,
   isLocaleReleased,
@@ -180,15 +179,6 @@ describe('站点守卫按发布状态拦截', () => {
 })
 
 describe('跳转目标只用已发布语言', () => {
-  it('东方站根路径：日语浏览器在 ja 未发布时 301 到繁体中文', () => {
-    const response = eastHomeRedirect(
-      new Request(`${EAST}/`, { headers: { 'accept-language': 'ja-JP,ja;q=0.9' } }),
-      config,
-    )
-    expect(response?.status).toBe(301)
-    expect(response?.headers.get('location')).toBe(`${EAST}/zh-hant`)
-  })
-
   it('认证页：西语浏览器在 es 未发布时不跳到 /es/login', () => {
     const request = new Request(`${WEST}/login`, {
       headers: { 'accept-language': 'es-MX,es;q=0.9' },
@@ -204,8 +194,12 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     expect(siteHasLocale('west', 'en', perSite)).toBe(true)
   })
 
-  it('东方站 en 未发布：现有英文入口页 /en 照常放行，其他 /en/* 在正式域名返回 404', () => {
-    expect(route(`${EAST}/en`, perSite)).toEqual(pass())
+  it('东方站 en 未发布：旧地址 /en 301 到英文首页 /，其他 /en/* 在正式域名返回 404', () => {
+    expect(route(`${EAST}/en`, perSite)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/`,
+    })
     expect(route(`${EAST}/en/tarot`, perSite)).toEqual(notFound)
     expect(route('http://east.localhost:3000/en/tarot', perSite)).toEqual(pass())
     // 西方站的 en 不受东方站状态影响：默认语言前缀仍 301 到无前缀地址
@@ -224,8 +218,9 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     expect(route(`${EAST}/en/tarot`, perSite, released)).toEqual(pass())
   })
 
-  it('现状（en 只属于西方站）：东方站 /en 入口页放行，/en/* 返回 404', () => {
-    expect(route(`${EAST}/en`)).toEqual(pass())
+  it('现状（en 只属于西方站）：东方站 /en 301 到 /（预渲染照常生成），/en/* 返回 404', () => {
+    expect(route(`${EAST}/en`)).toEqual({ kind: 'redirect', status: 301, location: `${EAST}/` })
+    expect(route(`${EAST}/en`, config, null)).toEqual(pass())
     expect(route(`${EAST}/en/pricing`)).toEqual(notFound)
   })
 })

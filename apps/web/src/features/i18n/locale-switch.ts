@@ -4,6 +4,7 @@ import { type Locale, locales, localizeUrl } from '../../paraglide/runtime.js'
 import { isAppAreaPath } from './app-area.ts'
 import { saveLanguagePreference } from './preference.functions.ts'
 import { rememberLocale } from './preference.ts'
+import { rememberPromptChoice } from './prompt-match.ts'
 import { switchLocalePath } from './switch-path.ts'
 
 /** 切换语言：保存账号语言、记住本设备选择，再整页导航到目标语言的同一页面 */
@@ -16,6 +17,8 @@ export function useLocaleSwitch() {
     try {
       await saveLanguagePreference({ data: next })
       rememberLocale(next)
+      // 手动选过语言后不再出现语言建议提示
+      rememberPromptChoice()
       // 完整导航让账号语言、SSR 与客户端同时刷新；营销页始终以目的 URL 为准。
       // 工具页各语言路径不同，先按注册表换成目标语言的页面，再加语言前缀
       if (isAppAreaPath(window.location.pathname)) window.location.assign(window.location.href)

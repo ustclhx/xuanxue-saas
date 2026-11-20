@@ -31,3 +31,17 @@
 #### Scenario: 日语没有对应页的繁中工具页
 - **WHEN** `ja` 已发布但没有「命盤查詢」对应页
 - **THEN** `/zh-hant/命盤查詢` 的 hreflang 不出现 `ja`
+
+### Requirement: hreflang 与 x-default（多语言 SEO 规范 ML-04、ML-05）
+每个可索引页面的 canonical SHALL 指向自身绝对地址。hreflang SHALL 只列该页实际存在的同站语言版本（含自身），双向互指、不跨域名，并且只有一条 x-default：页面有英文版本时 x-default 指向英文版本（东方站首页组为 `https://ganjiday.com/`），没有英文版本的东方站页面 x-default 暂指繁体中文同页。未翻译的页面默认不发布：在该语言前缀下返回 404、不进站点地图、不被链接。
+
+#### Scenario: 东方站繁中首页
+- **WHEN** 搜索引擎抓取 `https://ganjiday.com/zh-hant`
+- **THEN** hreflang 为 `en → https://ganjiday.com/`、`zh-Hant`、`zh-Hans`、`ko` 各自首页与 `x-default → https://ganjiday.com/`，canonical 为自身
+
+### Requirement: 多语言 SEO 验收检查
+构建后 SHALL 运行自动检查（`check:i18n-seo`，CI 的 build job）：不同 Accept-Language 访问 `/` 与各语言首页的响应相同且没有 Location；每个可索引页面 canonical 指向自身、hreflang 集合等于存在的语言版本、恰好一条 x-default、双向互指、不跨域名；`<html lang>` 等于页面语言；公开页面没有语言相关的 Set-Cookie、没有 `?lang=` 链接、服务端 HTML 中没有语言提示；站点地图 URL 集合等于可索引页面集合。任一项不满足时检查失败。
+
+#### Scenario: 引入按语言跳转
+- **WHEN** 有改动让东方站 `/` 按 Accept-Language 返回 302
+- **THEN** `check:i18n-seo` 报告 ML-02 违规并以非零状态退出

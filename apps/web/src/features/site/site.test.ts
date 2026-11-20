@@ -124,10 +124,16 @@ describe('语言归属站点', () => {
       expect(route(`${WEST}${path}`), path).toEqual({ kind: 'not-found' })
   })
 
-  it('东方站只有 /en 英文入口页，其他英语路径返回 404', () => {
-    expect(route(`${EAST}/en`)).toEqual(pass)
-    expect(route(`${EAST}/en/`)).toEqual(pass)
-    expect(route(`${EAST}/en?utm=x`)).toEqual(pass)
+  // 使用者 2026-11-20：东方站英文首页是 `/`，旧地址 `/en` 301 过去
+  it('东方站旧英文入口页 /en 301 到 /，其他英语路径返回 404', () => {
+    const toRoot = (search = '') => ({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/${search}`,
+    })
+    expect(route(`${EAST}/en`)).toEqual(toRoot())
+    expect(route(`${EAST}/en/`)).toEqual(toRoot())
+    expect(route(`${EAST}/en?utm=x`)).toEqual(toRoot('?utm=x'))
     for (const path of ['/en/pricing', '/en/faq', '/en/tarot', '/en/blog/welcome'])
       expect(route(`${EAST}${path}`), path).toEqual({ kind: 'not-found' })
   })
@@ -194,24 +200,28 @@ describe('语言归属站点', () => {
       'http://east.localhost:23330',
     )
     expect(route('http://west.localhost:23330/ko/manseryeok')).toEqual({ kind: 'not-found' })
-    expect(route('http://east.localhost:23330/en')).toEqual(pass)
+    expect(route('http://east.localhost:23330/en')).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: 'http://east.localhost:23330/',
+    })
   })
 })
 
 describe('东方站入口页与无前缀路径', () => {
-  it('根路径由守卫跳到语言首页：爬虫 301 到 /zh-hant，韩语浏览器 302 到 /ko；预渲染请求不跳转', async () => {
+  // 使用者 2026-11-20：两站 `/` 都是英文首页，不按浏览器语言跳转
+  it('根路径是英文首页：爬虫与韩语浏览器都直接 200，不跳转；预渲染请求同样不跳转', async () => {
     expect(route(`${EAST}/`)).toEqual(pass)
     const next = () => new Response('entry')
     const crawler = await gateSiteRequest(new Request(`${EAST}/`), config, next)
-    expect(crawler.status).toBe(301)
-    expect(crawler.headers.get('location')).toBe(`${EAST}/zh-hant`)
+    expect(crawler.status).toBe(200)
     const korean = await gateSiteRequest(
       new Request(`${EAST}/`, { headers: { 'accept-language': 'ko-KR,ko;q=0.9' } }),
       config,
       next,
     )
-    expect(korean.status).toBe(302)
-    expect(korean.headers.get('location')).toBe(`${EAST}/ko`)
+    expect(korean.status).toBe(200)
+    expect(await korean.text()).toBe('entry')
     const build = await gateSiteRequest(new Request('http://ganjiday.com/'), config, next, {
       canonicalize: false,
     })
@@ -322,7 +332,7 @@ describe('地址规范化（specs/seo「规范地址收敛」）', () => {
     const cases = [
       ['https://ganjiday.com/zh-hant/', `${EAST}/zh-hant`],
       ['https://ganjiday.com/zh-hant/?a=1', `${EAST}/zh-hant?a=1`],
-      ['http://ganjiday.com/', `${EAST}/zh-hant`],
+      ['http://ganjiday.com/', `${EAST}/`],
       ['http://ganjiday.com/pricing/?x=1', `${EAST}/zh-hant/pricing?x=1`],
       ['http://arcanumber.com/en/pricing/', `${WEST}/pricing`],
       [
@@ -467,23 +477,15 @@ describe('旧首页链接兼容', () => {
     }
   })
 
-  it('东方站 /?unlock= 按访客语言一次跳到工具页，不先跳语言首页', async () => {
-    const crawler = await gate(`${EAST}/?unlock=t`)
-    expect(crawler.status).toBe(301)
-    expect(crawler.headers.get('location')).toBe(
-      `${EAST}${encodeURI('/zh-hant/八字排盤')}?unlock=t`,
-    )
-    const korean = await gate(`${EAST}/?unlock=t`, {
-      headers: { 'accept-language': 'ko-KR,ko;q=0.9' },
-    })
-    expect(korean.status).toBe(301)
-    expect(korean.headers.get('location')).toBe(`${EAST}${encodeURI('/ko/만세력')}?unlock=t`)
-    // 目标随访客偏好变化，不让中间缓存复用
-    expect(korean.headers.get('cache-control')).toBe('private, no-store')
-    // 东方站 `/` 没有工具参数时仍跳语言首页
-    expect((await gate(`${EAST}/?utm_source=x`)).headers.get('location')).toBe(
-      `${EAST}/zh-hant?utm_source=x`,
-    )
+  // 使用者 2026-11-20：东方站 `/` 是英文首页（没有英文工具页），不按访客语言跳转
+  it('东方站 /?unlock= 与 /?utm_source= 都不跳转；语言首页的旧查询照旧跳到工具页', async () => {
+    for (const query of ['?unlock=t', '?utm_source=x'])
+      expect(
+        (await gate(`${EAST}/${query}`, { headers: { 'accept-language': 'ko-KR' } })).status,
+      ).toBe(200)
+    const ko = await gate(`${EAST}/ko?unlock=t`)
+    expect(ko.status).toBe(301)
+    expect(ko.headers.get('location')).toBe(`${EAST}${encodeURI('/ko/만세력')}?unlock=t`)
   })
 
   it('只处理语言首页的 GET / HEAD：内页、POST 与工具页自身不跳转', async () => {

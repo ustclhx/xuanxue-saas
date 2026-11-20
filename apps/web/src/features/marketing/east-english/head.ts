@@ -1,40 +1,34 @@
 import { templateConfig } from '../../../server/template-config.ts'
+import { releasedSiteLocales } from '../../i18n/rollout.ts'
 import { escapeXml } from '../../seo/crawlers.ts'
 import { absoluteUrl, localizedPath } from '../../seo/metadata.ts'
 import { seoSiteOrigin } from '../../seo/origins.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteNavLocale } from '../../site/site.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL } from '../../site/site.ts'
 import { EAST_ENGLISH_COPY as copy } from './content.ts'
 
 /**
- * 东方站英文入口页的 head 与站点地图（specs/seo「多语言关联」场景「东方站英文入口页」）：
+ * 东方站英文首页的 head 与站点地图（specs/seo「多语言关联」；使用者 2026-11-20 网址规则）：
  * en 归西方站，通用的 pageHead 会把 canonical 指向西方站，因此这里按东方站 origin 单独输出。
- * hreflang 与东方站三种语言首页互指，x-default 为东方站第一个语言（繁体中文）的首页，与各语言首页一致；
- * 不指向会跳转的根路径（openspec fix-seo-canonical-indexing design.md 决策 5），不出现西方站地址。
+ * 对外地址为东方站 `/`（不跳转）；hreflang 与东方站三种语言首页互指，x-default 为 `/`（英文首页）；
+ * 不出现西方站地址。
  */
 
 export const EAST_ENGLISH_OG_IMAGE = '/og/east/en.png'
 
 export function eastEnglishUrl(): string {
-  return absoluteUrl(seoSiteOrigin('east'), EAST_ENGLISH_PATH)
+  return absoluteUrl(seoSiteOrigin('east'), EAST_ENGLISH_URL)
 }
 
 export function eastEnglishAlternates() {
   const origin = seoSiteOrigin('east')
   return [
     { rel: 'alternate', hrefLang: EAST_ENGLISH_LOCALE, href: eastEnglishUrl() },
-    ...templateConfig.sites.east.locales.map((locale) => ({
+    ...releasedSiteLocales('east', templateConfig).map((locale) => ({
       rel: 'alternate',
       hrefLang: locale as string,
       href: absoluteUrl(origin, localizedPath('/', locale)),
     })),
-    {
-      rel: 'alternate',
-      hrefLang: 'x-default',
-      href: absoluteUrl(
-        origin,
-        localizedPath('/', siteNavLocale('east', EAST_ENGLISH_LOCALE, templateConfig)),
-      ),
-    },
+    { rel: 'alternate', hrefLang: 'x-default', href: eastEnglishUrl() },
   ]
 }
 

@@ -1,6 +1,7 @@
 import {
   EAST_ENGLISH_LOCALE,
   EAST_ENGLISH_PATH,
+  EAST_ENGLISH_URL,
   resolveSite,
   type SitesConfig,
   siteNavLocale,
@@ -29,7 +30,11 @@ export function siteLocale(
   if (!config.i18n.enabled) return locale
   const site = resolveSite(url.host, config)
   if (!site.known) return locale
-  if (site.id === 'east' && locale === EAST_ENGLISH_LOCALE && url.pathname === EAST_ENGLISH_PATH)
+  if (
+    site.id === 'east' &&
+    locale === EAST_ENGLISH_LOCALE &&
+    (url.pathname === EAST_ENGLISH_URL || url.pathname === EAST_ENGLISH_PATH)
+  )
     return locale
   if (liveSiteLocales(site.id, url, config, release).includes(locale)) return locale
   if (!hasForeignPrefix(url, config, release) && !isAppAreaPath(url.pathname)) return locale

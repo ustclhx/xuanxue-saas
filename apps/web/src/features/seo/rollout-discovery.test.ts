@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
-import { eastHomeRedirect } from '../i18n/east-home.ts'
 import { LOCALE_RELEASE } from '../i18n/rollout.ts'
+import { eastEnglishAlternates } from '../marketing/east-english/head.ts'
 import { routeSite } from '../site/gate.ts'
 import { llmsTxt, robots, sitemap, sitemapIndex, sitemapLocales } from './crawlers.ts'
 import { alternateLinks } from './metadata.ts'
@@ -53,12 +53,13 @@ describe.runIf(templateConfig.i18n.enabled)('未发布语言不可被发现', ()
     expect(robots(EAST)).toContain('Disallow: /zh-hant/app')
   })
 
-  it('东方站根路径不跳到未发布语言；正式域名的前缀返回 404，本地主机放行', () => {
-    const response = eastHomeRedirect(
-      new Request(`${EAST}/`, { headers: { 'accept-language': 'ko-KR' } }),
-      templateConfig,
-    )
-    expect(response?.headers.get('location')).toBe(`${EAST}/zh-hant`)
+  it('正式域名的未发布语言前缀返回 404，本地主机放行；英文首页的 hreflang 不含未发布语言', () => {
+    expect(eastEnglishAlternates().map((link) => link.hrefLang)).toEqual([
+      'en',
+      'zh-Hant',
+      'zh-Hans',
+      'x-default',
+    ])
     expect(routeSite(new URL(`${EAST}/ko`), templateConfig)).toEqual({ kind: 'not-found' })
     expect(routeSite(new URL('http://east.localhost:3000/ko'), templateConfig)).toEqual({
       kind: 'pass',

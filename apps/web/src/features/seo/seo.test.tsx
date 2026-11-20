@@ -143,10 +143,13 @@ describe('公开页面 SEO（4.1–4.3）', () => {
           expect(head.links).toContainEqual({
             rel: 'alternate',
             hrefLang: 'x-default',
+            // 东方站首页的 x-default 为英文首页 `/`（使用者 2026-11-20）
             href: new URL(
               site === 'west'
                 ? `${seoSiteOrigin('west')}${localizedPath(page.path, 'en')}`
-                : `${seoSiteOrigin('east')}${localizedPath(page.path, 'zh-Hant')}`,
+                : page.path === '/'
+                  ? `${seoSiteOrigin('east')}/`
+                  : `${seoSiteOrigin('east')}${localizedPath(page.path, 'zh-Hant')}`,
             ).href,
           })
         }
@@ -546,8 +549,8 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
     `[만세력](https://ganjiday.com/ko${encodeURI('/만세력')})`,
     `https://ganjiday.com/zh-hans${encodeURI('/紫微斗数排盘')})`,
     'https://ganjiday.com/zh-hant/faq)',
-    // 东方站英文入口页（D5）
-    'https://ganjiday.com/en)',
+    // 东方站英文首页 `/`（使用者 2026-11-20；原英文入口页 /en）
+    '](https://ganjiday.com/)',
   ])
     expect(east).toContain(url)
   expect(east).toMatch(/\(https:\/\/ganjiday\.com\/zh-hant\/[^)]+\): .*塔羅/)

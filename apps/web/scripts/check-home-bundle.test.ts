@@ -523,7 +523,8 @@ describe('首页 head 对照', () => {
   // 首页快照的 canonical / hreflang / robots 取自改版前 main 的预渲染输出（redesign-home-chart-visuals 2.1），
   // 首页改版必须保持一致；JSON-LD 类型按 separate-landing-homepage design.md D3 改为品牌首页的
   // Organization + WebSite，工具的 WebApplication / BreadcrumbList / FAQPage 在主工具页
-  it('快照覆盖全部首页与主工具页，东方站 x-default 指向繁中页面', () => {
+  // 使用者 2026-11-20：两站默认语言都是英语，东方站首页的 en 与 x-default 都指向英文首页 `/`
+  it('快照覆盖全部首页与主工具页，东方站首页 x-default 指向英文首页 /', () => {
     const snapshot = readHomeHeadSnapshot()
     expect(Object.keys(snapshot).sort()).toEqual(
       [...HOME_PAGES, ...TOOL_PAGES].map((page) => page.id).sort(),
@@ -533,8 +534,10 @@ describe('首页 head 对照', () => {
       expect(snapshot[id]?.jsonLd, id).toEqual(['Organization', 'WebSite'])
       expect(snapshot[id]?.robots, id).toBeNull()
     }
-    for (const id of ['zh-hant', 'zh-hans', 'ko'])
-      expect(snapshot[id]?.hreflang['x-default'], id).toBe('/zh-hant')
+    for (const id of ['zh-hant', 'zh-hans', 'ko']) {
+      expect(snapshot[id]?.hreflang['x-default'], id).toBe('/')
+      expect(snapshot[id]?.hreflang.en, id).toBe('/')
+    }
     for (const { id } of TOOL_PAGES)
       expect(snapshot[id]?.jsonLd, id).toEqual(['BreadcrumbList', 'FAQPage', 'WebApplication'])
     expect(snapshot['tool-west']?.canonical).toBe('/life-path-number')

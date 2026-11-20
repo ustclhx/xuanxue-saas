@@ -20,20 +20,21 @@
 - **THEN** 301 重定向到西方站的 `/es/tarot`
 
 ### Requirement: 东方站入口页
-东方站根路径 `/` SHALL 跳转到某个东方站语言的首页，不再展示单独的语言选择页。东方站内的手动选择或浏览器语言指向繁体中文以外的已发布东方站语言（含 `ja`）时 SHALL 302 到该语言首页；其余情况（含不带 Accept-Language 的爬虫）SHALL 301 到繁体中文首页 `/zh-hant`。跳转目标 MUST 是不带结尾斜杠的规范地址，保留查询参数，响应 MUST NOT 被缓存为跨访客共享的结果。
+（使用者 2026-11-20 重定网址规则，取代此前「根路径按浏览器语言跳转」；多语言 SEO 规范 ML-01、ML-02）
+两站的根路径 `/` SHALL 都是英文首页、直接返回 200，MUST NOT 按 Accept-Language、Cookie 或 IP 跳转。其他语言各占小写语言前缀（`/zh-hant`、`/zh-hans`、`/ko`、`/ja`），地址不变、不合并。东方站完整英文页面上线前，`/` 显示原英文入口页的内容；旧地址 `/en` SHALL 301 到 `/`（保留查询参数），东方站其他 `/en/*` 返回 404。东方站英文页面放在根路径下（`/four-pillars…` 等，按关键词地图定），MUST NOT 放在 `/en/…` 下。
 
 #### Scenario: 韩语浏览器访问东方站根路径
-- **WHEN** 浏览器语言为 `ko-KR` 且没有手动选择的访客打开东方站 `/`
-- **THEN** 返回 302，跳转到 `/ko`
-
-#### Scenario: 日语浏览器访问东方站根路径
-- **WHEN** `ja` 已发布，浏览器语言为 `ja-JP` 且没有手动选择的访客打开东方站 `/`
-- **THEN** 返回 302，跳转到 `/ja`
+- **WHEN** 浏览器语言为 `ko-KR` 的访客打开东方站 `/`
+- **THEN** 返回 200 英文首页，不跳转；页面在客户端提示有韩语版本，访客点击后才进入 `/ko`
 
 #### Scenario: 爬虫访问东方站根路径
 - **WHEN** 不带 Accept-Language 与 Cookie 的请求访问 `https://ganjiday.com/`
-- **THEN** 返回 301，Location 为 `https://ganjiday.com/zh-hant`，该地址直接返回 200
+- **THEN** 返回 200，canonical 为 `https://ganjiday.com/`，响应与带任何 Accept-Language 时相同
 
-#### Scenario: 简体浏览器访问东方站根路径
-- **WHEN** 浏览器语言为 `zh-CN` 且没有手动选择的访客打开东方站 `/`
-- **THEN** 返回 302，跳转到 `/zh-hans`
+#### Scenario: 旧英文入口页地址
+- **WHEN** 访客打开 `https://ganjiday.com/en?utm_source=x`
+- **THEN** 返回 301，Location 为 `https://ganjiday.com/?utm_source=x`
+
+#### Scenario: 无前缀认证页
+- **WHEN** 访客打开东方站 `/login`（东方站英文认证页上线前）
+- **THEN** 固定 302 到 `/zh-hant/login`，与浏览器语言和 Cookie 无关

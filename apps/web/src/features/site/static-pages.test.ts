@@ -13,7 +13,8 @@ describe('双站静态 HTML 分流', () => {
     const english = new Request('http://localhost/en', {
       headers: { 'x-site-prerender': 'local-build' },
     })
-    expect(prerenderRequest(english, 'local-build')?.url).toBe('http://ganjiday.com/en')
+    // 东方站英文首页以 `/` 渲染并输出到 en.html（使用者 2026-11-20：对外地址为 `/`）
+    expect(prerenderRequest(english, 'local-build')?.url).toBe('http://ganjiday.com/')
   })
 
   it('两站根路径取各自的 index.html，内部资源地址不出现在响应 URL', async () => {
@@ -22,6 +23,9 @@ describe('双站静态 HTML 分流', () => {
     expect(fetchAsset.mock.calls[0]?.[0].url).toBe('https://arcanumber.com/index.html')
     await staticPageResponse(new Request('https://ganjiday.com/ko/?r=shared'), fetchAsset)
     expect(fetchAsset.mock.calls[1]?.[0].url).toBe('https://ganjiday.com/ko.html')
+    // 东方站 `/` 是英文首页（使用者 2026-11-20），读取预渲染的 en.html
+    await staticPageResponse(new Request('https://ganjiday.com/'), fetchAsset)
+    expect(fetchAsset.mock.calls[2]?.[0].url).toBe('https://ganjiday.com/en.html')
   })
 
   it('预览 Host、私有路径与缺失产物继续 SSR，分享查询带 noindex', async () => {

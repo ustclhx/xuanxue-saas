@@ -3,7 +3,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_COPY } from '../marketing/east-english/content.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
+import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import type { SeoPage } from './metadata.ts'
 import { absoluteUrl, alternateLinks, indexedPages, localizedPath, staticPage } from './metadata.ts'
@@ -191,7 +191,7 @@ export function llmsTxt(
       [
         `## ${LOCALE_NAMES[EAST_ENGLISH_LOCALE] ?? EAST_ENGLISH_LOCALE}`,
         '',
-        `- [${EAST_ENGLISH_COPY.title}](${absoluteUrl(origin, EAST_ENGLISH_PATH)}): ${EAST_ENGLISH_COPY.description}`,
+        `- [${EAST_ENGLISH_COPY.title}](${absoluteUrl(origin, EAST_ENGLISH_URL)}): ${EAST_ENGLISH_COPY.description}`,
       ].join('\n'),
     )
   const brand = config.sites[site].brand
