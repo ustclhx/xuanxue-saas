@@ -62,13 +62,12 @@ export function LocalePrompt() {
       })
       if (targets.length) setOffer({ targets, hrefs })
     }
-    const idle = window.requestIdleCallback
-    if (idle) {
-      const id = idle(decide, { timeout: 3000 })
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(decide, { timeout: 3000 })
       return () => window.cancelIdleCallback(id)
     }
-    const id = window.setTimeout(decide, 1)
-    return () => window.clearTimeout(id)
+    const id = setTimeout(decide, 1)
+    return () => clearTimeout(id)
   }, [pathname, siteId])
 
   useEffect(() => {

@@ -14,8 +14,11 @@ export function LocalePromptLoader() {
         if (!cancelled) setPrompt(() => module.LocalePrompt)
       })
     }
-    const idle = window.requestIdleCallback
-    const id = idle ? idle(load, { timeout: 3000 }) : window.setTimeout(load, 1)
+    // Safari 没有 requestIdleCallback：退回 setTimeout
+    const idle = 'requestIdleCallback' in window
+    const id = idle
+      ? window.requestIdleCallback(load, { timeout: 3000 })
+      : window.setTimeout(load, 1)
     return () => {
       cancelled = true
       if (idle) window.cancelIdleCallback(id)
