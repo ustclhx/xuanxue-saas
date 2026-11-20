@@ -26,7 +26,7 @@
   固定汇率价目表扩展；Stripe live 价格创建需使用者批准。
 - **AI 详批**：为 `ja` 新增四柱推命、紫微斗数、塔罗的日语提示词变体（日本术语：命式、通変星、蔵干、十二運星、天中殺），
   为 `es` 新增数字命理与塔罗变体；每个新组合在 `evals/readings` 补 ≥8 个样本并过既有门槛。未通过评测的组合在该语言隐藏解锁入口。
-- **邮件、法律页与合规表述**：邮件模板与法律页按语言提供（译文 + 母语审阅）；合规表述（依据传统方法、仅供参考、不预测未来、
+- **邮件、法律页与合规表述**：邮件模板与法律页按语言提供（译文 + 跨模型审阅）；合规表述（依据传统方法、仅供参考、不预测未来、
   不使用「娱乐」定位）按语言写进术语表。
 - **性能预算**：新首页纳入首页包检查与 head 快照；首页包预算不上调为默认（先做 Paraglide 按语言拆分的评估）；
   落地页 HTML 维持约 105KB 以内；日语页不内联日文网页字体的全部分片声明。
@@ -34,7 +34,7 @@
 ## Capabilities
 
 ### New Capabilities
-- `localized-content-quality`：新语言上线前的本地化质量门槛：相似度与模板重复的量化阈值、术语表、FAQ 与示例本地化、母语审阅抽检，
+- `localized-content-quality`：新语言上线前的本地化质量门槛：相似度与模板重复的量化阈值、术语表、FAQ 与示例本地化、跨模型审阅与自动门槛，
   以及语言的分期发布状态与「只有通过门槛的页面随语言发布」。
 
 ### Modified Capabilities
@@ -59,5 +59,5 @@
   `numerology`（ß、ł、æ、ø、œ 等不能经 NFD 拆分的字母）、`billing`（币种表与价目表：JPY、EUR、BRL）。
 - evals：`evals/readings` 样本、套件版本与门槛按新组合扩展。
 - 新脚本：`apps/web/scripts/measure-locale-similarity.mjs`、`check-locale-glossary.mjs`（只用仓库已有依赖 happy-dom）。
-- 外部（需使用者批准）：Stripe live 创建 JPY/EUR/BRL 价格；评测真实调用的美元预算；母语审阅的外包费用；EU VAT（OSS）与日本消费税的登记由运营决定。
+- 外部（需使用者批准）：Stripe live 创建 JPY/EUR/BRL 价格；评测真实调用的美元预算；EU VAT（OSS）与日本消费税的登记由运营决定。
 - 不变：两站互不链接；canonical、hreflang 只在站内；现有语言的 URL、TDK 与内容不改；Search Console 站点地图重提等全部完成后一次性做。
