@@ -17,7 +17,9 @@ describe('每日页水合推迟到首帧后', () => {
     expect(out).toContain('<main><a href="/x">x</a></main>')
     expect(out).toContain('$_TSR=1</script>')
     expect(out).toContain('beacon.min.js')
-    expect(out).toMatch(/<script nonce="n1">\(function\(\)\{[^<]*"\/assets\/index\.js"[^<]*<\/script><\/body>/)
+    expect(out).toMatch(
+      /<script nonce="n1">\(function\(\)\{[^<]*"\/assets\/index\.js"[^<]*<\/script><\/body>/,
+    )
   })
 
   it('没有本站水合入口时原样返回', () => {
