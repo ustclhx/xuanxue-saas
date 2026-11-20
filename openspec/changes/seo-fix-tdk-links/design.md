@@ -80,6 +80,7 @@
 - **Title 低于下限但不改**：法律页、FAQ、定价、通讯、牌阵页等（如 `Card of the Day | Arcanumber`）。`/tarot/daily` 的 Title 未含 Tarot，但 H1
   `Tarot Card of the Day` 含主词，按规则不改 Title。
 - **关键词归属核对**：`/八字排盘` 的 Title「免費八字排盤｜生辰八字命盤查詢、…」含「命盤查詢」，与 `/命盤查詢` 页的主词重叠；该 Title 由
+  - 使用者 2026-11-20 选择去掉「命盤查詢」：简体改为「免费八字排盘｜在线生辰八字排盘、大运流年与喜用神解析」，繁体另写为「免費八字排盤｜線上排出四柱八字，看大運流年與喜用神」；主词「命盘查询」归 `/命盘查询` 页。
   `openspec/specs/eastern-tool-pages` 的「首页主词工具页」要求逐字规定，本变更不越过既有规范修改，列为待使用者决定的建议。
   其余页面主词不重叠（数字页按数字区分；`/name-numerology`、`/numerology-calculator`、`/destiny-number`、`/soul-urge-number` 只在次要词上重叠）。
 - **Description 低于下限但不改**：法律页、定价、FAQ、通讯、东方站概念页与牌义页（中文 41–46 字）、韩语页面等，不在 task.md 点名范围。

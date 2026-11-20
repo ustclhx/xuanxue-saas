@@ -77,8 +77,8 @@ for (const locale of locales) {
 test('主工具页与登录页的标题带站名（D3a）', async ({ page }) => {
   for (const [path, title] of [
     ['/life-path-number', 'Life Path Number Calculator: Free, With Every Step Shown | Arcanumber'],
-    ['/zh-hant/八字排盤', '免費八字排盤｜生辰八字命盤查詢、大運流年與喜用神線上解析｜干支日'],
-    ['/zh-hans/八字排盘', '免费八字排盘｜生辰八字命盘查询、大运流年与喜用神线上解析｜干支日'],
+    ['/zh-hant/八字排盤', '免費八字排盤｜線上排出四柱八字，看大運流年與喜用神｜干支日'],
+    ['/zh-hans/八字排盘', '免费八字排盘｜在线生辰八字排盘、大运流年与喜用神解析｜干支日'],
     ['/ko/만세력', '만세력 - 무료 사주 만세력 조회 (사주팔자 · 대운 · 신살) | 간지데이'],
     ['/zh-hant/紫微斗數排盤', '紫微斗數排盤｜免費紫微命盤十二宮、主星與四化｜干支日'],
   ] as const) {
