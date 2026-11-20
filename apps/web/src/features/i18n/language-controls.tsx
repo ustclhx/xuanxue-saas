@@ -68,13 +68,13 @@ export function LanguageDropdown() {
   const label = m.i18n_language()
   const text = LOCALE_AUTONYMS[locale] ?? locale
   return (
-    <details ref={ref} className="group/language relative">
+    <details ref={ref} className="group relative">
       <summary
         aria-label={`${label} ${text}`}
         className="inline-flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-field-border px-3 text-body text-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
       >
-        {/* 下移 1px：与原 Select 触发器的文字位置一致（它按大写字母高度裁切行框后居中） */}
-        <span lang={locale} className="translate-y-px">
+        {/* 与 Select 触发器相同：文字行框按大写字母高度裁切后居中（text-box-cap，brand.css），各语言字体下位置一致 */}
+        <span lang={locale} className="-my-1 truncate py-1 text-box-cap">
           {text}
         </span>
         <svg
@@ -87,7 +87,7 @@ export function LanguageDropdown() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="shrink-0 text-muted-foreground transition-colors group-hover/language:text-foreground"
+          className="shrink-0 text-muted-foreground transition-colors group-hover:text-foreground"
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
