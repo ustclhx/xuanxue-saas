@@ -214,25 +214,33 @@ describe('元数据静态校验（1.5）', () => {
     ])
   })
 
-  it('回退页与不可索引页不检查自身声明，地址按语言加前缀', () => {
-    const zh = (path: string, fields: Partial<SeoPage> = {}) => ({
+  it('回退页与不可索引页不检查自身声明，地址按语言加前缀', ({ skip }) => {
+    // 跨站同文页会各自索引，只有同站的两种语言才能构造回退页。先按模板取与默认语言同站的语言；
+    // 本项目 en 独占西方站（seo.linking.sites），退而取东方站内有同站语言的一种，原语言取其同站语言。
+    const { locales } = templateConfig.i18n
+    const sameSite = (locale: string) =>
+      locales.find((source) => source !== locale && sameSiteLocales(source, locale))
+    const candidates = templateConfig.i18n.enabled ? locales.filter((locale) => locale !== en) : []
+    const locale =
+      candidates.find((locale) => sameSiteLocales(locale, en)) ??
+      candidates.find((locale) => sameSite(locale) !== undefined)
+    if (!locale) return skip()
+    const sameSiteSource = sameSiteLocales(locale, en) ? en : sameSite(locale)
+
+    const translated = (path: string, fields: Partial<SeoPage> = {}) => ({
       ...page(path, fields),
-      locale: other,
+      locale,
     })
-    const sameSiteSource =
-      templateConfig.i18n.locales.find(
-        (locale) => locale !== other && sameSiteLocales(locale, other),
-      ) ?? en
     const report = validateSeoPages([
-      zh('/'),
-      // 回退页的原语言须与页面语言同站（seo.linking.sites）：本项目 en 在西方站，取东方站的另一种语言
-      zh('/fallback', { sourceLocale: sameSiteSource, parent: '/missing' }),
-      zh('/private', { indexable: false, parent: undefined }),
-      zh('/broken', { parent: '/missing' }),
+      translated('/'),
+      // 回退页的原语言须与页面语言同站（seo.linking.sites）
+      translated('/fallback', { sourceLocale: sameSiteSource, parent: '/missing' }),
+      translated('/private', { indexable: false, parent: undefined }),
+      translated('/broken', { parent: '/missing' }),
     ])
     expect(report.errors).toEqual([
       expect.stringContaining(
-        `${localizedPath('/broken', other)}: parent 指向不存在的页面 ${localizedPath('/missing', other)}（`,
+        `${localizedPath('/broken', locale)}: parent 指向不存在的页面 ${localizedPath('/missing', locale)}（`,
       ),
     ])
   })
