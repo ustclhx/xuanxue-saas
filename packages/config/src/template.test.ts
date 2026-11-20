@@ -353,7 +353,8 @@ describe('defineTemplateConfig', () => {
       i18n: { untranslated: 'fallback', rememberHomeLocale: true },
     })
     expect(custom.i18n).toMatchObject({
-      locales: ['en', 'zh'],
+      // 项目默认语言列表（templateConfigDefaults.i18n.locales）
+      locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
       defaultLocale: 'en',
       untranslated: 'fallback',
       rememberHomeLocale: true,
