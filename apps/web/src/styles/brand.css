@@ -21,17 +21,29 @@
  * 首屏先用本机字体渲染；以下 @font-face 只引用 local() 字体，不发请求，按自托管字体的度量调整
  * size-adjust / ascent-override / descent-override，减少字体到达后的换行与行高位移（CLS）。
  * Manrope（unitsPerEm 2000，hhea ascent 2132、descent 600、lineGap 0）对 Arial 的英文样本平均字宽比：
- * 400 为 1.0252、500 为 1.0436、700（对 Arial Bold）为 0.9992；400 与 500 共用 Arial Regular，取两者之间的 1.034。
+ * 400 为 1.0252、500 为 1.0436、700（对 Arial Bold）为 0.9992。400 与 500 都用 Arial Regular，但各用自己的比例：
+ * 合用 1.034 时正文（400）的 fallback 比 Manrope 宽约 0.9%，接近行宽的段落会多折一行，字体到达后整段与页脚上移
+ * （warm-lcp 修复：英文博客空状态 CLS 0.143）。
  * ascent / descent = 字体自身比例 ÷ size-adjust。Liberation Sans 与 Arial 度量兼容。本机没有这些字体时落到下一项系统字体。
  * 更换字体或字重时须重新计算（2026-11-17 由 @fontsource/manrope 5.3.0 的 latin 分片算出）。
  */
 @font-face {
   font-family: "Manrope Fallback";
   src: local("Arial"), local("ArialMT"), local("Liberation Sans");
-  font-weight: 400 500;
-  size-adjust: 103.4%;
-  ascent-override: 103.09%;
-  descent-override: 29.01%;
+  font-weight: 400;
+  size-adjust: 102.52%;
+  ascent-override: 103.98%;
+  descent-override: 29.26%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Manrope Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans");
+  font-weight: 500;
+  size-adjust: 104.36%;
+  ascent-override: 102.15%;
+  descent-override: 28.75%;
   line-gap-override: 0%;
 }
 

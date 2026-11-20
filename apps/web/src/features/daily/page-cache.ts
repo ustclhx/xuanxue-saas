@@ -1,5 +1,6 @@
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import { type DailyLocale, dateKey, referenceDate, secondsUntilDayEnd } from './date.ts'
+import { deferHydration } from './defer-hydration.ts'
 import { DAILY_PATHS } from './routes.ts'
 
 /**
@@ -9,7 +10,8 @@ import { DAILY_PATHS } from './routes.ts'
  * - 匿名请求以「规范 URL + 参考日期 + 部署版本」为键查缓存，参考时区跨过 00:00 后键随之变化，旧内容不再命中；
  *   部署版本进键：缓存的 HTML 引用带哈希的静态资源，新版本部署后旧资源即 404，旧版本缓存不能再返回；
  * - 未命中时 SSR，只缓存 200 的 HTML，去掉 Set-Cookie 后写入，TTL 为距参考日结束的秒数且不超过 3600；
- * - 响应带 `Vary: Cookie`，避免下游缓存把匿名版本给已登录用户。
+ * - 响应带 `Vary: Cookie`，避免下游缓存把匿名版本给已登录用户；
+ * - SSR 的 HTML 先把水合推迟到首帧之后（defer-hydration.ts），缓存与直接返回的都是改写后的版本。
  *
  * 存储以接口注入（server.ts 传入 Workers 的 `caches.default`），便于单测。
  */
@@ -87,12 +89,13 @@ export async function dailyPageCache(
   request: Request,
   locales: readonly string[],
   deps: DailyCacheDeps,
-  render: () => Promise<Response>,
+  renderPage: () => Promise<Response>,
 ): Promise<Response | null> {
   if (request.method !== 'GET') return null
   const url = new URL(request.url)
   const locale = dailyPageLocale(url.pathname, locales)
   if (!locale) return null
+  const render = () => renderPage().then(deferHydration)
   if (hasSessionCookie(request.headers.get('cookie')) || !deps.cache) {
     const response = await render()
     return hasSessionCookie(request.headers.get('cookie'))
