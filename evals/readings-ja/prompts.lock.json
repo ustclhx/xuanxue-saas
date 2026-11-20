@@ -1,0 +1,100 @@
+{
+  "readings-ja@v1": {
+    "bazi-ja-01": {
+      "input": "sha256:9c0747f581f1375250eb6aca91329d87c7eebae09569872317c83f846e7579e4",
+      "rendered": "sha256:cb085054a282d879459f7f20adc622b7ddaa482630aecdfab81048c81b9bcfb3"
+    },
+    "bazi-ja-02": {
+      "input": "sha256:8cb457d3ed5f224a5f4395ebf36d5b0e7135110864a48355be76ddf56738b18c",
+      "rendered": "sha256:f6c9b6772bdadd40bdcdf3fa217f5c36e9668bb32e641144ec06c90092f12b2e"
+    },
+    "bazi-ja-03": {
+      "input": "sha256:1f26050e373bc9c36ec1889f66575be459df9694e792e04c80d565de7e6b7daf",
+      "rendered": "sha256:07ebe043d84ff74e136e913b9990c73c99173eee66597a669c14bf0ba5d4cac2"
+    },
+    "bazi-ja-04": {
+      "input": "sha256:535c6c27c459b41596a67c704e58904d0a5f24b619604c57950b778c9c00f7e4",
+      "rendered": "sha256:f9d9fed8d167d044dcd386a8bf87551648a6d98de59cc1cd26c8e07c56cc9d89"
+    },
+    "bazi-ja-05": {
+      "input": "sha256:5fa1419a1ce96781fa372d6142e43866fb14defc54795be67b89382931d724d7",
+      "rendered": "sha256:082f996baa4f969e506f0116e2d6f41935245ae5fc0a3e7437b9718274d24976"
+    },
+    "bazi-ja-06": {
+      "input": "sha256:340d27e72bac47597c43db81a711377e3b2782467a039219805a83a6e12d8857",
+      "rendered": "sha256:229961bea8d0b15200830421a3d565cfadf3e95d6b135f9d73bc9d4da63606ce"
+    },
+    "bazi-ja-07": {
+      "input": "sha256:8121ccd754343788801efcdf98afc31ce57bc034d22e08840deff0302feff2e6",
+      "rendered": "sha256:825a2e9bb8f3277609ba36b292c9d55c616e977ea16442556bd04f0a4836d919"
+    },
+    "bazi-ja-08": {
+      "input": "sha256:c7ebc5eacfd2126f68f39ffe536bc949a52713d60223931ad59a93429e39e996",
+      "rendered": "sha256:4b5bc3498986c69836580a276ec624ba50e2ddc967e91f1c8649d0ef9c5020d8"
+    },
+    "ziwei-ja-01": {
+      "input": "sha256:6edaadcf98867787f15c6ad853370d204fbf32cb6b56f79f05769080cf20cf80",
+      "rendered": "sha256:051f3751baad8a9978a404576e83453f8304c2860d19b287b8c0f8a7eb678de6"
+    },
+    "ziwei-ja-02": {
+      "input": "sha256:415ec4a4c2a5a304a6cea59b84351f19a44a4b0bc6d06c1c26e2c252dfbef371",
+      "rendered": "sha256:68901ca765f370cb9eda53ce74d8aa0c6cb7c9422640848a04ea0faa0d49bd0e"
+    },
+    "ziwei-ja-03": {
+      "input": "sha256:5af4f583d9ff5fe3d5ba1a9a7923a3771e888fa9aa1ee360a854d469e2c4855e",
+      "rendered": "sha256:dc7489fea8a0a6908121e4b66c9ef0d32f551672a723a42589c170e27978c4c2"
+    },
+    "ziwei-ja-04": {
+      "input": "sha256:31fdb14e9536e06e4bb989e84613fc72ada4659dee6c081974499da6f065a4a1",
+      "rendered": "sha256:b7f2adada965a34ef016ebdb579aa5c7fe6c4efd541ae8e95b9306b9eed49900"
+    },
+    "ziwei-ja-05": {
+      "input": "sha256:a1c195c16bd07c050b3bb20788b6fd9a982a7d1eae5f2b0e2c70ffda293e7b4d",
+      "rendered": "sha256:88dcc38fca8e58bcf8ca7d88879505763eab0fed36185e042919d49c8cf04f10"
+    },
+    "ziwei-ja-06": {
+      "input": "sha256:5d26a26d1a04756cac330f0213dc2a5e88aa8f6013d9ef7c2ebd156a1724251e",
+      "rendered": "sha256:f8f24507ab8bded0790c9687e65db4402fadc8c9256ee2e66b9432fc3983a062"
+    },
+    "ziwei-ja-07": {
+      "input": "sha256:eab1b1e7202d9ec39e6e03a7b48c9529018a0d584238bc638dbc6cfd67c54997",
+      "rendered": "sha256:f95c1862ff034f157dc3fc3b9d7b6fa2df20dca4a077b1a6b8c19bc87a0972c3"
+    },
+    "ziwei-ja-08": {
+      "input": "sha256:83ea58dc0a5fa3af677dc6a898a04702e669c3fd1542dd8236cb9e32ec35eca1",
+      "rendered": "sha256:2e066c796ab92429015f2c24ac51e3352a8a00ac359260006f77a27ce2f2cb24"
+    },
+    "tarot-ja-01": {
+      "input": "sha256:db3993e7f891b41b3753b6f55110bd04333658bf51f412654ac9cf1c0f1f5756",
+      "rendered": "sha256:c1ac9ec2acecc6c342165a59926d0efbf0e4ff92ca4697c9724f03177f6dd451"
+    },
+    "tarot-ja-02": {
+      "input": "sha256:d5ee2845a92c62faeaeb7fac530cf36368ca9e56171cecac4c624bda6092927f",
+      "rendered": "sha256:1180de4dc75bdd00c6725b003e5a0a5268d3df72917ad31cc9bf8b56676a3074"
+    },
+    "tarot-ja-03": {
+      "input": "sha256:c05949206803bb071a390925ba0ea724dc5502f8963cfd1dbfa5df4b1ee15413",
+      "rendered": "sha256:062192c11e521b4947c1845d3cc39d0144d3c779fa02d67bbae4bfa5336d9cb8"
+    },
+    "tarot-ja-04": {
+      "input": "sha256:a0db6e2d75b6e580e683716e55ad38337ccfc00beb4d901eaf8cc60311978c71",
+      "rendered": "sha256:7090235024a6ad93112e71206994e31d51c0d05e257faaa9c0456bc6b3ec9f67"
+    },
+    "tarot-ja-05": {
+      "input": "sha256:4a5e43a3164786c2b59d44d76fdcccc997320b9238d79f33d14c38466ff671fd",
+      "rendered": "sha256:b0ec3fa1becc45dabfacc4773af77fb48b0fd8d4f5ef4dfd63066793e0cf85c0"
+    },
+    "tarot-ja-06": {
+      "input": "sha256:433fa15f8161878ecedaa6ff7f26440dbe0b3d9982594118d1f2ea4d57330c35",
+      "rendered": "sha256:b2826c6b44a0e1cba0d187cfc21d08424dad33016e4a83f7091951b24b733153"
+    },
+    "tarot-ja-07": {
+      "input": "sha256:638695c23c523f8ce93fe4e45f28d5e759150472f4c25a1ddc7cd28ffe0de70c",
+      "rendered": "sha256:136af6617381ae5c2efed639f3871f0376983d58711819425ea179d4e261a61b"
+    },
+    "tarot-ja-08": {
+      "input": "sha256:9ceff8c69a5838d655ffe469124e0ab226462de8332c16e88f5ea1e64cb5d341",
+      "rendered": "sha256:a85a0bfa774ed90adfe2f6038727d4ab9d8e16fbd65f7610e772a20ecc430562"
+    }
+  }
+}

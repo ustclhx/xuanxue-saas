@@ -53,14 +53,16 @@ const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
   return { id: `bazi-concept-${key}`, site: 'east', nav: false, paths, titles }
 })
 
+// ja 的四柱推命与紫微斗数页 meta description 取自 messages/ja/bazi.json（easternPageCopy），这里不重复登记，
+// 以免这些字符串进入所有首页的脚本闭包（首页包预算，add-locales-eu-ja 决策 11）
 export const TOOL_ROUTES: readonly ToolRoute[] = [
   // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本；
   // 路径为关键词 URL（openspec separate-landing-homepage design.md D1），语言首页是品牌落地页
   {
     id: 'bazi',
     site: 'east',
-    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력' },
-    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력' },
+    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력', ja: '/四柱推命' },
+    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력', ja: '四柱推命' },
     descriptions: {
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
       'zh-Hans': '免费八字排盘：四柱命盘、五行强弱、身强身弱、喜用神、大运流年、神煞与八字重量。',
@@ -70,8 +72,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'ziwei',
     site: 'east',
-    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘' },
-    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数' },
+    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘', ja: '/紫微斗数' },
+    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数', ja: '紫微斗数' },
     descriptions: {
       'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。',
       'zh-Hans': '免费紫微斗数排盘：十二宫位、命宫与身宫、十四主星与生年四化。',

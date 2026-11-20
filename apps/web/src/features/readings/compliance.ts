@@ -33,6 +33,19 @@ const ZH_DATE = /(?:\d{4}\s*年\s*)?\d{1,2}\s*月\s*\d{1,2}\s*[日號号]|\d{4}\
 const ZH_ASSERT = /會|将|將|必|一定|註定|注定|肯定/
 const KO_DATE = /(?:\d{4}\s*년\s*)?\d{1,2}\s*월\s*\d{1,2}\s*일|\d{4}\s*년\s*\d{1,2}\s*월/
 const KO_ASSERT = /것입니다|겁니다|될 것|반드시|틀림없이|일어납니다|일어날|생깁니다|생길/
+// 日语：「2027年3月」「3月15日」「三月十五日」；年份区间与「前半・後半」不算
+const JA_DATE =
+  /(?:\d{4}\s*年\s*)?(?:\d{1,2}|[一二三四五六七八九十]{1,3})\s*月\s*(?:\d{1,2}|[一二三四五六七八九十]{1,3})\s*日|\d{4}\s*年\s*\d{1,2}\s*月/
+const JA_ASSERT =
+  /必ず|きっと|確実に|間違いなく|運命づけ|決まって|起こります|起きます|訪れます|でしょう|はずです/
+/**
+ * 日语病名与投资标的：「がん」会误伤「がんばる」，只认汉字「癌」与片假名「ガン」（后接非片假名）；
+ * 「株」会误伤「株式会社」，只认投资语境的写法。
+ */
+const JA_MEDICAL =
+  /癌|ガン(?![ァ-ヶー])|腫瘍|糖尿病|高血圧|心臓病|心疾患|脳卒中|うつ病|鬱病|肝炎|腎臓病|認知症|不妊|肺炎|診断|罹患|発症/
+const JA_INVESTMENT =
+  /株式投資|株を(?:買|売|持)|株の売買|株価|個別株|投資信託|先物|ビットコイン|仮想通貨|暗号資産|\bETF\b|\bFX\b|レバレッジ|外貨預金|為替取引|信用取引|損切り|ナンピン/i
 const EN_DATE =
   /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?\b|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{4}\b|\b\d{4}-\d{2}(?:-\d{2})?\b/i
 const EN_ASSERT = /\b(?:will|shall|is going to|are going to|destined|certainly|definitely)\b/i
@@ -112,6 +125,21 @@ const RULES: Record<AppLocale, LocaleRules> = {
         '재테크와 투자 결정은 본인의 상황을 신중히 검토하고 자격을 갖춘 전문가와 상담하세요.',
     },
   },
+  ja: {
+    patterns: {
+      'date-prediction': [both(JA_DATE, JA_ASSERT)],
+      medical: [JA_MEDICAL],
+      investment: [JA_INVESTMENT],
+    },
+    replacements: {
+      'date-prediction':
+        '命式や命盤から読み取れるのは全体の傾向であり、特定の日に起こる出来事を言い当てることはできません。実際の状況にあわせてお考えください。',
+      medical:
+        '規則正しい睡眠、バランスのよい食事、適度な運動を心がけましょう。気になる症状があれば医療機関にご相談ください。',
+      investment:
+        'お金や投資に関する判断は、ご自身の状況をふまえて慎重に検討し、資格のある専門家にご相談ください。',
+    },
+  },
   en: {
     patterns: {
       'date-prediction': [both(EN_DATE, EN_ASSERT)],
@@ -136,7 +164,8 @@ const LIST_ITEM = /^\s*(?:[-*+]|\d+[.)])\s+/
 const HEADING = /^#{1,6}\s/
 
 function rulesFor(locale: string): LocaleRules {
-  if (locale === 'zh-Hant' || locale === 'zh-Hans' || locale === 'ko') return RULES[locale]
+  if (locale === 'zh-Hant' || locale === 'zh-Hans' || locale === 'ko' || locale === 'ja')
+    return RULES[locale]
   return RULES.en
 }
 

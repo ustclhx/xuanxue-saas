@@ -9,7 +9,7 @@ import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { baziShareCard } from '../share-card/sources-bazi.ts'
-import { ToolArticle } from '../tool-article.tsx'
+import { paragraphs, ToolArticle } from '../tool-article.tsx'
 import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
@@ -30,7 +30,7 @@ import {
   computeBaziChart,
   conceptHref,
   link,
-  pageHref,
+  localPageHref,
   ReadingSlots,
   ResultFooter,
   ResultStatus,
@@ -38,6 +38,9 @@ import {
 } from './common.tsx'
 import { loadBazi } from './engine.ts'
 import { useBirthTool } from './use-birth-tool.ts'
+
+/** 结果区块下的小字说明只取长文的第一段（日语长文按空行分段；其他语言只有一段，输出不变） */
+const lead = (text: string) => paragraphs(text)[0] ?? text
 
 /** 结果区内的两栏：手机单列 */
 const twoColumns = 'grid grid-cols-1 gap-6 md:grid-cols-2'
@@ -87,8 +90,8 @@ export function BaziHome({ focusBlock }: { focusBlock?: string }) {
         )
       }
       links={[
-        ...link(pageHref('ziwei', LOCALE), m.bazi_link_ziwei(), 'ziwei'),
-        ...link(pageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
+        ...link(localPageHref('ziwei', LOCALE), m.bazi_link_ziwei(), 'ziwei'),
+        ...link(localPageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
         ...link(conceptHref(LOCALE, 'luck'), m.bazi_link_luck(), 'concept-luck'),
         ...link(conceptHref(LOCALE, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
         ...link(conceptHref(LOCALE, 'strength'), m.bazi_link_strength(), 'concept-strength'),
@@ -149,7 +152,7 @@ export function BaziResult({
         index={1}
         title={m.bazi_block_pillars()}
         aside={usedTimeText(chart, LOCALE)}
-        description={m.bazi_desc_pillars()}
+        description={lead(m.bazi_desc_pillars())}
       >
         <PillarsChart pillars={chart.pillars} locale={LOCALE} />
         <HiddenStemsTable chart={chart} locale={LOCALE} />
@@ -159,7 +162,7 @@ export function BaziResult({
           id="elements"
           index={2}
           title={m.bazi_block_elements()}
-          description={m.bazi_desc_elements()}
+          description={lead(m.bazi_desc_elements())}
         >
           <ElementsChart elements={chart.strength.elements} />
         </ResultBlock>
@@ -168,7 +171,7 @@ export function BaziResult({
             id="strength"
             index={3}
             title={m.bazi_block_strength()}
-            description={m.bazi_desc_strength()}
+            description={lead(m.bazi_desc_strength())}
           >
             <StrengthBody chart={chart} />
           </ResultBlock>
@@ -177,7 +180,7 @@ export function BaziResult({
             index={4}
             title={m.bazi_block_useful()}
             aside={m.bazi_useful_reference()}
-            description={m.bazi_desc_useful()}
+            description={lead(m.bazi_desc_useful())}
           >
             <UsefulBody chart={chart} />
           </ResultBlock>
@@ -188,7 +191,7 @@ export function BaziResult({
         index={5}
         title={m.bazi_block_luck()}
         aside={luckAside(chart)}
-        description={m.bazi_desc_luck()}
+        description={lead(m.bazi_desc_luck())}
       >
         <LuckAxis chart={chart} locale={LOCALE} conceptHref={conceptHref(LOCALE, 'luck', 'luck')} />
       </ResultBlock>
@@ -197,7 +200,7 @@ export function BaziResult({
           id="shensha"
           index={6}
           title={m.bazi_block_shensha()}
-          description={m.bazi_desc_shensha()}
+          description={lead(m.bazi_desc_shensha())}
         >
           <ShenshaChips chart={chart} />
           {!chart.hourKnown && (
@@ -212,7 +215,7 @@ export function BaziResult({
           id="weight"
           index={7}
           title={m.bazi_block_weight()}
-          description={m.bazi_desc_weight()}
+          description={lead(m.bazi_desc_weight())}
         >
           <WeightBody chart={chart} />
           <ConceptLink href={conceptHref(LOCALE, 'weight')}>{m.bazi_weight_link()}</ConceptLink>

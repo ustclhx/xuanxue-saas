@@ -100,6 +100,25 @@ export const PLACE_IDS: Record<EastLocale, readonly CityId[]> = {
     'london',
     'sydney',
   ],
+  // 日语页：日本城市在前（东京为默认出生地，均为日本标准时间，含 1948–1951 年サマータイム）
+  ja: [
+    'tokyo',
+    'osaka',
+    'nagoya',
+    'sapporo',
+    'fukuoka',
+    'seoul',
+    'busan',
+    'taipei',
+    'hongKong',
+    'beijing',
+    'shanghai',
+    'singapore',
+    'losAngeles',
+    'newYork',
+    'london',
+    'sydney',
+  ],
 }
 
 /** UTC 偏移选项（分钟）：−12:00 至 +14:00，每 30 分钟一档，另含 +5:45、+8:45、+12:45 */
@@ -118,9 +137,10 @@ export function formatUtcOffset(minutes: number): string {
 
 /**
  * 各语言表单的默认出生地：简体页面向大陆读者默认北京，繁体页默认台北，韩语页默认首尔
- * （SEO 内容差异化，2026-11-20 使用者决定）。未知语言按繁体处理。
+ * （SEO 内容差异化，2026-11-20 使用者决定）；日语页默认东京（add-locales-eu-ja 任务 4.3）。未知语言按繁体处理。
  */
 export function defaultPlace(locale: string): CityId {
+  if (locale === 'ja') return 'tokyo'
   return locale === 'ko' ? 'seoul' : locale === 'zh-Hans' ? 'beijing' : 'taipei'
 }
 
@@ -135,7 +155,7 @@ export function defaultBirthValues(locale: string): BirthFormValues {
     time: '',
     unknownTime: false,
     place: defaultPlace(locale),
-    utcOffset: locale === 'ko' ? '540' : '480',
+    utcOffset: locale === 'ko' || locale === 'ja' ? '540' : '480',
     longitude: '',
     trueSolar: false,
   }

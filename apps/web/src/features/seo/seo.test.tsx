@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { defaultShareCardLayout } from '../share-cards/layout.tsx'
 import {
@@ -135,7 +136,12 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
         if (!page.alternates) {
           const site = siteOfLocale(locale, config) ?? 'west'
-          const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
+          // hreflang 只列已发布语言，未发布语言（ja）的页面另列自身（rollout.ts）
+          const siteLocales = locales.filter(
+            (other) =>
+              siteOfLocale(other, config) === site &&
+              (other === locale || isLocaleReleased(other, config, site)),
+          )
           // 东方站各语言首页另与东方站英文入口页 `/en` 互指
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
             siteLocales.length + 1 + (site === 'east' && page.path === '/' ? 1 : 0),

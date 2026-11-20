@@ -11,9 +11,10 @@ const homeTitles: Record<(typeof locales)[number], string> = {
   'zh-Hant': '干支日｜免費八字排盤、紫微斗數與塔羅',
   'zh-Hans': '干支日｜免费八字排盘、紫微斗数与塔罗',
   ko: '간지데이 | 무료 만세력·사주·타로',
+  ja: '干支日｜生年月日で占う無料の四柱推命・紫微斗数・タロット',
 }
 const titleSuffix = (locale: string) =>
-  `${locale.startsWith('zh') ? '｜' : ' | '}${brandName(templateConfig, locale)}`
+  `${locale.startsWith('zh') || locale === 'ja' ? '｜' : ' | '}${brandName(templateConfig, locale)}`
 const legalPaths = ['/privacy', '/terms', '/refund']
 const publicPaths = ['/', '/pricing', ...legalPaths]
 if (templateConfig.features.blog)

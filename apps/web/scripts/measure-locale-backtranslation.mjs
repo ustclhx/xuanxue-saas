@@ -9,7 +9,13 @@
 // 模型出口与密钥读取方式与 packages/evals 相同：根目录 .env.local → TEXT_ENV_KEYS → @xuanxue/ai 的
 // defaultLanguageModelFactory（direct / gateway 同一套出口）；密钥只交给模型工厂，不写入报告与缓存。
 //
+// 外部回译（使用者 2026-11-20：回译由与写作者不同家族的 agent 完成，不调用 API、不产生费用）：
+//   --export-input <目录>  导出待回译的页面正文、对照组原文与 manifest.json（含给回译 agent 的说明）；
+//   --from-file <目录>     读取外部回译结果（manifest 中的 output 文件）计算相似度与校准阈值，不访问模型。
+//
 // 用法（先 `pnpm --filter @xuanxue/web build`）：
+//   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja --export-input <目录>
+//   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja --from-file <目录>
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja [--dry-run]
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale es --calibrate --live --budget-usd 2
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale es --live --budget-usd 5 \
@@ -423,6 +429,155 @@ export async function measureBackTranslation({ locale, source, pairs, call, thre
 }
 
 // ---------------------------------------------------------------------------
+// 外部回译文件（--export-input / --from-file）
+// ---------------------------------------------------------------------------
+
+const textHash = (text) => createHash('sha256').update(text).digest('hex').slice(0, 16)
+const fileId = (path) =>
+  decodeURIComponent(path)
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/[/\s]+/g, '__') || 'home'
+
+/**
+ * 外部回译的清单：每个新语言页面一项（回译成各对照语言），每种对照语言另有 CONTROL_PAGES 页对照组
+ * （对照页原文 → 逐句直译成新语言 → 再回译）。路径相对导出目录；`inputHash` 用于核对回译的是同一份正文。
+ */
+export function buildManifest({ locale, plan, pages }) {
+  const items = []
+  const calibration = []
+  for (const source of plan.sources) {
+    const byPath = new Map(pages.filter((p) => p.locale === source).map((p) => [p.path, p]))
+    for (const p of pages.filter((p) => p.locale === locale && p.alts[source])) {
+      const sourcePage = byPath.get(new URL(p.alts[source]).pathname)
+      if (!sourcePage) continue
+      const id = fileId(p.path)
+      const text = serializeSections(p.page)
+      items.push({
+        id,
+        path: decodeURIComponent(p.path),
+        kind: p.kind,
+        source,
+        sourcePath: decodeURIComponent(sourcePage.path),
+        input: `pages/${id}.txt`,
+        output: `back/${source}/${id}.txt`,
+        inputHash: textHash(text),
+        text,
+      })
+    }
+    const control = pickControlPages(pages.filter((p) => p.locale === source))
+    control.forEach(({ path, page }, n) => {
+      const text = serializeSections(page)
+      const base = `calibration/${source}/${n + 1}`
+      calibration.push({
+        source,
+        path: decodeURIComponent(path),
+        input: `${base}.source.txt`,
+        literal: `${base}.literal.txt`,
+        output: `${base}.back.txt`,
+        inputHash: textHash(text),
+        text,
+      })
+    })
+  }
+  return { locale, site: plan.site, sources: plan.sources, items, calibration }
+}
+
+/** 写出导出目录：正文文件、manifest.json（不含正文）与给回译 agent 的说明 */
+export function writeExport(dir, manifest) {
+  const strip = ({ text, ...rest }) => rest
+  for (const entry of [...manifest.items, ...manifest.calibration]) {
+    const file = join(dir, entry.input)
+    mkdirSync(join(file, '..'), { recursive: true })
+    writeFileSync(file, `${entry.text}\n`)
+  }
+  const out = {
+    ...manifest,
+    generatedAt: new Date().toISOString(),
+    items: manifest.items.map(strip),
+    calibration: manifest.calibration.map(strip),
+  }
+  writeFileSync(join(dir, 'manifest.json'), `${JSON.stringify(out, null, 2)}\n`)
+  const names = (l) => LANGUAGE_NAMES[l] ?? l
+  writeFileSync(
+    join(dir, 'README.md'),
+    [
+      `# 回译输入：${manifest.locale}（${manifest.site} 站）`,
+      '',
+      '由与写作者不同家族的模型完成（写作者为 Claude，回译交给 Codex）。只翻译，不润色、不总结、不补充。',
+      '以「## 」开头的行是段落标题：保持为单独一行、位置不变，只翻译其文字。',
+      '',
+      `1. 正式回译：把 manifest.json 中每个 items[].input（${names(manifest.locale)}）译成 items[].source 指定的语言，写到 items[].output。`,
+      `   ${manifest.items.length} 页 × 对照语言（${manifest.sources.join('、')}）。`,
+      `2. 校准对照组（每种对照语言 ${CONTROL_PAGES} 页）：先把 calibration[].input（对照语言原文）**逐句直译**成${names(manifest.locale)}，`,
+      '   保持句序、段落与示例，写到 calibration[].literal；再把 literal 回译成原对照语言，写到 calibration[].output。',
+      '3. 完成后运行 `node apps/web/scripts/measure-locale-backtranslation.mjs --locale ' +
+        `${manifest.locale} --from-file <本目录>\`。`,
+      '',
+    ].join('\n'),
+  )
+}
+
+/** 读取外部回译结果；缺失的文件返回 null */
+export function readExternal(dir, entry, key = 'output') {
+  const file = join(dir, entry[key])
+  return existsSync(file) ? readFileSync(file, 'utf8') : null
+}
+
+/**
+ * 外部回译的评分：与在线模式同一套公式（backTranslationScore、calibratedThreshold、FAQ 0.40）。
+ * pages 为当前构建的页面（用于取对照页与核对正文是否与导出时一致）。
+ */
+export function scoreExternal({ dir, manifest, pages }) {
+  const byPath = new Map(pages.map((p) => [`${p.locale} ${decodeURIComponent(p.path)}`, p]))
+  const results = {}
+  for (const source of manifest.sources) {
+    const controlScores = []
+    const missing = []
+    for (const entry of manifest.calibration.filter((c) => c.source === source)) {
+      const back = readExternal(dir, entry)
+      const sourcePage = byPath.get(`${source} ${entry.path}`)?.page
+      if (!back || !sourcePage) {
+        missing.push(entry.output)
+        continue
+      }
+      controlScores.push(
+        backTranslationScore({ sourcePage, backText: back, sourceLocale: source }).dice,
+      )
+    }
+    const threshold = calibratedThreshold(controlScores)
+    const rows = []
+    for (const entry of manifest.items.filter((i) => i.source === source)) {
+      const back = readExternal(dir, entry)
+      const target = byPath.get(`${manifest.locale} ${entry.path}`)?.page
+      const sourcePage = byPath.get(`${source} ${entry.sourcePath}`)?.page
+      if (!back || !target || !sourcePage) {
+        missing.push(entry.output)
+        continue
+      }
+      const stale = textHash(serializeSections(target)) !== entry.inputHash
+      const score = backTranslationScore({ sourcePage, backText: back, sourceLocale: source })
+      const failures = []
+      if (score.dice > threshold) failures.push(`page ${score.dice} > ${threshold}`)
+      if (score.faqMax !== null && score.faqMax > THRESHOLDS.backTranslationFaq)
+        failures.push(`FAQ ${score.faqMax} > ${THRESHOLDS.backTranslationFaq}`)
+      rows.push({ path: entry.path, kind: entry.kind, stale, ...score, failures })
+    }
+    results[source] = {
+      calibration: {
+        control: controlScores.length,
+        median: controlScores.length ? r3(median(controlScores)) : null,
+        threshold,
+      },
+      rows,
+      failing: rows.filter((r) => r.failures.length),
+      stale: rows.filter((r) => r.stale).map((r) => r.path),
+      missing,
+    }
+  }
+  return results
+}
+
+// ---------------------------------------------------------------------------
 // 命令行
 // ---------------------------------------------------------------------------
 
@@ -536,6 +691,8 @@ async function main() {
       calibration: { type: 'string' },
       'base-url': { type: 'string' },
       out: { type: 'string' },
+      'export-input': { type: 'string' },
+      'from-file': { type: 'string' },
     },
   })
   const locales = values.locale?.length ? values.locale : Object.keys(LOCALE_PLANS)
@@ -559,6 +716,38 @@ async function main() {
   const preview = values['base-url'] ? null : await startPreview()
   const baseUrl = values['base-url'] ?? preview.baseUrl
   try {
+    const external = values['export-input'] ?? values['from-file']
+    if (external) {
+      if (live) throw new Error('--export-input / --from-file 不调用模型，不能与 --live 同用')
+      for (const locale of locales) {
+        const plan = LOCALE_PLANS[locale]
+        const pages = await loadPages({ baseUrl, config, plan, locales: [locale, ...plan.sources] })
+        const dir = resolve(external)
+        if (values['export-input']) {
+          const manifest = buildManifest({ locale, plan, pages })
+          mkdirSync(dir, { recursive: true })
+          writeExport(dir, manifest)
+          console.log(
+            `${locale}：导出 ${manifest.items.length} 项回译输入、${manifest.calibration.length} 页对照组 → ${dir}`,
+          )
+          continue
+        }
+        const manifest = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8'))
+        const results = scoreExternal({ dir, manifest, pages })
+        const report = { locale, generatedAt: new Date().toISOString(), mode: 'from-file', results }
+        writeFileSync(
+          join(mkdirOut(outDir), `backtranslation-${locale}-external.json`),
+          `${JSON.stringify(report, null, 2)}\n`,
+        )
+        for (const [source, r] of Object.entries(results)) {
+          console.log(
+            `${locale} → ${source}：${r.rows.length} 页，未达门槛 ${r.failing.length}，阈值 ${r.calibration.threshold}（对照组 ${r.calibration.control} 页，中位数 ${r.calibration.median}），缺回译 ${r.missing.length}，正文已变 ${r.stale.length}`,
+          )
+          if (r.failing.length || r.missing.length) process.exitCode = 1
+        }
+      }
+      return
+    }
     if (!live) {
       const report = { generatedAt: new Date().toISOString(), mode: 'dry-run', estimates: [] }
       const md = [

@@ -30,6 +30,13 @@ const labels = {
     unsubscribe: '구독 취소',
     footer: '구독을 확인하셨기 때문에 이 풀이를 받으셨습니다.',
   },
+  ja: {
+    greeting: 'こんにちは',
+    result: '今回の結果をもう一度見る',
+    unlock: '詳しい鑑定を見る',
+    unsubscribe: '配信停止',
+    footer: '購読を確認いただいたため、この鑑定メールをお送りしています。',
+  },
 } as const
 
 export function readingSummaryCopy(
@@ -41,7 +48,12 @@ export function readingSummaryCopy(
     subject: props.subject,
     preview: props.subject,
     heading: props.subject,
-    greeting: props.name ? `${copy.greeting}, ${props.name}` : copy.greeting,
+    // 日语以「〇〇 様」称呼，不用「こんにちは, 名前」的英文语序
+    greeting: props.name
+      ? locale === 'ja'
+        ? `${props.name} 様`
+        : `${copy.greeting}, ${props.name}`
+      : copy.greeting,
     paragraphs: [...props.paragraphs, props.disclaimer],
     links: [
       { label: copy.result, url: props.resultUrl },

@@ -22,6 +22,9 @@ export const EASTERN_PAGES: readonly {
   { id: 'mingpan', locale: 'zh-Hans', slug: '命盘查询' },
   { id: 'bazi', locale: 'ko', slug: '만세력' },
   { id: 'gunghap', locale: 'ko', slug: '사주궁합' },
+  // 关键词地图 ja.md §2–3（使用者 2026-11-20 批准）：日语主词即路径段
+  { id: 'bazi', locale: 'ja', slug: '四柱推命' },
+  { id: 'ziwei', locale: 'ja', slug: '紫微斗数' },
 ]
 
 /** 路由参数可能是已解码的 Unicode，也可能保留百分号编码，两者都接受 */

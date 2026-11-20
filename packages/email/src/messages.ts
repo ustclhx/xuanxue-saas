@@ -648,6 +648,153 @@ const ko: CopyBuilders = {
   }),
 }
 
+const ja: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('ja', props),
+  'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
+    subject: `${appName}へのご招待`,
+    preview: 'ご登録の招待をお送りします。',
+    heading: 'ご登録のご招待',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      '新規登録の受付前でも、このリンクからアカウントを作成できます。招待の有効期限は7日間です。',
+    ],
+    action: { label: 'アカウントを作成', url },
+    linkHint: 'ボタンが使えない場合は、こちらのリンクをコピーしてください：',
+    footer: 'ウェイトリストに登録した覚えがない場合は、このメールを破棄してください。',
+  }),
+  'newsletter-confirmation': ({ url }, { appName, recipientName }) => ({
+    subject: `${appName}のメール購読の確認`,
+    preview: '確認後にニュースレターをお届けします。',
+    heading: '購読の確認',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      '下のボタンを押して購読を確認してください。確認が済むまでニュースレターは届きません。リンクの有効期限は24時間です。',
+    ],
+    action: { label: '購読を確認', url },
+    linkHint: 'ボタンが使えない場合は、こちらのリンクをコピーしてください：',
+    footer: '購読した覚えがない場合は、このメールを破棄してください。',
+  }),
+  newsletter: ({ subject, body, unsubscribeUrl }, { recipientName }) => ({
+    subject,
+    preview: subject,
+    heading: subject,
+    greeting: greetingJa(recipientName),
+    paragraphs: [body],
+    action: { label: '配信停止', url: unsubscribeUrl },
+    linkHint: 'こちらのリンクから配信を停止できます：',
+    footer: '購読を確認いただいたため、このメールをお送りしています。',
+  }),
+
+  'refund-update': (
+    { status, amount, currency, note, supportEmail },
+    { appName, recipientName },
+  ) => ({
+    subject: `${appName} 返金リクエスト：${{ approved: '承認', rejected: '却下', refunded: '返金完了' }[status]}`,
+    preview: `返金リクエストは${{ approved: '承認され、決済サービスの確認待ちです', rejected: '却下されました', refunded: '決済サービスで返金が確認されました' }[status]}。`,
+    heading: '返金リクエストの状況',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      status === 'approved'
+        ? 'リクエストは承認されました。決済サービスでの返金の確認はまだ完了していません。'
+        : status === 'refunded'
+          ? '決済サービスで返金が確認されました。'
+          : '返金リクエストは却下されました。',
+      ...(amount === null ? [] : [`金額：${(amount / 100).toFixed(2)} ${currency}`]),
+      ...(note ? [note] : []),
+      `ご不明な点は ${supportEmail} までお問い合わせください。`,
+    ],
+    linkHint: '',
+    footer:
+      'アカウントを削除された場合も、返金の結果はリクエスト時の連絡先メールアドレスにお送りします。',
+  }),
+
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `${appName}の詳しい鑑定ができあがりました`,
+    preview: '詳しい鑑定をアカウントに保存しました。',
+    heading: title ?? '詳しい鑑定ができあがりました',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      '詳しい鑑定が完成し、アカウントに保存されました。ログインすれば、どの端末からでもいつでもご覧いただけます。',
+      'この鑑定は参考と自己の振り返りのためのものであり、医療・法律・投資に関する助言ではありません。',
+    ],
+    action: { label: '鑑定を見る', url },
+    linkHint: 'ボタンが使えない場合は、次のリンクをコピーしてブラウザに貼り付けてください：',
+    footer: `${appName}で詳しい鑑定をご利用いただいたため、このメールをお送りしています。`,
+  }),
+  'verify-email': ({ url }, { appName, recipientName }) => ({
+    subject: `${appName}のメールアドレス確認`,
+    preview: `メールアドレスを確認して、${appName}のアカウント登録を完了してください。`,
+    heading: 'メールアドレスの確認',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      `${appName}にご登録いただき、ありがとうございます。下のボタンを押して、メールアドレスを確認してください。`,
+    ],
+    action: { label: 'メールアドレスを確認', url },
+    linkHint: 'ボタンが使えない場合は、次のリンクをコピーしてブラウザに貼り付けてください：',
+    footer: `${appName}のアカウントを作成した覚えがない場合は、このメールを破棄してください。`,
+  }),
+  otp: ({ otp, purpose, expiresInMinutes }, { appName, recipientName }) => {
+    const purposeText = {
+      'sign-in': `${appName}へのログイン`,
+      'email-verification': `${appName}のメールアドレス確認`,
+      'forget-password': `${appName}のパスワード再設定`,
+    }[purpose]
+    return {
+      subject: `${appName}の確認コード：${otp}`,
+      preview: `${purposeText}にこのコードをお使いください。`,
+      heading: '確認コード',
+      greeting: greetingJa(recipientName),
+      paragraphs: [
+        `${purposeText}に、次のコードをお使いください。コードの有効期限は${expiresInMinutes}分です。`,
+      ],
+      code: otp,
+      linkHint: '',
+      footer:
+        'このコードは誰にも教えないでください。お心当たりがない場合は、このメールを破棄してください。',
+    }
+  },
+  'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${appName}へのログイン`,
+    preview: `${appName}のログイン用リンクです。`,
+    heading: `${appName}にログイン`,
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      `下のボタンを押すとログインできます。リンクの有効期限は${expiresInMinutes}分で、一度だけ使用できます。`,
+    ],
+    action: { label: 'ログイン', url },
+    linkHint: 'ボタンが使えない場合は、次のリンクをコピーしてブラウザに貼り付けてください：',
+    footer: 'お心当たりがない場合は、このメールを破棄してください。',
+  }),
+  'reset-password': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${appName}のパスワード再設定`,
+    preview: `こちらのリンクから${appName}の新しいパスワードを設定してください。`,
+    heading: 'パスワードの再設定',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      `${appName}のアカウントのパスワード再設定のリクエストを受け付けました。下のボタンを押して、新しいパスワードを設定してください。リンクの有効期限は${expiresInMinutes}分です。`,
+    ],
+    action: { label: 'パスワードを再設定', url },
+    linkHint: 'ボタンが使えない場合は、次のリンクをコピーしてブラウザに貼り付けてください：',
+    footer: 'お心当たりがない場合は、このメールを破棄してください。パスワードは変更されません。',
+  }),
+  'workspace-invitation': (
+    { url, workspaceName, inviterName, role, expiresInDays },
+    { appName, recipientName },
+  ) => ({
+    subject: `${inviterName}さんから${appName}の「${workspaceName}」への招待が届いています`,
+    preview: `${appName}のワークスペース「${workspaceName}」に参加しましょう。`,
+    heading: `「${workspaceName}」に参加`,
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      `${inviterName}さんが、${appName}のワークスペース「${workspaceName}」に${{ owner: 'オーナー', admin: '管理者', member: 'メンバー' }[role]}としてあなたを招待しました。`,
+      `招待の有効期限は${expiresInDays}日間です。`,
+    ],
+    action: { label: '招待を承認', url },
+    linkHint: 'ボタンが使えない場合は、次のリンクをコピーしてブラウザに貼り付けてください：',
+    footer: 'お心当たりのない招待の場合は、このメールを破棄してください。',
+  }),
+}
+
 function greetingEn(name: string | undefined): string {
   return name ? `Hi ${name},` : 'Hi,'
 }
@@ -660,9 +807,14 @@ function greetingKo(name: string | undefined): string {
   return name ? `${name} 님, 안녕하세요.` : '안녕하세요.'
 }
 
+function greetingJa(name: string | undefined): string {
+  return name ? `${name} 様` : 'こんにちは。'
+}
+
 export const copies: { readonly [L in EmailLocale]: CopyBuilders } = {
   en,
   'zh-Hant': zhHant,
   'zh-Hans': zhHans,
   ko,
+  ja,
 }

@@ -38,6 +38,14 @@ const METHODS: Record<Locale, readonly Pair[]> = {
     [m.bazi_home_faq_q3, m.bazi_home_faq_a3],
     [m.bazi_gunghap_faq_q1, m.bazi_gunghap_faq_a1],
   ],
+  // 日语第一期只有四柱推命与紫微斗数（没有命盤查詢）
+  ja: [
+    [m.bazi_home_faq_q1, m.bazi_home_faq_a1],
+    [m.bazi_home_faq_q2, m.bazi_home_faq_a2],
+    [m.bazi_home_faq_q3, m.bazi_home_faq_a3],
+    [m.bazi_ziwei_faq_q1, m.bazi_ziwei_faq_a1],
+    [m.bazi_ziwei_faq_q2, m.bazi_ziwei_faq_a2],
+  ],
 }
 
 /** /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式、账号三组问答 */

@@ -18,6 +18,7 @@ export const ANNUAL_SECTION_TITLES = [
   '大限與流年',
   '大限与流年',
   'Year by Year',
+  '大限と年運',
 ] as const
 
 const STEM_KEYS = ['jia', 'yi', 'bing', 'ding', 'wu', 'ji', 'geng', 'xin', 'ren', 'gui']
@@ -109,7 +110,7 @@ export function wrongGlyphs(text: string, locale: string): string[] {
   return [...new Set([...text].filter((char) => set.has(char)))]
 }
 
-/** 中文、韩文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算） */
+/** 中文、韩文、日文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算） */
 export function latinWords(text: string, locale: string): string[] {
   if (locale === 'en') return []
   return [...new Set(text.match(/[A-Za-z]{2,}/g) ?? [])]
@@ -125,6 +126,8 @@ export const DEFAULT_LENGTH: Readonly<Record<string, readonly [number, number]>>
   'zh-Hans': [2000, 12000],
   ko: [2500, 15000],
   en: [8000, 40000],
+  // 日语假名多，同样内容的字数高于中文
+  ja: [3000, 16000],
 }
 
 /** 年份小节与数据一致：标题年份集合等于窗口、按年份排序，标题中的干支或个人年数与 JSON 一致 */

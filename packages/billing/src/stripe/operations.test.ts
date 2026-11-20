@@ -769,6 +769,7 @@ describe('Stripe refunds and immutable plan prices', () => {
       ['zh-Hant', 'zh_hant', '入門包', '100 積分'],
       ['zh-Hans', 'zh_hans', '入门包', '100 积分'],
       ['ko', 'ko', '스타터 팩', '100 크레딧'],
+      ['ja', 'ja', 'スターターパック', '100 クレジット'],
     ] as const
     const packSync: PlanSyncInput = {
       plan: {

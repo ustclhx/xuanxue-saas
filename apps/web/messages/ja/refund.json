@@ -1,0 +1,12 @@
+{
+  "refund_title": "返金をリクエスト",
+  "refund_window_notice": "お支払いから{days}日以内のものが審査の対象です。返金には承認が必要で、解約やアカウントの削除によって、お支払いが自動的に返金されることはありません。",
+  "refund_contact_retention_notice": "連絡先のメールアドレスは、アカウント削除後も審査結果をお届けするために保持されます。最終的な判断から30日後に削除されます。",
+  "refund_payment": "お支払い",
+  "refund_choose_payment": "お支払いを選ぶ",
+  "refund_reason": "理由",
+  "refund_contact_email": "連絡先のメールアドレス",
+  "refund_submit": "返金リクエストを送信",
+  "refund_no_eligible_payments": "審査中のリクエストがない、対象のお支払いはありません。",
+  "refund_submitted": "返金リクエストを送信しました。結果は連絡先のメールアドレスにお送りします。"
+}

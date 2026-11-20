@@ -511,8 +511,13 @@ export function faqOriginStats({ contentDir, locale, messageOrigins = null }) {
   if (messageOrigins) {
     // 文案 FAQ 以键名前缀成组：`bazi_home_faq_q1` → `bazi_home_faq`
     const groups = new Map()
-    for (const [key, origin] of Object.entries(messageOrigins)) {
-      const group = key.replace(/_?q?\d+$/, '')
+    // 也可按页面分组登记：{ "<页面路径>": { "<文案键>": "local" } }（汇总页、定价页的问答键没有共同前缀）
+    const entries = Object.entries(messageOrigins).flatMap(([key, origin]) =>
+      origin && typeof origin === 'object'
+        ? Object.values(origin).map((value) => [key, value])
+        : [[key.replace(/_?q?\d+$/, ''), origin]],
+    )
+    for (const [group, origin] of entries) {
       const counts = groups.get(group) ?? { local: 0, adapted: 0, missing: 0 }
       if (origin === 'local') counts.local += 1
       else if (origin === 'adapted') counts.adapted += 1

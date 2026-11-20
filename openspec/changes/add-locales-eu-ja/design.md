@@ -389,3 +389,16 @@
 | TR-9 | `features/i18n/language-controls.tsx`（LanguageSuggestion）、`suggestion.ts`（localeSuggestionScript）、`routes/__root.tsx` | 语言建议改为客户端提示，不输出 SSR 横幅与首帧脚本、不写 Cookie（本项目已停用并以 LocalePrompt 取代） |
 | TR-10 | `features/i18n/auth-locale.ts`、`request.server.ts`、`preference.ts`（preferredLocale） | 不按 Accept-Language / 偏好 Cookie 选择公开页与认证页语言 |
 | TR-11 | — | 模板加入多语言 SEO 验收检查（本项目 `check-i18n-seo.mjs` 可作参考） |
+
+## 第 4 组（`ja`）实施记录（2026-11-21）
+
+- **网址与标题**按使用者批准的关键词地图（`keyword-maps/ja.md`）：`/ja/タロット/一枚引き`、牌义索引 `/ja/タロット/意味` 与牌义 `/ja/タロット/意味/<英文 slug>`（取代上文决策 2 表中的 `今日の一枚`、`カード`）；
+  FAQ 与定价沿用 `/ja/faq`、`/ja/pricing`；日语标题分隔符 `｜`；牌阵页另有 SEO 标题（`tarotSeoTitle`），牌义页 frontmatter 可另写 H1（`heading`）。
+- **四柱推命**复用八字组件（日语标签来自 `messages/ja/bazi.json`），默认出生地东京；引擎新增大阪、名古屋、札幌、福冈（`Asia/Tokyo`），
+  1948–1951 年サマータイム由 tzdata 处理并有引擎测试；命盤查詢与概念页链接在 `ja` 不渲染（`localPageHref`、`conceptPath`）。字体：`ja` 不加载网页字体，用系统日文字体（3.1 由 Fable 精修）。
+- **按语言放宽的严格文案**：`ja` 第一期不提供每日运势与数字命理（决策 4），`daily`、`numerology*`、`chart-numerology` 不翻译（`LOCALE_LENIENT_MESSAGE_FEATURES`）。
+- **结构自定**：工具页长文按空行分段（`ToolArticle`）；日语首页 FAQ 加一则本地问法（个人资料），FAQ 汇总页多一问，避免与中文、韩语页结构一致。
+- **测量**：`measure-locale-similarity` 从预渲染产物读取未发布语言的页面（不在站点地图中）并按其 hreflang 反向配对；FAQ 来源登记支持按页面分组。
+  回译由 Codex 完成（使用者决定）：`measure-locale-backtranslation --export-input / --from-file`，不调用 API。
+- **首页包**：`ja` 写入配置后首页闭包 gzip 353,439 B（main 349,640 B，预算 352,174 B，超出约 1.3KB）。来源是注册表、静态页 SEO 文案与路由树中的日语字符串及按语言拆分的查表，
+  按决策 D-9 不自行上调预算，待使用者决定（上调幅度，或另立任务把注册表 / SEO 文案按语言拆分）。

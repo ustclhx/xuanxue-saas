@@ -9,7 +9,7 @@ import { seedBillingCatalog } from './fixtures.ts'
 const { defaultLocale } = templateConfig.i18n
 const otherLocales = templateConfig.i18n.locales.filter((locale) => locale !== defaultLocale)
 const languages = [defaultLocale, ...otherLocales]
-const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'zh-Hans', 'ko']
+const EAST_TOOL_HOMES: readonly string[] = ['zh-Hant', 'zh-Hans', 'ko', 'ja']
 
 for (const lang of languages) {
   const prefix = lang === defaultLocale ? '' : localePrefix(lang)
@@ -157,6 +157,18 @@ for (const lang of languages) {
           disclaimer: ['예측이 아니라 성찰', '미래를 예측하지 않음'],
         },
       },
+      ja: {
+        titles: ['プライバシーポリシー', '利用規約', '返金ポリシー', '免責事項'],
+        footer: '免責事項',
+        cookies: 'Cookie',
+        operator: 'Lucinum LLC',
+        body: {
+          privacy: ['18 歳以上', '販売することは決して', 'DeepSeek', '紫微斗数'],
+          terms: ['18 歳以上', '責任の制限'],
+          refund: ['自動的にお客様のアカウントに返却', '返金できない場合'],
+          disclaimer: ['算出と解釈', '未来を予言するものではありません'],
+        },
+      },
     }[lang]
     if (!copy) throw new Error(`Missing legal copy for ${lang}`)
     const site = lang === 'en' ? 'west' : 'east'
@@ -192,6 +204,11 @@ for (const lang of languages) {
     const sitemap = await request.get(`/sitemap/${lang === 'en' ? 'en' : lang.toLowerCase()}.xml`, {
       headers: { host: origin.host },
     })
+    // 未发布语言（ja，features/i18n/rollout.ts）没有子站点地图
+    if (lang === 'ja') {
+      expect(sitemap.status()).toBe(404)
+      return
+    }
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
     for (const slug of slugs)

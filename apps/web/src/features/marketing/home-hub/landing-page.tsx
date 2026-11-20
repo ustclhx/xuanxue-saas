@@ -284,11 +284,16 @@ function TrustFacts() {
  * 首页不输出 FAQPage 结构化数据（工具专属 FAQ 与 FAQPage 在工具页）。
  */
 function BrandFaq() {
-  const items = [
+  const items: readonly (readonly [string, string])[] = [
     [m.pricing_faq_free_q(), m.pricing_faq_free_a()],
     [m.pricing_faq_accuracy_q(), m.pricing_faq_accuracy_a()],
     [m.pricing_faq_pay_q(), m.pricing_faq_pay_a()],
-  ] as const
+    // 日语访客常问「生年月日を入れても大丈夫か」（Yahoo!知恵袋，本地问法），日语首页另加这一问
+    // （add-locales-eu-ja 决策 10：FAQ 选题本地化，不要求与其他语言同数）
+    ...(getLocale() === 'ja'
+      ? [[m.marketing_faq_privacy_q(), m.marketing_faq_privacy_a()] as const]
+      : []),
+  ]
   return (
     <Section id="faq" data-landing-block="faq" title={m.pricing_faq_title()}>
       <div className="max-w-180 border-line border-t">

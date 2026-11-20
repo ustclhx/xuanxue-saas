@@ -1,0 +1,23 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_card_save": "シェア用の画像を保存",
+  "share_card_generating": "画像を作成中…",
+  "share_card_include_birth": "画像に生年月日を表示する",
+  "share_card_ready": "画像は、このブラウザー内で作成されました。アップロードはされていません。",
+  "share_card_download": "画像をダウンロード",
+  "share_card_share": "シェア",
+  "share_card_failed": "画像を作成できませんでした。もう一度お試しください。結果とシェア用のリンクは、そのままご利用いただけます。",
+  "share_card_retry": "もう一度試す",
+  "share_card_preview_alt": "シェア用画像のプレビュー",
+  "share_card_title_bazi": "{brand}・私の四柱推命",
+  "share_card_title_manseryeok": "{brand}・私のマンセリョク（万歳暦）",
+  "share_card_title_ziwei": "{brand}・私の紫微斗数",
+  "share_card_eyebrow_life_path": "私のライフパスナンバー",
+  "share_card_cta_east": "{domain}で無料で命式を確認",
+  "share_card_cta_west": "{domain}であなたの数字を調べる",
+  "share_card_privacy_without_birth": "生年月日は表示されません",
+  "share_card_privacy_with_birth": "お名前と出生地は表示されません",
+  "share_card_disclaimer": "伝統的な方法に基づいて算出しています。参考情報であり、自分を見つめ直すための材料です。未来を予言するものではありません。",
+  "share_card_ziwei_stars": "命宮の星：{stars}",
+  "share_card_list_separator": "、"
+}

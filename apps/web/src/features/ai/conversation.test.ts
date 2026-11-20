@@ -183,6 +183,7 @@ describe('conversation titles', () => {
       'zh-Hant': '新對話',
       'zh-Hans': '新对话',
       ko: '새 채팅',
+      ja: '新しいチャット',
     }
     for (const locale of locales) {
       overwriteGetLocale(() => locale)

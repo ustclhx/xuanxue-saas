@@ -28,7 +28,7 @@ describe('页面清单与牌名', () => {
       jaPages.filter((p) => p.kind === 'tool').map((p) => p.path),
       ['/ja/四柱推命', '/ja/紫微斗数'],
     )
-    assert.equal(page('ja', 'card:the-sun').path, '/ja/タロット/カード/the-sun')
+    assert.equal(page('ja', 'card:the-sun').path, '/ja/タロット/意味/the-sun')
     assert.equal(page('es', 'tarot:yes-or-no').path, '/es/tarot/si-o-no')
   })
 

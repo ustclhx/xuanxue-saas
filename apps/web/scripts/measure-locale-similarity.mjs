@@ -15,7 +15,7 @@
 //   --opencc <目录>    含 node_modules/opencc-js 的目录（仓库不安装 opencc）；缺省时跳过 zh-Hant 变体比较
 //   --out <目录>       输出目录，缺省 $EVIDENCE_DIR/locale-similarity（未设置时 test-results/evidence/）
 //   --enforce <语言>   这些语言有未达门槛的页面时以 1 退出；缺省只报告
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -97,7 +97,20 @@ export async function siteClient(config, siteId, baseUrl) {
   const url = new URL(baseUrl)
   url.hostname = host
   const origin = url.origin
-  const entries = await readAllSitemaps(origin, send)
+  const pending = pendingEntries(
+    siteId,
+    site.locales,
+    (await import('../src/features/i18n/rollout.ts')).releaseState,
+  )
+  const entries = [...(await readAllSitemaps(origin, send)), ...pending]
+  // 已发布语言的页面不列未发布语言（hreflang 过滤），按未发布页面自身的 hreflang 反向补上对应关系
+  const byLoc = new Map(entries.map((e) => [e.loc, e]))
+  for (const e of pending) {
+    const own = Object.entries(e.alts).find(([, href]) => href === e.loc)?.[0]
+    for (const [lang, href] of Object.entries(e.alts))
+      if (lang !== 'x-default' && href !== e.loc && byLoc.get(href) && own)
+        byLoc.get(href).alts = { ...byLoc.get(href).alts, [own]: e.loc }
+  }
   const fetchHtml = async (path) => {
     const response = await send(new URL(path, origin).href)
     if (response.status !== 200) {
@@ -107,6 +120,46 @@ export async function siteClient(config, siteId, baseUrl) {
     return response.text()
   }
   return { site, host, entries, fetchHtml }
+}
+
+/**
+ * 未发布语言（features/i18n/rollout.ts）不进站点地图，但发布前就要过门槛：从预渲染产物
+ * dist/client/<语言前缀>/ 取它的页面，loc 与对应关系取自页面自身的 hreflang（自指 + 已发布语言）。
+ */
+export function pendingEntries(
+  siteId,
+  locales,
+  releaseState,
+  distDir = join(WEB_ROOT, 'dist/client'),
+) {
+  const entries = []
+  for (const locale of locales.filter((l) => releaseState(siteId, l) !== 'released')) {
+    const prefix = locale.toLowerCase()
+    const files = []
+    if (existsSync(join(distDir, `${prefix}.html`))) files.push(`${prefix}.html`)
+    const walk = (dir) => {
+      if (!existsSync(join(distDir, dir))) return
+      for (const name of readdirSync(join(distDir, dir))) {
+        const rel = `${dir}/${name}`
+        if (statSync(join(distDir, rel)).isDirectory()) walk(rel)
+        else if (name.endsWith('.html')) files.push(rel)
+      }
+    }
+    walk(prefix)
+    for (const file of files) {
+      const html = readFileSync(join(distDir, file), 'utf8')
+      if (/<meta[^>]+name="robots"[^>]+noindex/.test(html.slice(0, html.indexOf('</head>'))))
+        continue
+      const alts = {}
+      for (const m of html.matchAll(/<link\b[^>]*rel="alternate"[^>]*>/g)) {
+        const lang = /hreflang="([^"]+)"/i.exec(m[0])?.[1]
+        const href = /href="([^"]+)"/.exec(m[0])?.[1]
+        if (lang && href) alts[lang] = href.replaceAll('&amp;', '&')
+      }
+      if (alts[locale]) entries.push({ loc: alts[locale], alts })
+    }
+  }
+  return entries
 }
 
 export async function pool(items, worker) {

@@ -19,16 +19,37 @@ describe('fixed exchange price table', () => {
   it.each(entries)('%s literals equal snapshot × rounding rule', (_name, amounts) => {
     expect(amounts.TWD).toBe(convertFromUsd(amounts.USD, 'TWD'))
     expect(amounts.KRW).toBe(convertFromUsd(amounts.USD, 'KRW'))
+    expect(amounts.JPY).toBe(convertFromUsd(amounts.USD, 'JPY'))
+    // JPY 取整到十日元
+    expect(amounts.JPY % 10).toBe(0)
     expect(amounts.CNY).toBe(cnyReference(amounts.USD))
-    for (const currency of ['USD', 'TWD', 'KRW'] as const)
+    for (const currency of ['USD', 'TWD', 'KRW', 'JPY'] as const)
       expect(isValidMinorAmount(amounts[currency], currency)).toBe(true)
   })
 
   it('keeps the user-confirmed values', () => {
-    expect(PRICE_TABLE.reading_single.once).toEqual({ USD: 299, TWD: 9700, KRW: 4200, CNY: 2000 })
-    expect(PRICE_TABLE.reading_five.once).toEqual({ USD: 799, TWD: 26000, KRW: 11200, CNY: 5400 })
-    expect(PRICE_TABLE.plus.month).toEqual({ USD: 499, TWD: 16200, KRW: 7000, CNY: 3300 })
-    expect(PRICE_TABLE.premium.month).toEqual({ USD: 999, TWD: 32500, KRW: 14000, CNY: 6700 })
+    expect(PRICE_TABLE.reading_single.once).toEqual({
+      USD: 299,
+      TWD: 9700,
+      KRW: 4200,
+      JPY: 450,
+      CNY: 2000,
+    })
+    expect(PRICE_TABLE.reading_five.once).toEqual({
+      USD: 799,
+      TWD: 26000,
+      KRW: 11200,
+      JPY: 1200,
+      CNY: 5400,
+    })
+    expect(PRICE_TABLE.plus.month).toEqual({ USD: 499, TWD: 16200, KRW: 7000, JPY: 750, CNY: 3300 })
+    expect(PRICE_TABLE.premium.month).toEqual({
+      USD: 999,
+      TWD: 32500,
+      KRW: 14000,
+      JPY: 1500,
+      CNY: 6700,
+    })
   })
 
   it('expands settlement currencies only', () => {
@@ -36,8 +57,14 @@ describe('fixed exchange price table', () => {
       { interval: null, amount: 299, currency: 'USD' },
       { interval: null, amount: 9700, currency: 'TWD' },
       { interval: null, amount: 4200, currency: 'KRW' },
+      { interval: null, amount: 450, currency: 'JPY' },
     ])
-    expect(tablePrices('plus').map((price) => price.interval)).toEqual(['month', 'month', 'month'])
+    expect(tablePrices('plus').map((price) => price.interval)).toEqual([
+      'month',
+      'month',
+      'month',
+      'month',
+    ])
   })
 
   it('warns (without failing) when the FX snapshot is older than 180 days', () => {

@@ -101,6 +101,14 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ko/사주/신살' },
       { path: '/ko/사주/십신' },
       { path: '/ko/사주/일주' },
+      // 日语（add-locales-eu-ja 第 4 组，pending：照常预渲染供 staging，正式域名由站点守卫返回 404）
+      { path: '/ja' },
+      { path: '/ja/四柱推命' },
+      { path: '/ja/紫微斗数' },
+      { path: '/ja/タロット' },
+      { path: '/ja/タロット/一枚引き' },
+      { path: '/ja/タロット/イエスノー' },
+      { path: '/ja/タロット/ケルト十字' },
       // 东方站英文入口页（D5）
       { path: '/en' },
       { path: '/' },

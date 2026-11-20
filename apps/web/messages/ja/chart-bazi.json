@@ -1,0 +1,6 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_bazi_pillars_title": "命式：{pillars}／日干 {dayMaster}",
+  "chart_bazi_elements_title": "五行のバランス（個数・割合）：{elements}",
+  "chart_bazi_list_separator": "、"
+}
