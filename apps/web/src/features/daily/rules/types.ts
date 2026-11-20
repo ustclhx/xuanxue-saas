@@ -7,7 +7,7 @@ import type { DailyRelationKind, DutyKey, PillarKey, TenGod } from '@xuanxue/baz
  * 不写吉凶断语，不预测具体事件或月日，不给医疗、投资、法律方面的确定性建议，不提 AI。
  * 同一类事实准备多条，按日期确定性轮换（copy.ts）。文案改动时递增 DAILY_COPY_VERSION。
  */
-export const DAILY_COPY_VERSION = '1.0.0'
+export const DAILY_COPY_VERSION = '1.1.0'
 
 export interface DailyTip {
   /** 主题：一句话概括今天的气氛 */
