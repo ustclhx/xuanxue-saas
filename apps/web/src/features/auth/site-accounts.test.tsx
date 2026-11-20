@@ -27,6 +27,10 @@ vi.mock('@tanstack/react-router', () => ({
     useSearch: () => state.search,
   }),
   Link: ({ children }: { children: ReactNode }) => <a href="/login">{children}</a>,
+  // 认证页右上角的语言菜单按当前地址与 hreflang 生成链接（features/i18n/language-links.ts）
+  useLocation: ({ select }: { select: (location: object) => unknown }) =>
+    select({ pathname: '/register', publicHref: '/register', searchStr: '' }),
+  useRouterState: ({ select }: { select: (state: object) => unknown }) => select({ matches: [] }),
 }))
 vi.mock('./options.functions.ts', () => ({ getAuthUiOptions: vi.fn() }))
 

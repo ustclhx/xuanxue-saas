@@ -1,7 +1,7 @@
 import { cn } from '@xuanxue/ui'
 import { m } from '../../paraglide/messages.js'
 import { templateConfig } from '../../server/template-config.ts'
-import { LanguageSelect } from '../i18n/language-controls.tsx'
+import { LanguageDropdown } from '../i18n/language-controls.tsx'
 import { useSiteId } from '../site/context.tsx'
 import { ThemeToggle } from './theme-toggle.tsx'
 
@@ -18,14 +18,14 @@ export function ThemeSetting({ className }: { className?: string }) {
   )
 }
 
-/** 设置行中的语言下拉：只有一种语言的站点（西方站）不渲染 */
+/** 设置行中的语言下拉（选项是普通链接）：只有一种语言的站点（西方站）不渲染 */
 export function LanguageSetting({ className }: { className?: string }) {
   const siteId = useSiteId()
   if (templateConfig.sites[siteId].locales.length < 2) return null
   return (
     <div className={cn(row, className)}>
       <span className={label}>{m.i18n_language()}</span>
-      <LanguageSelect />
+      <LanguageDropdown />
     </div>
   )
 }

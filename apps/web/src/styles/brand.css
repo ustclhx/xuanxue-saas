@@ -413,3 +413,11 @@
 :root[data-site] {
   --neutral-fill: color-mix(in oklab, var(--surface) 88%, var(--ink));
 }
+
+/*
+ * 控件内的单行文字：行框按大写字母高度与基线裁切后再居中，与 @xuanxue/ui 的 Select 触发器相同。
+ * 设置行的语言下拉（features/i18n/language-controls.tsx）不用 Select（选项是普通链接），用它保持文字位置一致。
+ */
+@utility text-box-cap {
+  text-box: trim-both cap alphabetic;
+}

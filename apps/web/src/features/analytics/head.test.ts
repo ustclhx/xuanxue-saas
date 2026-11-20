@@ -11,9 +11,9 @@ vi.mock('../admin/impersonation-banner.tsx', () => ({ ImpersonationBanner: () =>
 vi.mock('../admin/settings-announcement-banner.tsx', () => ({ AnnouncementBanner: () => null }))
 vi.mock('../i18n/language-controls.tsx', () => ({
   LanguageMenu: () => null,
-  LanguageSelect: () => null,
-  LanguageSuggestion: () => null,
+  LanguageDropdown: () => null,
 }))
+vi.mock('../i18n/language-select.tsx', () => ({ LanguageSelect: () => null }))
 
 import { getLocale } from '../../paraglide/runtime.js'
 import { Route } from '../../routes/__root.tsx'
