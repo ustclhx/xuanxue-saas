@@ -7,7 +7,9 @@ import {
   activeLocales,
   findMissingMessages,
   formatMissingMessages,
+  formatStrictMissing,
   paraglideOptions,
+  strictMissingMessages,
   writeInlangProject,
 } from './i18n-project.ts'
 
@@ -41,6 +43,31 @@ describe('文案回退与缺失检查（tasks.md 1.3）', () => {
       'zh-Hant: common_cancel (messages/zh-Hant/common.json)',
     )
     expect(formatMissingMessages([])).toBeNull()
+  })
+
+  it('严格语言（新语言）缺键时报错并列出语言、文件与键名；后台文件与非严格语言只告警', () => {
+    const missing = [
+      { locale: 'ja', feature: 'bazi', key: 'bazi_title' },
+      { locale: 'ja', feature: 'admin-daily-credits', key: 'admin_x' },
+      { locale: 'ja', feature: 'ui-preview', key: 'ui_x' },
+      { locale: 'zh-Hant', feature: 'common', key: 'common_cancel' },
+    ]
+    const strict = { locales: ['ja', 'es'], lenientFeatures: [/^admin(-|$)/, /^ui-preview(-|$)/] }
+    const failures = strictMissingMessages(missing, strict)
+    expect(failures).toEqual([{ locale: 'ja', feature: 'bazi', key: 'bazi_title' }])
+    expect(formatStrictMissing(failures)).toContain('ja: bazi_title (messages/ja/bazi.json)')
+    expect(strictMissingMessages(missing, undefined)).toEqual([])
+    expect(formatStrictMissing([])).toBeNull()
+  })
+
+  it('严格语言整个功能文件缺失时，每条键都算缺失', () => {
+    writeMessages('ja', 'pricing', { pricing_title: '料金' })
+    const missing = findMissingMessages({ locales: ['en', 'ja'], defaultLocale: 'en' }, root)
+    expect(strictMissingMessages(missing, { locales: ['ja'] })).toEqual([
+      { locale: 'ja', feature: 'common', key: 'common_save' },
+      { locale: 'ja', feature: 'common', key: 'common_cancel' },
+    ])
+    rmSync(join(root, 'messages', 'ja'), { recursive: true, force: true })
   })
 
   it('按功能拆分的文案文件编译后，缺失的中文文案回退到默认语言文本而不是键名', async () => {

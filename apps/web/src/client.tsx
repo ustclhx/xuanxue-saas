@@ -2,6 +2,7 @@ import './security-client.ts'
 import { StrictMode, startTransition } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { siteLocale } from './features/i18n/site-locale.ts'
+import { loadSplitMessages } from './features/i18n/split-messages.ts'
 import { getLocale, type Locale, overwriteGetLocale } from './paraglide/runtime.js'
 import { templateConfig } from './server/template-config.ts'
 
@@ -12,13 +13,16 @@ overwriteGetLocale(
 )
 
 // 先配置 Zod，再加载含业务 schema 的路由图；静态 import 会先执行依赖中的 schema 初始化。
-void import('@tanstack/react-start/client').then(({ StartClient }) => {
-  startTransition(() => {
-    hydrateRoot(
-      document,
-      <StrictMode>
-        <StartClient />
-      </StrictMode>,
-    )
-  })
-})
+// 新语言页面同时加载该语言的文案字典（features/i18n/split-messages.ts），水合前就绪；v1 语言不加载
+void Promise.all([import('@tanstack/react-start/client'), loadSplitMessages(getLocale())]).then(
+  ([{ StartClient }]) => {
+    startTransition(() => {
+      hydrateRoot(
+        document,
+        <StrictMode>
+          <StartClient />
+        </StrictMode>,
+      )
+    })
+  },
+)

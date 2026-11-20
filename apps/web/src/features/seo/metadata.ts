@@ -4,6 +4,7 @@ import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
+import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
@@ -98,6 +99,8 @@ export function absoluteUrl(appUrl: string, path: string): string {
  * （繁体中文）；该版本不存在时按站点语言顺序取第一个存在的版本。不再指向会跳转的东方站根路径
  * （openspec fix-seo-canonical-indexing design.md 决策 5）。页面 head 与站点地图共用本函数。
  * 东方站各语言首页另与东方站英文入口页 `/en` 互指。
+ * 项目改动（openspec add-locales-eu-ja 决策 5）：未发布语言（features/i18n/rollout.ts）不出现在其他页面的
+ * hreflang 中；页面自身语言保留（未发布语言页面只在预览主机可访问且整体 noindex）。
  */
 export function alternateLinks(
   _appUrl: string,
@@ -107,7 +110,9 @@ export function alternateLinks(
   locale = languages[0] ?? defaultLocale,
 ) {
   const site = siteOfLocale(locale, templateConfig) ?? 'west'
-  const sameSite = (language: string) => siteOfLocale(language, templateConfig) === site
+  const sameSite = (language: string) =>
+    siteOfLocale(language, templateConfig) === site &&
+    (language === locale || isLocaleReleased(language, templateConfig, site))
   const tool = TOOL_ROUTES.find((route) => route.paths[locale] === path)
   // 同一路径在其他语言下是另一个工具（如西方站首页 / 为 Life Path 计算器）时内容不同，不互指
   const paths =

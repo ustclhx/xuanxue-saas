@@ -14,6 +14,7 @@ import remarkGfm from 'remark-gfm'
 import { z } from 'zod'
 import templateConfig from '../../template.config.ts'
 import { contentParents, sitePathPattern } from './src/features/seo/content-parents.ts'
+import { TAROT_LOCALES } from './src/features/tools/tarot/routes.ts'
 
 /**
  * 是否保留草稿：`vite dev` 中显示草稿便于预览，生产构建（NODE_ENV=production）直接跳过，
@@ -267,7 +268,8 @@ const tarot = defineCollection({
     title: z.string().min(1),
     description: z.string().min(1).max(160),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    locale: z.enum(['en', 'zh-Hant', 'zh-Hans', 'ko']),
+    // 塔罗在全部语言提供（openspec add-locales-eu-ja tasks 1.3）
+    locale: z.enum(TAROT_LOCALES),
     cardId: z.string(),
     arcana: z.enum(['major', 'minor']),
     suit: z.enum(['wands', 'cups', 'swords', 'pentacles']).optional(),
@@ -304,6 +306,7 @@ const concepts = defineCollection({
       .string()
       .min(1)
       .regex(/^[^/\s]+$/),
+    // 八字概念页只在 v1 东方站语言提供（ja 延后，design 决策 4）；加语言时显式加入
     locale: z.enum(['zh-Hant', 'zh-Hans', 'ko']),
     aliases: z
       .array(

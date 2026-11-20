@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { AppLocale, Assert, Covers } from '../i18n/locales.ts'
 
 export const OPTIN_TOPICS = ['love', 'career', 'money', 'reunion', 'growth'] as const
 export const optinResultSchema = z.discriminatedUnion('kind', [
@@ -37,12 +38,15 @@ const shareSchema = z
     z.union([z.string().max(2048), z.number().finite(), z.boolean(), z.null()]),
   )
   .refine((value) => Object.keys(value).length <= 20)
+// 全部配置语言；加语言时下方覆盖检查在类型检查阶段报错（openspec add-locales-eu-ja tasks 1.3）
+const OPTIN_LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko'] as const
+export type _OptinLocalesCoverConfig = Assert<Covers<(typeof OPTIN_LOCALES)[number], AppLocale>>
 export const readingOptinSchema = z.object({
   name: z.string().trim().max(80).default(''),
   sourceTool: z.string().max(60),
   topic: z.enum(OPTIN_TOPICS),
   site: z.enum(['east', 'west']),
-  locale: z.enum(['en', 'zh-Hant', 'zh-Hans', 'ko']),
+  locale: z.enum(OPTIN_LOCALES),
   result: optinResultSchema,
   share: shareSchema,
 })

@@ -52,9 +52,20 @@ export function siteNavLocale(site: SiteId, locale: string, config: SitesConfig)
   return defaultLocale ?? locales[0] ?? config.i18n.defaultLocale
 }
 
-/** 语言所属的站点；未配置的语言返回 undefined */
+/**
+ * 语言所属的站点；未配置的语言返回 undefined。
+ * 同一语言可在两个站点各有页面（openspec add-locales-eu-ja：东方站 `/en/…`）：此时取以它为默认语言的站点
+ * （`en` → 西方站），只知道语言、不知道站点的场景（规范域名、品牌名）继续落在原站点；
+ * 按站点区分的判断用 siteHasLocale。
+ */
 export function siteOfLocale(locale: string, config: SitesConfig): SiteId | undefined {
-  return SITE_IDS.find((id) => config.sites[id].locales.some((item) => item === locale))
+  const owners = SITE_IDS.filter((id) => siteHasLocale(id, locale, config))
+  return owners.find((id) => config.sites[id].defaultLocale === locale) ?? owners[0]
+}
+
+/** 站点是否服务该语言（按站点的语言列表，不经过 siteOfLocale 的单一归属） */
+export function siteHasLocale(site: SiteId, locale: string, config: SitesConfig): boolean {
+  return config.sites[site].locales.some((item) => item === locale)
 }
 
 /**

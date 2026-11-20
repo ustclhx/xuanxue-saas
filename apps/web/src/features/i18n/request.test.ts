@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { baseLocale, getLocale, isLocale } from '../../paraglide/runtime.js'
 import type { WebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
-import { languageUrl, preferredLocale } from './preference.ts'
+import { languageLocale, languageUrl, preferredLocale } from './preference.ts'
 import { localizeRequest } from './request.server.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
 
@@ -202,4 +202,15 @@ describe('首次访问建议', () => {
     expect(preferredLocale('en-US;q=0.9,zh;q=0.8')).toBe(isLocale('en') ? 'en' : baseLocale)
     expect(preferredLocale('zh;q=oops,fr')).toBe(baseLocale)
   })
+})
+
+it('浏览器语言按主语言匹配新语言；带地区的 pt-BR 不匹配 pt-PT（add-locales-eu-ja 1.7）', () => {
+  const locales = ['en', 'zh-Hant', 'ja', 'es', 'pt-BR'] as const
+  expect(languageLocale('ja-JP', locales)).toBe('ja')
+  expect(languageLocale('es-MX', locales)).toBe('es')
+  expect(languageLocale('es-419', locales)).toBe('es')
+  expect(languageLocale('pt', locales)).toBe('pt-BR')
+  expect(languageLocale('pt-BR', locales)).toBe('pt-BR')
+  expect(languageLocale('pt-PT', locales)).toBeUndefined()
+  expect(languageLocale('ko-KR', ['en', 'ko'])).toBe('ko')
 })

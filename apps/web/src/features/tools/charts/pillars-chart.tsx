@@ -1,5 +1,6 @@
 import type { Branch, PillarKey, Pillars, Stem } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
+import type { EastLocale } from '../../i18n/locales.ts'
 import { BRANCH_HANGUL, ganzhi, STEM_HANGUL, STEM_HANZI } from '../bazi/glyphs.ts'
 import { ELEMENT_LABEL, PILLAR_LABEL, TEN_GOD_LABEL } from '../bazi/labels.ts'
 import { ChartBox, ChartFrame, ChartText } from './chart-frame.tsx'
@@ -10,7 +11,7 @@ import { estimateTextWidth, type GlyphCell, layoutPillars, PILLAR_ORDER } from '
 // 天干地支格底色为 surface-2，日柱反色并在十神行写「日主」；每个字下方写五行名并配五行色圆点，
 // 颜色只作辅助。等价文字内容为页面中随后的藏干十神表（HiddenStemsTable）或命盘表格。
 
-export type PillarsLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
+export type PillarsLocale = EastLocale
 
 const DOT = 6
 const LABEL_SIZE = 22

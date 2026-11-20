@@ -6,6 +6,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { resolveSite } from '../site/site.ts'
 import { eastLocale } from './east-home.ts'
 import { languageUrl, localeCookie, readCookie, usesAccountLocale } from './preference.ts'
+import { isLocaleLive } from './rollout.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
 
 /** 中间件内用修改后的 Cookie 决定语言，交给路由器的仍是原地址与原请求头。 */
@@ -80,9 +81,17 @@ function accountLocale(saved: string | null | undefined, request: Request): Loca
   return isLocale(fallback) ? fallback : baseLocale
 }
 
-/** 语言属于请求 Host 对应的站点；未登记的 Host 接受全部已配置语言 */
+/**
+ * 语言属于请求 Host 对应的站点；未登记的 Host 接受全部已配置语言。
+ * 正式域名上未发布的语言（rollout.ts）不作为应用区语言。
+ */
 function ownsLocale(locale: string, request: Request): boolean {
-  const site = resolveSite(new URL(request.url).host, templateConfig)
+  const { host } = new URL(request.url)
+  const site = resolveSite(host, templateConfig)
   const own: readonly string[] = templateConfig.sites[site.id].locales
-  return isLocale(locale) && (!site.known || own.includes(locale))
+  return (
+    isLocale(locale) &&
+    (!site.known || own.includes(locale)) &&
+    isLocaleLive(locale, host, templateConfig)
+  )
 }

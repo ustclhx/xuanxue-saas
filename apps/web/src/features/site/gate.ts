@@ -2,14 +2,15 @@ import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { eastHomeRedirect, eastLocale } from '../i18n/east-home.ts'
+import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable } from '../i18n/rollout.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { mainToolPath } from '../tools/registry.ts'
 import {
   EAST_ENGLISH_LOCALE,
   resolveSite,
   type SitesConfig,
+  siteHasLocale,
   siteNavLocale,
-  siteOfLocale,
 } from './site.ts'
 
 /**
@@ -24,6 +25,8 @@ import {
  * - 东方站无前缀的公开页（含裸法律页）301 到本站默认导航语言（繁体中文）的同一路径，保留查询参数；
  *   目标不存在时由路由器返回 404，不再跳到首页（openspec fix-seo-canonical-indexing design.md 决策 4）。
  * - 未登记的 Host 按西方站处理并 noindex；预览环境需要浏览全部语言，因此不返回 404。
+ * - 本站语言尚未发布（features/i18n/rollout.ts，openspec add-locales-eu-ja 决策 5）时，正式域名返回 404、不跨站跳转；
+ *   staging、预览与本地主机照常放行。东方站英文入口页 `/en` 不受东方站 `en` 发布状态影响。
  */
 export type SiteDecision =
   | { readonly kind: 'redirect'; readonly status: 301 | 302; readonly location: string }
@@ -56,7 +59,12 @@ function isUnprefixedEastPath(pathname: string): boolean {
   )
 }
 
-export function routeSite(url: URL, config: SitesConfig): SiteDecision {
+export function routeSite(
+  url: URL,
+  config: SitesConfig,
+  /** null：不按发布状态拦截（构建期预渲染请求：pending 语言页面照常预渲染，供 staging 使用） */
+  release: ReleaseTable | null = LOCALE_RELEASE,
+): SiteDecision {
   const site = resolveSite(url.host, config)
   const noindex = !site.known
   if (!config.i18n.enabled) return { kind: 'pass', noindex }
@@ -73,8 +81,8 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
     // 带语言前缀的应用区地址交给语言守卫返回 404（features/i18n/gate.ts），不跳转
     if (isAppAreaPath(rest)) return { kind: 'pass', noindex }
     // 已登记的站点只提供自己的语言；预览地址可浏览全部语言
-    if (site.known && siteOfLocale(locale, config) !== site.id) {
-      const eastEnglish = site.id === 'east' && locale === EAST_ENGLISH_LOCALE && rest === '/'
+    const eastEnglish = site.id === 'east' && locale === EAST_ENGLISH_LOCALE && rest === '/'
+    if (site.known && !siteHasLocale(site.id, locale, config)) {
       if (eastEnglish) return { kind: 'pass', noindex }
       // 认证页没有语言也能访问：外站语言前缀的认证页（旧状态生成的 `/zh-hans/login?redirect=…`）
       // 302 到本站无前缀认证页、保留查询参数，再由认证页语言跳转选择本站语言；不跨站
@@ -83,6 +91,8 @@ export function routeSite(url: URL, config: SitesConfig): SiteDecision {
       return { kind: 'not-found' }
     }
     if (locale === config.sites[site.id].defaultLocale) return redirect(301, url.origin, rest)
+    if (release && !eastEnglish && !isLocaleLive(locale, url.host, config, release))
+      return { kind: 'not-found' }
     return { kind: 'pass', noindex }
   }
 
@@ -178,15 +188,22 @@ export function legacyHashRedirectScript(toolHref: string): string {
  * （东方站没有无前缀默认语言，否则会落到 baseLocale 英文，即西方站的语言）。
  * 客户端同样把外站语言换成本站导航语言（features/i18n/site-locale.ts）。
  */
-export function notFoundPath(url: URL, config: SitesConfig): string {
+export function notFoundPath(
+  url: URL,
+  config: SitesConfig,
+  release: ReleaseTable = LOCALE_RELEASE,
+): string {
   if (!config.i18n.enabled) return NOT_FOUND_PATH
   const site = resolveSite(url.host, config)
   const prefixed = prefixLocale(url.pathname, config.i18n.locales)
   const own: readonly string[] = config.sites[site.id].locales
+  // 未发布语言在正式域名上的 404 用本站导航语言渲染，不显示未发布语言的界面
   const locale =
-    prefixed !== undefined && (!site.known || own.includes(prefixed))
+    prefixed !== undefined &&
+    (!site.known || own.includes(prefixed)) &&
+    isLocaleLive(prefixed, url.host, config, release)
       ? prefixed
-      : siteNavLocale(site.id, prefixed ?? '', config)
+      : siteNavLocale(site.id, own.includes(prefixed ?? '') ? '' : (prefixed ?? ''), config)
   return locale === config.i18n.defaultLocale
     ? NOT_FOUND_PATH
     : `/${localeUrlSegment(locale)}${NOT_FOUND_PATH}`
@@ -204,12 +221,19 @@ export async function gateSiteRequest(
   request: Request,
   config: SitesConfig,
   next: (request: Request) => Response | Promise<Response>,
-  { canonicalize = true }: { readonly canonicalize?: boolean } = {},
+  {
+    canonicalize = true,
+    prerender = false,
+  }: {
+    readonly canonicalize?: boolean
+    /** 构建期预渲染请求：未发布语言的页面也要生成（正式域名上由本守卫在运行时返回 404） */
+    readonly prerender?: boolean
+  } = {},
 ): Promise<Response> {
   const original = new URL(request.url)
   const canonical = canonicalize ? canonicalUrl(original, request.method, config) : null
   const url = canonical ?? original
-  const decision = routeSite(url, config)
+  const decision = routeSite(url, config, prerender ? null : LOCALE_RELEASE)
   if (decision.kind === 'redirect')
     return new Response(null, { status: decision.status, headers: { location: decision.location } })
   // 不属于本站的地址直接给 404，不先跳到规范形式

@@ -136,6 +136,40 @@ export function findMissingMessages(
   return missing
 }
 
+/**
+ * 严格语言（项目扩展，openspec add-locales-eu-ja 决策 5；模板需求 TR-3）：`locales` 中的语言缺少文案时构建失败，
+ * 不回退到默认语言；功能文件名匹配 `lenientFeatures`（后台、UI 预览）的缺失仍只告警。
+ * 只检查已配置（参与编译）的语言。
+ */
+export interface StrictMessages {
+  readonly locales: readonly string[]
+  readonly lenientFeatures?: readonly RegExp[]
+}
+
+/** 缺失项中属于严格语言、且不在宽松功能文件中的项 */
+export function strictMissingMessages(
+  missing: readonly MissingMessage[],
+  strict: StrictMessages | undefined,
+): MissingMessage[] {
+  if (!strict) return []
+  return missing.filter(
+    ({ locale, feature }) =>
+      strict.locales.includes(locale) &&
+      !(strict.lenientFeatures ?? []).some((pattern) => pattern.test(feature)),
+  )
+}
+
+/** 严格语言缺失项的错误文本；没有时返回 null */
+export function formatStrictMissing(missing: readonly MissingMessage[]): string | null {
+  if (missing.length === 0) return null
+  return [
+    `[i18n] 严格语言缺少 ${missing.length} 条文案（不允许回退到默认语言）：`,
+    ...missing.map(
+      ({ locale, feature, key }) => `  - ${locale}: ${key} (messages/${locale}/${feature}.json)`,
+    ),
+  ].join('\n')
+}
+
 /** 缺失项的日志文本；没有缺失时返回 null */
 export function formatMissingMessages(missing: readonly MissingMessage[]): string | null {
   if (missing.length === 0) return null
@@ -154,9 +188,12 @@ export function formatMissingMessages(missing: readonly MissingMessage[]): strin
 export function i18nMessages({
   i18n,
   appAreaPrefixes,
+  strict,
 }: {
   readonly i18n: I18nConfig
   readonly appAreaPrefixes: readonly string[]
+  /** 项目扩展：严格语言缺键时构建失败 */
+  readonly strict?: StrictMessages
 }): Plugin[] {
   const unsupported = activeLocales(i18n).filter(
     (locale) => !(EMAIL_LOCALES as readonly string[]).includes(locale),
@@ -174,9 +211,10 @@ export function i18nMessages({
         // client 与 ssr 两个环境各触发一次 buildStart，只报告一次
         if (reported) return
         reported = true
-        const report = formatMissingMessages(
-          findMissingMessages({ ...i18n, locales: activeLocales(i18n) }),
-        )
+        const missing = findMissingMessages({ ...i18n, locales: activeLocales(i18n) })
+        const failures = formatStrictMissing(strictMissingMessages(missing, strict))
+        if (failures) this.error(failures)
+        const report = formatMissingMessages(missing)
         if (report) this.warn(report)
       },
     },

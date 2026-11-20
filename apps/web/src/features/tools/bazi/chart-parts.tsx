@@ -2,6 +2,7 @@ import type { BaziChart, Element, Pillar, PillarKey, ShenshaEntry, ShenshaKey } 
 import { cn } from '@xuanxue/ui'
 import { useId, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import type { EastLocale } from '../../i18n/locales.ts'
 import { useTool } from '../context.tsx'
 import { formatUtcOffset } from './birth-form-state.ts'
 import {
@@ -31,7 +32,7 @@ import {
  * 八字结果的各区块内容（繁中首页 7 区块与韩语만세력 6 区块共用）。
  * 五行色只作色点，每处都同时给出文字标签（视觉规范「设计 token」）；字号只用六个角色类。
  */
-export type EastLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
+export type { EastLocale }
 
 /** 干支等字形用标题字体（无衬线粗体） */
 const heading = 'font-heading'

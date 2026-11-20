@@ -129,8 +129,21 @@ describe('首帧前的语言建议脚本', () => {
     for (const tag of ['zh-TW', 'zh-HK', 'zh-CN', 'zh-Hant', 'zh'])
       expect(run({ languages: [tag] }), tag).toBe('zh')
     expect(run({ languages: ['en-GB', 'zh'] })).toBeNull()
-    expect(run({ languages: ['pt-PT'] })).toBe('pt-BR')
+    // 项目改动（add-locales-eu-ja 1.7）：带地区的 pt-BR 只接受 pt-BR 与不带地区的 pt，pt-PT 不建议
+    expect(run({ languages: ['pt-PT'] })).toBeNull()
     expect(run({ languages: ['pt'] })).toBe('pt-BR')
+    expect(run({ languages: ['pt-pt', 'zh'] })).toBe('zh')
+  })
+
+  it('新语言：ja-JP → ja、es-MX / es-419 → es；没有带地区的语言时脚本与改动前相同', () => {
+    const source = scriptFor({ locales: ['en', 'zh-Hant', 'ja', 'es', 'pt-BR'] })
+    expect(run({ source, languages: ['ja-JP'] })).toBe('ja')
+    expect(run({ source, languages: ['es-MX'] })).toBe('es')
+    expect(run({ source, languages: ['es-419'] })).toBe('es')
+    expect(run({ source, languages: ['pt'] })).toBe('pt-BR')
+    expect(run({ source, languages: ['pt-PT'] })).toBeNull()
+    expect(run({ source, languages: ['zh-TW'] })).toBe('zh-Hant')
+    expect(scriptFor({ locales: ['en', 'zh-Hant', 'ko'] })).not.toContain('||g({')
   })
 
   it('只建议允许的语言：最先匹配的语言不允许时不建议、不写属性、不注册监听', () => {

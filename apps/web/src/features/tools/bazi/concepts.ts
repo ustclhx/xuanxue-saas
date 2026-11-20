@@ -1,3 +1,4 @@
+import type { EastV1Locale } from '../../i18n/locales.ts'
 import { pageHead } from '../../seo/metadata.ts'
 import { toolHref } from '../tool-href.ts'
 import type { ConceptKey } from './eastern-routes.ts'
@@ -6,7 +7,7 @@ export interface ConceptPage {
   title: string
   description: string
   slug: string
-  locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  locale: EastV1Locale
   conceptKey: Exclude<ConceptKey, 'base'>
   block: string
   html: string

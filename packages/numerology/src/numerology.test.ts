@@ -14,6 +14,7 @@ import {
   personalYears,
   pinnacles,
   reduceNumber,
+  SPECIAL_LETTERS,
   universalDay,
 } from './index.ts'
 
@@ -58,6 +59,19 @@ describe('numerology', () => {
     expect([result.expression.value, result.soulUrge.value, result.personality.value]).toEqual([
       4, 6, 7,
     ])
+  })
+  it('maps letters that NFD cannot split (ß, ł, æ, ø, œ) by the documented table', () => {
+    expect(normalizeName('Weiß')).toBe('WEISS')
+    expect(normalizeName('Łukasz Wałęsa')).toBe('LUKASZ WALESA')
+    expect(normalizeName('Ærø Søren')).toBe('AERO SOREN')
+    expect(normalizeName('Cœur')).toBe('COEUR')
+    expect(normalizeName('STRAẞE')).toBe('STRASSE')
+    expect(nameNumbers('Weiß').expression.value).toBe(nameNumbers('Weiss').expression.value)
+    expect(Object.keys(SPECIAL_LETTERS).sort()).toEqual(
+      ['Æ', 'Ł', 'Ø', 'Œ', 'ß', 'æ', 'ł', 'ø', 'œ', 'ẞ'].sort(),
+    )
+    // 仍不支持的文字照旧报错
+    expect(() => normalizeName('Ðorđe')).toThrow()
   })
   it('treats Y as a vowel only when neither adjacent letter in its word is a vowel', () => {
     expect(nameNumbers('Lynn').soulUrge.value).toBe(7)

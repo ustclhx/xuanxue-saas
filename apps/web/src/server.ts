@@ -113,7 +113,7 @@ const worker = instrumentWeb({
               localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime()))),
           )) ??
           (await localized(gateLocaleRequest(await gateAdminRequest(request, getWebRuntime())))),
-        { canonicalize: !buildRequest },
+        { canonicalize: !buildRequest, prerender: Boolean(buildRequest) },
       ),
     )
   },

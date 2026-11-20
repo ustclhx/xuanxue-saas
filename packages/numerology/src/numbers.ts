@@ -271,9 +271,32 @@ export function challenges(date: BirthDate): LifePeriod[] {
   }))
 }
 
+/**
+ * 不能经 NFD 拆成「基础字母 + 变音符」的欧洲语言字母，按约定映射（openspec add-locales-eu-ja
+ * specs/numerology-pages「非 ASCII 拉丁字母姓名」）；页面说明引用同一张表，规则与计算一致。
+ */
+export const SPECIAL_LETTERS: Readonly<Record<string, string>> = {
+  ß: 'SS',
+  ẞ: 'SS',
+  ł: 'L',
+  Ł: 'L',
+  æ: 'AE',
+  Æ: 'AE',
+  ø: 'O',
+  Ø: 'O',
+  œ: 'OE',
+  Œ: 'OE',
+}
+
+const SPECIAL_LETTER_PATTERN = new RegExp(`[${Object.keys(SPECIAL_LETTERS).join('')}]`, 'g')
+
 export function normalizeName(name: string): string {
   // 先校验原始字母，避免大写转换把非基础拉丁字符悄悄变成 A–Z。
-  const normalized = name.normalize('NFD').replace(/\p{M}/gu, '')
+  // 可拆分的变音符按基础字母计算；ß、ł、æ、ø、œ 等先按 SPECIAL_LETTERS 映射
+  const normalized = name
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(SPECIAL_LETTER_PATTERN, (letter) => SPECIAL_LETTERS[letter] ?? letter)
   if (!/^[a-zA-Z\s'’-]+$/.test(normalized) || !/[a-zA-Z]/.test(normalized)) {
     throw new AppError(
       'INVALID_NAME',

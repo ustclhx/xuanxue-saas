@@ -15,6 +15,7 @@ import {
 } from '@xuanxue/ui'
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import type { EastLocale } from '../i18n/locales.ts'
 import { BirthFields } from '../tools/bazi/birth-fields.tsx'
 import { readBirthForm, toBirthInput } from '../tools/bazi/birth-form-state.ts'
 import { CheckboxField, TextField } from '../tools/form.tsx'
@@ -43,7 +44,7 @@ export const RELATIONS: readonly BirthProfileRelation[] = [
   'other',
 ]
 
-export type EasternLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
+export type EasternLocale = EastLocale
 
 const ENGINE_CODES = new Set<string>([
   'required',

@@ -1,3 +1,4 @@
+import type { EastLocale } from '../../i18n/locales.ts'
 /**
  * 东方站排盘页面的 slug ↔ 页面映射（openspec add-bazi-saju-chart 决策 7）：
  * 路由文件用 `$slug` 参数，中文 / 韩文路径段直接使用 Unicode，生成链接时由 toolHref 统一 encodeURI。
@@ -10,7 +11,7 @@ export type EasternPageId = 'bazi' | 'ziwei' | 'mingpan' | 'gunghap'
 
 export const EASTERN_PAGES: readonly {
   readonly id: EasternPageId
-  readonly locale: 'zh-Hant' | 'zh-Hans' | 'ko'
+  readonly locale: EastLocale
   readonly slug: string
 }[] = [
   { id: 'bazi', locale: 'zh-Hant', slug: '八字排盤' },

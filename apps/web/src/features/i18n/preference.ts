@@ -45,7 +45,7 @@ export function preferredLocale(header: string | null): Locale {
     if (tag === '*') return baseLocale
     // 先按完整标签匹配，再按主语言匹配：中文按地区归入简体 zh-Hans（zh-CN、zh-SG）或繁体 zh-Hant（其余），ko-KR 归入 ko
     const language = tag.split('-')[0] ?? ''
-    const locale = toLocale(tag) ?? chineseLocale(tag, language) ?? languageLocale(language)
+    const locale = toLocale(tag) ?? chineseLocale(tag, language) ?? languageLocale(tag, locales)
     if (locale) return locale
   }
   return baseLocale
@@ -60,8 +60,20 @@ function chineseLocale(tag: string, language: string): Locale | undefined {
   return locales.find((locale) => locale === wanted)
 }
 
-function languageLocale(language: string): Locale | undefined {
-  return locales.find((locale) => locale.toLowerCase().split('-')[0] === language)
+const REGION = /^(?:[a-z]{2}|\d{3})$/
+
+/**
+ * 按主语言匹配（`ja-JP` → `ja`、`es-MX` → `es`）。带地区的配置语言（`pt-BR`）只匹配同地区或不带地区的标签：
+ * `pt` → `pt-BR`，`pt-PT` 不匹配（openspec add-locales-eu-ja tasks 1.7；与 @xuanxue/email 的 matchLanguageTag 相同）。
+ */
+export function languageLocale<L extends string>(tag: string, list: readonly L[]): L | undefined {
+  const [language, ...rest] = tag.toLowerCase().split('-')
+  const region = rest.find((part) => REGION.test(part))
+  return list.find((locale) => {
+    const [own, ...parts] = locale.toLowerCase().split('-')
+    const ownRegion = parts.find((part) => REGION.test(part))
+    return own === language && (!ownRegion || !region || ownRegion === region)
+  })
 }
 
 /** Server Functions 复用同源来源页的语言；不接受跨站来源影响本次语言。 */

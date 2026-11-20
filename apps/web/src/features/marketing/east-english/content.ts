@@ -1,3 +1,5 @@
+import type { EastLocale } from '../../i18n/locales.ts'
+
 /**
  * 东方站英文入口页的正文（openspec product-improve-ai-content-20261030 tasks.md 4.8，D5）。
  *
@@ -6,7 +8,7 @@
  * 写明仅供参考与自我探索、不预测未来；标题与 H1 不以 AI 为卖点。全文不少于 600 词（design.md 风险项）。
  */
 
-export type EastLocale = 'zh-Hant' | 'zh-Hans' | 'ko'
+export type { EastLocale }
 
 export interface EnglishToolLink {
   /** 工具注册表 id（features/tools/registry.ts），链接地址从注册表取；省略时为该语言的首页 */

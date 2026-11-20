@@ -69,13 +69,33 @@ export function localeSuggestionScript({
   const byTag = Object.fromEntries(locales.map((locale) => [locale.toLowerCase(), locale]))
   // 键为补全后的「语言-书写系统」（小写），值为配置语言；多个配置语言补全相同时取先配置的一个
   const byScript: Record<string, string> = {}
+  // 项目改动（openspec add-locales-eu-ja 1.7）：带地区的语言（pt-BR）不参与书写系统匹配，否则 pt-PT 会经
+  // pt-Latn 匹配到 pt-BR；它们改由 regionAliases 只接受不带地区的主语言标签（pt → pt-BR）
+  const regional = (locale: string) => regionOf(locale) !== undefined
   for (const locale of locales) {
-    const key = scriptKey(locale)
+    const key = regional(locale) ? '' : scriptKey(locale)
     if (key && !(key in byScript)) byScript[key] = locale
   }
+  const aliases: Record<string, string> = {}
+  for (const locale of locales) {
+    const language = locale.toLowerCase().split('-')[0] ?? ''
+    if (regional(locale) && !(language in byTag) && !(language in aliases))
+      aliases[language] = locale
+  }
+  // 没有带地区的语言时脚本与改动前逐字节相同
+  const aliasLookup = Object.keys(aliases).length ? `||g(${json(aliases)},t)` : ''
   const targets = suggestionTargets({ baseLocale, locales, suggestableLocales })
   // k 与 scriptKey 相同：浏览器不支持 Intl.Locale 或标签无效时返回空串，跳过这一步
-  return `(function(){try{var d=document.documentElement,b=${json(baseLocale)},M=${json(byTag)},S=${json(byScript)},C=${json(targets)},n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];if(d.lang!==b||('; '+document.cookie).indexOf(${json(`; ${preferenceCookie}=`)})>=0)return;for(var i=0;i<n.length;i++){var t=String(n[i]).toLowerCase(),l=g(M,t)||g(S,k(t))||g(M,t.split('-')[0]);if(l){if(C.indexOf(l)>=0){d.setAttribute(${json(SUGGESTION_ATTRIBUTE)},l);listen()}return}}}catch(e){}function g(o,x){return o.hasOwnProperty(x)?o[x]:''}function k(x){try{var y=new Intl.Locale(x).maximize();return y.script?(y.language+'-'+y.script).toLowerCase():''}catch(e){return''}}function listen(){var w=window,A=${json(SUGGESTION_ACTION_ATTRIBUTE)};function h(e){var t=e.target&&e.target.closest&&e.target.closest('['+A+']'),f=t&&t.closest('['+${json(SUGGESTION_TARGET_ATTRIBUTE)}+']');if(!f||e[${json(PREHYDRATION_HANDLED_KEY)}])return;e[${json(PREHYDRATION_HANDLED_KEY)}]=1;var s=t.getAttribute(A)==='switch',v=s?f.getAttribute(${json(SUGGESTION_TARGET_ATTRIBUTE)}):d.lang,c='='+v+'; Path=/; Max-Age='+${json(cookieMaxAge)}+'; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'');document.cookie=${json(localeCookie)}+c;document.cookie=${json(preferenceCookie)}+c;if(s){var u=t.getAttribute('href');if(u&&!/[?#]/.test(u))t.setAttribute('href',u+location.search+location.hash)}else d.removeAttribute(${json(SUGGESTION_ATTRIBUTE)})}w.addEventListener('click',h,true);w[${json(PREHYDRATION_DETACH_KEY)}]=function(){w.removeEventListener('click',h,true)}}})()`
+  return `(function(){try{var d=document.documentElement,b=${json(baseLocale)},M=${json(byTag)},S=${json(byScript)},C=${json(targets)},n=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];if(d.lang!==b||('; '+document.cookie).indexOf(${json(`; ${preferenceCookie}=`)})>=0)return;for(var i=0;i<n.length;i++){var t=String(n[i]).toLowerCase(),l=g(M,t)||g(S,k(t))${aliasLookup}||g(M,t.split('-')[0]);if(l){if(C.indexOf(l)>=0){d.setAttribute(${json(SUGGESTION_ATTRIBUTE)},l);listen()}return}}}catch(e){}function g(o,x){return o.hasOwnProperty(x)?o[x]:''}function k(x){try{var y=new Intl.Locale(x).maximize();return y.script?(y.language+'-'+y.script).toLowerCase():''}catch(e){return''}}function listen(){var w=window,A=${json(SUGGESTION_ACTION_ATTRIBUTE)};function h(e){var t=e.target&&e.target.closest&&e.target.closest('['+A+']'),f=t&&t.closest('['+${json(SUGGESTION_TARGET_ATTRIBUTE)}+']');if(!f||e[${json(PREHYDRATION_HANDLED_KEY)}])return;e[${json(PREHYDRATION_HANDLED_KEY)}]=1;var s=t.getAttribute(A)==='switch',v=s?f.getAttribute(${json(SUGGESTION_TARGET_ATTRIBUTE)}):d.lang,c='='+v+'; Path=/; Max-Age='+${json(cookieMaxAge)}+'; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'');document.cookie=${json(localeCookie)}+c;document.cookie=${json(preferenceCookie)}+c;if(s){var u=t.getAttribute('href');if(u&&!/[?#]/.test(u))t.setAttribute('href',u+location.search+location.hash)}else d.removeAttribute(${json(SUGGESTION_ATTRIBUTE)})}w.addEventListener('click',h,true);w[${json(PREHYDRATION_DETACH_KEY)}]=function(){w.removeEventListener('click',h,true)}}})()`
+}
+
+/** 语言标签中的地区子标签（两位字母或三位数字，小写）；没有时为 undefined */
+export function regionOf(tag: string): string | undefined {
+  return tag
+    .toLowerCase()
+    .split('-')
+    .slice(1)
+    .find((part) => /^(?:[a-z]{2}|\d{3})$/.test(part))
 }
 
 /**

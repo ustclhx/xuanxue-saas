@@ -71,12 +71,35 @@ const BINARY_IMPORT =
  * 首页 LCP 基线本就偏慢（5.7–11.6s），体积与 LCP 优化另立任务，不再靠放宽预算。
  * 提高预算须在 PR 中说明原因与新实测值。
  */
-export const HOME_PAGES = [
-  { id: 'west', file: 'index.html', budget: 375701 }, // 实测 335447 B
-  { id: 'zh-hant', file: 'zh-hant.html', budget: 375701 }, // 实测 335447 B
-  { id: 'zh-hans', file: 'zh-hans.html', budget: 375701 }, // 实测 335447 B
-  { id: 'ko', file: 'ko.html', budget: 375701 }, // 实测 335447 B
-]
+export const HOME_PAGE_BUDGET = 375701 // 实测 335447 B
+
+/**
+ * 首页清单由站点语言生成（项目改动，openspec add-locales-eu-ja tasks 1.6；模板需求 TR-4）：
+ * 西方站在前、东方站按配置顺序；站点默认语言的首页是 `index.html`（id 为站点 id），其余为 `<小写语言>.html`。
+ * 新语言（含未发布语言，预渲染照常生成）加进配置后自动纳入预算与 head 快照检查。
+ */
+export function homePagesFor(config, budget = HOME_PAGE_BUDGET) {
+  const enabled = config.i18n.enabled !== false
+  const pages = []
+  for (const site of ['west', 'east']) {
+    const { locales, defaultLocale } = config.sites[site]
+    for (const locale of locales) {
+      if (!enabled && locale !== config.i18n.defaultLocale) continue
+      const segment = locale.toLowerCase()
+      pages.push(
+        locale === defaultLocale
+          ? { id: site, file: 'index.html', budget }
+          : { id: segment, file: `${segment}.html`, budget },
+      )
+    }
+  }
+  return pages
+}
+
+const { default: templateConfig } = await import(
+  new URL('../../../template.config.ts', import.meta.url).href
+)
+export const HOME_PAGES = homePagesFor(templateConfig)
 
 /** 主工具页（迁移前在语言首页）：只对照 head 快照，不计入首页脚本预算 */
 export const TOOL_PAGES = [
