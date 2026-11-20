@@ -23,6 +23,7 @@ const footerLink =
  * 手机端无论有无 Ask AI 都留 80px：页面还可能有其他右下悬浮按钮（如 SubjectChat 触发器），
  * 不能遮挡设置行与版权（模板 0.5.1 UI-03）。
  * data-site-footer 让根布局在本页隐藏页面末尾的同一设置行。
+ * data-link-zone="nav"：链接图检查把页脚当作导航层，并只在此区域统计页脚链接数（模板 0.7.3 seo-internal-linking）。
  */
 export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean } = {}) {
   const siteId = useSiteId()
@@ -39,6 +40,7 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
   return (
     <footer
       data-site-footer
+      data-link-zone="nav"
       className={cn(
         'border-line border-t bg-background pt-10 pb-20 sm:pt-12',
         floatingEntry ? 'md:pb-34' : 'md:pb-10',

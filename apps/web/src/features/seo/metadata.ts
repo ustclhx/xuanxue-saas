@@ -10,6 +10,10 @@ import { TOOL_ROUTES } from '../tools/registry.ts'
 import { homePageCopy } from './home-copy.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
 
+/**
+ * 公开页面清单的一项（openspec seo-internal-linking design 决策 1）。地址类字段（`path`、`parent`、
+ * `group`、`related`）都是不带语言前缀的 path，按本页的 `locale` 解析。
+ */
 export interface SeoPage {
   path: string
   title: string
@@ -18,6 +22,42 @@ export interface SeoPage {
   alternates?: Readonly<Partial<Record<string, string>>>
   cover?: string | undefined
   date?: string | undefined
+  /** 上级页面；除首页外每个可索引页面都必须声明，且指向存在的可索引页面 */
+  parent?: string | undefined
+  /** 主词：模板内链区块与面包屑的锚文本；内容集合默认取 title */
+  titleMain?: string | undefined
+  /** 锚文本的短变体（只允许一个） */
+  anchorShort?: string | undefined
+  /** 同级分组的地址（该分组的列表页），同组页面互为同级 */
+  group?: string | undefined
+  /** 相关页地址 */
+  related?: readonly string[] | undefined
+  /** 默认 true；false 时输出 noindex、不进站点地图，也不能作为 parent／group／related 的目标 */
+  indexable?: boolean | undefined
+  /** `'money'` 表示钱页，链接图检查统计其站内入链 */
+  priority?: 'money' | undefined
+  /** 内容的真实语言；与 `locale` 不同表示缺少译文、以该语言内容回退显示的页面 */
+  sourceLocale?: string | undefined
+}
+
+/** 缺少译文、以其他语言内容回退显示的页面：canonical 指向原语言，不进站点地图 */
+export function isFallbackPage(page: Pick<SeoPage, 'locale' | 'sourceLocale'>): boolean {
+  return page.sourceLocale !== undefined && page.sourceLocale !== page.locale
+}
+
+/**
+ * 内容条目的 `sourceLocale`（模板 0.7.3 回退页规则）只在原语言与页面语言属于同一站点时声明。
+ * 两站分开经营（D5）：canonical 与 hreflang 不跨站；本项目的回退语言是英语（西方站），东方站语言缺少译文时
+ * 回退显示的英文条目不按模板改为指向西方站的 canonical，也不移出东方站的站点地图，保持 0.7.3 之前的输出。
+ */
+export function sameSiteSourceLocale(locale: string, source: string): string | undefined {
+  const site = siteOfLocale(locale, templateConfig)
+  return site !== undefined && site === siteOfLocale(source, templateConfig) ? source : undefined
+}
+
+/** 进入站点地图的页面：可索引且不是回退页 */
+export function indexedPages<T extends SeoPage>(pages: readonly T[]): T[] {
+  return pages.filter((page) => page.indexable !== false && !isFallbackPage(page))
 }
 
 const { defaultLocale, enabled } = templateConfig.i18n
@@ -173,6 +213,8 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
 export function staticPage(path: StaticPath, locale: string): SeoPage {
   const copy: Partial<Record<string, Record<StaticPath, readonly [string, string]>>> = staticCopy
   const [title, description] = copy[locale]?.[path] ?? [path, path]
+  // 层级与主词（模板 0.7.3）由 pages.project.ts 的 projectPageLinking 在服务端清单中补上，
+  // 本函数也用于客户端路由 head，不带主词表以免增加首页脚本体积
   return { path, title, description, locale }
 }
 
@@ -249,9 +291,21 @@ export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
   return `/og${localePrefix(page.locale)}${path === '/' ? '/index' : path}.png`
 }
 
-export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly unknown[] = []) {
+/**
+ * `languages`：该页真实存在译文的语言，省略时为全部启用语言；hreflang 仍按 alternateLinks 的站点规则生成，
+ * 省略时与模板 0.7.3 之前的输出相同。
+ * 回退页（`sourceLocale` 与 `locale` 不同，模板 0.7.3 seo-internal-linking 2.2）的 canonical 与 og:url
+ * 指向原语言地址；未声明 `sourceLocale` 的页面 canonical 不变。
+ */
+export function pageHead(
+  page: SeoPage,
+  appUrl: string,
+  structuredData: readonly unknown[] = [],
+  languages: readonly string[] = locales,
+) {
   appUrl = localeOrigin(page.locale)
-  const url = absoluteUrl(appUrl, localizedPath(page.path, page.locale))
+  const source = page.sourceLocale ?? page.locale
+  const url = absoluteUrl(localeOrigin(source), localizedPath(page.path, source))
   const brand = pageBrand(page)
   const title = titleWithSite(page.title, page.locale)
   const image = page.cover
@@ -277,7 +331,7 @@ export function pageHead(page: SeoPage, appUrl: string, structuredData: readonly
     ],
     links: [
       { rel: 'canonical', href: url },
-      ...alternateLinks(appUrl, page.path, locales, page.alternates, page.locale),
+      ...alternateLinks(appUrl, page.path, languages, page.alternates, page.locale),
     ],
     scripts: structuredData.map((data) => ({
       type: 'application/ld+json',

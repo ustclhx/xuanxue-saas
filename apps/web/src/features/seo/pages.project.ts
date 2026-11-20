@@ -1,0 +1,152 @@
+import { brandName, type TemplateConfig } from '@xuanxue/config'
+import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
+import { templateConfig } from '../../server/template-config.ts'
+import { LIFE_PATH_TOOL_PATH } from '../tools/numerology/routes.ts'
+import { mainToolPath, TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
+import { tarotIndexPath } from '../tools/tarot/meaning-routes.ts'
+import type { SeoPage, StaticPath } from './metadata.ts'
+
+/**
+ * 项目自有公开页面的注册入口（模板 0.7.3 openspec seo-internal-linking design 决策 1）。
+ * 模板首次交付后本文件归项目所有，template-sync 不再覆盖。
+ *
+ * 本项目的工具页、数字页、牌义页与命理概念页已经由工具注册表（features/tools/registry.ts）与内容集合
+ * （numerology、tarot）进入公开页面清单（pages.ts 的 publicPages），这里不再重复返回这些页面，
+ * 只用 `projectPageLinking` 为它们补上层级（parent）与主词（titleMain）：
+ *
+ * | 页面 | parent | titleMain |
+ * |---|---|---|
+ * | 静态页（定价、常见问题、通讯、博客列表等） | 首页 `/` | 频道名（STATIC_MAIN）；首页为站名 |
+ * | 工具页、牌阵页、每日页、Life Path、牌义索引页 | 首页 `/` | 注册表的导航名；没有导航名时见下表 |
+ * | 牌义页（`/tarot/cards/<slug>` 等四语） | 该语言的牌义索引页 | 该语言的牌名 |
+ * | Life Path 数字页（`/life-path-number/<n>`） | `/life-path-number` | `Life Path <n>` |
+ * | 命理概念页（`/八字/十神` 等） | 该语言的主工具页（八字排盤 / 八字排盘 / 만세력） | 概念名 |
+ *
+ * parent 与页面上已有的面包屑一致（牌义页：首页 › 牌义索引 › 牌名；数字页：首页 › Life Path › n）。
+ * 构建时 linking.ts 校验：可索引页必须有主词，除首页外必须有 parent，且 parent 指向同语言中存在的可索引页面。
+ * 新增程序化页面时，若不经工具注册表进入清单，就在 `projectPages` 中返回完整条目。
+ */
+export function projectPages(_context: {
+  /** 当前生成的语言 */
+  locale: string
+  defaultLocale: string
+  now: Date
+  config: TemplateConfig
+}): SeoPage[] {
+  return []
+}
+
+/**
+ * 静态页的主词与面包屑短变体（模板 0.7.3 seo-internal-linking：主词是面包屑和内链区块的锚文本，取频道名而不是 SEO 标题）。
+ * 首页主词为该语言的站名，短变体与页头、面包屑的「首页」文案一致。
+ */
+const STATIC_MAIN: Readonly<Record<string, Record<StaticPath, readonly [string, string?]>>> = {
+  en: {
+    '/': ['', 'Home'],
+    '/pricing': ['Pricing'],
+    '/blog': ['Blog'],
+    '/guides': ['Guides'],
+    '/docs': ['Documentation', 'Docs'],
+    '/newsletter': ['Newsletter'],
+    '/waitlist': ['Waitlist'],
+    '/faq': ['FAQ'],
+  },
+  'zh-Hant': {
+    '/': ['', '首頁'],
+    '/pricing': ['價格方案'],
+    '/blog': ['部落格'],
+    '/guides': ['指南'],
+    '/docs': ['文件'],
+    '/newsletter': ['電子報'],
+    '/waitlist': ['候補名單'],
+    '/faq': ['常見問題'],
+  },
+  'zh-Hans': {
+    '/': ['', '首页'],
+    '/pricing': ['价格方案'],
+    '/blog': ['博客'],
+    '/guides': ['指南'],
+    '/docs': ['文档'],
+    '/newsletter': ['电子报'],
+    '/waitlist': ['候补名单'],
+    '/faq': ['常见问题'],
+  },
+  ko: {
+    '/': ['', '홈'],
+    '/pricing': ['요금 안내'],
+    '/blog': ['블로그'],
+    '/guides': ['가이드'],
+    '/docs': ['문서'],
+    '/newsletter': ['뉴스레터'],
+    '/waitlist': ['대기자 명단'],
+    '/faq': ['자주 묻는 질문'],
+  },
+}
+
+/** 注册表中没有导航名的页面的主词（只有英语，属于西方站） */
+const WEST_MAIN: Readonly<Record<string, string>> = {
+  '/numerology-chart': 'Numerology Chart',
+  '/name-numerology': 'Name Numerology',
+  '/soul-urge-number': 'Soul Urge Number',
+  '/destiny-number': 'Destiny Number',
+}
+
+/** 牌义索引页的主词，与页面面包屑（tarot_index_crumb）一致 */
+const TAROT_INDEX_MAIN: Readonly<Record<TarotLocale, string>> = {
+  en: 'Tarot Card Meanings',
+  'zh-Hant': '塔羅牌義',
+  'zh-Hans': '塔罗牌义',
+  ko: '타로 카드 의미',
+}
+
+// 按「语言 + 路径」查注册表条目；跨站工具（牌阵、牌义）在两站各登记一条，共用同一组路径，取第一条即可
+const routeIndex = new Map<string, ToolRoute>()
+for (const route of TOOL_ROUTES)
+  for (const [locale, path] of Object.entries(route.paths))
+    if (path && !routeIndex.has(`${locale} ${path}`)) routeIndex.set(`${locale} ${path}`, route)
+
+const cardById = new Map(CARDS.map((card) => [card.id, card]))
+const isTarotLocale = (locale: string): locale is TarotLocale => locale in CARD_MEANINGS
+
+/** 项目页面的层级与主词；页面已声明的字段优先，内容集合页面原样返回 */
+export function projectPageLinking(page: SeoPage): SeoPage {
+  const route = routeIndex.get(`${page.locale} ${page.path}`)
+  if (!route) return staticPageLinking(page)
+  const linking = routeLinking(route, page)
+  return {
+    ...page,
+    titleMain: page.titleMain ?? linking.titleMain,
+    ...(page.path !== '/' && { parent: page.parent ?? linking.parent }),
+  }
+}
+
+function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; parent: string } {
+  const { locale } = page
+  const navTitle = route.titles[locale] || undefined
+  if (route.id === 'tarot-card-index' && isTarotLocale(locale))
+    return { titleMain: TAROT_INDEX_MAIN[locale], parent: '/' }
+  if (route.id.startsWith('tarot-card-') && isTarotLocale(locale)) {
+    const id = route.id.slice('tarot-card-'.length)
+    const name = cardById.has(id) ? CARD_MEANINGS[locale][id]?.name : undefined
+    return { titleMain: name ?? page.title, parent: tarotIndexPath(locale) }
+  }
+  const lifePath = /^life-path-(\d+)$/.exec(route.id)?.[1]
+  if (lifePath) return { titleMain: `Life Path ${lifePath}`, parent: LIFE_PATH_TOOL_PATH }
+  if (route.id.startsWith('bazi-concept-'))
+    return { titleMain: navTitle ?? page.title, parent: mainToolPath(locale) ?? '/' }
+  return { titleMain: navTitle ?? WEST_MAIN[page.path] ?? page.title, parent: '/' }
+}
+
+/** 静态页（metadata.ts staticPage，首页、定价、常见问题等）：上级是首页，主词取频道名，首页主词为站名 */
+function staticPageLinking(page: SeoPage): SeoPage {
+  const entry = STATIC_MAIN[page.locale]?.[page.path as StaticPath]
+  if (!entry || page.titleMain !== undefined) return page
+  const [main, anchorShort] = entry
+  const titleMain = page.path === '/' ? brandName(templateConfig, page.locale) : main
+  return {
+    ...page,
+    titleMain,
+    ...(anchorShort !== undefined && anchorShort !== titleMain && { anchorShort }),
+    ...(page.path !== '/' && { parent: '/' }),
+  }
+}

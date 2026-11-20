@@ -105,6 +105,10 @@ jobs:
       # 预渲染 HTML 中不得有「锚文本为工具关键词、目标为语言首页」的链接（separate-landing-homepage 3.1）
       - name: Check tool links in prerendered HTML
         run: node apps/web/scripts/check-tool-links.mjs apps/web/dist/client
+      # 构建后链接图检查（docs/seo-internal-linking.md）：复用上一步的 web 生产构建产物启动 vite preview 抓取，
+      # 不重复构建、不需要数据库；模式取 template.config.ts 的 seo.linking.mode（本项目未设置，为 report：只报告不失败）
+      - name: Check internal link graph
+        run: pnpm --filter @xuanxue/web check:links
 
   # pnpm test 拆成两个 job：web 的 vitest 最慢，且它与 jobs 共享 jobs.lastCronAt 键而在同一库中串行；
   # 各用独立的临时 Postgres 后可以并行。两个 job 合起来仍是 turbo run test 的全部任务。

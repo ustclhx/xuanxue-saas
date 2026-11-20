@@ -128,6 +128,7 @@ export function LanguageSuggestion({ site }: { site: { id: SiteId; known: boolea
         <aside
           key={suggestion}
           data-locale-suggestion-for={suggestion}
+          data-link-zone="nav"
           data-hydrated={ready ? '' : undefined}
           aria-label={m.i18n_suggestion_label()}
           className="hidden fixed inset-x-4 bottom-20 z-50 mx-auto max-w-xl flex-wrap items-center justify-center gap-3 rounded-lg border bg-muted px-4 py-3 shadow-md"

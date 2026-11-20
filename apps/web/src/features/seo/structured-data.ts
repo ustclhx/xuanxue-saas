@@ -28,7 +28,12 @@ export function websiteData(appUrl: string, brand: string, url = appUrl) {
   }
 }
 export function articleData(page: SeoPage, appUrl: string) {
-  const url = absoluteUrl(appUrl, localizedPath(page.path, page.locale))
+  // 回退页与 canonical 一致，指向原语言地址并标注内容的真实语言
+  const contentLocale = page.sourceLocale ?? page.locale
+  const url = absoluteUrl(
+    contentLocale === page.locale ? appUrl : localeOrigin(contentLocale),
+    localizedPath(page.path, contentLocale),
+  )
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
     : absoluteUrl(appUrl, ogImagePath(page))
@@ -44,7 +49,7 @@ export function articleData(page: SeoPage, appUrl: string) {
     mainEntityOfPage: url,
     url,
     image,
-    inLanguage: page.locale,
+    inLanguage: contentLocale,
   }
 }
 
