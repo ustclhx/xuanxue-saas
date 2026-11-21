@@ -23,8 +23,8 @@ export const BAZI: ToolCopy = {
     {
       heading: 'Why your birth city matters',
       paragraphs: [
-        'People often search for a BaZi calculator with location because the hour pillar depends on local time, and local time is less simple than it looks. The calculator includes cities such as New York, Los Angeles, Toronto, Vancouver, London, Sydney, Singapore and Kuala Lumpur, each with its full time zone history, so daylight saving time in the year you were born is removed automatically. For anywhere else, choose your UTC offset by hand.',
-        'True solar time is an optional second step. Clock time is set for the middle of a time zone, but the sun is overhead at different moments across that zone. Turning the option on corrects the hour by your birthplace’s longitude and by the equation of time. It is off by default; it is worth comparing when your birth time sits within half an hour or so of a two-hour boundary, because that is when the correction can change the hour pillar.',
+        'The hour pillar depends on local time, and local time is less simple than it looks, which is why the calculator asks for your birth city. The calculator includes cities such as New York, Los Angeles, Toronto, Vancouver, London, Sydney, Singapore and Kuala Lumpur, each with its full time zone history, so daylight saving time in the year you were born is removed automatically. For anywhere else, choose your UTC offset by hand.',
+        'True solar time is an optional second step. Clock time is set for the middle of a time zone, but the sun is overhead at different moments across that zone. Turning the option on corrects the hour by your birthplace’s longitude and by the equation of time. It is off by default; it is worth comparing when your birth time sits close to a two-hour boundary, because that is when the correction can change the hour pillar.',
       ],
     },
     {
@@ -32,7 +32,7 @@ export const BAZI: ToolCopy = {
       paragraphs: [
         'Take a man born on 4 July 1991 at 09:15 on the clock in New York. Daylight saving time was in effect, so the calculator first moves the time back to 08:15 standard time. That puts the birth in the Chen double hour, which runs from 07:00 to 09:00; without the correction it would have fallen into the next double hour and given a different hour pillar.',
         'The four pillars come out as year 辛未 Xin Wei, month 甲午 Jia Wu, day 乙亥 Yi Hai and hour 庚辰 Geng Chen. The month is still Jia Wu because the birth falls a few days before the next solar term. The Day Master is 乙 Yi, Yin Wood. Read against it, the year stem Xin is Seven Killings, the month stem Jia is Rob Wealth and the hour stem Geng is Direct Officer.',
-        'For a man born in a Yin year, the ten-year luck pillars run backward through the sixty-pair cycle. In this chart the first luck pillar is 癸巳 Gui Si, covering 2000 to 2009, ages 10 to 19. The calculator shows every luck pillar after it in the same way, so you can see which elements each decade brings into the chart.',
+        'For a man born in a Yin year, the ten-year luck pillars run backward through the sixty-pair cycle. Counting back to the previous solar term, the calculator shows that luck pillars begin at 9 years 5 months, which falls in December 2000. The first luck pillar is 癸巳 Gui Si, listed as 2000–2009 and starting at age 10 in the traditional count, where you are 1 at birth. The calculator shows every luck pillar after it in the same way, so you can see which elements each decade brings into the chart.',
       ],
     },
     {
@@ -69,7 +69,7 @@ export const BAZI: ToolCopy = {
     },
     {
       q: 'Is BaZi accurate?',
-      a: 'The calendar side is exact: the pillars follow the solar terms and the sixty-pair cycle, and two careful calculators should agree for the same time and place. Interpretation is another matter. Treat it as a traditional framework for reflection, not a prediction.',
+      a: 'The calendar side is rule-based: the pillars follow the solar terms and the sixty-pair cycle, so the same input always gives the same chart here, although schools differ on a few conventions. Interpretation is another matter. Treat it as a traditional framework for reflection, not a prediction.',
       origin: 'local',
     },
     {
@@ -101,7 +101,7 @@ export const ZIWEI: ToolCopy = {
     {
       heading: 'From birth time to star positions',
       paragraphs: [
-        'The method works on the Chinese lunar calendar. Your birth is converted to a lunar month, a lunar day and one of the twelve double hours. The month and hour together set the Life Palace and the Body Palace. The stem and branch of the Life Palace then give a five element class, and that class, together with the lunar day, decides where the Zi Wei star lands. The other main stars follow from Zi Wei in fixed patterns, so 14 main stars end up spread across the ring, some palaces holding two and some holding none.',
+        'The method works on the Chinese lunar calendar. Your birth is converted to a lunar month, a lunar day and one of the twelve double hours. The month and hour together set the Life Palace and the Body Palace. The stem and branch of the Life Palace then give the Five Elements Bureau (such as Water 2 Bureau), and that bureau, together with the lunar day, decides where the Zi Wei star lands. The other main stars follow from Zi Wei in fixed patterns, so 14 main stars end up spread across the ring, some palaces holding two and some holding none.',
         'Because each double hour moves the Life Palace by one square, a birth time that is off by an hour can rotate every palace. That is why the chart asks for an exact time and uses your birth city’s time zone history, including daylight saving time, before it starts.',
       ],
     },
@@ -139,7 +139,7 @@ export const ZIWEI: ToolCopy = {
     },
     {
       q: 'Why does the chart say a palace has no main star?',
-      a: 'There are 14 main stars and twelve palaces, and the fixed patterns cluster some stars together, so a few palaces are always empty. Traditional practice reads an empty palace by borrowing the stars of the palace opposite it.',
+      a: 'There are 14 main stars and twelve palaces, and the fixed patterns cluster some stars together, so some palaces usually end up with no main star. Traditional practice reads an empty palace by borrowing the stars of the palace opposite it.',
       origin: 'adapted',
     },
   ],

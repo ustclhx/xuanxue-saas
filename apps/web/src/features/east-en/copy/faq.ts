@@ -15,7 +15,7 @@ export const FAQ_PAGE: FaqPageCopy = {
     },
     {
       q: 'How accurate is a BaZi chart?',
-      a: 'The calculation is exact in the sense that it follows traditional rules: solar terms for months, the Beginning of Spring for the year, and your birth city’s time zone history for the hour. How you interpret the chart is a matter of tradition and judgment. We present charts for reference and self-reflection; they do not predict events.',
+      a: 'The calculation is rule-based: solar terms for months, the Beginning of Spring for the year, and your birth city’s time zone history for the hour. How you interpret the chart is a matter of tradition and judgment, and schools differ on some conventions. We present charts for reference and self-reflection; they do not predict events.',
       origin: 'local',
     },
     {
@@ -60,7 +60,7 @@ export const FAQ_PAGE: FaqPageCopy = {
         },
         {
           q: 'Which payment methods can I use?',
-          a: 'Cards are handled by Stripe, and PayPal is also available. Ganjiday never receives or keeps your card number. A subscription can be cancelled at any time from the Billing page; it simply does not renew, and you keep that month’s credits until the period closes.',
+          a: 'Cards are handled by Stripe, and PayPal is also available. Ganjiday never receives or keeps your card number. A subscription can be canceled at any time from the Billing page; it simply does not renew, and you keep that month’s credits until the period closes.',
           origin: 'adapted',
         },
       ],
@@ -70,7 +70,7 @@ export const FAQ_PAGE: FaqPageCopy = {
       items: [
         {
           q: 'Do you store my birth date and time?',
-          a: 'Not when you use the free tools: the chart is worked out inside your browser. Your birth details reach our servers only if you sign in and choose to unlock a written reading, because the reading needs them. The [Privacy Policy](privacy) lists what we keep and for how long.',
+          a: 'Not when you use the free tools: the chart is worked out inside your browser. Your birth details reach our servers only if you sign in and either unlock a written reading or save a birth profile, because both need them. The [Privacy Policy](privacy) lists what we keep and for how long.',
           origin: 'local',
         },
         {

@@ -186,7 +186,13 @@ export function PricingPage({
       ]
     : []
   const faq: Faq[] = [
-    [m.pricing_faq_free_q(), m.pricing_faq_free_a()],
+    [
+      m.pricing_faq_free_q(),
+      // 共享英文文案写的是西方站「card meanings」；东方站英文没有牌义页，单独覆盖
+      eastEnglish
+        ? 'All BaZi, Zi Wei Dou Shu and tarot tools, with their standard results. No account is needed.'
+        : m.pricing_faq_free_a(),
+    ],
     ...subFaq,
     ...dailyFaq,
     [m.pricing_faq_fail_q(), m.pricing_faq_fail_a()],
