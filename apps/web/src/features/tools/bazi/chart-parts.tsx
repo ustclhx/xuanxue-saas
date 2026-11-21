@@ -56,9 +56,14 @@ export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
     }),
     m.bazi_lunar_date({
       date:
-        locale !== 'ko'
-          ? lunarDateZh(time.lunar)
-          : `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`,
+        locale === 'ko'
+          ? `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`
+          : locale === 'ja'
+            ? `${time.lunar.isLeapMonth ? '閏' : ''}${time.lunar.month}月${time.lunar.day}日`
+            : locale === 'en'
+              ? // 东方站英文（5b）：数字月日，不用中文月名
+                `${time.lunar.isLeapMonth ? 'leap ' : ''}month ${time.lunar.month}, day ${time.lunar.day}`
+              : lunarDateZh(time.lunar),
     }),
   ]
   if (time.dst && chart.hourKnown) parts.push(m.bazi_dst_note())
@@ -448,7 +453,15 @@ export function ShenshaChips({ chart }: { chart: BaziChart }) {
             )}
           >
             {SHENSHA_LABEL[s.key]()} · {branchesText(s.targets)}
-            {hit && <> · {m.bazi_shensha_in({ pillars: pillarList(s.pillars, '、') })}</>}
+            {hit && (
+              <>
+                {' '}
+                ·{' '}
+                {m.bazi_shensha_in({
+                  pillars: pillarList(s.pillars, m.chart_bazi_list_separator()),
+                })}
+              </>
+            )}
           </li>
         )
       })}

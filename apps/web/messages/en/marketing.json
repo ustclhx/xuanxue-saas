@@ -155,6 +155,7 @@
   "pricing_currency_usd": "US dollars (USD)",
   "pricing_currency_twd": "New Taiwan dollars (TWD)",
   "pricing_currency_krw": "Korean won (KRW)",
+  "pricing_currency_jpy": "Japanese yen (JPY)",
   "pricing_packs_once_title": "Buy credits once",
   "pricing_pack_buy": "Buy",
   "pricing_pay_note_local": "Cards are charged in {currency}; PayPal is charged in US dollars ({prices}). Purchased credits are valid for {days} days.",

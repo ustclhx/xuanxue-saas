@@ -31,6 +31,9 @@ export const EASTERN_PAGES: readonly {
   { id: 'mingpan', locale: 'zh-Hans', slug: '命盘查询' },
   { id: 'bazi', locale: 'ko', slug: '만세력' },
   { id: 'gunghap', locale: 'ko', slug: '사주궁합' },
+  // 关键词地图 ja.md §2–3（使用者 2026-11-20 批准）：日语主词即路径段
+  { id: 'bazi', locale: 'ja', slug: '四柱推命' },
+  { id: 'ziwei', locale: 'ja', slug: '紫微斗数' },
   // 东方站英文：路由 `/$slug` 只在东方站匹配（西方站由站点守卫 404，见 features/east-en/paths.ts）
   { id: 'bazi', locale: 'en', slug: EAST_EN_TOOL_PATHS.bazi.slice(1) },
   { id: 'ziwei', locale: 'en', slug: EAST_EN_TOOL_PATHS.ziwei.slice(1) },

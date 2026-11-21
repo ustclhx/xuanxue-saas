@@ -1,0 +1,8 @@
+{
+  "i18n_language": "Idioma",
+  "i18n_prompt_region": "Sugerencia de idioma",
+  "i18n_prompt_message": "Esta página está disponible en español",
+  "i18n_prompt_action": "Ver en español",
+  "i18n_prompt_close": "Cerrar la sugerencia de idioma",
+  "i18n_save_failed": "No se pudo guardar el idioma. Inténtalo de nuevo."
+}

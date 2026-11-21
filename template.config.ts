@@ -19,7 +19,7 @@ export default defineTemplateConfig({
   // rememberHomeLocale（ML-09）：使用者 2026-11-20 决定暂缓，保持关闭。
   i18n: {
     enabled: true,
-    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko'],
+    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'es', 'ja'],
     defaultLocale: 'en',
     untranslated: 'hide',
     rememberHomeLocale: false,
@@ -33,11 +33,11 @@ export default defineTemplateConfig({
       hosts: ['ganjiday.com'],
       // en：东方站根路径英文页面（openspec add-locales-eu-ja 5b；无前缀，与西方站 en 各自一套页面），
       // 追加在末尾：locales[0]（繁中）仍是认证页与 404 的导航语言；发布状态见 features/i18n/rollout.ts
-      locales: ['zh-Hant', 'zh-Hans', 'ko', 'en'],
+      locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'],
       defaultLocale: null,
       brand: {
         name: 'Ganjiday',
-        names: { 'zh-Hant': '干支日', 'zh-Hans': '干支日', ko: '간지데이' },
+        names: { 'zh-Hant': '干支日', 'zh-Hans': '干支日', ko: '간지데이', ja: '干支日' },
       },
       // Cloudflare Email Routing 转发到运营者邮箱（D6：不公开个人邮箱与地址）
       supportEmail: 'support@ganjiday.com',
@@ -47,7 +47,7 @@ export default defineTemplateConfig({
     // 后续加入 fr / de / nl / it，各语言统一使用 Arcanumber
     west: {
       hosts: ['arcanumber.com'],
-      locales: ['en'],
+      locales: ['en', 'es'],
       defaultLocale: 'en',
       brand: { name: 'Arcanumber' },
       analyticsToken: 'aa32b146781b4880aa9686d85c3a8f66',
@@ -108,9 +108,9 @@ export default defineTemplateConfig({
   seo: {
     linking: {
       sites: [
-        { locales: ['en'], previewHost: 'west.localhost' },
+        { locales: ['en', 'es'], previewHost: 'west.localhost' },
         // en 追加在东方站分组末尾（5b 东方站根路径英文）：两站各自成图，en 页面按 Host 归属
-        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'en'], previewHost: 'east.localhost' },
+        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'], previewHost: 'east.localhost' },
       ],
       // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；
       // 地址不带语言前缀，东方站只有首页命中

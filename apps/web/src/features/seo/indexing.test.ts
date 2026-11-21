@@ -80,6 +80,7 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
   it('站点地图条目与页面 head 的语言关联逐一相同，且包含页面自身', () => {
     expect(entries.size).toBeGreaterThan(100)
     for (const page of pages) {
+      if (!isLocaleReleased(page.locale, templateConfig)) continue
       const { canonical, alternates } = headAlternates(page)
       const entry = entries.get(canonical)
       expect(entry, canonical).toBeDefined()
@@ -111,6 +112,8 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
 
   it('每个 hreflang 目标都在站点地图中（可索引的规范地址）并互指同一组语言', () => {
     for (const [loc, alternates] of entries) {
+      // 未发布语言（ja，rollout.ts）的页面只自指加已发布语言，已发布语言的页面不回指它；正式站点地图不列它
+      if (loc.startsWith('https://ganjiday.com/ja')) continue
       for (const [lang, href] of Object.entries(alternates)) {
         if (lang === 'x-default') continue
         // 东方站首页的 en 指向英文首页 `/`，它在东方站 en 子图中另行生成

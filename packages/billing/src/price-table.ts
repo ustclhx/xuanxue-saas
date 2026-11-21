@@ -15,13 +15,17 @@ import type { EnabledCurrency } from './currency.ts'
 export const FX_SNAPSHOT = {
   date: '2026-11-13',
   perUsd: { TWD: 32.5, KRW: 1400, CNY: 6.7 },
+  // JPY 由 add-locales-eu-ja 4.9 加入（快照 2026-11-21，150 日元/美元）；金额经使用者 2026-11-21 确认（¥450 / ¥1,200 / ¥750 / ¥1,500），Stripe live 价格另行批准后创建
+  jpyDate: '2026-11-21',
+  perUsdJpy: 150,
 } as const
 
 /**
- * 取整规则：USD 价格（美分）× 汇率后，TWD 四舍五入到整元、KRW 四舍五入到百韩元、CNY 参考价四舍五入到整元；
- * 结果以各币种最小单位记录（TWD、CNY 为 1/100 元，KRW 为 1 韩元）。
+ * 取整规则：USD 价格（美分）× 汇率后，TWD 四舍五入到整元、KRW 四舍五入到百韩元、JPY 四舍五入到十日元、
+ * CNY 参考价四舍五入到整元；结果以各币种最小单位记录（TWD、CNY 为 1/100 元，KRW 为 1 韩元，JPY 为 1 日元）。
  */
-export function convertFromUsd(usdCents: number, currency: 'TWD' | 'KRW' | 'CNY'): number {
+export function convertFromUsd(usdCents: number, currency: 'TWD' | 'KRW' | 'JPY' | 'CNY'): number {
+  if (currency === 'JPY') return Math.round(((usdCents / 100) * FX_SNAPSHOT.perUsdJpy) / 10) * 10
   const major = (usdCents / 100) * FX_SNAPSHOT.perUsd[currency]
   if (currency === 'KRW') return Math.round(major / 100) * 100
   return Math.round(major) * 100
@@ -34,14 +38,14 @@ export type TablePrices = Readonly<Record<EnabledCurrency, number>> & { readonly
 export type TableInterval = 'once' | 'month' | 'year'
 
 export const PRICE_TABLE = {
-  // 入门包（key 沿用 reading_single）：50 积分 $2.99 = NT$97 = ₩4,200（约 ¥20）
-  reading_single: { once: { USD: 299, TWD: 9700, KRW: 4200, CNY: 2000 } },
-  // 超值包（key 沿用 reading_five）：150 积分 $7.99 = NT$260 = ₩11,200（约 ¥54）
-  reading_five: { once: { USD: 799, TWD: 26000, KRW: 11200, CNY: 5400 } },
-  // 订阅 100 积分/月 $4.99 = NT$162 = ₩7,000（约 ¥33）
-  plus: { month: { USD: 499, TWD: 16200, KRW: 7000, CNY: 3300 } },
-  // 订阅 250 积分/月 $9.99 = NT$325 = ₩14,000（约 ¥67）
-  premium: { month: { USD: 999, TWD: 32500, KRW: 14000, CNY: 6700 } },
+  // 入门包（key 沿用 reading_single）：50 积分 $2.99 = NT$97 = ₩4,200 = JP¥450（约 ¥20）
+  reading_single: { once: { USD: 299, TWD: 9700, KRW: 4200, JPY: 450, CNY: 2000 } },
+  // 超值包（key 沿用 reading_five）：150 积分 $7.99 = NT$260 = ₩11,200 = JP¥1,200（约 ¥54）
+  reading_five: { once: { USD: 799, TWD: 26000, KRW: 11200, JPY: 1200, CNY: 5400 } },
+  // 订阅 100 积分/月 $4.99 = NT$162 = ₩7,000 = JP¥750（约 ¥33）
+  plus: { month: { USD: 499, TWD: 16200, KRW: 7000, JPY: 750, CNY: 3300 } },
+  // 订阅 250 积分/月 $9.99 = NT$325 = ₩14,000 = JP¥1,500（约 ¥67）
+  premium: { month: { USD: 999, TWD: 32500, KRW: 14000, JPY: 1500, CNY: 6700 } },
 } as const satisfies Record<string, Partial<Record<TableInterval, TablePrices>>>
 
 export type PricedPlanKey = keyof typeof PRICE_TABLE
@@ -52,7 +56,12 @@ export interface CatalogPrice {
   readonly currency: EnabledCurrency
 }
 
-const SETTLEMENT_CURRENCIES = ['USD', 'TWD', 'KRW'] as const satisfies readonly EnabledCurrency[]
+const SETTLEMENT_CURRENCIES = [
+  'USD',
+  'TWD',
+  'KRW',
+  'JPY',
+] as const satisfies readonly EnabledCurrency[]
 
 /** 把价目表中一个套餐展开成种子用的价格行（每个周期 × 每个结算币种一行；不含 CNY） */
 export function tablePrices(key: PricedPlanKey): CatalogPrice[] {

@@ -1,0 +1,73 @@
+{
+  "media_tasks_title": "メディアタスク",
+  "media_tasks_detail": "タスクの詳細",
+  "media_tasks_task": "タスク",
+  "media_tasks_status": "ステータス",
+  "media_tasks_credits": "消費クレジット",
+  "media_tasks_created": "作成日時",
+  "media_tasks_started": "開始日時",
+  "media_tasks_finished": "終了日時",
+  "media_tasks_queued": "待機中",
+  "media_tasks_running": "実行中",
+  "media_tasks_succeeded": "完了",
+  "media_tasks_failed": "失敗",
+  "media_tasks_canceled": "キャンセル済み",
+  "media_tasks_empty": "メディアタスクはまだありません。",
+  "media_tasks_loading": "タスクを読み込み中…",
+  "media_tasks_refresh": "更新",
+  "media_tasks_load_error": "タスクを読み込めませんでした。更新して再試行してください。",
+  "media_tasks_not_found": "タスクが見つからないか、アクセス権がなくなりました。",
+  "media_tasks_newer": "新しいタスク",
+  "media_tasks_older": "古いタスク",
+  "media_tasks_back": "タスク一覧に戻る",
+  "media_tasks_cancel": "タスクをキャンセル",
+  "media_tasks_canceling": "キャンセル中…",
+  "media_tasks_cancel_retry": "外部のキャンセルを再試行",
+  "media_tasks_cancel_error": "タスクをキャンセルできませんでした。もう一度お試しください。",
+  "media_tasks_cancel_pending": "タスクはキャンセルされました。外部側のキャンセルはまだ完了していません。再試行できます。",
+  "media_tasks_refunded": "タスクは失敗しました。確保していたクレジットは返却されました。",
+  "media_tasks_uncertain": "プロバイダーが重複しない送信（冪等な送信）に対応しておらず、待機時間内にこの送信に対するコールバックも届かなかったため、リクエストが受理されたかどうかを確認できませんでした。二重送信を防ぐため、タスクを停止してクレジットを返却しました。",
+  "media_tasks_failure_reason": "プロバイダー側でこのタスクを完了できませんでした。",
+  "media_tasks_results": "結果",
+  "media_tasks_no_results": "表示できる結果はありません。",
+  "media_tasks_output": "生成結果 {index}",
+  "media_tasks_duration": "{seconds}秒",
+  "media_tasks_download": "結果をダウンロード",
+  "media_tasks_preview_error": "プレビューを読み込めませんでした。更新するか、結果をダウンロードしてください。",
+  "media_tasks_share": "公開用の共有リンクを作成",
+  "media_tasks_revoke": "公開用の共有リンクを無効にする",
+  "media_tasks_share_link": "公開用の共有リンク",
+  "media_tasks_share_public": "無効にするまで、このリンクを知っている人は誰でもこの結果を見ることができます。",
+  "media_tasks_share_revoked": "公開用の共有リンクを無効にしました。",
+  "media_tasks_share_error": "共有リンクを更新できませんでした。もう一度お試しください。",
+  "media_tasks_confirming": "送信を確認しています：プロバイダーからのコールバックを待っています。確保したクレジットは保留され、期限内に確認できなかった場合は全額返却されます。",
+  "media_tasks_cancel_checking": "キャンセル条件を確認しています…",
+  "media_tasks_cancel_confirm_title": "このタスクをキャンセルしますか？",
+  "media_tasks_cancel_unstarted": "プロバイダーはまだ生成を開始していません。キャンセルすると、確保したクレジットがすべて返却され、無料キャンセルの回数も消費しません。",
+  "media_tasks_cancel_free_started": "プロバイダーはすでに生成を開始しています。生成開始後のタスクは、ワークスペースごとに1回まで無料でキャンセルできます。今回のキャンセルでその1回を使用し、確保したクレジットはすべて返却されます。2回目以降の生成開始後のキャンセルでは、全額が請求されます。",
+  "media_tasks_cancel_charged": [
+    {
+      "declarations": ["input credits", "local creditsPlural = credits: plural"],
+      "selectors": ["creditsPlural"],
+      "match": {
+        "creditsPlural=one": "プロバイダーはすでに生成を開始しており、このワークスペースは無料キャンセルを使用済みです。キャンセルすると、全額の{credits}クレジットが請求されます。",
+        "creditsPlural=other": "プロバイダーはすでに生成を開始しており、このワークスペースは無料キャンセルを使用済みです。キャンセルすると、全額の{credits}クレジットが請求されます。"
+      }
+    }
+  ],
+  "media_tasks_cancel_confirm": "キャンセルを確定",
+  "media_tasks_cancel_keep": "生成を続ける",
+  "media_tasks_cancel_preview_error": "キャンセル条件を読み込めませんでした。もう一度お試しください。",
+  "media_tasks_cancel_result_refunded": "タスクをキャンセルし、確保していたクレジットを返却しました。",
+  "media_tasks_cancel_result_charged": [
+    {
+      "declarations": ["input credits", "local creditsPlural = credits: plural"],
+      "selectors": ["creditsPlural"],
+      "match": {
+        "creditsPlural=one": "タスクをキャンセルし、全額の{credits}クレジットを請求しました。",
+        "creditsPlural=other": "タスクをキャンセルし、全額の{credits}クレジットを請求しました。"
+      }
+    }
+  ],
+  "media_tasks_cancel_changed": "ご確認中にプロバイダー側の状態が変わりました。上に表示されている請求内容が最終です。"
+}

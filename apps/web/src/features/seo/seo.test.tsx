@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { defaultShareCardLayout } from '../share-cards/layout.tsx'
 import {
@@ -136,7 +137,12 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // 东方站根路径英文（5b）未发布：页面只在预览主机可访问，hreflang 见 east-en 的测试
         if (!page.alternates && !page.site) {
           const site = siteOfLocale(locale, config) ?? 'west'
-          const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
+          // hreflang 只列已发布语言，未发布语言（ja）的页面另列自身（rollout.ts）
+          const siteLocales = locales.filter(
+            (other) =>
+              siteOfLocale(other, config) === site &&
+              (other === locale || isLocaleReleased(other, config, site)),
+          )
           // 东方站各语言首页另与东方站英文入口页 `/en` 互指
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
             siteLocales.length + 1 + (site === 'east' && page.path === '/' ? 1 : 0),
@@ -440,10 +446,14 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
     ['ko', 'https://ganjiday.com/ko/pricing'],
     ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
   ])
-  // 西方站英文页面不出现东方站地址；东方站根路径英文（5b，site: 'east'）只出现东方站地址
-  for (const page of pages.filter((page) => page.locale === 'en' && page.site !== 'east'))
+  // 西方站页面不出现东方站地址；东方站根路径英文（5b，site: 'east'）只出现东方站地址
+  for (const page of pages.filter(
+    (page) => siteOfLocale(page.locale, config) === 'west' && page.site !== 'east',
+  ))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
-  for (const page of pages.filter((page) => page.locale !== 'en' || page.site === 'east'))
+  for (const page of pages.filter(
+    (page) => siteOfLocale(page.locale, config) === 'east' || page.site === 'east',
+  ))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('arcanumber.com')
 })
 

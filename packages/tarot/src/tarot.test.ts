@@ -44,6 +44,23 @@ describe('RWS deck and readings', () => {
       answer: 'Yes',
     })
   })
+  it('provides complete Spanish meanings whose yes/no reasons use the Spanish answer word', () => {
+    const word = { Yes: 'Sí:', No: 'No:', Maybe: 'Quizás:' } as const
+    expect(Object.keys(CARD_MEANINGS.es)).toHaveLength(78)
+    for (const card of CARDS) {
+      const meaning = CARD_MEANINGS.es[card.id]
+      expect(meaning?.name).toBeTruthy()
+      expect(meaning?.keywords).toHaveLength(2)
+      for (const orientation of ['upright', 'reversed'] as const)
+        expect(meaning?.yesNoReason[orientation].startsWith(word[card.yesNo[orientation]])).toBe(
+          true,
+        )
+    }
+    expect(CARD_MEANINGS.es['pentacles-01']?.name).toBe('As de Oros')
+    expect(Object.values(SPREADS).map((spread) => spread.positions.es.length)).toEqual([
+      1, 1, 3, 10,
+    ])
+  })
   it('cuts by the chosen position without mutating the deck and draws unique cards with reversals off', () => {
     const deck = shuffleDeck(false)
     const cut = cutDeck(deck, 17)

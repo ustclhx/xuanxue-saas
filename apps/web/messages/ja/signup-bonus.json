@@ -1,0 +1,15 @@
+{
+  "billing_signup_title": "新規登録クレジット",
+  "billing_signup_verified_notice": "新規登録クレジットを受け取れます。認証は完了したのに付与されていない場合は、もう一度お試しください。",
+  "billing_signup_verification_notice": "メールアドレスを認証すると、個人ワークスペースに{credits}クレジットが付与されます。",
+  "billing_signup_wait": "しばらくお待ちください…",
+  "billing_signup_claim": "新規登録クレジットを受け取る",
+  "billing_signup_verify": "メールを認証して{credits}クレジットを受け取る",
+  "billing_signup_verification_sent": "認証メールを送信しました。認証が完了すると、クレジットが付与されます。",
+  "billing_signup_granted": "個人ワークスペースに{credits}クレジットを付与しました。",
+  "billing_signup_already_claimed": "このメールアドレスでは、すでに新規登録クレジットを受け取っています。",
+  "billing_signup_blacklisted": "このメールアドレスのドメインは、新規登録クレジットの対象外です。",
+  "billing_signup_unverified": "新規登録クレジットを受け取るには、メールアドレスの認証が必要です。",
+  "billing_signup_unavailable": "新規登録クレジットは、現在ご利用いただけません。",
+  "billing_signup_error": "新規登録クレジットを受け取れませんでした。もう一度お試しください。"
+}

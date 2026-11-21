@@ -84,6 +84,15 @@ export const STRICT_MESSAGE_LOCALES: readonly string[] = ['ja', 'es', 'pt-BR', '
 /** 严格语言中仍允许回退到默认语言的功能文件：后台与 UI 预览页 */
 export const LENIENT_MESSAGE_FEATURES: readonly RegExp[] = [/^admin(-|$)/, /^ui-preview(-|$)/]
 
+/**
+ * 按语言额外允许回退的功能文件：该语言所属站点本期不提供的工具（design 决策 4：`ja` 第一期没有每日运势与数字命理）。
+ * 这些文案不翻译，客户端也就不必为每条文案加按语言拆分的查表（首页包预算，决策 11）。
+ * 该语言之后提供这些工具时，从这里删除并补齐文案（严格检查随之生效）。
+ */
+export const LOCALE_LENIENT_MESSAGE_FEATURES: Readonly<Record<string, readonly RegExp[]>> = {
+  ja: [/^daily$/, /^numerology(-|$)/, /^chart-numerology$/],
+}
+
 /** 语言在某站点上的发布状态；未登记为 pending */
 export function releaseState(
   site: SiteId,

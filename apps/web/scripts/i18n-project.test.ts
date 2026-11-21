@@ -50,11 +50,21 @@ describe('文案回退与缺失检查（tasks.md 1.3）', () => {
       { locale: 'ja', feature: 'bazi', key: 'bazi_title' },
       { locale: 'ja', feature: 'admin-daily-credits', key: 'admin_x' },
       { locale: 'ja', feature: 'ui-preview', key: 'ui_x' },
+      // 按语言放宽：ja 不提供每日运势，es 仍须齐全
+      { locale: 'ja', feature: 'daily', key: 'daily_x' },
+      { locale: 'es', feature: 'daily', key: 'daily_x' },
       { locale: 'zh-Hant', feature: 'common', key: 'common_cancel' },
     ]
-    const strict = { locales: ['ja', 'es'], lenientFeatures: [/^admin(-|$)/, /^ui-preview(-|$)/] }
+    const strict = {
+      locales: ['ja', 'es'],
+      lenientFeatures: [/^admin(-|$)/, /^ui-preview(-|$)/],
+      lenientByLocale: { ja: [/^daily$/] },
+    }
     const failures = strictMissingMessages(missing, strict)
-    expect(failures).toEqual([{ locale: 'ja', feature: 'bazi', key: 'bazi_title' }])
+    expect(failures).toEqual([
+      { locale: 'ja', feature: 'bazi', key: 'bazi_title' },
+      { locale: 'es', feature: 'daily', key: 'daily_x' },
+    ])
     expect(formatStrictMissing(failures)).toContain('ja: bazi_title (messages/ja/bazi.json)')
     expect(strictMissingMessages(missing, undefined)).toEqual([])
     expect(formatStrictMissing([])).toBeNull()

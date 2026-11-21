@@ -12,7 +12,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
-import { tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
+import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
 import { pageSite, type SeoPage } from './metadata.ts'
 import { type PageLinks, pageLinks } from './page-links.ts'
 import { publicPages } from './pages.ts'
@@ -27,6 +27,7 @@ export function getPublicPages(site?: SiteId) {
       toolPages: [
         ...numerologySeoPages(allNumerologies),
         ...tarotMeaningSeoPages(allTarots),
+        ...tarotLocalizedSeoPages(),
         // 东方站根路径英文的 as feelings 牌页（5b）
         ...tarotFeelingsSeoPages(allTarotFeelings),
       ],

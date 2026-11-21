@@ -79,6 +79,11 @@ export interface SuiteDefinition {
   readonly prepareOutput?: PrepareOutput
   /** 可选：候选与基线全部完成后的聚合门槛判定（design D4） */
   readonly evaluateRun?: EvaluateRun
+  /**
+   * 可选：样本是否适用于某个提示词版本（如新语言样本只属于加入该语言之后的版本）。不适用的样本不进入该版本的运行
+   * （也不作为基线样本），因此旧版本的整套回放不会因新样本没有录制而失败；版本锁照常覆盖全部样本。
+   */
+  readonly appliesTo?: (sample: Sample, promptVersion: string) => boolean
 }
 
 const SUITE_MARK = Symbol.for('saas.evals.suite')

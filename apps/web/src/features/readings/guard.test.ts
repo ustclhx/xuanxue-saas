@@ -143,6 +143,26 @@ describe('年份干支兜底', () => {
     expect(result.report.personalYear).toBe(2)
   })
 
+  it('西语数字命理（numerology-full.v5）：「Año personal」标题与正文按数据改正，只有年份的标题补西语写法', () => {
+    const years = [
+      { year: 2026, personalYear: 7 },
+      { year: 2027, personalYear: 8 },
+      { year: 2028, personalYear: 9 },
+    ]
+    const result = guardReading(
+      '### 2026 · Año personal 7\n### 2027 · Año personal 6\n### 2028\n\n2027 (año personal 6) invita a enfocarte.',
+      { locale: 'es', promptVersion: 'numerology-full.v5', years },
+    )
+    expect(result.text).toBe(
+      '### 2026 · Año personal 7\n### 2027 · Año personal 8\n### 2028 · Año personal 9\n\n2027 (año personal 8) invita a enfocarte.',
+    )
+    expect(result.report.personalYear).toBe(3)
+    // 英文写法不受影响
+    expect(
+      guardReading('### 2028', { locale: 'en', promptVersion: 'numerology-full.v4', years }).text,
+    ).toBe('### 2028 · Personal Year 9')
+  })
+
   it('线上期望年份：干支详批按公历年推算，数字命理按出生日期算个人年；输入不完整时为空', () => {
     expect(readingGuardYears('ziwei-full', 2026, {}).map((y) => y.ganzhi?.hanzi)).toEqual([
       '丙午',

@@ -109,7 +109,7 @@ test('live Stripe dry run describes monthly subscription prices beside credit pa
   assert.ok(lines.includes('  + premium KRW 14000 /month on ko localized product'))
   assert.ok(
     lines.includes(
-      '  + reading_single USD 199 on canonical product + zh-Hant/zh-Hans/ko localized USD variants',
+      '  + reading_single USD 199 on canonical product + zh-Hant/zh-Hans/ko/ja localized USD variants',
     ),
   )
 })

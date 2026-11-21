@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_sample_badge": "Ejemplo",
+  "chart_equivalent_hint": "Todos los detalles están en la tabla debajo de la carta."
+}

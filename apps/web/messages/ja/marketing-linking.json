@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "marketing_linking_breadcrumb": "パンくずリスト",
+  "marketing_linking_series": "シリーズのナビゲーション",
+  "marketing_linking_previous": "前へ",
+  "marketing_linking_next": "次へ",
+  "marketing_linking_related": "関連ページ",
+  "marketing_linking_group": "{group}のほかのページ",
+  "marketing_linking_group_other": "このグループのほかのページ",
+  "marketing_linking_pagination": "ページ送り",
+  "marketing_linking_previous_page": "前のページ",
+  "marketing_linking_next_page": "次のページ",
+  "marketing_linking_page": "{page}ページ目",
+  "marketing_linking_page_title": "{title}（{page}ページ目）",
+  "marketing_linking_page_summary": "全{total}件中、{page}/{pageCount}ページを表示しています。"
+}

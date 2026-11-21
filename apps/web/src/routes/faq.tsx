@@ -47,6 +47,21 @@ export const Route = createFileRoute('/faq')({
 })
 
 /**
+ * 页面上的分组：西班牙语把「账户」一问并入「隐私与计算方式」组（按本语言组织页面，design 决策 10）；
+ * 问答与顺序不变，FAQPage 结构化数据仍与可见问答一致
+ */
+function pageSections(locale: string) {
+  const sections = faqSections(locale as Parameters<typeof faqSections>[0])
+  const account = sections.at(-1)
+  const methods = sections.at(-2)
+  if (locale !== 'es' || !account || !methods) return sections
+  return [
+    ...sections.slice(0, -2),
+    { title: methods.title, items: [...methods.items, ...account.items] },
+  ]
+}
+
+/**
  * 常见问题页（设计稿 warm-refresh/Faq.dc.html）：页头 + 各组问答。页尾不再单列一行链接，
  * 链接放进提到它们的答案里（退款政策、隐私政策）：只给答案里已有的名称加链接，不为放链接改写句子。
  * 可见答案与 FAQPage 结构化数据仍是同一份文字。
@@ -64,11 +79,14 @@ function FaqPage() {
     <MarketingShell>
       <ContentPage>
         <ContentHead title={eastEn?.h1 ?? m.marketing_faq_title()}>
-          <p className="m-0 text-body text-ink-muted">
-            {eastEn?.intro ?? m.marketing_faq_page_intro()}
-          </p>
+          {/* 导语中的空行分段（新语言按本语言习惯组织，不必与源语言逐段对应） */}
+          {(eastEn?.intro ?? m.marketing_faq_page_intro()).split(/\n{2,}/).map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body text-ink-muted">
+              {paragraph}
+            </p>
+          ))}
         </ContentHead>
-        {(eastEn?.sections ?? faqSections(locale)).map((section) => (
+        {(eastEn?.sections ?? pageSections(locale)).map((section) => (
           <ToolFaq
             key={section.title}
             title={section.title}

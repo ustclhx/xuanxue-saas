@@ -15,17 +15,19 @@ describe('currency rules', () => {
     const table = {
       'zh-Hant': { stripe: 'TWD', paypal: 'USD' },
       ko: { stripe: 'KRW', paypal: 'USD' },
+      ja: { stripe: 'JPY', paypal: 'USD' },
       'zh-Hans': { stripe: 'USD', paypal: 'USD' },
       en: { stripe: 'USD', paypal: 'USD' },
     } as const
     for (const [locale, providers] of Object.entries(table))
       for (const [provider, currency] of Object.entries(providers))
         expect(currencyFor(locale, provider as 'stripe' | 'paypal')).toBe(currency)
-    expect(currencyFor('ja', 'stripe')).toBe('USD')
+    expect(currencyFor('es', 'stripe')).toBe('USD')
   })
 
   it('locks platform exponents independently of Intl', () => {
-    expect(CURRENCY_EXPONENT).toMatchObject({ USD: 2, TWD: 2, KRW: 0 })
+    expect(CURRENCY_EXPONENT).toMatchObject({ USD: 2, TWD: 2, KRW: 0, JPY: 0 })
+    expect(enabledCurrency('jpy')).toBe('JPY')
     expect(enabledCurrency('twd')).toBe('TWD')
     expect(enabledCurrency('CNY')).toBeNull()
     expect(enabledCurrency('EUR')).toBeNull()
@@ -34,6 +36,9 @@ describe('currency rules', () => {
   it('formats localized prices without nonexistent decimals', () => {
     expect(formatMoney(6500, 'TWD', 'zh-Hant')).toBe('NT$65')
     expect(formatMoney(2800, 'KRW', 'ko')).toBe('₩2,800')
+    // 日元零小数：最小单位即 1 日元
+    expect(formatMoney(1200, 'JPY', 'ja')).toBe('￥1,200')
+    expect(formatMoney(450, 'jpy', 'ja')).toBe('￥450')
     expect(formatMoney(199, 'USD', 'zh-Hans')).toBe('US$1.99')
     expect(formatMoney(199, 'USD', 'ko')).toBe('US$1.99')
     expect(formatMoney(199, 'usd', 'en')).toBe('$1.99')
@@ -43,6 +48,8 @@ describe('currency rules', () => {
   it('rejects TWD amounts that are not whole dollars', () => {
     expect(isValidMinorAmount(6500, 'TWD')).toBe(true)
     expect(isValidMinorAmount(6550, 'TWD')).toBe(false)
+    expect(isValidMinorAmount(455, 'JPY')).toBe(true)
+    expect(isValidMinorAmount(4.5, 'JPY')).toBe(false)
     expect(isValidMinorAmount(2850, 'KRW')).toBe(true)
     expect(isValidMinorAmount(-1, 'USD')).toBe(false)
     expect(isValidMinorAmount(1.5, 'USD')).toBe(false)

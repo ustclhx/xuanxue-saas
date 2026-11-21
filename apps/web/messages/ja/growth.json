@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "growth_newsletter_title": "ニュースレターを購読する",
+  "growth_newsletter_intro": "自分を見つめ直すための占術ツールやガイドについて、ときどきお知らせをお届けします。",
+  "growth_waitlist_title": "ウェイトリストに登録する",
+  "growth_email_label": "メールアドレス",
+  "growth_newsletter_submit": "購読する",
+  "growth_waitlist_submit": "ウェイトリストに登録",
+  "growth_submitting": "送信中…",
+  "growth_unavailable": "このフォームは現在ご利用いただけません。",
+  "growth_retry": "もう一度お試しください。",
+  "growth_submit_failed": "送信できませんでした。もう一度お試しください。",
+  "growth_newsletter_success": "購読を確定するため、届いたメールをご確認ください。",
+  "growth_waitlist_success": "ウェイトリストに登録しました。",
+  "growth_privacy_note": "このメールアドレスは、これらのメールの配信にのみ使用します。[プライバシーポリシー](privacy)をご確認ください。配信は、どのメールからでも停止できます。"
+}

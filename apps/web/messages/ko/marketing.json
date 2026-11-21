@@ -156,6 +156,7 @@
   "pricing_currency_usd": "미국 달러(USD)",
   "pricing_currency_twd": "신타이완 달러(TWD)",
   "pricing_currency_krw": "원화(KRW)",
+  "pricing_currency_jpy": "일본 엔(JPY)",
   "pricing_packs_once_title": "크레딧 단건 구매",
   "pricing_pack_buy": "구매",
   "pricing_pay_note_local": "카드 결제는 {currency}, PayPal은 미국 달러로 결제됩니다 ({prices}). 구매 크레딧은 {days}일간 유효합니다.",

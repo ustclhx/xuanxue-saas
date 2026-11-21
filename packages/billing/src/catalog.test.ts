@@ -111,9 +111,8 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     const free = state.plans.find((p) => p.key === 'free')
     expect(free?.features).toEqual(DEFAULT_FREE_FEATURES)
-    // 每个积分包：Stripe 按价目表建 USD/TWD/KRW 三行，PayPal 只建 USD（决策 2）
-    // 积分包 Stripe USD/TWD/KRW + PayPal USD；订阅 plus/premium 只有 Stripe 月付三币种，PayPal 不建订阅价格（D3）
-    expect(state.prices).toHaveLength(14)
+    // 积分包 Stripe USD/TWD/KRW/JPY + PayPal USD；订阅 plus/premium 只有 Stripe 月付四币种，PayPal 不建订阅价格（D3）
+    expect(state.prices).toHaveLength(18)
     expect(
       state.prices
         .map((p) => `${p.provider}:${p.currency}:${p.amount}:${p.interval ?? 'once'}`)
@@ -121,6 +120,10 @@ describe('offline catalog', () => {
     ).toEqual([
       'paypal:USD:299:once',
       'paypal:USD:799:once',
+      'stripe:JPY:1200:once',
+      'stripe:JPY:1500:month',
+      'stripe:JPY:450:once',
+      'stripe:JPY:750:month',
       'stripe:KRW:11200:once',
       'stripe:KRW:14000:month',
       'stripe:KRW:4200:once',
@@ -150,12 +153,12 @@ describe('offline catalog', () => {
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe, paypal])
     expect(state.plans).toHaveLength(8)
-    expect(state.prices.slice(0, 14)).toEqual(before)
-    expect(state.prices).toHaveLength(15)
+    expect(state.prices.slice(0, 18)).toEqual(before)
+    expect(state.prices).toHaveLength(19)
     // 调价后的旧金额行保留平台映射，只停止售卖
-    expect(state.prices[14]).toMatchObject({ providerPriceId: 'old-immutable', active: false })
+    expect(state.prices[18]).toMatchObject({ providerPriceId: 'old-immutable', active: false })
     for (const [adapter, perRun] of [
-      [stripe, 12],
+      [stripe, 16],
       [paypal, 2],
     ] as const) {
       const calls = vi.mocked(adapter.syncPlan).mock.calls
@@ -191,7 +194,7 @@ describe('offline catalog', () => {
     ).toBe(true)
     await seedCatalog(state.db)
     await syncCatalog(state.db, [stripe])
-    expect(state.prices.filter((p) => p.active)).toHaveLength(12)
+    expect(state.prices.filter((p) => p.active)).toHaveLength(16)
   })
 
   it('propagates immutable remote mismatch without recreating or rewriting the mapping', async () => {

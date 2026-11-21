@@ -1,0 +1,10 @@
+{
+  "billing_coexist_tasks": "{count} tareas simultáneas",
+  "billing_coexist_api": "API pública: {value}",
+  "billing_coexist_priority": "Cola prioritaria: {value}",
+  "billing_coexist_watermark": "Marca de agua: {value}",
+  "billing_coexist_models": "Modelos: {value}",
+  "billing_coexist_yes": "Sí",
+  "billing_coexist_no": "No",
+  "billing_coexist_order": "Los créditos de la suscripción y de los paquetes se suman; primero se usan los que vencen antes."
+}

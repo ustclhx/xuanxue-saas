@@ -8,6 +8,16 @@
     "robots": null,
     "jsonLd": ["Organization", "WebSite"]
   },
+  "es": {
+    "canonical": "/es",
+    "hreflang": {
+      "en": "/",
+      "es": "/es",
+      "x-default": "/"
+    },
+    "robots": null,
+    "jsonLd": ["Organization", "WebSite"]
+  },
   "zh-hant": {
     "canonical": "/zh-hant",
     "hreflang": {
@@ -36,6 +46,19 @@
     "canonical": "/ko",
     "hreflang": {
       "en": "/",
+      "ko": "/ko",
+      "x-default": "/",
+      "zh-Hans": "/zh-hans",
+      "zh-Hant": "/zh-hant"
+    },
+    "robots": null,
+    "jsonLd": ["Organization", "WebSite"]
+  },
+  "ja": {
+    "canonical": "/ja",
+    "hreflang": {
+      "en": "/",
+      "ja": "/ja",
       "ko": "/ko",
       "x-default": "/",
       "zh-Hans": "/zh-hans",

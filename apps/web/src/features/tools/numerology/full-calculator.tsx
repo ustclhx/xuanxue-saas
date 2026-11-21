@@ -10,10 +10,10 @@ import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
 import { ShareLink } from '../share-link.tsx'
 import { formatBirthDate, parseBirthDate, reductionText } from './calc.ts'
+import { lifePathHref } from './href.ts'
 import { BirthDateField } from './life-path-calculator.tsx'
 import { NAME_NUMBER_COPY, NameNumberBlock, type NameNumberKey } from './name-calculator.tsx'
 import { FieldError, LifePathSteps, NumberHeadline, StepLines } from './parts.tsx'
-import { lifePathPath } from './routes.ts'
 import { useSharedInput } from './use-shared-input.ts'
 
 type Chart = ReturnType<typeof numerologyChart>
@@ -83,7 +83,7 @@ export function FullCalculator() {
               <NumberHeadline result={chart.lifePath} size="sm" />
               <LifePathSteps result={chart.lifePath} date={state.date} />
               <a
-                href={lifePathPath(chart.lifePath.value)}
+                href={lifePathHref(chart.lifePath.value)}
                 className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
               >
                 {m.numerology_number_link({ number: chart.lifePath.value })}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "tools_disclaimer_label": "Aviso",
+  "tools_disclaimer": "Esta herramienta calcula los resultados según métodos tradicionales y sirve solo como referencia para reflexionar. No predice el futuro. Si tienes dudas de salud, consulta a un profesional médico.",
+  "tools_ai_disclaimer": "Calculado con métodos tradicionales e interpretado con ayuda de IA. Solo como referencia para reflexionar; no predice el futuro. Para temas de salud, consulta a un profesional médico.",
+  "tools_share_label": "Enlace para compartir",
+  "tools_share_copy": "Copiar enlace",
+  "tools_share_copied": "Enlace copiado",
+  "tools_share_failed": "No se pudo copiar automáticamente. Selecciona el enlace de arriba y cópialo.",
+  "tools_share_hint": "Quien abra este enlace verá el mismo resultado. Nunca incluye tu nombre.",
+  "tools_results_label": "Resultados",
+  "tools_result_loading": "Calculando…",
+  "tools_links_title": "Sigue leyendo",
+  "tools_faq_title": "Preguntas frecuentes",
+  "tools_requires_js": "Se necesita JavaScript para calcular los resultados.",
+  "tools_breadcrumb_label": "Ruta de navegación"
+}

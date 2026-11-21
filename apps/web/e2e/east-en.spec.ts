@@ -133,4 +133,7 @@ test('东方站英文八字计算器：英文表单排出命盘，结果中没�
   await page.locator('form button[type="submit"]').click()
   await expect(page.locator('#pillars')).toBeVisible({ timeout: 30_000 })
   await expect(page.locator('#result a[href*="/zh-hant/"]')).toHaveCount(0)
+  // 农历日期用英文数字月日（不出现中文月名），神煞所在柱用英文逗号分隔
+  await expect(page.locator('#result')).toContainText(/Lunar date: (leap )?month \d+, day \d+/)
+  await expect(page.locator('[data-shensha][data-hit="true"]').first()).not.toContainText('、')
 })

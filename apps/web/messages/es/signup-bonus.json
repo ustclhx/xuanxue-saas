@@ -1,0 +1,15 @@
+{
+  "billing_signup_title": "Créditos de bienvenida",
+  "billing_signup_verified_notice": "Reclama tus créditos de bienvenida, o vuelve a intentarlo si verificaste tu correo y no se sumaron.",
+  "billing_signup_verification_notice": "Verifica tu correo para recibir {credits} créditos en tu espacio personal.",
+  "billing_signup_wait": "Espera un momento…",
+  "billing_signup_claim": "Reclamar créditos de bienvenida",
+  "billing_signup_verify": "Verifica tu correo para reclamar {credits} créditos",
+  "billing_signup_verification_sent": "Te enviamos un correo de verificación. Los créditos se sumarán cuando verifiques tu dirección.",
+  "billing_signup_granted": "Se sumaron {credits} créditos a tu espacio personal.",
+  "billing_signup_already_claimed": "Este correo ya recibió sus créditos de bienvenida.",
+  "billing_signup_blacklisted": "Este dominio de correo no puede recibir créditos de bienvenida.",
+  "billing_signup_unverified": "Verifica tu correo para recibir los créditos de bienvenida.",
+  "billing_signup_unavailable": "Los créditos de bienvenida no están disponibles.",
+  "billing_signup_error": "No se pudieron reclamar los créditos de bienvenida. Inténtalo de nuevo."
+}

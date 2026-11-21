@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { referenceDate } from '../features/daily/date.ts'
 import { requireDailyLocale, westDailyHead } from '../features/daily/head.ts'
+import { loadWestDaily } from '../features/daily/load.ts'
 import { EN_RULES } from '../features/daily/rules/en.ts'
-import { loadWestDaily, WestDailyPage } from '../features/daily/west-page.tsx'
+import { WestDailyPage } from '../features/daily/west-page.tsx'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 
 // 西方站每日数字页（add-birth-profiles-daily-horoscope design D7、D9）：SSR，不预渲染；

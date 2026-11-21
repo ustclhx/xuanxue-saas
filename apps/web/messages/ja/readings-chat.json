@@ -1,0 +1,6 @@
+{
+  "readings_chat_title": "この鑑定について質問する",
+  "readings_chat_note": "AIは、鑑定の内容とあなたのチャートを手がかりに回答します。お名前や出生地は使いません",
+  "readings_chat_unavailable_title": "現在、利用できるAIモデルがありません",
+  "readings_chat_unavailable_body": "鑑定の内容は、引き続きお読みいただけます。追加の質問は、いまはご利用いただけません。クレジットは購入でき、モデルが利用できるようになったら、こちらから質問できます。"
+}

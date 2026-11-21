@@ -1,0 +1,12 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "site_skip_to_content": "Saltar al contenido",
+  "site_nav_tools": "Herramientas",
+  "site_nav_languages": "Idiomas",
+  "site_footer_disclaimer": "Solo como referencia y para reflexionar. No predice el futuro.",
+  "site_account_menu": "Cuenta",
+  "site_account_spaces": "Tus espacios",
+  "site_nav_tools_menu": "Herramientas",
+  "site_nav_menu": "Menú",
+  "site_footer_nav": "Pie de página"
+}

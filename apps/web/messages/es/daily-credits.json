@@ -1,0 +1,12 @@
+{
+  "daily_credits_granted": "Se agregaron {credits} créditos diarios a tu espacio de trabajo personal. Este mes: {daysThisMonth}/{maxDaysPerMonth} días.",
+  "daily_credits_expiry": "Vencen el {expiresAt}.",
+  "daily_credits_dismiss": "Cerrar",
+  "daily_credits_verify": "Verifica tu correo para recibir créditos diarios",
+  "daily_credits_source": "Créditos diarios",
+  "daily_credits_already_claimed": "Ya reclamaste los créditos diarios de hoy. Vuelve mañana (UTC).",
+  "daily_credits_monthly_limit": "Ya usaste los días de créditos diarios de este mes. Los créditos diarios vuelven el próximo mes (UTC).",
+  "daily_credits_shared_note": "Las cuentas de {site} y {otherSite} que usan el mismo correo comparten un solo reclamo diario y un solo límite mensual.",
+  "daily_credits_faq_q": "¿Cómo funcionan los créditos diarios?",
+  "daily_credits_faq_a": "Las cuentas nuevas reciben 20 créditos en total el primer día: 15 créditos de registro al verificar el correo (una vez por correo), más los 5 créditos diarios de ese día. Después, con el correo verificado, recibes 5 créditos gratis la primera vez que abres tu área de cuenta cada día (UTC), hasta 10 días al mes. Los créditos diarios son válidos por 7 días y se usan antes que tus otros créditos. Las cuentas de {site} y {otherSite} que usan el mismo correo comparten un solo reclamo diario y un solo límite mensual, así que reclamar en un sitio cuenta para ambos."
+}

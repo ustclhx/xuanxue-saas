@@ -1,0 +1,10 @@
+{
+  "billing_coexist_tasks": "同時実行タスク：{count}件",
+  "billing_coexist_api": "公開API：{value}",
+  "billing_coexist_priority": "優先キュー：{value}",
+  "billing_coexist_watermark": "透かし：{value}",
+  "billing_coexist_models": "モデル：{value}",
+  "billing_coexist_yes": "あり",
+  "billing_coexist_no": "なし",
+  "billing_coexist_order": "定期購入分とパック分のクレジットは合算され、有効期限が先に来るものから使われます。"
+}

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_sample_badge": "サンプル",
+  "chart_equivalent_hint": "詳しい内容は、図の下の表に掲載しています。"
+}

@@ -1,0 +1,5 @@
+{
+  "billing_credit_guide_title": "Créditos insuficientes",
+  "billing_credit_guide_amounts": "Costo estimado: {estimatedCredits} créditos. Disponibles: {availableCredits} créditos.",
+  "billing_credit_guide_packs": "Comprar paquetes de créditos"
+}

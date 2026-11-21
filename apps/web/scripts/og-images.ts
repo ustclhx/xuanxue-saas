@@ -15,7 +15,10 @@ import { defaultShareCardSite, resolveShareCardSite } from '../src/features/shar
 import { resolveShareCardTheme } from '../src/features/share-cards/theme.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
-import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
+import {
+  tarotLocalizedSeoPages,
+  tarotMeaningSeoPages,
+} from '../src/features/tools/tarot/meaning-routes.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
 import { brandChartColors } from './brand-tokens.ts'
@@ -43,6 +46,7 @@ function pages() {
     toolPages: [
       ...numerologySeoPages(read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies')),
       ...tarotMeaningSeoPages(read<Parameters<typeof tarotMeaningSeoPages>[0]>('allTarots')),
+      ...tarotLocalizedSeoPages(),
       // 东方站根路径英文的 as feelings 牌页（5b）
       ...tarotFeelingsSeoPages(
         read<Parameters<typeof tarotFeelingsSeoPages>[0]>('allTarotFeelings'),

@@ -1,5 +1,6 @@
 import type { SpreadId } from '@xuanxue/tarot'
-import type { AppLocale, Assert, Covers } from '../../i18n/locales.ts'
+import { type AppLocale, type Assert, type Covers, WEST_LOCALES } from '../../i18n/locales.ts'
+import { localeText } from '../../i18n/split-messages.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
@@ -13,6 +14,8 @@ export const TAROT_LOCALES = [
   'zh-Hant',
   'zh-Hans',
   'ko',
+  'es',
+  'ja',
 ] as const satisfies readonly TarotLocale[]
 export type _TarotLocalesCoverConfig = Assert<Covers<(typeof TAROT_LOCALES)[number], AppLocale>>
 
@@ -29,49 +32,80 @@ export const TAROT_ROOTS: Readonly<Record<TarotLocale, string>> = {
   'zh-Hant': '/塔羅',
   'zh-Hans': '/塔罗',
   ko: '/타로',
+  // 西班牙语与英语共用 `/tarot` 路径段（带 `/es` 前缀），文件路由按当前语言区分（route-head.ts sharedTarotLocale）
+  es: '/tarot',
+  // 关键词地图 ja.md（使用者 2026-11-20 批准）
+  ja: '/タロット',
 }
 
 // 子路径段；三张牌为空，即根路径
 const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
-  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '' },
-  daily: { en: 'daily', 'zh-Hant': '每日一張', 'zh-Hans': '每日一张', ko: '오늘의-카드' },
-  'yes-or-no': { en: 'yes-or-no', 'zh-Hant': '是非', 'zh-Hans': '是非', ko: '예-아니오' },
+  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '', es: '', ja: '' },
+  daily: {
+    en: 'daily',
+    'zh-Hant': '每日一張',
+    'zh-Hans': '每日一张',
+    ko: '오늘의-카드',
+    es: 'carta-del-dia',
+    ja: '一枚引き',
+  },
+  'yes-or-no': {
+    en: 'yes-or-no',
+    'zh-Hant': '是非',
+    'zh-Hans': '是非',
+    ko: '예-아니오',
+    es: 'si-o-no',
+    ja: 'イエスノー',
+  },
   'celtic-cross': {
     en: 'celtic-cross',
     'zh-Hant': '凱爾特十字',
     'zh-Hans': '凯尔特十字',
     ko: '켈틱-크로스',
+    es: 'cruz-celta',
+    ja: 'ケルト十字',
   },
 }
 
+// v1 语言的 Title 兼导航名；新语言这里是导航名与主词（titleMain，取术语表 anchors），Title 见 SEO_TITLES
 const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
   'three-card': {
     en: 'Three-Card Tarot',
     'zh-Hant': '三張牌塔羅',
     'zh-Hans': '三张牌塔罗',
     ko: '쓰리 카드 타로',
+    es: 'Tarot gratis',
+    ja: '無料タロット占い',
   },
   daily: {
     en: 'Card of the Day',
     'zh-Hant': '每日一張塔羅',
     'zh-Hans': '每日一张塔罗',
     ko: '오늘의 타로 카드',
+    es: 'Tarot del día',
+    ja: 'タロット一枚引き',
   },
   'yes-or-no': {
     en: 'Yes or No Tarot',
     'zh-Hant': '是非塔羅',
     'zh-Hans': '是非塔罗',
     ko: '예/아니오 타로',
+    es: 'Tarot sí o no',
+    ja: 'イエス・ノー占い',
   },
   'celtic-cross': {
     en: 'Celtic Cross Tarot',
     'zh-Hant': '凱爾特十字塔羅',
     'zh-Hans': '凯尔特十字塔罗',
     ko: '켈틱 크로스 타로',
+    es: 'Tirada de la cruz celta',
+    ja: 'ケルト十字スプレッド',
   },
 }
 
-const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
+// 新语言的描述在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）；
+// 注册表直接引用各牌阵的这个对象（不复制），加载后写回的条目随之可见
+const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = localeText({
   'three-card': {
     en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
     'zh-Hant':
@@ -79,25 +113,61 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     'zh-Hans':
       '免费三张牌塔罗：洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，作为自我省思的参考。',
     ko: '무료 쓰리 카드 타로: 셔플하고 컷한 뒤 과거·현재·미래 세 장의 라이더–웨이트 카드를 펼쳐 보세요. 성찰용입니다.',
+    es: 'Tarot gratis de 3 cartas: baraja, corta y descubre pasado, presente y futuro con el mazo Rider–Waite. Solo como referencia para reflexionar.',
+    ja: '無料のタロット占い。スリーカードで過去・現在・未来の3枚を引き、ライダー版の絵柄とキーワードで今の悩みを整理します。結果は参考としてご覧ください。',
   },
   daily: {
     en: 'Draw one free tarot card of the day as a theme to reflect on, with upright and reversed keywords.',
     'zh-Hant': '每天免費抽一張塔羅牌，作為今日省思的主題，附正位與逆位關鍵詞。',
     'zh-Hans': '每天免费抽一张塔罗牌，作为今日省思的主题，附正位与逆位关键词。',
     ko: '매일 무료로 타로 카드 한 장을 뽑아 오늘 돌아볼 주제로 삼아 보세요. 정방향·역방향 키워드를 함께 보여 줍니다.',
+    es: 'Tarot del día gratis: saca una carta y tómala como tema para pensar hoy, con sus palabras clave al derecho e invertida.',
+    ja: 'タロット一枚引きを無料で。今日の一枚を引いて、正位置・逆位置のキーワードから一日のテーマを考えます。予言ではなく、ふり返りのヒントとしてどうぞ。',
   },
   'yes-or-no': {
     en: 'Free yes or no tarot: draw one card and see Yes, No or Maybe from a fixed, published card mapping.',
     'zh-Hant': '免費是非塔羅：抽一張牌，依公開的固定對照表顯示「是／否／也許」與判定依據。',
     'zh-Hans': '免费是非塔罗：抽一张牌，依公开的固定对照表显示「是／否／也许」与判定依据。',
     ko: '무료 예/아니오 타로: 카드 한 장을 뽑고 공개된 고정 대응표에 따른 예·아니요·아마도와 그 근거를 확인하세요.',
+    es: 'Tarot sí o no gratis con 1 carta: la respuesta Sí, No o Quizás sale de una tabla fija y pública de cartas, con su explicación.',
+    ja: 'タロットのイエスノー占いを無料で。1枚引くと、公開している固定の対応表からイエス・ノー・どちらとも言えないとその理由を表示します。',
   },
   'celtic-cross': {
     en: 'Free Celtic Cross tarot: a ten-card spread for exploring a situation in depth, with every position explained.',
     'zh-Hant': '免費凱爾特十字塔羅：十張牌的經典牌陣，逐一說明每個牌位，深入梳理一個處境。',
     'zh-Hans': '免费凯尔特十字塔罗：十张牌的经典牌阵，逐一说明每个牌位，深入梳理一个处境。',
     ko: '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
+    es: 'Tirada cruz celta gratis: diez cartas para mirar a fondo una situación, con el significado de cada una de las 10 posiciones.',
+    ja: 'ケルト十字スプレッドを無料で。10枚の位置ごとの意味と読み方を解説し、ひとつの悩みを多角的に整理します。未来を予言するものではありません。',
   },
+})
+
+/**
+ * 牌阵页的 SEO 标题（不含站名）：默认与导航名称相同；关键词地图另定 Title 的语言在这里登记
+ * （ja：使用者 2026-11-20 批准的关键词地图 ja.md §4–7；es：关键词地图 es）。
+ */
+const SEO_TITLES: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> =
+  localeText({
+    'three-card': {
+      es: 'Tarot gratis: pasado, presente y futuro',
+      ja: '無料タロット占い｜スリーカードで過去・現在・未来',
+    },
+    daily: {
+      es: 'Tarot del día: tu carta del día gratis',
+      ja: 'タロット一枚引き 無料｜今日の一枚',
+    },
+    'yes-or-no': {
+      es: 'Tarot sí o no gratis con 1 carta',
+      ja: 'タロット イエスノー占い 無料｜1枚で答え',
+    },
+    'celtic-cross': {
+      es: 'Tirada cruz celta gratis: 10 posiciones',
+      ja: 'ケルト十字スプレッド｜10枚の位置と読み方',
+    },
+  })
+
+export function tarotSeoTitle(spread: SpreadId, locale: TarotLocale): string {
+  return SEO_TITLES[spread][locale] ?? tarotTitle(spread, locale)
 }
 
 /**
@@ -120,6 +190,11 @@ const EAST_EN_NAV: Readonly<Record<SpreadId, string>> = {
 }
 
 type TarotSite = 'east' | 'west'
+
+/** 语言的塔罗页面所在站点（en 归西方站；东方站根路径英文由调用方显式传 `site`） */
+export function tarotSite(locale: TarotLocale): TarotSite {
+  return (WEST_LOCALES as readonly string[]).includes(locale) ? 'west' : 'east'
+}
 /** 东方站根路径英文：站点为东方站且语言为 en */
 const eastEnglish = (locale: TarotLocale, site?: TarotSite) => site === 'east' && locale === 'en'
 
@@ -145,7 +220,7 @@ export function spreadForSlug(
   )
 }
 
-/** SEO 标题；东方站英文的标题与描述在 features/east-en（按需加载，不进注册表与入口包） */
+/** 牌阵的导航名与面包屑名（v1 语言即 Title） */
 export function tarotTitle(spread: SpreadId, locale: TarotLocale): string {
   return TITLES[spread][locale]
 }
@@ -170,6 +245,8 @@ function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, s
     'zh-Hant': value('zh-Hant'),
     'zh-Hans': value('zh-Hans'),
     ko: value('ko'),
+    es: value('es'),
+    ja: value('ja'),
   }
 }
 
@@ -184,11 +261,9 @@ export const TAROT_TOOL_ROUTES: readonly ToolRoute[] = TAROT_SPREADS.flatMap((sp
     site,
     paths: byLocale((locale) => tarotPath(spread, locale, site)),
     titles: byLocale((locale) => tarotNavTitle(spread, locale, site)),
-    // 东方站英文的描述不登记（publicPages 以导航名代替；页面 head 取 features/east-en 的文案）
-    descriptions:
-      site === 'east'
-        ? { ...byLocale((locale) => tarotDescription(spread, locale)), en: undefined }
-        : byLocale((locale) => tarotDescription(spread, locale)),
+    // 直接引用（不复制）：新语言的描述按语言加载后写回同一对象。东方站英文条目的 en 描述不用于页面
+    // （publicPages 另一站点的同语言页面以导航名代替，llms.txt 不列描述；页面 head 取 features/east-en 的文案）
+    descriptions: DESCRIPTIONS[spread],
     ...(spread === 'three-card' ? {} : { nav: false }),
   })),
 )

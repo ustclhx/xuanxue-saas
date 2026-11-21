@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_page_shared_by": "{site}のユーザーがシェア・{date}",
+  "share_page_cta_primary": "{site}で自分の結果を調べる",
+  "share_page_cta_secondary": "{site}について",
+  "share_page_note": "この結果は、{site}のユーザーが公開でシェアしたものです。シェアはいつでも取り消せます。",
+  "share_page_note_expires": "この結果は、{site}のユーザーが公開でシェアしたものです。シェアはいつでも取り消せます。リンクの有効期限：{date}",
+  "share_page_not_found_title": "このシェアは存在しないか、取り消されました",
+  "share_page_not_found_body": "リンクが間違っているか、シェアした方が取り消した可能性があります。",
+  "share_page_expired_title": "このシェアは有効期限が切れました",
+  "share_page_expired_body": "シェア用のリンクの有効期限が過ぎています。シェアした方に、もう一度シェアしてもらってください。",
+  "share_page_rate_limited_title": "アクセスが集中しています",
+  "share_page_rate_limited_body": "1分ほど待ってから、もう一度お試しください。",
+  "share_page_home": "トップへ戻る"
+}

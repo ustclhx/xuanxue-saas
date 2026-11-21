@@ -1,6 +1,6 @@
 // node --test apps/web/scripts/measure-locale-backtranslation.test.mjs（不调用真实模型）
 import assert from 'node:assert/strict'
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, test } from 'node:test'
@@ -9,6 +9,7 @@ import {
   BACKTRANSLATION_MODEL,
   BudgetLedger,
   backTranslationScore,
+  buildManifest,
   cachedCaller,
   calibrate,
   calibratedThreshold,
@@ -16,8 +17,10 @@ import {
   LOCALE_PLANS,
   measureBackTranslation,
   pickControlPages,
+  scoreExternal,
   serializeSections,
   splitSections,
+  writeExport,
 } from './measure-locale-backtranslation.mjs'
 
 const mk = (sections, faqCount = 0) =>
@@ -188,5 +191,57 @@ describe('费用估算', () => {
     assert.ok(estimate.totals.conservative.usd > estimate.totals.typical.usd)
     assert.ok(row.run.conservative.reserveUsd >= row.run.conservative.usd)
     assert.equal(estimate.totals.conservative.calls, 6)
+  })
+})
+
+describe('外部回译（--export-input / --from-file）', () => {
+  test('导出清单与正文，读取外部回译后按同一公式评分并校准阈值', () => {
+    const ja = mk([
+      ['', 'ライフパスナンバーは予言ではなく、ふり返りのヒントです。'],
+      ['計算のしかた', '生年月日の数字を足して一桁にします。'],
+      ['Frequently asked questions', '11 はマスターナンバーとしてそのまま扱います。'],
+    ])
+    const pages = [
+      { locale: 'en', path: '/life-path-number', alts: {}, kind: 'tool', page: en },
+      {
+        locale: 'ja',
+        path: '/ja/x',
+        alts: { en: 'https://example.com/life-path-number' },
+        kind: 'tool',
+        page: ja,
+      },
+    ]
+    const plan = { site: 'west', sources: ['en'] }
+    const manifest = buildManifest({ locale: 'ja', plan, pages })
+    assert.equal(manifest.items.length, 1)
+    assert.equal(manifest.calibration.length, 1)
+    const dir = mkdtempSync(join(tmpdir(), 'bt-ext-'))
+    try {
+      writeExport(dir, manifest)
+      const saved = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8'))
+      assert.equal(saved.items[0].text, undefined)
+      assert.ok(readFileSync(join(dir, saved.items[0].input), 'utf8').includes('ライフパス'))
+      // 缺回译时报告缺失
+      let r = scoreExternal({ dir, manifest: saved, pages }).en
+      assert.equal(r.missing.length, 2)
+      // 对照组回译与原文相同（直译基线 1.0）；正式回译为改写过的英文
+      mkdirSync(join(dir, 'calibration/en'), { recursive: true })
+      writeFileSync(join(dir, saved.calibration[0].output), serializeSections(en))
+      mkdirSync(join(dir, 'back/en'), { recursive: true })
+      writeFileSync(
+        join(dir, saved.items[0].output),
+        'A hint for looking back, not a prophecy.\n\n## Calculation\nSum the birthday digits down to one.\n\n## FAQ\nWe keep 11 as is.',
+      )
+      r = scoreExternal({ dir, manifest: saved, pages }).en
+      assert.equal(r.missing.length, 0)
+      assert.equal(r.calibration.median, 1)
+      assert.equal(r.calibration.threshold, 0.5)
+      assert.equal(r.rows.length, 1)
+      assert.equal(r.rows[0].stale, false)
+      assert.ok(r.rows[0].dice < 0.5)
+      assert.equal(r.failing.length, 0)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
