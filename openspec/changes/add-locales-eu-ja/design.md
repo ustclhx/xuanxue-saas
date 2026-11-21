@@ -400,5 +400,5 @@
 - **结构自定**：工具页长文按空行分段（`ToolArticle`）；日语首页 FAQ 加一则本地问法（个人资料），FAQ 汇总页多一问，避免与中文、韩语页结构一致。
 - **测量**：`measure-locale-similarity` 从预渲染产物读取未发布语言的页面（不在站点地图中）并按其 hreflang 反向配对；FAQ 来源登记支持按页面分组。
   回译由 Codex 完成（使用者决定）：`measure-locale-backtranslation --export-input / --from-file`，不调用 API。
-- **首页包**：`ja` 写入配置后首页闭包 gzip 353,439 B（main 349,640 B，预算 352,174 B，超出约 1.3KB）。来源是注册表、静态页 SEO 文案与路由树中的日语字符串及按语言拆分的查表，
-  按决策 D-9 不自行上调预算，待使用者决定（上调幅度，或另立任务把注册表 / SEO 文案按语言拆分）。
+- **首页包**：合并 #256（按语言拆分文案表，`localeText`）后，ja 的注册表描述、首页 / 静态页 SEO 文案、牌阵 `DESCRIPTIONS` 与 `SEO_TITLES`、牌义索引都写进已包裹的对象，
+  首页闭包 gzip 330,344 B（main 328,129 B，预算 352,174 B 不变）。
