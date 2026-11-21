@@ -79,11 +79,11 @@ describe('日语提示词登记', () => {
 })
 
 describe('评测门槛开关', () => {
-  it('日语三个组合已通过真实评测（readings-ja@v2）并开放；东方站英文仍待评测', () => {
+  it('日语三个组合已通过真实评测（readings-ja@v2）并开放；东方站英文亦已开放（readings-east-en@v3）', () => {
     expect([...READING_EVAL_PENDING].filter((entry) => entry.endsWith('.ja'))).toEqual([])
     expect(readingEvalPassed('bazi-full', 'ja')).toBe(true)
     expect(readingEvalPassed('tarot-spread', 'ja')).toBe(true)
-    expect(readingEvalPassed('bazi-full', 'en')).toBe(false)
+    expect(readingEvalPassed('bazi-full', 'en')).toBe(true)
     expect(readingEvalPassed('bazi-full', 'zh-Hant')).toBe(true)
     expect(readingEvalPassed('tarot-spread', 'en')).toBe(true)
   })

@@ -13,13 +13,23 @@ design 决策 7 写的是「`evals/readings` 新增套件版本」。模板的�
 
 | 文件 | 内容 |
 |---|---|
-| `prompts.ts` | 套件版本 `readings-east-en@v2`（v1 未发布即作废） → catalog 中登记为 `<kind>.v4` 的英文提示词（`prompts/*.en.v4.ts`），消息与线上 `readingMessages` 逐字相同 |
+| `prompts.ts` | 候选 `readings-east-en@v3` → catalog 中英文代码默认的 `<kind>.v5`（`prompts/*.en.v5.ts`，命盘经 `en-chart.ts` 改写为英文标签）；`readings-east-en@v2` → `<kind>.v4`（已录制，保留回放；v1 未发布即作废）。消息与线上 `readingMessages` 逐字相同 |
 | `checks.ts` | `readings` 的全部检查 + `script`（汉字 ≤ 2%、无假名谚文与中文标点）、`hanRuns`（warn）、`wording`（声明三类表述、禁 entertainment / guaranteed / always accurate）、`terminology`（Day Master / Life Palace） |
 | `rubric.ts` | `r1-east-en.1`：五个维度同 `readings` r1，instructions 写明英文读者、术语与汉字注释规则 |
 | `gates.ts` | 逐组合门槛（解锁入口按组合开放） |
 | `samples.json` | 16 个虚构样本（2 个组合 × 8），出生地为纽约、伦敦、多伦多、悉尼、新加坡、洛杉矶与手选时区 |
 | `prompts.lock.json` | 版本锁 |
 | `east-en.test.ts` | 离线单测（`pnpm test:evals`） |
+
+## v3：英文标签数据
+
+v2（v4 英文提示词）2026-11-21 真实录制的准确度为八字 3.875、紫微 3.25（需 ≥ 4）。评委理由显示扣分几乎都来自模型
+自己翻译与交叉查找 key：十神译错（`pianYin` 写成 Direct Wealth）、藏干位置（middle 写成 main）、地支六合写成天干合、
+最弱五行算错、辅星落宫张冠李戴（地空 / 地劫、铃星）、有主星的宫写成空宫、按年龄自行推算换大限的年份，
+以及福德宫译作「Wellbeing Palace」与疾厄宫混淆。v5 提示词登记 `formatChart`（`apps/web/src/features/readings/en-chart.ts`），
+用户消息中的命盘改为英文标签：十神、干支（拼音 + 汉字 + 五行 / 生肖）、藏干位置、神煞的起法与所在柱、
+逐年关系（注明天干合或地支关系及对象柱）、每宫的主星 / 辅星 / 对宫主星 / 大限年龄与公历年、流年命宫主星与是否换大限，
+逐年小节标题直接给出。只做确定性改写与归并，复算结果、engineVersion、guard 与检查不变；评委仍对照原始 `data`。
 
 ## 门槛（`gates.ts`，逐组合）
 
@@ -32,7 +42,7 @@ design 决策 7 写的是「`evals/readings` 新增套件版本」。模板的�
 | `p95-output-tokens` | P95 输出 token ≤ 12000 × 70% = 8400 |
 | `p95-duration` | P95 生成时长 ≤ 240 秒 |
 
-另有全局 `versions`（候选为 `readings-east-en@v2`），`human-review`、`staging-acceptance` 为外部证据（非必需）。
+另有全局 `versions`（候选为 `readings-east-en@v3`），`human-review`、`staging-acceptance` 为外部证据（非必需）。
 英文没有同样本的旧版本可作基线，因此与中文 v4 的评委均值比较；样本与语言不同、评委波动约 ±0.2，
 容差取 0.25（`readings` 同样本对比为 0.1）；该口径与 accuracy ≥ 4.0 已由协调者确认为新语言的统一门槛。
 

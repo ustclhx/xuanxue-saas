@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:3d67656b960ff080b5f682c96f4b1297f97b7a68c4bf1cc14e148f81c0fe44ca",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Almost every star, palace, stem/branch, mutagen and year matches the provided data. One minor issue: Lian Zhen is described as at 'brilliant brightness' but data lists its brightness as 'li' (moderate), while Tian Fu is indeed miao. No other contradictions found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is firmly anchored in this chart: the empty Life Palace borrowing Tian Tong and Ju Men, Body Palace in Wealth with Tian Liang Hua Ke, Tan Lang Hua Quan in Friends, each annual transformation tied to specific natal palaces. Very little is generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and doable: keep records for Di Jie, use Zuo Fu and You Bi for support, build buffer time for Tuo Luo and Ling Xing, confirm family paperwork in writing. Every year includes specific things to lean into and watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful tone throughout. No specific events are asserted, no month- or day-level predictions, no investment/legal/medical directives. Wellbeing is habit-only and includes a professional disclaimer. No religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, fluent English, and short Chinese/pinyin glosses as expected. Some repetition of key stars across sections but not excessive; length is appropriate for a full Zi Wei reading.\"\n    }\n  },\n  \"summary\": \"The report is highly specific, warm, and actionable, almost entirely consistent with the data. It explains terms for newcomers and uses the chart's actual stars and palaces to tailor every section, with only a minor brightness mislabel.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7764,
+    "outputTokens": 3929
+  },
+  "recordedAt": "2026-11-21T14:37:06.708Z",
+  "source": "recorded"
+}

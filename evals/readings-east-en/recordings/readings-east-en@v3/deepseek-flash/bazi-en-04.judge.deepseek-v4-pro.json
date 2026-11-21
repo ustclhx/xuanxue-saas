@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:ec81bc8e38f022b940ac829eb78a87c96a2b91edf245b62add539070cbf53dff",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly consistent with the data, but mislabels Wu 戊 in Shen as Direct Wealth when the data lists it as Indirect Wealth, attributes the Friend star to the Day Master pillar despite its tenGod being null, and refers to an Eating God in natal Fire when no such hidden stem exists.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly personalized and anchored in exact chart data: specific pillars, hidden stems (Wu, Xin, Ding, Gui, Yi, Geng), percentages, Luck Pillars, annual relations, and Shensha. The content would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions are tied directly to the chart. Each year has clear lean-in and watch points, and the final guidance provides specific, practical actions about Water, environments, 2030 boundaries, expression, and the Canopy star.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tendency-based throughout; avoids fear, specific future events, and month/day-level predictions. Wellbeing advice stays in the habits domain and recommends consulting a qualified professional. No investment, legal, medical, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure with logical sections and fluent English; pinyin and Chinese glosses are used appropriately. Some repetition of favorable elements, hidden stems, and weak-Day-Master themes across sections, but the overall length and flow are acceptable.\"\n    }\n  },\n  \"summary\": \"A highly personalized and actionable BaZi report with a warm tone and clear structure. Its main weakness is a notable accuracy error: the hidden Wu in Shen is described as Direct Wealth instead of Indirect Wealth, along with a couple of minor unsupported labels. Overall, it meets the task well.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8744,
+    "outputTokens": 7409
+  },
+  "recordedAt": "2026-11-21T14:32:12.542Z",
+  "source": "recorded"
+}

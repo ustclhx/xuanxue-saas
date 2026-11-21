@@ -95,13 +95,18 @@ describe('定价页可解锁目录', () => {
     },
   )
 
-  it.each([
-    ['west', 'zh-Hans'],
-    ['east', 'en'],
-  ] as const)('拒绝 %s 站不提供的 %s 语言且不读取运营设置', async (site: SiteId, locale) => {
-    const ctx = deps()
-    expect(await siteReadingPricing(site, locale, ctx)).toEqual([])
-    expect(ctx.settings.store.find).not.toHaveBeenCalled()
+  it.each([['west', 'zh-Hans']] as const)(
+    '拒绝 %s 站不提供的 %s 语言且不读取运营设置',
+    async (site: SiteId, locale) => {
+      const ctx = deps()
+      expect(await siteReadingPricing(site, locale, ctx)).toEqual([])
+      expect(ctx.settings.store.find).not.toHaveBeenCalled()
+    },
+  )
+
+  it('东方站英文八字与紫微通过评测后出现在可解锁清单（readings-east-en@v3）', async () => {
+    const readings = await siteReadingPricing('east', 'en', deps())
+    expect(readings.map((reading) => reading.kind)).toEqual(['bazi-full', 'ziwei-full'])
   })
 
   it('关闭、未配置模型或零积分的详批不出现在可解锁清单', async () => {

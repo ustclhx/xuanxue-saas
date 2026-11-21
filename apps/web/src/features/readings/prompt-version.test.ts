@@ -19,17 +19,39 @@ const settings = (values: Partial<Record<SettingKey, unknown>>) => ({
 
 describe('提示词版本注册表', () => {
   it('未指定版本时为代码默认版本；指定已注册版本时按语言取该版本', () => {
-    expect(readingDefinition('bazi-full', 'zh-Hant')?.prompt.version).toBe('bazi-full.v2')
+    expect(readingDefinition('bazi-full', 'zh-Hant')?.prompt.version).toBe('bazi-full.v4')
     expect(
       readingDefinition('bazi-full', 'zh-Hans', { promptVersion: 'bazi-full.v3' })?.prompt.version,
     ).toBe('bazi-full.v3')
+    expect(
+      readingDefinition('bazi-full', 'zh-Hant', { promptVersion: 'bazi-full.v2' })?.prompt.version,
+    ).toBe('bazi-full.v2')
     expect(readingDefinition('bazi-full', 'zh-Hans', { promptVersion: '' })?.prompt.version).toBe(
-      'bazi-full.v3',
+      'bazi-full.v4',
     )
     // 该语言没有该版本
     expect(readingDefinition('bazi-full', 'zh-Hant', { promptVersion: 'bazi-full.v3' })).toBe(
       undefined,
     )
+  })
+
+  it('运行时设置为空时：八字 / 紫微的繁中、简中与日语为 v4（与生产原设置 v4 一致），英文为 v5', () => {
+    for (const kind of ['bazi-full', 'ziwei-full']) {
+      for (const locale of ['zh-Hant', 'zh-Hans', 'ja'])
+        expect(
+          resolveReadingDefinition(kind, locale, '')?.prompt.version,
+          `${kind} ${locale}`,
+        ).toBe(`${kind}.v4`)
+      expect(resolveReadingDefinition(kind, 'en', '')?.prompt.version).toBe(`${kind}.v5`)
+      // 中日文默认与设置为 v4 时逐字相同：清空设置不改变中日文输出
+      for (const locale of ['zh-Hant', 'zh-Hans', 'ja'])
+        expect(resolveReadingDefinition(kind, locale, '')?.prompt).toBe(
+          resolveReadingDefinition(kind, locale, `${kind}.v4`)?.prompt,
+        )
+      // v4 之前的默认版本仍可选（回滚与评测回放）
+      expect(readingDefinition(kind, 'zh-Hant', { promptVersion: `${kind}.v2` })).toBeDefined()
+      expect(readingDefinition(kind, 'zh-Hans', { promptVersion: `${kind}.v3` })).toBeDefined()
+    }
   })
 
   it('每种详批的注册版本包含各语言的默认版本', () => {
@@ -53,7 +75,7 @@ describe('提示词版本注册表', () => {
     )
     expect(warn).not.toHaveBeenCalled()
     expect(resolveReadingDefinition('bazi-full', 'zh-Hant', 'bazi-full.v3')?.prompt.version).toBe(
-      'bazi-full.v2',
+      'bazi-full.v4',
     )
     expect(warn).toHaveBeenCalledWith('readings.prompt_version_fallback', expect.anything())
     expect(resolveReadingDefinition('bazi-full', 'ko', '')).toBeUndefined()

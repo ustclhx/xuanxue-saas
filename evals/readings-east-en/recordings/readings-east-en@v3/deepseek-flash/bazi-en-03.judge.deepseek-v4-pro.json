@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:274a2315bfa2bed6c6e3816a1fecd6fa6fdfbcd6a450858442fb3c80210b3d20",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Most chart details match the data, but there are two notable errors: the report says Geng appears in the main hidden stem of the Geng Chen Luck Pillar branch (the data indicates that branch is Seven Killings, not Metal), and 2030 is called a second Indirect Resource year in a row when the previous year is Direct Officer. These undermine fully accurate chart grounding.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is densely anchored in this specific chart: Ren Day Master, Yi Hai month, Geng Zi hour, hidden stems Jia/Bing/Wu, strength percentages, favorable Metal/Water, Geng Chen Luck Pillar, Nobleman/Peach Blossom/Goat Blade stars, and each annual stem-branch and relation are used consistently. The text would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, such as protect sleep because of weak Day Master and Seven Killings pressure, build formal credentials through favorable Metal Resource, eat warming cooked foods due to low Fire, pause before Hurting Officer replies, and use written terms with Rob Wealth. Each year includes lean-in and watch-out guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based wording throughout; describes tendencies without asserting specific events. No month- or day-level predictions, no investment/legal/medical decisions, and wellbeing includes a healthcare disclaimer. Tai Sui and clash statements are framed as themes rather than alarm.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure with logical sections and fluent English; pinyin and short Chinese glosses are used correctly. Some core points, such as weak Day Master, favorable Metal, Rob Wealth, Hurting Officer, and Fire scarcity, recur across sections, making the report slightly repetitive and long-winded, but it remains organized.\"\n    }\n  },\n  \"summary\": \"A highly personalized, practical BaZi reading that integrates the chart's pillars, stars, and annual relations well. Accuracy is mostly strong but falls short due to a mistaken Luck Pillar hidden-stem claim and a sequencing error in the 2030 entry; the report could be tightened to reduce repetition.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8717,
+    "outputTokens": 7335
+  },
+  "recordedAt": "2026-11-21T14:32:14.195Z",
+  "source": "recorded"
+}

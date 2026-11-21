@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:538f292f00e315d6bae01d3ffd6d47ccdacf3328899c75cda326fd9943ddc434",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited stars, palaces, stems/branches, brightness levels, auxiliary stars, transformations, decade and year placements match the provided data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to specific chart elements—Tian Tong/Huo Xing, the four natal transformations, Career/Wealth/Spouse/Health palace stars and exact year mutagens—making it highly personalized.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-tied habits and year-by-year lean-in/watch guidance, such as a daily Huo Xing outlet, seasonal money review, sleep/meal regularity, and public expression of Ju Men.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language; describes tendencies without asserting specific events; no month/day predictions; includes healthcare disclaimer and avoids gambling/investment/legal/medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structured sections, fluent English, pinyin glosses with sparse Chinese characters, no JSON field leakage, and only minor summary repetition.\"\n    }\n  },\n  \"summary\": \"A highly accurate, personalized, and practical Zi Wei Dou Shu reading that combines natal chart analysis with well-supported yearly forecasts and clear, chart-anchored guidance.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8159,
+    "outputTokens": 4396
+  },
+  "recordedAt": "2026-11-21T14:36:20.282Z",
+  "source": "recorded"
+}

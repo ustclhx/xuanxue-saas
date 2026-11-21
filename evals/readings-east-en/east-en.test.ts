@@ -14,6 +14,7 @@ import {
   readingDefinition,
   recomputeReading,
 } from '../../apps/web/src/features/readings/catalog.ts'
+import { baziEnChart, ziweiEnChart } from '../../apps/web/src/features/readings/en-chart.ts'
 import { prepareReading } from '../readings/prepare.ts'
 import type { ReadingSampleInput } from '../readings/prompts.ts'
 import { eastEnChecks, scriptStats } from './checks.ts'
@@ -24,6 +25,7 @@ import {
   realVersion,
   renderReading,
   resolveReading,
+  V2_VERSION,
 } from './prompts.ts'
 import suite from './suite.ts'
 
@@ -94,7 +96,7 @@ describe('样本与提示词', () => {
       )
   })
 
-  it('评委用的 data 与 annual 数据档复算一致；消息与线上 v4 英文提示词逐字相同', () => {
+  it('评委用的 data 与 annual 数据档复算一致；v3 消息与线上 v5 英文（英文标签）逐字相同，v2 仍为原始 key', () => {
     for (const s of samples) {
       const { kind, locale, request, requestDate, data } = s.input
       const annual = recomputeReading(kind, request, new Date(requestDate), {
@@ -102,15 +104,56 @@ describe('样本与提示词', () => {
         profile: 'annual',
       })
       assert.deepEqual(data, annual.result, s.id)
+      const format = kind === 'bazi-full' ? baziEnChart : ziweiEnChart
       const rendered = renderReading(CANDIDATE_VERSION, s.input)
-      assert.equal(rendered.user, JSON.stringify({ kind, chart: annual.result }))
+      assert.equal(rendered.user, JSON.stringify({ kind, chart: format(annual.result) }))
       assert.equal(rendered.system, readingDefinition(kind, 'en')?.prompt.system)
+      const v2 = renderReading(V2_VERSION, s.input)
+      assert.equal(v2.user, JSON.stringify({ kind, chart: annual.result }))
     }
   })
 
-  it('套件版本分派到 <kind>.v4 的英文；其他组合与版本拒绝', () => {
-    assert.equal(realVersion(CANDIDATE_VERSION, sample('bazi-en-01').input), 'bazi-full.v4')
-    assert.equal(realVersion(CANDIDATE_VERSION, sample('ziwei-en-01').input), 'ziwei-full.v4')
+  it('英文标签数据：逐年标题与流年一一对应，不留原始 key', () => {
+    for (const s of samples) {
+      const { kind, data } = s.input
+      const chart = (kind === 'bazi-full' ? baziEnChart(data) : ziweiEnChart(data)) as {
+        'Year by year': { Heading: string }[]
+      }
+      const years = (
+        kind === 'bazi-full'
+          ? (data as { annual: { years: { year: number }[] } }).annual.years
+          : (data as { horoscope: { years: { year: number }[] } }).horoscope.years
+      ).map((y) => y.year)
+      assert.deepEqual(
+        chart['Year by year'].map((y) => Number(y.Heading.slice(0, 4))),
+        years,
+        s.id,
+      )
+      for (const y of chart['Year by year'])
+        assert.match(
+          y.Heading,
+          /^\d{4} [甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥] · \w+ \w+$/u,
+        )
+      const text = JSON.stringify(chart)
+      for (const raw of [
+        'pianYin',
+        'zhengCai',
+        'qiSha',
+        '"soul"',
+        'surface',
+        'wenchang',
+        'miao',
+        'lucky',
+      ])
+        assert.ok(!text.includes(raw), `${s.id} leaks ${raw}`)
+    }
+  })
+
+  it('套件版本分派：v3 到 <kind>.v5、v2 到 <kind>.v4 的英文；其他组合与版本拒绝', () => {
+    assert.equal(realVersion(CANDIDATE_VERSION, sample('bazi-en-01').input), 'bazi-full.v5')
+    assert.equal(realVersion(CANDIDATE_VERSION, sample('ziwei-en-01').input), 'ziwei-full.v5')
+    assert.equal(realVersion(V2_VERSION, sample('bazi-en-01').input), 'bazi-full.v4')
+    assert.equal(realVersion(V2_VERSION, sample('ziwei-en-01').input), 'ziwei-full.v4')
     assert.throws(() => realVersion('readings-east-en@v1', sample('bazi-en-01').input))
     assert.throws(() =>
       realVersion(CANDIDATE_VERSION, { ...sample('bazi-en-01').input, locale: 'zh-Hant' }),
@@ -119,8 +162,9 @@ describe('样本与提示词', () => {
 
   it('版本锁含全部样本（新样本或改动提示词须先本地运行一次并提交锁）', () => {
     const lock = JSON.parse(readFileSync(join(DIR, 'prompts.lock.json'), 'utf8'))
-    assert.deepEqual(Object.keys(lock), [CANDIDATE_VERSION])
-    assert.deepEqual(Object.keys(lock[CANDIDATE_VERSION]).sort(), samples.map((s) => s.id).sort())
+    assert.deepEqual(Object.keys(lock).sort(), [V2_VERSION, CANDIDATE_VERSION].sort())
+    for (const version of [V2_VERSION, CANDIDATE_VERSION])
+      assert.deepEqual(Object.keys(lock[version]).sort(), samples.map((s) => s.id).sort())
   })
 })
 
@@ -162,7 +206,7 @@ describe('确定性检查', () => {
       sample('bazi-en-03').input,
       resolveReading,
     )
-    assert.equal(prepared.annotations?.promptVersion, 'bazi-full.v4')
+    assert.equal(prepared.annotations?.promptVersion, 'bazi-full.v5')
     assert.equal(prepared.annotations?.ganzhi, 1)
     assert.deepEqual(failedErrors(await runAll('bazi-en-03', prepared.output)), [])
   })
