@@ -53,8 +53,9 @@ test('规范地址：旧英文入口页、结尾斜杠与东方站裸路径一�
     ['east', '/en', '/'],
     ['east', '/zh-hant/', '/zh-hant'],
     ['east', '/zh-hant/pricing/?a=1', '/zh-hant/pricing?a=1'],
-    ['east', '/pricing?ref=x', '/zh-hant/pricing?ref=x'],
-    ['east', '/privacy', '/zh-hant/privacy'],
+    // 东方站根路径英文页面（/pricing、/privacy 等，5b）在本地预览主机上可直接访问（正式域名发布前仍 301，
+    // 见 rollout.test.ts），这里用不是东方站英文页面的裸路径验证跳转
+    ['east', '/newsletter?ref=x', '/zh-hant/newsletter?ref=x'],
     ['west', '/pricing/', '/pricing'],
     ['west', '/en/pricing', '/pricing'],
   ] as const) {

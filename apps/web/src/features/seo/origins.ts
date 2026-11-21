@@ -11,6 +11,10 @@ export function seoSiteOrigin(site: SiteId): string {
     : __SITE_ORIGINS__[site]
 }
 
-export function localeOrigin(locale: string): string {
-  return seoSiteOrigin(siteOfLocale(locale, templateConfig) ?? 'west')
+/**
+ * 语言所在站点的 origin；`site` 指定页面所属站点（同一语言在两站各有页面时，如东方站根路径英文 5b），
+ * 省略时取语言的归属站点
+ */
+export function localeOrigin(locale: string, site?: SiteId): string {
+  return seoSiteOrigin(site ?? siteOfLocale(locale, templateConfig) ?? 'west')
 }

@@ -5,6 +5,7 @@ import {
   resolveSite,
   type SitesConfig,
   siteNavLocale,
+  siteServesLocale,
 } from '../site/site.ts'
 import { isAppAreaPath } from './app-area.ts'
 import { isLocaleLive } from './rollout.ts'
@@ -76,6 +77,7 @@ function liveSiteLocales(
   release: boolean,
 ): readonly string[] {
   return config.sites[site].locales.filter(
-    (item) => !release || isLocaleLive(item, url.host, config),
+    (item) =>
+      siteServesLocale(site, item, config) && (!release || isLocaleLive(item, url.host, config)),
   )
 }

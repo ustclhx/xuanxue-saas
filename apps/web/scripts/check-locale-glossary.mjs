@@ -296,7 +296,11 @@ export function checkLocale(glossary, { root = REPO_ROOT } = {}) {
   const locale = glossary.locale
   const errors = validateGlossary(glossary, locale)
   const compiled = compileGlossary(glossary)
-  const files = expandGlobs([...defaultScan(locale), ...(glossary.scan ?? [])], root)
+  // 按站点区分的术语表（如东方站英文 en-east.json）只检查自己列出的文件：同一语言的默认位置属于另一站点
+  const files = expandGlobs(
+    [...(glossary.scanOnly ? [] : defaultScan(locale)), ...(glossary.scan ?? [])],
+    root,
+  )
   const findings = []
   const notes = []
   const corpus = []
@@ -338,6 +342,16 @@ export function checkLocale(glossary, { root = REPO_ROOT } = {}) {
   return { locale, errors, findings, files, notes }
 }
 
+/**
+ * 术语表文件名：`<语言>.json`；同一语言在两站各有页面时（东方站英文），按站点区分的术语表为
+ * `<语言>-<站点>.json`，并带 `site` 与 `scanOnly`（项目扩展，openspec add-locales-eu-ja 5b）
+ */
+export function glossaryKey(glossary) {
+  return glossary.scanOnly && glossary.site
+    ? `${glossary.locale}-${glossary.site}`
+    : glossary.locale
+}
+
 export function loadGlossaries(dir = GLOSSARY_DIR) {
   if (!existsSync(dir)) return []
   return readdirSync(dir)
@@ -355,7 +369,7 @@ function main() {
   const glossaries = loadGlossaries()
   for (const { file, locale, glossary } of glossaries) {
     const result = checkLocale({ ...glossary, locale: glossary.locale ?? locale })
-    if (glossary.locale !== locale)
+    if (glossaryKey(glossary) !== locale)
       result.errors.unshift(`${relative(REPO_ROOT, file)}：文件名与 locale 字段不一致`)
     for (const e of result.errors) console.error(`✗ ${locale} 术语表：${e}`)
     for (const f of result.findings)

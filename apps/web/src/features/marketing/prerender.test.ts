@@ -111,6 +111,18 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ja/タロット/ケルト十字' },
       // 东方站英文入口页（D5）
       { path: '/en' },
+      // 东方站根路径英文（5b）：预渲染文件在 `/en/…` 命名空间，对外地址无前缀（features/east-en/paths.ts）
+      { path: '/en/bazi-calculator' },
+      { path: '/en/zi-wei-dou-shu' },
+      { path: '/en/tarot-spreads' },
+      { path: '/en/tarot-spreads/one-card' },
+      { path: '/en/tarot-spreads/pick-a-card' },
+      { path: '/en/tarot-spreads/celtic-cross' },
+      { path: '/en/faq' },
+      { path: '/en/privacy' },
+      { path: '/en/terms' },
+      { path: '/en/refund' },
+      { path: '/en/disclaimer' },
       { path: '/' },
       { path: '/tarot' },
       { path: '/tarot/daily' },

@@ -1,4 +1,5 @@
 import { SITE_IDS, type SiteId, type TemplateConfig } from '@xuanxue/config'
+import { LOCALE_RELEASE, type ReleaseTable, releaseState } from '../i18n/rollout.ts'
 
 /**
  * 站点识别（openspec add-dual-site-foundation 决策 1，specs/multi-site「按域名识别站点」）：
@@ -60,7 +61,7 @@ export function isEastEnglishHome(url: URL, config: SitesConfig): boolean {
  */
 export function siteNavLocale(site: SiteId, locale: string, config: SitesConfig): string {
   const { locales, defaultLocale } = config.sites[site]
-  if (locales.some((item) => item === locale)) return locale
+  if (siteServesLocale(site, locale, config)) return locale
   return defaultLocale ?? locales[0] ?? config.i18n.defaultLocale
 }
 
@@ -73,6 +74,21 @@ export function siteNavLocale(site: SiteId, locale: string, config: SitesConfig)
 export function siteOfLocale(locale: string, config: SitesConfig): SiteId | undefined {
   const owners = SITE_IDS.filter((id) => siteHasLocale(id, locale, config))
   return owners.find((id) => config.sites[id].defaultLocale === locale) ?? owners[0]
+}
+
+/**
+ * 站点作为本站语言对待该语言（导航、应用区与回退语言）：语言的归属站点，或另一站点上已发布的同语言页面
+ * （东方站根路径英文 5b：东方站 en 发布前，东方站的应用区、404 与入口页照旧按繁中处理，与发布前逐字节一致）。
+ * 同一站点自己的新语言（ja 等）不受发布状态影响：未发布时只能在预览主机访问。
+ */
+export function siteServesLocale(
+  site: SiteId,
+  locale: string,
+  config: SitesConfig,
+  table: ReleaseTable = LOCALE_RELEASE,
+): boolean {
+  if (!siteHasLocale(site, locale, config)) return false
+  return siteOfLocale(locale, config) === site || releaseState(site, locale, table) === 'released'
 }
 
 /** 站点是否服务该语言（按站点的语言列表，不经过 siteOfLocale 的单一归属） */

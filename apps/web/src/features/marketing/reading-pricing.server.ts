@@ -4,6 +4,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { loadReadingAvailability, type ReadingAvailabilityDeps } from '../readings/availability.ts'
 import { readingDefinition, readingEvalPassed } from '../readings/catalog.ts'
 import { readingSite } from '../readings/release.ts'
+import { siteServesLocale } from '../site/site.ts'
 
 /**
  * 公开定价只承诺本站、本语言目录中已开放且可生成的详批（与结果页解锁卡同一判定）。
@@ -14,7 +15,8 @@ export async function siteReadingPricing(
   locale: string,
   deps: ReadingAvailabilityDeps,
 ) {
-  if (!templateConfig.sites[site].locales.some((value) => value === locale)) return []
+  // 另一站点的同语言（东方站 en，5b）在本站发布前不出售（site.ts siteServesLocale）
+  if (!siteServesLocale(site, locale, templateConfig)) return []
   const readings = []
   for (const kind of READING_KINDS) {
     // 只列本站出售的组合（西方站 `en` 不含东方站英文八字 / 紫微）；未通过评测门槛的组合不在定价页承诺（与解锁卡同一判定）

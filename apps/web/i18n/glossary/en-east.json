@@ -1,0 +1,740 @@
+{
+  "locale": "en",
+  "site": "east",
+  "status": "draft",
+  "review": "东方站英文（5b）：跨模型审阅由协调者安排，记录放私有证据目录 locales-eu-ja/east-en/",
+  "cardName": "{rank} of {suit}",
+  "terms": [
+    {
+      "id": "tarot.major.major-00",
+      "en": "The Fool",
+      "preferred": "The Fool"
+    },
+    {
+      "id": "tarot.major.major-01",
+      "en": "The Magician",
+      "preferred": "The Magician"
+    },
+    {
+      "id": "tarot.major.major-02",
+      "en": "The High Priestess",
+      "preferred": "The High Priestess"
+    },
+    {
+      "id": "tarot.major.major-03",
+      "en": "The Empress",
+      "preferred": "The Empress"
+    },
+    {
+      "id": "tarot.major.major-04",
+      "en": "The Emperor",
+      "preferred": "The Emperor"
+    },
+    {
+      "id": "tarot.major.major-05",
+      "en": "The Hierophant",
+      "preferred": "The Hierophant"
+    },
+    {
+      "id": "tarot.major.major-06",
+      "en": "The Lovers",
+      "preferred": "The Lovers"
+    },
+    {
+      "id": "tarot.major.major-07",
+      "en": "The Chariot",
+      "preferred": "The Chariot"
+    },
+    {
+      "id": "tarot.major.major-08",
+      "en": "Strength",
+      "preferred": "Strength"
+    },
+    {
+      "id": "tarot.major.major-09",
+      "en": "The Hermit",
+      "preferred": "The Hermit"
+    },
+    {
+      "id": "tarot.major.major-10",
+      "en": "Wheel of Fortune",
+      "preferred": "Wheel of Fortune"
+    },
+    {
+      "id": "tarot.major.major-11",
+      "en": "Justice",
+      "preferred": "Justice"
+    },
+    {
+      "id": "tarot.major.major-12",
+      "en": "The Hanged Man",
+      "preferred": "The Hanged Man"
+    },
+    {
+      "id": "tarot.major.major-13",
+      "en": "Death",
+      "preferred": "Death"
+    },
+    {
+      "id": "tarot.major.major-14",
+      "en": "Temperance",
+      "preferred": "Temperance"
+    },
+    {
+      "id": "tarot.major.major-15",
+      "en": "The Devil",
+      "preferred": "The Devil"
+    },
+    {
+      "id": "tarot.major.major-16",
+      "en": "The Tower",
+      "preferred": "The Tower"
+    },
+    {
+      "id": "tarot.major.major-17",
+      "en": "The Star",
+      "preferred": "The Star"
+    },
+    {
+      "id": "tarot.major.major-18",
+      "en": "The Moon",
+      "preferred": "The Moon"
+    },
+    {
+      "id": "tarot.major.major-19",
+      "en": "The Sun",
+      "preferred": "The Sun"
+    },
+    {
+      "id": "tarot.major.major-20",
+      "en": "Judgement",
+      "preferred": "Judgement"
+    },
+    {
+      "id": "tarot.major.major-21",
+      "en": "The World",
+      "preferred": "The World"
+    },
+    {
+      "id": "tarot.tarot",
+      "en": "Tarot",
+      "preferred": "tarot"
+    },
+    {
+      "id": "tarot.major-arcana",
+      "en": "Major Arcana",
+      "preferred": "Major Arcana"
+    },
+    {
+      "id": "tarot.minor-arcana",
+      "en": "Minor Arcana",
+      "preferred": "Minor Arcana"
+    },
+    {
+      "id": "tarot.court-cards",
+      "en": "Court cards",
+      "preferred": "court cards"
+    },
+    {
+      "id": "tarot.pip-cards",
+      "en": "Pip cards",
+      "preferred": "number cards"
+    },
+    {
+      "id": "tarot.suit.wands",
+      "en": "Wands",
+      "preferred": "Wands"
+    },
+    {
+      "id": "tarot.suit.cups",
+      "en": "Cups",
+      "preferred": "Cups"
+    },
+    {
+      "id": "tarot.suit.swords",
+      "en": "Swords",
+      "preferred": "Swords"
+    },
+    {
+      "id": "tarot.suit.pentacles",
+      "en": "Pentacles",
+      "preferred": "Pentacles",
+      "note": "Rider–Waite–Smith 名称；正文不用 Coins / Disks 作花色名"
+    },
+    {
+      "id": "tarot.rank.01",
+      "en": "Ace",
+      "preferred": "Ace"
+    },
+    {
+      "id": "tarot.rank.02",
+      "en": "2",
+      "preferred": "Two"
+    },
+    {
+      "id": "tarot.rank.03",
+      "en": "3",
+      "preferred": "Three"
+    },
+    {
+      "id": "tarot.rank.04",
+      "en": "4",
+      "preferred": "Four"
+    },
+    {
+      "id": "tarot.rank.05",
+      "en": "5",
+      "preferred": "Five"
+    },
+    {
+      "id": "tarot.rank.06",
+      "en": "6",
+      "preferred": "Six"
+    },
+    {
+      "id": "tarot.rank.07",
+      "en": "7",
+      "preferred": "Seven"
+    },
+    {
+      "id": "tarot.rank.08",
+      "en": "8",
+      "preferred": "Eight"
+    },
+    {
+      "id": "tarot.rank.09",
+      "en": "9",
+      "preferred": "Nine"
+    },
+    {
+      "id": "tarot.rank.10",
+      "en": "10",
+      "preferred": "Ten"
+    },
+    {
+      "id": "tarot.rank.11",
+      "en": "Page",
+      "preferred": "Page"
+    },
+    {
+      "id": "tarot.rank.12",
+      "en": "Knight",
+      "preferred": "Knight"
+    },
+    {
+      "id": "tarot.rank.13",
+      "en": "Queen",
+      "preferred": "Queen"
+    },
+    {
+      "id": "tarot.rank.14",
+      "en": "King",
+      "preferred": "King"
+    },
+    {
+      "id": "tarot.upright",
+      "en": "Upright",
+      "preferred": "upright"
+    },
+    {
+      "id": "tarot.reversed",
+      "en": "Reversed",
+      "preferred": "reversed",
+      "banned": [
+        {
+          "text": "inverted card",
+          "use": "reversed card",
+          "reason": "站内统一用 reversed"
+        }
+      ]
+    },
+    {
+      "id": "tarot.meaning",
+      "en": "As feelings",
+      "preferred": "as feelings",
+      "note": "东方站英文牌页的角度：把牌当作「对方的感受」来读；「tarot card meaning」主词归西方站"
+    },
+    {
+      "id": "tarot.spread",
+      "en": "Spread",
+      "preferred": "spread"
+    },
+    {
+      "id": "tarot.three-card",
+      "en": "Past, present, future spread",
+      "preferred": "past, present, future spread"
+    },
+    {
+      "id": "tarot.daily",
+      "en": "One card pull",
+      "preferred": "one card pull"
+    },
+    {
+      "id": "tarot.yes-no",
+      "en": "Pick a card",
+      "preferred": "pick a card"
+    },
+    {
+      "id": "tarot.celtic-cross",
+      "en": "Celtic Cross",
+      "preferred": "Celtic Cross"
+    },
+    {
+      "id": "tarot.reading",
+      "en": "Reading",
+      "preferred": "reading"
+    },
+    {
+      "id": "shichu.name",
+      "en": "Four Pillars (BaZi)",
+      "preferred": "BaZi",
+      "variants": ["Four Pillars of Destiny", "Four Pillars", "Bazi"],
+      "banned": [
+        {
+          "text": "Ba Zi",
+          "use": "BaZi"
+        },
+        {
+          "text": "Pa Tzu",
+          "use": "BaZi"
+        }
+      ]
+    },
+    {
+      "id": "shichu.chart",
+      "en": "BaZi chart",
+      "preferred": "BaZi chart",
+      "variants": ["Four Pillars chart", "birth chart"]
+    },
+    {
+      "id": "shichu.ten-gods",
+      "en": "Ten Gods",
+      "preferred": "Ten Gods",
+      "banned": [
+        {
+          "text": "Ten Deities",
+          "use": "Ten Gods"
+        }
+      ]
+    },
+    {
+      "id": "shichu.ten-gods.bijian",
+      "en": "Friend (比肩)",
+      "preferred": "Friend"
+    },
+    {
+      "id": "shichu.ten-gods.jiecai",
+      "en": "Rob Wealth (劫財)",
+      "preferred": "Rob Wealth"
+    },
+    {
+      "id": "shichu.ten-gods.shishen",
+      "en": "Eating God (食神)",
+      "preferred": "Eating God"
+    },
+    {
+      "id": "shichu.ten-gods.shangguan",
+      "en": "Hurting Officer (傷官)",
+      "preferred": "Hurting Officer"
+    },
+    {
+      "id": "shichu.ten-gods.piancai",
+      "en": "Indirect Wealth (偏財)",
+      "preferred": "Indirect Wealth"
+    },
+    {
+      "id": "shichu.ten-gods.zhengcai",
+      "en": "Direct Wealth (正財)",
+      "preferred": "Direct Wealth"
+    },
+    {
+      "id": "shichu.ten-gods.pianguan",
+      "en": "Seven Killings (七殺)",
+      "preferred": "Seven Killings"
+    },
+    {
+      "id": "shichu.ten-gods.zhengguan",
+      "en": "Direct Officer (正官)",
+      "preferred": "Direct Officer"
+    },
+    {
+      "id": "shichu.ten-gods.pianyin",
+      "en": "Indirect Resource (偏印)",
+      "preferred": "Indirect Resource"
+    },
+    {
+      "id": "shichu.ten-gods.yinshou",
+      "en": "Direct Resource (正印)",
+      "preferred": "Direct Resource"
+    },
+    {
+      "id": "shichu.hidden-stems",
+      "en": "Hidden stems",
+      "preferred": "hidden stems"
+    },
+    {
+      "id": "shichu.void",
+      "en": "Void (空亡)",
+      "preferred": "Void",
+      "variants": ["Kong Wang"]
+    },
+    {
+      "id": "shichu.strength",
+      "en": "Strong / weak day master",
+      "preferred": "strong or weak Day Master"
+    },
+    {
+      "id": "shichu.day-master",
+      "en": "Day master",
+      "preferred": "Day Master",
+      "banned": [
+        {
+          "text": "Self Element",
+          "use": "Day Master"
+        }
+      ]
+    },
+    {
+      "id": "shichu.luck-pillars",
+      "en": "Luck pillars",
+      "preferred": "luck pillars",
+      "variants": ["ten-year luck pillars", "Da Yun"]
+    },
+    {
+      "id": "shichu.annual",
+      "en": "Annual luck",
+      "preferred": "annual pillar"
+    },
+    {
+      "id": "shichu.useful-god",
+      "en": "Useful god",
+      "preferred": "favorable element",
+      "variants": ["useful element", "Yong Shen"]
+    },
+    {
+      "id": "shichu.shensha",
+      "en": "Symbolic stars",
+      "preferred": "symbolic stars",
+      "variants": ["shensha"]
+    },
+    {
+      "id": "shichu.solar-term",
+      "en": "Solar term boundary",
+      "preferred": "solar term"
+    },
+    {
+      "id": "shichu.true-solar-time",
+      "en": "True solar time",
+      "preferred": "true solar time"
+    },
+    {
+      "id": "shichu.generating-controlling",
+      "en": "Generating / controlling cycles",
+      "preferred": "generating and controlling cycles"
+    },
+    {
+      "id": "shichu.stems-branches",
+      "en": "Stems and branches",
+      "preferred": "Heavenly Stems and Earthly Branches"
+    },
+    {
+      "id": "shichu.weight",
+      "en": "Bone weight",
+      "preferred": "bone weight"
+    },
+    {
+      "id": "ziwei.name",
+      "en": "Zi Wei Dou Shu",
+      "preferred": "Zi Wei Dou Shu",
+      "variants": ["Purple Star Astrology", "Zi Wei"],
+      "banned": [
+        {
+          "text": "Ziwei Doushu",
+          "use": "Zi Wei Dou Shu"
+        },
+        {
+          "text": "Tzu Wei Tou Shu",
+          "use": "Zi Wei Dou Shu"
+        }
+      ]
+    },
+    {
+      "id": "ziwei.chart",
+      "en": "Zi Wei chart",
+      "preferred": "Zi Wei Dou Shu chart"
+    },
+    {
+      "id": "ziwei.palace",
+      "en": "Palace",
+      "preferred": "palace"
+    },
+    {
+      "id": "ziwei.life-palace",
+      "en": "Life palace",
+      "preferred": "Life Palace"
+    },
+    {
+      "id": "ziwei.body-palace",
+      "en": "Body palace",
+      "preferred": "Body Palace"
+    },
+    {
+      "id": "ziwei.twelve-palaces",
+      "en": "Twelve palaces",
+      "preferred": "twelve palaces"
+    },
+    {
+      "id": "ziwei.palace.wealth",
+      "en": "Wealth palace",
+      "preferred": "Wealth Palace"
+    },
+    {
+      "id": "ziwei.palace.travel",
+      "en": "Travel palace",
+      "preferred": "Travel Palace"
+    },
+    {
+      "id": "ziwei.palace.friends",
+      "en": "Friends palace",
+      "preferred": "Friends Palace"
+    },
+    {
+      "id": "ziwei.palace.career",
+      "en": "Career palace",
+      "preferred": "Career Palace"
+    },
+    {
+      "id": "ziwei.palace.fortune",
+      "en": "Fortune palace",
+      "preferred": "Fortune Palace"
+    },
+    {
+      "id": "ziwei.palace.health",
+      "en": "Health palace",
+      "preferred": "Health Palace"
+    },
+    {
+      "id": "ziwei.palace.siblings",
+      "en": "Siblings palace",
+      "preferred": "Siblings Palace"
+    },
+    {
+      "id": "ziwei.palace.spouse",
+      "en": "Spouse palace",
+      "preferred": "Spouse Palace"
+    },
+    {
+      "id": "ziwei.palace.children",
+      "en": "Children palace",
+      "preferred": "Children Palace"
+    },
+    {
+      "id": "ziwei.palace.property",
+      "en": "Property palace",
+      "preferred": "Property Palace"
+    },
+    {
+      "id": "ziwei.palace.parents",
+      "en": "Parents palace",
+      "preferred": "Parents Palace"
+    },
+    {
+      "id": "ziwei.star.ziwei",
+      "en": "Zi Wei",
+      "preferred": "Zi Wei"
+    },
+    {
+      "id": "ziwei.star.tianfu",
+      "en": "Tian Fu",
+      "preferred": "Tian Fu"
+    },
+    {
+      "id": "ziwei.star.taiyang",
+      "en": "Tai Yang",
+      "preferred": "Tai Yang"
+    },
+    {
+      "id": "ziwei.star.wuqu",
+      "en": "Wu Qu",
+      "preferred": "Wu Qu"
+    },
+    {
+      "id": "ziwei.star.tiantong",
+      "en": "Tian Tong",
+      "preferred": "Tian Tong"
+    },
+    {
+      "id": "ziwei.star.tianxiang",
+      "en": "Tian Xiang",
+      "preferred": "Tian Xiang"
+    },
+    {
+      "id": "ziwei.star.tianliang",
+      "en": "Tian Liang",
+      "preferred": "Tian Liang"
+    },
+    {
+      "id": "ziwei.star.tianji",
+      "en": "Tian Ji",
+      "preferred": "Tian Ji"
+    },
+    {
+      "id": "ziwei.star.taiyin",
+      "en": "Tai Yin",
+      "preferred": "Tai Yin"
+    },
+    {
+      "id": "ziwei.star.lianzhen",
+      "en": "Lian Zhen",
+      "preferred": "Lian Zhen"
+    },
+    {
+      "id": "ziwei.star.tanlang",
+      "en": "Tan Lang",
+      "preferred": "Tan Lang"
+    },
+    {
+      "id": "ziwei.star.jumen",
+      "en": "Ju Men",
+      "preferred": "Ju Men"
+    },
+    {
+      "id": "ziwei.star.pojun",
+      "en": "Po Jun",
+      "preferred": "Po Jun"
+    },
+    {
+      "id": "ziwei.star.qisha",
+      "en": "Qi Sha",
+      "preferred": "Qi Sha"
+    },
+    {
+      "id": "ziwei.four-transformations",
+      "en": "Four transformations",
+      "preferred": "Four Transformations",
+      "variants": ["Si Hua"]
+    },
+    {
+      "id": "ziwei.major-period",
+      "en": "Decade period",
+      "preferred": "decade period"
+    }
+  ],
+  "banned": [
+    {
+      "regex": "\\barcanumber(?:\\.com)?\\b",
+      "flags": "i",
+      "reason": "两站互不链接；东方站英文正文不提西方站（法律页运营方段落除外）",
+      "allowIn": ["apps/web/content/legal/east/en/**"]
+    },
+    {
+      "regex": "\\bnumerology\\b",
+      "flags": "i",
+      "reason": "数字命理属于西方站，东方站英文页面不写",
+      "allowIn": ["apps/web/content/legal/east/en/**"]
+    },
+    {
+      "regex": "\\btarot card meanings?\\b",
+      "flags": "i",
+      "reason": "「tarot card meaning」主词归西方站；东方站英文牌页写 as feelings"
+    },
+    {
+      "regex": "\\bcard of the day\\b",
+      "flags": "i",
+      "reason": "西方站主词；东方站用 one card pull"
+    },
+    {
+      "regex": "\\byes or no tarot\\b",
+      "flags": "i",
+      "reason": "西方站主词；东方站用 pick a card tarot"
+    },
+    {
+      "regex": "\\bthree-card tarot\\b",
+      "flags": "i",
+      "reason": "西方站主词；东方站用 past, present, future"
+    }
+  ],
+  "compliance": {
+    "required": [
+      {
+        "id": "traditional-method",
+        "phrases": [
+          "traditional rules",
+          "traditional method",
+          "traditional methods",
+          "traditional calculation",
+          "classical rules"
+        ],
+        "requiredIn": ["apps/web/content/legal/east/en/disclaimer.mdx"]
+      },
+      {
+        "id": "reference-only",
+        "phrases": ["for reference", "for self-reflection", "for reflection"]
+      },
+      {
+        "id": "no-prediction",
+        "phrases": [
+          "does not predict",
+          "do not predict",
+          "not a prediction",
+          "not predictions",
+          "cannot predict"
+        ]
+      }
+    ],
+    "banned": [
+      {
+        "regex": "\\bentertainment(?: purposes)?\\b",
+        "flags": "i",
+        "reason": "不使用「娱乐」定位"
+      },
+      {
+        "regex": "\\b(?:just )?for fun\\b",
+        "flags": "i",
+        "reason": "不使用「娱乐」定位"
+      },
+      {
+        "regex": "\\bguaranteed? (?:accuracy|results|predictions?)\\b",
+        "flags": "i",
+        "reason": "不保证结果"
+      },
+      {
+        "regex": "\\b(?:100 ?%|always) accurate\\b",
+        "flags": "i",
+        "reason": "不保证结果"
+      },
+      {
+        "regex": "\\bwill predict\\b",
+        "flags": "i",
+        "reason": "不做预测"
+      },
+      {
+        "regex": "\\byour destiny is (?:fixed|sealed|written)\\b",
+        "flags": "i",
+        "reason": "避免决定论"
+      }
+    ]
+  },
+  "anchors": {
+    "/": ["Ganjiday", "Chinese astrology birth chart"],
+    "/bazi-calculator": ["BaZi calculator", "Four Pillars of Destiny calculator"],
+    "/zi-wei-dou-shu": ["Zi Wei Dou Shu chart", "Purple Star Astrology chart"],
+    "/tarot-spreads": ["past present future tarot", "tarot spreads"],
+    "/tarot-spreads/one-card": ["one card tarot pull", "draw a tarot card for today"],
+    "/tarot-spreads/pick-a-card": ["pick a card tarot", "pick a card"],
+    "/tarot-spreads/celtic-cross": ["Celtic Cross spread", "Celtic Cross positions"],
+    "/tarot-feelings": ["tarot cards as feelings", "all 78 cards as feelings"],
+    "/tarot-feelings/*": ["{card} as feelings", "{card}"],
+    "/faq": ["FAQ", "Ganjiday FAQ"],
+    "/pricing": ["pricing", "BaZi reading pricing"]
+  },
+  "scanOnly": true,
+  "scan": [
+    "apps/web/content/tarot-feelings/en/**/*.mdx",
+    "apps/web/content/legal/east/en/**/*.mdx",
+    "apps/web/messages/en/bazi.json",
+    "apps/web/messages/en/chart-bazi.json",
+    "apps/web/messages/en/chart-ziwei.json",
+    "apps/web/src/features/east-en/copy/**/*.ts"
+  ]
+}

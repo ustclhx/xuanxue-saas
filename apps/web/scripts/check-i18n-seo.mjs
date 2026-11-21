@@ -243,13 +243,16 @@ async function main() {
   try {
     for (const site of ['west', 'east']) {
       const { locales, defaultLocale } = templateConfig.sites[site]
-      const host = linking.sites.find((entry) =>
-        entry.locales.some((l) => locales.includes(l)),
-      )?.previewHost
+      // 一种语言可以属于两站（东方站根路径英文，5b）：按与本站语言重合最多的分组取预览主机
+      const overlap = (entry) => entry.locales.filter((l) => locales.includes(l)).length
+      const host = [...linking.sites].sort((a, b) => overlap(b) - overlap(a))[0]?.previewHost
       if (!host) continue
       const homes = [
         '/',
-        ...locales.filter((l) => l !== defaultLocale).map((l) => `/${localeUrlSegment(l)}`),
+        // 全局默认语言（英语）在两站都以无前缀地址服务（东方站根路径英文），首页即 `/`
+        ...locales
+          .filter((l) => l !== defaultLocale && l !== templateConfig.i18n.defaultLocale)
+          .map((l) => `/${localeUrlSegment(l)}`),
       ]
       const crawl = await crawlSite(baseUrl, `${host}:${new URL(baseUrl).port}`, homes)
       const problems = analyzeI18nSeo(crawl)

@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { releasedSiteLocales } from '../../features/i18n/rollout.ts'
 import { eastEnglishSitemap } from '../../features/marketing/east-english/head.ts'
 import { sitemap, sitemapLocales } from '../../features/seo/crawlers.ts'
 import { seoSiteOrigin } from '../../features/seo/origins.ts'
@@ -17,10 +18,16 @@ export const Route = createFileRoute('/sitemap/$file')({
           'content-type': 'application/xml; charset=utf-8',
           'cache-control': 'public, max-age=300',
         }
-        // 东方站 en 子图只有英文入口页（D5），en 的其他页面属于西方站
-        if (site.id === 'east' && locale === EAST_ENGLISH_LOCALE)
+        // 东方站根路径英文（5b）发布前，东方站 en 子图只有英文入口页（D5）；发布后按东方站页面清单生成
+        if (
+          site.id === 'east' &&
+          locale === EAST_ENGLISH_LOCALE &&
+          !releasedSiteLocales('east', templateConfig).includes(EAST_ENGLISH_LOCALE)
+        )
           return new Response(eastEnglishSitemap(), { headers })
-        return new Response(sitemap(getPublicPages(), seoSiteOrigin(site.id), locale), { headers })
+        return new Response(sitemap(getPublicPages(), seoSiteOrigin(site.id), locale, site.id), {
+          headers,
+        })
       },
     },
   },

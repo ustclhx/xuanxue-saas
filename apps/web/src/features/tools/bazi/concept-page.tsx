@@ -18,6 +18,9 @@ import { useBirthTool } from './use-birth-tool.ts'
 const conceptProse =
   'text-body text-ink-muted [&_h2]:font-bold [&_h2]:font-heading [&_h2]:text-ink [&_h2]:text-subtitle [&_h3]:font-bold [&_h3]:font-heading [&_h3]:text-body [&_h3]:text-ink [&_strong]:text-ink [&_a]:text-brand-ink [&_table]:text-caption [&_code]:text-caption'
 
+/** 韩语概念页中用主词「만세력」链接主工具页的概念（其余用「무료 만세력」，见 ConceptPage） */
+const KO_PLAIN_HOME_ANCHOR: ReadonlySet<string> = new Set(['ten-gods', 'day-pillar'])
+
 /**
  * 八字 / 사주概念页（`/八字/<slug>`、`/사주/<slug>`）：套用工具页模板，H1、简介、表单 → 结果 → 概念长文 → FAQ → 内链。
  */
@@ -33,6 +36,10 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
   const Result = ko ? SajuResult : BaziResult
   // 主工具页：韩语是만세력（saju-full），中文是八字排盤（bazi-full）；不链接语言首页（落地页）
   const home = pageHref('bazi', page.locale)
+  // 韩语主工具页入链的锚文本：概念页默认「무료 만세력」，十神与日柱两页用主词「만세력」，
+  // 使「무료 만세력」占比不超过 70%（东方站英文发布后入口页的「만세력」入链消失，audit-seo anchor-top-share）
+  const homeTitle =
+    ko && KO_PLAIN_HOME_ANCHOR.has(page.conceptKey) ? m.bazi_link_home() : m.bazi_home_title()
   return (
     <ToolPage
       tool={`bazi-concept-${page.conceptKey}`}
@@ -65,7 +72,7 @@ export function ConceptPage({ page }: { page: ConceptPageData }) {
         )
       }
       faq={page.faq.map(({ q, a }) => ({ question: q, answer: a }))}
-      links={[{ href: home, title: m.bazi_home_title(), target: 'bazi' }, ...page.links]}
+      links={[{ href: home, title: homeTitle, target: 'bazi' }, ...page.links]}
     >
       <ReadingSlots
         tool={ko ? 'manseryeok' : 'bazi'}

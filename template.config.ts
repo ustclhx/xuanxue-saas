@@ -31,7 +31,9 @@ export default defineTemplateConfig({
     // 东方站没有无前缀的默认语言，根路径为语言入口页；后续加入 ja
     east: {
       hosts: ['ganjiday.com'],
-      locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'],
+      // en：东方站根路径英文页面（openspec add-locales-eu-ja 5b；无前缀，与西方站 en 各自一套页面），
+      // 追加在末尾：locales[0]（繁中）仍是认证页与 404 的导航语言；发布状态见 features/i18n/rollout.ts
+      locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'],
       defaultLocale: null,
       brand: {
         name: 'Ganjiday',
@@ -107,7 +109,8 @@ export default defineTemplateConfig({
     linking: {
       sites: [
         { locales: ['en', 'es'], previewHost: 'west.localhost' },
-        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'], previewHost: 'east.localhost' },
+        // en 追加在东方站分组末尾（5b 东方站根路径英文）：两站各自成图，en 页面按 Host 归属
+        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'], previewHost: 'east.localhost' },
       ],
       // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；
       // 地址不带语言前缀，东方站只有首页命中

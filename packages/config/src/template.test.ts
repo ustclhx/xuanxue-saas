@@ -162,7 +162,7 @@ describe('defineTemplateConfig', () => {
     expect(resolveSeoLinking({ sites })).toEqual(resolveSeoLinking({ sites }))
     const bad = [
       [{ locales: [] }],
-      [{ locales: ['en'] }, { locales: ['en'] }],
+      [{ locales: ['en', 'en'] }],
       [{ locales: ['en'], previewHost: 'http://localhost' }],
       [
         { locales: ['en'], previewHost: 'a.localhost' },
@@ -515,6 +515,37 @@ describe('sites', () => {
     expectTypeOf(config.sites.east.defaultLocale).toEqualTypeOf<'en' | 'zh-Hant' | 'ko' | null>()
   })
 
+  it('lets a locale serve two sites and keeps the default-locale site as its owner', () => {
+    // 项目扩展 TR-1：东方站根路径英文页面——en 同时属于两站，品牌名与联系邮箱仍按以它为默认语言的站点
+    const config = defineTemplateConfig({
+      app,
+      i18n,
+      sites: {
+        ...sites,
+        east: {
+          ...sites.east,
+          locales: ['zh-Hant', 'ko', 'en'],
+          brand: { name: 'Ganjiday', names: { 'zh-Hant': '干支日' } },
+          supportEmail: 'support@ganjiday.com',
+        },
+      },
+    })
+    expect(config.sites.east.locales).toEqual(['zh-Hant', 'ko', 'en'])
+    expect(brandName(config, 'en')).toBe('xuanxue')
+    expect(supportEmail(config, 'en')).toBe(app.supportEmail)
+    expect(siteBrandName(config, 'east', 'en')).toBe('Ganjiday')
+    expect(() =>
+      defineTemplateConfig({
+        app,
+        i18n,
+        sites: {
+          ...sites,
+          east: { ...sites.east, locales: ['zh-Hant', 'ko', 'en'], defaultLocale: 'en' },
+        },
+      }),
+    ).toThrow('defaultLocale of more than one site')
+  })
+
   it('resolves the brand name by locale: locale name, then site name, then app name', () => {
     const config = defineTemplateConfig({
       app,
@@ -536,9 +567,9 @@ describe('sites', () => {
 
   it.each([
     [
-      'a locale on two sites',
-      { west: { ...sites.west, locales: ['en', 'ko'] } },
-      'more than one site',
+      'a locale listed twice on one site',
+      { west: { ...sites.west, locales: ['en', 'en'] } },
+      'more than once',
     ],
     [
       'a locale on no site',

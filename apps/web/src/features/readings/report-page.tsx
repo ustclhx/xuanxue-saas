@@ -15,6 +15,7 @@ import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { formatDisplayTime, LocalDateTime, useHydrated } from '../shared/local-date-time.tsx'
 import { useSiteId } from '../site/context.tsx'
+import { siteNavLocale } from '../site/site.ts'
 import { AiDisclaimer } from '../tools/disclaimer.tsx'
 import { TOOL_ROUTES, toolsForLocale } from '../tools/registry.ts'
 import { toolHref } from '../tools/tool-href.ts'
@@ -208,12 +209,13 @@ function AlertIcon() {
  */
 export function freeToolLinks(locale: string, site: SiteId) {
   const routes = TOOL_ROUTES.filter((route) => route.site === site)
-  let linkLocale = locale
-  let tools = toolsForLocale(linkLocale, routes)
+  // 另一站点的同语言（东方站 en）未发布时按本站导航语言（繁中）
+  let linkLocale = siteNavLocale(site, locale, templateConfig)
+  let tools = toolsForLocale(linkLocale, routes, site)
   const fallback = templateConfig.sites[site].defaultLocale
   if (tools.length === 0 && fallback) {
     linkLocale = fallback
-    tools = toolsForLocale(linkLocale, routes)
+    tools = toolsForLocale(linkLocale, routes, site)
   }
   return tools.map((tool) => ({
     id: tool.id,

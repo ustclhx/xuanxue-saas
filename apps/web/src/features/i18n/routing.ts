@@ -1,8 +1,14 @@
 import type { LocationRewrite } from '@tanstack/react-router'
 import { deLocalizeUrl, localizeUrl } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
-import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL, isEastEnglishHome } from '../site/site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  EAST_ENGLISH_PATH,
+  EAST_ENGLISH_URL,
+  isEastEnglishHome,
+} from '../site/site.ts'
 import { isAppAreaPath } from './app-area.ts'
+import { releaseState } from './rollout.ts'
 import { hasForeignPrefix } from './site-locale.ts'
 
 /**
@@ -22,8 +28,13 @@ import { hasForeignPrefix } from './site-locale.ts'
  */
 export const localeRewrite = {
   input: ({ url }) => {
-    // 东方站 `/` 是英文首页：路由到英文入口页的路由 `/en`（site.ts EAST_ENGLISH_URL，使用者 2026-11-20）
-    if (templateConfig.i18n.enabled && isEastEnglishHome(url, templateConfig)) {
+    // 东方站 `/` 是英文首页：东方站英文（5b）发布前路由到英文入口页的路由 `/en`（site.ts EAST_ENGLISH_URL，
+    // 使用者 2026-11-20）；发布后为英文落地页（路由 `/`，按站点渲染，features/east-en）
+    if (
+      templateConfig.i18n.enabled &&
+      isEastEnglishHome(url, templateConfig) &&
+      releaseState('east', EAST_ENGLISH_LOCALE) !== 'released'
+    ) {
       const result = new URL(url.href)
       result.pathname = EAST_ENGLISH_PATH
       return result

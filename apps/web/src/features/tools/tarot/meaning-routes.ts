@@ -7,9 +7,11 @@ import {
   TAROT_ROOTS,
   TAROT_SPREADS,
   type TarotLocale,
+  tarotAlternates,
   tarotDescription,
   tarotPath,
   tarotSeoTitle,
+  tarotSite,
   tarotTitle,
 } from './routes.ts'
 
@@ -23,17 +25,30 @@ const SEGMENTS = {
   ja: '意味',
 } as const
 
-/** 牌义使用牌组已有的 ASCII slug；语言前缀由 toolHref / SEO 入口统一处理。 */
-export function tarotMeaningPath(slug: string, locale: TarotLocale): string {
+/**
+ * 东方站根路径英文的 78 张牌页（openspec add-locales-eu-ja 5b，关键词地图方案 A）：「<牌名> as feelings」，
+ * 与西方站英文牌义页分主词；路径 `/tarot-feelings/<牌 slug>`，内容源 content/tarot-feelings/en。
+ */
+export const EAST_EN_FEELINGS_ROOT = '/tarot-feelings'
+type TarotSite = 'east' | 'west'
+const eastEnglish = (locale: TarotLocale, site?: TarotSite) => site === 'east' && locale === 'en'
+
+/** 牌义使用牌组已有的 ASCII slug；语言前缀由 toolHref / SEO 入口统一处理。`site` 只影响 en */
+export function tarotMeaningPath(slug: string, locale: TarotLocale, site?: TarotSite): string {
+  if (eastEnglish(locale, site)) return `${EAST_EN_FEELINGS_ROOT}/${slug}`
   return `${TAROT_ROOTS[locale]}/${SEGMENTS[locale]}/${slug}`
 }
 
-export function meaningAlternates(slug: string) {
-  return Object.fromEntries(TAROT_LOCALES.map((locale) => [locale, tarotMeaningPath(slug, locale)]))
+/** 牌页在本站各语言下的地址（hreflang）；东方站页面的 en 指向 as feelings 牌页 */
+export function meaningAlternates(slug: string, site?: TarotSite) {
+  return Object.fromEntries(
+    TAROT_LOCALES.map((locale) => [locale, tarotMeaningPath(slug, locale, site)]),
+  )
 }
 
 /** 牌义索引页（78 张牌的分组列表）：牌义页路径去掉牌的 slug，如 `/tarot/cards`、`/塔罗/牌义` */
-export function tarotIndexPath(locale: TarotLocale): string {
+export function tarotIndexPath(locale: TarotLocale, site?: TarotSite): string {
+  if (eastEnglish(locale, site)) return EAST_EN_FEELINGS_ROOT
   return `${TAROT_ROOTS[locale]}/${SEGMENTS[locale]}`
 }
 
@@ -69,15 +84,17 @@ const INDEX_NAV: Readonly<Record<TarotLocale, string>> = {
 }
 
 /** 牌义索引页的 head：四语路径互为 hreflang（按站点筛选），写法与牌阵页相同 */
-export function tarotIndexSeo(locale: TarotLocale) {
+export function tarotIndexSeo(locale: TarotLocale, site?: TarotSite) {
   return {
     path: tarotIndexPath(locale),
     locale,
     title: INDEX_TITLES[locale],
     description: INDEX_DESCRIPTIONS[locale],
-    alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotIndexPath(l)])),
+    alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotIndexPath(l, site)])),
   }
 }
+
+const EAST_EN_INDEX_NAV = 'Tarot Cards as Feelings'
 
 export const TAROT_MEANING_ROUTES: readonly ToolRoute[] = [
   // 牌义索引页：两站各登记一条，进预渲染与站点地图（带标题与描述），不进页头导航。
@@ -86,9 +103,12 @@ export const TAROT_MEANING_ROUTES: readonly ToolRoute[] = [
     id: 'tarot-card-index',
     site,
     nav: false,
-    paths: Object.fromEntries(TAROT_LOCALES.map((locale) => [locale, tarotIndexPath(locale)])),
-    // 注册表的导航名与主词不包 localeText（其他语言页面也要用）：新语言用主词（与面包屑 tarot_index_crumb 一致）
-    titles: INDEX_NAV,
+    paths: Object.fromEntries(
+      TAROT_LOCALES.map((locale) => [locale, tarotIndexPath(locale, site)]),
+    ),
+    // 注册表的导航名与主词不包 localeText（其他语言页面也要用）：新语言用主词（与面包屑 tarot_index_crumb 一致）；
+    // 东方站英文为 as feelings 索引的主词（5b）
+    titles: site === 'east' ? { ...INDEX_NAV, en: EAST_EN_INDEX_NAV } : INDEX_NAV,
     descriptions: INDEX_DESCRIPTIONS,
   })),
   ...CARDS.flatMap((card) =>
@@ -96,7 +116,7 @@ export const TAROT_MEANING_ROUTES: readonly ToolRoute[] = [
       id: `tarot-card-${card.id}`,
       site,
       nav: false,
-      paths: meaningAlternates(card.slug),
+      paths: meaningAlternates(card.slug, site),
       // 牌义页不进导航；站点地图与 head 的标题取正文 frontmatter（tarotMeaningSeoPages）
       titles: {},
     })),
@@ -111,13 +131,13 @@ export interface TarotMeaningContent {
 }
 
 /** 地图、OG 与页面 head 同用正文 frontmatter，避免导航名覆盖文章 Title。 */
-export function tarotMeaningSeoPages(content: readonly TarotMeaningContent[]) {
+export function tarotMeaningSeoPages(content: readonly TarotMeaningContent[], site?: TarotSite) {
   return content.map((page) => ({
     path: tarotMeaningPath(page.slug, page.locale),
     title: page.title,
     description: page.description,
     locale: page.locale,
-    alternates: meaningAlternates(page.slug),
+    alternates: meaningAlternates(page.slug, site ?? tarotSite(page.locale)),
   }))
 }
 
@@ -134,8 +154,8 @@ export function tarotLocalizedSeoPages() {
       locale,
       title: tarotSeoTitle(spread, locale),
       description: tarotDescription(spread, locale),
-      alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l)])),
+      alternates: tarotAlternates(spread, tarotSite(locale)),
     })),
-    tarotIndexSeo(locale),
+    tarotIndexSeo(locale, tarotSite(locale)),
   ])
 }

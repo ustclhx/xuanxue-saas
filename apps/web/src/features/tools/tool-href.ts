@@ -1,3 +1,4 @@
+import type { SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { siteOfLocale } from '../site/site.ts'
@@ -17,8 +18,8 @@ export function toolHref(path: string, locale: string): string {
  * 某语言主工具页（八字排盤 / 만세력 / Life Path Number）的站内地址；该语言没有主工具页时为语言首页。
  * 工具迁出语言首页后（openspec separate-landing-homepage design.md D4、D5），站内「去排盘」链接都用它。
  */
-export function mainToolHref(locale: string): string {
-  return toolHref(mainToolPath(locale) ?? '/', locale)
+export function mainToolHref(locale: string, site?: SiteId): string {
+  return toolHref(mainToolPath(locale, undefined, site) ?? '/', locale)
 }
 
 /**

@@ -1,7 +1,12 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { localeText } from '../i18n/split-messages.ts'
-import { CONCEPT_SLUGS, type ConceptKey, conceptPath } from './bazi/eastern-routes.ts'
+import {
+  CONCEPT_SLUGS,
+  type ConceptKey,
+  conceptPath,
+  EAST_EN_TOOL_PATHS,
+} from './bazi/eastern-routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
@@ -63,8 +68,22 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'bazi',
     site: 'east',
-    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력', ja: '/四柱推命' },
-    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력', ja: '四柱推命' },
+    // en：东方站根路径英文（openspec add-locales-eu-ja 5b，关键词地图 keyword-maps/east-en.md）；
+    // 描述不登记 en（另一站点的同语言页面在 publicPages 以导航名代替，页面 head 取 features/east-en 的文案）
+    paths: {
+      'zh-Hant': '/八字排盤',
+      'zh-Hans': '/八字排盘',
+      ko: '/만세력',
+      ja: '/四柱推命',
+      en: EAST_EN_TOOL_PATHS.bazi,
+    },
+    titles: {
+      'zh-Hant': '八字排盤',
+      'zh-Hans': '八字排盘',
+      ko: '만세력',
+      ja: '四柱推命',
+      en: 'BaZi Calculator',
+    },
     descriptions: localeText({
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
       'zh-Hans': '免费八字排盘：四柱命盘、五行强弱、身强身弱、喜用神、大运流年、神煞与八字重量。',
@@ -75,8 +94,18 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'ziwei',
     site: 'east',
-    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘', ja: '/紫微斗数' },
-    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数', ja: '紫微斗数' },
+    paths: {
+      'zh-Hant': '/紫微斗數排盤',
+      'zh-Hans': '/紫微斗数排盘',
+      ja: '/紫微斗数',
+      en: EAST_EN_TOOL_PATHS.ziwei,
+    },
+    titles: {
+      'zh-Hant': '紫微斗數',
+      'zh-Hans': '紫微斗数',
+      ja: '紫微斗数',
+      en: 'Zi Wei Dou Shu Chart',
+    },
     descriptions: localeText({
       'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。',
       'zh-Hans': '免费紫微斗数排盘：十二宫位、命宫与身宫、十四主星与生年四化。',
@@ -117,19 +146,37 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
  */
 export const MAIN_TOOL_IDS: Readonly<Record<SiteId, string>> = { east: 'bazi', west: 'life-path' }
 
+/**
+ * 同一语言在两站都有页面时（en：西方站根路径与东方站根路径英文，5b），不指定站点即取该语言作为
+ * 无前缀默认语言的站点（与 template.config.ts 中 en 为西方站默认语言一致）。只含字面量，不引用配置。
+ */
+const SHARED_LOCALE_OWNER: Readonly<Partial<Record<string, SiteId>>> = { en: 'west' }
+
+/** 路由是否属于该语言在指定站点（未指定时为归属站点）下的页面 */
+function routeOnSite(route: ToolRoute, locale: string, site: SiteId | undefined): boolean {
+  const owner = site ?? SHARED_LOCALE_OWNER[locale]
+  return owner === undefined || route.site === owner
+}
+
 /** 某语言的主工具页路径（不含语言前缀，未编码）；该语言没有主工具页时返回 undefined */
 export function mainToolPath(
   locale: string,
   routes: readonly ToolRoute[] = TOOL_ROUTES,
+  site?: SiteId,
 ): string | undefined {
-  return routes.find((route) => MAIN_TOOL_IDS[route.site] === route.id && route.paths[locale])
-    ?.paths[locale]
+  return routes.find(
+    (route) =>
+      MAIN_TOOL_IDS[route.site] === route.id &&
+      route.paths[locale] &&
+      routeOnSite(route, locale, site),
+  )?.paths[locale]
 }
 
 /** 某语言下可链接的工具（页头导航、内链矩阵） */
 export function toolsForLocale(
   locale: string,
   routes: readonly ToolRoute[] = TOOL_ROUTES,
+  site?: SiteId,
 ): { id: string; path: string; title: string }[] {
   const seen = new Set<string>()
   return routes.flatMap((route) => {
@@ -137,6 +184,7 @@ export function toolsForLocale(
     const title = route.titles[locale]
     // 跨站工具在两站各登记一条、共用同一组路径，按路径去重
     if (!path || !title || route.nav === false || seen.has(path)) return []
+    if (!routeOnSite(route, locale, site)) return []
     seen.add(path)
     return [{ id: route.id, path, title }]
   })
@@ -154,5 +202,6 @@ export function toolsForSite(
   return toolsForLocale(
     locale,
     routes.filter((route) => route.site === site),
+    site,
   )
 }

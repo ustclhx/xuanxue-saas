@@ -1,6 +1,6 @@
 {
   "numerology_faq_calc_q1": "local",
-  "numerology_faq_calc_q2": "adapted",
+  "numerology_faq_calc_q2": "local",
   "numerology_faq_calc_q3": "adapted",
   "numerology_faq_calc_q4": "local",
   "numerology_faq_chart_q1": "local",
@@ -21,10 +21,10 @@
   "tarot_daily_faq_1_q": "local",
   "tarot_daily_faq_2_q": "local",
   "tarot_daily_faq_3_q": "adapted",
-  "tarot_yes_or_no_faq_1_q": "adapted",
+  "tarot_yes_or_no_faq_1_q": "local",
   "tarot_yes_or_no_faq_2_q": "local",
   "tarot_yes_or_no_faq_3_q": "local",
   "tarot_celtic_cross_faq_1_q": "local",
   "tarot_celtic_cross_faq_2_q": "local",
-  "tarot_celtic_cross_faq_3_q": "adapted"
+  "tarot_celtic_cross_faq_3_q": "local"
 }

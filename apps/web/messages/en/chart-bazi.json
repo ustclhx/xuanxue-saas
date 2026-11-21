@@ -1,0 +1,6 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_bazi_pillars_title": "Four Pillars chart: {pillars}; Day Master {dayMaster}",
+  "chart_bazi_elements_title": "Five element distribution (count · share): {elements}",
+  "chart_bazi_list_separator": ", "
+}

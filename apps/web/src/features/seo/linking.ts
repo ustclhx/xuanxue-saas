@@ -1,6 +1,13 @@
-import type { UntranslatedMode } from '@xuanxue/config'
+import type { SiteId, UntranslatedMode } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
-import { isFallbackPage, localizedPath, pageAlternates, type SeoPage } from './metadata.ts'
+import { siteOfLocale } from '../site/site.ts'
+import {
+  isFallbackPage,
+  localizedPath,
+  pageAlternates,
+  pageSite,
+  type SeoPage,
+} from './metadata.ts'
 
 export interface SeoPagesReport {
   /** 失败级：构建必须中止 */
@@ -26,6 +33,32 @@ const hint =
 export function validateSeoPages(
   pages: readonly SeoPage[],
   options: { locales?: readonly string[]; untranslated?: UntranslatedMode } = {},
+): SeoPagesReport {
+  // 项目扩展（TR-2，5b 东方站根路径英文）：同一语言在两站各有页面，地址唯一性与 hreflang 组按站点分别校验
+  const bySite = new Map<string, SeoPage[]>()
+  for (const page of pages) {
+    const site = pageSite(page)
+    bySite.set(site, [...(bySite.get(site) ?? []), page])
+  }
+  // 只有出现「另一站点的同语言页面」时才按站点分开校验；其余情况与模板原有校验相同
+  const secondary = pages.some(
+    (page) => page.site !== undefined && page.site !== siteOfLocale(page.locale, templateConfig),
+  )
+  if (bySite.size <= 1 || !secondary) return validateSitePages(pages, options)
+  const reports = [...bySite].map(([site, list]) =>
+    validateSitePages(list, options, templateConfig.sites[site as SiteId].locales),
+  )
+  return {
+    errors: reports.flatMap((report) => report.errors),
+    warnings: reports.flatMap((report) => report.warnings),
+  }
+}
+
+function validateSitePages(
+  pages: readonly SeoPage[],
+  options: { locales?: readonly string[]; untranslated?: UntranslatedMode },
+  /** 本站语言：hreflang 只在站内声明，另一站点语言的 alternates 不参与双向校验 */
+  siteLocales?: readonly string[],
 ): SeoPagesReport {
   const { i18n } = templateConfig
   const locales = options.locales ?? (i18n.enabled ? i18n.locales : [i18n.defaultLocale])
@@ -96,17 +129,23 @@ export function validateSeoPages(
         errors.push(
           `${localizedPath(page.path, page.locale)}: 缺少译文的回退页（sourceLocale ${page.sourceLocale}）在 i18n.untranslated 为 'hide' 时不发布，删除该条目或改用 'fallback'`,
         )
-  errors.push(...validateAlternates(pages, locales))
+  errors.push(...validateAlternates(pages, locales, siteLocales))
   return { errors, warnings }
 }
 
 /** alternates 的语言合法性与双向声明（hreflang 组必须在每个成员上完全一致） */
-function validateAlternates(pages: readonly SeoPage[], locales: readonly string[]): string[] {
+function validateAlternates(
+  pages: readonly SeoPage[],
+  locales: readonly string[],
+  siteLocales?: readonly string[],
+): string[] {
   const errors: string[] = []
   const find = (locale: string, path: string) =>
     pages.find((page) => page.locale === locale && page.path === path)
+  const inSite = (locale: string) => !siteLocales || siteLocales.includes(locale)
   const describe = (group: Record<string, string>) =>
     Object.keys(group)
+      .filter(inSite)
       .sort()
       .map((locale) => `${locale}=${group[locale]}`)
       .join(', ')
@@ -119,6 +158,8 @@ function validateAlternates(pages: readonly SeoPage[], locales: readonly string[
         errors.push(`${url}: alternates 的键 ${locale} 不是已配置的语言（i18n.locales）`)
         continue
       }
+      // 另一站点的语言版本（工具路由按站点登记的完整路径表）不在本站 hreflang 中
+      if (!inSite(locale)) continue
       if (locale === page.locale) {
         if (path !== page.path)
           errors.push(`${url}: alternates.${locale} 必须是本页地址 ${page.path}`)
