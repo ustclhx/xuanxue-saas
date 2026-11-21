@@ -60,7 +60,8 @@ export function asLifePath(value: number): LifePathValue {
 /** 数字命理工具与枢纽页的内链矩阵；`current` 为当前页 id，不链接自身 */
 export function numerologyLinks(current?: string): ToolLink[] {
   const titles: [NumerologyPageId, () => string][] = [
-    ['life-path', m.numerology_home_title],
+    // 链接文字单列一条：西语 H1 是祈使句「Calcula tu número de vida」，不在锚文本白名单（i18n/glossary/es.json anchors）
+    ['life-path', m.numerology_link_life_path],
     ['numerology-calculator', m.numerology_link_calculator],
     ['numerology-chart', m.numerology_link_chart],
     ['name-numerology', m.numerology_link_name],
