@@ -200,7 +200,9 @@
   1. 结构直译分 ≤0.60（正文为主的页面：落地页、工具页、数字页、FAQ 页）；牌义页因组件固定结构不用此项。
   2. 回译相似度：页面经固定模型、温度 0 回译成源语言后，与源页的词二元组 Dice ≤ 校准阈值（默认 0.50），FAQ 段 ≤0.40。
      校准：每种语言用 3 页「机器直译」对照组测出直译的基线，阈值取 min(0.50, 对照组中位数 − 0.20)，校准结果写进报告。
-  3. 数字序列重合度 ≤0.50（含示例的页面）。
+  3. 数字序列重合度 ≤0.50（含示例的页面）。引擎输出与固定事实（计算器与结果、计算步骤、数字网格、相性表、相邻数字）中的数字不计，
+     正文示例中的数字照常计入（协调者 2026-11-21 决定）：组件以 `data-locale-fixed` 标记，MDX 表格与带该标记的块同样排除
+     （`scripts/locale-similarity.mjs` `FIXED_DIGITS_SELECTOR`）。
   4. 同语言程序化集合按位置段落平均 Dice ≤0.30。
   5. 同文字变体（如后续 `pt-PT`）沿用 Dice ≤0.60 / 整句复现 ≤15% / FAQ ≤0.40。
   6. FAQ：内容源中每个问题标 `origin: local | adapted`，每页 `local` ≥2（3 问页）；检查脚本统计。
@@ -402,3 +404,22 @@
   回译由 Codex 完成（使用者决定）：`measure-locale-backtranslation --export-input / --from-file`，不调用 API。
 - **首页包**：合并 #256（按语言拆分文案表，`localeText`）后，ja 的注册表描述、首页 / 静态页 SEO 文案、牌阵 `DESCRIPTIONS` 与 `SEO_TITLES`、牌义索引都写进已包裹的对象，
   首页闭包 gzip 330,344 B（main 328,129 B，预算 352,174 B 不变）。
+## 第 5 组（es）实施记录（2026-11-21）
+
+证据在 `~/workspace/xuanxue-saas-evidence/locales-eu-ja/es/`。
+
+- **首页包**：合入 #256（`localeText` 按语言拆分）后，加入 `es`（pending）的每个首页闭包 gzip 本地 330,603 B、CI 331,996 B（预算 352,174 B 不变）。
+  新语言的 Title / description / 首页标语放在各模块的 `localeText(...)` 表中（塔罗牌阵 `SEO_TITLES` 与 ja 共用、牌义索引、数字命理 `TOOL_SEO`、
+  `seo/home-copy.ts`、`seo/metadata.ts`），注册表的导航名与路径不包 `localeText`；数字命理与牌义 frontmatter 的 H1 与 ja 同用 `heading` 字段；
+  西语数字命理的 7 个单段页面不再各占路由文件，由 `routes/$slug.tsx` 承接（`features/tools/numerology/slug-route.ts`）。
+- **路径**：`/es/tarot/…` 与英文共用 `/tarot` 文件路由（按当前语言取牌阵，`sharedTarotLocale`）；牌义 `/es/tarot/cartas/<slug>` 另有路由文件；
+  数字页 `/es/numero-de-vida/<n>` 一个路由文件。hreflang 由注册表 `paths` 生成（en ↔ es 互指，es 为 pending 时英文页不列 es）。
+- **结构本地化**：工具页说明长文按空行分段；西语工具页的补充问答并入长文（页面 FAQ 与 FAQPage 一致）；西语 FAQ 汇总页把账户一问并入「隐私与计算方式」组；
+  这些只改西语输出，英文输出逐字节不变。
+- **详批评测门槛**：与 ja 同一机制，`numerology-full.es`、`tarot-spread.es` 登记在 `catalog.ts` 的 `READING_EVAL_PENDING`（解锁卡、定价页、
+  `POST /api/readings` 不开放，平台管理员可预览）；评测样本只属于 `readings@es-v1`（套件 `appliesTo`）。
+- **金额**：`es` 以 USD 结算（D-4），金额按 `es-419` 格式化为「USD 1.99」，不与拉美比索的「$」混淆，也不用西班牙本土的「1,99 US$」。
+- **门槛**（`measure-locale-similarity --enforce es`，临时把 `es` 设为 released 构建后测量，未提交）：结构直译分全部 ≤0.60（工具页最大 0.527、FAQ 0.468、数字页最大 0.242）；
+  牌义按位置模板重复（MDX）最大 0.163；FAQ local 下限、长度下限全部通过；数字序列重合度（排除引擎输出与固定事实后）全部 ≤0.50：
+  工具页 0.345–0.477，数字页 0.283–0.500（2 号页 0.500 为上限：英文页大量重复本页数字）；为此重写了 15 页的正文示例（引擎重算），
+  西语数字页的固定相性列表以 `data-locale-fixed` 标记。回译由 Codex 完成，输入见证据目录 `backtranslation-input/`。

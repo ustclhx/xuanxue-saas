@@ -59,15 +59,15 @@
 ## 5. 西班牙语（西方站，第一期）
 
 - [ ] 5.0 [Opus] 西班牙语关键词地图（先于 5.1–5.2）：同 4.0，覆盖数字命理工具与 12 个数字页、两个枢纽页、塔罗四页、牌义索引与 78 张牌义、FAQ、定价；按西语当地搜索词（如 número de vida / camino de vida、numerología、significado de las cartas del tarot）定主词，使用者过目后再定 slug
-- [ ] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
-- [ ] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
-- [ ] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
-- [ ] 5.4 [Opus] 数字命理内容 `content/numerology/es`：Life Path 工具长文、12 个数字页、destiny、soul urge；示例用拉美/西班牙人名与日期并经引擎复算；FAQ 取西语真实问法
-- [ ] 5.5 [Opus] 公开页文案：落地页、计算器/姓名/相性/图表工具页、塔罗抽牌页、FAQ 页、定价页
-- [ ] 5.6 [Opus] 78 张牌义 `content/tarot/es` + `packages/tarot/src/data/es.ts`：分 5 批并行，每批跑门槛
-- [ ] 5.7 [Opus] 法律页 `content/legal/{west,shared}/es`（注明以英文版为准）；`es` 邮件文案
+- [x] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
+- [x] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
+- [x] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
+- [x] 5.4 [Opus] 数字命理内容 `content/numerology/es`：Life Path 工具长文、12 个数字页、destiny、soul urge；示例用拉美/西班牙人名与日期并经引擎复算；FAQ 取西语真实问法
+- [x] 5.5 [Opus] 公开页文案：落地页、计算器/姓名/相性/图表工具页、塔罗抽牌页、FAQ 页、定价页
+- [x] 5.6 [Opus] 78 张牌义 `content/tarot/es` + `packages/tarot/src/data/es.ts`：分 5 批并行，每批跑门槛
+- [x] 5.7 [Opus] 法律页 `content/legal/{west,shared}/es`（注明以英文版为准）；`es` 邮件文案
 - [ ] 5.8 [Opus] AI 详批：数字命理与塔罗的 `es` 变体；评测样本 ≥8/组合；过门槛
-- [ ] 5.9 [Codex] 计费：`es` 维持 USD（D-4），确认定价页与解锁卡的西语金额格式
+- [x] 5.9 [Codex] 计费：`es` 维持 USD（D-4），确认定价页与解锁卡的西语金额格式
 - [ ] 5.10 [Opus] 门槛验收（同 4.10，源语言为 `en`）
 - [ ] 5.11 [Opus] staging 验收与 e2e 补 `es` 用例
 

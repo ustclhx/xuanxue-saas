@@ -242,6 +242,8 @@ const numerology = defineCollection({
   include: '*/*.mdx',
   schema: z.object({
     title: z.string(),
+    // 页面 H1；省略时与 title 相同（与 tarot 同名字段；新语言按关键词地图让 Title 与 H1 用不同主词）
+    heading: z.string().min(1).optional(),
     description: z.string(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })),
     updated: isoDate,
@@ -250,7 +252,7 @@ const numerology = defineCollection({
   }),
   transform: async (document, context) => {
     const { content, ...data } = document
-    const body = content.split(/^## FAQ\s*$/m)[0] ?? content
+    const body = content.split(/^## (?:FAQ|Preguntas frecuentes)\s*$/m)[0] ?? content
     return {
       ...data,
       ...localeAndSlug(document._meta),

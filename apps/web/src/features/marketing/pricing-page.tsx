@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { moneyFormatLocale } from '@xuanxue/billing/currency'
 import { cn } from '@xuanxue/ui'
 import { PageWidth } from '@xuanxue/ui/project'
 import { useEffect } from 'react'
@@ -116,7 +117,7 @@ const money = (item: Offer, locale: string): PriceDisplay | null =>
 /** 免费档价格：与订阅同币种的 0 元，不显示小数 */
 function zeroPrice(currency: string, locale: string): string {
   const code = currency.toUpperCase()
-  return new Intl.NumberFormat(code === 'TWD' ? 'en' : locale, {
+  return new Intl.NumberFormat(moneyFormatLocale(code, locale), {
     style: 'currency',
     currency: code,
     maximumFractionDigits: 0,

@@ -38,6 +38,12 @@ const METHODS: Record<Locale, readonly Pair[]> = {
     [m.bazi_home_faq_q3, m.bazi_home_faq_a3],
     [m.bazi_gunghap_faq_q1, m.bazi_gunghap_faq_a1],
   ],
+  // 西班牙语与英语同为西方站数字命理工具，取各自语言的工具页 FAQ
+  es: [
+    [m.numerology_faq_calc_q1, m.numerology_faq_calc_a1],
+    [m.numerology_faq_name_q2, m.numerology_faq_name_a2],
+    [m.numerology_faq_compat_q1, m.numerology_faq_compat_a1],
+  ],
   // 日语第一期只有四柱推命与紫微斗数（没有命盤查詢）
   ja: [
     [m.bazi_home_faq_q1, m.bazi_home_faq_a1],

@@ -19,7 +19,7 @@ export default defineTemplateConfig({
   // rememberHomeLocale（ML-09）：使用者 2026-11-20 决定暂缓，保持关闭。
   i18n: {
     enabled: true,
-    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja'],
+    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'es', 'ja'],
     defaultLocale: 'en',
     untranslated: 'hide',
     rememberHomeLocale: false,
@@ -45,7 +45,7 @@ export default defineTemplateConfig({
     // 后续加入 fr / de / nl / it，各语言统一使用 Arcanumber
     west: {
       hosts: ['arcanumber.com'],
-      locales: ['en'],
+      locales: ['en', 'es'],
       defaultLocale: 'en',
       brand: { name: 'Arcanumber' },
       analyticsToken: 'aa32b146781b4880aa9686d85c3a8f66',
@@ -106,7 +106,7 @@ export default defineTemplateConfig({
   seo: {
     linking: {
       sites: [
-        { locales: ['en'], previewHost: 'west.localhost' },
+        { locales: ['en', 'es'], previewHost: 'west.localhost' },
         { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'], previewHost: 'east.localhost' },
       ],
       // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；

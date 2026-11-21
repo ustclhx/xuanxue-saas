@@ -648,6 +648,155 @@ const ko: CopyBuilders = {
   }),
 }
 
+// 西班牙语（中性拉美西语，tú；openspec add-locales-eu-ja 任务 5.7）：按西语习惯写成，不逐句对译英文
+const minutesEs = (n: number) => (n === 1 ? '1 minuto' : `${n} minutos`)
+const daysEs = (n: number) => (n === 1 ? '1 día' : `${n} días`)
+
+const es: CopyBuilders = {
+  'reading-summary': (props) => readingSummaryCopy('es', props),
+  'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
+    subject: `Tu invitación para unirte a ${appName}`,
+    preview: 'Ya puedes crear tu cuenta.',
+    heading: 'Tienes una invitación',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      'Con este enlace puedes crear tu cuenta aunque el registro todavía esté cerrado. La invitación vence en 7 días.',
+    ],
+    action: { label: 'Crear mi cuenta', url },
+    linkHint: 'Si el botón no funciona, copia este enlace:',
+    footer: 'Si no te anotaste en la lista de espera, ignora este correo.',
+  }),
+  'newsletter-confirmation': ({ url }, { appName, recipientName }) => ({
+    subject: `Confirma tu suscripción a ${appName}`,
+    preview: 'Falta un paso para recibir el boletín.',
+    heading: 'Confirma tu suscripción',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      'Haz clic en el botón para activar la suscripción. Solo te enviaremos el boletín después de que confirmes. El enlace vence en 24 horas.',
+    ],
+    action: { label: 'Confirmar suscripción', url },
+    linkHint: 'Si el botón no funciona, copia este enlace:',
+    footer: 'Si no pediste esta suscripción, ignora este correo.',
+  }),
+  newsletter: ({ subject, body, unsubscribeUrl }, { recipientName }) => ({
+    subject,
+    preview: subject,
+    heading: subject,
+    greeting: greetingEs(recipientName),
+    paragraphs: [body],
+    action: { label: 'Cancelar suscripción', url: unsubscribeUrl },
+    linkHint: 'Puedes darte de baja con este enlace:',
+    footer: 'Recibes este correo porque confirmaste tu suscripción.',
+  }),
+
+  'refund-update': (
+    { status, amount, currency, note, supportEmail },
+    { appName, recipientName },
+  ) => ({
+    subject: `Solicitud de reembolso en ${appName}: ${{ approved: 'aprobada', rejected: 'rechazada', refunded: 'reembolsada' }[status]}`,
+    preview: `Tu solicitud de reembolso fue ${{ approved: 'aprobada', rejected: 'rechazada', refunded: 'procesada por el proveedor de pago' }[status]}.`,
+    heading: 'Novedades sobre tu reembolso',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      status === 'approved'
+        ? 'Aprobamos tu solicitud. El proveedor de pago todavía no confirma el reembolso.'
+        : status === 'refunded'
+          ? 'El proveedor de pago ya confirmó tu reembolso.'
+          : 'Tu solicitud de reembolso fue rechazada.',
+      ...(amount === null ? [] : [`Monto: ${(amount / 100).toFixed(2)} ${currency}.`]),
+      ...(note ? [note] : []),
+      `Si necesitas ayuda, escríbenos a ${supportEmail}.`,
+    ],
+    linkHint: '',
+    footer: 'Te enviamos esta actualización por correo aunque hayas eliminado tu cuenta.',
+  }),
+
+  'reading-ready': ({ url, title }, { appName, recipientName }) => ({
+    subject: title ? `${title} | ${appName}` : `Tu lectura completa de ${appName} está lista`,
+    preview: 'Guardamos tu lectura completa en tu cuenta.',
+    heading: title ?? 'Tu lectura completa está lista',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      'Tu lectura completa ya se generó y quedó guardada en tu cuenta. Puedes volver a abrirla cuando quieras, desde cualquier dispositivo, al iniciar sesión.',
+      'La lectura sirve solo como referencia para reflexionar. No es asesoría médica, legal ni de inversión.',
+    ],
+    action: { label: 'Ver mi lectura', url },
+    linkHint: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    footer: `Recibes este correo porque desbloqueaste una lectura en ${appName}.`,
+  }),
+  'verify-email': ({ url }, { appName, recipientName }) => ({
+    subject: `Verifica tu correo en ${appName}`,
+    preview: `Confirma tu dirección de correo para terminar de crear tu cuenta en ${appName}.`,
+    heading: 'Verifica tu correo',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      `Gracias por registrarte en ${appName}. Confirma tu dirección de correo con el botón de abajo.`,
+    ],
+    action: { label: 'Verificar correo', url },
+    linkHint: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    footer: `Si no creaste una cuenta en ${appName}, puedes ignorar este correo.`,
+  }),
+  otp: ({ otp, purpose, expiresInMinutes }, { appName, recipientName }) => {
+    const purposeText = {
+      'sign-in': `iniciar sesión en ${appName}`,
+      'email-verification': `verificar tu correo en ${appName}`,
+      'forget-password': `restablecer tu contraseña de ${appName}`,
+    }[purpose]
+    return {
+      subject: `${otp} es tu código de verificación de ${appName}`,
+      preview: `Usa este código para ${purposeText}.`,
+      heading: 'Tu código de verificación',
+      greeting: greetingEs(recipientName),
+      paragraphs: [
+        `Ingresa el siguiente código para ${purposeText}. Vence en ${minutesEs(expiresInMinutes)}.`,
+      ],
+      code: otp,
+      linkHint: '',
+      footer: 'No compartas este código con nadie. Si no lo pediste, ignora este correo.',
+    }
+  },
+  'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `Inicia sesión en ${appName}`,
+    preview: `Tu enlace para entrar a ${appName}.`,
+    heading: `Inicia sesión en ${appName}`,
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      `Haz clic en el botón para iniciar sesión. El enlace vence en ${minutesEs(expiresInMinutes)} y solo se puede usar una vez.`,
+    ],
+    action: { label: 'Iniciar sesión', url },
+    linkHint: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    footer: 'Si no pediste este enlace, puedes ignorar este correo.',
+  }),
+  'reset-password': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `Restablece tu contraseña de ${appName}`,
+    preview: `Usa este enlace para elegir una nueva contraseña en ${appName}.`,
+    heading: 'Restablece tu contraseña',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      `Recibimos una solicitud para restablecer la contraseña de tu cuenta en ${appName}. Elige una nueva con el botón de abajo. El enlace vence en ${minutesEs(expiresInMinutes)}.`,
+    ],
+    action: { label: 'Restablecer contraseña', url },
+    linkHint: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    footer: 'Si no pediste el cambio, ignora este correo: tu contraseña seguirá igual.',
+  }),
+  'workspace-invitation': (
+    { url, workspaceName, inviterName, role, expiresInDays },
+    { appName, recipientName },
+  ) => ({
+    subject: `${inviterName} te invitó a ${workspaceName} en ${appName}`,
+    preview: `Únete al espacio de trabajo ${workspaceName} en ${appName}.`,
+    heading: `Únete a ${workspaceName}`,
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      `${inviterName} te invitó a unirte al espacio de trabajo ${workspaceName} en ${appName} como ${{ owner: 'propietario', admin: 'administrador', member: 'miembro' }[role]}.`,
+      `La invitación vence en ${daysEs(expiresInDays)}.`,
+    ],
+    action: { label: 'Aceptar invitación', url },
+    linkHint: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    footer: 'Si no esperabas esta invitación, puedes ignorar este correo.',
+  }),
+}
+
 const ja: CopyBuilders = {
   'reading-summary': (props) => readingSummaryCopy('ja', props),
   'waitlist-invitation': ({ url }, { appName, recipientName }) => ({
@@ -807,6 +956,10 @@ function greetingKo(name: string | undefined): string {
   return name ? `${name} 님, 안녕하세요.` : '안녕하세요.'
 }
 
+function greetingEs(name: string | undefined): string {
+  return name ? `Hola, ${name}:` : 'Hola:'
+}
+
 function greetingJa(name: string | undefined): string {
   return name ? `${name} 様` : 'こんにちは。'
 }
@@ -816,5 +969,6 @@ export const copies: { readonly [L in EmailLocale]: CopyBuilders } = {
   'zh-Hant': zhHant,
   'zh-Hans': zhHans,
   ko,
+  es,
   ja,
 }

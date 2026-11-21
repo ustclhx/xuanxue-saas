@@ -107,11 +107,14 @@ export function chartSummary(counts: Record<number, number>) {
   }
 }
 
-/** 样例日期的英文写法（29 November 1987），按 UTC 格式化，与访客时区无关 */
-export function formatLongDate({ year, month, day }: BirthDate): string {
+/**
+ * 样例日期的长写法，按 UTC 格式化，与访客时区无关：英语为 29 November 1987，
+ * 其他语言按该语言习惯（西班牙语 29 de noviembre de 1987）
+ */
+export function formatLongDate({ year, month, day }: BirthDate, locale = 'en'): string {
   const date = new Date(Date.UTC(2000, month - 1, day))
   date.setUTCFullYear(year)
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : locale, {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -119,9 +122,12 @@ export function formatLongDate({ year, month, day }: BirthDate): string {
   }).format(date)
 }
 
-/** 数字页首屏样例：从 1980-01-01 起逐日找到第一个生命灵数为 `value` 的日期 */
-export function exampleDateFor(value: number): BirthDate {
-  const cursor = new Date(Date.UTC(1980, 0, 1))
+/**
+ * 数字页首屏样例：从 `fromYear` 年 1 月 1 日（默认 1980）起逐日找到第一个生命灵数为 `value` 的日期；
+ * 新语言另取起始年，示例数字不与英文页相同（localized-content-quality「示例本地化」）
+ */
+export function exampleDateFor(value: number, fromYear = 1980): BirthDate {
+  const cursor = new Date(Date.UTC(fromYear, 0, 1))
   for (let i = 0; i < 366 * 60; i += 1) {
     const date = {
       year: cursor.getUTCFullYear(),

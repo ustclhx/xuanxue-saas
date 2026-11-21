@@ -30,6 +30,13 @@ const labels = {
     unsubscribe: '구독 취소',
     footer: '구독을 확인하셨기 때문에 이 풀이를 받으셨습니다.',
   },
+  es: {
+    greeting: 'Hola',
+    result: 'Volver a ver este resultado',
+    unlock: 'Conoce la lectura completa',
+    unsubscribe: 'Cancelar suscripción',
+    footer: 'Recibes esta lectura porque confirmaste tu suscripción.',
+  },
   ja: {
     greeting: 'こんにちは',
     result: '今回の結果をもう一度見る',

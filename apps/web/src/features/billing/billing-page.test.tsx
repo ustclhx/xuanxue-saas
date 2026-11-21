@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { formatMoney } from '@xuanxue/billing/currency'
 import type { ComponentType, ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, expect, it, vi } from 'vitest'
@@ -119,12 +120,16 @@ it.each(locales)(
     const Component = Route.options.component as ComponentType
     const html = renderToStaticMarkup(<Component />)
     const purchases = html.slice(html.indexOf(m.billing_choose_plan_or_pack()))
-    expect(purchases).toContain('$1.99')
+    // 金额按界面语言格式化（es 按 es-419 输出「USD 1.99」，与拉美比索的「$」区分）
+    const usd = (minor: number) => formatMoney(minor, 'USD', locale).replace(/\u00a0/g, ' ')
+    expect(purchases.replace(/\u00a0/g, ' ')).toContain(usd(199))
     // 订阅价格在 @xuanxue/ui Select 中，选项列表展开后才渲染；SSR 只输出带占位文案的触发器
     expect(purchases).toContain(m.billing_choose_plan())
-    expect(purchases).not.toContain('$0.99')
-    expect(purchases).not.toContain('$3.99')
-    expect(html).toContain(`$3.99 / month · ${m.billing_unavailable()}`)
+    expect(purchases.replace(/\u00a0/g, ' ')).not.toContain(usd(99))
+    expect(purchases.replace(/\u00a0/g, ' ')).not.toContain(usd(399))
+    expect(html.replace(/\u00a0/g, ' ')).toContain(
+      `${usd(399)} / month · ${m.billing_unavailable()}`,
+    )
     expect(html).toContain(m.billing_next_billing({ date: m.billing_pending() }))
     expect(html).toContain(m.billing_credit_usage_link())
   },

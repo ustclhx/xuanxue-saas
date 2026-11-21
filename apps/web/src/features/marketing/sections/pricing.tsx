@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { CURRENCY_EXPONENT, enabledCurrency } from '@xuanxue/billing/currency'
+import { CURRENCY_EXPONENT, enabledCurrency, moneyFormatLocale } from '@xuanxue/billing/currency'
 import {
   Button,
   Card,
@@ -36,7 +36,7 @@ export function formatPrice(
   // 按币种指数换算（KRW 无小数），不在启用集合的币种按两位小数处理
   const code = currency.toUpperCase()
   const scale = 10 ** (enabledCurrency(code) ? CURRENCY_EXPONENT[code as 'USD'] : 2)
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(moneyFormatLocale(code, locale), {
     style: 'currency',
     currency: code,
     ...(exact ? {} : { maximumFractionDigits: amount % scale === 0 ? 0 : 2 }),

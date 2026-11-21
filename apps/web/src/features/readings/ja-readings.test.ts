@@ -80,7 +80,8 @@ describe('日语提示词登记', () => {
 
 describe('评测门槛开关', () => {
   it('日语三个组合未通过评测，其他已开放组合不受影响', () => {
-    expect([...READING_EVAL_PENDING].sort()).toEqual([
+    // es 的两个组合同样登记在此（catalog.test.ts 覆盖），这里只看日语
+    expect([...READING_EVAL_PENDING].filter((entry) => entry.endsWith('.ja')).sort()).toEqual([
       'bazi-full.ja',
       'tarot-spread.ja',
       'ziwei-full.ja',

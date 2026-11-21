@@ -67,6 +67,11 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       'What does my Personal Year suggest I focus on right now?',
       'How do my core numbers work together in relationships?',
     ],
+    es: [
+      '¿Cómo influye mi número de vida en la forma en que tomo decisiones?',
+      '¿En qué me conviene enfocarme según mi año personal?',
+      '¿Cómo se combinan mis números principales en las relaciones?',
+    ],
   },
   'tarot-spread': {
     en: [
@@ -88,6 +93,11 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       '이 카드들을 잇는 전체 메시지는 무엇인가요?',
       '어떤 카드를 가장 깊이 생각해 보면 좋을까요? 그 이유는요?',
       '이 스프레드를 바탕으로 지금 실천할 수 있는 작은 행동은 무엇일까요?',
+    ],
+    es: [
+      '¿Qué mensaje general une a estas cartas?',
+      '¿Qué carta vale más la pena pensar con calma, y por qué?',
+      '¿Qué paso pequeño y concreto podría dar a partir de esta tirada?',
     ],
     ja: [
       'これらのカードをつなぐ全体のメッセージは何ですか？',
@@ -119,6 +129,12 @@ const GENERIC: Readonly<Record<string, Questions>> = {
     '이 결과에서 가장 중요한 점은 무엇인가요?',
     '어떤 부분을 가장 깊이 생각해 보면 좋을까요?',
     '이 내용을 일상생활에 어떻게 적용할 수 있을까요?',
+  ],
+  // add-locales-eu-ja tasks 5.8：西班牙语页面（详批与追问沿用详批语言，design 决策 7）
+  es: [
+    '¿Cuáles son los puntos clave de este resultado?',
+    '¿Qué parte de este resultado vale más la pena pensar con calma?',
+    '¿Cómo podría aplicar esto en mi vida diaria?',
   ],
   ja: [
     'この結果でいちばん大切なポイントは何ですか？',

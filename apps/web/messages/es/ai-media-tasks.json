@@ -1,0 +1,73 @@
+{
+  "media_tasks_title": "Tareas multimedia",
+  "media_tasks_detail": "Detalles de la tarea",
+  "media_tasks_task": "Tarea",
+  "media_tasks_status": "Estado",
+  "media_tasks_credits": "Créditos cobrados",
+  "media_tasks_created": "Creada",
+  "media_tasks_started": "Iniciada",
+  "media_tasks_finished": "Terminada",
+  "media_tasks_queued": "En cola",
+  "media_tasks_running": "En curso",
+  "media_tasks_succeeded": "Completada",
+  "media_tasks_failed": "Falló",
+  "media_tasks_canceled": "Cancelada",
+  "media_tasks_empty": "Aún no hay tareas multimedia.",
+  "media_tasks_loading": "Cargando tareas…",
+  "media_tasks_refresh": "Actualizar",
+  "media_tasks_load_error": "No se pudieron cargar las tareas. Actualiza para volver a intentarlo.",
+  "media_tasks_not_found": "No se encontró la tarea o ya no tienes acceso a ella.",
+  "media_tasks_newer": "Tareas más recientes",
+  "media_tasks_older": "Tareas anteriores",
+  "media_tasks_back": "Volver a las tareas",
+  "media_tasks_cancel": "Cancelar tarea",
+  "media_tasks_canceling": "Cancelando…",
+  "media_tasks_cancel_retry": "Reintentar la cancelación externa",
+  "media_tasks_cancel_error": "No se pudo cancelar la tarea. Vuelve a intentarlo.",
+  "media_tasks_cancel_pending": "La tarea está cancelada. La cancelación externa sigue pendiente; puedes volver a intentarla.",
+  "media_tasks_refunded": "La tarea falló. Te devolvimos los créditos reservados.",
+  "media_tasks_uncertain": "El proveedor no admite envíos idempotentes y no llegó ninguna confirmación de este envío dentro del tiempo de espera, así que no pudimos confirmar si aceptó la solicitud. Detuvimos la tarea y te devolvimos los créditos para evitar envíos duplicados.",
+  "media_tasks_failure_reason": "El proveedor no pudo completar esta tarea.",
+  "media_tasks_results": "Resultados",
+  "media_tasks_no_results": "No hay resultados disponibles.",
+  "media_tasks_output": "Resultado generado {index}",
+  "media_tasks_duration": "{seconds} segundos",
+  "media_tasks_download": "Descargar resultado",
+  "media_tasks_preview_error": "No se pudo cargar la vista previa. Actualiza la página o descarga el resultado.",
+  "media_tasks_share": "Generar enlace público para compartir",
+  "media_tasks_revoke": "Revocar el enlace público",
+  "media_tasks_share_link": "Enlace público para compartir",
+  "media_tasks_share_public": "Cualquier persona con este enlace puede acceder a este resultado hasta que lo revoques.",
+  "media_tasks_share_revoked": "Se revocó el enlace público para compartir.",
+  "media_tasks_share_error": "No se pudo actualizar el enlace para compartir. Vuelve a intentarlo.",
+  "media_tasks_confirming": "Confirmando el envío: esperando la confirmación del proveedor. Los créditos reservados quedan retenidos y se devuelven completos si el envío no se confirma a tiempo.",
+  "media_tasks_cancel_checking": "Revisando las condiciones de cancelación…",
+  "media_tasks_cancel_confirm_title": "¿Cancelar esta tarea?",
+  "media_tasks_cancel_unstarted": "El proveedor todavía no empezó a generar. Si cancelas, se devuelven todos los créditos reservados y no se usa tu cancelación gratuita.",
+  "media_tasks_cancel_free_started": "El proveedor ya empezó a generar. Cada espacio tiene una cancelación gratuita de una tarea ya iniciada; esta cancelación la usa y devuelve todos los créditos reservados. Las cancelaciones posteriores de tareas iniciadas se cobran completas.",
+  "media_tasks_cancel_charged": [
+    {
+      "declarations": ["input credits", "local creditsPlural = credits: plural"],
+      "selectors": ["creditsPlural"],
+      "match": {
+        "creditsPlural=one": "El proveedor ya empezó a generar y este espacio ya usó su cancelación gratuita. Si cancelas, se cobra el precio completo de {credits} crédito.",
+        "creditsPlural=other": "El proveedor ya empezó a generar y este espacio ya usó su cancelación gratuita. Si cancelas, se cobra el precio completo de {credits} créditos."
+      }
+    }
+  ],
+  "media_tasks_cancel_confirm": "Confirmar cancelación",
+  "media_tasks_cancel_keep": "Seguir generando",
+  "media_tasks_cancel_preview_error": "No se pudieron cargar las condiciones de cancelación. Vuelve a intentarlo.",
+  "media_tasks_cancel_result_refunded": "La tarea está cancelada y te devolvimos los créditos reservados.",
+  "media_tasks_cancel_result_charged": [
+    {
+      "declarations": ["input credits", "local creditsPlural = credits: plural"],
+      "selectors": ["creditsPlural"],
+      "match": {
+        "creditsPlural=one": "La tarea está cancelada y se cobró el precio completo de {credits} crédito.",
+        "creditsPlural=other": "La tarea está cancelada y se cobró el precio completo de {credits} créditos."
+      }
+    }
+  ],
+  "media_tasks_cancel_changed": "El estado del proveedor cambió mientras confirmabas; el cargo que se muestra arriba es definitivo."
+}

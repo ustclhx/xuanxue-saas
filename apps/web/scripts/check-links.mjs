@@ -16,6 +16,7 @@ import https from 'node:https'
 import { createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
+import { isLocaleReleased } from '../src/features/i18n/rollout.ts'
 import {
   ACCEPT_LANGUAGE_VARIANTS,
   acceptLanguagePaths,
@@ -485,7 +486,7 @@ async function main() {
   if (values.mode && values.mode !== 'report' && values.mode !== 'enforce')
     throw new Error('--mode 只接受 report 或 enforce')
   const started = performance.now()
-  const templateConfig = await loadTemplateConfig()
+  const templateConfig = withoutPendingLocales(await loadTemplateConfig())
   const preview = values['base-url'] ? null : await startPreview()
   const baseUrl = values['base-url'] ?? preview.baseUrl
   try {
@@ -513,6 +514,28 @@ async function main() {
     process.exitCode = code
   } finally {
     preview?.stop()
+  }
+}
+
+/**
+ * 项目扩展（openspec add-locales-eu-ja 决策 5）：未发布语言（features/i18n/rollout.ts）不进站点地图、hreflang 与语言菜单，
+ * 链接图只按已发布语言取种子首页；未发布语言的页面在 staging 另行验收。
+ */
+export function withoutPendingLocales(config) {
+  const sites = config.seo?.linking?.sites
+  if (!sites) return config
+  return {
+    ...config,
+    seo: {
+      ...config.seo,
+      linking: {
+        ...config.seo.linking,
+        sites: sites.map((site) => ({
+          ...site,
+          locales: site.locales.filter((locale) => isLocaleReleased(locale, config)),
+        })),
+      },
+    },
   }
 }
 

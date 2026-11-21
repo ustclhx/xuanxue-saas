@@ -249,6 +249,26 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
       '무료 도구, 크레딧과 환불, 상세 풀이 실패, 개인정보, 사주·타로 계산 방식에 대한 자주 묻는 질문입니다.',
     ],
   },
+  // 西班牙语（西方站，关键词地图 es §16–17）：定价与常见问题为导航性页面
+  es: {
+    '/': homePageCopy('es'),
+    '/pricing': [
+      'Precios: herramientas gratis y créditos',
+      'Todas las herramientas de numerología y tarot son gratis. Los créditos sirven para desbloquear lecturas completas con IA de tus propios números y cartas.',
+    ],
+    '/blog': ['Blog', 'Guías de numerología y tarot para entender tus propios resultados.'],
+    '/guides': ['Guías', 'Respuestas breves a preguntas frecuentes.'],
+    '/docs': ['Ayuda', 'Ayuda y guías para usar Arcanumber.'],
+    '/newsletter': [
+      'Boletín',
+      'Suscríbete para recibir nuevas guías de numerología y tarot y novedades del sitio.',
+    ],
+    '/waitlist': ['Lista de espera', 'Anótate en la lista de espera para saber cuándo abrimos.'],
+    '/faq': [
+      'Preguntas frecuentes: créditos y privacidad',
+      'Respuestas sobre herramientas gratis, créditos y reembolsos, lecturas fallidas, privacidad y cómo se calculan la numerología y el tarot.',
+    ],
+  },
   // 关键词地图 ja.md §10–11：FAQ 与定价沿用模板路径 /ja/faq、/ja/pricing
   ja: {
     '/': homePageCopy('ja'),

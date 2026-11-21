@@ -138,6 +138,13 @@ const HEADING_HANGUL = new RegExp(
   `(${HANGUL_PAIR})(?=\\s*[(（]|\\s|년|$)(?!\\s*(?:[(（]\\s*${HANZI_PAIR}\\s*[)）])?\\s*${DECADE_WORD})`,
   'g',
 )
+/**
+ * 数字命理逐年标题中的「个人年」写法：英文 `Personal Year`，西班牙语 `Año personal`
+ * （numerology-full.v5，add-locales-eu-ja tasks 5.8）；其他语言沿用英文写法。
+ */
+const PERSONAL_YEAR_LABELS: Readonly<Record<string, string>> = { es: 'Año personal' }
+const personalYearLabel = (locale: string) => PERSONAL_YEAR_LABELS[locale] ?? 'Personal Year'
+
 /** 标题只有年份（可带「年 / 년」）时才补写干支或个人年数；带其他文字时不猜位置，记为 unresolved */
 const BARE_HEADING = /^\s*[年년]?\s*$/
 
@@ -191,17 +198,18 @@ function fixHeading(
     }
   }
   if (want.personalYear !== undefined) {
-    const found = rest.match(/Personal Year\s*(\d{1,2})\b/i)
+    const label = personalYearLabel(locale)
+    const found = rest.match(new RegExp(`${label}\\s*(\\d{1,2})\\b`, 'i'))
     if (!found) {
       if (!BARE_HEADING.test(rest)) {
         counter.unresolved++
         return line
       }
       counter.personalYear++
-      return `${prefix}${yearText} · Personal Year ${want.personalYear}`
+      return `${prefix}${yearText} · ${label} ${want.personalYear}`
     }
     if (Number(found[1]) !== want.personalYear) {
-      rest = rest.replace(/(Personal Year\s*)\d{1,2}\b/i, `$1${want.personalYear}`)
+      rest = rest.replace(new RegExp(`(${label}\\s*)\\d{1,2}\\b`, 'i'), `$1${want.personalYear}`)
       counter.personalYear++
     }
   }
@@ -274,6 +282,17 @@ function fixBody(
       return `${year}${gap}${want}`
     },
   )
+  // 西班牙语「2027 (Año personal 5)」「2027 es tu año personal 5」
+  if (locale === 'es')
+    result = result.replace(
+      /\b(\d{4})(\s*[(（·,:–—-]?\s*(?:es\s+(?:un|tu)\s+)?año personal\s+)(\d{1,2})\b/gi,
+      (all, year: string, gap: string, found: string) => {
+        const want = byYear.get(Number(year))?.personalYear
+        if (want === undefined || Number(found) === want) return all
+        counter.personalYear++
+        return `${year}${gap}${want}`
+      },
+    )
   return result
 }
 

@@ -115,6 +115,24 @@ const BLOCK_TAGS = new Set(
   ),
 )
 const REMOVED = 'script,style,form,nav,svg,noscript,template'
+/**
+ * 引擎输出与固定事实（计算器结果、计算步骤组件、数字网格与表格、相邻数字等）：两种语言共用同一组数字，
+ * 数字序列重合度不计其中的数字（协调者 2026-11-21 决定；正文示例中的数字照常计入）。
+ * 组件以 `data-locale-fixed` 标记；MDX 正文中的表格（.rich-table-scroll）是固定事实表。文字照常参与其他指标。
+ */
+export const FIXED_DIGITS_SELECTOR = '[data-locale-fixed], .rich-table-scroll'
+
+/** 去掉元素内全部文本节点中的数字（保留其他文字与结构） */
+export function stripFixedDigits(root) {
+  for (const el of [...root.querySelectorAll(FIXED_DIGITS_SELECTOR)]) {
+    const stack = [el]
+    while (stack.length) {
+      const node = stack.pop()
+      if (node.nodeType === 3) node.textContent = node.textContent.replace(/\d/g, '')
+      else stack.push(...node.childNodes)
+    }
+  }
+}
 const H2_MARK = '@@H2@@'
 
 /** 去掉首尾空白，但保留一个首/尾的行内空格（node-html-parser trimText 的行为） */
@@ -196,6 +214,7 @@ export function createExtractor() {
 function extractDocument(doc) {
   const main = doc.querySelector('main') ?? doc.body ?? doc.documentElement
   for (const el of [...main.querySelectorAll(REMOVED)]) el.remove()
+  stripFixedDigits(main)
   const faqCount = main.querySelectorAll('details summary').length
   for (const h of [...main.querySelectorAll('h2')]) {
     const title = h.textContent.trim()
@@ -509,13 +528,13 @@ export function faqOriginStats({ contentDir, locale, messageOrigins = null }) {
     }
   }
   if (messageOrigins) {
-    // 文案 FAQ 以键名前缀成组：`bazi_home_faq_q1` → `bazi_home_faq`
+    // 文案 FAQ 以键名前缀成组：`bazi_home_faq_q1` → `bazi_home_faq`，`tarot_daily_faq_1_q` → `tarot_daily_faq`
     const groups = new Map()
     // 也可按页面分组登记：{ "<页面路径>": { "<文案键>": "local" } }（汇总页、定价页的问答键没有共同前缀）
     const entries = Object.entries(messageOrigins).flatMap(([key, origin]) =>
       origin && typeof origin === 'object'
         ? Object.values(origin).map((value) => [key, value])
-        : [[key.replace(/_?q?\d+$/, ''), origin]],
+        : [[key.replace(/_\d+_q$|_?q?\d+$/, ''), origin]],
     )
     for (const [group, origin] of entries) {
       const counts = groups.get(group) ?? { local: 0, adapted: 0, missing: 0 }

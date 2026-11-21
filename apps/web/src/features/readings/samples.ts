@@ -5,6 +5,7 @@ import type { ReadingKind } from '@xuanxue/db'
  * 东方站各详批基于首页同一张虚构样例命盘（1990-05-15 10:30 台北 男：庚午 辛巳 庚辰 辛巳，
  * 见 tools/charts/samples.ts）；궁합另配一张虚构命盘（1992-03-08 14:00 台北 女：壬申 癸卯 癸未 己未）；
  * 西方站灵数用 1990-05-15（Life Path 3）；塔罗用虚构牌阵（隐者正位 / 钱币八正位 / 权杖王牌正位）。
+ * 西班牙语（add-locales-eu-ja tasks 5.8）沿用同一输入与牌阵，按术语表写作（número de vida、Oros / Bastos、al derecho）。
  * `ja` 的样例在 samples-ja.ts（未经使用者审定，且不进首页脚本闭包）。
  * 段落中的柱位、十神、五行占比、宫位与数字均取自引擎对上述输入的计算结果，引擎规则变化时需复核。
  *
@@ -40,6 +41,7 @@ export const READING_SAMPLES = {
   },
   'numerology-full': {
     en: "In this sample chart, the birth date 1990-05-15 reduces to Life Path 3 (1+9+9+0+5+1+5 = 30, then 3+0). Three is the number of expression, sociability and creative range, and it does best when ideas move from conversation into finished work. The Birthday number 6, from the 15th, adds a steady sense of responsibility toward the people close by, which helps balance the 3's tendency to scatter energy across too many projects at once.",
+    es: 'En esta carta de muestra, la fecha de nacimiento 1990-05-15 se reduce al número de vida 3 (1+9+9+0+5+1+5 = 30, y luego 3+0). El 3 es el número de la expresión, la sociabilidad y la creatividad, y rinde más cuando las ideas pasan de la conversación a un trabajo terminado. El número del día de nacimiento 6, que viene del día 15, suma responsabilidad hacia las personas cercanas y ayuda a equilibrar la tendencia del 3 a repartir su energía entre demasiados proyectos a la vez.',
   },
   'tarot-spread': {
     en: 'This sample three-card spread asks about career direction. The Hermit upright sits in the Past, the Eight of Pentacles upright in the Present, and the Ace of Wands upright in the Future. Together they trace a clear line: a stretch of inward reflection, then patient practice that refines a craft, and finally a fresh spark of initiative. The Future card is a direction to consider, not a forecast; it suggests that a new idea deserves a real first step once the groundwork feels solid.',
@@ -48,6 +50,7 @@ export const READING_SAMPLES = {
     'zh-Hans':
       '示例牌阵以“职涯方向”为题：过去位置是隐者正位，现在是钱币八正位，未来是权杖王牌正位。三张牌串起一条清楚的线：先有一段向内沉淀、厘清自己要什么的时期，接着以练习与勤勉把手上的技艺磨细；权杖王牌落在“可思考的方向”，提醒新的灵感值得认真迈出第一步，而不是一个保证的结果。',
     ko: '예시 스프레드의 질문은 진로 방향입니다. 과거에 은둔자, 현재에 펜타클 8, 미래에 완드 에이스가 모두 정방향으로 놓였습니다. 세 장을 이어 보면 먼저 안으로 물러나 원하는 바를 정리한 시기가 있었고, 지금은 연습과 성실함으로 기술을 다듬는 단계입니다. 완드 에이스는 예측이 아닌 생각해 볼 방향으로, 새 영감에 첫걸음을 내디뎌 볼 만하다는 신호입니다.',
+    es: 'Esta tirada de tres cartas de muestra pregunta por el rumbo profesional. El Ermitaño al derecho ocupa el Pasado, el Ocho de Oros al derecho el Presente y el As de Bastos al derecho el Futuro. Juntas trazan una línea clara: un tiempo de reflexión interior, luego una práctica paciente que pule un oficio y, por último, una chispa nueva de iniciativa. El Futuro es una dirección para considerar, no un pronóstico: sugiere que una idea nueva merece un primer paso cuando las bases se sientan firmes.',
   },
 } as const satisfies Record<ReadingKind, Readonly<Record<string, string>>>
 

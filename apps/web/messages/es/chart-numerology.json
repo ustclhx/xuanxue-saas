@@ -1,0 +1,5 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "chart_numerology_reduction_title": "Reducción del número de vida: {steps}. Número de vida {value}.",
+  "chart_numerology_grid_title": "{caption}: {digits}"
+}

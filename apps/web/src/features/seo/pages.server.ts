@@ -9,7 +9,7 @@ import {
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
-import { tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
+import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
 import type { SeoPage } from './metadata.ts'
 import { type PageLinks, pageLinks } from './page-links.ts'
 import { publicPages } from './pages.ts'
@@ -21,7 +21,11 @@ export function getPublicPages(site?: SiteId) {
       legal: allLegalPages,
       docs: allDocs,
       guides: allGuides,
-      toolPages: [...numerologySeoPages(allNumerologies), ...tarotMeaningSeoPages(allTarots)],
+      toolPages: [
+        ...numerologySeoPages(allNumerologies),
+        ...tarotMeaningSeoPages(allTarots),
+        ...tarotLocalizedSeoPages(),
+      ],
     },
     new Date(),
     templateConfig,

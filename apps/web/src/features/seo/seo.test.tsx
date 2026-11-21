@@ -445,9 +445,9 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
     ['ko', 'https://ganjiday.com/ko/pricing'],
     ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
   ])
-  for (const page of pages.filter((page) => page.locale === 'en'))
+  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'west'))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
-  for (const page of pages.filter((page) => page.locale !== 'en'))
+  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'east'))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('arcanumber.com')
 })
 

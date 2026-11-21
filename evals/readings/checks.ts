@@ -1,14 +1,28 @@
 import { type Check, type CheckContext, type CheckResult, z } from '@xuanxue/evals'
+import {
+  type CompiledGlossary,
+  compileGlossary,
+  loadGlossaries,
+  scanText,
+} from '../../apps/web/scripts/check-locale-glossary.mjs'
 import { missingSections, sectionTitles } from '../../apps/web/src/features/readings/catalog.ts'
 import { checkCompliance } from '../../apps/web/src/features/readings/compliance.ts'
 import { HANT_PAIRS } from '../../apps/web/src/features/readings/hant-chars.ts'
-import { type ReadingSampleInput, type ResolvedReading, resolveReading } from './prompts.ts'
+import {
+  comboOf,
+  type ReadingSampleInput,
+  type ResolvedReading,
+  resolveReading,
+} from './prompts.ts'
 
 /**
  * 确定性检查（spec「确定性检查」），自 apps/web/scripts/eval-readings/checks.ts 迁移，判定逻辑不变：
  * 硬性检查（章节、章节顺序、流年年份、数据一致、合规、字形、就医提示）为 error 级；
  * 长度与夹杂拉丁字母只作提示，保持 warn 级，不提升为硬性失败。
  * 被评正文已经过 prepare.ts（与线上保存的正文相同），这里不再做字形补正。
+ * add-locales-eu-ja tasks 5.8 追加两项 error 级检查（只对新语言生效，旧组合记为 not applicable）：
+ * `script`（es 不得出现汉字、假名、谚文）与 `glossary`（术语表 apps/web/i18n/glossary/<locale>.json 的禁用写法，
+ * 含「entretenimiento」定位与 vosotros）。
  */
 
 /** v4 各详批的逐年章节标题；v1–v3 没有该章，年份检查只在定义包含该章时进行 */
@@ -18,6 +32,7 @@ export const ANNUAL_SECTION_TITLES = [
   '大限與流年',
   '大限与流年',
   'Year by Year',
+  'Año por año',
   '大限と年運',
 ] as const
 
@@ -110,10 +125,45 @@ export function wrongGlyphs(text: string, locale: string): string[] {
   return [...new Set([...text].filter((char) => set.has(char)))]
 }
 
-/** 中文、韩文、日文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算） */
+/** 中文、韩文、日文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算）；拉丁字母语言不检查 */
 export function latinWords(text: string, locale: string): string[] {
-  if (locale === 'en') return []
+  if (LATIN_LOCALES.has(locale)) return []
   return [...new Set(text.match(/[A-Za-z]{2,}/g) ?? [])]
+}
+
+const LATIN_LOCALES: ReadonlySet<string> = new Set(['en', 'es'])
+
+/** 拉丁字母语言正文中的汉字、假名与谚文（模型夹杂外文字符） */
+export function cjkChars(text: string, locale: string): string[] {
+  if (!LATIN_LOCALES.has(locale)) return []
+  return [
+    ...new Set(
+      text.match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu) ?? [],
+    ),
+  ]
+}
+
+/** 启用术语表检查的语言（新语言各有一份术语表；旧语言没有，旧录制的检查结果不变） */
+export const GLOSSARY_CHECK_LOCALES: ReadonlySet<string> = new Set(['es'])
+
+let glossaries: Map<string, CompiledGlossary> | undefined
+function glossaryOf(locale: string): CompiledGlossary | undefined {
+  if (!glossaries)
+    glossaries = new Map(
+      loadGlossaries().map(({ locale: code, glossary }) => [code, compileGlossary(glossary)]),
+    )
+  return glossaries.get(locale)
+}
+
+/** 正文中术语表的禁用写法（术语、文风与合规）；未启用的语言返回 null */
+export function glossaryHits(text: string, locale: string): string[] | null {
+  if (!GLOSSARY_CHECK_LOCALES.has(locale)) return null
+  const compiled = glossaryOf(locale)
+  if (!compiled) throw new Error(`glossary for ${locale} is missing`)
+  return scanText(text, compiled, { file: 'reading-output' }).map(
+    (hit) =>
+      `${hit.banned}${hit.use ? ` → ${hit.use}` : ''} (${hit.line}:${hit.column}) …${hit.excerpt}…`,
+  )
 }
 
 /** 不计空白的字符数 */
@@ -128,6 +178,15 @@ export const DEFAULT_LENGTH: Readonly<Record<string, readonly [number, number]>>
   en: [8000, 40000],
   // 日语假名多，同样内容的字数高于中文
   ja: [3000, 16000],
+}
+
+/**
+ * 按组合覆盖语言默认区间（优先于 DEFAULT_LENGTH）：西语比英文长约 15%；
+ * 塔罗只有五章、三张牌的牌阵较短，下限放低。仍是 warn 级。
+ */
+export const COMBO_LENGTH: Readonly<Record<string, readonly [number, number]>> = {
+  'numerology-full.es': [9000, 46000],
+  'tarot-spread.es': [2500, 30000],
 }
 
 /** 年份小节与数据一致：标题年份集合等于窗口、按年份排序，标题中的干支或个人年数与 JSON 一致 */
@@ -153,7 +212,8 @@ export function checkYears(body: string, years: readonly ExpectedYear[], locale:
         mismatched.push({ year: heading.year, expected: want.ganzhi.hanzi, heading: heading.rest })
     }
     if (want.personalYear !== undefined) {
-      const number = heading.rest.match(/Personal Year\s*(\d{1,2})/i)?.[1]
+      // 英文 `Personal Year 5`，西班牙语 `Año personal 5`（numerology-full.v5）
+      const number = heading.rest.match(/(?:Personal Year|Año personal)\s*(\d{1,2})/i)?.[1]
       if (Number(number) !== want.personalYear)
         mismatched.push({
           year: heading.year,
@@ -296,10 +356,9 @@ export const lengthCheck: Check = {
   expectSchema: lengthExpect,
   run(ctx) {
     const chars = charCount(ctx.output)
-    const [defaultMin, defaultMax] = DEFAULT_LENGTH[readingOf(ctx).locale] ?? [
-      0,
-      Number.POSITIVE_INFINITY,
-    ]
+    const combo = comboOf(ctx.sample.input as unknown as ReadingSampleInput)
+    const [defaultMin, defaultMax] = COMBO_LENGTH[combo] ??
+      DEFAULT_LENGTH[readingOf(ctx).locale] ?? [0, Number.POSITIVE_INFINITY]
     const override = (ctx.expect ?? {}) as { min?: number; max?: number }
     const min = override.min ?? defaultMin
     const max = override.max ?? defaultMax
@@ -316,7 +375,27 @@ export const latinCheck: Check = {
   },
 }
 
-/** 顺序与旧脚本 `checkReading` 一致 */
+export const scriptCheck: Check = {
+  id: 'script',
+  run(ctx) {
+    const locale = readingOf(ctx).locale
+    if (!LATIN_LOCALES.has(locale)) return result(true, 'not applicable: non-Latin locale')
+    const chars = cjkChars(ctx.output, locale)
+    return result(chars.length === 0, chars)
+  },
+}
+
+// id 与 readings-ja 套件的日语术语检查区分（readings-ja 组合本套件的检查）
+export const glossaryCheck: Check = {
+  id: 'esGlossary',
+  run(ctx) {
+    const hits = glossaryHits(ctx.output, readingOf(ctx).locale)
+    if (hits === null) return result(true, 'not applicable: no glossary check for this locale')
+    return result(hits.length === 0, hits)
+  },
+}
+
+/** 顺序与旧脚本 `checkReading` 一致；新语言的两项检查追加在末尾 */
 export const readingChecks: readonly Check[] = [
   sectionsCheck,
   sectionOrderCheck,
@@ -327,6 +406,8 @@ export const readingChecks: readonly Check[] = [
   healthNoticeCheck,
   lengthCheck,
   latinCheck,
+  scriptCheck,
+  glossaryCheck,
 ]
 
 /** warn 级（提示类）检查：评测门槛的「硬性检查」不含它们 */

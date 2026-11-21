@@ -1,4 +1,4 @@
-// check-locale-glossary.mjs 中供其他模块复用的部分（evals/readings-ja 的术语检查用）
+// check-locale-glossary.mjs 中供其他模块复用的部分（evals/readings 与 evals/readings-ja 的术语检查用）
 
 export interface GlossaryBannedHit {
   readonly file: string
@@ -23,3 +23,6 @@ export function scanText(
   compiled: CompiledGlossary,
   options: { readonly file: string; readonly term?: string | null },
 ): GlossaryBannedHit[]
+export function loadGlossaries(
+  dir?: string,
+): { readonly file: string; readonly locale: string; readonly glossary: unknown }[]

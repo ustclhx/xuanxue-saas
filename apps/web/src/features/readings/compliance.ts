@@ -49,6 +49,20 @@ const JA_INVESTMENT =
 const EN_DATE =
   /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?\b|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{4}\b|\b\d{4}-\d{2}(?:-\d{2})?\b/i
 const EN_ASSERT = /\b(?:will|shall|is going to|are going to|destined|certainly|definitely)\b/i
+// 西班牙语（add-locales-eu-ja 任务 5.8）：「15 de marzo」「marzo de 2027」「2027-03」；断言语气用将来时与确定性副词
+const ES_MONTH =
+  '(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)'
+const ES_DATE = new RegExp(
+  `\\b\\d{1,2}\\s+de\\s+${ES_MONTH}\\b|\\b${ES_MONTH}\\s+de(?:l)?\\s+\\d{4}\\b|\\b\\d{4}-\\d{2}(?:-\\d{2})?\\b`,
+  'i',
+)
+const ES_ASSERT =
+  /\b(?:ocurrirá|sucederá|pasará|llegará|vendrá|tendrás|conocerás|recibirás|perderás|ganarás|será|habrá|va a|vas a|sin duda|seguramente|con certeza|está destinad[oa])\b/i
+const ES_INVESTMENT: readonly RegExp[] = [
+  /\b(?:bitcoin|ethereum|criptomonedas?|cripto|ETFs?|forex|fondos? (?:de inversión|indexados?|mutuos)|bolsa de valores)\b/i,
+  /\b(?:compra|comprar|compres|vende|vender|vendas|invierte|invertir|inviertas)\s+(?:(?:en|tus|unas?|algunas?|más)\s+){0,2}(?:acciones|criptomonedas|futuros|divisas)\b/i,
+  /\b(?:apalancamiento|trading|acciones de (?:la|una) empresa)\b/i,
+]
 
 /**
  * 英文投资标的：stock / shares / futures / leverage 在日常英语里很常见（taking stock、shares her
@@ -157,6 +171,23 @@ const RULES: Record<AppLocale, LocaleRules> = {
         'Make financial and investment decisions based on your own situation and with a qualified professional.',
     },
   },
+  es: {
+    patterns: {
+      'date-prediction': [both(ES_DATE, ES_ASSERT)],
+      medical: [
+        /\b(?:cáncer|tumor(?:es)?|diabetes|hipertensión|cardiopatía|enfermedad (?:cardíaca|del corazón|renal)|derrame cerebral|infarto|depresión clínica|hepatitis|demencia|infertilidad|neumonía|diagnóstico|diagnosticad[oa]s?)\b/i,
+      ],
+      investment: ES_INVESTMENT,
+    },
+    replacements: {
+      'date-prediction':
+        'Una lectura muestra tendencias y no puede anticipar qué pasará en una fecha concreta; guíate por tu situación real.',
+      medical:
+        'Mantén horarios regulares, comidas equilibradas y actividad física moderada. Si no te sientes bien, consulta a un profesional de la salud.',
+      investment:
+        'Las decisiones de dinero e inversión dependen de tu situación; tómalas con calma y con la ayuda de un profesional calificado.',
+    },
+  },
 }
 
 const ORDER: readonly ComplianceRule[] = ['medical', 'investment', 'date-prediction']
@@ -164,7 +195,13 @@ const LIST_ITEM = /^\s*(?:[-*+]|\d+[.)])\s+/
 const HEADING = /^#{1,6}\s/
 
 function rulesFor(locale: string): LocaleRules {
-  if (locale === 'zh-Hant' || locale === 'zh-Hans' || locale === 'ko' || locale === 'ja')
+  if (
+    locale === 'zh-Hant' ||
+    locale === 'zh-Hans' ||
+    locale === 'ko' ||
+    locale === 'es' ||
+    locale === 'ja'
+  )
     return RULES[locale]
   return RULES.en
 }

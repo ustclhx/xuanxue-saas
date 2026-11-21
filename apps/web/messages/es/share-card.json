@@ -1,0 +1,23 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_card_save": "Guardar imagen para compartir",
+  "share_card_generating": "Creando imagen…",
+  "share_card_include_birth": "Mostrar la fecha de nacimiento en la imagen",
+  "share_card_ready": "La imagen se creó en este navegador. No se subió nada.",
+  "share_card_download": "Descargar imagen",
+  "share_card_share": "Compartir",
+  "share_card_failed": "No se pudo crear la imagen. Vuelve a intentarlo; tu resultado y el enlace para compartir siguen funcionando.",
+  "share_card_retry": "Reintentar",
+  "share_card_preview_alt": "Vista previa de la imagen para compartir",
+  "share_card_title_bazi": "{brand} · Mi carta BaZi",
+  "share_card_title_manseryeok": "{brand} · Mi carta Manseryeok",
+  "share_card_title_ziwei": "{brand} · Mi carta Zi Wei",
+  "share_card_eyebrow_life_path": "Mi número de vida",
+  "share_card_cta_east": "Cartas gratis en {domain}",
+  "share_card_cta_west": "Descubre el tuyo en {domain}",
+  "share_card_privacy_without_birth": "Sin fecha de nacimiento",
+  "share_card_privacy_with_birth": "Sin nombre ni lugar de nacimiento",
+  "share_card_disclaimer": "Calculado con métodos tradicionales. Solo como referencia para reflexionar; no predice el futuro.",
+  "share_card_ziwei_stars": "Estrellas del palacio de la vida: {stars}",
+  "share_card_list_separator": ", "
+}

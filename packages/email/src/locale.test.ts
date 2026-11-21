@@ -21,6 +21,8 @@ describe('resolveEmailLocale', () => {
     [' ZH-cn ', 'zh-Hans'],
     ['ko', 'ko'],
     ['ko-KR', 'ko'],
+    ['es-MX', 'es'],
+    ['es', 'es'],
     ['fr', 'en'],
     ['', 'en'],
     [null, 'en'],

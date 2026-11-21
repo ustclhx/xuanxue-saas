@@ -10,6 +10,16 @@ exports[`templates (en) > 'verify-email' > subject 1`] = `"Verify your email for
 
 exports[`templates (en) > 'workspace-invitation' > subject 1`] = `"Grace invited you to join Research Lab on Acme"`;
 
+exports[`templates (es) > 'magic-link' > subject 1`] = `"Inicia sesión en Acme"`;
+
+exports[`templates (es) > 'otp' > subject 1`] = `"482913 es tu código de verificación de Acme"`;
+
+exports[`templates (es) > 'reset-password' > subject 1`] = `"Restablece tu contraseña de Acme"`;
+
+exports[`templates (es) > 'verify-email' > subject 1`] = `"Verifica tu correo en Acme"`;
+
+exports[`templates (es) > 'workspace-invitation' > subject 1`] = `"Grace te invitó a Research Lab en Acme"`;
+
 exports[`templates (ko) > 'magic-link' > subject 1`] = `"Acme 로그인"`;
 
 exports[`templates (ko) > 'otp' > subject 1`] = `"Acme 인증 코드: 482913"`;

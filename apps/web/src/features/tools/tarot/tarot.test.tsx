@@ -59,8 +59,10 @@ describe('塔罗路由', () => {
     const east = publicPages(noContent, new Date(), templateConfig, 'east')
     const tarot = (pages: typeof west) =>
       pages.filter((page) => /^\/(tarot|塔羅|타로)(?:\/[^/]+)?$/.test(page.path)).map((p) => p.path)
-    // 4 个牌阵页加 1 个牌义索引页（/tarot/cards）；东方站这里只数繁中与韩语
-    expect(tarot(west)).toHaveLength(5)
+    // 4 个牌阵页加 1 个牌义索引页（/tarot/cards）；西班牙语共用 `/tarot` 路径段（/tarot/cartas 等），
+    // 公开页面清单含未发布语言（站点地图另按发布状态过滤）；东方站这里只数繁中与韩语
+    expect(tarot(west)).toHaveLength(10)
+    expect(tarot(west)).toContain('/tarot/cartas')
     expect(tarot(east)).toHaveLength(10)
     expect(tarot(west)).toContain('/tarot/cards')
     expect(tarot(east)).toContain('/塔羅/牌義')

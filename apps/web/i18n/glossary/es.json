@@ -388,7 +388,7 @@
           "use": "Sota de"
         }
       ],
-      "note": "Sota en nombres de carta; «Paje» (frecuente en ediciones RWS latinoamericanas) se acepta en prosa — confirmar con la investigación de palabras clave"
+      "note": "Sota en nombres de carta; en el Title y el H1 de las páginas de las Sotas se añade «(Paje)», p. ej. «Sota de Oros (Paje)» (mapa de palabras clave es, aprobado 2026-11-20). «Paje» se acepta en prosa."
     },
     {
       "id": "tarot.rank.12",
@@ -478,15 +478,17 @@
     {
       "id": "tarot.daily",
       "en": "Card of the day",
-      "preferred": "carta del día",
-      "variants": ["tarot del día"]
+      "preferred": "tarot del día",
+      "variants": ["carta del día"],
+      "note": "«tarot del día» es el término principal («carta del día» compite con «carta del diablo»); la ruta sigue siendo /es/tarot/carta-del-dia"
     },
     {
       "id": "tarot.yes-no",
       "en": "Yes or No tarot",
-      "preferred": "tarot del sí o no",
-      "variants": ["tarot sí o no", "sí o no"],
-      "banned": ["Yes or No"]
+      "preferred": "tarot sí o no",
+      "variants": ["tarot del sí o no", "sí o no"],
+      "banned": ["Yes or No"],
+      "note": "el autocompletado nunca muestra «del»"
     },
     {
       "id": "tarot.celtic-cross",
@@ -508,8 +510,8 @@
     {
       "id": "numerology.life-path",
       "en": "Life Path Number",
-      "preferred": "número del camino de vida",
-      "variants": ["número de vida", "camino de vida"],
+      "preferred": "número de vida",
+      "variants": ["número del camino de vida", "camino de vida"],
       "banned": [
         "Life Path",
         {
@@ -521,7 +523,7 @@
           "use": "camino de vida"
         }
       ],
-      "note": "«número de vida» es la forma corta más buscada (ruta /es/numero-de-vida); en definiciones usar la forma completa"
+      "note": "«número de vida» en ruta, Title, H1 y anclas (aprobado 2026-11-20); «número del camino de vida» solo en definiciones"
     },
     {
       "id": "numerology.destiny",
@@ -572,7 +574,8 @@
       "id": "numerology.chart",
       "en": "Numerology chart",
       "preferred": "carta numerológica",
-      "variants": ["mapa numerológico"]
+      "variants": ["carta numerológica pitagórica", "mapa numerológico"],
+      "note": "la página es la cuadrícula 3×3 de Pitágoras, no un informe completo: no usar «completa» como promesa"
     },
     {
       "id": "numerology.name-numerology",
@@ -801,14 +804,16 @@
       "compatibilidad numerológica",
       "compatibilidad por número de vida"
     ],
-    "/es/carta-numerologica": ["carta numerológica", "carta numerológica completa"],
+    "/es/carta-numerologica": ["carta numerológica", "carta numerológica pitagórica"],
     "/es/numero-del-destino": ["número del destino", "número de expresión"],
     "/es/numero-del-alma": ["número del alma", "número del deseo del alma"],
     "/es/tarot": ["tarot gratis", "tirada de tres cartas"],
-    "/es/tarot/carta-del-dia": ["carta del día", "tarot del día"],
-    "/es/tarot/si-o-no": ["tarot del sí o no", "tarot sí o no"],
+    "/es/tarot/carta-del-dia": ["tarot del día", "carta del día"],
+    "/es/tarot/si-o-no": ["tarot sí o no", "tarot del sí o no"],
     "/es/tarot/cruz-celta": ["cruz celta", "tirada de la cruz celta"],
     "/es/tarot/cartas": ["significado de las cartas del tarot", "las 78 cartas"],
-    "/es/tarot/cartas/*": ["{card}", "significado de {card}"]
+    "/es/tarot/cartas/*": ["{card}", "significado de {card}"],
+    "/es/faq": ["preguntas frecuentes", "preguntas frecuentes de Arcanumber"],
+    "/es/pricing": ["precios", "precios de las lecturas"]
   }
 }

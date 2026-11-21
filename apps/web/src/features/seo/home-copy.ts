@@ -33,6 +33,12 @@ const HOME_COPY: Readonly<
     '무료 만세력, 사주궁합, 타로 도구. 전통 규칙에 따라 브라우저에서 계산하며 참고와 자기 탐색용입니다.',
     '무료 만세력·사주·타로',
   ],
+  // 西班牙语（add-locales-eu-ja 关键词地图 es §1）：品类主词「numerología y tarot」，Title 内含站名
+  es: [
+    'Arcanumber: numerología y tarot gratis, paso a paso',
+    'Calcula gratis tu número de vida, tu carta numerológica y el significado de tu nombre, o saca una tirada de tarot. Reglas tradicionales, solo como referencia.',
+    'Numerología y tarot gratis',
+  ],
   // 关键词地图 ja.md §1（使用者 2026-11-20 批准）：主词「生年月日 占い 無料」，标题含站名
   ja: [
     '干支日｜生年月日で占う無料の四柱推命・紫微斗数・タロット',

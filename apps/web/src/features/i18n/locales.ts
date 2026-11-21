@@ -19,7 +19,7 @@ import type { Locale } from '../../paraglide/runtime.js'
 export type AppLocale = Locale
 
 /** 西方站语言（template.config.ts `sites.west.locales`） */
-export const WEST_LOCALES = ['en'] as const
+export const WEST_LOCALES = ['en', 'es'] as const
 export type WestLocale = (typeof WEST_LOCALES)[number]
 
 /** 东方站语言（template.config.ts `sites.east.locales`）：配置中西方站以外的语言 */

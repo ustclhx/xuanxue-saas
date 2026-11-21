@@ -106,6 +106,16 @@ export function toMinor(major: string | number, currency: EnabledCurrency): numb
 }
 
 /**
+ * 金额格式化所用的 Intl 语言：zh-Hant 的 Intl 把新台币显示为「$」，与美元无法区分，TWD 一律按 en 输出「NT$」；
+ * 西班牙语访客以拉美为主（openspec add-locales-eu-ja 决策 6，D-4 以 USD 结算）：`es` 的 Intl 输出西班牙本土的
+ * 「1,99 US$」，而拉美多数国家用小数点、且「$」是本国比索符号，因此按 es-419 输出不会与比索混淆的「USD 1.99」。
+ */
+export function moneyFormatLocale(currency: string, locale: string): string {
+  if (currency.toUpperCase() === 'TWD') return 'en'
+  return locale === 'es' ? 'es-419' : locale
+}
+
+/**
  * 按界面语言格式化最小单位金额：`NT$65`、`₩2,800`、`US$1.99`（en 为 `$1.99`）。
  * zh-Hant 的 Intl 把新台币显示为「$」，与美元无法区分，因此 TWD 一律按 en 格式输出「NT$」。
  */
@@ -113,7 +123,7 @@ export function formatMoney(amount: number, currency: string, locale: string): s
   const code = currency.toUpperCase() as DisplayCurrency
   const exponent = exponentOf(code)
   const digits = DISPLAY_FRACTION_DIGITS[code]
-  return new Intl.NumberFormat(code === 'TWD' ? 'en' : locale, {
+  return new Intl.NumberFormat(moneyFormatLocale(code, locale), {
     style: 'currency',
     currency: code,
     minimumFractionDigits: digits,
