@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:82dd7bc94685377a0f3d99f41a6d5b54b1764450d05ba940f80063d0af620e8a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All three card names, positions, orientations, arcana tiers, and the one Major/two Minor count match the data; no card is added or mislabeled.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to the exact cards and positions (Los Enamorados/Pasado, Cinco de Copas invertida/Presente, Rey de Oros/Futuro) and their keywords/meanings.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable actions are tied to each card: written reflection on choice, acceptance exercise, conversation about routines, and a repeatable caring gesture.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tentative language, explicitly frames the future as a possible direction and not a prediction, and redirects health/legal/financial matters to professionals.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent neutral Latin American Spanish with tú, no English or mixed scripts, and minimal repetition.\"\n    }\n  },\n  \"summary\": \"El resultado cumple plenamente con la precisión de la tirada, es específico y accionable, mantiene un tono cálido y responsable, y está bien redactado en español neutro.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2641,
+    "outputTokens": 1420
+  },
+  "recordedAt": "2026-11-21T08:34:39.348Z",
+  "source": "recorded"
+}

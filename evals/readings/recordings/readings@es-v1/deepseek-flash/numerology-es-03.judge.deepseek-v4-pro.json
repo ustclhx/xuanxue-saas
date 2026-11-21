@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:5692f071923788a3f6d7702524c75406b9ffa65cdaa89d41f19c95d4e21b7ca5",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, master-number flags, current pinnacle/challenge, age ranges, and personal-year values match the provided data exactly; no chart elements are invented or contradicted.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to specific chart values: life path 3, birthday 22 master, expression 4, soul urge 7, personality 6, pinnacle 7, challenge 0, and each personal year.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart; each year-by-year entry gives something to lean into and something to watch, and the orientation section offers doable steps.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based, uses tentative language ('puede', 'conviene'), makes no event-level or date-specific predictions, and directs to a health professional; legal/property matters are deferred to specialists.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear, well-structured, fluent neutral Latin American Spanish with tú forms and no foreign words; slight repetition of the same pinnacle 7 and challenge 0 framing across nearly every section.\"\n    }\n  },\n  \"summary\": \"The output is accurate, highly personalized, actionable, and compliant in tone. It is well written in neutral Latin American Spanish, with only minor repetition of the same chart reminders across sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4476,
+    "outputTokens": 1605
+  },
+  "recordedAt": "2026-11-21T08:33:12.915Z",
+  "source": "recorded"
+}

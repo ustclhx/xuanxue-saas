@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:f1dc6fbc689eb782bdc6f87af149480c493b81c6bc961e994650e0947c38a462",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todas las cartas, posiciones, orientaciones y el conteo de Arcanos Mayores/Menores coinciden con data; no se añaden cartas ni se alteran elementos.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección se ancla en cartas concretas y en sus posiciones, con interpretaciones que no encajarían en otra tirada.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Los siete pasos son concretos, viables y cada uno se vincula explícitamente a una carta de la tirada.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Lenguaje cálido y tentativo ('puede', 'sugiere', 'invita'), sin afirmar eventos específicos; deriva temas de salud, legales o dinero a un profesional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Estructura clara y español natural; hay cierta repetición descriptiva de las cartas entre secciones, pero no dificulta la lectura.\"\n    }\n  },\n  \"summary\": \"La salida es precisa, específica y práctica, con un tono apropiado y buen español; solo una ligera repetición entre secciones.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4356,
+    "outputTokens": 1690
+  },
+  "recordedAt": "2026-11-21T08:35:19.916Z",
+  "source": "recorded"
+}

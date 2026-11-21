@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:70c1e4942352886069e22089adbf321b51f601d1f9d46dd31f833cbbbc1c1d9e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todas las cartas, posiciones, orientaciones y la cuenta de Arcanos Mayores/Menores coinciden exactamente con data; no se añade ni se inventa ninguna carta.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en las cartas concretas de la tirada (Ocho de Copas, Caballero de Bastos invertida, La Rueda de la Fortuna) y sus significados; no resultaría aplicable a otra tirada.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Ofrece pasos concretos y viables ligados a la decisión laboral (escribir listas, recabar información, hablar con alguien de confianza, dar un pequeño paso) y recomienda consultar a un profesional para contratos o ingresos.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Mantiene un tono cálido y respetuoso, evita predicciones de eventos específicos, no usa miedo, no da consejos legales/financieros/médicos y aclara que no es una predicción.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara, sin repeticiones innecesarias, longitud adecuada y español latinoamericano neutro con tuteo; no aparecen palabras en inglés ni mezcla de escrituras.\"\n    }\n  },\n  \"summary\": \"El informe cumple plenamente con todos los criterios: es preciso, específico, accionable, de tono cuidadoso y bien redactado para la tirada de tarot solicitada.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2725,
+    "outputTokens": 2373
+  },
+  "recordedAt": "2026-11-21T08:35:16.853Z",
+  "source": "recorded"
+}

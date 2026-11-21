@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:60ad99a23dd9aef96ec4be76cccaa03ed462fa888c7c1a9053e6926809974be5",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited chart elements match the data: pillars (乙未, 庚申, 戊辰, 壬午), ten gods (正官・偏財・食神・比肩・印綬・傷官), twelve stages (養・冠帯・建禄), shensha (天中殺・羊刃・天乙貴人), decade and annual relations (支合・刑・冲・干合・三合) are accurately referenced with no invented elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart details: exact stems/branches, element percentages, hidden stems, decade transition (丙辰→乙卯), annual stars and relations; the report would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, e.g., 八割に絞る, 収入の範囲で暮らす, and each year in the year-by-year section has both a lean-in and a watch item based on annual relations.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based; uses hedges (かもしれない), makes no event predictions, wellbeing advice covers only habits and recommends seeing a professional, and avoids investment, legal or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structured sections, appropriate length, fluent polite Japanese です・ます, correct kanji with no Simplified Chinese or foreign terms, and no problematic repetition beyond thematic reinforcement.\"\n    }\n  },\n  \"summary\": \"The output is a highly accurate, specific, actionable, warm, and readable Japanese BaZi reading that fully meets all criteria.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8368,
+    "outputTokens": 4439
+  },
+  "recordedAt": "2026-11-21T08:39:47.417Z",
+  "source": "recorded"
+}

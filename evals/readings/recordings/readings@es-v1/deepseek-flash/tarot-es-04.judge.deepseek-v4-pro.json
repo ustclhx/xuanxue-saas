@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:544de745b2d31564055dcf4b36c15d274de519f4834fc684f6cd743e9032aeaa",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los nombres, posiciones, orientaciones y arcanos coinciden exactamente con data: Diez de Oros invertida en Pasado, La Torre al derecho en Presente y Sota de Oros al derecho en Futuro; dos arcanos menores y uno mayor, sin cartas añadidas.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección se ancla en las cartas concretas de esta tirada, con sus palabras clave y significados, y se relaciona con la pregunta del crédito sin volverse genérica.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas, factibles y vinculadas a las cartas: revisar el plan, separar lo emocional de lo financiero, preparar documentación y buscar asesoría.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y sin miedo; evita afirmar eventos específicos a nivel de fechas, no predice la aprobación, remite a asesor financiero para decisiones crediticias y no usa lenguaje alarmista.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Texto fluido en español latinoamericano con uso de tú, estructura clara, sin repeticiones excesivas ni palabras extranjeras; longitud adecuada.\"\n    }\n  },\n  \"summary\": \"El informe es preciso, específico, accionable, con un tono cálido y una redacción clara y natural en español latinoamericano.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2750,
+    "outputTokens": 1130
+  },
+  "recordedAt": "2026-11-21T08:35:02.549Z",
+  "source": "recorded"
+}

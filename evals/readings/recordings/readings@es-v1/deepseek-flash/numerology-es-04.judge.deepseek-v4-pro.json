@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:5007fc5ada9d763ab079453fac0d7e22ef6b06d6c1e8f40011598f9a6807df14",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, years, ages, pináculos and desafíos match the data exactly; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is tied to specific chart elements (life path 8, birth day 4, expression 6, soul urge 22, personality 11, current personal year 4, pináculo 4, desafío 3) and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete (set schedules, creative activity, review responsibilities, sleep routines, share plans), and every year-by-year section offers something to lean into and something to watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tentative language (\\\"puede\\\", \\\"conviene\\\") avoids fear-based or specific-event assertions; only habit-level wellbeing advice with professional referral; no legal, investment or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings, no significant repetition, fluent neutral Latin American Spanish with expected terms, no foreign words or leaked JSON fields.\"\n    }\n  },\n  \"summary\": \"The report is accurate, strongly personalized, actionable, warm, and well-structured, fully meeting the criteria for a Spanish numerology reading.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4924,
+    "outputTokens": 2953
+  },
+  "recordedAt": "2026-11-21T08:33:31.865Z",
+  "source": "recorded"
+}

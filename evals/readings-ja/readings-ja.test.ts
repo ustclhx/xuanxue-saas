@@ -95,7 +95,7 @@ describe('样本', () => {
 })
 
 describe('提示词分派', () => {
-  it('readings-ja@v1 按组合取 catalog 中 ja 的真实版本，消息与线上 readingMessages 相同', () => {
+  it('readings-ja@v2 按组合取 catalog 中 ja 的真实版本，消息与线上 readingMessages 相同', () => {
     for (const combo of READING_JA_COMBOS) {
       const s = samples.find((x) => `${x.input.kind}.${x.input.locale}` === combo)
       assert.ok(s)
@@ -112,8 +112,8 @@ describe('提示词分派', () => {
         system: system?.text,
         user: user?.text,
       })
-      // 被评测的组合即 catalog 中待评测的组合
-      assert.ok(READING_EVAL_PENDING.has(combo))
+      // 真实评测通过（readings-ja@v2，2026-11-21）后已从待评测集合删去
+      assert.ok(!READING_EVAL_PENDING.has(combo))
     }
   })
 
@@ -145,7 +145,10 @@ describe('日语确定性检查', () => {
     assert.deepEqual(banned('あなたの命盤では', 'ziwei-full'), [])
     assert.deepEqual(banned('隠者が正位置で出ました', 'tarot-spread'), [])
     assert.ok(banned('隠者が正位で出ました', 'tarot-spread').includes('正位'))
-    assert.ok(banned('娯楽として', 'tarot-spread').includes('娯楽'))
+    assert.ok(banned('占いは娯楽として楽しんで', 'tarot-spread').some((b) => b.includes('娯楽')))
+    assert.ok(banned('この鑑定は娯楽です', 'tarot-spread').some((b) => b.includes('娯楽')))
+    // 一般用法（娯楽費、娯楽や気分転換の出費）不算定位
+    assert.deepEqual(banned('娯楽や気分転換の出費が増えやすい'), [])
     // 简体字形只由 simplifiedGlyphs 报告
     assert.deepEqual(banned('运'), [])
   })

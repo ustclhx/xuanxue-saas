@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:f2dc676ccbf94af15a56076f39d22e9bccf294c755c009fc0969c9bc310e66ff",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every card, position, orientation, and arcana count exactly matches data; no cards added or invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in the actual drawn cards and their positions, reversals, and keywords, not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable steps are tied to El Loco (past), As de Espadas (clarity), and La Estrella (hope), and include both actions and boundaries.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based, explicitly frames future as possible, avoids event predictions, and directs health/legal/money matters to professionals.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear and fluent Latin American Spanish with appropriate structure, but the three-card meanings are repeated across several sections.\"\n    }\n  },\n  \"summary\": \"A highly accurate, specific, actionable, and tone-compliant tarot reading that follows the drawn cards closely; only minor repetition prevents a perfect readability score.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2562,
+    "outputTokens": 2127
+  },
+  "recordedAt": "2026-11-21T08:34:51.118Z",
+  "source": "recorded"
+}

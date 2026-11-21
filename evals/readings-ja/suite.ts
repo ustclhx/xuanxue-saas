@@ -4,7 +4,7 @@ import readings from '../readings/suite.ts'
 import { readingJaChecks } from './checks.ts'
 import { evaluateReadingsJa } from './gates.ts'
 import { prepareJaOutput } from './prepare.ts'
-import { readingsJaV1 } from './prompts.ts'
+import { readingsJaV2 } from './prompts.ts'
 import { readingsJaRubric } from './rubric.ts'
 
 /**
@@ -15,8 +15,8 @@ import { readingsJaRubric } from './rubric.ts'
  */
 export default defineSuite({
   name: 'readings-ja',
-  prompts: [readingsJaV1],
-  defaultPrompt: 'readings-ja@v1',
+  prompts: [readingsJaV2],
+  defaultPrompt: 'readings-ja@v2',
   inputSchema: z
     .strictObject({
       kind: z.enum(['bazi-full', 'ziwei-full', 'tarot-spread']),

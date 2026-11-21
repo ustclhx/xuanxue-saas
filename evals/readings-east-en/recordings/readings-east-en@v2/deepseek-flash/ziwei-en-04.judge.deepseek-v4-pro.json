@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:667a50f4fa0091835c8d1ad2ff1d357729b33dc7f6ac932e4a65b376d3687ce7",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Mostly matches the data accurately, with correct stars, palaces, transformations, and year placements. Minor issues: it says three auspicious stars in the Health Palace when only Zuo Fu and You Bi are present, and it briefly blurs the Wellbeing/Spirit Palace label with the Health Palace.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Nearly every section is anchored in specific chart elements: Tian Liang with Hua Quan, Tian Ji and Tai Yin in Wealth, Ju Men in Body/Spouse, Qing Yang and Di Jie in Career, and precise annual transformation placements. This would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions tied to the chart, such as mentoring use, budgeting for the Tian Ji/Tai Yin mind, conversation practices for Ju Men, and steady routines for Tian Fu. Each year includes clear lean-in and watch themes.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based. Uses tendency language rather than asserting specific events, avoids month- or day-level predictions, and health guidance stays habit-focused with a referral to a qualified professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English overall, but a small grammatical slip and some inconsistency in naming the Health/Welling/Spirit palaces may briefly confuse. Repeated motifs are within a normal range.\"\n    }\n  },\n  \"summary\": \"A highly personalized, warm, and actionable Zi Wei Dou Shu reading that is largely accurate and well structured, with minor numeric and labeling issues.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7935,
+    "outputTokens": 9126
+  },
+  "recordedAt": "2026-11-21T08:55:52.797Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:f54cf85df0763ef245b9f6b85d22bbb6cf2b78de6bd2673e1ed7ecae74249101",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"複数のデータ矛盾・捏造がある。月柱蔵干の中気を正官としているが、中気は丁正印で正官は残余の乙。日柱蔵干を「正縁の星」としているが、本気は丁正印・中気は己劫財で該当しない。空亡の記述で「未が月柱・日柱・時柱に重なる」とあるが、日柱の地支は午であり未ではない。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各節が命式の具体的要素（戊午・帝旺・正財・劫財・天乙貴人・空亡・五行パーセント・喜神木金水・乙亥大運など）にしっかり結びついており、他の命式には流用できない内容。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"散歩・金銭の仕分け・家事の分担・就寝習慣など具体的で実践しやすく、年ごとの節でも各年に「取り組むこと／注意すること」が概ね示されている。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"終始穏やかで傾向として述べており、断定や恐怖をあおる表現がない。月単位・日単位の予測もなく、医療的助言は医療機関を勧める形で適切。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"構成は明確で日本語として通じるが、途中に「naturally」という英語の混入があり、土の四五・九％などの数値表現の繰り返しもやや冗長。です・ます調も概ね守られているが、体言止めが散見される。\"\n    }\n  },\n  \"summary\": \"総じて命式への結びつきが強く、実践的な助言も豊富で、口調も穏やか。ただし蔵干の位置・正縁の星の捏造・空亡の地支の誤りなどデータと食い違う記述が複数あり、正確性で減点。可読性も英語混入によりわずかに下がる。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7697,
+    "outputTokens": 7082
+  },
+  "recordedAt": "2026-11-21T08:37:50.237Z",
+  "source": "recorded"
+}

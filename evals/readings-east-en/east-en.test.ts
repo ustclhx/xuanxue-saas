@@ -111,7 +111,7 @@ describe('样本与提示词', () => {
   it('套件版本分派到 <kind>.v4 的英文；其他组合与版本拒绝', () => {
     assert.equal(realVersion(CANDIDATE_VERSION, sample('bazi-en-01').input), 'bazi-full.v4')
     assert.equal(realVersion(CANDIDATE_VERSION, sample('ziwei-en-01').input), 'ziwei-full.v4')
-    assert.throws(() => realVersion('readings-east-en@v2', sample('bazi-en-01').input))
+    assert.throws(() => realVersion('readings-east-en@v1', sample('bazi-en-01').input))
     assert.throws(() =>
       realVersion(CANDIDATE_VERSION, { ...sample('bazi-en-01').input, locale: 'zh-Hant' }),
     )

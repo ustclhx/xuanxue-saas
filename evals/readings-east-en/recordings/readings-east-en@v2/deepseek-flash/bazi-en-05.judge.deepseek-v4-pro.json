@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:782673829c43c1fe6785d6c4b6724e2ed76da759c42f6f78a4cfc9f962be38c8",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems, branches, Ten Gods, hidden stems, stars, percentages, Luck Pillar years and annual relation types match the provided data closely; no invented chart elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in unique chart data—hidden stems, shensha, element percentages, Luck Pillar stems/branches, and annual relation types—making the reading highly personalised and not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Guidance and each year provide concrete, doable actions tied to the chart, such as weekly visible output, clear agreements, movement outdoors, and every yearly entry has a clear lean-in and watch item.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and cautious, uses tend/may/can, avoids specific event predictions, month- or day-level claims, investment/legal/medical directives, and includes an appropriate healthcare professional disclaimer.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, fluent natural English, short Chinese glosses only, no JSON leakage; repetition is minimal and purposeful, reinforcing key chart anchors.\"\n    }\n  },\n  \"summary\": \"A high-quality, accurate, personalised and actionable BaZi full reading that closely follows the chart data, remains within wellness-suitable boundaries, and is clearly structured for an English-speaking audience.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7735,
+    "outputTokens": 5151
+  },
+  "recordedAt": "2026-11-21T08:52:00.138Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:5c2b86549ed855e09cd350e4dde7d406d5077b518df4bc1ebe76cbf1d21bbcb2",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers match data exactly: life path 6, birthday 11, expression 3, soul urge 7, personality 5, personal years 5-9, pinnacles 4/4/8/4, challenges 0. No invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is firmly anchored in specific chart numbers and their combinations, such as life path 6, birthday 11, pinnacle 4, challenge 0, and each personal year, making it highly personalized.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Year-by-year sections offer concrete lean-in/watch points, and the orientation list provides doable, chart-tied actions like weekly commitment review and practicing small decisions.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based language; uses tendencies rather than asserting specific events; wellbeing only covers habits and recommends professional help; no investment, legal, or medical decisions; no religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Latin American Spanish with 'tú'; however, core meanings of the numbers repeat across several sections, making it somewhat long-winded.\"\n    }\n  },\n  \"summary\": \"A highly accurate, specific, actionable, and warm numerology report. It is well-structured in Spanish but slightly repetitive in explaining the central numbers.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4537,
+    "outputTokens": 4430
+  },
+  "recordedAt": "2026-11-21T08:34:35.790Z",
+  "source": "recorded"
+}

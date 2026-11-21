@@ -61,12 +61,12 @@ export const ALL_READING_COMBOS: readonly string[] = [...READING_COMBOS, ...ES_R
 /**
  * 日语详批（openspec add-locales-eu-ja tasks 4.8）由独立套件 `readings-ja` 评测（evals/readings-ja/），
  * 样本不进本套件：本套件的门槛按上面六个组合整批计算，混入日语样本会改变已录制版本的分母。
- * 两个套件共用这里的复算、渲染、检查与被评正文转换；套件版本 `readings-ja@v1` 只接受日语组合。
+ * 两个套件共用这里的复算、渲染、检查与被评正文转换；套件版本 `readings-ja@v2` 只接受日语组合。
  */
 export const READING_JA_COMBOS = ['bazi-full.ja', 'ziwei-full.ja', 'tarot-spread.ja'] as const
 export type ReadingJaCombo = (typeof READING_JA_COMBOS)[number]
-export const JA_SUITE_VERSION = 'readings-ja@v1'
-/** `readings-ja@v1` 中每个组合的真实提示词版本（catalog.ts 的 ja 语言） */
+export const JA_SUITE_VERSION = 'readings-ja@v2'
+/** `readings-ja@v2` 中每个组合的真实提示词版本（catalog.ts 的 ja 语言） */
 export const JA_VERSIONS: Readonly<Record<ReadingJaCombo, string>> = {
   'bazi-full.ja': 'bazi-full.v4',
   'ziwei-full.ja': 'ziwei-full.v4',

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:2d5baee3b00fdf005ebe5dd237e2e1f5a4702c303119c84ff1588c0aa7b74683",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"すべての柱・干支・通変星・五行・十二運星・天中殺・駅馬・大運・年運の数字と星が data と一致しており、捏造や矛盾が見当たりません。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"日干壬・申月・午支・偏官・偏印・正財・駅馬・天中殺・各年ごとの干支と刑/合など、この命式固有の要素で具体的に記述されています。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"各年ごとに「伸ばすこと・気をつけること」があり、習慣・仕事・金運・恋愛・健康の具体的な行動提案が命式と結びついています。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"断定を避け、恐れをあおらず、天中殺も見直しの機会と促し、健康は生活習慣と医療相談に限定。投資・法律・医療判断の助言はありません。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"自然な日本語の敬体（です・ます）で、構成が明確で重複も少なく、簡体字や外来語の混入もありません。\"\n    }\n  },\n  \"summary\": \"候補出力は data と正確に一致し、命式固有の要素を活かした具体的で行動可能な内容です。温かく恐れをあおらない表現で、日本語としても読みやすく、全項目で高い評価に値します。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7581,
+    "outputTokens": 7810
+  },
+  "recordedAt": "2026-11-21T08:37:52.666Z",
+  "source": "recorded"
+}

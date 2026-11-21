@@ -1,68 +1,68 @@
 {
-  "readings-east-en@v1": {
+  "readings-east-en@v2": {
     "bazi-en-01": {
       "input": "sha256:b1144f3cbb6ebdec92ee6f867d6d27d94e3e0c328ca5a33e3f5c338bbc4f100d",
-      "rendered": "sha256:3b3c30cff3fb7086da7f2d1ea7794e6413c515c2fee808721d229a5fa3cc1e77"
+      "rendered": "sha256:1911316d65899859751a68f23739261ab364fe29e6f56208b69997212bb4098d"
     },
     "bazi-en-02": {
       "input": "sha256:bbd5732678855f690599da2063a42c7dfb4fb9b3092d718cbcc1c7517e6a7eb5",
-      "rendered": "sha256:87a4d8226f69d5c1435efe8e144022dd5c389709f52b0ce06ee41d4a282d6b48"
+      "rendered": "sha256:24ff9eeb73e5bbb790dbb7ae2a79c1f24aaacbeef7fb43c738a4fba483b5b4f0"
     },
     "bazi-en-03": {
       "input": "sha256:ad4488eddd62d58c53c293d02a57269a02b41297ca5208613b9022a961cc45be",
-      "rendered": "sha256:cc002dc4f1734b79792a878cecae4d449717642fc7dc0611e49cd624a047db72"
+      "rendered": "sha256:41cf003be9bad30bbc5f8afaa5500f28a3e8cc332685c01ecf3082fd17e460eb"
     },
     "bazi-en-04": {
       "input": "sha256:f381236ec09b76c93e59d8eebafb4cfe591a6322fd357b31fd8c69c0ec3a715d",
-      "rendered": "sha256:f4b390d8e3e60afc3edb6a525236da7b7537216a3abff80244af68e133e3b762"
+      "rendered": "sha256:862e4eb0e9830a599cf82fbb5d4f459190e3436d4284b4fdcf05dbeb86bf6b65"
     },
     "bazi-en-05": {
       "input": "sha256:33306cc7487259ffbbb449082cf0d9bf39d6cd2e396731eb072e94570c14f16a",
-      "rendered": "sha256:1ee26ffadacac2c993bc22acaf03b73775e15adefabfac01e5b6a8841d9796a2"
+      "rendered": "sha256:b6fb193ef405113ac14bf76ecd596e208cf1b9efc68849d9991e1d4ec9ecc3f2"
     },
     "bazi-en-06": {
       "input": "sha256:174ceebb0ea580ca673f8fdc7c5cbf00e18ca81a0cd1e8a0f5867862a0e10856",
-      "rendered": "sha256:1eec2e396b5a51029803ce7e0df35e9226afa120c8d8ea6abf28d2d539dfaac4"
+      "rendered": "sha256:8f6f3621e37618317d279e39f06dd8b88b06c85f49a34bca6fc3b7f60d3d28fb"
     },
     "bazi-en-07": {
       "input": "sha256:c2a65b3cbc01ed472a3474af6f08e161c5c0c2110ff867f36bc994cd6621ea21",
-      "rendered": "sha256:adbdf9e5f136607cc5ca0686edaac30e332dc62eb573a9800ae100ca4a35235c"
+      "rendered": "sha256:56d52f9ed77090a6eac46385f3df272aa150e95eb438ff22d71497cf8d3f6042"
     },
     "bazi-en-08": {
       "input": "sha256:99b5087530ffe12897d4565b01f918ade8bfb54a74e24b5f94d6d263efb046b0",
-      "rendered": "sha256:1a14b53a9678df8fedca6f046f55c3938893c055ed735c7be2f3e13cb78269d9"
+      "rendered": "sha256:00a2cbce8d4478bd67dc3b384e41fb6d671bac8bdfd68f765b3f000afe1c6739"
     },
     "ziwei-en-01": {
       "input": "sha256:66b2a9080a1134bf57c598b5d784b9da15d727e4d8c6343e9640cf206a073f6e",
-      "rendered": "sha256:cb6d0faaeab193fd1b4f55fff634ff95535d8e0f49fa7854c30cd31d4ceffe41"
+      "rendered": "sha256:e0311aa0cbcdb536b234471d4609b11ddf07e54e5478af7c2e4a7dc8405e8177"
     },
     "ziwei-en-02": {
       "input": "sha256:fd86aa7c4d0b0a62f3e2a8913d11327d254ede9a266639df561f8a7090b532e9",
-      "rendered": "sha256:028e74269447309ecaf4141baf6114a644288361385a16a65f582074950fb56b"
+      "rendered": "sha256:b34a6c3d3346f255f5488df929f5382e06d22d245ed59919c5c137200dda6ac0"
     },
     "ziwei-en-03": {
       "input": "sha256:fac4d787b15b7e61d46a0618476741c47dd78800dbd54f547604e998f3bb5096",
-      "rendered": "sha256:742cac656d8590fa7a5f97194cb69181d46e7b2e980493f0014cc20370d47e5c"
+      "rendered": "sha256:0cd65344a68d8161b9343ce6cfaec979c01bf6969c968420ea95291d4ac9b940"
     },
     "ziwei-en-04": {
       "input": "sha256:b72acc24108702a7aef784743ebae21802883b1ba7983e430c779ae238b4a893",
-      "rendered": "sha256:e7db40cbbe666b56f336c5be738e299ea66b6c0078e57a1d19997e0d91c475c0"
+      "rendered": "sha256:1f4773f312545e1f4044f7f8e3fd250121bd52e29a5e83fc3edfa472c582705d"
     },
     "ziwei-en-05": {
       "input": "sha256:1fdcb963bf5b3b310f697cc2f68621347b1aa202d3a038145b6c22af7d2c43a2",
-      "rendered": "sha256:868702e2fce931b02adb3826faebb76e56190d1b8966ca2a0d52c89fb72611c0"
+      "rendered": "sha256:d91cae2497732313643c8128cee0e736165db6469611c46660f109d5af784fb0"
     },
     "ziwei-en-06": {
       "input": "sha256:bf0c7bff7b8797735d9e8e1cae8e5abbf544c245a26cb852a0698c78f4dec48d",
-      "rendered": "sha256:d2e51a56e325c1b26392e1f957f3ea0614e0f0ea179525077566c6d23e7490f0"
+      "rendered": "sha256:ee3c6142bdd3f9bb455e90d0fbf968ae892d1a4f91b454cb97043210ea557e34"
     },
     "ziwei-en-07": {
       "input": "sha256:e40fc04769405f16eab65cb2c3219641fc7baa5070e7fc4fe9f51d637a0027e7",
-      "rendered": "sha256:24916a712262da98705e5c407cd66ee141156d75a2352e86886938e84920ba70"
+      "rendered": "sha256:f5b79f6cc71864b9aa4e27d29f98faabd08fabf00d62ebb7ba5f1a4bed15f989"
     },
     "ziwei-en-08": {
       "input": "sha256:8df98f3384e22dbb7f7d1256a0cc73dabb0468966191c1aabf55ce61660e5e0d",
-      "rendered": "sha256:14bf5333acc850539f13b33490b55ff55692262e9a93e662357ae6db7ee3f33d"
+      "rendered": "sha256:097104856351045aa858a662a9c5f26cc8beeaa51f01d4308ea5437d0bcbff4c"
     }
   }
 }

@@ -8,6 +8,8 @@ import { toTraditional } from './hant.ts'
  * rev2 评测 48 份中有 2 份硬性失败都是单字笔误——简中报告夹一个繁体「變」、年份标题把 2027 丁未写成丁酉。
  * 提示词已有对应约束，模型仍偶发，因此在保存前按数据做无歧义的修正：
  * - zh-Hans：常用「仅繁体」字换成简体（`hans-chars.ts`，只收无歧义的字）；zh-Hant / ko / en 不做字形转换；
+ * - ja 八字：中文通变星名换成日本四柱推命的叫法（正印→印綬、七殺→偏官；紫微的主星七殺不动）。2026-11-21 日语真实评测 24 份中
+ *   2 份因写了「正印」硬性失败，提示词已明令禁止仍偶发，且两词在日语报告里没有其他含义；
  * - 绑定公历年份的干支（`### 2027 丁未`、`2027年（丁未）`、`### 2027 정미(丁未)`、`2027년 정미년`）
  *   与该年流年干支不一致时改正；数字命理 `### 2027 · Personal Year 5` 的个人年数同理。
  *   标题里有两个以上不同的干支、无法判断改哪一个时不改，计入 unresolved 由调用方记录。
@@ -31,6 +33,8 @@ export interface GuardReport {
   readonly personalYear: number
   /** 无法安全改正的年份标题处数 */
   readonly unresolved: number
+  /** ja 中换成日本叫法的中文术语处数 */
+  readonly terms: number
 }
 
 export interface GuardResult {
@@ -38,7 +42,24 @@ export interface GuardResult {
   readonly report: GuardReport
 }
 
-const EMPTY: GuardReport = { glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0 }
+const EMPTY: GuardReport = { glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0, terms: 0 }
+
+/** ja：中文写法 → 日本四柱推命写法（只收一一对应、日语里无其他含义的词） */
+const JA_TERMS: readonly (readonly [string, string])[] = [
+  ['正印', '印綬'],
+  ['七殺', '偏官'],
+]
+
+function toJapaneseTerms(text: string): { text: string; count: number } {
+  let count = 0
+  let result = text
+  for (const [from, to] of JA_TERMS) {
+    const parts = result.split(from)
+    count += parts.length - 1
+    result = parts.join(to)
+  }
+  return { text: result, count }
+}
 
 const STEM_HANZI = '甲乙丙丁戊己庚辛壬癸'
 const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
@@ -315,7 +336,7 @@ export function fixYears(
   return { text: lines.join('\n'), ...counter }
 }
 
-/** v4 兜底：zh-Hans 字形 + 年份数据一致；不适用的版本原样返回 */
+/** v4 兜底：zh-Hans 字形、ja 术语 + 年份数据一致；不适用的版本原样返回 */
 export function guardReading(
   text: string,
   options: {
@@ -327,10 +348,17 @@ export function guardReading(
   if (!guardApplies(options.promptVersion)) return { text, report: EMPTY }
   let current = text
   let glyphs = 0
+  let terms = 0
   if (options.locale === 'zh-Hans') {
     const simplified = toSimplified(current)
     current = simplified.text
     glyphs = simplified.count
+  }
+  // 只对八字：紫微斗数里「七殺」是主星名，不能换
+  if (options.locale === 'ja' && options.promptVersion.startsWith('bazi-full.')) {
+    const japanese = toJapaneseTerms(current)
+    current = japanese.text
+    terms = japanese.count
   }
   const fixed = fixYears(current, options.years, options.locale)
   return {
@@ -340,6 +368,7 @@ export function guardReading(
       ganzhi: fixed.ganzhi,
       personalYear: fixed.personalYear,
       unresolved: fixed.unresolved,
+      terms,
     },
   }
 }
@@ -360,5 +389,5 @@ export function deliveredReadingText(
 }
 
 export function guardChanged(report: GuardReport): boolean {
-  return report.glyphs + report.ganzhi + report.personalYear > 0
+  return report.glyphs + report.ganzhi + report.personalYear + report.terms > 0
 }

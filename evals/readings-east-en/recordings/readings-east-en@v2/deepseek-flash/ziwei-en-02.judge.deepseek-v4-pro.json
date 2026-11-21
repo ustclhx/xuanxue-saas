@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:085cfe5510f3813f3eab5ab0e786074bc38c7dc44e2508efc1d9a9cbcb2efa6e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"Several placements contradict the data: Dikong is incorrectly placed in the Career Palace instead of Dijie; Ling Xing is said to sit in the Body/Travel Palace when it is in Wealth; 2028 Tan Lang Hua Lu is assigned to Friends instead of Siblings; Wen Qu is said to receive Hua Ke when only Wen Chang does.\"\n    },\n    \"specificity\": {\n      \"score\": 4,\n      \"reason\": \"Sections are mostly anchored in chart-specific stars, palaces, and transformations, though some interpretations are generic and undercut by the misplacements.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Guidance is concrete and chart-tied: daily wind-down ritual, financial pause rules, asking friends for help, and each year-by-year section has clear lean-into/watch items.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fearful throughout; describes tendencies without asserting specific events, recommends professional health care, and avoids investment/legal/medical directives.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English with appropriate pinyin and short character glosses; some repetition across sections and nonstandard palace names like Wellbeing Palace slightly reduce clarity.\"\n    }\n  },\n  \"summary\": \"A well-structured and personalized Zi Wei Dou Shu reading, but several star and transformation placements are inaccurate and should be corrected for full reliability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7898,
+    "outputTokens": 5656
+  },
+  "recordedAt": "2026-11-21T08:53:55.813Z",
+  "source": "recorded"
+}

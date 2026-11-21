@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:5c65de12bc6440c41fcb410b34fafbe93de9a5f417b58826e5e5ee56f6d429e0",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Most chart elements match the data accurately (ten gods, elements, percentages, shensha, twelve stages, annual stems/branches and relations). One notable error: the 2030 己巳 decade is described as having 丁 as the main branch stem and 印綬, while the data lists the branch ten god as 偏印 (and does not specify 丁 as its main stem). The 天中殺/空亡 statement uses 辰巳 from tenchusatsu but does not address the separate kongWang entry targeting 子/丑 on the hour pillar.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in chart-specific elements: day master 戊, month 亥, water 47.6%, favorable fire/earth, year pillar 羊刃, day branch 華蓋, twelve stages (墓, 帝旺, 絶, 胎), and specific annual stems/branches/ten gods with their relations. The content would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart (warm drink and light exercise for fire/earth, document procedures, set monthly expense limits, delay decisions, reserve alone time). Each year 2026–2030 has a clear lean-in and watch item.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; avoids month- or day-level predictions and does not assert specific events. Health advice covers habits only and recommends consulting a medical professional. No investment, legal, medical decisions, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings and fluent polite Japanese です・ます style. Uses appropriate kanji and terminology (通変星, 蔵干, 十二運星, 天中殺). No Simplified Chinese characters, leaked JSON field names, or mixed scripts. Repetition is minimal and functional.\"\n    }\n  },\n  \"summary\": \"The report is highly specific, actionable, and natural Japanese with a warm tone. Only a minor accuracy issue remains in the 2030 decade branch ten god description.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8122,
+    "outputTokens": 9235
+  },
+  "recordedAt": "2026-11-21T08:38:20.928Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3322921cb4d2e0cebb925d963777e6f275aa00781e7ca3da23f17203d0c24d2c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Nombres, posiciones y orientaciones de las cartas coinciden con data; solo hay un desliz al decir 'dos Arcanos Mayores' cuando en la tirada hay tres (El Carro también es mayor).\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección ancla la interpretación en cartas, posiciones y palabras clave concretas del data, sin contenido genérico.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas, realizables y están ligadas a cartas específicas (Ocho de Oros, Diez de Bastos, As de Bastos, Seis de Oros, etc.).\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y matizado, centrado en tendencias; no afirma eventos concretos ni usa miedo; incluye advertencia profesional al final.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara, español neutro latinoamericano con 'tú', sin palabras extranjeras ni repetición excesiva.\"\n    }\n  },\n  \"summary\": \"Lectura fiel a la tirada, específica y accionable, con solo un desliz menor en el conteo de Arcanos Mayores.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3986,
+    "outputTokens": 2938
+  },
+  "recordedAt": "2026-11-21T08:35:57.149Z",
+  "source": "recorded"
+}

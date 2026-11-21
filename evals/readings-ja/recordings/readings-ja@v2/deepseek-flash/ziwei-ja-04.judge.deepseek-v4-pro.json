@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:7cabdc3d80e1b13176ea2413372a3f1338fb055668d05411ce5c30a8b2ef5b3f",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Mostly accurate; all cited stars, palaces, mutagens, and years match the data. Only one error: 2030 is described as the closing year of the 子女宮 decade, but that decade is 35-44 and 2030 is age 41, so not the final year.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly personalized; every section cites specific palaces, stars, mutagens, branches, and brightness levels from the chart, and year-by-year sections include exact flow 四化 placements.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete suggestions tied to the chart: for each year, there is something to lean into (e.g., 化禄) and something to watch (e.g., 化忌), and overall advice lists practical habits based on palace configurations.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses phrases like '〜やすいでしょう', '気を配りたい', '習慣を大切に'; no specific events, no month/day predictions, recommends medical consultation in health section, no investment/legal advice.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure with section headings, polite です・ます style, Japanese kanji; one foreign word 'routine' in English and minor repetition of key chart points across sections.\"\n    }\n  },\n  \"summary\": \"Overall a highly accurate and personalized Zi Wei Dou Shu reading in natural Japanese. The chart elements are correctly used, advice is actionable, and tone is compliant. Minor issue: the phrase about 2030 being the end of the decade is chronologically inaccurate, and a single English word 'routine' appears.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 9075,
+    "outputTokens": 5189
+  },
+  "recordedAt": "2026-11-21T08:48:16.709Z",
+  "source": "recorded"
+}

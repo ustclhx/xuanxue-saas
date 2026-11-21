@@ -89,4 +89,12 @@ describe('合规规则检查', () => {
     const text = '## 總論\n\n日主甲木，性格正直。\n\n## 建議\n\n- 保持規律作息\n- 多與朋友交流'
     expect(checkCompliance(text, 'zh-Hant')).toEqual({ content: text, violations: [] })
   })
+  it('西语：否定句里的 diagnóstico 是免责说明不替换，肯定句照常替换', () => {
+    const ok = 'Las cartas son una herramienta de reflexión, no un diagnóstico.'
+    expect(checkCompliance(ok, 'es').violations).toEqual([])
+    expect(checkCompliance('No sustituye a un diagnóstico médico.', 'es').violations).toEqual([])
+    expect(checkCompliance('Este año podrías recibir un diagnóstico.', 'es').violations).toEqual([
+      { rule: 'medical', block: 0 },
+    ])
+  })
 })

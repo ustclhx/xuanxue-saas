@@ -746,8 +746,8 @@
         "reason": "no usar el posicionamiento de «entretenimiento»"
       },
       {
-        "regex": "\\b[Pp]asatiempos?\\b",
-        "reason": "no usar el posicionamiento de «entretenimiento»"
+        "regex": "\\b(?:[Cc]omo|[Ee]s|[Ss]on|[Ss]er|[Ss][oó]lo|[Ss]implemente|[Ss]imple|[Mm]ero)\\s+(?:un\\s+|una\\s+forma\\s+de\\s+)?(?:simple\\s+|mero\\s+)?pasatiempos?\\b|\\b[Pp]asatiempos?\\s+(?:divertid|entretenid|sin\\s+m[aá]s)",
+        "reason": "no presentar la lectura como pasatiempo («un curso, un pasatiempo, un grupo» como sugerencia de hábito sí se permite)"
       },
       {
         "text": "para pasar el rato",

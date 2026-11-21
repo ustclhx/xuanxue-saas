@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:223d81a4340894794913571c218b5b2976c2f1f07478908daaf0aacdc74cafdc",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Todos los nombres de cartas, posiciones y orientaciones coinciden con data, pero el recuento de palos y arcanos es incorrecto: dice que hay tres Espadas y tres Copas cuando en realidad hay dos de cada una, y menciona 'dos arcanos mayores' aunque hay tres (La Luna, La Fuerza, El Juicio).\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en cartas concretas de esta tirada, con referencias a posiciones, orientaciones y conexiones específicas (Cuatro de Espadas, Ocho de Espadas invertida, Caballero de Oros, etc.); no resultaría intercambiable con otra lectura.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Los próximos pasos son concretos, factibles y ligados a las cartas: registrar síntomas, consultar a un profesional, reservar pausas, ordenar prioridades y apoyarse en personas fiables.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y prudente: aclara que el tarot no diagnostica, recomienda ver a un profesional, evita afirmaciones de eventos específicos y no usa lenguaje alarmista ni encuadres religiosos.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara con secciones bien diferenciadas, español neutro latinoamericano con 'tú', sin repeticiones excesivas ni palabras extranjeras.\"\n    }\n  },\n  \"summary\": \"Lectura de tarot muy personalizada, accionable y con tono cuidadoso. Único punto débil: imprecisiones en el conteo de palos y arcanos mayores.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3859,
+    "outputTokens": 3396
+  },
+  "recordedAt": "2026-11-21T08:36:11.519Z",
+  "source": "recorded"
+}

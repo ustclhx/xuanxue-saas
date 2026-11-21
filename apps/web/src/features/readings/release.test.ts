@@ -74,7 +74,8 @@ describe('东方站英文提示词（v4 的英文）', () => {
       expect(system).toContain(definition.healthSection?.notice)
       for (const term of item.terms) expect(system).toContain(term)
       expect(system).toContain('does not predict the future')
-      expect(system).toContain('entertainment, guaranteed or always accurate')
+      expect(system).toContain('entertainment or always accurate')
+      expect(system).toContain('Do not use the word guarantee in any form')
       // 逐年标题保留汉字干支，guard.ts 的年份兜底与评测的数据一致检查依赖它
       expect(system).toContain('### 2026 丙午 · Bing Wu')
       const recomputed = definition.recompute(BIRTH, NOW)

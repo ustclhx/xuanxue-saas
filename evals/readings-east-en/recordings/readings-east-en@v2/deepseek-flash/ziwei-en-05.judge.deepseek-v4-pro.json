@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:1e1d776d5e582ccadd4d75a1e736a526e44064a2ef020436edc794a36630c60e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 1,\n      \"reason\": \"Repeatedly misstates the Career Palace as empty with no main stars and claims it borrows Tian Ji from the Spouse Palace, though the data lists Tian Ji in Career and Tian Liang (not Tian Ji) in Spouse; also places Ling Xing in the Wellbeing/Fu De Palace and says Tian Kui is absent from Travel despite data placing it there, and claims Hua Ji touches Health in 2028. Multiple contradictions with the supplied chart data and invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Sections are heavily anchored in specific palaces, stars, brightness levels, auxiliary stars, Four Transformations and annual palaces from this chart; the output would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete, doable practices tied to the chart (fixed wind-down point, block thinking time, written agreements) and each year gives clear lean-into and watch-out notes.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language; frames tendencies without asserting specific events; no month- or day-level predictions; wellbeing covers habits only and recommends a healthcare professional; avoids investment, legal, medical, and religious directives.\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"Clear structure but noticeable repetition across sections (Career empty/borrowed Tian Ji and Wellbeing star list repeated), some long-winded passages, and a typo ('Travay').\"\n    }\n  },\n  \"summary\": \"A detailed and highly personalized Zi Wei Dou Shu report with strong actionable and tonal compliance, but significantly undermined by repeated factual errors about key palaces and stars that contradict the supplied chart data, plus moderate repetition and minor typographical issues.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 9253,
+    "outputTokens": 6395
+  },
+  "recordedAt": "2026-11-21T08:56:01.116Z",
+  "source": "recorded"
+}

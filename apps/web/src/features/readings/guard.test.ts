@@ -4,6 +4,7 @@ import {
   fixYears,
   type GuardYear,
   guardApplies,
+  guardChanged,
   guardReading,
   readingGuardYears,
   toSimplified,
@@ -191,7 +192,19 @@ describe('适用范围', () => {
       years: V4.years,
     })
     expect(old.text).toBe(source)
-    expect(old.report).toEqual({ glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0 })
+    expect(old.report).toEqual({ glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0, terms: 0 })
+  })
+
+  it('ja 八字：正印、七殺换成印綬、偏官；紫微主星七殺与其他语言不动', () => {
+    const source = '月柱の天干に正印、時柱に七殺があります。'
+    const BAZI = { ...V4, promptVersion: 'bazi-full.v4' }
+    const ja = deliveredReadingText(source, { ...BAZI, locale: 'ja' })
+    expect(ja.text).toBe('月柱の天干に印綬、時柱に偏官があります。')
+    expect(ja.report.terms).toBe(2)
+    expect(guardChanged(ja.report)).toBe(true)
+    expect(deliveredReadingText(ja.text, { ...BAZI, locale: 'ja' }).report.terms).toBe(0)
+    expect(deliveredReadingText('正印', { ...BAZI, locale: 'zh-Hant' }).text).toBe('正印')
+    expect(deliveredReadingText('命宮に七殺', { ...V4, locale: 'ja' }).text).toBe('命宮に七殺')
   })
 
   it('可重复调用：已修正的正文再次兜底不变', () => {
@@ -200,7 +213,7 @@ describe('适用范围', () => {
     expect(once.text).toBe('## 大限与流年\n\n### 2027 丁未\n\n2027年（丁未）变化')
     const twice = deliveredReadingText(once.text, { ...V4, locale: 'zh-Hans' })
     expect(twice.text).toBe(once.text)
-    expect(twice.report).toEqual({ glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0 })
+    expect(twice.report).toEqual({ glyphs: 0, ganzhi: 0, personalYear: 0, unresolved: 0, terms: 0 })
   })
 
   it('繁中先补字形（所有版本原有行为）再兜底', () => {

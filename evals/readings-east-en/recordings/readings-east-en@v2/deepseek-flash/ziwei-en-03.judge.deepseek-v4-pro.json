@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:cf861c3311dd7ad5790a75be317fdfefe2cc6c13e833766535e577081323b37a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly accurate, but there are clear data errors: it says the Wealth Palace faces the Wellbeing Palace and places Di Jie there (opposite Wealth is Spirit, and Di Jie is in Spouse); it also misstates the major-period transition—2029 is already in the Children decade, not Spouse, and 2030 is not the transition year.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements—palaces, stars, transformations, and auxiliary placements—and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and doable (one-week pause on big decisions, protected partner time, wind-down routine), and each year includes a lean-in and a caution tied to annual transformations.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful, habit-focused; no month- or day-level predictions, includes a healthcare disclaimer, and avoids investment, legal, medical, or religious directives.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent English with helpful pinyin/character glosses; somewhat long and a few themes are repeated across sections.\"\n    }\n  },\n  \"summary\": \"Overall a highly personalised and fluent reading with strong actionable advice, but a few palace and decade-period data slips reduce accuracy.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8176,
+    "outputTokens": 6022
+  },
+  "recordedAt": "2026-11-21T08:54:33.231Z",
+  "source": "recorded"
+}

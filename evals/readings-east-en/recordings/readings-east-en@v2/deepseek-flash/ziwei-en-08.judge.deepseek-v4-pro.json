@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:7c2bf4f55e198f0ff29cd9d2de80fa6e4b1e333608087092bfc9f3cd189d7aec",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Mostly accurate against the supplied chart; however, one star is misspelled as 'Qian Yang' instead of Qing Yang, and the Wellbeing Palace is described as 'neighbouring' the Health Palace, which is not supported by the chart layout.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section draws on specific palaces, major stars, transformations, and auxiliary stars from the chart, making the reading clearly personal rather than generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Yearly sections each provide concrete lean-in and watch points tied to the annual palaces and transformations; the final guidance is practical and chart-based.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tentative language, avoids month- or day-level predictions, and appropriately recommends a healthcare professional for health concerns.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear headings, logical flow, and fluent English; Chinese characters are used as brief glosses. An isolated pinyin slip ('Qian Yang') slightly reduces polish.\"\n    }\n  },\n  \"summary\": \"The reading is highly personalised, well-structured, and mostly accurate, with concrete chart-based guidance and a warm tone. Minor issues include one misspelled star name and a slightly inaccurate 'neighbouring' descriptor, but these do not materially undermine the output.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8212,
+    "outputTokens": 9953
+  },
+  "recordedAt": "2026-11-21T08:58:29.716Z",
+  "source": "recorded"
+}

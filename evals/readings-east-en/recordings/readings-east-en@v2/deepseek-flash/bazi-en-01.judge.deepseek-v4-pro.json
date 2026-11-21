@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:c5bcf7b05bee40bf9fec6edb2f7654af32be402ba595200e377ceb5fca2ab671",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Mostly consistent with the provided data, with a minor inaccuracy in the 2030 Void attribution: the report says Xu corresponds to a Void branch attached to the day pillar, while data shows the year-based Void affects the day pillar through Hai. The Chen hidden stem Wu is also inferred rather than explicitly present in data, but no major contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Deeply chart-specific: pillars, ten gods, hidden stems, Sheng Sha stars, luck pillar details, and each year's stems, branches, relations and favorable/unfavorable elements are woven throughout; almost no generic filler.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable guidance is tied to chart elements; each year has clear lean-in and watch items, and the final guidance list offers practical, focused habits.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based, consistently uses suggestive language ('may', 'can', 'tends to'), avoids asserting specific events, keeps wellbeing to habits, and includes a professional-healthcare disclaimer.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clearly structured with logical sections, fluent English, appropriate pinyin glosses, and no repetition that harms readability; length is appropriate for a full reading.\"\n    }\n  },\n  \"summary\": \"A strong, highly personalised BaZi report that is warm, actionable, and clearly organised. Accuracy is high, with only a minor Void-related inconsistency in 2030.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8155,
+    "outputTokens": 7302
+  },
+  "recordedAt": "2026-11-21T08:50:55.428Z",
+  "source": "recorded"
+}

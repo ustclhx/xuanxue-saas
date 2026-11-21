@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:ffb2480d566c46c104daa3c6484109e58684811cfa1e1c2b070ee470c5876a40",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly accurate and well-sourced, but the Wealth section invents an Indirect Wealth as the main hidden stem in the day branch Shen (data shows Geng as Indirect Resource) and incorrectly calls earth the wealth element for a Ren Day Master.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly personalized: every section is anchored in specific chart elements such as Day Master Ren, 42.3% water, Goat Blade on Zi, Nobleman on Chou, favorable elements, current Luck Pillar Ren Wu, and the yearly relation details.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions tied to the chart; every year has a clear lean-into and watch-out theme, and the guidance section gives practical habits.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, never fear-based, uses tentative language, no specific event assertions, no month/day-level predictions, and wellbeing guidance ends with a recommendation to consult a qualified professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with headings, fluent English, appropriate length, no excessive repetition, and Chinese characters only as short pinyin glosses.\"\n    }\n  },\n  \"summary\": \"Excellent overall output: highly personalized, actionable, and readable. The main weakness is accuracy in the Wealth section, which misidentifies a hidden stem ten god and a favorable element.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8241,
+    "outputTokens": 5128
+  },
+  "recordedAt": "2026-11-21T08:50:35.663Z",
+  "source": "recorded"
+}

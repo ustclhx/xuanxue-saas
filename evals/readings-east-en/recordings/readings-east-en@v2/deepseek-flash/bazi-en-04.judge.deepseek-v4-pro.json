@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:1f775943fb5b68963e985c5d952f6df491c2636f3cb6b7b5b41f4680ea567321",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems, branches, hidden stems, Ten Gods, elements, Luck Pillars, stars and annual relations match the provided data; no invented chart elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific pillars, hidden stems, favourable/unfavourable elements, shensha and annual relations; the text would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"The year-by-year and guidance sections give concrete, chart-tied actions and cautions, such as pacing output in 2026, formalising in 2029, and protecting rest and cash flow.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, probabilistic language throughout; avoids specific event predictions, fear, medical/legal/investment directives, and keeps wellbeing to habits with a professional referral.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent English, minimal repetition, pinyin/Chinese only as short glosses, and appropriate length for a full BaZi reading.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, personalized, actionable, and well-structured. It consistently follows the provided chart data and remains warm and compliant.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8480,
+    "outputTokens": 9202
+  },
+  "recordedAt": "2026-11-21T08:51:21.129Z",
+  "source": "recorded"
+}
