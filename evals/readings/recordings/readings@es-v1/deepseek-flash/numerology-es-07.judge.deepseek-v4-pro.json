@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:0a90bbc0e2b818317a9b60274fd3cbd92b18fa4be6847f68d0809f3e290f8e1b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, pinnacles, challenges, personal years and master number flags match the provided data exactly; nothing is invented or contradicted.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements (life path 8, soul urge 7, personality 1, current pinnacle 7, challenge 1, personal years 8/9/1/11/3) and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions are tied to the chart, and each year-by-year entry includes something to lean into and something to watch, plus a practical orientation list.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based language; uses probabilistic phrasing (puede, conviene, suele) and avoids specific event predictions, month/day-level forecasts, financial/legal/medical instructions, and religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent neutral Latin American Spanish with expected terminology, but the current pinnacle/challenge (7/1) is repeated across several sections, making the text slightly repetitive.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, specific, actionable, and tone-compliant. The only minor issue is repetition of the current pinnacle and challenge across sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4828,
+    "outputTokens": 2454
+  },
+  "recordedAt": "2026-11-21T08:34:14.473Z",
+  "source": "recorded"
+}

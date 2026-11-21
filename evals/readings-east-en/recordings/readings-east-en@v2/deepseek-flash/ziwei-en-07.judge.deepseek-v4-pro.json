@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:0109dd39af999765f07bd918080372191099c452faa7348de3218d066dcd6052",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Most chart details are correct, but the Wealth section wrongly calls the opposite palace the Wellbeing Palace and places Wu Qu/Tian Xiang there, and the 2030 decade transition is unclear against the given decade palace data.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific stars, palaces, stems, branches, transformations and year pillars from this chart; it would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable and tied to chart features, and each year has clear lean-into and watch items.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language throughout; avoids asserting specific events and includes appropriate health professional guidance without fear-based or directive claims.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent English, appropriate length, consistent terminology and minimal pinyin glosses; no disruptive repetition or foreign-script issues.\"\n    }\n  },\n  \"summary\": \"A detailed, strongly personalized Zi Wei reading with clear structure and actionable guidance. A few accuracy issues around palace relationships and transition wording prevent a perfect score.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8258,
+    "outputTokens": 6341
+  },
+  "recordedAt": "2026-11-21T08:57:00.062Z",
+  "source": "recorded"
+}

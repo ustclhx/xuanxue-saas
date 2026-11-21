@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:3e674defa15c518866fd8c03221364c02916ffb193e8b794df35531636d289d4",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All pillars, Ten Gods, elements, percentages, stars, Luck Pillars and annual relations cited match the provided data; no invented chart elements or contradictions found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart markers such as Gui Day Master, Xin/Mao pillars, Metal/Water/Fire/Earth percentages, Wu Zi and Ding Hai Luck Pillars, annual relations, and named stars like Nobleman, Scholar, Canopy, Yang Ren and Kong Wang.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and chart-linked: visible weekly Fire activity, taking a structured role in the Wu Zi pillar, contacting mentors, setting publish points, and naming needs in 2027/2029; each year has clear lean-into and watch guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and non-deterministic, using 'tends to,' 'may feel,' and 'plausible'; no specific events, no month/day-level predictions, wellbeing covers habits only and recommends consulting a professional, and no prohibited topics appear.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure and headings, terms briefly explained, pinyin glosses appropriate, fluent English, no leaked JSON or camelCase; minor repetition of core percentages does not disrupt readability.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, specific, actionable, and well-written. It grounds every section in the chart data, explains terms for newcomers, uses warm non-fearful language, and provides concrete, chart-consistent guidance for each year and life area.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8725,
+    "outputTokens": 4443
+  },
+  "recordedAt": "2026-11-21T08:52:07.019Z",
+  "source": "recorded"
+}

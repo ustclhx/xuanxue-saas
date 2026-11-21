@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:06117aeb6e27641515e13aa4d8e7f51366e2cec421bb46e8066e51f8ab81be16",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Most chart facts match the data closely, but the statement that 空亡 does not hit any natal pillar ignores the shensha kongWang entry targeting day/hour pillars (yin/mao), creating a slight contradiction.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific pillars, ten gods, hidden stems, stars, percentages, and annual relations; it would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Advice is concrete, doable, and tied to chart elements; each annual year includes something to lean into and something to watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-focused language without fear; no specific events, no month/day predictions, and health only recommends seeing a professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear です・ます Japanese with good structure, but uses the simplified Chinese form 冲 for clash instead of the standard Japanese variant, so not flawlessly localized.\"\n    }\n  },\n  \"summary\": \"The report is highly personalised, accurate, and actionable, with only a minor inconsistency around 空亡 and a few simplified Chinese characters for clash.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8077,
+    "outputTokens": 8550
+  },
+  "recordedAt": "2026-11-21T08:40:33.603Z",
+  "source": "recorded"
+}

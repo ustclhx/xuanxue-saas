@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:b823c182ed94ed8237aa0ed19f28fe2fd15005dfaf1297bac4bfa8c2ac5537a9",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\"criteria\":{\"accuracy\":{\"score\":5,\"reason\":\"All cited numbers and stages match the data: life path 7, birthday 5, current pinnacle 9, current challenge 1, personal years 4-8 for 2026-2030, and named pinnacles/challenges are correct.\"},\"specificity\":{\"score\":5,\"reason\":\"Every section repeatedly references the chart (life path 7, birthday 5, pinnacle 9, challenge 1, personal year 4) and would not fit another chart.\"},\"actionability\":{\"score\":5,\"reason\":\"Concrete suggestions are tied to each section and especially in the year-by-year part, each year lists specific actions and cautions.\"},\"tone\":{\"score\":5,\"reason\":\"Warm, non-fearful, tendency-based language; wellbeing habits recommend professional help and no specific events, investment/legal/medical decisions, or religious framing.\"},\"readability\":{\"score\":5,\"reason\":\"Clear structure without excessive repetition; fluent neutral Latin American Spanish with tuteo, appropriate length, no foreign words or mixed scripts.\"}},\"summary\":\"The output is highly accurate, specific, actionable, appropriately toned, and well-written in Spanish, fully matching the target data and style.\"}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4515,
+    "outputTokens": 1519
+  },
+  "recordedAt": "2026-11-21T08:33:11.908Z",
+  "source": "recorded"
+}

@@ -61,9 +61,9 @@ describe('详批注册表', () => {
     ).toBeUndefined()
     expect(readingDefinition('tarot-spread', 'es')?.prompt.version).toBe('tarot-spread.v4')
     expect(readingDefinition('numerology-full', 'en')?.prompt.version).toBe('numerology-full.v3')
-    // 评测门槛通过前不对访客开放（READING_EVAL_PENDING，与 ja 同一机制）；英文不受影响
-    expect(readingEvalPassed('numerology-full', 'es')).toBe(false)
-    expect(readingEvalPassed('tarot-spread', 'es')).toBe(false)
+    // es 真实评测已通过（readings@es-v2，2026-11-21），对访客开放
+    expect(readingEvalPassed('numerology-full', 'es')).toBe(true)
+    expect(readingEvalPassed('tarot-spread', 'es')).toBe(true)
     expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
     expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
     // 东方站英文没有 v4 之前的版本：代码默认即 v4（add-locales-eu-ja 5b.3）

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:d03ed5bc14b026eab628998c0825bb100f0260cf63a4cf994721eacf785d6e41",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All three tarot cards, positions, orientations, and their reference meanings match the supplied data exactly; no invented cards or positions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section explicitly names 愚者, カップの2, and ワンドの3逆位置 and uses their specific interpretations, so the reading is clearly tailored to this spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"The 具体的な次の一歩 section provides concrete, doable actions tied to each card and the workplace question, rather than vague advice.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tentative language is used throughout; no specific-event predictions, fear-based statements, or prohibited advice, with the standard disclaimer included.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Structure is clear and the Japanese is natural polite style, but some card meanings are repeated across the overview, per-card, and next-step sections, making it slightly less concise.\"\n    }\n  },\n  \"summary\": \"The output accurately reflects all three tarot cards and their positions, provides card-specific and actionable guidance, and maintains a warm, non-predictive tone. Minor repetition of card meanings across sections slightly reduces readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2862,
+    "outputTokens": 2526
+  },
+  "recordedAt": "2026-11-21T08:43:07.550Z",
+  "source": "recorded"
+}

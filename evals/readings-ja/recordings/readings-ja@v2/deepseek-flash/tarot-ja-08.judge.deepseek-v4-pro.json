@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:0d0fc2ae67b36c9b8b954c95e15436a25ae057890730c0da43104fa4d75d3c33",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Card names, positions and upright/reversed flags match data, but the interconnection section miscounts swords: it says one sword card when the spread contains two (ソードの3 and ソードのキング).\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section references specific cards, positions, and suits; the reading is fully anchored in this particular Celtic Cross spread and would not fit another draw.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"The next-step list gives concrete, doable actions tied to individual cards (write numbers, list skills, talk to someone, reduce a habit), and the financial caution recommends a professional appropriately.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based, probabilistic language (のかもしれません, 考えてみましょう) avoids specific event prediction; no medical/legal/investment directives or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent です・ます Japanese with correct tarot terminology, but overall message, card-by-card section, and connections repeat several card meanings.\"\n    }\n  },\n  \"summary\": \"A warm, specific, and actionable Japanese tarot reading that largely matches the spread's cards and positions. Main deductions are a miscount of sword cards in the suit-balance analysis and some repetition across sections.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4119,
+    "outputTokens": 4176
+  },
+  "recordedAt": "2026-11-21T08:45:58.012Z",
+  "source": "recorded"
+}

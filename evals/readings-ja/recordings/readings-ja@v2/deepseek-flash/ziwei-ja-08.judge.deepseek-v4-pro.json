@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:34b1983e97e487909860c2709c47b675234765965dbf75c0c1eee5df5d12ee52",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palaces, stars, brightness levels, mutagens, branches, stems, borrowed stars, and year details match the provided data. No invented or contradictory chart elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is grounded in specific chart features, including named stars in their palaces, individual mutagens, brightness levels, and year-by-year palace placements. The text would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, such as small trials before changing direction at work, budgeting habits, sleep and meal routines, and communication timing. Each year section offers something to lean into and something to watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm and non-fearful, uses tendency language rather than asserting specific events, avoids month- or day-level predictions, and appropriately recommends seeing a medical professional. No investment, legal, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"The report is clearly structured by life area and has fluent natural Japanese in polite です・ます style with appropriate Japanese kanji and Zi Wei terminology. No notable repetition beyond the fixed disclaimer or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The report is an accurate, highly specific, actionable, warm, and fluently written Japanese Zi Wei reading that faithfully reflects the provided chart data.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8040,
+    "outputTokens": 2880
+  },
+  "recordedAt": "2026-11-21T08:50:46.025Z",
+  "source": "recorded"
+}

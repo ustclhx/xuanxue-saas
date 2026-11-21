@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8f472fcdf550f5178338d7759deeb013188d4c64e7b68f5ed1b8a8f1e6bf2800",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números citados coinciden exactamente con los datos: vida 9, día 3, expresión/destino 6, alma 8, personalidad 7, año personal 5 y secuencia 2026-2030, pináculos y desafíos con edades correctas. No inventa elementos.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en elementos concretos de esta carta: números del nombre, pináculo actual 6, desafío 4, año personal y día de nacimiento. No es genérico y no serviría para otra carta.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas, doables y ligadas a la carta; cada año incluye algo para aprovechar y algo que cuidar, y la sección de orientación propone acciones específicas. Recomienda consultar a un profesional de salud y evita decisiones de inversión o legales.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y descriptivo, expresa tendencias sin afirmar eventos, sin lenguaje alarmista ni de miedo, sin predicciones por mes o día; el bienestar se limita a hábitos y remite a un profesional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara y ordenada, español neutro latinoamericano con tuteo, sin anglicismos ni mezcla de escrituras, longitud adecuada y sin repetición excesiva.\"\n    }\n  },\n  \"summary\": \"El informe es preciso, personalizado, accionable y está bien redactado en español neutro; cumple plenamente con los datos y el tono esperado.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4938,
+    "outputTokens": 2476
+  },
+  "recordedAt": "2026-11-21T08:34:11.665Z",
+  "source": "recorded"
+}

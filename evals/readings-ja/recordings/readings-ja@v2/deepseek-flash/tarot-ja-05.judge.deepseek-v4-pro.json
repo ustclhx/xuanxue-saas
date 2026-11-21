@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:6b7fbb2bfb9c27a5581426fafce7b29a8f176c0f6ac2fe32cbda147471e5d8a5",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All card names, positions, upright/reversed statuses match the data, and the archetype/major-minor totals are correct; however the suit count says カップが三枚 when the data contains only two cup cards (カップの5 and カップの3).\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section references specific card positions and meanings, and the final steps are explicitly tied to named cards (ペンタクルの3、ワンドの7逆位置、皇帝など), so the reading would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable steps rooted in the cards are provided, including talking to a trusted person, choosing one concern to research, writing one personal rule, comparing paths, and sharing a positive memory; financial/legal matters are referred to professionals.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based throughout, using softening expressions such as 〜ようです/かもしれません and explicitly avoiding assertive predictions, medical/legal/investment advice, and future forecasts.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, natural Japanese です・ます style with correct tarot terminology (ペンタクル/ワンド/カップ/ソード, 正位置/逆位置); fixed disclaimers at start and end are not counted as repetition.\"\n    }\n  },\n  \"summary\": \"A highly structured, warm Japanese tarot reading that accurately reflects the spread and provides concrete, card-specific actions. The only notable issue is a minor miscount of cup cards in the suit summary.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4074,
+    "outputTokens": 2609
+  },
+  "recordedAt": "2026-11-21T08:45:05.097Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:596697c01dffc9bf5d9f0ce9ba2a8e984a303466ab83fa10f74a604e208ecb83",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palaces, stars, mutagens, palace positions, stems, branches, decade ranges, year transformations and numbers match the input data. No chart elements are invented; only the use of 'Wellbeing Palace' for the Spirit Palace is a naming shorthand, but it is clearly identified with the correct opposite-to-Wealth palace.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in chart-specific elements: Qi Sha in the Life Palace, Po Jun with Hua Lu in Career, Tan Lang with Hua Ji in Wealth, Lian Zhen/Tian Xiang in Spouse, Tian Ji in Friends, and the specific annual Hua Lu/Hua Quan/Hua Ke/Hua Ji placements each year. This would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to the chart. Each year-by-year entry has clear lean-in and watch guidance, and the final Guidance section gives practical habits for career, finances, relationships and wellbeing.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and balanced, using tendency language rather than asserting specific events. No month- or day-level predictions, no fear-based warnings, no investment or legal directives, and wellbeing advice stays at habit level with a recommendation to consult a healthcare professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure, fluent English, and good use of pinyin with brief characters. Minor polish issues such as 'fallson' and some repetition of the current Spouse Palace decade prevent a perfect score, but readability remains high.\"\n    }\n  },\n  \"summary\": \"A highly accurate and personalised Zi Wei Dou Shu reading that closely follows the input data, provides specific and actionable guidance, and maintains a warm, balanced tone, with only minor readability polish issues.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8497,
+    "outputTokens": 5268
+  },
+  "recordedAt": "2026-11-21T08:56:20.147Z",
+  "source": "recorded"
+}

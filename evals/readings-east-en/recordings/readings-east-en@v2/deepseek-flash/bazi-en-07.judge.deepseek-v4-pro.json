@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:e6dc574c8eec749d6582f20cccce396d8d9ea77d0e14803fb9460d0c01ce37a5",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 3,\n      \"reason\": \"Mostly consistent with the data, but there are two notable errors: the hour branch's hidden stem Ding is labelled 'Friend' instead of Rob Wealth, and 2030 is described as the last year of the Bing Yin Luck Pillar even though that pillar runs to 2033.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements such as the Xin You month, Gui Hai year, Bing Yin Luck Pillar, hidden stems, symbolic stars, percentages, and annual relations; it would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, including habits for sleep, food, movement, visible collaborative work, and asking for help; each annual year has clear lean-into and watch-out guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-alarming throughout, uses tendency language rather than asserting specific events, avoids month- or day-level predictions, keeps wellbeing to habits and refers to a healthcare professional, and makes no investment, legal, or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure, fluent English, and terms are glossed well; however, some chart themes like Direct Officer, Direct Wealth, and favorable elements are repeated across multiple sections, making it slightly long-winded.\"\n    }\n  },\n  \"summary\": \"A highly specific, practical, and well-structured reading that stays faithful to the chart in most details. Accuracy is slightly lowered by a mislabeled hidden-stem ten god and an incorrect statement about 2030 being the Luck Pillar's final year.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8465,
+    "outputTokens": 5678
+  },
+  "recordedAt": "2026-11-21T08:52:45.665Z",
+  "source": "recorded"
+}

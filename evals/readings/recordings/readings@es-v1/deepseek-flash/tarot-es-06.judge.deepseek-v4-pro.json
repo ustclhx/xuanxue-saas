@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:0e001a18491b71d7dc0460bacf4d4158c30e3217f3a257ee8fe42509cb971b0c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Cada carta, posición, orientación y conteo de Arcanos Mayores/Menores coincide con data; no inventa cartas.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Todas las secciones están ancladas en cartas concretas y posiciones de la tirada, no en frases genéricas.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Ofrece seis pasos concretos y viables vinculados a cartas específicas (soltar apegos, decidir entre opciones, aceptar apoyo, compartir proyecto).\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Lenguaje cálido, evita dar fecha exacta, no predice sucesos específicos, no usa miedo y recomienda profesional para temas legales/patrimoniales/salud.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara con apartados y listas, español natural latinoamericano con tuteo, sin repetición excesiva ni mezcla de idiomas.\"\n    }\n  },\n  \"summary\": \"La lectura es precisa, específica, accionable, cautelosa y bien redactada; responde a la pregunta sin dar una fecha exacta y recomienda ayuda profesional cuando corresponde.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4182,
+    "outputTokens": 4162
+  },
+  "recordedAt": "2026-11-21T08:35:58.231Z",
+  "source": "recorded"
+}

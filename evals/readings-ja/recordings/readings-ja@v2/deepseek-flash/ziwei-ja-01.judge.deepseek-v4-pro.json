@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:f6cbf49fded162f73c64e04db02c2665fd6dee2e9cc79f5d789f2da8d82ab9ed",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Most star placements, palaces, mutagens and year data match the chart, but the report says 2029 has 廉貞化忌 in 夫妻宮; the year data shows 廉貞化忌 in 2026, while 2029 has 文曲化忌 in 兄弟宮.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to specific chart elements—破軍 in 命宮, 貪狼 in 官禄宮, 七殺地空 in 財帛宮, 廉貞 in 夫妻宮, year-specific 四化 etc.—and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-tied suggestions for each life area and each year (e.g., record spending for 七殺地空, careful words for 巨門化忌, sleep routine for 天梁陥), with habits only and professional referral.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses 〜やすい/意識するとよい, avoids specific event claims, no month/day forecasts, recommends medical consultation, no investment/legal/religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structured headings and fluent polite Japanese; minor repetition of star placements (e.g., 兄弟宮 auxiliary stars) and home/family advice across sections.\"\n    }\n  },\n  \"summary\": \"The report is highly personalised and actionable, with one factual error on a 2029 mutagen and mild repetition, but overall strong Japanese Zi Wei content.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8712,
+    "outputTokens": 6732
+  },
+  "recordedAt": "2026-11-21T08:48:32.082Z",
+  "source": "recorded"
+}

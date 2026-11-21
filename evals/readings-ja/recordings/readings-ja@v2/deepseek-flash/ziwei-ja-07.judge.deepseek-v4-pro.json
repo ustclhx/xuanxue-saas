@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:b31396f216dfb0187caf4ad5d34ff5cd69c429e88814cf15c69fba2fe19ce481",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"命宮申空宮、身宮財帛宮、各宮の主星・明るさ・生年四化、補助星、大限、流年命宮と流年四化など、すべてdataと一致しており、創作・矛盾がない。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"全編にわたり命宮空宮と天機・太陰の借用、夫妻宮天梁化禄、田宅宮武曲化忌、各流年の宮と四化など、この命盤固有の要素が具体的に用いられ、汎用的記述がほとんどない。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"年ごとの流年で推す／注意点があり、生活習慣・金銭管理・人間関係の伝え方など具体的で実践しやすい助言が示されている。医療相談の案内もある。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"全て傾向・可能性として表現され、断定や恐怖を煽る表現がなく、医療・投資・法律・宗教的判断を助言していない。\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"丁寧な日本語のです・ます調で、段落構成が明確で、冗長な繰り返しが少なく、紫微斗数の伝統的名称が正確に使われている。\"\n    }\n  },\n  \"summary\": \"この紫微斗数レポートは命盤の特徴と大限・流年を正確に反映し、具体的で実行可能、穏やかな文体で読みやすい。全体として非常に高い品質である。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8447,
+    "outputTokens": 4042
+  },
+  "recordedAt": "2026-11-21T08:50:03.181Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:ca560c582bcae4636fd5056ba0947e393eea830fed7be6b85badd9274b22326b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 2,\n      \"reason\": \"Mostly aligns with data, but it misstates Indirect Wealth as the main hidden stem of the day branch Yin (it is the middle stem), wrongly calls the Geng Chen Luck Pillar stem Direct Wealth (it is Indirect Resource/Pian Yin), and calls metal the scarcest element when fire is lower at 7.1%.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly specific and anchored in chart elements: Day Master, pillars, hidden stems, Ten Gods, Luck Pillars, shensha (Lu Shen, Peach Blossom, Nobleman), and annual relations are named throughout and would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to chart patterns; each year in the year-by-year section has something to lean into and something to watch, and wellbeing advice is habit-focused.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, probabilistic tone without fear-based wording or specific event assertions; no month/day-level predictions; wellbeing stays with habits and refers to healthcare professionals; no investment, legal, or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure, fluent English, appropriate pinyin with short Chinese glosses; some repetition of element percentages and themes across sections, but overall readable.\"\n    }\n  },\n  \"summary\": \"The report is detailed, highly personalized, and actionable with a warm tone, but it contains several accuracy errors concerning hidden stem position, Luck Pillar ten god, and the scarcest element.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8219,
+    "outputTokens": 4598
+  },
+  "recordedAt": "2026-11-21T08:50:19.423Z",
+  "source": "recorded"
+}

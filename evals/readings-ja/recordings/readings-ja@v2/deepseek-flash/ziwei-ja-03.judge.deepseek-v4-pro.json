@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:3f2545b92f25241e9f8240d59ad3ab143814db32edf3a5fa3e944bce5d272823",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited stars, palaces, stems/branches, mutagens, auxiliaries, years and age ranges match the provided data; no invented chart elements found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements (e.g., 天梁化科 in 官禄宮, 武曲化禄 in 疾厄宮, annual 四化 placements), not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and chart-tied; each year section includes clear lean/watch points.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-assertive; no month/day predictions, no medical/investment/legal advice, health refers to professionals.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent polite Japanese, but a few Chinese-only terms such as 煞星 and 奴僕宮 are used where Japanese schools often prefer 凶星/交友宮; no mixed scripts otherwise.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, specific, and actionable, with a warm tone and clear structure; only minor terminology choices slightly affect Japanese readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7941,
+    "outputTokens": 12643
+  },
+  "recordedAt": "2026-11-21T08:49:41.776Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:0d2e0f91f5adddc5cf240bd5a7df438b2aca8ebdbc0579dd4bf0e8839085c501",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Nearly all pillars, ten gods, hidden stems, stars, years and numbers match the data, but the 2027 section incorrectly says the annual stem combines with the year stem when the data shows a branch six-combine, and the overview briefly treats a punishing relation as a symbolic star.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements: the year pillar Rob Wealth and Peach Blossom, month Direct Wealth and Seven Killings, day branch hidden stems, favorable elements, Luck Pillar details, and individual annual relations.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to the chart; each year has clear lean-into and watch-out guidance, and the final guidance section gives practical habits aligned with favorable elements.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based throughout; describes tendencies without fixed events, avoids month/day predictions, limits wellbeing to habits with a professional referral, and does not stray into investment, legal, medical, or religious decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, fluent English, appropriate length, consistent terminology with pinyin and short character glosses, and no leaked JSON or camelCase identifiers.\"\n    }\n  },\n  \"summary\": \"A strong, well-structured full BaZi reading that closely follows the provided chart data. It is highly specific and actionable, with a warm tone and clear organization. The main weakness is a minor accuracy slip in the 2027 year section where a branch combination is described as a stem combination, plus a small symbolic-star wording issue.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7909,
+    "outputTokens": 7154
+  },
+  "recordedAt": "2026-11-21T08:53:19.498Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:800e6a671e604b130354ba5addb47bacd5d1d199af3c26e81089806e0e3f093d",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, ten gods, elements, percentages, shensha, tenchusatsu, and annual relations match the provided data; the only inferred items are standard hidden stems for future decade branches, consistent with the data's branchTenGod.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements such as 辛巳, 庚辰, 壬辰, 乙丑, 華蓋, 天中殺, 身強 54.1%, and annual branch relations; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete habits tied to favorable elements and stars, with clear lean/watch items for each year 2026–2030 and a practical advice list.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language; avoids specific event predictions, fear, month/day forecasts, investment/legal/medical decisions; recommends medical consultation.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent polite Japanese with correct terminology (通変星, 蔵干, 天中殺, etc.); minor repetition of themes but acceptable.\"\n    }\n  },\n  \"summary\": \"A well-personalized, compliant, and fluent Japanese BaZi report that closely follows the data and uses appropriate terminology.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8243,
+    "outputTokens": 10238
+  },
+  "recordedAt": "2026-11-21T08:38:29.527Z",
+  "source": "recorded"
+}

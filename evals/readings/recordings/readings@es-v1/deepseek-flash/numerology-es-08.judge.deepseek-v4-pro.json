@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:eb3bde0c9ad7e1860e6f4f828b4e0089917c766050b19a5c044ef854fc28d59e",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números citados coinciden con los datos: número de vida 3, número del día 2, destino/expresión 4, alma 5, personalidad 8, pináculos 4-1-5-1, desafíos 0-6-6-6 y años personales 5 a 9; no inventa elementos ni números maestros.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección se ancla en elementos concretos de la carta (pináculo 1 actual, desafío 6, año personal correspondiente, números del nombre) y no resulta genérica; las descripciones se personalizan con combinaciones específicas.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas y están vinculadas a los números del gráfico, con acciones para cada año y orientaciones prácticas al final; incluye qué cuidar en cada etapa y deriva a profesionales para temas de salud y dinero.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"El tono es cálido y no alarmista, describe tendencias sin afirmar eventos específicos, evita predicciones por mes o día, limita el bienestar a hábitos y recomienda ver profesionales; no hay encuadre religioso ni decisiones financieras/médicas directas.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"El texto es fluido y claro en español neutro, con estructura bien definida y sin errores de idioma; sin embargo, repite en varias secciones el pináculo 1 y el desafío 6, lo que resta concisión aunque no dificulta la comprensión.\"\n    }\n  },\n  \"summary\": \"Informe de numerología muy completo, fiel a los datos y altamente personalizado, con tono adecuado y sugerencias accionables; la única mejora sería evitar la repetición de ciertos elementos en las distintas secciones.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 5112,
+    "outputTokens": 2966
+  },
+  "recordedAt": "2026-11-21T08:34:35.488Z",
+  "source": "recorded"
+}

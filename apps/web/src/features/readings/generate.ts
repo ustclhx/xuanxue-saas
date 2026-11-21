@@ -375,6 +375,7 @@ function logGuard(
     ganzhi: report.ganzhi,
     personalYear: report.personalYear,
     unresolved: report.unresolved,
+    terms: report.terms,
   }
   if (report.unresolved > 0) log.warn('readings.guard_unresolved', fields)
   else if (guardChanged(report)) log.info('readings.guard_corrected', fields)

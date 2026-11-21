@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:1c244f66a853ef6859275dcfb4a3c6f365dbb99fa9fe9470abacada6390eec09",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cards, positions, upright/reversed statuses, keywords, and meanings match the data; no invented cards or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to the specific cards (女教皇、ソードの8逆位置、ペンタクルのエース), positions, and their meanings; it would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete next steps are tied to each card: journaling for the High Priestess, examining limiting beliefs for reversed Eight of Swords, and starting a small practical step for the Ace of Pentacles.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tentative language (〜かもしれません, 〜として読めます) avoids asserting specific events; no fear-based or forbidden decisions.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure and fluent Japanese polite です・ます style, but there is some repetition of card meanings between the overview and per-card sections.\"\n    }\n  },\n  \"summary\": \"The tarot reading is accurate, highly specific, actionable, and appropriately cautious in tone, with only minor repetition affecting readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2705,
+    "outputTokens": 3158
+  },
+  "recordedAt": "2026-11-21T08:44:17.275Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:c91edb51779bad188dd6bd46d39bd9edef2c4d5669f5300b4db519d38a386ea0",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems, branches, ten gods, elements, percentages, shensha, fortune decades, and annual years match the provided data. No invented chart elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements such as 日柱甲子, 月柱甲午, 時柱癸酉, 桃花, 文昌, 天中殺, 大運丁酉, and yearly stems/branches/ten gods.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, with specific lean-into/watch items for each year from 2026 to 2030 and practical habits linked to favorable elements.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; describes tendencies without asserting specific events, no month/day predictions, health covers habits and recommends medical consultation, no investment/legal/religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 3,\n      \"reason\": \"Generally clear and well structured, but contains a few wrong characters (e.g., 紧张 instead of 緊張, 冲 instead of 沖) and the shorthand 比劫/印 is not fully natural Japanese terminology.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, specific, and actionable, with a warm tone and appropriate compliance. Its main weakness is a few non-Japanese/Simplified characters and some Chinese-style shorthand that reduce readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8358,
+    "outputTokens": 6065
+  },
+  "recordedAt": "2026-11-21T08:39:35.174Z",
+  "source": "recorded"
+}

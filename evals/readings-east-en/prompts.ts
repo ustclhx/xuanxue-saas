@@ -14,15 +14,16 @@ import {
  * 而且 `readings` 的门槛按 48 个样本整批与基线对比。把新组合放进同一套件会改变已有版本的样本集与门槛，
  * 因此另起套件，已有套件版本、样本与录制一字不动；检查、转换与评分维度复用 `readings` 的实现。
  *
- * - `readings-east-en@v1`：两个组合都用 catalog 中登记为 `<kind>.v4` 的英文提示词，
+ * - `readings-east-en@v2`：两个组合都用 catalog 中登记为 `<kind>.v4` 的英文提示词，
  *   system 与用户消息与线上 `readingMessages` 逐字相同。
+ *   v1（2026-11-21 真实录制，未发布、录制未提交）因八字准确度未达门槛、两个组合补准确度约束而作废。
  */
 
 /** 评测覆盖的组合（每组合 ≥ 8 个样本，gates.ts） */
 export const EAST_EN_COMBOS = ['bazi-full.en', 'ziwei-full.en'] as const
 export type EastEnCombo = (typeof EAST_EN_COMBOS)[number]
 
-export const CANDIDATE_VERSION = 'readings-east-en@v1'
+export const CANDIDATE_VERSION = 'readings-east-en@v2'
 
 export const comboOf = (input: Pick<ReadingSampleInput, 'kind' | 'locale'>) =>
   `${input.kind}.${input.locale}`
@@ -52,10 +53,10 @@ export function renderReading(promptVersion: string, input: ReadingSampleInput) 
   return { system: system.text, user: user.text }
 }
 
-export const readingsEastEnV1: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>(
+export const readingsEastEnV2: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>(
   {
     id: 'readings-east-en',
-    version: 'v1',
+    version: 'v2',
     system: (input) => renderReading(CANDIDATE_VERSION, input).system,
     user: (input) => renderReading(CANDIDATE_VERSION, input).user,
     maxOutputTokens: READING_MAX_OUTPUT_TOKENS,

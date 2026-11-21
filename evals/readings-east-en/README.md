@@ -13,7 +13,7 @@ design 决策 7 写的是「`evals/readings` 新增套件版本」。模板的�
 
 | 文件 | 内容 |
 |---|---|
-| `prompts.ts` | 套件版本 `readings-east-en@v1` → catalog 中登记为 `<kind>.v4` 的英文提示词（`prompts/*.en.v4.ts`），消息与线上 `readingMessages` 逐字相同 |
+| `prompts.ts` | 套件版本 `readings-east-en@v2`（v1 未发布即作废） → catalog 中登记为 `<kind>.v4` 的英文提示词（`prompts/*.en.v4.ts`），消息与线上 `readingMessages` 逐字相同 |
 | `checks.ts` | `readings` 的全部检查 + `script`（汉字 ≤ 2%、无假名谚文与中文标点）、`hanRuns`（warn）、`wording`（声明三类表述、禁 entertainment / guaranteed / always accurate）、`terminology`（Day Master / Life Palace） |
 | `rubric.ts` | `r1-east-en.1`：五个维度同 `readings` r1，instructions 写明英文读者、术语与汉字注释规则 |
 | `gates.ts` | 逐组合门槛（解锁入口按组合开放） |
@@ -32,7 +32,7 @@ design 决策 7 写的是「`evals/readings` 新增套件版本」。模板的�
 | `p95-output-tokens` | P95 输出 token ≤ 12000 × 70% = 8400 |
 | `p95-duration` | P95 生成时长 ≤ 240 秒 |
 
-另有全局 `versions`（候选为 `readings-east-en@v1`），`human-review`、`staging-acceptance` 为外部证据（非必需）。
+另有全局 `versions`（候选为 `readings-east-en@v2`），`human-review`、`staging-acceptance` 为外部证据（非必需）。
 英文没有同样本的旧版本可作基线，因此与中文 v4 的评委均值比较；样本与语言不同、评委波动约 ±0.2，
 容差取 0.25（`readings` 同样本对比为 0.1）；该口径与 accuracy ≥ 4.0 已由协调者确认为新语言的统一门槛。
 

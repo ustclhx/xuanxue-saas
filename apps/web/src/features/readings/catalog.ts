@@ -700,15 +700,10 @@ export type AvailableReadingKind = keyof typeof entries
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
 export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
-  'bazi-full.ja',
-  'ziwei-full.ja',
-  'tarot-spread.ja',
-  // add-locales-eu-ja tasks 5.8：es 变体已登记（numerology-full.v6 / tarot-spread.v4），真实评测
-  // （`pnpm eval:prompts --suite readings --prompt readings@es-v2 … --record`）全部门槛通过后删去
-  'numerology-full.es',
-  'tarot-spread.es',
-  // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微（v4 的英文）已登记，离线评测就绪；真实评测
-  // （`pnpm eval:prompts --suite readings-east-en … --record`）待使用者批准预算
+  // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；
+  // 报告在私有验收目录 locales-eu-ja/live-evals/prompt-evals/。
+  // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微 readings-east-en@v2 真实评测准确度未达门槛
+  // （八字 3.875、紫微 3.250，需 ≥ 4），改进前不开放
   'bazi-full.en',
   'ziwei-full.en',
 ])

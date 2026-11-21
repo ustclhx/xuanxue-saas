@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:f2bf36074c0bcf7ad1ecbbd9a5a70f9b00ced0d4c69fc13871739df97f940dcf",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palaces, stars, brightness levels, stems/branches, mutagen stars, auxiliary stars, decade and year data match `data` exactly; no invented elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements such as 天同 in 命宮, 天機化禄 in 官禄宮, 天梁化権 and 左輔右弼 in 夫妻宮, and year-by-year flow palaces and four transformations are explicitly referenced.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Provides concrete, doable suggestions tied to chart elements (e.g., record ideas for 天機化禄, wait overnight before impulse purchases for 巨門/火星, daily walks for 貪狼/擎羊), and each year includes both lean-in and caution items.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fearful, uses tendency language, no specific event predictions, no month/day forecasts; health advice limited to habits and recommends consulting professionals; no investment/legal/medical decisions or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, fluent Japanese in polite です・ます style, correct Japanese kanji and Zi Wei Dou Shu terminology, no simplified characters or foreign scripts, appropriate length without intrusive repetition.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, personalized, actionable, warm, and readable. It correctly references all provided chart data and presents a clear, well-structured Japanese fortune reading.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8289,
+    "outputTokens": 4106
+  },
+  "recordedAt": "2026-11-21T08:49:48.129Z",
+  "source": "recorded"
+}

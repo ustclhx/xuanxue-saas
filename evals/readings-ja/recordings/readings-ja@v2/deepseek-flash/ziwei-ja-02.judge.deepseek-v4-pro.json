@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:b004e6710e9582630291a511de182ca206e9d21c1a8f5273fade7e9277d497a8",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palaces, stars, brightness levels, mutagens, stems/branches, decades, and yearly transits match the provided data; no invented chart elements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in the subject's actual palace placements, mutagens, and auxiliary stars; the year-by-year readings reference the specific yearly soul palace and annual mutagens for every year.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, chart-tied, and practical (e.g., small experiments, sleep/eating regularity, framed spending, regular dialogue); each year has a clear lean-in and watch-out.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based language throughout; expresses tendencies with phrases like 傾向 and やすい, no specific event assertions, and health advice defers to medical professionals.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear Japanese です・ます style with traditional kanji, well-organized sections, no problematic repetition or mixed scripts.\"\n    }\n  },\n  \"summary\": \"高品質な紫微斗数リーディングで、データに正確に基づき、各年運も具体的かつ実行可能な助言を備えています。口調も温かく、読みやすさも良好です。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8028,
+    "outputTokens": 8441
+  },
+  "recordedAt": "2026-11-21T08:48:45.447Z",
+  "source": "recorded"
+}

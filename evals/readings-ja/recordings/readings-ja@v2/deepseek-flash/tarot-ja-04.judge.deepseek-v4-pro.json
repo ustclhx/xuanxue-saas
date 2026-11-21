@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:b661aaa871036d7276c05ce37cf7875b9130971a7884f0ea795ae2846794f018",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All card names, positions, upright/reversed status, keywords and meanings match the data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to specific cards and positions, with tailored interpretations not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Next steps are concrete, doable, and explicitly tied to each card.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-predictive language, avoids fear and respects the disclaimer; no inappropriate advice.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear, well-structured, natural Japanese です・ます style, no mixed scripts or excessive repetition beyond fixed disclaimer.\"\n    }\n  },\n  \"summary\": \"The output accurately reflects the three-card spread, provides specific and actionable interpretations in a warm, polished Japanese です・ます style, fully meeting the criteria.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2912,
+    "outputTokens": 1682
+  },
+  "recordedAt": "2026-11-21T08:44:21.430Z",
+  "source": "recorded"
+}

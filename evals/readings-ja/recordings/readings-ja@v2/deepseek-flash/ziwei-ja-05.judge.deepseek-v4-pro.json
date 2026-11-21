@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:2d605131a397f9e728970d7416b866c9bed9d9c7a206b69db2702205c8e75c09",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palace, star, brightness, mutagen, auxiliary star, decade and year placements match the provided data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section anchors to specific chart elements such as 命宮の巨門化権, 財帛宮の天機と擎羊, and each year's 化禄・化権・化科・化忌 placements.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Advice is concrete and chart-tied, and each year-by-year entry includes both opportunities and cautions (e.g., 2026 and 2028 offer specific actions).\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Maintains warm, non-fear-based tendencies; no month/day predictions; wellbeing advice stays habit-focused and includes a medical disclaimer.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structured sections, natural Japanese polite です・ます style with appropriate kanji and Zi Wei terminology; no Simplified characters or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The report is accurate, highly specific and well-structured, with concrete actionable advice and an appropriate warm tone.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7552,
+    "outputTokens": 5274
+  },
+  "recordedAt": "2026-11-21T08:49:41.949Z",
+  "source": "recorded"
+}

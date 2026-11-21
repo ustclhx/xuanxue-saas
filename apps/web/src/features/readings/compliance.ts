@@ -175,7 +175,9 @@ const RULES: Record<AppLocale, LocaleRules> = {
     patterns: {
       'date-prediction': [both(ES_DATE, ES_ASSERT)],
       medical: [
-        /\b(?:cáncer|tumor(?:es)?|diabetes|hipertensión|cardiopatía|enfermedad (?:cardíaca|del corazón|renal)|derrame cerebral|infarto|depresión clínica|hepatitis|demencia|infertilidad|neumonía|diagnóstico|diagnosticad[oa]s?)\b/i,
+        /\b(?:cáncer|tumor(?:es)?|diabetes|hipertensión|cardiopatía|enfermedad (?:cardíaca|del corazón|renal)|derrame cerebral|infarto|depresión clínica|hepatitis|demencia|infertilidad|neumonía|diagnosticad[oa]s?)\b/i,
+        // 否定句（「no es un diagnóstico」「ni un diagnóstico」「no sustituye un diagnóstico」）是免责说明，不替换
+        /(?<!\b(?:no|ni)\s(?:(?:es|son|sustituyen?|reemplazan?|ofrecen?|dan?)\s(?:a\s)?)?(?:(?:un|una|el|ningún)\s)?(?:(?:médico|profesional)\s)?)\bdiagnósticos?\b/i,
       ],
       investment: ES_INVESTMENT,
     },

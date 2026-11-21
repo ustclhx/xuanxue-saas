@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v2",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:bcdfefdb230c03eccf74afa0e75fe5c1a2e1a60d5b8065d33b0a9f74c8cf22db",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All stars, transformations, palaces, stems/branches, years and ages cited match the data in substance. The only issue is that the Spirit/Fortune palace is consistently called the 'Wellbeing Palace', which is not the data's palace key and can be confused with the Health Palace; no chart elements are otherwise invented or contradicted.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements: Lian Zhen and Tian Xiang in the Life Palace, Wu Qu Hua Ji and Wen Chang in Career, Zi Wei Hua Quan and Zuo Fu Hua Ke in Wealth, and each year's exact Hua Lu/Quan/Ke/Ji placements. The report would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart: document work because Wen Chang is in Career, keep Qing Yang's bluntness on a short leash, create written monthly reviews for Wealth, and each year has clear lean-into/watch-out guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based throughout. It describes tendencies rather than events, avoids month- or day-level predictions, recommends a healthcare professional for health, and steers clear of investment, legal, or medical decisions and religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, limited repetition, appropriate length, and fluent English. Chinese characters appear only as short pinyin glosses and year headings, with no leaked JSON fields or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The report is highly personalized, fluent, and practically useful, with excellent year-by-year accuracy and a warm tone. The only minor weakness is the nonstandard renaming of the Spirit/Fortune palace as the 'Wellbeing Palace', which slightly affects terminology clarity but does not disturb the overall chart interpretation.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8084,
+    "outputTokens": 10661
+  },
+  "recordedAt": "2026-11-21T08:54:59.239Z",
+  "source": "recorded"
+}

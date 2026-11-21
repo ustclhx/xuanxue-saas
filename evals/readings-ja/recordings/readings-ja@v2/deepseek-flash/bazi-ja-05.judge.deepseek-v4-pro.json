@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:8484ad455cb3fb872dbc335a6cb87209c3661a7fedd73e5f2d62bba29e26456c",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Most chart details match `data` accurately, but there is a recurring minor misattribution of 天乙貴人 to the year pillar instead of the month pillar.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Highly specific with pillars, hidden stems, ten gods, shensha, twelve stages, decade and annual cycles; would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable suggestions with year-by-year lean-into/watch guidance and clear advice bullets tied to the chart.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; no specific event predictions, no month/day-level forecasts, no medical/investment/legal decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, polite desu/masu Japanese, appropriate length, no Simplified Chinese or foreign terms.\"\n    }\n  },\n  \"summary\": \"高品質な鑑定文。天乙貴人の位置の軽微な誤りを除けば、データに対して正確で具体的、実用的な内容。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7570,
+    "outputTokens": 6055
+  },
+  "recordedAt": "2026-11-21T08:39:27.612Z",
+  "source": "recorded"
+}

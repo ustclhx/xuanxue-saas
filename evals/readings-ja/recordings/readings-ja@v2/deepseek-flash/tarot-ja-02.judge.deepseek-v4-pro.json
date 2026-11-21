@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:afb3b3a169473d488519dbb3e1d89951755e88457efe19e4a027127bc29de034",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"10枚のカードすべて、位置、正逆、スート構成、アルカナ数がdataと一致しており、発明された要素はない。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"すべてのセクションが特定のカードと位置に結びつけられ、同僚関係の質問にも沿って個別化されている。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"ソードの5、節制、カップの7、星、カップの10など各カードに対応した具体的で実行可能な次の一歩が示されている。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"断定や恐怖をあおらず、象徴的な表現で温かく書かれており、医療・法律・投資への言及もない。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"自然な日本語のです・ます体で構成も明確だが、全体メッセージ、カード別、つながり、次の一歩でカードの意味がやや繰り返されている。\"\n    }\n  },\n  \"summary\": \"カードの位置・正逆・内容を正確に反映し、同僚関係の問いに沿った温かく実践的なリーディング。一部セクション間で内容の繰り返しがあるため、読みやすさはわずかに減点。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4231,
+    "outputTokens": 1925
+  },
+  "recordedAt": "2026-11-21T08:43:49.533Z",
+  "source": "recorded"
+}

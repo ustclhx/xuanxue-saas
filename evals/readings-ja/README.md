@@ -6,7 +6,7 @@
 
 | 文件 | 内容 |
 |---|---|
-| `prompts.ts` | 唯一版本 `readings-ja@v1`：八字 → `bazi-full.v4`、紫微 → `ziwei-full.v4`、塔罗 → `tarot-spread.v3`（catalog.ts 的 `ja` 语言） |
+| `prompts.ts` | 当前版本 `readings-ja@v2`（v1 未发布即作废）：八字 → `bazi-full.v4`、紫微 → `ziwei-full.v4`、塔罗 → `tarot-spread.v3`（catalog.ts 的 `ja` 语言） |
 | `prepare.ts` | `guard.v4-disclaimer.1`：readings 的 `deliveredReadingText` 之后加上线上保存时的首尾合规声明 |
 | `checks.ts` | readings 全部检查 + 日语检查：`kana`（假名占比 ≥ 0.3）、`simplifiedGlyphs`（术语表简体字形正则）、`glossary`（术语表禁用写法与合规禁用表述）、`complianceStatement`（首尾声明含「参考」「不预言」表述） |
 | `rubric.ts` | `r1-ja.1`：与 `r1` 同五个维度与锚点，说明中加注塔罗与目标语言（日语、です・ます、日本流派用语） |

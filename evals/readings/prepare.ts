@@ -53,6 +53,8 @@ export function prepareReading(
       ganzhi: report.ganzhi,
       personalYear: report.personalYear,
       unresolved: report.unresolved,
+      /** ja：中文通变星名换成日本叫法的处数（v4 兜底） */
+      terms: report.terms,
     },
   }
 }

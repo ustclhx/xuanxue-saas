@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v1",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:bd313652a21bf546d009a25bc2e9b01396f1d3855a69f288ea39700bba8553e5",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números citados (22, 11, 1, 8, años personales 3 a 7, pináculos 11/4/6/11, desafíos 7/0/7/7) coinciden exactamente con los datos; no se inventa ningún elemento.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en números concretos del gráfico (vida 22, alma 11, destino 1, personalidad 8, pináculo 4 actual, desafío 0) y no resultaría aplicable a otro gráfico.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Ofrece sugerencias concretas y viables en cada año, trabajo, bienestar y orientación final, siempre conectadas con los números y ciclos del gráfico.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y descriptivo, sin miedo, sin afirmar eventos específicos a nivel de mes o día; el bienestar incluye hábitos y recomienda consultar a un profesional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Estructura clara y español latinoamericano fluido, pero hay cierta repetición de los temas del pináculo 4 y desafío 0 a lo largo de las secciones.\"\n    }\n  },\n  \"summary\": \"El reporte es preciso, muy personalizado y accionable, con un tono cuidado; solo pierde algo de fluidez por repeticiones temáticas entre secciones.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4891,
+    "outputTokens": 2046
+  },
+  "recordedAt": "2026-11-21T08:33:19.686Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:f2d70ecd4371d81494258fdaaba8c172de7ce5cebceb185dd1363c4dd5edf5a2",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"カード名、位置、正逆、意味が data と正確に一致しており、創作や矛盾はない。\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"各カードの位置・向き・キーワード・意味を具体的に参照し、この並びに固有の解釈になっている。\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"睡眠の専門家相談を含む、カードに対応した具体的で実行可能な次の一歩が示されている。\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"恐怖をあおらず、断定を避けて傾向として述べ、医療相談を促す温かいトーン。\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"構成は明確で日本語も自然だが、本文に 'keywords' という英語のフィールド名が残り、若干読みやすさを損なう。\"\n    }\n  },\n  \"summary\": \"カード内容を正確かつ具体的に反映した温かいリーディング。行動提案も実用的。唯一、'keywords' の英単語表記が読みやすさで減点。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3007,
+    "outputTokens": 2634
+  },
+  "recordedAt": "2026-11-21T08:45:06.662Z",
+  "source": "recorded"
+}

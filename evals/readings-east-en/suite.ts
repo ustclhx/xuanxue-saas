@@ -3,7 +3,7 @@ import { createPrepareOutput } from '../readings/prepare.ts'
 import readings from '../readings/suite.ts'
 import { eastEnChecks } from './checks.ts'
 import { evaluateEastEn } from './gates.ts'
-import { EAST_EN_COMBOS, readingsEastEnV1, resolveReading } from './prompts.ts'
+import { EAST_EN_COMBOS, readingsEastEnV2, resolveReading } from './prompts.ts'
 import { eastEnRubric } from './rubric.ts'
 
 /**
@@ -13,8 +13,8 @@ import { eastEnRubric } from './rubric.ts'
  */
 export default defineSuite({
   name: 'readings-east-en',
-  prompts: [readingsEastEnV1],
-  defaultPrompt: 'readings-east-en@v1',
+  prompts: [readingsEastEnV2],
+  defaultPrompt: 'readings-east-en@v2',
   inputSchema: z
     .strictObject({
       kind: z.enum(['bazi-full', 'ziwei-full']),

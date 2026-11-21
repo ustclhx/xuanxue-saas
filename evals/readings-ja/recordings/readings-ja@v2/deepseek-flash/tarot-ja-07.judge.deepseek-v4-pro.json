@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-ja@v2",
+  "rubricVersion": "r1-ja.1",
+  "outputHash": "sha256:5401c747b1b03ae63421d6edb8bb69ba91fcaaae3e53b8ca2f2eb1556079b422",
+  "prepareVersion": "guard.v4-disclaimer.1",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"The reading correctly maps the three cards, positions, and reversed meanings, but incorrectly states that only two of three cards are reversed when all three are reversed.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific cards (ワンドの10逆位置、ペンタクルの7逆位置、力逆位置), their keywords, and meanings; it would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete next steps are tied to each card (delegate one task, review applications direction, breathing, recording one achievement), with clear doable actions.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and hedged language throughout; describes tendencies, suggests reflection, no fear-based assertions, no event predictions, no medical/legal/investment advice.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with distinct sections, polite desu/masu Japanese, appropriate length, no mixed scripts or foreign character errors; fixed disclaimer excluded from repetition.\"\n    }\n  },\n  \"summary\": \"高品質なタロットリーディングで、カードごとの解釈と行動提案が具体的。ただし全カードが逆位置であるにもかかわらず「三枚のうち二枚が逆位置」と書かれている一箇所の事実誤認がある。\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2944,
+    "outputTokens": 3438
+  },
+  "recordedAt": "2026-11-21T08:45:14.812Z",
+  "source": "recorded"
+}
