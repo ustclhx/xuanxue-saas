@@ -88,6 +88,7 @@ export function routeSite(
         return redirect(302, url.origin, rest)
       if (
         release !== null &&
+        siteHasLocale('east', locale, config) &&
         isEastEnglishPath(rest) &&
         isLocaleLive(locale, url.host, config, release) &&
         releaseState('east', locale, release) === 'released'
@@ -131,7 +132,9 @@ export function routeSite(
     config.sites[site.id].defaultLocale === null &&
     !isUnprefixedEastPath(pathname)
   ) {
-    const navLocale = siteNavLocale(site.id, config.i18n.defaultLocale, config)
+    // 跳到本站默认导航语言（繁中）。不能用 siteNavLocale(site, 'en')：东方站英文发布后 en 也是东方站语言，
+    // 会跳到不存在的 `/en/…`（东方站英文页面在根路径，能走到这里的都不是英文页面）
+    const navLocale = siteNavLocale(site.id, '', config)
     return redirect(301, url.origin, `/${localeUrlSegment(navLocale)}${pathname}`)
   }
   return { kind: 'pass', noindex }

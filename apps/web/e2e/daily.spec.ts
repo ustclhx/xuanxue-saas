@@ -47,7 +47,9 @@ for (const item of PAGES) {
       .locator('link[rel="alternate"][hreflang]')
       .evaluateAll((links) => links.map((link) => link.getAttribute('hreflang')))
     for (const lang of item.hreflang) expect(langs).toContain(lang)
-    if (item.site === 'west') expect(langs.filter((lang) => lang !== 'x-default')).toEqual(['en'])
+    // 西方站只有西方站的 en / es（es 2026-11-21 发布）
+    if (item.site === 'west')
+      for (const lang of langs) expect(['en', 'es', 'x-default']).toContain(lang)
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       new RegExp(`${encodeURI(item.path)}$`),

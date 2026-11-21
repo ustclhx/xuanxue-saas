@@ -2,6 +2,7 @@ import { computeChart } from '@xuanxue/bazi'
 import type { ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+import { BEFORE_JA_ES_EAST_EN, withRelease } from '../../i18n/rollout-fixture.ts'
 import { SiteContext } from '../../site/context.tsx'
 import { ToolForm } from '../form.tsx'
 import { decodeShareInput, encodeShareInput } from '../share.ts'
@@ -265,12 +266,13 @@ describe('东方站排盘页 head', () => {
   const languages = (links: ReturnType<typeof easternToolHead>['links']) =>
     links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
 
-  it('八字排盤 / 八字排盘 / 만세력互指 hreflang，不含英文入口页；紫微页只有繁简中文', () => {
+  // 2026-11-21 发布 ja 与东方站根路径英文：各语言版本互指，x-default 为东方站英文版本；不出现西方站地址
+  it('八字排盤 / 八字排盘 / 만세력 / 四柱推命 / bazi-calculator 互指 hreflang；紫微页没有韩语', () => {
     const bazi = easternToolHead(
       { path: '/八字排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',
     )
-    expect(languages(bazi.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'x-default'])
+    expect(languages(bazi.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en', 'x-default'])
     expect(bazi.links).toContainEqual({
       rel: 'alternate',
       hrefLang: 'zh-Hans',
@@ -281,7 +283,12 @@ describe('东方站排盘页 head', () => {
       hrefLang: 'ko',
       href: `https://ganjiday.com${encodeURI('/ko/만세력')}`,
     })
-    // x-default 为繁中页自身；canonical 为编码后的地址、不带结尾斜杠
+    expect(bazi.links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'en',
+      href: 'https://ganjiday.com/bazi-calculator',
+    })
+    // x-default 为东方站英文版本；canonical 为编码后的地址、不带结尾斜杠
     const canonicalOf = (head: typeof bazi) =>
       head.links.find((link) => link.rel === 'canonical')?.href ?? ''
     expect(canonicalOf(bazi)).toBe(
@@ -290,13 +297,27 @@ describe('东方站排盘页 head', () => {
     expect(bazi.links).toContainEqual({
       rel: 'alternate',
       hrefLang: 'x-default',
-      href: canonicalOf(bazi),
+      href: 'https://ganjiday.com/bazi-calculator',
+    })
+    expect(JSON.stringify(bazi.links)).not.toContain('arcanumber.com')
+    // 东方站英文未发布时：不列英文，x-default 为繁中页自身
+    const before = withRelease(BEFORE_JA_ES_EAST_EN, () =>
+      easternToolHead(
+        { path: '/八字排盤', locale: 'zh-Hant', title: 't', description: 'd' },
+        'http://localhost',
+      ),
+    )
+    expect(languages(before.links)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'x-default'])
+    expect(before.links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'x-default',
+      href: canonicalOf(before),
     })
     const ziwei = easternToolHead(
       { path: '/紫微斗數排盤', locale: 'zh-Hant', title: 't', description: 'd' },
       'http://localhost',
     )
-    expect(languages(ziwei.links)).toEqual(['zh-Hant', 'zh-Hans', 'x-default'])
+    expect(languages(ziwei.links)).toEqual(['zh-Hant', 'zh-Hans', 'ja', 'en', 'x-default'])
     expect(decodeURI(new URL(canonicalOf(ziwei)).pathname)).toBe('/zh-hant/紫微斗數排盤')
   })
 

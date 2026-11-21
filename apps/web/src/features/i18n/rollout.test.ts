@@ -1,5 +1,5 @@
 import { defineTemplateConfig, SITE_IDS } from '@xuanxue/config'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { gateSiteRequest, notFoundPath, routeSite } from '../site/gate.ts'
 import { type SitesConfig, siteHasLocale, siteOfLocale } from '../site/site.ts'
@@ -13,13 +13,15 @@ import {
   releasedSiteLocales,
   releaseState,
 } from './rollout.ts'
+import { BEFORE_JA_ES_EAST_EN, overrideRelease } from './rollout-fixture.ts'
 import { hasForeignPrefix, siteLocale } from './site-locale.ts'
 
 const EAST = 'https://ganjiday.com'
 const WEST = 'https://arcanumber.com'
 const PREVIEW = 'https://xuanxue-web-staging.example.workers.dev'
 
-// 第一期的目标形态：ja 归东方站、es 归西方站，均为 pending（与 LOCALE_RELEASE 一致）
+// 第一期的目标形态：ja 归东方站、es 归西方站。2026-11-21 二者已发布；发布机制（pending 不可访问、不可发现）
+// 的用例用发布前的状态（PENDING / BEFORE_JA_ES_EAST_EN）验证，现状另有用例
 const config = defineTemplateConfig({
   app: { name: 'xuanxue', url: WEST, supportEmail: 'support@arcanumber.com' },
   i18n: { locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja', 'es'], defaultLocale: 'en' },
@@ -45,27 +47,51 @@ const perSite: SitesConfig = {
   },
 }
 
+/** 发布前的发布表：ja、东方站 en 与西方站 es 为 pending */
+const PENDING: ReleaseTable = {
+  east: { ...LOCALE_RELEASE.east, ...BEFORE_JA_ES_EAST_EN.east },
+  west: { ...LOCALE_RELEASE.west, ...BEFORE_JA_ES_EAST_EN.west },
+}
+
+/** 部分函数（hasForeignPrefix、siteNavLocale 等）读取全局发布表：这些用例期间把全局表改回发布前 */
+function usePendingRelease() {
+  let restore = () => {}
+  beforeEach(() => {
+    restore = overrideRelease(BEFORE_JA_ES_EAST_EN)
+  })
+  afterEach(() => restore())
+}
+
 const route = (url: string, sites: SitesConfig = config, table?: ReleaseTable | null) =>
   routeSite(new URL(url), sites, table === undefined ? LOCALE_RELEASE : table)
 const pass = (noindex = false) => ({ kind: 'pass', noindex })
 const notFound = { kind: 'not-found' }
 
 describe('发布状态登记（rollout.ts）', () => {
-  it('当前配置的每个站点语言都已登记；v1 四种语言为 released', () => {
+  it('当前配置的每个站点语言都已登记；2026-11-21 起 ja、es 与东方站 en 为 released', () => {
     for (const site of SITE_IDS)
       for (const locale of templateConfig.sites[site].locales)
         expect(LOCALE_RELEASE[site][locale], `${site}:${locale}`).toBeDefined()
-    expect(releasedSiteLocales('east', templateConfig)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
-    expect(releasedSiteLocales('west', templateConfig)).toEqual(['en'])
+    expect(releasedSiteLocales('east', templateConfig)).toEqual([
+      'zh-Hant',
+      'zh-Hans',
+      'ko',
+      'ja',
+      'en',
+    ])
+    expect(releasedSiteLocales('west', templateConfig)).toEqual(['en', 'es'])
   })
 
-  it('新语言预先登记为 pending；东方站 en 与西方站 en 分别登记', () => {
-    expect(releaseState('east', 'ja')).toBe('pending')
-    expect(releaseState('west', 'es')).toBe('pending')
+  it('东方站 en 与西方站 en 分别登记；未登记的组合按 pending 处理', () => {
+    expect(releaseState('east', 'ja')).toBe('released')
+    expect(releaseState('west', 'es')).toBe('released')
     expect(releaseState('west', 'en')).toBe('released')
-    expect(releaseState('east', 'en')).toBe('pending')
+    expect(releaseState('east', 'en')).toBe('released')
+    expect(releaseState('east', 'en', PENDING)).toBe('pending')
+    expect(releaseState('west', 'en', PENDING)).toBe('released')
     // 未登记的组合按 pending 处理，不会意外上线
     expect(releaseState('east', 'es')).toBe('pending')
+    expect(releaseState('west', 'ja')).toBe('pending')
   })
 
   it('正式域名只认注册表中的 host', () => {
@@ -76,28 +102,36 @@ describe('发布状态登记（rollout.ts）', () => {
   })
 
   it('isLocaleLive：正式域名只开放已发布语言，staging、预览与本地主机全部开放', () => {
-    expect(isLocaleLive('ja', 'ganjiday.com', config)).toBe(false)
-    expect(isLocaleLive('zh-Hant', 'ganjiday.com', config)).toBe(true)
-    expect(isLocaleLive('es', 'arcanumber.com', config)).toBe(false)
-    expect(isLocaleLive('en', 'arcanumber.com', config)).toBe(true)
-    expect(isLocaleLive('ja', 'east.localhost:3000', config)).toBe(true)
-    expect(isLocaleLive('es', 'xuanxue-web-staging.example.workers.dev', config)).toBe(true)
+    expect(isLocaleLive('ja', 'ganjiday.com', config, PENDING)).toBe(false)
+    expect(isLocaleLive('zh-Hant', 'ganjiday.com', config, PENDING)).toBe(true)
+    expect(isLocaleLive('es', 'arcanumber.com', config, PENDING)).toBe(false)
+    expect(isLocaleLive('en', 'arcanumber.com', config, PENDING)).toBe(true)
+    expect(isLocaleLive('ja', 'east.localhost:3000', config, PENDING)).toBe(true)
+    expect(isLocaleLive('es', 'xuanxue-web-staging.example.workers.dev', config, PENDING)).toBe(
+      true,
+    )
     // 同一语言按主机所在站点判断
-    expect(isLocaleLive('en', 'ganjiday.com', perSite)).toBe(false)
-    expect(isLocaleLive('en', 'arcanumber.com', perSite)).toBe(true)
+    expect(isLocaleLive('en', 'ganjiday.com', perSite, PENDING)).toBe(false)
+    expect(isLocaleLive('en', 'arcanumber.com', perSite, PENDING)).toBe(true)
+    // 现状：已发布后正式域名开放
+    expect(isLocaleLive('ja', 'ganjiday.com', config)).toBe(true)
+    expect(isLocaleLive('es', 'arcanumber.com', config)).toBe(true)
+    expect(isLocaleLive('en', 'ganjiday.com', perSite)).toBe(true)
+    // 未登记的组合仍关闭
+    expect(isLocaleLive('es', 'ganjiday.com', config)).toBe(false)
   })
 
   it('可发现位置只用已发布语言，不看主机', () => {
-    expect(releasedSiteLocales('east', config)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
-    expect(releasedSiteLocales('west', config)).toEqual(['en'])
-    expect(releasedSiteLocales('east', perSite)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
-    expect(isLocaleReleased('ja', config)).toBe(false)
-    expect(isLocaleReleased('en', perSite)).toBe(true)
-    expect(isLocaleReleased('en', perSite, 'east')).toBe(false)
-    expect(isLocaleReleased('en', perSite, 'west')).toBe(true)
+    expect(releasedSiteLocales('east', config, PENDING)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
+    expect(releasedSiteLocales('west', config, PENDING)).toEqual(['en'])
+    expect(releasedSiteLocales('east', perSite, PENDING)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
+    expect(isLocaleReleased('ja', config, undefined, PENDING)).toBe(false)
+    expect(isLocaleReleased('en', perSite, undefined, PENDING)).toBe(true)
+    expect(isLocaleReleased('en', perSite, 'east', PENDING)).toBe(false)
+    expect(isLocaleReleased('en', perSite, 'west', PENDING)).toBe(true)
     const released: ReleaseTable = {
-      ...LOCALE_RELEASE,
-      east: { ...LOCALE_RELEASE.east, ja: 'released' },
+      ...PENDING,
+      east: { ...PENDING.east, ja: 'released' },
     }
     expect(releasedSiteLocales('east', config, released)).toEqual([
       'zh-Hant',
@@ -109,6 +143,8 @@ describe('发布状态登记（rollout.ts）', () => {
 })
 
 describe('站点守卫按发布状态拦截', () => {
+  usePendingRelease()
+
   it('正式域名上的未发布语言前缀返回 404，不跨站跳转', () => {
     expect(route(`${EAST}/ja`)).toEqual(notFound)
     expect(route(`${EAST}/ja/pricing`)).toEqual(notFound)
@@ -179,6 +215,8 @@ describe('站点守卫按发布状态拦截', () => {
 })
 
 describe('跳转目标只用已发布语言', () => {
+  usePendingRelease()
+
   it('认证页：西语浏览器在 es 未发布时不跳到 /es/login', () => {
     const request = new Request(`${WEST}/login`, {
       headers: { 'accept-language': 'es-MX,es;q=0.9' },
@@ -188,6 +226,8 @@ describe('跳转目标只用已发布语言', () => {
 })
 
 describe('同一语言按站点登记（东方站 /en/…）', () => {
+  usePendingRelease()
+
   it('只知道语言时 en 归以它为默认语言的西方站', () => {
     expect(siteOfLocale('en', perSite)).toBe('west')
     expect(siteHasLocale('east', 'en', perSite)).toBe(true)
@@ -255,9 +295,55 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     })
   })
 
-  it('现状（en 只属于西方站）：东方站 /en 301 到 /（预渲染照常生成），/en/* 返回 404', () => {
+  it('发布前（en 只属于西方站）：东方站 /en 301 到 /（预渲染照常生成），/en/* 返回 404', () => {
     expect(route(`${EAST}/en`)).toEqual({ kind: 'redirect', status: 301, location: `${EAST}/` })
     expect(route(`${EAST}/en`, config, null)).toEqual(pass())
     expect(route(`${EAST}/en/pricing`)).toEqual(notFound)
+  })
+})
+
+describe('现状：2026-11-21 发布 ja、es 与东方站根路径英文', () => {
+  const live = (url: string) => routeSite(new URL(url), templateConfig)
+
+  it('正式域名放行 ja 与 es 前缀，西方站不放行东方站语言，东方站不放行 es', () => {
+    expect(live(`${EAST}/ja`)).toEqual(pass())
+    expect(live(`${EAST}/ja/pricing`)).toEqual(pass())
+    expect(live(`${WEST}/es`)).toEqual(pass())
+    expect(live(`${WEST}/es/pricing`)).toEqual(pass())
+    expect(live(`${WEST}/ja`)).toEqual(notFound)
+    expect(live(`${EAST}/es`)).toEqual(notFound)
+  })
+
+  it('东方站根路径英文页面放行；/en 与 /en/<英文页面> 301 到无前缀地址，其余 /en/* 404', () => {
+    for (const path of [
+      '/bazi-calculator',
+      '/zi-wei-dou-shu',
+      '/tarot-spreads',
+      '/faq',
+      '/pricing',
+    ])
+      expect(live(`${EAST}${path}`), path).toEqual(pass())
+    expect(live(`${EAST}/en`)).toEqual({ kind: 'redirect', status: 301, location: `${EAST}/` })
+    expect(live(`${EAST}/en/bazi-calculator`)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/bazi-calculator`,
+    })
+    expect(live(`${EAST}/en/tarot`)).toEqual(notFound)
+    // 只属于东方站英文的地址在西方站仍 404，不跨站
+    expect(live(`${WEST}/bazi-calculator`)).toEqual(notFound)
+  })
+
+  it('不是东方站英文页面的无前缀地址仍 301 到繁中同路径（不跳到不存在的 /en/…）', () => {
+    expect(live(`${EAST}/tarot`)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/zh-hant/tarot`,
+    })
+    expect(live(`${EAST}/blog?x=1`)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/zh-hant/blog?x=1`,
+    })
   })
 })

@@ -16,6 +16,8 @@ const BAZI = {
   'zh-Hant': `${EAST}${encodeURI('/zh-hant/八字排盤')}`,
   'zh-Hans': `${EAST}${encodeURI('/zh-hans/八字排盘')}`,
   ko: `${EAST}${encodeURI('/ko/만세력')}`,
+  ja: `${EAST}${encodeURI('/ja/四柱推命')}`,
+  en: `${EAST}/bazi-calculator`,
 }
 const locales = templateConfig.i18n.locales
 const pages = (site: 'east' | 'west') =>
@@ -40,7 +42,8 @@ describe('主工具页的注册表驱动功能', () => {
     expect(hant).toContain('<loc>https://ganjiday.com/zh-hant</loc>')
     for (const [language, href] of Object.entries(BAZI))
       expect(hant).toContain(`hreflang="${language}" href="${href}"`)
-    expect(hant).toContain(`hreflang="x-default" href="${BAZI['zh-Hant']}"`)
+    // 有东方站英文版本（2026-11-21 发布）：x-default 指向英文版本
+    expect(hant).toContain(`hreflang="x-default" href="${BAZI.en}"`)
     // 页面 head 的声明与站点地图相同
     const page = east.find((item) => item.locale === 'zh-Hans' && item.path === '/八字排盘')
     if (!page) throw new Error('Missing zh-Hans bazi page')
@@ -49,7 +52,9 @@ describe('主工具页的注册表驱动功能', () => {
       { rel: 'alternate', hrefLang: 'zh-Hant', href: BAZI['zh-Hant'] },
       { rel: 'alternate', hrefLang: 'zh-Hans', href: BAZI['zh-Hans'] },
       { rel: 'alternate', hrefLang: 'ko', href: BAZI.ko },
-      { rel: 'alternate', hrefLang: 'x-default', href: BAZI['zh-Hant'] },
+      { rel: 'alternate', hrefLang: 'ja', href: BAZI.ja },
+      { rel: 'alternate', hrefLang: 'en', href: BAZI.en },
+      { rel: 'alternate', hrefLang: 'x-default', href: BAZI.en },
     ])
     const west = sitemap(pages('west'), 'https://arcanumber.com')
     expect(west).toContain('<loc>https://arcanumber.com/life-path-number</loc>')
@@ -57,20 +62,22 @@ describe('主工具页的注册表驱动功能', () => {
   })
 
   // 使用者 2026-11-20：东方站 `/` 是英文首页，en 与 x-default 都指向它
-  it('首页 hreflang 簇：东方站三种语言加英文首页 /，x-default 为 /', () => {
+  it('首页 hreflang 簇：东方站各语言首页加英文首页 /，x-default 为 /', () => {
     expect(
       alternateLinks(EAST, '/', locales, undefined, 'ko').map((link) => [link.hrefLang, link.href]),
     ).toEqual([
+      ['en', `${EAST}/`],
       ['zh-Hant', `${EAST}/zh-hant`],
       ['zh-Hans', `${EAST}/zh-hans`],
       ['ko', `${EAST}/ko`],
-      ['en', `${EAST}/`],
+      ['ja', `${EAST}/ja`],
       ['x-default', `${EAST}/`],
     ])
     expect(
       alternateLinks(EAST, '/', locales, undefined, 'en').map((link) => [link.hrefLang, link.href]),
     ).toEqual([
       ['en', 'https://arcanumber.com/'],
+      ['es', 'https://arcanumber.com/es'],
       ['x-default', 'https://arcanumber.com/'],
     ])
   })

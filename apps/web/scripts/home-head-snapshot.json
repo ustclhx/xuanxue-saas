@@ -3,6 +3,7 @@
     "canonical": "/",
     "hreflang": {
       "en": "/",
+      "es": "/es",
       "x-default": "/"
     },
     "robots": null,
@@ -22,6 +23,7 @@
     "canonical": "/zh-hant",
     "hreflang": {
       "en": "/",
+      "ja": "/ja",
       "ko": "/ko",
       "x-default": "/",
       "zh-Hans": "/zh-hans",
@@ -34,6 +36,7 @@
     "canonical": "/zh-hans",
     "hreflang": {
       "en": "/",
+      "ja": "/ja",
       "ko": "/ko",
       "x-default": "/",
       "zh-Hans": "/zh-hans",
@@ -46,6 +49,7 @@
     "canonical": "/ko",
     "hreflang": {
       "en": "/",
+      "ja": "/ja",
       "ko": "/ko",
       "x-default": "/",
       "zh-Hans": "/zh-hans",
@@ -71,18 +75,20 @@
     "canonical": "/",
     "hreflang": {
       "en": "/",
+      "ja": "/ja",
       "ko": "/ko",
       "x-default": "/",
       "zh-Hans": "/zh-hans",
       "zh-Hant": "/zh-hant"
     },
     "robots": null,
-    "jsonLd": []
+    "jsonLd": ["FAQPage", "Organization", "WebSite"]
   },
   "tool-west": {
     "canonical": "/life-path-number",
     "hreflang": {
       "en": "/life-path-number",
+      "es": "/es/numero-de-vida",
       "x-default": "/life-path-number"
     },
     "robots": null,
@@ -91,8 +97,10 @@
   "tool-zh-hant": {
     "canonical": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
     "hreflang": {
+      "en": "/bazi-calculator",
+      "ja": "/ja/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
       "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
-      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "x-default": "/bazi-calculator",
       "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
       "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
     },
@@ -102,8 +110,10 @@
   "tool-zh-hans": {
     "canonical": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
     "hreflang": {
+      "en": "/bazi-calculator",
+      "ja": "/ja/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
       "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
-      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "x-default": "/bazi-calculator",
       "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
       "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
     },
@@ -113,8 +123,10 @@
   "tool-ko": {
     "canonical": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
     "hreflang": {
+      "en": "/bazi-calculator",
+      "ja": "/ja/%E5%9B%9B%E6%9F%B1%E6%8E%A8%E5%91%BD",
       "ko": "/ko/%EB%A7%8C%EC%84%B8%EB%A0%A5",
-      "x-default": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4",
+      "x-default": "/bazi-calculator",
       "zh-Hans": "/zh-hans/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%98",
       "zh-Hant": "/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4"
     },

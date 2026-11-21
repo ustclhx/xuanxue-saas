@@ -6,12 +6,14 @@ const hostname = new URL(process.env.PRODUCTION_URL ?? 'https://arcanumber.com')
 const isEasternSite = ['ganjiday.com', 'east.localhost'].includes(hostname)
 
 if (isEasternSite) {
-  test('东方站根路径直接进入语言首页', async ({ page }) => {
-    // 根路径不再展示语言选择页：无其他偏好时 301 到规范首页 /zh-hant，简体、韩语偏好 302 到对应首页
+  test('东方站根路径是英文首页，不跳转', async ({ page }) => {
+    // 使用者 2026-11-20：两站 `/` 都是英文首页、不按浏览器语言跳转；2026-11-21 起为东方站英文落地页
     const response = await page.goto('/')
     expect(response?.status()).toBe(200)
-    await expect(page).toHaveURL(/\/(zh-hant|zh-hans|ko)$/)
+    await expect(page).toHaveURL((url) => url.pathname === '/')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.locator('html')).toHaveAttribute('data-site', 'east')
+    await expect(page).toHaveTitle(/Ganjiday/)
   })
 
   // 语言首页是品牌落地页，八字排盤 / 만세력在关键词 URL 上（openspec separate-landing-homepage D1）
@@ -121,7 +123,10 @@ test('规范地址：结尾斜杠永久跳转到无斜杠地址，东方站旧 /
         // 使用者 2026-11-20：东方站 `/` 是英文首页（不跳转），旧英文入口页 /en 301 到 `/`
         ['/en', '/'],
         ['/zh-hant/', '/zh-hant'],
-        ['/pricing?ref=smoke', '/zh-hant/pricing?ref=smoke'],
+        // 东方站根路径英文 2026-11-21 发布：`/pricing` 是英文定价页；`/en/<英文页面>` 301 到无前缀地址，
+        // 不是英文页面的裸路径仍保留路径跳到繁中
+        ['/en/pricing', '/pricing'],
+        ['/newsletter?ref=smoke', '/zh-hant/newsletter?ref=smoke'],
       ]
     : [
         ['/pricing/', '/pricing'],

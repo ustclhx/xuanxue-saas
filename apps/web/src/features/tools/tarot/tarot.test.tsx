@@ -32,7 +32,7 @@ describe('塔罗路由', () => {
       ])
   })
 
-  it('hreflang 只在同站内互指（D5）：西方站英语页自指，东方站繁中与韩语互指', () => {
+  it('hreflang 只在同站内互指（D5）：西方站英语与西语互指，东方站各语言与东方站英文牌阵页互指', () => {
     for (const spread of TAROT_SPREADS)
       for (const locale of ['en', 'zh-Hant', 'ko'] as const) {
         const links = alternateLinks('', tarotPath(spread, locale), undefined, undefined, locale)
@@ -40,17 +40,20 @@ describe('塔罗路由', () => {
         const en = `https://arcanumber.com${encodeURI(tarotPath(spread, 'en'))}`
         if (locale === 'en') {
           expect(href('en')).toBe(en)
+          expect(href('es')).toBe(`https://arcanumber.com/es${encodeURI(tarotPath(spread, 'es'))}`)
           expect(href('zh-Hant')).toBeUndefined()
           expect(href('x-default')).toBe(en)
           continue
         }
-        expect(href('en')).toBeUndefined()
+        // 东方站页面的 en 是东方站根路径英文牌阵页（2026-11-21 发布），不是西方站页面
+        expect(href('en')).toBe(`https://ganjiday.com${tarotPath(spread, 'en', 'east')}`)
         expect(href('zh-Hant')).toBe(
           `https://ganjiday.com/zh-hant${encodeURI(tarotPath(spread, 'zh-Hant'))}`,
         )
         expect(href('ko')).toBe(`https://ganjiday.com/ko${encodeURI(tarotPath(spread, 'ko'))}`)
-        // x-default 为同一牌阵的繁中版本，不是会跳转的根路径
-        expect(href('x-default')).toBe(href('zh-Hant'))
+        // x-default 为同一牌阵的东方站英文版本，不是会跳转的根路径
+        expect(href('x-default')).toBe(href('en'))
+        expect(links.every((link) => link.href.startsWith('https://ganjiday.com/'))).toBe(true)
       }
   })
 

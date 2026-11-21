@@ -110,33 +110,24 @@ describe('三语牌义内容与 SEO', () => {
       )
       const slug = page.path.split('/').at(-1) ?? ''
       const en = `https://arcanumber.com${tarotMeaningPath(slug, 'en')}`
-      // es 属于西方站但尚未发布（rollout.ts）：英文页不列 es；es 页面自指并列出英文版本，不进站点地图
+      // es 属于西方站（2026-11-21 发布）：西方站 en 与 es 互指，x-default 为英文版本
       const es = new URL(`https://arcanumber.com/es${tarotMeaningPath(slug, 'es')}`).href
-      // ja 未发布（features/i18n/rollout.ts）：页面自身保留自指；已发布语言的页面不列 ja（站点地图按发布状态过滤在 crawlers.ts）
-      if (page.locale === 'ja') {
-        expect(alternate.ja).toBe(
-          new URL(`https://ganjiday.com/ja${tarotMeaningPath(slug, 'ja')}`).href,
-        )
-        continue
-      }
+      // 东方站页面另与 ja 和东方站英文 as feelings 牌页互指（2026-11-21 发布），x-default 为东方站英文版本
+      const eastEn = new URL(`https://ganjiday.com${tarotMeaningPath(slug, 'en', 'east')}`).href
       expect(alternate).toEqual(
-        page.locale === 'en'
-          ? { en, 'x-default': en }
-          : page.locale === 'es'
-            ? { en, es, 'x-default': en }
-            : {
-                'zh-Hant': new URL(
-                  `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
-                ).href,
-                'zh-Hans': new URL(
-                  `https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`,
-                ).href,
-                ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
-                // x-default 为同一牌义的繁中版本，不是会跳转的根路径
-                'x-default': new URL(
-                  `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
-                ).href,
-              },
+        page.locale === 'en' || page.locale === 'es'
+          ? { en, es, 'x-default': en }
+          : {
+              'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`)
+                .href,
+              'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`)
+                .href,
+              ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
+              ja: new URL(`https://ganjiday.com/ja${tarotMeaningPath(slug, 'ja')}`).href,
+              en: eastEn,
+              // x-default 为同一牌义的东方站英文版本，不是会跳转的根路径
+              'x-default': eastEn,
+            },
       )
       expect(xml).toContain(`<loc>${alternate[page.locale]}</loc>`)
       expect(
@@ -259,7 +250,8 @@ describe('三语牌义内容与 SEO', () => {
       )
       const xml = sitemap(pages, '')
       for (const locale of TAROT_LOCALES) {
-        const seo = tarotIndexSeo(locale)
+        // 与路由相同按站点生成（meaning-route.tsx）：东方站页面的 en 指向东方站英文牌页索引
+        const seo = tarotIndexSeo(locale, site)
         const listed = pages.filter((page) => page.path === seo.path && page.locale === locale)
         const west = locale === 'en' || locale === 'es'
         expect(listed, `${site} ${locale}`).toHaveLength((site === 'west') === west ? 1 : 0)
@@ -269,14 +261,10 @@ describe('三语牌义内容与 SEO', () => {
           head.links.flatMap((link) => ('hrefLang' in link ? [[link.hrefLang, link.href]] : [])),
         )
         expect(Object.keys(alternate).sort()).toEqual(
-          locale === 'en'
-            ? ['en', 'x-default']
-            : locale === 'es'
-              ? ['en', 'es', 'x-default']
-              : locale === 'ja'
-                ? ['ja', 'ko', 'x-default', 'zh-Hans', 'zh-Hant']
-                : ['ko', 'x-default', 'zh-Hans', 'zh-Hant'],
+          west ? ['en', 'es', 'x-default'] : ['en', 'ja', 'ko', 'x-default', 'zh-Hans', 'zh-Hant'],
         )
+        // 东方站页面的 en 是东方站英文牌页索引，不跨站
+        if (!west) expect(alternate.en).toBe('https://ganjiday.com/tarot-feelings')
         // 站点地图路由按发布状态过滤语言（crawlers.ts），这里的 sitemap() 不过滤，es 与 ja 同样列出
         expect(xml).toContain(`<loc>${alternate[locale]}</loc>`)
         expect(entries.has(`${locale === 'en' ? '' : `/${locale.toLowerCase()}`}${seo.path}`)).toBe(

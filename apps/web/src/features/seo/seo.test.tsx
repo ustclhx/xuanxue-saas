@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { EAST_ENGLISH_STATIC_PATHS } from '../east-en/paths.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { defaultShareCardLayout } from '../share-cards/layout.tsx'
@@ -134,7 +135,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // 注册在 TOOL_ROUTES 的工具页只与工具各语言版本互指，见 features/tools/bazi/bazi.test.tsx
         // 两站分开经营（D5）：只与同站语言互指，x-default 为同一页面的站点默认语言版本
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
-        // 东方站根路径英文（5b）未发布：页面只在预览主机可访问，hreflang 见 east-en 的测试
+        // 东方站根路径英文（5b）自己的页面（site: 'east'）的 hreflang 见 east-en 的测试
         if (!page.alternates && !page.site) {
           const site = siteOfLocale(locale, config) ?? 'west'
           // hreflang 只列已发布语言，未发布语言（ja）的页面另列自身（rollout.ts）
@@ -143,19 +144,25 @@ describe('公开页面 SEO（4.1–4.3）', () => {
               siteOfLocale(other, config) === site &&
               (other === locale || isLocaleReleased(other, config, site)),
           )
-          // 东方站各语言首页另与东方站英文入口页 `/en` 互指
+          // 东方站各语言首页另与东方站英文首页 `/` 互指；东方站根路径英文发布后（2026-11-21），
+          // 共用地址的静态页与法律页（EAST_ENGLISH_STATIC_PATHS）也与东方站英文版本互指
+          const eastEnglish =
+            site === 'east' &&
+            (page.path === '/' ||
+              (isLocaleReleased('en', config, 'east') &&
+                EAST_ENGLISH_STATIC_PATHS.some((path) => path === page.path)))
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
-            siteLocales.length + 1 + (site === 'east' && page.path === '/' ? 1 : 0),
+            siteLocales.length + 1 + (eastEnglish ? 1 : 0),
           )
           expect(head.links).toContainEqual({
             rel: 'alternate',
             hrefLang: 'x-default',
-            // 东方站首页的 x-default 为英文首页 `/`（使用者 2026-11-20）
+            // 东方站有英文版本时 x-default 为东方站英文页（首页为 `/`），否则为繁中同页（使用者 2026-11-20）
             href: new URL(
               site === 'west'
                 ? `${seoSiteOrigin('west')}${localizedPath(page.path, 'en')}`
-                : page.path === '/'
-                  ? `${seoSiteOrigin('east')}/`
+                : eastEnglish
+                  ? `${seoSiteOrigin('east')}${page.path}`
                   : `${seoSiteOrigin('east')}${localizedPath(page.path, 'zh-Hant')}`,
             ).href,
           })
@@ -434,17 +441,21 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
       link.hrefLang,
       link.href,
     ])
-  // 西方站英文定价页：只有自身与 x-default，不出现东方站地址
+  // 西方站英文定价页：只有西方站的 en / es 与 x-default（英文），不出现东方站地址
   expect(hreflangs('en')).toEqual([
     ['en', 'https://arcanumber.com/pricing'],
+    ['es', 'https://arcanumber.com/es/pricing'],
     ['x-default', 'https://arcanumber.com/pricing'],
   ])
-  // 东方站三种语言互指，x-default 为繁中定价页（不是会跳转的根路径），不出现西方站地址
+  // 东方站各语言与东方站英文定价页 /pricing 互指（2026-11-21 发布），x-default 为东方站英文版本，
+  // 不出现西方站地址
   expect(hreflangs('zh-Hant')).toEqual([
+    ['en', 'https://ganjiday.com/pricing'],
     ['zh-Hant', 'https://ganjiday.com/zh-hant/pricing'],
     ['zh-Hans', 'https://ganjiday.com/zh-hans/pricing'],
     ['ko', 'https://ganjiday.com/ko/pricing'],
-    ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
+    ['ja', 'https://ganjiday.com/ja/pricing'],
+    ['x-default', 'https://ganjiday.com/pricing'],
   ])
   // 西方站页面不出现东方站地址；东方站根路径英文（5b，site: 'east'）只出现东方站地址
   for (const page of pages.filter(
@@ -549,8 +560,10 @@ it('llms.txt 按站点列出简介与本站核心工具的规范地址，未知 
     `[만세력](https://ganjiday.com/ko${encodeURI('/만세력')})`,
     `https://ganjiday.com/zh-hans${encodeURI('/紫微斗数排盘')})`,
     'https://ganjiday.com/zh-hant/faq)',
-    // 东方站英文首页 `/`（使用者 2026-11-20；原英文入口页 /en）
-    '](https://ganjiday.com/)',
+    // 东方站根路径英文（2026-11-21 发布）：与其他语言一样列工具、定价与常见问题，不列首页
+    '](https://ganjiday.com/bazi-calculator)',
+    '](https://ganjiday.com/faq)',
+    `[四柱推命](https://ganjiday.com/ja${encodeURI('/四柱推命')})`,
   ])
     expect(east).toContain(url)
   expect(east).toMatch(/\(https:\/\/ganjiday\.com\/zh-hant\/[^)]+\): .*塔羅/)

@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test'
 import { fillTime } from './date-field.ts'
 
-// 日语（东方站，openspec add-locales-eu-ja 第 4 组，任务 4.11）：ja 处于 pending 状态——
-// 预览 / 本地主机按地址可访问并整体 noindex，正式域名返回 404，不进站点地图与既有页面的 hreflang。
+// 日语（东方站，openspec add-locales-eu-ja 第 4 组，任务 4.11），2026-11-21 发布（rollout.ts）：
+// 正式域名可访问，进入站点地图与东方站既有页面的 hreflang；西方站 /ja 仍 404。
+// 未发布语言的拦截机制由单元测试（rollout.test.ts、rollout-discovery.test.ts）覆盖。
 const localSite = (baseURL: string | undefined, site: string) => {
   const url = new URL(baseURL ?? 'http://localhost:3000')
   url.hostname = `${site}.localhost`
@@ -36,26 +37,34 @@ test('本地东方站按地址可访问 ja 页面：lang、Title、H1 与 hrefla
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'タロット「太陽」の意味：正位置・逆位置',
   )
-  // 既有页面的 hreflang 不出现未发布的 ja
+  // 已发布：东方站既有页面的 hreflang 列出 ja 版本
   await page.goto(`${east}/zh-hant/${encodeURIComponent('八字排盤')}`)
-  await expect(page.locator('link[rel="alternate"][hreflang="ja"]')).toHaveCount(0)
+  await expect(page.locator('link[rel="alternate"][hreflang="ja"]')).toHaveAttribute(
+    'href',
+    `https://ganjiday.com${SHICHU}`,
+  )
 })
 
-test('正式域名上 ja 返回 404，站点地图不列 ja；西方站 /ja 也是 404', async ({
+test('正式域名上 ja 不再 404，站点地图列出 ja；西方站 /ja 仍是 404', async ({
   request,
   baseURL,
 }) => {
   const origin = baseURL ?? 'http://localhost:3000'
   const host = (value: string) => ({ maxRedirects: 0, headers: { host: value } })
-  for (const path of ['/ja', SHICHU, CARD])
-    expect((await request.get(`${origin}${path}`, host('ganjiday.com'))).status(), path).toBe(404)
+  // 本地是 http：正式域名的请求先 301 到 https 同一地址（规范化），不再是发布前的 404
+  for (const path of ['/ja', SHICHU, CARD]) {
+    const response = await request.get(`${origin}${path}`, host('ganjiday.com'))
+    expect(response.status(), path).toBe(301)
+    expect(response.headers().location, path).toBe(`https://ganjiday.com${path}`)
+  }
   const east = host(new URL(localSite(baseURL, 'east')).host)
   const west = host(new URL(localSite(baseURL, 'west')).host)
   expect((await request.get(`${origin}/ja`, west)).status()).toBe(404)
   const index = await (await request.get(`${origin}/sitemap.xml`, east)).text()
-  expect(index).not.toContain('/sitemap/ja.xml')
-  expect((await request.get(`${origin}/sitemap/ja.xml`, east)).status()).toBe(404)
-  // 本地 / 预览主机按地址可访问（staging 的 *.workers.dev 整体 noindex，见 site/gate.ts）
+  expect(index).toContain('/sitemap/ja.xml')
+  const sitemap = await request.get(`${origin}/sitemap/ja.xml`, east)
+  expect(sitemap.status()).toBe(200)
+  expect(await sitemap.text()).toContain(`<loc>https://ganjiday.com${SHICHU}</loc>`)
   expect((await request.get(`${origin}/ja`, east)).status()).toBe(200)
 })
 

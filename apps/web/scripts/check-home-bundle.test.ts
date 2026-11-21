@@ -546,9 +546,13 @@ describe('首页 head 对照', () => {
       expect(snapshot[id]?.jsonLd, id).toEqual(['BreadcrumbList', 'FAQPage', 'WebApplication'])
     expect(snapshot['tool-west']?.canonical).toBe('/life-path-number')
     expect(decodeURI(snapshot['tool-ko']?.canonical ?? '')).toBe('/ko/만세력')
-    expect(decodeURI(snapshot['tool-zh-hans']?.hreflang['x-default'] ?? '')).toBe(
-      '/zh-hant/八字排盤',
-    )
+    // 八字排盤有东方站英文版本（2026-11-21 发布）：x-default 指向英文版本，hreflang 不跨站
+    expect(snapshot['tool-zh-hans']?.hreflang['x-default']).toBe('/bazi-calculator')
+    expect(snapshot['tool-zh-hans']?.hreflang.en).toBe('/bazi-calculator')
+    expect(decodeURI(snapshot['tool-zh-hans']?.hreflang['zh-Hant'] ?? '')).toBe('/zh-hant/八字排盤')
+    // 西方站首页列出西方站的 es，东方站首页列出 ja
+    expect(snapshot.west?.hreflang.es).toBe('/es')
+    expect(snapshot['zh-hant']?.hreflang.ja).toBe('/ja')
   })
 
   it('主工具页 head 与快照对照，缺少预渲染产物时失败', () => {

@@ -13,21 +13,29 @@ vi.mock('../i18n/language-controls.tsx', () => ({
 vi.mock('../i18n/language-select.tsx', () => ({ LanguageSelect: () => null }))
 
 import { Route } from '../../routes/__root.tsx'
+import { overrideRelease } from '../i18n/rollout-fixture.ts'
 
 describe('根布局页面 head', () => {
+  // 测试中当前语言为 en：东方站英文发布后（2026-11-21）东方站用英文站名，发布前回退到繁中站名
   it.each([
-    ['east', '干支日'],
-    ['west', 'Arcanumber'],
-  ])('使用 %s 站点品牌作为默认标题', async (id, brand) => {
+    ['east', 'Ganjiday', false],
+    ['east', '干支日', true],
+    ['west', 'Arcanumber', false],
+  ])('使用 %s 站点品牌作为默认标题（%s）', async (id, brand, beforeRelease) => {
     const head = Route.options.head
     if (!head) throw new Error('Root head is missing')
-    const result = await head({
-      matches: [{ pathname: '/' }],
-      loaderData: { site: { id, known: true } },
-    } as Parameters<typeof head>[0])
-    const title = result?.meta?.find((meta) => meta && 'title' in meta)?.title
-    expect(title).toBe(brand)
-    expect(title).not.toContain('xuanxue')
+    const restore = beforeRelease ? overrideRelease({ east: { en: 'pending' } }) : () => {}
+    try {
+      const result = await head({
+        matches: [{ pathname: '/' }],
+        loaderData: { site: { id, known: true } },
+      } as Parameters<typeof head>[0])
+      const title = result?.meta?.find((meta) => meta && 'title' in meta)?.title
+      expect(title).toBe(brand)
+      expect(title).not.toContain('xuanxue')
+    } finally {
+      restore()
+    }
   })
 
   it('应用、账号与后台页面输出 noindex，公开营销和内容页面可索引', async () => {

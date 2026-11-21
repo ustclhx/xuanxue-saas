@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { LOCALE_RELEASE } from '../i18n/rollout.ts'
+import { overrideRelease } from '../i18n/rollout-fixture.ts'
 import { llmsTxt, sitemap, sitemapLocales } from '../seo/crawlers.ts'
 import { alternateLinks, pageHead } from '../seo/metadata.ts'
 import { publicPages } from '../seo/pages.ts'
@@ -14,12 +15,17 @@ import { FEELINGS_INDEX, SPREADS } from './copy/tarot.ts'
 import { BAZI, ZIWEI } from './copy/tools.ts'
 import { EAST_EN_LINKS, linkKeys } from './links.tsx'
 import { isEastEnglishOnlyPath, isEastEnglishPath } from './paths.ts'
+import { eastEnToolHead, toHead } from './route-data.ts'
 import { tarotFeelingsSeoPages } from './seo-pages.ts'
+
+// route-data.ts 经 feelings.functions.ts 读取内容集合（只在构建 / 服务端可用），这里不需要牌页数据
+vi.mock('./feelings.functions.ts', () => ({ getTarotFeelings: vi.fn() }))
 
 /**
  * 东方站根路径英文（openspec add-locales-eu-ja 5b）：两站英文页面互不链接、hreflang 不跨 host，
  * 东方站页面的 x-default 有英文版本时指向英文版本、否则为繁中（使用者 2026-11-20）。
- * 东方站 en 的发布状态在测试中临时改为 released 验证发布后的输出，结束后恢复 pending。
+ * 东方站 en 已于 2026-11-21 发布：每个用例先改回 pending 验证发布前的输出，「发布后」用例再改为 released，
+ * 结束后恢复真实发布表。
  */
 const EAST = 'https://ganjiday.com'
 const WEST = 'https://arcanumber.com'
@@ -27,9 +33,11 @@ const east = LOCALE_RELEASE.east as Record<string, string>
 const hrefs = (links: readonly { hrefLang?: string; href: string }[]) =>
   Object.fromEntries(links.flatMap((l) => (l.hrefLang ? [[l.hrefLang, l.href]] : [])))
 
-afterEach(() => {
-  east.en = 'pending'
+let restore = () => {}
+beforeEach(() => {
+  restore = overrideRelease({ east: { en: 'pending' } })
 })
+afterEach(() => restore())
 
 describe('东方站英文页面地址', () => {
   it('注册表登记东方站英文路径，与西方站英文路径不重叠', () => {
@@ -128,7 +136,12 @@ describe('hreflang 与 x-default', () => {
     const west = hrefs(
       alternateLinks(WEST, '/tarot/daily', undefined, tarotAlternates('daily', 'west'), 'en'),
     )
-    expect(west).toEqual({ en: `${WEST}/tarot/daily`, 'x-default': `${WEST}/tarot/daily` })
+    // 西方站 es 已发布（2026-11-21）：西方站页面只列西方站的 en / es，x-default 为英文
+    expect(west).toEqual({
+      en: `${WEST}/tarot/daily`,
+      es: `${WEST}/es/tarot/carta-del-dia`,
+      'x-default': `${WEST}/tarot/daily`,
+    })
     for (const links of [zh, card, spread])
       expect(Object.values(links).every((href) => href.startsWith(EAST))).toBe(true)
   })
@@ -143,7 +156,7 @@ describe('hreflang 与 x-default', () => {
         { slug: 'the-sun', title: 'The Sun as Feelings', description: 'd' },
       ]),
     }
-    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
+    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'])
     const eastXml = sitemap(publicPages(content, new Date(), templateConfig), EAST, 'en', 'east')
     expect(eastXml).toContain(`<loc>${EAST}/bazi-calculator</loc>`)
     expect(eastXml).toContain(`<loc>${EAST}/tarot-feelings/the-sun</loc>`)
@@ -156,6 +169,25 @@ describe('hreflang 与 x-default', () => {
     const llms = llmsTxt('east') ?? ''
     expect(llms).toContain(`(${EAST}/bazi-calculator)`)
     expect(llms).not.toContain('arcanumber.com')
+  })
+
+  it('发布后：八字、紫微英文页与东方站各语言版本声明同一组 hreflang（ML-05 互指，含 ja）', () => {
+    east.en = 'released'
+    for (const [id, zhPath] of [
+      ['bazi', '/八字排盤'],
+      ['ziwei', '/紫微斗數排盤'],
+    ] as const) {
+      const en = hrefs(toHead(eastEnToolHead(id)).links)
+      const zh = hrefs(
+        pageHead({ path: zhPath, locale: 'zh-Hant', title: 't', description: 'd' }, '').links,
+      )
+      expect(en, id).toEqual(zh)
+      expect(en.ja, id).toBeDefined()
+      expect(
+        Object.values(en).every((href) => href.startsWith(EAST)),
+        id,
+      ).toBe(true)
+    }
   })
 
   it('东方站英文页面的 head：站名 Ganjiday、canonical 在东方站', () => {

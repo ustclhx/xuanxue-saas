@@ -105,9 +105,16 @@ test('认证页 noindex，?redirect= 变体 canonical 为不带参数的登录�
   await expect(login).toHaveAttribute('href', '/login')
   const east = await page.goto(`${localSite(baseURL, 'east')}/ko/pricing`)
   expect(east?.status()).toBe(200)
+  // 定价页有东方站英文版本（2026-11-21 发布）：x-default 为同一页面的东方站英文版本
   await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
     'href',
-    'https://ganjiday.com/zh-hant/pricing',
+    'https://ganjiday.com/pricing',
+  )
+  // 没有英文版本的页面 x-default 仍为繁中同页
+  await page.goto(`${localSite(baseURL, 'east')}/ko/newsletter`)
+  await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute(
+    'href',
+    'https://ganjiday.com/zh-hant/newsletter',
   )
 })
 
@@ -119,11 +126,13 @@ test('Host 决定地图索引与抓取规则；内部入口不对外暴露', asy
   const index = await request.get(`${east}/sitemap.xml`, eastOptions)
   expect(index.status()).toBe(200)
   expect(await index.text()).toContain('https://ganjiday.com/sitemap/ko.xml')
-  // 东方站 en 子图只有英文首页 `/`（使用者 2026-11-20）
+  // 东方站 en 子图：东方站根路径英文页面（2026-11-21 发布），只有东方站地址
   expect(await index.text()).toContain('https://ganjiday.com/sitemap/en.xml')
   const english = await (await request.get(`${east}/sitemap/en.xml`, eastOptions)).text()
-  expect(english.match(/<loc>/g)).toHaveLength(1)
   expect(english).toContain('<loc>https://ganjiday.com/</loc>')
+  expect(english).toContain('<loc>https://ganjiday.com/bazi-calculator</loc>')
+  expect(english).not.toContain('arcanumber.com')
+  expect(english).not.toContain('/life-path-number')
   const korean = await request.get(`${east}/sitemap/ko.xml`, eastOptions)
   expect(korean.status()).toBe(200)
   expect(await korean.text()).toContain('<loc>https://ganjiday.com/ko</loc>')
@@ -154,8 +163,11 @@ test('两站分开经营：不属于本站的语言返回本站 404，东方站 
   })
   for (const path of ['/zh-hant', '/zh-hans/pricing', '/ko/'])
     expect((await request.get(`${local}${path}`, as('west'))).status(), path).toBe(404)
-  expect((await request.get(`${local}/en/pricing`, as('east'))).status()).toBe(404)
-  expect((await request.get(`${local}/en/faq`, as('east'))).status()).toBe(404)
+  // 东方站 `/en/<英文页面>` 301 到无前缀地址（2026-11-21 发布后），其他 `/en/*` 404
+  const prefixed = await request.get(`${local}/en/pricing`, as('east'))
+  expect(prefixed.status()).toBe(301)
+  expect(new URL(prefixed.headers().location ?? '', local).pathname).toBe('/pricing')
+  expect((await request.get(`${local}/en/tarot`, as('east'))).status()).toBe(404)
   // 404 使用根布局的本站品牌标题
   const missing = await request.get(`${local}/zh-hant/faq`, as('west'))
   expect(missing.status()).toBe(404)
@@ -187,7 +199,12 @@ test('两站分开经营：不属于本站的语言返回本站 404，东方站 
     'href',
     'https://ganjiday.com/ko',
   )
-  await expect(page.locator('main a[href="/zh-hans"]').first()).toBeVisible()
+  // 东方站英文落地页（2026-11-21 发布）：正文链接东方站英文工具页；其他语言入口在页头与页脚的语言菜单
+  await expect(page.locator('main a[href="/bazi-calculator"]').first()).toBeVisible()
+  await expect(page.locator('header a[hreflang="zh-Hans"]').first()).toHaveAttribute(
+    'href',
+    '/zh-hans',
+  )
   await expect(page.locator('a[href*="arcanumber"]')).toHaveCount(0)
 })
 

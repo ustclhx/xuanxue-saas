@@ -2,10 +2,11 @@ import { readFileSync } from 'node:fs'
 import { SITE_IDS } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
 import { eastEnglishAlternates } from '../marketing/east-english/head.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
-import { tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
+import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
 import { sitemap } from './crawlers.ts'
 import { absoluteUrl, localizedPath, pageHead, pageSite } from './metadata.ts'
 import { localeOrigin } from './origins.ts'
@@ -26,8 +27,8 @@ function generated<T>(name: string): T[] {
   ) as T[]
 }
 
-// 只检查已发布的「站点 × 语言」（rollout.ts）：未发布的东方站根路径英文页面（5b）不在站点地图中，
-// 也不出现在已发布页面的 hreflang 中
+// 只检查已发布的「站点 × 语言」（rollout.ts）：未发布的页面不在站点地图中，也不出现在已发布页面的 hreflang 中。
+// 工具页清单与 pages.server.ts 的 getPublicPages 相同（含东方站根路径英文的 as feelings 牌页）
 const allPages = publicPages(
   {
     posts: generated('allPosts'),
@@ -37,6 +38,8 @@ const allPages = publicPages(
     toolPages: [
       ...numerologySeoPages(generated('allNumerologies')),
       ...tarotMeaningSeoPages(generated('allTarots')),
+      ...tarotLocalizedSeoPages(),
+      ...tarotFeelingsSeoPages(generated('allTarotFeelings')),
     ],
   },
   new Date(),
@@ -47,6 +50,9 @@ const pages = allPages.filter((page) =>
 
 type Alternates = Record<string, string>
 
+/** 同一 <loc> 或页面 head 中重复出现的 hreflang（每种语言与 x-default 都只能出现一次） */
+const duplicates: string[] = []
+
 /** 站点地图中每个 <loc> 的 hreflang → href */
 function sitemapEntries(): Map<string, Alternates> {
   const entries = new Map<string, Alternates>()
@@ -55,8 +61,12 @@ function sitemapEntries(): Map<string, Alternates> {
       const xml = sitemap(pages, '', locale, site)
       for (const [, loc = '', body = ''] of xml.matchAll(/<url><loc>(.*?)<\/loc>(.*?)<\/url>/g)) {
         const links: Alternates = {}
-        for (const [, lang = '', href = ''] of body.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g))
+        for (const [, lang = '', href = ''] of body.matchAll(
+          /hreflang="([^"]+)" href="([^"]+)"/g,
+        )) {
+          if (lang in links) duplicates.push(`${loc} ${lang}`)
           links[lang] = href.replaceAll('&amp;', '&')
+        }
         entries.set(loc.replaceAll('&amp;', '&'), links)
       }
     }
@@ -66,6 +76,9 @@ function sitemapEntries(): Map<string, Alternates> {
 function headAlternates(page: (typeof pages)[number]) {
   const head = pageHead(page, '')
   const canonical = head.links.find((link) => link.rel === 'canonical')?.href ?? ''
+  const langs = head.links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
+  for (const lang of langs.filter((item, index) => langs.indexOf(item) !== index))
+    duplicates.push(`${canonical} ${lang}`)
   const alternates: Alternates = Object.fromEntries(
     head.links.flatMap((link) => ('hrefLang' in link ? [[link.hrefLang, link.href]] : [])),
   )
@@ -88,10 +101,12 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
       expect(alternates, canonical).toEqual(entry)
       expect(alternates[page.locale], canonical).toBe(canonical)
     }
+    expect(duplicates).toEqual([])
   })
 
   // 使用者 2026-11-20：两站默认语言都是英语，东方站 `/` 是英文首页（不跳转）；
-  // 有英文版本的页面（目前只有东方站首页一组）x-default 指向英文版本 `/`，其余东方站页面仍指向繁中同页
+  // 东方站有英文版本的页面（2026-11-21 发布根路径英文后）x-default 指向英文版本，其余仍指向繁中同页；
+  // 西方站 x-default 为英文版本
   it('x-default 指向同一页面的站点默认语言版本：英文版本优先，其余为繁中同页', () => {
     for (const [loc, alternates] of entries) {
       expect(alternates['x-default'], loc).toBeDefined()
@@ -106,14 +121,18 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
       ).toBe(true)
       if (loc.startsWith('https://ganjiday.com/') && alternates['zh-Hant'] && !alternates.en)
         expect(alternates['x-default'], loc).toBe(alternates['zh-Hant'])
-      if (loc.startsWith('https://arcanumber.com/')) expect(alternates['x-default'], loc).toBe(loc)
+      if (loc.startsWith('https://ganjiday.com/') && alternates.en)
+        expect(alternates['x-default'], loc).toBe(alternates.en)
+      if (loc.startsWith('https://arcanumber.com/'))
+        expect(alternates['x-default'], loc).toBe(alternates.en ?? loc)
+      // 不跨站：同一组语言版本与 x-default 都在本页所在的站点
+      const host = new URL(loc).host
+      for (const href of Object.values(alternates)) expect(new URL(href).host, loc).toBe(host)
     }
   })
 
   it('每个 hreflang 目标都在站点地图中（可索引的规范地址）并互指同一组语言', () => {
     for (const [loc, alternates] of entries) {
-      // 未发布语言（ja，rollout.ts）的页面只自指加已发布语言，已发布语言的页面不回指它；正式站点地图不列它
-      if (loc.startsWith('https://ganjiday.com/ja')) continue
       for (const [lang, href] of Object.entries(alternates)) {
         if (lang === 'x-default') continue
         // 东方站首页的 en 指向英文首页 `/`，它在东方站 en 子图中另行生成
@@ -128,12 +147,25 @@ describe('全部公开页的 hreflang 与站点地图（fix-seo-canonical-indexi
     }
   })
 
-  it('东方站内页与首页示例：/ko/pricing 的 x-default 为繁中同页，/ko 的 x-default 为英文首页 /', () => {
+  it('东方站内页与首页示例：/ko/pricing 的 x-default 为英文定价页，/ko 的 x-default 为英文首页 /', () => {
+    // 定价页有东方站英文版本（/pricing，2026-11-21 发布）：x-default 指向英文版本
     expect(entries.get('https://ganjiday.com/ko/pricing')).toEqual({
       'zh-Hant': 'https://ganjiday.com/zh-hant/pricing',
       'zh-Hans': 'https://ganjiday.com/zh-hans/pricing',
       ko: 'https://ganjiday.com/ko/pricing',
-      'x-default': 'https://ganjiday.com/zh-hant/pricing',
+      ja: 'https://ganjiday.com/ja/pricing',
+      en: 'https://ganjiday.com/pricing',
+      'x-default': 'https://ganjiday.com/pricing',
+    })
+    // 没有英文版本的东方站页面：x-default 为繁中同页
+    expect(entries.get('https://ganjiday.com/ko/newsletter')?.['x-default']).toBe(
+      'https://ganjiday.com/zh-hant/newsletter',
+    )
+    // 西方站西语页：x-default 为英文版本
+    expect(entries.get('https://arcanumber.com/es/pricing')).toEqual({
+      en: 'https://arcanumber.com/pricing',
+      es: 'https://arcanumber.com/es/pricing',
+      'x-default': 'https://arcanumber.com/pricing',
     })
     expect(entries.get('https://ganjiday.com/ko')?.['x-default']).toBe(EAST_ROOT)
     expect(entries.get('https://ganjiday.com/ko')?.en).toBe(EAST_ROOT)

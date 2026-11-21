@@ -33,13 +33,17 @@ describe('东方站根路径是英文首页', () => {
     const west = await gate(`${WEST}/en`)
     expect(west.status).toBe(301)
     expect(west.headers.get('location')).toBe(`${WEST}/`)
-    // 东方站其他 `/en/*` 仍是 404（改写到本站 404 路径）
-    const other = await gate(`${EAST}/en/pricing`)
-    expect(((await other.json()) as { path: string }).path).not.toBe('/en/pricing')
+    // 东方站英文已发布（2026-11-21）：`/en/<英文页面>` 301 到无前缀地址（ML-01：`/` 与 `/en` 不并存）
+    const english = await gate(`${EAST}/en/pricing?x=1`)
+    expect(english.status).toBe(301)
+    expect(english.headers.get('location')).toBe(`${EAST}/pricing?x=1`)
+    // 其他 `/en/*` 仍是 404（改写到本站 404 路径）
+    const other = await gate(`${EAST}/en/tarot`)
+    expect(((await other.json()) as { path: string }).path).not.toBe('/en/tarot')
   })
 
   it('其他语言首页地址不变', async () => {
-    for (const path of ['/zh-hant', '/zh-hans', '/ko']) {
+    for (const path of ['/zh-hant', '/zh-hans', '/ko', '/ja']) {
       const response = await gate(`${EAST}${path}`, { 'accept-language': 'en-US' })
       expect(await response.json()).toEqual({ path })
     }

@@ -2,10 +2,9 @@ import { expect, type Page, test } from '@playwright/test'
 import { fillTime } from './date-field.ts'
 
 /**
- * 东方站根路径英文（openspec add-locales-eu-ja 5b.5）。开发服务器上东方站英文为 pending：
- * 本地主机 `east.localhost` 可直接访问（预览主机放行），正式域名上维持原跳转（单元测试 rollout.test.ts）。
+ * 东方站根路径英文（openspec add-locales-eu-ja 5b.5），2026-11-21 发布（rollout.ts）。
  * 验收：两站英文页面互不链接、hreflang 不跨 host、东方站英文页面的 x-default 指向英文版本；
- * 只属于东方站英文的地址在西方站 404，东方站 `/en/*` 404。
+ * 只属于东方站英文的地址在西方站 404；东方站 `/en` 与 `/en/<英文页面>` 301 到无前缀地址，其余 `/en/*` 404。
  */
 const localSite = (baseURL: string | undefined, site: string) => {
   const url = new URL(baseURL ?? 'http://localhost:3000')
@@ -57,11 +56,19 @@ test('东方站英文页面：英文、东方站品牌，canonical 与 hreflang 
     expect(xDefault, path).toHaveLength(1)
     expect(xDefault[0]?.href, path).toBe(`https://ganjiday.com${path}`)
   }
-  // 有中文对应页的英文页面与之互为 hreflang（中文页的 en 在东方站英文发布后才出现）
+  // 有中文对应页的英文页面与之互为 hreflang；东方站英文已发布，中文页的 en 与 x-default 指向英文版本
   await page.goto(`${east}/tarot-feelings/the-sun`)
   const card = await headLinks(page)
   expect(card.find((link) => link.hreflang === 'zh-Hant')?.href).toBe(
     'https://ganjiday.com/zh-hant/%E5%A1%94%E7%BE%85/%E7%89%8C%E7%BE%A9/the-sun',
+  )
+  await page.goto(`${east}/zh-hant/${encodeURI('塔羅/牌義')}/the-sun`)
+  const zh = await headLinks(page)
+  expect(zh.find((link) => link.hreflang === 'en')?.href).toBe(
+    'https://ganjiday.com/tarot-feelings/the-sun',
+  )
+  expect(zh.find((link) => link.hreflang === 'x-default')?.href).toBe(
+    'https://ganjiday.com/tarot-feelings/the-sun',
   )
 })
 
@@ -97,7 +104,7 @@ test('两站英文页面互不链接：东方站英文页面没有指向西方�
   }
 })
 
-test('只属于东方站英文的地址在西方站 404；东方站 /en/* 404，/en 仍 301 到 /', async ({
+test('只属于东方站英文的地址在西方站 404；东方站 /en 与 /en/<英文页面> 301 到无前缀地址，其余 /en/* 404', async ({
   request,
   baseURL,
 }) => {
@@ -110,7 +117,16 @@ test('只属于东方站英文的地址在西方站 404；东方站 /en/* 404，
     })
   for (const path of ['/bazi-calculator', '/tarot-spreads/one-card', '/tarot-feelings/the-sun'])
     expect((await get('west', path)).status(), path).toBe(404)
-  expect((await get('east', '/en/bazi-calculator')).status()).toBe(404)
+  // ML-01：`/` 与 `/en` 不并存，带前缀的英文页面地址 301 到无前缀地址（保留查询参数）
+  for (const path of ['/bazi-calculator', '/tarot-spreads/one-card', '/faq']) {
+    const prefixed = await get('east', `/en${path}?utm_source=x`)
+    expect(prefixed.status(), path).toBe(301)
+    const location = new URL(prefixed.headers().location ?? '', local)
+    expect(location.pathname + location.search, path).toBe(`${path}?utm_source=x`)
+  }
+  // 不是东方站英文页面的 /en/* 仍 404
+  for (const path of ['/en/tarot', '/en/life-path-number'])
+    expect((await get('east', path)).status(), path).toBe(404)
   const legacy = await get('east', '/en')
   expect(legacy.status()).toBe(301)
   expect(new URL(legacy.headers().location ?? '', local).pathname).toBe('/')
