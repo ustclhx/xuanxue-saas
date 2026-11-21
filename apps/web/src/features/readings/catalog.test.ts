@@ -49,8 +49,16 @@ describe('详批注册表', () => {
       'es',
       'ja',
     ])
-    // es 变体（add-locales-eu-ja tasks 5.8）：首个 es 版本；是否出售由 READING_EVAL_PENDING 决定
-    expect(readingDefinition('numerology-full', 'es')?.prompt.version).toBe('numerology-full.v5')
+    // es 变体（add-locales-eu-ja tasks 5.8）：数字命理默认 v6（v5 加防重复规则），v5 仍可选用；
+    // 是否出售由 READING_EVAL_PENDING 决定
+    expect(readingDefinition('numerology-full', 'es')?.prompt.version).toBe('numerology-full.v6')
+    expect(
+      readingDefinition('numerology-full', 'es', { promptVersion: 'numerology-full.v5' })?.prompt
+        .version,
+    ).toBe('numerology-full.v5')
+    expect(
+      readingDefinition('numerology-full', 'en', { promptVersion: 'numerology-full.v6' }),
+    ).toBeUndefined()
     expect(readingDefinition('tarot-spread', 'es')?.prompt.version).toBe('tarot-spread.v4')
     expect(readingDefinition('numerology-full', 'en')?.prompt.version).toBe('numerology-full.v3')
     // 评测门槛通过前不对访客开放（READING_EVAL_PENDING，与 ja 同一机制）；英文不受影响

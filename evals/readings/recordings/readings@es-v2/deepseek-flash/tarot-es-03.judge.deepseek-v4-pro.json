@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:d74faec2821a3e0b01fcfff283aced7f2a49044396c0938fdb19ca30bb9527cd",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All card names, positions, orientations, Arcana counts, and keywords match the input data; no card or element is invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in the specific drawn cards, their positions, reversals, and the querent's work dilemma; it would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"The next-steps section offers five concrete, doable actions tied to the cards and the job-change question, balancing both staying and leaving.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, possibility-focused language; describes tendencies without asserting specific events, avoids fear, and excludes prohibited domains.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure in neutral Latin American Spanish with tú, no English or foreign words, and no excessive repetition or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The output accurately and specifically interprets the three-card tarot spread with warm, actionable guidance in clear, fluent Latin American Spanish.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2834,
+    "outputTokens": 1162
+  },
+  "recordedAt": "2026-11-21T08:55:44.922Z",
+  "source": "recorded"
+}

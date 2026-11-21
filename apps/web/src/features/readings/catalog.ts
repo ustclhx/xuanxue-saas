@@ -38,6 +38,7 @@ import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
 import { NUMEROLOGY_FULL_V5 } from './prompts/numerology-full.v5.ts'
+import { NUMEROLOGY_FULL_V6 } from './prompts/numerology-full.v6.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
@@ -621,9 +622,10 @@ const entries = {
         },
         sample: READING_SAMPLES['numerology-full'].en,
       },
-      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（READING_EVAL_PENDING）
+      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（READING_EVAL_PENDING）；
+      // v6 在 v5 上加防重复规则（v5 可读性未过门槛），v5 仍可经运行时设置选用
       es: {
-        prompt: NUMEROLOGY_FULL_V5.es,
+        prompt: NUMEROLOGY_FULL_V6.es,
         disclaimer: ES_NUMEROLOGY_DISCLAIMER,
         healthSection: {
           title: 'Hábitos de bienestar',
@@ -632,7 +634,10 @@ const entries = {
         sample: READING_SAMPLES['numerology-full'].es,
       },
     },
-    versions: { 'numerology-full.v4': NUMEROLOGY_FULL_V4 },
+    versions: {
+      'numerology-full.v4': NUMEROLOGY_FULL_V4,
+      'numerology-full.v5': NUMEROLOGY_FULL_V5,
+    },
     recompute: recomputeNumerology,
   },
   'tarot-spread': {
@@ -698,8 +703,8 @@ export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
   'bazi-full.ja',
   'ziwei-full.ja',
   'tarot-spread.ja',
-  // add-locales-eu-ja tasks 5.8：es 变体已登记（numerology-full.v5 / tarot-spread.v4），真实评测
-  // （`pnpm eval:prompts --suite readings --prompt readings@es-v1 … --record`）待使用者批准预算
+  // add-locales-eu-ja tasks 5.8：es 变体已登记（numerology-full.v6 / tarot-spread.v4），真实评测
+  // （`pnpm eval:prompts --suite readings --prompt readings@es-v2 … --record`）全部门槛通过后删去
   'numerology-full.es',
   'tarot-spread.es',
   // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微（v4 的英文）已登记，离线评测就绪；真实评测

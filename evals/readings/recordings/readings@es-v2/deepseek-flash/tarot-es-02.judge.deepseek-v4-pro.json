@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:86c39864022150a4cef86bdeb65868e2c4d14d53f0f14f026b19455f497c56a8",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todas las cartas, posiciones, orientaciones y conteos de Arcanos coinciden exactamente con los datos; no se añaden cartas ni se inventan elementos.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en las cartas concretas de esta tirada: El Loco invertida en pasado, As de Espadas al derecho en presente y La Estrella al derecho en futuro, con sus significados específicos.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Incluye pasos concretos y realizables, vinculados a las cartas: escribir para claridad, preparar una conversación pendiente, reconocer aprendizajes, reservar calma y plantear una meta alcanzable.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"El tono es cálido, sin miedo, y usa lenguaje hipotético ('quizá', 'rumbo posible') sin afirmar hechos específicos ni dar predicciones mes/día; no aborda salud, inversiones, legal o religión.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara con encabezados, sin repeticiones excesivas, longitud adecuada y español latinoamericano fluido con tratamiento de 'tú', sin palabras extranjeras ni errores.\"\n    }\n  },\n  \"summary\": \"La respuesta interpreta con precisión las tres cartas de la tirada, mantiene un enfoque reflexivo y tranquilizador, ancla cada sección en las cartas concretas y ofrece sugerencias prácticas y alcanzables.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2514,
+    "outputTokens": 1585
+  },
+  "recordedAt": "2026-11-21T08:55:38.501Z",
+  "source": "recorded"
+}

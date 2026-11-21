@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:b885bb9b77df3889f9217a453bb393b3793e8c3b8e3d45f1136a7d75dfd670b2",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every card name, position, orientation, and Major/Minor Arcana count matches `data`; no cards are added or changed.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"All sections are anchored in the specific drawn cards, positions, and meanings; the interpretation would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to specific cards (paused decision, initiative, reviewing defenses, teamwork), while explicitly avoiding a date prediction.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, honest, non-fear-based; declines to give an exact date and adds a professional-consultation reminder; no specific event or month/day predictions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent neutral Latin American Spanish with 'tú', no mixed scripts, no foreign words, and minimal repetition beyond necessary synthesis.\"\n    }\n  },\n  \"summary\": \"The output accurately and specifically reflects the Celtic Cross spread, offers meaningful action steps tied to the cards, and maintains a warm, compliant tone while clearly refusing to predict a marriage date.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3832,
+    "outputTokens": 2183
+  },
+  "recordedAt": "2026-11-21T08:56:17.890Z",
+  "source": "recorded"
+}

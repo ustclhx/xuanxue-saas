@@ -17,6 +17,8 @@ import {
  *   报告里每个样本的真实版本见 `prepared.annotations.promptVersion`。
  * - `readings@es-v1`（add-locales-eu-ja tasks 5.8）：西班牙语两个组合用各自的首个 es 版本
  *   （`ES_VERSIONS`），其余组合与 `readings@v4` 相同。评测 es 时用 `--tag es` 只跑 es 样本。
+ * - `readings@es-v2`：数字命理 es 改用 numerology-full.v6（加防重复规则，es-v1 可读性未过门槛），
+ *   塔罗 es 仍为 tarot-spread.v4（`ES_V2_VERSIONS`），其余组合与 `readings@v4` 相同。
  *
  * 版本锁要求每个套件版本都能渲染全部样本：es 组合在 v4 之前没有任何版本，`readings@v4` 与
  * `readings@pre-v4` 遇到 es 样本时渲染与 `readings@es-v1` 相同的 es 提示词，只为锁能覆盖全部样本；
@@ -38,9 +40,18 @@ export type ReadingCombo = (typeof READING_COMBOS)[number]
 export const ES_READING_COMBOS = ['numerology-full.es', 'tarot-spread.es'] as const
 export type EsReadingCombo = (typeof ES_READING_COMBOS)[number]
 
-/** 每个 es 组合的真实提示词版本（catalog.ts 的 es 变体） */
+/**
+ * `readings@es-v1` 及更早套件版本中每个 es 组合的真实提示词版本（已录制，不可修改；
+ * `readings@v4` / `readings@pre-v4` 遇到 es 样本时也渲染这一份，只为版本锁覆盖全部样本）
+ */
 export const ES_VERSIONS: Readonly<Record<EsReadingCombo, string>> = {
   'numerology-full.es': 'numerology-full.v5',
+  'tarot-spread.es': 'tarot-spread.v4',
+}
+
+/** `readings@es-v2` 中每个 es 组合的真实提示词版本（= catalog.ts 的 es 代码默认版本） */
+export const ES_V2_VERSIONS: Readonly<Record<EsReadingCombo, string>> = {
+  'numerology-full.es': 'numerology-full.v6',
   'tarot-spread.es': 'tarot-spread.v4',
 }
 
@@ -107,7 +118,7 @@ export interface ReadingSampleInput {
 export const comboOf = (input: Pick<ReadingSampleInput, 'kind' | 'locale'>) =>
   `${input.kind}.${input.locale}`
 
-const KNOWN_VERSIONS = ['readings@pre-v4', 'readings@v4', 'readings@es-v1']
+const KNOWN_VERSIONS = ['readings@pre-v4', 'readings@v4', 'readings@es-v1', 'readings@es-v2']
 
 /** 套件版本 → 该样本组合的真实提示词版本 */
 export function realVersion(promptVersion: string, input: ReadingSampleInput): string {
@@ -120,8 +131,15 @@ export function realVersion(promptVersion: string, input: ReadingSampleInput): s
   if (!ALL_READING_COMBOS.includes(combo)) throw new Error(`Unsupported reading combo ${combo}`)
   if (!KNOWN_VERSIONS.includes(promptVersion))
     throw new Error(`Unknown readings prompt version ${promptVersion}`)
-  if (Object.hasOwn(ES_VERSIONS, combo)) return ES_VERSIONS[combo as EsReadingCombo]
-  if (promptVersion === 'readings@v4' || promptVersion === 'readings@es-v1')
+  if (Object.hasOwn(ES_VERSIONS, combo))
+    return (promptVersion === 'readings@es-v2' ? ES_V2_VERSIONS : ES_VERSIONS)[
+      combo as EsReadingCombo
+    ]
+  if (
+    promptVersion === 'readings@v4' ||
+    promptVersion === 'readings@es-v1' ||
+    promptVersion === 'readings@es-v2'
+  )
     return `${input.kind}.v4`
   return PRE_V4_VERSIONS[combo as ReadingCombo]
 }
@@ -174,5 +192,13 @@ export const readingsEsV1: DefinedPrompt<ReadingSampleInput> = definePrompt<Read
   version: 'es-v1',
   system: (input) => renderReading('readings@es-v1', input).system,
   user: (input) => renderReading('readings@es-v1', input).user,
+  maxOutputTokens: READING_MAX_OUTPUT_TOKENS,
+})
+
+export const readingsEsV2: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>({
+  id: 'readings',
+  version: 'es-v2',
+  system: (input) => renderReading('readings@es-v2', input).system,
+  user: (input) => renderReading('readings@es-v2', input).user,
   maxOutputTokens: READING_MAX_OUTPUT_TOKENS,
 })

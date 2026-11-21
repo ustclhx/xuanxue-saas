@@ -25,11 +25,17 @@ import {
   readingChecks,
   wrongGlyphs,
 } from './checks.ts'
-import { evaluateReadings, JUDGE_DIMENSIONS, V4_REFERENCE_MEANS } from './gates.ts'
+import {
+  ES_CANDIDATE_VERSION,
+  evaluateReadings,
+  JUDGE_DIMENSIONS,
+  V4_REFERENCE_MEANS,
+} from './gates.ts'
 import { prepareReading } from './prepare.ts'
 import {
   ALL_READING_COMBOS,
   ES_READING_COMBOS,
+  ES_V2_VERSIONS,
   ES_VERSIONS,
   PRE_V4_VERSIONS,
   READING_COMBOS,
@@ -479,6 +485,31 @@ describe('西班牙语组合', () => {
     }
   })
 
+  it('es-v2 只把数字命理 es 换成 v6（防重复规则），塔罗 es 与其余组合不变', () => {
+    assert.equal(ES_CANDIDATE_VERSION, 'readings@es-v2')
+    assert.deepEqual(ES_V2_VERSIONS, {
+      'numerology-full.es': 'numerology-full.v6',
+      'tarot-spread.es': 'tarot-spread.v4',
+    })
+    assert.equal(realVersion('readings@es-v2', es('numerology-es-01')), 'numerology-full.v6')
+    assert.equal(realVersion('readings@es-v2', es('tarot-es-05')), 'tarot-spread.v4')
+    for (const s of v4Batch)
+      assert.deepEqual(
+        renderReading('readings@es-v2', s.input),
+        renderReading('readings@v4', s.input),
+      )
+    for (const s of esSamples) {
+      const now = renderReading('readings@es-v2', s.input)
+      const before = renderReading('readings@es-v1', s.input)
+      assert.equal(now.user, before.user)
+      if (s.input.kind === 'tarot-spread') assert.deepEqual(now, before)
+      else {
+        assert.match(now.system, /## Sin repeticiones \(obligatorio\)/)
+        assert.doesNotMatch(before.system, /Sin repeticiones/)
+      }
+    }
+  })
+
   it('样本：虚构西语输入，data 与线上复算一致，标签可按 es 筛选，评委说明注明目标语言', () => {
     for (const combo of ES_READING_COMBOS) {
       const [kind] = combo.split('.') as [string]
@@ -492,7 +523,7 @@ describe('西班牙语组合', () => {
         })
         assert.deepEqual(data, recomputed.result, s.id)
         assert.equal(
-          renderReading('readings@es-v1', s.input).user,
+          renderReading('readings@es-v2', s.input).user,
           JSON.stringify({ kind, chart: recomputed.result }),
         )
         assert.deepEqual(s.tags, [kind, 'es', combo])
@@ -509,8 +540,8 @@ describe('西班牙语组合', () => {
   it('格式正确的西语报告通过全部硬性检查；拉丁字母不算夹杂', async () => {
     const input = es('numerology-es-03')
     const report = numerologyReport(input)
-    const { output } = prepareReading(report, 'readings@es-v1', input)
-    assert.deepEqual(await errors('readings@es-v1', 'numerology-es-03', output), [])
+    const { output } = prepareReading(report, 'readings@es-v2', input)
+    assert.deepEqual(await errors('readings@es-v2', 'numerology-es-03', output), [])
     assert.deepEqual(latinWords(output, 'es'), [])
     const tarot = [
       '## Panorama general',
@@ -524,7 +555,7 @@ describe('西班牙语组合', () => {
       '## Próximos pasos concretos',
       '- Conversa con calma esta semana.',
     ].join('\n\n')
-    assert.deepEqual(await errors('readings@es-v1', 'tarot-es-01', tarot), [])
+    assert.deepEqual(await errors('readings@es-v2', 'tarot-es-01', tarot), [])
   })
 
   it('西语专项检查：汉字 / 假名、术语表禁用写法（娱乐定位、vosotros、英文术语）、个人年数不符', async () => {
@@ -533,7 +564,7 @@ describe('西班牙语组合', () => {
     assert.deepEqual(cjkChars('Tu número 命 de vida', 'es'), ['命'])
     assert.deepEqual(cjkChars('命', 'zh-Hant'), [])
     assert.ok(
-      (await errors('readings@es-v1', id, numerologyReport(input, '命運'))).includes('script'),
+      (await errors('readings@es-v2', id, numerologyReport(input, '命運'))).includes('script'),
     )
     for (const phrase of [
       'Es solo entretenimiento.',
@@ -541,7 +572,7 @@ describe('西班牙语组合', () => {
       'Tu Life Path es 22.',
     ])
       assert.ok(
-        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes(
+        (await errors('readings@es-v2', id, numerologyReport(input, phrase))).includes(
           'esGlossary',
         ),
         phrase,
@@ -549,12 +580,12 @@ describe('西班牙语组合', () => {
     assert.equal(glossaryHits('Una carta de Pentáculos al derecho.', 'es')?.length, 1)
     assert.equal(glossaryHits('anything', 'en'), null)
     const wrong = numerologyReport(input).replace(/(### 2027 · Año personal )\d+/, '$19')
-    assert.ok((await errors('readings@es-v1', id, wrong)).includes('dataConsistency'))
+    assert.ok((await errors('readings@es-v2', id, wrong)).includes('dataConsistency'))
     // 线上兜底按数据改正西语逐年标题，被评正文随之通过
-    const prepared = prepareReading(wrong, 'readings@es-v1', input)
+    const prepared = prepareReading(wrong, 'readings@es-v2', input)
     assert.equal(prepared.annotations?.personalYear, 1)
-    assert.equal(prepared.annotations?.promptVersion, 'numerology-full.v5')
-    assert.deepEqual(await errors('readings@es-v1', id, prepared.output), [])
+    assert.equal(prepared.annotations?.promptVersion, 'numerology-full.v6')
+    assert.deepEqual(await errors('readings@es-v2', id, prepared.output), [])
     // 旧组合不受新检查影响
     const outcomes = await runAll('readings@pre-v4', 'bazi-hant-01', '## 總論\n\n命')
     assert.equal(outcomes.find((c) => c.id === 'script')?.pass, true)
@@ -584,8 +615,11 @@ describe('西班牙语组合', () => {
       usage: { generation: { outputTokens: 3000, durationMs: 30_000 } },
       ...overrides,
     })
-    const groupOf = (make: (id: string) => EvaluationResult): EvaluationGroup => ({
-      promptVersion: 'readings@es-v1',
+    const groupOf = (
+      make: (id: string) => EvaluationResult,
+      promptVersion = ES_CANDIDATE_VERSION,
+    ): EvaluationGroup => ({
+      promptVersion,
       source: 'run',
       prepareVersion: 'guard.v4',
       generator: null,
@@ -651,6 +685,9 @@ describe('西班牙语组合', () => {
       assert.equal(h['numerology-full.es.hard-checks']?.status, 'failed')
       assert.equal(h['tarot-spread.es.hard-checks']?.status, 'passed')
       assert.equal((await run(candidate, candidate)).versions?.status, 'failed')
+      // 已录制的 es-v1 回放仍按新语言门槛判定
+      const legacy = await run(groupOf((id) => scored(id, top), 'readings@es-v1'))
+      assert.equal(legacy['numerology-full.es.judge-readability-vs-v4']?.status, 'passed')
       const missing = await run(groupOf((id) => scored(id, null)))
       assert.equal(missing['tarot-spread.es.judge-accuracy-min']?.status, 'incomplete')
     })
@@ -658,7 +695,7 @@ describe('西班牙语组合', () => {
 })
 
 describe('样本适用范围（suite.appliesTo）', () => {
-  it('西班牙语样本只属于 readings@es-v1，旧版本的整套回放不含它们', async () => {
+  it('西班牙语样本只属于 readings@es-v1 / es-v2，旧版本的整套回放不含它们', async () => {
     const { default: suite } = await import('./suite.ts')
     const applies = suite.appliesTo
     assert.ok(applies)
@@ -676,6 +713,7 @@ describe('样本适用范围（suite.appliesTo）', () => {
         version,
       )
     }
-    assert.ok(samples.every((sample) => applies(sample, 'readings@es-v1')))
+    for (const version of ['readings@es-v1', 'readings@es-v2'])
+      assert.ok(samples.every((sample) => applies(sample, version)))
   })
 })

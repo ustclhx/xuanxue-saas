@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3a5a3bcd2df2830e1fea3372ccac874e75e373eba5e5b0afb8a473095f92318c",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números y etiquetas coinciden con los datos: vida 6, día 11 maestro, expresión 3, alma 7, personalidad 5, pináculo actual 4, desafíos 0, años personales 2026-2030 con valores 5-6-7-8-9. No inventa elementos.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en números específicos del gráfico, nombre, pináculos y desafíos; no es genérica y no serviría para otro gráfico.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"El apartado año por año ofrece acciones concretas y advertencias para cada año; la orientación final incluye pasos semanales/diarios ligados a los números.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y basado en tendencias, sin afirmar eventos específicos, sin predicciones a nivel de mes/día, bienestar con recomendación de profesional y sin directivas financieras, legales o médicas.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara, español latinoamericano neutro con tratamiento de tú, sin palabras en inglés ni mezcla de escrituras, longitud adecuada y repeticiones mínimas.\"\n    }\n  },\n  \"summary\": \"Excelente lectura numerológica completa, precisa y personalizada, con consejos accionables y tono cálido.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4993,
+    "outputTokens": 4008
+  },
+  "recordedAt": "2026-11-21T08:55:19.774Z",
+  "source": "recorded"
+}

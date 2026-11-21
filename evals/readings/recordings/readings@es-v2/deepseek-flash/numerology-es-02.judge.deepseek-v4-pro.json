@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:e202be6dbc0a0fd01c59e861c4e046c4a15311e88e5c7ba105e4802b8bf07429",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers and age ranges match the provided data exactly: life path 7, birthday 5, current personal year 4, personal years 4-8 for 2026-2030, pinnacles 3/9/3/11 and challenges 2/1/1/3 with correct current flags. It correctly states name-derived numbers are absent rather than inventing them.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in this chart's specific elements: life path 7, birthday 5, current pinnacle 9, current challenge 1, future master pinnacle 11, and personal year values. Year-by-year entries relate each personal year to the individual's core numbers and current cycles.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and tied to the chart. Each year has a specific recommendation and caution, and the orientation section gives practical bullet points tied to life path 7, current year 4, challenge 1, birthday 5, and pinnacle 9.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tone is warm and balanced, using tendency language ('tiende', 'puede', 'conviene') without asserting specific events or month/day predictions. It includes only habit-level wellbeing advice and recommends consulting a health professional. No investment, legal, medical decisions, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, fluent neutral Latin American Spanish using 'tú', no English words or leaked JSON fields, and appropriate length. Minor repetition of key numbers is natural, not excessive.\"\n    }\n  },\n  \"summary\": \"The output is highly consistent with the provided numerology data, thoroughly personalized, actionable, warm, and fluently written in the expected Spanish. It meets all criteria at a high level.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4316,
+    "outputTokens": 2700
+  },
+  "recordedAt": "2026-11-21T08:54:07.575Z",
+  "source": "recorded"
+}

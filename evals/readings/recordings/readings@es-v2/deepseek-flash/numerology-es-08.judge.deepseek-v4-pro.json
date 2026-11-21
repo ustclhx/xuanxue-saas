@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8dfd863b1e0a9fab8333685437a5823e3df74560461492875288af17e63fecd6",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números citados (vida 3, día 2, destino 4, alma 5, personalidad 8, año personal 5-9, pináculos y desafíos) coinciden con los datos; no se inventan números ni elementos del cálculo.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Ancla cada sección en cifras y ciclos concretos de esta carta (pináculo actual 1, desafío 6, números del nombre) y no se limita a descripciones genéricas.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Cada año incluye una orientación práctica y una advertencia; las recomendaciones finales son concretas y conectadas con los números.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Mantiene un tono cálido y de tendencia ('tiende a', 'suele'), sin predicciones de meses/días ni afirmaciones alarmantes; el bienestar solo aborda hábitos y recomienda consultar a un profesional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara y sin repetición excesiva, español latinoamericano neutro con 'tú' y sin palabras extranjeras.\"\n    }\n  },\n  \"summary\": \"Accurate and well-personalized numerology report in neutral Latin American Spanish, with all numbers matching data, concrete recommendations, warm tone, and clear structure.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4029,
+    "outputTokens": 4141
+  },
+  "recordedAt": "2026-11-21T08:55:18.365Z",
+  "source": "recorded"
+}
