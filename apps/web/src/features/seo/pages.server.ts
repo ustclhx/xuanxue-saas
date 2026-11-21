@@ -8,8 +8,6 @@ import {
   allTarots,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
-// 新语言页面的 SEO 文案（按语言拆分，服务端静态登记）
-import '../i18n/page-copy.server.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
 import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
 import type { SeoPage } from './metadata.ts'

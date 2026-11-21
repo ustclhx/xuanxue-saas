@@ -1,5 +1,3 @@
-import { pageCopy } from '../i18n/page-copy.ts'
-
 // 首页 SEO 文案（标题、描述）与默认分享图副标题：staticPage('/') 与分享卡片共用。
 // 独立成小模块，分享卡片版式只依赖这里，不把 metadata.ts 拉进分享卡片的服务端模块图。
 // 项目文案（模板 0.4.1 升级说明：改过首页标题的项目在本文件保留自己的文案）：
@@ -8,10 +6,13 @@ import { pageCopy } from '../i18n/page-copy.ts'
 // 首页是品牌落地页，工具主词由各主工具页承接；pageHead 见到标题已含站名，不再追加（D3a）。
 // 西方站标题改为品类主词在前、站名在后，并去掉「Life Path Number Calculator」，由 /life-path-number 独占该词；
 // 东方站繁简描述各写一版（句序与说法不同，不是字形转换）（openspec seo-fix-tdk-links 决策 3，使用者任务 task.md §2.3、§2.7）。
+// 新语言（v1 之后）的条目在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）。
 // 分享图副标题与品牌名并排显示（「品牌名 · 标语」），因此单独保留不含品牌名的标语。
+import { localeText } from '../i18n/split-messages.ts'
+
 const HOME_COPY: Readonly<
   Record<string, readonly [title: string, description: string, tagline: string]>
-> = {
+> = localeText({
   en: [
     'Numerology & Tarot Calculators, Free | Arcanumber',
     'Life Path, numerology chart, name numerology and tarot spreads, calculated by traditional rules in your browser. For reference and self-reflection.',
@@ -32,11 +33,15 @@ const HOME_COPY: Readonly<
     '무료 만세력, 사주궁합, 타로 도구. 전통 규칙에 따라 브라우저에서 계산하며 참고와 자기 탐색용입니다.',
     '무료 만세력·사주·타로',
   ],
-}
+  // 西班牙语（add-locales-eu-ja 关键词地图 es §1）：品类主词「numerología y tarot」，Title 内含站名
+  es: [
+    'Arcanumber: numerología y tarot gratis, paso a paso',
+    'Calcula gratis tu número de vida, tu carta numerológica y el significado de tu nombre, o saca una tirada de tarot. Reglas tradicionales, solo como referencia.',
+    'Numerología y tarot gratis',
+  ],
+})
 
-// 新语言（es 起）的首页文案按语言拆分，见 features/i18n/page-copy.ts
-const copyOf = (locale: string) =>
-  pageCopy(locale)?.home ?? HOME_COPY[locale] ?? HOME_COPY.en ?? ['', '', '']
+const copyOf = (locale: string) => HOME_COPY[locale] ?? HOME_COPY.en ?? ['', '', '']
 
 /** 未登记的语言回退到英文（西方站）文案 */
 export function homePageCopy(locale: string): [title: string, description: string] {

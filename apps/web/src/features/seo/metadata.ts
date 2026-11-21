@@ -4,8 +4,8 @@ import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
-import { pageCopy } from '../i18n/page-copy.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
+import { localeText } from '../i18n/split-messages.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL, siteOfLocale } from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
@@ -178,11 +178,10 @@ export type StaticPath =
   | '/faq'
   | '/guides'
 
-// v1 语言按全部页面必填：缺少任一页面都会在类型检查时报错，避免再次回退到英语或另一站点的描述。
+// 按全部语言必填：缺少任一语言或页面都会在类型检查时报错，避免再次回退到英语或另一站点的描述。
 // 东方站（zh-Hant / zh-Hans / ko）描述八字、紫微、塔罗等本站体系，不写 numerology。
-// 新语言（es 起）的文案按语言拆分在 features/i18n/page-copy/<语言>.ts（首页包预算，add-locales-eu-ja 决策 11），
-// 单元测试检查每种配置语言都有其一。
-const staticCopy: Partial<Record<Locale, Record<StaticPath, readonly [string, string]>>> = {
+// 新语言（v1 之后）的条目在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）。
+const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> = localeText({
   en: {
     '/': homePageCopy('en'),
     '/pricing': [
@@ -250,15 +249,37 @@ const staticCopy: Partial<Record<Locale, Record<StaticPath, readonly [string, st
       '무료 도구, 크레딧과 환불, 상세 풀이 실패, 개인정보, 사주·타로 계산 방식에 대한 자주 묻는 질문입니다.',
     ],
   },
-}
+  // 西班牙语（西方站，关键词地图 es §16–17）：定价与常见问题为导航性页面
+  es: {
+    '/': homePageCopy('es'),
+    '/pricing': [
+      'Precios: herramientas gratis y créditos',
+      'Todas las herramientas de numerología y tarot son gratis. Los créditos sirven para desbloquear lecturas completas con IA de tus propios números y cartas.',
+    ],
+    '/blog': ['Blog', 'Guías de numerología y tarot para entender tus propios resultados.'],
+    '/guides': ['Guías', 'Respuestas breves a preguntas frecuentes.'],
+    '/docs': ['Ayuda', 'Ayuda y guías para usar Arcanumber.'],
+    '/newsletter': [
+      'Boletín',
+      'Suscríbete para recibir nuevas guías de numerología y tarot y novedades del sitio.',
+    ],
+    '/waitlist': ['Lista de espera', 'Anótate en la lista de espera para saber cuándo abrimos.'],
+    '/faq': [
+      'Preguntas frecuentes: créditos y privacidad',
+      'Respuestas sobre herramientas gratis, créditos y reembolsos, lecturas fallidas, privacidad y cómo se calculan la numerología y el tarot.',
+    ],
+  },
+})
 
 /** 静态页元数据；未登记的语言或路径以路径占位，不回退到其他语言 */
 export function staticPage(path: StaticPath, locale: string): SeoPage {
   const copy: Partial<Record<string, Record<StaticPath, readonly [string, string]>>> = staticCopy
-  const split = pageCopy(locale)
-  const [title, description] = (split &&
-    (path === '/' ? homePageCopy(locale) : split.static[path])) ??
-    copy[locale]?.[path] ?? [path, path]
+  const entry = copy[locale]
+  // 首页文案在调用时取自 home-copy：新语言的首页文案在客户端水合前才写回（localeText），不能用模块求值时的副本
+  const [title, description] = (path === '/' && entry ? homePageCopy(locale) : entry?.[path]) ?? [
+    path,
+    path,
+  ]
   // 层级与主词（模板 0.7.3）由 pages.project.ts 的 projectPageLinking 在服务端清单中补上，
   // 本函数也用于客户端路由 head，不带主词表以免增加首页脚本体积
   return { path, title, description, locale }

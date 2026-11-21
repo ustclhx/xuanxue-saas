@@ -34,8 +34,6 @@ export default defineConfig({
           name: 'unit',
           include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.ts'],
           environment: 'node',
-          // 新语言页面的 SEO 文案与服务端一样静态登记（features/i18n/page-copy.server.ts）
-          setupFiles: ['./src/features/i18n/page-copy.server.ts'],
         },
       },
       ...(integration

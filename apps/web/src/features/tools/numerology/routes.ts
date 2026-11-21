@@ -1,4 +1,4 @@
-import { pageCopy } from '../../i18n/page-copy.ts'
+import { localeText } from '../../i18n/split-messages.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
@@ -120,17 +120,44 @@ const NAV_ES: Partial<Record<NumerologyToolId | 'life-path', string>> = {
   'life-path-compatibility': 'Compatibilidad numerológica',
 }
 
-/**
- * 某语言的工具内页条目（路径、导航名、Title、description）。新语言的 Title 与 description 按语言拆分在
- * features/i18n/page-copy/<语言>.ts（首页包预算，add-locales-eu-ja 决策 11）。
- */
+// 新语言工具内页的 Title 与 description（关键词地图 es）：客户端构建中移出首页脚本、按语言加载（localeText，决策 11）
+const TOOL_SEO: Readonly<
+  Record<NumerologyToolId, Readonly<Partial<Record<NumerologyLocale, readonly [string, string]>>>>
+> = localeText({
+  'numerology-calculator': {
+    es: [
+      'Calculadora de numerología gratis y completa',
+      'Calculadora de numerología gratis: con tu nombre y fecha de nacimiento obtienes número de vida, destino, alma, personalidad, día de nacimiento y año personal.',
+    ],
+  },
+  'numerology-chart': {
+    es: [
+      'Carta numerológica pitagórica gratis',
+      'Ubica los dígitos de tu fecha de nacimiento, y si quieres de tu nombre, en la cuadrícula pitagórica 3×3 para ver qué números se repiten y cuáles faltan.',
+    ],
+  },
+  'name-numerology': {
+    es: [
+      'Numerología del nombre: calcula tu nombre',
+      'Convierte las letras de tu nombre y apellidos en número del destino, del alma y de la personalidad con la tabla pitagórica, incluidos acentos y la ñ.',
+    ],
+  },
+  'life-path-compatibility': {
+    es: [
+      'Compatibilidad numerológica de pareja',
+      'Compara dos fechas de nacimiento: el número de vida de cada persona, el cálculo paso a paso y el nivel de afinidad según una tabla fija de numerología.',
+    ],
+  },
+})
+
+/** 某语言的工具内页条目（路径、导航名、Title、description） */
 export function numerologyTool(
   id: NumerologyToolId,
   locale: NumerologyLocale,
 ): { path: string; nav: string | undefined; title: string; description: string } {
   if (locale === 'en') return NUMEROLOGY_TOOLS[id]
   const path = PATHS[locale][id]
-  const [title, description] = pageCopy(locale)?.numerologyTools?.[id] ?? [path, '']
+  const [title, description] = TOOL_SEO[id][locale] ?? [path, '']
   return { path, nav: NAV_ES[id], title, description }
 }
 

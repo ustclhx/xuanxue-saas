@@ -18,7 +18,7 @@
 // 只在 `vite build` 的客户端环境生效；dev 使用 locale-modules 输出，不处理（dev 下各语言照常内联）。
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { normalizePath, type Plugin } from 'vite'
+import { normalizePath, type Plugin, parseAst } from 'vite'
 
 const VIRTUAL_PREFIX = 'virtual:locale-split/'
 const RESOLVED_PREFIX = `\0${VIRTUAL_PREFIX}`
@@ -108,7 +108,7 @@ export function splitMessageModule(
     const offset = next.indexOf(code.slice(def.start, def.end))
     if (offset !== -1) next = next.slice(0, offset) + next.slice(offset + def.end - def.start)
   }
-  // 拆分语言全部是基础语言的别名（如只在东方站使用的文案）：字典里没有这条，查表必然回退，不加查表调用
+  // 拆分语言的文案都与基础语言相同（别名）时不需要查表：删去分派后自然回退到基础语言
   if ([...removed.values()].every((body) => body === null)) return { code: next, removed }
   // 回退行改为先查字典：`return __splitMessage(locale, <序号>, en_x)(inputs)`（查不到时返回基础语言函数），
   // 每条文案只多十个字符左右
@@ -130,14 +130,22 @@ let SPLIT_RUNTIME_ID = ''
 export function dictionarySource(
   entries: ReadonlyMap<number, string>,
   registryId: string,
-  pageCopyId?: string,
+  locale?: string,
 ): string {
   const lines = [...entries].sort(([a], [b]) => a - b).map(([index, body]) => `${index}: ${body},`)
-  // 该语言按语言拆分的页面 SEO 文案（features/i18n/page-copy.ts）随字典一起加载，不再单独发起请求
-  const pageCopy = pageCopyId
-    ? `export { default as pageCopy } from ${JSON.stringify(pageCopyId)}\n`
+  // 文案表补丁随字典求值时写入（水合前）；只有字典分包引用 installTextPack，未配置新语言时它与 localeText 一起被摇掉
+  const text = locale
+    ? `import { installTextPack } from ${JSON.stringify(SPLIT_RUNTIME_ID)}\ninstallTextPack(${JSON.stringify(locale)}, ${JSON.stringify(textPlaceholder(locale))})\n`
     : ''
-  return `import * as registry from ${JSON.stringify(registryId)}\n${pageCopy}export default {\n${lines.join('\n')}\n}\n`
+  return `import * as registry from ${JSON.stringify(registryId)}\n${text}export default {\n${lines.join('\n')}\n}\n`
+}
+
+/**
+ * 字典分包中按语言文案表补丁的占位：transform 阶段还没有收集完所有模块，补丁在 renderChunk（所有模块已转换）
+ * 时以 JSON 写入。压缩器可能把字符串改成模板字面量，匹配时三种引号都接受。
+ */
+export function textPlaceholder(locale: string): string {
+  return `__xuanxue_locale_text_${locale}__`
 }
 
 /**
@@ -175,7 +183,6 @@ export function localeSplit({
   locales,
   paraglideDir,
   runtimeFile,
-  pageCopyDir,
 }: {
   /** 拆分到按需字典的语言（只处理已配置的语言） */
   readonly locales: readonly string[]
@@ -183,9 +190,7 @@ export function localeSplit({
   readonly paraglideDir: string
   /** 查表与加载函数所在的文件（src/features/i18n/split-messages.ts） */
   readonly runtimeFile: string
-  /** 各语言页面 SEO 文案目录（`<目录>/<语言>.ts`，存在时随字典导出） */
-  readonly pageCopyDir?: string
-}): Plugin {
+}): Plugin[] {
   const messagesDir = normalizePath(join(paraglideDir, 'messages'))
   const runtime = normalizePath(runtimeFile)
   SPLIT_RUNTIME_ID = runtime
@@ -202,13 +207,18 @@ export function localeSplit({
     return keys
   }
   const isClient = (environment: { name: string } | undefined) => environment?.name === 'client'
-  return {
+  // 按语言文案表补丁：语言 → 调用点标识 → 补丁（transform 收集，renderChunk 写入字典分包）
+  const texts = new Map<string, Map<string, [(string | number)[], unknown][]>>()
+  const textIds = new Map<string, string>()
+  const messages: Plugin = {
     name: 'xuanxue:locale-split',
     apply: 'build',
     // pre：split-messages.ts 以 TypeScript 源码匹配占位；文案模块是纯 JS，前后无差别
     enforce: 'pre',
     buildStart() {
       keys = null
+      texts.clear()
+      textIds.clear()
     },
     resolveId(id) {
       if (id.startsWith(VIRTUAL_PREFIX))
@@ -225,12 +235,7 @@ export function localeSplit({
         const body = splitMessageModule(code, index, [locale]).removed.get(locale)
         if (body) entries.set(index, body)
       }
-      const pageCopy = pageCopyDir ? normalizePath(join(pageCopyDir, `${locale}.ts`)) : undefined
-      return dictionarySource(
-        entries,
-        normalizePath(join(paraglideDir, 'registry.js')),
-        pageCopy && existsSync(pageCopy) ? pageCopy : undefined,
-      )
+      return dictionarySource(entries, normalizePath(join(paraglideDir, 'registry.js')), locale)
     },
     transform(code, id) {
       if (!isClient(this.environment) || locales.length === 0) return null
@@ -257,4 +262,302 @@ export function localeSplit({
       return result.removed.size ? { code: result.code, map: null } : null
     },
   }
+  // 文案表在 TypeScript 去除之后处理（普通顺序）：`as const`、`satisfies` 已不在 AST 中
+  const text: Plugin = {
+    name: 'xuanxue:locale-split-text',
+    apply: 'build',
+    transform(code, id) {
+      // 未配置新语言时也处理：去掉全部包装
+      if (!isClient(this.environment)) return null
+      const file = normalizePath(id.split('?')[0] ?? '')
+      if (file.includes('/node_modules/') || !/\.[cm]?[jt]sx?$/.test(file)) return null
+      if (!code.includes('localeText(')) return null
+      const relative = file.includes('/src/') ? file.slice(file.lastIndexOf('/src/') + 1) : file
+      const result = splitLocaleText(code, locales, relative)
+      for (const [callId, byLocale] of result.patches) {
+        const owner = textIds.get(callId)
+        if (owner && owner !== relative)
+          this.error(`[locale-split] localeText 调用点标识冲突：${owner} 与 ${relative}`)
+        textIds.set(callId, relative)
+        for (const [locale, patch] of byLocale) {
+          const pack = texts.get(locale) ?? new Map()
+          pack.set(callId, patch)
+          texts.set(locale, pack)
+        }
+      }
+      return result.code === code ? null : { code: result.code, map: null }
+    },
+    renderChunk(code) {
+      if (!isClient(this.environment) || locales.length === 0) return null
+      let next = code
+      for (const locale of locales) {
+        const placeholder = textPlaceholder(locale)
+        if (!next.includes(placeholder)) continue
+        const pack = Object.fromEntries(
+          [...(texts.get(locale) ?? new Map())].sort(([a], [b]) => (a < b ? -1 : 1)),
+        )
+        next = next.replace(new RegExp(`(["'\`])${placeholder}\\1`), () => JSON.stringify(pack))
+      }
+      return next === code ? null : { code: next, map: null }
+    },
+  }
+  return [messages, text]
+}
+
+// ---------------------------------------------------------------------------------------------
+// 按语言文案表（localeText）的拆分：注册表、SEO 页面文案、牌阵标题等不经 Paraglide 的「语言 → 文案」对象。
+// 这些对象由路由 head、页头导航等全站代码引用，整体位于每个首页的静态闭包；每加一种语言，所有首页都要多下载
+// 这种语言的标题与描述。源码中把这类对象包一层 `localeText(...)`（src/features/i18n/split-messages.ts），
+// 客户端构建时：
+//   1. 在被包的对象（可嵌套）中，找出键为拆分语言的属性；值是纯字面量（字符串、数字、数组、对象）时整条移出，
+//      值是含动态条目的对象时只移出其中的字面量条目；
+//   2. 调用改写为 `localeText(<剩余对象>, "<调用点标识>")`，并标注 PURE（未使用的表照常摇掉）；
+//   3. 移出的值按语言收集，renderChunk 时写入该语言的字典分包（`export const text`），水合前随文案字典一起加载，
+//      写回原对象。服务端与 dev 不处理，SSR、预渲染输出不变。
+// ---------------------------------------------------------------------------------------------
+
+interface AstNode {
+  readonly type: string
+  readonly start: number
+  readonly end: number
+  readonly [key: string]: unknown
+}
+
+const isNode = (value: unknown): value is AstNode =>
+  typeof value === 'object' && value !== null && typeof (value as AstNode).type === 'string'
+
+class NotStatic extends Error {}
+
+/** 纯字面量求值；遇到变量、调用、展开、计算键等抛出 NotStatic */
+function staticValue(node: AstNode): unknown {
+  switch (node.type) {
+    case 'Literal': {
+      if ('regex' in node || 'bigint' in node) throw new NotStatic()
+      return node.value
+    }
+    case 'TemplateLiteral': {
+      const quasis = node.quasis as { value: { cooked: string } }[]
+      if ((node.expressions as unknown[]).length > 0) throw new NotStatic()
+      return quasis[0]?.value.cooked ?? ''
+    }
+    case 'UnaryExpression': {
+      const argument = node.argument as AstNode
+      if (
+        node.operator === '-' &&
+        argument.type === 'Literal' &&
+        typeof argument.value === 'number'
+      )
+        return -argument.value
+      throw new NotStatic()
+    }
+    case 'ArrayExpression':
+      return (node.elements as (AstNode | null)[]).map((element) => {
+        if (!element) throw new NotStatic()
+        return staticValue(element)
+      })
+    case 'ObjectExpression': {
+      const result: Record<string, unknown> = {}
+      for (const property of node.properties as AstNode[]) {
+        const key = propertyKey(property)
+        if (key === null || property.shorthand) throw new NotStatic()
+        result[key] = staticValue(property.value as AstNode)
+      }
+      return result
+    }
+    default:
+      throw new NotStatic()
+  }
+}
+
+/** 普通属性的键名（标识符或字符串 / 数字字面量）；计算键、展开、方法返回 null */
+function propertyKey(property: AstNode): string | null {
+  if (property.type !== 'Property' || property.kind !== 'init' || property.method) return null
+  if (property.computed) return null
+  const key = property.key as AstNode
+  if (key.type === 'Identifier') return key.name as string
+  if (key.type === 'Literal' && (typeof key.value === 'string' || typeof key.value === 'number'))
+    return String(key.value)
+  return null
+}
+
+export interface TextSplitResult {
+  readonly code: string
+  /** 调用点标识 → 语言 → 补丁 */
+  readonly patches: ReadonlyMap<string, ReadonlyMap<string, [(string | number)[], unknown][]>>
+}
+
+/** 调用点标识：文件（相对路径）与调用序号的 FNV-1a 散列，base36；与构建顺序无关 */
+export function textCallId(file: string, ordinal: number): string {
+  let hash = 0x811c9dc5
+  for (const char of `${file}#${ordinal}`) {
+    hash ^= char.codePointAt(0) ?? 0
+    hash = Math.imul(hash, 0x01000193) >>> 0
+  }
+  return hash.toString(36)
+}
+
+/**
+ * 改写一个模块中的 `localeText(<对象>)` 调用：移出 `locales` 中语言的字面量条目。纯函数，便于测试。
+ * `file` 只用于生成调用点标识。没有可移出条目的调用改写为对象本身；模块不含调用时原样返回。
+ */
+export function splitLocaleText(
+  code: string,
+  locales: readonly string[],
+  file: string,
+  callee = 'localeText',
+): TextSplitResult {
+  const patches = new Map<string, Map<string, [(string | number)[], unknown][]>>()
+  if (!code.includes(`${callee}(`)) return { code, patches }
+  const calls: AstNode[] = []
+  const walk = (node: unknown) => {
+    if (Array.isArray(node)) {
+      for (const item of node) walk(item)
+      return
+    }
+    if (!isNode(node)) return
+    const target = node.callee as AstNode | undefined
+    if (
+      node.type === 'CallExpression' &&
+      target?.type === 'Identifier' &&
+      target.name === callee &&
+      (node.arguments as AstNode[]).length === 1 &&
+      (node.arguments as AstNode[])[0]?.type === 'ObjectExpression'
+    )
+      calls.push(node)
+    for (const [key, value] of Object.entries(node)) if (key !== 'type') walk(value)
+  }
+  walk(parseAst(code, { lang: 'js' } as never))
+  if (calls.length === 0) return { code, patches }
+
+  // 按 UTF-16 下标切片：parseAst 返回的 start/end 是 JS 字符串下标
+  let next = code
+  calls.sort((a, b) => a.start - b.start)
+  // 嵌套调用只处理最外层（内层对象已在外层中被遍历）
+  const outer = calls.filter(
+    (call) =>
+      !calls.some((other) => other !== call && other.start <= call.start && call.end <= other.end),
+  )
+  const replacements: { start: number; end: number; text: string }[] = []
+  outer.forEach((call, ordinal) => {
+    const id = textCallId(file, ordinal)
+    const argument = (call.arguments as AstNode[])[0] as AstNode
+    const removed = new Set<AstNode>()
+    const dirty = new Set<AstNode>()
+    const byLocale = new Map<string, [(string | number)[], unknown][]>()
+    const record = (locale: string, path: (string | number)[], value: unknown) => {
+      const list = byLocale.get(locale) ?? []
+      list.push([path, value])
+      byLocale.set(locale, list)
+    }
+    // 返回该节点内是否有改动；ancestors 用于标记需要重写的祖先
+    const visit = (node: AstNode, path: (string | number)[] | null): boolean => {
+      let changed = false
+      if (node.type === 'ObjectExpression') {
+        for (const property of node.properties as AstNode[]) {
+          const key = propertyKey(property)
+          const value = property.value as AstNode | undefined
+          if (key !== null && value && path && locales.includes(key)) {
+            try {
+              record(key, path, staticValue(value))
+              removed.add(property)
+              changed = true
+              continue
+            } catch (error) {
+              if (!(error instanceof NotStatic)) throw error
+            }
+            // 含动态条目的语言对象：只移出其中的字面量条目，动态条目留在原处
+            if (value.type === 'ObjectExpression') {
+              const partial: Record<string, unknown> = {}
+              for (const inner of value.properties as AstNode[]) {
+                const innerKey = propertyKey(inner)
+                if (innerKey === null || inner.shorthand) continue
+                try {
+                  partial[innerKey] = staticValue(inner.value as AstNode)
+                  removed.add(inner)
+                } catch (error) {
+                  if (!(error instanceof NotStatic)) throw error
+                }
+              }
+              if (Object.keys(partial).length > 0) {
+                record(key, path, partial)
+                dirty.add(value)
+                dirty.add(property)
+                changed = true
+              }
+            }
+            continue
+          }
+          if (value && property.type === 'Property' && !property.shorthand) {
+            const childPath = path && key !== null ? [...path, key] : null
+            if (visit(value, childPath)) {
+              dirty.add(property)
+              changed = true
+            }
+          }
+        }
+      } else if (node.type === 'ArrayExpression') {
+        const elements = node.elements as (AstNode | null)[]
+        // 有展开时下标与源码位置对不上，内部不再定位
+        const addressable = elements.every((element) => element?.type !== 'SpreadElement')
+        elements.forEach((element, index) => {
+          if (element && visit(element, path && addressable ? [...path, index] : null))
+            changed = true
+        })
+      } else {
+        // 其他表达式（如 `as const` 已被去掉后的括号、条件式）：继续向下找对象，但路径不可寻址
+        for (const [key, value] of Object.entries(node)) {
+          if (key === 'type') continue
+          for (const child of Array.isArray(value) ? value : [value])
+            if (isNode(child) && visit(child, null)) changed = true
+        }
+      }
+      if (changed) dirty.add(node)
+      return changed
+    }
+    visit(argument, [])
+    // 没有可移出的条目（含未配置新语言时）：去掉包装，运行时不再引用 localeText，首页闭包不增加
+    if (byLocale.size === 0) {
+      replacements.push({
+        start: call.start,
+        end: call.end,
+        text: `(${code.slice(argument.start, argument.end)})`,
+      })
+      return
+    }
+    patches.set(id, byLocale)
+
+    const render = (node: AstNode): string => {
+      if (!dirty.has(node)) return code.slice(node.start, node.end)
+      if (
+        node.type === 'ObjectExpression' &&
+        (node.properties as AstNode[]).some((p) => removed.has(p))
+      )
+        return `{${(node.properties as AstNode[])
+          .filter((property) => !removed.has(property))
+          .map(render)
+          .join(',')}}`
+      const children: AstNode[] = []
+      for (const [key, value] of Object.entries(node)) {
+        if (key === 'type') continue
+        for (const child of Array.isArray(value) ? value : [value])
+          if (isNode(child) && dirty.has(child)) children.push(child)
+      }
+      children.sort((a, b) => a.start - b.start)
+      let out = ''
+      let position = node.start
+      for (const child of children) {
+        out += code.slice(position, child.start) + render(child)
+        position = child.end
+      }
+      return out + code.slice(position, node.end)
+    }
+    replacements.push({
+      start: call.start,
+      end: call.end,
+      text: `/* @__PURE__ */ ${code.slice(call.start, argument.start)}${render(argument)}, ${JSON.stringify(id)}${code.slice(argument.end, call.end)}`,
+    })
+  })
+  for (const { start, end, text } of replacements.sort((a, b) => b.start - a.start))
+    next = next.slice(0, start) + text + next.slice(end)
+  return { code: next, patches }
 }

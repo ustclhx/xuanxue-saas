@@ -20,8 +20,6 @@ import {
 } from '../src/features/tools/tarot/meaning-routes.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
-// 新语言页面的 SEO 文案（按语言拆分）：分享图标题取同一份文案
-import '../src/features/i18n/page-copy.server.ts'
 import { brandChartColors } from './brand-tokens.ts'
 
 const root = new URL('..', import.meta.url)

@@ -40,7 +40,6 @@ export function sitePlugins(serverEntry?: string) {
       runtimeFile: fileURLToPath(
         new URL('../src/features/i18n/split-messages.ts', import.meta.url),
       ),
-      pageCopyDir: fileURLToPath(new URL('../src/features/i18n/page-copy', import.meta.url)),
     }),
     contentCollections(),
     tanstackStart({
