@@ -81,6 +81,31 @@ const LANGUAGE_NAMES = {
 }
 
 /**
+ * 回译门槛豁免的页面类型（照常测量并写出分数，但不计入未达门槛）：
+ * 牌义索引页正文几乎全是 78 张牌名与花色小标题组成的共用列表，牌名由术语表固定，任何语言回译后都与对照页相同；
+ * 东方站日语的牌义索引按同一口径处理。导语段仍应自行写作（结构直译分、数字与模板指标照常检查）。
+ */
+export const BACKTRANSLATION_EXEMPT = Object.freeze({
+  'tarot-card-index':
+    '共用牌名列表：78 张牌名由术语表固定，回译后必然与对照页一致；只要求导语自行写作',
+})
+
+/** 页面类型的回译豁免原因；不豁免时为 null */
+export function backTranslationExemption(locale, kind) {
+  return LOCALE_PLANS[locale]?.backTranslationExempt?.[kind] ?? null
+}
+
+/** 按门槛判定一行：豁免的页面写入原因并从未达门槛中排除 */
+function judgeRow(locale, row, threshold) {
+  const failures = []
+  if (row.dice > threshold) failures.push(`page ${row.dice} > ${threshold}`)
+  if (row.faqMax !== null && row.faqMax > THRESHOLDS.backTranslationFaq)
+    failures.push(`FAQ ${row.faqMax} > ${THRESHOLDS.backTranslationFaq}`)
+  const exempt = backTranslationExemption(locale, row.kind)
+  return exempt ? { ...row, failures, exempt } : { ...row, failures }
+}
+
+/**
  * 各新语言的第一期页面集合（design 决策 9，不含法律页：译文本应一致，不进相似度门槛）与对照语言。
  * expansion：新语言正文长度 / 对照页长度（按字符，估算用）；minChars：工具页的长度下限折算成字符。
  */
@@ -93,6 +118,7 @@ export const LOCALE_PLANS = Object.freeze({
     exclude: /命盘查询|命盤查詢|사주궁합|newsletter/,
     expansion: { 'zh-Hans': 1.4, ko: 1.0 },
     minChars: { tool: 1500 },
+    backTranslationExempt: BACKTRANSLATION_EXEMPT,
   },
   es: {
     site: 'west',
@@ -111,6 +137,7 @@ export const LOCALE_PLANS = Object.freeze({
     expansion: { en: 1.2 },
     // 600 词 × 约 6 字符 / 词
     minChars: { tool: 3600 },
+    backTranslationExempt: BACKTRANSLATION_EXEMPT,
   },
 })
 
@@ -419,13 +446,9 @@ export async function measureBackTranslation({ locale, source, pairs, call, thre
     })
     if (back.text === null) return { budgetExhausted: true, rows }
     const score = backTranslationScore({ sourcePage, backText: back.text, sourceLocale: source })
-    const failures = []
-    if (score.dice > threshold) failures.push(`page ${score.dice} > ${threshold}`)
-    if (score.faqMax !== null && score.faqMax > THRESHOLDS.backTranslationFaq)
-      failures.push(`FAQ ${score.faqMax} > ${THRESHOLDS.backTranslationFaq}`)
-    rows.push({ path, kind, ...score, failures })
+    rows.push(judgeRow(locale, { path, kind, ...score }, threshold))
   }
-  return { rows, failing: rows.filter((r) => r.failures.length) }
+  return { rows, failing: rows.filter((r) => r.failures.length && !r.exempt) }
 }
 
 // ---------------------------------------------------------------------------
@@ -556,11 +579,13 @@ export function scoreExternal({ dir, manifest, pages }) {
       }
       const stale = textHash(serializeSections(target)) !== entry.inputHash
       const score = backTranslationScore({ sourcePage, backText: back, sourceLocale: source })
-      const failures = []
-      if (score.dice > threshold) failures.push(`page ${score.dice} > ${threshold}`)
-      if (score.faqMax !== null && score.faqMax > THRESHOLDS.backTranslationFaq)
-        failures.push(`FAQ ${score.faqMax} > ${THRESHOLDS.backTranslationFaq}`)
-      rows.push({ path: entry.path, kind: entry.kind, stale, ...score, failures })
+      rows.push(
+        judgeRow(
+          manifest.locale,
+          { path: entry.path, kind: entry.kind, stale, ...score },
+          threshold,
+        ),
+      )
     }
     results[source] = {
       calibration: {
@@ -569,7 +594,8 @@ export function scoreExternal({ dir, manifest, pages }) {
         threshold,
       },
       rows,
-      failing: rows.filter((r) => r.failures.length),
+      failing: rows.filter((r) => r.failures.length && !r.exempt),
+      exempt: rows.filter((r) => r.exempt).map(({ path, exempt }) => ({ path, reason: exempt })),
       stale: rows.filter((r) => r.stale).map((r) => r.path),
       missing,
     }

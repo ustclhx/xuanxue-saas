@@ -8,7 +8,12 @@ const daily = {
   'zh-Hant': positions([['每日省思', '今天可反思的主題，不是預測。']]),
   'zh-Hans': positions([['每日省思', '今天可反思的主题，不是预测。']]),
   ko: positions([['오늘의 성찰', '예측이 아닌 오늘 돌아볼 주제입니다.']]),
-  es: positions([['Tema del día', 'Algo para pensar hoy; no es un pronóstico.']]),
+  es: positions([
+    [
+      'Tema del día',
+      'Una idea para tener presente mientras avanza la jornada; no anticipa lo que va a ocurrir.',
+    ],
+  ]),
   ja: positions([['今日のテーマ', '今日ふり返りたいテーマで、予言ではありません。']]),
 }
 const yesNo = {
@@ -23,7 +28,7 @@ const yesNo = {
   es: positions([
     [
       'Sí / No / Quizás',
-      'Una pista simbólica según una tabla fija de cartas, no una respuesta sobre hechos.',
+      'La inclinación que marca la tabla para esa carta: un símbolo para pensar, no un dato comprobable.',
     ],
   ]),
   ja: positions([
