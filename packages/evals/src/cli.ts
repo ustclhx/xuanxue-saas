@@ -3,6 +3,7 @@ import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import { EvalConfigError, EXIT, safeErrorMessage } from './errors.ts'
+import { WEB_DEV_VARS, withWebDevVars } from './local-env.ts'
 import { EXIT_MEANINGS } from './report.ts'
 import { MAX_CONCURRENCY, type RunDeps, type RunOptions, runEval } from './runner.ts'
 import { REPO_ROOT } from './suite.ts'
@@ -15,6 +16,8 @@ export const USAGE = `用法：pnpm eval:prompts --suite <name> [选项]
   --live --budget-usd <美元>     调用真实模型，不写录制
   --record --budget-usd <美元>   调用真实模型并写入回放录制
   CI 环境变量为真时拒绝 --live / --record。
+  出口：配置了 AI_GATEWAY_ACCOUNT_ID 与 AI_GATEWAY_ID 时经 AI Gateway；未配置且有 DEEPSEEK_API_KEY 时
+  DeepSeek 直连官方端点（与站点相同）。变量依次取自环境、根 .env.local、apps/web/.dev.vars，值不输出。
 
 选择：
   --prompt <id@version>          评测的提示词版本（缺省为套件 defaultPrompt）
@@ -108,10 +111,15 @@ export function parseCliArgs(argv: readonly string[]): RunOptions | 'help' {
 
 const usd = (value: number | null) => (value === null ? '—' : `$${value.toFixed(4)}`)
 
+export interface MainDeps extends RunDeps {
+  /** 取自 apps/web/.dev.vars 的变量名（不含值），真实 / 录制模式在终端说明来源 */
+  readonly fromDevVars?: readonly string[]
+}
+
 /** 终端只输出汇总与报告路径；错误信息不含环境变量值 */
 export async function main(
   argv: readonly string[] = process.argv.slice(2),
-  deps: RunDeps = {},
+  deps: MainDeps = {},
   out: { log: (text: string) => void; error: (text: string) => void } = console,
 ): Promise<number> {
   let options: RunOptions | 'help'
@@ -126,7 +134,8 @@ export async function main(
     return EXIT.ok
   }
   try {
-    const { report, reportDir, exitCode } = await runEval(options, deps)
+    const { fromDevVars, ...runDeps } = deps
+    const { report, reportDir, exitCode } = await runEval(options, runDeps)
     const { summary } = report
     const lines = [
       `套件 ${report.suite} · ${report.prompt.promptVersion} · ${report.mode} · 生成 ${report.generator.key}${report.judge ? ` · 评委 ${report.judge.key}` : ''}`,
@@ -136,6 +145,12 @@ export async function main(
         ? `费用 $0（回放）；按录制用量估算真实运行约 ${usd(summary.estimatedLiveCostUsd)}`
         : `费用 ${usd(summary.costUsd)} / 预算 ${usd(report.budget.limitUsd)}${report.budget.exhausted ? '（已触顶）' : ''}`,
     ]
+    if (report.egress)
+      lines.push(
+        `出口：生成 ${report.egress.generator}${report.egress.judge ? ` · 评委 ${report.egress.judge}` : ''}${
+          fromDevVars?.length ? `（${fromDevVars.join('、')} 取自 ${WEB_DEV_VARS}）` : ''
+        }`,
+      )
     if (report.baseline)
       lines.push(
         `基线 ${report.baseline.promptVersion}：平均分差 ${
@@ -178,5 +193,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   // 不用 --env-file-if-exists（Node 22.9 起才有）：loadEnvFile 自 Node 21.7 可用，且不输出任何值
   const envFile = join(REPO_ROOT, '.env.local')
   if (existsSync(envFile)) process.loadEnvFile(envFile)
-  process.exitCode = await main()
+  const { env, fromDevVars } = withWebDevVars(REPO_ROOT, process.env)
+  process.exitCode = await main(process.argv.slice(2), { env, fromDevVars })
 }

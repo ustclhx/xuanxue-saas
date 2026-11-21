@@ -1,6 +1,7 @@
 import { type DefinedPrompt, getTextProviderCapabilities, resolveTextThinking } from '@xuanxue/ai'
 import { generateText, type LanguageModel, NoObjectGeneratedError, Output } from 'ai'
 import { z } from 'zod'
+import { failureNotBilled } from './budget.ts'
 import { safeErrorMessage } from './errors.ts'
 import type { Rubric } from './suite.ts'
 
@@ -131,6 +132,8 @@ export interface JudgeCall {
   readonly usage: { inputTokens?: number | undefined; outputTokens?: number | undefined }
   /** 调用本身失败（网络、Provider 错误），不同于评委输出不合法 */
   readonly callFailed: boolean
+  /** 失败调用确定未计费（出口未配置或服务商以 HTTP 错误拒绝），记账为 0 */
+  readonly notBilled?: boolean
 }
 
 export async function runJudge(
@@ -175,6 +178,7 @@ export async function runJudge(
       finishReason: undefined,
       usage: {},
       callFailed: true,
+      notBilled: failureNotBilled(error),
     }
   }
   const usage = {

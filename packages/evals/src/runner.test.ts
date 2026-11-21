@@ -278,6 +278,7 @@ describe('运行器与报告（4.2）', () => {
         'baseline',
         'budget',
         'createdAt',
+        'egress',
         'exitCode',
         'generator',
         'gitCommit',

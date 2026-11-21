@@ -94,6 +94,11 @@ export function renderMarkdown(report: Report): string {
         ? `${report.judge.key} (${report.judge.provider} ${report.judge.providerModelId}), rubric ${report.judge.rubricVersion}`
         : 'none'
     }`,
+    ...(report.egress
+      ? [
+          `- Egress: generator ${report.egress.generator}${report.egress.judge ? `; judge ${report.egress.judge}` : ''}`,
+        ]
+      : []),
     `- Scope: ${scopeText(report)}`,
     ...(report.prepareVersion ? [`- prepareOutput: ${report.prepareVersion}`] : []),
     `- Exit code: ${report.exitCode} (${EXIT_MEANINGS[report.exitCode] ?? ''})`,

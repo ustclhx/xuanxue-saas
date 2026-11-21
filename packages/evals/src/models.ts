@@ -1,6 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { type AvailableModel, defaultLanguageModelFactory, type TextModelEnv } from '@xuanxue/ai'
+import {
+  type AvailableModel,
+  defaultLanguageModelFactory,
+  type TextModelEnv,
+  textProviderConfigured,
+} from '@xuanxue/ai'
 import type { LanguageModel } from 'ai'
 import { z } from 'zod'
 import { EvalConfigError, TEXT_ENV_KEYS } from './errors.ts'
@@ -60,8 +65,61 @@ export function availableModel(key: string, spec: ModelSpec): AvailableModel {
 
 export type ModelFor = (key: string, spec: ModelSpec) => LanguageModel
 
+/**
+ * 命令行的出口选择：未显式设置 `AI_TEXT_EGRESS`、未配置 Gateway（`AI_GATEWAY_ACCOUNT_ID` /
+ * `AI_GATEWAY_ID` 缺一）且有 `DEEPSEEK_API_KEY` 时补上 `direct`，DeepSeek 即由线上同一模型工厂直连官方端点
+ * （与站点「文本 DeepSeek 直连」相同）。显式设置或已配置 Gateway 时原样交给工厂，不改变既有行为。
+ */
+export function evalTextModelEnv(env: Readonly<Record<string, string | undefined>>): TextModelEnv {
+  const picked = textModelEnv(env)
+  const gateway = Boolean(picked.AI_GATEWAY_ACCOUNT_ID?.trim() && picked.AI_GATEWAY_ID?.trim())
+  if (picked.AI_TEXT_EGRESS === undefined && !gateway && picked.DEEPSEEK_API_KEY?.trim())
+    return { ...picked, AI_TEXT_EGRESS: 'direct' }
+  return picked
+}
+
+/** 报告中的出口：direct 为服务商官方 / 管理员端点，gateway 为 Cloudflare AI Gateway，injected 为单测注入的模型 */
+export type Egress = 'direct' | 'gateway' | 'injected'
+
+/** 与 `defaultLanguageModelFactory` 的分支一一对应：只判断走哪条出口，不构造模型、不读密钥值 */
+export function egressFor(spec: ModelSpec, env: TextModelEnv): 'direct' | 'gateway' {
+  if (env.AI_TEXT_EGRESS !== 'direct') return 'gateway'
+  const gateway = Boolean(env.AI_GATEWAY_ACCOUNT_ID?.trim() && env.AI_GATEWAY_ID?.trim())
+  switch (spec.provider) {
+    case 'openai':
+      return 'direct'
+    case 'deepseek':
+      return env.DEEPSEEK_API_KEY?.trim() ? 'direct' : 'gateway'
+    case 'anthropic':
+      return env.ANTHROPIC_API_KEY?.trim() && !gateway ? 'direct' : 'gateway'
+    default:
+      return 'gateway'
+  }
+}
+
+/**
+ * 真实 / 录制模式在任何调用前确认出口可用：缺 Gateway 与直连密钥时报配置错误（退出码 2），
+ * 而不是让每个样本都以「AI Gateway is not configured」失败。错误信息只含变量名。
+ */
+export function assertEgressConfigured(key: string, spec: ModelSpec, env: TextModelEnv) {
+  if (textProviderConfigured(availableModel(key, spec), env)) return
+  const direct =
+    spec.provider === 'deepseek'
+      ? 'DEEPSEEK_API_KEY for direct DeepSeek'
+      : spec.provider === 'anthropic'
+        ? 'AI_TEXT_EGRESS=direct with ANTHROPIC_API_KEY'
+        : spec.provider === 'openai'
+          ? 'AI_TEXT_EGRESS=direct with OPENAI_BASE_URL and OPENAI_API_KEY'
+          : null
+  throw new EvalConfigError(
+    `model ${key} (${spec.provider}) has no text egress configured: set AI_GATEWAY_ACCOUNT_ID and AI_GATEWAY_ID for AI Gateway${
+      direct ? `, or ${direct}` : ''
+    } (environment, root .env.local or apps/web/.dev.vars)`,
+  )
+}
+
 export function liveModelFactory(env: Readonly<Record<string, string | undefined>>): ModelFor {
-  const modelEnv = textModelEnv(env)
+  const modelEnv = evalTextModelEnv(env)
   return (key, spec) => defaultLanguageModelFactory(availableModel(key, spec), modelEnv)
 }
 
