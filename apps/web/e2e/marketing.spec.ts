@@ -206,8 +206,11 @@ for (const lang of languages) {
       // 西方站只描述数字命理与塔罗
       if (site === 'west') await expect(article).not.toContainText(/Bazi|Saju|Ziwei/)
       // 只从页脚进入，页头不出现法律页链接
-      await expect(page.locator(`header a[href="${prefix}/${slug}"]`)).toHaveCount(0)
-      const footerLink = page.locator(`footer a[href="${prefix}/disclaimer"]`)
+      // 页头语言菜单的链接（带 hreflang，当前语言指向本页）不算法律页入口
+      await expect(page.locator(`header a[href="${prefix}/${slug}"]:not([hreflang])`)).toHaveCount(
+        0,
+      )
+      const footerLink = page.locator(`footer a[href="${prefix}/disclaimer"]:not([hreflang])`)
       await expect(footerLink).toHaveText(copy.footer)
       await expect(page.getByRole('note')).toHaveCount(0)
       await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0)
@@ -224,11 +227,6 @@ for (const lang of languages) {
     const sitemap = await request.get(`/sitemap/${lang === 'en' ? 'en' : lang.toLowerCase()}.xml`, {
       headers: { host: origin.host },
     })
-    // 未发布语言（ja，features/i18n/rollout.ts）没有子站点地图
-    if (lang === 'ja') {
-      expect(sitemap.status()).toBe(404)
-      return
-    }
     expect(sitemap.status()).toBe(200)
     const xml = await sitemap.text()
     for (const slug of slugs)

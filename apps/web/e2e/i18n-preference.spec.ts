@@ -193,14 +193,16 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
   try {
     await page.goto('/zh-hant/塔羅/每日一張')
     // 每一项都是带 hreflang 与 lang 的链接，指向该语言的对应页面；当前语言一项标记 aria-current
-    await expect(menu.locator('a[hreflang]')).toHaveCount(4)
+    // 东方站五种已发布语言（2026-11-21 起含 ja 与根路径英文）
+    await expect(menu.locator('a[hreflang]')).toHaveCount(5)
     await expect(menu.locator('button')).toHaveCount(0)
     await expect(item('ko')).toHaveAttribute('href', encodeURI('/ko/타로/오늘의-카드'))
     await expect(item('ko')).toHaveAttribute('lang', 'ko')
     await expect(item('zh-Hans')).toHaveAttribute('href', encodeURI('/zh-hans/塔罗/每日一张'))
     await expect(item('zh-Hant')).toHaveAttribute('aria-current', 'page')
-    // 东方站英文只有首页：没有对应页面的语言指向该语言首页
-    await expect(item('en')).toHaveAttribute('href', '/')
+    // 东方站英文与日语都有对应的牌阵页
+    await expect(item('en')).toHaveAttribute('href', '/tarot-spreads/one-card')
+    await expect(item('ja')).toHaveAttribute('href', encodeURI('/ja/タロット/一枚引き'))
     await switchTo('ko')
     await expect(page).toHaveURL((url) => decodeURI(url.pathname) === '/ko/타로/오늘의-카드')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
@@ -214,9 +216,9 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
     await switchTo('ko')
     await expect(page).toHaveURL((url) => url.pathname === '/ko')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
-    // 页脚设置行的语言下拉同样是链接（不列只有首页的 English）
+    // 页脚设置行的语言下拉同样是链接，列出东方站全部已发布语言
     const footer = page.locator('footer details').filter({ has: page.locator('a[hreflang]') })
-    await expect(footer.locator('a[hreflang]')).toHaveCount(3)
+    await expect(footer.locator('a[hreflang]')).toHaveCount(5)
     await expect(footer.locator('a[hreflang="zh-Hant"]')).toHaveAttribute('href', '/zh-hant')
   } finally {
     await context.close()
@@ -255,14 +257,22 @@ test('关闭脚本时语言菜单仍可用：页头与页脚都是 <details> 加
   }
 })
 
-test('西方站只有英文，页头不显示语言菜单', async ({ page }) => {
+test('西方站语言菜单只列西方站的英文与西班牙语', async ({ page }) => {
   await page.goto('/pricing')
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.locator('header a[hreflang]')).toHaveCount(0)
-  await expect(page.locator('footer a[hreflang]')).toHaveCount(0)
+  // es 已发布（2026-11-21）：页头与页脚的语言下拉只有 en / es，不出现东方站语言
+  await expect(page.locator('header a[hreflang="es"]').first()).toHaveAttribute(
+    'href',
+    '/es/pricing',
+  )
+  await expect(page.locator('footer a[hreflang="es"]')).toHaveAttribute('href', '/es/pricing')
+  for (const locale of ['zh-Hant', 'zh-Hans', 'ko', 'ja'])
+    await expect(
+      page.locator(`header a[hreflang="${locale}"], footer a[hreflang="${locale}"]`),
+    ).toHaveCount(0)
 })
 
-test('当前页没有浏览器语言的版本时不提示：西方站繁中浏览器、东方站工具页英文浏览器', async ({
+test('当前页没有浏览器语言的版本时不提示：西方站繁中浏览器、东方站没有英文版的工具页英文浏览器', async ({
   browser,
   baseURL,
 }) => {
@@ -277,7 +287,8 @@ test('当前页没有浏览器语言的版本时不提示：西方站繁中浏�
     await page.waitForTimeout(1500)
     await expect(prompt(page)).toHaveCount(0)
     const tool = await east.newPage()
-    await tool.goto(encodeURI('/zh-hant/八字排盤'))
+    // 八字排盤已有东方站英文版（/bazi-calculator），命盤查詢只有繁简中文
+    await tool.goto(encodeURI('/zh-hant/命盤查詢'))
     await expect(tool.locator('html')).toHaveAttribute('lang', 'zh-Hant')
     await tool.waitForTimeout(1500)
     await expect(prompt(tool)).toHaveCount(0)

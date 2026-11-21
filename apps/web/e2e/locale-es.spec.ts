@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
 
-// 西班牙语（openspec add-locales-eu-ja 第 5 组，任务 5.11）：es 属于西方站、发布状态为 pending。
-// 本地 `west.localhost` 是预览主机，pending 语言可直接访问（整体 noindex）；正式域名上返回 404，
-// 且英文页面的 hreflang、站点地图不出现 es。路径按关键词地图（决策 2）。
+// 西班牙语（openspec add-locales-eu-ja 第 5 组，任务 5.11）：es 属于西方站，2026-11-21 发布（rollout.ts）：
+// 正式域名可访问，英文页面的 hreflang 与站点地图列出 es。路径按关键词地图（决策 2）。
+// 未发布语言的拦截机制由单元测试（rollout.test.ts、rollout-discovery.test.ts）覆盖。
 const west = (baseURL: string | undefined) => {
   const url = new URL(baseURL ?? 'http://localhost:3000')
   url.hostname = 'west.localhost'
@@ -97,21 +97,26 @@ test('西班牙语只走本地路径：英文路径段、其他语言的西语�
     expect((await request.get(`${local}${path}`, host)).status(), path).toBe(404)
 })
 
-test('es 未发布：正式域名返回 404，英文页面 hreflang 与站点地图不含 es', async ({
+test('es 已发布：正式域名不再 404，英文页面 hreflang 与站点地图列出 es', async ({
   request,
   baseURL,
 }) => {
   const local = baseURL ?? 'http://localhost:3000'
   const production = { headers: { host: 'arcanumber.com' }, maxRedirects: 0 }
-  expect((await request.get(`${local}/es`, production)).status()).toBe(404)
-  expect((await request.get(`${local}/es/numero-de-vida`, production)).status()).toBe(404)
-  // 可发现位置只看发布状态、不看主机（rollout.ts）：在预览主机上读取同一份输出
+  // 本地是 http：正式域名的请求先 301 到 https 同一地址（规范化），不再是发布前的 404
+  for (const path of ['/es', '/es/numero-de-vida']) {
+    const response = await request.get(`${local}${path}`, production)
+    expect(response.status(), path).toBe(301)
+    expect(response.headers().location, path).toBe(`https://arcanumber.com${path}`)
+  }
   const preview = { headers: { host: new URL(west(baseURL)).host }, maxRedirects: 0 }
   const en = await request.get(`${local}/life-path-number`, preview)
   expect(en.status()).toBe(200)
-  expect((await en.text()).toLowerCase()).not.toContain('hreflang="es"')
+  expect(await en.text()).toMatch(
+    /hreflang="es"[^>]*href="https:\/\/arcanumber\.com\/es\/numero-de-vida"/i,
+  )
   const index = await request.get(`${local}/sitemap.xml`, preview)
-  expect(await index.text()).not.toContain('/sitemap/es.xml')
+  expect(await index.text()).toContain('/sitemap/es.xml')
 })
 
 test('定价页：西班牙语以 USD 显示（es-419 格式，不与比索的 $ 混淆）', async ({ page, baseURL }) => {

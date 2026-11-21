@@ -60,12 +60,22 @@ for (const [locale, host, path, title, orientation, draw, anchors, disclaimer] o
     await expect(page.locator('main figure img').first()).toHaveAttribute('srcset', /240w, .*480w$/)
     await expect(page.locator('main details')).toHaveCount(3)
     await expect(page.locator('main p').filter({ hasText: disclaimer })).toHaveCount(1)
-    // 两站分开经营（D5）：hreflang 只在同站内互指
-    for (const lang of host === 'west' ? ['en', 'x-default'] : ['zh-Hant', 'ko', 'x-default'])
+    // 两站分开经营（D5）：hreflang 只在同站内互指（2026-11-21 起西方站含 es，东方站含 ja 与东方站英文牌页）
+    for (const lang of host === 'west'
+      ? ['en', 'es', 'x-default']
+      : ['zh-Hant', 'ko', 'ja', 'en', 'x-default'])
       await expect(page.locator(`link[rel="alternate"][hreflang="${lang}"]`)).toHaveCount(1)
-    await expect(
-      page.locator(`link[rel="alternate"][hreflang="${host === 'west' ? 'ko' : 'en'}"]`),
-    ).toHaveCount(0)
+    if (host === 'west')
+      await expect(page.locator('link[rel="alternate"][hreflang="ko"]')).toHaveCount(0)
+    else
+      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+        'href',
+        `https://ganjiday.com/tarot-feelings/${path.split('/').at(-1)}`,
+      )
+    for (const href of await page
+      .locator('link[rel="alternate"][hreflang]')
+      .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? '')))
+      expect(href).toContain(host === 'west' ? 'https://arcanumber.com/' : 'https://ganjiday.com/')
     // 延伸牌义：正文里的 H2 区块，固定 4 条（同花色前 1 张、后 2 张与另一花色的同序号牌）
     const related = page.locator('section[aria-labelledby="tarot-related-title"] a')
     await expect(related).toHaveText([...anchors])
@@ -140,7 +150,8 @@ test('禁用脚本：牌义索引 78 条链接、牌义页 4 条延伸牌义、�
       'href',
       /arcanumber\.com\/tarot\/cards$/,
     )
-    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(2)
+    // en、es（2026-11-21 发布）与 x-default
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(3)
 
     // 牌义页：太阳 → 月亮、审判、世界（同序列）与力量（主题对应）；
     // 每张目标牌一半来源用牌义索引的短表述（openspec seo-fix-tdk-links 决策 5）
@@ -171,8 +182,12 @@ test('禁用脚本：牌义索引 78 条链接、牌义页 4 条延伸牌义、�
       await expect(eastCards.nth(18)).toHaveText(anchor)
       await expect(eastCards.nth(18)).toHaveAttribute('href', `${encodeURI(path)}/the-moon`)
       await expect(page.locator('main a[href*="arcanumber"]')).toHaveCount(0)
-      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(0)
-      await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(4)
+      // 东方站英文牌页索引（2026-11-21 发布）：en 指向东方站 /tarot-feelings，不指向西方站
+      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+        'href',
+        'https://ganjiday.com/tarot-feelings',
+      )
+      await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(6)
       // 抽牌页导语链接本站的牌义索引
       await page.goto(`${origin('east')}${encodeURI(draw)}`)
       await expect(page.locator('main header p a')).toHaveAttribute('href', encodeURI(path))
