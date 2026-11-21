@@ -30,6 +30,18 @@
 - **WHEN** 访客打开 `/zh/pricing`
 - **THEN** 返回 404
 
+#### Scenario: 默认语言没有第二套地址
+- **WHEN** 默认语言为 `en`，访客打开 `/en/pricing`
+- **THEN** 返回 301，`Location` 为 `/pricing`
+
+#### Scenario: 大小写前缀
+- **WHEN** 配置了 `zh-Hant`，访客打开 `/zh-Hant/pricing`
+- **THEN** 返回 301，`Location` 为 `/zh-hant/pricing`
+
+#### Scenario: 浏览器语言不影响响应
+- **WHEN** 分别以 `Accept-Language: zh-CN` 与 `Accept-Language: en-US` 请求 `/`
+- **THEN** 两次响应状态均为 200、都没有 `Location`，正文语言相同
+
 ### Requirement: 语言选择与记忆
 首次访问无前缀地址时，系统 SHALL 根据浏览器语言偏好建议对应语言（不自动跳转搜索引擎爬虫）；用户手动切换后 SHALL 记住选择，已登录用户的选择 SHALL 保存到账号设置并在其他设备生效。认证页（登录、注册、找回密码、重置密码、邮箱验证与接受邀请）首次访问时 MUST NOT 展示语言选择或建议，SHALL 直接按浏览器语言偏好进入对应语言的同一页面（以带语言前缀的地址返回）；该进入动作 MUST NOT 记录为用户选择。语言切换控件 SHALL 位于站点页头右上角。
 

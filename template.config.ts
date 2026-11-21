@@ -107,11 +107,29 @@ export default defineTemplateConfig({
   // previewHost：链接图检查以该主机名作 Host 访问 preview，两站各自成图（本地 `<站点 id>.localhost`，features/site/site.ts）
   seo: {
     linking: {
+      // hosts / defaultLocale（模板 0.8.1）：生产主机名与站点的无前缀语言，与上方 sites 注册表一致。两站根路径都是英文，
+      // defaultLocale 均为 'en'（等于 i18n.defaultLocale，避开 0.8.1「已知问题」）；链接图检查据此在两站各查 `/en` → `/` 的 301。
+      // 请求时的前缀 301 仍由站点守卫（features/site/gate.ts）负责，项目不用模板 request.server.ts 的 requestLocaleRouting。
       sites: [
-        { locales: ['en', 'es'], previewHost: 'west.localhost' },
+        {
+          locales: ['en', 'es'],
+          previewHost: 'west.localhost',
+          hosts: ['arcanumber.com'],
+          defaultLocale: 'en',
+        },
         // en 追加在东方站分组末尾（5b 东方站根路径英文）：两站各自成图，en 页面按 Host 归属
-        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'], previewHost: 'east.localhost' },
+        {
+          locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'],
+          previewHost: 'east.localhost',
+          hosts: ['ganjiday.com'],
+          defaultLocale: 'en',
+        },
       ],
+      // x-default 偏好（模板 0.8.1，只供链接图检查 hreflang-x-default 核对指向）：英文版本存在时指向英文，否则按语言顺序取
+      // 第一个存在的版本，与 features/seo/metadata.ts alternateLinks 的输出规则一致（两站语言的相对顺序与 i18n.locales 相同）
+      xDefaultLocales: ['en'],
+      // 项目自有语言提示（features/i18n/locale-prompt.tsx）的属性，language-prompt-ssr 据此确认它不进入服务端 HTML
+      promptMarkers: ['data-locale-prompt'],
       // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；
       // 地址不带语言前缀，东方站只有首页命中
       moneyPages: [

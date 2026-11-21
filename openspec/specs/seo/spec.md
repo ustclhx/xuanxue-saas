@@ -43,7 +43,15 @@
 
 #### Scenario: 缺少中文译文的文章
 - **WHEN** 一篇文章只有英文版本，访客打开 `/zh/blog/<slug>`
+- **THEN** 返回 404；英文文章的 hreflang 不包含 `zh`；站点地图不包含 `/zh/blog/<slug>`；中文页面不链接到该地址
+
+#### Scenario: 开启回退显示
+- **WHEN** 项目开启回退显示，一篇文章只有英文版本，访客打开 `/zh/blog/<slug>`
 - **THEN** 页面显示英文内容，canonical 指向 `/blog/<slug>`，hreflang 不包含 `zh`，站点地图不包含 `/zh/blog/<slug>`
+
+#### Scenario: 本地化 slug
+- **WHEN** 某项目页面的英文地址为 `/four-pillars`，韩语地址为 `/ko/만세력`，并声明了两者互为语言版本
+- **THEN** 两页的 hreflang 都同时列出这两个地址
 
 ### Requirement: 站点地图与抓取规则
 每个站点 SHALL 提供只包含本站点公开、已发布页面的站点地图索引（按语言拆分子站点地图）与 robots 规则；应用区（`/app`）、后台（`/admin`）、接口路径与分享结果链接 MUST 被禁止抓取或带 noindex。
