@@ -8,6 +8,7 @@ import { toolHref } from '../tools/tool-href.ts'
 import { ganzhiText, stemWithElement } from './copy.ts'
 import { browserDate, dateKey, formatShortDate, parseDateKey, sameDate } from './date.ts'
 import { eastDayFacts, eastPersonalFacts, westDayFacts, westPersonalFacts } from './facts.ts'
+import { PersonalNumbers } from './personal-numbers.tsx'
 import { dailyPath } from './routes.ts'
 import { createDailyChatLink } from './today.functions.ts'
 import {
@@ -19,7 +20,6 @@ import {
   type TodayProfileOption,
   westPanelCopy,
 } from './today.ts'
-import { PersonalNumbers } from './west-page.tsx'
 
 type OkPanel = Extract<TodayPanelData, { state: 'ok' }>
 

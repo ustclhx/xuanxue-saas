@@ -131,16 +131,12 @@ export const LANDING_FORBIDDEN_SOURCES = [
 ]
 
 /**
- * 首页 HTML 静态闭包（入口与整棵路由树的静态部分，各页面相同）的禁止源文件：同上，去掉经每日运势路由
- * 进入全站闭包的三项——每日数字页（features/daily/west-page.tsx、copy.ts）由路由静态导入，带入数字命理计算
- * 与日期字段所用的 tools/form.tsx。那是每日运势路由的拆分问题，不属于落地页；拆分后可把这里换回
- * LANDING_FORBIDDEN_SOURCES。
+ * 首页 HTML 静态闭包（入口与整棵路由树的静态部分，各页面相同）的禁止源文件：同上，去掉经空间首页路由
+ * 进入全站闭包的一项——今日面板（features/daily/today-panel.tsx，由 routes/app/$slug/index.tsx 经 mount.tsx
+ * 静态导入）在浏览器中计算个人日，带入数字命理计算包。每日运势页的 loader 已移到 features/daily/load.ts，
+ * 每日页组件、tools/numerology/calc.ts 与 tools/form.tsx 不再进入全站闭包（add-locales-eu-ja 决策 11）。
  */
-const SHARED_VIA_DAILY_ROUTE = [
-  'packages/numerology/src/',
-  'src/features/tools/numerology/calc.ts',
-  'src/features/tools/form.tsx',
-]
+const SHARED_VIA_DAILY_ROUTE = ['packages/numerology/src/']
 export const HOME_FORBIDDEN_SOURCES = LANDING_FORBIDDEN_SOURCES.filter(
   (source) => !SHARED_VIA_DAILY_ROUTE.includes(source),
 )
