@@ -169,6 +169,23 @@ describe('调用、缓存与预算', () => {
     })
     assert.deepEqual(result.failing[0].failures, ['page 1 > 0.4', 'FAQ 1 > 0.4'])
   })
+
+  test('牌义索引（共用牌名列表）照常评分并写明豁免原因，不计入未达门槛', async () => {
+    const { generate } = fake()
+    const call = cachedCaller({ generate, ledger: new BudgetLedger(5), cacheDir: null })
+    const result = await measureBackTranslation({
+      locale: 'es',
+      source: 'en',
+      threshold: 0.4,
+      call,
+      pairs: [
+        { path: '/es/tarot/cartas', kind: 'tarot-card-index', sourcePage: en, targetPage: en },
+      ],
+    })
+    assert.deepEqual(result.rows[0].failures, ['page 1 > 0.4', 'FAQ 1 > 0.4'])
+    assert.match(result.rows[0].exempt, /牌名/)
+    assert.equal(result.failing.length, 0)
+  })
 })
 
 describe('费用估算', () => {
