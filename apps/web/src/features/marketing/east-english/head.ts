@@ -23,11 +23,14 @@ export function eastEnglishAlternates() {
   const origin = seoSiteOrigin('east')
   return [
     { rel: 'alternate', hrefLang: EAST_ENGLISH_LOCALE, href: eastEnglishUrl() },
-    ...releasedSiteLocales('east', templateConfig).map((locale) => ({
-      rel: 'alternate',
-      hrefLang: locale as string,
-      href: absoluteUrl(origin, localizedPath('/', locale)),
-    })),
+    // en 已在第一项：东方站英文发布后 en 也在东方站已发布语言中，不重复输出
+    ...releasedSiteLocales('east', templateConfig)
+      .filter((locale) => locale !== EAST_ENGLISH_LOCALE)
+      .map((locale) => ({
+        rel: 'alternate',
+        hrefLang: locale as string,
+        href: absoluteUrl(origin, localizedPath('/', locale)),
+      })),
     { rel: 'alternate', hrefLang: 'x-default', href: eastEnglishUrl() },
   ]
 }

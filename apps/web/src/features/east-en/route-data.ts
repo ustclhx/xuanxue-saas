@@ -9,6 +9,7 @@ import {
 } from '../seo/structured-data.ts'
 import { EAST_EN_TOOL_PATHS } from '../tools/bazi/eastern-routes.ts'
 import { faqPageData } from '../tools/numerology/seo.ts'
+import { TOOL_ROUTES } from '../tools/registry.ts'
 import { spreadForSlug, tarotAlternates, tarotNavTitle, tarotPath } from '../tools/tarot/routes.ts'
 import { eastEnFaqData } from './article.tsx'
 import { FAQ_PAGE } from './copy/faq.ts'
@@ -63,10 +64,11 @@ const SPREAD_SEO: Readonly<Record<SpreadId, readonly [string, string]>> = {
 export function eastEnToolHead(id: 'bazi' | 'ziwei'): EastEnHead {
   const copy = id === 'bazi' ? BAZI : ZIWEI
   const path = EAST_EN_TOOL_PATHS[id]
-  const alternates =
-    id === 'bazi'
-      ? { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력', en: path }
-      : { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘', en: path }
+  // 各语言版本取工具注册表（与东方站其他语言页面的 hreflang 同源），新增语言（ja）后两边仍互指（ML-05）
+  const paths = TOOL_ROUTES.find((tool) => tool.site === SITE && tool.id === id)?.paths ?? {}
+  const alternates: Record<string, string> = { en: path }
+  for (const [locale, localized] of Object.entries(paths))
+    if (localized) alternates[locale] = localized
   const page: SeoPage = {
     path,
     locale: 'en',
