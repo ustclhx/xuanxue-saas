@@ -5,6 +5,7 @@ import type { WebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
 import { languageLocale, languageUrl, preferredLocale } from './preference.ts'
 import { localizeRequest } from './request.server.ts'
+import { overrideRelease } from './rollout-fixture.ts'
 import { readRequestSession, withSessionCache } from './session.server.ts'
 
 vi.mock('@xuanxue/auth', async (original) => ({
@@ -139,12 +140,24 @@ describe.runIf(templateConfig.i18n.enabled)('应用区按本站语言回退', ()
     expect(await localeOf(`${east}/app`, {})).toBe('zh-Hant')
   })
 
-  it('东方站保存了另一站语言时不显示英文，回退到繁体中文；本站账号语言照用', async () => {
-    expect(await localeOf(`${east}/app`, { 'x-locale': 'en' })).toBe('zh-Hant')
-    expect(
-      await localeOf(`${east}/app`, { 'x-locale': 'en', cookie: 'locale-preference=ko' }),
-    ).toBe('zh-Hant')
+  it('东方站保存了另一站语言时不显示该语言，回退到繁体中文；本站账号语言照用', async () => {
+    // 东方站英文未发布时 en 只是西方站语言
+    const restore = overrideRelease({ east: { en: 'pending' } })
+    try {
+      expect(await localeOf(`${east}/app`, { 'x-locale': 'en' })).toBe('zh-Hant')
+      expect(
+        await localeOf(`${east}/app`, { 'x-locale': 'en', cookie: 'locale-preference=ko' }),
+      ).toBe('zh-Hant')
+    } finally {
+      restore()
+    }
+    expect(await localeOf(`${east}/app`, { 'x-locale': 'es' })).toBe('zh-Hant')
     expect(await localeOf(`${east}/app`, { 'x-locale': 'zh-Hans' })).toBe('zh-Hans')
+  })
+
+  it('东方站英文已发布（2026-11-21）：东方站账号语言为 en 时应用区用英文；ja 同样是本站语言', async () => {
+    expect(await localeOf(`${east}/app`, { 'x-locale': 'en' })).toBe('en')
+    expect(await localeOf(`${east}/app`, { 'x-locale': 'ja' })).toBe('ja')
   })
 
   it('西方站只用英文；未登记的预览 Host 沿用账号语言', async () => {
@@ -176,11 +189,26 @@ describe.runIf(templateConfig.i18n.enabled)('未登录的应用区不沿用外�
     expect(result.setCookie).toMatch(/^PARAGLIDE_LOCALE=en;/)
   })
 
-  it('东方站残留 en Cookie 回退到繁体中文（不看浏览器语言）；本站语言 Cookie 与无 Cookie 不改动', async () => {
-    const east1 = await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=en', 'ko-KR')
-    expect(east1).toEqual({
+  it('东方站残留外站语言 Cookie 回退到繁体中文（不看浏览器语言）；本站语言 Cookie 与无 Cookie 不改动', async () => {
+    const restore = overrideRelease({ east: { en: 'pending' } })
+    try {
+      const east1 = await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=en', 'ko-KR')
+      expect(east1).toEqual({
+        locale: 'zh-Hant',
+        setCookie: expect.stringMatching(/^PARAGLIDE_LOCALE=zh-Hant;/),
+      })
+    } finally {
+      restore()
+    }
+    // es 只属于西方站
+    expect(await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=es', 'ko-KR')).toEqual({
       locale: 'zh-Hant',
       setCookie: expect.stringMatching(/^PARAGLIDE_LOCALE=zh-Hant;/),
+    })
+    // 东方站英文已发布：en Cookie 是本站语言，不改动
+    expect(await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=en')).toEqual({
+      locale: 'en',
+      setCookie: null,
     })
     expect(await signedOut(`${east}/app`, 'PARAGLIDE_LOCALE=zh-Hans')).toEqual({
       locale: 'zh-Hans',

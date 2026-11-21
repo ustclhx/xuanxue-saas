@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import templateConfig from '../../../../../template.config.ts'
+import { withRelease } from '../i18n/rollout-fixture.ts'
 import { checkoutPresentation } from './checkout-presentation.ts'
 
 const credits = (count: number, locale: string) => `${count} credits[${locale}]`
@@ -21,9 +22,20 @@ describe('checkout presentation (PayPal / Stripe)', () => {
   it('falls back to the current language, then the site default, within the request site', () => {
     expect(present('https://ganjiday.com/x', '/app/team/billing', 'ko').locale).toBe('ko')
     // 当前语言属于另一站点时不跨站使用，取东方站第一种语言
-    expect(present('https://ganjiday.com/x', undefined, 'en')).toMatchObject({
+    expect(present('https://ganjiday.com/x', undefined, 'es')).toMatchObject({
       brandName: '干支日',
       locale: 'zh-Hant',
+    })
+    // 东方站英文未发布时 en 同样是外站语言；2026-11-21 发布后是东方站语言（站名 Ganjiday）
+    withRelease({ east: { en: 'pending' } }, () =>
+      expect(present('https://ganjiday.com/x', undefined, 'en')).toMatchObject({
+        brandName: '干支日',
+        locale: 'zh-Hant',
+      }),
+    )
+    expect(present('https://ganjiday.com/x', undefined, 'en')).toMatchObject({
+      brandName: 'Ganjiday',
+      locale: 'en',
     })
     expect(present('https://arcanumber.com/x', '/ko/manseryeok', 'ko')).toMatchObject({
       brandName: 'Arcanumber',

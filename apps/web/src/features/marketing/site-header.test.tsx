@@ -2,6 +2,7 @@ import type { SiteId } from '@xuanxue/config'
 import type { ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { withRelease } from '../i18n/rollout-fixture.ts'
 import { SiteContext } from '../site/context.tsx'
 
 const state = vi.hoisted(() => ({
@@ -103,14 +104,29 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(html).not.toContain('八字排盤')
   })
 
-  it('东方站 + 英语偏好的应用区：使用东方站默认语言（繁中）的工具', () => {
+  it('东方站英文未发布时，英语偏好的应用区使用东方站默认语言（繁中）的工具', () => {
     state.locale = 'en'
     state.pathname = '/app/personal'
-    const links = hrefs(render('east', <SiteHeader />))
+    const links = withRelease({ east: { en: 'pending' } }, () =>
+      hrefs(render('east', <SiteHeader />)),
+    )
     expect(links).toContain('/zh-hant')
     expect(links).toContain('/zh-hant/pricing')
     expect(links).not.toContain('/tarot')
     expect(links).not.toContain('/pricing')
+  })
+
+  it('东方站英文发布后（2026-11-21），英语应用区用东方站英文工具，不出现西方站工具', () => {
+    state.locale = 'en'
+    state.pathname = '/app/personal'
+    const html = render('east', <SiteHeader />)
+    const links = hrefs(html)
+    expect(links).toContain('/bazi-calculator')
+    expect(links).toContain('/pricing')
+    expect(links).not.toContain('/zh-hant/pricing')
+    expect(links).not.toContain('/tarot')
+    expect(links).not.toContain('/life-path-number')
+    expect(html).not.toContain('Arcanumber')
   })
 
   it('语言控件只列本站语言：西方站没有中文与韩语项，东方站另有指向英文首页 / 的 English', () => {
@@ -121,7 +137,13 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     state.locale = 'zh-Hant'
     state.pathname = '/'
     const east = render('east', <SiteHeader />)
-    expect(languageItems(headerLanguageMenu(east))).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
+    expect(languageItems(headerLanguageMenu(east))).toEqual([
+      'zh-Hant',
+      'zh-Hans',
+      'ko',
+      'ja',
+      'en',
+    ])
     expect(headerLanguageMenu(east)).not.toContain('<button')
     // 使用者 2026-11-20：东方站英文首页对外地址为 `/`
     expect(east).toMatch(/<a[^>]*href="\/"[^>]*hrefLang="en"/)
@@ -153,11 +175,23 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
         current: false,
       },
       { href: '/ko', hrefLang: 'ko', lang: 'ko', current: false },
+      { href: '/ja', hrefLang: 'ja', lang: 'ja', current: false },
       { href: '/', hrefLang: 'en', lang: 'en', current: false },
     ])
-    // 页脚设置行同样是链接，不列只有首页的 English
+    // 页脚设置行同样是链接；东方站英文发布后（2026-11-21）English 是完整的本站语言，同样列出
     const footer = render('east', <SiteFooter />)
     expect(languageLinks(footer).map((link) => link.href)).toEqual([
+      encodeURI('/zh-hant/紫微斗數排盤'),
+      encodeURI('/zh-hans/紫微斗数排盘'),
+      '/ko',
+      '/ja',
+      '/',
+    ])
+    // 发布前不列只有首页的 English
+    const before = withRelease({ east: { en: 'pending', ja: 'pending' } }, () =>
+      render('east', <SiteFooter />),
+    )
+    expect(languageLinks(before).map((link) => link.href)).toEqual([
       encodeURI('/zh-hant/紫微斗數排盤'),
       encodeURI('/zh-hans/紫微斗数排盘'),
       '/ko',
@@ -169,7 +203,13 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     state.locale = 'ko'
     state.pathname = '/app/personal'
     const links = languageLinks(headerLanguageMenu(render('east', <SiteHeader />)))
-    expect(links.map((link) => link.href)).toEqual(['/zh-hant', '/zh-hans', '/app/personal', '/'])
+    expect(links.map((link) => link.href)).toEqual([
+      '/zh-hant',
+      '/zh-hans',
+      '/app/personal',
+      '/ja',
+      '/',
+    ])
     expect(links.find((link) => link.current)?.lang).toBe('ko')
   })
 
@@ -185,13 +225,16 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(footer).not.toContain('Ganjiday')
   })
 
-  it('东方站英文入口页：页头不列工具，品牌回到 /en，页脚链接到繁中页面', () => {
+  it('东方站英文未发布时的英文入口页：页头不列工具，品牌回到 /en，页脚链接到繁中页面', () => {
     state.locale = 'en'
     state.pathname = '/en'
-    const header = render('east', <SiteHeader />)
+    const [header, footerHtml] = withRelease({ east: { en: 'pending' } }, () => [
+      render('east', <SiteHeader />),
+      render('east', <SiteFooter />),
+    ])
     expect(header).not.toContain('八字排盤')
     expect(header).not.toContain('Life Path')
-    const footer = hrefs(render('east', <SiteFooter />))
+    const footer = hrefs(footerHtml ?? '')
     expect(footer).toContain('/zh-hant/privacy')
     expect(footer).not.toContain('/privacy')
   })
@@ -248,10 +291,13 @@ describe('页头导航（refresh-visual-system-warm D7，site-visual-system「�
     // 语言下拉是 <details> 加链接，不依赖水合（不再是 Select）
     expect(html).not.toContain('role="combobox"')
     expect(html.slice(html.indexOf('md:hidden'))).toContain('hrefLang="ko"')
-    // 西方站只有一种语言：面板里没有语言下拉，仍有主题切换
+    // 西方站 es 已发布（2026-11-21）：页头与面板的语言下拉只列西方站的 en / es，仍有主题切换
     const west = render('west', <SiteHeader />)
     expect(west).toContain('data-slot="theme-toggle"')
-    expect(languageItems(west)).toEqual([])
+    expect([...new Set(languageItems(west))]).toEqual(['en', 'es'])
+    // 西方站只有一种已发布语言时不渲染语言下拉
+    const single = withRelease({ west: { es: 'pending' } }, () => render('west', <SiteHeader />))
+    expect(languageItems(single)).toEqual([])
   })
 })
 
@@ -260,12 +306,15 @@ describe('页脚设置行', () => {
     const east = render('east', <SiteFooter />)
     expect(east).toContain('data-site-footer')
     expect(east).toContain('data-slot="theme-toggle"')
-    // 东方站设置行含语言下拉（链接）；西方站只有一种语言，不渲染
-    expect(languageItems(east)).toEqual(['zh-Hant', 'zh-Hans', 'ko'])
+    // 两站设置行都含语言下拉（链接），只列本站已发布语言
+    expect(languageItems(east)).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'])
     const west = render('west', <SiteFooter />)
     expect(west).toContain('data-site-footer')
     expect(west).toContain('data-slot="theme-toggle"')
-    expect(languageItems(west)).toEqual([])
+    expect(languageItems(west)).toEqual(['en', 'es'])
+    // 只有一种已发布语言时不渲染
+    const single = withRelease({ west: { es: 'pending' } }, () => render('west', <SiteFooter />))
+    expect(languageItems(single)).toEqual([])
     // 合规声明为 caption 小字，用批准的全文
     expect(west).toContain(
       'For reference and self-reflection only; it does not predict the future.',

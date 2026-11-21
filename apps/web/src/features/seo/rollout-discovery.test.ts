@@ -24,7 +24,7 @@ describe.runIf(templateConfig.i18n.enabled)('未发布语言不可被发现', ()
   })
 
   it('站点地图索引与子图不含未发布语言', () => {
-    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'en'])
+    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'ja', 'en'])
     expect(sitemapIndex('east')).not.toContain('/sitemap/ko.xml')
     const xml = sitemap(
       publicPages({ posts: [], legal: [], docs: [] }, new Date(), templateConfig, 'east'),
@@ -39,7 +39,8 @@ describe.runIf(templateConfig.i18n.enabled)('未发布语言不可被发现', ()
     const links = alternateLinks(EAST, '/', undefined, undefined, 'zh-Hant').map(
       (link) => link.hrefLang,
     )
-    expect(links).toEqual(['zh-Hant', 'zh-Hans', 'en', 'x-default'])
+    // 东方站首页组有英文版本（东方站 `/`，2026-11-21 发布）：en 在前，x-default 为英文首页
+    expect(links).toEqual(['en', 'zh-Hant', 'zh-Hans', 'ja', 'x-default'])
     const own = alternateLinks(EAST, '/', undefined, undefined, 'ko').map((link) => link.hrefLang)
     expect(own).toContain('ko')
   })
@@ -54,10 +55,12 @@ describe.runIf(templateConfig.i18n.enabled)('未发布语言不可被发现', ()
   })
 
   it('正式域名的未发布语言前缀返回 404，本地主机放行；英文首页的 hreflang 不含未发布语言', () => {
+    // 发布前东方站 `/` 的入口页 head（features/marketing/east-english/head.ts）：en 只出现一次
     expect(eastEnglishAlternates().map((link) => link.hrefLang)).toEqual([
       'en',
       'zh-Hant',
       'zh-Hans',
+      'ja',
       'x-default',
     ])
     expect(routeSite(new URL(`${EAST}/ko`), templateConfig)).toEqual({ kind: 'not-found' })
@@ -69,10 +72,10 @@ describe.runIf(templateConfig.i18n.enabled)('未发布语言不可被发现', ()
 
   it('恢复为 released 后输出与现状相同', () => {
     east.ko = 'released'
-    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en'])
+    expect(sitemapLocales('east')).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'ja', 'en'])
     expect(
       alternateLinks(EAST, '/', undefined, undefined, 'zh-Hant').map((link) => link.hrefLang),
-    ).toEqual(['zh-Hant', 'zh-Hans', 'ko', 'en', 'x-default'])
+    ).toEqual(['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja', 'x-default'])
     expect(llmsTxt('east')).toContain('## 한국어')
   })
 })

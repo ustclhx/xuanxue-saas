@@ -1,6 +1,7 @@
 import { renderToString } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Route } from '../../../routes/en.tsx'
+import { BEFORE_JA_ES_EAST_EN, overrideRelease } from '../../i18n/rollout-fixture.ts'
 import { sitemapLocales } from '../../seo/crawlers.ts'
 import { SiteContext } from '../../site/context.tsx'
 import { EAST_ENGLISH_COPY } from './content.ts'
@@ -9,6 +10,8 @@ import { EastEnglishPage } from './page.tsx'
 
 // 东方站 `/en` 英文入口页（openspec product-improve-ai-content-20261030 tasks.md 4.8）。
 // 守卫层的 200 / 404 见 features/site/site.test.ts；这里验证页面内容、head 与 en 子站点地图。
+// 入口页只在东方站根路径英文发布前使用（2026-11-21 发布后东方站 `/` 为 features/east-en 的落地页），
+// 用例按发布前的发布状态验证。
 const html = renderToString(
   <SiteContext value="east">
     <EastEnglishPage />
@@ -20,6 +23,12 @@ const text = html
   .trim()
 
 describe('东方站英文入口页', () => {
+  let restore = () => {}
+  beforeEach(() => {
+    restore = overrideRelease(BEFORE_JA_ES_EAST_EN)
+  })
+  afterEach(() => restore())
+
   it('英文说明不少于 600 词，H1 与标题不以 AI 为卖点，含合规声明', () => {
     expect(text.split(/\s+/).filter((word) => /[A-Za-z]/.test(word)).length).toBeGreaterThan(600)
     expect(html).toContain(`<h1`)

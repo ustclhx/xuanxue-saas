@@ -108,14 +108,14 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
     expect(isPrerenderedPath('/ko/numerology-calculator', templateConfig.i18n.locales)).toBe(false)
   })
 
-  it('西方站首页 hreflang 只含 en 与 x-default，东方站各语言首页不指向它', () => {
+  it('西方站首页 hreflang 只含西方站的 en / es 与 x-default，东方站各语言首页不指向它', () => {
     const hreflangs = (locale: string) =>
       pageHead({ path: '/', title: 'Home', description: 'Home', locale }, origin).links.flatMap(
         (link) => (link.rel === 'alternate' && 'hrefLang' in link ? [link.hrefLang] : []),
       )
-    expect(hreflangs('en')).toEqual(['en', 'x-default'])
+    expect(hreflangs('en')).toEqual(['en', 'es', 'x-default'])
     // 东方站首页的 en 是东方站自己的英文首页 `/`（使用者 2026-11-20），不是西方站首页
-    for (const locale of ['zh-Hant', 'ko']) {
+    for (const locale of ['zh-Hant', 'ko', 'ja']) {
       const head = pageHead({ path: '/', title: 'Home', description: 'Home', locale }, origin)
       expect(JSON.stringify(head.links)).not.toContain('arcanumber.com')
       expect(head.links).toContainEqual({
@@ -136,32 +136,26 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
           link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
         )
         const en = `https://arcanumber.com${tarotPath(spread, 'en')}`
-        // 未发布的 ja 页面自指（rollout.ts），已发布语言的页面不列 ja（上面 toEqual 已覆盖）
-        if (locale === 'ja') {
-          expect(Object.fromEntries(links).ja, `${spread} ja`).toBe(
-            new URL(`https://ganjiday.com/ja${tarotPath(spread, 'ja')}`).href,
-          )
-          continue
-        }
+        // 东方站英文牌阵页（2026-11-21 发布）：东方站页面的 en 与 x-default 指向它，不指向西方站
+        const eastEn = new URL(`https://ganjiday.com${tarotPath(spread, 'en', 'east')}`).href
         expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual(
           locale === 'en' || locale === 'es'
-            ? // es 未发布（rollout.ts）：英文页不列 es；es 页面自指并列出英文版本
-              locale === 'en'
-              ? { en, 'x-default': en }
-              : {
-                  en,
-                  es: new URL(`https://arcanumber.com/es${tarotPath(spread, 'es')}`).href,
-                  'x-default': en,
-                }
+            ? // 西方站：en 与 es 互指，x-default 为英文版本
+              {
+                en,
+                es: new URL(`https://arcanumber.com/es${tarotPath(spread, 'es')}`).href,
+                'x-default': en,
+              }
             : {
                 'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`)
                   .href,
                 'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotPath(spread, 'zh-Hans')}`)
                   .href,
                 ko: new URL(`https://ganjiday.com/ko${tarotPath(spread, 'ko')}`).href,
-                // x-default 为同一牌阵的繁中版本，不是会跳转的根路径
-                'x-default': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`)
-                  .href,
+                ja: new URL(`https://ganjiday.com/ja${tarotPath(spread, 'ja')}`).href,
+                en: eastEn,
+                // x-default 为同一牌阵的东方站英文版本，不是会跳转的根路径
+                'x-default': eastEn,
               },
         )
       }

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { withRelease } from '../i18n/rollout-fixture.ts'
 import { authPageHead, pageHead, staticPage, titleWithSite } from './metadata.ts'
 import { siteTitle } from './site-title.ts'
 
@@ -69,8 +70,14 @@ describe('页面标题带站名', () => {
     state.locale = 'ko'
     expect(siteTitle('내 리포트', matches('east'))).toBe('내 리포트 | 간지데이')
     // 东方站应用区残留西方站语言的 Cookie：仍是东方站站名，不出现 Arcanumber
+    state.locale = 'es'
+    expect(siteTitle('Lecturas', matches('east'))).toBe('Lecturas｜干支日')
     state.locale = 'en'
-    expect(siteTitle('Readings', matches('east'))).toBe('Readings｜干支日')
+    withRelease({ east: { en: 'pending' } }, () =>
+      expect(siteTitle('Readings', matches('east'))).toBe('Readings｜干支日'),
+    )
+    // 东方站英文发布后（2026-11-21）en 是东方站语言，用东方站英文站名
+    expect(siteTitle('Readings', matches('east'))).toBe('Readings | Ganjiday')
     expect(siteTitle('Readings', matches('west'))).toBe('Readings | Arcanumber')
     // 西方站残留东方站语言
     state.locale = 'ko'
