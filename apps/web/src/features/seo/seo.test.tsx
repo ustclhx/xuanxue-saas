@@ -136,11 +136,11 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
         if (!page.alternates) {
           const site = siteOfLocale(locale, config) ?? 'west'
-          // 未发布语言（rollout.ts）不进其他语言页面的 hreflang，页面自身保留自指
+          // hreflang 只列已发布语言，未发布语言（ja）的页面另列自身（rollout.ts）
           const siteLocales = locales.filter(
             (other) =>
               siteOfLocale(other, config) === site &&
-              (other === locale || isLocaleReleased(other, config)),
+              (other === locale || isLocaleReleased(other, config, site)),
           )
           // 东方站各语言首页另与东方站英文入口页 `/en` 互指
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(

@@ -8,7 +8,7 @@
 |---|---|
 | `prompts.ts` | 三个套件版本，按样本 `kind` / `locale` 分派到 catalog.ts 的真实版本，消息与线上 `readingMessages` 逐字相同 |
 | `prepare.ts` | `prepareOutput`（`guard.v4`）：调用线上共用的 `deliveredReadingText`（繁中字形补正 → v4 兜底） |
-| `checks.ts` | 确定性检查，自旧脚本迁移、判定不变；`length`、`latin` 保持 warn；新语言另有 `script`、`glossary`（error） |
+| `checks.ts` | 确定性检查，自旧脚本迁移、判定不变；`length`、`latin` 保持 warn；新语言另有 `script`、`esGlossary`（error） |
 | `rubric.ts` | 评分标准 `r1`：五个维度（accuracy / specificity / actionability / tone / readability），1–5 分 |
 | `gates.ts` | `evaluateRun`：design 决策 7 中可自动判定的门槛 |
 | `samples.json` | 64 个虚构样本（v4 批次 6 个组合 × 8 + 西语 2 个组合 × 8），不含真实用户数据 |
@@ -37,7 +37,7 @@
 - 版本锁要求每个套件版本渲染全部样本：`readings@v4` 与 `readings@pre-v4` 遇到 es 样本时渲染同一份 es 提示词，只为锁覆盖全部样本。
   运行范围由 `suite.ts` 的 `appliesTo`（`@xuanxue/evals` SuiteDefinition）决定：es 样本只属于 `readings@es-v1`，
   v4 / pre-v4 的整套回放只含原 48 个样本（不算筛选运行，样本量门槛照常判定），不会因 es 样本没有录制而失败。
-- 是否对访客出售由 `apps/web/src/features/readings/locale-gate.ts` 决定：门槛通过并经使用者确认后，把对应组合改为 `'passed'`。
+- 是否对访客出售由 `apps/web/src/features/readings/catalog.ts` 的 `READING_EVAL_PENDING` 决定（与 ja 同一机制）：门槛通过并经使用者确认后删去对应组合。
 
 ## 样本输入
 
@@ -72,7 +72,7 @@
 |---|---|
 | `versions` | 候选 `readings@es-v1`，未带基线 |
 | `<组合>.coverage` | 所选样本中该组合 ≥ 8 个 |
-| `<组合>.hard-checks` | 该组合全部 error 级检查 100% 通过（含 `script`：不出现汉字 / 假名 / 谚文；`glossary`：术语表禁用写法，含「entretenimiento」定位、vosotros、英文术语） |
+| `<组合>.hard-checks` | 该组合全部 error 级检查 100% 通过（含 `script`：不出现汉字 / 假名 / 谚文；`esGlossary`：术语表禁用写法，含「entretenimiento」定位、vosotros、英文术语） |
 | `<组合>.judge-<维度>-vs-v4` | 各维度均值 ≥ `readings@v4` 评委录制均值 − 0.1（参照值见 gates.ts `V4_REFERENCE_MEANS`） |
 | `<组合>.judge-accuracy-min` | accuracy 均值 ≥ 4.0 |
 | `<组合>.p95-output-tokens`、`<组合>.p95-duration` | 同 v4（≤ 8400 token、≤ 240 秒） |

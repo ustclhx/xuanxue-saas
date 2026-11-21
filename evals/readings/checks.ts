@@ -33,6 +33,7 @@ export const ANNUAL_SECTION_TITLES = [
   '大限与流年',
   'Year by Year',
   'Año por año',
+  '大限と年運',
 ] as const
 
 const STEM_KEYS = ['jia', 'yi', 'bing', 'ding', 'wu', 'ji', 'geng', 'xin', 'ren', 'gui']
@@ -124,7 +125,7 @@ export function wrongGlyphs(text: string, locale: string): string[] {
   return [...new Set([...text].filter((char) => set.has(char)))]
 }
 
-/** 中文、韩文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算）；拉丁字母语言不检查 */
+/** 中文、韩文、日文正文中夹杂的拉丁字母单词（Markdown 标记与数字不算）；拉丁字母语言不检查 */
 export function latinWords(text: string, locale: string): string[] {
   if (LATIN_LOCALES.has(locale)) return []
   return [...new Set(text.match(/[A-Za-z]{2,}/g) ?? [])]
@@ -175,6 +176,8 @@ export const DEFAULT_LENGTH: Readonly<Record<string, readonly [number, number]>>
   'zh-Hans': [2000, 12000],
   ko: [2500, 15000],
   en: [8000, 40000],
+  // 日语假名多，同样内容的字数高于中文
+  ja: [3000, 16000],
 }
 
 /**
@@ -382,8 +385,9 @@ export const scriptCheck: Check = {
   },
 }
 
+// id 与 readings-ja 套件的日语术语检查区分（readings-ja 组合本套件的检查）
 export const glossaryCheck: Check = {
-  id: 'glossary',
+  id: 'esGlossary',
   run(ctx) {
     const hits = glossaryHits(ctx.output, readingOf(ctx).locale)
     if (hits === null) return result(true, 'not applicable: no glossary check for this locale')

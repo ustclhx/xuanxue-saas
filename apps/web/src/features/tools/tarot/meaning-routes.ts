@@ -19,6 +19,8 @@ const SEGMENTS = {
   'zh-Hans': '牌义',
   ko: '카드',
   es: 'cartas',
+  // 关键词地图 ja.md §8：日本用户搜索「タロット 意味」，路径段用「意味」
+  ja: '意味',
 } as const
 
 /** 牌义使用牌组已有的 ASCII slug；语言前缀由 toolHref / SEO 入口统一处理。 */
@@ -42,6 +44,7 @@ const INDEX_TITLES: Readonly<Record<TarotLocale, string>> = localeText({
   'zh-Hans': '塔罗牌义：78 张牌全览',
   ko: '타로 카드 의미: 78장 전체 보기',
   es: 'Significado de las cartas del tarot (78)',
+  ja: 'タロットカードの意味一覧（78枚）',
 })
 
 const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = localeText({
@@ -52,6 +55,7 @@ const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = localeText({
     '78 张塔罗牌义一次看完：22 张大阿尔卡那，以及权杖、圣杯、宝剑、钱币四个牌组，每张牌都有正位与逆位解析。',
   ko: '타로 카드 78장의 의미를 한곳에서: 메이저 아르카나 22장과 완드·컵·소드·펜타클 수트, 카드마다 정방향과 역방향 해석을 담았습니다.',
   es: 'El significado de las 78 cartas del tarot: los 22 Arcanos Mayores y los palos de Bastos, Copas, Espadas y Oros, al derecho e invertidas.',
+  ja: 'タロットカード78枚の意味を一覧で。大アルカナ22枚とワンド・カップ・ソード・ペンタクルの小アルカナを、正位置・逆位置・相手の気持ちまで解説します。',
 })
 
 const INDEX_NAV: Readonly<Record<TarotLocale, string>> = {
@@ -60,6 +64,8 @@ const INDEX_NAV: Readonly<Record<TarotLocale, string>> = {
   'zh-Hans': '塔罗牌义：78 张牌全览',
   ko: '타로 카드 의미: 78장 전체 보기',
   es: 'Significado de las cartas del tarot',
+  // ja 与 Title 相同（沿用 main 的注册表行为）
+  ja: 'タロットカードの意味一覧（78枚）',
 }
 
 /** 牌义索引页的 head：四语路径互为 hreflang（按站点筛选），写法与牌阵页相同 */

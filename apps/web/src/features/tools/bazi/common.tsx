@@ -46,6 +46,15 @@ export function pageHref(id: EasternPageId | 'home', locale: string): string {
   return toolHref(`/${page?.slug ?? ''}`, locale)
 }
 
+/**
+ * 只在该语言确有此页面时返回链接（没有对应页面时不回退到其他语言的 slug）：
+ * 日语第一期没有命盤查詢（add-locales-eu-ja design 决策 4），链接不渲染。
+ */
+export function localPageHref(id: EasternPageId, locale: string): string | undefined {
+  const page = EASTERN_PAGES.find((item) => item.id === id && item.locale === locale)
+  return page ? toolHref(`/${page.slug}`, locale) : undefined
+}
+
 /** 延伸阅读：同组件的其他入口与概念页（概念页由 tasks.md 4.x 提供） */
 export function link(href: string | undefined, title: string, target: string): ToolLink[] {
   return href ? [{ href, title, target }] : []

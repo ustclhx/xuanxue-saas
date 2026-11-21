@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "common_site_tagline": "四柱推命・紫微斗数・タロットを、伝統的な方法に基づく鑑定とガイドで。自分を見つめ直すための参考にどうぞ。",
+  "common_not_found_title": "ページが見つかりません",
+  "common_not_found_eyebrow": "エラー404",
+  "common_not_found_body": "アドレスが間違っているか、ページが移動した可能性があります。ツールはそのままご利用いただけます。[四柱推命](main)と[スリーカードのタロット](tarot)をお試しください。",
+  "common_not_found_home": "{brand}のトップへ戻る",
+  "common_cancel": "キャンセル",
+  "common_table_previous": "前へ",
+  "common_table_next": "次へ",
+  "common_table_page": "{page}ページ",
+  "common_table_page_of": "{page} / {pageCount}ページ",
+  "common_table_empty": "該当するデータがありません。",
+  "common_table_apply": "適用",
+  "common_table_reset": "リセット",
+  "common_table_filters": "絞り込み",
+  "common_table_pagination": "ページ送り"
+}

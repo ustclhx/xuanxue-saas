@@ -291,7 +291,7 @@ export const V4_REFERENCE_MEANS: Readonly<Record<(typeof JUDGE_DIMENSIONS)[numbe
 
 /**
  * 新语言的门槛（design 决策 7、D-10）：逐组合判定，每个门槛 ID 以组合为前缀（如
- * `tarot-spread.es.hard-checks`），任一组合可单独通过并在 locale-gate.ts 中放行。
+ * `tarot-spread.es.hard-checks`），任一组合可单独通过并从 catalog.ts READING_EVAL_PENDING 中删去。
  * 允许 `--tag <locale>` 筛选运行：样本量按所选样本中该组合的个数计。不需要也不接受基线。
  */
 export function evaluateNewLocale(

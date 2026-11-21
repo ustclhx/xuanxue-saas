@@ -1,0 +1,12 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "site_skip_to_content": "本文へスキップ",
+  "site_nav_tools": "ツール",
+  "site_nav_languages": "言語",
+  "site_footer_disclaimer": "参考情報であり、自分を見つめ直すための材料です。未来を予言するものではありません。",
+  "site_account_menu": "アカウント",
+  "site_account_spaces": "マイスペース",
+  "site_nav_tools_menu": "ツール",
+  "site_nav_menu": "メニュー",
+  "site_footer_nav": "フッター"
+}

@@ -38,6 +38,8 @@ const REGISTERED: Record<string, OgSampleChart> = {
   'zh-Hant /八字排盤': 'pillars',
   'zh-Hans /八字排盘': 'pillars',
   'ko /만세력': 'pillars',
+  'ja /四柱推命': 'pillars',
+  'ja /紫微斗数': 'ziwei',
   'zh-Hant /命盤查詢': 'pillars',
   'zh-Hans /命盘查询': 'pillars',
   'zh-Hant /紫微斗數排盤': 'ziwei',

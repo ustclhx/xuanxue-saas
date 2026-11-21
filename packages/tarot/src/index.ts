@@ -2,6 +2,7 @@ import { AppError } from '@xuanxue/shared'
 import { CARDS } from './cards.ts'
 import { meanings as en } from './data/en.ts'
 import { meanings as es } from './data/es.ts'
+import { meanings as ja } from './data/ja.ts'
 import { meanings as ko } from './data/ko.ts'
 import { meanings as zhHans } from './data/zh-Hans.ts'
 import { meanings as zhHant } from './data/zh-Hant.ts'
@@ -11,7 +12,7 @@ export { CARDS } from './cards.ts'
 export { cutDeck, decodeReading, drawCards, encodeReading, shuffleDeck } from './draw.ts'
 export { SPREADS, spreadPositions } from './spreads.ts'
 export type * from './types.ts'
-export const CARD_MEANINGS = { en, 'zh-Hant': zhHant, 'zh-Hans': zhHans, ko, es } as const
+export const CARD_MEANINGS = { en, 'zh-Hant': zhHant, 'zh-Hans': zhHans, ko, es, ja } as const
 
 export function yesNoAnswer(card: DrawnCard, locale: Locale) {
   const definition = CARDS.find((entry) => entry.id === card.cardId)

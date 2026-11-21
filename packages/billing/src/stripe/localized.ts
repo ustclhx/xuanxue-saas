@@ -10,19 +10,30 @@
  * 订阅（enable-subscriptions-daily-credits D9）只把 TWD / KRW 价格挂到本地化商品上；USD 订阅仍用规范价格、
  * 不建 lookup_key 变体：订阅续费与换档按 plan_price 记录的平台价格 ID 对账，结账不能换成另一个 Price。
  */
-export const LOCALIZED_PACK_LOCALES = ['zh-Hant', 'zh-Hans', 'ko'] as const
+export const LOCALIZED_PACK_LOCALES = ['zh-Hant', 'zh-Hans', 'ko', 'ja'] as const
 export type LocalizedPackLocale = (typeof LOCALIZED_PACK_LOCALES)[number]
 
 const PACK_NAMES: Record<string, Record<LocalizedPackLocale, string>> = {
   // 2026-11-17「版本 A」起 1 份详批 = 10 积分，积分包改按容量命名；已存在的 Stripe 商品名不随同步更新
-  reading_single: { 'zh-Hant': '入門包', 'zh-Hans': '入门包', ko: '스타터 팩' },
-  reading_five: { 'zh-Hant': '超值包', 'zh-Hans': '超值包', ko: '실속 팩' },
+  reading_single: {
+    'zh-Hant': '入門包',
+    'zh-Hans': '入门包',
+    ko: '스타터 팩',
+    ja: 'スターターパック',
+  },
+  reading_five: { 'zh-Hant': '超值包', 'zh-Hans': '超值包', ko: '실속 팩', ja: 'お得パック' },
   // 档位名 Plus / Premium 在各语言保持原文（原型 Pricing.dc.html），附「每月方案」说明商品性质
-  plus: { 'zh-Hant': 'Plus 每月方案', 'zh-Hans': 'Plus 每月方案', ko: 'Plus 월간 플랜' },
+  plus: {
+    'zh-Hant': 'Plus 每月方案',
+    'zh-Hans': 'Plus 每月方案',
+    ko: 'Plus 월간 플랜',
+    ja: 'Plus 月額プラン',
+  },
   premium: {
     'zh-Hant': 'Premium 每月方案',
     'zh-Hans': 'Premium 每月方案',
     ko: 'Premium 월간 플랜',
+    ja: 'Premium 月額プラン',
   },
 }
 
@@ -30,16 +41,18 @@ const CREDITS_LABEL: Record<LocalizedPackLocale, (credits: number) => string> = 
   'zh-Hant': (credits) => `${credits} 積分`,
   'zh-Hans': (credits) => `${credits} 积分`,
   ko: (credits) => `${credits} 크레딧`,
+  ja: (credits) => `${credits} クレジット`,
 }
 
 /**
  * 本地币种价格挂在对应语言的本地化商品上（localize-checkout-currency D1）：TWD 只服务 zh-Hant，KRW 只服务 ko。
  * 与 currency.ts 的 Stripe 语言→币种映射互为反向，修改时两处同步。
  */
-export const LOCAL_CURRENCY_LOCALE = { TWD: 'zh-Hant', KRW: 'ko' } as const satisfies Record<
-  string,
-  LocalizedPackLocale
->
+export const LOCAL_CURRENCY_LOCALE = {
+  TWD: 'zh-Hant',
+  KRW: 'ko',
+  JPY: 'ja',
+} as const satisfies Record<string, LocalizedPackLocale>
 
 export function isLocalizedPackLocale(locale: string): locale is LocalizedPackLocale {
   return (LOCALIZED_PACK_LOCALES as readonly string[]).includes(locale)
@@ -72,6 +85,7 @@ const MONTHLY_CREDITS_LABEL: Record<LocalizedPackLocale, (credits: number) => st
   'zh-Hant': (credits) => `每月 ${credits} 積分`,
   'zh-Hans': (credits) => `每月 ${credits} 积分`,
   ko: (credits) => `매월 ${credits} 크레딧`,
+  ja: (credits) => `毎月 ${credits} クレジット`,
 }
 
 /** 商品描述：积分包为「100 積分」，订阅为「每月 300 積分」 */

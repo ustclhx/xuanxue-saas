@@ -541,7 +541,7 @@ describe('西班牙语组合', () => {
       'Tu Life Path es 22.',
     ])
       assert.ok(
-        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes('glossary'),
+        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes('esGlossary'),
         phrase,
       )
     assert.equal(glossaryHits('Una carta de Pentáculos al derecho.', 'es')?.length, 1)
@@ -556,7 +556,7 @@ describe('西班牙语组合', () => {
     // 旧组合不受新检查影响
     const outcomes = await runAll('readings@pre-v4', 'bazi-hant-01', '## 總論\n\n命')
     assert.equal(outcomes.find((c) => c.id === 'script')?.pass, true)
-    assert.equal(outcomes.find((c) => c.id === 'glossary')?.pass, true)
+    assert.equal(outcomes.find((c) => c.id === 'esGlossary')?.pass, true)
   })
 
   describe('门槛（逐组合）', () => {
@@ -640,7 +640,7 @@ describe('西班牙语组合', () => {
         scored(id, top, {
           checks: readingChecks.map((c) => ({
             id: c.id,
-            pass: !(id === 'numerology-es-02' && c.id === 'glossary'),
+            pass: !(id === 'numerology-es-02' && c.id === 'esGlossary'),
             severity: c.severity ?? 'error',
           })),
         }),

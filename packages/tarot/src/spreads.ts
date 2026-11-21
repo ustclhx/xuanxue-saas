@@ -9,6 +9,7 @@ const daily = {
   'zh-Hans': positions([['每日省思', '今天可反思的主题，不是预测。']]),
   ko: positions([['오늘의 성찰', '예측이 아닌 오늘 돌아볼 주제입니다.']]),
   es: positions([['Tema del día', 'Algo para pensar hoy; no es un pronóstico.']]),
+  ja: positions([['今日のテーマ', '今日ふり返りたいテーマで、予言ではありません。']]),
 }
 const yesNo = {
   en: positions([
@@ -23,6 +24,12 @@ const yesNo = {
     [
       'Sí / No / Quizás',
       'Una pista simbólica según una tabla fija de cartas, no una respuesta sobre hechos.',
+    ],
+  ]),
+  ja: positions([
+    [
+      'イエス／ノー／どちらとも言えない',
+      '固定の対応表にもとづく象徴的なヒントで、事実の答えではありません。',
     ],
   ]),
 }
@@ -51,6 +58,11 @@ const threeCard = {
     ['Pasado', 'Lo vivido que dio forma a tu pregunta.'],
     ['Presente', 'Lo que hoy pide tu atención.'],
     ['Futuro', 'Un rumbo posible para considerar; no es una predicción.'],
+  ]),
+  ja: positions([
+    ['過去', '今の問いにつながってきた経験。'],
+    ['現在', 'いま目を向けたいこと。'],
+    ['未来', '考えてみたい方向性で、予言ではありません。'],
   ]),
 }
 const celticCross = {
@@ -113,6 +125,18 @@ const celticCross = {
     ['Entorno', 'Las personas y circunstancias que te rodean.'],
     ['Esperanzas y temores', 'Expectativas que tiñen tu mirada.'],
     ['Síntesis', 'Un tema para pensar al elegir tu siguiente paso.'],
+  ]),
+  ja: positions([
+    ['現在の状況', '問いの中心にある状況。'],
+    ['障害・課題', '向き合いたい葛藤や壁。'],
+    ['根底にあるもの', '表に出ていない影響。'],
+    ['過去', 'この瞬間まで続いている経験。'],
+    ['意識していること', '目標や願い。'],
+    ['これからの方向', '考えてみたい道筋で、予言ではありません。'],
+    ['あなたの姿勢', '問いに対するあなたの立ち位置。'],
+    ['周囲の環境', 'まわりからの影響や支え。'],
+    ['願望と不安', '見方に色をつける期待や恐れ。'],
+    ['最終的なテーマ', '次の一歩を選ぶときにふり返りたいテーマ。'],
   ]),
 }
 export const SPREADS: Readonly<Record<SpreadId, Spread>> = {

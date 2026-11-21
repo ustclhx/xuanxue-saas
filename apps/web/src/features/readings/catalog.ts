@@ -29,8 +29,10 @@ import { CARD_MEANINGS, CARDS, decodeReading, spreadPositions } from '@xuanxue/t
 import { z } from 'zod'
 import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
+import { JA_DATA_VERSION, japaneseChartExtras } from './ja-chart.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
+import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
@@ -39,12 +41,15 @@ import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
+import { TAROT_SPREAD_V3_JA } from './prompts/tarot-spread.v3.ja.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { TAROT_SPREAD_V4 } from './prompts/tarot-spread.v4.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
+import { ZIWEI_FULL_V4_JA } from './prompts/ziwei-full.v4.ja.ts'
 import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
 import { READING_SAMPLES } from './samples.ts'
+import { JA_READING_SAMPLES } from './samples-ja.ts'
 
 /**
  * 详批注册表（add-reading-monetization design 决策 1）：每种详批的输入校验、服务端复算、
@@ -238,22 +243,29 @@ export function annualChartSummary(chart: BaziChart, startYear: number) {
   }
 }
 
-/** 八字与사주共用排盘；参考年取请求时的 UTC 年份，与免费结果页的「当前流年」一致。 */
+/**
+ * 八字与사주共用排盘；参考年取请求时的 UTC 年份，与免费结果页的「当前流年」一致。
+ * `ja` 的四柱推命另加十二運星与天中殺（ja-chart.ts），版本后缀 `+jp.N`；其他语言不变。
+ */
 function recomputeChart(
   raw: unknown,
   now: Date,
-  _locale: string,
+  locale: string,
   profile: ReadingDataProfile,
 ): RecomputedReading {
   const input = parseBirth(raw)
   const year = now.getUTCFullYear()
   const chart = engine(() => computeChart(input, { referenceYear: year }))
-  if (profile === 'annual')
-    return {
-      input,
-      engineVersion: `${ENGINE_VERSION}+${ANNUAL_DATA_VERSION}`,
-      result: annualChartSummary(chart, year),
-    }
+  if (profile === 'annual') {
+    const result = annualChartSummary(chart, year)
+    if (locale === 'ja')
+      return {
+        input,
+        engineVersion: `${ENGINE_VERSION}+${ANNUAL_DATA_VERSION}+${JA_DATA_VERSION}`,
+        result: { ...result, ...japaneseChartExtras(chart, result.annual.years) },
+      }
+    return { input, engineVersion: `${ENGINE_VERSION}+${ANNUAL_DATA_VERSION}`, result }
+  }
   return { input, engineVersion: ENGINE_VERSION, result: chartSummary(chart) }
 }
 
@@ -482,6 +494,10 @@ const ES_NUMEROLOGY_DISCLAIMER =
   'Este informe se elabora según métodos tradicionales de numerología, con interpretación asistida por IA, y se ofrece solo como referencia para la reflexión personal. No predice el futuro ni constituye asesoría médica, legal ni de inversión.'
 const ES_TAROT_DISCLAIMER =
   'Esta lectura se elabora según métodos tradicionales de interpretación del tarot, con interpretación asistida por IA, y se ofrece solo como referencia para la reflexión personal. No predice el futuro ni constituye asesoría médica, legal ni de inversión.'
+const JA_HEALTH = {
+  title: '健康と生活習慣',
+  notice: '気になる症状があれば医療機関にご相談ください。',
+}
 
 const entries = {
   'bazi-full': {
@@ -500,6 +516,14 @@ const entries = {
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['bazi-full']['zh-Hans'],
+      },
+      // 日语只有 v4 一代（annual 数据档 + 十二運星 / 天中殺），代码默认即 v4；评测通过前不开放（READING_EVAL_PENDING）
+      ja: {
+        prompt: BAZI_FULL_V4_JA.ja,
+        disclaimer:
+          '本鑑定は四柱推命の伝統的な方法に基づいて算出した参考情報です。医療・法律・投資の助言ではなく、未来を予言するものではありません。',
+        healthSection: JA_HEALTH,
+        sample: JA_READING_SAMPLES['bazi-full'],
       },
     },
     versions: { 'bazi-full.v4': BAZI_FULL_V4 },
@@ -536,6 +560,13 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
+      ja: {
+        prompt: ZIWEI_FULL_V4_JA.ja,
+        disclaimer:
+          '本鑑定は紫微斗数の伝統的な方法に基づいて算出した参考情報です。医療・法律・投資の助言ではなく、未来を予言するものではありません。',
+        healthSection: JA_HEALTH,
+        sample: JA_READING_SAMPLES['ziwei-full'],
+      },
     },
     versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
     recompute: recomputeZiwei,
@@ -566,7 +597,7 @@ const entries = {
         },
         sample: READING_SAMPLES['numerology-full'].en,
       },
-      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（locale-gate.ts）
+      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（READING_EVAL_PENDING）
       es: {
         prompt: NUMEROLOGY_FULL_V5.es,
         disclaimer: ES_NUMEROLOGY_DISCLAIMER,
@@ -611,12 +642,19 @@ const entries = {
         healthSection: null,
         sample: READING_SAMPLES['tarot-spread'].ko,
       },
-      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（locale-gate.ts）
+      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（READING_EVAL_PENDING）
       es: {
         prompt: TAROT_SPREAD_V4.es,
         disclaimer: ES_TAROT_DISCLAIMER,
         healthSection: null,
         sample: READING_SAMPLES['tarot-spread'].es,
+      },
+      ja: {
+        prompt: TAROT_SPREAD_V3_JA.ja,
+        disclaimer:
+          '本リーディングはタロットカードの伝統的な象徴に基づいてまとめた参考情報です。医療・法律・投資の助言ではなく、未来を予言するものではありません。',
+        healthSection: null,
+        sample: JA_READING_SAMPLES['tarot-spread'],
       },
     },
     recompute: recomputeTarot,
@@ -624,6 +662,28 @@ const entries = {
 } satisfies Record<ReadingKind, ReadingEntry>
 
 export type AvailableReadingKind = keyof typeof entries
+
+/**
+ * 尚未通过提示词评测门槛的「详批类型 × 语言」（`<kind>.<locale>`；openspec add-locales-eu-ja D-10、
+ * specs/paid-readings「报告内容约束」）：提示词已登记、可供评测与已有报告收尾，但对访客不开放——
+ * 解锁卡、定价页与 `POST /api/readings` 都经 `readingEvalPassed` 判定（平台管理员预览除外）。
+ * 真实评测（`pnpm eval:prompts --suite readings-ja … --live|--record`）全部门槛通过并记入私有验收记录后，
+ * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
+ */
+export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
+  'bazi-full.ja',
+  'ziwei-full.ja',
+  'tarot-spread.ja',
+  // add-locales-eu-ja tasks 5.8：es 变体已登记（numerology-full.v5 / tarot-spread.v4），真实评测
+  // （`pnpm eval:prompts --suite readings --prompt readings@es-v1 … --record`）待使用者批准预算
+  'numerology-full.es',
+  'tarot-spread.es',
+])
+
+/** 某「详批 × 语言」是否已通过评测门槛、可以对访客开放（只判定评测，不含运营开关与模型配置） */
+export function readingEvalPassed(kind: string, locale: string): boolean {
+  return !READING_EVAL_PENDING.has(`${kind}.${locale}`)
+}
 
 /** kind → version → locale 注册表：代码默认版本与 `versions` 中登记的版本合并 */
 function promptRegistry(entry: ReadingEntry): Map<string, Map<string, ReadingPrompt>> {

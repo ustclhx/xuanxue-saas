@@ -193,6 +193,16 @@
     -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
+/* 日语页不加载网页字体：标题与正文用系统日文字体（Hiragino / Yu Gothic / Meiryo）；字体视觉由任务 3.1 精修 */
+:root[data-site="east"]:lang(ja) {
+  --site-font-heading:
+    -apple-system, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "YuGothic", Meiryo,
+    sans-serif;
+  --site-font-body:
+    -apple-system, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "YuGothic", Meiryo,
+    sans-serif;
+}
+
 @media not print {
   :root.dark[data-site="east"] {
     --accent: #7fb8a4;

@@ -1,0 +1,65 @@
+{
+  "/ja/四柱推命": {
+    "bazi_home_faq_q1": "local",
+    "bazi_home_faq_q2": "local",
+    "bazi_home_faq_q3": "adapted"
+  },
+  "/ja/紫微斗数": {
+    "bazi_ziwei_faq_q1": "local",
+    "bazi_ziwei_faq_q2": "local"
+  },
+  "/ja/pricing": {
+    "pricing_faq_accuracy_q": "local",
+    "pricing_faq_currency_q": "adapted",
+    "pricing_faq_fail_q": "adapted",
+    "pricing_faq_free_q": "local",
+    "pricing_faq_pay_q": "adapted",
+    "pricing_faq_refund_q": "adapted",
+    "pricing_faq_sub_cancel_q": "adapted",
+    "pricing_faq_sub_rollover_q": "adapted"
+  },
+  "/ja/faq": {
+    "marketing_faq_privacy_q": "local",
+    "bazi_home_faq_q1": "local",
+    "bazi_home_faq_q2": "local",
+    "bazi_ziwei_faq_q1": "local",
+    "bazi_ziwei_faq_q2": "local",
+    "tarot_three_card_faq_2_q": "local",
+    "marketing_faq_accounts_q": "adapted",
+    "pricing_faq_accuracy_q": "local",
+    "pricing_faq_currency_q": "adapted",
+    "pricing_faq_fail_q": "adapted",
+    "pricing_faq_free_q": "local",
+    "pricing_faq_pay_q": "adapted",
+    "pricing_faq_refund_q": "adapted",
+    "pricing_faq_sub_cancel_q": "adapted",
+    "pricing_faq_sub_rollover_q": "adapted",
+    "bazi_home_faq_q3": "adapted"
+  },
+  "/ja/タロット": {
+    "tarot_three_card_faq_1_q": "local",
+    "tarot_three_card_faq_2_q": "local",
+    "tarot_three_card_faq_3_q": "local"
+  },
+  "/ja/タロット/一枚引き": {
+    "tarot_daily_faq_1_q": "local",
+    "tarot_daily_faq_2_q": "local",
+    "tarot_daily_faq_3_q": "adapted"
+  },
+  "/ja/タロット/イエスノー": {
+    "tarot_yes_or_no_faq_1_q": "local",
+    "tarot_yes_or_no_faq_2_q": "local",
+    "tarot_yes_or_no_faq_3_q": "local"
+  },
+  "/ja/タロット/ケルト十字": {
+    "tarot_celtic_cross_faq_1_q": "local",
+    "tarot_celtic_cross_faq_2_q": "local",
+    "tarot_celtic_cross_faq_3_q": "local"
+  },
+  "/ja": {
+    "pricing_faq_free_q": "local",
+    "pricing_faq_accuracy_q": "local",
+    "pricing_faq_pay_q": "adapted",
+    "marketing_faq_privacy_q": "local"
+  }
+}

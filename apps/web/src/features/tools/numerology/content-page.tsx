@@ -76,7 +76,7 @@ export function NumerologyContentPage({
       <ToolPage
         tool={tool}
         breadcrumb={breadcrumb}
-        title={content.h1 ?? content.title}
+        title={content.heading ?? content.title}
         intro={<p className="m-0">{content.description}</p>}
         form={calculator}
         article={

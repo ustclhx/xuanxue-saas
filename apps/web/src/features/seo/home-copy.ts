@@ -39,6 +39,12 @@ const HOME_COPY: Readonly<
     'Calcula gratis tu número de vida, tu carta numerológica y el significado de tu nombre, o saca una tirada de tarot. Reglas tradicionales, solo como referencia.',
     'Numerología y tarot gratis',
   ],
+  // 关键词地图 ja.md §1（使用者 2026-11-20 批准）：主词「生年月日 占い 無料」，标题含站名
+  ja: [
+    '干支日｜生年月日で占う無料の四柱推命・紫微斗数・タロット',
+    '生年月日と出生時間から、四柱推命の命式と紫微斗数の命盤を無料で作成。タロット占いもできます。伝統的な方法に基づく計算で、結果は参考としてご覧ください。',
+    '無料の四柱推命・紫微斗数・タロット',
+  ],
 })
 
 const copyOf = (locale: string) => HOME_COPY[locale] ?? HOME_COPY.en ?? ['', '', '']

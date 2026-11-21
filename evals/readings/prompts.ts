@@ -47,6 +47,21 @@ export const ES_VERSIONS: Readonly<Record<EsReadingCombo, string>> = {
 /** 样本可用的全部组合 */
 export const ALL_READING_COMBOS: readonly string[] = [...READING_COMBOS, ...ES_READING_COMBOS]
 
+/**
+ * 日语详批（openspec add-locales-eu-ja tasks 4.8）由独立套件 `readings-ja` 评测（evals/readings-ja/），
+ * 样本不进本套件：本套件的门槛按上面六个组合整批计算，混入日语样本会改变已录制版本的分母。
+ * 两个套件共用这里的复算、渲染、检查与被评正文转换；套件版本 `readings-ja@v1` 只接受日语组合。
+ */
+export const READING_JA_COMBOS = ['bazi-full.ja', 'ziwei-full.ja', 'tarot-spread.ja'] as const
+export type ReadingJaCombo = (typeof READING_JA_COMBOS)[number]
+export const JA_SUITE_VERSION = 'readings-ja@v1'
+/** `readings-ja@v1` 中每个组合的真实提示词版本（catalog.ts 的 ja 语言） */
+export const JA_VERSIONS: Readonly<Record<ReadingJaCombo, string>> = {
+  'bazi-full.ja': 'bazi-full.v4',
+  'ziwei-full.ja': 'ziwei-full.v4',
+  'tarot-spread.ja': 'tarot-spread.v3',
+}
+
 /** 每个组合在 `readings@pre-v4` 中的真实版本（= 引入 v4 前的代码默认版本，readings.test.ts 对照） */
 export const PRE_V4_VERSIONS: Readonly<Record<ReadingCombo, string>> = {
   'bazi-full.zh-Hant': 'bazi-full.v2',
@@ -97,6 +112,11 @@ const KNOWN_VERSIONS = ['readings@pre-v4', 'readings@v4', 'readings@es-v1']
 /** 套件版本 → 该样本组合的真实提示词版本 */
 export function realVersion(promptVersion: string, input: ReadingSampleInput): string {
   const combo = comboOf(input)
+  if (promptVersion === JA_SUITE_VERSION) {
+    if (!(READING_JA_COMBOS as readonly string[]).includes(combo))
+      throw new Error(`Unsupported reading combo ${combo} for ${JA_SUITE_VERSION}`)
+    return JA_VERSIONS[combo as ReadingJaCombo]
+  }
   if (!ALL_READING_COMBOS.includes(combo)) throw new Error(`Unsupported reading combo ${combo}`)
   if (!KNOWN_VERSIONS.includes(promptVersion))
     throw new Error(`Unknown readings prompt version ${promptVersion}`)

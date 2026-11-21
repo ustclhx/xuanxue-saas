@@ -8,6 +8,7 @@ import {
   ensureHealthNotice,
   missingSections,
   readingDefinition,
+  readingEvalPassed,
   readingInputHash,
   readingMessages,
   withDisclaimer,
@@ -35,9 +36,9 @@ const bazi = () => {
 
 describe('详批注册表', () => {
   it('每种详批的报告语言；未知类型或不支持的语言返回 undefined', () => {
-    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans'])
+    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'ja'])
     expect(readingDefinition('saju-full')?.locales).toEqual(['ko'])
-    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans'])
+    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'ja'])
     expect(readingDefinition('saju-compat')?.locales).toEqual(['ko'])
     expect(readingDefinition('numerology-full')?.locales).toEqual(['en', 'es'])
     expect(readingDefinition('tarot-spread')?.locales).toEqual([
@@ -46,11 +47,16 @@ describe('详批注册表', () => {
       'zh-Hans',
       'ko',
       'es',
+      'ja',
     ])
-    // es 变体（add-locales-eu-ja tasks 5.8）：首个 es 版本；是否出售由 locale-gate.ts 决定
+    // es 变体（add-locales-eu-ja tasks 5.8）：首个 es 版本；是否出售由 READING_EVAL_PENDING 决定
     expect(readingDefinition('numerology-full', 'es')?.prompt.version).toBe('numerology-full.v5')
     expect(readingDefinition('tarot-spread', 'es')?.prompt.version).toBe('tarot-spread.v4')
     expect(readingDefinition('numerology-full', 'en')?.prompt.version).toBe('numerology-full.v3')
+    // 评测门槛通过前不对访客开放（READING_EVAL_PENDING，与 ja 同一机制）；英文不受影响
+    expect(readingEvalPassed('numerology-full', 'es')).toBe(false)
+    expect(readingEvalPassed('tarot-spread', 'es')).toBe(false)
+    expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
     expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
     expect(readingDefinition('tarot-spread', 'zh-Hans')?.prompt.version).toBe('tarot-spread.v3')
     expect(readingDefinition('tarot-spread', 'ko')?.prompt.sections[0]).toBe('전체 흐름')
@@ -246,12 +252,12 @@ describe('样例段落', () => {
 
   it('六种详批的每种报告语言都有样例；解锁卡标题声明为虚构案例', () => {
     expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
-    expect(variants).toHaveLength(13)
+    expect(variants).toHaveLength(16)
     for (const { locale, sample } of variants) {
       expect(sample.length).toBeGreaterThan(0)
       // 正文自身以「示例」开头，解锁卡标题再声明为虚构案例（readings_unlock_sample）
       expect(sample).toMatch(
-        /^(?:示例|예시|In this sample|This sample|En esta carta de muestra|Esta tirada de tres cartas de muestra)/,
+        /^(?:示例|예시|In this sample|This sample|En esta carta de muestra|Esta tirada de tres cartas de muestra|サンプル)/,
       )
       const caption = JSON.parse(
         readFileSync(new URL(`../../../messages/${locale}/readings.json`, import.meta.url), 'utf8'),
@@ -262,12 +268,13 @@ describe('样例段落', () => {
         ko: /가상/,
         'zh-Hant': /虛構/,
         'zh-Hans': /虚构/,
+        ja: /架空/,
       }[locale as 'en']
       expect(caption).toMatch(fictional)
     }
   })
 
-  it('长度：中韩 80–150 字（不计空白），英文与西语 50–90 词', () => {
+  it('长度：中日韩 80–150 字（不计空白），英文与西语 50–90 词', () => {
     for (const { locale, sample } of variants) {
       if (locale === 'en' || locale === 'es') {
         const words = sample.split(/\s+/).length

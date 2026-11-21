@@ -54,6 +54,19 @@
     "robots": null,
     "jsonLd": ["Organization", "WebSite"]
   },
+  "ja": {
+    "canonical": "/ja",
+    "hreflang": {
+      "en": "/",
+      "ja": "/ja",
+      "ko": "/ko",
+      "x-default": "/",
+      "zh-Hans": "/zh-hans",
+      "zh-Hant": "/zh-hant"
+    },
+    "robots": null,
+    "jsonLd": ["Organization", "WebSite"]
+  },
   "tool-west": {
     "canonical": "/life-path-number",
     "hreflang": {

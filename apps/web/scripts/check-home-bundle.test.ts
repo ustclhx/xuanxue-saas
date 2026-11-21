@@ -183,6 +183,7 @@ describe('首页包检查', () => {
       'zh-hant.html',
       'zh-hans.html',
       'ko.html',
+      'ja.html',
     ])
     for (const page of HOME_PAGES) expect(page.budget).toBeGreaterThan(0)
   })

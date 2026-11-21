@@ -15,6 +15,7 @@ export const TAROT_LOCALES = [
   'zh-Hans',
   'ko',
   'es',
+  'ja',
 ] as const satisfies readonly TarotLocale[]
 export type _TarotLocalesCoverConfig = Assert<Covers<(typeof TAROT_LOCALES)[number], AppLocale>>
 
@@ -33,17 +34,20 @@ export const TAROT_ROOTS: Readonly<Record<TarotLocale, string>> = {
   ko: '/타로',
   // 西班牙语与英语共用 `/tarot` 路径段（带 `/es` 前缀），文件路由按当前语言区分（route-head.ts sharedTarotLocale）
   es: '/tarot',
+  // 关键词地图 ja.md（使用者 2026-11-20 批准）
+  ja: '/タロット',
 }
 
 // 子路径段；三张牌为空，即根路径
 const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
-  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '', es: '' },
+  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '', es: '', ja: '' },
   daily: {
     en: 'daily',
     'zh-Hant': '每日一張',
     'zh-Hans': '每日一张',
     ko: '오늘의-카드',
     es: 'carta-del-dia',
+    ja: '一枚引き',
   },
   'yes-or-no': {
     en: 'yes-or-no',
@@ -51,6 +55,7 @@ const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> =
     'zh-Hans': '是非',
     ko: '예-아니오',
     es: 'si-o-no',
+    ja: 'イエスノー',
   },
   'celtic-cross': {
     en: 'celtic-cross',
@@ -58,6 +63,7 @@ const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> =
     'zh-Hans': '凯尔特十字',
     ko: '켈틱-크로스',
     es: 'cruz-celta',
+    ja: 'ケルト十字',
   },
 }
 
@@ -69,6 +75,7 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
     'zh-Hans': '三张牌塔罗',
     ko: '쓰리 카드 타로',
     es: 'Tarot gratis',
+    ja: '無料タロット占い',
   },
   daily: {
     en: 'Card of the Day',
@@ -76,6 +83,7 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
     'zh-Hans': '每日一张塔罗',
     ko: '오늘의 타로 카드',
     es: 'Tarot del día',
+    ja: 'タロット一枚引き',
   },
   'yes-or-no': {
     en: 'Yes or No Tarot',
@@ -83,6 +91,7 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
     'zh-Hans': '是非塔罗',
     ko: '예/아니오 타로',
     es: 'Tarot sí o no',
+    ja: 'イエス・ノー占い',
   },
   'celtic-cross': {
     en: 'Celtic Cross Tarot',
@@ -90,6 +99,7 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
     'zh-Hans': '凯尔特十字塔罗',
     ko: '켈틱 크로스 타로',
     es: 'Tirada de la cruz celta',
+    ja: 'ケルト十字スプレッド',
   },
 }
 
@@ -104,6 +114,7 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
       '免费三张牌塔罗：洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，作为自我省思的参考。',
     ko: '무료 쓰리 카드 타로: 셔플하고 컷한 뒤 과거·현재·미래 세 장의 라이더–웨이트 카드를 펼쳐 보세요. 성찰용입니다.',
     es: 'Tarot gratis de 3 cartas: baraja, corta y descubre pasado, presente y futuro con el mazo Rider–Waite. Solo como referencia para reflexionar.',
+    ja: '無料のタロット占い。スリーカードで過去・現在・未来の3枚を引き、ライダー版の絵柄とキーワードで今の悩みを整理します。結果は参考としてご覧ください。',
   },
   daily: {
     en: 'Draw one free tarot card of the day as a theme to reflect on, with upright and reversed keywords.',
@@ -111,6 +122,7 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     'zh-Hans': '每天免费抽一张塔罗牌，作为今日省思的主题，附正位与逆位关键词。',
     ko: '매일 무료로 타로 카드 한 장을 뽑아 오늘 돌아볼 주제로 삼아 보세요. 정방향·역방향 키워드를 함께 보여 줍니다.',
     es: 'Tarot del día gratis: saca una carta y tómala como tema para pensar hoy, con sus palabras clave al derecho e invertida.',
+    ja: 'タロット一枚引きを無料で。今日の一枚を引いて、正位置・逆位置のキーワードから一日のテーマを考えます。予言ではなく、ふり返りのヒントとしてどうぞ。',
   },
   'yes-or-no': {
     en: 'Free yes or no tarot: draw one card and see Yes, No or Maybe from a fixed, published card mapping.',
@@ -118,6 +130,7 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     'zh-Hans': '免费是非塔罗：抽一张牌，依公开的固定对照表显示「是／否／也许」与判定依据。',
     ko: '무료 예/아니오 타로: 카드 한 장을 뽑고 공개된 고정 대응표에 따른 예·아니요·아마도와 그 근거를 확인하세요.',
     es: 'Tarot sí o no gratis con 1 carta: la respuesta Sí, No o Quizás sale de una tabla fija y pública de cartas, con su explicación.',
+    ja: 'タロットのイエスノー占いを無料で。1枚引くと、公開している固定の対応表からイエス・ノー・どちらとも言えないとその理由を表示します。',
   },
   'celtic-cross': {
     en: 'Free Celtic Cross tarot: a ten-card spread for exploring a situation in depth, with every position explained.',
@@ -125,17 +138,37 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     'zh-Hans': '免费凯尔特十字塔罗：十张牌的经典牌阵，逐一说明每个牌位，深入梳理一个处境。',
     ko: '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
     es: 'Tirada cruz celta gratis: diez cartas para mirar a fondo una situación, con el significado de cada una de las 10 posiciones.',
+    ja: 'ケルト十字スプレッドを無料で。10枚の位置ごとの意味と読み方を解説し、ひとつの悩みを多角的に整理します。未来を予言するものではありません。',
   },
 })
 
-// 牌阵页 Title：v1 语言同导航名（TITLES）；新语言按关键词地图另写，不含站名后缀（pageHead 统一追加）
+/**
+ * 牌阵页的 SEO 标题（不含站名）：默认与导航名称相同；关键词地图另定 Title 的语言在这里登记
+ * （ja：使用者 2026-11-20 批准的关键词地图 ja.md §4–7；es：关键词地图 es）。
+ */
 const SEO_TITLES: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> =
   localeText({
-    'three-card': { es: 'Tarot gratis: pasado, presente y futuro' },
-    daily: { es: 'Tarot del día: tu carta del día gratis' },
-    'yes-or-no': { es: 'Tarot sí o no gratis con 1 carta' },
-    'celtic-cross': { es: 'Tirada cruz celta gratis: 10 posiciones' },
+    'three-card': {
+      es: 'Tarot gratis: pasado, presente y futuro',
+      ja: '無料タロット占い｜スリーカードで過去・現在・未来',
+    },
+    daily: {
+      es: 'Tarot del día: tu carta del día gratis',
+      ja: 'タロット一枚引き 無料｜今日の一枚',
+    },
+    'yes-or-no': {
+      es: 'Tarot sí o no gratis con 1 carta',
+      ja: 'タロット イエスノー占い 無料｜1枚で答え',
+    },
+    'celtic-cross': {
+      es: 'Tirada cruz celta gratis: 10 posiciones',
+      ja: 'ケルト十字スプレッド｜10枚の位置と読み方',
+    },
   })
+
+export function tarotSeoTitle(spread: SpreadId, locale: TarotLocale): string {
+  return SEO_TITLES[spread][locale] ?? tarotTitle(spread, locale)
+}
 
 /** 牌阵页路径（不含语言前缀） */
 export function tarotPath(spread: SpreadId, locale: TarotLocale): string {
@@ -154,11 +187,6 @@ export function tarotTitle(spread: SpreadId, locale: TarotLocale): string {
   return TITLES[spread][locale]
 }
 
-/** 牌阵页 Title */
-export function tarotSeoTitle(spread: SpreadId, locale: TarotLocale): string {
-  return SEO_TITLES[spread][locale] ?? tarotTitle(spread, locale)
-}
-
 export function tarotDescription(spread: SpreadId, locale: TarotLocale): string {
   return DESCRIPTIONS[spread][locale]
 }
@@ -170,6 +198,7 @@ function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, s
     'zh-Hans': value('zh-Hans'),
     ko: value('ko'),
     es: value('es'),
+    ja: value('ja'),
   }
 }
 

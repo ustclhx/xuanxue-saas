@@ -10,8 +10,11 @@ import westFonts from '../../styles/fonts/west.css?url'
  * 字体自托管（@fontsource，unicode-range 分片、font-display: swap），不请求外部字体服务；
  * 每个站点 / 语言一张独立样式表，只引入本站本语言需要的字体，CJK 正文用系统字体栈。
  */
-export function siteFontHref(site: SiteId, locale: string): string {
+export function siteFontHref(site: SiteId, locale: string): string | null {
   if (site === 'west') return westFonts
+  // 日语页第一期不加载网页字体（add-locales-eu-ja 决策 11）：标题与正文都用系统日文字体（brand.css :lang(ja)），
+  // 避免繁中字形与内联大量分片声明
+  if (locale === 'ja') return null
   if (locale === 'ko') return eastKoFonts
   // 简中页用 Noto Sans SC：TC 缺一部分简体字形（使用者 2026-11-19 确认）
   return locale === 'zh-Hans' ? eastZhHansFonts : eastZhHantFonts
@@ -37,7 +40,9 @@ export function siteIconLinks(site: SiteId) {
  * 浏览器不支持 paint 计时（或页面在后台、迟迟不绘制）时，load 事件或 3 秒后兜底插入。
  */
 export function siteFontScript(site: SiteId, locale: string): string {
-  const href = JSON.stringify(siteFontHref(site, locale))
+  const source = siteFontHref(site, locale)
+  if (source === null) return ''
+  const href = JSON.stringify(source)
   return `(function(){var d=0;function a(){if(d)return;d=1;var l=document.createElement('link');l.rel='stylesheet';l.href=${href};document.head.appendChild(l)}try{new PerformanceObserver(function(s){if(s.getEntriesByName('first-contentful-paint').length)setTimeout(a,0)}).observe({type:'paint',buffered:true})}catch(e){addEventListener('load',a)}setTimeout(a,3000)})()`
 }
 

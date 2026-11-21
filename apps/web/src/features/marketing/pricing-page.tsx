@@ -28,6 +28,7 @@ const CURRENCY_NAMES: Record<string, () => string> = {
   USD: m.pricing_currency_usd,
   TWD: m.pricing_currency_twd,
   KRW: m.pricing_currency_krw,
+  JPY: m.pricing_currency_jpy,
 }
 
 type CatalogPlan = PricingCatalog['plans'][number]

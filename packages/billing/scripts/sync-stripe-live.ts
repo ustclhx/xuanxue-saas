@@ -49,9 +49,10 @@ export interface LiveSyncRow {
 }
 
 const TARGET: Record<string, string> = {
-  USD: 'canonical product + zh-Hant/zh-Hans/ko localized USD variants',
+  USD: 'canonical product + zh-Hant/zh-Hans/ko/ja localized USD variants',
   TWD: 'zh-Hant localized product',
   KRW: 'ko localized product',
+  JPY: 'ja localized product',
 }
 
 /** USD 订阅只建规范价格：续费与换档按 plan_price 的平台价格 ID 对账，不建 lookup_key 变体 */

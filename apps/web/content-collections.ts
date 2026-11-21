@@ -242,8 +242,8 @@ const numerology = defineCollection({
   include: '*/*.mdx',
   schema: z.object({
     title: z.string(),
-    // 可选的页面 H1（新语言按关键词地图让 Title 与 H1 用不同主词；缺省时 H1 即 title）
-    h1: z.string().optional(),
+    // 页面 H1；省略时与 title 相同（与 tarot 同名字段；新语言按关键词地图让 Title 与 H1 用不同主词）
+    heading: z.string().min(1).optional(),
     description: z.string(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })),
     updated: isoDate,
@@ -268,8 +268,8 @@ const tarot = defineCollection({
   include: '*/*.mdx',
   schema: z.object({
     title: z.string().min(1),
-    // 可选的页面 H1（同 numerology）
-    h1: z.string().min(1).optional(),
+    // 页面 H1；省略时与 title 相同（关键词地图为 ja 另定 H1，add-locales-eu-ja 任务 4.2）
+    heading: z.string().min(1).optional(),
     description: z.string().min(1).max(160),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     // 塔罗在全部语言提供（openspec add-locales-eu-ja tasks 1.3）
@@ -278,8 +278,15 @@ const tarot = defineCollection({
     arcana: z.enum(['major', 'minor']),
     suit: z.enum(['wands', 'cups', 'swords', 'pentacles']).optional(),
     updated: isoDate,
+    // origin：FAQ 是否取自本语言用户的真实问法（localized-content-quality「FAQ 与示例的本地化」）
     faq: z
-      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .array(
+        z.object({
+          q: z.string().min(1),
+          a: z.string().min(1),
+          origin: z.enum(['local', 'adapted']).optional(),
+        }),
+      )
       .min(3)
       .max(5),
     content: z.string(),

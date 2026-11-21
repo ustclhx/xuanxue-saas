@@ -6,6 +6,7 @@ import type { ReadingKind } from '@xuanxue/db'
  * 见 tools/charts/samples.ts）；궁합另配一张虚构命盘（1992-03-08 14:00 台北 女：壬申 癸卯 癸未 己未）；
  * 西方站灵数用 1990-05-15（Life Path 3）；塔罗用虚构牌阵（隐者正位 / 钱币八正位 / 权杖王牌正位）。
  * 西班牙语（add-locales-eu-ja tasks 5.8）沿用同一输入与牌阵，按术语表写作（número de vida、Oros / Bastos、al derecho）。
+ * `ja` 的样例在 samples-ja.ts（未经使用者审定，且不进首页脚本闭包）。
  * 段落中的柱位、十神、五行占比、宫位与数字均取自引擎对上述输入的计算结果，引擎规则变化时需复核。
  *
  * 独立成文件、只含字符串：首页枢纽（marketing/home-hub/sample.ts）复用同一份段落，

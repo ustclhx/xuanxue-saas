@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "funnel_guide_title": "詳しい鑑定をお探しですか？",
+  "funnel_guide_numerology": "この計算ツールには、専用の詳しい鑑定はありません。数秘術の計算ツールでは、お名前と生年月日からチャート全体を算出でき、無料の結果の下から、そのチャートの詳しい鑑定を利用できます。",
+  "funnel_guide_numerology_cta": "数秘術の計算ツールへ",
+  "funnel_guide_tarot": "このスプレッドには、専用の詳しい鑑定はありません。代わりにスリーカードで引くと、無料の結果の下から、そのカードの詳しい鑑定を利用できます。",
+  "funnel_guide_tarot_cta": "スリーカードのタロットへ",
+  "funnel_content_title": "ご自身の命式で試してみる",
+  "funnel_content_tarot_tool": "スリーカードを自分で引く",
+  "funnel_content_life_path_tool": "数秘術のチャート全体を計算する",
+  "funnel_content_bazi_tool": "四柱推命の命式を自分で出す",
+  "funnel_content_reading": "ご自身のチャートのAI鑑定（詳しい鑑定）を利用する",
+  "funnel_content_reading_tarot": "ご自身のスプレッドのAI鑑定（詳しい鑑定）を利用する",
+  "funnel_content_reading_note": "まず無料の結果をご確認ください。詳しい鑑定は、その下から利用できます。"
+}

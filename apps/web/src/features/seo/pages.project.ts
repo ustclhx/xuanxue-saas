@@ -98,6 +98,16 @@ const STATIC_MAIN: Readonly<Record<AppLocale, Record<StaticPath, readonly [strin
     '/waitlist': ['Lista de espera'],
     '/faq': ['Preguntas frecuentes'],
   },
+  ja: {
+    '/': ['', 'ホーム'],
+    '/pricing': ['料金プラン'],
+    '/blog': ['ブログ'],
+    '/guides': ['ガイド'],
+    '/docs': ['ドキュメント'],
+    '/newsletter': ['ニュースレター'],
+    '/waitlist': ['ウェイティングリスト'],
+    '/faq': ['よくある質問'],
+  },
 }
 
 /** 注册表中没有导航名的页面的主词（西方站；西班牙语取术语表 anchors 的主词） */
@@ -125,6 +135,7 @@ const TAROT_INDEX_MAIN: Readonly<Record<TarotLocale, string>> = {
   'zh-Hans': '塔罗牌义',
   ko: '타로 카드 의미',
   es: 'Significado de las cartas del tarot',
+  ja: 'タロットカードの意味',
 }
 
 // 按「语言 + 路径」查注册表条目；跨站工具（牌阵、牌义）在两站各登记一条，共用同一组路径，取第一条即可

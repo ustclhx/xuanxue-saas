@@ -21,7 +21,15 @@ const BAZI_HANS: Questions = [
 ]
 
 const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> = {
-  'bazi-full': { 'zh-Hant': BAZI_HANT, 'zh-Hans': BAZI_HANS },
+  'bazi-full': {
+    'zh-Hant': BAZI_HANT,
+    'zh-Hans': BAZI_HANS,
+    ja: [
+      '日干と身強・身弱のバランスは、性格にどう表れていますか？',
+      '喜神の五行を、毎日の暮らしでどう活かせばよいですか？',
+      '今の大運では、仕事や人間関係で何を意識するとよいですか？',
+    ],
+  },
   'saju-full': {
     ko: [
       '제 일간과 오행의 균형은 성격에 어떤 영향을 주나요?',
@@ -34,6 +42,11 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       '我的命宮主星代表哪些性格特質？',
       '命宮與身宮的組合，在做決定時有什麼提醒？',
       '從官祿宮來看，我適合怎樣的工作節奏？',
+    ],
+    ja: [
+      '命宮の主星は、どんな性格の特徴を表していますか？',
+      '命宮と身宮の組み合わせから、物事を決めるときのヒントはありますか？',
+      '官禄宮から見て、私に合う働き方のペースはどんなものですか？',
     ],
     'zh-Hans': [
       '我的命宫主星代表哪些性格特质？',
@@ -86,6 +99,11 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       '¿Qué carta vale más la pena pensar con calma, y por qué?',
       '¿Qué paso pequeño y concreto podría dar a partir de esta tirada?',
     ],
+    ja: [
+      'これらのカードをつなぐ全体のメッセージは何ですか？',
+      'いちばんじっくり考えたいカードはどれで、それはなぜですか？',
+      'このスプレッドをもとに、今日からできる小さな一歩は何ですか？',
+    ],
   },
 }
 
@@ -117,6 +135,11 @@ const GENERIC: Readonly<Record<string, Questions>> = {
     '¿Cuáles son los puntos clave de este resultado?',
     '¿Qué parte de este resultado vale más la pena pensar con calma?',
     '¿Cómo podría aplicar esto en mi vida diaria?',
+  ],
+  ja: [
+    'この結果でいちばん大切なポイントは何ですか？',
+    'どの部分をいちばんじっくり考えるとよいですか？',
+    'この内容を毎日の暮らしにどう活かせますか？',
   ],
 }
 

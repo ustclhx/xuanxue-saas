@@ -184,6 +184,7 @@ describe('conversation titles', () => {
       'zh-Hans': '新对话',
       ko: '새 채팅',
       es: 'Chat nuevo',
+      ja: '新しいチャット',
     }
     for (const locale of locales) {
       overwriteGetLocale(() => locale)

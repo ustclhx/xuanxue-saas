@@ -56,9 +56,11 @@ export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
     }),
     m.bazi_lunar_date({
       date:
-        locale !== 'ko'
-          ? lunarDateZh(time.lunar)
-          : `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`,
+        locale === 'ko'
+          ? `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`
+          : locale === 'ja'
+            ? `${time.lunar.isLeapMonth ? '閏' : ''}${time.lunar.month}月${time.lunar.day}日`
+            : lunarDateZh(time.lunar),
     }),
   ]
   if (time.dst && chart.hourKnown) parts.push(m.bazi_dst_note())

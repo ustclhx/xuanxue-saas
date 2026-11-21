@@ -19,7 +19,7 @@ export default defineTemplateConfig({
   // rememberHomeLocale（ML-09）：使用者 2026-11-20 决定暂缓，保持关闭。
   i18n: {
     enabled: true,
-    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'es'],
+    locales: ['en', 'zh-Hant', 'zh-Hans', 'ko', 'es', 'ja'],
     defaultLocale: 'en',
     untranslated: 'hide',
     rememberHomeLocale: false,
@@ -31,11 +31,11 @@ export default defineTemplateConfig({
     // 东方站没有无前缀的默认语言，根路径为语言入口页；后续加入 ja
     east: {
       hosts: ['ganjiday.com'],
-      locales: ['zh-Hant', 'zh-Hans', 'ko'],
+      locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'],
       defaultLocale: null,
       brand: {
         name: 'Ganjiday',
-        names: { 'zh-Hant': '干支日', 'zh-Hans': '干支日', ko: '간지데이' },
+        names: { 'zh-Hant': '干支日', 'zh-Hans': '干支日', ko: '간지데이', ja: '干支日' },
       },
       // Cloudflare Email Routing 转发到运营者邮箱（D6：不公开个人邮箱与地址）
       supportEmail: 'support@ganjiday.com',
@@ -107,7 +107,7 @@ export default defineTemplateConfig({
     linking: {
       sites: [
         { locales: ['en', 'es'], previewHost: 'west.localhost' },
-        { locales: ['zh-Hant', 'zh-Hans', 'ko'], previewHost: 'east.localhost' },
+        { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'], previewHost: 'east.localhost' },
       ],
       // 钱页（openspec seo-fix-tdk-links design 决策 6）：arcanumber GSC 近 90 天曝光前 18 页，站内入链须 ≥3；
       // 地址不带语言前缀，东方站只有首页命中

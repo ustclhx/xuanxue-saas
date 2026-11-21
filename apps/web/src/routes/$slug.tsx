@@ -49,7 +49,7 @@ const NumerologySlugPage = lazyRouteComponent(
   'NumerologySlugPage',
 )
 
-/** `bazi` 在韩语渲染만세력组件，在中文渲染八字组件 */
+/** `bazi` 在韩语渲染만세력组件，在中文与日语渲染八字组件（日语标签来自 messages/ja/bazi.json） */
 function pageComponent(id: EasternPageId, locale: string) {
   switch (id) {
     case 'bazi':

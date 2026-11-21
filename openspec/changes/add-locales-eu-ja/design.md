@@ -392,18 +392,32 @@
 | TR-10 | `features/i18n/auth-locale.ts`、`request.server.ts`、`preference.ts`（preferredLocale） | 不按 Accept-Language / 偏好 Cookie 选择公开页与认证页语言 |
 | TR-11 | — | 模板加入多语言 SEO 验收检查（本项目 `check-i18n-seo.mjs` 可作参考） |
 
+## 第 4 组（`ja`）实施记录（2026-11-21）
+
+- **网址与标题**按使用者批准的关键词地图（`keyword-maps/ja.md`）：`/ja/タロット/一枚引き`、牌义索引 `/ja/タロット/意味` 与牌义 `/ja/タロット/意味/<英文 slug>`（取代上文决策 2 表中的 `今日の一枚`、`カード`）；
+  FAQ 与定价沿用 `/ja/faq`、`/ja/pricing`；日语标题分隔符 `｜`；牌阵页另有 SEO 标题（`tarotSeoTitle`），牌义页 frontmatter 可另写 H1（`heading`）。
+- **四柱推命**复用八字组件（日语标签来自 `messages/ja/bazi.json`），默认出生地东京；引擎新增大阪、名古屋、札幌、福冈（`Asia/Tokyo`），
+  1948–1951 年サマータイム由 tzdata 处理并有引擎测试；命盤查詢与概念页链接在 `ja` 不渲染（`localPageHref`、`conceptPath`）。字体：`ja` 不加载网页字体，用系统日文字体（3.1 由 Fable 精修）。
+- **按语言放宽的严格文案**：`ja` 第一期不提供每日运势与数字命理（决策 4），`daily`、`numerology*`、`chart-numerology` 不翻译（`LOCALE_LENIENT_MESSAGE_FEATURES`）。
+- **结构自定**：工具页长文按空行分段（`ToolArticle`）；日语首页 FAQ 加一则本地问法（个人资料），FAQ 汇总页多一问，避免与中文、韩语页结构一致。
+- **测量**：`measure-locale-similarity` 从预渲染产物读取未发布语言的页面（不在站点地图中）并按其 hreflang 反向配对；FAQ 来源登记支持按页面分组。
+  回译由 Codex 完成（使用者决定）：`measure-locale-backtranslation --export-input / --from-file`，不调用 API。
+- **首页包**：合并 #256（按语言拆分文案表，`localeText`）后，ja 的注册表描述、首页 / 静态页 SEO 文案、牌阵 `DESCRIPTIONS` 与 `SEO_TITLES`、牌义索引都写进已包裹的对象，
+  首页闭包 gzip 330,344 B（main 328,129 B，预算 352,174 B 不变）。
 ## 第 5 组（es）实施记录（2026-11-21）
 
 证据在 `~/workspace/xuanxue-saas-evidence/locales-eu-ja/es/`。
 
 - **首页包**：合入 #256（`localeText` 按语言拆分）后，加入 `es`（pending）的每个首页闭包 gzip 本地 330,603 B、CI 331,996 B（预算 352,174 B 不变）。
-  新语言的 Title / description / 首页标语放在各模块的 `localeText(...)` 表中（塔罗牌阵 `SEO_TITLES`、牌义索引、数字命理 `TOOL_SEO`、
-  `seo/home-copy.ts`、`seo/metadata.ts`），注册表的导航名与路径不包 `localeText`；
+  新语言的 Title / description / 首页标语放在各模块的 `localeText(...)` 表中（塔罗牌阵 `SEO_TITLES` 与 ja 共用、牌义索引、数字命理 `TOOL_SEO`、
+  `seo/home-copy.ts`、`seo/metadata.ts`），注册表的导航名与路径不包 `localeText`；数字命理与牌义 frontmatter 的 H1 与 ja 同用 `heading` 字段；
   西语数字命理的 7 个单段页面不再各占路由文件，由 `routes/$slug.tsx` 承接（`features/tools/numerology/slug-route.ts`）。
 - **路径**：`/es/tarot/…` 与英文共用 `/tarot` 文件路由（按当前语言取牌阵，`sharedTarotLocale`）；牌义 `/es/tarot/cartas/<slug>` 另有路由文件；
   数字页 `/es/numero-de-vida/<n>` 一个路由文件。hreflang 由注册表 `paths` 生成（en ↔ es 互指，es 为 pending 时英文页不列 es）。
 - **结构本地化**：工具页说明长文按空行分段；西语工具页的补充问答并入长文（页面 FAQ 与 FAQPage 一致）；西语 FAQ 汇总页把账户一问并入「隐私与计算方式」组；
   这些只改西语输出，英文输出逐字节不变。
+- **详批评测门槛**：与 ja 同一机制，`numerology-full.es`、`tarot-spread.es` 登记在 `catalog.ts` 的 `READING_EVAL_PENDING`（解锁卡、定价页、
+  `POST /api/readings` 不开放，平台管理员可预览）；评测样本只属于 `readings@es-v1`（套件 `appliesTo`）。
 - **金额**：`es` 以 USD 结算（D-4），金额按 `es-419` 格式化为「USD 1.99」，不与拉美比索的「$」混淆，也不用西班牙本土的「1,99 US$」。
 - **门槛**（`measure-locale-similarity --enforce es`，临时把 `es` 设为 released 构建后测量，未提交）：结构直译分全部 ≤0.60（工具页最大 0.527、FAQ 0.468、数字页最大 0.242）；
   牌义按位置模板重复（MDX）最大 0.163；FAQ local 下限、长度下限全部通过；数字序列重合度（排除引擎输出与固定事实后）全部 ≤0.50：

@@ -63,22 +63,24 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'bazi',
     site: 'east',
-    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력' },
-    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력' },
+    paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력', ja: '/四柱推命' },
+    titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력', ja: '四柱推命' },
     descriptions: localeText({
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
       'zh-Hans': '免费八字排盘：四柱命盘、五行强弱、身强身弱、喜用神、大运流年、神煞与八字重量。',
       ko: '무료 만세력: 사주팔자, 오행 분포, 신강·신약, 용신, 대운·세운, 신살·귀인·공망 조회.',
+      ja: '無料の四柱推命：生年月日と出生時間から命式を作成し、通変星・蔵干・十二運星・大運・天中殺を表示します。',
     }),
   },
   {
     id: 'ziwei',
     site: 'east',
-    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘' },
-    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数' },
+    paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘', ja: '/紫微斗数' },
+    titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数', ja: '紫微斗数' },
     descriptions: localeText({
       'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。',
       'zh-Hans': '免费紫微斗数排盘：十二宫位、命宫与身宫、十四主星与生年四化。',
+      ja: '無料の紫微斗数：生年月日から命盤を作成し、十二宮・命宮と身宮・十四主星・生年四化を表示します。',
     }),
   },
   {
