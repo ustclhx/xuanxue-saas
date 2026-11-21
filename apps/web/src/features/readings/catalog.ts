@@ -30,6 +30,7 @@ import { z } from 'zod'
 import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { JA_DATA_VERSION, japaneseChartExtras } from './ja-chart.ts'
+import { BAZI_FULL_V4_EN } from './prompts/bazi-full.en.v4.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
@@ -44,6 +45,7 @@ import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
 import { TAROT_SPREAD_V3_JA } from './prompts/tarot-spread.v3.ja.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { TAROT_SPREAD_V4 } from './prompts/tarot-spread.v4.ts'
+import { ZIWEI_FULL_V4_EN } from './prompts/ziwei-full.en.v4.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4_JA } from './prompts/ziwei-full.v4.ja.ts'
@@ -486,6 +488,12 @@ const KO_HEALTH = {
   notice: '불편한 증상이 있으면 전문 의료진과 상담하세요.',
 }
 
+// 东方站英文（add-locales-eu-ja 5b.3）：与西方站数字命理同一句就医提示
+const EN_HEALTH = {
+  title: 'Wellbeing Habits',
+  notice: 'If you feel unwell, please consult a qualified healthcare professional.',
+}
+
 /**
  * 西班牙语合规声明（术语表 compliance.required 三项：según métodos tradicionales、solo como referencia、
  * no predice el futuro；不用「entretenimiento」定位）
@@ -517,6 +525,14 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['bazi-full']['zh-Hans'],
       },
+      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文没有 v4 之前的版本，代码默认即 v4；评测通过前不开放（READING_EVAL_PENDING）
+      en: {
+        prompt: BAZI_FULL_V4_EN,
+        disclaimer:
+          'This report follows the traditional rules of BaZi (Four Pillars) astrology, with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
+        healthSection: EN_HEALTH,
+        sample: READING_SAMPLES['bazi-full'].en,
+      },
       // 日语只有 v4 一代（annual 数据档 + 十二運星 / 天中殺），代码默认即 v4；评测通过前不开放（READING_EVAL_PENDING）
       ja: {
         prompt: BAZI_FULL_V4_JA.ja,
@@ -526,7 +542,8 @@ const entries = {
         sample: JA_READING_SAMPLES['bazi-full'],
       },
     },
-    versions: { 'bazi-full.v4': BAZI_FULL_V4 },
+    // v4 的英文是新增的语言，已有的繁中 / 简中 v4 文本不变
+    versions: { 'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN } },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -560,6 +577,13 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
+      en: {
+        prompt: ZIWEI_FULL_V4_EN,
+        disclaimer:
+          'This report follows the traditional rules of Zi Wei Dou Shu (Purple Star Astrology), with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
+        healthSection: EN_HEALTH,
+        sample: READING_SAMPLES['ziwei-full'].en,
+      },
       ja: {
         prompt: ZIWEI_FULL_V4_JA.ja,
         disclaimer:
@@ -568,7 +592,7 @@ const entries = {
         sample: JA_READING_SAMPLES['ziwei-full'],
       },
     },
-    versions: { 'ziwei-full.v4': ZIWEI_FULL_V4 },
+    versions: { 'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN } },
     recompute: recomputeZiwei,
   },
   'saju-compat': {
@@ -678,6 +702,10 @@ export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
   // （`pnpm eval:prompts --suite readings --prompt readings@es-v1 … --record`）待使用者批准预算
   'numerology-full.es',
   'tarot-spread.es',
+  // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微（v4 的英文）已登记，离线评测就绪；真实评测
+  // （`pnpm eval:prompts --suite readings-east-en … --record`）待使用者批准预算
+  'bazi-full.en',
+  'ziwei-full.en',
 ])
 
 /** 某「详批 × 语言」是否已通过评测门槛、可以对访客开放（只判定评测，不含运营开关与模型配置） */

@@ -5,6 +5,7 @@ import {
   readingGuardYears,
 } from '../../apps/web/src/features/readings/guard.ts'
 import { toTraditional } from '../../apps/web/src/features/readings/hant.ts'
+import type { ResolveReading } from './checks.ts'
 import { type ReadingSampleInput, resolveReading } from './prompts.ts'
 
 /**
@@ -24,8 +25,9 @@ export function prepareReading(
   rawOutput: string,
   promptVersion: string,
   input: ReadingSampleInput,
+  resolve: ResolveReading = resolveReading,
 ): PreparedOutput {
-  const { version, recomputed } = resolveReading(promptVersion, input)
+  const { version, recomputed } = resolve(promptVersion, input)
   const requestYear = new Date(input.requestDate).getUTCFullYear()
   const years = guardApplies(version)
     ? readingGuardYears(input.kind, requestYear, recomputed.input)
@@ -55,8 +57,18 @@ export function prepareReading(
   }
 }
 
-export const prepareOutput: PrepareOutput = {
-  version: PREPARE_VERSION,
-  run: ({ rawOutput, sample, prompt }) =>
-    prepareReading(rawOutput, prompt.promptVersion, sample.input as unknown as ReadingSampleInput),
+/** 按套件的版本分派函数构造转换（各套件共用同一转换与版本号） */
+export function createPrepareOutput(resolve: ResolveReading): PrepareOutput {
+  return {
+    version: PREPARE_VERSION,
+    run: ({ rawOutput, sample, prompt }) =>
+      prepareReading(
+        rawOutput,
+        prompt.promptVersion,
+        sample.input as unknown as ReadingSampleInput,
+        resolve,
+      ),
+  }
 }
+
+export const prepareOutput: PrepareOutput = createPrepareOutput(resolveReading)

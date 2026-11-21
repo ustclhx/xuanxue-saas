@@ -36,9 +36,9 @@ const bazi = () => {
 
 describe('详批注册表', () => {
   it('每种详批的报告语言；未知类型或不支持的语言返回 undefined', () => {
-    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'ja'])
+    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en', 'ja'])
     expect(readingDefinition('saju-full')?.locales).toEqual(['ko'])
-    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'ja'])
+    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en', 'ja'])
     expect(readingDefinition('saju-compat')?.locales).toEqual(['ko'])
     expect(readingDefinition('numerology-full')?.locales).toEqual(['en', 'es'])
     expect(readingDefinition('tarot-spread')?.locales).toEqual([
@@ -58,6 +58,9 @@ describe('详批注册表', () => {
     expect(readingEvalPassed('tarot-spread', 'es')).toBe(false)
     expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
     expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
+    // 东方站英文没有 v4 之前的版本：代码默认即 v4（add-locales-eu-ja 5b.3）
+    expect(readingDefinition('bazi-full', 'en')?.prompt.version).toBe('bazi-full.v4')
+    expect(readingDefinition('ziwei-full', 'en')?.prompt.version).toBe('ziwei-full.v4')
     expect(readingDefinition('tarot-spread', 'zh-Hans')?.prompt.version).toBe('tarot-spread.v3')
     expect(readingDefinition('tarot-spread', 'ko')?.prompt.sections[0]).toBe('전체 흐름')
     expect(readingDefinition('bazi-full', 'ko')).toBeUndefined()
@@ -252,7 +255,7 @@ describe('样例段落', () => {
 
   it('六种详批的每种报告语言都有样例；解锁卡标题声明为虚构案例', () => {
     expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
-    expect(variants).toHaveLength(16)
+    expect(variants).toHaveLength(18)
     for (const { locale, sample } of variants) {
       expect(sample.length).toBeGreaterThan(0)
       // 正文自身以「示例」开头，解锁卡标题再声明为虚构案例（readings_unlock_sample）
@@ -295,6 +298,10 @@ describe('样例段落', () => {
     expect(sample('saju-full', 'ko')).toContain('경오·신사·경진·신사')
     expect(sample('saju-compat', 'ko')).toContain('경오·신사·경진·신사')
     expect(sample('numerology-full', 'en')).toContain('Life Path 3')
+    expect(sample('bazi-full', 'en')).toContain(
+      'Geng Wu, Xin Si, Geng Chen and Xin Si (庚午 辛巳 庚辰 辛巳)',
+    )
+    expect(sample('ziwei-full', 'en')).toContain('Po Jun')
     expect(sample('numerology-full', 'es')).toContain('número de vida 3')
     // 西语样例按术语表写牌名与正位（Oros / Bastos、al derecho）
     expect(sample('tarot-spread', 'es')).toMatch(/Ocho de Oros al derecho.*As de Bastos al derecho/)

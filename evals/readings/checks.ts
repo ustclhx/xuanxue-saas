@@ -32,6 +32,8 @@ export const ANNUAL_SECTION_TITLES = [
   '大限與流年',
   '大限与流年',
   'Year by Year',
+  // 东方站英文紫微（readings-east-en）
+  'Major Period and Year by Year',
   'Año por año',
   '大限と年運',
 ] as const
@@ -243,18 +245,25 @@ export function bodyGanzhiMismatches(text: string, years: readonly ExpectedYear[
   return result
 }
 
-// 同一次运行中，一个样本的多项检查共用同一份复算结果
-const resolved = new WeakMap<object, Map<string, ResolvedReading>>()
-function readingOf(ctx: CheckContext): ResolvedReading & { readonly locale: string } {
-  const input = ctx.sample.input as unknown as ReadingSampleInput
-  const byVersion = resolved.get(ctx.sample) ?? new Map<string, ResolvedReading>()
-  resolved.set(ctx.sample, byVersion)
-  let reading = byVersion.get(ctx.prompt.promptVersion)
-  if (!reading) {
-    reading = resolveReading(ctx.prompt.promptVersion, input)
-    byVersion.set(ctx.prompt.promptVersion, reading)
+/** 套件版本 + 样本 → 真实版本与复算结果；各套件按自己的版本分派（本套件为 prompts.ts `resolveReading`） */
+export type ResolveReading = (promptVersion: string, input: ReadingSampleInput) => ResolvedReading
+
+type SampleReading = ResolvedReading & { readonly locale: string }
+
+/** 同一次运行中，一个样本的多项检查共用同一份复算结果 */
+function sampleReadings(resolve: ResolveReading): (ctx: CheckContext) => SampleReading {
+  const resolved = new WeakMap<object, Map<string, ResolvedReading>>()
+  return (ctx) => {
+    const input = ctx.sample.input as unknown as ReadingSampleInput
+    const byVersion = resolved.get(ctx.sample) ?? new Map<string, ResolvedReading>()
+    resolved.set(ctx.sample, byVersion)
+    let reading = byVersion.get(ctx.prompt.promptVersion)
+    if (!reading) {
+      reading = resolve(ctx.prompt.promptVersion, input)
+      byVersion.set(ctx.prompt.promptVersion, reading)
+    }
+    return { ...reading, locale: input.locale }
   }
-  return { ...reading, locale: input.locale }
 }
 
 const result = (pass: boolean, detail?: unknown): CheckResult =>
@@ -271,144 +280,153 @@ function annualTitle(reading: ResolvedReading): string | undefined {
 
 const NOT_APPLICABLE = 'not applicable: this prompt version has no year-by-year section'
 
-export const sectionsCheck: Check = {
-  id: 'sections',
-  run(ctx) {
-    const missing = missingSections(ctx.output, readingOf(ctx).definition.prompt.sections)
-    return result(missing.length === 0, { missing })
-  },
-}
-
-export const sectionOrderCheck: Check = {
-  id: 'sectionOrder',
-  run: (ctx) => result(sectionsInOrder(ctx.output, readingOf(ctx).definition.prompt.sections)),
-}
-
-export const annualYearsCheck: Check = {
-  id: 'annualYears',
-  run(ctx) {
-    const reading = readingOf(ctx)
-    const title = annualTitle(reading)
-    if (!title) return result(true, NOT_APPLICABLE)
-    const years = expectedYears(reading.recomputed.result)
-    const y = checkYears(sectionBody(ctx.output, title) ?? '', years, reading.locale)
-    return result(years.length > 0 && y.missing.length === 0 && y.extra.length === 0 && y.ordered, {
-      missing: y.missing,
-      extra: y.extra,
-      ordered: y.ordered,
-    })
-  },
-}
-
-export const dataConsistencyCheck: Check = {
-  id: 'dataConsistency',
-  run(ctx) {
-    const reading = readingOf(ctx)
-    const title = annualTitle(reading)
-    if (!title) return result(true, NOT_APPLICABLE)
-    const years = expectedYears(reading.recomputed.result)
-    const y = checkYears(sectionBody(ctx.output, title) ?? '', years, reading.locale)
-    const inBody = bodyGanzhiMismatches(ctx.output, years)
-    return result(y.mismatched.length === 0 && inBody.length === 0, {
-      headings: y.mismatched,
-      body: inBody,
-    })
-  },
-}
-
-export const complianceCheck: Check = {
-  id: 'compliance',
-  run(ctx) {
-    const violations = checkCompliance(ctx.output, readingOf(ctx).locale).violations
-    return result(violations.length === 0, violations)
-  },
-}
-
-export const glyphsCheck: Check = {
-  id: 'glyphs',
-  run(ctx) {
-    const glyphs = wrongGlyphs(ctx.output, readingOf(ctx).locale)
-    return result(glyphs.length === 0, glyphs)
-  },
-}
-
-export const healthNoticeCheck: Check = {
-  id: 'healthNotice',
-  run(ctx) {
-    const health = readingOf(ctx).definition.healthSection
-    if (!health) return result(true, 'not applicable: no health section')
-    const body = sectionBody(ctx.output, health.title) ?? ''
-    const core = health.notice.replace(/[。.!！\s]+$/u, '')
-    return result(body.includes(core))
-  },
-}
-
 const lengthExpect = z.object({
   min: z.number().int().nonnegative().optional(),
   max: z.number().int().positive().optional(),
   severity: z.enum(['error', 'warn']).optional(),
 })
 
-/** 不计空白的字符数在语言默认区间内；样本可用 `expect.length` 覆盖区间 */
-export const lengthCheck: Check = {
-  id: 'length',
-  severity: 'warn',
-  expectSchema: lengthExpect,
-  run(ctx) {
-    const chars = charCount(ctx.output)
-    const combo = comboOf(ctx.sample.input as unknown as ReadingSampleInput)
-    const [defaultMin, defaultMax] = COMBO_LENGTH[combo] ??
-      DEFAULT_LENGTH[readingOf(ctx).locale] ?? [0, Number.POSITIVE_INFINITY]
-    const override = (ctx.expect ?? {}) as { min?: number; max?: number }
-    const min = override.min ?? defaultMin
-    const max = override.max ?? defaultMax
-    return result(chars >= min && chars <= max, { chars, min, max })
-  },
+/** 按套件的版本分派函数构造全部检查；顺序与旧脚本 `checkReading` 一致，新语言的两项检查追加在末尾 */
+export function createReadingChecks(resolve: ResolveReading): readonly Check[] {
+  const readingOf = sampleReadings(resolve)
+
+  const sectionsCheck: Check = {
+    id: 'sections',
+    run(ctx) {
+      const missing = missingSections(ctx.output, readingOf(ctx).definition.prompt.sections)
+      return result(missing.length === 0, { missing })
+    },
+  }
+
+  const sectionOrderCheck: Check = {
+    id: 'sectionOrder',
+    run: (ctx) => result(sectionsInOrder(ctx.output, readingOf(ctx).definition.prompt.sections)),
+  }
+
+  const annualYearsCheck: Check = {
+    id: 'annualYears',
+    run(ctx) {
+      const reading = readingOf(ctx)
+      const title = annualTitle(reading)
+      if (!title) return result(true, NOT_APPLICABLE)
+      const years = expectedYears(reading.recomputed.result)
+      const y = checkYears(sectionBody(ctx.output, title) ?? '', years, reading.locale)
+      return result(
+        years.length > 0 && y.missing.length === 0 && y.extra.length === 0 && y.ordered,
+        {
+          missing: y.missing,
+          extra: y.extra,
+          ordered: y.ordered,
+        },
+      )
+    },
+  }
+
+  const dataConsistencyCheck: Check = {
+    id: 'dataConsistency',
+    run(ctx) {
+      const reading = readingOf(ctx)
+      const title = annualTitle(reading)
+      if (!title) return result(true, NOT_APPLICABLE)
+      const years = expectedYears(reading.recomputed.result)
+      const y = checkYears(sectionBody(ctx.output, title) ?? '', years, reading.locale)
+      const inBody = bodyGanzhiMismatches(ctx.output, years)
+      return result(y.mismatched.length === 0 && inBody.length === 0, {
+        headings: y.mismatched,
+        body: inBody,
+      })
+    },
+  }
+
+  const complianceCheck: Check = {
+    id: 'compliance',
+    run(ctx) {
+      const violations = checkCompliance(ctx.output, readingOf(ctx).locale).violations
+      return result(violations.length === 0, violations)
+    },
+  }
+
+  const glyphsCheck: Check = {
+    id: 'glyphs',
+    run(ctx) {
+      const glyphs = wrongGlyphs(ctx.output, readingOf(ctx).locale)
+      return result(glyphs.length === 0, glyphs)
+    },
+  }
+
+  const healthNoticeCheck: Check = {
+    id: 'healthNotice',
+    run(ctx) {
+      const health = readingOf(ctx).definition.healthSection
+      if (!health) return result(true, 'not applicable: no health section')
+      const body = sectionBody(ctx.output, health.title) ?? ''
+      const core = health.notice.replace(/[。.!！\s]+$/u, '')
+      return result(body.includes(core))
+    },
+  }
+
+  /** 不计空白的字符数在语言默认区间内；样本可用 `expect.length` 覆盖区间 */
+  const lengthCheck: Check = {
+    id: 'length',
+    severity: 'warn',
+    expectSchema: lengthExpect,
+    run(ctx) {
+      const chars = charCount(ctx.output)
+      const combo = comboOf(ctx.sample.input as unknown as ReadingSampleInput)
+      const [defaultMin, defaultMax] = COMBO_LENGTH[combo] ??
+        DEFAULT_LENGTH[readingOf(ctx).locale] ?? [0, Number.POSITIVE_INFINITY]
+      const override = (ctx.expect ?? {}) as { min?: number; max?: number }
+      const min = override.min ?? defaultMin
+      const max = override.max ?? defaultMax
+      return result(chars >= min && chars <= max, { chars, min, max })
+    },
+  }
+
+  const latinCheck: Check = {
+    id: 'latin',
+    severity: 'warn',
+    run(ctx) {
+      const latin = latinWords(ctx.output, readingOf(ctx).locale)
+      return result(latin.length === 0, latin)
+    },
+  }
+
+  const scriptCheck: Check = {
+    id: 'script',
+    run(ctx) {
+      const locale = readingOf(ctx).locale
+      if (!LATIN_LOCALES.has(locale)) return result(true, 'not applicable: non-Latin locale')
+      const chars = cjkChars(ctx.output, locale)
+      return result(chars.length === 0, chars)
+    },
+  }
+
+  // id 与 readings-ja 套件的日语术语检查区分（readings-ja 组合本套件的检查）
+  const glossaryCheck: Check = {
+    id: 'esGlossary',
+    run(ctx) {
+      const hits = glossaryHits(ctx.output, readingOf(ctx).locale)
+      if (hits === null) return result(true, 'not applicable: no glossary check for this locale')
+      return result(hits.length === 0, hits)
+    },
+  }
+
+  return [
+    sectionsCheck,
+    sectionOrderCheck,
+    annualYearsCheck,
+    dataConsistencyCheck,
+    complianceCheck,
+    glyphsCheck,
+    healthNoticeCheck,
+    lengthCheck,
+    latinCheck,
+    scriptCheck,
+    glossaryCheck,
+  ]
 }
 
-export const latinCheck: Check = {
-  id: 'latin',
-  severity: 'warn',
-  run(ctx) {
-    const latin = latinWords(ctx.output, readingOf(ctx).locale)
-    return result(latin.length === 0, latin)
-  },
-}
-
-export const scriptCheck: Check = {
-  id: 'script',
-  run(ctx) {
-    const locale = readingOf(ctx).locale
-    if (!LATIN_LOCALES.has(locale)) return result(true, 'not applicable: non-Latin locale')
-    const chars = cjkChars(ctx.output, locale)
-    return result(chars.length === 0, chars)
-  },
-}
-
-// id 与 readings-ja 套件的日语术语检查区分（readings-ja 组合本套件的检查）
-export const glossaryCheck: Check = {
-  id: 'esGlossary',
-  run(ctx) {
-    const hits = glossaryHits(ctx.output, readingOf(ctx).locale)
-    if (hits === null) return result(true, 'not applicable: no glossary check for this locale')
-    return result(hits.length === 0, hits)
-  },
-}
-
-/** 顺序与旧脚本 `checkReading` 一致；新语言的两项检查追加在末尾 */
-export const readingChecks: readonly Check[] = [
-  sectionsCheck,
-  sectionOrderCheck,
-  annualYearsCheck,
-  dataConsistencyCheck,
-  complianceCheck,
-  glyphsCheck,
-  healthNoticeCheck,
-  lengthCheck,
-  latinCheck,
-  scriptCheck,
-  glossaryCheck,
-]
+export const readingChecks: readonly Check[] = createReadingChecks(resolveReading)
 
 /** warn 级（提示类）检查：评测门槛的「硬性检查」不含它们 */
 export const WARN_CHECK_IDS: ReadonlySet<string> = new Set(['length', 'latin'])

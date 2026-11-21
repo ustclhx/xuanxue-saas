@@ -21,7 +21,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { resolveDefaultWorkspace } from '../../server/workspace-context.ts'
 import { isPlatformAdmin } from '../admin/guard.ts'
 import { startWorkspaceChat, type WorkspaceChatDeps } from '../ai/chat.ts'
-import { siteOfLocale, siteOrigin } from '../site/site.ts'
+import { siteOrigin } from '../site/site.ts'
 import { loadReadingAvailability } from './availability.ts'
 import {
   ensureHealthNotice,
@@ -43,6 +43,7 @@ import {
   readingGuardYears,
 } from './guard.ts'
 import { toTraditional } from './hant.ts'
+import { readingSite } from './release.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 import { readingTitle } from './title.ts'
 
@@ -120,7 +121,8 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const body = parsed.data
   if (!readingDefinition(body.kind)) throw notFound()
   const base = readingDefinition(body.kind, body.locale)
-  if (!base || siteOfLocale(body.locale, templateConfig) !== body.site)
+  // 站点按「类型 × 语言」判定（东方站英文与西方站共用 `en`，不能按语言推断站点，见 release.ts）
+  if (!base || readingSite(body.kind, body.locale) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
   // 未通过评测门槛的「类型 × 语言」与解锁卡同一判定（catalog.ts READING_EVAL_PENDING），平台管理员可预览
   if (!readingEvalPassed(base.kind, body.locale) && !isPlatformAdmin(user.role)) throw notFound()

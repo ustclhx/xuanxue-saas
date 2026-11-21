@@ -54,7 +54,7 @@ describe('followUpQuestions', () => {
       for (const question of questions)
         expect(checkCompliance(question, locale).violations).toEqual([])
     }
-    expect(followUpQuestions('bazi-full', 'en')).toBe(GENERIC_FOLLOW_UP_QUESTIONS.en)
+    expect(followUpQuestions('saju-full', 'en')).toBe(GENERIC_FOLLOW_UP_QUESTIONS.en)
     expect(followUpQuestions('numerology-full', 'ko')).toBe(GENERIC_FOLLOW_UP_QUESTIONS.ko)
     expect(followUpQuestions('unknown', 'fr')).toBe(GENERIC_FOLLOW_UP_QUESTIONS.en)
   })

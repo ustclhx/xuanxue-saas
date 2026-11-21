@@ -24,6 +24,12 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
   'bazi-full': {
     'zh-Hant': BAZI_HANT,
     'zh-Hans': BAZI_HANS,
+    // 东方站根路径英文（add-locales-eu-ja 5b.3）
+    en: [
+      'How does my Day Master and element balance shape my personality?',
+      'How can I use my favorable elements in everyday life?',
+      'In my current Luck Pillar, what is worth focusing on at work and with people?',
+    ],
     ja: [
       '日干と身強・身弱のバランスは、性格にどう表れていますか？',
       '喜神の五行を、毎日の暮らしでどう活かせばよいですか？',
@@ -52,6 +58,11 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       '我的命宫主星代表哪些性格特质？',
       '命宫与身宫的组合，在做决定时有什么提醒？',
       '从官禄宫来看，我适合怎样的工作节奏？',
+    ],
+    en: [
+      'What do the main stars in my Life Palace say about my character?',
+      'How do my Life Palace and Body Palace work together when I make decisions?',
+      'Looking at my Career Palace, what kind of working rhythm suits me?',
     ],
   },
   'saju-compat': {
