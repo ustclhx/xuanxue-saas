@@ -26,7 +26,7 @@ import {
   type ReadingAvailabilityDeps,
   textChatAvailable,
 } from './availability.ts'
-import { readingDefinition, resolveReadingDefinition } from './catalog.ts'
+import { readingDefinition, readingEvalPassed, resolveReadingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeRecordedReading } from './generate.ts'
 import { SAMPLES_APPROVED } from './samples.ts'
@@ -214,6 +214,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
     try {
       const deps = publicAvailabilityDeps()
       const adminPreview = await viewerIsPlatformAdmin()
+      // 评测门槛（add-locales-eu-ja D-10）：未通过评测的「类型 × 语言」不显示解锁卡；平台管理员可预览（staging 验收）
+      if (!adminPreview && !readingEvalPassed(definition.kind, data.locale)) return UNAVAILABLE
       const [status, chatAvailable] = await Promise.all([
         loadReadingAvailability(deps, definition.kind, { adminPreview }),
         textChatAvailable(deps.db, deps.aiEnv),

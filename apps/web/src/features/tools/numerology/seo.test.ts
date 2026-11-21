@@ -133,6 +133,13 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
           link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
         )
         const en = `https://arcanumber.com${tarotPath(spread, 'en')}`
+        // 未发布的 ja 页面自指（rollout.ts），已发布语言的页面不列 ja（上面 toEqual 已覆盖）
+        if (locale === 'ja') {
+          expect(Object.fromEntries(links).ja, `${spread} ja`).toBe(
+            new URL(`https://ganjiday.com/ja${tarotPath(spread, 'ja')}`).href,
+          )
+          continue
+        }
         expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual(
           locale === 'en'
             ? { en, 'x-default': en }

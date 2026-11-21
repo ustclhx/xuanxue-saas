@@ -84,6 +84,10 @@ export const CITY_LABEL: Record<CityId, Message> = {
   toronto: m.bazi_city_toronto,
   london: m.bazi_city_london,
   sydney: m.bazi_city_sydney,
+  osaka: m.bazi_city_osaka,
+  nagoya: m.bazi_city_nagoya,
+  sapporo: m.bazi_city_sapporo,
+  fukuoka: m.bazi_city_fukuoka,
 }
 
 /** 字段级错误文案；年份超出范围给出可用年份 */

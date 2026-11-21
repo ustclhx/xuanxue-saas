@@ -10,6 +10,7 @@ describe('报告完成邮件', () => {
     ['zh-Hans', '完整命盘分析'],
     ['zh-Hant', '完整命盤分析'],
     ['ko', '사주 상세 풀이'],
+    ['ja', '四柱推命・命式の詳しい鑑定'],
   ])('保留 %s 报告的标题，供队列、邮件主题与正文共同使用', async (locale, title) => {
     const props = { url, title }
     const message = {

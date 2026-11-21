@@ -133,7 +133,8 @@ describe('法律页内容（按站点）', () => {
       })
     expect(lookup('west', 'fr')).toBeUndefined()
     expect(lookup('west', 'fr', 'fallback')?.site).toBe('west')
-    expect(lookup('east', 'ja', 'fallback')).toBeUndefined()
+    expect(lookup('east', 'de', 'fallback')).toBeUndefined()
+    expect(lookup('east', 'ja')?.site).toBe('east')
     expect(lookup('east', 'zh-Hant')?.site).toBe('east')
   })
 

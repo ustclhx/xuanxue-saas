@@ -8,7 +8,7 @@ import {
   type TarotLocale,
   tarotDescription,
   tarotPath,
-  tarotTitle,
+  tarotSeoTitle,
 } from './routes.ts'
 
 /**
@@ -32,7 +32,7 @@ export function tarotHead(
     {
       path: tarotPath(spread, locale),
       locale,
-      title: tarotTitle(spread, locale),
+      title: tarotSeoTitle(spread, locale),
       description: tarotDescription(spread, locale),
       alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l)])),
     },

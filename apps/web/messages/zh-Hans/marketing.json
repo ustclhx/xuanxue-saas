@@ -156,6 +156,7 @@
   "pricing_currency_usd": "美元（USD）",
   "pricing_currency_twd": "新台币（TWD）",
   "pricing_currency_krw": "韩元（KRW）",
+  "pricing_currency_jpy": "日元（JPY）",
   "pricing_packs_once_title": "单次购买积分",
   "pricing_pack_buy": "购买",
   "pricing_pay_note_local": "信用卡以{currency}结账；选择 PayPal 时以美元结账（{prices}）。购买的积分 {days} 天内有效。",

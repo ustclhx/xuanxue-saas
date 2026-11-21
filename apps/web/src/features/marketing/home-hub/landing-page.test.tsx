@@ -211,6 +211,11 @@ describe('落地页数据', () => {
     expect(hubSampleParagraphs(false)).toEqual({})
     const approved = hubSampleParagraphs(true)
     for (const [locale, kind] of Object.entries(HUB_SAMPLE_KIND)) {
+      // ja 样例段落未经使用者审定（readings/samples-ja.ts），首页只显示章节大纲
+      if (locale === 'ja') {
+        expect(approved.ja).toBeUndefined()
+        continue
+      }
       const paragraph = approved[locale as keyof typeof approved]
       expect(paragraph).toBeTruthy()
       expect(paragraph).toBe(readingDefinition(kind, locale)?.sample)

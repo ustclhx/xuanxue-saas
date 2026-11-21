@@ -134,6 +134,8 @@ export function findMissingMessages(
 export interface StrictMessages {
   readonly locales: readonly string[]
   readonly lenientFeatures?: readonly RegExp[]
+  /** 项目扩展：按语言额外允许回退的功能文件（该语言不提供的工具） */
+  readonly lenientByLocale?: Readonly<Record<string, readonly RegExp[]>>
 }
 
 /** 缺失项中属于严格语言、且不在宽松功能文件中的项 */
@@ -145,7 +147,9 @@ export function strictMissingMessages(
   return missing.filter(
     ({ locale, feature }) =>
       strict.locales.includes(locale) &&
-      !(strict.lenientFeatures ?? []).some((pattern) => pattern.test(feature)),
+      ![...(strict.lenientFeatures ?? []), ...(strict.lenientByLocale?.[locale] ?? [])].some(
+        (pattern) => pattern.test(feature),
+      ),
   )
 }
 

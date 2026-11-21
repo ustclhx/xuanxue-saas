@@ -1,0 +1,17 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "tools_disclaimer_label": "免責事項",
+  "tools_disclaimer": "表示している結果は、伝統的な方法に基づいて算出したものです。自分を見つめ直すための参考情報としてご覧ください。未来を予言するものではありません。健康に関することは、医師などの専門家にご相談ください。",
+  "tools_ai_disclaimer": "AI鑑定は、伝統的な方法に基づいて算出した命式やカードをもとに、AIが文章にまとめたものです。参考情報としてご覧ください。未来を予言するものではありません。健康・法律・お金の判断は、それぞれの専門家にご相談ください。",
+  "tools_share_label": "共有リンク",
+  "tools_share_copy": "共有リンクをコピー",
+  "tools_share_copied": "リンクをコピーしました",
+  "tools_share_failed": "自動でコピーできませんでした。上のリンクを選択してコピーしてください。",
+  "tools_share_hint": "リンクには入力した生年月日などが含まれます。送る相手を選んで共有してください。",
+  "tools_results_label": "結果",
+  "tools_result_loading": "計算しています…",
+  "tools_links_title": "あわせて読みたい",
+  "tools_faq_title": "よくある質問",
+  "tools_requires_js": "結果を計算するには JavaScript を有効にしてください。",
+  "tools_breadcrumb_label": "パンくずリスト"
+}

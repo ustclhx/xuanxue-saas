@@ -13,7 +13,15 @@ import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
 import { eastChineseLocale } from './chinese-locale.ts'
-import { link, pageHref, ReadingSlots, ResultFooter, ResultStatus, usePrefetch } from './common.tsx'
+import {
+  link,
+  localPageHref,
+  pageHref,
+  ReadingSlots,
+  ResultFooter,
+  ResultStatus,
+  usePrefetch,
+} from './common.tsx'
 import { loadZiwei } from './engine.ts'
 import { BRANCH_HANZI, formatDateTime, STEM_HANZI } from './glyphs.ts'
 import { useBirthTool } from './use-birth-tool.ts'
@@ -60,7 +68,7 @@ export function ZiweiPage() {
       }
       links={[
         ...link(pageHref('bazi', LOCALE), m.bazi_link_home(), 'bazi'),
-        ...link(pageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
+        ...link(localPageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
       ]}
       faq={[
         { question: m.bazi_ziwei_faq_q1(), answer: m.bazi_ziwei_faq_a1() },

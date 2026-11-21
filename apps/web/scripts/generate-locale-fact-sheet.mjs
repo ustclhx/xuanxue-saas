@@ -34,7 +34,7 @@ const TEMPLATE = join(WEB_ROOT, 'i18n/fact-sheet.template.md')
 const SPREAD_SEGMENTS = {
   ja: {
     'three-card': '',
-    daily: '/今日の一枚',
+    daily: '/一枚引き',
     'yes-or-no': '/イエスノー',
     'celtic-cross': '/ケルト十字',
   },
@@ -53,8 +53,10 @@ export const LOCALES = Object.freeze({
     sources: ['zh-Hans', 'zh-Hant', 'ko'],
     home: '/ja',
     tarotBase: '/ja/タロット',
-    cardBase: '/ja/タロット/カード',
+    cardBase: '/ja/タロット/意味',
     tools: { shichu: '/ja/四柱推命', ziwei: '/ja/紫微斗数' },
+    // FAQ 与定价沿用模板的固定路径（关键词地图 ja.md §10–11）
+    statics: { faq: '/ja/faq', pricing: '/ja/pricing' },
     numbers: null,
     exampleCity: 'tokyo',
     lengthRule: '工具页正文 ≥1,500 字；牌义页不少于对应页的 70%',
@@ -115,6 +117,8 @@ export function pagesFor(locale) {
       path: `${cfg.tarotBase}${SPREAD_SEGMENTS[locale][spread]}`,
     })
   pages.push({ id: 'card-index', kind: 'tarot-card-index', path: cfg.cardBase })
+  for (const [id, path] of Object.entries(cfg.statics ?? {}))
+    pages.push({ id, kind: 'static', path })
   for (const card of CARDS)
     pages.push({
       id: `card:${card.slug}`,
@@ -448,7 +452,13 @@ function anchorsFor(page, glossary) {
 
 function keywordsFor(page, glossary, keywords) {
   const k = keywords?.[page.id]
-  if (k) return `- 主词：**${k.primary}**\n- 次级词：${(k.secondary ?? []).join('、') || '-'}`
+  if (k)
+    return [
+      `- 主词：**${k.primary}**`,
+      `- 次级词：${(k.secondary ?? []).join('、') || '-'}`,
+      ...(k.title ? [`- Title（已定稿）：${k.title}`] : []),
+      ...(k.h1 ? [`- H1（已定稿）：${k.h1}`] : []),
+    ].join('\n')
   const own = Object.entries(glossary.anchors ?? {}).find(([target]) =>
     globToRegExp(target).test(page.path),
   )

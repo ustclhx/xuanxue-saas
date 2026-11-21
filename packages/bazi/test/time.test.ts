@@ -183,3 +183,55 @@ describe('输入校验', () => {
     )
   })
 })
+
+// 日语四柱推命页（openspec add-locales-eu-ja 任务 4.3）：日本标准时间与 1948–1951 年サマータイム
+describe('日本标准时间与 1948–1951 年サマータイム', () => {
+  const jp = (patch: Partial<BirthInput>): BirthInput =>
+    at({ location: { city: 'tokyo' }, time: { hour: 12, minute: 0 }, ...patch })
+
+  it.each([
+    [1948, 7, 1],
+    [1949, 8, 12],
+    [1950, 7, 15],
+    [1951, 6, 1],
+  ])('%i-%i-%i 东京钟表时间减 1 小时排盘', (year, month, day) => {
+    const t = resolveBirthTime(jp({ year, month, day }))
+    expect(t.dst).toBe(true)
+    expect(t.offsetSeconds).toBe(10 * 3600)
+    expect(t.standardOffsetSeconds).toBe(9 * 3600)
+    expect(hm(t.standard)).toBe('11:00')
+  })
+
+  it('サマータイム期间外（开始前、结束后、1952 年起）按钟表时间', () => {
+    for (const [year, month, day] of [
+      [1950, 5, 5],
+      [1950, 9, 12],
+      [1952, 7, 1],
+      [1990, 7, 1],
+    ] as const) {
+      const t = resolveBirthTime(jp({ year, month, day }))
+      expect(t.dst, `${year}-${month}-${day}`).toBe(false)
+      expect(hm(t.standard)).toBe('12:00')
+    }
+  })
+
+  it('大阪等日本城市与东京同为日本标准时间', () => {
+    for (const city of ['osaka', 'nagoya', 'sapporo', 'fukuoka'] as const) {
+      const t = resolveBirthTime(jp({ year: 1950, month: 7, day: 15, location: { city } }))
+      expect(t.dst).toBe(true)
+      expect(t.standardOffsetSeconds).toBe(9 * 3600)
+    }
+  })
+
+  it('サマータイム改变时柱：1949-08-12 07:30 东京按 06:30 排盘', async () => {
+    const { computeChart } = await import('../src/index.ts')
+    const chart = computeChart(
+      jp({ year: 1949, month: 8, day: 12, time: { hour: 7, minute: 30 }, gender: 'female' }),
+      { referenceYear: 2026 },
+    )
+    expect(chart.time.dst).toBe(true)
+    expect(hm(chart.time.used)).toBe('06:30')
+    // 06:30 属卯时（05–07），未修正时 07:30 属辰时
+    expect(chart.pillars.hour?.branch).toBe('mao')
+  })
+})

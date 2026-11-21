@@ -1,0 +1,5 @@
+{
+  "billing_credit_guide_title": "クレジットが足りません",
+  "billing_credit_guide_amounts": "必要な目安：{estimatedCredits}クレジット／利用可能：{availableCredits}クレジット",
+  "billing_credit_guide_packs": "クレジットパックを購入"
+}

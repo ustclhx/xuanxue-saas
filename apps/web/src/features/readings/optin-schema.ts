@@ -39,7 +39,7 @@ const shareSchema = z
   )
   .refine((value) => Object.keys(value).length <= 20)
 // 全部配置语言；加语言时下方覆盖检查在类型检查阶段报错（openspec add-locales-eu-ja tasks 1.3）
-const OPTIN_LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko'] as const
+const OPTIN_LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko', 'ja'] as const
 export type _OptinLocalesCoverConfig = Assert<Covers<(typeof OPTIN_LOCALES)[number], AppLocale>>
 export const readingOptinSchema = z.object({
   name: z.string().trim().max(80).default(''),
