@@ -541,7 +541,9 @@ describe('西班牙语组合', () => {
       'Tu Life Path es 22.',
     ])
       assert.ok(
-        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes('esGlossary'),
+        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes(
+          'esGlossary',
+        ),
         phrase,
       )
     assert.equal(glossaryHits('Una carta de Pentáculos al derecho.', 'es')?.length, 1)
