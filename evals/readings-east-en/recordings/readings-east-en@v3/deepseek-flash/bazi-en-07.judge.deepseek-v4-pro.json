@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:f5a2ffd49bd630a31e3d6f301081100987acfdb28cbe45e17aeb61d03c3b4839",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited pillars, stems, branches, ten gods, hidden stems, favorable/unfavorable elements, percentages, Luck Pillars, shensha, and annual relations match the provided data; no invented chart elements or contradictory statements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this chart's specific elements—Bing Fire Day Master, Xin You Direct Wealth month, Yin day branch hidden stems, Nobleman and Void stars, 45.9% support, and year-by-year stem/branch relations—so the reading would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart, such as leveraging Wood/Fire, guarding rest in Metal-heavy periods, structured saving, and named leaning into/watch items for every year.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm and descriptive, avoids specific event assertions or month/day predictions, frames wellbeing as habits only, and recommends consulting a professional when unwell.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, fluent English with brief Chinese glosses, no leaked JSON terms, and no disruptive repetition; length is appropriate for a full BaZi report.\"\n    }\n  },\n  \"summary\": \"Excellent BaZi report: accurate to the chart, highly specific, actionable, warm and compliant, and clearly written.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8251,
+    "outputTokens": 4935
+  },
+  "recordedAt": "2026-11-21T14:33:41.461Z",
+  "source": "recorded"
+}

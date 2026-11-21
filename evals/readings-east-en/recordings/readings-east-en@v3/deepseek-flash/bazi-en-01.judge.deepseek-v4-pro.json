@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:9af4baf18d95c015ca7d99d5d6a404f573e6ecd2b79ca559408c6f291d04f3c3",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"Nearly all stems, branches, ten gods, numbers, symbolic stars, luck pillars and annual relations match the data. One misstatement says Indirect Wealth is the main qi of the day branch Hai, but the data lists Ren (Hurting Officer) as main qi and Jia (Direct Wealth) as middle qi.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in concrete chart elements—Day Master, pillars, hidden stems, ten gods, symbolic stars, luck pillar, and annual relations—so the text would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-tied actions appear throughout; each annual year contains something to lean into and something to watch, and the wellbeing guidance gives doable routines plus a clear recommendation to see a professional if unwell.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fearful language that describes tendencies and possibilities rather than asserting events; no month- or day-level predictions, no medical, legal or investment decisions, and no religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings, fluent English, appropriate use of pinyin with Chinese glosses, and year headings in the expected format. Some repetition across sections is present but not disruptive.\"\n    }\n  },\n  \"summary\": \"A highly personalised and practical BaZi reading that uses the correct terminology and chart data throughout; the only notable flaw is a single hidden-stem mislabel in the Wealth section.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8536,
+    "outputTokens": 4908
+  },
+  "recordedAt": "2026-11-21T14:31:45.525Z",
+  "source": "recorded"
+}

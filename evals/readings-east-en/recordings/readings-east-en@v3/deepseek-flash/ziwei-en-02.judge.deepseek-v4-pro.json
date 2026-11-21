@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:2dcbf3b6895ed531346231e347a311b18b9b1dd78cf894d34f6b5edeee4470d0",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All named palaces, stars, brightness levels, transformations, branches, stems, ages, and years match the provided data. No chart elements are invented, and the only slight ambiguity in 2027 about Wen Chang is clarified by the later correct annual Hua Ke placement.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements: Life Palace Ju Men in Xu, Body Palace Tian Tong with Hua Lu, Career borrowing Tian Ji and Tai Yin with Di Jie, Wealth Tai Yang with Qing Yang and Ling Xing, and each annual Life Palace and mutagen placement.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied directly to the chart, such as giving Ju Men a writing or teaching outlet, reviewing spending on a fixed day, using a walk with a friend for emotional balance, and each year has specific lean-in and watch-out guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"The tone is warm and non-fear-based, describes tendencies without asserting specific events, avoids month- or day-level predictions, and includes a clear healthcare disclaimer. No religious framing, investment, legal, or medical decisions are made.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"The structure is clear with logical headings, minimal repetition, appropriate length, and fluent English. Chinese characters are used only as short glosses or in year headings, with no leaked JSON field names or mixed foreign phrases.\"\n    }\n  },\n  \"summary\": \"The output is a highly accurate, personalized, and practical Zi Wei Dou Shu reading. It consistently uses the correct stars, palaces, transformations, and annual placements from the data, and presents actionable guidance in a warm, readable format.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7907,
+    "outputTokens": 7492
+  },
+  "recordedAt": "2026-11-21T14:35:44.736Z",
+  "source": "recorded"
+}

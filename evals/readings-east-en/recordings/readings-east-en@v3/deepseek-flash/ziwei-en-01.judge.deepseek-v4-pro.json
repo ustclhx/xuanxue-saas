@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:64c9c7373570e4b0dae1bc2c497ecbe8944e3311b347074a87e3456a246511ea",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every star, palace, stem-branch, transformation, and year cited matches the data; no invented elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart features such as Lian Zhen/Tian Xiang in the Life Palace, Wu Qu Hua Ji in Career, Zi Wei/Tian Fu in Wealth, and annual transformations; not generic.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and chart-linked: physical outlet for Qing Yang, documentation for Wu Qu Hua Ji, fixed financial reviews, clear communication for Tuo Luo, and each year includes focus and caution points.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language with frequent 'tends to', 'suggests', 'calling for care'; no fear, no month/day predictions, no medical/investment/legal decisions, and recommends healthcare professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with headings, concise paragraphs, and year-by-year sections; fluent English; limited Chinese characters only in year headings; no repetition or leaked JSON.\"\n    }\n  },\n  \"summary\": \"Excellent full Zi Wei Dou Shu report that accurately uses the chart data, remains highly personalised and actionable, maintains a warm and compliant tone, and is well organised and readable.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8051,
+    "outputTokens": 5018
+  },
+  "recordedAt": "2026-11-21T14:34:49.533Z",
+  "source": "recorded"
+}

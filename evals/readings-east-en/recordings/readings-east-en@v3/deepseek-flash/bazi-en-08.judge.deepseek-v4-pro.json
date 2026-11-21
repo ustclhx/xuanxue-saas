@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:946dacfb31f35f36815a1547c65328b1fe46fc3ebaa7e296bc734828baf46294",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited chart elements—pillars, stems, branches, hidden stems, Ten Gods, percentages, shensha, luck pillar years, and annual relations—match the provided data. No invented chart elements or contradictory statements were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific details from this chart: Ding Fire Day Master, 50.8% Fire, 0% Wood, Geng Zi month, Si day branch hidden stems, Peach Blossom/Lu Shen, Bing Wu luck pillar, and annual relation patterns. It would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete, doable, and chart-tied. Each year in the year-by-year section has a clear lean-in action and a caution, and the guidance section gives specific habits tied to favorable elements and Ten Gods.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based, uses tendency language such as 'may' and 'suggests,' avoids month- or day-level predictions, limits wellbeing to habits, and includes a healthcare professional note. No investment, legal, or medical decisions are asserted.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear structure with useful headings and fluent English, but some key statistics and element interpretations are repeated across sections, making the report longer than necessary and slightly repetitive.\"\n    }\n  },\n  \"summary\": \"A highly accurate, specific, and actionable BaZi reading. The report is warm, professional, and well-grounded in the chart's data, with only minor repetition affecting readability.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8845,
+    "outputTokens": 7147
+  },
+  "recordedAt": "2026-11-21T14:34:17.500Z",
+  "source": "recorded"
+}

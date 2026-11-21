@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:c98390d59f8914264a49638e49f41c66a99d8647087b2db71d8a919b4b8bdbc8",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every chart element cited matches the provided data, with no contradictions or invented details.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this individual chart—specific pillars, ten gods, shensha, luck pillars, and annual relations—not generic boilerplate.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to chart factors, and each year includes both something to lean into and something to watch.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based, describes tendencies without asserting specific events; recommends professional care; no month/day-level predictions or prohibited topics.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with logical sections, fluent English, appropriate use of pinyin and brief Chinese glosses, and no significant repetition or mixed scripts.\"\n    }\n  },\n  \"summary\": \"An excellent, highly personalised BaZi reading that is accurate, actionable, and clearly presented, with a consistently warm tone.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8731,
+    "outputTokens": 5080
+  },
+  "recordedAt": "2026-11-21T14:33:33.518Z",
+  "source": "recorded"
+}

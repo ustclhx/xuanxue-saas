@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:54c91ce5c24008cab45e98e2e702d5b59c29bac3c23b5a4c234f1f90a5d8a7a2",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Every palace, star, brightness, transformation, branch, stem, year and age cited matches the provided data; no invented chart elements.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in specific chart elements: Lian Zhen/Tan Lang in Hai, Zi Wei/Po Jun in Wealth, You Bi Hua Ke in Career, Tian Ji Hua Ji in Health, annual transformations by named stars and palaces.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-tied practices are given, and each year has lean-into and watch elements drawn from the year's transformation stars and palaces.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tendency-focused throughout; avoids event assertions, month/day predictions, financial/legal/medical decisions, and directs health concerns to professionals.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section headings, logical flow, minimal repetition, fluent English with pinyin and limited Chinese glosses; no JSON leakage or mixed scripts.\"\n    }\n  },\n  \"summary\": \"The report is an excellent, accurate, fully personalised Zi Wei Dou Shu reading that clearly explains core palace and star meanings, applies the specific chart placements, and gives actionable guidance while maintaining a warm, non-fearful tone.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8794,
+    "outputTokens": 3596
+  },
+  "recordedAt": "2026-11-21T14:35:01.068Z",
+  "source": "recorded"
+}
