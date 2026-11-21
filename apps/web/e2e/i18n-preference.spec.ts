@@ -108,6 +108,9 @@ async function authPost(page: Page, path: string, body: Record<string, string>) 
   )
 }
 
+/** 应用区铃铛等到水合并取回通知（见用例内说明）；小于 30 秒轮询间隔，读取失败不会被重试掩盖 */
+const BELL_READY_TIMEOUT = 20_000
+
 /** 账号设置的语言偏好：按表单字段定位，不依赖当前界面语言的文案 */
 async function saveAccountLocale(page: Page, locale: string) {
   // 水合前提交会走原生表单 GET 而不保存，等网络空闲（水合完成）后再操作
@@ -142,7 +145,11 @@ test('东方站换设备登录后应用区跟随账号语言，营销页继续�
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hant')
     // 通知铃铛与弹层也应跟随应用区语言，不能回退为英文（模板 0.3.1 起通知入口为铃铛）。
     const bell = page.getByTestId('notification-bell')
-    await expect(bell).toHaveAccessibleName('通知，沒有未讀')
+    // 铃铛名称在水合并取回第一页通知后才变为「没有未读」；服务端 HTML 只有中性的「通知」。
+    // vite dev 冷启动时首次进入应用区会因客户端依赖预构建整页重载一次，重载后要重新取约 9MB 的
+    // paraglide 文案模块才能水合，CI 上常超过默认 5 秒（PR #263 的 trace：main 同样失败）。
+    // 期望值不变，只放宽等待时间；通知读取失败时铃铛停在「通知」直到 30 秒轮询，仍会判失败。
+    await expect(bell).toHaveAccessibleName('通知，沒有未讀', { timeout: BELL_READY_TIMEOUT })
     await bell.click()
     await expect(page.getByRole('dialog').getByText('還沒有通知', { exact: true })).toBeVisible()
     await page.keyboard.press('Escape')
@@ -151,6 +158,7 @@ test('东方站换设备登录后应用区跟随账号语言，营销页继续�
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
     await expect(page.getByTestId('notification-bell')).toHaveAccessibleName(
       '알림, 읽지 않은 알림 없음',
+      { timeout: BELL_READY_TIMEOUT },
     )
 
     // 新设备已有相反的匿名 Cookie，账号设置仍优先。
