@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:4f006535c69328866be7eccf7e82cb66299054e588bfdf304befdcf009cc24d7",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All main pillars, hidden stems, ten gods, percentages, shensha and annual relations are accurate. The 2027 statement that the Nobleman star's own branch is Wei is slightly loose, because this chart's Nobleman touches the month pillar via Chou.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Each section is anchored in this chart's exact elements: Ren Day Master, Jia Zi year, Ding Chou month, Ren Shen day, hidden stems, current Ren Wu Luck Pillar, and annual pillar relations. It would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, doable guidance appears throughout. Each year has a clear lean-into/watch pattern, and the wellbeing and guidance sections tie habits directly to favorable elements and recurring ten gods.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based. It describes tendencies without asserting specific events, avoids month- or day-level predictions, offers habits-only wellbeing advice with a professional consult recommendation, and makes no investment, legal or medical decisions.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear headings, fluent natural English, appropriate length, and Chinese terms are glossed in pinyin. Some recurring themes such as Rob Wealth and Goat Blade appear across sections, but they are well integrated rather than repetitive.\"\n    }\n  },\n  \"summary\": \"A highly specific and actionable BaZi report that is warm, well-structured, and grounded in the provided chart data. The only notable issue is a minor imprecision in the 2027 Nobleman wording; otherwise the output is accurate and useful.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8297,
+    "outputTokens": 6022
+  },
+  "recordedAt": "2026-11-21T14:31:58.975Z",
+  "source": "recorded"
+}

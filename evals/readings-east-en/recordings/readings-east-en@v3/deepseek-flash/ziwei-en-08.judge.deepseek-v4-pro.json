@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:134203a371c03aedbd962cf7a7fc69b2c061ae652bd00c7cf079d055a7ac1ecc",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All Zi Wei stars, palaces, mutagens, auxiliary stars, current and next Major Periods, and year-by-year mutagens match the supplied data; no invented chart elements or contradictions were found.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"The reading is anchored almost entirely in this chart: empty Yin Life Palace borrowing Tian Ji and Tai Yin, Body Palace Tian Liang in Spouse, Tai Yang Hua Lu in Career, Wu Qu Hua Quan in Property, and each year's Hua Lu/Quan/Ke/Ji placements are all specific to this chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete and tied to the chart: each yearly paragraph has a clear lean-in theme and a watch-out theme, and the final guidance turns specific placements into doable habits without overreaching.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tentative throughout, using 'may', 'tend to', and 'likely'; no assertive event predictions, no month- or day-level forecasts, wellbeing advice includes consulting a professional, and no investment, legal, or medical directives are given.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear section headings and fluent English, but slightly marred by two typos ('August' for 'auspicious', 'Treatings' for 'Treating') and some mild repetition of star meanings.\"\n    }\n  },\n  \"summary\": \"A highly accurate and personalised Zi Wei full reading that closely tracks the chart data; it is warm, actionable, and well-structured, with only minor readability typos.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7350,
+    "outputTokens": 5779
+  },
+  "recordedAt": "2026-11-21T14:38:00.411Z",
+  "source": "recorded"
+}

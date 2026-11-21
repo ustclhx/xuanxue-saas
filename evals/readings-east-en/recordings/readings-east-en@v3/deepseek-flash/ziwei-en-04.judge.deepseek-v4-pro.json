@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:cb17e71177dac33e84afd3e051c7b7c633ce4e90d02fed74d3c643aab9f2fa24",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited chart elements—palaces, stars, brightness levels, transformations, year stems/branches, decade ages, and auxiliary stars—match the provided data; no invented chart components.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific natal and annual stars, transformations, and palaces; the content would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Each year-by-year passage gives concrete lean-in and caution areas tied to the chart, and the final guidance lists doable habits.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, tendency-based language avoids absolute event claims; no illness, investment, legal, or medical advice; explicitly recommends consulting a professional for health.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear section structure, consistent pinyin with brief Chinese character glosses only in appropriate headings, fluent English, no clutter or field-name leakage.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, deeply personalised, actionable, and tone-compliant, with clear structure and fluent English. It consistently ties each statement to the provided chart data and avoids month/day predictions or unsupported claims.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7626,
+    "outputTokens": 7601
+  },
+  "recordedAt": "2026-11-21T14:36:17.916Z",
+  "source": "recorded"
+}

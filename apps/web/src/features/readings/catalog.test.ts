@@ -66,9 +66,15 @@ describe('详批注册表', () => {
     expect(readingEvalPassed('tarot-spread', 'es')).toBe(true)
     expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
     expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
-    // 东方站英文没有 v4 之前的版本：代码默认即 v4（add-locales-eu-ja 5b.3）
-    expect(readingDefinition('bazi-full', 'en')?.prompt.version).toBe('bazi-full.v4')
-    expect(readingDefinition('ziwei-full', 'en')?.prompt.version).toBe('ziwei-full.v4')
+    // 东方站英文从 v4 起，代码默认为 v5（英文标签数据）；v4 英文仍可经运行时设置选用（add-locales-eu-ja 5b.3）
+    expect(readingDefinition('bazi-full', 'en')?.prompt.version).toBe('bazi-full.v5')
+    expect(readingDefinition('ziwei-full', 'en')?.prompt.version).toBe('ziwei-full.v5')
+    expect(
+      readingDefinition('bazi-full', 'en', { promptVersion: 'bazi-full.v4' })?.prompt.version,
+    ).toBe('bazi-full.v4')
+    expect(readingDefinition('bazi-full', 'zh-Hant', { promptVersion: 'bazi-full.v5' })).toBe(
+      undefined,
+    )
     expect(readingDefinition('tarot-spread', 'zh-Hans')?.prompt.version).toBe('tarot-spread.v3')
     expect(readingDefinition('tarot-spread', 'ko')?.prompt.sections[0]).toBe('전체 흐름')
     expect(readingDefinition('bazi-full', 'ko')).toBeUndefined()

@@ -31,6 +31,7 @@ import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { JA_DATA_VERSION, japaneseChartExtras } from './ja-chart.ts'
 import { BAZI_FULL_V4_EN } from './prompts/bazi-full.en.v4.ts'
+import { BAZI_FULL_V5_EN } from './prompts/bazi-full.en.v5.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
@@ -47,6 +48,7 @@ import { TAROT_SPREAD_V3_JA } from './prompts/tarot-spread.v3.ja.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { TAROT_SPREAD_V4 } from './prompts/tarot-spread.v4.ts'
 import { ZIWEI_FULL_V4_EN } from './prompts/ziwei-full.en.v4.ts'
+import { ZIWEI_FULL_V5_EN } from './prompts/ziwei-full.en.v5.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4_JA } from './prompts/ziwei-full.v4.ja.ts'
@@ -72,6 +74,11 @@ export interface ReadingPrompt {
    * 保证回滚与基线评测时模型看到的数据与改动前一致；`annual` 在其上增加流年窗口等逐年数据。
    */
   readonly dataProfile?: ReadingDataProfile
+  /**
+   * 用户消息中 `chart` 的呈现方式（东方站英文 v5 起）：省略时为复算结果原样；登记后把复算结果改写为
+   * 模型直接照抄的标签（en-chart.ts），复算结果本身、engineVersion 与检查不受影响。
+   */
+  readonly formatChart?: (result: Record<string, unknown>) => unknown
 }
 
 export type ReadingDataProfile = 'base' | 'annual'
@@ -526,9 +533,10 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['bazi-full']['zh-Hans'],
       },
-      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文没有 v4 之前的版本，代码默认即 v4；评测通过前不开放（READING_EVAL_PENDING）
+      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文从 v4 起，代码默认为 v5（数据改写为英文标签，
+      // en-chart.ts）；v4 英文仍在 versions 中供回滚与 readings-east-en@v2 回放。readings-east-en@v3 评测已通过
       en: {
-        prompt: BAZI_FULL_V4_EN,
+        prompt: BAZI_FULL_V5_EN,
         disclaimer:
           'This report follows the traditional rules of BaZi (Four Pillars) astrology, with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
         healthSection: EN_HEALTH,
@@ -578,8 +586,9 @@ const entries = {
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
+      // 东方站根路径英文：代码默认为 v5（同八字），v4 英文在 versions 中
       en: {
-        prompt: ZIWEI_FULL_V4_EN,
+        prompt: ZIWEI_FULL_V5_EN,
         disclaimer:
           'This report follows the traditional rules of Zi Wei Dou Shu (Purple Star Astrology), with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
         healthSection: EN_HEALTH,
@@ -699,13 +708,11 @@ export type AvailableReadingKind = keyof typeof entries
  * 真实评测（`pnpm eval:prompts --suite readings-ja … --live|--record`）全部门槛通过并记入私有验收记录后，
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
-export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
+export const READING_EVAL_PENDING: ReadonlySet<string> = new Set<string>([
   // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；
+  // 东方站英文八字 / 紫微（add-locales-eu-ja 5b.3）readings-east-en@v3（v5 英文标签数据）2026-11-21
+  // 真实评测全部必需门槛通过（准确度八字 4.125、紫微 4.875），已删去。
   // 报告在私有验收目录 locales-eu-ja/live-evals/prompt-evals/。
-  // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微 readings-east-en@v2 真实评测准确度未达门槛
-  // （八字 3.875、紫微 3.250，需 ≥ 4），改进前不开放
-  'bazi-full.en',
-  'ziwei-full.en',
 ])
 
 /** 某「详批 × 语言」是否已通过评测门槛、可以对访客开放（只判定评测，不含运营开关与模型配置） */
@@ -854,7 +861,10 @@ export function readingMessages(definition: ReadingDefinition, recomputed: Recom
     },
     {
       role: 'user' as const,
-      text: JSON.stringify({ kind: definition.kind, chart: recomputed.result }),
+      text: JSON.stringify({
+        kind: definition.kind,
+        chart: definition.prompt.formatChart?.(recomputed.result) ?? recomputed.result,
+      }),
     },
   ]
 }
