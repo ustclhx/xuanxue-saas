@@ -1,5 +1,6 @@
 import type { SpreadId } from '@xuanxue/tarot'
 import type { AppLocale, Assert, Covers } from '../../i18n/locales.ts'
+import { localeText } from '../../i18n/split-messages.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
@@ -71,7 +72,9 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
   },
 }
 
-const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
+// 新语言的描述在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）；
+// 注册表直接引用各牌阵的这个对象（不复制），加载后写回的条目随之可见
+const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = localeText({
   'three-card': {
     en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
     'zh-Hant':
@@ -98,7 +101,7 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     'zh-Hans': '免费凯尔特十字塔罗：十张牌的经典牌阵，逐一说明每个牌位，深入梳理一个处境。',
     ko: '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
   },
-}
+})
 
 /** 牌阵页路径（不含语言前缀） */
 export function tarotPath(spread: SpreadId, locale: TarotLocale): string {
@@ -139,7 +142,7 @@ export const TAROT_TOOL_ROUTES: readonly ToolRoute[] = TAROT_SPREADS.flatMap((sp
     site,
     paths: byLocale((locale) => tarotPath(spread, locale)),
     titles: byLocale((locale) => tarotTitle(spread, locale)),
-    descriptions: byLocale((locale) => tarotDescription(spread, locale)),
+    descriptions: DESCRIPTIONS[spread],
     ...(spread === 'three-card' ? {} : { nav: false }),
   })),
 )

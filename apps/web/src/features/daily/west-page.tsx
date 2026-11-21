@@ -1,5 +1,3 @@
-import type { NumberResult } from '@xuanxue/numerology'
-import { cn } from '@xuanxue/ui'
 import { PageWidth } from '@xuanxue/ui/project'
 import { useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
@@ -25,17 +23,11 @@ import {
   westDayFacts,
   westPersonalFacts,
 } from './facts.ts'
+import type { WestDailyData } from './load.ts'
+import { PersonalNumbers } from './personal-numbers.tsx'
 import { DAILY_NUMBERS, type WestRules } from './rules/types.ts'
 
-export interface WestDailyData {
-  readonly date: string
-  readonly facts: WestDayFacts
-}
-
-/** 页面 loader：只由日期计算，不访问数据库与会话 */
-export function loadWestDaily(date: CivilDate): WestDailyData {
-  return { date: dateKey(date), facts: westDayFacts(date) }
-}
+export { loadWestDaily, type WestDailyData } from './load.ts'
 
 /** 宇宙日的算式行（年、月、日分别归约后相加） */
 export function universalSteps(facts: WestDayFacts): string[] {
@@ -229,37 +221,6 @@ function PersonalDayCalculator({ rules, date }: { rules: WestRules; date: string
         {m.daily_profile_cta()}
       </p>
     </section>
-  )
-}
-
-export function PersonalNumbers({
-  result,
-  className,
-}: {
-  result: WestPersonalFacts
-  className?: string
-}) {
-  const tiles: [string, NumberResult, boolean][] = [
-    [m.daily_west_personal_year(), result.personalYear, false],
-    [m.daily_west_personal_month(), result.personalMonth, false],
-    [m.daily_west_personal_day(), result.personalDay, true],
-  ]
-  return (
-    <div className={cn('grid grid-cols-3 gap-2 text-center', className)}>
-      {tiles.map(([label, value, current]) => (
-        <div
-          key={label}
-          className={cn(
-            'flex flex-col items-center gap-1 rounded-field bg-surface-2 px-1 py-3',
-            // 当前项（个人日）用站点强调色描边，不改底色
-            current && 'ring-1 ring-mark ring-inset',
-          )}
-        >
-          <span className="text-caption text-ink-subtle">{label}</span>
-          <span className="font-bold font-heading text-ink text-title">{value.value}</span>
-        </div>
-      ))}
-    </div>
   )
 }
 

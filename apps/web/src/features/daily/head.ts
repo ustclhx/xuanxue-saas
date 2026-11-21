@@ -7,9 +7,8 @@ import { absoluteUrl, localizedPath, originFromMatches, pageHead } from '../seo/
 import { localeOrigin } from '../seo/origins.ts'
 import { ganzhiText } from './copy.ts'
 import { type DailyLocale, formatDate, parseDateKey } from './date.ts'
-import type { EastDailyData } from './east-page.tsx'
+import type { EastDailyData, WestDailyData } from './load.ts'
 import { DAILY_PATHS } from './routes.ts'
-import type { WestDailyData } from './west-page.tsx'
 
 /** 每个语言的每日页只在自己的语言下存在，其他语言前缀返回 404 */
 export function requireDailyLocale(locale: DailyLocale) {
