@@ -91,6 +91,8 @@ export const LENIENT_MESSAGE_FEATURES: readonly RegExp[] = [/^admin(-|$)/, /^ui-
  */
 export const LOCALE_LENIENT_MESSAGE_FEATURES: Readonly<Record<string, readonly RegExp[]>> = {
   ja: [/^daily$/, /^numerology(-|$)/, /^chart-numerology$/],
+  // 西方站没有八字与紫微：这些文案只为东方站根路径英文提供了 en（5b），es 不翻译
+  es: [/^bazi$/, /^chart-bazi$/, /^chart-ziwei$/],
 }
 
 /** 语言在某站点上的发布状态；未登记为 pending */

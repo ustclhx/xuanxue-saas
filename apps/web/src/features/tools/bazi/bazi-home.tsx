@@ -145,7 +145,7 @@ export function BaziResult({
   chart: BaziChart
   share: Readonly<Record<string, unknown>>
 }) {
-  // 图表按中文排列（东方站根路径英文同样按年月日时、干支用汉字）；概念页链接按页面语言取，
+  // 图表按中文排列（东方站根路径英文同样按年月日时、干支用汉字）；概念页链接与排盘时间说明按页面语言取，
   // 英文没有概念页（5b 暂缓），conceptHref 返回 undefined，链接不渲染
   const LOCALE = eastChineseLocale()
   const conceptLocale = getLocale() === 'en' ? 'en' : LOCALE
@@ -155,7 +155,7 @@ export function BaziResult({
         id="pillars"
         index={1}
         title={m.bazi_block_pillars()}
-        aside={usedTimeText(chart, LOCALE)}
+        aside={usedTimeText(chart, conceptLocale)}
         description={lead(m.bazi_desc_pillars())}
       >
         <PillarsChart pillars={chart.pillars} locale={LOCALE} />

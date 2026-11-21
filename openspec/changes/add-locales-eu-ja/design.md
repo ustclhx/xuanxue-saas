@@ -452,7 +452,7 @@
 
 - Paraglide 只有一套 `en`：西方站英文与两站共用的界面词。东方站英文的正文放在 `features/east-en/copy/*.ts`（落地页、八字与紫微正文、
   牌阵页正文、as feelings 牌页界面词、FAQ），只由东方站英文的页面组件与按需加载的 `route-data.ts` 引用，不进其他页面的包，也不进各首页
-  水合闭包（首页包 +~1.8KB gzip，主要是路由树与站点判断，预算内）。
+  水合闭包（合入 #253/#254/#256 后首页闭包本地 gzip 333,606 B（en.html 333,950 B），main 331,692 B，+~1.9KB 主要是路由树与站点判断；预算 352,174 B 不变）。
 - 东方站独有工具的界面词（八字、紫微表单与结果标签）没有西方站对应，直接放 Paraglide `messages/en/{bazi,chart-bazi,chart-ziwei}.json`；
   中文页专用的正文键（FAQ、SEO 标题等）不给英文，避免进入首页闭包。
 - 共用组件的少数站点相关文字由参数注入（牌阵页 `eastEn`、定价页免费工具一行）；as feelings 牌页正文是独立内容集合
@@ -464,4 +464,7 @@
 - `rollout.ts` 中 `east.en` 仍为 pending。本地 `LOCALE_RELEASE_PREVIEW=east:en` 构建（部署构建拒绝）用于验收发布后的链接图、SEO 与相似度；
   发布时需要：`east.en` 改为 released、`home-head-snapshot.json` 的 en 与三个主工具页快照用 `--write-head-snapshot` 更新
   （en 加 hreflang、x-default 改为英文版本是预期差异）。
+- 韩语 `/ko/만세력` 的入链锚文本：发布后英文入口页的「만세력」入链消失，「무료 만세력」占比会到 73%（超过 70%）。
+  韩语概念页十神、日柱两页的主工具链接改用主词「만세력」（`concept-page.tsx`），发布前 50%、模拟发布 55%，现在合入无副作用。
+- 回译（Codex 执行，`measure-locale-backtranslation --from-file`）：87/87 页通过，0 页超过阈值。
 

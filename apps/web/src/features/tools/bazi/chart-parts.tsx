@@ -38,7 +38,7 @@ export type { EastLocale }
 const heading = 'font-heading'
 
 /** 「排盤時間：1990-05-15 10:30（台北，國曆）· 農曆四月廿一」及夏令时 / 真太阳时说明 */
-export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
+export function usedTimeText(chart: BaziChart, locale: EastLocale | 'en'): string {
   const { time, input } = chart
   const { year, month, day } = time.used
   const used = chart.hourKnown ? time.used : { year, month, day }
