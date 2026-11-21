@@ -63,6 +63,8 @@ function siteOf(context: ShareCardSiteContext): SiteId {
 const isEastEnglish = (context: ShareCardSiteContext) =>
   context.locale === EAST_ENGLISH_LOCALE &&
   (context.pathname === EAST_ENGLISH_PATH ||
+    // 东方站根路径英文页面（5b）的构建期分享图按预渲染文件命名空间 `/en/…` 传入
+    context.pathname?.startsWith(`${EAST_ENGLISH_PATH}/`) ||
     (context.pathname === EAST_ENGLISH_URL &&
       resolveSite((context.host ?? '').replace(/^www\./i, ''), templateConfig).id === 'east'))
 

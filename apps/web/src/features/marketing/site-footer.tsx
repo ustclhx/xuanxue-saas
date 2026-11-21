@@ -7,7 +7,7 @@ import { getLocale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { SiteLogo } from '../site/brand.tsx'
 import { useSiteId } from '../site/context.tsx'
-import { siteNavLocale } from '../site/site.ts'
+import { EAST_ENGLISH_LOCALE, siteNavLocale } from '../site/site.ts'
 import { LanguageSetting, ThemeSetting } from '../theme/site-settings.tsx'
 import { blogHasPosts, site, useBlogLocales } from './site.ts'
 import { SiteLink } from './site-link.tsx'
@@ -29,9 +29,12 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
   const siteId = useSiteId()
   const locale = getLocale()
   const brand = siteBrandName(templateConfig, siteId, locale)
-  // 东方站英文入口页没有英文的定价与法律页：链接到本站默认语言（D5，不跨站）
+  // 东方站英文入口页没有英文的定价与法律页：链接到本站默认语言（D5，不跨站）；
+  // 东方站根路径英文（5b）发布后链接本站英文的常见问题与法律页，没有博客、指南与文档
   const navLocale = siteNavLocale(siteId, locale, templateConfig)
-  const blog = blogHasPosts(useBlogLocales(), navLocale)
+  const eastEnglish = siteId === 'east' && navLocale === EAST_ENGLISH_LOCALE
+  const blogLocales = useBlogLocales()
+  const blog = !eastEnglish && blogHasPosts(blogLocales, navLocale)
   const link = (path: Parameters<typeof SiteLink>[0]['path'], label: string) => (
     <SiteLink path={path} locale={locale} navLocale={navLocale} className={footerLink}>
       {label}
@@ -61,12 +64,12 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
           >
             {link('/faq', m.marketing_nav_faq())}
             {blog && link('/blog', m.marketing_nav_blog())}
-            {site.guides && (
+            {site.guides && !eastEnglish && (
               <Link to="/guides" className={footerLink}>
                 {m.marketing_nav_guides()}
               </Link>
             )}
-            {site.docs && link('/docs', m.marketing_nav_docs())}
+            {site.docs && !eastEnglish && link('/docs', m.marketing_nav_docs())}
             {link('/privacy', m.marketing_footer_privacy())}
             {link('/terms', m.marketing_footer_terms())}
             {link('/refund', m.marketing_footer_refund())}

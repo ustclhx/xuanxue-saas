@@ -8,18 +8,19 @@ export function prerenderRequest(request: Request, token?: string): Request | nu
   if (!token || request.headers.get('x-site-prerender') !== token) return null
   const url = new URL(request.url)
   const path = url.pathname.replace(/\/+$/, '') || '/'
-  // 东方站英文入口页 `/en` 的语言归西方站，但页面属于东方站（D5）
-  const site =
-    path === EAST_ENGLISH_PATH
-      ? 'east'
-      : (siteOfLocale(
-          prefixLocale(path, templateConfig.i18n.locales) ?? templateConfig.i18n.defaultLocale,
-          templateConfig,
-        ) ?? 'west')
+  // 东方站英文页面（入口页 / 落地页与 5b 根路径英文页面）的预渲染文件在 `/en/…` 命名空间：
+  // en 的归属站点是西方站，但这些页面属于东方站（D5、features/east-en/paths.ts）
+  const eastEnglish = path === EAST_ENGLISH_PATH || path.startsWith(`${EAST_ENGLISH_PATH}/`)
+  const site = eastEnglish
+    ? 'east'
+    : (siteOfLocale(
+        prefixLocale(path, templateConfig.i18n.locales) ?? templateConfig.i18n.defaultLocale,
+        templateConfig,
+      ) ?? 'west')
   url.host = templateConfig.sites[site].hosts[0] ?? url.host
-  // 东方站英文首页的对外地址是 `/`（使用者 2026-11-20）：以东方站 `/` 渲染、输出到 en.html，
-  // 不请求 `/en`（运行时 `/en` 301 到 `/`，路由器也会把 `/en` 规范化为 `/`）
-  if (path === EAST_ENGLISH_PATH) url.pathname = EAST_ENGLISH_URL
+  // 东方站英文页面的对外地址没有 `/en` 前缀（使用者 2026-11-20）：以东方站根路径地址渲染、输出到 `en/…`，
+  // 不请求 `/en/…`（运行时 `/en` 301 到 `/`，其他 `/en/*` 404）
+  if (eastEnglish) url.pathname = path.slice(EAST_ENGLISH_PATH.length) || EAST_ENGLISH_URL
   return new Request(url, request)
 }
 
@@ -58,13 +59,18 @@ export async function staticPageResponse(
   )
     return null
   const path = url.pathname.replace(/\/+$/, '') || '/'
-  // 东方站 `/` 是英文首页：读取预渲染的英文入口页 en.html（site.ts EAST_ENGLISH_URL）
+  // 东方站 `/` 是英文首页：读取预渲染的 en.html（site.ts EAST_ENGLISH_URL）；东方站其他无前缀地址
+  // 能走到这里的只有已放行的根路径英文页面（站点守卫），文件在 `en/…`（features/east-en/paths.ts）
+  const eastEnglish =
+    site.id === 'east' && prefixLocale(path, templateConfig.i18n.locales) === undefined
   url.pathname =
     path === '/'
       ? site.id === 'east'
         ? `${EAST_ENGLISH_PATH}.html`
         : '/index.html'
-      : `${path}.html`
+      : eastEnglish
+        ? `${EAST_ENGLISH_PATH}${path}.html`
+        : `${path}.html`
   url.search = ''
   const response = await fetchAsset(new Request(url, request))
   if (!response.ok) return null

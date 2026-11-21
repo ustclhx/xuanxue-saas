@@ -1,5 +1,6 @@
 import { SITE_IDS, type SiteId } from '@xuanxue/config'
-import { resolveSite, type SitesConfig } from '../site/site.ts'
+// 只引用类型：site/site.ts 引用本模块（siteServesLocale），本模块不能反向引用其运行时代码
+import type { SitesConfig } from '../site/site.ts'
 
 /**
  * 语言的分期发布状态（openspec add-locales-eu-ja design 决策 5，specs/localized-content-quality「语言发布状态」）。
@@ -21,14 +22,15 @@ export type ReleaseTable = {
   readonly [S in SiteId]: Readonly<Partial<Record<string, ReleaseState>>>
 }
 
-export const LOCALE_RELEASE: ReleaseTable = {
+const RELEASE_TABLE: ReleaseTable = {
   east: {
     'zh-Hant': 'released',
     'zh-Hans': 'released',
     ko: 'released',
     // 第一期（add-locales-eu-ja 第 4 组）
     ja: 'pending',
-    // 东方站完整英文页面（`/en/…`）；现有的英文入口页 `/en` 不受此项影响，始终可访问（site.ts EAST_ENGLISH_PATH）
+    // 东方站根路径英文页面（5b：`/bazi-calculator`、`/tarot-spreads` 等，无前缀）。未发布时正式域名上这些地址
+    // 维持原来的 301（到繁中同路径），东方站 `/` 仍是英文入口页；发布后 `/` 换成英文落地页（features/east-en）
     en: 'pending',
   },
   west: {
@@ -38,6 +40,40 @@ export const LOCALE_RELEASE: ReleaseTable = {
     // 第二、三期的 pt-BR、fr、de、it 写入配置前不必登记：未登记按 pending 处理（rollout.test.ts 要求写入配置时登记）
   },
 }
+
+// 本地「模拟发布」（项目扩展，5b.4 验收用）：构建时设置 LOCALE_RELEASE_PREVIEW=east:en（逗号分隔的「站点:语言」），
+// 由 scripts/vite-shared.ts 校验后以 [站点, 语言] 数组注入；只用于本地构建后跑 check:links、audit:seo、
+// check:i18n-seo 与 e2e，部署构建（设置了 CLOUDFLARE_ENV）拒绝该变量。未注入时（单元测试、Node 脚本）为空。
+declare const __LOCALE_RELEASE_PREVIEW__: readonly (readonly [SiteId, string])[] | undefined
+
+export type ReleasePreview = readonly (readonly [SiteId, string])[]
+
+/** 解析 LOCALE_RELEASE_PREVIEW（构建配置中调用）；格式错误或站点未知时抛错，避免静默失效 */
+export function parseReleasePreview(spec: string): ReleasePreview {
+  return spec
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [site, locale] = entry.split(':')
+      if ((site !== 'east' && site !== 'west') || !locale)
+        throw new Error(`LOCALE_RELEASE_PREVIEW：无法解析「${entry}」，应为 <east|west>:<语言>`)
+      return [site, locale] as const
+    })
+}
+
+/** 把模拟发布的「站点 × 语言」视为已发布 */
+export function applyReleasePreview(table: ReleaseTable, preview: ReleasePreview): ReleaseTable {
+  if (preview.length === 0) return table
+  const next = { east: { ...table.east }, west: { ...table.west } }
+  for (const [site, locale] of preview) next[site][locale] = 'released'
+  return next
+}
+
+export const LOCALE_RELEASE: ReleaseTable = applyReleasePreview(
+  RELEASE_TABLE,
+  typeof __LOCALE_RELEASE_PREVIEW__ === 'undefined' ? [] : __LOCALE_RELEASE_PREVIEW__,
+)
 
 /**
  * 严格文案语言（决策 5「严格文案」）：v1 之后新增的语言。公开页面、认证、账户、计费与邮件相关的功能文件
@@ -55,6 +91,8 @@ export const LENIENT_MESSAGE_FEATURES: readonly RegExp[] = [/^admin(-|$)/, /^ui-
  */
 export const LOCALE_LENIENT_MESSAGE_FEATURES: Readonly<Record<string, readonly RegExp[]>> = {
   ja: [/^daily$/, /^numerology(-|$)/, /^chart-numerology$/],
+  // 西方站没有八字与紫微：这些文案只为东方站根路径英文提供了 en（5b），es 不翻译
+  es: [/^bazi$/, /^chart-bazi$/, /^chart-ziwei$/],
 }
 
 /** 语言在某站点上的发布状态；未登记为 pending */
@@ -94,10 +132,15 @@ export function isLocaleReleased(
   )
 }
 
+/** 正式域名所属的站点；不是正式域名时为 undefined */
+function productionSite(host: string, config: SitesConfig): SiteId | undefined {
+  const hostname = host.toLowerCase().replace(/:\d+$/, '').replace(/\.$/, '')
+  return SITE_IDS.find((id) => config.sites[id].hosts.includes(hostname))
+}
+
 /** 正式域名：站点注册表中的 host（不含本地 `<站点>.localhost` 与预览地址） */
 export function isProductionHost(host: string, config: SitesConfig): boolean {
-  const hostname = host.toLowerCase().replace(/:\d+$/, '').replace(/\.$/, '')
-  return SITE_IDS.some((id) => config.sites[id].hosts.includes(hostname))
+  return productionSite(host, config) !== undefined
 }
 
 /**
@@ -110,6 +153,7 @@ export function isLocaleLive(
   config: SitesConfig,
   table: ReleaseTable = LOCALE_RELEASE,
 ): boolean {
-  if (!isProductionHost(host, config)) return true
-  return releaseState(resolveSite(host, config).id, locale, table) === 'released'
+  const site = productionSite(host, config)
+  if (!site) return true
+  return releaseState(site, locale, table) === 'released'
 }

@@ -113,7 +113,7 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         canonicals.add(canonical ?? '')
         // 中文 / 韩文路径按 URL 规范百分号编码
         expect(canonical).toBe(
-          new URL(`${localeOrigin(locale)}${localizedPath(page.path, locale)}`).href,
+          new URL(`${localeOrigin(locale, page.site)}${localizedPath(page.path, locale)}`).href,
         )
         for (const key of [
           'description',
@@ -134,7 +134,8 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // 注册在 TOOL_ROUTES 的工具页只与工具各语言版本互指，见 features/tools/bazi/bazi.test.tsx
         // 两站分开经营（D5）：只与同站语言互指，x-default 为同一页面的站点默认语言版本
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
-        if (!page.alternates) {
+        // 东方站根路径英文（5b）未发布：页面只在预览主机可访问，hreflang 见 east-en 的测试
+        if (!page.alternates && !page.site) {
           const site = siteOfLocale(locale, config) ?? 'west'
           // hreflang 只列已发布语言，未发布语言（ja）的页面另列自身（rollout.ts）
           const siteLocales = locales.filter(
@@ -445,9 +446,14 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
     ['ko', 'https://ganjiday.com/ko/pricing'],
     ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
   ])
-  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'west'))
+  // 西方站页面不出现东方站地址；东方站根路径英文（5b，site: 'east'）只出现东方站地址
+  for (const page of pages.filter(
+    (page) => siteOfLocale(page.locale, config) === 'west' && page.site !== 'east',
+  ))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
-  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'east'))
+  for (const page of pages.filter(
+    (page) => siteOfLocale(page.locale, config) === 'east' || page.site === 'east',
+  ))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('arcanumber.com')
 })
 
@@ -481,7 +487,8 @@ it('异名工具路由互指；x-default 指向该工具的繁中版本', () => 
     href: 'https://ganjiday.com/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4',
   })
   expect(links.some((link) => 'hrefLang' in link && link.hrefLang === 'en')).toBe(false)
-  expect(tools.every((p) => p.locale !== 'en')).toBe(true)
+  // 东方站的英文页面（5b 根路径英文）属于东方站，地址都在东方站
+  expect(tools.filter((p) => p.locale === 'en').every((p) => p.site === 'east')).toBe(true)
   const xml = sitemap(tools, origin, 'zh-Hant')
   expect(xml).toContain('/zh-hant/%E5%85%AB%E5%AD%97%E6%8E%92%E7%9B%A4')
   expect(xml).toContain('hreflang="ko" href="https://ganjiday.com/ko"')

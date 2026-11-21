@@ -1,5 +1,5 @@
 import { localeUrlSegment, type SiteId, siteBrandName, type TemplateConfig } from '@xuanxue/config'
-import { resolveSite, siteOfLocale } from '../site/site.ts'
+import { resolveSite, siteOfLocale, siteServesLocale } from '../site/site.ts'
 
 export type PresentationConfig = Pick<TemplateConfig, 'sites' | 'i18n'>
 
@@ -44,8 +44,9 @@ export function checkoutPresentation(
     ? resolved.id
     : (siteOfLocale(fromPath ?? input.currentLocale ?? '', config) ?? resolved.id)
   const { locales, defaultLocale } = config.sites[site]
+  // 另一站点的同语言（东方站 en）只在本站已发布时算本站语言（site.ts siteServesLocale）
   const owned = (locale: string | undefined): locale is string =>
-    locale !== undefined && locales.some((item) => item === locale)
+    locale !== undefined && siteServesLocale(site, locale, config)
   const locale = [fromPath, input.currentLocale].find(owned) ?? defaultLocale ?? locales[0] ?? 'en'
   const brandName = siteBrandName(config, site, locale)
   return {

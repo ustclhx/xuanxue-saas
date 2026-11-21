@@ -10,7 +10,12 @@ import { AccountMenu } from '../site/account-menu.tsx'
 import { SiteLogo } from '../site/brand.tsx'
 import { useSiteId } from '../site/context.tsx'
 import { HeaderMenu, headerMenuItem, MenuIcon } from '../site/header-menu.tsx'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteNavLocale } from '../site/site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  EAST_ENGLISH_PATH,
+  siteNavLocale,
+  siteServesLocale,
+} from '../site/site.ts'
 import { LanguageSetting, ThemeSetting } from '../theme/site-settings.tsx'
 import { toolsForSite } from '../tools/registry.ts'
 import { toolHref } from '../tools/tool-href.ts'
@@ -40,9 +45,13 @@ export function SiteHeader() {
   const siteId = useSiteId()
   const locale = getLocale()
   const pathname = useLocation({ select: (location) => location.pathname })
-  // 东方站英文入口页没有英语工具：只保留品牌与语言菜单，入口页正文链接到各语言工具
+  // 东方站英文入口页没有英语工具：只保留品牌与语言菜单，入口页正文链接到各语言工具。
+  // 东方站根路径英文（5b）发布后有自己的工具与导航（siteServesLocale）；发布前的预览按入口页处理
   const englishEntry =
-    siteId === 'east' && locale === EAST_ENGLISH_LOCALE && !isAppAreaPath(pathname)
+    siteId === 'east' &&
+    locale === EAST_ENGLISH_LOCALE &&
+    !isAppAreaPath(pathname) &&
+    !siteServesLocale(siteId, locale, templateConfig)
   const navLocale = siteNavLocale(siteId, locale, templateConfig)
   const all = englishEntry ? [] : toolsForSite(siteId, navLocale)
   const tools = all.filter((tool) => !DAILY_TOOL_IDS.has(tool.id))

@@ -33,7 +33,7 @@ export const OTHER_PLACE = 'other'
 export const KO_TRUE_SOLAR_DEFAULT = true
 
 /** 出生地下拉的内置城市（与引擎 CITIES 同 id）；按语言把常用城市放在前面 */
-export const PLACE_IDS: Record<EastLocale, readonly CityId[]> = {
+const EAST_PLACE_IDS: Record<EastLocale, readonly CityId[]> = {
   'zh-Hant': [
     'taipei',
     'taichung',
@@ -121,6 +121,23 @@ export const PLACE_IDS: Record<EastLocale, readonly CityId[]> = {
   ],
 }
 
+// en：东方站根路径英文（5b），英语读者常见的出生地排在前面，其余按繁中顺序
+const WESTERN_PLACES: readonly CityId[] = [
+  'newYork',
+  'losAngeles',
+  'toronto',
+  'vancouver',
+  'london',
+  'sydney',
+]
+export const PLACE_IDS: Record<EastLocale | 'en', readonly CityId[]> = {
+  ...EAST_PLACE_IDS,
+  en: [
+    ...WESTERN_PLACES,
+    ...EAST_PLACE_IDS['zh-Hant'].filter((id) => !WESTERN_PLACES.includes(id)),
+  ],
+}
+
 /** UTC 偏移选项（分钟）：−12:00 至 +14:00，每 30 分钟一档，另含 +5:45、+8:45、+12:45 */
 export const UTC_OFFSETS: readonly number[] = [
   ...Array.from({ length: 53 }, (_, i) => -720 + i * 30),
@@ -140,6 +157,7 @@ export function formatUtcOffset(minutes: number): string {
  * （SEO 内容差异化，2026-11-20 使用者决定）；日语页默认东京（add-locales-eu-ja 任务 4.3）。未知语言按繁体处理。
  */
 export function defaultPlace(locale: string): CityId {
+  if (locale === 'en') return 'newYork'
   if (locale === 'ja') return 'tokyo'
   return locale === 'ko' ? 'seoul' : locale === 'zh-Hans' ? 'beijing' : 'taipei'
 }

@@ -1,4 +1,5 @@
 import { SITE_IDS, type TemplateConfig } from '@xuanxue/config'
+import { EAST_ENGLISH_PRERENDERED_STATIC, isEastEnglishOnlyPath } from '../east-en/paths.ts'
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH } from '../site/site.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
@@ -17,9 +18,14 @@ export function isPrerenderedPath(
   path: string,
   locales: readonly string[],
   tools: readonly ToolRoute[] = TOOL_ROUTES,
+  /** 预渲染抓取（构建期）：跳过只属于东方站英文的无前缀地址；运行时读静态页时为 false */
+  crawled = false,
 ): boolean {
   const pathname = decodeURI(path.split(/[?#]/)[0] ?? '').replace(/\/+$/, '') || '/'
   const locale = prefixLocale(pathname, locales)
+  // 只属于东方站英文的无前缀地址（从东方站英文页面的链接抓到）按西方站请求会 404：
+  // 这些页面由 `/en/…` 入口生成（prerenderEntryPages），抓取时跳过
+  if (!locale && isEastEnglishOnlyPath(pathname, tools) && crawled) return false
   const delocalized = locale ? pathname.slice(localePrefix(locale).length) || '/' : pathname
   if (delocalized === '/') return true
   return (
@@ -64,6 +70,10 @@ export function prerenderEntryPages(
       config.i18n.locales.some((l) => l === EAST_ENGLISH_LOCALE)
     )
       paths.add(EAST_ENGLISH_PATH)
+    // 东方站根路径英文的常见问题与法律页（5b）：页面链接是无前缀地址，抓取到的是西方站同路径页面，
+    // 这里按 `/en/…` 文件命名空间显式登记（prerenderRequest 以东方站根路径地址渲染）
+    if (id === 'east' && site.locales.some((l) => l === EAST_ENGLISH_LOCALE))
+      for (const path of EAST_ENGLISH_PRERENDERED_STATIC) paths.add(`${EAST_ENGLISH_PATH}${path}`)
   }
   return [...paths].map((path) => ({ path }))
 }

@@ -5,6 +5,7 @@ import { PricingPage } from '../features/marketing/pricing-page.tsx'
 import { getReadingPricing } from '../features/readings/readings.functions.ts'
 import { originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
 import { pricingData } from '../features/seo/structured-data.ts'
+import { eastEnglishRouteData } from '../features/site/site.functions.ts'
 import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 
@@ -18,27 +19,33 @@ export const Route = createFileRoute('/pricing')({
   beforeLoad: () => {
     if (!templateConfig.billing.enabled) throw featureNotFound()
   },
-  loader: async () => {
-    const [catalog, pricing] = await Promise.all([
+  loader: async ({ parentMatchPromise }) => {
+    const [catalog, pricing, eastEn] = await Promise.all([
       getMarketingPricing(),
       getReadingPricing({ data: { locale: getLocale() } }),
+      // 东方站根路径英文（5b）的标题与描述按需加载
+      eastEnglishRouteData(parentMatchPromise).then((data) => data?.eastEnPricingPage() ?? null),
     ])
-    return { catalog, readings: pricing.readings }
+    return { catalog, readings: pricing.readings, eastEn }
   },
   component: () => {
     const { catalog, readings } = Route.useLoaderData()
     return <PricingPage catalog={catalog} readings={readings} />
   },
-  head: ({ matches, loaderData }) =>
-    pageHead(
-      staticPage('/pricing', getLocale()),
+  head: ({ matches, loaderData }) => {
+    // 东方站根路径英文（5b）：同一地址按站点取标题、描述与品牌（按需加载，见 eastEnglishPricing）
+    const eastEn = loaderData?.eastEn ? ('east' as const) : undefined
+    return pageHead(
+      loaderData?.eastEn ?? staticPage('/pricing', getLocale()),
       originFromMatches(matches),
       loaderData
         ? pricingData(
             sellableCatalog(loaderData.catalog, loaderData.readings),
             originFromMatches(matches),
             getLocale(),
+            eastEn,
           )
         : [],
-    ),
+    )
+  },
 })

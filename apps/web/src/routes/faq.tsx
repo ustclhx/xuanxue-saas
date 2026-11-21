@@ -1,20 +1,46 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
 import { ContentHead, ContentPage, linkPhrases } from '../features/marketing/content-page.tsx'
 import { faqSections } from '../features/marketing/faq.ts'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { originFromMatches, pageHead, staticPage } from '../features/seo/metadata.ts'
+import { eastEnglishRouteData } from '../features/site/site.functions.ts'
 import { ToolFaq } from '../features/tools/faq.tsx'
 import { faqPageData } from '../features/tools/numerology/seo.ts'
 import { m } from '../paraglide/messages.js'
 import { getLocale, localizeHref } from '../paraglide/runtime.js'
+import { templateConfig } from '../server/template-config.ts'
 
 // 常见问题汇总页（product-improve-ai-content 4.7）：纯静态文案，构建期预渲染，不读数据库；
 // 页面与 FAQPage 结构化数据共用 faqSections，保证问答与可见内容一致。
+// 东方站英文问答中的链接（按需加载，不进入口包）
+const EastEnFaqAnswer = lazyRouteComponent(
+  () => import('../features/east-en/links.tsx'),
+  'EastEnText',
+)
+
+// 东方站根路径英文（openspec add-locales-eu-ja 5b）：同一地址按站点渲染，东方站英文的问答按需加载
+async function eastEnglish(root: Promise<{ readonly loaderData?: unknown }>) {
+  const data = await eastEnglishRouteData(root)
+  if (!data) return null
+  await EastEnFaqAnswer.preload?.()
+  return data.eastEnFaqPage()
+}
+
 export const Route = createFileRoute('/faq')({
-  head: ({ matches }) => {
+  loader: async ({ parentMatchPromise }) => ({ eastEn: await eastEnglish(parentMatchPromise) }),
+  head: ({ matches, loaderData }) => {
     const locale = getLocale()
-    return pageHead(staticPage('/faq', locale), originFromMatches(matches), [
-      faqPageData(faqSections(locale).flatMap((section) => section.items)),
+    const eastEn = loaderData?.eastEn ?? undefined
+    return pageHead(eastEn?.page ?? staticPage('/faq', locale), originFromMatches(matches), [
+      faqPageData(
+        (eastEn?.sections ?? faqSections(locale))
+          .flatMap((section) => section.items)
+          .map((item) => ({
+            question: item.question,
+            // 东方站英文问答的 `[锚文本](目标键)` 在结构化数据中只留锚文本
+            answer: item.answer.replace(/\[([^\]]+)\]\([a-z-]+\)/g, '$1'),
+          })),
+      ),
     ])
   },
   component: FaqPage,
@@ -42,6 +68,7 @@ function pageSections(locale: string) {
  */
 function FaqPage() {
   const locale = getLocale()
+  const eastEn = Route.useLoaderData()?.eastEn ?? undefined
   const phrases = [
     { phrase: m.marketing_footer_refund(), href: localizeHref('/refund', { locale }) },
     { phrase: m.marketing_footer_privacy(), href: localizeHref('/privacy', { locale }) },
@@ -51,18 +78,15 @@ function FaqPage() {
   return (
     <MarketingShell>
       <ContentPage>
-        <ContentHead title={m.marketing_faq_title()}>
+        <ContentHead title={eastEn?.h1 ?? m.marketing_faq_title()}>
           {/* 导语中的空行分段（新语言按本语言习惯组织，不必与源语言逐段对应） */}
-          {m
-            .marketing_faq_page_intro()
-            .split(/\n{2,}/)
-            .map((paragraph) => (
-              <p key={paragraph} className="m-0 text-body text-ink-muted">
-                {paragraph}
-              </p>
-            ))}
+          {(eastEn?.intro ?? m.marketing_faq_page_intro()).split(/\n{2,}/).map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body text-ink-muted">
+              {paragraph}
+            </p>
+          ))}
         </ContentHead>
-        {pageSections(locale).map((section) => (
+        {(eastEn?.sections ?? pageSections(locale)).map((section) => (
           <ToolFaq
             key={section.title}
             title={section.title}
@@ -71,6 +95,9 @@ function FaqPage() {
                 ({ phrase, href }) => !linked.has(href) && item.answer.includes(phrase),
               )
               for (const { href } of fresh) linked.add(href)
+              // 东方站英文的问答带 `[锚文本](目标键)` 链接（features/east-en/links.tsx）
+              if (eastEn && /\]\(/.test(item.answer))
+                return { question: item.question, answer: <EastEnFaqAnswer text={item.answer} /> }
               return { question: item.question, answer: linkPhrases(item.answer, fresh) }
             })}
           />

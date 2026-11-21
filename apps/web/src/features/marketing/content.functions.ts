@@ -1,11 +1,12 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
+import { getRequest } from '@tanstack/react-start/server'
 import { allDocs, allGuides, allLegalPages, allPosts } from 'content-collections'
 import { z } from 'zod'
 import { templateConfig } from '../../server/template-config.ts'
 import { contentParents } from '../seo/content-parents.ts'
 import { getPageLinks } from '../seo/pages.server.ts'
-import { siteOfLocale } from '../site/site.ts'
+import { resolveSite, siteHasLocale, siteOfLocale } from '../site/site.ts'
 import {
   findLegalPage,
   findLocalized,
@@ -101,8 +102,12 @@ export const getBlogPost = createServerFn({ method: 'GET' })
 export const getLegalPage = createServerFn({ method: 'GET' })
   .inputValidator(z.object({ locale, slug }))
   .handler(({ data }) => {
-    // 站点由语言决定（两站语言不重叠）；正文只取该站点的版本
-    const site = siteOfLocale(data.locale, templateConfig) ?? 'west'
+    // 站点由语言决定；同一语言在两站各有页面时（东方站根路径英文，5b）按请求所在站点
+    const host = resolveSite(new URL(getRequest().url).host, templateConfig)
+    const site =
+      host.known && siteHasLocale(host.id, data.locale, templateConfig)
+        ? host.id
+        : (siteOfLocale(data.locale, templateConfig) ?? 'west')
     const page = findLegalPage(allLegalPages, { ...data, site, defaultLocale, untranslated })
     if (!page) throw notFound()
     // 法律页在根路径（/privacy 等），由 legal-route.ts 输出 head；缺少本站该语言原文时回退页 noindex，

@@ -11,7 +11,8 @@ import {
 } from '../features/seo/metadata.ts'
 import { localeOrigin } from '../features/seo/origins.ts'
 import { organizationData, websiteData } from '../features/seo/structured-data.ts'
-import { legacyHashRedirectScript } from '../features/site/gate.ts'
+import { legacyHashRedirectScript } from '../features/site/legacy-hash.ts'
+import { eastEnglishRouteData } from '../features/site/site.functions.ts'
 import { siteOfLocale } from '../features/site/site.ts'
 import { mainToolHref } from '../features/tools/tool-href.ts'
 import { getLocale } from '../paraglide/runtime.js'
@@ -49,11 +50,23 @@ const NumberWheel = lazyRouteComponent(
 
 const isEastLocale = (locale: string) => siteOfLocale(locale, templateConfig) === 'east'
 
+// 东方站根路径英文落地页（openspec add-locales-eu-ja 5b）：东方站英文发布后 `/` 路由到这里
+// （发布前东方站 `/` 仍改写到英文入口页 `/en`，features/i18n/routing.ts）
+const EastEnLanding = lazyRouteComponent(
+  () => import('../features/east-en/landing.tsx'),
+  'EastEnLanding',
+)
+
 export const Route = createFileRoute('/')({
   beforeLoad: () => {
     if (!templateConfig.marketing.enabled) throw redirect({ to: '/app' })
   },
-  loader: async () => {
+  loader: async ({ parentMatchPromise: root }) => {
+    const eastEnglish = await eastEnglishRouteData(root)
+    if (eastEnglish) {
+      await Promise.all([EastEnLanding.preload?.(), StemWheel.preload?.()])
+      return { eastEn: eastEnglish.eastEnLandingHead() }
+    }
     await Promise.all([
       LandingPage.preload?.(),
       ...(isEastLocale(getLocale())
@@ -62,12 +75,19 @@ export const Route = createFileRoute('/')({
     ])
     return null
   },
-  head: ({ matches }) => {
+  head: ({ matches, loaderData }) => {
     if (!templateConfig.marketing.enabled) return {}
     const locale = getLocale()
     const origin = originFromMatches(matches)
-    // 两站首页同为品牌 head（openspec separate-landing-homepage design.md D3）：品牌标题、Organization 与 WebSite；
-    // 工具的 Title、FAQPage 等随工具迁到主工具页（routes/$slug.tsx、routes/life-path-number/index.tsx）
+    // 东方站英文落地页（5b）：head 由按需加载的 features/east-en/route-data.ts 生成，这里只补旧分享片段的跳转
+    if (loaderData?.eastEn)
+      return {
+        ...loaderData.eastEn,
+        scripts: [
+          { children: legacyHashRedirectScript(mainToolHref(locale, 'east')) },
+          ...loaderData.eastEn.scripts,
+        ],
+      }
     const brand = pageBrand({ locale })
     // 结构化数据用语言所属站点的 origin（与 pageHead 的 canonical 相同）；WebSite 的地址为本页 canonical
     const siteOrigin = localeOrigin(locale)
@@ -90,14 +110,19 @@ export const Route = createFileRoute('/')({
 
 function IndexPage() {
   const east = isEastLocale(getLocale())
+  const eastEnglish = Route.useLoaderData()?.eastEn !== undefined
   return (
     <MarketingShell>
       <Suspense>
-        {/* 插画填满 LandingHero 的固定尺寸插画位（手机 168px、桌面 320px），不引起布局位移 */}
-        <LandingPage
-          art={east ? <StemWheel className="size-full" /> : <NumberWheel className="size-full" />}
-          sampleChart={east ? <EastSampleChart /> : <WestSampleChart />}
-        />
+        {eastEnglish ? (
+          <EastEnLanding art={<StemWheel className="size-full" />} />
+        ) : (
+          // 插画填满 LandingHero 的固定尺寸插画位（手机 168px、桌面 320px），不引起布局位移
+          <LandingPage
+            art={east ? <StemWheel className="size-full" /> : <NumberWheel className="size-full" />}
+            sampleChart={east ? <EastSampleChart /> : <WestSampleChart />}
+          />
+        )}
       </Suspense>
       {/* 页面版本标记：对读屏以外不可见，核对部署版本时使用（tasks.md 4.1 要求保留） */}
       <p data-testid="version" className="sr-only">

@@ -18,7 +18,11 @@ type LegalPageData = Awaited<ReturnType<typeof getLegalPage>>
 export function LegalPage({ page }: { page: LegalPageData }) {
   const fallback = page.locale !== getLocale()
   // 联系邮箱按当前站点替换构建时留下的标记
-  const email = supportEmail(templateConfig, getLocale())
+  // 东方站根路径英文（5b）：en 的归属站点是西方站，按页面所属站点取联系邮箱
+  const email =
+    page.site === 'east' || page.site === 'west'
+      ? templateConfig.sites[page.site].supportEmail
+      : supportEmail(templateConfig, getLocale())
   const html = page.html.replaceAll(SUPPORT_EMAIL_TOKEN, email)
   return (
     <MarketingShell>

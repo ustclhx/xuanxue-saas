@@ -38,7 +38,7 @@ export type { EastLocale }
 const heading = 'font-heading'
 
 /** 「排盤時間：1990-05-15 10:30（台北，國曆）· 農曆四月廿一」及夏令时 / 真太阳时说明 */
-export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
+export function usedTimeText(chart: BaziChart, locale: EastLocale | 'en'): string {
   const { time, input } = chart
   const { year, month, day } = time.used
   const used = chart.hourKnown ? time.used : { year, month, day }
@@ -60,7 +60,10 @@ export function usedTimeText(chart: BaziChart, locale: EastLocale): string {
           ? `${time.lunar.isLeapMonth ? '윤' : ''}${time.lunar.month}월 ${time.lunar.day}일`
           : locale === 'ja'
             ? `${time.lunar.isLeapMonth ? '閏' : ''}${time.lunar.month}月${time.lunar.day}日`
-            : lunarDateZh(time.lunar),
+            : locale === 'en'
+              ? // 东方站英文（5b）：数字月日，不用中文月名
+                `${time.lunar.isLeapMonth ? 'leap ' : ''}month ${time.lunar.month}, day ${time.lunar.day}`
+              : lunarDateZh(time.lunar),
     }),
   ]
   if (time.dst && chart.hourKnown) parts.push(m.bazi_dst_note())
@@ -450,7 +453,15 @@ export function ShenshaChips({ chart }: { chart: BaziChart }) {
             )}
           >
             {SHENSHA_LABEL[s.key]()} · {branchesText(s.targets)}
-            {hit && <> · {m.bazi_shensha_in({ pillars: pillarList(s.pillars, '、') })}</>}
+            {hit && (
+              <>
+                {' '}
+                ·{' '}
+                {m.bazi_shensha_in({
+                  pillars: pillarList(s.pillars, m.chart_bazi_list_separator()),
+                })}
+              </>
+            )}
           </li>
         )
       })}

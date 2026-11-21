@@ -2,12 +2,18 @@ import type { AnyRouteMatch } from '@tanstack/react-router'
 import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { EAST_ENGLISH_STATIC_PATHS } from '../east-en/paths.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
-import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL, siteOfLocale } from '../site/site.ts'
+import {
+  EAST_ENGLISH_LOCALE,
+  EAST_ENGLISH_URL,
+  siteOfLocale,
+  siteServesLocale,
+} from '../site/site.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { homePageCopy } from './home-copy.ts'
 import { localeOrigin, seoSiteOrigin } from './origins.ts'
@@ -39,6 +45,11 @@ export interface SeoPage {
   priority?: 'money' | undefined
   /** 内容的真实语言；与 `locale` 不同表示缺少译文、以该语言内容回退显示的页面 */
   sourceLocale?: string | undefined
+  /**
+   * 项目扩展（openspec add-locales-eu-ja 5b，模板需求 TR-2）：页面所属站点。同一语言在两站各有页面时
+   * （东方站根路径英文）必须声明；省略时按语言的归属站点（siteOfLocale），既有页面不受影响。
+   */
+  site?: SiteId | undefined
   /**
    * 各语言版本的地址（语言 → 不带语言前缀的 path），用于各语言路径不同的页面（本地化 slug，
    * openspec multilingual-seo 决策 4）。声明后 hreflang 与语言切换器只用这些地址（自身总在其中）；
@@ -84,6 +95,11 @@ export function fallbackSourceLocale(
     : undefined
 }
 
+/** 页面所属站点：声明的 `site`，否则为语言的归属站点 */
+export function pageSite(page: Pick<SeoPage, 'locale' | 'site'>): SiteId {
+  return page.site ?? siteOfLocale(page.locale, templateConfig) ?? 'west'
+}
+
 /** 缺少译文、以同站点其他语言内容回退显示的页面：canonical 指向原语言，不进站点地图 */
 export function isFallbackPage(page: Pick<SeoPage, 'locale' | 'sourceLocale'>): boolean {
   return fallbackSourceLocale(page) !== undefined
@@ -123,12 +139,15 @@ export function alternateLinks(
   languages: readonly string[] = locales,
   translations?: Readonly<Partial<Record<string, string>>>,
   locale = languages[0] ?? defaultLocale,
+  /** 页面所属站点（项目扩展 TR-2）；省略时为语言的归属站点 */
+  pageSiteId?: SiteId,
 ) {
-  const site = siteOfLocale(locale, templateConfig) ?? 'west'
+  const site = pageSiteId ?? siteOfLocale(locale, templateConfig) ?? 'west'
+  // 按站点的语言列表判断（同一语言可在两站各有页面）；未发布语言只保留页面自身
   const sameSite = (language: string) =>
-    siteOfLocale(language, templateConfig) === site &&
+    templateConfig.sites[site].locales.some((l) => l === language) &&
     (language === locale || isLocaleReleased(language, templateConfig, site))
-  const tool = TOOL_ROUTES.find((route) => route.paths[locale] === path)
+  const tool = TOOL_ROUTES.find((route) => route.site === site && route.paths[locale] === path)
   // 同一路径在其他语言下是另一个工具（如西方站首页 / 为 Life Path 计算器）时内容不同，不互指
   const paths =
     translations ??
@@ -136,21 +155,34 @@ export function alternateLinks(
     Object.fromEntries(
       languages
         .filter((l) => l === locale || !TOOL_ROUTES.some((route) => route.paths[l] === path))
+        // 另一站点的同语言（东方站根路径英文）只有共用地址的静态页与法律页，没有通讯、博客等页面
+        .filter(
+          (l) =>
+            l === locale ||
+            siteOfLocale(l, templateConfig) === site ||
+            path === '/' ||
+            EAST_ENGLISH_STATIC_PATHS.some((p) => p === path),
+        )
         .map((l) => [l, path]),
     )
+  const origin = seoSiteOrigin(site)
   const links = Object.entries(paths).flatMap(([language, translatedPath]) =>
     translatedPath && locales.some((locale) => locale === language) && sameSite(language)
       ? [
           {
             rel: 'alternate',
             hrefLang: language,
-            href: absoluteUrl(localeOrigin(language), localizedPath(translatedPath, language)),
+            href: absoluteUrl(origin, localizedPath(translatedPath, language)),
           },
         ]
       : [],
   )
-  const origin = seoSiteOrigin(site)
-  if (site === 'east' && path === '/' && enabled)
+  if (
+    site === 'east' &&
+    path === '/' &&
+    enabled &&
+    !links.some((link) => link.hrefLang === EAST_ENGLISH_LOCALE)
+  )
     links.push({
       rel: 'alternate',
       hrefLang: EAST_ENGLISH_LOCALE,
@@ -347,8 +379,10 @@ export function originFromMatches(
 }
 
 /** 页面所属站点在该语言下的品牌名 */
-export function pageBrand(page: Pick<SeoPage, 'locale'>): string {
-  return brandName(templateConfig, page.locale)
+export function pageBrand(page: Pick<SeoPage, 'locale' | 'site'>): string {
+  return page.site
+    ? siteBrandName(templateConfig, page.site, page.locale)
+    : brandName(templateConfig, page.locale)
 }
 
 // 中文标题用全角竖线、两侧不加空格；其余语言用半角竖线加空格
@@ -368,17 +402,28 @@ const TITLE_SEPARATORS: Readonly<Partial<Record<string, string>>> = {
  */
 export function titleWithSite(title: string, locale: string, site?: SiteId): string {
   const own: readonly string[] = site ? templateConfig.sites[site].locales : []
-  const language = site && !own.includes(locale) ? (own[0] ?? locale) : locale
+  // 另一站点的同语言（东方站 en）只在该站点已发布时算本站语言（site.ts siteServesLocale）
+  const language =
+    site && !siteServesLocale(site, locale, templateConfig) ? (own[0] ?? locale) : locale
   const brand = site
     ? siteBrandName(templateConfig, site, language)
     : brandName(templateConfig, language)
+  return joinTitle(title, language, brand)
+}
+
+function joinTitle(title: string, language: string, brand: string): string {
   if (title.includes(brand)) return title
   return `${title}${TITLE_SEPARATORS[language] ?? ' | '}${brand}`
 }
 
-export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale'>): string {
+export function ogImagePath(page: Pick<SeoPage, 'path' | 'locale' | 'site'>): string {
   const path = page.path.replace(/\/+$/, '') || '/'
-  return `/og${localePrefix(page.locale)}${path === '/' ? '/index' : path}.png`
+  // 东方站根路径英文页面（5b）的分享图放在 `/og/en/…`，不与西方站同路径页面的分享图冲突
+  const prefix =
+    page.site && page.site !== siteOfLocale(page.locale, templateConfig)
+      ? `/${page.locale.toLowerCase()}`
+      : localePrefix(page.locale)
+  return `/og${prefix}${path === '/' ? '/index' : path}.png`
 }
 
 /**
@@ -394,11 +439,17 @@ export function pageHead(
   structuredData: readonly unknown[] = [],
   languages: readonly string[] = locales,
 ) {
-  appUrl = localeOrigin(page.locale)
+  appUrl = localeOrigin(page.locale, page.site)
   const source = fallbackSourceLocale(page) ?? page.locale
-  const url = absoluteUrl(localeOrigin(source), localizedPath(page.path, source))
+  const url = absoluteUrl(
+    localeOrigin(source, source === page.locale ? page.site : undefined),
+    localizedPath(page.path, source),
+  )
   const brand = pageBrand(page)
-  const title = titleWithSite(page.title, page.locale)
+  // 声明了站点的页面（东方站根路径英文）用页面自己的语言与站点品牌，不经应用区的语言回退
+  const title = page.site
+    ? joinTitle(page.title, page.locale, siteBrandName(templateConfig, page.site, page.locale))
+    : titleWithSite(page.title, page.locale)
   const image = page.cover
     ? absoluteUrl(appUrl, page.cover)
     : absoluteUrl(appUrl, ogImagePath(page))
@@ -422,7 +473,7 @@ export function pageHead(
     ],
     links: [
       { rel: 'canonical', href: url },
-      ...alternateLinks(appUrl, page.path, languages, pageAlternates(page), page.locale),
+      ...alternateLinks(appUrl, page.path, languages, pageAlternates(page), page.locale, page.site),
     ],
     scripts: structuredData.map((data) => ({
       type: 'application/ld+json',

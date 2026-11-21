@@ -2,7 +2,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { checkLocaleContent, japaneseTextIssue } from './check-locale-content.mjs'
+import {
+  checkEastEnglishContent,
+  checkLocaleContent,
+  japaneseTextIssue,
+} from './check-locale-content.mjs'
 
 const sites = {
   east: { locales: ['zh-Hant', 'zh-Hans', 'ko', 'ja'] },
@@ -91,5 +95,26 @@ describe('日文正文检测', () => {
         '[太陽のカード](/ja/タロット/カード/the-sun)は<strong>成功</strong>を表します。',
       ),
     ).toBeNull()
+  })
+})
+
+describe('东方站根路径英文内容完整性（5b）', () => {
+  const withEn = { ...sites, east: { locales: [...sites.east.locales, 'en'] } }
+
+  it('东方站没有 en 时不检查', () => {
+    expect(checkEastEnglishContent({ root, sites })).toEqual([])
+  })
+
+  it('as feelings 牌页与东方站英文法律页缺条目时失败，齐全时通过', () => {
+    write('tarot-feelings/en/the-sun.mdx', 'en')
+    write('legal/east/en/privacy.mdx', 'en')
+    const problems = checkEastEnglishContent({ root, sites: withEn })
+    expect(problems).toEqual([
+      `east/en: 缺少 tarot-feelings 条目 the-moon（${join(root, 'content/tarot-feelings/en')}）`,
+      `east/en: 缺少 legal 条目 terms（${join(root, 'content/legal/east/en')}）`,
+    ])
+    write('tarot-feelings/en/the-moon.mdx', 'en')
+    write('legal/east/en/terms.mdx', 'en')
+    expect(checkEastEnglishContent({ root, sites: withEn })).toEqual([])
   })
 })

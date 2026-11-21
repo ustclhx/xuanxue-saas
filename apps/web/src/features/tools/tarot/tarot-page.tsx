@@ -13,10 +13,12 @@ import {
   yesNoAnswer,
 } from '@xuanxue/tarot'
 import { cn } from '@xuanxue/ui'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
+import type { SpreadCopy } from '../../east-en/copy/types.ts'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { Breadcrumb } from '../breadcrumb.tsx'
+import type { FaqItem } from '../faq.tsx'
 import { CheckboxField, SubmitButton, TextField, ToolForm } from '../form.tsx'
 import { InlineLinks } from '../inline-links.tsx'
 import { ReadingGuide } from '../reading-guide.tsx'
@@ -29,7 +31,7 @@ import { ToolPage } from '../tool-page.tsx'
 import { prefetchCards } from './card.tsx'
 import { answerLabel, orientationLabel, SPREAD_COPY } from './copy.ts'
 import { tarotIndexPath, tarotMeaningPath } from './meaning-routes.ts'
-import { TAROT_SPREADS, type TarotLocale, tarotPath, tarotTitle } from './routes.ts'
+import { TAROT_SPREADS, type TarotLocale, tarotNavTitle, tarotPath } from './routes.ts'
 import { CutSpread, DeckStack, SpreadTable, type Stage, useShuffleFrames } from './table.tsx'
 
 const CARD_BY_ID = new Map(CARDS.map((card) => [card.id, card]))
@@ -64,8 +66,21 @@ export function sharedReading(hash: string, spread: SpreadId): Reading | 'invali
  * 牌桌（洗牌 → 铺牌切牌 → 翻牌）→ 结果与分享 → 牌位说明、不能问的问题、其他牌阵（一段话 3 条链接）→ FAQ。
  * 洗牌与抽牌只在浏览器中进行（加密随机数），分享链接 `#r=` 只含牌阵、牌与正逆位，不含问题。
  */
-export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: TarotLocale }) {
+export function TarotSpreadPage({
+  spread,
+  locale,
+  eastEn,
+}: {
+  spread: SpreadId
+  locale: TarotLocale
+  /**
+   * 东方站根路径英文（openspec add-locales-eu-ja 5b）：正文、示例问题、牌位说明与 FAQ 取东方站英文文案，
+   * 链接指向东方站英文页面（`/tarot-spreads/…`、as feelings 牌页）。省略时为原有页面
+   */
+  eastEn?: EastEnSpread
+}) {
   const copy = SPREAD_COPY[spread]
+  const site = eastEn ? ('east' as const) : undefined
   const positions = spreadPositions(spread, locale)
   const [question, setQuestion] = useState('')
   const [reversals, setReversals] = useState(true)
@@ -152,20 +167,28 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
       breadcrumb={
         <Breadcrumb
           items={[
-            { name: m.marketing_nav_home(), href: toolHref('/', locale) },
-            { name: tarotTitle(spread, locale) },
+            { name: eastEn ? 'Home' : m.marketing_nav_home(), href: toolHref('/', locale) },
+            { name: tarotNavTitle(spread, locale, site) },
           ]}
         />
       }
-      title={copy.h1()}
+      title={eastEn ? eastEn.copy.h1 : copy.h1()}
       intro={
-        <p className="m-0">
-          {copy.intro()}{' '}
-          <InlineLinks
-            text={m.tarot_meanings_note()}
-            links={[{ href: toolHref(tarotIndexPath(locale), locale), target: 'tarot-card-index' }]}
-          />
-        </p>
+        eastEn ? (
+          <p className="m-0">
+            {eastEn.copy.intro} {eastEn.text(eastEn.copy.feelingsNote)}
+          </p>
+        ) : (
+          <p className="m-0">
+            {copy.intro()}{' '}
+            <InlineLinks
+              text={m.tarot_meanings_note()}
+              links={[
+                { href: toolHref(tarotIndexPath(locale), locale), target: 'tarot-card-index' },
+              ]}
+            />
+          </p>
+        )
       }
       form={
         <>
@@ -179,7 +202,10 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
               maxLength={200}
               onChange={(event) => setQuestion(event.currentTarget.value)}
             />
-            <QuestionTemplates templates={copy.templates.map((t) => t())} onPick={setQuestion} />
+            <QuestionTemplates
+              templates={eastEn ? eastEn.copy.templates : copy.templates.map((t) => t())}
+              onPick={setQuestion}
+            />
             <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
               <CheckboxField
                 label={m.tarot_reversals_label()}
@@ -261,51 +287,60 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
       }
       result={
         complete && reading ? (
-          <TarotResult reading={reading} locale={locale} question={question} />
+          <TarotResult
+            reading={reading}
+            locale={locale}
+            question={question}
+            {...(eastEn ? { cardLink: eastEn.cardLink } : {})}
+          />
         ) : null
       }
       article={
-        <article className="flex max-w-180 flex-col gap-5 text-body text-ink-muted">
-          <h2 id="tarot-positions" className={articleHeading}>
-            {m.tarot_positions_title()}
-          </h2>
-          <ol className="m-0 flex list-decimal flex-col gap-2 pl-6">
-            {positions.map((position) => (
-              <li key={position.name}>
-                <strong className="font-medium text-ink">{position.name}</strong> —{' '}
-                {position.meaning}
-              </li>
-            ))}
-          </ol>
-          <h2 id="tarot-not-ask" className={articleHeading}>
-            {m.tarot_not_ask_title()}
-          </h2>
-          <p className="m-0">{m.tarot_not_ask_intro()}</p>
-          <ul className="m-0 flex list-disc flex-col gap-2 pl-6">
-            <li>{m.tarot_not_ask_1()}</li>
-            <li>{m.tarot_not_ask_2()}</li>
-            <li>{m.tarot_not_ask_3()}</li>
-          </ul>
-          {/* 牌阵互导：一段话里的 3 条链接，取代页尾的链接矩阵（Proposals79 C 表） */}
-          <h2 id="tarot-more" className={articleHeading}>
-            {m.tarot_matrix_title()}
-          </h2>
-          <p className="m-0">
-            {others.map((item, index) => (
-              <Fragment key={item}>
-                {index > 0 && ' '}
-                <InlineLinks
-                  text={MORE_SPREADS[item]()}
-                  links={[
-                    { href: toolHref(tarotPath(item, locale), locale), target: `tarot-${item}` },
-                  ]}
-                />
-              </Fragment>
-            ))}
-          </p>
-        </article>
+        eastEn ? (
+          <EastEnSpreadArticle spread={spread} positions={positions} eastEn={eastEn} />
+        ) : (
+          <article className="flex max-w-180 flex-col gap-5 text-body text-ink-muted">
+            <h2 id="tarot-positions" className={articleHeading}>
+              {m.tarot_positions_title()}
+            </h2>
+            <ol className="m-0 flex list-decimal flex-col gap-2 pl-6">
+              {positions.map((position) => (
+                <li key={position.name}>
+                  <strong className="font-medium text-ink">{position.name}</strong> —{' '}
+                  {position.meaning}
+                </li>
+              ))}
+            </ol>
+            <h2 id="tarot-not-ask" className={articleHeading}>
+              {m.tarot_not_ask_title()}
+            </h2>
+            <p className="m-0">{m.tarot_not_ask_intro()}</p>
+            <ul className="m-0 flex list-disc flex-col gap-2 pl-6">
+              <li>{m.tarot_not_ask_1()}</li>
+              <li>{m.tarot_not_ask_2()}</li>
+              <li>{m.tarot_not_ask_3()}</li>
+            </ul>
+            {/* 牌阵互导：一段话里的 3 条链接，取代页尾的链接矩阵（Proposals79 C 表） */}
+            <h2 id="tarot-more" className={articleHeading}>
+              {m.tarot_matrix_title()}
+            </h2>
+            <p className="m-0">
+              {others.map((item, index) => (
+                <Fragment key={item}>
+                  {index > 0 && ' '}
+                  <InlineLinks
+                    text={MORE_SPREADS[item]()}
+                    links={[
+                      { href: toolHref(tarotPath(item, locale), locale), target: `tarot-${item}` },
+                    ]}
+                  />
+                </Fragment>
+              ))}
+            </p>
+          </article>
+        )
       }
-      faq={copy.faq.map(([q, a]) => ({ question: q(), answer: a() }))}
+      faq={eastEn ? eastEn.faq : copy.faq.map(([q, a]) => ({ question: q(), answer: a() }))}
     >
       <ReadingSlots
         tool={`tarot-${spread}`}
@@ -318,7 +353,8 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
             : null
         }
       >
-        {(spread === 'three-card' || spread === 'celtic-cross') && (
+        {/* 东方站英文暂不提供塔罗详批（5b 只做八字、紫微） */}
+        {!eastEn && (spread === 'three-card' || spread === 'celtic-cross') && (
           <ReadingUnlock
             kind="tarot-spread"
             request={
@@ -334,7 +370,7 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
             }
           />
         )}
-        {(spread === 'daily' || spread === 'yes-or-no') && complete && reading && (
+        {!eastEn && (spread === 'daily' || spread === 'yes-or-no') && complete && reading && (
           <ReadingGuide
             kind="tarot-spread"
             body={m.funnel_guide_tarot()}
@@ -347,6 +383,68 @@ export function TarotSpreadPage({ spread, locale }: { spread: SpreadId; locale: 
         )}
       </ReadingSlots>
     </ToolPage>
+  )
+}
+
+/** 东方站英文牌阵页的数据（由 features/east-en 的路由组件传入，文案不进其他页面的包） */
+export interface EastEnSpread {
+  readonly copy: SpreadCopy
+  /** 结果中牌页链接的文字，`{name}` 为牌名 */
+  readonly cardLink: string
+  /** 带 `[锚文本](目标键)` 的段落渲染 */
+  readonly text: (text: string) => ReactNode
+  readonly faq: readonly FaqItem[]
+}
+
+/** 东方站英文牌阵页的说明：牌位说明（牌位名同抽牌区）、本页独有的段落与其他牌阵（各一句、带链接） */
+function EastEnSpreadArticle({
+  spread,
+  positions,
+  eastEn,
+}: {
+  spread: SpreadId
+  positions: readonly { name: string }[]
+  eastEn: EastEnSpread
+}) {
+  const { copy } = eastEn
+  return (
+    <article className="flex max-w-180 flex-col gap-5 text-body text-ink-muted">
+      <h2 id="tarot-positions" className={articleHeading}>
+        {copy.positionsTitle}
+      </h2>
+      <ol className="m-0 flex list-decimal flex-col gap-2 pl-6">
+        {positions.map((position, index) => (
+          <li key={position.name}>
+            <strong className="font-medium text-ink">{position.name}</strong> —{' '}
+            {copy.positions[index]}
+          </li>
+        ))}
+      </ol>
+      {copy.sections.map((section) => (
+        <Fragment key={section.heading}>
+          <h2 className={articleHeading}>{section.heading}</h2>
+          {section.paragraphs.map((paragraph) => (
+            <p key={paragraph} className="m-0">
+              {eastEn.text(paragraph)}
+            </p>
+          ))}
+        </Fragment>
+      ))}
+      <h2 id="tarot-more" className={articleHeading}>
+        {copy.moreTitle}
+      </h2>
+      <p className="m-0">
+        {TAROT_SPREADS.filter((item) => item !== spread).map((item, index) => {
+          const sentence = copy.more[item]
+          return sentence ? (
+            <Fragment key={item}>
+              {index > 0 && ' '}
+              {eastEn.text(sentence)}
+            </Fragment>
+          ) : null
+        })}
+      </p>
+    </article>
   )
 }
 
@@ -432,10 +530,13 @@ function TarotResult({
   reading,
   locale,
   question,
+  cardLink,
 }: {
   reading: Reading
   locale: TarotLocale
   question: string
+  /** 东方站英文：牌页链接文字（`{name}` 为牌名），链接指向 as feelings 牌页 */
+  cardLink?: string
 }) {
   const positions = spreadPositions(reading.spread, locale)
   const first = reading.cards[0]
@@ -493,13 +594,18 @@ function TarotResult({
                 {card.reversed ? meaning.reversed : meaning.upright}
               </p>
               <a
-                href={toolHref(tarotMeaningPath(cardData.slug, locale), locale)}
+                href={toolHref(
+                  tarotMeaningPath(cardData.slug, locale, cardLink ? 'east' : undefined),
+                  locale,
+                )}
                 // 牌义在新标签页打开，抽牌页保留本次结果，切回即可继续翻看其它牌
                 target="_blank"
                 rel="noopener"
                 className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
               >
-                {m.tarot_meaning_link({ name: meaning.name })}
+                {cardLink
+                  ? cardLink.replace('{name}', meaning.name)
+                  : m.tarot_meaning_link({ name: meaning.name })}
               </a>
             </div>
           )

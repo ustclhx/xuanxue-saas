@@ -1,5 +1,6 @@
-import type { SiteId } from '@xuanxue/config'
+import { SITE_IDS, type SiteId } from '@xuanxue/config'
 import { templateConfig } from '../../server/template-config.ts'
+import { eastEnglishStaticPage, isEastEnglishStaticPath } from '../east-en/static-seo.ts'
 import {
   listPosts,
   listTags,
@@ -44,7 +45,7 @@ interface Guide extends Linking {
 }
 
 interface LegalPage extends Page {
-  /** 法律页按站点分开（content/legal/<site>/<locale>/） */
+  /** 法律页按站点分开（content/legal/<site>/<locale>/）；取值为站点 id */
   site?: string
 }
 
@@ -88,111 +89,56 @@ export function publicPages(
 ): SeoPage[] {
   if (!config.marketing.enabled) return []
   const locales = config.i18n.enabled ? config.i18n.locales : [config.i18n.defaultLocale]
-  const result = locales
-    .filter((locale) => !site || config.sites[site].locales.some((l) => l === locale))
-    .flatMap((locale) => {
-      const { defaultLocale, untranslated } = config.i18n
-      const paths: StaticPath[] = [
-        '/',
-        ...(config.billing.enabled ? ['/pricing' as const] : []),
-        '/faq',
-      ]
-      const pages = paths.map((path) => staticPage(path, locale))
-      if (config.features.newsletter) pages.push(staticPage('/newsletter', locale))
-      if (config.features.waitlist) pages.push(staticPage('/waitlist', locale))
-      const published = content.posts.filter((post) => !post.draft)
-      // 该语言自己没有已发布文章时，博客列表不进站点地图（specs/marketing-site「博客为空时隐藏入口」）
-      if (config.features.blog && publishedPostLocales(published, now).includes(locale)) {
-        const blog = staticPage('/blog', locale)
-        pages.push(blog)
-        const posts = listPosts(published, { locale, defaultLocale, now, untranslated })
-        // 文章层级与主词（模板 0.7.3）：缺少译文的文章按 i18n.untranslated 处理（模板 0.8.0 默认 'hide' 不生成条目；
-        // 'fallback' 下以默认语言原文显示的回退页不进站点地图）
-        pages.push(
-          ...posts.map((post) => ({
-            ...contentPage(
-              post,
-              locale,
-              `/blog/${encodeURIComponent(post.slug)}`,
-              contentParents.posts,
-            ),
-            description: post.summary,
-            date: post.date,
-            cover: post.cover,
-          })),
-        )
-        // 博客列表的第 2 页起（/blog/page/<n>）是项目自己的分页：noindex, follow，不登记进清单与站点地图
-        // （模板 0.7.3 的 hubPages() 分页进站点地图，本项目不采用）；标签页一页列出全部文章
-        pages.push(
-          ...listTags(posts).map((tag) => ({
-            path: `/blog/tags/${encodeURIComponent(tag)}`,
-            locale,
-            title: tagPageTitle(tag, locale),
-            titleMain: tagPageTitle(tag, locale),
-            anchorShort: tag,
-            parent: '/blog',
-            description: `${blog.description} · ${tag}`,
-          })),
-        )
-      }
+  // 「站点 × 语言」（项目扩展 TR-2，5b 东方站根路径英文）：每种语言先按归属站点生成（顺序与输出不变），
+  // 同一语言在其他站点的页面（东方站 en）排在最后并带 `site`
+  const owner = (locale: string) => siteOfLocale(locale, config) ?? 'west'
+  const pairs: (readonly [SiteId, string])[] = [
+    ...locales.map((locale) => [owner(locale), locale] as const),
+    ...SITE_IDS.flatMap((id) =>
+      config.sites[id].locales
+        .filter((locale) => locales.some((l) => l === locale) && owner(locale) !== id)
+        .map((locale) => [id, locale] as const),
+    ),
+  ].filter(
+    ([id, locale]) => config.sites[id].locales.some((l) => l === locale) && (!site || site === id),
+  )
+  const result = pairs.flatMap(([pairSite, locale]) => {
+    const secondary = pairSite !== owner(locale)
+    const { defaultLocale, untranslated } = config.i18n
+    const paths: StaticPath[] = [
+      '/',
+      ...(config.billing.enabled ? ['/pricing' as const] : []),
+      '/faq',
+    ]
+    // 另一站点的同语言静态页（东方站根路径英文）用本站文案（features/east-en/static-seo.ts）
+    const pages = secondary
+      ? paths.filter(isEastEnglishStaticPath).map((path) => eastEnglishStaticPage(path))
+      : paths.map((path) => staticPage(path, locale))
+    if (secondary) {
+      // 另一站点的同语言页面（东方站根路径英文）：只有静态页、法律页与注册表 / 内容集合中登记在本站的页面，
+      // 没有博客、指南与文档
       pages.push(
-        // 只收录语言所属站点有原文的法律页；回退显示其他语言原文的页面 noindex，不进站点地图
         ...content.legal
-          .filter(
-            (page) =>
-              page.locale === locale && (!page.site || page.site === siteOfLocale(locale, config)),
-          )
+          .filter((page) => page.locale === locale && page.site === pairSite)
           .map((page) => ({
             ...page,
             locale,
+            site: pairSite,
             path: `/${encodeURIComponent(page.slug)}`,
             titleMain: page.title,
             parent: page.parent ?? contentParents.legal,
           })),
       )
-      if (config.features.guides) {
-        pages.push(staticPage('/guides', locale))
-        pages.push(
-          ...localizedEntries(
-            (content.guides ?? []).filter((guide) => !guide.draft),
-            locale,
-            defaultLocale,
-            untranslated,
-          ).map((guide) => ({
-            ...contentPage(
-              guide,
-              locale,
-              `/guides/${encodeURIComponent(guide.slug)}`,
-              contentParents.guides,
-            ),
-            description: guide.answer_summary,
-          })),
-        )
-      }
-      if (config.features.docs) {
-        pages.push(staticPage('/docs', locale))
-        pages.push(
-          ...localizedEntries(content.docs, locale, defaultLocale, untranslated).map((page) => ({
-            ...contentPage(
-              page,
-              locale,
-              `/docs/${encodeURIComponent(page.slug)}`,
-              contentParents.docs,
-            ),
-            description: page.description,
-          })),
-        )
-      }
       for (const tool of tools) {
         const path = tool.paths[locale]
         const title = tool.titles[locale]
-        if (!path || !title || !config.sites[tool.site].locales.some((l) => l === locale)) continue
-        const page = {
+        if (!path || !title || tool.site !== pairSite) continue
+        const page: SeoPage = {
           path,
           locale,
+          site: pairSite,
           title,
           description: tool.descriptions?.[locale] ?? title,
-          // SeoPage.alternates（模板 0.8.0 本地化 slug）只收已声明的语言
           alternates: Object.fromEntries(
             Object.entries(tool.paths).filter(
               (entry): entry is [string, string] => entry[1] !== undefined,
@@ -204,15 +150,128 @@ export function publicPages(
         else pages[existing] = page
       }
       for (const page of content.toolPages ?? []) {
-        if (page.locale !== locale) continue
+        if (page.locale !== locale || page.site !== pairSite) continue
         const existing = pages.findIndex((entry) => entry.path === page.path)
         if (existing === -1) pages.push(page)
         else pages[existing] = page
       }
-      // 项目自有页面（pages.project.ts）与模板清单合并，再补上项目页面的层级与主词
-      pages.push(...projectPages({ locale, defaultLocale, now, config }))
       return pages.map((page) => projectPageLinking(page))
-    })
+    }
+    if (config.features.newsletter) pages.push(staticPage('/newsletter', locale))
+    if (config.features.waitlist) pages.push(staticPage('/waitlist', locale))
+    const published = content.posts.filter((post) => !post.draft)
+    // 该语言自己没有已发布文章时，博客列表不进站点地图（specs/marketing-site「博客为空时隐藏入口」）
+    if (config.features.blog && publishedPostLocales(published, now).includes(locale)) {
+      const blog = staticPage('/blog', locale)
+      pages.push(blog)
+      const posts = listPosts(published, { locale, defaultLocale, now, untranslated })
+      // 文章层级与主词（模板 0.7.3）：缺少译文的文章按 i18n.untranslated 处理（模板 0.8.0 默认 'hide' 不生成条目；
+      // 'fallback' 下以默认语言原文显示的回退页不进站点地图）
+      pages.push(
+        ...posts.map((post) => ({
+          ...contentPage(
+            post,
+            locale,
+            `/blog/${encodeURIComponent(post.slug)}`,
+            contentParents.posts,
+          ),
+          description: post.summary,
+          date: post.date,
+          cover: post.cover,
+        })),
+      )
+      // 博客列表的第 2 页起（/blog/page/<n>）是项目自己的分页：noindex, follow，不登记进清单与站点地图
+      // （模板 0.7.3 的 hubPages() 分页进站点地图，本项目不采用）；标签页一页列出全部文章
+      pages.push(
+        ...listTags(posts).map((tag) => ({
+          path: `/blog/tags/${encodeURIComponent(tag)}`,
+          locale,
+          title: tagPageTitle(tag, locale),
+          titleMain: tagPageTitle(tag, locale),
+          anchorShort: tag,
+          parent: '/blog',
+          description: `${blog.description} · ${tag}`,
+        })),
+      )
+    }
+    pages.push(
+      // 只收录语言所属站点有原文的法律页；回退显示其他语言原文的页面 noindex，不进站点地图
+      ...(content.legal as readonly (LegalPage & { site?: SiteId })[])
+        .filter(
+          (page) =>
+            page.locale === locale && (!page.site || page.site === siteOfLocale(locale, config)),
+        )
+        .map((page) => ({
+          ...page,
+          locale,
+          path: `/${encodeURIComponent(page.slug)}`,
+          titleMain: page.title,
+          parent: page.parent ?? contentParents.legal,
+        })),
+    )
+    if (config.features.guides) {
+      pages.push(staticPage('/guides', locale))
+      pages.push(
+        ...localizedEntries(
+          (content.guides ?? []).filter((guide) => !guide.draft),
+          locale,
+          defaultLocale,
+          untranslated,
+        ).map((guide) => ({
+          ...contentPage(
+            guide,
+            locale,
+            `/guides/${encodeURIComponent(guide.slug)}`,
+            contentParents.guides,
+          ),
+          description: guide.answer_summary,
+        })),
+      )
+    }
+    if (config.features.docs) {
+      pages.push(staticPage('/docs', locale))
+      pages.push(
+        ...localizedEntries(content.docs, locale, defaultLocale, untranslated).map((page) => ({
+          ...contentPage(
+            page,
+            locale,
+            `/docs/${encodeURIComponent(page.slug)}`,
+            contentParents.docs,
+          ),
+          description: page.description,
+        })),
+      )
+    }
+    for (const tool of tools) {
+      const path = tool.paths[locale]
+      const title = tool.titles[locale]
+      if (!path || !title || tool.site !== pairSite) continue
+      const page = {
+        path,
+        locale,
+        title,
+        description: tool.descriptions?.[locale] ?? title,
+        // SeoPage.alternates（模板 0.8.0 本地化 slug）只收已声明的语言
+        alternates: Object.fromEntries(
+          Object.entries(tool.paths).filter(
+            (entry): entry is [string, string] => entry[1] !== undefined,
+          ),
+        ),
+      }
+      const existing = pages.findIndex((entry) => entry.path === path)
+      if (existing === -1) pages.push(page)
+      else pages[existing] = page
+    }
+    for (const page of content.toolPages ?? []) {
+      if (page.locale !== locale || (page.site !== undefined && page.site !== pairSite)) continue
+      const existing = pages.findIndex((entry) => entry.path === page.path)
+      if (existing === -1) pages.push(page)
+      else pages[existing] = page
+    }
+    // 项目自有页面（pages.project.ts）与模板清单合并，再补上项目页面的层级与主词
+    pages.push(...projectPages({ locale, defaultLocale, now, config }))
+    return pages.map((page) => projectPageLinking(page))
+  })
   return result
 }
 

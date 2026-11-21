@@ -49,6 +49,9 @@ const REGISTERED: Record<string, OgSampleChart> = {
   // 西班牙语（add-locales-eu-ja 第 5 组）沿用同一工具 id 的样例图形
   'es /numero-de-vida': 'life-path',
   'es /carta-numerologica': 'digit-grid',
+  // 东方站根路径英文（5b）的八字与紫微页沿用同一样例版式
+  'en /bazi-calculator': 'pillars',
+  'en /zi-wei-dou-shu': 'ziwei',
 }
 
 const ogImage = (head: ReturnType<typeof pageHead>) =>
