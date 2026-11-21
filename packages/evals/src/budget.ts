@@ -1,4 +1,9 @@
-import { DEFAULT_TOKENS_PER_CHAR, estimateInputTokens } from '@xuanxue/ai'
+import {
+  AI_PROVIDER_NOT_CONFIGURED,
+  DEFAULT_TOKENS_PER_CHAR,
+  estimateInputTokens,
+} from '@xuanxue/ai'
+import { APICallError } from 'ai'
 import { EvalConfigError } from './errors.ts'
 import type { ModelSpec } from './suite.ts'
 
@@ -61,6 +66,20 @@ export function settledUsd(price: Price, estimate: CallEstimate, usage: Usage | 
   )
 }
 
+/**
+ * 失败调用是否确定未计费：出口未配置（请求未发出），或服务商已以 HTTP 错误状态拒绝（4xx / 5xx 不产生用量）。
+ * 网络中断、超时等无法确认服务商是否已生成的失败返回 false，仍按预留额记账（宁高勿低）。
+ */
+export function failureNotBilled(error: unknown): boolean {
+  if ((error as { code?: unknown } | null)?.code === AI_PROVIDER_NOT_CONFIGURED) return true
+  return APICallError.isInstance(error) && error.statusCode !== undefined
+}
+
+/** 失败调用的记账金额：确定未计费为 0，否则为预留额 */
+export function failedCallUsd(error: unknown, reservation: Reservation): number {
+  return failureNotBilled(error) ? 0 : reservation.usd
+}
+
 export interface Reservation {
   readonly usd: number
 }
@@ -90,7 +109,7 @@ export class BudgetLedger {
   }
 
   /**
-   * 调用结束后结算：释放预留并记入实际费用（调用失败时按预留额记账，宁高勿低）。
+   * 调用结束后结算：释放预留并记入实际费用（失败调用由调用方按 failedCallUsd 传入：确定未计费记 0，否则按预留额）。
    * 实际费用超过预留（估算偏低）或已花费达到上限时，账本标记为触顶，之后不再发出新调用；
    * 因此总超支不超过「已在途调用」的估算误差之和。
    */

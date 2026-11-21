@@ -22,6 +22,7 @@ import {
   BudgetLedger,
   type CallEstimate,
   estimateCall,
+  failedCallUsd,
   type Price,
   requirePrice,
   settledUsd,
@@ -33,7 +34,11 @@ import { judgeMessages, judgeSchemaText, judgeSettings, runJudge } from './judge
 import { verifyLock } from './lock.ts'
 import { fixedModel } from './mock.ts'
 import {
+  assertEgressConfigured,
   assertModeAllowed,
+  type Egress,
+  egressFor,
+  evalTextModelEnv,
   type GenerationRecording,
   generationRecordingPath,
   generationRecordingSchema,
@@ -188,6 +193,8 @@ export interface Report {
     providerModelId: string
     rubricVersion: string
   } | null
+  /** 真实 / 录制模式实际使用的文本出口（只记名称）；回放为 null */
+  readonly egress: { readonly generator: Egress; readonly judge: Egress | null } | null
   readonly budget: {
     readonly limitUsd: number | null
     readonly spentUsd: number
@@ -361,21 +368,21 @@ async function runSample(ctx: Context, sample: Sample): Promise<SampleResult> {
       return { ...base, status: 'skipped-budget', usage: {}, costUsd: 0, estimatedCostUsd: null }
     }
     const started = performance.now()
+    let sent = false
     try {
-      output = await generate(
-        (ctx.modelFor as ModelFor)(ctx.generatorKey, generatorSpec),
-        rendered,
-        generatorSpec,
-      )
+      const model = (ctx.modelFor as ModelFor)(ctx.generatorKey, generatorSpec)
+      sent = true
+      output = await generate(model, rendered, generatorSpec)
       durationMs = Math.round(performance.now() - started)
     } catch (error) {
-      // 失败的请求也可能计费：按预留额记账
-      ctx.ledger?.settle(reservation)
+      // 模型构造失败（请求未发出）或服务商以 HTTP 错误拒绝时不计费；其余失败可能已计费，按预留额记账
+      const failedUsd = sent ? failedCallUsd(error, reservation) : 0
+      ctx.ledger?.settle(reservation, failedUsd)
       return {
         ...base,
         status: 'generation-error',
         usage: { generation: { estimatedInputTokens: estimate.inputTokens } },
-        costUsd: reservation.usd,
+        costUsd: failedUsd,
         estimatedCostUsd: null,
         error: safeErrorMessage(error),
       }
@@ -525,7 +532,20 @@ async function runSample(ctx: Context, sample: Sample): Promise<SampleResult> {
         estimatedCostUsd,
       }
     }
-    judgeModel = (ctx.modelFor as ModelFor)(judgeKey, judgeSpec)
+    try {
+      judgeModel = (ctx.modelFor as ModelFor)(judgeKey, judgeSpec)
+    } catch (error) {
+      // 请求未发出，不计费
+      ctx.ledger?.settle(reservation, 0)
+      return {
+        ...generated,
+        status: 'judge-error',
+        judge: { status: 'judge-error', model: judgeKey, error: safeErrorMessage(error) },
+        usage: { generation: generationUsage },
+        costUsd,
+        estimatedCostUsd,
+      }
+    }
   }
   const judgeStarted = performance.now()
   const call = await runJudge(judgeModel, rubric, messages, settings)
@@ -534,7 +554,9 @@ async function runSample(ctx: Context, sample: Sample): Promise<SampleResult> {
   let judgeCost = 0
   if (reservation) {
     judgeCost = call.callFailed
-      ? reservation.usd
+      ? call.notBilled
+        ? 0
+        : reservation.usd
       : settledUsd(judgeSpec.priceUsd as Price, judgeEstimate, call.usage)
     ctx.ledger?.settle(reservation, judgeCost)
   } else {
@@ -956,9 +978,21 @@ export async function runEval(options: RunOptions, deps: RunDeps = {}): Promise<
 
   let ledger: BudgetLedger | null = null
   let modelFor: ModelFor | null = null
+  let egress: Report['egress'] = null
   if (mode !== 'replay') {
     requirePrice(generatorKey, suite.models[generatorKey] as ModelSpec)
     if (judgeKey) requirePrice(judgeKey, suite.models[judgeKey] as ModelSpec)
+    if (!deps.modelFor) {
+      // 任何调用前确认出口可用；出口只记名称，不记端点与密钥
+      const modelEnv = evalTextModelEnv(env)
+      const models = [generatorKey, ...(judgeKey ? [judgeKey] : [])]
+      for (const key of models)
+        assertEgressConfigured(key, suite.models[key] as ModelSpec, modelEnv)
+      egress = {
+        generator: egressFor(suite.models[generatorKey] as ModelSpec, modelEnv),
+        judge: judgeKey ? egressFor(suite.models[judgeKey] as ModelSpec, modelEnv) : null,
+      }
+    } else egress = { generator: 'injected', judge: judgeKey ? 'injected' : null }
     ledger = new BudgetLedger(options.budgetUsd as number)
     modelFor = deps.modelFor ?? liveModelFactory(env)
   }
@@ -1094,6 +1128,7 @@ export async function runEval(options: RunOptions, deps: RunDeps = {}): Promise<
       },
       generator: generatorRef,
       judge: judgeRef,
+      egress,
       budget: {
         limitUsd: ledger?.limitUsd ?? null,
         spentUsd: ledger?.spent ?? 0,
