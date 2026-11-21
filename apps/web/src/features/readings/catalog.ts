@@ -31,6 +31,7 @@ import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { JA_DATA_VERSION, japaneseChartExtras } from './ja-chart.ts'
 import { BAZI_FULL_V4_EN } from './prompts/bazi-full.en.v4.ts'
+import { BAZI_FULL_V5_EN } from './prompts/bazi-full.en.v5.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
@@ -47,6 +48,7 @@ import { TAROT_SPREAD_V3_JA } from './prompts/tarot-spread.v3.ja.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
 import { TAROT_SPREAD_V4 } from './prompts/tarot-spread.v4.ts'
 import { ZIWEI_FULL_V4_EN } from './prompts/ziwei-full.en.v4.ts'
+import { ZIWEI_FULL_V5_EN } from './prompts/ziwei-full.en.v5.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4_JA } from './prompts/ziwei-full.v4.ja.ts'
@@ -72,6 +74,11 @@ export interface ReadingPrompt {
    * 保证回滚与基线评测时模型看到的数据与改动前一致；`annual` 在其上增加流年窗口等逐年数据。
    */
   readonly dataProfile?: ReadingDataProfile
+  /**
+   * 用户消息中 `chart` 的呈现方式（东方站英文 v5 起）：省略时为复算结果原样；登记后把复算结果改写为
+   * 模型直接照抄的标签（en-chart.ts），复算结果本身、engineVersion 与检查不受影响。
+   */
+  readonly formatChart?: (result: Record<string, unknown>) => unknown
 }
 
 export type ReadingDataProfile = 'base' | 'annual'
@@ -513,22 +520,23 @@ const entries = {
     kind: 'bazi-full',
     variants: {
       'zh-Hant': {
-        prompt: BAZI_FULL_V2,
+        prompt: BAZI_FULL_V4['zh-Hant'],
         disclaimer:
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample: READING_SAMPLES['bazi-full']['zh-Hant'],
       },
       'zh-Hans': {
-        prompt: BAZI_FULL_V3,
+        prompt: BAZI_FULL_V4['zh-Hans'],
         disclaimer:
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['bazi-full']['zh-Hans'],
       },
-      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文没有 v4 之前的版本，代码默认即 v4；评测通过前不开放（READING_EVAL_PENDING）
+      // 东方站根路径英文；八字只在东方站，`en` 不会与西方站混淆。英文从 v4 起，代码默认为 v5（数据改写为英文标签，
+      // en-chart.ts）；v4 英文仍在 versions 中供回滚与 readings-east-en@v2 回放。readings-east-en@v3 评测已通过
       en: {
-        prompt: BAZI_FULL_V4_EN,
+        prompt: BAZI_FULL_V5_EN,
         disclaimer:
           'This report follows the traditional rules of BaZi (Four Pillars) astrology, with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
         healthSection: EN_HEALTH,
@@ -543,8 +551,14 @@ const entries = {
         sample: JA_READING_SAMPLES['bazi-full'],
       },
     },
-    // v4 的英文是新增的语言，已有的繁中 / 简中 v4 文本不变
-    versions: { 'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN } },
+    // 代码默认与生产运行时设置一致：繁中 / 简中 v4、日语 v4、英文 v5（生产原设置为 bazi-full.v4，
+    // 部署后清空设置即英文走 v5，中日文输出不变）。v4 之前的默认（繁中 v2、简中 v3）保留供回滚与评测回放；
+    // v4 的英文是后加的语言，已有的繁中 / 简中 v4 文本不变
+    versions: {
+      'bazi-full.v2': { 'zh-Hant': BAZI_FULL_V2 },
+      'bazi-full.v3': { 'zh-Hans': BAZI_FULL_V3 },
+      'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN },
+    },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -565,21 +579,22 @@ const entries = {
     kind: 'ziwei-full',
     variants: {
       'zh-Hant': {
-        prompt: ZIWEI_FULL_V2,
+        prompt: ZIWEI_FULL_V4['zh-Hant'],
         disclaimer:
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample: READING_SAMPLES['ziwei-full']['zh-Hant'],
       },
       'zh-Hans': {
-        prompt: ZIWEI_FULL_V3,
+        prompt: ZIWEI_FULL_V4['zh-Hans'],
         disclaimer:
           '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
         sample: READING_SAMPLES['ziwei-full']['zh-Hans'],
       },
+      // 东方站根路径英文：代码默认为 v5（同八字），v4 英文在 versions 中
       en: {
-        prompt: ZIWEI_FULL_V4_EN,
+        prompt: ZIWEI_FULL_V5_EN,
         disclaimer:
           'This report follows the traditional rules of Zi Wei Dou Shu (Purple Star Astrology), with AI-assisted interpretation, and is for reference and self-reflection only. It does not predict the future and is not medical, legal or financial advice.',
         healthSection: EN_HEALTH,
@@ -593,7 +608,12 @@ const entries = {
         sample: JA_READING_SAMPLES['ziwei-full'],
       },
     },
-    versions: { 'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN } },
+    // 同八字：代码默认繁中 / 简中 / 日语 v4、英文 v5；繁中 v2、简中 v3 保留供回滚与评测回放
+    versions: {
+      'ziwei-full.v2': { 'zh-Hant': ZIWEI_FULL_V2 },
+      'ziwei-full.v3': { 'zh-Hans': ZIWEI_FULL_V3 },
+      'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN },
+    },
     recompute: recomputeZiwei,
   },
   'saju-compat': {
@@ -699,13 +719,11 @@ export type AvailableReadingKind = keyof typeof entries
  * 真实评测（`pnpm eval:prompts --suite readings-ja … --live|--record`）全部门槛通过并记入私有验收记录后，
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
-export const READING_EVAL_PENDING: ReadonlySet<string> = new Set([
+export const READING_EVAL_PENDING: ReadonlySet<string> = new Set<string>([
   // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；
+  // 东方站英文八字 / 紫微（add-locales-eu-ja 5b.3）readings-east-en@v3（v5 英文标签数据）2026-11-21
+  // 真实评测全部必需门槛通过（准确度八字 4.125、紫微 4.875），已删去。
   // 报告在私有验收目录 locales-eu-ja/live-evals/prompt-evals/。
-  // add-locales-eu-ja 5b.3：东方站英文八字 / 紫微 readings-east-en@v2 真实评测准确度未达门槛
-  // （八字 3.875、紫微 3.250，需 ≥ 4），改进前不开放
-  'bazi-full.en',
-  'ziwei-full.en',
 ])
 
 /** 某「详批 × 语言」是否已通过评测门槛、可以对访客开放（只判定评测，不含运营开关与模型配置） */
@@ -854,7 +872,10 @@ export function readingMessages(definition: ReadingDefinition, recomputed: Recom
     },
     {
       role: 'user' as const,
-      text: JSON.stringify({ kind: definition.kind, chart: recomputed.result }),
+      text: JSON.stringify({
+        kind: definition.kind,
+        chart: definition.prompt.formatChart?.(recomputed.result) ?? recomputed.result,
+      }),
     },
   ]
 }

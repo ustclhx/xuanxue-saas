@@ -9,6 +9,7 @@
 
 - 提示词版本是代码常量：`apps/web/src/features/readings/prompts/<kind>.vN.ts`，在 `catalog.ts` 注册表登记（kind → version → locale）。已上线或已录制评测的版本文件不再修改，改动新建下一个版本号。
 - 运行时设置 `readings.<kind>.promptVersion`：空字符串表示代码默认版本（今天线上的版本）；后台「详批设置」的「提示词版本」选择只列出注册表中的版本，保存时拒绝未注册的值。
+- 2026-11-21 起八字 / 紫微的代码默认与生产原设置一致：繁中、简中、日语为 v4，东方站英文为 v5（只有英文）；v4 之前的默认（繁中 v2、简中 v3）仍登记可回滚。部署后应把 `readings.bazi-full.promptVersion` 与 `readings.ziwei-full.promptVersion` 清空，英文才会走 v5（设置为 v4 时英文仍用 v4 英文），中日文输出不变。
 - 数据库中残留非法值时，生成使用代码默认版本并记录 `readings.prompt_version_invalid`；所选版本不支持某语言时该语言用默认版本并记录 `readings.prompt_version_fallback`。
 - 设置经 KV 缓存，后台保存后清除缓存，最迟 60 秒对新请求生效。已生成的报告保留正文、`prompt_version` 与 `engine_version`，切换不会修改或重新生成；生成中的报告按其记录的版本收尾。
 - v4 使用扩展数据档，`reading.engine_version` 记录组合版本（如 `1.0.0+annual.1`、`numerology@2+years.1`）。

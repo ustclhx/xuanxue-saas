@@ -64,5 +64,71 @@
       "input": "sha256:8df98f3384e22dbb7f7d1256a0cc73dabb0468966191c1aabf55ce61660e5e0d",
       "rendered": "sha256:097104856351045aa858a662a9c5f26cc8beeaa51f01d4308ea5437d0bcbff4c"
     }
+  },
+  "readings-east-en@v3": {
+    "bazi-en-01": {
+      "input": "sha256:b1144f3cbb6ebdec92ee6f867d6d27d94e3e0c328ca5a33e3f5c338bbc4f100d",
+      "rendered": "sha256:65294c55ea21fd2daeb3751c0d5baacdc4cee2b50a52ee5794b731cc565647bf"
+    },
+    "bazi-en-02": {
+      "input": "sha256:bbd5732678855f690599da2063a42c7dfb4fb9b3092d718cbcc1c7517e6a7eb5",
+      "rendered": "sha256:741d1c795c4e174c04e9c8d6bf0f700b2cd4ce81762abd9d7aaba7b0dfba15fb"
+    },
+    "bazi-en-03": {
+      "input": "sha256:ad4488eddd62d58c53c293d02a57269a02b41297ca5208613b9022a961cc45be",
+      "rendered": "sha256:27431f6bc35dd5891c6e8ddac66cea631394cc85a64cff064db4f18fb484fed7"
+    },
+    "bazi-en-04": {
+      "input": "sha256:f381236ec09b76c93e59d8eebafb4cfe591a6322fd357b31fd8c69c0ec3a715d",
+      "rendered": "sha256:bec9291730d8b7757089609f9abe46d30999b2915c4b4f313cfdfccdc39ee621"
+    },
+    "bazi-en-05": {
+      "input": "sha256:33306cc7487259ffbbb449082cf0d9bf39d6cd2e396731eb072e94570c14f16a",
+      "rendered": "sha256:7e7d60cda7f478e08fbad1174e07b56d427aca1016eeeca52d7d8c4cab6ba901"
+    },
+    "bazi-en-06": {
+      "input": "sha256:174ceebb0ea580ca673f8fdc7c5cbf00e18ca81a0cd1e8a0f5867862a0e10856",
+      "rendered": "sha256:c3705df255209dbc05c85cb16961cd62020c27a3b10d67650060b101742c7cb9"
+    },
+    "bazi-en-07": {
+      "input": "sha256:c2a65b3cbc01ed472a3474af6f08e161c5c0c2110ff867f36bc994cd6621ea21",
+      "rendered": "sha256:d4478ea8f4f88b584fd09c7088f15d1e5a0767f91874d808fcb4635613017604"
+    },
+    "bazi-en-08": {
+      "input": "sha256:99b5087530ffe12897d4565b01f918ade8bfb54a74e24b5f94d6d263efb046b0",
+      "rendered": "sha256:79154035716be29e4175e40acb45bd4cae9c77024b26d890e7581e976850c021"
+    },
+    "ziwei-en-01": {
+      "input": "sha256:66b2a9080a1134bf57c598b5d784b9da15d727e4d8c6343e9640cf206a073f6e",
+      "rendered": "sha256:53f52a01e08faff8f329a4b2c8205454d96a37769ebe881968390bdb709f4f9d"
+    },
+    "ziwei-en-02": {
+      "input": "sha256:fd86aa7c4d0b0a62f3e2a8913d11327d254ede9a266639df561f8a7090b532e9",
+      "rendered": "sha256:c18138fe5b9d7f770ce54f35ab53b0e9c1069bb3e33be8a9bb5bb6ff2b0c237c"
+    },
+    "ziwei-en-03": {
+      "input": "sha256:fac4d787b15b7e61d46a0618476741c47dd78800dbd54f547604e998f3bb5096",
+      "rendered": "sha256:8ca70bbbd99b03cfe3688383f99fa6aef0753acb61cdaf03a0418fd8cbf33305"
+    },
+    "ziwei-en-04": {
+      "input": "sha256:b72acc24108702a7aef784743ebae21802883b1ba7983e430c779ae238b4a893",
+      "rendered": "sha256:d2cc7b903bcb98ad9ed8e488c375dcdfae859ae0c147c0ecf1b4c9dea9ac6e46"
+    },
+    "ziwei-en-05": {
+      "input": "sha256:1fdcb963bf5b3b310f697cc2f68621347b1aa202d3a038145b6c22af7d2c43a2",
+      "rendered": "sha256:ab062abd7b436a51f8b3caf0c0c58ef7e5db28c2adb9f6e4314dabec12c56794"
+    },
+    "ziwei-en-06": {
+      "input": "sha256:bf0c7bff7b8797735d9e8e1cae8e5abbf544c245a26cb852a0698c78f4dec48d",
+      "rendered": "sha256:8ddc948ad65185321312ccbba212404cfd8929faedb630d2236442c818ccced4"
+    },
+    "ziwei-en-07": {
+      "input": "sha256:e40fc04769405f16eab65cb2c3219641fc7baa5070e7fc4fe9f51d637a0027e7",
+      "rendered": "sha256:8e909859db411f153be6b1c0ee4eb9b1aa63faabc1bb0b7e300416ee4c306a10"
+    },
+    "ziwei-en-08": {
+      "input": "sha256:8df98f3384e22dbb7f7d1256a0cc73dabb0468966191c1aabf55ce61660e5e0d",
+      "rendered": "sha256:f3be94e7ceb5bb1ac6e2c260637a1f07a4ec07083eecf2ce516c5aae3f461f86"
+    }
   }
 }

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:e2930c199bc2677d9d2970ea491ade1ee84952b45a610a17fe73f5a184eb181b",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited palaces, stars, brightness, mutagens, stems, branches and age ranges match the data; no chart elements are invented, and derived Western year ranges are marked as approximate.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart placements—Qi Sha in Life, Po Jun Hua Lu in Career, Tan Lang Hua Ji in Wealth, annual Life Palaces and yearly mutagens—so the text would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and chart-tied: setting written spending rules, volunteering for difficult projects, regular meals and wind-down for Taiyin/Huoxing, and each year has clear lean-in/watch guidance.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; describes tendencies without asserting specific events, avoids month/day predictions, and advises professional care for wellbeing; no investment, legal or medical directives.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear, logically organised structure with headings, fluent English, short Chinese glosses where appropriate, and no significant repetition or disorganisation.\"\n    }\n  },\n  \"summary\": \"A highly personalised and accurate Zi Wei Dou Shu reading that combines specific chart placements with warm, practical, year-by-year guidance.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 7665,
+    "outputTokens": 6587
+  },
+  "recordedAt": "2026-11-21T14:36:57.370Z",
+  "source": "recorded"
+}

@@ -17,13 +17,17 @@ import {
  * - `readings-east-en@v2`：两个组合都用 catalog 中登记为 `<kind>.v4` 的英文提示词，
  *   system 与用户消息与线上 `readingMessages` 逐字相同。
  *   v1（2026-11-21 真实录制，未发布、录制未提交）因八字准确度未达门槛、两个组合补准确度约束而作废。
+ * - `readings-east-en@v3`：两个组合改用 `<kind>.v5`（catalog 的英文代码默认版本），用户消息中的命盘由
+ *   en-chart.ts 改写为英文标签（v2 真实录制准确度八字 3.875、紫微 3.25，扣分来自模型自行翻译 key 与交叉查表）。
  */
 
 /** 评测覆盖的组合（每组合 ≥ 8 个样本，gates.ts） */
 export const EAST_EN_COMBOS = ['bazi-full.en', 'ziwei-full.en'] as const
 export type EastEnCombo = (typeof EAST_EN_COMBOS)[number]
 
-export const CANDIDATE_VERSION = 'readings-east-en@v2'
+export const CANDIDATE_VERSION = 'readings-east-en@v3'
+/** 已录制的上一版本（v4 英文提示词），保留以便回放对照 */
+export const V2_VERSION = 'readings-east-en@v2'
 
 export const comboOf = (input: Pick<ReadingSampleInput, 'kind' | 'locale'>) =>
   `${input.kind}.${input.locale}`
@@ -33,7 +37,8 @@ export function realVersion(promptVersion: string, input: ReadingSampleInput): s
   const combo = comboOf(input)
   if (!(EAST_EN_COMBOS as readonly string[]).includes(combo))
     throw new Error(`Unsupported reading combo ${combo}`)
-  if (promptVersion === CANDIDATE_VERSION) return `${input.kind}.v4`
+  if (promptVersion === CANDIDATE_VERSION) return `${input.kind}.v5`
+  if (promptVersion === V2_VERSION) return `${input.kind}.v4`
   throw new Error(`Unknown readings-east-en prompt version ${promptVersion}`)
 }
 
@@ -57,6 +62,16 @@ export const readingsEastEnV2: DefinedPrompt<ReadingSampleInput> = definePrompt<
   {
     id: 'readings-east-en',
     version: 'v2',
+    system: (input) => renderReading(V2_VERSION, input).system,
+    user: (input) => renderReading(V2_VERSION, input).user,
+    maxOutputTokens: READING_MAX_OUTPUT_TOKENS,
+  },
+)
+
+export const readingsEastEnV3: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>(
+  {
+    id: 'readings-east-en',
+    version: 'v3',
     system: (input) => renderReading(CANDIDATE_VERSION, input).system,
     user: (input) => renderReading(CANDIDATE_VERSION, input).user,
     maxOutputTokens: READING_MAX_OUTPUT_TOKENS,

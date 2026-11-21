@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings-east-en@v3",
+  "rubricVersion": "r1-east-en.1",
+  "outputHash": "sha256:9793c5a51ba317e618358eb163be23b8a4564d2653260e66351bfc30ea437248",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All chart elements, ten gods, stars, years, and numbers match the data. Minor issue: the text says Earth 'generates and controls' Water, which reverses the generating relationship (Metal generates Water).\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in this chart: Ji Day Master, Ding Wei month, Ren Zi year, Hai day branch, Hua Gai and Yang Ren, Xin Chou luck pillar, and annual relations.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete, chart-tied suggestions appear throughout and each year has specific lean-in and watch items; the guidance list is doable and practical.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fearful; describes tendencies without asserting specific events; no day/month predictions; includes a prompt to see a professional; avoids investment, legal, medical, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"Clear, well-structured headings and fluent English with correct pinyin glosses; some repetition of element percentages and Metal-at-0 across sections, but not excessive.\"\n    }\n  },\n  \"summary\": \"A highly personalised, accurate BaZi reading that uses the chart's pillars, ten gods, stars, and luck cycles to give structured, actionable guidance. Minor conceptual wording on element generation and some repetition keep it from perfect.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 8354,
+    "outputTokens": 4308
+  },
+  "recordedAt": "2026-11-21T14:33:14.210Z",
+  "source": "recorded"
+}

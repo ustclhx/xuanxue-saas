@@ -37,11 +37,11 @@ describe('详批的所属站点', () => {
 })
 
 describe('评测门槛', () => {
-  it('东方站英文八字与紫微待真实评测（READING_EVAL_PENDING）：不出售；其余组合照常', () => {
-    expect(READING_EVAL_PENDING.has('bazi-full.en')).toBe(true)
-    expect(READING_EVAL_PENDING.has('ziwei-full.en')).toBe(true)
-    expect(readingEvalPassed('bazi-full', 'en')).toBe(false)
-    expect(readingEvalPassed('ziwei-full', 'en')).toBe(false)
+  it('东方站英文八字与紫微已通过真实评测（readings-east-en@v3）：开放；其余组合照常', () => {
+    expect(READING_EVAL_PENDING.has('bazi-full.en')).toBe(false)
+    expect(READING_EVAL_PENDING.has('ziwei-full.en')).toBe(false)
+    expect(readingEvalPassed('bazi-full', 'en')).toBe(true)
+    expect(readingEvalPassed('ziwei-full', 'en')).toBe(true)
     expect(readingEvalPassed('bazi-full', 'zh-Hant')).toBe(true)
     // 西方站英文与东方站英文共用 `en`，门槛按「类型 × 语言」区分，西方站不受影响
     expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
@@ -49,25 +49,37 @@ describe('评测门槛', () => {
   })
 })
 
-describe('东方站英文提示词（v4 的英文）', () => {
+describe('东方站英文提示词（v4 的英文与代码默认的 v5）', () => {
   const cases = [
     { kind: 'bazi-full', years: 'annual', terms: ['Day Master', 'Seven Killings', 'Luck Pillar'] },
     {
       kind: 'ziwei-full',
       years: 'horoscope',
-      terms: ['Life Palace', 'Body Palace', 'Hua Ji', 'Tian Ji'],
+      terms: ['Life Palace', 'Body Palace', 'Hua Ji', 'Spirit Palace'],
     },
   ] as const
 
   for (const item of cases)
-    it(`${item.kind}：注册为 v4 的英文，已有语言的 v4 不变；章节、就医提示、数据档与术语`, () => {
+    it(`${item.kind}：v4 注册了英文，v5 只有英文；章节、就医提示、数据档与术语`, () => {
       const definition = readingDefinition(item.kind, 'en')
       if (!definition) throw new Error('definition missing')
       expect(readingDefinition(item.kind)?.prompt.version).not.toBe(definition.prompt.version)
       expect(
-        readingPromptVersions(item.kind).find((v) => v.version === `${item.kind}.v4`)?.locales,
+        readingPromptVersions(item.kind)
+          .find((v) => v.version === `${item.kind}.v4`)
+          ?.locales.toSorted(),
         // 日语（main 的 ja 变体）同样只有 v4 一代
-      ).toEqual(['en', 'ja', 'zh-Hant', 'zh-Hans'])
+      ).toEqual(['en', 'ja', 'zh-Hans', 'zh-Hant'])
+      expect(
+        readingPromptVersions(item.kind).find((v) => v.version === `${item.kind}.v5`)?.locales,
+      ).toEqual(['en'])
+      const v4 = readingDefinition(item.kind, 'en', { promptVersion: `${item.kind}.v4` })
+      if (!v4) throw new Error('v4 definition missing')
+      const v4Chart = JSON.parse(
+        readingMessages(v4, v4.recompute(BIRTH, NOW))[1]?.text ?? '{}',
+      ).chart
+      const v4Years = item.years === 'annual' ? v4Chart.annual.years : v4Chart.horoscope.years
+      expect(v4Years.map((y: { year: number }) => y.year)).toEqual([2026, 2027, 2028, 2029, 2030])
       const { system, sections } = definition.prompt
       for (const title of sections) expect(system).toContain(`## ${title}`)
       expect(sections).toContain(definition.healthSection?.title)
@@ -81,9 +93,19 @@ describe('东方站英文提示词（v4 的英文）', () => {
       const recomputed = definition.recompute(BIRTH, NOW)
       const [systemMessage, user] = readingMessages(definition, recomputed)
       expect(systemMessage?.text).not.toMatch(/1991|taipei/)
+      // v5 的命盘是英文标签（en-chart.ts）：逐年条目直接给出小节标题；复算结果本身仍是 annual 数据档
       const chart = JSON.parse(user?.text ?? '{}').chart
-      const years = item.years === 'annual' ? chart.annual.years : chart.horoscope.years
-      expect(years.map((y: { year: number }) => y.year)).toEqual([2026, 2027, 2028, 2029, 2030])
+      expect(chart['Year by year'].map((y: { Heading: string }) => y.Heading)).toEqual([
+        '2026 丙午 · Bing Wu',
+        '2027 丁未 · Ding Wei',
+        '2028 戊申 · Wu Shen',
+        '2029 己酉 · Ji You',
+        '2030 庚戌 · Geng Xu',
+      ])
+      const raw = item.years === 'annual' ? recomputed.result.annual : recomputed.result.horoscope
+      expect((raw as { years: { year: number }[] }).years.map((y) => y.year)).toEqual([
+        2026, 2027, 2028, 2029, 2030,
+      ])
     })
 
   it('声明写明传统规则、仅供参考与自我反思、不预测未来；样例通过合规检查；有英文开场问题', () => {

@@ -111,10 +111,21 @@ describe('样本与提示词', () => {
       )
   })
 
-  it('pre-v4 的真实版本就是代码默认版本，v4 均已注册；输出上限与 generate.ts 一致', () => {
+  it('pre-v4 的真实版本均仍注册（八字 / 紫微中文的代码默认已改为 v4，其余仍为代码默认），v4 均已注册；输出上限与 generate.ts 一致', () => {
     for (const combo of READING_COMBOS) {
       const [kind, locale] = combo.split('.') as [string, string]
-      assert.equal(readingDefinition(kind, locale)?.prompt.version, PRE_V4_VERSIONS[combo])
+      const preV4 = PRE_V4_VERSIONS[combo]
+      assert.equal(
+        readingDefinition(kind, locale, { promptVersion: preV4 })?.prompt.version,
+        preV4,
+        combo,
+      )
+      // 2026-11-21 起八字 / 紫微的繁中、简中代码默认与生产运行时设置一致为 v4
+      assert.equal(
+        readingDefinition(kind, locale)?.prompt.version,
+        kind === 'bazi-full' || kind === 'ziwei-full' ? `${kind}.v4` : preV4,
+        combo,
+      )
       assert.ok(readingDefinition(kind, locale, { promptVersion: `${kind}.v4` }))
     }
     const source = readFileSync(join(ROOT, 'apps/web/src/features/readings/generate.ts'), 'utf8')
