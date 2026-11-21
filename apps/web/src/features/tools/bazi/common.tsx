@@ -60,6 +60,18 @@ export function link(href: string | undefined, title: string, target: string): T
   return href ? [{ href, title, target }] : []
 }
 
+/**
+ * 延伸阅读中命盤查詢的位置：该语言没有命盤查詢（日语第一期）时改链定价页，
+ * 使八字、紫微工具页的正文内链不少于 2 条（docs/seo-internal-linking.md §3）。
+ * 不写进简介：多一句会把提交按钮挤出 390×844 首屏。
+ */
+export function mingpanOrPricingLink(locale: string): ToolLink[] {
+  const mingpan = localPageHref('mingpan', locale)
+  return mingpan
+    ? link(mingpan, m.bazi_link_mingpan(), 'mingpan')
+    : link(toolHref('/pricing', locale), m.marketing_nav_pricing(), 'pricing')
+}
+
 /** 结果区的加载与失败状态；字段错误显示在表单内，这里不重复 */
 export function ResultStatus<R>({
   state,

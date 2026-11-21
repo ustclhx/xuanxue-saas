@@ -32,6 +32,7 @@ import {
   conceptHref,
   link,
   localPageHref,
+  mingpanOrPricingLink,
   ReadingSlots,
   ResultFooter,
   ResultStatus,
@@ -92,7 +93,7 @@ export function BaziHome({ focusBlock }: { focusBlock?: string }) {
       }
       links={[
         ...link(localPageHref('ziwei', LOCALE), m.bazi_link_ziwei(), 'ziwei'),
-        ...link(localPageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
+        ...mingpanOrPricingLink(LOCALE),
         ...link(conceptHref(LOCALE, 'luck'), m.bazi_link_luck(), 'concept-luck'),
         ...link(conceptHref(LOCALE, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
         ...link(conceptHref(LOCALE, 'strength'), m.bazi_link_strength(), 'concept-strength'),
