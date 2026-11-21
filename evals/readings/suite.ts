@@ -18,6 +18,10 @@ export default defineSuite({
   name: 'readings',
   prompts: [readingsPreV4, readingsV4, readingsEsV1],
   defaultPrompt: 'readings@v4',
+  // 西班牙语样本只属于 readings@es-v1（加入 es 之后的版本）：v4 / pre-v4 的整套回放不含它们，不因缺少录制而失败
+  appliesTo: (sample, promptVersion) =>
+    promptVersion === 'readings@es-v1' ||
+    (sample.input as { locale?: string } | undefined)?.locale !== 'es',
   inputSchema: z
     .strictObject({
       kind: z.enum(['bazi-full', 'saju-full', 'ziwei-full', 'numerology-full', 'tarot-spread']),

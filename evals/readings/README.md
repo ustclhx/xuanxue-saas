@@ -34,9 +34,9 @@
 
 - 西语提示词以英文 v4 / v2 为骨架，术语取 `apps/web/i18n/glossary/es.json`；es 样本带 `judgeNotes`（只给评委的目标语言与核对口径），
   评分标准仍为 `r1`，已有评委录制不过期。
-- 版本锁要求每个套件版本渲染全部样本：`readings@v4` 与 `readings@pre-v4` 遇到 es 样本时渲染同一份 es 提示词，只为锁覆盖全部样本，
-  不在这两个版本下录制或评测 es。因此 v4 批次的全量回放（下方第一、二条命令）会因 es 样本缺录制以退出码 1 结束，
-  其门槛只计原六个组合；需要干净的历史回放时用 `--samples` 列出 48 个 v4 样本（样本量门槛随之为 incomplete）。
+- 版本锁要求每个套件版本渲染全部样本：`readings@v4` 与 `readings@pre-v4` 遇到 es 样本时渲染同一份 es 提示词，只为锁覆盖全部样本。
+  运行范围由 `suite.ts` 的 `appliesTo`（`@xuanxue/evals` SuiteDefinition）决定：es 样本只属于 `readings@es-v1`，
+  v4 / pre-v4 的整套回放只含原 48 个样本（不算筛选运行，样本量门槛照常判定），不会因 es 样本没有录制而失败。
 - 是否对访客出售由 `apps/web/src/features/readings/locale-gate.ts` 决定：门槛通过并经使用者确认后，把对应组合改为 `'passed'`。
 
 ## 样本输入

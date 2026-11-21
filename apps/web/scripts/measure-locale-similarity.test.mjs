@@ -7,6 +7,7 @@ import { after, describe, test } from 'node:test'
 import {
   createExtractor,
   dice,
+  digitSeq,
   entryLocale,
   faqOriginStats,
   lengthCheck,
@@ -58,6 +59,20 @@ describe('正文提取', () => {
   test('行内空白保留为一个空格，实体解码', () => {
     const out = extractor.extract(page('<p>Life  <em>Path</em>\n  number &amp; you</p>'))
     assert.equal(out.sections[0].text, 'Life Path number & you')
+  })
+
+  test('引擎输出与固定事实表中的数字不计入数字序列，正文示例中的数字照常计入', () => {
+    const html = page(
+      `<p>Ejemplo: Lucía nació el 26 de septiembre de 1983.</p>
+       <section data-locale-fixed><p>Número de vida 2</p><div><span>9 → 9</span><span>1983 → 21 → 3</span></div></section>
+       <div class="rich-table-scroll"><table><tr><td>Afinidad alta</td><td>1, 5, 7</td></tr></table></div>`,
+    )
+    const out = extractor.extract(html)
+    const digits = digitSeq(out.sections.map((s) => s.text).join('\n'))
+    assert.equal(digits, '26 1983')
+    // 文字保留，参与其他指标
+    assert.match(out.sections[0].text, /Número de vida/)
+    assert.match(out.sections[0].text, /Afinidad alta/)
   })
 
   test('sectionsFromText 处理没有 H2 的页面', () => {

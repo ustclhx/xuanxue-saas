@@ -24,7 +24,12 @@ function NeighborNumbers({ number }: { number: number }) {
     themeB: NUMBER_THEME[pair[1]](),
   }
   return (
-    <section aria-labelledby="numerology-neighbors" className="flex max-w-180 flex-col gap-3">
+    // 相邻数字是固定事实（data-locale-fixed：相似度测量不计其中的数字）
+    <section
+      data-locale-fixed
+      aria-labelledby="numerology-neighbors"
+      className="flex max-w-180 flex-col gap-3"
+    >
       <h2 id="numerology-neighbors" className="m-0 text-balance font-heading text-ink text-title">
         {m.numerology_neighbors_title()}
       </h2>

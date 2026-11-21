@@ -889,7 +889,16 @@ export async function runEval(options: RunOptions, deps: RunDeps = {}): Promise<
   } else if (options.judgeModel && !suite.judge)
     throw new EvalConfigError(`suite ${suite.name} has no judge`)
 
-  let samples = loaded.samples
+  // 套件声明的样本适用范围（suite.appliesTo）：评测版本与基线版本都适用的样本才属于本次运行
+  const appliesTo = suite.appliesTo
+  const applicable = appliesTo
+    ? loaded.samples.filter(
+        (sample) =>
+          appliesTo(sample, prompt.promptVersion) &&
+          (!options.baseline || appliesTo(sample, options.baseline)),
+      )
+    : loaded.samples
+  let samples = applicable
   if (options.samples?.length) {
     const ids = new Set(loaded.samples.map((sample) => sample.id))
     const unknown = options.samples.filter((id) => !ids.has(id))
@@ -988,9 +997,9 @@ export async function runEval(options: RunOptions, deps: RunDeps = {}): Promise<
     results: results.map(runResult),
   })
   const scope: RunScope = {
-    totalSamples: loaded.samples.length,
+    totalSamples: applicable.length,
     selectedSamples: samples.length,
-    filtered: samples.length !== loaded.samples.length,
+    filtered: samples.length !== applicable.length,
     ...(options.samples?.length ? { sampleFilter: [...options.samples] } : {}),
     ...(options.tag ? { tag: options.tag } : {}),
   }

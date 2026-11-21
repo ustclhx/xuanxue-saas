@@ -654,3 +654,26 @@ describe('西班牙语组合', () => {
     })
   })
 })
+
+describe('样本适用范围（suite.appliesTo）', () => {
+  it('西班牙语样本只属于 readings@es-v1，旧版本的整套回放不含它们', async () => {
+    const { default: suite } = await import('./suite.ts')
+    const applies = suite.appliesTo
+    assert.ok(applies)
+    const localeOf = (sample: Sample) => (sample.input as { locale?: string }).locale
+    const es = samples.filter((sample) => localeOf(sample) === 'es')
+    const others = samples.filter((sample) => localeOf(sample) !== 'es')
+    assert.equal(es.length, 16)
+    for (const version of ['readings@pre-v4', 'readings@v4']) {
+      assert.ok(
+        es.every((sample) => !applies(sample, version)),
+        version,
+      )
+      assert.ok(
+        others.every((sample) => applies(sample, version)),
+        version,
+      )
+    }
+    assert.ok(samples.every((sample) => applies(sample, 'readings@es-v1')))
+  })
+})
