@@ -34,10 +34,10 @@ design 决策 7 写的是「`evals/readings` 新增套件版本」。模板的�
 
 另有全局 `versions`（候选为 `readings-east-en@v1`），`human-review`、`staging-acceptance` 为外部证据（非必需）。
 英文没有同样本的旧版本可作基线，因此与中文 v4 的评委均值比较；样本与语言不同、评委波动约 ±0.2，
-容差取 0.25（`readings` 同样本对比为 0.1）。这一口径须经使用者确认。
+容差取 0.25（`readings` 同样本对比为 0.1）；该口径与 accuracy ≥ 4.0 已由协调者确认为新语言的统一门槛。
 
-某组合全部必需门槛 passed 后，从 `apps/web/src/features/readings/release.ts` 的
-`READINGS_AWAITING_EVALUATION` 删除该组合即开放解锁卡与 `POST /api/readings`。
+某组合全部必需门槛 passed 后，从 `apps/web/src/features/readings/catalog.ts` 的
+`READING_EVAL_PENDING` 删除该组合即开放解锁卡与 `POST /api/readings`。
 
 ## 命令
 

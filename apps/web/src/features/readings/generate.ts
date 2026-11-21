@@ -28,6 +28,7 @@ import {
   missingSections,
   type ReadingDefinition,
   readingDefinition,
+  readingEvalPassed,
   readingInputHash,
   readingMessages,
   resolveReadingDefinition,
@@ -42,7 +43,7 @@ import {
   readingGuardYears,
 } from './guard.ts'
 import { toTraditional } from './hant.ts'
-import { readingOffered } from './release.ts'
+import { readingSite } from './release.ts'
 import { EMAIL_DELIVERY_HEADER, type EmailDelivery } from './stream.ts'
 import { readingTitle } from './title.ts'
 
@@ -120,9 +121,11 @@ async function startReading(request: Request, deps: ReadingDeps): Promise<Respon
   const body = parsed.data
   if (!readingDefinition(body.kind)) throw notFound()
   const base = readingDefinition(body.kind, body.locale)
-  // 站点按「类型 × 语言」判定（东方站英文与西方站共用 `en`）；待评测的组合与未注册的语言同样拒绝
-  if (!base || !readingOffered(body.kind, body.locale, body.site))
+  // 站点按「类型 × 语言」判定（东方站英文与西方站共用 `en`，不能按语言推断站点，见 release.ts）
+  if (!base || readingSite(body.kind, body.locale) !== body.site)
     throw new AppError('INVALID_REQUEST', 'Unsupported reading locale')
+  // 未通过评测门槛的「类型 × 语言」与解锁卡同一判定（catalog.ts READING_EVAL_PENDING），平台管理员可预览
+  if (!readingEvalPassed(base.kind, body.locale) && !isPlatformAdmin(user.role)) throw notFound()
   // 与结果页、定价页同一判定（availability.ts）；业务写入前读取，模型行用业务连接以免读到陈旧状态
   const status = await loadReadingAvailability(
     {

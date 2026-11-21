@@ -1,0 +1,8 @@
+{
+  "i18n_language": "言語",
+  "i18n_prompt_region": "言語のご案内",
+  "i18n_prompt_message": "このページは日本語でもご覧いただけます",
+  "i18n_prompt_action": "日本語で表示",
+  "i18n_prompt_close": "言語のご案内を閉じる",
+  "i18n_save_failed": "言語を保存できませんでした。もう一度お試しください。"
+}

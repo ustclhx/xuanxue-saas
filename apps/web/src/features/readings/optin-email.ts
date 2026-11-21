@@ -3,6 +3,8 @@ import type { EmailTemplateProps } from '@xuanxue/email/queue'
 import { AppError } from '@xuanxue/shared'
 import { CARDS } from '@xuanxue/tarot'
 import en from '../../../messages/en/readings-email.json'
+import es from '../../../messages/es/readings-email.json'
+import ja from '../../../messages/ja/readings-email.json'
 import ko from '../../../messages/ko/readings-email.json'
 import zhHans from '../../../messages/zh-Hans/readings-email.json'
 import zhHant from '../../../messages/zh-Hant/readings-email.json'
@@ -12,9 +14,11 @@ import type { ReadingOptin } from './optin-schema.ts'
 
 const copies: Record<ReadingOptin['locale'], Record<string, string>> = {
   en,
+  ja,
   ko,
   'zh-Hant': zhHant,
   'zh-Hans': zhHans,
+  es,
 }
 
 /** L1 的输入只用于选择固定段落，不进入 AI，也不能指定邮件正文或外部链接。 */

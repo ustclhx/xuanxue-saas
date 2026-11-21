@@ -1,0 +1,21 @@
+{
+  "api_keys_title": "Claves de API",
+  "api_keys_description": "La clave completa solo se muestra al crearla. Guárdala en un lugar seguro. Las llamadas usan los créditos del espacio de trabajo actual.",
+  "api_keys_error": "No se pudo completar la operación",
+  "api_keys_save_secret": "Guárdala ahora. No podrás volver a verla después de cerrar:",
+  "api_keys_close_secret": "Ya la guardé, cerrar",
+  "api_keys_name": "Nombre",
+  "api_keys_expires_label": "Fecha de vencimiento (opcional, hora local)",
+  "api_keys_create": "Crear clave",
+  "api_keys_key_name": "Nombre de la clave",
+  "api_keys_save": "Guardar",
+  "api_keys_prefix": "Prefijo",
+  "api_keys_expiry": "Vencimiento",
+  "api_keys_never_expires": "No vence",
+  "api_keys_status": "Estado",
+  "api_keys_revoked": "Revocada",
+  "api_keys_expired": "Vencida",
+  "api_keys_active": "Activa",
+  "api_keys_actions": "Acciones",
+  "api_keys_revoke": "Revocar"
+}

@@ -1,0 +1,21 @@
+{
+  "api_keys_title": "APIキー",
+  "api_keys_description": "キーの全文は作成時にしか表示されません。大切に保管してください。呼び出しには、現在のワークスペースのクレジットが使われます。",
+  "api_keys_error": "操作に失敗しました",
+  "api_keys_save_secret": "今すぐ保存してください。閉じると、もう一度表示することはできません：",
+  "api_keys_close_secret": "保存したので閉じる",
+  "api_keys_name": "名前",
+  "api_keys_expires_label": "有効期限（任意・現地時間）",
+  "api_keys_create": "キーを作成",
+  "api_keys_key_name": "キーの名前",
+  "api_keys_save": "保存",
+  "api_keys_prefix": "プレフィックス",
+  "api_keys_expiry": "有効期限",
+  "api_keys_never_expires": "無期限",
+  "api_keys_status": "状態",
+  "api_keys_revoked": "無効化済み",
+  "api_keys_expired": "期限切れ",
+  "api_keys_active": "有効",
+  "api_keys_actions": "操作",
+  "api_keys_revoke": "無効化"
+}

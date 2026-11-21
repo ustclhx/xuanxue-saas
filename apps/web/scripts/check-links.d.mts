@@ -27,3 +27,6 @@ export function checkLinks(input: {
   /** 除语言首页外抽样做 Accept-Language 对比的可索引页数，默认 3 */
   acceptLanguageSamples?: number | undefined
 }): Promise<{ result: LinkGraphResult; mode: string; config: LinkingConfig }>
+
+/** 项目扩展：去掉未发布语言（features/i18n/rollout.ts）后的配置，链接图只按已发布语言取种子 */
+export function withoutPendingLocales<T>(config: T): T

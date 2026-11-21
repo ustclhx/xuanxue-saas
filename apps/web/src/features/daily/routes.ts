@@ -1,3 +1,4 @@
+import { localeText } from '../i18n/split-messages.ts'
 import type { ToolRoute } from '../tools/registry.ts'
 import type { DailyLocale } from './date.ts'
 
@@ -29,11 +30,11 @@ export const DAILY_TOOL_ROUTES: readonly ToolRoute[] = [
       ko: DAILY_PATHS.ko,
     },
     titles: EAST_TITLES,
-    descriptions: {
+    descriptions: localeText({
       'zh-Hant': '每天更新的今日干支、黃曆宜忌與建除，並依十種日主給出今日提示。',
       'zh-Hans': '每天更新的今日干支、黄历宜忌与建除，并依十种日主给出今日提示。',
       ko: '매일 바뀌는 오늘의 일진과 택일 의기·건제십이신, 열 가지 일간별 오늘의 힌트.',
-    },
+    }),
   },
   {
     id: 'daily-numerology',
@@ -41,9 +42,9 @@ export const DAILY_TOOL_ROUTES: readonly ToolRoute[] = [
     prerender: false,
     paths: { en: DAILY_PATHS.en },
     titles: { en: 'Number of the Day' },
-    descriptions: {
+    descriptions: localeText({
       en: 'Today’s Universal Day number with its calculation, the meaning of Personal Day numbers 1–9, 11 and 22, and a private Personal Day calculator.',
-    },
+    }),
   },
 ]
 

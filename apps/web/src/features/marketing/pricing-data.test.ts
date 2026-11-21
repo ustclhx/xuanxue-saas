@@ -100,6 +100,7 @@ describe('公开定价缓存（tasks.md 3.2）', () => {
       [null, 'USD', 299],
       [null, 'TWD', 9700],
       [null, 'KRW', 4200],
+      [null, 'JPY', 450],
     ])
   })
 })

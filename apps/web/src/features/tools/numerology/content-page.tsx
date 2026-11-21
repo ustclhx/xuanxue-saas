@@ -2,19 +2,18 @@ import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { MarketingShell } from '../../marketing/marketing-shell.tsx'
 import { InlineLinks, LinkBand } from '../inline-links.tsx'
-import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import type { NumerologyPage } from './content.functions.ts'
 import { asLifePath, NUMBER_THEME, neighborNumbers } from './copy.ts'
+import { lifePathHref, numerologyHref } from './href.ts'
 import { NumerologyArticle } from './parts.tsx'
-import { lifePathPath, NUMEROLOGY_LOCALE, NUMEROLOGY_TOOLS } from './routes.ts'
 import { faqItems } from './seo.ts'
 
 /** 「相邻数字」一段：句子里链接 2–3 个数字页，锚文本为「Life Path Number n」 */
 function NeighborNumbers({ number }: { number: number }) {
   const { pair, root } = neighborNumbers(asLifePath(number))
   const link = (value: number) => ({
-    href: toolHref(lifePathPath(value), NUMEROLOGY_LOCALE),
+    href: lifePathHref(value),
     target: `life-path-${value}`,
   })
   const inputs = {
@@ -25,7 +24,12 @@ function NeighborNumbers({ number }: { number: number }) {
     themeB: NUMBER_THEME[pair[1]](),
   }
   return (
-    <section aria-labelledby="numerology-neighbors" className="flex max-w-180 flex-col gap-3">
+    // 相邻数字是固定事实（data-locale-fixed：相似度测量不计其中的数字）
+    <section
+      data-locale-fixed
+      aria-labelledby="numerology-neighbors"
+      className="flex max-w-180 flex-col gap-3"
+    >
       <h2 id="numerology-neighbors" className="m-0 text-balance font-heading text-ink text-title">
         {m.numerology_neighbors_title()}
       </h2>
@@ -66,13 +70,13 @@ export function NumerologyContentPage({
   /** 面包屑（H1 之上），数字页指向父页 `/life-path-number` */
   breadcrumb?: ReactNode
 }) {
-  const fullCalculator = toolHref(NUMEROLOGY_TOOLS['numerology-calculator'].path, NUMEROLOGY_LOCALE)
+  const fullCalculator = numerologyHref('numerology-calculator')
   return (
     <MarketingShell>
       <ToolPage
         tool={tool}
         breadcrumb={breadcrumb}
-        title={content.title}
+        title={content.heading ?? content.title}
         intro={<p className="m-0">{content.description}</p>}
         form={calculator}
         article={

@@ -178,39 +178,78 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
   baseURL,
 }) => {
   const { context, page } = await eastContext(browser, baseURL)
-  // 页头语言菜单（<details>）：展开后点目标语言；水合前点击无效，所以重试直到页面语言改变
+  // 页头语言菜单（<details> 加普通链接，多语言 SEO 规范 ML-08）：不依赖水合，展开后点目标语言的链接整页导航
+  const menu = page
+    .locator('header details')
+    .filter({ has: page.locator('a[hreflang]') })
+    .first()
+  const item = (locale: string) => menu.locator(`a[hreflang="${locale}"]`)
   const switchTo = async (locale: string) => {
-    const menu = page.locator('details').filter({ has: page.locator('button[lang]') })
-    await expect
-      .poll(
-        async () => {
-          if (!(await menu.getAttribute('open').then((open) => open !== null)))
-            await menu.locator('summary').click()
-          await menu
-            .locator(`button[lang="${locale}"]`)
-            .click({ timeout: 2_000 })
-            .catch(() => {})
-          return page.locator('html').getAttribute('lang')
-          // dev server 下工具页水合与切换后的整页跳转常超过默认 5 秒，与其他水合等待一致放宽到 30 秒
-        },
-        { timeout: 30_000 },
-      )
-      .toBe(locale)
+    await menu.locator('summary').click()
+    await item(locale).click()
+    // dev server 下工具页的整页跳转常超过默认 5 秒，与其他等待一致放宽到 30 秒
+    await expect(page.locator('html')).toHaveAttribute('lang', locale, { timeout: 30_000 })
   }
   try {
     await page.goto('/zh-hant/塔羅/每日一張')
+    // 每一项都是带 hreflang 与 lang 的链接，指向该语言的对应页面；当前语言一项标记 aria-current
+    await expect(menu.locator('a[hreflang]')).toHaveCount(4)
+    await expect(menu.locator('button')).toHaveCount(0)
+    await expect(item('ko')).toHaveAttribute('href', encodeURI('/ko/타로/오늘의-카드'))
+    await expect(item('ko')).toHaveAttribute('lang', 'ko')
+    await expect(item('zh-Hans')).toHaveAttribute('href', encodeURI('/zh-hans/塔罗/每日一张'))
+    await expect(item('zh-Hant')).toHaveAttribute('aria-current', 'page')
+    // 东方站英文只有首页：没有对应页面的语言指向该语言首页
+    await expect(item('en')).toHaveAttribute('href', '/')
     await switchTo('ko')
     await expect(page).toHaveURL((url) => decodeURI(url.pathname) === '/ko/타로/오늘의-카드')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-    // 切换语言会保存偏好并刷新路由，等它结束再整页导航，否则 goto 被进行中的导航中止
-    await page.waitForLoadState('networkidle')
+    // 切换只是链接导航：不写语言 Cookie
+    expect(await localeCookies(page)).toEqual([])
     // 紫微斗数没有韩语页面：回到韩语首页
     await page.goto('/zh-hant/紫微斗數排盤')
+    await expect(item('ko')).toHaveAttribute('href', '/ko')
     await switchTo('ko')
     await expect(page).toHaveURL((url) => url.pathname === '/ko')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
+    // 页脚设置行的语言下拉同样是链接（不列只有首页的 English）
+    const footer = page.locator('footer details').filter({ has: page.locator('a[hreflang]') })
+    await expect(footer.locator('a[hreflang]')).toHaveCount(3)
+    await expect(footer.locator('a[hreflang="zh-Hant"]')).toHaveAttribute('href', '/zh-hant')
+  } finally {
+    await context.close()
+  }
+})
+
+test('关闭脚本时语言菜单仍可用：页头与页脚都是 <details> 加普通链接', async ({
+  browser,
+  baseURL,
+}) => {
+  const origin = eastOrigin(baseURL)
+  const context = await browser.newContext({ baseURL: origin, javaScriptEnabled: false })
+  const page = await context.newPage()
+  try {
+    await page.goto('/zh-hant/pricing')
+    const header = page
+      .locator('header details')
+      .filter({ has: page.locator('a[hreflang]') })
+      .first()
+    await header.locator('summary').click()
+    await expect(header.locator('a[hreflang="ko"]')).toHaveAttribute('href', '/ko/pricing')
+    await header.locator('a[hreflang="ko"]').click()
+    await expect(page).toHaveURL(`${origin}/ko/pricing`)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ko')
+    // 页脚：键盘可达（summary 可聚焦，回车展开，Tab 进入链接）
+    const footer = page.locator('footer details').filter({ has: page.locator('a[hreflang]') })
+    await footer.locator('summary').focus()
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Tab')
+    await expect(footer.locator('a[hreflang="zh-Hant"]')).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(`${origin}/zh-hant/pricing`)
+    expect(await localeCookies(page)).toEqual([])
   } finally {
     await context.close()
   }
@@ -219,7 +258,8 @@ test('东方站页头切换语言时工具页换成目标语言的对应路径�
 test('西方站只有英文，页头不显示语言菜单', async ({ page }) => {
   await page.goto('/pricing')
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-  await expect(page.locator('header button[lang]')).toHaveCount(0)
+  await expect(page.locator('header a[hreflang]')).toHaveCount(0)
+  await expect(page.locator('footer a[hreflang]')).toHaveCount(0)
 })
 
 test('当前页没有浏览器语言的版本时不提示：西方站繁中浏览器、东方站工具页英文浏览器', async ({

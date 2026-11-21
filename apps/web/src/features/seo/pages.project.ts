@@ -2,7 +2,11 @@ import { brandName, type TemplateConfig } from '@xuanxue/config'
 import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
 import { templateConfig } from '../../server/template-config.ts'
 import type { AppLocale } from '../i18n/locales.ts'
-import { LIFE_PATH_TOOL_PATH } from '../tools/numerology/routes.ts'
+import {
+  isNumerologyLocale,
+  LIFE_PATH_TOOL_PATH,
+  numerologyPath,
+} from '../tools/numerology/routes.ts'
 import { mainToolPath, TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { tarotIndexPath } from '../tools/tarot/meaning-routes.ts'
 import type { SeoPage, StaticPath } from './metadata.ts'
@@ -83,14 +87,45 @@ const STATIC_MAIN: Readonly<Record<AppLocale, Record<StaticPath, readonly [strin
     '/waitlist': ['대기자 명단'],
     '/faq': ['자주 묻는 질문'],
   },
+  // 主词取术语表 anchors（apps/web/i18n/glossary/es.json）
+  es: {
+    '/': ['', 'Inicio'],
+    '/pricing': ['Precios'],
+    '/blog': ['Blog'],
+    '/guides': ['Guías'],
+    '/docs': ['Ayuda'],
+    '/newsletter': ['Boletín'],
+    '/waitlist': ['Lista de espera'],
+    '/faq': ['Preguntas frecuentes'],
+  },
+  ja: {
+    '/': ['', 'ホーム'],
+    '/pricing': ['料金プラン'],
+    '/blog': ['ブログ'],
+    '/guides': ['ガイド'],
+    '/docs': ['ドキュメント'],
+    '/newsletter': ['ニュースレター'],
+    '/waitlist': ['ウェイティングリスト'],
+    '/faq': ['よくある質問'],
+  },
 }
 
-/** 注册表中没有导航名的页面的主词（只有英语，属于西方站） */
+/** 注册表中没有导航名的页面的主词（西方站；西班牙语取术语表 anchors 的主词） */
 const WEST_MAIN: Readonly<Record<string, string>> = {
   '/numerology-chart': 'Numerology Chart',
   '/name-numerology': 'Name Numerology',
   '/soul-urge-number': 'Soul Urge Number',
   '/destiny-number': 'Destiny Number',
+  '/carta-numerologica': 'Carta numerológica',
+  '/numerologia-del-nombre': 'Numerología del nombre',
+  '/numero-del-alma': 'Número del alma',
+  '/numero-del-destino': 'Número del destino',
+}
+
+/** Life Path 数字页的主词（面包屑与内链锚文本），西班牙语取术语表「número de vida {n}」 */
+const LIFE_PATH_MAIN: Readonly<Record<string, (n: string) => string>> = {
+  en: (n) => `Life Path ${n}`,
+  es: (n) => `Número de vida ${n}`,
 }
 
 /** 牌义索引页的主词，与页面面包屑（tarot_index_crumb）一致 */
@@ -99,6 +134,8 @@ const TAROT_INDEX_MAIN: Readonly<Record<TarotLocale, string>> = {
   'zh-Hant': '塔羅牌義',
   'zh-Hans': '塔罗牌义',
   ko: '타로 카드 의미',
+  es: 'Significado de las cartas del tarot',
+  ja: 'タロットカードの意味',
 }
 
 // 按「语言 + 路径」查注册表条目；跨站工具（牌阵、牌义）在两站各登记一条，共用同一组路径，取第一条即可
@@ -133,7 +170,13 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
     return { titleMain: name ?? page.title, parent: tarotIndexPath(locale) }
   }
   const lifePath = /^life-path-(\d+)$/.exec(route.id)?.[1]
-  if (lifePath) return { titleMain: `Life Path ${lifePath}`, parent: LIFE_PATH_TOOL_PATH }
+  if (lifePath)
+    return {
+      titleMain: (LIFE_PATH_MAIN[locale] ?? LIFE_PATH_MAIN.en ?? String)(lifePath),
+      parent: isNumerologyLocale(locale)
+        ? numerologyPath('life-path', locale)
+        : LIFE_PATH_TOOL_PATH,
+    }
   if (route.id.startsWith('bazi-concept-'))
     return { titleMain: navTitle ?? page.title, parent: mainToolPath(locale) ?? '/' }
   return { titleMain: navTitle ?? WEST_MAIN[page.path] ?? page.title, parent: '/' }

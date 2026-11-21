@@ -1,0 +1,12 @@
+{
+  "daily_credits_granted": "個人ワークスペースにデイリークレジットを{credits}付与しました。今月：{daysThisMonth}/{maxDaysPerMonth}日",
+  "daily_credits_expiry": "有効期限：{expiresAt}",
+  "daily_credits_dismiss": "閉じる",
+  "daily_credits_verify": "メールアドレスを認証すると、デイリークレジットを受け取れます",
+  "daily_credits_source": "デイリークレジット",
+  "daily_credits_already_claimed": "本日分のデイリークレジットは受け取り済みです。明日（UTC）またお越しください。",
+  "daily_credits_monthly_limit": "今月のデイリークレジットの付与日数を使い切りました。来月（UTC）から再開します。",
+  "daily_credits_shared_note": "{site}と{otherSite}で同じメールアドレスのアカウントは、1日の受け取り回数と月ごとの上限を共有します。",
+  "daily_credits_faq_q": "デイリークレジットの仕組みを教えてください",
+  "daily_credits_faq_a": "新規アカウントは、初日に合計20クレジットを受け取れます。メールアドレスの認証後に付与される新規登録クレジット15クレジット（メールアドレスごとに1回）と、その日のデイリークレジット5クレジットです。それ以降は、メールアドレスを認証済みであれば、毎日（UTC）初めてアカウントページを開いたときに無料で5クレジットを受け取れます。月に最大10日分です。デイリークレジットの有効期間は7日間で、ほかのクレジットより先に使われます。{site}と{otherSite}で同じメールアドレスのアカウントは、1日の受け取り回数と月ごとの上限を共有するため、一方のサイトで受け取ると、もう一方にも反映されます。"
+}

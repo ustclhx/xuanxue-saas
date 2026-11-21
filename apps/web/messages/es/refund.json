@@ -1,0 +1,12 @@
+{
+  "refund_title": "Solicitar un reembolso",
+  "refund_window_notice": "Se pueden revisar los pagos de los últimos {days} días. Los reembolsos requieren aprobación; cancelar o eliminar la cuenta no reembolsa los pagos automáticamente.",
+  "refund_contact_retention_notice": "Conservamos el correo de contacto para que recibas la decisión aunque elimines tu cuenta. Se borra 30 días después de la decisión final.",
+  "refund_payment": "Pago",
+  "refund_choose_payment": "Elige un pago",
+  "refund_reason": "Motivo",
+  "refund_contact_email": "Correo de contacto",
+  "refund_submit": "Enviar solicitud de reembolso",
+  "refund_no_eligible_payments": "No hay pagos elegibles sin una solicitud pendiente.",
+  "refund_submitted": "Solicitud de reembolso enviada. Te enviaremos la decisión a tu correo de contacto."
+}

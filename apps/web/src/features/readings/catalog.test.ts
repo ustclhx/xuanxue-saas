@@ -8,6 +8,7 @@ import {
   ensureHealthNotice,
   missingSections,
   readingDefinition,
+  readingEvalPassed,
   readingInputHash,
   readingMessages,
   withDisclaimer,
@@ -35,12 +36,27 @@ const bazi = () => {
 
 describe('详批注册表', () => {
   it('每种详批的报告语言；未知类型或不支持的语言返回 undefined', () => {
-    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en'])
+    expect(readingDefinition('bazi-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en', 'ja'])
     expect(readingDefinition('saju-full')?.locales).toEqual(['ko'])
-    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en'])
+    expect(readingDefinition('ziwei-full')?.locales).toEqual(['zh-Hant', 'zh-Hans', 'en', 'ja'])
     expect(readingDefinition('saju-compat')?.locales).toEqual(['ko'])
-    expect(readingDefinition('numerology-full')?.locales).toEqual(['en'])
-    expect(readingDefinition('tarot-spread')?.locales).toEqual(['en', 'zh-Hant', 'zh-Hans', 'ko'])
+    expect(readingDefinition('numerology-full')?.locales).toEqual(['en', 'es'])
+    expect(readingDefinition('tarot-spread')?.locales).toEqual([
+      'en',
+      'zh-Hant',
+      'zh-Hans',
+      'ko',
+      'es',
+      'ja',
+    ])
+    // es 变体（add-locales-eu-ja tasks 5.8）：首个 es 版本；是否出售由 READING_EVAL_PENDING 决定
+    expect(readingDefinition('numerology-full', 'es')?.prompt.version).toBe('numerology-full.v5')
+    expect(readingDefinition('tarot-spread', 'es')?.prompt.version).toBe('tarot-spread.v4')
+    expect(readingDefinition('numerology-full', 'en')?.prompt.version).toBe('numerology-full.v3')
+    // 评测门槛通过前不对访客开放（READING_EVAL_PENDING，与 ja 同一机制）；英文不受影响
+    expect(readingEvalPassed('numerology-full', 'es')).toBe(false)
+    expect(readingEvalPassed('tarot-spread', 'es')).toBe(false)
+    expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
     expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
     // 东方站英文没有 v4 之前的版本：代码默认即 v4（add-locales-eu-ja 5b.3）
     expect(readingDefinition('bazi-full', 'en')?.prompt.version).toBe('bazi-full.v4')
@@ -239,24 +255,31 @@ describe('样例段落', () => {
 
   it('六种详批的每种报告语言都有样例；解锁卡标题声明为虚构案例', () => {
     expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
-    expect(variants).toHaveLength(13)
+    expect(variants).toHaveLength(18)
     for (const { locale, sample } of variants) {
       expect(sample.length).toBeGreaterThan(0)
       // 正文自身以「示例」开头，解锁卡标题再声明为虚构案例（readings_unlock_sample）
-      expect(sample).toMatch(/^(?:示例|예시|In this sample|This sample)/)
+      expect(sample).toMatch(
+        /^(?:示例|예시|In this sample|This sample|En esta carta de muestra|Esta tirada de tres cartas de muestra|サンプル)/,
+      )
       const caption = JSON.parse(
         readFileSync(new URL(`../../../messages/${locale}/readings.json`, import.meta.url), 'utf8'),
       ).readings_unlock_sample as string
-      const fictional = { en: /fictional/, ko: /가상/, 'zh-Hant': /虛構/, 'zh-Hans': /虚构/ }[
-        locale as 'en'
-      ]
+      const fictional = {
+        en: /fictional/,
+        es: /ficticio/,
+        ko: /가상/,
+        'zh-Hant': /虛構/,
+        'zh-Hans': /虚构/,
+        ja: /架空/,
+      }[locale as 'en']
       expect(caption).toMatch(fictional)
     }
   })
 
-  it('长度：中韩 80–150 字（不计空白），英文 50–90 词', () => {
+  it('长度：中日韩 80–150 字（不计空白），英文与西语 50–90 词', () => {
     for (const { locale, sample } of variants) {
-      if (locale === 'en') {
+      if (locale === 'en' || locale === 'es') {
         const words = sample.split(/\s+/).length
         expect(words).toBeGreaterThanOrEqual(50)
         expect(words).toBeLessThanOrEqual(90)
@@ -279,6 +302,9 @@ describe('样例段落', () => {
       'Geng Wu, Xin Si, Geng Chen and Xin Si (庚午 辛巳 庚辰 辛巳)',
     )
     expect(sample('ziwei-full', 'en')).toContain('Po Jun')
+    expect(sample('numerology-full', 'es')).toContain('número de vida 3')
+    // 西语样例按术语表写牌名与正位（Oros / Bastos、al derecho）
+    expect(sample('tarot-spread', 'es')).toMatch(/Ocho de Oros al derecho.*As de Bastos al derecho/)
   })
 
   it('通过合规检查：不含日期预言、病名或投资标的', () => {

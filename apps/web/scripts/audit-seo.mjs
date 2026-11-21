@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
-import { hostRequest } from './check-links.mjs'
+import { hostRequest, withoutPendingLocales } from './check-links.mjs'
 import {
   classifyHref,
   decodeEntities,
@@ -470,9 +470,10 @@ async function main() {
       strict: { type: 'boolean' },
     },
   })
-  const templateConfig = (
-    await import(new URL('../../../template.config.ts', import.meta.url).href)
-  ).default
+  // 项目扩展：未发布语言不进链接图（与 check-links.mjs 相同，features/i18n/rollout.ts）
+  const templateConfig = withoutPendingLocales(
+    (await import(new URL('../../../template.config.ts', import.meta.url).href)).default,
+  )
   const config = resolveLinkingConfig(templateConfig.seo?.linking)
   const preview = values['base-url'] ? null : await startPreview()
   const baseUrl = values['base-url'] ?? preview.baseUrl

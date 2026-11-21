@@ -1,0 +1,18 @@
+Acme
+
+
+Inicia sesión en Acme
+
+Hola:
+
+Haz clic en el botón para iniciar sesión. El enlace vence en 5 minutos y solo se puede usar una vez.
+
+Iniciar sesión https://acme.test/api/auth/magic-link/verify?token=tok_magic
+
+Si el botón no funciona, copia y pega este enlace en tu navegador:
+
+https://acme.test/api/auth/magic-link/verify?token=tok_magic
+
+----------------------------------------
+
+Si no pediste este enlace, puedes ignorar este correo.

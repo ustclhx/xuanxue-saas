@@ -1,0 +1,15 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "share_page_shared_by": "Compartido por un usuario de {site} · {date}",
+  "share_page_cta_primary": "Haz el tuyo en {site}",
+  "share_page_cta_secondary": "Sobre {site}",
+  "share_page_note": "Un usuario de {site} compartió este resultado públicamente y puede retirarlo en cualquier momento.",
+  "share_page_note_expires": "Un usuario de {site} compartió este resultado públicamente y puede retirarlo en cualquier momento. El enlace es válido hasta el {date}.",
+  "share_page_not_found_title": "Este enlace no existe o ya no está disponible",
+  "share_page_not_found_body": "Puede que el enlace esté mal escrito o que la persona que lo compartió lo haya retirado.",
+  "share_page_expired_title": "Este enlace ya venció",
+  "share_page_expired_body": "El enlace pasó su fecha de vencimiento. Pídele a quien lo compartió que lo comparta de nuevo.",
+  "share_page_rate_limited_title": "Demasiadas solicitudes",
+  "share_page_rate_limited_body": "Espera un minuto y vuelve a intentarlo.",
+  "share_page_home": "Volver al inicio"
+}

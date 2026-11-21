@@ -10,6 +10,7 @@ import {
 import { readingChecks } from './checks.ts'
 import {
   comboOf,
+  ES_READING_COMBOS,
   READING_COMBOS,
   READING_MAX_OUTPUT_TOKENS,
   type ReadingSampleInput,
@@ -137,7 +138,21 @@ function judgeGates(
   return gates
 }
 
-export const evaluateReadings: EvaluateRun = ({ samples, scope, candidate, baseline }) => {
+export const evaluateReadings: EvaluateRun = (ctx) =>
+  ctx.candidate.promptVersion === ES_CANDIDATE_VERSION
+    ? evaluateNewLocale(ctx, ES_READING_COMBOS)
+    : evaluateV4Batch(ctx)
+
+/**
+ * v4 批次（原六个组合）。样本文件追加了新语言样本后，这里只计原六个组合的样本，
+ * 新语言样本由各自的套件版本判定（evaluateNewLocale）。
+ */
+const evaluateV4Batch: EvaluateRun = ({ samples: all, scope, candidate, baseline }) => {
+  const samples = all.filter((sample) =>
+    (READING_COMBOS as readonly string[]).includes(
+      comboOf(sample.input as unknown as ReadingSampleInput),
+    ),
+  )
   const ids = samples.map((sample) => sample.id)
   const gates: RunGate[] = []
 
@@ -255,5 +270,163 @@ export const evaluateReadings: EvaluateRun = ({ samples, scope, candidate, basel
         'external evidence: staging real-path generation per combo (tasks 4.5); not evaluated here',
     },
   )
+  return { gates }
+}
+
+/** 西班牙语候选版本（add-locales-eu-ja tasks 5.8） */
+export const ES_CANDIDATE_VERSION = 'readings@es-v1'
+
+/**
+ * 新语言没有上一版本可作基线，「各维度均值 ≥ 基线 − 0.1」改为与已上线的 v4 批次比较：
+ * 参照值为 `readings@v4` 评委录制（2026-11-16，48 个样本，评分标准 r1）的各维度均值，
+ * 新组合的均值须 ≥ 参照值 − JUDGE_TOLERANCE。录制重录或评分标准改版时同步更新。
+ */
+export const V4_REFERENCE_MEANS: Readonly<Record<(typeof JUDGE_DIMENSIONS)[number], number>> = {
+  accuracy: 4.313,
+  specificity: 4.979,
+  actionability: 4.979,
+  tone: 5,
+  readability: 4.542,
+}
+
+/**
+ * 新语言的门槛（design 决策 7、D-10）：逐组合判定，每个门槛 ID 以组合为前缀（如
+ * `tarot-spread.es.hard-checks`），任一组合可单独通过并从 catalog.ts READING_EVAL_PENDING 中删去。
+ * 允许 `--tag <locale>` 筛选运行：样本量按所选样本中该组合的个数计。不需要也不接受基线。
+ */
+export function evaluateNewLocale(
+  { samples, candidate, baseline }: Parameters<EvaluateRun>[0],
+  combos: readonly string[],
+): ReturnType<EvaluateRun> {
+  const gates: RunGate[] = [
+    {
+      id: 'versions',
+      status: baseline ? 'failed' : 'passed',
+      detail: baseline
+        ? `${candidate.promptVersion} introduces a new locale and has no baseline; run it without --baseline (got ${baseline.promptVersion})`
+        : `candidate ${candidate.promptVersion}; judge means compared with the readings@v4 reference`,
+    },
+  ]
+  for (const combo of combos) {
+    const ids = samples
+      .filter((sample) => comboOf(sample.input as unknown as ReadingSampleInput) === combo)
+      .map((sample) => sample.id)
+    gates.push({
+      id: `${combo}.coverage`,
+      status: ids.length >= MIN_SAMPLES_PER_COMBO ? 'passed' : 'incomplete',
+      detail: `${ids.length} samples (need ≥ ${MIN_SAMPLES_PER_COMBO})`,
+      metrics: { samples: ids.length },
+    })
+    if (ids.length === 0) continue
+
+    const hard = collect(candidate, ids, hardChecksPassed)
+    const failedIds = ids.filter((_, i) => hard.values[i] === 0)
+    gates.push(
+      hard.missing.length
+        ? {
+            id: `${combo}.hard-checks`,
+            status: 'incomplete',
+            detail: missingDetail(hard.missing),
+            metrics: { missing: hard.missing, expected: ids.length },
+          }
+        : {
+            id: `${combo}.hard-checks`,
+            status: failedIds.length ? 'failed' : 'passed',
+            detail: `${ids.length - failedIds.length}/${ids.length} passed${failedIds.length ? `; failed: ${failedIds.join(', ')}` : ''}`,
+            metrics: {
+              passed: ids.length - failedIds.length,
+              expected: ids.length,
+              failed: failedIds,
+            },
+          },
+    )
+
+    for (const dimension of JUDGE_DIMENSIONS) {
+      const id = `${combo}.judge-${dimension}-vs-v4`
+      const scores = collect(candidate, ids, judgeScore(dimension))
+      if (scores.missing.length) {
+        gates.push({
+          id,
+          status: 'incomplete',
+          detail: missingDetail(scores.missing),
+          metrics: { missing: scores.missing, expected: ids.length },
+        })
+        continue
+      }
+      const value = mean(scores.values) as number
+      const floor = V4_REFERENCE_MEANS[dimension] - JUDGE_TOLERANCE
+      gates.push({
+        id,
+        status: value >= floor - FLOAT_SLACK ? 'passed' : 'failed',
+        detail: `${ids.length} samples: ${value.toFixed(3)} vs v4 reference ${V4_REFERENCE_MEANS[dimension].toFixed(3)} (need ≥ ${floor.toFixed(3)})`,
+        metrics: {
+          mean: round(value),
+          reference: V4_REFERENCE_MEANS[dimension],
+          floor: round(floor),
+          samples: ids.length,
+        },
+      })
+    }
+    const accuracy = collect(candidate, ids, judgeScore('accuracy'))
+    if (accuracy.missing.length)
+      gates.push({
+        id: `${combo}.judge-accuracy-min`,
+        status: 'incomplete',
+        detail: missingDetail(accuracy.missing),
+        metrics: { missing: accuracy.missing, expected: ids.length },
+      })
+    else {
+      const value = mean(accuracy.values) as number
+      gates.push({
+        id: `${combo}.judge-accuracy-min`,
+        status: value >= MIN_ACCURACY - FLOAT_SLACK ? 'passed' : 'failed',
+        detail: `${ids.length} samples: accuracy mean ${value.toFixed(3)} (need ≥ ${MIN_ACCURACY})`,
+        metrics: { mean: round(value), min: MIN_ACCURACY, samples: ids.length },
+      })
+    }
+
+    const tokenLimit = EFFECTIVE_OUTPUT_LIMIT * OUTPUT_TOKEN_RATIO
+    const tokens = collect(candidate, ids, (r) => r.usage.generation?.outputTokens)
+    const p95Tokens = percentile(tokens.values, 95)
+    gates.push(
+      tokens.missing.length || p95Tokens === null
+        ? {
+            id: `${combo}.p95-output-tokens`,
+            status: 'incomplete',
+            detail: missingDetail(tokens.missing),
+            metrics: { missing: tokens.missing, expected: ids.length },
+          }
+        : {
+            id: `${combo}.p95-output-tokens`,
+            status: p95Tokens <= tokenLimit ? 'passed' : 'failed',
+            detail: `P95 ${p95Tokens} tokens over ${ids.length} (limit ${tokenLimit})`,
+            metrics: { p95: p95Tokens, limit: tokenLimit, samples: ids.length },
+          },
+    )
+    const durations = collect(candidate, ids, (r) => r.usage.generation?.durationMs)
+    const p95Duration = percentile(durations.values, 95)
+    gates.push(
+      durations.missing.length || p95Duration === null
+        ? {
+            id: `${combo}.p95-duration`,
+            status: 'incomplete',
+            detail: missingDetail(durations.missing),
+            metrics: { missing: durations.missing, expected: ids.length },
+          }
+        : {
+            id: `${combo}.p95-duration`,
+            status: p95Duration <= MAX_P95_DURATION_MS ? 'passed' : 'failed',
+            detail: `P95 ${(p95Duration / 1000).toFixed(1)} s over ${ids.length} (limit ${MAX_P95_DURATION_MS / 1000} s)`,
+            metrics: { p95Ms: p95Duration, limitMs: MAX_P95_DURATION_MS, samples: ids.length },
+          },
+    )
+  }
+  gates.push({
+    id: 'human-review',
+    status: 'incomplete',
+    required: false,
+    detail:
+      'external evidence: user review of ≥ 2 samples per new combo, recorded in the private acceptance record; not evaluated here',
+  })
   return { gates }
 }

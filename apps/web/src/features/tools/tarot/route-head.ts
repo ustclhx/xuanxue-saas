@@ -8,8 +8,16 @@ import {
   type TarotLocale,
   tarotDescription,
   tarotPath,
-  tarotTitle,
+  tarotSeoTitle,
 } from './routes.ts'
+
+/**
+ * `/tarot/…` 路径段由英语与西班牙语共用（西班牙语带 `/es` 前缀，牌阵子路径各自本地化）：按当前语言取，
+ * 其他语言按英语处理，随后由 resolveTarotRoute 返回 404。
+ */
+export function sharedTarotLocale(): Extract<TarotLocale, 'en' | 'es'> {
+  return getLocale() === 'es' ? 'es' : 'en'
+}
 
 /**
  * 牌阵页的文件路由共用逻辑：`/tarot/…` 只服务英语，`/塔羅/…` 只服务繁中，`/타로/…` 只服务韩语；
@@ -32,7 +40,7 @@ export function tarotHead(
     {
       path: tarotPath(spread, locale),
       locale,
-      title: tarotTitle(spread, locale),
+      title: tarotSeoTitle(spread, locale),
       description: tarotDescription(spread, locale),
       alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l)])),
     },

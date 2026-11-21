@@ -44,13 +44,13 @@
 ## 4. 日语（东方站，第一期）
 
 - [ ] 4.0 [Opus] 日语关键词地图（先于 4.1–4.2）：为第一期每个页面（落地页、四柱推命、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价）调研当地搜索词，定主词与次词、slug、Title、H1、≤2 种锚文本，避免页面间抢词；依据写明来源（搜索建议、竞品页、可得的量级数据），存 `EVIDENCE_DIR`，使用者过目后再定 slug
-- [ ] 4.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.east.locales` 末尾追加 `ja`，`brand.names.ja = '干支日'`，`seo.linking.sites` 东方站组加 `ja`；`rollout.ts` 设为 pending
-- [ ] 4.2 [Opus] 注册表与路由：`/ja/四柱推命`、`/ja/紫微斗数`、塔罗四页、`/ja/タロット/カード` 与 78 张牌义；`pages.project.ts` 的 STATIC_MAIN、主词与 parent；`switchLocalePath` 测试
-- [ ] 4.3 [Opus] 四柱推命呈现：命式、通変星、蔵干、十二運星、天中殺等日语标签；日本标准时间与 1948–1951 夏令时（引擎复算测试）；默认出生地为东京；概念页链接在 `ja` 不渲染
-- [ ] 4.4 [Codex] `messages/ja/*.json` 界面文案（认证、账户、计费、应用区、通用组件），按术语表；缺键检查为 0
-- [ ] 4.5 [Opus] 公开页文案与内容：落地页、四柱推命与紫微工具页正文/FAQ、塔罗抽牌页、牌义索引、FAQ 页、定价页（事实单写作，不给中文正文）
-- [ ] 4.6 [Opus] 78 张牌义 `content/tarot/ja` + `packages/tarot/src/data/ja.ts`：按花色分 5 批并行，每批跑 2.1–2.3 与 `measure-intra`
-- [ ] 4.7 [Opus] 法律页与运营方说明 `content/legal/{east,shared}/ja`（注明以繁中版为准）；`packages/email` 的 `ja` 邮件文案
+- [x] 4.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.east.locales` 末尾追加 `ja`，`brand.names.ja = '干支日'`，`seo.linking.sites` 东方站组加 `ja`；`rollout.ts` 设为 pending
+- [x] 4.2 [Opus] 注册表与路由：`/ja/四柱推命`、`/ja/紫微斗数`、塔罗四页、`/ja/タロット/カード` 与 78 张牌义；`pages.project.ts` 的 STATIC_MAIN、主词与 parent；`switchLocalePath` 测试
+- [x] 4.3 [Opus] 四柱推命呈现：命式、通変星、蔵干、十二運星、天中殺等日语标签；日本标准时间与 1948–1951 夏令时（引擎复算测试）；默认出生地为东京；概念页链接在 `ja` 不渲染
+- [x] 4.4 [Codex] `messages/ja/*.json` 界面文案（认证、账户、计费、应用区、通用组件），按术语表；缺键检查为 0
+- [x] 4.5 [Opus] 公开页文案与内容：落地页、四柱推命与紫微工具页正文/FAQ、塔罗抽牌页、牌义索引、FAQ 页、定价页（事实单写作，不给中文正文）
+- [x] 4.6 [Opus] 78 张牌义 `content/tarot/ja` + `packages/tarot/src/data/ja.ts`：按花色分 5 批并行，每批跑 2.1–2.3 与 `measure-intra`
+- [x] 4.7 [Opus] 法律页与运营方说明 `content/legal/{east,shared}/ja`（注明以繁中版为准）；`packages/email` 的 `ja` 邮件文案
 - [ ] 4.8 [Opus] AI 详批：四柱推命、紫微、塔罗的 `ja` 提示词变体；`evals/readings` 新套件版本，每组合 ≥8 个样本；文字检测与术语检查；离线单测；经批准预算后真实运行并过门槛
 - [ ] 4.9 [Codex] 计费：JPY 加入币种表（零小数）、价目表、回调白名单、`formatMoney`、同步脚本；`ja` → JPY；测试。staging 沙盒同步；live 价格创建等使用者批准（D-13）
 - [ ] 4.10 [Opus] 门槛验收：measure 报告（结构直译 ≤0.60、回译 ≤校准阈值、FAQ ≤0.40、数字重合 ≤0.50、跨牌 ≤0.30、FAQ local ≥2）、术语检查、跨模型审阅记录（D-6）
@@ -59,15 +59,15 @@
 ## 5. 西班牙语（西方站，第一期）
 
 - [ ] 5.0 [Opus] 西班牙语关键词地图（先于 5.1–5.2）：同 4.0，覆盖数字命理工具与 12 个数字页、两个枢纽页、塔罗四页、牌义索引与 78 张牌义、FAQ、定价；按西语当地搜索词（如 número de vida / camino de vida、numerología、significado de las cartas del tarot）定主词，使用者过目后再定 slug
-- [ ] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
-- [ ] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
-- [ ] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
-- [ ] 5.4 [Opus] 数字命理内容 `content/numerology/es`：Life Path 工具长文、12 个数字页、destiny、soul urge；示例用拉美/西班牙人名与日期并经引擎复算；FAQ 取西语真实问法
-- [ ] 5.5 [Opus] 公开页文案：落地页、计算器/姓名/相性/图表工具页、塔罗抽牌页、FAQ 页、定价页
-- [ ] 5.6 [Opus] 78 张牌义 `content/tarot/es` + `packages/tarot/src/data/es.ts`：分 5 批并行，每批跑门槛
-- [ ] 5.7 [Opus] 法律页 `content/legal/{west,shared}/es`（注明以英文版为准）；`es` 邮件文案
+- [x] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
+- [x] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
+- [x] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
+- [x] 5.4 [Opus] 数字命理内容 `content/numerology/es`：Life Path 工具长文、12 个数字页、destiny、soul urge；示例用拉美/西班牙人名与日期并经引擎复算；FAQ 取西语真实问法
+- [x] 5.5 [Opus] 公开页文案：落地页、计算器/姓名/相性/图表工具页、塔罗抽牌页、FAQ 页、定价页
+- [x] 5.6 [Opus] 78 张牌义 `content/tarot/es` + `packages/tarot/src/data/es.ts`：分 5 批并行，每批跑门槛
+- [x] 5.7 [Opus] 法律页 `content/legal/{west,shared}/es`（注明以英文版为准）；`es` 邮件文案
 - [ ] 5.8 [Opus] AI 详批：数字命理与塔罗的 `es` 变体；评测样本 ≥8/组合；过门槛
-- [ ] 5.9 [Codex] 计费：`es` 维持 USD（D-4），确认定价页与解锁卡的西语金额格式
+- [x] 5.9 [Codex] 计费：`es` 维持 USD（D-4），确认定价页与解锁卡的西语金额格式
 - [ ] 5.10 [Opus] 门槛验收（同 4.10，源语言为 `en`）
 - [ ] 5.11 [Opus] staging 验收与 e2e 补 `es` 用例
 

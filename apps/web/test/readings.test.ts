@@ -493,14 +493,17 @@ describe('POST /api/readings', () => {
     // 语言与站点不匹配、输入非法
     expect((await post(who, { ...unlock(), locale: 'ko' }, poor.deps)).status).toBe(400)
     expect((await post(who, unlock({ ...BIRTH, month: 13 }), poor.deps)).status).toBe(400)
-    // 东方站英文八字 / 紫微待真实评测（release.ts）：与站点不符的西方站 en 一样拒绝，不扣费、不留报告
+    // 东方站英文八字 / 紫微待真实评测（catalog.ts READING_EVAL_PENDING）：普通会员 404；
+    // 西方站提交 en 八字属站点不符（release.ts readingSite）：400。均不扣费、不留报告
     const rich2 = await member(500)
     for (const body of [
       { ...unlock(), locale: 'en' },
       { ...unlock(), kind: 'ziwei-full', locale: 'en' },
-      { ...unlock(), locale: 'en', site: 'west' },
     ])
-      expect((await post(rich2, body, poor.deps)).status).toBe(400)
+      expect((await post(rich2, body, poor.deps)).status).toBe(404)
+    expect((await post(rich2, { ...unlock(), locale: 'en', site: 'west' }, poor.deps)).status).toBe(
+      400,
+    )
     expect(await readings(rich2.workspaceId)).toEqual([])
     expect((await getCreditBalance(db, rich2.workspaceId)).available).toBe(500)
   })

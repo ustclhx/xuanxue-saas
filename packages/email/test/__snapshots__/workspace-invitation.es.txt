@@ -1,0 +1,20 @@
+Acme
+
+
+Únete a Research Lab
+
+Hola:
+
+Grace te invitó a unirte al espacio de trabajo Research Lab en Acme como administrador.
+
+La invitación vence en 7 días.
+
+Aceptar invitación https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+Si el botón no funciona, copia y pega este enlace en tu navegador:
+
+https://acme.test/invite/0199a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b
+
+----------------------------------------
+
+Si no esperabas esta invitación, puedes ignorar este correo.

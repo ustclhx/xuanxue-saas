@@ -1,0 +1,18 @@
+{
+  "optin_title": "あなた向けの鑑定をメールで受け取る",
+  "optin_intro": "知りたいテーマを選ぶと、今回の結果をもとにした短い鑑定をお届けします。",
+  "optin_name": "お名前（任意）",
+  "optin_email": "メールアドレス",
+  "optin_topic": "知りたいこと",
+  "optin_love": "恋愛",
+  "optin_career": "仕事",
+  "optin_money": "お金",
+  "optin_reunion": "復縁",
+  "optin_growth": "自己成長",
+  "optin_submit": "メールで受け取る",
+  "optin_busy": "送信中…",
+  "optin_loading": "読み込み中…",
+  "optin_success": "受信トレイをご確認ください。はじめて登録する方は、先にメールアドレスの確認が必要です。",
+  "optin_error": "登録できませんでした。もう一度お試しください。",
+  "optin_consent": "登録すると、鑑定メールの受け取りに同意したことになります。配信はいつでも停止できます。"
+}

@@ -179,9 +179,11 @@ describe('首页包检查', () => {
   it('覆盖西方站与东方站三种语言首页，预算为正数', () => {
     expect(HOME_PAGES.map((page) => page.file)).toEqual([
       'index.html',
+      'es.html',
       'zh-hant.html',
       'zh-hans.html',
       'ko.html',
+      'ja.html',
     ])
     for (const page of HOME_PAGES) expect(page.budget).toBeGreaterThan(0)
   })

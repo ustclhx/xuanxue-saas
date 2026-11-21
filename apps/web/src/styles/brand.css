@@ -193,6 +193,16 @@
     -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
+/* 日语页不加载网页字体：标题与正文用系统日文字体（Hiragino / Yu Gothic / Meiryo）；字体视觉由任务 3.1 精修 */
+:root[data-site="east"]:lang(ja) {
+  --site-font-heading:
+    -apple-system, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "YuGothic", Meiryo,
+    sans-serif;
+  --site-font-body:
+    -apple-system, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "YuGothic", Meiryo,
+    sans-serif;
+}
+
 @media not print {
   :root.dark[data-site="east"] {
     --accent: #7fb8a4;
@@ -412,4 +422,12 @@
  */
 :root[data-site] {
   --neutral-fill: color-mix(in oklab, var(--surface) 88%, var(--ink));
+}
+
+/*
+ * 控件内的单行文字：行框按大写字母高度与基线裁切后再居中，与 @xuanxue/ui 的 Select 触发器相同。
+ * 设置行的语言下拉（features/i18n/language-controls.tsx）不用 Select（选项是普通链接），用它保持文字位置一致。
+ */
+@utility text-box-cap {
+  text-box: trim-both cap alphabetic;
 }

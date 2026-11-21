@@ -1,0 +1,18 @@
+{
+  "optin_title": "Recibe tu lectura personal por correo",
+  "optin_intro": "Elige un tema para recibir una lectura breve basada en este resultado.",
+  "optin_name": "Nombre (opcional)",
+  "optin_email": "Correo electrónico",
+  "optin_topic": "Quiero entender",
+  "optin_love": "Amor",
+  "optin_career": "Trabajo",
+  "optin_money": "Dinero",
+  "optin_reunion": "Reconciliación",
+  "optin_growth": "Crecimiento personal",
+  "optin_submit": "Envíamela",
+  "optin_busy": "Enviando…",
+  "optin_loading": "Cargando…",
+  "optin_success": "Revisa tu bandeja de entrada. Si es tu primera suscripción, primero confirma tu correo.",
+  "optin_error": "No se pudo completar la suscripción. Inténtalo de nuevo.",
+  "optin_consent": "Al suscribirte, aceptas recibir correos con lecturas. Puedes darte de baja cuando quieras."
+}

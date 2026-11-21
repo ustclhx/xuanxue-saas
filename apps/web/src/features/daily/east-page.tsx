@@ -26,14 +26,7 @@ import {
   tabooNames,
   tenGodTip,
 } from './copy.ts'
-import {
-  browserDate,
-  type CivilDate,
-  dateKey,
-  formatLongDate,
-  parseDateKey,
-  sameDate,
-} from './date.ts'
+import { browserDate, type CivilDate, formatLongDate, parseDateKey, sameDate } from './date.ts'
 import {
   type EastDayFacts,
   type EastPersonalFacts,
@@ -42,22 +35,10 @@ import {
   type NatalSummary,
   tenGodFor,
 } from './facts.ts'
+import { type EastDailyData, loadDailyEngine } from './load.ts'
 import type { EastRules } from './rules/types.ts'
 
-/** 流日引擎按需加载：tyme4ts 较大，不进首屏包（design D8） */
-export const loadDailyEngine = () => import('@xuanxue/bazi/daily')
-
-export interface EastDailyData {
-  /** 参考日期（`YYYY-MM-DD`） */
-  readonly date: string
-  readonly facts: EastDayFacts
-}
-
-/** 页面 loader：只由日期与规则表计算，不访问数据库与会话（daily-horoscope spec「公开页不查库且可缓存」） */
-export async function loadEastDaily(date: CivilDate): Promise<EastDailyData> {
-  const engine = await loadDailyEngine()
-  return { date: dateKey(date), facts: eastDayFacts(engine, date) }
-}
+export { type EastDailyData, loadDailyEngine, loadEastDaily } from './load.ts'
 
 /** 东方站页面标题用的「甲子日」 */
 export function eastHeading(locale: string, facts: EastDayFacts): string {

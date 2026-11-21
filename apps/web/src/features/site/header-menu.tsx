@@ -1,9 +1,31 @@
 import { cn } from '@xuanxue/ui'
-import { type ReactNode, useEffect, useRef } from 'react'
+import { type ReactNode, type RefObject, useEffect, useRef } from 'react'
 
 /** 页头菜单项的统一样式：整行可点，≥ 44px */
 export const headerMenuItem =
   'flex min-h-11 w-full items-center justify-between gap-6 rounded-field px-3 text-left text-body text-ink no-underline transition-colors hover:bg-surface-2 aria-[current=page]:font-medium aria-[current=true]:font-medium'
+
+/** `<details>` 浮层的补充行为：点击外部与 Esc 关闭，Esc 后焦点回到按钮（展开与收起本身不依赖脚本） */
+export function useDismissDetails(ref: RefObject<HTMLDetailsElement | null>) {
+  useEffect(() => {
+    const details = ref.current
+    if (!details) return
+    const onPointerDown = (event: PointerEvent) => {
+      if (details.open && !details.contains(event.target as Node)) details.open = false
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !details.open) return
+      details.open = false
+      details.querySelector('summary')?.focus()
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [ref])
+}
 
 /**
  * 页头的下拉菜单与手机导航面板（openspec refresh-visual-system-warm design.md D7）。
@@ -31,24 +53,7 @@ export function HeaderMenu({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDetailsElement>(null)
-  useEffect(() => {
-    const details = ref.current
-    if (!details) return
-    const onPointerDown = (event: PointerEvent) => {
-      if (details.open && !details.contains(event.target as Node)) details.open = false
-    }
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || !details.open) return
-      details.open = false
-      details.querySelector('summary')?.focus()
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [])
+  useDismissDetails(ref)
   return (
     <details ref={ref} className={cn('group', !wide && 'relative', className)}>
       <summary
@@ -88,7 +93,7 @@ export function HeaderMenu({
   )
 }
 
-/** 菜单项被选择后收起菜单（菜单项可能导航，也可能只切换语言） */
+/** 菜单项被选择后收起菜单（整页导航后经浏览器「返回」回到本页时菜单不再是展开的） */
 export function closeHeaderMenu(element: HTMLElement) {
   element.closest('details')?.removeAttribute('open')
 }

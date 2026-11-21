@@ -36,7 +36,10 @@ const content: Entry[] = JSON.parse(
 const origin = 'https://arcanumber.com'
 
 describe('数字命理页 SEO（tasks.md 2.3）', () => {
-  const contentPages = content.filter((page) => page.slug !== 'life-path-number')
+  // 英文页面（西班牙语页面的路径与 hreflang 另见下方「西班牙语数字命理页」）
+  const contentPages = content.filter(
+    (page) => page.slug !== 'life-path-number' && page.locale === 'en',
+  )
 
   it('12 个数字页 + 2 个枢纽页齐全，路径正确', () => {
     expect(contentPages.map((page) => numerologyContentPath(page.slug)).sort()).toEqual(
@@ -133,9 +136,23 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
           link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
         )
         const en = `https://arcanumber.com${tarotPath(spread, 'en')}`
+        // 未发布的 ja 页面自指（rollout.ts），已发布语言的页面不列 ja（上面 toEqual 已覆盖）
+        if (locale === 'ja') {
+          expect(Object.fromEntries(links).ja, `${spread} ja`).toBe(
+            new URL(`https://ganjiday.com/ja${tarotPath(spread, 'ja')}`).href,
+          )
+          continue
+        }
         expect(Object.fromEntries(links), `${spread} ${locale}`).toEqual(
-          locale === 'en'
-            ? { en, 'x-default': en }
+          locale === 'en' || locale === 'es'
+            ? // es 未发布（rollout.ts）：英文页不列 es；es 页面自指并列出英文版本
+              locale === 'en'
+              ? { en, 'x-default': en }
+              : {
+                  en,
+                  es: new URL(`https://arcanumber.com/es${tarotPath(spread, 'es')}`).href,
+                  'x-default': en,
+                }
             : {
                 'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotPath(spread, 'zh-Hant')}`)
                   .href,

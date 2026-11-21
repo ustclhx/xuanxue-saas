@@ -23,6 +23,11 @@ export const CITIES = {
   toronto: { zone: 'America/Toronto', longitude: -79.3832 },
   london: { zone: 'Europe/London', longitude: -0.1276 },
   sydney: { zone: 'Australia/Sydney', longitude: 151.2093 },
+  // 日语页常用出生地（add-locales-eu-ja 任务 4.3）：与东京同为 Asia/Tokyo，经度用于真太阳时
+  osaka: { zone: 'Asia/Tokyo', longitude: 135.5023 },
+  nagoya: { zone: 'Asia/Tokyo', longitude: 136.9066 },
+  sapporo: { zone: 'Asia/Tokyo', longitude: 141.3545 },
+  fukuoka: { zone: 'Asia/Tokyo', longitude: 130.4017 },
 } as const satisfies Record<string, { zone: string; longitude: number }>
 
 export type CityId = keyof typeof CITIES

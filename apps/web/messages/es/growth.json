@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "growth_newsletter_title": "Suscríbete a nuestro boletín",
+  "growth_newsletter_intro": "Recibe de vez en cuando novedades sobre nuestras herramientas y guías para reflexionar.",
+  "growth_waitlist_title": "Únete a la lista de espera",
+  "growth_email_label": "Correo electrónico",
+  "growth_newsletter_submit": "Suscribirme",
+  "growth_waitlist_submit": "Unirme a la lista",
+  "growth_submitting": "Enviando…",
+  "growth_unavailable": "Este formulario no está disponible.",
+  "growth_retry": "Inténtalo de nuevo.",
+  "growth_submit_failed": "No se pudo enviar. Inténtalo de nuevo.",
+  "growth_newsletter_success": "Revisa tu correo para confirmar la suscripción.",
+  "growth_waitlist_success": "Ya estás en la lista de espera.",
+  "growth_privacy_note": "Solo usamos esta dirección para estos correos. Consulta la [Política de privacidad](privacy); puedes darte de baja desde cualquier mensaje."
+}

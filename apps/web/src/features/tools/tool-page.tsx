@@ -63,8 +63,13 @@ export function ToolPage({
           <h1 className="m-0 text-balance font-heading text-ink text-title">{title}</h1>
           <div className="text-body text-ink-muted">{intro}</div>
         </header>
-        {form}
+        {/* data-locale-fixed：计算器与结果是引擎输出（数字、步骤、表格），多语言相似度测量不计其中的数字
+            （scripts/locale-similarity.mjs FIXED_DIGITS_SELECTOR）；contents 不产生布局盒 */}
+        <div data-locale-fixed className="contents">
+          {form}
+        </div>
         <section
+          data-locale-fixed
           id="result"
           aria-label={m.tools_results_label()}
           aria-live="polite"

@@ -7,7 +7,7 @@
  */
 
 /** 可实际结算的币种；CNY 只用作展示参考价，不在此列 */
-export const ENABLED_CURRENCIES = ['USD', 'TWD', 'KRW'] as const
+export const ENABLED_CURRENCIES = ['USD', 'TWD', 'KRW', 'JPY'] as const
 export type EnabledCurrency = (typeof ENABLED_CURRENCIES)[number]
 /** 可展示的币种：结算币种加上只作参考价的 CNY */
 export type DisplayCurrency = EnabledCurrency | 'CNY'
@@ -20,6 +20,8 @@ export const CURRENCY_EXPONENT: Readonly<Record<DisplayCurrency, number>> = {
   USD: 2,
   TWD: 2,
   KRW: 0,
+  // 日元为零小数币种（add-locales-eu-ja 决策 6）
+  JPY: 0,
   CNY: 2,
 }
 
@@ -27,13 +29,14 @@ export const CURRENCY_EXPONENT: Readonly<Record<DisplayCurrency, number>> = {
  * 最小单位金额必须是该步长的整数倍。Stripe 的 TWD 价格与退款必须是整元（最小单位 100 的倍数）；
  * PayPal 不使用 TWD（决策 2：PayPal 恒为 USD），因此不再区分平台。
  */
-const MINOR_STEP: Readonly<Record<EnabledCurrency, number>> = { USD: 1, TWD: 100, KRW: 1 }
+const MINOR_STEP: Readonly<Record<EnabledCurrency, number>> = { USD: 1, TWD: 100, KRW: 1, JPY: 1 }
 
-/** 展示时保留的小数位：TWD 与 KRW 只有整元，USD 保留美分 */
+/** 展示时保留的小数位：TWD、KRW 与 JPY 只有整元，USD 保留美分 */
 const DISPLAY_FRACTION_DIGITS: Readonly<Record<DisplayCurrency, number>> = {
   USD: 2,
   TWD: 0,
   KRW: 0,
+  JPY: 0,
   CNY: 0,
 }
 
@@ -103,6 +106,16 @@ export function toMinor(major: string | number, currency: EnabledCurrency): numb
 }
 
 /**
+ * 金额格式化所用的 Intl 语言：zh-Hant 的 Intl 把新台币显示为「$」，与美元无法区分，TWD 一律按 en 输出「NT$」；
+ * 西班牙语访客以拉美为主（openspec add-locales-eu-ja 决策 6，D-4 以 USD 结算）：`es` 的 Intl 输出西班牙本土的
+ * 「1,99 US$」，而拉美多数国家用小数点、且「$」是本国比索符号，因此按 es-419 输出不会与比索混淆的「USD 1.99」。
+ */
+export function moneyFormatLocale(currency: string, locale: string): string {
+  if (currency.toUpperCase() === 'TWD') return 'en'
+  return locale === 'es' ? 'es-419' : locale
+}
+
+/**
  * 按界面语言格式化最小单位金额：`NT$65`、`₩2,800`、`US$1.99`（en 为 `$1.99`）。
  * zh-Hant 的 Intl 把新台币显示为「$」，与美元无法区分，因此 TWD 一律按 en 格式输出「NT$」。
  */
@@ -110,7 +123,7 @@ export function formatMoney(amount: number, currency: string, locale: string): s
   const code = currency.toUpperCase() as DisplayCurrency
   const exponent = exponentOf(code)
   const digits = DISPLAY_FRACTION_DIGITS[code]
-  return new Intl.NumberFormat(code === 'TWD' ? 'en' : locale, {
+  return new Intl.NumberFormat(moneyFormatLocale(code, locale), {
     style: 'currency',
     currency: code,
     minimumFractionDigits: digits,
@@ -125,6 +138,7 @@ export type CheckoutProviderId = string
 const STRIPE_LOCALE_CURRENCY: Readonly<Record<string, EnabledCurrency>> = {
   'zh-Hant': 'TWD',
   ko: 'KRW',
+  ja: 'JPY',
 }
 
 /** 结算币种只由服务端按界面语言与支付平台决定；PayPal 所有语言都以 USD 结算（决策 2） */

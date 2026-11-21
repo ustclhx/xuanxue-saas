@@ -47,7 +47,7 @@ test('public pricing renders before hydration', async ({ browser, baseURL }) => 
     // 项目修正：语言切换是页头 <details> 菜单（不依赖水合），西方站只有英语、不显示菜单；
     // 没有模板的浮动语言下拉可断言禁用状态
     await expect(page.getByRole('heading', { name: 'Pricing', exact: true })).toBeVisible()
-    await expect(page.locator('header button[lang]')).toHaveCount(0)
+    await expect(page.locator('header a[hreflang]')).toHaveCount(0)
   } finally {
     await context.close()
   }

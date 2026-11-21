@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { readingDefinition, readingMessages, readingPromptVersions } from './catalog.ts'
+import {
+  READING_EVAL_PENDING,
+  readingDefinition,
+  readingEvalPassed,
+  readingMessages,
+  readingPromptVersions,
+} from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
 import { followUpQuestions } from './follow-up-questions.ts'
-import {
-  READINGS_AWAITING_EVALUATION,
-  readingOffered,
-  readingReleased,
-  readingSite,
-} from './release.ts'
+import { readingSite } from './release.ts'
 
-// add-locales-eu-ja 5b.3：东方站根路径英文的八字 / 紫微详批，与「未通过评测的组合隐藏解锁入口」
+// add-locales-eu-ja 5b.3：东方站根路径英文的八字 / 紫微详批，与按「类型 × 语言」判定的所属站点
 
 const NOW = new Date('2026-11-21T00:00:00Z')
 const BIRTH = {
@@ -35,25 +36,16 @@ describe('详批的所属站点', () => {
   })
 })
 
-describe('待评测组合', () => {
-  it('东方站英文八字与紫微待真实评测：不出售；其余组合照常', () => {
-    expect(READINGS_AWAITING_EVALUATION).toEqual(['bazi-full.en', 'ziwei-full.en'])
-    expect(readingReleased('bazi-full', 'en')).toBe(false)
-    expect(readingReleased('ziwei-full', 'en')).toBe(false)
-    expect(readingOffered('bazi-full', 'en', 'east')).toBe(false)
-    expect(readingOffered('ziwei-full', 'en', 'east')).toBe(false)
-    expect(readingOffered('bazi-full', 'zh-Hant', 'east')).toBe(true)
-    expect(readingOffered('numerology-full', 'en', 'west')).toBe(true)
-    expect(readingOffered('tarot-spread', 'en', 'west')).toBe(true)
-    // 站点不符一律拒绝
-    expect(readingOffered('numerology-full', 'en', 'east')).toBe(false)
-    expect(readingOffered('tarot-spread', 'ko', 'west')).toBe(false)
-  })
-
-  it('从列表删除组合即开放，且只在东方站出售', () => {
-    expect(readingOffered('bazi-full', 'en', 'east', [])).toBe(true)
-    expect(readingOffered('ziwei-full', 'en', 'east', ['bazi-full.en'])).toBe(true)
-    expect(readingOffered('bazi-full', 'en', 'west', [])).toBe(false)
+describe('评测门槛', () => {
+  it('东方站英文八字与紫微待真实评测（READING_EVAL_PENDING）：不出售；其余组合照常', () => {
+    expect(READING_EVAL_PENDING.has('bazi-full.en')).toBe(true)
+    expect(READING_EVAL_PENDING.has('ziwei-full.en')).toBe(true)
+    expect(readingEvalPassed('bazi-full', 'en')).toBe(false)
+    expect(readingEvalPassed('ziwei-full', 'en')).toBe(false)
+    expect(readingEvalPassed('bazi-full', 'zh-Hant')).toBe(true)
+    // 西方站英文与东方站英文共用 `en`，门槛按「类型 × 语言」区分，西方站不受影响
+    expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
+    expect(readingEvalPassed('tarot-spread', 'en')).toBe(true)
   })
 })
 
@@ -74,7 +66,8 @@ describe('东方站英文提示词（v4 的英文）', () => {
       expect(readingDefinition(item.kind)?.prompt.version).not.toBe(definition.prompt.version)
       expect(
         readingPromptVersions(item.kind).find((v) => v.version === `${item.kind}.v4`)?.locales,
-      ).toEqual(['en', 'zh-Hant', 'zh-Hans'])
+        // 日语（main 的 ja 变体）同样只有 v4 一代
+      ).toEqual(['en', 'ja', 'zh-Hant', 'zh-Hans'])
       const { system, sections } = definition.prompt
       for (const title of sections) expect(system).toContain(`## ${title}`)
       expect(sections).toContain(definition.healthSection?.title)

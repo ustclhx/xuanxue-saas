@@ -21,7 +21,7 @@ import { CANDIDATE_VERSION, comboOf, EAST_EN_COMBOS } from './prompts.ts'
 
 /**
  * 东方站英文的上线门槛（add-locales-eu-ja design 决策 7：沿用 readings 的门槛，按组合判定）。
- * 解锁入口按「类型 × 语言」开放（apps/web/src/features/readings/release.ts），所以门槛逐组合计算，
+ * 解锁入口按「类型 × 语言」开放（apps/web/src/features/readings/catalog.ts READING_EVAL_PENDING），所以门槛逐组合计算，
  * 某组合全部 passed 才可从待评测列表中删除。
  *
  * 英文是新语言，没有同样本的旧版本可作基线，`readings` 的「候选 ≥ 基线 − 0.1」改为与同类型

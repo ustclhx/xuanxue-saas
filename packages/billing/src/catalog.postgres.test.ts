@@ -123,6 +123,7 @@ describe('catalog on isolated PostgreSQL', () => {
         for (const row of usd) expect(after.find((p) => p.id === row.id)).toEqual(row)
         const local = after.filter((p) => p.currency !== 'USD')
         expect(local.map((p) => `${p.provider}:${p.currency}:${p.amount}`).sort()).toEqual([
+          'stripe:JPY:450',
           'stripe:KRW:4200',
           'stripe:TWD:9700',
         ])
@@ -167,8 +168,8 @@ describe('catalog on isolated PostgreSQL', () => {
               subs.map((row) => row.id),
             ),
           )
-        // 每档 Stripe USD/TWD/KRW 各一行月付；重跑幂等；PayPal 没有订阅价格
-        expect(prices).toHaveLength(6)
+        // 每档 Stripe USD/TWD/KRW/JPY 各一行月付；重跑幂等；PayPal 没有订阅价格
+        expect(prices).toHaveLength(8)
         expect(
           prices.every(
             (p) =>
@@ -308,8 +309,8 @@ describe('catalog on isolated PostgreSQL', () => {
           .from(planPrice)
           .where(inArray(planPrice.planId, catalogIds))
           .orderBy(planPrice.id)
-        // 两个积分包 × (Stripe USD/TWD/KRW + PayPal USD)；新的本地币种行为 unsynced 且停用
-        expect(prices).toHaveLength(8)
+        // 两个积分包 × (Stripe USD/TWD/KRW/JPY + PayPal USD)；新的本地币种行为 unsynced 且停用
+        expect(prices).toHaveLength(10)
         expect(
           prices
             .filter((p) => p.currency !== 'USD')

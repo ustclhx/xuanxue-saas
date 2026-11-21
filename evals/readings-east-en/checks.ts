@@ -111,7 +111,8 @@ export const terminologyCheck: Check = {
 }
 
 export const eastEnChecks: readonly Check[] = [
-  ...createReadingChecks(resolveReading),
+  // `readings` 的 script 检查要求拉丁语言正文零汉字；东方站英文保留干支标题与术语注释，改用下面按比例的同名检查
+  ...createReadingChecks(resolveReading).filter((check) => check.id !== 'script'),
   scriptCheck,
   hanRunsCheck,
   wordingCheck,

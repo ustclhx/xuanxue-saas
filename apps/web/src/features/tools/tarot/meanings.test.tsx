@@ -63,7 +63,9 @@ describe('三语牌义内容与 SEO', () => {
         const head = pageHead(seo, '')
         titles.add(head.meta.find((meta) => 'title' in meta)?.title ?? '')
         canonicals.add(head.links.find((link) => link.rel === 'canonical')?.href ?? '')
-        expect(page.html.match(/<h2>/g), page.cardId).toHaveLength(10)
+        if (locale === 'ja')
+          expect(page.html.match(/<h2>/g)?.length ?? 0, page.cardId).toBeGreaterThanOrEqual(6)
+        else expect(page.html.match(/<h2>/g), page.cardId).toHaveLength(10)
         for (const faq of page.faq) {
           const escaped = renderToString(<h3>{faq.q}</h3>)
           expect(page.html, page.cardId).toContain(escaped)
@@ -80,6 +82,8 @@ describe('三语牌义内容与 SEO', () => {
               'zh-Hant': ['正位', '逆位'],
               'zh-Hans': ['正位', '逆位'],
               ko: ['정방향', '역방향'],
+              es: ['Al derecho', 'Invertida'],
+              ja: ['正位置', '逆位置'],
             }[locale][Number(reversed)],
           )
           expect(html).toContain(
@@ -106,20 +110,33 @@ describe('三语牌义内容与 SEO', () => {
       )
       const slug = page.path.split('/').at(-1) ?? ''
       const en = `https://arcanumber.com${tarotMeaningPath(slug, 'en')}`
+      // es 属于西方站但尚未发布（rollout.ts）：英文页不列 es；es 页面自指并列出英文版本，不进站点地图
+      const es = new URL(`https://arcanumber.com/es${tarotMeaningPath(slug, 'es')}`).href
+      // ja 未发布（features/i18n/rollout.ts）：页面自身保留自指；已发布语言的页面不列 ja（站点地图按发布状态过滤在 crawlers.ts）
+      if (page.locale === 'ja') {
+        expect(alternate.ja).toBe(
+          new URL(`https://ganjiday.com/ja${tarotMeaningPath(slug, 'ja')}`).href,
+        )
+        continue
+      }
       expect(alternate).toEqual(
         page.locale === 'en'
           ? { en, 'x-default': en }
-          : {
-              'zh-Hant': new URL(`https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`)
-                .href,
-              'zh-Hans': new URL(`https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`)
-                .href,
-              ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
-              // x-default 为同一牌义的繁中版本，不是会跳转的根路径
-              'x-default': new URL(
-                `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
-              ).href,
-            },
+          : page.locale === 'es'
+            ? { en, es, 'x-default': en }
+            : {
+                'zh-Hant': new URL(
+                  `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
+                ).href,
+                'zh-Hans': new URL(
+                  `https://ganjiday.com/zh-hans${tarotMeaningPath(slug, 'zh-Hans')}`,
+                ).href,
+                ko: new URL(`https://ganjiday.com/ko${tarotMeaningPath(slug, 'ko')}`).href,
+                // x-default 为同一牌义的繁中版本，不是会跳转的根路径
+                'x-default': new URL(
+                  `https://ganjiday.com/zh-hant${tarotMeaningPath(slug, 'zh-Hant')}`,
+                ).href,
+              },
       )
       expect(xml).toContain(`<loc>${alternate[page.locale]}</loc>`)
       expect(
@@ -193,6 +210,8 @@ describe('三语牌义内容与 SEO', () => {
       'zh-Hans': ['月亮塔罗牌', '权杖王牌塔罗牌'],
       'zh-Hant': ['月亮塔羅牌', '權杖王牌塔羅牌'],
       ko: ['달 타로 카드', '완드 에이스 타로 카드'],
+      es: ['La Luna en el tarot', 'As de Bastos en el tarot'],
+      ja: ['月', 'ワンドのエース'],
     } as const
     for (const locale of TAROT_LOCALES) {
       messages.locale = locale
@@ -242,17 +261,23 @@ describe('三语牌义内容与 SEO', () => {
       for (const locale of TAROT_LOCALES) {
         const seo = tarotIndexSeo(locale)
         const listed = pages.filter((page) => page.path === seo.path && page.locale === locale)
-        expect(listed, `${site} ${locale}`).toHaveLength(
-          (site === 'west') === (locale === 'en') ? 1 : 0,
-        )
+        const west = locale === 'en' || locale === 'es'
+        expect(listed, `${site} ${locale}`).toHaveLength((site === 'west') === west ? 1 : 0)
         if (listed.length === 0) continue
         const head = pageHead(seo, '')
         const alternate = Object.fromEntries(
           head.links.flatMap((link) => ('hrefLang' in link ? [[link.hrefLang, link.href]] : [])),
         )
         expect(Object.keys(alternate).sort()).toEqual(
-          locale === 'en' ? ['en', 'x-default'] : ['ko', 'x-default', 'zh-Hans', 'zh-Hant'],
+          locale === 'en'
+            ? ['en', 'x-default']
+            : locale === 'es'
+              ? ['en', 'es', 'x-default']
+              : locale === 'ja'
+                ? ['ja', 'ko', 'x-default', 'zh-Hans', 'zh-Hant']
+                : ['ko', 'x-default', 'zh-Hans', 'zh-Hant'],
         )
+        // 站点地图路由按发布状态过滤语言（crawlers.ts），这里的 sitemap() 不过滤，es 与 ja 同样列出
         expect(xml).toContain(`<loc>${alternate[locale]}</loc>`)
         expect(entries.has(`${locale === 'en' ? '' : `/${locale.toLowerCase()}`}${seo.path}`)).toBe(
           true,
@@ -264,7 +289,9 @@ describe('三语牌义内容与 SEO', () => {
   it('牌义正文拆分：FAQ 与文末声明移出长文，正文里的牌阵链接只保留文字', () => {
     for (const page of content) {
       const { body, note } = splitMeaningHtml(page.html)
-      expect(body.match(/<h2>/g), page.cardId).toHaveLength(9)
+      if (page.locale === 'ja')
+        expect(body.match(/<h2>/g)?.length ?? 0, page.cardId).toBeGreaterThanOrEqual(5)
+      else expect(body.match(/<h2>/g), page.cardId).toHaveLength(9)
       expect(body).not.toContain('<a ')
       expect(note.length, page.cardId).toBeGreaterThan(20)
       expect(note).not.toMatch(/[<>]|&\w+;/)

@@ -1,0 +1,22 @@
+{
+  "deletion_danger_zone": "危険な操作",
+  "deletion_team_warning": "チームワークスペースを削除すると、その内容も削除されます。元に戻すことはできません。",
+  "deletion_team_title": "チームワークスペースを削除",
+  "deletion_account_title": "アカウントを削除",
+  "deletion_team_description": "すべてのメンバーは、ただちにアクセスできなくなります。ワークスペースの内容は、30日間保持された後に削除されます。",
+  "deletion_account_description": "個人ワークスペースが削除され、本人情報とログイン用の認証情報も削除されます。削除の前に、10分以内にいったんログアウトしてから、もう一度ログインしてください。",
+  "deletion_refund_notice": "削除すると、定期購入はただちに解約され、返金は行われません。削除の前に、返金の対象となるお支払いをご確認ください。審査中のリクエストは、登録された連絡先メールアドレスで引き続き確認できます。",
+  "deletion_contact_support": "サポートにお問い合わせください",
+  "deletion_support_suffix": "。お支払いについてご不明な点は、削除の前にお問い合わせいただけます。",
+  "deletion_refund_reminder": "返金期間内のお支払いが{eligibleCount}件、審査中のリクエストが{pendingCount}件あります。",
+  "deletion_review_billing": "お支払いと返金リクエストを確認する",
+  "deletion_signin_again": "ログアウトして、もう一度ログインする",
+  "deletion_confirmation": "確認のため、{confirmation} と入力してください",
+  "deletion_continue": "続ける",
+  "deletion_blocked_team_suffix": "：先にオーナー権限を譲渡するか、このチームを削除してください。",
+  "deletion_submitting": "削除中…",
+  "deletion_workspace_submit": "ワークスペースを削除",
+  "deletion_completed_cleanup_pending": "削除が完了しました。アクセス権は削除済みで、キャッシュされた認証情報は自動で削除される予定です。",
+  "deletion_error_unknown": "削除を完了できませんでした。もう一度お試しください。",
+  "deletion_signout_error": "ログアウトできませんでした。ログインする前に、もう一度お試しください。"
+}
