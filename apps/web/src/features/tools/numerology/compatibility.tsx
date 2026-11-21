@@ -19,10 +19,10 @@ import {
   LEVEL_LABEL,
   NUMBER_THEME,
 } from './copy.ts'
+import { lifePathHref } from './href.ts'
 import { BirthDateField } from './life-path-calculator.tsx'
 import { FieldError, LifePathSteps, NumberHeadline } from './parts.tsx'
 import { NumerologyReadingGuide } from './reading-guide.tsx'
-import { lifePathPath } from './routes.ts'
 import { useSharedInput } from './use-shared-input.ts'
 
 type Result = ReturnType<typeof compatibility>
@@ -65,7 +65,7 @@ export function CompatibilityRow({ value }: { value: number }) {
           return (
             <li key={other}>
               <a
-                href={lifePathPath(other)}
+                href={lifePathHref(other)}
                 aria-label={m.numerology_compat_cell({
                   number: other,
                   level: LEVEL_LABEL[level](),
@@ -167,7 +167,7 @@ export function CompatibilityCalculator() {
                 <NumberHeadline result={value} size="sm" />
                 <LifePathSteps result={value} date={date} />
                 <a
-                  href={lifePathPath(value.value)}
+                  href={lifePathHref(value.value)}
                   className="inline-flex min-h-11 items-center self-start text-body text-brand-ink hover:decoration-2"
                 >
                   {m.numerology_number_link({ number: value.value })}

@@ -3,7 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { brandChartColors } from '../../../../scripts/brand-tokens.ts'
 import { templateConfig } from '../../../server/template-config.ts'
 import { collectText } from '../../share-cards/renderer.ts'
-import { LIFE_PATH_NUMBERS, lifePathPath, NUMEROLOGY_TOOLS } from '../../tools/numerology/routes.ts'
+import {
+  LIFE_PATH_NUMBERS,
+  lifePathPath,
+  numerologySeoPages,
+} from '../../tools/numerology/routes.ts'
 import { shareUrl } from '../../tools/share.ts'
 import { localizedPath, ogImagePath, pageHead } from '../metadata.ts'
 import { findPublicPage, publicPages } from '../pages.ts'
@@ -15,12 +19,8 @@ const content = { posts: [], legal: [], docs: [] }
 const config = { ...templateConfig, marketing: { ...templateConfig.marketing, enabled: true } }
 // 构建期另由内容集合补入西方站数字命理页面（工具内页与 12 个数字页），这里按注册表补齐用于对照
 const numerologyPages = [
-  ...Object.values(NUMEROLOGY_TOOLS).map((tool) => ({
-    path: tool.path,
-    locale: 'en',
-    title: tool.title,
-    description: tool.description,
-  })),
+  // 工具内页（英语与西班牙语）
+  ...numerologySeoPages([]),
   ...LIFE_PATH_NUMBERS.map((value) => ({
     path: lifePathPath(value),
     locale: 'en',
@@ -44,6 +44,9 @@ const REGISTERED: Record<string, OgSampleChart> = {
   'zh-Hans /紫微斗数排盘': 'ziwei',
   'en /life-path-number': 'life-path',
   'en /numerology-chart': 'digit-grid',
+  // 西班牙语（add-locales-eu-ja 第 5 组）沿用同一工具 id 的样例图形
+  'es /numero-de-vida': 'life-path',
+  'es /carta-numerologica': 'digit-grid',
 }
 
 const ogImage = (head: ReturnType<typeof pageHead>) =>

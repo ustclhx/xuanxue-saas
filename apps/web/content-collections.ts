@@ -242,6 +242,8 @@ const numerology = defineCollection({
   include: '*/*.mdx',
   schema: z.object({
     title: z.string(),
+    // 可选的页面 H1（新语言按关键词地图让 Title 与 H1 用不同主词；缺省时 H1 即 title）
+    h1: z.string().optional(),
     description: z.string(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })),
     updated: isoDate,
@@ -250,7 +252,7 @@ const numerology = defineCollection({
   }),
   transform: async (document, context) => {
     const { content, ...data } = document
-    const body = content.split(/^## FAQ\s*$/m)[0] ?? content
+    const body = content.split(/^## (?:FAQ|Preguntas frecuentes)\s*$/m)[0] ?? content
     return {
       ...data,
       ...localeAndSlug(document._meta),
@@ -266,6 +268,8 @@ const tarot = defineCollection({
   include: '*/*.mdx',
   schema: z.object({
     title: z.string().min(1),
+    // 可选的页面 H1（同 numerology）
+    h1: z.string().min(1).optional(),
     description: z.string().min(1).max(160),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     // 塔罗在全部语言提供（openspec add-locales-eu-ja tasks 1.3）

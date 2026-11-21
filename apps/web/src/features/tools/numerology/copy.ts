@@ -1,12 +1,8 @@
 import type { compatibility } from '@xuanxue/numerology'
 import { m } from '../../../paraglide/messages.js'
 import type { ToolLink } from '../tool-links.tsx'
-import {
-  LIFE_PATH_TOOL_PATH,
-  type LifePathValue,
-  NUMEROLOGY_TOOLS,
-  type NumerologyToolId,
-} from './routes.ts'
+import { numerologyHref } from './href.ts'
+import type { LifePathValue, NumerologyPageId, NumerologyToolId } from './routes.ts'
 
 export type CompatibilityLevel = ReturnType<typeof compatibility>['level']
 
@@ -63,31 +59,20 @@ export function asLifePath(value: number): LifePathValue {
 
 /** 数字命理工具与枢纽页的内链矩阵；`current` 为当前页 id，不链接自身 */
 export function numerologyLinks(current?: string): ToolLink[] {
-  const links: ToolLink[] = [
-    { href: LIFE_PATH_TOOL_PATH, title: m.numerology_home_title(), target: 'life-path' },
-    {
-      href: NUMEROLOGY_TOOLS['numerology-calculator'].path,
-      title: m.numerology_link_calculator(),
-      target: 'numerology-calculator',
-    },
-    {
-      href: NUMEROLOGY_TOOLS['numerology-chart'].path,
-      title: m.numerology_link_chart(),
-      target: 'numerology-chart',
-    },
-    {
-      href: NUMEROLOGY_TOOLS['name-numerology'].path,
-      title: m.numerology_link_name(),
-      target: 'name-numerology',
-    },
-    {
-      href: NUMEROLOGY_TOOLS['life-path-compatibility'].path,
-      title: m.numerology_link_compatibility(),
-      target: 'life-path-compatibility',
-    },
-    { href: '/soul-urge-number', title: m.numerology_link_soul_urge(), target: 'soul-urge-number' },
-    { href: '/destiny-number', title: m.numerology_link_destiny(), target: 'destiny-number' },
+  const titles: [NumerologyPageId, () => string][] = [
+    ['life-path', m.numerology_home_title],
+    ['numerology-calculator', m.numerology_link_calculator],
+    ['numerology-chart', m.numerology_link_chart],
+    ['name-numerology', m.numerology_link_name],
+    ['life-path-compatibility', m.numerology_link_compatibility],
+    ['soul-urge-number', m.numerology_link_soul_urge],
+    ['destiny-number', m.numerology_link_destiny],
   ]
+  const links = titles.map(([target, title]) => ({
+    href: numerologyHref(target),
+    title: title(),
+    target,
+  }))
   return links.filter((link) => link.target !== current)
 }
 

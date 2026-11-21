@@ -1,9 +1,24 @@
 // 注册表随主入口加载：只引用牌组清单，不引用三语牌义数据
 import { CARDS } from '@xuanxue/tarot/cards'
+import { pageCopy } from '../../i18n/page-copy.ts'
 import type { ToolRoute } from '../registry.ts'
-import { TAROT_LOCALES, TAROT_ROOTS, type TarotLocale } from './routes.ts'
+import {
+  TAROT_LOCALES,
+  TAROT_ROOTS,
+  TAROT_SPREADS,
+  type TarotLocale,
+  tarotDescription,
+  tarotPath,
+  tarotSeoTitle,
+} from './routes.ts'
 
-const SEGMENTS = { en: 'cards', 'zh-Hant': '牌義', 'zh-Hans': '牌义', ko: '카드' } as const
+const SEGMENTS = {
+  en: 'cards',
+  'zh-Hant': '牌義',
+  'zh-Hans': '牌义',
+  ko: '카드',
+  es: 'cartas',
+} as const
 
 /** 牌义使用牌组已有的 ASCII slug；语言前缀由 toolHref / SEO 入口统一处理。 */
 export function tarotMeaningPath(slug: string, locale: TarotLocale): string {
@@ -19,14 +34,15 @@ export function tarotIndexPath(locale: TarotLocale): string {
   return `${TAROT_ROOTS[locale]}/${SEGMENTS[locale]}`
 }
 
-const INDEX_TITLES: Readonly<Record<TarotLocale, string>> = {
+// 新语言（es 起）的 Title 与 description 按语言拆分在 features/i18n/page-copy/<语言>.ts
+const INDEX_TITLES: Readonly<Partial<Record<TarotLocale, string>>> = {
   en: 'Tarot Card Meanings: All 78 Cards',
   'zh-Hant': '塔羅牌義：78 張牌全覽',
   'zh-Hans': '塔罗牌义：78 张牌全览',
   ko: '타로 카드 의미: 78장 전체 보기',
 }
 
-const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = {
+const INDEX_DESCRIPTIONS: Readonly<Partial<Record<TarotLocale, string>>> = {
   en: 'All 78 tarot card meanings in one list: the 22 Major Arcana and the suits of Wands, Cups, Swords and Pentacles, each with upright and reversed meanings.',
   'zh-Hant':
     '78 張塔羅牌義一次看完：22 張大阿爾克那，以及權杖、聖杯、寶劍、錢幣四個牌組，每張牌都有正位與逆位解析。',
@@ -40,8 +56,8 @@ export function tarotIndexSeo(locale: TarotLocale) {
   return {
     path: tarotIndexPath(locale),
     locale,
-    title: INDEX_TITLES[locale],
-    description: INDEX_DESCRIPTIONS[locale],
+    title: pageCopy(locale)?.tarotIndex[0] ?? INDEX_TITLES[locale] ?? tarotIndexPath(locale),
+    description: pageCopy(locale)?.tarotIndex[1] ?? INDEX_DESCRIPTIONS[locale] ?? '',
     alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotIndexPath(l)])),
   }
 }
@@ -54,7 +70,8 @@ export const TAROT_MEANING_ROUTES: readonly ToolRoute[] = [
     site,
     nav: false,
     paths: Object.fromEntries(TAROT_LOCALES.map((locale) => [locale, tarotIndexPath(locale)])),
-    titles: INDEX_TITLES,
+    // 新语言的 Title 在页面文案中，注册表用主词（与面包屑 tarot_index_crumb 一致）
+    titles: { ...INDEX_TITLES, es: 'Significado de las cartas del tarot' },
     descriptions: INDEX_DESCRIPTIONS,
   })),
   ...CARDS.flatMap((card) =>
@@ -85,4 +102,25 @@ export function tarotMeaningSeoPages(content: readonly TarotMeaningContent[]) {
     locale: page.locale,
     alternates: meaningAlternates(page.slug),
   }))
+}
+
+/**
+ * 新语言（文案按语言拆分的语言，features/i18n/page-copy.ts）的牌阵页与牌义索引页清单条目：注册表在模块初始化时
+ * 取不到这些语言的 Title 与 description，服务端（pages.server.ts）在登记页面文案后用这里的条目覆盖。
+ */
+export function tarotLocalizedSeoPages() {
+  return TAROT_LOCALES.flatMap((locale) =>
+    pageCopy(locale)
+      ? [
+          ...TAROT_SPREADS.map((spread) => ({
+            path: tarotPath(spread, locale),
+            locale,
+            title: tarotSeoTitle(spread, locale),
+            description: tarotDescription(spread, locale),
+            alternates: Object.fromEntries(TAROT_LOCALES.map((l) => [l, tarotPath(spread, l)])),
+          })),
+          tarotIndexSeo(locale),
+        ]
+      : [],
+  )
 }

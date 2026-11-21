@@ -18,14 +18,19 @@ import { readingGuardYears } from '../../apps/web/src/features/readings/guard.ts
 import {
   bodyGanzhiMismatches,
   checkYears,
+  cjkChars,
   expectedYears,
+  glossaryHits,
   latinWords,
   readingChecks,
   wrongGlyphs,
 } from './checks.ts'
-import { evaluateReadings, JUDGE_DIMENSIONS } from './gates.ts'
+import { evaluateReadings, JUDGE_DIMENSIONS, V4_REFERENCE_MEANS } from './gates.ts'
 import { prepareReading } from './prepare.ts'
 import {
+  ALL_READING_COMBOS,
+  ES_READING_COMBOS,
+  ES_VERSIONS,
   PRE_V4_VERSIONS,
   READING_COMBOS,
   READING_MAX_OUTPUT_TOKENS,
@@ -42,6 +47,11 @@ const samples = JSON.parse(readFileSync(join(DIR, 'samples.json'), 'utf8')) as (
   input: ReadingSampleInput
 })[]
 const byId = new Map(samples.map((sample) => [sample.id, sample]))
+/** 原六个组合（v4 批次）与追加的西班牙语样本 */
+const v4Batch = samples.filter((s) =>
+  (READING_COMBOS as readonly string[]).includes(`${s.input.kind}.${s.input.locale}`),
+)
+const esSamples = samples.filter((s) => s.input.locale === 'es')
 const sample = (id: string) => byId.get(id) as Sample & { input: ReadingSampleInput }
 
 /** 迁移的生成录制（模型原文） */
@@ -83,9 +93,11 @@ function assertDeepSubset(subset: unknown, superset: unknown, path = '$') {
 }
 
 describe('样本与提示词', () => {
-  it('六个组合各 8 个样本，样本 ID 唯一', () => {
-    assert.equal(samples.length, 48)
-    for (const combo of READING_COMBOS)
+  it('六个组合与西语两个组合各 8 个样本，样本 ID 唯一', () => {
+    assert.equal(v4Batch.length, 48)
+    assert.equal(esSamples.length, 16)
+    assert.equal(byId.size, samples.length)
+    for (const combo of ALL_READING_COMBOS)
       assert.equal(
         samples.filter((s) => `${s.input.kind}.${s.input.locale}` === combo).length,
         8,
@@ -104,7 +116,7 @@ describe('样本与提示词', () => {
   })
 
   it('评委用的 data 与 v4 数据档复算一致，旧数据档被 data + preV4Fields 覆盖；生成消息现场复算', () => {
-    for (const s of samples) {
+    for (const s of v4Batch) {
       const { kind, locale, request, requestDate, data } = s.input
       const now = new Date(requestDate)
       const annual = recomputeReading(kind, request, now, { locale, profile: 'annual' })
@@ -137,7 +149,7 @@ describe('迁移的生成录制', () => {
     for (const version of ['readings@v4', 'readings@pre-v4']) {
       const files = readdirSync(join(DIR, 'recordings', version, 'deepseek-flash'))
       assert.equal(files.filter((f) => !f.includes('.judge.')).length, 48, version)
-      for (const s of samples) {
+      for (const s of v4Batch) {
         const r = recording(version, s.id)
         assert.equal(r.source, 'recorded')
         assert.ok(Number.isInteger(r.durationMs), `${version} ${s.id} durationMs`)
@@ -149,7 +161,8 @@ describe('迁移的生成录制', () => {
 
 describe('被评正文转换', () => {
   it('线上兜底按公历年推算的期望年份与复算数据（八字 annual、紫微 horoscope、个人年）逐样本一致', () => {
-    for (const s of samples) {
+    // 塔罗没有逐年数据
+    for (const s of samples.filter((x) => x.input.kind !== 'tarot-spread')) {
       const { kind, locale, request, requestDate } = s.input
       const now = new Date(requestDate)
       const recomputed = recomputeReading(kind, request, now, { locale, profile: 'annual' })
@@ -398,5 +411,246 @@ describe('评测后门槛', () => {
       assert.equal(g[id]?.status, 'incomplete')
       assert.equal(g[id]?.required, false)
     }
+  })
+})
+
+// add-locales-eu-ja tasks 5.8：西班牙语两个组合（numerology-full.es、tarot-spread.es）
+describe('西班牙语组合', () => {
+  const es = (id: string) => sample(id).input
+
+  /** 按样本数据拼一份格式正确的西语数字命理报告（检查用，不是模型输出） */
+  function numerologyReport(input: ReadingSampleInput, extra = '') {
+    const years = input.data.personalYears as { year: number; value: number }[]
+    return [
+      '## Panorama general',
+      'Tu número de vida marca el tono general de esta etapa.',
+      '## Número de vida',
+      'Un número que invita a crear con constancia.',
+      '## Números principales',
+      'Tu pináculo actual y tu desafío actual piden paciencia.',
+      '## Año por año',
+      ...years.flatMap((y) => [
+        `### ${y.year} · Año personal ${y.value}`,
+        'Es un buen momento para ordenar prioridades.',
+      ]),
+      '## Amor y relaciones',
+      'Escuchar con calma puede acercarte a quienes quieres.',
+      '## Trabajo y dinero',
+      'Dedicar tiempo a un oficio tiende a dar frutos.',
+      '## Hábitos de bienestar',
+      'Duerme a horarios regulares y camina un poco cada día.',
+      '',
+      'Si no te sientes bien, consulta a un profesional de la salud.',
+      '## Orientación',
+      `- Escribe tus metas. ${extra}`,
+    ].join('\n\n')
+  }
+
+  async function errors(promptVersion: string, id: string, output: string) {
+    const s = sample(id)
+    const prompt = { promptVersion } as CheckContext['prompt']
+    const failed: string[] = []
+    for (const check of readingChecks) {
+      const r = await check.run({ output, sample: s, prompt, expect: undefined })
+      if (!r.pass && (check.severity ?? 'error') === 'error') failed.push(check.id)
+    }
+    return failed
+  }
+
+  it('es-v1 把 es 组合分派到首个 es 版本、其余组合同 v4；历史版本渲染同一份 es 提示词', () => {
+    assert.deepEqual(ES_VERSIONS, {
+      'numerology-full.es': 'numerology-full.v5',
+      'tarot-spread.es': 'tarot-spread.v4',
+    })
+    for (const version of ['readings@es-v1', 'readings@v4', 'readings@pre-v4']) {
+      assert.equal(realVersion(version, es('numerology-es-01')), 'numerology-full.v5')
+      assert.equal(realVersion(version, es('tarot-es-05')), 'tarot-spread.v4')
+    }
+    for (const s of v4Batch)
+      assert.deepEqual(
+        renderReading('readings@es-v1', s.input),
+        renderReading('readings@v4', s.input),
+      )
+    for (const s of esSamples) {
+      const rendered = renderReading('readings@es-v1', s.input)
+      assert.match(rendered.system, /español neutro de Latinoamérica/)
+      assert.doesNotMatch(rendered.system, /[\p{Script=Han}\p{Script=Hangul}]/u)
+      assert.deepEqual(rendered, renderReading('readings@v4', s.input))
+    }
+  })
+
+  it('样本：虚构西语输入，data 与线上复算一致，标签可按 es 筛选，评委说明注明目标语言', () => {
+    for (const combo of ES_READING_COMBOS) {
+      const [kind] = combo.split('.') as [string]
+      const items = esSamples.filter((s) => s.input.kind === kind)
+      assert.equal(items.length, 8, combo)
+      for (const s of items) {
+        const { request, requestDate, data } = s.input
+        const recomputed = recomputeReading(kind, request, new Date(requestDate), {
+          locale: 'es',
+          profile: 'annual',
+        })
+        assert.deepEqual(data, recomputed.result, s.id)
+        assert.equal(
+          renderReading('readings@es-v1', s.input).user,
+          JSON.stringify({ kind, chart: recomputed.result }),
+        )
+        assert.deepEqual(s.tags, [kind, 'es', combo])
+        assert.match(s.input.judgeNotes ?? '', /Spanish/)
+      }
+    }
+    const spreads = esSamples
+      .filter((s) => s.input.kind === 'tarot-spread')
+      .map((s) => (s.input.data as { spread: string }).spread)
+    assert.equal(spreads.filter((x) => x === 'three-card').length, 4)
+    assert.equal(spreads.filter((x) => x === 'celtic-cross').length, 4)
+  })
+
+  it('格式正确的西语报告通过全部硬性检查；拉丁字母不算夹杂', async () => {
+    const input = es('numerology-es-03')
+    const report = numerologyReport(input)
+    const { output } = prepareReading(report, 'readings@es-v1', input)
+    assert.deepEqual(await errors('readings@es-v1', 'numerology-es-03', output), [])
+    assert.deepEqual(latinWords(output, 'es'), [])
+    const tarot = [
+      '## Panorama general',
+      'La tirada muestra un camino de reflexión.',
+      '## Las cartas en su posición',
+      '- Pasado: Los Enamorados, al derecho.',
+      '## Cómo se relacionan las cartas',
+      'Las cartas dialogan entre sí.',
+      '## Para reflexionar',
+      '¿Qué necesitas decir con claridad?',
+      '## Próximos pasos concretos',
+      '- Conversa con calma esta semana.',
+    ].join('\n\n')
+    assert.deepEqual(await errors('readings@es-v1', 'tarot-es-01', tarot), [])
+  })
+
+  it('西语专项检查：汉字 / 假名、术语表禁用写法（娱乐定位、vosotros、英文术语）、个人年数不符', async () => {
+    const input = es('numerology-es-01')
+    const id = 'numerology-es-01'
+    assert.deepEqual(cjkChars('Tu número 命 de vida', 'es'), ['命'])
+    assert.deepEqual(cjkChars('命', 'zh-Hant'), [])
+    assert.ok(
+      (await errors('readings@es-v1', id, numerologyReport(input, '命運'))).includes('script'),
+    )
+    for (const phrase of [
+      'Es solo entretenimiento.',
+      'Vosotros podéis elegir.',
+      'Tu Life Path es 22.',
+    ])
+      assert.ok(
+        (await errors('readings@es-v1', id, numerologyReport(input, phrase))).includes('glossary'),
+        phrase,
+      )
+    assert.equal(glossaryHits('Una carta de Pentáculos al derecho.', 'es')?.length, 1)
+    assert.equal(glossaryHits('anything', 'en'), null)
+    const wrong = numerologyReport(input).replace(/(### 2027 · Año personal )\d+/, '$19')
+    assert.ok((await errors('readings@es-v1', id, wrong)).includes('dataConsistency'))
+    // 线上兜底按数据改正西语逐年标题，被评正文随之通过
+    const prepared = prepareReading(wrong, 'readings@es-v1', input)
+    assert.equal(prepared.annotations?.personalYear, 1)
+    assert.equal(prepared.annotations?.promptVersion, 'numerology-full.v5')
+    assert.deepEqual(await errors('readings@es-v1', id, prepared.output), [])
+    // 旧组合不受新检查影响
+    const outcomes = await runAll('readings@pre-v4', 'bazi-hant-01', '## 總論\n\n命')
+    assert.equal(outcomes.find((c) => c.id === 'script')?.pass, true)
+    assert.equal(outcomes.find((c) => c.id === 'glossary')?.pass, true)
+  })
+
+  describe('门槛（逐组合）', () => {
+    const esIds = esSamples.map((s) => s.id)
+    const scored = (
+      id: string,
+      scores: Record<string, number> | null,
+      overrides: Partial<EvaluationResult> = {},
+    ): EvaluationResult => ({
+      id,
+      tags: [],
+      status: 'passed',
+      checks: readingChecks.map((c) => ({ id: c.id, pass: true, severity: c.severity ?? 'error' })),
+      judge: scores
+        ? {
+            status: 'scored',
+            model: 'deepseek-v4-pro',
+            criteria: Object.fromEntries(
+              Object.entries(scores).map(([k, v]) => [k, { score: v, reason: '' }]),
+            ),
+          }
+        : { status: 'no-recording', model: 'deepseek-v4-pro' },
+      usage: { generation: { outputTokens: 3000, durationMs: 30_000 } },
+      ...overrides,
+    })
+    const groupOf = (make: (id: string) => EvaluationResult): EvaluationGroup => ({
+      promptVersion: 'readings@es-v1',
+      source: 'run',
+      prepareVersion: 'guard.v4',
+      generator: null,
+      judge: null,
+      results: esIds.map(make),
+    })
+    const run = async (candidate: EvaluationGroup, baseline: EvaluationGroup | null = null) =>
+      Object.fromEntries(
+        (
+          (
+            await evaluateReadings({
+              samples: esSamples,
+              scope: {
+                totalSamples: samples.length,
+                selectedSamples: 16,
+                filtered: true,
+                tag: 'es',
+              },
+              mode: 'replay',
+              rubric: null,
+              candidate,
+              baseline,
+            })
+          ).gates as RunGate[]
+        ).map((g) => [g.id, g]),
+      ) as Record<string, RunGate>
+    const top = Object.fromEntries(JUDGE_DIMENSIONS.map((d) => [d, 5]))
+
+    it('筛选 es 运行：两个组合各自判定，参照 v4 均值 − 0.1', async () => {
+      const g = await run(groupOf((id) => scored(id, top)))
+      for (const combo of ES_READING_COMBOS) {
+        assert.equal(g[`${combo}.coverage`]?.status, 'passed')
+        assert.equal(g[`${combo}.hard-checks`]?.status, 'passed')
+        for (const d of JUDGE_DIMENSIONS)
+          assert.equal(g[`${combo}.judge-${d}-vs-v4`]?.status, 'passed', `${combo} ${d}`)
+        assert.equal(g[`${combo}.judge-accuracy-min`]?.status, 'passed')
+        assert.equal(g[`${combo}.p95-output-tokens`]?.status, 'passed')
+        assert.equal(g[`${combo}.p95-duration`]?.status, 'passed')
+      }
+      assert.equal(g.versions?.status, 'passed')
+      assert.equal(g['human-review']?.required, false)
+      assert.equal(V4_REFERENCE_MEANS.tone, 5)
+    })
+
+    it('一个组合未达标不影响另一个；带基线判 versions failed', async () => {
+      // 塔罗 tone 均值 4.75 < 5 − 0.1；数字命理全部满分
+      const candidate = groupOf((id) =>
+        scored(id, id.startsWith('tarot') && /0[1-4]$/.test(id) ? { ...top, tone: 4.5 } : top),
+      )
+      const g = await run(candidate)
+      assert.equal(g['tarot-spread.es.judge-tone-vs-v4']?.status, 'failed')
+      assert.equal(g['numerology-full.es.judge-tone-vs-v4']?.status, 'passed')
+      const hard = groupOf((id) =>
+        scored(id, top, {
+          checks: readingChecks.map((c) => ({
+            id: c.id,
+            pass: !(id === 'numerology-es-02' && c.id === 'glossary'),
+            severity: c.severity ?? 'error',
+          })),
+        }),
+      )
+      const h = await run(hard)
+      assert.equal(h['numerology-full.es.hard-checks']?.status, 'failed')
+      assert.equal(h['tarot-spread.es.hard-checks']?.status, 'passed')
+      assert.equal((await run(candidate, candidate)).versions?.status, 'failed')
+      const missing = await run(groupOf((id) => scored(id, null)))
+      assert.equal(missing['tarot-spread.es.judge-accuracy-min']?.status, 'incomplete')
+    })
   })
 })

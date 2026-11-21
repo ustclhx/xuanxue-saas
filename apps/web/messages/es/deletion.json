@@ -1,0 +1,22 @@
+{
+  "deletion_danger_zone": "Zona de peligro",
+  "deletion_team_warning": "Eliminar un espacio de trabajo de equipo borra su contenido. Esta acción no se puede deshacer.",
+  "deletion_team_title": "Eliminar espacio de trabajo de equipo",
+  "deletion_account_title": "Eliminar cuenta",
+  "deletion_team_description": "Todos los miembros perderán el acceso de inmediato. El contenido del espacio de trabajo se conserva 30 días antes de borrarse.",
+  "deletion_account_description": "Se eliminará tu espacio de trabajo personal y se borrarán tu identidad y tus credenciales de acceso. Antes de eliminar, cierra sesión y vuelve a iniciarla en un plazo de diez minutos.",
+  "deletion_refund_notice": "Eliminar la cuenta cancela las suscripciones de inmediato sin reembolso. Revisa los pagos reembolsables antes de eliminar; las solicitudes pendientes se siguen revisando con el correo de contacto que guardaron.",
+  "deletion_contact_support": "Contacta a soporte",
+  "deletion_support_suffix": " antes de eliminar si necesitas ayuda con un pago.",
+  "deletion_refund_reminder": "{eligibleCount} pagos dentro del plazo de reembolso; {pendingCount} solicitudes pendientes.",
+  "deletion_review_billing": "Revisar facturación y solicitudes de reembolso",
+  "deletion_signin_again": "Cerrar sesión y volver a iniciarla",
+  "deletion_confirmation": "Escribe {confirmation} para confirmar",
+  "deletion_continue": "Continuar",
+  "deletion_blocked_team_suffix": ": transfiere la propiedad o elimina primero este equipo.",
+  "deletion_submitting": "Eliminando…",
+  "deletion_workspace_submit": "Eliminar espacio de trabajo",
+  "deletion_completed_cleanup_pending": "Eliminación completada. Se quitó el acceso; las credenciales en caché se borrarán automáticamente.",
+  "deletion_error_unknown": "No se pudo completar la eliminación. Inténtalo de nuevo.",
+  "deletion_signout_error": "No se pudo cerrar sesión. Inténtalo de nuevo antes de iniciar sesión."
+}

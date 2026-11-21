@@ -1,0 +1,18 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "common_site_tagline": "Explora la numerología y el tarot con herramientas y guías para reflexionar.",
+  "common_not_found_title": "Página no encontrada",
+  "common_not_found_eyebrow": "Error 404",
+  "common_not_found_body": "Puede que la dirección tenga un error o que la página se haya movido. Las herramientas siguen en su lugar: calcula tu [número de vida](main) o prueba el [tarot gratis](tarot).",
+  "common_not_found_home": "Volver al inicio de {brand}",
+  "common_cancel": "Cancelar",
+  "common_table_previous": "Anterior",
+  "common_table_next": "Siguiente",
+  "common_table_page": "Página {page}",
+  "common_table_page_of": "Página {page} de {pageCount}",
+  "common_table_empty": "No se encontraron registros.",
+  "common_table_apply": "Aplicar",
+  "common_table_reset": "Restablecer",
+  "common_table_filters": "Filtros",
+  "common_table_pagination": "Paginación"
+}

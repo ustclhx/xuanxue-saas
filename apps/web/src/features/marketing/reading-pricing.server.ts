@@ -2,7 +2,7 @@ import type { SiteId } from '@xuanxue/config'
 import { READING_KINDS } from '@xuanxue/db'
 import { templateConfig } from '../../server/template-config.ts'
 import { loadReadingAvailability, type ReadingAvailabilityDeps } from '../readings/availability.ts'
-import { readingDefinition } from '../readings/catalog.ts'
+import { releasedReadingDefinition } from '../readings/locale-gate.ts'
 
 /**
  * 公开定价只承诺本站、本语言目录中已开放且可生成的详批（与结果页解锁卡同一判定）。
@@ -16,7 +16,8 @@ export async function siteReadingPricing(
   if (!templateConfig.sites[site].locales.some((value) => value === locale)) return []
   const readings = []
   for (const kind of READING_KINDS) {
-    if (!readingDefinition(kind, locale)) continue
+    // 未通过评测门槛的「类型 × 语言」不出售（locale-gate.ts）
+    if (!releasedReadingDefinition(kind, locale)) continue
     const status = await loadReadingAvailability(deps, kind)
     if (status.available) readings.push({ kind, credits: status.config.credits })
   }

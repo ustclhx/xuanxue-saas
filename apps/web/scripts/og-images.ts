@@ -14,9 +14,14 @@ import { defaultShareCardSite, resolveShareCardSite } from '../src/features/shar
 import { resolveShareCardTheme } from '../src/features/share-cards/theme.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_PATH, siteOfLocale } from '../src/features/site/site.ts'
 import { numerologySeoPages } from '../src/features/tools/numerology/routes.ts'
-import { tarotMeaningSeoPages } from '../src/features/tools/tarot/meaning-routes.ts'
+import {
+  tarotLocalizedSeoPages,
+  tarotMeaningSeoPages,
+} from '../src/features/tools/tarot/meaning-routes.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
+// 新语言页面的 SEO 文案（按语言拆分）：分享图标题取同一份文案
+import '../src/features/i18n/page-copy.server.ts'
 import { brandChartColors } from './brand-tokens.ts'
 
 const root = new URL('..', import.meta.url)
@@ -42,6 +47,7 @@ function pages() {
     toolPages: [
       ...numerologySeoPages(read<Parameters<typeof numerologySeoPages>[0]>('allNumerologies')),
       ...tarotMeaningSeoPages(read<Parameters<typeof tarotMeaningSeoPages>[0]>('allTarots')),
+      ...tarotLocalizedSeoPages(),
     ],
     guides: read<NonNullable<Content['guides']>>('allGuides'),
   })

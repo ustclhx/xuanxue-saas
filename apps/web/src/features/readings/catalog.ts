@@ -34,11 +34,13 @@ import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
+import { NUMEROLOGY_FULL_V5 } from './prompts/numerology-full.v5.ts'
 import { SAJU_COMPAT_V2 } from './prompts/saju-compat.v2.ts'
 import { SAJU_FULL_V2 } from './prompts/saju-full.v2.ts'
 import { SAJU_FULL_V4 } from './prompts/saju-full.v4.ts'
 import { TAROT_SPREAD_V2 } from './prompts/tarot-spread.v2.ts'
 import { TAROT_SPREAD_V3 } from './prompts/tarot-spread.v3.ts'
+import { TAROT_SPREAD_V4 } from './prompts/tarot-spread.v4.ts'
 import { ZIWEI_FULL_V2 } from './prompts/ziwei-full.v2.ts'
 import { ZIWEI_FULL_V3 } from './prompts/ziwei-full.v3.ts'
 import { ZIWEI_FULL_V4 } from './prompts/ziwei-full.v4.ts'
@@ -472,6 +474,15 @@ const KO_HEALTH = {
   notice: '불편한 증상이 있으면 전문 의료진과 상담하세요.',
 }
 
+/**
+ * 西班牙语合规声明（术语表 compliance.required 三项：según métodos tradicionales、solo como referencia、
+ * no predice el futuro；不用「entretenimiento」定位）
+ */
+const ES_NUMEROLOGY_DISCLAIMER =
+  'Este informe se elabora según métodos tradicionales de numerología, con interpretación asistida por IA, y se ofrece solo como referencia para la reflexión personal. No predice el futuro ni constituye asesoría médica, legal ni de inversión.'
+const ES_TAROT_DISCLAIMER =
+  'Esta lectura se elabora según métodos tradicionales de interpretación del tarot, con interpretación asistida por IA, y se ofrece solo como referencia para la reflexión personal. No predice el futuro ni constituye asesoría médica, legal ni de inversión.'
+
 const entries = {
   'bazi-full': {
     kind: 'bazi-full',
@@ -555,6 +566,16 @@ const entries = {
         },
         sample: READING_SAMPLES['numerology-full'].en,
       },
+      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（locale-gate.ts）
+      es: {
+        prompt: NUMEROLOGY_FULL_V5.es,
+        disclaimer: ES_NUMEROLOGY_DISCLAIMER,
+        healthSection: {
+          title: 'Hábitos de bienestar',
+          notice: 'Si no te sientes bien, consulta a un profesional de la salud.',
+        },
+        sample: READING_SAMPLES['numerology-full'].es,
+      },
     },
     versions: { 'numerology-full.v4': NUMEROLOGY_FULL_V4 },
     recompute: recomputeNumerology,
@@ -589,6 +610,13 @@ const entries = {
           '이 리딩은 타로 카드의 상징에 따른 참고 자료이며 의료·법률·투자 조언이 아니고, 구체적인 사건을 예언하지 않습니다.',
         healthSection: null,
         sample: READING_SAMPLES['tarot-spread'].ko,
+      },
+      // add-locales-eu-ja tasks 5.8：评测门槛通过前不出售（locale-gate.ts）
+      es: {
+        prompt: TAROT_SPREAD_V4.es,
+        disclaimer: ES_TAROT_DISCLAIMER,
+        healthSection: null,
+        sample: READING_SAMPLES['tarot-spread'].es,
       },
     },
     recompute: recomputeTarot,

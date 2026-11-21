@@ -26,6 +26,7 @@ import { pageHref } from '../tools/bazi/common.tsx'
 import { loadBazi } from '../tools/bazi/engine.ts'
 import { STEM_ELEMENT, STEM_HANZI } from '../tools/bazi/glyphs.ts'
 import { ELEMENT_LABEL } from '../tools/bazi/labels.ts'
+import { numerologyHref } from '../tools/numerology/href.ts'
 import { NUMEROLOGY_TOOLS } from '../tools/numerology/routes.ts'
 import { encodeShareInput } from '../tools/share.ts'
 import {
@@ -104,7 +105,11 @@ function useDayMasters(profiles: readonly BirthProfile[], site: SiteId) {
 export function toolLink(profile: BirthProfile, site: SiteId, locale: string): string {
   if (site === 'west') {
     const date = profileFor('numerology', profile).values.birthDate
-    const path = NUMEROLOGY_TOOLS['numerology-calculator'].path
+    // 西班牙语账户进入 /es/calculadora-numerologia；其他语言（含英语）沿用英文计算器地址
+    const path =
+      locale === 'es'
+        ? numerologyHref('numerology-calculator', 'es')
+        : NUMEROLOGY_TOOLS['numerology-calculator'].path
     return date ? `${path}#r=${encodeShareInput({ date })}` : path
   }
   return `${pageHref('bazi', locale)}#r=${encodeShareInput(toShareInput(formValuesOf(profile, locale)))}`

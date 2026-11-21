@@ -4,6 +4,7 @@ import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
+import { pageCopy } from '../i18n/page-copy.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { EAST_ENGLISH_LOCALE, EAST_ENGLISH_URL, siteOfLocale } from '../site/site.ts'
@@ -177,9 +178,11 @@ export type StaticPath =
   | '/faq'
   | '/guides'
 
-// 按全部语言必填：缺少任一语言或页面都会在类型检查时报错，避免再次回退到英语或另一站点的描述。
+// v1 语言按全部页面必填：缺少任一页面都会在类型检查时报错，避免再次回退到英语或另一站点的描述。
 // 东方站（zh-Hant / zh-Hans / ko）描述八字、紫微、塔罗等本站体系，不写 numerology。
-const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> = {
+// 新语言（es 起）的文案按语言拆分在 features/i18n/page-copy/<语言>.ts（首页包预算，add-locales-eu-ja 决策 11），
+// 单元测试检查每种配置语言都有其一。
+const staticCopy: Partial<Record<Locale, Record<StaticPath, readonly [string, string]>>> = {
   en: {
     '/': homePageCopy('en'),
     '/pricing': [
@@ -252,7 +255,10 @@ const staticCopy: Record<Locale, Record<StaticPath, readonly [string, string]>> 
 /** 静态页元数据；未登记的语言或路径以路径占位，不回退到其他语言 */
 export function staticPage(path: StaticPath, locale: string): SeoPage {
   const copy: Partial<Record<string, Record<StaticPath, readonly [string, string]>>> = staticCopy
-  const [title, description] = copy[locale]?.[path] ?? [path, path]
+  const split = pageCopy(locale)
+  const [title, description] = (split &&
+    (path === '/' ? homePageCopy(locale) : split.static[path])) ??
+    copy[locale]?.[path] ?? [path, path]
   // 层级与主词（模板 0.7.3）由 pages.project.ts 的 projectPageLinking 在服务端清单中补上，
   // 本函数也用于客户端路由 head，不带主词表以免增加首页脚本体积
   return { path, title, description, locale }

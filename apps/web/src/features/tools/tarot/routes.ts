@@ -1,5 +1,6 @@
 import type { SpreadId } from '@xuanxue/tarot'
 import type { AppLocale, Assert, Covers } from '../../i18n/locales.ts'
+import { pageCopy } from '../../i18n/page-copy.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
@@ -13,6 +14,7 @@ export const TAROT_LOCALES = [
   'zh-Hant',
   'zh-Hans',
   'ko',
+  'es',
 ] as const satisfies readonly TarotLocale[]
 export type _TarotLocalesCoverConfig = Assert<Covers<(typeof TAROT_LOCALES)[number], AppLocale>>
 
@@ -29,49 +31,70 @@ export const TAROT_ROOTS: Readonly<Record<TarotLocale, string>> = {
   'zh-Hant': '/塔羅',
   'zh-Hans': '/塔罗',
   ko: '/타로',
+  // 西班牙语与英语共用 `/tarot` 路径段（带 `/es` 前缀），文件路由按当前语言区分（route-head.ts tarotRouteLocale）
+  es: '/tarot',
 }
 
 // 子路径段；三张牌为空，即根路径
 const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
-  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '' },
-  daily: { en: 'daily', 'zh-Hant': '每日一張', 'zh-Hans': '每日一张', ko: '오늘의-카드' },
-  'yes-or-no': { en: 'yes-or-no', 'zh-Hant': '是非', 'zh-Hans': '是非', ko: '예-아니오' },
+  'three-card': { en: '', 'zh-Hant': '', 'zh-Hans': '', ko: '', es: '' },
+  daily: {
+    en: 'daily',
+    'zh-Hant': '每日一張',
+    'zh-Hans': '每日一张',
+    ko: '오늘의-카드',
+    es: 'carta-del-dia',
+  },
+  'yes-or-no': {
+    en: 'yes-or-no',
+    'zh-Hant': '是非',
+    'zh-Hans': '是非',
+    ko: '예-아니오',
+    es: 'si-o-no',
+  },
   'celtic-cross': {
     en: 'celtic-cross',
     'zh-Hant': '凱爾特十字',
     'zh-Hans': '凯尔特十字',
     ko: '켈틱-크로스',
+    es: 'cruz-celta',
   },
 }
 
+// v1 语言的 Title 兼导航名；新语言（es 起）这里是导航名与主词（titleMain，取术语表 anchors），
+// Title 与 description 按语言拆分在 features/i18n/page-copy/<语言>.ts（首页包预算）
 const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
   'three-card': {
     en: 'Three-Card Tarot',
     'zh-Hant': '三張牌塔羅',
     'zh-Hans': '三张牌塔罗',
     ko: '쓰리 카드 타로',
+    es: 'Tarot gratis',
   },
   daily: {
     en: 'Card of the Day',
     'zh-Hant': '每日一張塔羅',
     'zh-Hans': '每日一张塔罗',
     ko: '오늘의 타로 카드',
+    es: 'Tarot del día',
   },
   'yes-or-no': {
     en: 'Yes or No Tarot',
     'zh-Hant': '是非塔羅',
     'zh-Hans': '是非塔罗',
     ko: '예/아니오 타로',
+    es: 'Tarot sí o no',
   },
   'celtic-cross': {
     en: 'Celtic Cross Tarot',
     'zh-Hant': '凱爾特十字塔羅',
     'zh-Hans': '凯尔特十字塔罗',
     ko: '켈틱 크로스 타로',
+    es: 'Tirada de la cruz celta',
   },
 }
 
-const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
+const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> = {
   'three-card': {
     en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
     'zh-Hant':
@@ -112,12 +135,20 @@ export function spreadForSlug(locale: TarotLocale, slug?: string): SpreadId | un
   return TAROT_SPREADS.find((spread) => SLUGS[spread][locale] === value)
 }
 
+/** 牌阵的导航名与面包屑名（v1 语言即 Title） */
 export function tarotTitle(spread: SpreadId, locale: TarotLocale): string {
   return TITLES[spread][locale]
 }
 
+/** 牌阵页 Title：新语言取按语言拆分的页面文案，v1 语言同导航名 */
+export function tarotSeoTitle(spread: SpreadId, locale: TarotLocale): string {
+  return pageCopy(locale)?.tarot[spread][0] ?? tarotTitle(spread, locale)
+}
+
 export function tarotDescription(spread: SpreadId, locale: TarotLocale): string {
-  return DESCRIPTIONS[spread][locale]
+  return (
+    pageCopy(locale)?.tarot[spread][1] ?? DESCRIPTIONS[spread][locale] ?? tarotTitle(spread, locale)
+  )
 }
 
 function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, string> {
@@ -126,6 +157,7 @@ function byLocale(value: (locale: TarotLocale) => string): Record<TarotLocale, s
     'zh-Hant': value('zh-Hant'),
     'zh-Hans': value('zh-Hans'),
     ko: value('ko'),
+    es: value('es'),
   }
 }
 
@@ -139,7 +171,8 @@ export const TAROT_TOOL_ROUTES: readonly ToolRoute[] = TAROT_SPREADS.flatMap((sp
     site,
     paths: byLocale((locale) => tarotPath(spread, locale)),
     titles: byLocale((locale) => tarotTitle(spread, locale)),
-    descriptions: byLocale((locale) => tarotDescription(spread, locale)),
+    // 新语言的 description 在服务端由 pages.server.ts 按页面文案补上（模块初始化时尚未登记）
+    descriptions: DESCRIPTIONS[spread],
     ...(spread === 'three-card' ? {} : { nav: false }),
   })),
 )

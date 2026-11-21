@@ -1,0 +1,16 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "marketing_linking_breadcrumb": "Ruta de navegación",
+  "marketing_linking_series": "Navegación de la serie",
+  "marketing_linking_previous": "Anterior",
+  "marketing_linking_next": "Siguiente",
+  "marketing_linking_related": "Relacionados",
+  "marketing_linking_group": "Más de {group}",
+  "marketing_linking_group_other": "Más de este grupo",
+  "marketing_linking_pagination": "Paginación",
+  "marketing_linking_previous_page": "Página anterior",
+  "marketing_linking_next_page": "Página siguiente",
+  "marketing_linking_page": "Página {page}",
+  "marketing_linking_page_title": "{title} · Página {page}",
+  "marketing_linking_page_summary": "{total} artículos · página {page} de {pageCount}."
+}

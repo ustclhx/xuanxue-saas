@@ -29,6 +29,7 @@ import {
 import { readingDefinition, resolveReadingDefinition } from './catalog.ts'
 import { deleteReadingWithContent } from './delete.ts'
 import { finalizeRecordedReading } from './generate.ts'
+import { releasedReadingDefinition } from './locale-gate.ts'
 import { SAMPLES_APPROVED } from './samples.ts'
 import { signUnlockToken, unlockPayloadSchema, verifyUnlockToken } from './unlock.ts'
 
@@ -209,7 +210,8 @@ export const getReadingOffer = createServerFn({ method: 'GET' })
   .validator(kindInput.extend({ locale: z.string().min(2).max(35) }))
   .handler(async ({ data }): Promise<ReadingOffer> => {
     if (!templateConfig.billing.enabled || !templateConfig.ai.text.enabled) return UNAVAILABLE
-    const definition = readingDefinition(data.kind, data.locale)
+    // 未通过评测门槛的「类型 × 语言」不显示解锁卡（locale-gate.ts）
+    const definition = releasedReadingDefinition(data.kind, data.locale)
     if (!definition) return UNAVAILABLE
     try {
       const deps = publicAvailabilityDeps()

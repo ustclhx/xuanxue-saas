@@ -8,6 +8,7 @@ const daily = {
   'zh-Hant': positions([['每日省思', '今天可反思的主題，不是預測。']]),
   'zh-Hans': positions([['每日省思', '今天可反思的主题，不是预测。']]),
   ko: positions([['오늘의 성찰', '예측이 아닌 오늘 돌아볼 주제입니다.']]),
+  es: positions([['Tema del día', 'Algo para pensar hoy; no es un pronóstico.']]),
 }
 const yesNo = {
   en: positions([
@@ -17,6 +18,12 @@ const yesNo = {
   'zh-Hans': positions([['是／否／也许', '来自固定牌义对照的象征提示，不是事实答案。']]),
   ko: positions([
     ['예 / 아니요 / 아마도', '고정 카드 해석의 상징적 안내이며 사실 판단이 아닙니다.'],
+  ]),
+  es: positions([
+    [
+      'Sí / No / Quizás',
+      'Una pista simbólica según una tabla fija de cartas, no una respuesta sobre hechos.',
+    ],
   ]),
 }
 const threeCard = {
@@ -39,6 +46,11 @@ const threeCard = {
     ['과거', '질문에 영향을 준 경험입니다.'],
     ['현재', '지금 주목할 점입니다.'],
     ['미래', '예측이 아닌 생각해 볼 방향입니다.'],
+  ]),
+  es: positions([
+    ['Pasado', 'Lo vivido que dio forma a tu pregunta.'],
+    ['Presente', 'Lo que hoy pide tu atención.'],
+    ['Futuro', 'Un rumbo posible para considerar; no es una predicción.'],
   ]),
 }
 const celticCross = {
@@ -89,6 +101,18 @@ const celticCross = {
     ['환경', '주변의 영향과 지원입니다.'],
     ['희망과 두려움', '관점에 영향을 주는 기대입니다.'],
     ['통합', '다음 행동을 선택하며 성찰할 주제입니다.'],
+  ]),
+  es: positions([
+    ['Situación actual', 'El centro de lo que estás viviendo.'],
+    ['Desafío', 'Una tensión u obstáculo que vale la pena mirar.'],
+    ['Base', 'Lo que influye desde el fondo.'],
+    ['Pasado reciente', 'Experiencias que traes hasta este momento.'],
+    ['Meta consciente', 'Lo que buscas o deseas lograr.'],
+    ['Rumbo posible', 'Un camino para considerar, no un pronóstico.'],
+    ['Tu actitud', 'Cómo te paras frente a la pregunta.'],
+    ['Entorno', 'Las personas y circunstancias que te rodean.'],
+    ['Esperanzas y temores', 'Expectativas que tiñen tu mirada.'],
+    ['Síntesis', 'Un tema para pensar al elegir tu siguiente paso.'],
   ]),
 }
 export const SPREADS: Readonly<Record<SpreadId, Spread>> = {

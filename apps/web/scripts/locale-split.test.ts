@@ -45,6 +45,15 @@ describe('新语言文案拆分（add-locales-eu-ja 1.6）', () => {
     expect(removed.get('es')).toBeNull()
   })
 
+  it('拆分语言都是基础语言的别名时只删除分派，不加查表调用', () => {
+    const { code, removed } = splitMessageModule(MODULE, 5, ['es'], '/x/split.ts')
+    expect(removed.get('es')).toBeNull()
+    expect(code).not.toContain('es_greet')
+    expect(code).not.toContain('__splitMessage')
+    expect(code).toContain('\n\treturn en_greet(inputs)')
+    expect(code).toContain('こんにちは')
+  })
+
   it('不含拆分语言的模块原样返回', () => {
     const { code, removed } = splitMessageModule(MODULE, 1, ['fr'])
     expect(code).toBe(MODULE)

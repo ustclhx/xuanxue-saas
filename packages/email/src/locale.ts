@@ -1,7 +1,7 @@
 /**
  * 邮件语言：按收件人的 `user.locale` 选择；构建时校验模板支持所有配置语言。
  */
-export const EMAIL_LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko'] as const
+export const EMAIL_LOCALES = ['en', 'zh-Hant', 'zh-Hans', 'ko', 'es'] as const
 export type EmailLocale = (typeof EMAIL_LOCALES)[number]
 export const DEFAULT_EMAIL_LOCALE: EmailLocale = 'en'
 

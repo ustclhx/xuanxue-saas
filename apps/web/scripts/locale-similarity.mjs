@@ -509,10 +509,10 @@ export function faqOriginStats({ contentDir, locale, messageOrigins = null }) {
     }
   }
   if (messageOrigins) {
-    // 文案 FAQ 以键名前缀成组：`bazi_home_faq_q1` → `bazi_home_faq`
+    // 文案 FAQ 以键名前缀成组：`bazi_home_faq_q1` → `bazi_home_faq`，`tarot_daily_faq_1_q` → `tarot_daily_faq`
     const groups = new Map()
     for (const [key, origin] of Object.entries(messageOrigins)) {
-      const group = key.replace(/_?q?\d+$/, '')
+      const group = key.replace(/_\d+_q$|_?q?\d+$/, '')
       const counts = groups.get(group) ?? { local: 0, adapted: 0, missing: 0 }
       if (origin === 'local') counts.local += 1
       else if (origin === 'adapted') counts.adapted += 1

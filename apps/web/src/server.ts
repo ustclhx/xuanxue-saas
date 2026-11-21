@@ -58,6 +58,8 @@ import { captureServerError, instrumentWeb, sentryEnabled } from './server/cloud
 import { getWebRuntime, type WebRuntime, withWebRuntime } from './server/runtime.ts'
 import { SENTRY_TEST_PATH, sentryTest } from './server/sentry-test.ts'
 import { templateConfig } from './server/template-config.ts'
+// 新语言页面的 SEO 文案（features/i18n/page-copy.ts）：服务端与预渲染静态登记
+import './features/i18n/page-copy.server.ts'
 
 // Router 的 loader 错误已经转换为 SSR 匹配状态，不会再从 fetch 抛出。
 const startHandler = createStartHandler((context) => {

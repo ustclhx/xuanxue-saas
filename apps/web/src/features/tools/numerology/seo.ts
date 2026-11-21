@@ -2,7 +2,7 @@ import type { AnyRouteMatch } from '@tanstack/react-router'
 import { notFound } from '@tanstack/react-router'
 import { getLocale } from '../../../paraglide/runtime.js'
 import { originFromMatches, pageHead } from '../../seo/metadata.ts'
-import { NUMEROLOGY_LOCALE } from './routes.ts'
+import { NUMEROLOGY_LOCALE, type NumerologyLocale } from './routes.ts'
 
 export interface QA {
   readonly question: string
@@ -32,18 +32,26 @@ export function requireNumerologyLocale() {
   if (getLocale() !== NUMEROLOGY_LOCALE) throw notFound()
 }
 
+/** 本地化路径的数字命理页（如 `/es/numero-de-vida`）只服务该语言，其他前缀返回 404 */
+export function requireNumerologyLocaleOf(locale: NumerologyLocale) {
+  return () => {
+    if (getLocale() !== locale) throw notFound()
+  }
+}
+
 /**
  * 页面 head：Title / description / canonical / hreflang，附 FAQPage；
  * `extra` 为主工具页与数字页另外输出的结构化数据（WebApplication、BreadcrumbList）。
  */
 export function numerologyHead(
-  page: { path: string; title: string; description: string },
+  page: { path: string; title: string; description: string; locale?: string },
   matches: readonly Pick<AnyRouteMatch, 'loaderData' | 'routeId'>[],
   faq: readonly QA[] = [],
   extra: readonly unknown[] = [],
 ) {
-  return pageHead({ ...page, locale: NUMEROLOGY_LOCALE }, originFromMatches(matches), [
-    ...extra,
-    ...(faq.length ? [faqPageData(faq)] : []),
-  ])
+  return pageHead(
+    { ...page, locale: page.locale ?? NUMEROLOGY_LOCALE },
+    originFromMatches(matches),
+    [...extra, ...(faq.length ? [faqPageData(faq)] : [])],
+  )
 }

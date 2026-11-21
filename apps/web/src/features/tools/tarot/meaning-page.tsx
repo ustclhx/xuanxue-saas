@@ -229,7 +229,7 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
             <h1
               className={`m-0 text-balance font-heading text-ink text-title${locale === 'ko' ? ' break-keep' : ''}`}
             >
-              {content.title}
+              {content.h1 ?? content.title}
             </h1>
             <p className="m-0 text-body text-ink-muted">{content.description}</p>
           </header>

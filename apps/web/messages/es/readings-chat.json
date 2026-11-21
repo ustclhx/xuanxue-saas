@@ -1,0 +1,6 @@
+{
+  "readings_chat_title": "Pregunta sobre este informe",
+  "readings_chat_note": "La IA usa como contexto el informe y tu carta, no tu nombre ni tu lugar de nacimiento",
+  "readings_chat_unavailable_title": "No hay ningún modelo de IA disponible en este momento",
+  "readings_chat_unavailable_body": "Puedes seguir leyendo el informe. Las preguntas de seguimiento no están disponibles por ahora; puedes comprar créditos y preguntar aquí en cuanto haya un modelo disponible."
+}

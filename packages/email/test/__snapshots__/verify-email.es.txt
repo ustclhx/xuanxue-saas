@@ -1,0 +1,18 @@
+Acme
+
+
+Verifica tu correo
+
+Hola, Ada:
+
+Gracias por registrarte en Acme. Confirma tu dirección de correo con el botón de abajo.
+
+Verificar correo https://acme.test/api/auth/verify-email?token=tok_verify
+
+Si el botón no funciona, copia y pega este enlace en tu navegador:
+
+https://acme.test/api/auth/verify-email?token=tok_verify
+
+----------------------------------------
+
+Si no creaste una cuenta en Acme, puedes ignorar este correo.

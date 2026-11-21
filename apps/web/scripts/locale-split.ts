@@ -108,6 +108,8 @@ export function splitMessageModule(
     const offset = next.indexOf(code.slice(def.start, def.end))
     if (offset !== -1) next = next.slice(0, offset) + next.slice(offset + def.end - def.start)
   }
+  // 拆分语言全部是基础语言的别名（如只在东方站使用的文案）：字典里没有这条，查表必然回退，不加查表调用
+  if ([...removed.values()].every((body) => body === null)) return { code: next, removed }
   // 回退行改为先查字典：`return __splitMessage(locale, <序号>, en_x)(inputs)`（查不到时返回基础语言函数），
   // 每条文案只多十个字符左右
   next = next.replace(
@@ -125,9 +127,17 @@ export function splitMessageModule(
 let SPLIT_RUNTIME_ID = ''
 
 /** 字典分包源码：`{ <序号>: <函数> }`；函数可能引用 Paraglide 的 registry（复数规则） */
-export function dictionarySource(entries: ReadonlyMap<number, string>, registryId: string): string {
+export function dictionarySource(
+  entries: ReadonlyMap<number, string>,
+  registryId: string,
+  pageCopyId?: string,
+): string {
   const lines = [...entries].sort(([a], [b]) => a - b).map(([index, body]) => `${index}: ${body},`)
-  return `import * as registry from ${JSON.stringify(registryId)}\nexport default {\n${lines.join('\n')}\n}\n`
+  // 该语言按语言拆分的页面 SEO 文案（features/i18n/page-copy.ts）随字典一起加载，不再单独发起请求
+  const pageCopy = pageCopyId
+    ? `export { default as pageCopy } from ${JSON.stringify(pageCopyId)}\n`
+    : ''
+  return `import * as registry from ${JSON.stringify(registryId)}\n${pageCopy}export default {\n${lines.join('\n')}\n}\n`
 }
 
 /**
@@ -165,6 +175,7 @@ export function localeSplit({
   locales,
   paraglideDir,
   runtimeFile,
+  pageCopyDir,
 }: {
   /** 拆分到按需字典的语言（只处理已配置的语言） */
   readonly locales: readonly string[]
@@ -172,6 +183,8 @@ export function localeSplit({
   readonly paraglideDir: string
   /** 查表与加载函数所在的文件（src/features/i18n/split-messages.ts） */
   readonly runtimeFile: string
+  /** 各语言页面 SEO 文案目录（`<目录>/<语言>.ts`，存在时随字典导出） */
+  readonly pageCopyDir?: string
 }): Plugin {
   const messagesDir = normalizePath(join(paraglideDir, 'messages'))
   const runtime = normalizePath(runtimeFile)
@@ -212,7 +225,12 @@ export function localeSplit({
         const body = splitMessageModule(code, index, [locale]).removed.get(locale)
         if (body) entries.set(index, body)
       }
-      return dictionarySource(entries, normalizePath(join(paraglideDir, 'registry.js')))
+      const pageCopy = pageCopyDir ? normalizePath(join(pageCopyDir, `${locale}.ts`)) : undefined
+      return dictionarySource(
+        entries,
+        normalizePath(join(paraglideDir, 'registry.js')),
+        pageCopy && existsSync(pageCopy) ? pageCopy : undefined,
+      )
     },
     transform(code, id) {
       if (!isClient(this.environment) || locales.length === 0) return null

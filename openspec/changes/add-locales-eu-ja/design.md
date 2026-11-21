@@ -389,3 +389,22 @@
 | TR-9 | `features/i18n/language-controls.tsx`（LanguageSuggestion）、`suggestion.ts`（localeSuggestionScript）、`routes/__root.tsx` | 语言建议改为客户端提示，不输出 SSR 横幅与首帧脚本、不写 Cookie（本项目已停用并以 LocalePrompt 取代） |
 | TR-10 | `features/i18n/auth-locale.ts`、`request.server.ts`、`preference.ts`（preferredLocale） | 不按 Accept-Language / 偏好 Cookie 选择公开页与认证页语言 |
 | TR-11 | — | 模板加入多语言 SEO 验收检查（本项目 `check-i18n-seo.mjs` 可作参考） |
+
+## 第 5 组（es）实施记录（2026-11-21）
+
+证据在 `~/workspace/xuanxue-saas-evidence/locales-eu-ja/es/`。
+
+- **首页包**：v0.8.0 main 每个首页闭包 gzip 349,415 B；加入 `es`（pending）后 352,082 B（+2,667 B，预算 352,174 B 不变，余量 92 B）。
+  其中约 1.2 KB 是按语言拆分的查表调用（每条在首页闭包中、`es` 与英文不同的文案多一次 `splitMessage`，约 350 条），其余是 `es` 的路由与路径数据。
+  为此做了三处收紧：拆分插件对「拆分语言只是基础语言别名」的文案不再加查表（东方站专用文案等，−520 B）；新语言的 Title / description / 首页标语
+  改为按语言拆分的页面文案（`features/i18n/page-copy/<语言>.ts`，服务端静态登记，浏览器随该语言的文案字典分包加载，−1 KB）；
+  西语数字命理的 7 个单段页面不再各占路由文件，由 `routes/$slug.tsx` 承接（`features/tools/numerology/slug-route.ts`）。
+  **`ja` 加入后首页包会超出预算**：需要同样的收紧或由使用者决定（D-9）。
+- **路径**：`/es/tarot/…` 与英文共用 `/tarot` 文件路由（按当前语言取牌阵，`sharedTarotLocale`）；牌义 `/es/tarot/cartas/<slug>` 另有路由文件；
+  数字页 `/es/numero-de-vida/<n>` 一个路由文件。hreflang 由注册表 `paths` 生成（en ↔ es 互指，es 为 pending 时英文页不列 es）。
+- **结构本地化**：工具页说明长文按空行分段；西语工具页的补充问答并入长文（页面 FAQ 与 FAQPage 一致）；西语 FAQ 汇总页把账户一问并入「隐私与计算方式」组；
+  这些只改西语输出，英文输出逐字节不变。
+- **金额**：`es` 以 USD 结算（D-4），金额按 `es-419` 格式化为「USD 1.99」，不与拉美比索的「$」混淆，也不用西班牙本土的「1,99 US$」。
+- **门槛**（`measure-locale-similarity --enforce es`，临时把 `es` 设为 released 构建后测量，未提交）：结构直译分全部 ≤0.60（工具页最大 0.527、FAQ 0.468、数字页最大 0.242）；
+  牌义按位置模板重复（MDX）最大 0.163；FAQ local 下限、长度下限全部通过；**数字序列重合度 18 页未过**（6 个工具页 0.49–0.72、12 个数字页 0.53–0.70），
+  主要来自两种语言共用的引擎事实与组件输出（相性表、数字网格、计算步骤），需决定是否从该指标中排除组件固定数字。回译由 Codex 完成，输入见证据目录 `backtranslation-input/`。

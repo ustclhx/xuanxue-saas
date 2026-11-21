@@ -38,6 +38,12 @@ const METHODS: Record<Locale, readonly Pair[]> = {
     [m.bazi_home_faq_q3, m.bazi_home_faq_a3],
     [m.bazi_gunghap_faq_q1, m.bazi_gunghap_faq_a1],
   ],
+  // 西班牙语与英语同为西方站数字命理工具，取各自语言的工具页 FAQ
+  es: [
+    [m.numerology_faq_calc_q1, m.numerology_faq_calc_a1],
+    [m.numerology_faq_name_q2, m.numerology_faq_name_a2],
+    [m.numerology_faq_compat_q1, m.numerology_faq_compat_a1],
+  ],
 }
 
 /** /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式、账号三组问答 */

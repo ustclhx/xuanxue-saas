@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { isLocaleReleased } from '../i18n/rollout.ts'
 import { localePrefix } from '../i18n/url-prefix.ts'
 import { defaultShareCardLayout } from '../share-cards/layout.tsx'
 import {
@@ -135,7 +136,12 @@ describe('公开页面 SEO（4.1–4.3）', () => {
         // （西方站英语、东方站繁中），不是会跳转的东方站根路径
         if (!page.alternates) {
           const site = siteOfLocale(locale, config) ?? 'west'
-          const siteLocales = locales.filter((other) => siteOfLocale(other, config) === site)
+          // 未发布语言（rollout.ts）不进其他语言页面的 hreflang，页面自身保留自指
+          const siteLocales = locales.filter(
+            (other) =>
+              siteOfLocale(other, config) === site &&
+              (other === locale || isLocaleReleased(other, config)),
+          )
           // 东方站各语言首页另与东方站英文入口页 `/en` 互指
           expect(head.links.filter((link) => link.rel === 'alternate')).toHaveLength(
             siteLocales.length + 1 + (site === 'east' && page.path === '/' ? 1 : 0),
@@ -439,9 +445,9 @@ it('定价 hreflang 只在同站内声明（D5），使用 BCP 47 语言码', ()
     ['ko', 'https://ganjiday.com/ko/pricing'],
     ['x-default', 'https://ganjiday.com/zh-hant/pricing'],
   ])
-  for (const page of pages.filter((page) => page.locale === 'en'))
+  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'west'))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('ganjiday.com')
-  for (const page of pages.filter((page) => page.locale !== 'en'))
+  for (const page of pages.filter((page) => siteOfLocale(page.locale, config) === 'east'))
     expect(JSON.stringify(pageHead(page, origin).links), page.path).not.toContain('arcanumber.com')
 })
 

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { supportEmail } from '@xuanxue/config'
 import templateConfig from '../../../template.config.ts'
+import { releaseState } from '../src/features/i18n/rollout.ts'
 import { localePrefix } from '../src/features/i18n/url-prefix.ts'
 import { seedBillingCatalog } from './fixtures.ts'
 
@@ -29,7 +30,7 @@ for (const lang of languages) {
       // 西方站原营销板块迁往 /pricing（openspec add-numerology-tools 决策 3）
       // 定价页只卖积分包，不再有模板的功能/评价区块（Stripe 审核不接受虚构评价）
       await seedBillingCatalog()
-      await page.goto('/pricing')
+      await page.goto(`${prefix}/pricing`)
       await expect(page.getByTestId('pricing-pack')).toHaveCount(2)
       await expect(page.getByText('Loved by builders')).toHaveCount(0)
       await expect(page.locator('section#testimonials')).toHaveCount(0)
@@ -157,9 +158,26 @@ for (const lang of languages) {
           disclaimer: ['예측이 아니라 성찰', '미래를 예측하지 않음'],
         },
       },
+      es: {
+        titles: [
+          'Política de privacidad',
+          'Términos del servicio',
+          'Política de reembolsos',
+          'Aviso legal',
+        ],
+        footer: 'Aviso legal',
+        cookies: 'Cookies',
+        operator: 'Lucinum LLC',
+        body: {
+          privacy: ['18 años o más', 'Nunca vendemos', 'DeepSeek', 'numerología y tarot'],
+          terms: ['al menos 18 años', 'Limitación de responsabilidad'],
+          refund: ['vuelven a tu cuenta automáticamente', 'Cuándo no hacemos reembolsos'],
+          disclaimer: ['prevalece la versión en inglés', 'No predice el futuro'],
+        },
+      },
     }[lang]
     if (!copy) throw new Error(`Missing legal copy for ${lang}`)
-    const site = lang === 'en' ? 'west' : 'east'
+    const site = lang === 'en' || lang === 'es' ? 'west' : 'east'
     const origin = new URL(baseURL ?? 'http://localhost:3000')
     origin.hostname = `${site}.localhost`
     const slugs = ['privacy', 'terms', 'refund', 'disclaimer'] as const
@@ -189,6 +207,8 @@ for (const lang of languages) {
     // Cookie 条款并入隐私政策的一节
     await page.goto(`${origin.origin}${prefix}/privacy`)
     await expect(page.getByRole('heading', { name: copy.cookies, level: 2 })).toBeVisible()
+    // 未发布语言（features/i18n/rollout.ts，如 pending 的 es）不进站点地图
+    if (releaseState(site, lang) !== 'released') return
     const sitemap = await request.get(`/sitemap/${lang === 'en' ? 'en' : lang.toLowerCase()}.xml`, {
       headers: { host: origin.host },
     })

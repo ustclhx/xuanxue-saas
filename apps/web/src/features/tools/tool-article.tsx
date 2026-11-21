@@ -25,7 +25,12 @@ export function ToolArticle({
       {sections.map((section) => (
         <section key={section.heading} className="flex flex-col gap-2">
           <h3 className="m-0 font-heading text-ink text-subtitle">{section.heading}</h3>
-          <p className="m-0 text-body text-ink-muted">{section.body}</p>
+          {/* 文案中的空行分段（新语言按本语言习惯组织段落，不必与源语言逐段对应） */}
+          {section.body.split(/\n{2,}/).map((paragraph) => (
+            <p key={paragraph} className="m-0 text-body text-ink-muted">
+              {paragraph}
+            </p>
+          ))}
         </section>
       ))}
     </article>

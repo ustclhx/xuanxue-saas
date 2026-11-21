@@ -1,3 +1,5 @@
+import { pageCopy } from '../i18n/page-copy.ts'
+
 // 首页 SEO 文案（标题、描述）与默认分享图副标题：staticPage('/') 与分享卡片共用。
 // 独立成小模块，分享卡片版式只依赖这里，不把 metadata.ts 拉进分享卡片的服务端模块图。
 // 项目文案（模板 0.4.1 升级说明：改过首页标题的项目在本文件保留自己的文案）：
@@ -32,7 +34,9 @@ const HOME_COPY: Readonly<
   ],
 }
 
-const copyOf = (locale: string) => HOME_COPY[locale] ?? HOME_COPY.en ?? ['', '', '']
+// 新语言（es 起）的首页文案按语言拆分，见 features/i18n/page-copy.ts
+const copyOf = (locale: string) =>
+  pageCopy(locale)?.home ?? HOME_COPY[locale] ?? HOME_COPY.en ?? ['', '', '']
 
 /** 未登记的语言回退到英文（西方站）文案 */
 export function homePageCopy(locale: string): [title: string, description: string] {

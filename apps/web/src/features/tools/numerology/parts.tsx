@@ -8,7 +8,8 @@ import { LifePathChart } from '../charts/life-path-chart.tsx'
 import { useTool } from '../context.tsx'
 import { formatLongDate, lifePathLines } from './calc.ts'
 import { asLifePath, NUMBER_SUMMARY } from './copy.ts'
-import { LIFE_PATH_NUMBERS, lifePathPath } from './routes.ts'
+import { lifePathHref, numerologyLocale } from './href.ts'
+import { LIFE_PATH_NUMBERS } from './routes.ts'
 
 /**
  * 大号数字（design.md D14：命盘内的大字用 display，小盘用 title；标题字体、文字色）
@@ -116,7 +117,7 @@ export function LifePathCard({
     >
       <p className="m-0 text-caption text-ink-subtle">
         {example
-          ? m.numerology_result_example({ date: formatLongDate(date) })
+          ? m.numerology_result_example({ date: formatLongDate(date, numerologyLocale()) })
           : m.numerology_result_label()}
       </p>
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-7">
@@ -131,7 +132,7 @@ export function LifePathCard({
           <p className="m-0 text-body text-ink-muted">{NUMBER_SUMMARY[value]()}</p>
           {value !== current && (
             <a
-              href={lifePathPath(value)}
+              href={lifePathHref(value)}
               onClick={() => track('tool_link_click', { target: `life-path-${value}` })}
               className="inline-flex min-h-11 items-center text-body text-brand-ink hover:decoration-2"
             >
@@ -170,7 +171,7 @@ export function NumberGrid({ current, title }: { current?: number | undefined; t
         {LIFE_PATH_NUMBERS.map((value) => (
           <li key={value}>
             <a
-              href={lifePathPath(value)}
+              href={lifePathHref(value)}
               aria-label={m.numerology_number_link({ number: value })}
               aria-current={value === current ? 'page' : undefined}
               onClick={() => track('tool_link_click', { target: `life-path-${value}` })}

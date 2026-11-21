@@ -8,6 +8,16 @@
     "robots": null,
     "jsonLd": ["Organization", "WebSite"]
   },
+  "es": {
+    "canonical": "/es",
+    "hreflang": {
+      "en": "/",
+      "es": "/es",
+      "x-default": "/"
+    },
+    "robots": null,
+    "jsonLd": ["Organization", "WebSite"]
+  },
   "zh-hant": {
     "canonical": "/zh-hant",
     "hreflang": {

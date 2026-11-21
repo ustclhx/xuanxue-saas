@@ -1,3 +1,5 @@
+import { type PageCopy, registerPageCopy } from './page-copy.ts'
+
 /**
  * 新语言文案的按需字典（openspec add-locales-eu-ja tasks 1.6，构建插件见 scripts/locale-split.ts）。本文件归项目所有。
  *
@@ -8,7 +10,7 @@
  */
 type Message = (inputs: unknown) => string
 type Dictionary = Readonly<Record<number, Message>>
-type Loaders = Readonly<Record<string, () => Promise<{ default: Dictionary }>>>
+type Loaders = Readonly<Record<string, () => Promise<{ default: Dictionary; pageCopy?: PageCopy }>>>
 
 // 构建时由 scripts/locale-split.ts 替换为各拆分语言的 import()；dev 与未配置新语言时为空
 const loaders: Loaders = {}
@@ -25,7 +27,10 @@ export async function loadSplitMessages(locale: string): Promise<void> {
   const load = loaders[locale]
   if (!load || loaded?.locale === locale) return
   try {
-    loaded = { locale, dictionary: (await load()).default }
+    const chunk = await load()
+    loaded = { locale, dictionary: chunk.default }
+    // 字典分包同时带该语言的页面 SEO 文案（scripts/locale-split.ts dictionarySource）
+    if (chunk.pageCopy) registerPageCopy(locale, chunk.pageCopy)
   } catch {
     // 网络失败时界面以基础语言显示，与服务端输出不同处由 React 在水合时修正
   }
