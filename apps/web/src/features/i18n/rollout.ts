@@ -27,16 +27,16 @@ const RELEASE_TABLE: ReleaseTable = {
     'zh-Hant': 'released',
     'zh-Hans': 'released',
     ko: 'released',
-    // 第一期（add-locales-eu-ja 第 4 组）
-    ja: 'pending',
-    // 东方站根路径英文页面（5b：`/bazi-calculator`、`/tarot-spreads` 等，无前缀）。未发布时正式域名上这些地址
-    // 维持原来的 301（到繁中同路径），东方站 `/` 仍是英文入口页；发布后 `/` 换成英文落地页（features/east-en）
-    en: 'pending',
+    // 第一期（add-locales-eu-ja 第 4 组），2026-11-21 发布
+    ja: 'released',
+    // 东方站根路径英文页面（5b：`/bazi-calculator`、`/tarot-spreads` 等，无前缀），2026-11-21 发布：
+    // `/` 为英文落地页（features/east-en）；八字 / 紫微英文详批另由 READING_EVAL_PENDING 控制
+    en: 'released',
   },
   west: {
     en: 'released',
-    // 第一期（第 5 组）
-    es: 'pending',
+    // 第一期（第 5 组），2026-11-21 发布
+    es: 'released',
     // 第二、三期的 pt-BR、fr、de、it 写入配置前不必登记：未登记按 pending 处理（rollout.test.ts 要求写入配置时登记）
   },
 }
