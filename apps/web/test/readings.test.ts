@@ -94,7 +94,8 @@ const BIRTH = {
   gender: 'female',
   location: { city: 'taipei' },
 }
-const SECTIONS = ['總論', '性格', '事業', '財運', '感情', '健康作息提示', '未來十年大運', '建議']
+// 繁中八字的代码默认版本（v4 起含「流年逐年」）；取注册表的章节，默认版本变化时用例不需跟着改
+const SECTIONS = readingDefinition('bazi-full', 'zh-Hant')?.prompt.sections ?? []
 const REPORT = SECTIONS.map((title) =>
   title === '財運'
     ? `## ${title}\n\n財運平穩，宜量入为出。\n\n今年可以買進台積電股票。`
@@ -343,7 +344,7 @@ describe('POST /api/readings', () => {
     expect(saved?.content).toContain('如有不適請諮詢專業醫師。')
     const [row] = await sql<{ model_key: string; prompt_version: string; locale: string }[]>`
       select model_key, prompt_version, locale from reading where id = ${readingId}`
-    expect(row).toEqual({ model_key: modelKey, prompt_version: 'bazi-full.v2', locale: 'zh-Hant' })
+    expect(row).toEqual({ model_key: modelKey, prompt_version: 'bazi-full.v4', locale: 'zh-Hant' })
     expect(run.sent).toEqual([
       expect.objectContaining({
         template: 'reading-ready',
@@ -512,7 +513,8 @@ describe('POST /api/readings', () => {
 
 describe('提示词版本切换（readings-prompt-v4-yearly tasks.md 2.4）', () => {
   /** 用于切换测试的非默认版本与语言 */
-  const SWITCHED = { kind: 'bazi-full', locale: 'zh-Hans', version: 'bazi-full.v4' } as const
+  // 代码默认已是 v4，切换测试改用仍登记、可回滚的简中 v3
+  const SWITCHED = { kind: 'bazi-full', locale: 'zh-Hans', version: 'bazi-full.v3' } as const
   const VERSION_KEY = `readings.${SWITCHED.kind}.promptVersion` as const
 
   const switchedReport = () => {
@@ -821,7 +823,15 @@ describe('删除（隐私政策「如何删除数据」）', () => {
 
 describe('其余详批类型（tasks.md 2.4）', () => {
   const cases = [
-    { kind: 'ziwei-full', locale: 'zh-Hant', site: 'east', input: BIRTH },
+    // 上方固定紫微命盘只有一宫且没有大限 / 流年（iztro 在 workers 池不可用），撑不起 v4 的 annual 数据档；
+    // 此处经运行时设置选仍登记的 v2 验证生成链路，v4 数据档由 catalog.test.ts / prompt-v4.test.ts 对照真实引擎验证
+    {
+      kind: 'ziwei-full',
+      locale: 'zh-Hant',
+      site: 'east',
+      input: BIRTH,
+      promptVersion: 'ziwei-full.v2',
+    },
     {
       kind: 'saju-compat',
       locale: 'ko',
@@ -847,7 +857,8 @@ describe('其余详批类型（tasks.md 2.4）', () => {
 
   for (const item of cases)
     it(`${item.kind}（${item.locale}）：复算后生成，按章节保存并结算`, async () => {
-      const definition = readingDefinition(item.kind, item.locale)
+      const promptVersion = 'promptVersion' in item ? item.promptVersion : undefined
+      const definition = readingDefinition(item.kind, item.locale, { promptVersion })
       if (!definition) throw new Error(`${item.kind} missing`)
       const report = definition.prompt.sections
         .map((title) => `## ${title}\n\n${title} …`)
@@ -855,7 +866,11 @@ describe('其余详批类型（tasks.md 2.4）', () => {
       const who = await member(100)
       const modelKey = await textModel()
       const model = reportModel(report)
-      const run = deps(model, modelKey)
+      const run = deps(
+        model,
+        modelKey,
+        promptVersion ? { [`readings.${item.kind}.promptVersion`]: promptVersion } : {},
+      )
       const response = await post(
         who,
         { kind: item.kind, input: item.input, locale: item.locale, site: item.site },

@@ -36,8 +36,10 @@ describe('v4 提示词', () => {
       const current = readingDefinition(item.kind, item.locale)
       if (!v4 || !current) throw new Error('definition missing')
       expect(v4.prompt.version).toBe(`${item.kind}.v4`)
-      // 默认版本未变：上线前线上仍用 v2/v3
-      expect(current.prompt.version).not.toBe(v4.prompt.version)
+      // 八字 / 紫微的繁中、简中代码默认已是 v4（与生产运行时设置一致）；其余组合默认仍为 v4 之前的版本
+      if (item.kind === 'bazi-full' || item.kind === 'ziwei-full')
+        expect(current.prompt).toBe(v4.prompt)
+      else expect(current.prompt.version).not.toBe(v4.prompt.version)
       expect(v4.prompt.sections).toContain(item.annual)
       if (v4.healthSection) {
         expect(v4.prompt.sections).toContain(v4.healthSection.title)

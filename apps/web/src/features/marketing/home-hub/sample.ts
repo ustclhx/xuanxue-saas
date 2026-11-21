@@ -15,8 +15,29 @@ export const HUB_SAMPLE_KIND = {
 export type HubSampleLocale = keyof typeof HUB_SAMPLE_KIND
 
 export const HUB_SAMPLE_SECTIONS: Record<HubSampleLocale, readonly string[]> = {
-  'zh-Hant': ['總論', '性格', '事業', '財運', '感情', '健康作息提示', '未來十年大運', '建議'],
-  'zh-Hans': ['总论', '性格', '事业', '财运', '感情', '健康作息提示', '未来十年大运', '建议'],
+  // 繁中 / 简中与生产实际使用的 v4 一致（含「流年逐年」）
+  'zh-Hant': [
+    '總論',
+    '性格',
+    '事業',
+    '財運',
+    '感情',
+    '健康作息提示',
+    '未來十年大運',
+    '流年逐年',
+    '建議',
+  ],
+  'zh-Hans': [
+    '总论',
+    '性格',
+    '事业',
+    '财运',
+    '感情',
+    '健康作息提示',
+    '未来十年大运',
+    '流年逐年',
+    '建议',
+  ],
   ko: ['총론', '성격', '직업운', '재물운', '애정운', '건강·생활 습관', '향후 10년 대운', '조언'],
   ja: [
     '総論',

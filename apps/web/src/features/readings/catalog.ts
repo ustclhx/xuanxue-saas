@@ -520,14 +520,14 @@ const entries = {
     kind: 'bazi-full',
     variants: {
       'zh-Hant': {
-        prompt: BAZI_FULL_V2,
+        prompt: BAZI_FULL_V4['zh-Hant'],
         disclaimer:
           '本報告依傳統命理推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample: READING_SAMPLES['bazi-full']['zh-Hant'],
       },
       'zh-Hans': {
-        prompt: BAZI_FULL_V3,
+        prompt: BAZI_FULL_V4['zh-Hans'],
         disclaimer:
           '本报告依传统命理推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
@@ -551,8 +551,14 @@ const entries = {
         sample: JA_READING_SAMPLES['bazi-full'],
       },
     },
-    // v4 的英文是新增的语言，已有的繁中 / 简中 v4 文本不变
-    versions: { 'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN } },
+    // 代码默认与生产运行时设置一致：繁中 / 简中 v4、日语 v4、英文 v5（生产原设置为 bazi-full.v4，
+    // 部署后清空设置即英文走 v5，中日文输出不变）。v4 之前的默认（繁中 v2、简中 v3）保留供回滚与评测回放；
+    // v4 的英文是后加的语言，已有的繁中 / 简中 v4 文本不变
+    versions: {
+      'bazi-full.v2': { 'zh-Hant': BAZI_FULL_V2 },
+      'bazi-full.v3': { 'zh-Hans': BAZI_FULL_V3 },
+      'bazi-full.v4': { ...BAZI_FULL_V4, en: BAZI_FULL_V4_EN },
+    },
     recompute: recomputeChart,
   },
   'saju-full': {
@@ -573,14 +579,14 @@ const entries = {
     kind: 'ziwei-full',
     variants: {
       'zh-Hant': {
-        prompt: ZIWEI_FULL_V2,
+        prompt: ZIWEI_FULL_V4['zh-Hant'],
         disclaimer:
           '本報告依紫微斗數傳統推算，僅供參考與自我探索，不構成醫療、法律或投資建議，也不預言任何具體事件。',
         healthSection: ZH_HEALTH,
         sample: READING_SAMPLES['ziwei-full']['zh-Hant'],
       },
       'zh-Hans': {
-        prompt: ZIWEI_FULL_V3,
+        prompt: ZIWEI_FULL_V4['zh-Hans'],
         disclaimer:
           '本报告依紫微斗数传统推算，仅供参考与自我探索，不构成医疗、法律或投资建议，也不预言任何具体事件。',
         healthSection: ZH_HEALTH_HANS,
@@ -602,7 +608,12 @@ const entries = {
         sample: JA_READING_SAMPLES['ziwei-full'],
       },
     },
-    versions: { 'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN } },
+    // 同八字：代码默认繁中 / 简中 / 日语 v4、英文 v5；繁中 v2、简中 v3 保留供回滚与评测回放
+    versions: {
+      'ziwei-full.v2': { 'zh-Hant': ZIWEI_FULL_V2 },
+      'ziwei-full.v3': { 'zh-Hans': ZIWEI_FULL_V3 },
+      'ziwei-full.v4': { ...ZIWEI_FULL_V4, en: ZIWEI_FULL_V4_EN },
+    },
     recompute: recomputeZiwei,
   },
   'saju-compat': {

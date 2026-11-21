@@ -1,17 +1,20 @@
 import { readFileSync } from 'node:fs'
 import { computeChart, computeCompatibility } from '@xuanxue/bazi'
-import { computeZiwei } from '@xuanxue/bazi/ziwei'
+import { computeZiwei, ziweiHoroscope } from '@xuanxue/bazi/ziwei'
 import { READING_KINDS } from '@xuanxue/db'
 import { describe, expect, it } from 'vitest'
 import {
+  annualChartSummary,
   chartSummary,
   ensureHealthNotice,
   missingSections,
+  READING_ANNUAL_YEARS,
   readingDefinition,
   readingEvalPassed,
   readingInputHash,
   readingMessages,
   withDisclaimer,
+  ziweiAnnualSummary,
   ziweiSummary,
 } from './catalog.ts'
 import { checkCompliance } from './compliance.ts'
@@ -65,7 +68,8 @@ describe('详批注册表', () => {
     expect(readingEvalPassed('numerology-full', 'es')).toBe(true)
     expect(readingEvalPassed('tarot-spread', 'es')).toBe(true)
     expect(readingEvalPassed('numerology-full', 'en')).toBe(true)
-    expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v3')
+    // 繁中 / 简中代码默认与生产运行时设置一致为 v4（v2 / v3 仍在 versions 中）
+    expect(readingDefinition('bazi-full', 'zh-Hans')?.prompt.version).toBe('bazi-full.v4')
     // 东方站英文从 v4 起，代码默认为 v5（英文标签数据）；v4 英文仍可经运行时设置选用（add-locales-eu-ja 5b.3）
     expect(readingDefinition('bazi-full', 'en')?.prompt.version).toBe('bazi-full.v5')
     expect(readingDefinition('ziwei-full', 'en')?.prompt.version).toBe('ziwei-full.v5')
@@ -90,8 +94,12 @@ describe('详批注册表', () => {
     const recomputed = bazi().recompute(tampered, NOW)
     expect(recomputed.input).not.toHaveProperty('chart')
     expect(recomputed.input).not.toHaveProperty('dayMaster')
-    const expected = chartSummary(computeChart(INPUT, { referenceYear: 2026 }))
+    // 默认版本为 v4（annual 数据档）；v2 仍按 base 数据档复算
+    const chart = computeChart(INPUT, { referenceYear: 2026 })
+    const expected = annualChartSummary(chart, 2026)
     expect(recomputed.result).toEqual(expected)
+    const v2 = readingDefinition('bazi-full', 'zh-Hant', { promptVersion: 'bazi-full.v2' })
+    expect(v2?.recompute(tampered, NOW).result).toEqual(chartSummary(chart))
     expect(expected.dayMaster).not.toBe('gui')
     const [system, user] = readingMessages(bazi(), recomputed)
     expect(JSON.parse(user?.text ?? '')).toEqual({ kind: 'bazi-full', chart: expected })
@@ -171,7 +179,11 @@ describe('其余详批的服务端复算（tasks.md 2.4）', () => {
     const recomputed = kind('ziwei-full').recompute({ ...INPUT, chart: { palaces: [] } }, NOW)
     const chart = computeZiwei(INPUT)
     if (chart.status !== 'ok') throw new Error('expected ok')
-    expect(recomputed.result).toEqual(ziweiSummary(chart))
+    const horoscope = ziweiHoroscope(INPUT, { startYear: 2026, years: READING_ANNUAL_YEARS })
+    if (horoscope.status !== 'ok') throw new Error('expected ok')
+    expect(recomputed.result).toEqual(ziweiAnnualSummary(chart, horoscope))
+    const v2 = readingDefinition('ziwei-full', 'zh-Hant', { promptVersion: 'ziwei-full.v2' })
+    expect(v2?.recompute(INPUT, NOW).result).toEqual(ziweiSummary(chart))
     expect(recomputed.input).not.toHaveProperty('chart')
     expect(JSON.stringify(recomputed.result)).not.toContain('1990')
     expect(() => kind('ziwei-full').recompute({ ...INPUT, time: null }, NOW)).toThrow(
