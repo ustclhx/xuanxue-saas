@@ -1,5 +1,6 @@
 import type { SpreadId } from '@xuanxue/tarot'
 import type { AppLocale, Assert, Covers } from '../../i18n/locales.ts'
+import { localeText } from '../../i18n/split-messages.ts'
 import type { ToolRoute } from '../registry.ts'
 
 /**
@@ -91,7 +92,9 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
   },
 }
 
-const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
+// 新语言的描述在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）；
+// 注册表直接引用各牌阵的这个对象（不复制），加载后写回的条目随之可见
+const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = localeText({
   'three-card': {
     en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
     'zh-Hant':
@@ -122,18 +125,19 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
     ko: '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
     ja: 'ケルト十字スプレッドを無料で。10枚の位置ごとの意味と読み方を解説し、ひとつの悩みを多角的に整理します。未来を予言するものではありません。',
   },
-}
+})
 
 /**
  * 牌阵页的 SEO 标题（不含站名）：默认与导航名称相同；关键词地图另定 Title 的语言在这里登记
  * （ja：使用者 2026-11-20 批准的关键词地图 ja.md §4–7）。
  */
-const SEO_TITLES: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> = {
-  'three-card': { ja: '無料タロット占い｜スリーカードで過去・現在・未来' },
-  daily: { ja: 'タロット一枚引き 無料｜今日の一枚' },
-  'yes-or-no': { ja: 'タロット イエスノー占い 無料｜1枚で答え' },
-  'celtic-cross': { ja: 'ケルト十字スプレッド｜10枚の位置と読み方' },
-}
+const SEO_TITLES: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> =
+  localeText({
+    'three-card': { ja: '無料タロット占い｜スリーカードで過去・現在・未来' },
+    daily: { ja: 'タロット一枚引き 無料｜今日の一枚' },
+    'yes-or-no': { ja: 'タロット イエスノー占い 無料｜1枚で答え' },
+    'celtic-cross': { ja: 'ケルト十字スプレッド｜10枚の位置と読み方' },
+  })
 
 export function tarotSeoTitle(spread: SpreadId, locale: TarotLocale): string {
   return SEO_TITLES[spread][locale] ?? tarotTitle(spread, locale)
@@ -179,7 +183,7 @@ export const TAROT_TOOL_ROUTES: readonly ToolRoute[] = TAROT_SPREADS.flatMap((sp
     site,
     paths: byLocale((locale) => tarotPath(spread, locale)),
     titles: byLocale((locale) => tarotTitle(spread, locale)),
-    descriptions: byLocale((locale) => tarotDescription(spread, locale)),
+    descriptions: DESCRIPTIONS[spread],
     ...(spread === 'three-card' ? {} : { nav: false }),
   })),
 )

@@ -1,5 +1,6 @@
 // 注册表随主入口加载：只引用牌组清单，不引用三语牌义数据
 import { CARDS } from '@xuanxue/tarot/cards'
+import { localeText } from '../../i18n/split-messages.ts'
 import type { ToolRoute } from '../registry.ts'
 import { TAROT_LOCALES, TAROT_ROOTS, type TarotLocale } from './routes.ts'
 
@@ -26,15 +27,16 @@ export function tarotIndexPath(locale: TarotLocale): string {
   return `${TAROT_ROOTS[locale]}/${SEGMENTS[locale]}`
 }
 
-const INDEX_TITLES: Readonly<Record<TarotLocale, string>> = {
+// 新语言的条目在客户端构建中移出首页脚本、按语言加载（localeText，add-locales-eu-ja 决策 11）
+const INDEX_TITLES: Readonly<Record<TarotLocale, string>> = localeText({
   en: 'Tarot Card Meanings: All 78 Cards',
   'zh-Hant': '塔羅牌義：78 張牌全覽',
   'zh-Hans': '塔罗牌义：78 张牌全览',
   ko: '타로 카드 의미: 78장 전체 보기',
   ja: 'タロットカードの意味一覧（78枚）',
-}
+})
 
-const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = {
+const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = localeText({
   en: 'All 78 tarot card meanings in one list: the 22 Major Arcana and the suits of Wands, Cups, Swords and Pentacles, each with upright and reversed meanings.',
   'zh-Hant':
     '78 張塔羅牌義一次看完：22 張大阿爾克那，以及權杖、聖杯、寶劍、錢幣四個牌組，每張牌都有正位與逆位解析。',
@@ -42,7 +44,7 @@ const INDEX_DESCRIPTIONS: Readonly<Record<TarotLocale, string>> = {
     '78 张塔罗牌义一次看完：22 张大阿尔卡那，以及权杖、圣杯、宝剑、钱币四个牌组，每张牌都有正位与逆位解析。',
   ko: '타로 카드 78장의 의미를 한곳에서: 메이저 아르카나 22장과 완드·컵·소드·펜타클 수트, 카드마다 정방향과 역방향 해석을 담았습니다.',
   ja: 'タロットカード78枚の意味を一覧で。大アルカナ22枚とワンド・カップ・ソード・ペンタクルの小アルカナを、正位置・逆位置・相手の気持ちまで解説します。',
-}
+})
 
 /** 牌义索引页的 head：四语路径互为 hreflang（按站点筛选），写法与牌阵页相同 */
 export function tarotIndexSeo(locale: TarotLocale) {

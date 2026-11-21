@@ -15,7 +15,7 @@ import type { EnabledCurrency } from './currency.ts'
 export const FX_SNAPSHOT = {
   date: '2026-11-13',
   perUsd: { TWD: 32.5, KRW: 1400, CNY: 6.7 },
-  // JPY 由 add-locales-eu-ja 4.9 加入（快照 2026-11-21，150 日元/美元）；金额待使用者确认后再建 Stripe live 价格
+  // JPY 由 add-locales-eu-ja 4.9 加入（快照 2026-11-21，150 日元/美元）；金额经使用者 2026-11-21 确认（¥450 / ¥1,200 / ¥750 / ¥1,500），Stripe live 价格另行批准后创建
   jpyDate: '2026-11-21',
   perUsdJpy: 150,
 } as const

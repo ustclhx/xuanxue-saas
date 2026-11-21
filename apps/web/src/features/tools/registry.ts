@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
+import { localeText } from '../i18n/split-messages.ts'
 import { CONCEPT_SLUGS, type ConceptKey, conceptPath } from './bazi/eastern-routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
@@ -16,7 +17,10 @@ export interface ToolRoute {
   readonly site: SiteId
   /** 各语言的页面路径（不含语言前缀，以 `/` 开头），没有对应语言版本时省略 */
   readonly paths: Readonly<Partial<Record<string, string>>>
-  /** 可选 SEO 描述；未提供时沿用标题 */
+  /**
+   * 可选 SEO 描述；未提供时沿用标题。用 localeText 包裹：新语言的描述只在该语言页面加载（add-locales-eu-ja 决策 11）；
+   * 路径与导航名称其他语言页面也要用（hreflang、语言菜单、页头），不包
+   */
   readonly descriptions?: Readonly<Partial<Record<string, string>>>
   /** 各语言的导航名称 */
   readonly titles: Readonly<Partial<Record<string, string>>>
@@ -53,8 +57,6 @@ const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
   return { id: `bazi-concept-${key}`, site: 'east', nav: false, paths, titles }
 })
 
-// ja 的四柱推命与紫微斗数页 meta description 取自 messages/ja/bazi.json（easternPageCopy），这里不重复登记，
-// 以免这些字符串进入所有首页的脚本闭包（首页包预算，add-locales-eu-ja 决策 11）
 export const TOOL_ROUTES: readonly ToolRoute[] = [
   // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本；
   // 路径为关键词 URL（openspec separate-landing-homepage design.md D1），语言首页是品牌落地页
@@ -63,40 +65,42 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
     site: 'east',
     paths: { 'zh-Hant': '/八字排盤', 'zh-Hans': '/八字排盘', ko: '/만세력', ja: '/四柱推命' },
     titles: { 'zh-Hant': '八字排盤', 'zh-Hans': '八字排盘', ko: '만세력', ja: '四柱推命' },
-    descriptions: {
+    descriptions: localeText({
       'zh-Hant': '免費八字排盤：四柱命盤、五行強弱、身強身弱、喜用神、大運流年、神煞與八字重量。',
       'zh-Hans': '免费八字排盘：四柱命盘、五行强弱、身强身弱、喜用神、大运流年、神煞与八字重量。',
       ko: '무료 만세력: 사주팔자, 오행 분포, 신강·신약, 용신, 대운·세운, 신살·귀인·공망 조회.',
-    },
+      ja: '無料の四柱推命：生年月日と出生時間から命式を作成し、通変星・蔵干・十二運星・大運・天中殺を表示します。',
+    }),
   },
   {
     id: 'ziwei',
     site: 'east',
     paths: { 'zh-Hant': '/紫微斗數排盤', 'zh-Hans': '/紫微斗数排盘', ja: '/紫微斗数' },
     titles: { 'zh-Hant': '紫微斗數', 'zh-Hans': '紫微斗数', ja: '紫微斗数' },
-    descriptions: {
+    descriptions: localeText({
       'zh-Hant': '免費紫微斗數排盤：十二宮位、命宮與身宮、十四主星與生年四化。',
       'zh-Hans': '免费紫微斗数排盘：十二宫位、命宫与身宫、十四主星与生年四化。',
-    },
+      ja: '無料の紫微斗数：生年月日から命盤を作成し、十二宮・命宮と身宮・十四主星・生年四化を表示します。',
+    }),
   },
   {
     id: 'mingpan',
     site: 'east',
     paths: { 'zh-Hant': '/命盤查詢', 'zh-Hans': '/命盘查询' },
     titles: { 'zh-Hant': '命盤查詢', 'zh-Hans': '命盘查询' },
-    descriptions: {
+    descriptions: localeText({
       'zh-Hant': '免費命盤查詢：四柱、藏干、十神與大運流年表。',
       'zh-Hans': '免费命盘查询：四柱、藏干、十神与大运流年表。',
-    },
+    }),
   },
   {
     id: 'saju-gunghap',
     site: 'east',
     paths: { ko: '/사주궁합' },
     titles: { ko: '사주궁합' },
-    descriptions: {
+    descriptions: localeText({
       ko: '무료 사주궁합: 두 사람의 일주 관계와 오행 보완으로 본 참고 점수와 항목별 가감점.',
-    },
+    }),
   },
   ...TAROT_TOOL_ROUTES,
   ...TAROT_MEANING_ROUTES,

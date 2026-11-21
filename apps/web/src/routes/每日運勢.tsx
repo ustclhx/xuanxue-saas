@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { referenceDate } from '../features/daily/date.ts'
-import { EastDailyPage, loadEastDaily } from '../features/daily/east-page.tsx'
+import { EastDailyPage } from '../features/daily/east-page.tsx'
 import { eastDailyHead, requireDailyLocale } from '../features/daily/head.ts'
+import { loadEastDaily } from '../features/daily/load.ts'
 import { ZH_HANT_RULES } from '../features/daily/rules/zh-Hant.ts'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 
