@@ -15,7 +15,7 @@ import { toShareInput } from './birth-form-state.ts'
 import { eastChineseLocale } from './chinese-locale.ts'
 import {
   link,
-  localPageHref,
+  mingpanOrPricingLink,
   pageHref,
   ReadingSlots,
   ResultFooter,
@@ -68,7 +68,7 @@ export function ZiweiPage() {
       }
       links={[
         ...link(pageHref('bazi', LOCALE), m.bazi_link_home(), 'bazi'),
-        ...link(localPageHref('mingpan', LOCALE), m.bazi_link_mingpan(), 'mingpan'),
+        ...mingpanOrPricingLink(LOCALE),
       ]}
       faq={[
         { question: m.bazi_ziwei_faq_q1(), answer: m.bazi_ziwei_faq_a1() },
