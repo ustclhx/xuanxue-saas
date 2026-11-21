@@ -139,7 +139,7 @@ function judgeGates(
 }
 
 export const evaluateReadings: EvaluateRun = (ctx) =>
-  ctx.candidate.promptVersion === ES_CANDIDATE_VERSION
+  ES_SUITE_VERSIONS.includes(ctx.candidate.promptVersion)
     ? evaluateNewLocale(ctx, ES_READING_COMBOS)
     : evaluateV4Batch(ctx)
 
@@ -273,8 +273,12 @@ const evaluateV4Batch: EvaluateRun = ({ samples: all, scope, candidate, baseline
   return { gates }
 }
 
-/** 西班牙语候选版本（add-locales-eu-ja tasks 5.8） */
-export const ES_CANDIDATE_VERSION = 'readings@es-v1'
+/**
+ * 西班牙语候选版本（add-locales-eu-ja tasks 5.8）：es-v1 的数字命理可读性未过门槛，
+ * 改由 es-v2（numerology-full.v6）作候选；es-v1 回放仍按新语言门槛判定。
+ */
+export const ES_CANDIDATE_VERSION = 'readings@es-v2'
+export const ES_SUITE_VERSIONS: readonly string[] = ['readings@es-v1', ES_CANDIDATE_VERSION]
 
 /**
  * 新语言没有上一版本可作基线，「各维度均值 ≥ 基线 − 0.1」改为与已上线的 v4 批次比较：

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:9913e00fda8e280990871f19970ee81812b407167ff6ed9be2964d4ca917aca6",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todas las cartas, posiciones, orientaciones y arcanos coinciden con `data`: Los Enamorados al derecho (Arcano Mayor), Cinco de Copas invertida (Arcano Menor) y Rey de Oros al derecho (Arcano Menor). No inventa cartas ni altera significados.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección se ancla en las cartas concretas de la tirada, sus posiciones y orientaciones, con temas específicos (elección, recuperación, estabilidad) que no servirían para otra lectura.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Ofrece pasos concretos y realizables vinculados a cada carta: nombrar la elección, identificar la decepción, conversar sobre el tiempo y elegir un gesto cotidiano de constancia.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y no alarmista; habla de tendencias y rumbos posibles, evita predecir eventos, no nombra enfermedades ni inversiones y recomienda acudir a profesionales cuando corresponde.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara con encabezados, sin repeticiones excesivas, extensión adecuada y español latinoamericano fluido sin palabras en inglés ni caracteres mixtos.\"\n    }\n  },\n  \"summary\": \"La respuesta es precisa, personalizada, práctica y cálida. Refleja fielmente las cartas del `data` y sus orientaciones, con un español latinoamericano natural y sin afirmaciones alarmistas.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 2481,
+    "outputTokens": 1723
+  },
+  "recordedAt": "2026-11-21T08:55:38.976Z",
+  "source": "recorded"
+}

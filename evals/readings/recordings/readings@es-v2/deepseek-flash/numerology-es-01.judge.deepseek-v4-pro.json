@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:0117bfa65ff3b3ae1a8ccbc17925a6a91084739b420a128d7e2fa0c04296504f",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los números citados coinciden con data: vida 22, día 11, destino 1, alma 11, personalidad 8, pináculos y desafíos actuales 4 y 0, años personales 3-7. No se inventan elementos.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección está anclada en elementos concretos de la carta (número maestro 22, alma 11, personalidad 8, pináculo 4, desafío 0, años personales) y no resultaría intercambiable.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas y atadas a la carta; cada año incluye algo que potenciar y algo que cuidar, y la orientación final ofrece pasos practicables.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y de tendencias, sin miedo ni afirmaciones de eventos específicos; evita decisiones médicas/inversiones y remite a profesional de la salud en bienestar.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara por secciones, fluido en español neutro de América Latina, sin repeticiones excesivas ni términos extranjeros; usa los términos esperados.\"\n    }\n  },\n  \"summary\": \"Excelente lectura en español: precisa, personalizada, accionable, cálida y bien organizada.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 5051,
+    "outputTokens": 2029
+  },
+  "recordedAt": "2026-11-21T08:54:01.148Z",
+  "source": "recorded"
+}

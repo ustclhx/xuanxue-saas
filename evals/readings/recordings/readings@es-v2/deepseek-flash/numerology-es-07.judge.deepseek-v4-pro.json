@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:c0d22ac85e38a8ea611af90dc6c0a8fdf0984abbdb8d6a3ba0e153e6f7709ac0",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 4,\n      \"reason\": \"All cited numbers match the data, but the 2030 section says the current 7 pinnacle is still present even though its endAge is 28 and the person would be past that age by 2030.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in specific chart elements: numbers 8, 4, 7, 1, current pinnacle 7, challenges 1/3/2, and personal years 8/9/1/11/3.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and tied to the chart: set weekly review times, reserve quiet time, practice direct expression, use the 4 to ground inspiration, and seek professional care if unwell.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and tendency-based, avoids fear, specific event assertions, month/day predictions, investment/legal/medical decisions, and religious framing. Wellbeing focuses on habits and recommends a professional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent Latin American Spanish with tú, no English or foreign script. Some repetition of current pinnacle/challenge themes across sections, but not enough to disrupt readability.\"\n    }\n  },\n  \"summary\": \"A strong and highly personalized Spanish numerology report. All numbers match the data except a temporal misstatement about the 7 pinnacle remaining current in 2030. The tone is warm, guidance is actionable, and the language is clear and appropriate.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4456,
+    "outputTokens": 3168
+  },
+  "recordedAt": "2026-11-21T08:55:09.397Z",
+  "source": "recorded"
+}

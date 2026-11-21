@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:57c48dbdf9bce945e9ed8650549f226b321410c68ce038dd44659e1f8e420ac6",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All card names, positions, orientations, and Arcana counts match the data exactly; no card is added or invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in the drawn cards and their positions, with repeated references to the specific Oros and La Torre sequence and how it relates to the querent's question.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"The suggestions are concrete, doable, and clearly tied to the Sota de Oros, La Torre and Diez de Oros, offering practical steps without overstepping financial decisions.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; it describes tendencies and possibilities rather than asserting specific events or outcomes, and appropriately redirects financial decisions to a professional.\"\n    },\n    \"readability\": {\n      \"score\": 4,\n      \"reason\": \"The Spanish is fluid and neutral, with clear structure, but the English word 'learning' appears once instead of 'aprendizaje', which slightly breaks language consistency.\"\n    }\n  },\n  \"summary\": \"A highly accurate, specific, actionable, and warm tarot reading that respects the cards and avoids predicting the credit decision; readability is slightly lowered by one English word.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3070,
+    "outputTokens": 1550
+  },
+  "recordedAt": "2026-11-21T08:55:54.779Z",
+  "source": "recorded"
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:3b6fd67c021a157488c6eca7e33c743ccb4eaeebf38d9b12f9126bcfef6a8af7",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All ten cards, positions, orientations (al derecho/invertida), and the count of three Major Arcana match the data exactly; no card is added or mislabeled.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored to specific cards, positions, keywords, and the mother-relationship question; the text would not fit another spread.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Seven concrete, doable steps are tied to named cards (e.g., Seis de Copas, Nueve de Espadas, La Templanza) and include clear behavioral suggestions.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tendency language, no specific events or date predictions, and recommends seeing a qualified mental-health professional where appropriate.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear, well-structured sections with fluent neutral Latin American Spanish using tuteo, no English words, and no noticeable repetition or script issues.\"\n    }\n  },\n  \"summary\": \"The output fully meets the criteria: it accurately reflects the spread data, remains highly personalized and actionable, maintains a warm compliant tone, and is written in clear, tuteo-based Spanish.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4134,
+    "outputTokens": 3066
+  },
+  "recordedAt": "2026-11-21T08:56:31.382Z",
+  "source": "recorded"
+}

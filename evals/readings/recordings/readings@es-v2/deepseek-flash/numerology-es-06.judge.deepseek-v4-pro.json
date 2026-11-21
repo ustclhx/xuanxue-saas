@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:8686abafba9d41515a4a45b8fda9ae1d30226299be74dd0a11b514fa1ccd8037",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers (life path 9, birthday 3, expression 6, soul urge 8, personality 7, personal years 5-9, pinnacles 4/8/3/6, challenges 2/2/0/4) match the data exactly; no invented chart elements or contradictions.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Almost every section is anchored to this chart's specific numbers and current pinnacle/challenge, with comparisons among life path, birthday, name numbers, and year cycles; would not fit another chart.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Each year-by-year entry has concrete lean-in and watch-out advice tied to personal year and current pinnacle/challenge; the love, work, wellbeing, and orientation sections all include doable chart-specific suggestions.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm, non-fear-based wording using 'tiende', 'puede', 'conviene'; describes tendencies without asserting specific events; wellbeing stays on habits and recommends a health professional; no investment, legal, medical, or religious framing.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure with headings, fluent neutral Latin American Spanish using 'tú', appropriate length, no English or mixed scripts, and no problematic repetition across sections.\"\n    }\n  },\n  \"summary\": \"The report is highly accurate, fully personalized to the provided numerology data, and offers concrete, chart-specific actions while maintaining a warm and compliant tone in fluent Spanish.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4777,
+    "outputTokens": 3415
+  },
+  "recordedAt": "2026-11-21T08:55:08.741Z",
+  "source": "recorded"
+}

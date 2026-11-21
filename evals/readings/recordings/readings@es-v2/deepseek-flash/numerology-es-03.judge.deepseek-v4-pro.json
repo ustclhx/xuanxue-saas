@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:6e4e420695e2dbf1c78d9c47ebeee3976a9fa35741f5bfdd358e9d2908dc08e8",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All cited numbers, years, master statuses, pinnacles and challenges match the provided data exactly; no chart elements are invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every major section is anchored to specific chart numbers (life path 3, birthday 22, soul urge 7, personality 6, destiny 4, pinnacle 7, challenge 0) and the year-by-year section uses each personal year value.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Concrete suggestions are tied to the chart (weekly review, silence/study, expressing a need clearly, simple finance list, small steps); each year includes something to do and a caution.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and non-fear-based; uses tentative language, avoids specific event predictions, no month/day-level predictions, includes a referral to a health professional and no investment/legal/medical directives.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structured headings, fluent neutral Latin American Spanish with tuteo, no English words or mixed scripts, expected numerology terms are used consistently.\"\n    }\n  },\n  \"summary\": \"The output is highly accurate, specific, actionable, warm, and clearly written for the requested Spanish locale; it closely follows the given chart data and offers practical guidance.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 4700,
+    "outputTokens": 2622
+  },
+  "recordedAt": "2026-11-21T08:54:08.164Z",
+  "source": "recorded"
+}

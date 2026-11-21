@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:fd129789ea9fa814972dc49860c785eba9bfcee3ce2787ee234fa07568590aef",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"All ten card names, positions, orientations, and the three Major Arcana match the data exactly; no card is added or invented.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Every section is anchored in the specific spread: each card is named with its position and interpreted using its given keywords, and the synthesis ties the actual cards together.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Suggestions are concrete and doable, each explicitly linked to card themes (rest, priorities, routine, writing, support, reflection), and medical follow-up is advised with a helpful practical tip.\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Warm and cautious; it disclaims medical interpretation, frames headaches as needing professional evaluation, avoids fear-based assertions, and gives only habit-level wellbeing advice plus a referral.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Clear structure, fluent neutral Latin American Spanish using tú, no English or mixed scripts, appropriate length, and no problematic repetition.\"\n    }\n  },\n  \"summary\": \"Excellent tarot reflection: accurate to the drawn cards, highly specific, action-oriented within healthy boundaries, warm, and clearly written, with no signs of overreach or entertainment-only framing.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3960,
+    "outputTokens": 2792
+  },
+  "recordedAt": "2026-11-21T08:56:44.216Z",
+  "source": "recorded"
+}

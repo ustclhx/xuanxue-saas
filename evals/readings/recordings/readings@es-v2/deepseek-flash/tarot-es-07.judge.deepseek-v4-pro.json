@@ -1,0 +1,20 @@
+{
+  "kind": "judge",
+  "promptVersion": "readings@es-v2",
+  "rubricVersion": "r1",
+  "outputHash": "sha256:eccb5c330b761ed021f1c703a9f4014ca3a41201bfda2752ba8a21a4cccb529a",
+  "prepareVersion": "guard.v4",
+  "model": {
+    "key": "deepseek-v4-pro",
+    "provider": "deepseek",
+    "providerModelId": "deepseek-v4-pro"
+  },
+  "output": "{\n  \"criteria\": {\n    \"accuracy\": {\n      \"score\": 5,\n      \"reason\": \"Todos los nombres de cartas, posiciones, orientaciones y la cuenta de Arcanos Mayores coinciden exactamente con `data`; no se inventa ninguna carta.\"\n    },\n    \"specificity\": {\n      \"score\": 5,\n      \"reason\": \"Cada sección se ancla en cartas y posiciones concretas de esta tirada, integrándolas con la pregunta sobre estudios de posgrado en el extranjero; no es genérica.\"\n    },\n    \"actionability\": {\n      \"score\": 5,\n      \"reason\": \"Las sugerencias son concretas, prácticas y están vinculadas a cartas específicas (rutina con Ocho de Oros, delegar con Diez de Bastos invertida, intercambio con Seis de Oros, etc.).\"\n    },\n    \"tone\": {\n      \"score\": 5,\n      \"reason\": \"Tono cálido y no alarmista, describe tendencias con fórmulas como «quizás» o «puede»; no hay predicciones de eventos, ni lenguaje de miedo; la mención de bienestar remite a un profesional.\"\n    },\n    \"readability\": {\n      \"score\": 5,\n      \"reason\": \"Estructura clara, español latinoamericano neutro con «tú», sin extranjerismos ni caracteres ajenos; el texto es fluido y coherente.\"\n    }\n  },\n  \"summary\": \"El texto es altamente preciso, específico, accionable, con tono cálido y legible, cumpliendo de forma sobresaliente todos los criterios para la tirada de tarot en español.\"\n}",
+  "finishReason": "stop",
+  "usage": {
+    "inputTokens": 3652,
+    "outputTokens": 1715
+  },
+  "recordedAt": "2026-11-21T08:56:19.046Z",
+  "source": "recorded"
+}
