@@ -99,6 +99,9 @@ export function EastEnFeelingsIndex() {
                   {FEELINGS_INDEX.groups[suit].note}
                 </span>
               </div>
+              <p className="m-0 max-w-180 text-body text-ink-muted">
+                {FEELINGS_INDEX.groups[suit].about}
+              </p>
               <ul className="m-0 grid list-none grid-cols-2 gap-x-4 p-0 sm:grid-cols-4 sm:gap-x-8">
                 {cards.map((card) => (
                   <li key={card.id} className="flex min-h-11 items-baseline gap-2 py-2">
@@ -136,7 +139,10 @@ const RELATED_LABEL: Readonly<Record<RelatedRole, (major: boolean) => string>> =
   pair: (major) => (major ? FEELINGS_CARD.related.pairMajor : FEELINGS_CARD.related.pairMinor),
 }
 
-/** 相关牌：与西方站牌义页同一组配对（前后两张与主题配对），锚文本按目标牌一半用短变体「<牌名>」 */
+/**
+ * 相关牌：与西方站牌义页同一组配对（前后两张与主题配对），锚文本按目标牌一半用短变体「<牌名>」。
+ * 不列关键词：与西方站同类区块的数据相同（跨站相似度门槛）
+ */
 function RelatedFeelings({ card }: { card: Card }) {
   const { track } = useTool()
   const major = card.suit === 'major'
@@ -172,9 +178,6 @@ function RelatedFeelings({ card }: { card: Card }) {
                   ? otherName
                   : fill(FEELINGS_CARD.cardLink, otherName)}
               </a>
-              <span className="text-body text-ink-muted">
-                {CARD_MEANINGS.en[other.id]?.keywords.join(' · ')}
-              </span>
             </li>
           )
         })}

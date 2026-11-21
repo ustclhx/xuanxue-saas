@@ -166,7 +166,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       daily:
         'No urgent question today? A [one card tarot pull](one-card) gives you one theme to carry instead.',
       'three-card':
-        'If the answer raises a “why,” lay out the [past present future tarot](spreads) spread for the backstory.',
+        'If the answer raises a “why,” turn to one of the longer [tarot spreads](spreads) for the backstory.',
       'celtic-cross':
         'For a decision with a lot riding on it, the [Celtic Cross spread](celtic-cross) looks at it from ten angles.',
     },
@@ -193,7 +193,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
     intro:
       'Ten cards in two parts: a cross of six cards around the heart of the question, and a staff of four cards that looks at you and your surroundings. Each position below explains what that card is answering, in the order the cards are laid.',
     feelingsNote:
-      'When the question is about a partner or an ex, the cards in the environment and hopes positions read well alongside [tarot cards as feelings](feelings).',
+      'When the question is about a partner or an ex, the cards in the environment and hopes positions read well alongside [all 78 cards as feelings](feelings).',
     templates: [
       'What is the full picture with my ex, and what am I not seeing?',
       'Where is this situationship really going, and what is holding it back?',
@@ -235,7 +235,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       daily:
         'Too much for today? You can [draw a tarot card for today](one-card) and come back later.',
       'three-card':
-        'For a shorter version of the story, try the [past present future tarot](spreads) spread.',
+        'For a shorter version of the story, start with one of the simpler [tarot spreads](spreads).',
       'yes-or-no': 'If you just need a lean on one choice, [pick a card](pick-a-card) is quicker.',
     },
     faq: [
@@ -268,22 +268,32 @@ export const FEELINGS_INDEX: FeelingsIndexCopy = {
     'When you ask how someone feels, the card you draw stands for their side of the connection. Each of the 78 pages below reads one card that way, for a partner, a crush and an ex, upright and reversed. Draw a card in the [past present future tarot](spreads) spread or [pick a card](pick-a-card), then come back here to read it as feelings. These readings are for reflection and do not predict what anyone will do.',
   groups: {
     major: {
+      about:
+        'When a Major Arcana card shows up as someone’s feelings, it usually points to something bigger than a passing mood: a turning point, a belief about love, or a pattern that keeps repeating between you. Read these cards slowly and ask what has been building for a while. Several of them, such as The Tower or Death, sound alarming out of context, yet as feelings they usually describe an ending of one stage rather than an ending of care. The Lovers, The Star and The Sun are the most openly warm; The Hermit and The Hanged Man tend to mean someone is holding feelings in suspense.',
       title: 'Major Arcana',
       note: 'Twenty-two cards for feelings that run deep or change the shape of a relationship.',
     },
     wands: {
+      about:
+        'Wands carry heat. As feelings they describe pull, curiosity and the urge to act, sometimes faster than either of you can plan. The open question with this suit is whether the spark has somewhere steady to land. The early cards in the suit read like a first text or a bold invitation, while the later ones show the same energy turning into rivalry, defensiveness or exhaustion. The court cards often describe a particular person’s style of pursuing you more than a single mood.',
       title: 'Wands',
       note: 'Attraction, excitement and drive: how strongly someone is drawn toward you.',
     },
     cups: {
+      about:
+        'Cups speak most directly about the heart. They range from a new, shy affection to grief and nostalgia, and they often show what someone feels but has not said. Pay attention to whether the cup is offered, held back or spilled. The Two and Ten of Cups are the clearest signs of mutual warmth in the whole deck, while the Five and Eight usually point to regret or a quiet decision to walk away. Reversed, many Cups cards describe feelings that exist but are not being expressed.',
       title: 'Cups',
       note: 'Tenderness, longing and emotional openness, the suit most often tied to love.',
     },
     swords: {
+      about:
+        'Swords move the story into the mind. As feelings they can mean honesty and clear decisions, or worry, guilt and arguments replayed at night. They are a reminder that what someone thinks about you and what they feel are not always the same. The Three, Nine and Ten of Swords look heavy, but they often describe pain that is being processed rather than a verdict on the relationship. The Ace and the Queen point to clarity: someone who knows what they want and is willing to say it.',
       title: 'Swords',
       note: 'Thoughts, doubts and hard conversations: what someone is turning over in their head.',
     },
     pentacles: {
+      about:
+        'Pentacles judge feelings by what happens next: time given, plans kept, money and effort shared. A Pentacles card rarely sounds romantic, yet it often says the most about whether someone intends to stay. When the Ace or the Ten turns up, the feelings usually want a future, from a first real plan to a shared home. The Four and the Five sit at the opposite edge: someone holds back because they fear losing what they have, or fear having too little to give. When you read this suit about someone, ask what they are ready to build, budget for or show up for each week, and notice which cards keep warmth private instead of saying it out loud. Slow, practical gestures such as remembering a routine, fixing something without being asked or planning months ahead count as feelings here, even when nobody uses the word love. If a reading feels flat, look again at who keeps turning up, who keeps their promises and who quietly makes room in their life for you.',
       title: 'Pentacles',
       note: 'Commitment, security and effort: whether feelings are backed by steady action.',
     },
@@ -300,9 +310,9 @@ export const FEELINGS_CARD: FeelingsCardCopy = {
   cardLink: '{name} as feelings',
   relatedTitle: 'Cards to compare',
   relatedIntroMajor:
-    'The Major Arcana cards on either side of {name} show the stage of feeling it belongs to, and one more card shares its theme.',
+    'Feelings rarely arrive alone. If you drew {name} for a partner, a crush or an ex, compare it with its neighbors in the Major Arcana, which show what usually comes just before and after this mood, and with one card that answers the same emotional question from a different angle.',
   relatedIntroMinor:
-    'The cards next to {name} in its suit show how the feeling grows or fades, and the same number in another suit shows it in a different register.',
+    'Feelings rarely stay still. Its neighbors in the suit show whether the mood behind {name} is warming up or cooling down, and the matching rank from a sister suit shows how the same intensity looks when it is expressed through action, thought or practical care instead.',
   related: {
     before: 'One step earlier',
     after: 'One step later',

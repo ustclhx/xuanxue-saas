@@ -3,7 +3,7 @@ import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
 import { isEastEnglishOnlyPath, isEastEnglishPath } from '../east-en/paths.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale as segmentLocale } from '../i18n/locale-url.ts'
-import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable } from '../i18n/rollout.ts'
+import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable, releaseState } from '../i18n/rollout.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { mainToolPath } from '../tools/registry.ts'
 import {
@@ -81,10 +81,18 @@ export function routeSite(
     // 旧英文入口页地址 `/en` 301 到东方站英文首页 `/`（使用者 2026-11-20）；构建期预渲染照常生成 en.html
     if (eastEnglish)
       return release === null ? { kind: 'pass', noindex } : redirect(301, url.origin, '/')
-    // 东方站英文页面在根路径（5b），`/en/*` 不是任何页面：认证页照旧 302 到无前缀地址，其余 404
+    // 东方站英文页面在根路径（5b），`/en/*` 不是页面：认证页照旧 302 到无前缀地址；东方站英文发布后
+    // `/en/<英文页面>` 与西方站一样 301 到无前缀地址（ML-01：`/` 与 `/en` 不并存），其余 404
     if (site.known && site.id === 'east' && locale === EAST_ENGLISH_LOCALE) {
       if (EAST_UNPREFIXED_PREFIXES.some((p) => rest === p || rest.startsWith(`${p}/`)))
         return redirect(302, url.origin, rest)
+      if (
+        release !== null &&
+        isEastEnglishPath(rest) &&
+        isLocaleLive(locale, url.host, config, release) &&
+        releaseState('east', locale, release) === 'released'
+      )
+        return redirect(301, url.origin, rest)
       return { kind: 'not-found' }
     }
     if (site.known && !siteHasLocale(site.id, locale, config)) {

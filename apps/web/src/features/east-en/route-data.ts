@@ -149,14 +149,18 @@ export function eastEnFeelingsCardHead(content: {
 
 /** 东方站英文 FAQ 页的计算方法问答（纯文本，可见答案的链接由页面按原文渲染）与 head */
 export function eastEnFaqPage() {
+  const sections = [
+    { title: FAQ_PAGE.methodsTitle, items: FAQ_PAGE.methods },
+    ...FAQ_PAGE.sections,
+  ].map((section) => ({
+    title: section.title,
+    items: section.items.map((item) => ({ question: item.q, answer: item.a })),
+  }))
   return {
     page: eastEnglishStaticPage('/faq'),
     h1: FAQ_PAGE.h1,
     intro: FAQ_PAGE.intro,
-    methods: {
-      title: FAQ_PAGE.methodsTitle,
-      items: FAQ_PAGE.methods.map((item) => ({ question: item.q, answer: item.a })),
-    },
+    sections,
   }
 }
 

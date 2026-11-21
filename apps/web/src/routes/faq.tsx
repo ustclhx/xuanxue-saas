@@ -33,7 +33,7 @@ export const Route = createFileRoute('/faq')({
     const eastEn = loaderData?.eastEn ?? undefined
     return pageHead(eastEn?.page ?? staticPage('/faq', locale), originFromMatches(matches), [
       faqPageData(
-        faqSections(locale, eastEn?.methods)
+        (eastEn?.sections ?? faqSections(locale))
           .flatMap((section) => section.items)
           .map((item) => ({
             question: item.question,
@@ -68,7 +68,7 @@ function FaqPage() {
             {eastEn?.intro ?? m.marketing_faq_page_intro()}
           </p>
         </ContentHead>
-        {faqSections(locale, eastEn?.methods).map((section) => (
+        {(eastEn?.sections ?? faqSections(locale)).map((section) => (
           <ToolFaq
             key={section.title}
             title={section.title}

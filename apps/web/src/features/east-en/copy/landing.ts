@@ -26,7 +26,7 @@ export const LANDING: LandingCopy = {
       action: 'Draw a Zi Wei chart',
     },
     spreads: {
-      title: 'Past present future tarot spread',
+      title: 'Past present future tarot',
       summary:
         'Three cards that tell a short story about one situation, plus a one card pull, a pick a card spread and the ten-card Celtic Cross.',
       action: 'Choose a spread',

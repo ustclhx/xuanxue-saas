@@ -97,7 +97,8 @@ export interface FeelingsIndexCopy extends PageSeo {
   readonly nav: string
   readonly h1: string
   readonly intro: string
-  readonly groups: Readonly<Record<Suit, { title: string; note: string }>>
+  /** 每组：标题、一行说明，以及这一组牌「作为感受」时的读法（2–3 句，分组列表之前） */
+  readonly groups: Readonly<Record<Suit, { title: string; note: string; about: string }>>
 }
 
 /** as feelings 牌页的固定界面词；`{name}` 为牌名 */
@@ -130,4 +131,9 @@ export interface FaqPageCopy {
   /** 「计算方法」一组（八字、紫微与塔罗），替代西方站的数字命理问答；积分、隐私、账号组沿用两站共用文案 */
   readonly methodsTitle: string
   readonly methods: readonly Faq[]
+  /**
+   * 积分与付款、隐私与账号两组：东方站英文自己的写法（事实与两站共用的定价规则一致：退款期限、积分有效期、
+   * 每日积分），不复用西方站英文的问答文字（跨站同类页相似度门槛）
+   */
+  readonly sections: readonly { readonly title: string; readonly items: readonly Faq[] }[]
 }

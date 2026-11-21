@@ -241,6 +241,12 @@ describe('同一语言按站点登记（东方站 /en/…）', () => {
     expect(route(`${EAST}/tarot-spreads/one-card`, perSite, released)).toEqual(pass())
     expect(route(`${EAST}/pricing`, perSite, released)).toEqual(pass())
     expect(route(`${EAST}/en/tarot`, perSite, released)).toEqual(notFound)
+    // 发布后 `/en/<英文页面>` 与西方站一样 301 到无前缀地址（ML-01）
+    expect(route(`${EAST}/en/pricing`, perSite, released)).toEqual({
+      kind: 'redirect',
+      status: 301,
+      location: `${EAST}/pricing`,
+    })
     // 不是东方站英文页面的无前缀地址维持原跳转
     expect(route(`${EAST}/tarot`, perSite, released)).toEqual({
       kind: 'redirect',

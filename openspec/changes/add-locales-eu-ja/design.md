@@ -389,3 +389,46 @@
 | TR-9 | `features/i18n/language-controls.tsx`（LanguageSuggestion）、`suggestion.ts`（localeSuggestionScript）、`routes/__root.tsx` | 语言建议改为客户端提示，不输出 SSR 横幅与首帧脚本、不写 Cookie（本项目已停用并以 LocalePrompt 取代） |
 | TR-10 | `features/i18n/auth-locale.ts`、`request.server.ts`、`preference.ts`（preferredLocale） | 不按 Accept-Language / 偏好 Cookie 选择公开页与认证页语言 |
 | TR-11 | — | 模板加入多语言 SEO 验收检查（本项目 `check-i18n-seo.mjs` 可作参考） |
+
+## 东方站根路径英文实施记录（5b.1–5b.2，2026-11-21）
+
+关键词地图 `keyword-maps/east-en.md`（使用者已确认：`/bazi-calculator`、`/zi-wei-dou-shu`、塔罗方案 A、FAQ 与定价沿用模板路径）。
+
+### 一种语言属于两个站点（TR-1、TR-2）
+
+- `template.config.ts` 东方站语言末尾追加 `en`、链接图东方站分组追加 `en`；模板 config 允许一种语言出现在多个站点，
+  但只能是一个站点的无前缀默认语言；只知道语言的场景（`brandName`、`supportEmail`、`siteOfLocale`）仍归以它为
+  默认语言的站点（`en` → 西方站）。
+- **「站点 × 语言」**：`SeoPage.site`（声明时按页面站点，省略时按语言归属站点，既有页面不变）；`alternateLinks`、
+  `pageHead`、`localeOrigin`、`publicPages`、站点地图、`llms.txt`、链接校验、OG 图与法律页 / 定价页 / FAQ 的站点都按它取。
+  `publicPages` 先按语言归属站点生成（顺序与输出不变），另一站点的同语言页面排在最后。
+- **`siteServesLocale`**：另一站点的同语言只在本站**已发布**后算本站语言。东方站 en 发布前，东方站的导航语言、应用区、
+  404、入口页、结账品牌照旧按繁中，现有页面输出逐字节不变；发布后东方站英文才有自己的页头工具与页脚。
+
+### 地址、守卫与预渲染
+
+- 东方站英文页面无前缀：注册表中东方站条目的 `en` 路径与西方站不重叠（八字、紫微、`/tarot-spreads/…`、`/tarot-feelings/…`）；
+  `/faq`、`/pricing` 与法律页与西方站同地址，按请求站点渲染（根 loader 的站点，路由 loader 用 `parentMatchPromise` 取得）。
+- 站点守卫：东方站根路径英文页面在预览主机（`east.localhost`、构建期预渲染）放行；正式域名在发布前维持原来的 301（到繁中同路径），
+  与现状相同；发布后放行。东方站 `/en/*` 404（`/en` 仍 301 到 `/`；发布后 `/en/<英文页面>` 与西方站一样 301 到无前缀地址，ML-01）。
+  只属于东方站英文的地址在西方站 404。
+- 预渲染文件放在 `/en/…` 命名空间（`/faq` → `en/faq.html`，`/` → `en.html`），不与西方站同名文件冲突；静态页读取同样映射。
+  发布后东方站 `/` 路由到英文落地页（发布前仍是英文入口页）。
+
+### 站点作用域的英文文案层
+
+- Paraglide 只有一套 `en`：西方站英文与两站共用的界面词。东方站英文的正文放在 `features/east-en/copy/*.ts`（落地页、八字与紫微正文、
+  牌阵页正文、as feelings 牌页界面词、FAQ），只由东方站英文的页面组件与按需加载的 `route-data.ts` 引用，不进其他页面的包，也不进各首页
+  水合闭包（首页包 +~1.8KB gzip，主要是路由树与站点判断，预算内）。
+- 东方站独有工具的界面词（八字、紫微表单与结果标签）没有西方站对应，直接放 Paraglide `messages/en/{bazi,chart-bazi,chart-ziwei}.json`；
+  中文页专用的正文键（FAQ、SEO 标题等）不给英文，避免进入首页闭包。
+- 共用组件的少数站点相关文字由参数注入（牌阵页 `eastEn`、定价页免费工具一行）；as feelings 牌页正文是独立内容集合
+  `content/tarot-feelings/en`，不复用 `content/tarot/en`。
+- 路由：东方站英文塔罗页面不逐页登记文件路由，`/$slug` 与 `/$section/$item` 把地址交给 `route-data.ts` 解析（入口包只多一条通配路由）。
+
+### 发布与本地模拟
+
+- `rollout.ts` 中 `east.en` 仍为 pending。本地 `LOCALE_RELEASE_PREVIEW=east:en` 构建（部署构建拒绝）用于验收发布后的链接图、SEO 与相似度；
+  发布时需要：`east.en` 改为 released、`home-head-snapshot.json` 的 en 与三个主工具页快照用 `--write-head-snapshot` 更新
+  （en 加 hreflang、x-default 改为英文版本是预期差异）。
+

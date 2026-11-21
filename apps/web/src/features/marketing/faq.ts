@@ -40,25 +40,15 @@ const METHODS: Record<Locale, readonly Pair[]> = {
   ],
 }
 
-/**
- * /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式、账号三组问答。
- * `eastEnglish`：东方站根路径英文（5b）的计算方法问答（features/east-en/copy/faq.ts，由路由按需加载后传入），
- * 取代西方站英文的灵数与塔罗问答；账号问答按东方站品牌。
- */
-export function faqSections(
-  locale: Locale,
-  eastEnglish?: { readonly title: string; readonly items: readonly QA[] },
-): FaqSection[] {
+/** /faq 汇总页：积分与退款（关闭计费时省略）、隐私与计算方式、账号三组问答 */
+export function faqSections(locale: Locale): FaqSection[] {
   const options = { locale }
   const qa = ([question, answer]: Pair): QA => ({
     question: question({}, options),
     answer: answer({}, options),
   })
   const days = String(templateConfig.billing.refundWindowDays)
-  const names = siteAccountNames(
-    eastEnglish ? 'east' : (siteOfLocale(locale, templateConfig) ?? 'west'),
-    locale,
-  )
+  const names = siteAccountNames(siteOfLocale(locale, templateConfig) ?? 'west', locale)
   const credits: FaqSection[] = templateConfig.billing.enabled
     ? [
         {
@@ -92,24 +82,15 @@ export function faqSections(
     : []
   return [
     ...credits,
-    eastEnglish
-      ? {
-          title: eastEnglish.title,
-          items: [
-            qa([m.marketing_faq_privacy_q, m.marketing_faq_privacy_a]),
-            ...eastEnglish.items,
-            qa([m.pricing_faq_accuracy_q, m.pricing_faq_accuracy_a]),
-          ],
-        }
-      : {
-          title: m.marketing_faq_section_methods({}, options),
-          items: [
-            qa([m.marketing_faq_privacy_q, m.marketing_faq_privacy_a]),
-            ...METHODS[locale].map(qa),
-            qa([m.tarot_three_card_faq_2_q, m.tarot_three_card_faq_2_a]),
-            qa([m.pricing_faq_accuracy_q, m.pricing_faq_accuracy_a]),
-          ],
-        },
+    {
+      title: m.marketing_faq_section_methods({}, options),
+      items: [
+        qa([m.marketing_faq_privacy_q, m.marketing_faq_privacy_a]),
+        ...METHODS[locale].map(qa),
+        qa([m.tarot_three_card_faq_2_q, m.tarot_three_card_faq_2_a]),
+        qa([m.pricing_faq_accuracy_q, m.pricing_faq_accuracy_a]),
+      ],
+    },
     {
       // 两站账户分开（split-site-accounts D3）。问答只说本站账号是独立的，不提另一个站点的名字
       // （refresh-visual-system-warm Proposals79 C「FAQ 账户一问」：两站之间不互相提及）

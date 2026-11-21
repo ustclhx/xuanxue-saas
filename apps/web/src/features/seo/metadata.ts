@@ -2,6 +2,7 @@ import type { AnyRouteMatch } from '@tanstack/react-router'
 import { brandName, type SiteId, siteBrandName } from '@xuanxue/config'
 import type { Locale } from '../../paraglide/runtime.js'
 import { templateConfig } from '../../server/template-config.ts'
+import { EAST_ENGLISH_STATIC_PATHS } from '../east-en/paths.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import type { AuthPagePath } from '../i18n/auth-locale.ts'
 import { isLocaleReleased } from '../i18n/rollout.ts'
@@ -153,6 +154,14 @@ export function alternateLinks(
     Object.fromEntries(
       languages
         .filter((l) => l === locale || !TOOL_ROUTES.some((route) => route.paths[l] === path))
+        // 另一站点的同语言（东方站根路径英文）只有共用地址的静态页与法律页，没有通讯、博客等页面
+        .filter(
+          (l) =>
+            l === locale ||
+            siteOfLocale(l, templateConfig) === site ||
+            path === '/' ||
+            EAST_ENGLISH_STATIC_PATHS.some((p) => p === path),
+        )
         .map((l) => [l, path]),
     )
   const origin = seoSiteOrigin(site)
