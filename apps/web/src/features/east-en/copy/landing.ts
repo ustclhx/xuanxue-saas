@@ -28,7 +28,7 @@ export const LANDING: LandingCopy = {
     spreads: {
       title: 'Past present future tarot',
       summary:
-        'Three cards that tell a short story about one situation, plus a one card pull, a pick a card spread and the ten-card Celtic Cross.',
+        'Three cards that tell a short story about one situation, plus a one card pull, a pick a card draw and the ten-card Celtic Cross.',
       action: 'Choose a spread',
     },
     feelings: {
@@ -58,7 +58,7 @@ export const LANDING: LandingCopy = {
       heading: 'BaZi or Zi Wei Dou Shu: which one to start with',
       paragraphs: [
         'The [BaZi calculator](bazi) is the better first step if you want the big picture. It weighs the five elements in your eight signs, judges whether the Day Master is strong or weak, and shows ten-year luck pillars, so it reads like a map of tendencies across a lifetime. It still works when you only know your birth date.',
-        'A [Zi Wei Dou Shu chart](ziwei) sorts the same moment into twelve palaces, one for each area of life such as career, wealth, relationships and health, and places named stars inside them. It is more granular but needs an exact birth time. Many readers open both and compare: where the two methods agree is usually the part worth thinking about. Both are tools for self-reflection; neither one claims to know what happens next.',
+        'A [Zi Wei Dou Shu chart](ziwei) sorts the same moment into twelve palaces, one for each area of life such as career, wealth, relationships and health, and places named stars inside them. It is more granular but needs an exact birth time. You can open both and compare; the points where they agree are a good place to start thinking. Both are tools for self-reflection; neither one claims to know what happens next.',
       ],
     },
   ],

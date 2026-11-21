@@ -35,7 +35,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       {
         heading: 'Questions about relationships',
         paragraphs: [
-          'Most people bring this spread to an ex, a situationship or someone they are not sure about. Keep the question about the connection itself rather than a yes or a no, for example “What is this between us?” instead of “Will they text me?” The cards give a reflection of patterns; they do not predict what another person will do, and the reading is meant for self-reflection.',
+          'Most people bring this spread to an ex, a situationship or someone they are not sure about. Keep the question about the connection itself rather than a yes or a no, for example “What is this between us?” instead of “Will they text me?” The cards reflect patterns rather than predict what another person will do, and the reading is meant for self-reflection.',
         ],
       },
     ],
@@ -96,7 +96,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
         heading: 'Keeping a card journal',
         paragraphs: [
           'Write down the card, one word it brings to mind, and one line in the evening about what actually happened. After a few weeks you will see which cards keep coming back and which suits dominate. A single pull is for reflection; it does not predict the day, but a written record shows you your own patterns surprisingly fast.',
-          'It also helps to note the suit. A week of Cups pulls says your days are being shaped by feelings and relationships; a run of Pentacles points to money, work and the body. If the Major Arcana keep turning up, something larger than routine is asking for attention.',
+          'It also helps to note the suit. A week of Cups pulls suggests your days may be shaped by feelings and relationships; a run of Pentacles points to money, work and the body. If the Major Arcana keep turning up, something larger than routine is asking for attention.',
         ],
       },
     ],
@@ -138,8 +138,8 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       'Is it a good idea to define things in this situationship?',
       'Should I book the flight to visit my long-distance partner?',
       'Should I ask my coworker crush to get coffee?',
-      'Is now a good time to ask for a raise?',
-      'Should I sign the lease on this apartment?',
+      'Should I reach out to an old friend this week?',
+      'Should I start the course I have been considering?',
     ],
     positionsTitle: 'The single position',
     positions: [
@@ -149,7 +149,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       {
         heading: 'How the yes, no or maybe is decided',
         paragraphs: [
-          'Every card in the deck, upright and reversed, is assigned a yes, no or maybe in advance, following common tarot practice: cards of growth, success and union lean yes, cards of loss, conflict or stalling lean no, and cards of waiting or mixed signals lean maybe. Nothing is decided after you pick. That keeps the result honest, because you cannot be nudged toward the answer you hoped for.',
+          'Every card in the deck, upright and reversed, is assigned a yes, no or maybe in advance, following common tarot practice: cards of growth, success and union lean yes, cards of loss, conflict or stalling lean no, and cards of waiting or mixed signals lean maybe. Nothing is decided after you pick. That keeps the result consistent, because you cannot be nudged toward the answer you hoped for.',
           'A maybe is not a failure. It usually means the outcome depends on something you have not yet done, or on information you do not have. Read the card for what that missing piece is.',
         ],
       },
@@ -226,7 +226,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
       {
         heading: 'Reading the spread for a relationship',
         paragraphs: [
-          'For questions about how someone feels about you, the eighth position carries the most weight, since it describes the other person and their circumstances. Compare it with the ninth, your own hopes and fears: when the two cards share a suit, both of you are probably feeling the same thing in different ways. The tenth card is a theme for reflection about what you want to do next. It does not predict their choices.',
+          'For questions about how someone feels about you, the eighth position carries the most weight, since it describes the other person and their circumstances. Compare it with the ninth, your own hopes and fears: when the two cards share a suit, both of you may be responding to the same theme in different ways. The tenth card is a theme for reflection about what you want to do next. It does not predict their choices.',
         ],
       },
     ],
@@ -240,7 +240,7 @@ export const SPREADS: Record<SpreadId, SpreadCopy> = {
     },
     faq: [
       {
-        q: 'What is the Celtic Cross spread positions order?',
+        q: 'What is the order of the Celtic Cross spread positions?',
         a: 'Center card, crossing card, the card below, the card to the left, the card above, the card to the right, then the staff of four cards from bottom to top: your approach, environment, hopes and fears, and integration.',
         origin: 'local',
       },
@@ -293,7 +293,7 @@ export const FEELINGS_INDEX: FeelingsIndexCopy = {
     },
     pentacles: {
       about:
-        'Pentacles judge feelings by what happens next: time given, plans kept, money and effort shared. A Pentacles card rarely sounds romantic, yet it often says the most about whether someone intends to stay. When the Ace or the Ten turns up, the feelings usually want a future, from a first real plan to a shared home. The Four and the Five sit at the opposite edge: someone holds back because they fear losing what they have, or fear having too little to give. When you read this suit about someone, ask what they are ready to build, budget for or show up for each week, and notice which cards keep warmth private instead of saying it out loud. Slow, practical gestures such as remembering a routine, fixing something without being asked or planning months ahead count as feelings here, even when nobody uses the word love. If a reading feels flat, look again at who keeps turning up, who keeps their promises and who quietly makes room in their life for you.',
+        'Pentacles judge feelings by what happens next: time given, plans kept, money and effort shared. A Pentacles card rarely sounds romantic, yet it often says the most about whether someone intends to stay. When the Ace or the Ten turns up, the feelings usually want a future, from a first real plan to a shared home. The Four and the Five sit at the opposite edge: someone holds back because they fear losing what they have, or fear having too little to give. Slow, practical gestures such as remembering a routine or fixing something without being asked count as feelings here, even when nobody uses the word love. When you read this suit about someone, ask what they are ready to build, budget for or show up for each week. People in this suit often show care through steady action rather than words, so a quiet card is not necessarily a cold one. If a reading feels unclear, compare it with what the person actually does: whether they keep their promises, turn up when they said they would and make room in their life for you.',
       title: 'Pentacles',
       note: 'Commitment, security and effort: whether feelings are backed by steady action.',
     },
