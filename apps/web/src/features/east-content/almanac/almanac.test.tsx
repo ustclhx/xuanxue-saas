@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { Route as TwoSegment } from '../../../routes/$section/$item.tsx'
 import { Route as SingleSegment } from '../../../routes/$slug.tsx'
-import { TOOL_ROUTES } from '../../tools/registry.ts'
+import { TOOL_ROUTES, toolsForSite } from '../../tools/registry.ts'
 import { eastContentRouteOf } from '../routes.ts'
 import {
   type AlmanacMonthPayload,
@@ -226,15 +226,24 @@ describe('路由与站点地图', () => {
     expect(database.calls).toBe(0)
   })
 
-  it('注册表登记 13 个不带参数的地址，均不预渲染、不进页头导航', () => {
+  it('注册表登记 13 个不带参数的地址，均不预渲染；工具页进页头「历法与生肖」分组，月份页不进导航', () => {
     const routes = TOOL_ROUTES.filter((route) => route.id.startsWith('almanac'))
     expect(routes.map((route) => route.paths['zh-Hans'])).toEqual([
       '/黄历',
       ...Array.from({ length: 12 }, (_, i) => `/黄历/${i + 1}月`),
     ])
     for (const route of routes) {
-      expect(route).toMatchObject({ site: 'east', prerender: false, nav: false })
+      expect(route).toMatchObject(
+        route.id === 'almanac'
+          ? { site: 'east', prerender: false, navGroup: 'calendar' }
+          : { site: 'east', prerender: false, nav: false },
+      )
       expect(Object.keys(route.paths)).toEqual(['zh-Hans'])
     }
+    expect(
+      toolsForSite('east', 'zh-Hans')
+        .filter((tool) => tool.navGroup === 'calendar')
+        .map((tool) => tool.title),
+    ).toEqual(['黄历', '十二生肖'])
   })
 })

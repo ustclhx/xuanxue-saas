@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
+import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import {
   CONCEPT_SLUGS,
@@ -37,6 +38,11 @@ export interface ToolRoute {
    * 仍参与页头导航、站点地图与 hreflang。
    */
   readonly prerender?: false
+  /**
+   * 页头工具下拉中的分组（content-growth-phase2 设计稿 EastNavVariant 方案 C）：`calendar` 列在「历法与生肖」之下，
+   * 省略时在工具组
+   */
+  readonly navGroup?: 'calendar'
 }
 
 // 每个 conceptKey 一条记录，只有存在译文的语言参与 hreflang。
@@ -139,8 +145,11 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   ...conceptRoutes,
   // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
   ...DAILY_TOOL_ROUTES,
-  // openspec content-growth-phase2 第 6 组：黄历工具页与 12 个月份页（SSR，不预渲染）
+  // openspec content-growth-phase2 第 6 组：黄历工具页与 12 个月份页（SSR，不预渲染）；
+  // 黄历在前，页头「历法与生肖」分组依次为 黄历、十二生肖（设计稿 EastNavVariant 方案 C）
   ...ALMANAC_TOOL_ROUTES,
+  // openspec content-growth-phase2 第 4 组：生肖枢纽（页头「历法与生肖」分组）与 12 生肖页
+  ...ZODIAC_TOOL_ROUTES,
 ]
 
 /**
@@ -180,7 +189,7 @@ export function toolsForLocale(
   locale: string,
   routes: readonly ToolRoute[] = TOOL_ROUTES,
   site?: SiteId,
-): { id: string; path: string; title: string }[] {
+): { id: string; path: string; title: string; navGroup?: 'calendar' }[] {
   const seen = new Set<string>()
   return routes.flatMap((route) => {
     const path = route.paths[locale]
@@ -189,7 +198,7 @@ export function toolsForLocale(
     if (!path || !title || route.nav === false || seen.has(path)) return []
     if (!routeOnSite(route, locale, site)) return []
     seen.add(path)
-    return [{ id: route.id, path, title }]
+    return [{ id: route.id, path, title, ...(route.navGroup && { navGroup: route.navGroup }) }]
   })
 }
 
@@ -201,7 +210,7 @@ export function toolsForSite(
   site: SiteId,
   locale: string,
   routes: readonly ToolRoute[] = TOOL_ROUTES,
-): { id: string; path: string; title: string }[] {
+): { id: string; path: string; title: string; navGroup?: 'calendar' }[] {
   return toolsForLocale(
     locale,
     routes.filter((route) => route.site === site),

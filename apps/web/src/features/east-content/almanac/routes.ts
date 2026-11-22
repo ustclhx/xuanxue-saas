@@ -20,14 +20,14 @@ export const MONTH_TERM_NAMES: Readonly<Record<number, readonly [string, string]
 /**
  * 注册表条目（features/tools/registry.ts，openspec content-growth-phase2 决策 5）：
  * `prerender: false` 让黄历留在 SSR + 边缘缓存（内容随参考日期滚动），仍进站点地图、hreflang 与 llms.txt；
- * 站点地图只含这 13 个不带参数的地址。`nav: false`：页头入口待「历法与生肖」下拉分组（第 4 组）合并后再加。
+ * 站点地图只含这 13 个不带参数的地址。工具页进页头「历法与生肖」分组（设计稿 EastNavVariant 方案 C，排在十二生肖之前），月份页 `nav: false`。
  * 标题是面包屑与内链区块的主词。简中不是拆分语言，描述不经 localeText。
  */
 export const ALMANAC_TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'almanac',
     site: 'east',
-    nav: false,
+    navGroup: 'calendar',
     prerender: false,
     paths: { 'zh-Hans': ALMANAC_TOOL_PATH },
     titles: { 'zh-Hans': '黄历' },

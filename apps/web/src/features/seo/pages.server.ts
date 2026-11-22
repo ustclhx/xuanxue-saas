@@ -7,8 +7,10 @@ import {
   allPosts,
   allTarotFeelings,
   allTarots,
+  allZodiacs,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
+import { zodiacSeoPages } from '../east-content/zodiac/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
@@ -30,6 +32,8 @@ export function getPublicPages(site?: SiteId) {
         ...tarotLocalizedSeoPages(),
         // 东方站根路径英文的 as feelings 牌页（5b）
         ...tarotFeelingsSeoPages(allTarotFeelings),
+        // 东方站生肖枢纽与子页（content-growth-phase2 第 4 组）
+        ...zodiacSeoPages(allZodiacs),
       ],
     },
     new Date(),

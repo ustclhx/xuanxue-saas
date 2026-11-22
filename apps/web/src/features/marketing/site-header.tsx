@@ -58,7 +58,7 @@ export function SiteHeader() {
   const daily = all.find((tool) => DAILY_TOOL_IDS.has(tool.id))
   const pricing = !englishEntry && templateConfig.billing.enabled
   const current = (path: string) => (pathname === path ? 'page' : undefined)
-  const toolLinks = tools.map((tool) => (
+  const toolLink = (tool: (typeof tools)[number]) => (
     <a
       key={tool.id}
       href={toolHref(tool.path, navLocale)}
@@ -67,7 +67,22 @@ export function SiteHeader() {
     >
       {tool.title}
     </a>
-  ))
+  )
+  // 「历法与生肖」分组（content-growth-phase2 设计稿 EastNavVariant 方案 C）：同一下拉中分隔线之后的一组；
+  // 该语言没有分组页面时不出现
+  const calendar = tools.filter((tool) => tool.navGroup === 'calendar')
+  const toolLinks = [
+    ...tools.filter((tool) => tool.navGroup !== 'calendar').map(toolLink),
+    ...(calendar.length > 0
+      ? [
+          <hr key="calendar-rule" className="mx-3 my-2 border-line" />,
+          <p key="calendar-label" className="m-0 px-3 pt-2 pb-1 text-caption text-ink-subtle">
+            {m.site_nav_calendar_group()}
+          </p>,
+          ...calendar.map(toolLink),
+        ]
+      : []),
+  ]
   return (
     <header data-link-zone="nav" className="relative bg-background">
       <a

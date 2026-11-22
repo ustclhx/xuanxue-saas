@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { type Plugin, runnerImport } from 'vite'
+import { zodiacSeoPages } from '../src/features/east-content/zodiac/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../src/features/east-en/seo-pages.ts'
 import { EAST_ENGLISH_COPY } from '../src/features/marketing/east-english/content.ts'
 import { EAST_ENGLISH_OG_IMAGE } from '../src/features/marketing/east-english/head.ts'
@@ -51,6 +52,7 @@ function pages() {
       ...tarotFeelingsSeoPages(
         read<Parameters<typeof tarotFeelingsSeoPages>[0]>('allTarotFeelings'),
       ),
+      ...zodiacSeoPages(read<Parameters<typeof zodiacSeoPages>[0]>('allZodiacs')),
     ],
     guides: read<NonNullable<Content['guides']>>('allGuides'),
   })
