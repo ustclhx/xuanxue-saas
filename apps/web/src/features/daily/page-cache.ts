@@ -1,12 +1,20 @@
+import { ALMANAC_LOCALE, isAlmanacPath } from '../east-content/almanac/paths.ts'
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
-import { type DailyLocale, dateKey, referenceDate, secondsUntilDayEnd } from './date.ts'
+import {
+  type DailyLocale,
+  dateKey,
+  parseDateKey,
+  referenceDate,
+  secondsUntilDayEnd,
+} from './date.ts'
 import { deferHydration } from './defer-hydration.ts'
 import { DAILY_PATHS } from './routes.ts'
 
 /**
  * 公开每日页的边缘缓存（add-birth-profiles-daily-horoscope design D7）。
+ * 黄历工具页与 12 个月份页共用同一机制（openspec content-growth-phase2 决策 5）：内容随参考日期滚动、不查数据库。
  *
- * - 只处理每日页的 GET；带会话 Cookie 的请求直接 SSR，不读也不写缓存，响应标记为 private；
+ * - 只处理登记页面（cachedPageOf）的 GET；带会话 Cookie 的请求直接 SSR，不读也不写缓存，响应标记为 private；
  * - 匿名请求以「规范 URL + 参考日期 + 部署版本」为键查缓存，参考时区跨过 00:00 后键随之变化，旧内容不再命中；
  *   部署版本进键：缓存的 HTML 引用带哈希的静态资源，新版本部署后旧资源即 404，旧版本缓存不能再返回；
  * - 未命中时 SSR，只缓存 200 的 HTML，去掉 Set-Cookie 后写入，TTL 为距参考日结束的秒数且不超过 3600；
@@ -36,8 +44,11 @@ export interface DailyCacheDeps {
 export const DAILY_CACHE_HEADER = 'x-daily-cache'
 export const MAX_TTL_SECONDS = 3600
 
-/** 请求路径对应的每日页语言；不是每日页时返回 null。路径可能带语言前缀且保留百分号编码 */
-export function dailyPageLocale(pathname: string, locales: readonly string[]): DailyLocale | null {
+/** 去掉语言前缀与结尾斜杠后的路径；路径保留百分号编码，非法编码返回 null */
+function splitPagePath(
+  pathname: string,
+  locales: readonly string[],
+): { locale: string | undefined; rest: string } | null {
   let decoded = pathname
   try {
     decoded = decodeURI(pathname)
@@ -46,13 +57,43 @@ export function dailyPageLocale(pathname: string, locales: readonly string[]): D
   }
   const path = decoded.replace(/\/+$/, '') || '/'
   const locale = prefixLocale(path, locales)
-  const rest = locale ? path.slice(localePrefix(locale).length) || '/' : path
+  return { locale, rest: locale ? path.slice(localePrefix(locale).length) || '/' : path }
+}
+
+/** 请求路径对应的每日页语言；不是每日页时返回 null。路径可能带语言前缀且保留百分号编码 */
+export function dailyPageLocale(pathname: string, locales: readonly string[]): DailyLocale | null {
+  const parts = splitPagePath(pathname, locales)
+  if (!parts) return null
+  const { locale, rest } = parts
   for (const [language, dailyPath] of Object.entries(DAILY_PATHS)) {
     // 无前缀地址只属于英语（西方站默认语言）；带前缀时语言必须与路径一致
     if (dailyPath === rest && (locale ? locale === language : language === 'en'))
       return language as DailyLocale
   }
   return null
+}
+
+/** 走边缘缓存的页面：参考日期所用的语言（参考时区），以及进入缓存键的查询参数 */
+export interface CachedPage {
+  readonly locale: DailyLocale
+  /**
+   * 进入缓存键的查询参数（黄历工具页的 `date=YYYY-MM-DD`）；省略时查询串不进键。
+   * null：查询参数格式非法，本次直接渲染错误态，不读也不写缓存（避免任意字符串扩大键空间）。
+   */
+  readonly variant?: string | null
+}
+
+/** 请求对应的缓存页面：每日页、黄历工具页与月份页（只有 zh-hans）；其他地址返回 null */
+export function cachedPageOf(url: URL, locales: readonly string[]): CachedPage | null {
+  const daily = dailyPageLocale(url.pathname, locales)
+  if (daily) return { locale: daily }
+  const parts = splitPagePath(url.pathname, locales)
+  if (!parts || parts.locale !== ALMANAC_LOCALE) return null
+  const kind = isAlmanacPath(parts.rest)
+  if (!kind) return null
+  const date = kind === 'tool' ? url.searchParams.get('date') : null
+  if (date === null) return { locale: ALMANAC_LOCALE }
+  return { locale: ALMANAC_LOCALE, variant: parseDateKey(date) ? `date=${date}` : null }
 }
 
 /** 会话 Cookie（better-auth 的 session_token / session_data，含 __Secure- 前缀） */
@@ -67,11 +108,18 @@ export function dailyTtl(locale: DailyLocale, now: Date): number {
   return Math.min(MAX_TTL_SECONDS, secondsUntilDayEnd(locale, now))
 }
 
-/** 缓存键：去掉查询串与片段的规范地址 + 参考日期 + 部署版本 */
-export function dailyCacheKey(url: URL, locale: DailyLocale, now: Date, version = ''): Request {
+/** 缓存键：去掉查询串与片段的规范地址 + 参考日期 + 部署版本（+ 登记的查询参数，如黄历的日期） */
+export function dailyCacheKey(
+  url: URL,
+  locale: DailyLocale,
+  now: Date,
+  version = '',
+  variant?: string,
+): Request {
   const key = new URL(url.origin + url.pathname)
   key.searchParams.set('daily', dateKey(referenceDate(locale, now)))
   if (version) key.searchParams.set('v', version)
+  if (variant) key.searchParams.set('q', variant)
   return new Request(key.href, { method: 'GET' })
 }
 
@@ -82,7 +130,7 @@ function withHeaders(response: Response, headers: Record<string, string>): Respo
 }
 
 /**
- * 每日页请求走缓存；不是每日页的 GET 请求时返回 null，由调用方继续原有处理。
+ * 每日页与黄历页请求走缓存；不是这些页面的 GET 请求时返回 null，由调用方继续原有处理。
  * `render` 是完整的 SSR 处理（语言识别与路由）。
  */
 export async function dailyPageCache(
@@ -93,9 +141,11 @@ export async function dailyPageCache(
 ): Promise<Response | null> {
   if (request.method !== 'GET') return null
   const url = new URL(request.url)
-  const locale = dailyPageLocale(url.pathname, locales)
-  if (!locale) return null
+  const page = cachedPageOf(url, locales)
+  if (!page) return null
+  const { locale, variant } = page
   const render = () => renderPage().then(deferHydration)
+  if (variant === null) return render()
   if (hasSessionCookie(request.headers.get('cookie')) || !deps.cache) {
     const response = await render()
     return hasSessionCookie(request.headers.get('cookie'))
@@ -103,7 +153,7 @@ export async function dailyPageCache(
       : response
   }
   const now = deps.now ?? new Date()
-  const key = dailyCacheKey(url, locale, now, deps.version)
+  const key = dailyCacheKey(url, locale, now, deps.version, variant)
   const ttl = dailyTtl(locale, now)
   const cacheControl = `public, max-age=300, s-maxage=${ttl}`
   const hit = await deps.cache.match(key).catch(() => undefined)

@@ -1,3 +1,5 @@
+import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
+
 export type EastContentCollection = 'zodiac' | 'almanac' | 'ziwei-stars'
 
 export interface EastContentRoute {
@@ -8,7 +10,10 @@ export interface EastContentRoute {
 }
 
 /** 注册表和预渲染也可读取这份映射，因此这里只放不带语言前缀的地址和页面标识。 */
-export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = []
+export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
+  // 第 6 组：黄历工具页与 12 个月份页（zh-hans）
+  ...ALMANAC_CONTENT_ROUTES,
+]
 
 export function eastContentRouteOf(locale: string, path: string): EastContentRoute | undefined {
   let decoded = path

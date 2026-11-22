@@ -3,6 +3,7 @@ import { cn } from '@xuanxue/ui'
 import { PageWidth } from '@xuanxue/ui/project'
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
+import { ALMANAC_LOCALE, ALMANAC_TOOL_PATH } from '../east-content/almanac/paths.ts'
 import type { EastV1Locale } from '../i18n/locales.ts'
 import { defaultPlace } from '../tools/bazi/birth-form-state.ts'
 import { loadBazi } from '../tools/bazi/engine.ts'
@@ -237,10 +238,30 @@ export function EastDailyPage({
       <div className="flex flex-col gap-3">
         <Disclaimer />
         <p role="note" className="m-0 max-w-180 text-caption text-ink-subtle">
-          {m.daily_rules_note({ version: facts.rulesVersion })}
+          <RulesNote locale={locale} version={facts.rulesVersion} />
         </p>
       </div>
     </PageWidth>
+  )
+}
+
+/**
+ * 规则说明：简中页把现成句子里的「黄历」链接到黄历工具页（openspec content-growth-phase2 决策 12，
+ * 只在现成句子中加链、不新造句子）；繁中与韩语没有黄历页，原样输出。
+ */
+function RulesNote({ locale, version }: { locale: EastV1Locale; version: string }) {
+  const text = m.daily_rules_note({ version })
+  const word = '黄历'
+  const at = locale === ALMANAC_LOCALE ? text.indexOf(word) : -1
+  if (at < 0) return text
+  return (
+    <>
+      {text.slice(0, at)}
+      <a href={toolHref(ALMANAC_TOOL_PATH, locale)} className={bodyLink}>
+        {word}
+      </a>
+      {text.slice(at + word.length)}
+    </>
   )
 }
 

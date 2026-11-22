@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
+import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import {
   CONCEPT_SLUGS,
@@ -138,6 +139,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   ...conceptRoutes,
   // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
   ...DAILY_TOOL_ROUTES,
+  // openspec content-growth-phase2 第 6 组：黄历工具页与 12 个月份页（SSR，不预渲染）
+  ...ALMANAC_TOOL_ROUTES,
 ]
 
 /**

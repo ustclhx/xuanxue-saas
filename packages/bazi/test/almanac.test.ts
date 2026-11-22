@@ -58,6 +58,17 @@ describe('黄历', () => {
       clashZodiacIndex: 6,
       ominousDirectionIndex: 8,
     })
+    // 年、月柱：丙午年（2026 立春后）、己亥月（立冬后）
+    expect(ganZhi(nayinTable()[day.yearCycleIndex] as { stem: Stem; branch: Branch })).toBe('丙午')
+    expect(ganZhi(nayinTable()[day.monthCycleIndex] as { stem: Stem; branch: Branch })).toBe('己亥')
+    // 2027-02-04 当天 09:46 交立春：按日计年柱已为丁未，月柱壬寅
+    const lichun = almanacDay({ year: 2027, month: 2, day: 4 })
+    expect(ganZhi(nayinTable()[lichun.yearCycleIndex] as { stem: Stem; branch: Branch })).toBe(
+      '丁未',
+    )
+    expect(ganZhi(nayinTable()[lichun.monthCycleIndex] as { stem: Stem; branch: Branch })).toBe(
+      '壬寅',
+    )
   })
 
   it('月表列出交节时刻、月建变化与农历月界，并保留交节日的重复建除', () => {

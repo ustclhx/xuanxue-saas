@@ -71,3 +71,26 @@ export interface WestRules {
  * 「诸事不宜」「馀事勿取」是吉凶断语（daily-horoscope spec「每日内容合规」）。
  */
 export const HIDDEN_TABOOS: ReadonlySet<number> = new Set([111, 123, 124, 125, 134, 135, 136])
+
+/**
+ * 黄历补充释义（openspec content-growth-phase2 第 6 组）：黄道十二神、煞方、所冲生肖、节气、节日与节令的名称。
+ * 下标与 tyme4ts 序号一致；只有 zh-Hans（黄历不做繁中与韩语，design 决策 6）。
+ * 黑道只作为通书里的分类说明，不写吉凶断语（使用者 2026-11-22 裁定）。
+ */
+export interface AlmanacGlossary {
+  /** TwelveStar：青龙 明堂 天刑 朱雀 金匮 天德 白虎 玉堂 天牢 玄武 司命 勾陈 */
+  readonly twelveStar: readonly { readonly name: string; readonly gloss: string }[]
+  /** Ecliptic：黄道、黑道 */
+  readonly ecliptic: readonly [string, string]
+  /** Direction：北 西南 东 东南 中 西北 西 东北 南 */
+  readonly direction: readonly string[]
+  /** Zodiac：鼠 … 猪 */
+  readonly zodiac: readonly string[]
+  /** SolarTerm：冬至 小寒 … 大雪（序号 0 为冬至） */
+  readonly solarTerm: readonly string[]
+  readonly solarFestival: readonly string[]
+  readonly lunarFestival: readonly string[]
+  readonly dogDay: readonly string[]
+  readonly nineDay: readonly string[]
+  readonly plumRain: readonly string[]
+}

@@ -84,8 +84,8 @@
 
 ## 6. 黄历工具页与 12 个月份页（zh-hans）
 
-- [ ] 6.1 泛化 `features/daily/page-cache.ts`，使黄历工具页与月份页使用同一边缘缓存（键为规范 URL、参考日期与部署版本，TTL 为距参考日结束的秒数，最长 3600）。每日页现有单测保持通过，补黄历路径用例
-- [ ] 6.2 新建 `features/east-content/almanac/`：
+- [x] 6.1 泛化 `features/daily/page-cache.ts`，使黄历工具页与月份页使用同一边缘缓存（键为规范 URL、参考日期与部署版本，TTL 为距参考日结束的秒数，最长 3600）。每日页现有单测保持通过，补黄历路径用例
+- [x] 6.2 新建 `features/east-content/almanac/`：
   - 工具页：日期选择写入 `?date=`；有参数时输出 `noindex, follow`，canonical 恒为 `/zh-hans/黄历`；错误态。
   - 月份页：年份滚动取最近一次尚未结束的该月；逐日表中宜最多 4 项、忌最多 3 项，其余放入 `<details>`；节气与节令区；系列上一篇、下一篇。
   - 宜忌名称复用 `daily/rules/zh-Hans.ts` 并沿用 `HIDDEN_TABOOS`，嫁娶等词条不加入隐藏列表，按原样作为众多词条之一列出（使用者 2026-11-22 裁定）；补充黄道十二神与煞方的名称与释义。
