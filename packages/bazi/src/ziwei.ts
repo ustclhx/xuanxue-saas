@@ -3,8 +3,18 @@
  * 单独入口 `@xuanxue/bazi/ziwei`，避免八字页面加载 iztro。
  */
 import { astro } from 'iztro'
+import { heavenlyStems } from 'iztro/lib/data/heavenlyStems.js'
+import { STARS_INFO } from 'iztro/lib/data/stars.js'
 import { kot } from 'iztro/lib/i18n/index.js'
-import { BRANCHES, type Branch, STEMS, type Stem } from './constants.ts'
+import {
+  BRANCHES,
+  type Branch,
+  branchIndex,
+  type Element,
+  mod,
+  STEMS,
+  type Stem,
+} from './constants.ts'
 import { assertValidInput, type BirthInput } from './input.ts'
 import { type DateTimeParts, resolveBirthTime } from './time.ts'
 import { ENGINE_VERSION } from './version.ts'
@@ -45,6 +55,104 @@ export type MajorStar = (typeof MAJOR_STARS)[number]
 
 export const MUTAGENS = ['lu', 'quan', 'ke', 'ji'] as const
 export type Mutagen = (typeof MUTAGENS)[number]
+
+type MajorStarGroup = 'ziwei' | 'tianfu'
+type MajorStarBrightness = (typeof STARS_INFO)[`${MajorStar}Maj`]['brightness'][number]
+
+export type MajorStarFact = {
+  star: MajorStar
+  group: MajorStarGroup
+  element: Element | null
+  polarity: 'yin' | 'yang' | null
+  brightness: { branch: Branch; brightness: MajorStarBrightness }[]
+  mutagens: { stem: Stem; mutagen: Mutagen }[]
+  /** 按紫微落宫列出本星落宫与同宫的其他主星。 */
+  coLocations: { ziweiBranch: Branch; branch: Branch; stars: MajorStar[] }[]
+}
+
+// 对应 iztro getMajorStar：紫微星系逆排，天府星系顺排，空宫保留在偏移量中。
+const MAJOR_STAR_OFFSETS: Record<MajorStar, [group: MajorStarGroup, offset: number]> = {
+  ziwei: ['ziwei', 0],
+  tianji: ['ziwei', -1],
+  taiyang: ['ziwei', -3],
+  wuqu: ['ziwei', -4],
+  tiantong: ['ziwei', -5],
+  lianzhen: ['ziwei', -8],
+  tianfu: ['tianfu', 0],
+  taiyin: ['tianfu', 1],
+  tanlang: ['tianfu', 2],
+  jumen: ['tianfu', 3],
+  tianxiang: ['tianfu', 4],
+  tianliang: ['tianfu', 5],
+  qisha: ['tianfu', 6],
+  pojun: ['tianfu', 10],
+}
+
+const YIN_BRANCH_INDEX = branchIndex('yin')
+const ELEMENT_KEYS = {
+  木: 'wood',
+  火: 'fire',
+  土: 'earth',
+  金: 'metal',
+  水: 'water',
+  '': null,
+} as const
+const POLARITY_KEYS = { 阴: 'yin', 阳: 'yang', '': null } as const
+
+// 仅补 iztro 原表空值。贪狼、天相、天梁、七杀、破军的阴阳在传统来源间有分歧。
+const MAJOR_STAR_FALLBACKS: Partial<
+  Record<MajorStar, Partial<Pick<MajorStarFact, 'element' | 'polarity'>>>
+> = {
+  // 太阳属火见《紫微斗数全书》卷一〈诸星问答论〉。
+  // 陈慧明《道传飞星紫微斗数入门》第一章作丙火，沈澄宇《紫云论斗数星曜赋性》第一册作阳火。
+  taiyang: { element: 'fire', polarity: 'yang' },
+  // 陈慧明《道传飞星紫微斗数入门》第一章作庚金，叶汉良《斗数卷二·星曜本义》第 172 页也列金。
+  qisha: { element: 'metal' },
+}
+
+function majorStarBranchIndex(star: MajorStar, ziweiIndex: number): number {
+  const [group, offset] = MAJOR_STAR_OFFSETS[star]
+  // 紫微与天府的位置绕寅申轴对称，坐标换成从子起排后要加两次寅的下标。
+  const start = group === 'ziwei' ? ziweiIndex : 2 * YIN_BRANCH_INDEX - ziweiIndex
+  return mod(start + offset, BRANCHES.length)
+}
+
+/** 十四主星的静态表，顺序与 MAJOR_STARS 一致。页面应省略值为 null 的字段。 */
+export function majorStarFacts(): MajorStarFact[] {
+  return MAJOR_STARS.map((star) => {
+    const starKey = `${star}Maj` as const
+    const info = STARS_INFO[starKey]
+    const fallback = MAJOR_STAR_FALLBACKS[star]
+    return {
+      star,
+      group: MAJOR_STAR_OFFSETS[star][0],
+      element: ELEMENT_KEYS[info.fiveElements] ?? fallback?.element ?? null,
+      polarity: POLARITY_KEYS[info.yinYang] ?? fallback?.polarity ?? null,
+      // iztro 的庙旺表从寅起排，而本项目的地支顺序从子起排。
+      brightness: BRANCHES.map((branch, index) => ({
+        branch,
+        brightness: info.brightness[
+          mod(index - YIN_BRANCH_INDEX, BRANCHES.length)
+        ] as MajorStarBrightness,
+      })),
+      mutagens: STEMS.flatMap((stem) => {
+        const starKeys: readonly string[] = heavenlyStems[`${stem}Heavenly`].mutagen
+        const mutagen = MUTAGENS[starKeys.indexOf(starKey)]
+        return mutagen === undefined ? [] : [{ stem, mutagen }]
+      }),
+      coLocations: BRANCHES.map((ziweiBranch, ziweiIndex) => {
+        const index = majorStarBranchIndex(star, ziweiIndex)
+        return {
+          ziweiBranch,
+          branch: BRANCHES[index] as Branch,
+          stars: MAJOR_STARS.filter(
+            (other) => other !== star && majorStarBranchIndex(other, ziweiIndex) === index,
+          ),
+        }
+      }),
+    }
+  })
+}
 
 export type ZiweiPalace = {
   key: PalaceKey
