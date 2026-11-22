@@ -21,9 +21,9 @@
 
 ## 2. 牌义页组件段逐牌撰写（西方站 en、es）
 
-- [ ] 2.1 在 `content-collections.ts` 的 `tarot` 集合 schema 增加可选字段 `lede`、`try_prompt`、`related_note`。`meaning.functions.ts` 随 loader 下发。`meaning-page.tsx`：页头显示 `lede`（缺失时显示 description）；`TryOneCard` 接收说明句（缺失时用 `tarot_meaning_try_intro`）；`RelatedMeanings` 的说明句用 `related_note`（缺失时用 `tarot_related_intro_*`）。补组件单测，覆盖有字段与缺字段两种情况，并验证东方站页面输出不变
-- [ ] 2.2 en 78 篇按花色分 6 批写入三个字段（design 决策 2、3：`lede` 45–70 词，`try_prompt` 30–50 词，`related_note` 30–60 词），不新增链接。每批后运行组件段测量与 `node scripts/check-content.mjs`，最后三段均 ≤0.30
-- [ ] 2.3 es 78 篇由另一个子代理按西语习惯直接撰写同三字段（`lede` 建议 ≥55 词），遵守 `i18n/glossary/es.json`。组件段三段均 ≤0.30；`check-locale-glossary` 通过
+- [x] 2.1 在 `content-collections.ts` 的 `tarot` 集合 schema 增加可选字段 `lede`、`try_prompt`、`related_note`。`meaning.functions.ts` 随 loader 下发。`meaning-page.tsx`：页头显示 `lede`（缺失时显示 description）；`TryOneCard` 接收说明句（缺失时用 `tarot_meaning_try_intro`）；`RelatedMeanings` 的说明句用 `related_note`（缺失时用 `tarot_related_intro_*`）。补组件单测，覆盖有字段与缺字段两种情况，并验证东方站页面输出不变
+- [x] 2.2 en 78 篇按花色分 6 批写入三个字段（design 决策 2、3：`lede` 45–70 词，`try_prompt` 30–50 词，`related_note` 30–60 词），不新增链接。每批后运行组件段测量与 `node scripts/check-content.mjs`，最后三段均 ≤0.30
+- [x] 2.3 es 78 篇由另一个子代理按西语习惯直接撰写同三字段（`lede` 建议 ≥55 词），遵守 `i18n/glossary/es.json`。组件段三段均 ≤0.30；`check-locale-glossary` 通过
 - [ ] 2.4 es 回译审阅：用 `measure-locale-backtranslation.mjs --locale es --export-input` 导出，交给 Codex 回译后用 `--from-file` 计算，牌义页整页与 FAQ 不超过校准阈值；按审阅意见修改。报告存证据目录
 - [ ] 2.5 验收：逐页比对 main，确认 4 条延伸牌义链接与转化条的目标与锚文本、Title、H1、meta description、canonical、hreflang 一致（脚本输出差异为 0）；es↔en 本地化门槛未达 0 页；`check:links`、`audit:seo` 不退步；`--enforce en,es` 的组件段测量通过
 

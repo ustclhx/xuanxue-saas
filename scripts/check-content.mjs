@@ -104,7 +104,7 @@ function parseFrontmatter(source) {
       if ('a' in item) throw new Error('duplicate FAQ answer')
       item.a = JSON.parse(answer[1])
     } else {
-      const field = /^([a-zA-Z]+): (".*")$/.exec(line)
+      const field = /^([a-zA-Z_]+): (".*")$/.exec(line)
       if (!field) throw new Error('expected quoted YAML scalar or FAQ q/a item')
       if (Object.hasOwn(fields, field[1])) throw new Error(`duplicate ${field[1]} field`)
       fields[field[1]] = JSON.parse(field[2])

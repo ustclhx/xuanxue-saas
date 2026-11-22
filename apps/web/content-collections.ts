@@ -271,6 +271,11 @@ const tarot = defineCollection({
     // 页面 H1；省略时与 title 相同（关键词地图为 ja 另定 H1，add-locales-eu-ja 任务 4.2）
     heading: z.string().min(1).optional(),
     description: z.string().min(1).max(160),
+    // 组件段逐牌文案（openspec content-growth-phase1 决策 1–3）：页头导语、抽一张说明、延伸牌义说明。
+    // 可选：缺失时页面沿用 description 与 messages 的通用句，东方站与 ja 不受影响。
+    lede: z.string().min(1).optional(),
+    try_prompt: z.string().min(1).optional(),
+    related_note: z.string().min(1).optional(),
     slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     // 塔罗在全部语言提供（openspec add-locales-eu-ja tasks 1.3）
     locale: z.enum(TAROT_LOCALES),
