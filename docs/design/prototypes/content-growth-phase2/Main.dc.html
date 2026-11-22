@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>十二生肖枢纽页</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="#zh-top">干支日</a>
+<nav class="nav d-only" aria-label="主导航">
+<a href="EastNavVariant.dc.html">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#zh-top">每日运势</a>
+<a href="#zh-top">定价</a>
+<a href="#footer">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登录</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主导航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap tool-main" id="zh-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="#zh-top">首页</a><span aria-hidden="true">›</span><span>十二生肖</span></nav>
+<h1 class="t-title">十二生肖年份对照表</h1>
+<p class="muted">十二生肖与十二地支一一对应。按出生日期查属相时，命理上以立春换年，民间多以春节换年，两种口径在每年年初会差几天到几十天。本页同时给出两种结果。</p>
+</div>
+
+<form class="panel tool-form" aria-label="属相查询">
+<div class="field">
+<div class="field-top"><label class="label" for="zh-date">出生日期（公历）</label></div>
+<input class="input" id="zh-date" type="text" value="2025 年 2 月 1 日">
+<p class="hint">在你的浏览器中比较日期，不上传生日。支持 1924–2043 年。</p>
+</div>
+<div class="field" style="justify-content: flex-end"><button type="button" class="btn btn-primary btn-block">查属相</button><p class="hint d-only" aria-hidden="true">&nbsp;</p></div>
+</form>
+
+<section class="result" aria-label="查询结果" style="max-width: 760px">
+<div class="cols2">
+<div class="tile">
+<p class="t-caption subtle">按立春（命理口径）</p>
+<p class="v">属龙 · 甲辰年</p>
+<p class="muted">2025 年立春在 2 月 3 日 22:10，这一天还没到立春，算上一个干支年。</p>
+<a class="link" href="ZodiacPage.dc.html">属龙 →</a>
+</div>
+<div class="tile">
+<p class="t-caption subtle">按春节（民俗口径）</p>
+<p class="v">属蛇 · 乙巳年</p>
+<p class="muted">2025 年春节是 1 月 29 日，这一天已经过了春节。</p>
+<a class="link" href="ZodiacPage.dc.html">属蛇 →</a>
+</div>
+</div>
+<p class="notebox">这一天在春节与立春之间，两种口径的结果不同。排八字、看流年时以立春为准；日常说的属相多按春节。</p>
+</section>
+
+<section class="secblk" aria-labelledby="zh-tab">
+<h2 class="t-title" id="zh-tab">十二生肖总表</h2>
+<p>每个生肖对应一个地支，地支决定它的五行与所在的三合局。年份按立春起算，点进各页可看 1924–2043 年的完整对照。</p>
+<div class="tblbox">
+<table class="dt">
+<thead><tr><th scope="col">生肖</th><th scope="col">地支</th><th scope="col">五行</th><th scope="col" class="d-only">三合局</th><th scope="col">最近的年份</th></tr></thead>
+<tbody>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属鼠</a></td><td class="gzs">子</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-water)"></i>水</span></td><td class="d-only">申子辰 · 水局</td><td>2020、2032</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属牛</a></td><td class="gzs">丑</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></td><td class="d-only">巳酉丑 · 金局</td><td>2021、2033</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属虎</a></td><td class="gzs">寅</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-wood)"></i>木</span></td><td class="d-only">寅午戌 · 火局</td><td>2022、2034</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属兔</a></td><td class="gzs">卯</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-wood)"></i>木</span></td><td class="d-only">亥卯未 · 木局</td><td>2023、2035</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属龙</a></td><td class="gzs">辰</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></td><td class="d-only">申子辰 · 水局</td><td>2024、2036</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属蛇</a></td><td class="gzs">巳</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></td><td class="d-only">巳酉丑 · 金局</td><td>2025、2037</td></tr>
+<tr class="cur"><td class="k"><a class="il" href="ZodiacPage.dc.html">属马</a> <span class="tag">本年</span></td><td class="gzs">午</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></td><td class="d-only">寅午戌 · 火局</td><td>2026、2038</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属羊</a></td><td class="gzs">未</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></td><td class="d-only">亥卯未 · 木局</td><td>2015、2027</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属猴</a></td><td class="gzs">申</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span></td><td class="d-only">申子辰 · 水局</td><td>2016、2028</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属鸡</a></td><td class="gzs">酉</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span></td><td class="d-only">巳酉丑 · 金局</td><td>2017、2029</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属狗</a></td><td class="gzs">戌</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></td><td class="d-only">寅午戌 · 火局</td><td>2018、2030</td></tr>
+<tr><td class="k"><a class="il" href="ZodiacPage.dc.html">属猪</a></td><td class="gzs">亥</td><td class="nw"><span class="el"><i class="dot" style="background: var(--wx-water)"></i>水</span></td><td class="d-only">亥卯未 · 木局</td><td>2019、2031</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<article class="article" aria-labelledby="zh-a1">
+<h2 class="t-title" id="zh-a1" style="margin-top: 0">立春换年与春节换年</h2>
+<p>干支纪年以二十四节气的立春为一年的开始。立春是太阳到达黄经 315 度的时刻，每年落在公历 2 月 3 日到 5 日之间，精确到分钟。排八字时的年柱按这个时刻划分，所以命理上的生肖也跟着立春走。</p>
+<p>春节是农历正月初一，按月相定日，在公历 1 月 21 日到 2 月 20 日之间移动。民间说的「属什么」多以春节为界。两个分界点每年都不重合，出生在两者之间的人，按两种口径查到的属相会不一样，这不是谁算错了。</p>
+<p>想看自己完整的四柱，可以用<a class="il" href="#zh-top">八字排盘</a>，年柱的地支就是按立春得到的生肖。</p>
+</article>
+
+<section class="secblk" aria-labelledby="zh-rel">
+<h2 class="t-title" id="zh-rel">三合、六合与六冲</h2>
+<p>这是十二地支之间的传统关系，是排八字、看流年时引用的一般规则。它说的是地支与地支，不是对两个人关系的结论。各关系的来历与用法见<a class="il" href="#zh-top">合冲刑害</a>。</p>
+<div class="cols3">
+<div class="tile">
+<h3 class="t-heading">三合</h3>
+<p class="t-caption subtle">相隔四位的三个地支合成一局</p>
+<ul class="stack" style="gap: 6px">
+<li><span class="el"><i class="dot" style="background: var(--wx-water)"></i>水局</span>　申 子 辰（猴 鼠 龙）</li>
+<li><span class="el"><i class="dot" style="background: var(--wx-wood)"></i>木局</span>　亥 卯 未（猪 兔 羊）</li>
+<li><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火局</span>　寅 午 戌（虎 马 狗）</li>
+<li><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金局</span>　巳 酉 丑（蛇 鸡 牛）</li>
+</ul>
+</div>
+<div class="tile">
+<h3 class="t-heading">六合</h3>
+<p class="t-caption subtle">两两相合的六组地支</p>
+<ul class="chips">
+<li class="chip">子 丑</li><li class="chip">寅 亥</li><li class="chip">卯 戌</li><li class="chip">辰 酉</li><li class="chip">巳 申</li><li class="chip">午 未</li>
+</ul>
+</div>
+<div class="tile">
+<h3 class="t-heading">六冲</h3>
+<p class="t-caption subtle">方位正对的六组地支</p>
+<ul class="chips">
+<li class="chip">子 午</li><li class="chip">丑 未</li><li class="chip">寅 申</li><li class="chip">卯 酉</li><li class="chip">辰 戌</li><li class="chip">巳 亥</li>
+</ul>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="zh-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="zh-faq">常见问题</h2></div>
+<div class="faq">
+<details open>
+<summary>生肖是按农历还是按立春算？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>两种算法都在用。命理与干支纪年以立春为界，民间习俗以春节（农历正月初一）为界。本页的查询同时显示两种结果。</p>
+</details>
+<details>
+<summary>2026 年出生的孩子属什么？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>2026 年立春在 2 月 4 日 04:02，此后出生按命理属马（丙午年）。2026 年春节是 2 月 17 日，2 月 4 日到 16 日之间出生的，按春节口径仍属蛇。</p>
+</details>
+<details>
+<summary>为什么我查到的属相和家里说的不一样？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>多半是生日落在春节与立春之间。家里通常按春节说属相，排盘按立春。可以在上面输入生日，对照两种口径。</p>
+</details>
+</div>
+</section>
+
+<div class="band">
+<p>年柱只是四柱之一。排出完整的四柱，可以看到月、日、时三柱与五行分布。</p>
+<a class="link" href="#zh-top">八字排盘 →</a>
+</div>
+
+<p class="disc">依据传统历法与命理方法推算，仅供参考与潜意识探索，不预测未来。</p>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">通过命理工具与指南，认识传统智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="页脚">
+<a href="#footer">常见问题</a><a href="#footer">博客</a><a href="#footer">指南</a><a href="#footer">文档</a><a href="#footer">隐私政策</a><a href="#footer">服务条款</a><a href="#footer">退款政策</a><a href="#footer">免责声明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主题</span><div class="seg" role="group" aria-label="主题"><button type="button" class="is-light">浅色</button><button type="button" class="is-dark">深色</button><button type="button">跟随系统</button></div></div>
+<div class="set"><span class="t-caption subtle">语言</span><button type="button" class="select sm" aria-haspopup="listbox">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依据传统历法与命理方法推算，仅供参考与潜意识探索，不预测未来。健康相关问题请咨询专业医师。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有权利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":3800}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+return {
+theme: theme,
+cls: 'xx hans' + (device === 'mobile' ? ' m' : '')
+};
+}
+}
+</script>
+</body>
+</html>

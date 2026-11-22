@@ -1,0 +1,118 @@
+/* 第 7、9 组画板的补充样式（refresh-visual-system-warm）。
+   只引用 site.css 已有的 token 与六个字号角色；已确认的 site.css 不改动。
+   --line-strong 在 brand.css 中已存在（#c9cbd0 / #45484e），这里只是补进画布。 */
+.xx[data-theme$="light"]{--line-strong:#c9cbd0}
+.xx[data-theme$="dark"]{--line-strong:#45484e}
+
+/* ---------- 正文内链接：与正文同色并始终加下划线 ---------- */
+.xx a.il{color:var(--accent-ink);text-decoration:underline;text-underline-offset:4px}
+.xx a.il:hover{text-decoration-thickness:2px}
+
+/* ---------- Prose 内的列表、提示块、代码 ---------- */
+.xx .article ul.pl,.xx .article ol.pl{padding-left:22px;color:var(--ink-muted);display:flex;flex-direction:column;gap:8px}
+.xx .article ul.pl{list-style:disc}
+.xx .article ol.pl{list-style:decimal}
+.xx .article h3{margin-top:8px}
+.xx .article .note{background:var(--surface);border-radius:var(--radius-md);padding:20px 24px;color:var(--ink-muted)}
+.xx code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-caption);line-height:var(--lh-caption);background:var(--surface-2);border-radius:4px;padding:2px 6px;color:var(--ink)}
+.xx pre.code{margin:0;background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;overflow-x:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink)}
+.xx .meta{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle)}
+.xx .page-main{display:flex;flex-direction:column;gap:var(--space-block);padding-bottom:var(--space-section)}
+
+/* ---------- 塔罗牌 ---------- */
+/* 牌面是图片（Rider–Waite–Smith 图稿），自带底色，不随主题变化；这里用固定色的线描占位。
+   牌背用 token：surface-2 底、line-strong 外框、illus 圆环、accent 星。 */
+.xx{--art-ground:#ece7da;--art-ink:#16181b}
+.xx .tcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:100%;max-width:520px;margin:0 auto}
+.xx.m .tcards{gap:12px}
+.xx .tslot{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.xx .tcard{display:flex;width:100%;aspect-ratio:240 / 416;border-radius:var(--radius-sm);border:0;padding:0;overflow:hidden;font-family:var(--text)}
+.xx button.tcard{cursor:pointer}
+.xx .tback{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line-strong);align-items:center;justify-content:center}
+.xx .tback svg{width:50%;max-width:56px;fill:none;stroke-width:1.2;stroke-linejoin:round}
+.xx .tback .ring{stroke:var(--illus)}
+.xx .tback .star{stroke:var(--accent)}
+.xx .tface{background:var(--art-ground);color:var(--art-ink);box-shadow:inset 0 0 0 1px var(--line-strong);flex-direction:column;align-items:stretch}
+.xx .tface svg{flex:1;min-height:0;width:100%;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.xx .tface .tname{flex:none;padding:6px 4px 8px;text-align:center;font-size:var(--fs-caption);line-height:var(--lh-caption);font-weight:700}
+.xx .tface.rev{transform:rotate(180deg)}
+.xx .tsteps{display:flex;align-items:center;justify-content:center;gap:10px;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle)}
+.xx .tsteps .on{color:var(--ink);font-weight:500}
+.xx .tsteps i{width:20px;height:1px;background:var(--line-strong);display:block}
+.xx .treads{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px}
+.xx.m .treads{grid-template-columns:minmax(0,1fr);gap:24px}
+.xx .tread{display:flex;flex-direction:column;gap:6px}
+.xx .chip.tap{min-height:44px;border:0;font-family:var(--text);cursor:pointer;color:var(--ink-muted)}
+.xx .scroller{display:flex;gap:8px;flex-wrap:wrap}
+.xx.m .scroller{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.xx.m .scroller .chip{flex:none}
+.xx .form-foot{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+.xx.m .form-foot .btn{width:100%}
+
+/* ---------- 牌义页 ---------- */
+.xx .cardtop{display:flex;gap:40px;align-items:flex-start;max-width:var(--measure-prose)}
+.xx.m .cardtop{flex-direction:column;gap:24px}
+.xx .pair{display:flex;gap:16px;flex:none}
+.xx .pair figure{width:132px;display:flex;flex-direction:column;gap:8px;text-align:center}
+.xx .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;flex:1;min-width:0}
+.xx.m .facts{width:100%}
+.xx .rel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px}
+.xx.m .rel{grid-template-columns:minmax(0,1fr);gap:16px}
+.xx .rel li{display:flex;flex-direction:column;gap:2px;color:var(--ink-muted)}
+.xx .try{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 40px;align-items:center;max-width:var(--measure-prose)}
+.xx.m .try{grid-template-columns:minmax(0,1fr)}
+
+/* ---------- 牌义索引 ---------- */
+.xx .csec{display:flex;flex-direction:column;gap:12px}
+.xx .csec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.xx .cgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 32px}
+.xx.m .cgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+.xx .cgrid li{display:flex;align-items:baseline;gap:8px;min-height:44px;padding:8px 0}
+.xx .cgrid .no{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle);min-width:34px;flex:none}
+
+/* ---------- 每日页 ---------- */
+.xx .daytop{display:flex;gap:28px;align-items:center}
+.xx.m .daytop{flex-direction:column;align-items:flex-start;gap:16px}
+.xx .trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.xx .trio .pillar.on{box-shadow:inset 0 0 0 1px var(--accent)}
+.xx .yiji{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.xx .yiji > div{background:var(--surface);border-radius:var(--radius-md);padding:20px;display:flex;flex-direction:column;gap:4px}
+.xx .daybox{max-width:760px;display:flex;flex-direction:column;gap:16px}
+
+/* ---------- 博客、文档、其余内容页 ---------- */
+.xx .posts{display:flex;flex-direction:column;max-width:var(--measure-prose);border-top:1px solid var(--line)}
+.xx .posts li{display:flex;flex-direction:column;gap:8px;padding:28px 0;border-bottom:1px solid var(--line)}
+.xx .posts h2 a{text-decoration:underline;text-underline-offset:5px}
+.xx .docs{display:grid;grid-template-columns:240px minmax(0,1fr);gap:64px;align-items:start;padding-top:40px}
+.xx.m .docs{grid-template-columns:minmax(0,1fr);gap:24px;padding-top:20px}
+.xx .docnav{display:flex;flex-direction:column;gap:4px}
+.xx .docnav a{display:flex;align-items:center;min-height:44px;padding:0 12px;border-radius:var(--radius-sm);color:var(--ink-muted)}
+.xx .docnav a.on{background:var(--surface-2);color:var(--ink)}
+.xx .narrow{max-width:520px;display:flex;flex-direction:column;gap:var(--space-stack)}
+.xx .okmsg{background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 16px;color:var(--ink)}
+
+/* ---------- 状态分支（补 site.css 没有的状态名） ---------- */
+.xx.st-empty .when-empty,.xx.st-list .when-list,.xx.st-success .when-success,.xx.st-idle .when-idle{display:block}
+.xx.st-empty .hide-empty,.xx.st-success .hide-success,.xx.st-result .hide-result{display:none}
+
+/* ---------- 简体中文页：标题与正文用 Noto Sans SC（2026-11-19 确认） ---------- */
+.xx.hans{--head:"Noto Sans SC","PingFang SC",sans-serif;--text:"Noto Sans SC","PingFang SC",sans-serif}
+
+/* ---------- 博客卡片列表（2026-11-19 改版） ---------- */
+.xx .cover{aspect-ratio:16 / 9;background:var(--surface-2);border-radius:var(--radius-sm);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--ink-subtle);font-size:var(--fs-caption);line-height:var(--lh-caption);text-align:center;width:100%}
+.xx .cover svg{width:100%;height:100%;display:block}
+.xx .cover .cg{fill:var(--accent);font-family:var(--head);font-weight:700;font-size:56px;text-anchor:middle;dominant-baseline:central}
+.xx .bgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.xx.m .bgrid{grid-template-columns:minmax(0,1fr);gap:16px}
+.xx .bcard{position:relative;background:var(--surface);border-radius:var(--radius-md);padding:12px 12px 24px;display:flex;flex-direction:column;gap:16px}
+.xx .bcard .btxt{display:flex;flex-direction:column;gap:8px;padding:0 12px}
+.xx .bcard h2 a{text-decoration:underline;text-underline-offset:5px}
+.xx .bcard h2 a::after{content:"";position:absolute;inset:0;border-radius:var(--radius-md)}
+.xx .bcard:hover h2 a{text-decoration-thickness:2px}
+.xx .bcard.feat{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px;padding:12px;align-items:center}
+.xx.m .bcard.feat{display:flex;padding:12px 12px 24px;gap:16px}
+.xx .bcard.feat .btxt{padding:0 20px 0 0;gap:12px}
+.xx.m .bcard.feat .btxt{padding:0 12px;gap:8px}
+.xx .bstack{display:flex;flex-direction:column;gap:24px}
+.xx.m .bstack{gap:16px}
+.xx .pager{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}

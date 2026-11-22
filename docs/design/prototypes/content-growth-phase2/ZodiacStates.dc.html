@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>生肖异常态</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx hans board" style="padding: 40px; gap: 32px">
+
+<div class="b-sec">
+<h1 class="t-title">生肖页异常态 · 手机 390 · 浅色</h1>
+<p class="muted prose">生肖页是静态页，没有空态与加载态。需要单独处理的只有两处：某个干支年的流年说明还没写好，以及属相查询的日期输入不合法或超出年份表范围。</p>
+</div>
+
+<div class="b-row">
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">子页 · 流年缺少撰写文字：只列引擎算出的关系，不出现占位句</span>
+<div class="b-phone">
+<div class="xx m hans" data-theme="east-light">
+<div class="wrap" style="padding-top: 24px; padding-bottom: 32px">
+<section class="secblk" aria-labelledby="zs-year">
+<h2 class="t-title" id="zs-year">本年与次年</h2>
+<p>干支年以立春为界。下面标出当年地支与午的关系。「太岁」的含义见<a class="il" href="ZodiacPage.dc.html">太岁</a>。</p>
+<div class="cols2">
+<div class="obj blk">
+<p class="t-caption subtle">2026 年 2 月 4 日立春起</p>
+<h3 class="t-heading">2026 丙午年</h3>
+<ul class="chips"><li class="chip">值太岁（本命年）</li><li class="chip">午午自刑</li></ul>
+</div>
+<div class="obj blk">
+<p class="t-caption subtle">2027 年 2 月 4 日立春起</p>
+<h3 class="t-heading">2027 丁未年</h3>
+<ul class="chips"><li class="chip">午未六合</li></ul>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">枢纽页 · 属相查询 · 日期不存在：字段内报错，不显示结果</span>
+<div class="b-phone">
+<div class="xx m hans" data-theme="east-light">
+<div class="wrap" style="padding-top: 24px; padding-bottom: 32px">
+<form class="panel tool-form" aria-label="属相查询">
+<div class="field">
+<div class="field-top"><label class="label" for="zs-d1">出生日期（公历）</label></div>
+<input class="input invalid" id="zs-d1" type="text" value="2025 年 2 月 30 日" aria-invalid="true" aria-describedby="zs-e1">
+<p class="err" id="zs-e1"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5v.2"/></svg>这个日期不存在，请检查月份和日期。</p>
+</div>
+<div class="field"><button type="button" class="btn btn-primary btn-block" style="width: 100%">查属相</button></div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">枢纽页 · 属相查询 · 超出年份表范围（1924–2043）</span>
+<div class="b-phone">
+<div class="xx m hans" data-theme="east-light">
+<div class="wrap" style="padding-top: 24px; padding-bottom: 32px">
+<form class="panel tool-form" aria-label="属相查询">
+<div class="field">
+<div class="field-top"><label class="label" for="zs-d2">出生日期（公历）</label></div>
+<input class="input invalid" id="zs-d2" type="text" value="1900 年 5 月 1 日" aria-invalid="true" aria-describedby="zs-e2">
+<p class="err" id="zs-e2"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5v.2"/></svg>目前只支持 1924–2043 年的出生日期。</p>
+</div>
+<div class="field"><button type="button" class="btn btn-primary btn-block" style="width: 100%">查属相</button></div>
+</form>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1330,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
