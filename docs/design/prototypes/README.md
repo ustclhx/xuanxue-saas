@@ -71,6 +71,7 @@
 | 语言建议提示（关闭后状态） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptDismissed.dc.html | add-locales-eu-ja |
 | 语言建议提示（两个候选：浏览器语言为 zh） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptTwo.dc.html | add-locales-eu-ja |
 | 语言建议提示规格（位置与 CLS、行为、无障碍、六语文案、提议） | https://claude.ai/artifact/2UoHEmQQXEUdJWaj8oEkZ9 | 2026-11-20 | 「Confirm the design」；关闭后永久不再提示（按站）；该页无对应语言版本时不提示；页面空闲后出现 | warm-refresh/LocalePromptSpec.dc.html | add-locales-eu-ja |
+| 数字命理入门页 /numerology、/es/numerologia（桌面深色、手机浅色、手机深色、初始态） | https://claude.ai/artifact/GK6dtTWRDEPBj4qR5ihqwD | 2026-11-22 | 「确认设计稿，按你的建议处理那三点」（相关卡片保留一行说明；保留页尾转化条；本页合规小字不含 AI，全站页脚不改） | numerology-intro/Main.dc.html | content-growth-phase1 |
 
 **warm-refresh 说明**：
 
