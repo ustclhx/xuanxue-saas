@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { templateConfig } from '../../../server/template-config.ts'
 import { isPrerenderedPath, prerenderEntryPages } from '../../marketing/prerender.ts'
-import { sitemap } from '../../seo/crawlers.ts'
+import { llmsTxt, sitemap } from '../../seo/crawlers.ts'
 import { pageHead } from '../../seo/metadata.ts'
+import { pageLinks } from '../../seo/page-links.ts'
 import { publicPages } from '../../seo/pages.ts'
 import { TAROT_LOCALES, TAROT_SPREADS, tarotPath } from '../tarot/routes.ts'
 import {
@@ -13,6 +14,7 @@ import {
   numerologySeoPages,
 } from './routes.ts'
 import { faqItems, faqPageData } from './seo.ts'
+import { numerologySlugPage } from './slug-route.ts'
 
 // content-collections 的生成数据（typecheck / dev / build 前生成，CI 中 typecheck 先于 test）
 type Entry = {
@@ -35,22 +37,30 @@ const content: Entry[] = JSON.parse(
 )
 const origin = 'https://arcanumber.com'
 
+// slug-route.ts 的 loader 引用 server function（content-collections 虚拟模块在单测中不可用），这里只测路径匹配
+vi.mock('./content.functions.ts', () => ({ getNumerologyPage: vi.fn() }))
+
 describe('数字命理页 SEO（tasks.md 2.3）', () => {
   // 英文页面（西班牙语页面的路径与 hreflang 另见下方「西班牙语数字命理页」）
   const contentPages = content.filter(
     (page) => page.slug !== 'life-path-number' && page.locale === 'en',
   )
 
-  it('12 个数字页 + 2 个枢纽页齐全，路径正确', () => {
+  it('12 个数字页 + 2 个枢纽页 + 入门页齐全，路径正确', () => {
     expect(contentPages.map((page) => numerologyContentPath(page.slug)).sort()).toEqual(
-      [...LIFE_PATH_NUMBERS.map(lifePathPath), '/soul-urge-number', '/destiny-number'].sort(),
+      [
+        ...LIFE_PATH_NUMBERS.map(lifePathPath),
+        '/soul-urge-number',
+        '/destiny-number',
+        '/numerology',
+      ].sort(),
     )
     for (const page of contentPages)
       if (page.number !== null)
         expect(numerologyContentPath(page.slug)).toBe(lifePathPath(page.number))
   })
 
-  it('14 页 Title、canonical 唯一，FAQ 非空且 FAQPage 与之一致', () => {
+  it('15 页 Title、canonical 唯一，FAQ 非空且 FAQPage 与之一致', () => {
     const titles = new Set<string>()
     const canonicals = new Set<string>()
     for (const page of contentPages) {
@@ -70,10 +80,10 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
       // 正文已去掉 FAQ 与互链段，由页面组件统一渲染
       expect(page.html).not.toMatch(/<h2[^>]*>FAQ<\/h2>/)
     }
-    expect(titles.size).toBe(14)
+    expect(titles.size).toBe(15)
   })
 
-  it('站点地图包含首页、Life Path 工具页、四个工具页与 14 个内容页，且都预渲染', () => {
+  it('站点地图包含首页、Life Path 工具页、四个工具页与 15 个内容页，且都预渲染', () => {
     const pages = publicPages(
       { posts: [], legal: [], docs: [], toolPages: numerologySeoPages(content) },
       new Date(),
@@ -159,5 +169,94 @@ describe('数字命理页 SEO（tasks.md 2.3）', () => {
               },
         )
       }
+  })
+})
+
+describe('数字命理入门页（content-growth-phase1 决策 7）', () => {
+  const west = publicPages(
+    { posts: [], legal: [], docs: [], toolPages: numerologySeoPages(content) },
+    new Date(),
+    templateConfig,
+    'west',
+  )
+  const related = {
+    en: [
+      '/life-path-number',
+      '/numerology-calculator',
+      '/name-numerology',
+      '/numerology-chart',
+      '/life-path-compatibility',
+      '/destiny-number',
+      '/soul-urge-number',
+    ],
+    es: [
+      '/numero-de-vida',
+      '/calculadora-numerologia',
+      '/numerologia-del-nombre',
+      '/carta-numerologica',
+      '/compatibilidad-numerologica',
+      '/numero-del-destino',
+      '/numero-del-alma',
+    ],
+  }
+
+  it('两种语言经 /$slug 承接：英语只放开入门页，其他英文页面仍走各自的路由文件', () => {
+    expect(numerologySlugPage('en', 'numerology')).toEqual({ locale: 'en', id: 'numerology' })
+    expect(numerologySlugPage('es', 'numerologia')).toEqual({ locale: 'es', id: 'numerology' })
+    expect(numerologySlugPage('en', 'destiny-number')).toBeUndefined()
+    expect(numerologySlugPage('en', 'numerologia')).toBeUndefined()
+    expect(numerologySlugPage('es', 'numerology')).toBeUndefined()
+    expect(numerologySlugPage('ko', 'numerology')).toBeUndefined()
+  })
+
+  it('进入站点地图与预渲染，互为 hreflang，canonical 自指，父页为首页，主词登记且不进页头导航', () => {
+    const xml = sitemap(west, origin)
+    for (const [locale, path, url] of [
+      ['en', '/numerology', `${origin}/numerology`],
+      ['es', '/numerologia', `${origin}/es/numerologia`],
+    ] as const) {
+      expect(xml).toContain(`<loc>${url}</loc>`)
+      const page = west.find((entry) => entry.locale === locale && entry.path === path)
+      expect(page?.parent).toBe('/')
+      expect(page?.titleMain).toBe(locale === 'en' ? 'What is numerology' : 'Qué es la numerología')
+      expect(page?.title).toBe(
+        locale === 'en'
+          ? "What Is Numerology? A Beginner's Guide"
+          : 'Qué es la numerología: guía para empezar',
+      )
+      const head = pageHead({ path, title: 'T', description: 'D', locale }, origin)
+      expect(head.links.find((link) => link.rel === 'canonical')?.href).toBe(url)
+      const alternates = Object.fromEntries(
+        head.links.flatMap((link) =>
+          link.rel === 'alternate' && 'hrefLang' in link ? [[link.hrefLang, link.href]] : [],
+        ),
+      )
+      expect(alternates).toEqual({
+        en: `${origin}/numerology`,
+        es: `${origin}/es/numerologia`,
+        'x-default': `${origin}/numerology`,
+      })
+    }
+    const entries = prerenderEntryPages(templateConfig).map((entry) => entry.path)
+    expect(entries).toContain('/numerology')
+    expect(entries).toContain('/es/numerologia')
+    const llms = llmsTxt('west') ?? ''
+    expect(llms).toContain(`[What is numerology](${origin}/numerology)`)
+    expect(llms).toContain(`[Qué es la numerología](${origin}/es/numerologia)`)
+  })
+
+  it('相关区块列出 7 个计算器页，锚文本为各页 titleMain，说明为各页 description', () => {
+    for (const locale of ['en', 'es'] as const) {
+      const path = locale === 'en' ? '/numerology' : '/numerologia'
+      const links = pageLinks(west, path, locale, templateConfig.seo.linking)
+      expect(links.related.map((link) => link.href)).toEqual(related[locale])
+      for (const link of links.related) {
+        const target = west.find((page) => page.locale === locale && page.path === link.href)
+        expect(link.label).toBe(target?.titleMain)
+        expect(link.description).toBe(target?.description)
+        expect(link.description.length).toBeGreaterThan(0)
+      }
+      expect(links.breadcrumb.map((crumb) => crumb.href)).toEqual(['/'])
+    }
   })
 })

@@ -23,7 +23,7 @@ export function isNumerologyLocale(locale: string): locale is NumerologyLocale {
   return (NUMEROLOGY_LOCALES as readonly string[]).includes(locale)
 }
 
-/** 各语言的路径段：Life Path 工具页（数字页在其下）、四个工具内页与两个枢纽页 */
+/** 各语言的路径段：Life Path 工具页（数字页在其下）、四个工具内页、两个枢纽页与入门页 */
 const PATHS = {
   en: {
     'life-path': '/life-path-number',
@@ -33,6 +33,8 @@ const PATHS = {
     'life-path-compatibility': '/life-path-compatibility',
     'destiny-number': '/destiny-number',
     'soul-urge-number': '/soul-urge-number',
+    // 数字命理入门页（openspec content-growth-phase1 决策 7），主词「what is numerology」
+    numerology: '/numerology',
   },
   es: {
     'life-path': '/numero-de-vida',
@@ -42,6 +44,7 @@ const PATHS = {
     'life-path-compatibility': '/compatibilidad-numerologica',
     'destiny-number': '/numero-del-destino',
     'soul-urge-number': '/numero-del-alma',
+    numerology: '/numerologia',
   },
 } as const satisfies Record<NumerologyLocale, Record<string, string>>
 export type NumerologyPageId = keyof (typeof PATHS)['en']
@@ -164,6 +167,23 @@ export function numerologyTool(
 /** 页面在各语言的路径（注册表 paths，互为 hreflang） */
 const pathsOf = (id: NumerologyPageId) => ({ en: PATHS.en[id], es: PATHS.es[id] })
 
+/** 入门页的主词（titleMain：面包屑与内链锚文本，design 决策 7）；不进页头导航 */
+export const NUMEROLOGY_INTRO_MAIN: Readonly<Record<NumerologyLocale, string>> = {
+  en: 'What is numerology',
+  es: 'Qué es la numerología',
+}
+
+/** 入门页「相关」区块列出的 7 个计算器页（SeoPage related，锚文本取各页 titleMain） */
+const INTRO_RELATED: readonly NumerologyPageId[] = [
+  'life-path',
+  'numerology-calculator',
+  'name-numerology',
+  'numerology-chart',
+  'life-path-compatibility',
+  'destiny-number',
+  'soul-urge-number',
+]
+
 /**
  * 工具注册表条目：Life Path 工具页与工具内页、12 个数字页与两个枢纽页。没有导航名的条目只用于预渲染与站点地图，
  * toolsForLocale 会跳过它们（页头导航对齐原型：Life Path / Numerology Calculator / Compatibility）。
@@ -193,6 +213,14 @@ export const NUMEROLOGY_ROUTES: readonly ToolRoute[] = [
     paths: pathsOf(id),
     titles: {},
   })),
+  // 入门页：父页为首页，titles 只作主词（nav: false 不进页头导航）；Title 与 Description 来自正文 frontmatter
+  {
+    id: 'numerology',
+    site: 'west',
+    nav: false,
+    paths: pathsOf('numerology'),
+    titles: NUMEROLOGY_INTRO_MAIN,
+  },
 ]
 
 interface NumerologyContent {
@@ -202,7 +230,10 @@ interface NumerologyContent {
   readonly description: string
 }
 
-/** 站点地图与 OG 图片用的页面清单：Life Path 工具页（长文 frontmatter）、四个工具内页、12 个数字页与两个枢纽页 */
+/**
+ * 站点地图与 OG 图片用的页面清单：Life Path 工具页（长文 frontmatter）、四个工具内页、12 个数字页、两个枢纽页与入门页。
+ * 入门页声明 related（7 个计算器页），由内链区块渲染为「相关」卡片。
+ */
 export function numerologySeoPages(content: readonly NumerologyContent[]) {
   return [
     ...NUMEROLOGY_LOCALES.flatMap((locale) =>
@@ -219,6 +250,11 @@ export function numerologySeoPages(content: readonly NumerologyContent[]) {
               title: page.title,
               description: page.description,
               locale: page.locale,
+              ...(page.slug === 'numerology' && {
+                related: INTRO_RELATED.map((id) =>
+                  numerologyPath(id, page.locale as NumerologyLocale),
+                ),
+              }),
             },
           ]
         : [],

@@ -4,6 +4,9 @@ import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
 import { useSiteId } from '../../site/context.tsx'
 import { AiDisclaimer } from '../../tools/disclaimer.tsx'
+import { InlineLinks } from '../../tools/inline-links.tsx'
+import { numerologyHref } from '../../tools/numerology/href.ts'
+import { isNumerologyLocale } from '../../tools/numerology/routes.ts'
 import { mainToolHref, toolHref } from '../../tools/tool-href.ts'
 import type { PricingCatalog } from '../pricing-data.ts'
 import { pricingSnapshot } from '../pricing-snapshot.ts'
@@ -257,8 +260,15 @@ function PriceLine({ line, href }: { line: HubPriceLine | null; href: string }) 
   )
 }
 
-/** 信任说明：只列可核实的事实，属于免费区，不写 AI */
+/**
+ * 信任说明：只列可核实的事实，属于免费区，不写 AI。西方站（en、es）第一条用 `[锚文本]` 链接到本语言的
+ * 数字命理入门页（content-growth-phase1 决策 7「首页从现成句子链接到入门页」）；其他语言的文案没有方括号，原样输出。
+ */
 function TrustFacts() {
+  const locale = getLocale()
+  const intro = isNumerologyLocale(locale)
+    ? [{ href: numerologyHref('numerology', locale), target: 'numerology' }]
+    : []
   const facts = [
     m.home_hub_trust_1(),
     m.home_hub_trust_2(),
@@ -271,7 +281,9 @@ function TrustFacts() {
         {facts.map((fact) => (
           <li key={fact} className="flex gap-3.5 text-body text-ink-muted">
             <span aria-hidden="true" className="mt-2.75 size-1.5 shrink-0 rounded-full bg-illus" />
-            {fact}
+            <span>
+              <InlineLinks text={fact} links={intro} />
+            </span>
           </li>
         ))}
       </ul>
