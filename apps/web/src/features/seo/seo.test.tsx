@@ -482,6 +482,30 @@ it('博客为空时站点地图不收录博客列表（specs/marketing-site「�
   expect(sitemap(one, origin, 'zh-Hant')).not.toContain('/blog')
 })
 
+it('两站每种语言只在有自己的已发布文章时收录博客列表（content-growth-phase1 4.2）', () => {
+  // 只有草稿与未到发布日期的文章：所有语言的站点地图都不含 /blog
+  const draftsOnly = publicPages(
+    { ...content, posts: content.posts.filter((post) => post.draft || post.slug === 'future') },
+    new Date('2026-10-01'),
+    config,
+  )
+  for (const each of locales) {
+    expect(
+      draftsOnly.some((page) => page.locale === each && page.path.startsWith('/blog')),
+      each,
+    ).toBe(false)
+    expect(sitemap(draftsOnly, origin, each), each).not.toContain('/blog')
+  }
+  // en 有已发布文章时，其他语言（es、zh-Hans、zh-Hant、ko、ja）仍不收录
+  const enOnly = publicPages(
+    { ...content, posts: content.posts.filter((post) => post.locale === 'en') },
+    new Date('2026-10-01'),
+    config,
+  )
+  for (const each of locales.filter((l) => l !== 'en'))
+    expect(sitemap(enOnly, origin, each), each).not.toContain('/blog')
+})
+
 it('异名工具路由互指；x-default 指向该工具的繁中版本', () => {
   const tools = publicPages(content, new Date('2026-10-01'), config, 'east', [bazi])
   const page = tools.find((p) => p.path === '/八字排盤/')

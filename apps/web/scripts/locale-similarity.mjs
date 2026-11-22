@@ -453,6 +453,83 @@ export function templateRepeatFromDir(dir, { unit = 'char', filter = () => true 
 }
 
 // ---------------------------------------------------------------------------
+// 组件段（OpenSpec content-growth-phase1 决策 9）：西方站牌义页与数字页上由组件输出的段，
+// 按段标题对齐（不按位置：es 数字页各页 H2 数量不同，按位置会错位），只计组件输出部分
+// ---------------------------------------------------------------------------
+
+/** 组件段门槛只适用于逐页撰写了组件文案的语言 */
+export const COMPONENT_LOCALES = Object.freeze(['en', 'es'])
+
+/**
+ * 组件段对照表：`title` 为 en/es 段标题正则；`cutAfter: 'disclaimer'` 表示截到结果区合规声明为止
+ * （es 数字页 MDX 在第一个 H2 前的导语渲染后落在首屏样例段内，不属于组件输出）。
+ */
+export const COMPONENT_SECTIONS = Object.freeze([
+  { kind: 'tarot-card', id: 'tarot-intro', label: '牌义页导语', title: /^\(intro\)$/ },
+  {
+    kind: 'tarot-card',
+    id: 'tarot-try',
+    label: '抽一张',
+    title: /^(Try a one-card draw|Saca una carta)$/,
+  },
+  {
+    kind: 'tarot-card',
+    id: 'tarot-related',
+    label: '延伸牌义',
+    title: /^(Related card meanings|Significados relacionados)$/,
+  },
+  {
+    kind: 'numerology-number',
+    id: 'number-sample',
+    label: '首屏样例',
+    title: /^(Life Path|Número de vida)$/,
+    cutAfter: 'disclaimer',
+  },
+  {
+    kind: 'numerology-number',
+    id: 'number-neighbors',
+    label: '其余数字',
+    title: /^(Explore the other numbers|Explora los otros números)$/,
+  },
+])
+
+/** 取一页中某个组件段的文字；没有该段时返回 null。`disclaimer` 为本语言结果区声明全文 */
+export function componentText(page, rule, { disclaimer } = {}) {
+  const text = page.sections.find((s) => rule.title.test(s.title))?.text
+  if (text == null) return null
+  if (rule.cutAfter !== 'disclaimer' || !disclaimer) return text
+  const at = text.indexOf(disclaimer)
+  return at === -1 ? text : text.slice(0, at + disclaimer.length)
+}
+
+/**
+ * 组件段报告：pages 为 [{ id, kind, sections }]（同一语言）。返回每段的页数、两两平均 Dice 与最差页；
+ * 某段不足 2 页时不出行。
+ */
+export function componentSections(pages, { unit = 'word', disclaimer } = {}) {
+  const out = []
+  for (const rule of COMPONENT_SECTIONS) {
+    const group = pages
+      .filter((p) => p.kind === rule.kind)
+      .map((p) => ({ id: p.id, text: componentText(p, rule, { disclaimer }) }))
+      .filter((p) => p.text != null)
+      .map((p) => ({ id: p.id, sections: [{ title: rule.label, text: p.text }] }))
+    const [slot] = templateRepeat(group, { unit })
+    if (!slot) continue
+    out.push({
+      id: rule.id,
+      kind: rule.kind,
+      label: rule.label,
+      pages: slot.pages,
+      mean: slot.mean,
+      max: slot.max,
+      maxPage: slot.maxPage,
+    })
+  }
+  return out
+}
+
+// ---------------------------------------------------------------------------
 // 长度、FAQ 来源、站点地图
 // ---------------------------------------------------------------------------
 
@@ -734,6 +811,23 @@ export function renderMarkdown(report) {
       if (pair.failing.length > 60) out.push(`- ……另 ${pair.failing.length - 60} 页见 JSON`)
       out.push('')
     } else out.push('全部达标。', '')
+  }
+  const components = Object.entries(report.componentSections ?? {}).filter(([, s]) => s.length)
+  if (components.length) {
+    out.push(
+      '## 组件段（渲染页，按段标题对齐；门槛）',
+      '',
+      `牌义页导语、抽一张、延伸牌义与数字页首屏样例（截到结果区声明为止）、其余数字；同语言两两平均 Dice，门槛 ≤${THRESHOLDS.templateRepeat}（--enforce 生效）。`,
+      '',
+      '| 语言 | 集合 | 段 | 页数 | 平均 Dice | 最差页均值 | 最差页 |',
+      '|---|---|---|---|---|---|---|',
+    )
+    for (const [locale, slots] of components)
+      for (const s of slots)
+        out.push(
+          `| ${locale} | ${s.kind} | ${s.label} | ${s.pages} | ${s.mean}${s.mean > THRESHOLDS.templateRepeat ? ' ⚠' : ''} | ${s.max} | ${s.maxPage} |`,
+        )
+    out.push('')
   }
   out.push(
     '## 同语言模板重复（渲染页，按位置；参考）',

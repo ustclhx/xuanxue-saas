@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, describe, test } from 'node:test'
 import {
+  COMPONENT_SECTIONS,
+  componentSections,
+  componentText,
   createExtractor,
   dice,
   digitSeq,
@@ -23,7 +26,7 @@ import {
   unitOf,
   variantSimilarity,
 } from './locale-similarity.mjs'
-import { measureSite } from './measure-locale-similarity.mjs'
+import { enforcedFailures, measureSite } from './measure-locale-similarity.mjs'
 
 const extractor = createExtractor()
 after(() => extractor.close())
@@ -221,6 +224,108 @@ describe('模板重复', () => {
   })
 })
 
+describe('组件段（content-growth-phase1 1.1）', () => {
+  const rule = (id) => COMPONENT_SECTIONS.find((r) => r.id === id)
+  const disclaimer = 'Consulta a un profesional médico.'
+
+  test('按 en / es 段标题对齐，与段的位置无关', () => {
+    const page = {
+      sections: [
+        { title: '(intro)', text: 'H1' },
+        { title: 'Extra', text: 'x' },
+        { title: 'Saca una carta', text: 'Piensa en una pregunta.' },
+      ],
+    }
+    assert.equal(componentText(page, rule('tarot-try')), 'Piensa en una pregunta.')
+    assert.equal(componentText(page, rule('tarot-related')), null)
+    assert.equal(
+      componentText(
+        { sections: [{ title: 'Try a one-card draw', text: 'en' }] },
+        rule('tarot-try'),
+      ),
+      'en',
+    )
+  })
+
+  test('首屏样例截到结果区声明为止；没有声明时取整段', () => {
+    const page = {
+      sections: [
+        {
+          title: 'Número de vida',
+          text: `Número de vida 7\nEjemplo.\n${disclaimer}\nTexto introductorio del MDX que no es del componente.`,
+        },
+      ],
+    }
+    assert.equal(
+      componentText(page, rule('number-sample'), { disclaimer }),
+      `Número de vida 7\nEjemplo.\n${disclaimer}`,
+    )
+    assert.match(componentText(page, rule('number-sample')), /introductorio/)
+    // 其余数字段不截断
+    const other = { sections: [{ title: 'Explora los otros números', text: `${disclaimer} más` }] }
+    assert.equal(
+      componentText(other, rule('number-neighbors'), { disclaimer }),
+      `${disclaimer} más`,
+    )
+  })
+
+  test('每段输出平均 Dice 与最差页；只统计对应集合', () => {
+    const fixed = 'Think of one question and draw a single card from the shuffled deck.'
+    const tarot = (id, related) => ({
+      id,
+      kind: 'tarot-card',
+      sections: [
+        { title: '(intro)', text: `${id} intro words unique to ${id} page alone` },
+        { title: 'Try a one-card draw', text: fixed },
+        { title: 'Related card meanings', text: related },
+      ],
+    })
+    const pages = [
+      tarot('/a', 'alpha beta gamma delta'),
+      tarot('/b', 'epsilon zeta eta theta'),
+      tarot('/c', 'alpha beta gamma delta'),
+      { id: '/life-path-number/1', kind: 'numerology-number', sections: [] },
+    ]
+    const out = componentSections(pages, { unit: 'word' })
+    assert.deepEqual(
+      out.map((s) => s.id),
+      ['tarot-intro', 'tarot-try', 'tarot-related'],
+    )
+    const byId = Object.fromEntries(out.map((s) => [s.id, s]))
+    assert.equal(byId['tarot-try'].mean, 1)
+    assert.equal(byId['tarot-try'].pages, 3)
+    assert.ok(byId['tarot-related'].mean < 0.5)
+    assert.ok(['/a', '/c'].includes(byId['tarot-related'].maxPage))
+  })
+
+  test('--enforce：组件段 >0.30 计入失败；基准语言不判 FAQ 来源与 MDX 源模板重复', () => {
+    const report = {
+      pivot: 'en',
+      pairs: {},
+      templateRepeat: {
+        rendered: {},
+        source: {
+          'numerology:en': { slots: [{ index: 8, title: 'Explore', mean: 0.5 }] },
+          'numerology:es': { slots: [{ index: 3, title: 'Explora', mean: 0.4 }] },
+        },
+      },
+      componentSections: {
+        en: [{ kind: 'tarot-card', label: '抽一张', mean: 1, max: 1, maxPage: '/x' }],
+        es: [{ kind: 'tarot-card', label: '抽一张', mean: 0.3, max: 0.31, maxPage: '/y' }],
+      },
+      faqOrigin: { en: { failing: ['tarot/en/a.mdx'] }, es: { failing: ['tarot/es/a.mdx'] } },
+      lengths: { en: { failing: [] }, es: { failing: [] } },
+    }
+    const failures = enforcedFailures(report, ['en', 'es'])
+    assert.ok(failures.some((f) => f.startsWith('en component tarot-card 抽一张: 1')))
+    assert.ok(!failures.some((f) => f.startsWith('es component')), '0.30 不超门槛')
+    assert.ok(!failures.some((f) => f.includes('en FAQ origin')))
+    assert.ok(!failures.some((f) => f.startsWith('numerology:en')))
+    assert.ok(failures.includes('es FAQ origin: tarot/es/a.mdx'))
+    assert.ok(failures.some((f) => f.startsWith('numerology:es')))
+  })
+})
+
 describe('分类、站点地图、长度与 FAQ 来源', () => {
   test('页面分类覆盖两站与新语言路径', () => {
     const cases = {
@@ -358,6 +463,34 @@ describe('measureSite', () => {
     assert.ok(report.enforcedFailures.some((f) => f.startsWith('es /: literal 1')))
     assert.ok(report.enforcedFailures.some((f) => f.includes('variant dice 1')))
     assert.match(renderMarkdown(report), /## es ↔ en（跨语言）/)
+  })
+
+  test('en / es 牌义页输出组件段报告，按 --enforce 判定', async () => {
+    const card = (h1, extra) =>
+      page(
+        `<h1>${h1}</h1><p>Lede.</p>${extra}<h2>Try a one-card draw</h2><p>Think of one question and draw a single card now.</p>`,
+      )
+    const cards = {
+      '/tarot/cards/a': card('The Fool', ''),
+      '/tarot/cards/b': card('The Magician', '<h2>Extra</h2><p>Only here.</p>'),
+    }
+    const report = await measureSite({
+      siteId: 'west',
+      siteLocales: ['en', 'es'],
+      entries: Object.keys(cards).map((path) => ({
+        loc: `https://w.com${path}`,
+        alts: { en: `https://w.com${path}` },
+      })),
+      fetchHtml: async (path) => cards[path],
+      pivot: 'en',
+      contentDir: join(tmpdir(), 'no-such-content-dir'),
+      enforce: ['en'],
+    })
+    const tryCard = report.componentSections.en.find((s) => s.id === 'tarot-try')
+    assert.equal(tryCard.pages, 2)
+    assert.equal(tryCard.mean, 1)
+    assert.ok(report.enforcedFailures.some((f) => f.startsWith('en component tarot-card 抽一张')))
+    assert.match(renderMarkdown(report), /## 组件段（渲染页，按段标题对齐；门槛）/)
   })
 
   test('需要转换器的变体在缺少转换器时跳过并说明', async () => {
