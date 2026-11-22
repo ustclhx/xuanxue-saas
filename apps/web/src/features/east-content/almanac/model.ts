@@ -123,7 +123,7 @@ export function dayView(day: AlmanacDay): AlmanacDayView {
     },
     recommends: tabooList(day.recommends),
     avoids: tabooList(day.avoids),
-    duty: ZH_HANS_RULES.duty[day.duty],
+    duty: { name: ZH_HANS_RULES.duty[day.duty].name, gloss: glossary.duty[day.duty] },
     star: {
       name: star.name,
       gloss: `${star.name}是${ecliptic}六神之一。${star.gloss}`,

@@ -157,6 +157,9 @@ describe('工具页', () => {
       term: { name: '小雪', beginsToday: true },
     })
     expect(payload.result?.termNote).toBe('当天 15:23 交小雪。')
+    // 黄历页的建除释义只写字义与次序，不带随日期变化的行动建议（每日页另用自己的释义）
+    expect(payload.result?.duty.gloss).toContain('十二值星的第二位')
+    expect(payload.result?.duty.gloss).not.toMatch(/适合|不宜|提醒/)
     expect(payload.months).toEqual({ current: 11, next: 12 })
     const head = almanacHead(payload)
     expect(head.meta).not.toContainEqual(expect.objectContaining({ name: 'robots' }))

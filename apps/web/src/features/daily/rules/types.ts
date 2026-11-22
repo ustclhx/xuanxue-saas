@@ -80,6 +80,8 @@ export const HIDDEN_TABOOS: ReadonlySet<number> = new Set([111, 123, 124, 125, 1
 export interface AlmanacGlossary {
   /** TwelveStar：青龙 明堂 天刑 朱雀 金匮 天德 白虎 玉堂 天牢 玄武 司命 勾陈 */
   readonly twelveStar: readonly { readonly name: string; readonly gloss: string }[]
+  /** 黄历页的建除释义：只写字义与次序（每日页另用 EastRules.duty） */
+  readonly duty: Readonly<Record<DutyKey, string>>
   /** Ecliptic：黄道、黑道 */
   readonly ecliptic: readonly [string, string]
   /** Direction：北 西南 东 东南 中 西北 西 东北 南 */
