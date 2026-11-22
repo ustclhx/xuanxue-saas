@@ -422,6 +422,68 @@ const concepts = defineCollection({
 })
 
 /**
+ * 黄历工具页与 12 个月份页的逐页文案（openspec content-growth-phase2 决策 5、第 6 组）：
+ * `index.mdx` 是工具页的说明长文，`<m>.mdx` 是 m 月的导语、节气说明、宜忌读法（正文）与 FAQ。
+ * 月份页网址不带年份，年份、节气时刻与逐日数据由页面按参考日期计算，文案不写具体年份与日期。
+ * 构建期拦下婚嫁类与吉凶断语类措辞（design「约束」）：嫁娶只作为逐日表里的普通词条出现，不进入撰写文案。
+ */
+const ALMANAC_BANNED =
+  /嫁娶|结婚|婚嫁|婚配|合婚|配对|纳采|订婚|订盟|吉日|娱乐|运势|大吉|大凶|\bAI\b/
+const almanacFaq = z.array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+const almanac = defineCollection({
+  name: 'almanac',
+  directory: 'content/almanac',
+  include: '*/*.mdx',
+  schema: z.object({
+    month: z.number().int().min(1).max(12).optional(),
+    title: z.string().min(1).optional(),
+    description: z.string().min(1).optional(),
+    intro: z.string().min(1).optional(),
+    lede: z.string().min(1).optional(),
+    terms_note: z.string().min(1).optional(),
+    faq: almanacFaq.min(2).max(4),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    // index.mdx 的 _meta.path 是目录本身（slug 为空）
+    const isTool = slug === '' || slug === 'index'
+    if (isTool ? data.month !== undefined : data.month !== Number(slug))
+      throw new Error(`Almanac month does not match file name: ${document._meta.path}`)
+    if (isTool && !(data.title && data.description && data.intro))
+      throw new Error(
+        `Almanac tool page needs title, description and intro: ${document._meta.path}`,
+      )
+    if (!isTool && !(data.lede && data.terms_note))
+      throw new Error(`Almanac month page needs lede and terms_note: ${document._meta.path}`)
+    const text = [
+      data.title,
+      data.description,
+      data.intro,
+      data.lede,
+      data.terms_note,
+      content,
+      ...data.faq.flatMap(({ q, a }) => [q, a]),
+    ].join('\n')
+    const banned = ALMANAC_BANNED.exec(text)
+    if (banned) throw new Error(`Almanac copy contains「${banned[0]}」: ${document._meta.path}`)
+    const html = await renderMdx(context, document)
+    const minimum = isTool ? 1200 : 150
+    if (plainText(html).replace(/[^\p{Script=Han}]/gu, '').length < minimum)
+      throw new Error(
+        `Almanac body must contain at least ${minimum} characters: ${document._meta.path}`,
+      )
+    // terms_note 允许用空行分段
+    const termsNote = (data.terms_note ?? '')
+      .split(/\n\s*\n/)
+      .map((paragraph) => paragraph.replace(/\s+/g, ''))
+      .filter(Boolean)
+    return { ...data, locale, key: isTool ? 'tool' : String(data.month), termsNote, html }
+  },
+})
+
+/**
  * 东方站生肖集合（openspec content-growth-phase2 决策 4，第 4 组建 schema，第 5、9 组只加内容文件）：
  * content/zodiac/<locale>/<地支 key>.mdx 为子页，index.mdx 为枢纽页。年份表、关系表与流年关系由页面按引擎计算，
  * 这里只保存逐页撰写的文字：`years_note`（年份表导语）、`relations_note`（关系表导语）、
@@ -540,6 +602,7 @@ export default defineConfig({
     tarot,
     tarotFeelings,
     concepts,
+    almanac,
     guides,
     zodiac,
   ],

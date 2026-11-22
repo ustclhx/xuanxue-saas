@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
+import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import {
@@ -144,6 +145,9 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   ...conceptRoutes,
   // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
   ...DAILY_TOOL_ROUTES,
+  // openspec content-growth-phase2 第 6 组：黄历工具页与 12 个月份页（SSR，不预渲染）；
+  // 黄历在前，页头「历法与生肖」分组依次为 黄历、十二生肖（设计稿 EastNavVariant 方案 C）
+  ...ALMANAC_TOOL_ROUTES,
   // openspec content-growth-phase2 第 4 组：生肖枢纽（页头「历法与生肖」分组）与 12 生肖页
   ...ZODIAC_TOOL_ROUTES,
 ]

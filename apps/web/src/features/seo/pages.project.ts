@@ -1,6 +1,7 @@
 import { brandName, siteBrandName, type TemplateConfig } from '@xuanxue/config'
 import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
 import { templateConfig } from '../../server/template-config.ts'
+import { ALMANAC_TOOL_PATH } from '../east-content/almanac/paths.ts'
 import type { AppLocale } from '../i18n/locales.ts'
 import {
   isNumerologyLocale,
@@ -26,6 +27,7 @@ import type { SeoPage, StaticPath } from './metadata.ts'
  * | 牌义页（`/tarot/cards/<slug>` 等四语） | 该语言的牌义索引页 | 该语言的牌名 |
  * | Life Path 数字页（`/life-path-number/<n>`） | `/life-path-number` | `Life Path <n>` |
  * | 命理概念页（`/八字/十神` 等） | 该语言的主工具页（八字排盤 / 八字排盘 / 만세력） | 概念名 |
+ * | 黄历月份页（`/黄历/1月` 等） | 黄历工具页 `/黄历` | 「1月黄历」 |
  *
  * parent 与页面上已有的面包屑一致（牌义页：首页 › 牌义索引 › 牌名；数字页：首页 › Life Path › n）。
  * 构建时 linking.ts 校验：可索引页必须有主词，除首页外必须有 parent，且 parent 指向同语言中存在的可索引页面。
@@ -185,6 +187,9 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
         ? numerologyPath('life-path', locale)
         : LIFE_PATH_TOOL_PATH,
     }
+  // 黄历月份页（content-growth-phase2 第 6 组）：面包屑「首页 › 黄历 › N月」，上级为黄历工具页
+  if (route.id.startsWith('almanac-month-'))
+    return { titleMain: navTitle ?? page.title, parent: ALMANAC_TOOL_PATH }
   if (route.id.startsWith('bazi-concept-'))
     return { titleMain: navTitle ?? page.title, parent: mainToolPath(locale) ?? '/' }
   return { titleMain: navTitle ?? WEST_MAIN[page.path] ?? page.title, parent: '/' }

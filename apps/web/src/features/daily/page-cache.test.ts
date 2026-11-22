@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  cachedPageOf,
   DAILY_CACHE_HEADER,
   type DailyCacheStore,
   dailyCacheKey,
@@ -138,5 +139,87 @@ describe('dailyPageCache', () => {
       html(),
     )
     expect(secure).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('黄历页（content-growth-phase2 决策 5）', () => {
+  const now = new Date('2026-11-22T02:00:00Z')
+  const url = (path: string) => new URL(`https://ganjiday.com${encodeURI(path)}`)
+
+  it('识别黄历工具页与 12 个月份页，日期参数进键，非法日期不缓存', () => {
+    expect(cachedPageOf(url('/zh-hans/黄历'), LOCALES)).toEqual({ locale: 'zh-Hans' })
+    expect(cachedPageOf(url('/zh-hans/黄历/1月'), LOCALES)).toEqual({ locale: 'zh-Hans' })
+    expect(cachedPageOf(url('/zh-hans/黄历/12月/'), LOCALES)).toEqual({ locale: 'zh-Hans' })
+    expect(cachedPageOf(url('/zh-hans/黄历?date=2026-12-01'), LOCALES)).toEqual({
+      locale: 'zh-Hans',
+      variant: 'date=2026-12-01',
+    })
+    expect(cachedPageOf(url('/zh-hans/黄历?date=2026-02-30'), LOCALES)).toEqual({
+      locale: 'zh-Hans',
+      variant: null,
+    })
+    // 月份页的查询串不进键；逐日地址、其他语言与无前缀地址不是黄历页
+    expect(cachedPageOf(url('/zh-hans/黄历/1月?date=2026-12-01'), LOCALES)).toEqual({
+      locale: 'zh-Hans',
+    })
+    expect(cachedPageOf(url('/zh-hans/黄历/13月'), LOCALES)).toBeNull()
+    expect(cachedPageOf(url('/zh-hans/黄历/2026-12-01'), LOCALES)).toBeNull()
+    expect(cachedPageOf(url('/zh-hant/黄历'), LOCALES)).toBeNull()
+    expect(cachedPageOf(url('/黄历'), LOCALES)).toBeNull()
+  })
+
+  it('工具页：不同日期参数各自成键，第二次请求命中', async () => {
+    const cache = memoryCache()
+    const render = vi.fn(async () => html('<h1>黄历查询</h1>'))
+    const first = await dailyPageCache(page('/zh-hans/黄历'), LOCALES, { cache, now }, render)
+    expect(first?.headers.get(DAILY_CACHE_HEADER)).toBe('miss')
+    const second = await dailyPageCache(page('/zh-hans/黄历'), LOCALES, { cache, now }, render)
+    expect(second?.headers.get(DAILY_CACHE_HEADER)).toBe('hit')
+    const dated = await dailyPageCache(
+      new Request(`https://ganjiday.com${encodeURI('/zh-hans/黄历')}?date=2027-02-04`),
+      LOCALES,
+      { cache, now },
+      render,
+    )
+    expect(dated?.headers.get(DAILY_CACHE_HEADER)).toBe('miss')
+    expect(render).toHaveBeenCalledTimes(2)
+    expect([...cache.entries.keys()].some((key) => key.includes('q=date%3D2027-02-04'))).toBe(true)
+  })
+
+  it('非法日期参数：直接渲染，不读也不写缓存', async () => {
+    const cache = memoryCache()
+    const response = await dailyPageCache(
+      new Request(`https://ganjiday.com${encodeURI('/zh-hans/黄历')}?date=abc`),
+      LOCALES,
+      { cache, now },
+      async () => html(),
+    )
+    expect(response?.status).toBe(200)
+    expect(response?.headers.get(DAILY_CACHE_HEADER)).toBeNull()
+    expect(cache.match).not.toHaveBeenCalled()
+    expect(cache.put).not.toHaveBeenCalled()
+  })
+
+  it('月份页：北京时间跨日后键变化（跨月即换内容），TTL 不超过 3600', async () => {
+    const before = dailyCacheKey(
+      url('/zh-hans/黄历/11月'),
+      'zh-Hans',
+      new Date('2026-11-30T15:59:00Z'),
+    )
+    const after = dailyCacheKey(
+      url('/zh-hans/黄历/11月'),
+      'zh-Hans',
+      new Date('2026-11-30T16:00:00Z'),
+    )
+    expect(before.url).toContain('daily=2026-11-30')
+    expect(after.url).toContain('daily=2026-12-01')
+    const cache = memoryCache()
+    const response = await dailyPageCache(
+      page('/zh-hans/黄历/11月'),
+      LOCALES,
+      { cache, now },
+      async () => html(),
+    )
+    expect(response?.headers.get('cache-control')).toBe('public, max-age=300, s-maxage=3600')
   })
 })
