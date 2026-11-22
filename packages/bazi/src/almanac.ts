@@ -11,7 +11,7 @@ import { BRANCHES, type Branch, branchIndex, STEMS, type Stem } from './constant
 import { type DailyDate, type DayPillar, dayPillarOf } from './daily.ts'
 
 /** 黄历规则或输出结构变化时递增，独立于排盘与每日运势版本。 */
-export const ALMANAC_RULES_VERSION = '1.0.0'
+export const ALMANAC_RULES_VERSION = '1.1.0'
 
 const CHINA_OFFSET_MINUTES = 480
 const LICHUN_INDEX = 3
@@ -24,6 +24,9 @@ type SeasonDay = { phaseIndex: number; dayIndex: number }
 
 export type AlmanacDay = DayPillar & {
   monthBranch: Branch
+  /** 年柱（以立春换年）与月柱（以节换月）的六十甲子序号（甲子 = 0），黄历页首的年、月、日三柱使用。 */
+  yearCycleIndex: number
+  monthCycleIndex: number
   /** tyme4ts TwelveStar、Ecliptic、Zodiac 与 Direction 的序号。 */
   twelveStarIndex: number
   eclipticIndex: number
@@ -99,6 +102,8 @@ export function almanacDay(date: DailyDate): AlmanacDay {
     ...day,
     rulesVersion: ALMANAC_RULES_VERSION,
     monthBranch: BRANCHES[cycleDay.getMonth().getEarthBranch().getIndex()] as Branch,
+    yearCycleIndex: cycleDay.getYear().getIndex(),
+    monthCycleIndex: cycleDay.getMonth().getIndex(),
     twelveStarIndex: twelveStar.getIndex(),
     eclipticIndex: twelveStar.getEcliptic().getIndex(),
     clashZodiacIndex: branch.getOpposite().getZodiac().getIndex(),
