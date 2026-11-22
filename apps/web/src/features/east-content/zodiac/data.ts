@@ -1,0 +1,238 @@
+import {
+  BRANCHES,
+  type Branch,
+  type BranchRelationType,
+  branchRelations,
+  type Element,
+  STEMS,
+  type Stem,
+  taiSuiOf,
+  triadOf,
+} from '@xuanxue/bazi'
+import { zodiacBoundaries, zodiacYears } from '@xuanxue/bazi/almanac'
+import { PUNISH_GROUPS, TRIADS } from './constants.ts'
+import type { ZodiacKey } from './paths.ts'
+
+/**
+ * 生肖页的引擎事实（design 决策 3、4）：只在服务端与构建期计算，结果随 loader 下发，客户端不加载 tyme4ts。
+ * 输出只含稳定 key 与序号，文字由页面按语言渲染（messages/<locale>/zodiac.json）。
+ */
+
+/** 地支五行：子亥水、寅卯木、巳午火、申酉金、辰戌丑未土 */
+const BRANCH_ELEMENT: readonly Element[] = [
+  'water',
+  'earth',
+  'wood',
+  'wood',
+  'earth',
+  'fire',
+  'fire',
+  'earth',
+  'metal',
+  'metal',
+  'earth',
+  'water',
+]
+
+export const branchIndexOf = (branch: Branch) => BRANCHES.indexOf(branch)
+export const branchElementOf = (branch: Branch): Element =>
+  BRANCH_ELEMENT[branchIndexOf(branch)] as Element
+export const triadIndexOf = (branch: Branch) => triadOf(branchIndexOf(branch))
+
+const stemOfYear = (year: number) => STEMS[(((year - 1924) % 10) + 10) % 10] as Stem
+const branchOfYear = (year: number) => BRANCHES[(((year - 1924) % 12) + 12) % 12] as Branch
+
+export interface MonthDay {
+  readonly month: number
+  readonly day: number
+}
+export interface MonthDayTime extends MonthDay {
+  readonly hour: number
+  readonly minute: number
+}
+
+export interface ZodiacYearRow {
+  readonly year: number
+  readonly stem: Stem
+  readonly branch: Branch
+  readonly nayinIndex: number
+  readonly lichun: MonthDayTime
+  readonly newYear: MonthDay
+}
+
+export interface ZodiacRelation {
+  readonly type: BranchRelationType
+  /** 与本支构成该关系的地支（自刑时为本支），按传统顺序 */
+  readonly branches: readonly Branch[]
+}
+
+export interface ZodiacAnnual {
+  readonly year: number
+  readonly stem: Stem
+  readonly branch: Branch
+  readonly lichun: MonthDay
+  readonly taiSui: 'zhi' | 'chong' | null
+  readonly relations: readonly BranchRelationType[]
+}
+
+/** 立春分界的干支年：某一时刻所在的年份（1924–2043 之外返回 undefined） */
+export function zodiacYearAt(epochMs: number): number | undefined {
+  let year: number | undefined
+  for (const boundary of zodiacBoundaries())
+    if (boundary.lichunEpochMs <= epochMs) year = boundary.year
+  return year
+}
+
+export function yearRows(branch: Branch): ZodiacYearRow[] {
+  return zodiacYears(branch).map((row) => ({
+    year: row.year,
+    stem: row.stem,
+    branch: row.branch,
+    nayinIndex: row.nayinIndex,
+    lichun: {
+      month: row.lichun.month,
+      day: row.lichun.day,
+      hour: row.lichun.hour,
+      minute: row.lichun.minute,
+    },
+    newYear: { month: row.lunarNewYear.month, day: row.lunarNewYear.day },
+  }))
+}
+
+/** 本支的六合、三合、冲、刑、害，顺序固定 */
+export function relationsOf(branch: Branch): ZodiacRelation[] {
+  const triad = TRIADS[triadIndexOf(branch)]
+  const punishGroup = PUNISH_GROUPS.find((group) => group.includes(branch))
+  const partner = (type: BranchRelationType) =>
+    BRANCHES.filter((other) => other !== branch && branchRelations(branch, other).includes(type))
+  return [
+    { type: 'sixCombine', branches: partner('sixCombine') },
+    { type: 'triad', branches: triad?.branches ?? [] },
+    { type: 'clash', branches: partner('clash') },
+    {
+      type: 'punish',
+      branches: punishGroup ? punishGroup.filter((other) => other !== branch) : [branch],
+    },
+    { type: 'harm', branches: partner('harm') },
+  ]
+}
+
+/** 某干支年与本支的太岁关系与地支关系 */
+export function annualOf(year: number, natal: Branch): ZodiacAnnual | null {
+  const boundary = zodiacBoundaries().find((entry) => entry.year === year)
+  if (!boundary) return null
+  const branch = branchOfYear(year)
+  const lichun = new Date(boundary.lichunEpochMs + 8 * 3_600_000)
+  return {
+    year,
+    stem: stemOfYear(year),
+    branch,
+    lichun: { month: lichun.getUTCMonth() + 1, day: lichun.getUTCDate() },
+    taiSui: taiSuiOf(branch, natal),
+    relations: branchRelations(natal, branch),
+  }
+}
+
+export interface ZodiacExample {
+  readonly year: number
+  /** after：立春在春节之前（立春后、春节前出生两种口径不同）；before：春节在立春之前 */
+  readonly order: 'after' | 'before'
+  readonly lichun: MonthDayTime
+  readonly newYear: MonthDay
+  readonly previous: Branch
+}
+
+/** 年份表下的核对示例：取本支不晚于本年的最近一年 */
+export function exampleOf(
+  rows: readonly ZodiacYearRow[],
+  currentYear: number,
+): ZodiacExample | null {
+  const row = [...rows].reverse().find((entry) => entry.year <= currentYear) ?? rows[0]
+  if (!row) return null
+  const lichunFirst =
+    row.lichun.month < row.newYear.month ||
+    (row.lichun.month === row.newYear.month && row.lichun.day < row.newYear.day)
+  return {
+    year: row.year,
+    order: lichunFirst ? 'after' : 'before',
+    lichun: row.lichun,
+    newYear: row.newYear,
+    previous: BRANCHES[(branchIndexOf(row.branch) + 11) % 12] as Branch,
+  }
+}
+
+export interface ZodiacChildFacts {
+  readonly branch: Branch
+  readonly element: Element
+  readonly polarity: 'yang' | 'yin'
+  readonly currentYear: number
+  readonly years: readonly ZodiacYearRow[]
+  readonly example: ZodiacExample | null
+  readonly relations: readonly ZodiacRelation[]
+  readonly annual: readonly ZodiacAnnual[]
+}
+
+export function childFacts(key: ZodiacKey, now: number): ZodiacChildFacts {
+  const branch = key as Branch
+  const currentYear = zodiacYearAt(now) ?? 2043
+  const years = yearRows(branch)
+  return {
+    branch,
+    element: branchElementOf(branch),
+    polarity: branchIndexOf(branch) % 2 === 0 ? 'yang' : 'yin',
+    currentYear,
+    years,
+    example: exampleOf(years, currentYear),
+    relations: relationsOf(branch),
+    annual: [currentYear, currentYear + 1]
+      .map((year) => annualOf(year, branch))
+      .filter((entry): entry is ZodiacAnnual => entry !== null),
+  }
+}
+
+export interface ZodiacHubRow {
+  readonly key: ZodiacKey
+  readonly branch: Branch
+  readonly element: Element
+  readonly triad: number
+  /** 不晚于本年的最近一年与其后一轮 */
+  readonly recent: readonly number[]
+}
+
+/** 属相查询的边界表：[立春年份, 立春时刻（UTC 毫秒）, 春节月, 春节日] */
+export type ZodiacBoundaryTuple = readonly [number, number, number, number]
+
+export interface ZodiacHubFacts {
+  readonly currentYear: number
+  readonly currentBranch: Branch
+  readonly rows: readonly ZodiacHubRow[]
+  readonly boundaries: readonly ZodiacBoundaryTuple[]
+}
+
+export function hubFacts(now: number): ZodiacHubFacts {
+  const currentYear = zodiacYearAt(now) ?? 2043
+  const rows = BRANCHES.map((branch, index): ZodiacHubRow => {
+    // 1924 甲子起，本支第一个年份为 1924 + index
+    const last = currentYear - ((((currentYear - 1924 - index) % 12) + 12) % 12)
+    return {
+      key: branch as ZodiacKey,
+      branch,
+      element: branchElementOf(branch),
+      triad: triadOf(index),
+      recent: [last, last + 12],
+    }
+  })
+  return {
+    currentYear,
+    currentBranch: branchOfYear(currentYear),
+    rows,
+    boundaries: zodiacBoundaries().map(
+      (entry): ZodiacBoundaryTuple => [
+        entry.year,
+        entry.lichunEpochMs,
+        entry.lunarNewYear.month,
+        entry.lunarNewYear.day,
+      ],
+    ),
+  }
+}

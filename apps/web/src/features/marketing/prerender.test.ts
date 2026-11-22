@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
@@ -48,7 +49,11 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
   it('入口为各语言首页：默认语言无前缀，其他语言使用小写前缀', () => {
     // 批量内容页另由 numerology/seo.test.ts 与 tarot/meanings.test.ts 验证完整性
     const tools = TOOL_ROUTES.filter(
-      (tool) => !NUMEROLOGY_ROUTES.includes(tool) && !TAROT_MEANING_ROUTES.includes(tool),
+      (tool) =>
+        !NUMEROLOGY_ROUTES.includes(tool) &&
+        !TAROT_MEANING_ROUTES.includes(tool) &&
+        // 生肖页由 east-content/zodiac/zodiac.test.ts 验证
+        !ZODIAC_TOOL_ROUTES.includes(tool),
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/zh-hant' },

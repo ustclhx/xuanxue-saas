@@ -421,6 +421,86 @@ const concepts = defineCollection({
   },
 })
 
+/**
+ * 东方站生肖集合（openspec content-growth-phase2 决策 4，第 4 组建 schema，第 5、9 组只加内容文件）：
+ * content/zodiac/<locale>/<地支 key>.mdx 为子页，index.mdx 为枢纽页。年份表、关系表与流年关系由页面按引擎计算，
+ * 这里只保存逐页撰写的文字：`years_note`（年份表导语）、`relations_note`（关系表导语）、
+ * `annual`（以干支年为键的流年说明，缺少的年份页面只列关系名）。
+ * 正文按 `## ` 切成若干段分别编译，页面在指定段之后插入表格组件（features/east-content/zodiac/）。
+ */
+const ZODIAC_BRANCHES = [
+  'zi',
+  'chou',
+  'yin',
+  'mao',
+  'chen',
+  'si',
+  'wu',
+  'wei',
+  'shen',
+  'you',
+  'xu',
+  'hai',
+] as const
+
+const zodiac = defineCollection({
+  name: 'zodiac',
+  directory: 'content/zodiac',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[^/\s]+$/),
+    locale: z.enum(['zh-Hans', 'ko', 'zh-Hant']),
+    // 枢纽页没有地支
+    branch: z.enum(ZODIAC_BRANCHES).optional(),
+    lede: z.string().min(1),
+    years_note: z.string().min(1).optional(),
+    relations_note: z.string().min(1).optional(),
+    annual: z
+      .record(
+        z.string().regex(/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/),
+        z.string().min(1),
+      )
+      .default({}),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    // content-collections 把 index.mdx 的路径记为所在目录（`zh-Hans`），slug 为空
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    if (locale !== data.locale)
+      throw new Error(`Zodiac locale does not match directory: ${document._meta.path}`)
+    const hub = key === 'index'
+    if (hub ? data.branch !== undefined : data.branch !== key)
+      throw new Error(`Zodiac branch does not match file name: ${document._meta.path}`)
+    if (!hub && (!data.years_note || !data.relations_note))
+      throw new Error(`Zodiac page needs years_note and relations_note: ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Zodiac body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, key, sections }
+  },
+})
+
 const guides = defineCollection({
   name: 'guides',
   directory: 'content/guides',
@@ -461,5 +541,6 @@ export default defineConfig({
     tarotFeelings,
     concepts,
     guides,
+    zodiac,
   ],
 })
