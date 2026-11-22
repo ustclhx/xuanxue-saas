@@ -43,10 +43,10 @@
 
 ## 5. 塔罗入口页负责免费塔罗主词（en、zh-hans、zh-hant、ko）
 
-- [ ] 5.1 Claude 文案子代理定稿 en、zh-hans、zh-hant、ko 四种语言的 Title、Description、H1 与 titleMain（以 design 决策 6 草案为底稿；zh-hant 与 zh-hans 分别撰写）。每条用 `audit-seo.mjs` 的 `tdkLength` 核对长度（英文 Title 40–60、Description 140–160；中韩 Title 20–30、Description 70–80）。Codex 回译审阅 zh-hant、ko，意见与修改存证据目录
-- [ ] 5.2 写入 `features/tools/tarot/routes.ts`（`TITLES`、`SEO_TITLES`、`DESCRIPTIONS` 的 three-card）与 `messages/{en,zh-Hans,zh-Hant,ko}/tarot.json` 的 `tarot_three_card_h1`。核对 `tarotLocalizedSeoPages()` 的筛选副作用：单测断言单张、是非、凯尔特十字与牌义索引页的 Title、Description 与 main 逐字相同。es、ja 不改
-- [ ] 5.3 锚文本核对：`audit:seo` 显示指向四种语言入口页的正文锚文本各 ≤2 种（主词与三张牌名称），top1 占比合规；`check:links` 无 h1、死链问题。390px 截图核对页头导航与首页工具卡，长导航名不溢出
-- [ ] 5.4 关键词归属表（1.3 产出）把四种语言的免费塔罗主词登记到入口页；确认单张、是非、凯尔特十字、牌义索引页的 Title 与 H1 不以该主词开头
+- [x] 5.1 Claude 文案子代理定稿 en、zh-hans、zh-hant、ko 四种语言的 Title、Description、H1 与 titleMain（以 design 决策 6 草案为底稿；zh-hant 与 zh-hans 分别撰写）。每条用 `audit-seo.mjs` 的 `tdkLength` 核对长度（英文 Title 40–60、Description 140–160；中韩 Title 20–30、Description 70–80）。Codex 回译审阅 zh-hant、ko，意见与修改存证据目录
+- [x] 5.2 写入 `features/tools/tarot/routes.ts`（`TITLES`、`SEO_TITLES`、`DESCRIPTIONS` 的 three-card）与 `messages/{en,zh-Hans,zh-Hant,ko}/tarot.json` 的 `tarot_three_card_h1`。核对 `tarotLocalizedSeoPages()` 的筛选副作用：单测断言单张、是非、凯尔特十字与牌义索引页的 Title、Description 与 main 逐字相同。es、ja 不改
+- [x] 5.3 锚文本核对：`audit:seo` 显示指向四种语言入口页的正文锚文本各 ≤2 种（主词与三张牌名称），top1 占比合规；`check:links` 无 h1、死链问题。390px 截图核对页头导航与首页工具卡，长导航名不溢出
+- [x] 5.4 关键词归属表（1.3 产出）把四种语言的免费塔罗主词登记到入口页；确认单张、是非、凯尔特十字、牌义索引页的 Title 与 H1 不以该主词开头
 
 ## 6. 数字命理入门页（西方站 en、es）
 

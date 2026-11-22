@@ -69,11 +69,12 @@ const SLUGS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> =
 
 // v1 语言的 Title 兼导航名；新语言这里是导航名与主词（titleMain，取术语表 anchors），Title 见 SEO_TITLES
 const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = {
+  // 入口页负责各语言的免费塔罗主词（openspec content-growth-phase1 决策 6），三张牌退为副词
   'three-card': {
-    en: 'Three-Card Tarot',
-    'zh-Hant': '三張牌塔羅',
-    'zh-Hans': '三张牌塔罗',
-    ko: '쓰리 카드 타로',
+    en: 'Free Tarot Reading',
+    'zh-Hant': '免費塔羅牌占卜',
+    'zh-Hans': '免费塔罗占卜',
+    ko: '무료 타로',
     es: 'Tarot gratis',
     ja: '無料タロット占い',
   },
@@ -107,12 +108,12 @@ const TITLES: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> 
 // 注册表直接引用各牌阵的这个对象（不复制），加载后写回的条目随之可见
 const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, string>>>> = localeText({
   'three-card': {
-    en: 'Free three-card tarot: shuffle, cut and reveal past, present and future cards with Rider–Waite–Smith imagery. For reflection only.',
+    en: 'Free tarot reading with three cards: shuffle, cut and reveal past, present and future in the Rider–Waite–Smith deck, each card explained. For reflection only.',
     'zh-Hant':
-      '免費三張牌塔羅：洗牌、切牌，翻開過去、現在、未來三張偉特塔羅牌，作為自我省思的參考。',
+      '線上免費塔羅牌占卜，免註冊。先在心裡想好問題，洗牌、切牌後依序翻開三張偉特塔羅牌，分別對應過去、現在與未來。可逐張查看正位與逆位的傳統牌義，結果僅供參考。',
     'zh-Hans':
-      '免费三张牌塔罗：洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，作为自我省思的参考。',
-    ko: '무료 쓰리 카드 타로: 셔플하고 컷한 뒤 과거·현재·미래 세 장의 라이더–웨이트 카드를 펼쳐 보세요. 성찰용입니다.',
+      '免费塔罗占卜，不用注册：默念问题后洗牌、切牌，翻开过去、现在、未来三张伟特塔罗牌，每张附正逆位牌义与关键词；只想问一件事，也可以改抽每日一张。仅供参考。',
+    ko: '회원가입 없이 무료 타로를 보세요. 질문을 떠올리고 카드를 섞어 나눈 뒤 과거·현재·미래 카드 세 장을 뒤집으세요. 전통 타로의 정방향·역방향 풀이는 참고용입니다.',
     es: 'Tarot gratis de 3 cartas: baraja, corta y descubre pasado, presente y futuro con el mazo Rider–Waite. Solo como referencia para reflexionar.',
     ja: '無料のタロット占い。スリーカードで過去・現在・未来の3枚を引き、ライダー版の絵柄とキーワードで今の悩みを整理します。結果は参考としてご覧ください。',
   },
@@ -144,11 +145,17 @@ const DESCRIPTIONS: Readonly<Record<SpreadId, Readonly<Record<TarotLocale, strin
 
 /**
  * 牌阵页的 SEO 标题（不含站名）：默认与导航名称相同；关键词地图另定 Title 的语言在这里登记
- * （ja：使用者 2026-11-20 批准的关键词地图 ja.md §4–7；es：关键词地图 es）。
+ * （ja：使用者 2026-11-20 批准的关键词地图 ja.md §4–7；es：关键词地图 es；三张牌入口页的 en、zh、ko：
+ * content-growth-phase1 决策 6）。
  */
 const SEO_TITLES: Readonly<Record<SpreadId, Readonly<Partial<Record<TarotLocale, string>>>>> =
   localeText({
     'three-card': {
+      // en、zh、ko：content-growth-phase1 决策 6（主词在 Title 开头，三张牌作副词）
+      en: 'Free Tarot Reading: Past, Present and Future',
+      'zh-Hant': '免費塔羅牌占卜｜線上抽三張牌，依傳統牌義解讀',
+      'zh-Hans': '免费塔罗占卜：三张牌看过去、现在与未来',
+      ko: '무료 타로 | 쓰리 카드로 보는 과거·현재·미래',
       es: 'Tarot gratis: pasado, presente y futuro',
       ja: '無料タロット占い｜スリーカードで過去・現在・未来',
     },

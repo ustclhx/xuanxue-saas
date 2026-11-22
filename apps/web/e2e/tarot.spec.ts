@@ -33,7 +33,9 @@ async function resultCards(page: Page) {
 test('英语三张牌：模板填入问题，键盘逐张翻牌，分享链接复现同一组牌', async ({ page, baseURL }) => {
   const west = site(baseURL, 'west')
   await page.goto(`${west}/tarot`)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Free Three-Card Tarot')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Free Tarot Reading: Three-Card Spread',
+  )
   // 首屏不加载牌面图片
   await expect(page.locator('img[src^="/tarot/"]')).toHaveCount(0)
   await hydrated(page)
@@ -113,14 +115,14 @@ for (const { locale, path, shuffle, title, positions } of [
     locale: 'zh-hant',
     path: '/塔羅',
     shuffle: /^洗牌$/,
-    title: '免費三張牌塔羅',
+    title: '免費塔羅牌占卜・三張牌陣',
     positions: ['過去', '現在', '未來'],
   },
   {
     locale: 'ko',
     path: '/타로',
     shuffle: /^카드 셔플$/,
-    title: '무료 쓰리 카드 타로',
+    title: '무료 타로 – 쓰리 카드 리딩',
     positions: ['과거', '현재', '미래'],
   },
 ]) {

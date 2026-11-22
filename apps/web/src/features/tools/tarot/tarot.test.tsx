@@ -112,7 +112,7 @@ describe('TarotSpreadPage', () => {
 
   it('服务端输出 H1、收起的问句模板、正文内的牌阵与牌义索引链接、不能问的问题、牌位说明与 FAQ', () => {
     const html = render('three-card')
-    expect(html).toMatch(/<h1[^>]*>Free Three-Card Tarot<\/h1>/)
+    expect(html).toMatch(/<h1[^>]*>Free Tarot Reading: Three-Card Spread<\/h1>/)
     // 问句模板收在 <details> 里（默认收起），页面上只有「洗牌」一个主按钮
     const templates = html.slice(html.indexOf('<details'), html.indexOf('</details>'))
     expect(templates).not.toContain('<details open')
