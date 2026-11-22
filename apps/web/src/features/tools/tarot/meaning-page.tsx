@@ -27,8 +27,11 @@ import { majorNumeral, type RelatedRole, relatedAnchorIsShort, relatedCards } fr
 import { type TarotLocale, tarotPath, tarotTitle } from './routes.ts'
 import { SpreadTable } from './table.tsx'
 
-/** 复用牌阵的加密抽牌、预取、键盘翻牌与 reduced-motion 展示；正文里的一个面板（设计稿 `.obj.try`）。 */
-export function TryOneCard({ locale }: { locale: TarotLocale }) {
+/**
+ * 复用牌阵的加密抽牌、预取、键盘翻牌与 reduced-motion 展示；正文里的一个面板（设计稿 `.obj.try`）。
+ * `intro` 是逐牌撰写的说明（frontmatter `try_prompt`）；缺失时用通用句 tarot_meaning_try_intro。
+ */
+export function TryOneCard({ locale, intro }: { locale: TarotLocale; intro?: string | undefined }) {
   const [card, setCard] = useState<DrawnCard | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [hydrated, setHydrated] = useState(false)
@@ -58,7 +61,7 @@ export function TryOneCard({ locale }: { locale: TarotLocale }) {
           <h2 id="tarot-try-title" className="m-0 font-heading text-ink text-subtitle">
             {m.tarot_meaning_try()}
           </h2>
-          <p className="m-0 text-body text-ink-muted">{m.tarot_meaning_try_intro()}</p>
+          <p className="m-0 text-body text-ink-muted">{intro ?? m.tarot_meaning_try_intro()}</p>
         </div>
         <button
           type="button"
@@ -159,7 +162,16 @@ function groupLabel(card: Card): string {
  * 每条为「小字说明 / 链接 / 一句描述」。锚文本为「<牌名> tarot card meaning」（各语言见 tarot_meaning_link），
  * 每张目标牌的一半来源改用牌义索引的「<牌名> Tarot」（tarot_index_link，pairings.ts relatedAnchorIsShort）。
  */
-function RelatedMeanings({ card, locale }: { card: Card; locale: TarotLocale }) {
+function RelatedMeanings({
+  card,
+  locale,
+  note,
+}: {
+  card: Card
+  locale: TarotLocale
+  /** 逐牌撰写的说明（frontmatter `related_note`，只是文字、不含链接）；缺失时用通用句 */
+  note?: string | undefined
+}) {
   const { track } = useTool()
   const major = card.suit === 'major'
   const name = CARD_MEANINGS[locale][card.id]?.name ?? card.slug
@@ -170,7 +182,8 @@ function RelatedMeanings({ card, locale }: { card: Card; locale: TarotLocale }) 
           {m.tarot_meaning_related()}
         </h2>
         <p className="m-0 text-body text-ink-muted">
-          {major ? m.tarot_related_intro_major({ name }) : m.tarot_related_intro_minor({ name })}
+          {note ??
+            (major ? m.tarot_related_intro_major({ name }) : m.tarot_related_intro_minor({ name }))}
         </p>
       </div>
       <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 sm:gap-x-10 sm:gap-y-5">
@@ -231,7 +244,8 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
             >
               {content.heading ?? content.title}
             </h1>
-            <p className="m-0 text-body text-ink-muted">{content.description}</p>
+            {/* 导语：逐牌撰写的 lede；缺失时显示 meta description（东方站与 ja 沿用） */}
+            <p className="m-0 text-body text-ink-muted">{content.lede ?? content.description}</p>
           </header>
           <section
             aria-label={`${m.tarot_facts_label({ name })} · ${m.tarot_meaning_gallery()}`}
@@ -282,8 +296,8 @@ export function TarotMeaningArticle({ content }: { content: TarotMeaningPage }) 
           <article className="max-w-180 text-ink-muted">
             <RichContent html={body} className={articleProse} />
           </article>
-          <TryOneCard locale={locale} />
-          <RelatedMeanings card={card} locale={locale} />
+          <TryOneCard locale={locale} intro={content.try_prompt} />
+          <RelatedMeanings card={card} locale={locale} note={content.related_note} />
           <ToolFaq items={faqItems(content.faq)} />
           <LinkBand
             link={{
