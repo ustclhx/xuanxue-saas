@@ -1,0 +1,204 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-22T12:00:00Z"
+ },
+ "title": "content-growth-phase2",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3800,
+   "title": "ZodiacHub · /zh-hans/生肖 · 桌面 1440 · 浅色"
+  },
+  "ZodiacHubMobile.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 5700,
+   "title": "ZodiacHubMobile · 手机 390 · 浅色"
+  },
+  "ZodiacPage.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 1440,
+   "h": 5500,
+   "title": "ZodiacPage · /zh-hans/生肖/属马 · 桌面 1440 · 浅色"
+  },
+  "ZodiacPageMobile.dc.html": {
+   "x": 3510,
+   "y": 0,
+   "w": 390,
+   "h": 8300,
+   "title": "ZodiacPageMobile · 手机 390 · 浅色"
+  },
+  "ZodiacPageDark.dc.html": {
+   "x": 3980,
+   "y": 0,
+   "w": 1440,
+   "h": 5500,
+   "title": "ZodiacPageDark · 桌面 1440 · 深色"
+  },
+  "ZodiacPageMobileDark.dc.html": {
+   "x": 5500,
+   "y": 0,
+   "w": 390,
+   "h": 8300,
+   "title": "ZodiacPageMobileDark · 手机 390 · 深色"
+  },
+  "ZodiacPageKoMobile.dc.html": {
+   "x": 5970,
+   "y": 0,
+   "w": 390,
+   "h": 7200,
+   "title": "ZodiacPageKoMobile · /ko/띠/쥐띠 · 手机 390 · 浅色"
+  },
+  "ZodiacStates.dc.html": {
+   "x": 6440,
+   "y": 0,
+   "w": 1330,
+   "h": 1500,
+   "title": "ZodiacStates · 异常态 · 手机 390 · 浅色"
+  },
+  "AlmanacTool.dc.html": {
+   "x": 0,
+   "y": 8900,
+   "w": 1440,
+   "h": 4700,
+   "title": "AlmanacTool · /zh-hans/黄历 · 桌面 1440 · 浅色"
+  },
+  "AlmanacToolMobile.dc.html": {
+   "x": 1520,
+   "y": 8900,
+   "w": 390,
+   "h": 6900,
+   "title": "AlmanacToolMobile · 手机 390 · 浅色"
+  },
+  "AlmanacToolDark.dc.html": {
+   "x": 1990,
+   "y": 8900,
+   "w": 1440,
+   "h": 4700,
+   "title": "AlmanacToolDark · 桌面 1440 · 深色"
+  },
+  "AlmanacToolMobileDark.dc.html": {
+   "x": 3510,
+   "y": 8900,
+   "w": 390,
+   "h": 6900,
+   "title": "AlmanacToolMobileDark · 手机 390 · 深色"
+  },
+  "AlmanacToolStates.dc.html": {
+   "x": 3980,
+   "y": 8900,
+   "w": 1330,
+   "h": 6900,
+   "title": "AlmanacToolStates · 日期查询态、加载中、错误态 · 手机 390 · 浅色"
+  },
+  "AlmanacMonth.dc.html": {
+   "x": 0,
+   "y": 16500,
+   "w": 1440,
+   "h": 4900,
+   "title": "AlmanacMonth · /zh-hans/黄历/11月 · 桌面 1440 · 浅色"
+  },
+  "AlmanacMonthMobile.dc.html": {
+   "x": 1520,
+   "y": 16500,
+   "w": 390,
+   "h": 9600,
+   "title": "AlmanacMonthMobile · 手机 390 · 浅色"
+  },
+  "AlmanacMonthMobileDark.dc.html": {
+   "x": 1990,
+   "y": 16500,
+   "w": 390,
+   "h": 9600,
+   "title": "AlmanacMonthMobileDark · 手机 390 · 深色"
+  },
+  "EastNavVariant.dc.html": {
+   "x": 2460,
+   "y": 16500,
+   "w": 1440,
+   "h": 2500,
+   "title": "EastNavVariant · 页头导航三个方案（待使用者决定）"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "ZodiacHubMobile.dc.html",
+  "ZodiacPage.dc.html",
+  "ZodiacPageMobile.dc.html",
+  "ZodiacPageDark.dc.html",
+  "ZodiacPageMobileDark.dc.html",
+  "ZodiacPageKoMobile.dc.html",
+  "ZodiacStates.dc.html",
+  "AlmanacTool.dc.html",
+  "AlmanacToolMobile.dc.html",
+  "AlmanacToolDark.dc.html",
+  "AlmanacToolMobileDark.dc.html",
+  "AlmanacToolStates.dc.html",
+  "AlmanacMonth.dc.html",
+  "AlmanacMonthMobile.dc.html",
+  "AlmanacMonthMobileDark.dc.html",
+  "EastNavVariant.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "生肖 · /zh-hans/生肖、/zh-hans/生肖/属马、/ko/띠/쥐띠",
+   "kind": "title1",
+   "maxW": 7770
+  },
+  "t2": {
+   "x": 0,
+   "y": 8600,
+   "text": "黄历工具 · /zh-hans/黄历",
+   "kind": "title1",
+   "maxW": 5310
+  },
+  "t3": {
+   "x": 0,
+   "y": 16200,
+   "text": "黄历月份页 · /zh-hans/黄历/11月　与　页头导航方案",
+   "kind": "title1",
+   "maxW": 3900
+  },
+  "n1": {
+   "x": -640,
+   "y": 0,
+   "w": 560,
+   "fill": "gray",
+   "text": "范围：OpenSpec change「content-growth-phase2」任务 3.1，design 决策 10 第一批，共 17 块画板。视觉为方向 C · 素（Graphite，2026-11-17 确认），东方站强调色松绿；简中画板用 Noto Sans SC，韩文画板用 Noto Sans KR。版式沿用已确认的 warm-refresh 稿：工具页（面包屑 → H1 与导语 → 表单 → 结果 → 长文 → FAQ）、每日页的宜忌与三柱、数字枢纽页的下级列表、相关区块 LinkCardGrid。\n\n状态矩阵：\n· 生肖枢纽：桌面浅色、手机浅色（两块；深色可在画板 Tweaks 里把 theme 切到 east-dark）。\n· 生肖子页（属马）：桌面 / 手机 × 浅色 / 深色四块，另有韩文子页手机浅色。\n· 生肖异常态（手机浅色）：流年缺撰写文字的降级、属相查询日期非法、超出范围。\n· 黄历工具：四块正常态；状态板含日期查询态（?date=）、加载中、错误态。\n· 月份页：桌面浅色、手机浅色、手机深色。\n\n不适用的状态：生肖页与月份页没有空态与加载态。生肖页是构建期预渲染的静态页，属相查询在浏览器本地比较日期，没有网络请求；月份页由服务端渲染整页，数据来自引擎计算，不查数据库，不会出现空数据或单独的加载过程。月份页请求失败时走站点通用错误页（已确认，不在本稿）。"
+  },
+  "n2": {
+   "x": -640,
+   "y": 820,
+   "w": 560,
+   "fill": "orange",
+   "text": "token / 组件变更提议（请确认）\n\n新 token：无。颜色、字号、圆角、间距全部取自现有 token（--line-strong 已在 brand.css）。\n\n组件：\n1. 新增 project 组件 FactTable（packages/ui/src/project）：公开页的事实表。surface 圆角底、表头小字加 line-strong 底线、行间 line 细线、当前行 surface-2。带 stack 选项：手机上每行改成两列小卡，不横向滚动。用在年份对照表、地支关系表、十二生肖总表、月份逐日表。现有 DataTable 是后台列表，Prose 没有表格样式，所以单列为新组件。第 10 组概念页的 MDX 表格可以复用同一套样式。\n2. 月份页手机端的「每日卡片」与黄历工具的四个说明块：用现有 surface 对象（Card）在页面内组合，不新增共享组件。\n3. 「另 N 项」展开：原生 <details>，样式同现有链接，不新增组件。\n4. 日期输入：沿用现有年 / 月 / 日分段 DateField（稿中画成单个输入框）；「前一天」「后一天」为现有次要按钮。\n5. 相关区块、相邻月份、面包屑：现有 LinkCardGrid、SeriesNav、Breadcrumb。\n\n合规小字：本批页面的结果区与页脚小字不含「AI」「娱乐」，写作「依据传统历法与命理方法推算，仅供参考与潜意识探索，不预测未来」。全站页脚现有文案是否同步修改不在本稿范围。"
+  },
+  "n3": {
+   "x": -640,
+   "y": 1640,
+   "w": 560,
+   "fill": "blue",
+   "text": "需要使用者决定\n\n1. 页头导航（EastNavVariant 画板，第三行最右）：A 不改，入口只靠正文与相关区块；B 页头直接加「黄历」「生肖」两项；C 页头不变，把两项收进「排盘工具」下拉与手机菜单的分组里。设计建议 C：全站仍有入口，页头保持 5 项，韩文站（只有 띠）与繁中站（两项都没有）不会出现各语言页头项数不同。\n2. 年份对照表在手机上的做法：稿中用「每年一张小卡」的分组列表，不横向滚动。另一做法是保留表格并横向滚动。\n3. 月份逐日表按引擎原始顺序截取前 4 项宜、前 3 项忌。引擎顺序里纳采、订盟、嫁娶常排在最前，所以这几项会经常出现在可见部分。稿中保持原样，不调序、不突出。\n4. design 决策 11 的月份页 Title 草案含「黄道吉日」；每日页的合规词表不允许「吉日」。稿中 H1 写作「每日宜忌一览」，不含该词。Title 是否保留「黄道吉日」请裁定。\n5. 隐藏医疗、法律与断语类词条后，个别日子的宜或忌会是空的（例如 2027-02-04 的忌只有「诸事不宜」）。稿中显示「当日没有可显示的词条」。\n6. 黑道日的说明写法：稿中只说明「十二神分黄道六神与黑道六神」这一分类，不写好坏结论。"
+  },
+  "n4": {
+   "x": -640,
+   "y": 2460,
+   "w": 560,
+   "fill": "gray",
+   "text": "示例数据\n\n以下数字由仓库引擎（tyme4ts 1.5.3，北京时间）于 2026-11-22 实算，时刻取到分钟、不进位：\n· 2026-11-22：庚子日，农历十月十四，除日，白虎（黑道），冲马煞南，小雪 15:23 交节；年柱丙午、月柱己亥。宜忌为引擎结果去掉求医、治病两项后的全部词条。\n· 2026 年 11 月 1–10、22、23 日的逐日数据；立冬 11-07 17:52；11-06 与 11-07 同为开日；11-09 为十月初一。\n· 2027-02-04：甲寅日，建日，天刑（黑道），冲猴煞北，立春 09:46。\n· 马年 1930–2038 与鼠年 1984–2032 的干支、纳音、立春时刻、春节日期；2025 年立春 2-03 22:10、春节 1-29。\n\n未核实、实现时须复算：\n· 韩文页的立春时刻是北京时间加 1 小时得到的（1984 年因此落在 2 月 5 日 00:18）；설날日期直接取引擎的春节日期，个别年份韩国历与中国历可能差一天。\n· 만 나이按 2026-11-22 推算。\n· 纳音的韩文写法（벽상토、벽력화、간하수、해중금、상자목）。\n· 引擎支持的日期范围：错误态里写成占位。\n\n方括号内的文字是占位。正文为示意文案，篇幅远短于上线稿（上线稿另行撰写与审阅）；各页正文内链 2–5 条已按 design 决策 12 摆放。逐日表只画 12 天，其余日子同版式。"
+  }
+ },
+ "designSystems": []
+}

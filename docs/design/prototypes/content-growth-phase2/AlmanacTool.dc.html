@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>黄历工具页</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主导航">
+<a href="EastNavVariant.dc.html">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#al-top">每日运势</a>
+<a href="#al-top">定价</a>
+<a href="#footer">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登录</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主导航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+
+<main class="wrap tool-main" id="al-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><span>黄历</span></nav>
+<h1 class="t-title">黄历查询</h1>
+<p class="muted">选择任意一天，查看当天的干支、农历、宜忌、建除十二值星、黄道黑道、冲煞与所在节气。每一项下面附有它在传统通书里的含义。</p>
+</div>
+
+<form class="obj raise tool-form" aria-label="选择日期" style="display: flex; flex-direction: column; gap: 12px">
+<div class="datebar">
+<div class="field">
+<div class="field-top"><label class="label" for="al-date">日期（公历）</label></div>
+<input class="{{inputCls}}" id="al-date" type="text" value="{{d.dateInput}}">
+</div>
+<button type="button" class="btn btn-secondary">前一天</button>
+<button type="button" class="btn btn-secondary">后一天</button>
+<button type="button" class="btn btn-primary">查询</button>
+</div>
+<sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+<p class="err" role="alert"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5v.2"/></svg>这个日期不存在，或超出可查询范围（[引擎支持的起止年份]）。</p>
+</sc-if>
+<p class="hint">按北京时间 0:00 换日。结果对所有人相同，不需要输入生日。</p>
+</form>
+
+<sc-if value="{{isResult}}" hint-placeholder-val="{{true}}">
+<section class="result" aria-label="当日黄历" style="max-width: 760px">
+
+<div class="stack" style="gap: 12px">
+<p class="t-caption subtle rowline"><span>{{d.caption}}</span><sc-if value="{{isToday}}" hint-placeholder-val="{{true}}"><span class="tag">今天</span></sc-if></p>
+<h2 class="t-title">{{d.h}}</h2>
+<div class="trio" style="width: 100%; max-width: 360px">
+<div class="pillar"><span class="t-caption subtle">年</span><span class="gz">{{d.year}}</span></div>
+<div class="pillar"><span class="t-caption subtle">月</span><span class="gz">{{d.month}}</span></div>
+<div class="pillar on"><span class="t-caption subtle">日</span><span class="gz">{{d.day}}</span></div>
+</div>
+<sc-if value="{{isQuery}}" hint-placeholder-val="{{false}}">
+<p class="muted rowline"><span>这是所选日期的结果。</span><a class="link" href="AlmanacTool.dc.html">回到今天</a></p>
+</sc-if>
+</div>
+
+<div class="yiji">
+<div>
+<h3 class="t-heading">宜</h3>
+<p>{{d.yi}}</p>
+</div>
+<div>
+<h3 class="t-heading">忌</h3>
+<sc-if value="{{hasJi}}" hint-placeholder-val="{{true}}"><p>{{d.ji}}</p></sc-if>
+<sc-if value="{{noJi}}" hint-placeholder-val="{{false}}"><p class="subtle">当日没有可显示的词条。</p></sc-if>
+</div>
+</div>
+
+<div class="tiles">
+<div class="tile">
+<p class="t-caption subtle">建除十二值星</p>
+<p class="v">{{d.duty}}</p>
+<p class="muted">[本值星的传统含义，取自现有每日规则文案]</p>
+</div>
+<div class="tile">
+<p class="t-caption subtle">黄道黑道（十二神）</p>
+<p class="v"><span>{{d.star}}</span><span class="badge">{{d.ecliptic}}</span></p>
+<p class="muted">{{d.starGloss}}</p>
+</div>
+<div class="tile">
+<p class="t-caption subtle">冲煞</p>
+<p class="v">{{d.chong}}</p>
+<p class="muted">{{d.chongGloss}}</p>
+</div>
+<div class="tile">
+<p class="t-caption subtle">节气</p>
+<p class="v">{{d.term}}</p>
+<p class="muted">{{d.termNote}}</p>
+</div>
+</div>
+
+<div class="stack" style="gap: 4px; align-items: flex-start">
+<button type="button" class="btn btn-secondary">复制当日链接</button>
+<p class="t-caption subtle">链接带有所选日期，打开后看到同一天的结果。</p>
+</div>
+
+<p class="disc">依据传统历法推算，仅供参考与潜意识探索，不预测未来。健康相关问题请咨询专业医师。</p>
+</section>
+</sc-if>
+
+<sc-if value="{{isLoading}}" hint-placeholder-val="{{false}}">
+<section class="result" aria-label="正在计算" aria-busy="true" style="max-width: 760px">
+<p class="t-caption subtle">正在计算 {{d.dateInput}} …</p>
+<span class="sk" style="width: 160px; height: 38px"></span>
+<span class="sk" style="width: 100%; max-width: 360px; height: 104px"></span>
+<div class="cols2"><span class="sk" style="height: 148px; border-radius: var(--radius-md)"></span><span class="sk" style="height: 148px; border-radius: var(--radius-md)"></span></div>
+<div class="tiles"><span class="sk" style="height: 132px; border-radius: var(--radius-md)"></span><span class="sk" style="height: 132px; border-radius: var(--radius-md)"></span><span class="sk" style="height: 132px; border-radius: var(--radius-md)"></span><span class="sk" style="height: 132px; border-radius: var(--radius-md)"></span></div>
+</section>
+</sc-if>
+
+<sc-if value="{{isError}}" hint-placeholder-val="{{false}}">
+<section class="result" aria-label="无法显示" style="max-width: 760px">
+<div class="alert"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4M10 13.5v.2"/></svg><p>无法显示这一天的黄历。请检查日期后重新查询。</p></div>
+<a class="link" href="AlmanacTool.dc.html">回到今天</a>
+</section>
+</sc-if>
+
+<article class="article" aria-labelledby="al-a1">
+<h2 class="t-title" id="al-a1" style="margin-top: 0">黄历上的每一项是什么</h2>
+<p>[示意文案，上线稿另行撰写] 黄历又叫通书、老黄历，是把历法与一套查表规则合在一起的传统日用书。下面按页面上的顺序说明每一项的来历。</p>
+<h3 class="t-heading">宜与忌</h3>
+<p>宜忌按当天的月建与日干支查表得出，同一天所有人相同。词条是古代生活里的事项，如祭祀、出行、动土、开市，今天多用来了解传统习俗。本页不显示医疗、诉讼类词条，也不显示断语式的词条。</p>
+<h3 class="t-heading">建除十二值星</h3>
+<p>十二值星依次是建、除、满、平、定、执、破、危、成、收、开、闭，按月建起排，每天一位。交节当天重复前一天的值星。</p>
+<h3 class="t-heading">黄道与黑道</h3>
+<p>十二神是青龙、明堂、天刑、朱雀、金匮、天德、白虎、玉堂、天牢、玄武、司命、勾陈，每天一位。青龙、明堂、金匮、天德、玉堂、司命称为黄道六神，其余六位称为黑道六神。这是通书里的分类，本页只标出当天是哪一位。</p>
+<h3 class="t-heading">冲煞</h3>
+<p>「冲」指与当天日支相冲的地支及其生肖，例如子日冲马。「煞」是按日支所在的三合局推出的方位：申子辰日煞南，寅午戌日煞北，亥卯未日煞西，巳酉丑日煞东。流年地支与太岁的说法见<a class="il" href="#al-top">太岁</a>。</p>
+<h3 class="t-heading">节气</h3>
+<p>二十四节气按太阳位置划分，交节时刻精确到分钟。月建在十二个「节」处更换，所以交节前后的月柱与建除会变。整月的逐日对照见<a class="il" href="AlmanacMonth.dc.html">11月黄历</a>与<a class="il" href="AlmanacMonth.dc.html">12月黄历</a>；想把当天的干支与自己的四柱对照，可以用<a class="il" href="#al-top">八字排盘</a>。</p>
+</article>
+
+<section class="secblk" aria-labelledby="al-months">
+<h2 class="t-title" id="al-months">按月份查看</h2>
+<p>每个月份页列出当月每天的干支、建除、黄道黑道、冲煞与宜忌，以及当月两个节气的交节时刻。</p>
+<nav class="mgrid" aria-label="月份">
+<a href="AlmanacMonth.dc.html">1月</a><a href="AlmanacMonth.dc.html">2月</a><a href="AlmanacMonth.dc.html">3月</a><a href="AlmanacMonth.dc.html">4月</a><a href="AlmanacMonth.dc.html">5月</a><a href="AlmanacMonth.dc.html">6月</a><a href="AlmanacMonth.dc.html">7月</a><a href="AlmanacMonth.dc.html">8月</a><a href="AlmanacMonth.dc.html">9月</a><a href="AlmanacMonth.dc.html">10月</a><a class="on" href="AlmanacMonth.dc.html" aria-current="true">11月</a><a href="AlmanacMonth.dc.html">12月</a>
+</nav>
+</section>
+
+<section aria-labelledby="al-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="al-faq">常见问题</h2></div>
+<div class="faq">
+<details open>
+<summary>黄历和农历是一回事吗？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>不是。农历是纪日的历法，告诉你今天是几月初几。黄历在历法之上加了宜忌、建除、冲煞等查表内容。</p>
+</details>
+<details>
+<summary>这里的黄历按哪个时区换日？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>按北京时间 0:00 换日，节气时刻也是北京时间。</p>
+</details>
+<details>
+<summary>为什么有的日子「忌」是空的？<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>本页不显示医疗、诉讼类词条和断语式的词条。个别日子去掉这些之后，宜或忌里没有其他词条。</p>
+</details>
+</div>
+</section>
+
+</main>
+
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">通过命理工具与指南，认识传统智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="页脚">
+<a href="#footer">常见问题</a><a href="#footer">博客</a><a href="#footer">指南</a><a href="#footer">文档</a><a href="#footer">隐私政策</a><a href="#footer">服务条款</a><a href="#footer">退款政策</a><a href="#footer">免责声明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主题</span><div class="seg" role="group" aria-label="主题"><button type="button" class="is-light">浅色</button><button type="button" class="is-dark">深色</button><button type="button">跟随系统</button></div></div>
+<div class="set"><span class="t-caption subtle">语言</span><button type="button" class="select sm" aria-haspopup="listbox">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依据传统历法与命理方法推算，仅供参考与潜意识探索，不预测未来。健康相关问题请咨询专业医师。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有权利。</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["today","query","loading","error"],"default":"today"},"$preview":{"width":1440,"height":4700}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'today';
+const huang = '是黄道六神之一。';
+const hei = '是黑道六神之一。';
+const days = {
+today: {
+dateInput: '2026 年 11 月 22 日',
+caption: '2026 年 11 月 22 日 星期日 · 农历十月十四',
+h: '庚子日', year: '丙午', month: '己亥', day: '庚子',
+yi: '纳采、订盟、嫁娶、祭祀、祈福、求嗣、开光、出行、解除、进人口、开市、立券、挂匾、入宅、移徙、安门、栽种、动土、会亲友、起基、修造、盖屋、安葬',
+ji: '作灶、经络、安床',
+duty: '除日',
+star: '白虎', ecliptic: '黑道', starGloss: '白虎' + hei + '十二神每天一位，按月建起排。',
+chong: '冲马 · 煞南', chongGloss: '日支子与午相冲，午对应生肖马；子属申子辰水局，当日煞方在正南。',
+term: '小雪', termNote: '今天 15:23 交小雪。上一个节气是立冬（11 月 7 日 17:52）。'
+},
+query: {
+dateInput: '2027 年 2 月 4 日',
+caption: '2027 年 2 月 4 日 星期四 · 农历十二月廿八',
+h: '甲寅日', year: '丁未', month: '壬寅', day: '甲寅',
+yi: '裁衣、伐木、作梁、纳财、交易、立券',
+ji: '',
+duty: '建日',
+star: '天刑', ecliptic: '黑道', starGloss: '天刑' + hei + '十二神每天一位，按月建起排。',
+chong: '冲猴 · 煞北', chongGloss: '日支寅与申相冲，申对应生肖猴；寅属寅午戌火局，当日煞方在正北。',
+term: '立春', termNote: '当天 09:46 交立春，干支年由丙午转为丁未，月建由丑转寅。'
+},
+loading: { dateInput: '2026 年 12 月 1 日' },
+error: { dateInput: '2026 年 2 月 30 日' }
+};
+const d = days[state] || days.today;
+const isResult = state === 'today' || state === 'query';
+return {
+theme: theme,
+cls: 'xx hans' + (device === 'mobile' ? ' m' : ''),
+d: d,
+inputCls: state === 'error' ? 'input invalid' : 'input',
+isResult: isResult,
+isToday: state === 'today',
+isQuery: state === 'query',
+isLoading: state === 'loading',
+isError: state === 'error',
+hasJi: isResult && !!d.ji,
+noJi: isResult && !d.ji,
+huang: huang
+};
+}
+}
+</script>
+</body>
+</html>
