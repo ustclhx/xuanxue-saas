@@ -135,8 +135,11 @@ export function annualOf(year: number, natal: Branch): ZodiacAnnual | null {
 
 export interface ZodiacExample {
   readonly year: number
-  /** after：立春在春节之前（立春后、春节前出生两种口径不同）；before：春节在立春之前 */
-  readonly order: 'after' | 'before'
+  /**
+   * after：立春在春节之前（交节后、初一前出生两种口径不同）；before：春节在立春之前；
+   * same：同一天（初一零时起算，年柱在交节时更替）
+   */
+  readonly order: 'after' | 'before' | 'same'
   readonly lichun: MonthDayTime
   readonly newYear: MonthDay
   readonly previous: Branch
@@ -149,12 +152,11 @@ export function exampleOf(
 ): ZodiacExample | null {
   const row = [...rows].reverse().find((entry) => entry.year <= currentYear) ?? rows[0]
   if (!row) return null
-  const lichunFirst =
-    row.lichun.month < row.newYear.month ||
-    (row.lichun.month === row.newYear.month && row.lichun.day < row.newYear.day)
+  const lichun = row.lichun.month * 100 + row.lichun.day
+  const newYear = row.newYear.month * 100 + row.newYear.day
   return {
     year: row.year,
-    order: lichunFirst ? 'after' : 'before',
+    order: lichun < newYear ? 'after' : lichun > newYear ? 'before' : 'same',
     lichun: row.lichun,
     newYear: row.newYear,
     previous: BRANCHES[(branchIndexOf(row.branch) + 11) % 12] as Branch,

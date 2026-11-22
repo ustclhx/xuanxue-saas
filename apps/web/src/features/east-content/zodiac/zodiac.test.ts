@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { pageHead } from '../../seo/metadata.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { eastContentRouteOf } from '../routes.ts'
-import { annualOf, childFacts, hubFacts, relationsOf } from './data.ts'
+import { annualOf, childFacts, exampleOf, hubFacts, relationsOf, yearRows } from './data.ts'
 import { annualChips } from './labels.ts'
 import { lookupZodiac } from './lookup.ts'
 import { AnnualCard } from './pages.tsx'
@@ -59,12 +59,18 @@ describe('年份表与引擎一致', () => {
     })
     expect(facts.annual.map((entry) => entry.year)).toEqual([2026, 2027])
     expect(annualChips(facts.annual[0] as NonNullable<(typeof facts.annual)[0]>, 'wu')).toEqual([
-      '值太岁（本命年）',
+      '值太岁',
       '午午自刑',
     ])
     expect(annualChips(facts.annual[1] as NonNullable<(typeof facts.annual)[1]>, 'wu')).toEqual([
       '午未六合',
     ])
+  })
+
+  it('核对示例：立春与春节同日（2038 戊午）单独说明，2025 乙巳为春节先到', () => {
+    expect(exampleOf(yearRows('wu'), 2038)).toMatchObject({ year: 2038, order: 'same' })
+    expect(exampleOf(yearRows('si'), 2026)).toMatchObject({ year: 2025, order: 'before' })
+    expect(exampleOf(yearRows('wu'), 2026)).toMatchObject({ year: 2026, order: 'after' })
   })
 
   it('关系表：午与未六合、寅午戌三合、子午冲、午自刑、丑午害', () => {

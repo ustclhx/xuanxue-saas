@@ -56,7 +56,7 @@
 
 - [x] 4.1 在 `content-collections.ts` 新建 `zodiac` 集合，schema 含 `branch`、`slug`、`years_note`、`relations_note`、`annual`（以干支为键）、`faq`。新建 `features/east-content/zodiac/`：子页与枢纽组件、年份表、关系表、「本年与次年」区块（缺少 `annual` 时只列关系名），以及枢纽的属相查询小工具（用 `zodiacBoundaries()`，客户端不加载 tyme4ts）。在 `east-content/routes.ts` 登记 zh-hans 地址；注册表加枢纽与子页条目（导航按 3.1 的结论）；构建期预渲染。单测覆盖：年份表与引擎一致、立春前出生的提示、缺 `annual` 的降级、hreflang 只含已发布语言
 - [x] 4.2 Claude 子代理撰写 `content/zodiac/zh-Hans/` 的 `index.mdx` 与 12 篇：按 design 决策 4 的段落结构与决策 11 的 TDK 草案定稿；子页正文 ≥1,500 字，枢纽页 ≥1,000 字；`annual` 写丙午、丁未两年。遵守「约束」，关系段只写一般规则。所有干支、日期、纳音由引擎复算并通过校验
-- [ ] 4.3 Codex 做 zh-hans 事实与合规审阅，意见与处理记录存证据目录
+- [x] 4.3 Codex 做 zh-hans 事实与合规审阅，意见与处理记录存证据目录
 - [x] 4.4 验收：
   - 组内相似度 `--enforce zh-Hans` 通过（各段 ≤0.30）；
   - 长度下限、TDK 长度通过；

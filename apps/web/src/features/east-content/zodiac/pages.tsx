@@ -323,7 +323,9 @@ export function ZodiacChildPage({ page }: { page: ZodiacChildData }) {
           <p className={noteBox}>
             {(example.order === 'after'
               ? m.zodiac_years_example_after
-              : m.zodiac_years_example_before)({
+              : example.order === 'same'
+                ? m.zodiac_years_example_same
+                : m.zodiac_years_example_before)({
               year: example.year,
               lichun: monthDayTime(example.lichun),
               newYear: monthDay(example.newYear),
