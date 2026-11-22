@@ -61,4 +61,5 @@
 
 - [x] 7.1 main 生产构建后运行 `measure-locale-similarity --site west --enforce en,es`（组件段全部 ≤0.30）与 `--site east`。报告与 design.md 基线对比后存证据目录
 - [x] 7.2 main 上运行 `check:links`、`audit:seo`、`check:i18n-seo`，全部通过且孤岛、死链为 0；核对关键词归属表与线上 Title、H1 一致
-- [ ] 7.3 随统一发版上 staging，抽查 `/tarot`、`/numerology`、`/es/numerologia`、`/blog` 的 TDK 与 robots；生产发版需使用者授权。站点地图重提与请求编入索引并入全部工作完成后交给 Grok bot 的清单（不在本 change 内执行）
+- [x] 7.3 随统一发版上 staging，抽查 `/tarot`、`/numerology`、`/es/numerologia`、`/blog` 的 TDK 与 robots；生产发版需使用者授权。站点地图重提与请求编入索引并入全部工作完成后交给 Grok bot 的清单（不在本 change 内执行）
+  - 已完成：v0.1.36 通过 staging（Deploy staging success）与生产发版；生产抽查四页均 200、标题与描述符合预期，`/blog` 为 `noindex, follow`，其余可索引。证据：`/Users/hxlee/workspace/xuanxue-saas-evidence/content-growth/phase1/7-integration/release-v0.1.36-spotcheck.txt`
