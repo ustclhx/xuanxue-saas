@@ -1,0 +1,79 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-22T09:00:00Z"
+ },
+ "title": "Arcanumber /numerology intro page",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 5600,
+   "title": "/numerology · desktop 1440 · Dark · result"
+  },
+  "NumIntroMobile.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 9000,
+   "title": "/numerology · mobile 390 · Light · result"
+  },
+  "NumIntroMobileDark.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 390,
+   "h": 9000,
+   "title": "/numerology · mobile 390 · Dark · result"
+  },
+  "NumIntroInitial.dc.html": {
+   "x": 2460,
+   "y": 0,
+   "w": 390,
+   "h": 9000,
+   "title": "/numerology · mobile 390 · Light · initial (before calculating)"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "NumIntroMobile.dc.html",
+  "NumIntroMobileDark.dc.html",
+  "NumIntroInitial.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "/numerology · What Is Numerology? The Core Numbers, Explained（Arcanumber · en）",
+   "kind": "title1",
+   "maxW": 2850
+  },
+  "n1": {
+   "x": 2930,
+   "y": 0,
+   "w": 520,
+   "fill": "gray",
+   "text": "版式与状态：套用已确认的数字命理枢纽页版式（warm-refresh/NumHub，2026-11-19 确认）：面包屑 → H1 与导语 → 内嵌 Life Path 计算器与结果（首屏出结果）→ 长文 → FAQ → 页尾转化条。本页只多一块：FAQ 之后的「Related」相关区块（7 个计算器）。\n\n画板：桌面 1440 深色、手机 390 浅色、手机 390 深色为正常态（已计算出结果）；第四块为初始态（未输入，显示样例日期的结果与「This is an example」提示）。桌面浅色可在第一块画板的 Tweaks 里把 theme 切到 west-light 查看。\n\n加载态、错误态不适用：本页是纯静态页，计算在浏览器本地完成，没有网络请求；日期无效时沿用计算器已有的字段内错误提示（已在 ToolLifePath 稿中确认），本页不新增。"
+  },
+  "n2": {
+   "x": 2930,
+   "y": 780,
+   "w": 520,
+   "fill": "orange",
+   "text": "token / 组件变更提议：无。没有新颜色、新字号或新组件。\n\n请确认的三处（都用现有组件）：\n1. 相关区块用 @xuanxue/ui 的 LinkCardGrid（标题「Related」，桌面 3 列、手机单列），7 张卡片排成 3 + 3 + 1。卡片带一行说明（LinkCard 已有的 description）；不要说明时只留标题。\n2. 页尾转化条（指向 Numerology calculator）与相关区块里的同一链接重复。稿中保留转化条以与枢纽页一致；第一块画板 Tweaks 的 band 可关掉对比。\n3. 结果卡与页脚的合规小字在本稿中不含「AI」字样：「Calculated with traditional methods. For reference and self-reflection only; it does not predict the future. For health questions, consult a medical professional.」NumHub 稿中的旧句带有 AI 一词，本页按 content-growth-phase1 的合规要求不沿用。"
+  },
+  "n3": {
+   "x": 2930,
+   "y": 1560,
+   "w": 520,
+   "fill": "gray",
+   "text": "示例数据：全部为虚构。计算器结果态用 1990-05-15 → Life Path 3（仓库样例）；初始态用计算器默认样例 1987-11-29 → 11（大师数）；正文算例为虚构人物 Morgan Avery Lee，1994-08-23 → Life Path 9。算式实现时须由引擎复算。\n\n正文为示意文案，篇幅短于上线稿（上线稿 ≥ 1,000 词，另行撰写与审阅）。正文内链 4 条（life path number calculator、numerology calculator、name numerology、life path compatibility），都在「Which calculator to start with」一节；相关区块的 7 条不计入正文上限。\n\n结果卡沿用现有 LifePathCard（数字环、摘要、数字页链接、计算步骤、分享链接）；日期输入实现为现有的年 / 月 / 日分段 DateField，稿中按 ToolLifePath 稿画成单个输入框。"
+  }
+ },
+ "designSystems": []
+}

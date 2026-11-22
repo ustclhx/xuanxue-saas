@@ -1,0 +1,18 @@
+/* /numerology 入门页画布补充样式：只用 site.css / pages.css 已有 token。
+   相关区块对应 @xuanxue/ui 的 LinkCardGrid / LinkCard（card 底 = --surface，外框 = --line，桌面 3 列、手机单列）。 */
+.xx .relsec{display:flex;flex-direction:column;gap:12px}
+.xx .relgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.xx.m .relgrid{grid-template-columns:minmax(0,1fr);gap:10px}
+.xx .relgrid li{display:flex;min-width:0}
+.xx a.relcard{display:flex;flex-direction:column;gap:6px;width:100%;min-height:44px;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;color:var(--ink)}
+.xx a.relcard b{font-weight:700;overflow-wrap:anywhere}
+.xx a.relcard:hover b{text-decoration:underline;text-underline-offset:3px}
+.xx a.relcard span{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx.m a.relcard{padding:14px 16px;gap:4px}
+/* 结果卡标题行：数字名 + 大师数标记（现有 MasterPill） */
+.xx .lp-title{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+/* 状态分支里的块级容器 */
+.xx .st-box{display:flex;flex-direction:column;gap:24px}
+.xx.st-initial .st-box.hide-initial{display:none}
+.xx .st-box.when{display:none}
+.xx.st-initial .st-box.when-initial{display:flex}
