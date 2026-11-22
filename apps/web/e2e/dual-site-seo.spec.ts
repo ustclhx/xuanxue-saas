@@ -31,7 +31,7 @@ test('韩语浏览器打开东方站根路径停在英文首页，禁用 JS 同�
   // 页头导航（refresh-visual-system-warm D7）：工具收进下拉，每日运势与定价是一级项
   await expect(links).toHaveText(['오늘의 운세', '요금제'])
   await navigation.locator('summary').click()
-  await expect(links).toHaveText(['만세력', '사주궁합', '쓰리 카드 타로', '오늘의 운세', '요금제'])
+  await expect(links).toHaveText(['만세력', '사주궁합', '무료 타로', '오늘의 운세', '요금제'])
   for (const link of await links.all()) await expect(link).toHaveAttribute('href', /^\/ko(?:\/|$)/)
   const noJs = await browser.newContext({ javaScriptEnabled: false, locale: 'ko-KR' })
   const staticPage = await noJs.newPage()

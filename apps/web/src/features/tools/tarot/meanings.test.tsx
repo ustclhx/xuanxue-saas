@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { CARD_MEANINGS, CARDS } from '@xuanxue/tarot'
+import { CARD_MEANINGS, CARDS, type SpreadId } from '@xuanxue/tarot'
 import { renderToString } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { setLocale } from '../../../paraglide/runtime.js'
@@ -15,11 +15,19 @@ import { splitMeaningHtml } from './meaning-page.tsx'
 import {
   tarotIndexPath,
   tarotIndexSeo,
+  tarotLocalizedSeoPages,
   tarotMeaningPath,
   tarotMeaningSeoPages,
 } from './meaning-routes.ts'
 import { majorNumeral, relatedAnchorIsShort, relatedCards, THEME_PAIRS } from './pairings.ts'
-import { TAROT_LOCALES, tarotPath } from './routes.ts'
+import {
+  TAROT_LOCALES,
+  type TarotLocale,
+  tarotDescription,
+  tarotPath,
+  tarotSeoTitle,
+  tarotTitle,
+} from './routes.ts'
 
 const messages = vi.hoisted(() => ({ locale: 'en' }))
 vi.mock('../../../paraglide/runtime.js', async (original) => {
@@ -285,5 +293,169 @@ describe('三语牌义内容与 SEO', () => {
       expect(note).not.toMatch(/[<>]|&\w+;/)
       for (const faq of page.faq) expect(body).not.toContain(renderToString(<h3>{faq.q}</h3>))
     }
+  })
+})
+
+/**
+ * content-growth-phase1 决策 6：en、zh、ko 给三张牌补 SEO 标题后，tarotLocalizedSeoPages() 的筛选（三张牌的 SEO 标题
+ * 是否不同于导航名）会把这些语言的其他牌阵页与牌义索引页一并纳入覆盖清单。这里逐字锁定它们的 Title 与 Description
+ * （取自改动前的 main），并核对覆盖条目与注册表条目一致，避免副作用悄悄改掉子词页。
+ */
+describe('免费塔罗主词归入口页（content-growth-phase1 第 5 组）', () => {
+  type Locked = Record<string, readonly [string, string]>
+  // 改动前 main 上的值（不含站名后缀）
+  const LOCKED: Record<'en' | 'zh-Hans' | 'zh-Hant' | 'ko', Locked> = {
+    en: {
+      daily: [
+        'Card of the Day',
+        'Draw one free tarot card of the day as a theme to reflect on, with upright and reversed keywords.',
+      ],
+      'yes-or-no': [
+        'Yes or No Tarot',
+        'Free yes or no tarot: draw one card and see Yes, No or Maybe from a fixed, published card mapping.',
+      ],
+      'celtic-cross': [
+        'Celtic Cross Tarot',
+        'Free Celtic Cross tarot: a ten-card spread for exploring a situation in depth, with every position explained.',
+      ],
+      index: [
+        'Tarot Card Meanings: All 78 Cards',
+        'All 78 tarot card meanings in one list: the 22 Major Arcana and the suits of Wands, Cups, Swords and Pentacles, each with upright and reversed meanings.',
+      ],
+    },
+    'zh-Hans': {
+      daily: ['每日一张塔罗', '每天免费抽一张塔罗牌，作为今日省思的主题，附正位与逆位关键词。'],
+      'yes-or-no': [
+        '是非塔罗',
+        '免费是非塔罗：抽一张牌，依公开的固定对照表显示「是／否／也许」与判定依据。',
+      ],
+      'celtic-cross': [
+        '凯尔特十字塔罗',
+        '免费凯尔特十字塔罗：十张牌的经典牌阵，逐一说明每个牌位，深入梳理一个处境。',
+      ],
+      index: [
+        '塔罗牌义：78 张牌全览',
+        '78 张塔罗牌义一次看完：22 张大阿尔卡那，以及权杖、圣杯、宝剑、钱币四个牌组，每张牌都有正位与逆位解析。',
+      ],
+    },
+    'zh-Hant': {
+      daily: ['每日一張塔羅', '每天免費抽一張塔羅牌，作為今日省思的主題，附正位與逆位關鍵詞。'],
+      'yes-or-no': [
+        '是非塔羅',
+        '免費是非塔羅：抽一張牌，依公開的固定對照表顯示「是／否／也許」與判定依據。',
+      ],
+      'celtic-cross': [
+        '凱爾特十字塔羅',
+        '免費凱爾特十字塔羅：十張牌的經典牌陣，逐一說明每個牌位，深入梳理一個處境。',
+      ],
+      index: [
+        '塔羅牌義：78 張牌全覽',
+        '78 張塔羅牌義一次看完：22 張大阿爾克那，以及權杖、聖杯、寶劍、錢幣四個牌組，每張牌都有正位與逆位解析。',
+      ],
+    },
+    ko: {
+      daily: [
+        '오늘의 타로 카드',
+        '매일 무료로 타로 카드 한 장을 뽑아 오늘 돌아볼 주제로 삼아 보세요. 정방향·역방향 키워드를 함께 보여 줍니다.',
+      ],
+      'yes-or-no': [
+        '예/아니오 타로',
+        '무료 예/아니오 타로: 카드 한 장을 뽑고 공개된 고정 대응표에 따른 예·아니요·아마도와 그 근거를 확인하세요.',
+      ],
+      'celtic-cross': [
+        '켈틱 크로스 타로',
+        '무료 켈틱 크로스 타로: 열 장으로 상황을 깊이 살펴보는 고전 배열이며, 모든 자리의 의미를 설명합니다.',
+      ],
+      index: [
+        '타로 카드 의미: 78장 전체 보기',
+        '타로 카드 78장의 의미를 한곳에서: 메이저 아르카나 22장과 완드·컵·소드·펜타클 수트, 카드마다 정방향과 역방향 해석을 담았습니다.',
+      ],
+    },
+  }
+  const KEYWORD = {
+    en: 'Free Tarot Reading',
+    'zh-Hans': '免费塔罗占卜',
+    'zh-Hant': '免費塔羅牌占卜',
+    ko: '무료 타로',
+  } as const
+  const LOCALES = Object.keys(LOCKED) as (keyof typeof LOCKED)[]
+  const pathOf = (locale: TarotLocale, page: string) =>
+    page === 'index' ? tarotIndexPath(locale) : tarotPath(page as SpreadId, locale)
+
+  it('覆盖清单中其他牌阵页与牌义索引页的 Title、Description 与 main 逐字相同', () => {
+    const overrides = tarotLocalizedSeoPages()
+    for (const locale of LOCALES)
+      for (const [page, [title, description]] of Object.entries(LOCKED[locale])) {
+        const entry = overrides.find(
+          (item) => item.locale === locale && item.path === pathOf(locale, page),
+        )
+        expect(entry, `${locale} ${page}`).toBeDefined()
+        expect(entry?.title, `${locale} ${page}`).toBe(title)
+        expect(entry?.description, `${locale} ${page}`).toBe(description)
+      }
+  })
+
+  it('有无覆盖清单时，子词页在公开页面清单中的 Title、Description、主词与 hreflang 不变', () => {
+    for (const site of ['west', 'east'] as const) {
+      const base = publicPages({ posts: [], legal: [], docs: [] }, new Date(), templateConfig, site)
+      const merged = publicPages(
+        { posts: [], legal: [], docs: [], toolPages: tarotLocalizedSeoPages() },
+        new Date(),
+        templateConfig,
+        site,
+      )
+      for (const locale of LOCALES)
+        for (const page of Object.keys(LOCKED[locale])) {
+          const find = (list: typeof base) =>
+            list.find(
+              (item) => item.locale === locale && item.path === pathOf(locale, page) && !item.site,
+            )
+          const before = find(base)
+          const after = find(merged)
+          expect(Boolean(after), `${site} ${locale} ${page}`).toBe(Boolean(before))
+          if (!before) continue
+          expect(after?.title, `${site} ${locale} ${page}`).toBe(before.title)
+          expect(after?.description).toBe(before.description)
+          expect(after?.titleMain).toBe(before.titleMain)
+          expect(after?.alternates).toEqual(before.alternates)
+        }
+    }
+  })
+
+  it('入口页 Title 以主词开头、H1 含主词；子词页的 Title 与 H1 不以主词开头', () => {
+    const messagesOf = (locale: string): Record<string, string> =>
+      JSON.parse(
+        readFileSync(new URL(`../../../../messages/${locale}/tarot.json`, import.meta.url), 'utf8'),
+      )
+    const H1_KEYS: Record<string, string> = {
+      daily: 'tarot_daily_h1',
+      'yes-or-no': 'tarot_yes_or_no_h1',
+      'celtic-cross': 'tarot_celtic_cross_h1',
+      index: 'tarot_index_title',
+    }
+    for (const locale of LOCALES) {
+      const keyword = KEYWORD[locale]
+      const text = messagesOf(locale)
+      expect(tarotSeoTitle('three-card', locale).startsWith(keyword)).toBe(true)
+      expect(tarotTitle('three-card', locale)).toBe(keyword)
+      expect(text.tarot_three_card_h1).toContain(keyword)
+      for (const [page, key] of Object.entries(H1_KEYS)) {
+        const title =
+          page === 'index' ? tarotIndexSeo(locale).title : tarotSeoTitle(page as SpreadId, locale)
+        expect(title.startsWith(keyword), `${locale} ${page} Title`).toBe(false)
+        expect(text[key]?.startsWith(keyword), `${locale} ${page} H1`).toBe(false)
+      }
+    }
+  })
+
+  it('入口页 Description 带主词，es、ja 的入口页 Title 不变', () => {
+    for (const locale of LOCALES)
+      expect(tarotDescription('three-card', locale).toLowerCase()).toContain(
+        KEYWORD[locale].toLowerCase(),
+      )
+    expect(tarotSeoTitle('three-card', 'es')).toBe('Tarot gratis: pasado, presente y futuro')
+    expect(tarotSeoTitle('three-card', 'ja')).toBe(
+      '無料タロット占い｜スリーカードで過去・現在・未来',
+    )
   })
 })
