@@ -83,6 +83,26 @@ export function pageKind(pathname) {
   return 'other'
 }
 
+// content-growth-phase2 决策 1、8：只纳入子页。后续批次按实际进入站点地图或预渲染的地址测量。
+const EAST_COLLECTIONS = {
+  'zh-Hans': [
+    ['zodiac', /^\/zh-hans\/生肖\/属[鼠牛虎兔龙蛇马羊猴鸡狗猪]\/?$/],
+    ['almanac-month', /^\/zh-hans\/黄历\/(?:[1-9]|1[0-2])月\/?$/],
+    [
+      'ziwei-star',
+      /^\/zh-hans\/十四主星\/(?:紫微|天机|太阳|武曲|天同|廉贞|天府|太阴|贪狼|巨门|天相|天梁|七杀|破军)星\/?$/,
+    ],
+    ['concepts', /^\/zh-hans\/八字\/(?:天干地支|藏干|十二长生|纳音|合冲刑害|太岁|格局|调候)\/?$/],
+  ],
+  'zh-Hant': [['zodiac', /^\/zh-hant\/生肖\/屬[鼠牛虎兔龍蛇馬羊猴雞狗豬]\/?$/]],
+  ko: [['zodiac', /^\/ko\/띠\/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠\/?$/]],
+}
+
+export function eastCollection(pathname, locale) {
+  const path = safeDecode(pathname)
+  return EAST_COLLECTIONS[locale]?.find(([, pattern]) => pattern.test(path))?.[0] ?? null
+}
+
 const FAQ_RE =
   /常见问题|常見問題|자주 묻는 질문|FAQ|よくある質問|frequently asked|preguntas frecuentes|perguntas frequentes|questions fréquentes|häufige fragen|domande frequenti/i
 const HOWTO_RE = /怎么|怎麼|如何|步骤|步驟|看法|읽는|방법|보는 법|사용|使い方|読み方|how to|cómo/i
@@ -201,9 +221,9 @@ export function createExtractor() {
   })
   const parser = new window.DOMParser()
   return {
-    extract(html) {
+    extract(html, { eastProgrammatic = false } = {}) {
       const doc = parser.parseFromString(html, 'text/html')
-      return extractDocument(doc)
+      return extractDocument(doc, eastProgrammatic)
     },
     close() {
       return window.happyDOM.close()
@@ -211,16 +231,32 @@ export function createExtractor() {
   }
 }
 
-function extractDocument(doc) {
+function extractDocument(doc, eastProgrammatic) {
   const main = doc.querySelector('main') ?? doc.body ?? doc.documentElement
   for (const el of [...main.querySelectorAll(REMOVED)]) el.remove()
+  const eastSections = eastProgrammatic
+    ? extractSections(main.cloneNode(true), { tableSections: true }).sections
+    : null
   stripFixedDigits(main)
+  const page = extractSections(main)
+  if (eastSections) page.eastSections = eastSections
+  return page
+}
+
+function extractSections(main, { tableSections = false } = {}) {
   const faqCount = main.querySelectorAll('details summary').length
-  for (const h of [...main.querySelectorAll('h2')]) {
+  const headings = [...main.querySelectorAll('h2')]
+  for (const h of headings) {
     const title = h.textContent.trim()
     h.textContent = `\n${H2_MARK}${title}@@\n`
   }
-  return sectionsFromText(structuredText(main), faqCount)
+  const page = sectionsFromText(structuredText(main), faqCount)
+  if (tableSections)
+    for (const [i, h] of headings.entries()) {
+      // 标记 H2 或仅包裹该数据表段的容器。表格单元的数字仍参与东方站 Dice。
+      page.sections[i + 1].tableSection = h.closest('[data-table-section]') !== null
+    }
+  return page
 }
 
 /** 把带 H2 标记的结构化文本切成段：H2 之前为 intro */
@@ -398,33 +434,70 @@ export function templateRepeat(pages, { unit = 'char', skipIntro = false } = {})
   return byIndex
     .filter((slot) => slot && slot.items.length > 1)
     .map(({ index, title, items }) => {
-      const per = items.map(() => ({ sum: 0, n: 0 }))
-      let sum = 0
-      let n = 0
-      for (let i = 0; i < items.length; i += 1)
-        for (let j = i + 1; j < items.length; j += 1) {
-          const d = diceOf(items[i].bg, items[j].bg)
-          sum += d
-          n += 1
-          per[i].sum += d
-          per[i].n += 1
-          per[j].sum += d
-          per[j].n += 1
-        }
-      let worst = { id: null, value: -1 }
-      per.forEach((p, i) => {
-        const value = p.sum / p.n
-        if (value > worst.value) worst = { id: items[i].id, value }
-      })
-      return {
-        index,
-        title,
-        pages: items.length,
-        mean: r3(sum / n),
-        max: r3(worst.value),
-        maxPage: worst.id,
-      }
+      const { mean, max, maxPage } = pairwiseDice(items)
+      return { index, title, pages: items.length, mean: r3(mean), max: r3(max), maxPage }
     })
+}
+
+function pairwiseDice(items) {
+  if (items.length < 2) return { mean: null, max: null, maxPage: null }
+  const perPage = items.map(() => 0)
+  let sum = 0
+  let pairs = 0
+  for (let i = 0; i < items.length; i += 1)
+    for (let j = i + 1; j < items.length; j += 1) {
+      const d = diceOf(items[i].bg, items[j].bg)
+      sum += d
+      pairs += 1
+      perPage[i] += d
+      perPage[j] += d
+    }
+  const pageMeans = perPage.map((total) => total / (items.length - 1))
+  const max = Math.max(...pageMeans)
+  return {
+    mean: sum / pairs,
+    max,
+    maxPage: items[pageMeans.indexOf(max)].id,
+  }
+}
+
+/** 同站同语言内按 H2 可见文字对齐；只有正文段的未舍入均值用于门槛。 */
+export function eastCollectionSections(pages, { unit = 'char' } = {}) {
+  const byTitle = new Map()
+  for (const { id, sections } of pages) {
+    for (const { title, text, tableSection } of sections.slice(1)) {
+      const key = title.replace(/\s+/g, ' ').trim()
+      if (!byTitle.has(key)) byTitle.set(key, new Map())
+      const byPage = byTitle.get(key)
+      const previous = byPage.get(id)
+      byPage.set(id, {
+        id,
+        text: previous ? `${previous.text}\n${text}` : text,
+        tableSection: (previous?.tableSection ?? true) && tableSection,
+      })
+    }
+  }
+
+  const measure = (title, scope, items) => ({
+    title,
+    scope,
+    pages: items.length,
+    ...pairwiseDice(items.map(({ id, text }) => ({ id, bg: bigrams(text, unit) }))),
+  })
+  const sections = [...byTitle].map(([title, byPage]) => {
+    const items = [...byPage.values()]
+    return measure(title, items.every((item) => item.tableSection) ? 'table' : 'section', items)
+  })
+  const wholePages = pages.map(({ id, sections: [intro, ...headings] }) => ({
+    id,
+    text: [intro.text, ...headings.map(({ title, text }) => `${title}\n${text}`)].join('\n'),
+  }))
+  return [...sections, measure('整页', 'page', wholePages)]
+}
+
+export function exceedsEastSectionThreshold({ scope, mean }) {
+  // 只消除浮点累加误差，例如数学上的 0.30 可能是 0.30000000000000004。
+  return scope === 'section' && mean != null && mean - THRESHOLDS.templateRepeat > Number.EPSILON
 }
 
 /**
@@ -827,6 +900,34 @@ export function renderMarkdown(report) {
         out.push(
           `| ${locale} | ${s.kind} | ${s.label} | ${s.pages} | ${s.mean}${s.mean > THRESHOLDS.templateRepeat ? ' ⚠' : ''} | ${s.max} | ${s.maxPage} |`,
         )
+    out.push('')
+  }
+  if (report.eastCollections) {
+    out.push(
+      '## 东方站集合',
+      '',
+      `各集合按同语言 H2 标题对齐，同标题正文两两平均 Dice，门槛 ≤${THRESHOLDS.templateRepeat}（--enforce 生效）。最差页取与同段其余页的最高平均值。`,
+      '共用段使用一致的 H2 可见文字。不足两页的同名段以「-」显示。同名段只在各页都用 `data-table-section` 标记 H2 或其专用容器时归入数据表段。数据表段与整页只报告。',
+      '',
+      '| 语言 | 集合 | 段 | 口径 | 页数 | 平均 Dice | 最差页均值 | 最差页 |',
+      '|---|---|---|---|---|---|---|---|',
+    )
+    const scopeLabels = { section: '门槛', table: '数据表（参考）', page: '整页（参考）' }
+    for (const [locale, collections] of Object.entries(report.eastCollections))
+      for (const [collection, sections] of Object.entries(collections))
+        for (const s of sections) {
+          const over = exceedsEastSectionThreshold(s)
+          const mean =
+            s.mean == null
+              ? '-'
+              : over && r3(s.mean) === THRESHOLDS.templateRepeat
+                ? s.mean
+                : r3(s.mean)
+          out.push(
+            `| ${locale} | ${collection} | ${s.title.replaceAll('|', '\\|')} | ${scopeLabels[s.scope]} | ${s.pages} | ${mean}${over ? ' ⚠' : ''} | ${s.max == null ? '-' : r3(s.max)} | ${fmt(s.maxPage)} |`,
+          )
+        }
+    if (!Object.keys(report.eastCollections).length) out.push('', '尚未发现集合页面。')
     out.push('')
   }
   out.push(

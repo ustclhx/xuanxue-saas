@@ -1,5 +1,6 @@
 import { createFileRoute, lazyRouteComponent, notFound } from '@tanstack/react-router'
 import { Suspense } from 'react'
+import { eastContentRouteOf } from '../features/east-content/routes.ts'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { originFromMatches } from '../features/seo/metadata.ts'
 import { type EasternPageId, easternPageOf } from '../features/tools/bazi/eastern-routes.ts'
@@ -48,6 +49,10 @@ const NumerologySlugPage = lazyRouteComponent(
   () => import('../features/tools/numerology/slug-page.tsx'),
   'NumerologySlugPage',
 )
+const EastContentPage = lazyRouteComponent(
+  () => import('../features/east-content/route-data.ts'),
+  'EastContentPage',
+)
 
 // 东方站根路径英文（openspec add-locales-eu-ja 5b）：`/bazi-calculator`、`/zi-wei-dou-shu`，
 // 以及塔罗索引页 `/tarot-spreads`、`/tarot-feelings`（两段地址见 routes/$section/$item.tsx）
@@ -88,11 +93,14 @@ export const Route = createFileRoute('/$slug')({
     if (
       locale !== 'en' &&
       !easternPageOf(locale, params.slug) &&
-      !numerologySlugPage(locale, params.slug)
+      !numerologySlugPage(locale, params.slug) &&
+      !eastContentRouteOf(locale, `/${params.slug}`)
     )
       throw notFound()
   },
-  loader: async ({ params }) => {
+  // 黄历工具页的日期写在查询参数中。客户端切换日期时重新执行 loader。
+  loaderDeps: ({ search }) => ({ date: 'date' in search ? search.date : undefined }),
+  loader: async ({ params, deps }) => {
     const locale = getLocale()
     const west = numerologySlugPage(locale, params.slug)
     if (west) {
@@ -104,7 +112,15 @@ export const Route = createFileRoute('/$slug')({
     }
     const id = easternPageOf(locale, params.slug)
     if (!id) {
-      if (locale !== 'en') throw notFound()
+      if (locale !== 'en') {
+        const route = eastContentRouteOf(locale, `/${params.slug}`)
+        if (!route) throw notFound()
+        const [{ loadEastContent }] = await Promise.all([
+          import('../features/east-content/route-data.ts'),
+          EastContentPage.preload?.(),
+        ])
+        return { west: null, eastContent: await loadEastContent(route, deps.date) }
+      }
       const [{ eastEnTarotData }] = await Promise.all([
         import('../features/east-en/route-data.ts'),
         EastEnTarotPage.preload?.(),
@@ -123,6 +139,7 @@ export const Route = createFileRoute('/$slug')({
   },
   head: ({ params, matches, loaderData }) => {
     if (loaderData && 'eastEn' in loaderData && loaderData.eastEn) return loaderData.eastEn
+    if (loaderData?.eastContent) return loaderData.eastContent.head
     const locale = getLocale()
     if (loaderData?.west)
       return numerologySlugHead(loaderData.west, loaderData.west.content, matches)
@@ -144,6 +161,7 @@ function EasternToolRoute() {
   const { west } = data
   if (west) return <NumerologySlugPage id={west.id} content={west.content} />
   if ('tarot' in data && data.tarot) return <EastEnTarotPage data={data.tarot} />
+  if (data.eastContent) return <EastContentPage data={data.eastContent} />
   const locale = getLocale()
   const id = easternPageOf(locale, slug)
   if (!id) return null
