@@ -41,10 +41,10 @@
 
 ## 2. 引擎补充（packages/bazi）
 
-- [ ] 2.1 新增子入口 `@xuanxue/bazi/almanac`：`almanacDay(date)`（在 `dayPillarOf` 基础上加黄道十二神与黄道黑道、所冲生肖、煞方、当日节气、节日与节令：三伏、数九、入梅、出梅）与 `almanacMonth(year, month)`（逐日数据、本月两个节气的交节时刻、月建变化日、农历月界）。导出 `ALMANAC_RULES_VERSION`。输出只含稳定 key 与序号
-- [ ] 2.2 在同一子入口增加 `zodiacYears(branch, { utcOffsetMinutes })`（1924–2043，每行有干支、纳音、立春时刻、春节日期）、`zodiacBoundaries()`（客户端属相查询用的立春与春节边界表）、`nayinTable()`、`terrainTable()`
-- [ ] 2.3 `@xuanxue/bazi/ziwei` 增加 `majorStarFacts()`：14 主星的五行、阴阳、十二支庙旺、十干四化归属，以及按紫微所在宫推出的同宫主星，数据来自 iztro `data/stars` 与 `data/heavenlyStems`
-- [ ] 2.4 单测：用 devDependency `lunar-javascript` 交叉核对 1924–2043 每年的立春与春节、六十甲子纳音、2026 全年逐日的建除与冲煞；固定 design Context 中的实测值（2026-11-22 庚子、白虎黑道、冲马煞南；2025 立春 2-03 22:10、春节 1-29）；核对紫微星乙年化科、壬年化权。确认 `@xuanxue/bazi` 主入口不引入新模块（`check-bazi-build` 通过），不改 `pnpm-lock.yaml`
+- [x] 2.1 新增子入口 `@xuanxue/bazi/almanac`：`almanacDay(date)`（在 `dayPillarOf` 基础上加黄道十二神与黄道黑道、所冲生肖、煞方、当日节气、节日与节令：三伏、数九、入梅、出梅）与 `almanacMonth(year, month)`（逐日数据、本月两个节气的交节时刻、月建变化日、农历月界）。导出 `ALMANAC_RULES_VERSION`。输出只含稳定 key 与序号
+- [x] 2.2 在同一子入口增加 `zodiacYears(branch, { utcOffsetMinutes })`（1924–2043，每行有干支、纳音、立春时刻、春节日期）、`zodiacBoundaries()`（客户端属相查询用的立春与春节边界表）、`nayinTable()`、`terrainTable()`
+- [x] 2.3 `@xuanxue/bazi/ziwei` 增加 `majorStarFacts()`：14 主星的五行、阴阳、十二支庙旺、十干四化归属，以及按紫微所在宫推出的同宫主星，数据来自 iztro `data/stars` 与 `data/heavenlyStems`
+- [x] 2.4 单测：用 devDependency `lunar-javascript` 交叉核对 1924–2043 每年的立春与春节、六十甲子纳音、2026 全年逐日的建除与冲煞；固定 design Context 中的实测值（2026-11-22 庚子、白虎黑道、冲马煞南；2025 立春 2-03 22:10、春节 1-29）；核对紫微星乙年化科、壬年化权。确认 `@xuanxue/bazi` 主入口不引入新模块（`check-bazi-build` 通过），不改 `pnpm-lock.yaml`
 
 ## 3. 设计稿（ui-design）
 

@@ -2,5 +2,14 @@
 declare module 'lunar-javascript' {
   // biome-ignore lint/suspicious/noExplicitAny: 第三方库无类型
   export const Solar: any
-  export const LunarUtil: { SHI_SHEN: Record<string, string> }
+  export const Lunar: {
+    fromYmd(
+      year: number,
+      month: number,
+      day: number,
+    ): {
+      getSolar(): { getYear(): number; getMonth(): number; getDay(): number }
+    }
+  }
+  export const LunarUtil: { SHI_SHEN: Record<string, string>; NAYIN: Record<string, string> }
 }

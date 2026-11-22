@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./ziwei": "./src/ziwei.ts",
-    "./daily": "./src/daily.ts"
+    "./daily": "./src/daily.ts",
+    "./almanac": "./src/almanac.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",
