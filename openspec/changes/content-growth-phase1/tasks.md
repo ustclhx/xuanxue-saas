@@ -39,7 +39,7 @@
 - [x] 4.1 在 `apps/web/src/routes/blog/index.tsx` 的 `head` 中读取 loader 的 `posts`，为空时追加 `robots: noindex, follow`（写法同 `routes/blog/page/$page.tsx`）。补单测：没有已发布文章的语言输出 noindex，有已发布文章时不输出
 - [x] 4.2 补测试固定现有行为：没有已发布文章的语言，站点地图不含 `/blog`（`features/seo` 单测），页脚不含 `/blog`（`site-header.test.tsx` 已有断言，核对覆盖 es、zh、ko、ja）
 - [x] 4.3 构建后用 preview 请求 `/blog`、`/es/blog`、`/zh-hans/blog`、`/zh-hant/blog`、`/ko/blog`、`/ja/blog`：均为 200 且带 `noindex, follow`。`check:i18n-seo` 与 `check:links` 通过。结果存证据目录
-- [ ] 4.4 在模板需求清单中登记 R7（空博客列表 noindex，附本组 diff），交给模板维护者；PR 正文写明本文件是模板交付文件、已提交上游请求
+- [x] 4.4 在模板需求清单中登记 R7（空博客列表 noindex，附本组 diff），交给模板维护者；PR 正文写明本文件是模板交付文件、已提交上游请求
 
 ## 5. 塔罗入口页负责免费塔罗主词（en、zh-hans、zh-hant、ko）
 
