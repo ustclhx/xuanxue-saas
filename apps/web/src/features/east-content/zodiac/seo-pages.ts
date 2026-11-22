@@ -1,5 +1,6 @@
 import type { SeoPage } from '../../seo/metadata.ts'
 import {
+  isZodiacLocale,
   ZODIAC_HUB_PATHS,
   ZODIAC_HUB_TITLES,
   ZODIAC_SLUGS,
@@ -15,8 +16,6 @@ export interface ZodiacSeoEntry {
   readonly title: string
   readonly description: string
 }
-
-const isZodiacLocale = (locale: string): locale is ZodiacLocale => locale in ZODIAC_HUB_PATHS
 
 /**
  * 生肖页进入公开页面清单（站点地图、hreflang、内链区块）：标题与描述取内容集合，

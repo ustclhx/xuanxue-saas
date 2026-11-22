@@ -139,6 +139,18 @@ export const LOCALE_PLANS = Object.freeze({
     minChars: { tool: 3600 },
     backTranslationExempt: BACKTRANSLATION_EXEMPT,
   },
+  // content-growth-phase2 第 5 组（design 决策 14）：ko 生肖枢纽与 12 个子页按韩语另写，对照 zh-hans 版回译；
+  // ko 的其他页面早于本规则上线，不在此集合（include 只取生肖地址）
+  ko: {
+    site: 'east',
+    sources: ['zh-Hans'],
+    kinds: ['other'],
+    include: /^\/(?:ko\/띠|zh-hans\/生肖)(?:\/|$)/,
+    exclude: /(?!)/,
+    expansion: { 'zh-Hans': 1.6 },
+    minChars: {},
+    backTranslationExempt: {},
+  },
 })
 
 /**
@@ -665,6 +677,7 @@ async function loadPages({ baseUrl, config, plan, locales }) {
     return (
       locales.includes(locale) &&
       plan.kinds.includes(pageKind(path)) &&
+      (!plan.include || plan.include.test(decodeURIComponent(path))) &&
       !plan.exclude.test(decodeURIComponent(path))
     )
   })

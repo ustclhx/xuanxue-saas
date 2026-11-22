@@ -138,25 +138,37 @@ describe('流年缺少撰写文字时只列关系名', () => {
 })
 
 describe('地址与 hreflang', () => {
-  it('简中地址登记在东方内容映射与注册表，未撰写的繁中、韩语地址不登记', () => {
+  it('简中与韩语地址登记在东方内容映射与注册表，未撰写的繁中地址不登记', () => {
     expect(eastContentRouteOf('zh-Hans', '/生肖')).toMatchObject({
       collection: 'zodiac',
       id: 'index',
     })
     expect(eastContentRouteOf('zh-Hans', encodeURI('/生肖/属马'))).toMatchObject({ id: 'wu' })
     expect(eastContentRouteOf('zh-Hant', '/生肖/屬鼠')).toBeUndefined()
-    expect(eastContentRouteOf('ko', '/띠/쥐띠')).toBeUndefined()
+    expect(eastContentRouteOf('ko', '/띠')).toMatchObject({ collection: 'zodiac', id: 'index' })
+    expect(eastContentRouteOf('ko', encodeURI('/띠/쥐띠'))).toMatchObject({ id: 'zi' })
+    expect(eastContentRouteOf('ko', '/띠/돼지띠')).toMatchObject({ id: 'hai' })
+    expect(eastContentRouteOf('ko', '/生肖')).toBeUndefined()
     const hub = TOOL_ROUTES.find((route) => route.id === 'zodiac')
-    expect(hub).toMatchObject({ navGroup: 'calendar', paths: { 'zh-Hans': '/生肖' } })
+    expect(hub).toMatchObject({
+      navGroup: 'calendar',
+      paths: { 'zh-Hans': '/生肖', ko: '/띠' },
+      titles: { ko: '띠' },
+    })
+    expect(TOOL_ROUTES.find((route) => route.id === 'zodiac-wu')?.paths).toEqual({
+      'zh-Hans': '/生肖/属马',
+      ko: '/띠/말띠',
+    })
     expect(TOOL_ROUTES.filter((route) => route.id.startsWith('zodiac-'))).toHaveLength(12)
   })
 
   it('hreflang 只含已发布的语言版本，canonical 指向自身', () => {
     const pages = zodiacSeoPages(generatedZodiacs())
-    expect(pages).toHaveLength(13)
+    expect(pages).toHaveLength(26)
     const horse = pages.find((page) => page.path === '/生肖/属马')
     expect(horse).toMatchObject({ parent: '/生肖', group: '/生肖', titleMain: '属马' })
-    expect(Object.keys(horse?.alternates ?? {})).toEqual(['zh-Hans'])
+    // zh-Hans 与 ko 互为 hreflang（zodiac-pages 规格「简中子页与韩语子页互为 hreflang」）
+    expect(horse?.alternates).toEqual({ 'zh-Hans': '/生肖/属马', ko: '/띠/말띠' })
     const links = pageHead(horse as NonNullable<typeof horse>, '').links
     expect(links).toContainEqual({
       rel: 'canonical',
@@ -164,14 +176,70 @@ describe('地址与 hreflang', () => {
     })
     const hreflangs = links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
     expect(hreflangs).toContain('zh-Hans')
-    expect(hreflangs).not.toContain('ko')
+    expect(hreflangs).toContain('ko')
     expect(hreflangs).not.toContain('zh-Hant')
+    expect(links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'ko',
+      href: `https://ganjiday.com/ko/${encodeURI('띠/말띠')}`,
+    })
+
+    const rat = pages.find((page) => page.locale === 'ko' && page.path === '/띠/쥐띠')
+    expect(rat).toMatchObject({ parent: '/띠', group: '/띠', titleMain: '쥐띠' })
+    expect(rat?.alternates).toEqual({ 'zh-Hans': '/生肖/属鼠', ko: '/띠/쥐띠' })
+    const koLinks = pageHead(rat as NonNullable<typeof rat>, '').links
+    expect(koLinks).toContainEqual({
+      rel: 'canonical',
+      href: `https://ganjiday.com/ko/${encodeURI('띠/쥐띠')}`,
+    })
+    const koHub = pages.find((page) => page.locale === 'ko' && page.path === '/띠')
+    expect(koHub?.alternates).toEqual({ 'zh-Hans': '/生肖', ko: '/띠' })
   })
 
-  it('zh-hans 内容有 12 个生肖与枢纽，每页都写了丙午、丁未两年', () => {
-    const entries = generatedZodiacs().filter((entry) => entry.locale === 'zh-Hans')
-    expect(entries.map((entry) => entry.key).sort()).toEqual([...ZODIAC_KEYS, 'index'].sort())
-    for (const entry of entries.filter((item) => item.key !== 'index'))
-      expect(Object.keys(entry.annual).sort()).toEqual(['丁未', '丙午'])
+  it('zh-hans 与 ko 内容各有 12 个生肖与枢纽，每页都写了丙午、丁未两年', () => {
+    for (const locale of ['zh-Hans', 'ko']) {
+      const entries = generatedZodiacs().filter((entry) => entry.locale === locale)
+      expect(entries.map((entry) => entry.key).sort()).toEqual([...ZODIAC_KEYS, 'index'].sort())
+      for (const entry of entries.filter((item) => item.key !== 'index'))
+        expect(Object.keys(entry.annual).sort()).toEqual(['丁未', '丙午'])
+    }
+  })
+})
+
+describe('ko：韩国标准时与설날（UTC+9）', () => {
+  const KO = 540
+
+  it('年份表立春按引擎以 UTC+9 重算（1984 年为 2 月 5 일 00:18），설날按 UTC+9 合朔日（1997 年 2 月 8 日）', () => {
+    for (const key of ZODIAC_KEYS) {
+      const facts = childFacts(key, NOW, KO)
+      const engine = zodiacYears(key, { utcOffsetMinutes: KO })
+      expect(facts.years.map((row) => row.lichun)).toEqual(
+        engine.map(({ lichun: { month, day, hour, minute } }) => ({ month, day, hour, minute })),
+      )
+    }
+    const rat = childFacts('zi', NOW, KO).years.find((row) => row.year === 1984)
+    expect(rat?.lichun).toEqual({ month: 2, day: 5, hour: 0, minute: 18 })
+    const ox = yearRows('chou', KO).find((row) => row.year === 1997)
+    expect(ox?.newYear).toEqual({ month: 2, day: 8 })
+    expect(yearRows('chou').find((row) => row.year === 1997)?.newYear).toEqual({
+      month: 2,
+      day: 7,
+    })
+    expect(childFacts('zi', NOW, KO).calendarYear).toBe(2026)
+  })
+
+  it('本年与次年的立春日期按 UTC+9：2027 정미 2 月 4 日；查询的立春时刻显示韩国时间', () => {
+    expect(annualOf(2027, 'zi', KO)?.lichun).toEqual({ month: 2, day: 4 })
+    const boundaries = hubFacts(NOW, KO).boundaries
+    expect(hubFacts(NOW, KO).offsetMinutes).toBe(KO)
+    expect(lookupZodiac('2026-02-04', boundaries, KO)).toMatchObject({
+      kind: 'ok',
+      lichun: { state: 'same', time: '05:02' },
+    })
+    // 2027 年설날为 2 月 7 日（中国春节 2 月 6 日）：2 月 6 日按설날仍是丙午年
+    expect(lookupZodiac('2027-02-06', boundaries, KO)).toMatchObject({
+      newYear: { state: 'before', month: 2, day: 7, result: { branch: 'wu' } },
+      lichun: { state: 'after', after: { branch: 'wei' } },
+    })
   })
 })

@@ -7,7 +7,7 @@ import { pageHead, type SeoPage } from '../../seo/metadata.ts'
 import { getPageLinks } from '../../seo/pages.server.ts'
 import { breadcrumbData } from '../../seo/structured-data.ts'
 import { faqPageData } from '../../tools/numerology/seo.ts'
-import { childFacts, hubFacts } from './data.ts'
+import { childFacts, hubFacts, ZODIAC_UTC_OFFSET } from './data.ts'
 import { ZODIAC_KEYS, type ZodiacKey, type ZodiacLocale, zodiacPath } from './paths.ts'
 import { zodiacSeoPages } from './seo-pages.ts'
 
@@ -21,7 +21,7 @@ const SIBLINGS_SHOWN = 4
 export const getZodiacPage = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
-      locale: z.enum(['zh-Hans']),
+      locale: z.enum(['zh-Hans', 'ko']),
       id: z.enum(['index', ...ZODIAC_KEYS]),
     }),
   )
@@ -53,8 +53,9 @@ export const getZodiacPage = createServerFn({ method: 'GET' })
       breadcrumb: links.breadcrumb,
     }
     const now = Date.now()
+    const offset = ZODIAC_UTC_OFFSET[locale]
     if (data.id === 'index') {
-      return { head, content: { kind: 'hub' as const, ...common, facts: hubFacts(now) } }
+      return { head, content: { kind: 'hub' as const, ...common, facts: hubFacts(now, offset) } }
     }
     const siblings = (links.group?.items ?? []).slice(0, SIBLINGS_SHOWN).map((item) => ({
       ...item,
@@ -69,7 +70,7 @@ export const getZodiacPage = createServerFn({ method: 'GET' })
         yearsNote: entry.years_note ?? '',
         relationsNote: entry.relations_note ?? '',
         annualText: entry.annual,
-        facts: childFacts(data.id as ZodiacKey, now),
+        facts: childFacts(data.id as ZodiacKey, now, offset),
         siblings,
       },
     }

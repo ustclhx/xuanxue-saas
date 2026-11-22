@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { parseArgs } from 'node:util'
-import { zodiacYears } from '../packages/bazi/src/almanac.ts'
+import { lunarNewYearAt, zodiacYears } from '../packages/bazi/src/almanac.ts'
 import { BRANCHES } from '../packages/bazi/src/constants.ts'
 
 const webRequire = createRequire(new URL('../apps/web/package.json', import.meta.url))
@@ -18,6 +18,27 @@ const { SixtyCycle } = baziRequire('tyme4ts')
 const ROOT = new URL('../apps/web/content/zodiac/', import.meta.url)
 const STEM_HANZI = '甲乙丙丁戊己庚辛壬癸'
 const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
+const STEM_HANGUL = '갑을병정무기경신임계'
+const BRANCH_HANGUL = '자축인묘진사오미신유술해'
+const ANIMAL_KO = [
+  '쥐',
+  '소',
+  '호랑이',
+  '토끼',
+  '용',
+  '뱀',
+  '말',
+  '양',
+  '원숭이',
+  '닭',
+  '개',
+  '돼지',
+]
+/** 韩国标准时（UTC+9）：ko 页的立春时刻与설날按此换算（design Risks「ko 立春时刻的历史时区」） */
+const KOREA_OFFSET_MINUTES = 540
+const KO_NAYIN = JSON.parse(
+  readFileSync(new URL('../apps/web/messages/ko/zodiac.json', import.meta.url), 'utf8'),
+)
 
 /** 各语言的地址、篇幅与固定小标题。ko（第 5 组）补登自己的一行。 */
 const LOCALES = {
@@ -44,16 +65,85 @@ const LOCALES = {
       '/八字/八字重量',
     ],
     countUnit: /\p{Script=Han}/gu,
+    annual: [120, 200],
+  },
+  // 第 5 组：ko 按韩语主词另写；小标题带本页的띠与地支（设计稿 ZodiacPageKoMobile），篇幅按不含空格的字符计（决策 13）
+  ko: {
+    prefix: '/ko',
+    hubPath: '/띠',
+    childSlug: (branch) => `${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠`,
+    brandSuffix: ' | 간지데이',
+    childMin: 2000,
+    hubMin: 1300,
+    childHeadings: (branch) => {
+      const i = BRANCHES.indexOf(branch)
+      const animal = `${ANIMAL_KO[i]}띠`
+      return [
+        `${BRANCH_HANGUL[i]}(${BRANCH_HANZI[i]})의 육합·삼합·충·형·해`,
+        `${animal} 성격과 일하는 방식`,
+        `${animal}의 일과 배움`,
+      ]
+    },
+    hubHeadings: ['열두 띠 표', '입춘 기준과 설날 기준', '삼합·육합·육충'],
+    // 不链接 /ko/사주궁합（design「约束」：现有页面保持原样，不作配对推荐）
+    linkTargets: [
+      '/만세력',
+      '/띠',
+      '/사주/오행',
+      '/사주/대운',
+      '/사주/십신',
+      '/사주/용신',
+      '/사주/신강신약',
+      '/사주/신살',
+      '/사주/공망',
+      '/사주/일주',
+    ],
+    countUnit: /\S/gu,
+    annual: [160, 320],
   },
 }
 
 /** 婚配类禁用词（design「约束」）：全文为 0，不只 Title/H1/H2/FAQ/锚文本 */
-export const MARRIAGE_TERMS = ['婚配', '配对', '合婚', '结婚', '婚嫁', '嫁娶吉日', '궁합']
-/** 合规措辞（design 决策 14）：不提 AI、不用「娱乐」定位、不给吉日结论 */
-const COMPLIANCE_TERMS = ['AI', '人工智能', '娱乐', '吉日', '大吉', '大凶', '一定会', '注定']
-
-const ANNUAL_MIN = 120
-const ANNUAL_MAX = 200
+export const MARRIAGE_TERMS = [
+  '婚配',
+  '配对',
+  '合婚',
+  '结婚',
+  '婚嫁',
+  '嫁娶吉日',
+  '궁합',
+  // ko（第 5 组）：婚姻、配偶、恋爱配对类说法
+  '결혼',
+  '혼인',
+  '배우자',
+  '배필',
+  '연애',
+  '커플',
+  '천생연분',
+]
+/**
+ * 合规措辞（design 决策 14）：不提 AI、不用「娱乐」定位、不给吉日结论。
+ * ko 另禁「띠별 운세」（使用者 2026-11-22：任何页面不以它为目标，生肖页全文不出现）。
+ */
+const COMPLIANCE_TERMS = [
+  'AI',
+  '人工智能',
+  '娱乐',
+  '吉日',
+  '大吉',
+  '大凶',
+  '一定会',
+  '注定',
+  '인공지능',
+  '오락',
+  '재미로',
+  '길일',
+  '흉일',
+  '대길',
+  '대흉',
+  '띠별 운세',
+  '띠별운세',
+]
 
 function cjkWidth(text) {
   let width = 0
@@ -81,6 +171,101 @@ const NAYIN_NAMES = new Set(
 const YEAR_FACTS = new Map(
   BRANCHES.flatMap((branch) => zodiacYears(branch).map((row) => [row.year, row])),
 )
+/** ko：立春按韩国标准时，설날按 UTC+9 的合朔日 */
+const KO_YEAR_FACTS = new Map(
+  BRANCHES.flatMap((branch) =>
+    zodiacYears(branch, { utcOffsetMinutes: KOREA_OFFSET_MINUTES }).map((row) => [
+      row.year,
+      {
+        ...row,
+        lunarNewYear: lunarNewYearAt(row.year, { utcOffsetMinutes: KOREA_OFFSET_MINUTES }),
+      },
+    ]),
+  ),
+)
+const hangulGanzhiOfYear = (year) => {
+  const cycle = SixtyCycle.fromIndex(year - 1924)
+  return `${STEM_HANGUL[cycle.getHeavenStem().getIndex()]}${BRANCH_HANGUL[cycle.getEarthBranch().getIndex()]}`
+}
+/** 六十甲子：韩文读音 → 纳音序号 */
+const KO_CYCLE = new Map(
+  [...Array(60).keys()].map((i) => {
+    const cycle = SixtyCycle.fromIndex(i)
+    return [
+      `${STEM_HANGUL[cycle.getHeavenStem().getIndex()]}${BRANCH_HANGUL[cycle.getEarthBranch().getIndex()]}`,
+      {
+        hanzi: `${STEM_HANZI[cycle.getHeavenStem().getIndex()]}${BRANCH_HANZI[cycle.getEarthBranch().getIndex()]}`,
+        nayin: cycle.getSound().getIndex(),
+      },
+    ]
+  }),
+)
+const KO_NAYIN_NAMES = [...Array(30).keys()].map((i) => KO_NAYIN[`zodiac_nayin_${i}`])
+const KGZ = `[${STEM_HANGUL}][${BRANCH_HANGUL}]`
+
+/** ko 正文中写到的事实（「1984년 갑자(甲子)」「갑자(甲子)는 해중금」「2026년 입춘은 2월 4일 05:02」「2027년 설날은 2월 7일」） */
+export function koFactIssues(text) {
+  const issues = []
+  let checked = 0
+  for (const match of text.matchAll(
+    new RegExp(`(\\d{4}) ?년 ?(?:생 ?)?(${KGZ})(?=[(（년 ,.·은는이가의]|$)`, 'g'),
+  )) {
+    const year = Number(match[1])
+    if (year < 1924 || year > 2043) continue
+    checked++
+    if (hangulGanzhiOfYear(year) !== match[2])
+      issues.push(`${match[0]}：${year}년은 ${hangulGanzhiOfYear(year)}`)
+  }
+  // 韩文干支后的汉字须一致：「갑자(甲子)」
+  for (const match of text.matchAll(
+    new RegExp(`(${KGZ})[(（]([${STEM_HANZI}][${BRANCH_HANZI}])`, 'g'),
+  )) {
+    checked++
+    if (KO_CYCLE.get(match[1])?.hanzi !== match[2])
+      issues.push(`${match[0]}：${match[1]}의 한자는 ${KO_CYCLE.get(match[1])?.hanzi}`)
+  }
+  // 干支后 16 字内、中间没有另一个干支的第一个纳音名
+  for (const match of text.matchAll(new RegExp(`(${KGZ})(?=[(（년 은는이의])`, 'g'))) {
+    const entry = KO_CYCLE.get(match[1])
+    if (!entry) continue
+    const after = text.slice(match.index + 2, match.index + 18).split(/[.;。\n]/)[0] ?? ''
+    const next = after.search(new RegExp(`${KGZ}[(（]`))
+    const window = next < 0 ? after : after.slice(0, next)
+    const name = KO_NAYIN_NAMES.find((candidate) => window.includes(candidate))
+    if (!name) continue
+    checked++
+    if (KO_NAYIN_NAMES[entry.nayin] !== name)
+      issues.push(`${match[0]}…${name}：${match[1]}의 납음은 ${KO_NAYIN_NAMES[entry.nayin]}`)
+  }
+  for (const match of text.matchAll(
+    new RegExp(
+      `(\\d{4}) ?년 ?입춘(?:은|는|이|의 시각은)? ?(?:한국 표준시로 |한국 표준시 )?${NUM} ?월 ?${NUM} ?일(?: ?(\\d{1,2}):(\\d{2}))?`,
+      'g',
+    ),
+  )) {
+    const row = KO_YEAR_FACTS.get(Number(match[1]))
+    if (!row) continue
+    checked++
+    const { month, day, hour, minute } = row.lichun
+    if (Number(match[2]) !== month || Number(match[3]) !== day)
+      issues.push(`${match[0]}：입춘은 ${month}월 ${day}일`)
+    if (match[4] !== undefined && (Number(match[4]) !== hour || Number(match[5]) !== minute))
+      issues.push(
+        `${match[0]}：입춘 시각은 ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+      )
+  }
+  for (const match of text.matchAll(
+    new RegExp(`(\\d{4}) ?년 ?설날(?:은|는|이)? ?${NUM} ?월 ?${NUM} ?일`, 'g'),
+  )) {
+    const row = KO_YEAR_FACTS.get(Number(match[1]))
+    if (!row) continue
+    checked++
+    const { month, day } = row.lunarNewYear
+    if (Number(match[2]) !== month || Number(match[3]) !== day)
+      issues.push(`${match[0]}：설날은 ${month}월 ${day}일`)
+  }
+  return { issues, checked }
+}
 
 const GZ = `[${STEM_HANZI}][${BRANCH_HANZI}]`
 const NUM = '(\\d{1,2})'
@@ -228,7 +413,11 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
 
     const sections = bodySections(content)
     const headings = sections.map((section) => section.title)
-    const fixed = hub ? spec.hubHeadings : spec.childHeadings
+    const fixed = hub
+      ? spec.hubHeadings
+      : typeof spec.childHeadings === 'function'
+        ? spec.childHeadings(branch)
+        : spec.childHeadings
     if (hub) {
       const absent = fixed.filter((title) => !headings.includes(title))
       if (absent.length) fail(`缺少小标题：${absent.join('、')}`)
@@ -239,8 +428,9 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
     for (const [ganzhi, text] of Object.entries(annual)) {
       if (!new RegExp(`^${GZ}$`).test(ganzhi)) fail(`annual 键须为干支：${ganzhi}`)
       const count = (String(text).match(spec.countUnit) ?? []).length
-      if (count < ANNUAL_MIN || count > ANNUAL_MAX)
-        fail(`annual.${ganzhi} ${count} 字（须 ${ANNUAL_MIN}–${ANNUAL_MAX}）`)
+      const [annualMin, annualMax] = spec.annual
+      if (count < annualMin || count > annualMax)
+        fail(`annual.${ganzhi} ${count} 字（须 ${annualMin}–${annualMax}）`)
     }
 
     // 篇幅：本页撰写的正文（导语、各段说明、正文、流年），不含 FAQ、表格与组件模板句
@@ -287,7 +477,7 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
         fail(`合规禁用词：${term}`)
 
-    const facts = factIssues(everything)
+    const facts = locale === 'ko' ? koFactIssues(everything) : factIssues(everything)
     factsChecked += facts.checked
     for (const issue of facts.issues) fail(`事实不一致：${issue}`)
 

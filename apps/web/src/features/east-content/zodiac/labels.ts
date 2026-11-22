@@ -1,6 +1,7 @@
 import type { Branch, BranchRelationType, Element, Stem } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
-import { BRANCH_HANZI, STEM_HANZI } from '../../tools/bazi/glyphs.ts'
+import { BRANCH_HANGUL, BRANCH_HANZI, STEM_HANGUL, STEM_HANZI } from '../../tools/bazi/glyphs.ts'
+import { ELEMENT_LABEL } from '../../tools/bazi/labels.ts'
 import type { MonthDay, MonthDayTime, ZodiacAnnual } from './data.ts'
 
 /**
@@ -74,7 +75,53 @@ export const ELEMENT_DOT: Record<Element, string> = {
   water: 'bg-wx-water',
 }
 
+const DIRECTION: Record<Branch, Message> = {
+  zi: m.zodiac_dir_zi,
+  chou: m.zodiac_dir_chou,
+  yin: m.zodiac_dir_yin,
+  mao: m.zodiac_dir_mao,
+  chen: m.zodiac_dir_chen,
+  si: m.zodiac_dir_si,
+  wu: m.zodiac_dir_wu,
+  wei: m.zodiac_dir_wei,
+  shen: m.zodiac_dir_shen,
+  you: m.zodiac_dir_you,
+  xu: m.zodiac_dir_xu,
+  hai: m.zodiac_dir_hai,
+}
+
+/** 地支方位（二十四山：子为 0°，每支 30°） */
+export const direction = (branch: Branch) => DIRECTION[branch]()
+
 export const glyph = (branch: Branch) => BRANCH_HANZI[branch]
+
+/**
+ * ko 页的干支写法（设计稿 ZodiacPageKoMobile）：韩文读音在前、汉字在括号里，如「자(子)」「경자(庚子)」；
+ * 中文页仍只写汉字。
+ */
+const isKorean = (locale: string) => locale === 'ko'
+export const branchName = (locale: string, branch: Branch) =>
+  isKorean(locale) ? BRANCH_HANGUL[branch] : BRANCH_HANZI[branch]
+export const branchLabel = (locale: string, branch: Branch) =>
+  isKorean(locale) ? `${BRANCH_HANGUL[branch]}(${BRANCH_HANZI[branch]})` : BRANCH_HANZI[branch]
+export const ganzhiHangul = (stem: Stem, branch: Branch) =>
+  `${STEM_HANGUL[stem]}${BRANCH_HANGUL[branch]}`
+export const ganzhiLabel = (locale: string, stem: Stem, branch: Branch) =>
+  isKorean(locale) ? `${ganzhiHangul(stem, branch)}(${ganzhi(stem, branch)})` : ganzhi(stem, branch)
+
+const ELEMENT_HANZI: Record<Element, string> = {
+  wood: '木',
+  fire: '火',
+  earth: '土',
+  metal: '金',
+  water: '水',
+}
+/** 五行名：ko 写「수(水)」，中文写「水」 */
+export const elementLabel = (locale: string, element: Element) =>
+  isKorean(locale)
+    ? `${ELEMENT_LABEL[element]()}(${ELEMENT_HANZI[element]})`
+    : ELEMENT_LABEL[element]()
+export const elementHanzi = (element: Element) => ELEMENT_HANZI[element]
 export const ganzhi = (stem: Stem, branch: Branch) => `${STEM_HANZI[stem]}${BRANCH_HANZI[branch]}`
 export const animal = (branch: Branch) => ANIMAL[branch]()
 export const zodiacName = (branch: Branch) => m.zodiac_name({ animal: ANIMAL[branch]() })
@@ -95,11 +142,31 @@ const CHINESE_NUMERALS = [
   '十二',
 ]
 
-/** 地支序位：中文写「第七位」，其他语言用阿拉伯数字 */
+const KOREAN_ORDINALS = [
+  '첫째',
+  '둘째',
+  '셋째',
+  '넷째',
+  '다섯째',
+  '여섯째',
+  '일곱째',
+  '여덟째',
+  '아홉째',
+  '열째',
+  '열한째',
+  '열두째',
+]
+
+/** 地支序位：中文写「第七位」，ko 写「자(子) · 첫째」，其他语言用阿拉伯数字 */
 export function branchPosition(locale: string, index: number): string {
+  const branch = BRANCH_ORDER[index] as Branch
   return m.zodiac_branch_position({
-    glyph: BRANCH_HANZI[BRANCH_ORDER[index] as Branch],
-    position: locale.startsWith('zh') ? (CHINESE_NUMERALS[index] ?? '') : String(index + 1),
+    glyph: branchLabel(locale, branch),
+    position: locale.startsWith('zh')
+      ? (CHINESE_NUMERALS[index] ?? '')
+      : isKorean(locale)
+        ? (KOREAN_ORDINALS[index] ?? '')
+        : String(index + 1),
   })
 }
 
@@ -135,10 +202,16 @@ export const monthDayTime = (date: MonthDayTime) =>
 export function annualChips(annual: ZodiacAnnual, natal: Branch): string[] {
   const natalGlyph = BRANCH_HANZI[natal]
   const yearGlyph = BRANCH_HANZI[annual.branch]
+  // ko 文案另用韩文读音（「자오충(子午沖)」）
+  const values = {
+    natal: natalGlyph,
+    year: yearGlyph,
+    natalK: BRANCH_HANGUL[natal],
+    yearK: BRANCH_HANGUL[annual.branch],
+  }
   const chips: string[] = []
   if (annual.taiSui === 'zhi') chips.push(m.zodiac_taisui_zhi())
-  if (annual.taiSui === 'chong') chips.push(m.zodiac_taisui_chong())
-  const values = { natal: natalGlyph, year: yearGlyph }
+  if (annual.taiSui === 'chong') chips.push(m.zodiac_taisui_chong(values))
   for (const relation of annual.relations) {
     if (relation === 'sixCombine') chips.push(m.zodiac_chip_six(values))
     if (relation === 'triad') chips.push(m.zodiac_chip_triad(values))
@@ -150,6 +223,6 @@ export function annualChips(annual: ZodiacAnnual, natal: Branch): string[] {
       )
     if (relation === 'harm') chips.push(m.zodiac_chip_harm(values))
   }
-  if (chips.length === 0) chips.push(m.zodiac_chip_none({ year: yearGlyph }))
+  if (chips.length === 0) chips.push(m.zodiac_chip_none(values))
   return chips
 }
