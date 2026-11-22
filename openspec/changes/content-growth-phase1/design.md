@@ -81,26 +81,28 @@
 - `features.guides` 为 false。答案页集合 `content/guides/en` 里只有 3 篇模板示例。
 - 正文内链上限：每页 2–5 个（`audit-seo.mjs` 的 `BODY_LINKS_MAX`，枢纽页与首页除外）。`ToolLinks` 没有 `data-link-zone` 标记，按正文计；模板的「相关」区块（`data-link-zone="related"`）不计入正文链接数。
 
-### 1.5 合婚
-
-- `/ko/사주궁합` 的页面是 `bazi/gunghap-page.tsx`，内部写死 `const LOCALE = 'ko'`，经 `$slug.tsx` 与 `eastern-routes.ts` 的 `EASTERN_PAGES` 承接。
-- 注册表条目 `saju-gunghap` 只有 ko 路径。文案 `bazi_gunghap_*` 共 30 个键，只在 `messages/ko/bazi.json` 中。
-- 页面正文只有约 210 字（只有导语与 2 条 FAQ），没有说明长文。
-- 付费详批 `saju-compat` 只有 ko 版本（`readings/catalog.ts`）。没有该语言版本时，`getReadingOffer` 返回不可用，解锁卡不显示。
-- 东方站中文首页的精选入口顺序已由使用者确认（2026-11-17）：八字排盤、紫微斗數、三張牌塔羅、命盤查詢。代码是 `home-hub/data.ts` 的 `FEATURED.east`：`['bazi','ziwei','saju-gunghap','tarot-three-card','mingpan']`，按当前语言有页面的前 4 个取。
 
 ## Goals / Non-Goals
 
 **Goals：**
 - 1.1 的 5 个组件段在 en、es 上都 ≤0.30，并把测量并入工具、可以重复执行。
 - 主词归属清楚：一个词一个页面；Title、H1、导航名与锚文本一致；TDK 落在长度区间内。
-- 新页面（1.4、1.5）复用现有版式与引擎，不新增网址规则与依赖。
+- 新页面（1.4）复用现有版式与引擎，不新增网址规则与依赖。
 
 **Non-Goals：**
 - 不改牌义页与数字页的 Title、H1、meta description；不改任何现有网址、canonical 与 robots.txt。
 - 不处理东方站牌义页的组件段，那是另一组语言与另一套测量。
-- 不加长塔罗入口页与 `/ko/사주궁합` 的正文（见待确认问题 3）。
-- 不做中文付费合婚详批（见待确认问题 1）。
+- 不加长塔罗入口页等薄页的正文（en `/tarot` 约 260 词、zh-hans 约 480 字）。扩写需要为入口页新增 `ToolArticle` 区块，属于区块增加、要出设计稿，可作为后续小 change。
+- 不做任何婚姻、配对类工具或详批（见下文「约束」）。不扩展现有 `/ko/사주궁합`，也不为它增加语言、长文或付费详批；代码与 spec 中的现有 ko 页面保持原样。
+
+## 约束：不做婚姻、配对类专门工具
+
+使用者 2026-11-22 决定：「不做具体婚姻类的命理推演，我们的每个工具都是一个具体工具的广泛应用」。本阶段与后续阶段都遵守：
+
+- 不新增以婚姻、合婚、配对、恋爱匹配为主题的工具页、详批或程序化页面（如八字合婚、生肖配对、两人合盘）。
+- 新工具 SHALL 是一项通用工具（排盘、计算器、抽牌、黄历等），爱情与关系只作为通用结果中的一个维度出现。
+- 现有 `/ko/사주궁합` 与 ko 的 `saju-compat` 详批保持原样，不扩展语言、内容或入口。
+- 规划 v1 中依赖合婚的内容（第 1 阶段 1.5、使用者决定第 4 条中「合婚同步做 ko 版」）随之取消，第 2 阶段 change 不再纳入。
 
 ## Decisions
 
@@ -185,7 +187,7 @@
 | es | 不变 | 不变 | 不变 | 不变（Tarot gratis） |
 | ja | 不变 | 不变 | 不变 | 不变 |
 
-以上为草案。zh-hant、ko 的终稿由 Claude 文案子代理按本语言习惯定稿，并经 Codex 回译审阅（决策 9）。定稿仍须在长度区间内，主词不变。
+以上为草案。zh-hant、ko 的终稿由 Claude 文案子代理按本语言习惯定稿，并经 Codex 回译审阅（决策 8）。定稿仍须在长度区间内，主词不变。
 
 **子词保留**：单张（Card of the Day／每日一张塔罗／오늘의 타로 카드）、是非（Yes or No Tarot）、凯尔特十字、牌义索引（Tarot Card Meanings）的 Title 与 H1 不变。它们的描述中「free … tarot」类说法不以免费塔罗主词开头，不做改动。
 
@@ -240,58 +242,17 @@
 
 **设计稿**：按 design-system §8.1，套用现有模式的新页面也需要设计稿。入门页没有新版式，只是枢纽页版式加相关区块，所以只需一张 ui-design 画布稿（en 桌面与 390px 各一）给使用者确认即可。
 
-### 决策 8：合婚页复用사주궁합组件，路径 `/八字合婚`
-
-**路由与注册**：
-
-- `EASTERN_PAGES` 增加 `{ id: 'gunghap', locale: 'zh-Hans', slug: '八字合婚' }` 与 zh-Hant 同名条目，由 `$slug.tsx` 承接，不新增路由文件。
-- 注册表 `saju-gunghap` 的 `paths`、`titles`、`descriptions` 增加 zh-Hans、zh-Hant。三种语言互为 hreflang；东方站没有 en 版，x-default 指向 zh-Hant。
-
-**组件**：
-
-- `gunghap-page.tsx` 去掉写死的 `LOCALE`，改为按当前语言取值。`BirthFields` 的语言、`pageHref` 与 `conceptHref` 都随之变化。
-- 中文没有「일주」概念页，相关链接改为八字排盘、五行、喜用神、十神。缺页的链接按现有 `link()` 规则自动省略。
-- 新增说明长文（`ToolArticle`，与数字命理工具页同一组件）：计分方法（基础 60 分，日柱天干五合、地支六合、三合、冲、刑，五行互补）、读分方式、与传统合婚的差别（不含生肖配对、年命纳音、神煞等），以及「分数不替代你自己的判断」。
-- ko 页面不加长文，保持原样（见待确认问题 3）。
-
-**文案**：`messages/zh-Hans/bazi.json` 与 `messages/zh-Hant/bazi.json` 补齐 30 个 `bazi_gunghap_*` 键，并新增长文与第 3、4 条 FAQ 的键。繁体单独撰写。
-
-**提议的 TDK**：
-
-| 语言 | Title（长度） | Description（长度） | H1 |
-|---|---|---|---|
-| zh-hans | 八字合婚｜免费生辰八字配对，看日柱合冲与五行互补｜干支日（28） | 免费八字合婚：输入两人的出生日期与时辰，按日柱天干五合、地支六合三合与冲刑，加上五行互补，算出参考分数并逐项列出加减分依据。仅供参考，不替代你自己的判断。（77） | 免费八字合婚 |
-| zh-hant | 八字合婚免費線上算｜兩人生辰配對，日柱五行逐項看｜干支日（28） | 兩個人合不合，先把生辰排出來看：八字合婚免費試算日柱的天干五合、地支六合與三合、沖與刑，再看五行能否互補，給出參考分數與每一項的加減分。結果僅供參考。（75） | 八字合婚・線上配對 |
-
-**锚文本**：
-
-- zh-hans：「八字合婚」、「生辰八字合婚」。
-- zh-hant：「八字合婚」、「合婚配對」。
-- 入链来源：本语言八字排盘页的延伸链接，加上八字概念页里提到合婚的现成句子（如有）。
-
-**首页精选入口**：使用者 2026-11-17 确认的中文首页精选入口不变。`FEATURED.east` 改为按语言排除，zh 不显示 saju-gunghap，ko 维持现状，避免命盤查詢被挤出首页（见待确认问题 2）。
-
-**付费详批**：本阶段不做。没有中文 `saju-compat` 版本时，`getReadingOffer` 返回不可用，`ReadingSlots` 不渲染解锁卡，无需额外开关。以后接入需要：
-
-- 中文提示词版本与样本（`evals/readings` 新套件版本）；
-- 带 `--budget-usd` 的真实评测；
-- 在 `READING_EVAL_PENDING` 中登记 `saju-compat.zh-Hans`、`saju-compat.zh-Hant`，评测通过后移除。
-
-这些放在后续 change 中做。
-
-**设计稿**：中文页比 ko 页多一个长文区块，属于新页面，需要 ui-design 画布稿（zh-hans 桌面与 390px）给使用者确认。
-
-### 决策 9：文案的撰写与交叉审阅
+### 决策 8：文案的撰写与交叉审阅
 
 - **en**：Claude 文案子代理撰写。数字与算式一律由引擎复算，`check-content-concepts` 逐行校验。
 - **es、zh-hans、zh-hant、ko**：Claude 子代理按本语言搜索词与表达习惯直接撰写，不由 en 翻译。zh-hant 与 zh-hans 分别撰写，不做字形转换。
 - **交叉审阅**（使用者 2026-11-20 规则：Claude 写的由 Codex 回译审阅，反之亦然）：
   - es：`measure-locale-backtranslation.mjs --locale es --export-input <证据目录>` 导出，Codex 在自己的会话中回译，再用 `--from-file` 计算。整页 ≤ 校准阈值（默认 0.50），FAQ ≤0.40。
   - zh-hant 对 zh-hans：`measure-locale-similarity --opencc <证据目录中的 opencc-js>` 的同文字变体门槛（整页 ≤0.60、整句 ≤0.15、FAQ ≤0.40）。
-  - zh、ko 的 TDK 与长文：Codex 回译，Claude 根据回译意见修改。
+  - zh、ko 的 TDK：Codex 回译，Claude 根据回译意见修改。
 - **合规**：免费工具页写「依据传统方法推算、仅供参考与潜意识探索、不预测未来」，不得写 AI 生成或 AI 辅助，不使用「娱乐」定位，健康问题引导咨询医师。es 文案按 `i18n/glossary/es.json` 的首选写法与禁用写法撰写。
 
-### 决策 10：测量工具与证据
+### 决策 9：测量工具与证据
 
 - `measure-locale-similarity.mjs` 增加「组件段」报告：
   - 按段标题的正则（en/es 对照表）对齐；
@@ -307,9 +268,7 @@
 - [塔罗入口页改名牵动面包屑、页头、首页工具卡、78 个转化条的锚文本] → 一次性在同一 PR 内改完。`audit:seo` 核对锚文本种类 ≤2、top1 占比；`check:links` 核对无死链与 h1；首页工具卡与页头 390px 截图。
 - [`tarotLocalizedSeoPages()` 的筛选副作用] → 见决策 6，用单测锁定其他牌阵页的 Title 与 Description。
 - [`routes/blog/index.tsx` 是模板文件] → 只改一处并同时提交模板请求 R7。template-sync 冲突时按三方合并保留本行为。
-- [合婚分数被理解为传统合婚结论] → 长文与 FAQ 写明计分范围与差别，结果区保留合规声明。
-- [中文合婚页加入注册表后，首页精选入口可能变化] → 按决策 8 排除 zh，并用 `home-hub` 单测锁定中文首页入口。
-- [新页面的薄页风险] → 入门页正文 ≥1,000 词，合婚页 ≥1,500 字；上线前过 `measure-locale-similarity`、`audit:seo`、`check:links`、`check:i18n-seo`。
+- [新页面的薄页风险] → 入门页正文 ≥1,000 词；上线前过 `measure-locale-similarity`、`audit:seo`、`check:links`、`check:i18n-seo`。
 
 ## Migration Plan
 
@@ -319,9 +278,8 @@
 
 ## Open Questions
 
-以下默认值已经写入 tasks。使用者改选时，只影响对应任务组的范围，不影响其他组。
+无。规划阶段的待确认问题已由使用者裁定（2026-11-22）：
 
-1. **中文付费合婚详批**：默认本阶段不做，放到后续 change（需要中文提示词与真实评测预算）。若要并入本阶段，在第 7 组之后加一组「saju-compat zh 版本 + 评测」，评测通过前登记 `READING_EVAL_PENDING`。
-2. **中文首页精选入口**：默认保持 2026-11-17 确认的顺序，八字合婚不进中文首页卡片，只经八字排盘页与概念页入链。
-3. **薄页的正文扩写**：塔罗入口页（en 约 260 词、zh-hans 约 480 字）与 `/ko/사주궁합`（约 210 字）的正文都偏薄。默认不在第 1 阶段扩写。若要扩写，需要为入口页加 `ToolArticle` 区块，属于区块增加，要出设计稿，建议另开小 change。
-4. **入门页路径**：默认 `/numerology`、`/es/numerologia`。若要与主词逐字一致，可改为 `/what-is-numerology`、`/es/que-es-la-numerologia`，只影响第 6 组。
+- 中文八字合婚（含付费详批与中文首页入口）：取消，见「约束」。
+- 塔罗入口页等薄页的正文扩写：不在第 1 阶段，可作为后续小 change。
+- 入门页路径：`/numerology` 与 `/es/numerologia`（决策 7）。

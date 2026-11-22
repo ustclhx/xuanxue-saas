@@ -1,23 +1,23 @@
 # Tasks
 
 > 并行与共享文件说明（遵守 docs/09-parallel-plan.md §3、§6）：
-> - 第 1 组先合并（体量小）。第 2–7 组彼此独立，可以各开一个 worktree 并行；第 2、3 组的最终门槛依赖第 1 组的测量工具，文案可以先写。第 8 组由协调者在全部合并后执行。
+> - 第 1 组先合并（体量小）。第 2–6 组彼此独立，可以各开一个 worktree 并行；第 2、3 组的最终门槛依赖第 1 组的测量工具，文案可以先写。第 7 组由协调者在全部合并后执行。
 > - 共享文件：
 >   - `apps/web/content-collections.ts`：第 2 组改 `tarot` 集合，第 3、6 组改 `numerology` 集合。各改各的集合块，后合并的一方 rebase 时保留双方字段。
 >   - `apps/web/src/features/tools/numerology/content.functions.ts`：第 3、6 组都可能改，冲突时合并两边字段。
->   - `apps/web/src/features/tools/registry.ts`：第 6、7 组各改自己的条目。
+>   - `apps/web/src/features/tools/registry.ts`：只由第 6 组修改（入门页条目）。
 >   - `messages/<locale>/tarot.json` 只由第 5 组修改；第 2 组不改 messages。
->   - `messages/zh-*/bazi.json` 只由第 7 组修改。
 >   - `apps/web/i18n/glossary/es.json`：第 2、3、6 组可能各自增加锚文本条目，冲突时合并。
+> - 不做婚姻、配对类工具（design「约束」）；不改现有 `/ko/사주궁합`。
 > - 不涉及 schema 与迁移，不改 `pnpm-lock.yaml`。只勾选分配给自己的编号。
-> - 建议执行者：第 1、4 组交给 Codex（简单代码改动）；第 2、3、5、6、7 组交给 Claude（文案量大或需要设计稿）。每组 Claude 写的 es、zh、ko 文案由 Codex 回译审阅（design 决策 9）。
+> - 建议执行者：第 1、4 组交给 Codex（简单代码改动）；第 2、3、5、6 组交给 Claude（文案量大或需要设计稿）。每组 Claude 写的 es、zh、ko 文案由 Codex 回译审阅（design 决策 8）。
 > - 每组 PR 的通用验收：`pnpm check`、`pnpm typecheck`、`pnpm check:deps`、相关单测、`pnpm --filter @xuanxue/web build`（含首页包预算），以及构建后 `check:links`、`audit:seo`、`check:i18n-seo` 不比 main 退步。证据写入私有证据目录 `content-growth/phase1/<组号>/`，PR 只引用路径。
 
 ## 1. 测量工具与关键词归属表
 
 - [ ] 1.1 在 `apps/web/scripts/locale-similarity.mjs` 增加组件段对照表：牌义页导语、抽一张、延伸牌义；数字页首屏样例（es 截到结果区声明为止）、其余数字。按 en、es 段标题正则对齐，只计组件部分。补 `measure-locale-similarity.test.mjs` 单测；`pnpm check` 通过
 - [ ] 1.2 在 `measure-locale-similarity.mjs` 的报告中输出「组件段」表（每语言每段的平均与最差页）。`--enforce en,es` 时任一段 >0.30 以 1 退出。在 main 构建上复现 design.md 基线表：en 0.549、1.0、0.405、0.736、0.677；es 0.490、1.0、0.385、0.712、0.729。报告存入证据目录
-- [ ] 1.3 在私有证据目录建立 `content-growth/keyword-ownership.md`，按站点 × 语言 × 主词 → 页面登记：本 change 的 1.3、1.4、1.5 主词，es、ja 已有的塔罗与数字命理主词，以及各牌阵页的子词。核对没有两个页面以同一主词为 Title 或 H1 目标
+- [ ] 1.3 在私有证据目录建立 `content-growth/keyword-ownership.md`，按站点 × 语言 × 主词 → 页面登记：本 change 的 1.3、1.4 主词，es、ja 已有的塔罗与数字命理主词，以及各牌阵页的子词。核对没有两个页面以同一主词为 Title 或 H1 目标
 
 ## 2. 牌义页组件段逐牌撰写（西方站 en、es）
 
@@ -56,24 +56,8 @@
 - [ ] 6.4 入链：在首页「How we calculate」一行，以及 `/life-path-number`、`/numerology-calculator` 长文中现成提到 numerology 的句子里，各加最多 1 条指向入门页的链接（en「what is numerology」/「numerology basics」，es「qué es la numerología」/「numerología para principiantes」）；不新造句子，总入链 ≥2。es 两种锚文本登记进 `i18n/glossary/es.json`
 - [ ] 6.5 验收：两页进入站点地图、互为 hreflang、canonical 自指；`audit:seo` 显示正文内链 2–5、TDK 在区间内、钱页入链不减少；`check:links` 无孤岛与死链；`measure-locale-similarity` 中 es 对 en 的结构直译分 ≤0.6、数字序列重合 ≤0.5；llms.txt 含两页；关键词归属表已登记
 
-## 7. 中文八字合婚工具页（zh-hans、zh-hant）
+## 7. 集成验收（协调者，全部合并后在 main 上执行）
 
-- [ ] 7.1 按 `ui-design` 技能出画布稿：zh-hans 桌面与 390px，在사주궁합的结构上增加说明长文区块。经使用者确认后存离线副本并登记原型索引。未确认前不开始 7.4
-- [ ] 7.2 Claude 子代理分别撰写 zh-hans 与 zh-hant 文案：30 个 `bazi_gunghap_*` 键、说明长文（计分方法、读分、与传统合婚的差别）、FAQ 3–4 问、TDK（以 design 决策 8 为底稿，长度合规）。合规表述为「依据传统方法推算、仅供参考与潜意识探索、不预测未来」，不写 AI。Codex 回译审阅，意见存证据目录
-- [ ] 7.3 测量繁简差异：两页的同文字变体门槛（整页 ≤0.60、整句 ≤0.15、FAQ ≤0.40），用证据目录中的 opencc-js 运行 `measure-locale-similarity --site east --opencc <目录>`；正文各 ≥1,500 字
-- [ ] 7.4 代码改动：
-  - `eastern-routes.ts` 增加两条 `/八字合婚`；
-  - 注册表 `saju-gunghap` 增加 zh-Hans、zh-Hant 的路径、标题与描述；
-  - `gunghap-page.tsx` 去掉写死的 `LOCALE`，按语言取值；中文相关链接为八字排盘、五行、喜用神、十神；增加 `ToolArticle` 长文；
-  - `bazi/head.ts` 取本语言 TDK；
-  - `home-hub/data.ts` 让中文首页精选入口不包含 saju-gunghap（design 决策 8）。
-
-  补单测：中文路由解析、hreflang 三语互指且 x-default 指向 zh-Hant、中文首页精选入口与 main 相同、ko 页面输出不变
-- [ ] 7.5 入链：在 zh-hans 与 zh-hant 八字排盘页的延伸链接中加「八字合婚」（zh-hant 第二种表述「合婚配對」用于概念页中的现成句子，如有）。`audit:seo` 显示每个目标锚文本 ≤2 种
-- [ ] 7.6 验收：preview 提交两组出生信息，显示分数、逐项加减分与四柱，结果区底部有合规声明，不显示解锁卡（中文无 `saju-compat` 版本）；`check:links`、`audit:seo`、`check:i18n-seo` 通过；关键词归属表已登记「八字合婚」
-
-## 8. 集成验收（协调者，全部合并后在 main 上执行）
-
-- [ ] 8.1 main 生产构建后运行 `measure-locale-similarity --site west --enforce en,es`（组件段全部 ≤0.30）与 `--site east`。报告与 design.md 基线对比后存证据目录
-- [ ] 8.2 main 上运行 `check:links`、`audit:seo`、`check:i18n-seo`，全部通过且孤岛、死链为 0；核对关键词归属表与线上 Title、H1 一致
-- [ ] 8.3 随统一发版上 staging，抽查 `/tarot`、`/numerology`、`/es/numerologia`、`/zh-hans/八字合婚`、`/blog` 的 TDK 与 robots；生产发版需使用者授权。站点地图重提与请求编入索引并入全部工作完成后交给 Grok bot 的清单（不在本 change 内执行）
+- [ ] 7.1 main 生产构建后运行 `measure-locale-similarity --site west --enforce en,es`（组件段全部 ≤0.30）与 `--site east`。报告与 design.md 基线对比后存证据目录
+- [ ] 7.2 main 上运行 `check:links`、`audit:seo`、`check:i18n-seo`，全部通过且孤岛、死链为 0；核对关键词归属表与线上 Title、H1 一致
+- [ ] 7.3 随统一发版上 staging，抽查 `/tarot`、`/numerology`、`/es/numerologia`、`/blog` 的 TDK 与 robots；生产发版需使用者授权。站点地图重提与请求编入索引并入全部工作完成后交给 Grok bot 的清单（不在本 change 内执行）
