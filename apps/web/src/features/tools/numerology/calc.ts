@@ -126,7 +126,13 @@ export function formatLongDate({ year, month, day }: BirthDate, locale = 'en'): 
  * 数字页首屏样例：从 `fromYear` 年 1 月 1 日（默认 1980）起逐日找到第一个生命灵数为 `value` 的日期；
  * 新语言另取起始年，示例数字不与英文页相同（localized-content-quality「示例本地化」）
  */
-export function exampleDateFor(value: number, fromYear = 1980): BirthDate {
+/**
+ * 数字页样例日期的起始年（en、es 各用一组日期，避免两种语言的数字序列重合）。
+ * frontmatter 的 `sample_note` 按这组日期撰写，scripts/check-content-concepts.mjs 用同一常量复算。
+ */
+export const SAMPLE_FROM_YEAR = { en: 1980, es: 1993 } as const
+
+export function exampleDateFor(value: number, fromYear: number = SAMPLE_FROM_YEAR.en): BirthDate {
   const cursor = new Date(Date.UTC(fromYear, 0, 1))
   for (let i = 0; i < 366 * 60; i += 1) {
     const date = {

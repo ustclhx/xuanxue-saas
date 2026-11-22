@@ -9,8 +9,12 @@ import { lifePathHref, numerologyHref } from './href.ts'
 import { NumerologyArticle } from './parts.tsx'
 import { faqItems } from './seo.ts'
 
-/** 「相邻数字」一段：句子里链接 2–3 个数字页，锚文本为「Life Path Number n」 */
-function NeighborNumbers({ number }: { number: number }) {
+/**
+ * 「相邻数字」一段：句子里链接 2–3 个数字页，锚文本为「Life Path Number n」。
+ * `text` 为 frontmatter 的逐数字文案（openspec content-growth-phase1 决策 1），`[锚文本]` 依次对应
+ * `neighborNumbers()` 的 pair 与 root；缺失时用 messages 的通用句式。
+ */
+export function NeighborNumbers({ number, text }: { number: number; text?: string | undefined }) {
   const { pair, root } = neighborNumbers(asLifePath(number))
   const link = (value: number) => ({
     href: lifePathHref(value),
@@ -34,17 +38,23 @@ function NeighborNumbers({ number }: { number: number }) {
         {m.numerology_neighbors_title()}
       </h2>
       <p className="m-0 text-body text-ink-muted">
-        <InlineLinks
-          text={root ? m.numerology_neighbors_master(inputs) : m.numerology_neighbors(inputs)}
-          links={pair.map(link)}
-        />
-        {root && (
+        {text ? (
+          <InlineLinks text={text} links={[...pair, ...(root ? [root] : [])].map(link)} />
+        ) : (
           <>
-            {' '}
             <InlineLinks
-              text={m.numerology_neighbors_root({ number, root, theme: NUMBER_THEME[root]() })}
-              links={[link(root)]}
+              text={root ? m.numerology_neighbors_master(inputs) : m.numerology_neighbors(inputs)}
+              links={pair.map(link)}
             />
+            {root && (
+              <>
+                {' '}
+                <InlineLinks
+                  text={m.numerology_neighbors_root({ number, root, theme: NUMBER_THEME[root]() })}
+                  links={[link(root)]}
+                />
+              </>
+            )}
           </>
         )}
       </p>
@@ -82,7 +92,9 @@ export function NumerologyContentPage({
         article={
           <>
             <NumerologyArticle html={content.html} />
-            {content.number != null && <NeighborNumbers number={content.number} />}
+            {content.number != null && (
+              <NeighborNumbers number={content.number} text={content.neighbors} />
+            )}
           </>
         }
         faq={faqItems(content.faq)}

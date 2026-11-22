@@ -92,17 +92,22 @@ function NumberRing({ value }: { value: number }) {
 /**
  * Life Path 结果卡（设计稿 warm-refresh/ToolLifePath.dc.html）：说明标签、数字环、数字标题与摘要、数字页链接，
  * 之后是计算步骤（推导图形加算式）与短声明。`example` 时标签改为样例说明（未提交前展示样例日期的计算过程）。
+ * 数字页的样例传入 `note`（openspec content-growth-phase1 决策 4）：摘要换成逐数字撰写的样例说明，并去掉与
+ * 结果区底部 `<Disclaimer />` 重复的卡内短声明；访客提交后的结果卡不传 `note`，保持原样。
  */
 export function LifePathCard({
   result,
   date,
   example,
+  note,
   current,
   footer,
 }: {
   result: NumberResult
   date: BirthDate
   example?: boolean
+  /** 样例说明（只在 `example` 时生效） */
+  note?: string | undefined
   /** 所在数字页的数字：结果与它相同时不输出数字页链接（否则是指向本页的链接） */
   current?: number | undefined
   footer?: ReactNode
@@ -110,6 +115,7 @@ export function LifePathCard({
   const labelId = useId()
   const { track } = useTool()
   const value = asLifePath(result.value)
+  const exampleNote = example ? note : undefined
   return (
     <section
       aria-labelledby={labelId}
@@ -129,7 +135,7 @@ export function LifePathCard({
             </h2>
             {result.master && <MasterPill />}
           </div>
-          <p className="m-0 text-body text-ink-muted">{NUMBER_SUMMARY[value]()}</p>
+          <p className="m-0 text-body text-ink-muted">{exampleNote ?? NUMBER_SUMMARY[value]()}</p>
           {value !== current && (
             <a
               href={lifePathHref(value)}
@@ -150,9 +156,11 @@ export function LifePathCard({
         <LifePathChart result={result} date={date} />
         <LifePathSteps result={result} date={date} />
       </div>
-      <p role="note" className="m-0 text-caption text-ink-subtle">
-        {m.numerology_result_note()}
-      </p>
+      {!exampleNote && (
+        <p role="note" className="m-0 text-caption text-ink-subtle">
+          {m.numerology_result_note()}
+        </p>
+      )}
       {footer}
     </section>
   )

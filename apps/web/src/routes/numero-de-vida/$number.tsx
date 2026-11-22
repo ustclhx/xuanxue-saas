@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { breadcrumbData } from '../../features/seo/structured-data.ts'
 import { Breadcrumb } from '../../features/tools/breadcrumb.tsx'
-import { exampleDateFor } from '../../features/tools/numerology/calc.ts'
+import { exampleDateFor, SAMPLE_FROM_YEAR } from '../../features/tools/numerology/calc.ts'
 import { getNumerologyPage } from '../../features/tools/numerology/content.functions.ts'
 import { NumerologyContentPage } from '../../features/tools/numerology/content-page.tsx'
 import { LifePathCalculator } from '../../features/tools/numerology/life-path-calculator.tsx'
@@ -72,8 +72,9 @@ function NumeroDeVidaPage() {
       }
       calculator={
         <LifePathCalculator
-          example={exampleDateFor(Number(content.number), 1993)}
+          example={exampleDateFor(Number(content.number), SAMPLE_FROM_YEAR.es)}
           current={Number(content.number)}
+          note={content.sample_note}
         />
       }
     />

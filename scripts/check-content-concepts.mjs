@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { readdir, readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { exampleDateFor, SAMPLE_FROM_YEAR } from '../apps/web/src/features/tools/numerology/calc.ts'
 import {
   COMPATIBILITY_MATRIX,
   LIFE_PATH_VALUES,
@@ -190,6 +191,8 @@ async function checkFile(collection, locale, slug) {
       'updated',
       ...(isConcept ? ['block', 'conceptKey'] : ['number']),
       ...(isConcept && locale === 'zh-Hans' ? ['aliases'] : []),
+      // 数字页组件段（content-growth-phase1），内容在文末单独校验
+      ...(slug.startsWith('life-path-') ? ['sample_note', 'neighbors'] : []),
     ].sort(),
   )
   for (const field of ['title', 'description', 'slug', 'locale', 'updated']) {
@@ -422,6 +425,56 @@ for (const [collection, locale, slugs] of [
     }
   }
 }
+// 数字页组件段（openspec content-growth-phase1 决策 1、4）：en、es 每个数字页的 `sample_note` 与 `neighbors`。
+// 样例说明里的算式必须与页面样例日期 exampleDateFor(n, 起始年) 的引擎步骤逐条一致（顺序相同、不多不少）；
+// `neighbors` 的方括号锚文本与页面链接一一对应：顺序同 copy.ts 的 neighborNumbers()，文字同现有锚文本。
+const WORDS = /[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu
+const NEIGHBOR_ANCHOR = { en: 'Life Path Number', es: 'Número de vida' }
+let componentPages = 0
+/** 与 apps/web/src/features/tools/numerology/copy.ts 的 neighborNumbers() 相同（该文件引用文案运行时，脚本不能直接导入） */
+function neighborLinks(value) {
+  if (value > 9) {
+    const masters = [11, 22, 33].filter((master) => master !== value)
+    return [...masters, (value / 11) * 2]
+  }
+  return [((value + 7) % 9) + 1, (value % 9) + 1]
+}
+for (const locale of ['en', 'es']) {
+  for (const value of LIFE_PATH_VALUES) {
+    const name = `numerology/${locale}/life-path-${value}.mdx`
+    try {
+      const source = await readFile(new URL(name, root), 'utf8')
+      const data = parseDocument(source.match(/^---\n([\s\S]+?)\n---\n/)[1]).toJS()
+      assert.ok(typeof data.sample_note === 'string', 'sample_note required')
+      assert.ok(typeof data.neighbors === 'string', 'neighbors required')
+      const noteWords = data.sample_note.match(WORDS)?.length ?? 0
+      assert.ok(
+        noteWords >= 100 && noteWords <= 130,
+        `sample_note: ${noteWords} words, expected 100–130`,
+      )
+      const neighborWords = data.neighbors.match(WORDS)?.length ?? 0
+      assert.ok(
+        neighborWords >= 45 && neighborWords <= 80,
+        `neighbors: ${neighborWords} words, expected 45–80`,
+      )
+      const date = exampleDateFor(value, SAMPLE_FROM_YEAR[locale])
+      assert.deepEqual(
+        data.sample_note.match(/\d+(?: \+ \d+)+ = \d+/g) ?? [],
+        lifePath(date).steps.map(equation),
+        `sample_note steps must match the engine for ${date.year}-${date.month}-${date.day}`,
+      )
+      assert.deepEqual(
+        [...data.neighbors.matchAll(/\[([^\]]+)\]/g)].map((match) => match[1]),
+        neighborLinks(value).map((other) => `${NEIGHBOR_ANCHOR[locale]} ${other}`),
+        'neighbors anchors must match neighborNumbers() and the existing anchor text',
+      )
+      componentPages++
+    } catch (error) {
+      failures.push(`${name}: ${error.message}`)
+    }
+  }
+}
+console.log(`Engine-verified component notes: ${componentPages} life path pages (en, es)`)
 for (const [locale, counts] of Object.entries(totals)) {
   console.log(
     `${locale}: ${counts.length} pages, prose length ${Math.min(...counts)}–${Math.max(...counts)}`,
