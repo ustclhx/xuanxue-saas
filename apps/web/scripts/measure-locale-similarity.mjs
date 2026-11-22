@@ -360,7 +360,7 @@ export async function measureSite({
                 id: decode(path),
                 sections: pages.get(path).eastSections,
               })),
-              { unit: unitOf(locale) },
+              { unit: unitOf(locale), collection },
             ),
           ]),
         )

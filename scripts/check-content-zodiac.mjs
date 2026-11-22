@@ -203,6 +203,19 @@ const KO_CYCLE = new Map(
 const KO_NAYIN_NAMES = [...Array(30).keys()].map((i) => KO_NAYIN[`zodiac_nayin_${i}`])
 const KGZ = `[${STEM_HANGUL}][${BRANCH_HANGUL}]`
 
+/**
+ * ko 语体（协调者 2026-11-22）：站内韩文一律합쇼체，句末不得为해요체（「~요」「~죠」）。
+ * 允许：请求式「~세요」（现有概念页同样使用）；FAQ 的问句（`q`）沿用站内「~나요?」「~인가요?」写法，不在此检查。
+ * 返回命中的句子（截取末尾 24 字）。
+ */
+export function haeyoEndings(text) {
+  return String(text)
+    .split(/(?<=[.?!])\s+|\n+/)
+    .map((sentence) => sentence.trim().replace(/[\s"'”’」』)）\]*_]+$/u, ''))
+    .filter((sentence) => /[요죠][.?!…]*$/u.test(sentence) && !/세요[.?!…]*$/u.test(sentence))
+    .map((sentence) => sentence.slice(-24))
+}
+
 /** ko 正文中写到的事实（「1984년 갑자(甲子)」「갑자(甲子)는 해중금」「2026년 입춘은 2월 4일 05:02」「2027년 설날은 2월 7일」） */
 export function koFactIssues(text) {
   const issues = []
@@ -477,6 +490,20 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
         fail(`合规禁用词：${term}`)
 
+    if (locale === 'ko') {
+      const register = [
+        data.title,
+        data.heading,
+        data.description,
+        data.lede,
+        data.years_note,
+        data.relations_note,
+        ...Object.values(annual),
+        ...faq.map((item) => item.a),
+        plain(content),
+      ].flatMap(haeyoEndings)
+      for (const ending of register) fail(`해요체 句末（须합쇼체）：…${ending}`)
+    }
     const facts = locale === 'ko' ? koFactIssues(everything) : factIssues(everything)
     factsChecked += facts.checked
     for (const issue of facts.issues) fail(`事实不一致：${issue}`)

@@ -98,6 +98,27 @@ const EAST_COLLECTIONS = {
   ko: [['zodiac', /^\/ko\/띠\/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠\/?$/]],
 }
 
+/**
+ * 集合内按页面变化的小标题部分（content-growth-phase2 第 5 组，协调者 2026-11-22）：ko 生肖页的设计稿小标题带本页띠名与地支
+ * （「쥐띠 성격과 일하는 방식」「자(子)의 육합·삼합·충·형·해」），不归一时这些段各只有一页、不进门槛。
+ * 归一后同位置的段对齐计算；zh-Hant 生肖页（第 9 组）的「屬X」同理。
+ */
+const EAST_TITLE_TOKENS = {
+  zodiac: [
+    [/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠/gu, '{띠}'],
+    [/[자축인묘진사오미신유술해]\([子丑寅卯辰巳午未申酉戌亥]\)/gu, '{지지}'],
+    [/[属屬][鼠牛虎兔龙龍蛇马馬羊猴鸡雞狗猪豬]/gu, '{生肖}'],
+  ],
+}
+
+/** 东方站集合的段标题归一（没有规则的集合原样返回） */
+export function eastSectionTitle(collection, title) {
+  return (EAST_TITLE_TOKENS[collection] ?? []).reduce(
+    (text, [pattern, token]) => text.replace(pattern, token),
+    title,
+  )
+}
+
 export function eastCollection(pathname, locale) {
   const path = safeDecode(pathname)
   return EAST_COLLECTIONS[locale]?.find(([, pattern]) => pattern.test(path))?.[0] ?? null
@@ -462,11 +483,11 @@ function pairwiseDice(items) {
 }
 
 /** 同站同语言内按 H2 可见文字对齐；只有正文段的未舍入均值用于门槛。 */
-export function eastCollectionSections(pages, { unit = 'char' } = {}) {
+export function eastCollectionSections(pages, { unit = 'char', collection = null } = {}) {
   const byTitle = new Map()
   for (const { id, sections } of pages) {
     for (const { title, text, tableSection } of sections.slice(1)) {
-      const key = title.replace(/\s+/g, ' ').trim()
+      const key = eastSectionTitle(collection, title.replace(/\s+/g, ' ').trim())
       if (!byTitle.has(key)) byTitle.set(key, new Map())
       const byPage = byTitle.get(key)
       const previous = byPage.get(id)
