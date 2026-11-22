@@ -16,6 +16,7 @@
 //   --out <目录>       输出目录，缺省 $EVIDENCE_DIR/locale-similarity（未设置时 test-results/evidence/）
 //   --enforce <语言>   这些语言有未达门槛的页面时以 1 退出；缺省只报告。
 //                      en、es 另判组件段（content-growth-phase1）：任一段平均 Dice >0.30 即失败
+//                      东方站新集合另判同语言、同 H2 的正文段；数据表段与整页只报告
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
@@ -26,8 +27,11 @@ import {
   COMPONENT_LOCALES,
   componentSections,
   createExtractor,
+  eastCollection,
+  eastCollectionSections,
   entryLocale,
   evaluatePage,
+  exceedsEastSectionThreshold,
   faqOriginStats,
   lengthCheck,
   literalScore,
@@ -88,7 +92,7 @@ export async function readAllSitemaps(origin, send, path = '/sitemap.xml', seen 
 
 /**
  * 按站点访问 preview：以 seo.linking.sites 的 previewHost 作 Host（缺省 `<站点 id>.localhost`），
- * 返回该站点地图的全部条目与取页函数。
+ * 返回该站点地图的全部条目与取页函数。已发布的黄历月份页由站点地图发现，取页时走 SSR。
  */
 export async function siteClient(config, siteId, baseUrl) {
   const site = config.sites?.[siteId]
@@ -200,16 +204,21 @@ export async function measureSite({
     // 每个地址只取一次
     const byLocale = new Map()
     const allPaths = new Set()
+    const eastPaths = new Set()
     for (const entry of entries) {
       const locale = entryLocale(entry)
       if (!locale || !siteLocales.includes(locale)) continue
-      const path = new URL(entry.loc).pathname
+      const { pathname: path, search } = new URL(entry.loc)
+      const collection = siteId === 'east' && !search ? eastCollection(path, locale) : null
+      if (collection) eastPaths.add(path)
       allPaths.add(path)
       if (!byLocale.has(locale)) byLocale.set(locale, [])
-      byLocale.get(locale).push({ path, alts: entry.alts })
+      byLocale.get(locale).push({ path, alts: entry.alts, collection })
     }
     const paths = [...allPaths]
-    const extracted = await pool(paths, async (path) => extractor.extract(await fetchHtml(path)))
+    const extracted = await pool(paths, async (path) =>
+      extractor.extract(await fetchHtml(path), { eastProgrammatic: eastPaths.has(path) }),
+    )
     const pages = new Map(paths.map((path, i) => [path, extracted[i]]))
     const pathOf = (href) => new URL(href).pathname
     const decode = (p) => decodeURIComponent(p)
@@ -333,6 +342,30 @@ export async function measureSite({
         })),
         { unit: unitOf(locale), disclaimer: disclaimers[locale] },
       )
+    const eastCollections = {}
+    if (siteId === 'east') {
+      for (const locale of locales) {
+        const groups = new Map()
+        for (const { path, collection } of byLocale.get(locale)) {
+          if (!collection) continue
+          if (!groups.has(collection)) groups.set(collection, new Set())
+          groups.get(collection).add(path)
+        }
+        if (!groups.size) continue
+        eastCollections[locale] = Object.fromEntries(
+          [...groups].map(([collection, paths]) => [
+            collection,
+            eastCollectionSections(
+              [...paths].map((path) => ({
+                id: decode(path),
+                sections: pages.get(path).eastSections,
+              })),
+              { unit: unitOf(locale) },
+            ),
+          ]),
+        )
+      }
+    }
     const sourceRepeat = {}
     for (const locale of locales)
       for (const [collection, filter] of Object.entries(SOURCE_SETS)) {
@@ -364,6 +397,7 @@ export async function measureSite({
       unpaired,
       templateRepeat: { rendered, source: sourceRepeat },
       componentSections: components,
+      ...(siteId === 'east' ? { eastCollections } : {}),
       faqOrigin,
       lengths,
       pages: [...records.values()],
@@ -376,9 +410,9 @@ export async function measureSite({
 }
 
 /**
- * --enforce 的语言：页面门槛、模板重复、组件段、FAQ 来源与长度任一不达标即计入。
+ * --enforce 的语言：页面门槛、模板重复、东方站集合、组件段、FAQ 来源与长度任一不达标即计入。
  * 基准语言（如西方站 en）是原文：不判 FAQ 来源与 MDX 源模板重复（en 数字页源文件末尾的
- * 「Explore the other numbers」不渲染，#247 决定不处理），只判组件段与长度。
+ * 「Explore the other numbers」不渲染，#247 决定不处理）。
  */
 export function enforcedFailures(report, enforce) {
   const out = []
@@ -399,6 +433,10 @@ export function enforcedFailures(report, enforce) {
         out.push(
           `${locale} component ${s.kind} ${s.label}: ${s.mean}（最差 ${s.maxPage} ${s.max}）`,
         )
+    for (const [collection, sections] of Object.entries(report.eastCollections?.[locale] ?? {}))
+      for (const s of sections)
+        if (exceedsEastSectionThreshold(s))
+          out.push(`${locale} ${collection} ${s.title}: ${s.mean}（最差 ${s.maxPage} ${s.max}）`)
     if (!isPivot)
       for (const page of report.faqOrigin[locale]?.failing ?? [])
         out.push(`${locale} FAQ origin: ${page}`)

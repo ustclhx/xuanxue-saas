@@ -34,10 +34,10 @@
 
 ## 1. 测量工具、关键词归属与路由分发骨架
 
-- [ ] 1.1 在 `apps/web/scripts/locale-similarity.mjs` 增加东方站程序化集合的定义：`zodiac`（zh-Hans、ko、zh-Hant）、`almanac-month`、`ziwei-star`、`concepts`（新篇）。按 H2 标题对齐，中日韩按字二元组两两平均。标有 `data-table-section` 的段只报告、不计门槛，同时输出整页相似度。补 `measure-locale-similarity.test.mjs` 单测
-- [ ] 1.2 在 `measure-locale-similarity.mjs` 的报告中输出「东方站集合」表（每集合每段的平均与最差页）。`--enforce zh-Hans,ko` 时任一受约束段 >0.30 以 1 退出。在 main 构建上跑一次，确认现有东方站页面不受影响。报告存证据目录
-- [ ] 1.3 在私有关键词归属表中，按 design 决策 9 把本 change 的主词登记为「计划」，并用第 1 阶段的核对脚本确认当前没有可索引页以这些词为 Title 或 H1 开头（重点核对每日页与「黄历」、概念页与「太岁」）
-- [ ] 1.4 新建 `apps/web/src/features/east-content/`：`routes.ts` 是地址到页面 id 的映射，不引用运行时模块，初始为空集合；`route-data.ts` 是按需加载的 loader 与 head 分发。`routes/$slug.tsx` 增加东方内容单段页的懒加载分支；`routes/$section/$item.tsx` 改为按语言与首段分发，en 仍走 east-en 塔罗，东方站 zh-hans、ko 走 `east-content`，其余返回 404（design 决策 2）。单测覆盖未登记地址 404、西方站同路径 404、现有 east-en 与排盘页不变。`check-home-bundle` 记录前后数据，首页包增长 ≤2 KB gzip
+- [x] 1.1 在 `apps/web/scripts/locale-similarity.mjs` 增加东方站程序化集合的定义：`zodiac`（zh-Hans、ko、zh-Hant）、`almanac-month`、`ziwei-star`、`concepts`（新篇）。按 H2 标题对齐，中日韩按字二元组两两平均。标有 `data-table-section` 的段只报告、不计门槛，同时输出整页相似度。补 `measure-locale-similarity.test.mjs` 单测
+- [x] 1.2 在 `measure-locale-similarity.mjs` 的报告中输出「东方站集合」表（每集合每段的平均与最差页）。`--enforce zh-Hans,ko` 时任一受约束段 >0.30 以 1 退出。在 main 构建上跑一次，确认现有东方站页面不受影响。报告存证据目录
+- [x] 1.3 在私有关键词归属表中，按 design 决策 9 把本 change 的主词登记为「计划」，并用第 1 阶段的核对脚本确认当前没有可索引页以这些词为 Title 或 H1 开头（重点核对每日页与「黄历」、概念页与「太岁」）
+- [x] 1.4 新建 `apps/web/src/features/east-content/`：`routes.ts` 是地址到页面 id 的映射，不引用运行时模块，初始为空集合；`route-data.ts` 是按需加载的 loader 与 head 分发。`routes/$slug.tsx` 增加东方内容单段页的懒加载分支；`routes/$section/$item.tsx` 改为按语言与首段分发，en 仍走 east-en 塔罗，东方站 zh-hans、ko 走 `east-content`，其余返回 404（design 决策 2）。单测覆盖未登记地址 404、西方站同路径 404、现有 east-en 与排盘页不变。`check-home-bundle` 记录前后数据，首页包增长 ≤2 KB gzip
 
 ## 2. 引擎补充（packages/bazi）
 

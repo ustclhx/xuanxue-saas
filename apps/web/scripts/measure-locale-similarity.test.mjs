@@ -1,6 +1,8 @@
 // node --test apps/web/scripts/measure-locale-similarity.test.mjs
 import assert from 'node:assert/strict'
+import { once } from 'node:events'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, describe, test } from 'node:test'
@@ -11,7 +13,10 @@ import {
   createExtractor,
   dice,
   digitSeq,
+  eastCollection,
+  eastCollectionSections,
   entryLocale,
+  exceedsEastSectionThreshold,
   faqOriginStats,
   lengthCheck,
   literalScore,
@@ -26,7 +31,7 @@ import {
   unitOf,
   variantSimilarity,
 } from './locale-similarity.mjs'
-import { enforcedFailures, measureSite } from './measure-locale-similarity.mjs'
+import { enforcedFailures, measureSite, siteClient } from './measure-locale-similarity.mjs'
 
 const extractor = createExtractor()
 after(() => extractor.close())
@@ -221,6 +226,151 @@ describe('模板重复', () => {
     )
     assert.ok(!secs[0].text.includes('/zh-hans'))
     assert.ok(secs[0].text.includes('[凯尔特十字]'))
+  })
+})
+
+describe('东方站集合', () => {
+  test('只纳入规划中的各语言子页，概念页限第二批地址', () => {
+    const selected = [
+      ['/zh-hans/生肖/属鼠', 'zh-Hans', 'zodiac'],
+      ['/zh-hant/生肖/屬雞', 'zh-Hant', 'zodiac'],
+      ['/ko/띠/원숭이띠', 'ko', 'zodiac'],
+      ['/zh-hans/黄历/12月', 'zh-Hans', 'almanac-month'],
+      ['/zh-hans/十四主星/紫微星', 'zh-Hans', 'ziwei-star'],
+      ['/zh-hans/八字/太岁', 'zh-Hans', 'concepts'],
+      ['/zh-hans/八字/调候', 'zh-Hans', 'concepts'],
+    ]
+    const ignored = [
+      ['/zh-hans/生肖', 'zh-Hans'],
+      ['/zh-hans/黄历', 'zh-Hans'],
+      ['/zh-hans/黄历/12月1日', 'zh-Hans'],
+      ['/zh-hans/黄历/13月', 'zh-Hans'],
+      ['/zh-hans/十四主星', 'zh-Hans'],
+      ['/zh-hans/八字/大运', 'zh-Hans'],
+      ['/zh-hant/八字/太歲', 'zh-Hant'],
+      ['/ko/띠/쥐띠', 'zh-Hans'],
+    ]
+    for (const [path, locale, collection] of selected)
+      assert.equal(eastCollection(encodeURI(path), locale), collection, path)
+    for (const [path, locale] of ignored) assert.equal(eastCollection(path, locale), null, path)
+  })
+
+  test('显式标记 H2 或其容器，保留表格中的数字供 Dice 使用', () => {
+    const out = extractor.extract(
+      page(`
+        <h2 data-table-section>年份</h2><div data-locale-fixed>甲子 2026</div>
+        <section data-table-section><h2>逐日表</h2><p>乙丑</p></section>
+        <h2>解释</h2><p>丙寅</p>`),
+      { eastProgrammatic: true },
+    )
+    assert.deepEqual(
+      out.eastSections.slice(1).map(({ title, tableSection }) => [title, tableSection]),
+      [
+        ['年份', true],
+        ['逐日表', true],
+        ['解释', false],
+      ],
+    )
+    assert.equal(out.eastSections[1].text, '甲子 2026')
+    assert.equal(out.sections[1].text, '甲子')
+  })
+
+  test('按 H2 对齐并计算字二元组两两均值与最差页，列出单页段的覆盖范围', () => {
+    const pages = [
+      ['a', '<h2>연도 설명</h2><p>갑을병정</p><h2>다른 제목</h2><p>갑을병정</p>'],
+      [
+        'b',
+        '<h2>별도 제목</h2><p>갑을병정</p><h2 data-table-section>연도  설명</h2><p>갑을병무</p>',
+      ],
+      ['c', '<h2>연도 설명</h2><p>갑을병정</p>'],
+    ].map(([id, body]) => ({
+      id,
+      sections: extractor.extract(page(body), { eastProgrammatic: true }).eastSections,
+    }))
+    const rows = eastCollectionSections(pages, { unit: unitOf('ko') })
+    const section = rows.find((row) => row.title === '연도 설명')
+    assert.equal(section.pages, 3)
+    assert.equal(section.scope, 'section', '同名段只有全部页面标记后才能豁免')
+    assert.ok(Math.abs(section.mean - 7 / 9) < Number.EPSILON)
+    assert.ok(Math.abs(section.max - 5 / 6) < Number.EPSILON)
+    assert.equal(section.maxPage, 'a')
+    const unmatched = rows.find((row) => row.title === '별도 제목')
+    assert.deepEqual([unmatched.pages, unmatched.mean, unmatched.maxPage], [1, null, null])
+  })
+
+  test('两两均值恰为 0.30 时忽略浮点累加误差', () => {
+    const text = [
+      `甲甲${'乙'.repeat(34)}${'丁'.repeat(65)}`,
+      `甲甲${'丙'.repeat(57)}${'戊'.repeat(42)}`,
+      `${'乙'.repeat(34)}${'丙'.repeat(57)}${'己'.repeat(10)}`,
+    ]
+    const pages = text.map((body, id) => ({
+      id,
+      sections: sectionsFromText(`@@H2@@段落@@\n${body}`).sections,
+    }))
+    const [section] = eastCollectionSections(pages)
+    assert.ok(Math.abs(section.mean - 0.3) < Number.EPSILON)
+    assert.equal(exceedsEastSectionThreshold(section), false)
+  })
+
+  test('从站点地图访问 SSR 黄历月页，门槛比较未舍入平均值且只约束正文段', async (t) => {
+    const months = ['/zh-hans/黄历/1月', '/zh-hans/黄历/2月']
+    const root = 'https://ganjiday.com'
+    const sitemap = `<urlset>${months
+      .map(
+        (path) =>
+          `<url><loc>${root}${path}</loc><xhtml:link rel="alternate" hreflang="zh-Hans" href="${root}${path}"/></url>`,
+      )
+      .join('')}</urlset>`
+    const section = (matching, suffix) =>
+      `${'甲'.repeat(matching)}${suffix.repeat(5001 - matching)}`
+    const server = createServer((request, response) => {
+      const path = decodeURIComponent(new URL(request.url, root).pathname)
+      if (path === '/sitemap.xml') {
+        response.end(
+          `<sitemapindex><sitemap><loc>${root}/sitemap/zh-hans.xml</loc></sitemap></sitemapindex>`,
+        )
+      } else if (path === '/sitemap/zh-hans.xml') {
+        response.end(sitemap)
+      } else if (months.includes(path)) {
+        const suffix = path === months[0] ? '乙' : '丙'
+        response.end(
+          page(`
+            <h2>本月节气</h2><p>${section(1501, suffix)}</p>
+            <h2>常见问题</h2><p>${section(1502, suffix)}</p>
+            <section data-table-section><h2>逐日表</h2><p>${'丁'.repeat(10000)}</p></section>`),
+        )
+      } else {
+        response.writeHead(404).end()
+      }
+    })
+    await once(server.listen(0, '127.0.0.1'), 'listening')
+    t.after(() => new Promise((resolve) => server.close(resolve)))
+    const config = { sites: { east: { locales: ['zh-Hans'] } } }
+    const client = await siteClient(config, 'east', `http://127.0.0.1:${server.address().port}`)
+    const report = await measureSite({
+      siteId: 'east',
+      siteLocales: client.site.locales,
+      entries: client.entries,
+      fetchHtml: client.fetchHtml,
+      pivot: 'zh-Hans',
+      contentDir: join(tmpdir(), 'no-such-content-dir'),
+      enforce: ['zh-Hans', 'ko'],
+    })
+    const rows = report.eastCollections['zh-Hans']['almanac-month']
+    assert.equal(rows.find((row) => row.title === '本月节气').mean, 0.3)
+    assert.equal(rows.find((row) => row.title === '常见问题').mean, 0.3002)
+    assert.equal(rows.find((row) => row.scope === 'table').mean, 1)
+    assert.ok(rows.find((row) => row.scope === 'page').mean > 0.3)
+    assert.deepEqual(report.enforcedFailures, [
+      'zh-Hans almanac-month 常见问题: 0.3002（最差 /zh-hans/黄历/1月 0.3002）',
+    ])
+    assert.deepEqual(enforcedFailures(report, ['ko']), [])
+    const markdown = renderMarkdown(report)
+    assert.match(markdown, /## 东方站集合/)
+    assert.match(markdown, /常见问题 \| 门槛 \| 2 \| 0\.3002 ⚠/)
+    assert.match(markdown, /逐日表 \| 数据表（参考） \| 2 \| 1/)
+    assert.match(markdown, /整页 \| 整页（参考） \| 2/)
   })
 })
 
@@ -491,6 +641,7 @@ describe('measureSite', () => {
     assert.equal(tryCard.mean, 1)
     assert.ok(report.enforcedFailures.some((f) => f.startsWith('en component tarot-card 抽一张')))
     assert.match(renderMarkdown(report), /## 组件段（渲染页，按段标题对齐；门槛）/)
+    assert.doesNotMatch(renderMarkdown(report), /## 东方站集合/)
   })
 
   test('需要转换器的变体在缺少转换器时跳过并说明', async () => {
@@ -512,5 +663,6 @@ describe('measureSite', () => {
       contentDir: join(tmpdir(), 'no-such-content-dir'),
     })
     assert.match(report.pairs['zh-Hant'].skipped, /--opencc/)
+    assert.deepEqual(report.eastCollections, {})
   })
 })
