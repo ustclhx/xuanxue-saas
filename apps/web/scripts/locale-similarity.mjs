@@ -48,6 +48,11 @@ export const SCRIPT_VARIANTS = Object.freeze({
 export const PROGRAMMATIC_KINDS = Object.freeze(['tarot-card', 'numerology-number', 'concept'])
 /** 结构直译分适用的页面类型（正文为主） */
 export const LITERAL_KINDS = Object.freeze(['home', 'tool', 'numerology-number', 'faq'])
+/**
+ * 另外判结构直译分的东方站集合（content-growth-phase2 任务 5.3，协调者 2026-11-22）：ko 与 zh-hans 生肖页
+ * 共用版式骨架，按路径分类为 other，须单独纳入，否则跨语言直译不进门槛。
+ */
+export const LITERAL_COLLECTIONS = Object.freeze(['zodiac'])
 /** 数字序列重合度适用的页面类型（含计算示例） */
 export const EXAMPLE_KINDS = Object.freeze(['tool', 'numerology-number', 'concept'])
 
@@ -802,7 +807,8 @@ export function evaluatePage(page, locale) {
   }
   if (pair?.literal) {
     const l = pair.literal
-    if (LITERAL_KINDS.includes(page.kind) && l.literalScore > THRESHOLDS.literalScore)
+    const gated = LITERAL_KINDS.includes(page.kind) || LITERAL_COLLECTIONS.includes(page.collection)
+    if (gated && l.literalScore > THRESHOLDS.literalScore)
       failures.push(`literal ${l.literalScore}`)
     if (EXAMPLE_KINDS.includes(page.kind) && l.digitOverlap > THRESHOLDS.digitOverlap)
       failures.push(`digits ${l.digitOverlap}`)

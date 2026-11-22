@@ -204,15 +204,23 @@ const KO_NAYIN_NAMES = [...Array(30).keys()].map((i) => KO_NAYIN[`zodiac_nayin_$
 const KGZ = `[${STEM_HANGUL}][${BRANCH_HANGUL}]`
 
 /**
- * ko 语体（协调者 2026-11-22）：站内韩文一律합쇼체，句末不得为해요체（「~요」「~죠」）。
- * 允许：请求式「~세요」（现有概念页同样使用）；FAQ 的问句（`q`）沿用站内「~나요?」「~인가요?」写法，不在此检查。
+ * ko 语体（协调者 2026-11-22，Codex 回译审阅 语体 29 条）：站内韩文一律합쇼체。每句须以합쇼체终结：
+ * 「~다」（습니다/입니다）、「~니까」（습니까/입니까），或请求式「~세요」。
+ * 해요체（~요、~죠）、해라체问句（~는가、~인가、~ㄹ까、~었나）与无谓语的独立碎句（名词结尾）都算违规。
+ * FAQ 的问句（`q`）沿用站内「~나요?」「~인가요?」写法，标题不在正文里，均不检查。
  * 返回命中的句子（截取末尾 24 字）。
  */
 export function haeyoEndings(text) {
   return String(text)
     .split(/(?<=[.?!])\s+|\n+/)
-    .map((sentence) => sentence.trim().replace(/[\s"'”’」』)）\]*_]+$/u, ''))
-    .filter((sentence) => /[요죠][.?!…]*$/u.test(sentence) && !/세요[.?!…]*$/u.test(sentence))
+    .map((sentence) =>
+      sentence
+        .trim()
+        .replace(/^[-*]\s+/u, '')
+        .replace(/[\s"'”’」』)）\]*_.?!…:：]+$/u, ''),
+    )
+    .filter((sentence) => /\p{Script=Hangul}/u.test(sentence))
+    .filter((sentence) => !/(?:다|니까|세요)$/u.test(sentence))
     .map((sentence) => sentence.slice(-24))
 }
 
@@ -491,9 +499,8 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
         fail(`合规禁用词：${term}`)
 
     if (locale === 'ko') {
+      // Title、H1 是标题短语，不按句子检查
       const register = [
-        data.title,
-        data.heading,
         data.description,
         data.lede,
         data.years_note,

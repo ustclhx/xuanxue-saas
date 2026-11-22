@@ -238,6 +238,7 @@ export async function measureSite({
           path: decode(basePath),
           base: baseLocale,
           kind: pageKind(basePath),
+          collection: siteId === 'east' ? eastCollection(basePath, baseLocale) : null,
           chars: pages.get(basePath).chars,
           pairs: {},
           length: {},

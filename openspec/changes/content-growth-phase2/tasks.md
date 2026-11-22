@@ -71,7 +71,7 @@
 
 - [x] 5.1 补 ko 所需的标签：纳音 30 种的韩语写法、地支关系名、만 나이说明等，写入 `messages/ko/zodiac.json` 或组件文案表。年份表的立春时刻按 UTC+9 显示，并加历史时区表注。在 `east-content/routes.ts` 与注册表补 ko 地址与标题（`/ko/띠`、`/ko/띠/쥐띠` 等）
 - [x] 5.2 另一个 Claude 子代理按韩语搜索词直接撰写 `content/zodiac/ko/` 的 `index.mdx` 与 12 篇（主词为「띠」「쥐띠」…，副词如쥐띠 나이、띠 계산），不由中文翻译；不以「띠별 운세」为 Title、H1、H2 或锚文本目标，流年段用「올해 흐름」一类写法（使用者 2026-11-22 裁定）。子页 ≥2,000 字，枢纽 ≥1,300 字，`annual` 写 병오、정미两年。遵守「约束」，不写 궁합 类内容
-- [ ] 5.3 Codex 回译审阅：`measure-locale-backtranslation --export-input` 导出，Codex 回译后用 `--from-file` 计算；ko↔zh-hans 跨语言结构直译分在门槛内。意见与处理记录存证据目录
+- [x] 5.3 Codex 回译审阅：`measure-locale-backtranslation --export-input` 导出，Codex 回译后用 `--from-file` 计算；ko↔zh-hans 跨语言结构直译分在门槛内。意见与处理记录存证据目录
 - [x] 5.4 验收：
   - ko 组内相似度 `--enforce ko` 通过；
   - 长度与 TDK 通过；

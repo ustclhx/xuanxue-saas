@@ -17,6 +17,7 @@ import {
   eastCollectionSections,
   eastSectionTitle,
   entryLocale,
+  evaluatePage,
   exceedsEastSectionThreshold,
   faqOriginStats,
   lengthCheck,
@@ -335,6 +336,16 @@ describe('东方站集合', () => {
         .filter((row) => row.scope === 'section')
         .every((row) => row.pages === 1),
     )
+  })
+
+  test('生肖集合的页面（路径分类为 other）也判结构直译分', () => {
+    const literal = { literalScore: 0.65, digitOverlap: 0 }
+    const zodiac = { kind: 'other', collection: 'zodiac', pairs: { ko: { literal } } }
+    assert.deepEqual(evaluatePage(zodiac, 'ko'), ['literal 0.65'])
+    const other = { kind: 'other', collection: null, pairs: { ko: { literal } } }
+    assert.deepEqual(evaluatePage(other, 'ko'), [])
+    const ok = { ...zodiac, pairs: { ko: { literal: { literalScore: 0.6, digitOverlap: 0 } } } }
+    assert.deepEqual(evaluatePage(ok, 'ko'), [])
   })
 
   test('两两均值恰为 0.30 时忽略浮点累加误差', () => {
