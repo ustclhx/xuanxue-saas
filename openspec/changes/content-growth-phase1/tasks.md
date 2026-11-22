@@ -29,10 +29,10 @@
 
 ## 3. 数字页组件段逐数字撰写（西方站 en、es）
 
-- [ ] 3.1 在 `content-collections.ts` 的 `numerology` 集合 schema 增加可选字段 `sample_note`、`neighbors`（`neighbors` 用 `[锚文本]` 标出链接位置，链接数与顺序同 `neighborNumbers()`）。`content.functions.ts` 随 loader 下发。`content-page.tsx` 的 `NeighborNumbers` 优先用 `neighbors`，并保留 `data-locale-fixed`。`LifePathCalculator`、`LifePathCard` 增加 `note`：传入时样例状态显示 `note`、去掉卡内短声明，`<Disclaimer />` 保留；`/life-path-number` 不传 `note`。单测覆盖：样例状态与提交后状态、链接目标与锚文本不变
-- [ ] 3.2 en 12 篇写入 `sample_note`（100–130 词）与 `neighbors`（45–80 词）。`sample_note` 中的约简过程必须与 `exampleDateFor(n)` 的引擎步骤一致，`check-content-concepts` 校验通过；两段测量均 ≤0.30
-- [ ] 3.3 es 12 篇由另一个子代理按西语习惯直接撰写同两字段，样例说明按 es 的约简写法（如「se conserva」）。两段（只计组件）均 ≤0.30，`check-locale-glossary` 通过；es 回译审阅流程同 2.4
-- [ ] 3.4 验收：390×844 截图，en `/life-path-number/7` 与 es `/es/numero-de-vida/7` 首屏表单与提交按钮仍可见；结果区底部有合规声明；`check:links`、`audit:seo` 不退步；es↔en 本地化门槛（结构直译、数字序列）未达 0 页
+- [x] 3.1 在 `content-collections.ts` 的 `numerology` 集合 schema 增加可选字段 `sample_note`、`neighbors`（`neighbors` 用 `[锚文本]` 标出链接位置，链接数与顺序同 `neighborNumbers()`）。`content.functions.ts` 随 loader 下发。`content-page.tsx` 的 `NeighborNumbers` 优先用 `neighbors`，并保留 `data-locale-fixed`。`LifePathCalculator`、`LifePathCard` 增加 `note`：传入时样例状态显示 `note`、去掉卡内短声明，`<Disclaimer />` 保留；`/life-path-number` 不传 `note`。单测覆盖：样例状态与提交后状态、链接目标与锚文本不变
+- [x] 3.2 en 12 篇写入 `sample_note`（100–130 词）与 `neighbors`（45–80 词）。`sample_note` 中的约简过程必须与 `exampleDateFor(n)` 的引擎步骤一致，`check-content-concepts` 校验通过；两段测量均 ≤0.30
+- [ ] 3.3 es 12 篇由另一个子代理按西语习惯直接撰写同两字段，样例说明按 es 的约简写法（如「se conserva」）。两段（只计组件）均 ≤0.30，`check-locale-glossary` 通过；es 回译审阅流程同 2.4（文案与门槛已完成；回译导出已存证据目录，待 Codex 回译后 `--from-file` 计算再勾选）
+- [x] 3.4 验收：390×844 截图，en `/life-path-number/7` 与 es `/es/numero-de-vida/7` 首屏表单与提交按钮仍可见；结果区底部有合规声明；`check:links`、`audit:seo` 不退步；es↔en 本地化门槛（结构直译、数字序列）未达 0 页
 
 ## 4. 空博客列表不进索引（两站全部语言）
 

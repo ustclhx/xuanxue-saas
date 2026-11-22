@@ -74,8 +74,11 @@ export function LifePathCalculator({
   example = EXAMPLE,
   unlock = false,
   current,
+  note,
 }: {
   example?: BirthDate
+  /** 数字页逐数字撰写的样例说明：只在未提交时的样例卡显示；`/life-path-number` 工具页不传 */
+  note?: string | undefined
   /** 内嵌在某个数字页时为该页的数字：结果正好是它时不再链接到本页 */
   current?: number
   /** 显示完整分析解锁卡（只在工具页，数字页内嵌时不显示） */
@@ -125,7 +128,13 @@ export function LifePathCalculator({
             }
           />
         ) : (
-          <LifePathCard result={lifePath(example)} date={example} current={current} example />
+          <LifePathCard
+            result={lifePath(example)}
+            date={example}
+            current={current}
+            note={note}
+            example
+          />
         )}
       </div>
       <ReadingSlots

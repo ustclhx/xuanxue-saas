@@ -248,6 +248,10 @@ const numerology = defineCollection({
     faq: z.array(z.object({ q: z.string(), a: z.string() })),
     updated: isoDate,
     number: z.number().int().nullable(),
+    // 数字页组件段的逐数字文案（openspec content-growth-phase1 决策 1、4）：首屏样例说明与「其余数字」一段，
+    // `neighbors` 用 `[锚文本]` 标出链接位置；缺失时组件沿用 messages 文案
+    sample_note: z.string().min(1).optional(),
+    neighbors: z.string().min(1).optional(),
     content: z.string(),
   }),
   transform: async (document, context) => {
