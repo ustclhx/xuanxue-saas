@@ -15,9 +15,9 @@
 
 ## 1. 测量工具与关键词归属表
 
-- [ ] 1.1 在 `apps/web/scripts/locale-similarity.mjs` 增加组件段对照表：牌义页导语、抽一张、延伸牌义；数字页首屏样例（es 截到结果区声明为止）、其余数字。按 en、es 段标题正则对齐，只计组件部分。补 `measure-locale-similarity.test.mjs` 单测；`pnpm check` 通过
-- [ ] 1.2 在 `measure-locale-similarity.mjs` 的报告中输出「组件段」表（每语言每段的平均与最差页）。`--enforce en,es` 时任一段 >0.30 以 1 退出。在 main 构建上复现 design.md 基线表：en 0.549、1.0、0.405、0.736、0.677；es 0.490、1.0、0.385、0.712、0.729。报告存入证据目录
-- [ ] 1.3 在私有证据目录建立 `content-growth/keyword-ownership.md`，按站点 × 语言 × 主词 → 页面登记：本 change 的 1.3、1.4 主词，es、ja 已有的塔罗与数字命理主词，以及各牌阵页的子词。核对没有两个页面以同一主词为 Title 或 H1 目标
+- [x] 1.1 在 `apps/web/scripts/locale-similarity.mjs` 增加组件段对照表：牌义页导语、抽一张、延伸牌义；数字页首屏样例（es 截到结果区声明为止）、其余数字。按 en、es 段标题正则对齐，只计组件部分。补 `measure-locale-similarity.test.mjs` 单测；`pnpm check` 通过
+- [x] 1.2 在 `measure-locale-similarity.mjs` 的报告中输出「组件段」表（每语言每段的平均与最差页）。`--enforce en,es` 时任一段 >0.30 以 1 退出。在 main 构建上复现 design.md 基线表：en 0.549、1.0、0.405、0.736、0.677；es 0.490、1.0、0.385、0.712、0.729。报告存入证据目录
+- [x] 1.3 在私有证据目录建立 `content-growth/keyword-ownership.md`，按站点 × 语言 × 主词 → 页面登记：本 change 的 1.3、1.4 主词，es、ja 已有的塔罗与数字命理主词，以及各牌阵页的子词。核对没有两个页面以同一主词为 Title 或 H1 目标
 
 ## 2. 牌义页组件段逐牌撰写（西方站 en、es）
 
@@ -36,9 +36,9 @@
 
 ## 4. 空博客列表不进索引（两站全部语言）
 
-- [ ] 4.1 在 `apps/web/src/routes/blog/index.tsx` 的 `head` 中读取 loader 的 `posts`，为空时追加 `robots: noindex, follow`（写法同 `routes/blog/page/$page.tsx`）。补单测：没有已发布文章的语言输出 noindex，有已发布文章时不输出
-- [ ] 4.2 补测试固定现有行为：没有已发布文章的语言，站点地图不含 `/blog`（`features/seo` 单测），页脚不含 `/blog`（`site-header.test.tsx` 已有断言，核对覆盖 es、zh、ko、ja）
-- [ ] 4.3 构建后用 preview 请求 `/blog`、`/es/blog`、`/zh-hans/blog`、`/zh-hant/blog`、`/ko/blog`、`/ja/blog`：均为 200 且带 `noindex, follow`。`check:i18n-seo` 与 `check:links` 通过。结果存证据目录
+- [x] 4.1 在 `apps/web/src/routes/blog/index.tsx` 的 `head` 中读取 loader 的 `posts`，为空时追加 `robots: noindex, follow`（写法同 `routes/blog/page/$page.tsx`）。补单测：没有已发布文章的语言输出 noindex，有已发布文章时不输出
+- [x] 4.2 补测试固定现有行为：没有已发布文章的语言，站点地图不含 `/blog`（`features/seo` 单测），页脚不含 `/blog`（`site-header.test.tsx` 已有断言，核对覆盖 es、zh、ko、ja）
+- [x] 4.3 构建后用 preview 请求 `/blog`、`/es/blog`、`/zh-hans/blog`、`/zh-hant/blog`、`/ko/blog`、`/ja/blog`：均为 200 且带 `noindex, follow`。`check:i18n-seo` 与 `check:links` 通过。结果存证据目录
 - [ ] 4.4 在模板需求清单中登记 R7（空博客列表 noindex，附本组 diff），交给模板维护者；PR 正文写明本文件是模板交付文件、已提交上游请求
 
 ## 5. 塔罗入口页负责免费塔罗主词（en、zh-hans、zh-hant、ko）

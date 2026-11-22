@@ -248,6 +248,25 @@ describe('页头按站点生成（openspec product-improve-ai-content-20261030 4
     expect(hrefs(render('west', <SiteFooter />))).toContain('/blog')
     expect(hrefs(render('west', <SiteHeader />))).not.toContain('/blog')
   })
+
+  it.each([
+    ['west', 'es', '/es/blog'],
+    ['east', 'zh-Hans', '/zh-hans/blog'],
+    ['east', 'zh-Hant', '/zh-hant/blog'],
+    ['east', 'ko', '/ko/blog'],
+    ['east', 'ja', '/ja/blog'],
+  ] as const)(
+    '%s 站 %s 页脚：本语言没有已发布文章时不链接博客，有文章后恢复（content-growth-phase1 4.2）',
+    (site, locale, blog) => {
+      state.locale = locale
+      state.pathname = `/${locale.toLowerCase()}`
+      // 只有其他语言有文章：不显示
+      state.blogLocales = ['en']
+      expect(hrefs(render(site, <SiteFooter />))).not.toContain(blog)
+      state.blogLocales = ['en', locale]
+      expect(hrefs(render(site, <SiteFooter />))).toContain(blog)
+    },
+  )
 })
 
 describe('页头导航（refresh-visual-system-warm D7，site-visual-system「页头单行与链接不重复」）', () => {

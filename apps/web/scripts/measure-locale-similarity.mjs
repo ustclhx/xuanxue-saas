@@ -14,7 +14,8 @@
 //   --pairs a:b,...    额外的「语言:对照语言」对（如 ja:ko），默认每种语言只与基准语言比较
 //   --opencc <目录>    含 node_modules/opencc-js 的目录（仓库不安装 opencc）；缺省时跳过 zh-Hant 变体比较
 //   --out <目录>       输出目录，缺省 $EVIDENCE_DIR/locale-similarity（未设置时 test-results/evidence/）
-//   --enforce <语言>   这些语言有未达门槛的页面时以 1 退出；缺省只报告
+//   --enforce <语言>   这些语言有未达门槛的页面时以 1 退出；缺省只报告。
+//                      en、es 另判组件段（content-growth-phase1）：任一段平均 Dice >0.30 即失败
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
@@ -22,6 +23,8 @@ import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { hostRequest, startPreview } from './check-links.mjs'
 import {
+  COMPONENT_LOCALES,
+  componentSections,
   createExtractor,
   entryLocale,
   evaluatePage,
@@ -188,6 +191,7 @@ export async function measureSite({
   converters = {},
   contentDir = join(WEB_ROOT, 'content'),
   messageOrigins = {},
+  disclaimers = {},
   enforce = [],
   source = '',
 }) {
@@ -318,6 +322,17 @@ export async function measureSite({
           rendered[locale][kind] = templateRepeat(group, { unit: unitOf(locale) })
       }
     }
+    // 组件段：按段标题对齐、只计组件输出（en、es）
+    const components = {}
+    for (const locale of locales.filter((l) => COMPONENT_LOCALES.includes(l)))
+      components[locale] = componentSections(
+        byLocale.get(locale).map(({ path }) => ({
+          id: decode(path),
+          kind: pageKind(path),
+          sections: pages.get(path).sections,
+        })),
+        { unit: unitOf(locale), disclaimer: disclaimers[locale] },
+      )
     const sourceRepeat = {}
     for (const locale of locales)
       for (const [collection, filter] of Object.entries(SOURCE_SETS)) {
@@ -348,6 +363,7 @@ export async function measureSite({
       pairs: pairsReport,
       unpaired,
       templateRepeat: { rendered, source: sourceRepeat },
+      componentSections: components,
       faqOrigin,
       lengths,
       pages: [...records.values()],
@@ -359,22 +375,49 @@ export async function measureSite({
   }
 }
 
-/** --enforce 的语言：页面门槛、模板重复、FAQ 来源与长度任一不达标即计入 */
+/**
+ * --enforce 的语言：页面门槛、模板重复、组件段、FAQ 来源与长度任一不达标即计入。
+ * 基准语言（如西方站 en）是原文：不判 FAQ 来源与 MDX 源模板重复（en 数字页源文件末尾的
+ * 「Explore the other numbers」不渲染，#247 决定不处理），只判组件段与长度。
+ */
 export function enforcedFailures(report, enforce) {
   const out = []
   for (const locale of enforce) {
+    const isPivot = locale === report.pivot
     for (const [key, pair] of Object.entries(report.pairs))
       if (key === locale || key.startsWith(`${locale}~`))
         for (const f of pair.failing ?? []) out.push(`${key} ${f.path}: ${f.failures.join(', ')}`)
-    // 模板重复按 MDX 源判定：渲染页还含组件固定输出的段（「抽一张试试」、延伸牌义列表等），只作参考
-    for (const [key, res] of Object.entries(report.templateRepeat.source))
-      if (key.endsWith(`:${locale}`))
-        for (const s of res.slots)
-          if (s.mean > THRESHOLDS.templateRepeat)
-            out.push(`${key} #${s.index} ${s.title}: template ${s.mean}`)
-    for (const page of report.faqOrigin[locale]?.failing ?? [])
-      out.push(`${locale} FAQ origin: ${page}`)
+    // 模板重复按 MDX 源判定：渲染页还含组件固定输出的段（「抽一张试试」、延伸牌义列表等），由组件段单独判定
+    if (!isPivot)
+      for (const [key, res] of Object.entries(report.templateRepeat.source))
+        if (key.endsWith(`:${locale}`))
+          for (const s of res.slots)
+            if (s.mean > THRESHOLDS.templateRepeat)
+              out.push(`${key} #${s.index} ${s.title}: template ${s.mean}`)
+    for (const s of report.componentSections?.[locale] ?? [])
+      if (s.mean > THRESHOLDS.templateRepeat)
+        out.push(
+          `${locale} component ${s.kind} ${s.label}: ${s.mean}（最差 ${s.maxPage} ${s.max}）`,
+        )
+    if (!isPivot)
+      for (const page of report.faqOrigin[locale]?.failing ?? [])
+        out.push(`${locale} FAQ origin: ${page}`)
     for (const page of report.lengths[locale]?.failing ?? []) out.push(`${locale} length: ${page}`)
+  }
+  return out
+}
+
+/** 结果区合规声明（tools_disclaimer）全文：组件段截断用 */
+function readDisclaimers(locales) {
+  const out = {}
+  for (const locale of locales) {
+    try {
+      out[locale] = JSON.parse(
+        readFileSync(join(WEB_ROOT, 'messages', locale, 'tools.json'), 'utf8'),
+      ).tools_disclaimer
+    } catch {
+      // 该语言没有工具文案
+    }
   }
   return out
 }
@@ -443,6 +486,7 @@ async function main() {
         extraPairs,
         converters: opencc ?? {},
         messageOrigins: readMessageOrigins(site.locales),
+        disclaimers: readDisclaimers(site.locales),
         enforce,
         source: `${values['base-url'] ? baseUrl : 'vite preview（apps/web/dist）'} Host=${host}`,
       })
@@ -461,6 +505,9 @@ async function main() {
             ? `  ${key} ↔ ${pair.base}：跳过（${pair.skipped}）`
             : `  ${key} ↔ ${pair.base}：${pair.pages} 页，未达门槛 ${pair.failing.length}`,
         )
+      for (const [locale, slots] of Object.entries(report.componentSections))
+        for (const s of slots)
+          console.log(`  组件段 ${locale} ${s.kind} ${s.label}：${s.pages} 页，平均 ${s.mean}`)
       if (report.enforcedFailures.length) {
         failed += report.enforcedFailures.length
         for (const line of report.enforcedFailures.slice(0, 40)) console.error(`  ✗ ${line}`)
