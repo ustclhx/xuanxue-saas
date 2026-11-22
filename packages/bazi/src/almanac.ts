@@ -2,6 +2,7 @@ import {
   EarthBranch,
   HeavenStem,
   LunarDay,
+  ShouXingUtil,
   SixtyCycle,
   SolarDay,
   SolarTerm,
@@ -231,6 +232,37 @@ export function zodiacYears(
     })
   }
   return rows
+}
+
+const J2000_JULIAN_DAY = 2451545
+const SYNODIC_MONTH_DAYS = 29.5306
+
+/**
+ * 农历正月初一按给定时区的公历日期。农历以合朔所在的日子为初一：tyme4ts 按北京时间（UTC+8）排历，
+ * 合朔落在北京时间 23 点以后时，UTC+9 已是次日，所以韩国설날比中国春节晚一天（如 1997 年 2 月 8 日对 2 月 7 日）。
+ * 这里只换算同一个朔望月的初一日期，月序与置闰沿用 tyme4ts；默认偏移返回与 zodiacYears 相同的春节日期。
+ */
+export function lunarNewYearAt(
+  year: number,
+  { utcOffsetMinutes = CHINA_OFFSET_MINUTES }: { utcOffsetMinutes?: number } = {},
+): DailyDate {
+  if (!Number.isInteger(utcOffsetMinutes) || Math.abs(utcOffsetMinutes) > 14 * 60) {
+    throw new RangeError('Invalid UTC offset in minutes')
+  }
+  const china = LunarDay.fromYmd(year, 1, 1).getSolarDay()
+  const noon = china.getJulianDay().getDay() - J2000_JULIAN_DAY
+  // 寿星万年历的合朔函数：以朔望角为参数，返回北京时间的 J2000 日数；取离这一天最近的一次合朔
+  const angle = Math.floor((noon + 8) / SYNODIC_MONTH_DAYS) * Math.PI * 2
+  const nearest = [-1, 0, 1]
+    .map((step) => ShouXingUtil.shuoHigh(angle + step * Math.PI * 2))
+    .reduce((best, value) => (Math.abs(value - noon) < Math.abs(best - noon) ? value : best))
+  const utcMs = (nearest - CHINA_OFFSET_MINUTES / 1440 + J2000_JULIAN_DAY - 2440587.5) * 86_400_000
+  const local = new Date(utcMs + utcOffsetMinutes * 60_000)
+  return {
+    year: local.getUTCFullYear(),
+    month: local.getUTCMonth() + 1,
+    day: local.getUTCDate(),
+  }
 }
 
 export function nayinTable(): NayinRow[] {

@@ -35,7 +35,7 @@ const BRANCH_KEYS: readonly Branch[] = [
 export const FIRST_YEAR = 1924
 export const LAST_YEAR = 2043
 
-const CHINA_OFFSET_MS = 8 * 3_600_000
+const CHINA_OFFSET_MINUTES = 480
 
 export interface LookupYear {
   readonly year: number
@@ -77,6 +77,8 @@ const order = (month: number, day: number) => month * 100 + day
 export function lookupZodiac(
   value: string,
   boundaries: readonly ZodiacBoundaryTuple[],
+  /** 立春时刻按此偏移换算成当地日期（zh-hans 北京时间，ko 韩国标准时） */
+  offsetMinutes = CHINA_OFFSET_MINUTES,
 ): LookupResult {
   const text = value.trim()
   if (!text) return { kind: 'required' }
@@ -93,7 +95,7 @@ export function lookupZodiac(
   const boundary = boundaries.find(([entry]) => entry === year)
   if (!boundary) return { kind: 'range' }
   const [, lichunEpochMs, newYearMonth, newYearDay] = boundary
-  const lichun = new Date(lichunEpochMs + CHINA_OFFSET_MS)
+  const lichun = new Date(lichunEpochMs + offsetMinutes * 60_000)
   const lichunMonth = lichun.getUTCMonth() + 1
   const lichunDay = lichun.getUTCDate()
   const birth = order(month, day)

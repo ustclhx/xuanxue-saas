@@ -5,6 +5,7 @@ import {
   ALMANAC_RULES_VERSION,
   almanacDay,
   almanacMonth,
+  lunarNewYearAt,
   nayinTable,
   terrainTable,
   zodiacBoundaries,
@@ -191,6 +192,35 @@ describe('生肖与八字表格', () => {
       lunarNewYear: { year: 2025, month: 1, day: 29 },
     })
     expect(year2025(600)?.lichun).toMatchObject({ day: 4, hour: 0, minute: 10 })
+  })
+
+  it('正月初一可按时区换算：默认与春节一致，UTC+9 在合朔晚于北京时间 23 点的年份晚一天', () => {
+    const shifted: string[] = []
+    for (const { year, lunarNewYear } of zodiacBoundaries()) {
+      expect(lunarNewYearAt(year), String(year)).toEqual(lunarNewYear)
+      const korea = lunarNewYearAt(year, { utcOffsetMinutes: 540 })
+      if (korea.day !== lunarNewYear.day) {
+        // 只可能顺延一天
+        const next = new Date(Date.UTC(year, lunarNewYear.month - 1, lunarNewYear.day + 1))
+        expect(korea).toEqual({
+          year,
+          month: next.getUTCMonth() + 1,
+          day: next.getUTCDate(),
+        })
+        shifted.push(`${year}-${korea.month}-${korea.day}`)
+      }
+    }
+    // 韩国설날与中国春节不同日的年份（1997 年、2027 年等为常被引用的例子）
+    expect(shifted).toEqual([
+      '1944-1-26',
+      '1954-2-4',
+      '1958-2-19',
+      '1966-1-22',
+      '1988-2-18',
+      '1997-2-8',
+      '2027-2-7',
+      '2028-1-27',
+    ])
   })
 
   it('六十甲子逐项匹配 lunar-javascript 纳音', () => {

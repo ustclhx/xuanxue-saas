@@ -22,9 +22,12 @@ export const ZODIAC_KEYS = [
 ] as const
 export type ZodiacKey = (typeof ZODIAC_KEYS)[number]
 
-export type ZodiacLocale = 'zh-Hans'
+export type ZodiacLocale = 'zh-Hans' | 'ko'
 
-export const ZODIAC_HUB_PATHS: Readonly<Record<ZodiacLocale, string>> = { 'zh-Hans': '/生肖' }
+export const ZODIAC_HUB_PATHS: Readonly<Record<ZodiacLocale, string>> = {
+  'zh-Hans': '/生肖',
+  ko: '/띠',
+}
 
 /** 子页 slug 即主词（「属鼠」） */
 export const ZODIAC_SLUGS: Readonly<Record<ZodiacLocale, Readonly<Record<ZodiacKey, string>>>> = {
@@ -42,10 +45,31 @@ export const ZODIAC_SLUGS: Readonly<Record<ZodiacLocale, Readonly<Record<ZodiacK
     xu: '属狗',
     hai: '属猪',
   },
+  // ko 主词「쥐띠」…「돼지띠」（design 决策 1、9）
+  ko: {
+    zi: '쥐띠',
+    chou: '소띠',
+    yin: '호랑이띠',
+    mao: '토끼띠',
+    chen: '용띠',
+    si: '뱀띠',
+    wu: '말띠',
+    wei: '양띠',
+    shen: '원숭이띠',
+    you: '닭띠',
+    xu: '개띠',
+    hai: '돼지띠',
+  },
 }
 
 /** 枢纽页的导航名（页头「历法与生肖」分组与面包屑） */
-export const ZODIAC_HUB_TITLES: Readonly<Record<ZodiacLocale, string>> = { 'zh-Hans': '十二生肖' }
+export const ZODIAC_HUB_TITLES: Readonly<Record<ZodiacLocale, string>> = {
+  'zh-Hans': '十二生肖',
+  ko: '띠',
+}
+
+export const isZodiacLocale = (locale: string): locale is ZodiacLocale =>
+  Object.hasOwn(ZODIAC_HUB_PATHS, locale)
 
 const LOCALES = Object.keys(ZODIAC_HUB_PATHS) as ZodiacLocale[]
 

@@ -9,9 +9,9 @@ import {
   taiSuiOf,
   triadOf,
 } from '@xuanxue/bazi'
-import { zodiacBoundaries, zodiacYears } from '@xuanxue/bazi/almanac'
+import { lunarNewYearAt, zodiacBoundaries, zodiacYears } from '@xuanxue/bazi/almanac'
 import { PUNISH_GROUPS, TRIADS } from './constants.ts'
-import type { ZodiacKey } from './paths.ts'
+import type { ZodiacKey, ZodiacLocale } from './paths.ts'
 
 /**
  * 生肖页的引擎事实（design 决策 3、4）：只在服务端与构建期计算，结果随 loader 下发，客户端不加载 tyme4ts。
@@ -38,6 +38,23 @@ export const branchIndexOf = (branch: Branch) => BRANCHES.indexOf(branch)
 export const branchElementOf = (branch: Branch): Element =>
   BRANCH_ELEMENT[branchIndexOf(branch)] as Element
 export const triadIndexOf = (branch: Branch) => triadOf(branchIndexOf(branch))
+
+/**
+ * 各语言页显示立春时刻与春节日期所用的固定 UTC 偏移（分钟）：zh-hans 为北京时间；ko 为韩国标准时，
+ * 설날也按 UTC+9 的合朔日（与中国春节偶有一天之差，如 1997、2027 年）。1954–1961 年等历史标准时差异不计（design Risks）。
+ */
+export const ZODIAC_UTC_OFFSET: Readonly<Record<ZodiacLocale, number>> = {
+  'zh-Hans': 480,
+  ko: 540,
+}
+const CHINA_OFFSET = 480
+
+/** 该偏移下的正月初一：北京时间直接取引擎的春节日期 */
+function newYearAt(year: number, fallback: MonthDay, offsetMinutes: number): MonthDay {
+  if (offsetMinutes === CHINA_OFFSET) return fallback
+  const date = lunarNewYearAt(year, { utcOffsetMinutes: offsetMinutes })
+  return { month: date.month, day: date.day }
+}
 
 const stemOfYear = (year: number) => STEMS[(((year - 1924) % 10) + 10) % 10] as Stem
 const branchOfYear = (year: number) => BRANCHES[(((year - 1924) % 12) + 12) % 12] as Branch
@@ -83,8 +100,8 @@ export function zodiacYearAt(epochMs: number): number | undefined {
   return year
 }
 
-export function yearRows(branch: Branch): ZodiacYearRow[] {
-  return zodiacYears(branch).map((row) => ({
+export function yearRows(branch: Branch, offsetMinutes = CHINA_OFFSET): ZodiacYearRow[] {
+  return zodiacYears(branch, { utcOffsetMinutes: offsetMinutes }).map((row) => ({
     year: row.year,
     stem: row.stem,
     branch: row.branch,
@@ -95,7 +112,11 @@ export function yearRows(branch: Branch): ZodiacYearRow[] {
       hour: row.lichun.hour,
       minute: row.lichun.minute,
     },
-    newYear: { month: row.lunarNewYear.month, day: row.lunarNewYear.day },
+    newYear: newYearAt(
+      row.year,
+      { month: row.lunarNewYear.month, day: row.lunarNewYear.day },
+      offsetMinutes,
+    ),
   }))
 }
 
@@ -118,11 +139,15 @@ export function relationsOf(branch: Branch): ZodiacRelation[] {
 }
 
 /** 某干支年与本支的太岁关系与地支关系 */
-export function annualOf(year: number, natal: Branch): ZodiacAnnual | null {
+export function annualOf(
+  year: number,
+  natal: Branch,
+  offsetMinutes = CHINA_OFFSET,
+): ZodiacAnnual | null {
   const boundary = zodiacBoundaries().find((entry) => entry.year === year)
   if (!boundary) return null
   const branch = branchOfYear(year)
-  const lichun = new Date(boundary.lichunEpochMs + 8 * 3_600_000)
+  const lichun = new Date(boundary.lichunEpochMs + offsetMinutes * 60_000)
   return {
     year,
     stem: stemOfYear(year),
@@ -168,26 +193,33 @@ export interface ZodiacChildFacts {
   readonly element: Element
   readonly polarity: 'yang' | 'yin'
   readonly currentYear: number
+  /** 만 나이等按公历计的「今年」（显示偏移下的日期） */
+  readonly calendarYear: number
   readonly years: readonly ZodiacYearRow[]
   readonly example: ZodiacExample | null
   readonly relations: readonly ZodiacRelation[]
   readonly annual: readonly ZodiacAnnual[]
 }
 
-export function childFacts(key: ZodiacKey, now: number): ZodiacChildFacts {
+export function childFacts(
+  key: ZodiacKey,
+  now: number,
+  offsetMinutes = CHINA_OFFSET,
+): ZodiacChildFacts {
   const branch = key as Branch
   const currentYear = zodiacYearAt(now) ?? 2043
-  const years = yearRows(branch)
+  const years = yearRows(branch, offsetMinutes)
   return {
     branch,
     element: branchElementOf(branch),
     polarity: branchIndexOf(branch) % 2 === 0 ? 'yang' : 'yin',
     currentYear,
+    calendarYear: new Date(now + offsetMinutes * 60_000).getUTCFullYear(),
     years,
     example: exampleOf(years, currentYear),
     relations: relationsOf(branch),
     annual: [currentYear, currentYear + 1]
-      .map((year) => annualOf(year, branch))
+      .map((year) => annualOf(year, branch, offsetMinutes))
       .filter((entry): entry is ZodiacAnnual => entry !== null),
   }
 }
@@ -209,9 +241,11 @@ export interface ZodiacHubFacts {
   readonly currentBranch: Branch
   readonly rows: readonly ZodiacHubRow[]
   readonly boundaries: readonly ZodiacBoundaryTuple[]
+  /** 查询结果显示立春时刻所用的偏移（分钟） */
+  readonly offsetMinutes: number
 }
 
-export function hubFacts(now: number): ZodiacHubFacts {
+export function hubFacts(now: number, offsetMinutes = CHINA_OFFSET): ZodiacHubFacts {
   const currentYear = zodiacYearAt(now) ?? 2043
   const rows = BRANCHES.map((branch, index): ZodiacHubRow => {
     // 1924 甲子起，本支第一个年份为 1924 + index
@@ -228,13 +262,10 @@ export function hubFacts(now: number): ZodiacHubFacts {
     currentYear,
     currentBranch: branchOfYear(currentYear),
     rows,
-    boundaries: zodiacBoundaries().map(
-      (entry): ZodiacBoundaryTuple => [
-        entry.year,
-        entry.lichunEpochMs,
-        entry.lunarNewYear.month,
-        entry.lunarNewYear.day,
-      ],
-    ),
+    boundaries: zodiacBoundaries().map((entry): ZodiacBoundaryTuple => {
+      const newYear = newYearAt(entry.year, entry.lunarNewYear, offsetMinutes)
+      return [entry.year, entry.lichunEpochMs, newYear.month, newYear.day]
+    }),
+    offsetMinutes,
   }
 }

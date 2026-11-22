@@ -15,7 +15,9 @@ import {
   digitSeq,
   eastCollection,
   eastCollectionSections,
+  eastSectionTitle,
   entryLocale,
+  evaluatePage,
   exceedsEastSectionThreshold,
   faqOriginStats,
   lengthCheck,
@@ -296,6 +298,54 @@ describe('东方站集合', () => {
     assert.equal(section.maxPage, 'a')
     const unmatched = rows.find((row) => row.title === '별도 제목')
     assert.deepEqual([unmatched.pages, unmatched.mean, unmatched.maxPage], [1, null, null])
+  })
+
+  test('生肖集合的小标题去掉띠名与地支后对齐，其他集合不变', () => {
+    assert.equal(
+      eastSectionTitle('zodiac', '원숭이띠 성격과 일하는 방식'),
+      '{띠} 성격과 일하는 방식',
+    )
+    assert.equal(eastSectionTitle('zodiac', '소띠의 일과 배움'), '{띠}의 일과 배움')
+    assert.equal(
+      eastSectionTitle('zodiac', '해(亥)의 육합·삼합·충·형·해'),
+      '{지지}의 육합·삼합·충·형·해',
+    )
+    assert.equal(eastSectionTitle('zodiac', '屬雞的流年'), '{生肖}的流年')
+    assert.equal(eastSectionTitle('zodiac', '올해 흐름'), '올해 흐름')
+    assert.equal(eastSectionTitle('almanac-month', '쥐띠 성격'), '쥐띠 성격')
+    const pages = [
+      ['/ko/띠/쥐띠', '쥐띠 성격과 일하는 방식', '자(子)의 육합·삼합·충·형·해'],
+      ['/ko/띠/소띠', '소띠 성격과 일하는 방식', '축(丑)의 육합·삼합·충·형·해'],
+      ['/ko/띠/원숭이띠', '원숭이띠 성격과 일하는 방식', '신(申)의 육합·삼합·충·형·해'],
+    ].map(([id, a, b]) => ({
+      id,
+      sections: sectionsFromText(`도입\n@@H2@@${a}@@\n갑을병정무\n@@H2@@${b}@@\n기경신임계`)
+        .sections,
+    }))
+    const rows = eastCollectionSections(pages, { unit: unitOf('ko'), collection: 'zodiac' })
+    const titles = rows
+      .filter((row) => row.scope === 'section')
+      .map((row) => [row.title, row.pages])
+    assert.deepEqual(titles, [
+      ['{띠} 성격과 일하는 방식', 3],
+      ['{지지}의 육합·삼합·충·형·해', 3],
+    ])
+    // 不传集合时按可见标题对齐，各段只有一页
+    assert.ok(
+      eastCollectionSections(pages, { unit: unitOf('ko') })
+        .filter((row) => row.scope === 'section')
+        .every((row) => row.pages === 1),
+    )
+  })
+
+  test('生肖集合的页面（路径分类为 other）也判结构直译分', () => {
+    const literal = { literalScore: 0.65, digitOverlap: 0 }
+    const zodiac = { kind: 'other', collection: 'zodiac', pairs: { ko: { literal } } }
+    assert.deepEqual(evaluatePage(zodiac, 'ko'), ['literal 0.65'])
+    const other = { kind: 'other', collection: null, pairs: { ko: { literal } } }
+    assert.deepEqual(evaluatePage(other, 'ko'), [])
+    const ok = { ...zodiac, pairs: { ko: { literal: { literalScore: 0.6, digitOverlap: 0 } } } }
+    assert.deepEqual(evaluatePage(ok, 'ko'), [])
   })
 
   test('两两均值恰为 0.30 时忽略浮点累加误差', () => {
