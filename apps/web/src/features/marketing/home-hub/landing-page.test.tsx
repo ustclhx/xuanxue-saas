@@ -396,6 +396,23 @@ describe('落地页', () => {
       expect(faq).toContain(question)
   })
 
+  it('信任说明第一条链接到本语言的数字命理入门页（content-growth-phase1 6.4），东方站不链接', () => {
+    for (const [locale, href, anchor] of [
+      ['en', '/numerology', 'what is numerology'],
+      ['es', '/es/numerologia', 'qué es la numerología'],
+    ] as const) {
+      language.locale = locale
+      const trust = block(render('west', locale), 'trust')
+      expect(trust.match(/<a\b/g)).toHaveLength(1)
+      expect(trust).toContain(
+        `<a href="${href}" class="text-brand-ink hover:decoration-2">${anchor}</a>`,
+      )
+      expect(text(trust)).not.toContain('[')
+    }
+    language.locale = 'zh-Hant'
+    expect(block(render('east', 'zh-Hant'), 'trust')).not.toContain('<a ')
+  })
+
   it('首屏插画位对读屏隐藏，传入插画不改变结构', () => {
     const empty = block(render('east', 'zh-Hant'), 'hero')
     expect(empty).toMatch(/<div[^>]*aria-hidden="true"[^>]*data-landing-art[^>]*><\/div>/)

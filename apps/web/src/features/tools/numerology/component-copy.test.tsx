@@ -3,7 +3,7 @@ import { act, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { exampleDateFor } from './calc.ts'
-import { NeighborNumbers } from './content-page.tsx'
+import { NeighborNumbers, RelatedPages } from './content-page.tsx'
 import { LifePathCalculator } from './life-path-calculator.tsx'
 
 // 数字页组件段的逐数字文案（openspec content-growth-phase1 tasks 3.1）
@@ -85,5 +85,31 @@ describe('NeighborNumbers text', () => {
     expect(links()).toEqual(fallback)
     expect(container.textContent).toContain('Own copy:')
     expect(container.querySelector('section')?.hasAttribute('data-locale-fixed')).toBe(true)
+  })
+})
+
+describe('入门页「相关」区块（content-growth-phase1 6.3）', () => {
+  it('每张卡片是真实 <a href>，锚文本为主词、带一行说明，区块标 data-link-zone="related"', async () => {
+    await render(
+      <RelatedPages
+        links={[
+          { href: '/life-path-number', label: 'Life Path', description: 'Birth date steps.' },
+          { href: '/soul-urge-number', label: 'Soul Urge Number', description: 'Vowels.' },
+        ]}
+      />,
+    )
+    const section = container.querySelector('section[data-link-zone="related"]')
+    expect(section?.querySelector('h2')?.textContent).toBe('Related')
+    const cards = [...(section?.querySelectorAll('a') ?? [])]
+    expect(cards.map((a) => a.getAttribute('href'))).toEqual([
+      '/life-path-number',
+      '/soul-urge-number',
+    ])
+    expect(cards[0]?.textContent).toBe('Life PathBirth date steps.')
+  })
+
+  it('没有 related 时不渲染', async () => {
+    await render(<RelatedPages links={[]} />)
+    expect(container.innerHTML).toBe('')
   })
 })

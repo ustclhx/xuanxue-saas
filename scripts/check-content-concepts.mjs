@@ -404,11 +404,15 @@ for (const [collection, locale, slugs] of [
   ],
 ]) {
   const directory = new URL(`${collection}/${locale}/`, root)
-  // 计算器汇总页有独立正文结构，不属于这批含计算样例的长文。
+  // 计算器汇总页与入门页有独立正文结构，不属于这批含计算样例的长文（入门页在文末单独校验）。
   const files = (await readdir(directory))
     .filter(
       (file) =>
-        file.endsWith('.mdx') && !(collection === 'numerology' && file === 'life-path-number.mdx'),
+        file.endsWith('.mdx') &&
+        !(
+          collection === 'numerology' &&
+          (file === 'life-path-number.mdx' || file === 'numerology.mdx')
+        ),
     )
     .sort()
   assert.deepEqual(
@@ -475,6 +479,129 @@ for (const locale of ['en', 'es']) {
   }
 }
 console.log(`Engine-verified component notes: ${componentPages} life path pages (en, es)`)
+
+// 数字命理入门页（openspec content-growth-phase1 决策 7）：en `/numerology`、es `/es/numerologia`。
+// 正文（FAQ 之前）≥1,000 词、FAQ 3–4 问且与 frontmatter 逐字相同、正文链接 2–5 个计算器、合规表述、不提 AI；
+// 唯一的日期算例逐行与引擎一致，两种语言的算例日期不同。
+const INTRO = {
+  en: {
+    faq: 'FAQ',
+    labels: ['Birth date', 'Month', 'Day', 'Year', 'Total', 'Life path'],
+    calculators: [
+      '/life-path-number',
+      '/numerology-calculator',
+      '/name-numerology',
+      '/life-path-compatibility',
+    ],
+    phrases: [
+      'calculated with traditional methods',
+      'for reference and self-reflection',
+      'does not predict the future',
+      'consult a medical professional',
+    ],
+  },
+  es: {
+    faq: 'Preguntas frecuentes',
+    labels: ['Fecha de nacimiento', 'Mes', 'Día', 'Año', 'Total', 'Número de vida'],
+    calculators: [
+      '/es/numero-de-vida',
+      '/es/calculadora-numerologia',
+      '/es/numerologia-del-nombre',
+      '/es/compatibilidad-numerologica',
+    ],
+    phrases: [
+      'métodos tradicionales',
+      'solo como referencia',
+      'no predice el futuro',
+      'profesional médico',
+    ],
+  },
+}
+const introDates = []
+for (const [locale, spec] of Object.entries(INTRO)) {
+  const name = `numerology/${locale}/numerology.mdx`
+  try {
+    const source = await readFile(new URL(name, root), 'utf8')
+    const match = source.match(/^---\n([\s\S]+?)\n---\n\n([\s\S]+)$/)
+    assert.ok(match, 'frontmatter delimiters')
+    const document = parseDocument(match[1], { uniqueKeys: true })
+    assert.equal(document.errors.length, 0, 'valid YAML with unique keys')
+    const data = document.toJS()
+    const content = match[2]
+    assert.equal(data.slug, 'numerology')
+    assert.equal(data.locale, locale)
+    assert.equal(data.number, null)
+    assert.ok(
+      Array.isArray(data.faq) && data.faq.length >= 3 && data.faq.length <= 4,
+      '3–4 FAQ items',
+    )
+    for (const item of data.faq)
+      assert.ok(
+        content.includes(`### ${item.q}\n\n${item.a}`),
+        'visible FAQ must match frontmatter',
+      )
+    const [prose, faq] = content.split(new RegExp(`^## ${spec.faq}\\s*$`, 'm'))
+    assert.ok(faq !== undefined, `missing ## ${spec.faq}`)
+    assert.ok(
+      !/\b(?:AI|IA)\b/.test(`${data.title}\n${data.description}\n${content}`),
+      'must not mention AI',
+    )
+    const processor = createProcessor()
+    const tree = processor.parse(prose)
+    const links = []
+    const codes = []
+    walk(tree, (node) => {
+      assert.ok(!node.type.startsWith('mdx') && node.type !== 'html', 'Markdown only')
+      if (node.type === 'heading') assert.ok(node.depth === 2 || node.depth === 3, 'H2/H3 only')
+      if (node.type === 'link') links.push(node.url)
+      if (node.type === 'code') codes.push(node.value)
+    })
+    await processor.process(content)
+    const words = visibleText(tree).match(WORDS)?.length ?? 0
+    assert.ok(words >= 1000, `prose: ${words} words, expected >= 1000`)
+    assert.ok(links.length >= 2 && links.length <= 5, `body links: ${links.length}, expected 2–5`)
+    assert.ok(
+      links.every((link) => spec.calculators.includes(link)),
+      `body links must target calculators: ${links}`,
+    )
+    const plain = visibleText(processor.parse(content)).toLowerCase()
+    for (const phrase of spec.phrases)
+      assert.ok(plain.includes(phrase), `missing compliance phrase: ${phrase}`)
+    const dates = codes.filter((code) => code.startsWith(`${spec.labels[0]}: `))
+    assert.equal(dates.length, 1, 'exactly one engine-checked date example')
+    const iso = dates[0].match(new RegExp(`^${spec.labels[0]}: (\\d{4})-(\\d{2})-(\\d{2})$`, 'm'))
+    assert.ok(iso, 'valid date example label')
+    const [year, month, day] = iso.slice(1).map(Number)
+    const result = lifePath({ year, month, day })
+    const part = (value) => reduceNumber(value).steps.map(equation).join('; ') || String(value)
+    const total = result.steps
+      .filter((step) => step.phase === 'total')
+      .map(equation)
+      .join('; ')
+    const [dateLabel, monthLabel, dayLabel, yearLabel, totalLabel, resultLabel] = spec.labels
+    assert.equal(
+      dates[0],
+      [
+        `${dateLabel}: ${iso.slice(1).join('-')}`,
+        `${monthLabel}: ${part(month)}`,
+        `${dayLabel}: ${part(day)}`,
+        `${yearLabel}: ${part(year)}`,
+        `${totalLabel}: ${total || result.value}`,
+        `${resultLabel}: ${result.value}`,
+      ].join('\n'),
+      'date steps must match the engine',
+    )
+    introDates.push(iso.slice(1).join('-'))
+    dateExamples++
+    console.log(
+      `OK ${name} (${words} words, ${links.length} body links, life path ${result.value})`,
+    )
+  } catch (error) {
+    failures.push(`${name}: ${error.message}`)
+  }
+}
+if (new Set(introDates).size !== introDates.length)
+  failures.push('numerology intro pages: en and es must use different example dates')
 for (const [locale, counts] of Object.entries(totals)) {
   console.log(
     `${locale}: ${counts.length} pages, prose length ${Math.min(...counts)}–${Math.max(...counts)}`,

@@ -50,11 +50,12 @@
 
 ## 6. 数字命理入门页（西方站 en、es）
 
-- [ ] 6.1 按 `ui-design` 技能出画布稿：en 桌面与 390px，枢纽页版式加相关区块，内嵌 Life Path 计算器。经使用者确认后存离线副本并登记原型索引。未确认前不开始 6.3
-- [ ] 6.2 Claude 子代理撰写 `content/numerology/en/numerology.mdx` 与 `content/numerology/es/numerology.mdx`：按 design 决策 7 的大纲与 TDK，正文 ≥1,000 词，FAQ 3–4 问；es 另写，使用不同的虚构算例；算例由引擎复算，`check-content-concepts` 通过。es 回译审阅流程同 2.4
-- [ ] 6.3 在 `numerology/routes.ts` 的 `PATHS` 增加 `numerology` 页面 id（en `/numerology`，es `/numerologia`）。`slug-route.ts` 与 `slug-page.tsx` 承接该 id（en 也经 `$slug`，不新增路由文件）。注册表 `NUMEROLOGY_ROUTES` 登记 Title、Description、titleMain，父页为首页。SeoPage 声明 `related` 为 7 个计算器页，并渲染相关区块。补路由与 SEO 单测；`check-home-bundle` 首页包不超预算
-- [ ] 6.4 入链：在首页「How we calculate」一行，以及 `/life-path-number`、`/numerology-calculator` 长文中现成提到 numerology 的句子里，各加最多 1 条指向入门页的链接（en「what is numerology」/「numerology basics」，es「qué es la numerología」/「numerología para principiantes」）；不新造句子，总入链 ≥2。es 两种锚文本登记进 `i18n/glossary/es.json`
-- [ ] 6.5 验收：两页进入站点地图、互为 hreflang、canonical 自指；`audit:seo` 显示正文内链 2–5、TDK 在区间内、钱页入链不减少；`check:links` 无孤岛与死链；`measure-locale-similarity` 中 es 对 en 的结构直译分 ≤0.6、数字序列重合 ≤0.5；llms.txt 含两页；关键词归属表已登记
+- [x] 6.1 按 `ui-design` 技能出画布稿：en 桌面与 390px，枢纽页版式加相关区块，内嵌 Life Path 计算器。经使用者确认后存离线副本并登记原型索引。未确认前不开始 6.3
+- [x] 6.2 Claude 子代理撰写 `content/numerology/en/numerology.mdx` 与 `content/numerology/es/numerology.mdx`：按 design 决策 7 的大纲与 TDK，正文 ≥1,000 词，FAQ 3–4 问；es 另写，使用不同的虚构算例；算例由引擎复算，`check-content-concepts` 通过。es 回译审阅流程同 2.4
+  - es 回译审阅：Codex 回译整页 0.294（阈值 0.50）、FAQ 按标题对齐 0.108（阈值 0.40）；17 条建议全部按处理记录修改（证据目录 `content-growth/phase1/group6/backtranslation-es-export/review.md`、`resolution.md`）
+- [x] 6.3 在 `numerology/routes.ts` 的 `PATHS` 增加 `numerology` 页面 id（en `/numerology`，es `/numerologia`）。`slug-route.ts` 与 `slug-page.tsx` 承接该 id（en 也经 `$slug`，不新增路由文件）。注册表 `NUMEROLOGY_ROUTES` 登记 Title、Description、titleMain，父页为首页。SeoPage 声明 `related` 为 7 个计算器页，并渲染相关区块。补路由与 SEO 单测；`check-home-bundle` 首页包不超预算
+- [x] 6.4 入链：在首页「How we calculate」一行，以及 `/life-path-number`、`/numerology-calculator` 长文中现成提到 numerology 的句子里，各加最多 1 条指向入门页的链接（en「what is numerology」/「numerology basics」，es「qué es la numerología」/「numerología para principiantes」）；不新造句子，总入链 ≥2。es 两种锚文本登记进 `i18n/glossary/es.json`
+- [x] 6.5 验收：两页进入站点地图、互为 hreflang、canonical 自指；`audit:seo` 显示正文内链 2–5、TDK 在区间内、钱页入链不减少；`check:links` 无孤岛与死链；`measure-locale-similarity` 中 es 对 en 的结构直译分 ≤0.6、数字序列重合 ≤0.5；llms.txt 含两页；关键词归属表已登记
 
 ## 7. 集成验收（协调者，全部合并后在 main 上执行）
 
