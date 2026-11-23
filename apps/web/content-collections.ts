@@ -877,6 +877,91 @@ const westernZodiac = defineCollection({
   },
 })
 
+/**
+ * 东方站年度生肖集合（openspec content-growth-v2-tools 决策 6；第 8 组建 schema，第 9、10、11 组只加内容文件）：
+ * content/yearly/<locale>/<年份>/<地支 key>.mdx 为年度生肖页，index.mdx 为年度枢纽。
+ * 关系表、出生年份与纳音、立春与春节由页面按引擎计算，这里只保存逐页撰写的文字：
+ * `relations_note`（关系表导语）、`focus`（工作、关系、自我照顾三个主题段，反思与建议语气）、
+ * `years_note`（出生年份表导语）。正文按 `## ` 切段：子页依次为「与流年的关系」「用完整八字看」两段，
+ * 页面在第一段的正文前插入关系表，在两段之间插入主题段与出生年份表（features/east-content/yearly/）。
+ */
+const YEARLY_FOCUS = ['work', 'relationships', 'self'] as const
+const yearly = defineCollection({
+  name: 'yearly',
+  directory: 'content/yearly',
+  include: '*/*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[^/\s]+$/),
+    locale: z.enum(['zh-Hans', 'zh-Hant', 'ko', 'en']),
+    year: z.number().int().min(1924).max(2043),
+    // 枢纽页没有地支
+    branch: z.enum(ZODIAC_BRANCHES).optional(),
+    lede: z.string().min(1),
+    relations_note: z.string().min(1).optional(),
+    focus: z
+      .array(z.object({ theme: z.enum(YEARLY_FOCUS), text: z.string().min(1) }))
+      .length(3)
+      .optional(),
+    years_note: z.string().min(1).optional(),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    // content-collections 把 index.mdx 的路径记为所在目录（`zh-Hans/2027`）
+    const [locale = '', year = '', file = 'index'] = document._meta.path.split('/')
+    const key = file || 'index'
+    if (locale !== data.locale)
+      throw new Error(`Yearly locale does not match directory: ${document._meta.path}`)
+    if (year !== String(data.year))
+      throw new Error(`Yearly year does not match directory: ${document._meta.path}`)
+    const hub = key === 'index'
+    if (hub ? data.branch !== undefined : data.branch !== key)
+      throw new Error(`Yearly branch does not match file name: ${document._meta.path}`)
+    if (!hub) {
+      if (!data.relations_note || !data.years_note || !data.focus)
+        throw new Error(
+          `Yearly page needs relations_note, focus and years_note: ${document._meta.path}`,
+        )
+      // 三个主题按固定顺序（工作、关系、自我照顾），页面按此顺序渲染小标题
+      if (data.focus.map((item) => item.theme).join() !== YEARLY_FOCUS.join())
+        throw new Error(`Yearly focus must be ${YEARLY_FOCUS.join(', ')}: ${document._meta.path}`)
+    }
+    const chunks = content.split(/^## /m).slice(1)
+    if (hub ? chunks.length < 2 : chunks.length !== 2)
+      throw new Error(
+        `Yearly body needs ${hub ? 'at least 2' : 'exactly 2'} "## " sections: ${document._meta.path}`,
+      )
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    // 主题段允许用空行分段
+    const focus = (data.focus ?? []).map((item) => ({
+      theme: item.theme,
+      paragraphs: item.text
+        .split(/\n\s*\n/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean),
+    }))
+    return { ...data, key, sections, focus }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -895,5 +980,6 @@ export default defineConfig({
     moon,
     moonData,
     westernZodiac,
+    yearly,
   ],
 })

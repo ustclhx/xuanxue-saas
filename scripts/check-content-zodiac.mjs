@@ -55,6 +55,8 @@ const LOCALES = {
     linkTargets: [
       '/八字排盘',
       '/生肖',
+      // content-growth-v2-tools 第 8 组：枢纽链接 2027 年度枢纽
+      '/2027生肖运势',
       '/八字/五行',
       '/八字/大运',
       '/八字/十神',
@@ -66,6 +68,11 @@ const LOCALES = {
     ],
     countUnit: /\p{Script=Han}/gu,
     annual: [120, 200],
+    // content-growth-v2-tools 第 8 组：丁未年说明链接到本生肖的 2027 年度页
+    yearlyLink: (branch) => {
+      const animal = '鼠牛虎兔龙蛇马羊猴鸡狗猪'[BRANCHES.indexOf(branch)]
+      return { anchor: `2027属${animal}`, href: `/zh-hans/2027生肖运势/属${animal}` }
+    },
   },
   // 第 5 组：ko 按韩语主词另写；小标题带本页的띠与地支（设计稿 ZodiacPageKoMobile），篇幅按不含空格的字符计（决策 13）
   ko: {
@@ -448,7 +455,21 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
     const annual = hub ? {} : (data.annual ?? {})
     for (const [ganzhi, text] of Object.entries(annual)) {
       if (!new RegExp(`^${GZ}$`).test(ganzhi)) fail(`annual 键须为干支：${ganzhi}`)
-      const count = (String(text).match(spec.countUnit) ?? []).length
+      // content-growth-v2-tools 8.3：流年说明最多 1 条链接，只指向本生肖的年度页（锚文本「2027属X」）
+      const annualLinks = [...String(text).matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
+      if (annualLinks.length > 1) fail(`annual.${ganzhi} 链接超过 1 条`)
+      for (const [, anchor, href] of annualLinks) {
+        const yearlyTarget = spec.yearlyLink?.(branch)
+        if (!yearlyTarget || href !== yearlyTarget.href || anchor !== yearlyTarget.anchor)
+          fail(
+            `annual.${ganzhi} 链接须为 [${yearlyTarget?.anchor}](${yearlyTarget?.href})：${href}`,
+          )
+      }
+      const count = (
+        String(text)
+          .replace(/\]\([^)]*\)/g, ']')
+          .match(spec.countUnit) ?? []
+      ).length
       const [annualMin, annualMax] = spec.annual
       if (count < annualMin || count > annualMax)
         fail(`annual.${ganzhi} ${count} 字（须 ${annualMin}–${annualMax}）`)
