@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>东方站共用页头</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav d-only" aria-label="主导航">
+<a href="Nav.dc.html">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="Main.dc.html">每日运势</a>
+<a href="Main.dc.html">定价</a>
+<a href="#footer">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#footer">登录</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="主导航"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["alone","in"],"default":"alone"},"$preview":{"width":1440,"height":80}}'>
+class Component extends DCLogic {
+renderVals() {
+const inPage = (this.props.mode ?? 'alone') === 'in';
+return { theme: inPage ? '' : 'east-light', cls: inPage ? 'part-in' : 'xx hans part' };
+}
+}
+</script>
+</body>
+</html>

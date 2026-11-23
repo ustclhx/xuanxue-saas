@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>八字合婚</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrEast" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="hh-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><a href="HubEast.dc.html">全部工具</a><span aria-hidden="true">›</span><span>八字合婚</span></nav>
+<div class="rowline"><h1 class="t-title">八字合婚</h1><span class="bdg bdg-new">新</span></div>
+<p class="muted">输入两个人的出生时间，分别排出四柱，逐项列出日柱、年支与五行之间的传统关系。结果是规则的对照，不是对两个人关系的判断。</p>
+</div>
+
+<form class="panel" aria-label="两个人的出生资料">
+<fieldset class="duo">
+<legend>你</legend>
+<div class="field"><div class="field-top"><label class="label" for="hh-a-date">出生日期（公历）</label></div><input class="input" id="hh-a-date" type="text" value="1990 年 5 月 15 日"></div>
+<div class="field"><div class="field-top"><label class="label" for="hh-a-time">出生时间</label></div><input class="input" id="hh-a-time" type="text" value="10:30"></div>
+<div class="field"><span class="label" id="hh-a-sex">性别</span><div class="seg lg" role="group" aria-labelledby="hh-a-sex"><button type="button" class="on" aria-pressed="true">男</button><button type="button" aria-pressed="false">女</button></div></div>
+</fieldset>
+<fieldset class="duo">
+<legend>对方</legend>
+<div class="field"><div class="field-top"><label class="label" for="hh-b-date">出生日期（公历）</label></div><input class="input" id="hh-b-date" type="text" value="1991 年 11 月 11 日"></div>
+<div class="field"><div class="field-top"><label class="label" for="hh-b-time">出生时间</label></div>
+<input class="input hide-edge" id="hh-b-time" type="text" value="14:00">
+<span class="input when when-edge subtle" aria-hidden="true">不知道</span>
+<label class="check"><input type="checkbox" class="hide-edge"><input type="checkbox" class="when when-edge wi" checked>不知道出生时间</label></div>
+<div class="field"><span class="label" id="hh-b-sex">性别</span><div class="seg lg" role="group" aria-labelledby="hh-b-sex"><button type="button" aria-pressed="false">男</button><button type="button" class="on" aria-pressed="true">女</button></div></div>
+</fieldset>
+<div class="full privacy">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+<p>对方的出生资料只用于本次计算，不保存到你的账户，也不用于其他用途。请在对方知情的情况下填写。</p>
+</div>
+<div class="full form-foot">
+<p class="hint">不需要注册。</p>
+<button type="button" class="btn btn-primary">免费合盘</button>
+</div>
+</form>
+
+<section class="result" aria-labelledby="hh-res">
+<h2 class="t-title" id="hh-res">合盘结果</h2>
+
+<div class="alert when when-edge">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" style="color: var(--ink)"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>
+<p>对方没有填写出生时间，按年、月、日三柱计算。时柱相关的项目不计入，参考分的满分相应减少。</p>
+</div>
+
+<div class="cols2">
+<div class="obj blk">
+<h3 class="t-heading">你</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">庚</span><span class="gz">午</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">辛</span><span class="gz">巳</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱</span><span class="gz">庚</span><span class="gz">辰</span></div>
+<div class="pillar"><span class="t-caption subtle">时柱</span><span class="gz">辛</span><span class="gz">巳</span></div>
+</div>
+</div>
+<div class="obj blk">
+<h3 class="t-heading">对方</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">辛</span><span class="gz">未</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">己</span><span class="gz">亥</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱</span><span class="gz">乙</span><span class="gz">酉</span></div>
+<div class="pillar hide-edge"><span class="t-caption subtle">时柱</span><span class="gz">癸</span><span class="gz">未</span></div>
+<div class="pillar when when-edge"><span class="t-caption subtle">时柱</span><span class="gz subtle">—</span><span class="gz subtle">—</span></div>
+</div>
+</div>
+</div>
+<p class="t-caption subtle">虚构命盘：1990-05-15 10:30 男；1991-11-11 14:00 女</p>
+
+<div class="obj blk">
+<h3 class="t-heading">传统参考分</h3>
+<div class="score">
+<p class="num"><span class="hide-edge">72</span><span class="when when-edge wi">58</span> <small class="hide-edge">/ 100</small><small class="when when-edge wi">/ 85</small></p>
+<div>
+<div class="meter" role="meter" aria-label="传统参考分" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72"><i style="width: 72%"></i></div>
+<div class="meter-scale"><span>0</span><span>命中的传统规则越多，分数越高</span><span>满分</span></div>
+</div>
+</div>
+<p class="muted">分数由下表各项按固定权重加总得到，只表示有多少条传统规则命中。它不代表两个人是否合适，也不是对婚姻或感情的结论。</p>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">逐项关系</h3>
+<div class="tblbox">
+<table class="dt stk">
+<thead><tr><th scope="col">项目</th><th scope="col">你 × 对方</th><th scope="col">关系</th><th scope="col">传统说法</th></tr></thead>
+<tbody>
+<tr><td class="k">日干</td><td class="gzs nw" data-l="干支">庚 × 乙</td><td class="nw" data-l="关系">乙庚合</td><td class="full">天干五合之一。传统上以日干相合为两人容易亲近。</td></tr>
+<tr><td class="k">日支</td><td class="gzs nw" data-l="干支">辰 × 酉</td><td class="nw" data-l="关系">辰酉六合</td><td class="full">日支为配偶宫，两人日支六合。</td></tr>
+<tr><td class="k">年支（生肖）</td><td class="gzs nw" data-l="干支">午 × 未</td><td class="nw" data-l="关系">午未六合</td><td class="full">属马与属羊，年支六合。</td></tr>
+<tr><td class="k">月支</td><td class="gzs nw" data-l="干支">巳 × 亥</td><td class="nw" data-l="关系">巳亥六冲</td><td class="full">月支相冲。传统上以月支为家庭与成长环境，冲表示差异较大。</td></tr>
+<tr class="hide-edge"><td class="k">时支</td><td class="gzs nw" data-l="干支">巳 × 未</td><td class="nw" data-l="关系">无合冲</td><td class="full">巳与未之间没有合、冲、刑、害。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">五行互补</h3>
+<div class="cols2">
+<div class="tile"><p class="t-caption subtle">你的五行（八个字）</p><ul class="chips"><li class="chip"><i class="dot" style="background: var(--wx-metal)"></i>金 4</li><li class="chip"><i class="dot" style="background: var(--wx-fire)"></i>火 3</li><li class="chip"><i class="dot" style="background: var(--wx-earth)"></i>土 1</li><li class="chip"><i class="dot" style="background: var(--wx-wood)"></i>木 0</li><li class="chip"><i class="dot" style="background: var(--wx-water)"></i>水 0</li></ul><p class="muted">缺木、水。对方的八字里有木与水。</p></div>
+<div class="tile"><p class="t-caption subtle">对方的五行<span class="hide-edge">（八个字）</span><span class="when when-edge wi">（六个字）</span></p><ul class="chips"><li class="chip"><i class="dot" style="background: var(--wx-earth)"></i>土 <span class="hide-edge">3</span><span class="when when-edge wi">2</span></li><li class="chip"><i class="dot" style="background: var(--wx-metal)"></i>金 2</li><li class="chip"><i class="dot" style="background: var(--wx-water)"></i>水 <span class="hide-edge">2</span><span class="when when-edge wi">1</span></li><li class="chip"><i class="dot" style="background: var(--wx-wood)"></i>木 1</li><li class="chip"><i class="dot" style="background: var(--wx-fire)"></i>火 0</li></ul><p class="muted">缺火。你的八字里有火。</p></div>
+</div>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">想看更细的解读？</h3>
+<p class="muted">详批按两张命盘逐项说明上面的关系与相处上的参考。确认前会显示所需积分与余额，生成失败不扣积分。对方的资料同样不保存。</p>
+</div>
+<a class="btn btn-primary" href="#hh-top">AI 详批 · 10 积分</a>
+</div>
+
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。合盘结果不构成对婚姻或感情的建议。</p>
+</section>
+
+<section class="relsec" aria-labelledby="hh-rel">
+<h2 class="t-heading" id="hh-rel">相关</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="ZodiacPair.dc.html"><b>生肖配对</b><span>十二生肖两两之间的地支关系</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>八字排盘</b><span>单人完整命盘</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>合冲刑害</b><span>地支关系的来历</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>天干五合</b><span>甲己、乙庚、丙辛、丁壬、戊癸</span></a></li>
+</ul>
+</section>
+
+</main>
+
+<dc-import name="FtrEast" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","edge"],"default":"result"},"$preview":{"width":1440,"height":3800}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

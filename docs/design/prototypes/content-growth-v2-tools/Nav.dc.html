@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>页头入口：全部工具</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx hans board">
+
+<div class="b-sec">
+<h1 class="t-title">页头入口：「全部工具」放在哪里</h1>
+<p class="muted prose">页头项数不变。「全部工具」放在工具下拉的最后一行，用分隔线与工具项隔开；手机菜单里放在工具分组之后。下拉里只列精选工具与「历法与生肖」分组，其余工具从枢纽页进入。用现有的页头与下拉菜单组件，不需要新组件。</p>
+</div>
+
+<div class="opt">
+<div class="opt-head"><h2 class="t-heading">东方站 · 桌面下拉</h2><span class="b-label">页头仍 5 项 · 下拉末行为「全部工具」</span></div>
+<div class="b-frame" style="background: var(--bg); padding-bottom: 24px">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<nav class="nav" aria-label="主导航 示意">
+<a class="on" href="#nav-e">排盘工具<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12l5-5 5 5"/></svg></a>
+<a href="#nav-e">每日运势</a>
+<a href="#nav-e">定价</a>
+<a href="#nav-e">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="#nav-e">登录</a>
+</nav>
+</div>
+</header>
+<div class="wrap" style="display: flex; justify-content: flex-end">
+<div class="menu" style="width: 300px; margin-right: 300px" id="nav-e">
+<p class="t-caption subtle menu-label">排盘工具</p>
+<a href="Main.dc.html">八字排盘</a>
+<a href="Hehun.dc.html">八字合婚<span class="bdg bdg-new">新</span></a>
+<a href="Main.dc.html">紫微斗数</a>
+<a href="Liunian2027.dc.html">2027 流年<span class="bdg bdg-new">2027</span></a>
+<a href="Main.dc.html">三张牌塔罗</a>
+<hr>
+<p class="t-caption subtle menu-label">历法与生肖</p>
+<a href="Main.dc.html">黄历</a>
+<a href="Main.dc.html">十二生肖</a>
+<hr>
+<a href="HubEast.dc.html" style="font-weight: 500">全部工具<span aria-hidden="true">→</span></a>
+</div>
+</div>
+</div>
+<p class="muted prose">下拉里的工具项与首页精选一致（主卡 + 季节位 + 副卡），最多 5 项；季节过后「2027 流年」一行随首页季节位一起撤下。韩文站同样结构：만세력、사주궁합、2027 토정비결、쓰리 카드 타로，分组为「띠」，末行「전체 도구」。</p>
+</div>
+
+<div class="opt">
+<div class="opt-head"><h2 class="t-heading">西方站 · 桌面下拉</h2><span class="b-label">页头仍 4 项 · 末行 All tools</span></div>
+<div class="b-frame">
+<div class="xx part" data-theme="west-light" style="padding-bottom: 24px">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="HomeWest.dc.html">Arcanumber</a>
+<nav class="nav" aria-label="Main (example)">
+<a class="on" href="#nav-w">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 12l5-5 5 5"/></svg></a>
+<a href="#nav-w">Number of the Day</a>
+<a href="#nav-w">Pricing</a>
+<a href="#nav-w">Sign in</a>
+</nav>
+</div>
+</header>
+<div class="wrap" style="display: flex; justify-content: flex-end">
+<div class="menu" style="width: 300px; margin-right: 280px" id="nav-w">
+<a href="HomeWest.dc.html">Three-Card Tarot</a>
+<a href="MoonToday.dc.html">Moon Phase Today<span class="bdg bdg-new">New</span></a>
+<a href="WestGrid.dc.html">Zodiac Compatibility<span class="bdg bdg-new">New</span></a>
+<a href="HomeWest.dc.html">Life Path Number</a>
+<a href="HomeWest.dc.html">Numerology Calculator</a>
+<hr>
+<a href="HubWest.dc.html" style="font-weight: 500">All tools<span aria-hidden="true">→</span></a>
+</div>
+</div>
+</div>
+</div>
+<p class="muted prose">现有下拉列了 7 项（含 Compatibility、Card of the Day、Yes or No、Celtic Cross）。改版后下拉只留精选 5 项，其余四项从 All tools 进入；这四个页面的站内入链由枢纽页与相关区块承担。</p>
+</div>
+
+<div class="opt">
+<div class="opt-head"><h2 class="t-heading">手机菜单</h2><span class="b-label">「全部工具」在工具分组之后、其他页头项之前</span></div>
+<div class="b-row">
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">东方站 · 简体中文</span>
+<div class="b-phone">
+<div class="xx m hans part" data-theme="east-light">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="语言"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg></button>
+<button class="iconbtn" type="button" aria-label="账户"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="关闭导航" aria-expanded="true" style="color: var(--ink)"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+</div>
+</div>
+</header>
+<div style="padding: 0 12px 16px">
+<nav class="menu" aria-label="主导航 手机">
+<p class="t-caption subtle menu-label">排盘工具</p>
+<a href="Main.dc.html">八字排盘</a>
+<a href="Hehun.dc.html">八字合婚<span class="bdg bdg-new">新</span></a>
+<a href="Main.dc.html">紫微斗数</a>
+<a href="Liunian2027.dc.html">2027 流年<span class="bdg bdg-new">2027</span></a>
+<a href="Main.dc.html">三张牌塔罗</a>
+<hr>
+<p class="t-caption subtle menu-label">历法与生肖</p>
+<a href="Main.dc.html">黄历</a>
+<a href="Main.dc.html">十二生肖</a>
+<hr>
+<a href="HubEast.dc.html" style="font-weight: 500">全部工具<span aria-hidden="true">→</span></a>
+<hr>
+<a href="Main.dc.html">每日运势</a>
+<a href="Main.dc.html">定价</a>
+<a href="Main.dc.html">登录</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">西方站 · English</span>
+<div class="b-phone">
+<div class="xx m part" data-theme="west-light">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="HomeWest.dc.html">Arcanumber</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Close menu" aria-expanded="true" style="color: var(--ink)"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+</div>
+</div>
+</header>
+<div style="padding: 0 12px 16px">
+<nav class="menu" aria-label="Main (mobile)">
+<p class="t-caption subtle menu-label">Tools</p>
+<a href="HomeWest.dc.html">Three-Card Tarot</a>
+<a href="MoonToday.dc.html">Moon Phase Today<span class="bdg bdg-new">New</span></a>
+<a href="WestGrid.dc.html">Zodiac Compatibility<span class="bdg bdg-new">New</span></a>
+<a href="HomeWest.dc.html">Life Path Number</a>
+<a href="HomeWest.dc.html">Numerology Calculator</a>
+<hr>
+<a href="HubWest.dc.html" style="font-weight: 500">All tools<span aria-hidden="true">→</span></a>
+<hr>
+<a href="HomeWest.dc.html">Number of the Day</a>
+<a href="HomeWest.dc.html">Pricing</a>
+<a href="HomeWest.dc.html">Sign in</a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+<div class="b-sec" style="width: 390px">
+<span class="b-label">东方站 · 深色</span>
+<div class="b-phone" style="background: #121315">
+<div class="xx m hans part" data-theme="east-dark">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="Main.dc.html">干支日</a>
+<div class="hdr-icons">
+<button class="iconbtn" type="button" aria-label="关闭导航" aria-expanded="true" style="color: var(--ink)"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+</div>
+</div>
+</header>
+<div style="padding: 0 12px 16px">
+<nav class="menu" aria-label="主导航 手机 深色">
+<p class="t-caption subtle menu-label">排盘工具</p>
+<a href="Main.dc.html">八字排盘</a>
+<a href="Hehun.dc.html">八字合婚<span class="bdg bdg-new">新</span></a>
+<a href="Liunian2027.dc.html">2027 流年<span class="bdg bdg-new">2027</span></a>
+<hr>
+<a href="HubEast.dc.html" style="font-weight: 500">全部工具<span aria-hidden="true">→</span></a>
+</nav>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

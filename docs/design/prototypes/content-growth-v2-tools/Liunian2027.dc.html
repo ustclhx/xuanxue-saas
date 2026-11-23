@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>2027 丁未年个人流年</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrEast" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="ln-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><a href="HubEast.dc.html">全部工具</a><span aria-hidden="true">›</span><span>2027 流年</span></nav>
+<div class="rowline"><h1 class="t-title">2027 丁未年流年</h1><span class="bdg bdg-new">2027</span></div>
+<p class="muted">输入出生时间，排出四柱，列出丁未年的天干地支与你八字之间的十神与合冲关系。丁未年自 2027 年 2 月 4 日立春起算。</p>
+</div>
+
+<form class="panel tool-form" aria-label="出生资料">
+<div class="field full">
+<div class="field-top"><label class="label" for="ln-date">出生日期（公历）</label></div>
+<input class="input inv" id="ln-date" type="text" value="1990 年 5 月 15 日" aria-describedby="ln-date-err">
+<p class="err when when-error" id="ln-date-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>请填写 1900 年至今的日期。</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="ln-time">出生时间</label></div>
+<input class="input" id="ln-time" type="text" value="10:30">
+<p class="hint">不知道时间可以留空，按三柱计算。</p>
+</div>
+<fieldset class="field">
+<legend class="label" style="margin-bottom: 6px">性别</legend>
+<div class="seg lg" role="group"><button type="button" class="on" aria-pressed="true">男</button><button type="button" aria-pressed="false">女</button></div>
+</fieldset>
+<div class="full form-foot">
+<p class="hint">在你的浏览器中计算，不需要注册。</p>
+<button type="button" class="btn btn-primary">免费查流年</button>
+</div>
+</form>
+
+<section class="result" aria-labelledby="ln-res">
+<h2 class="t-title" id="ln-res">丁未年与你的八字</h2>
+
+<div class="result-grid">
+<div class="obj blk chart">
+<h3 class="t-heading">你的四柱</h3>
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">庚</span><span class="gz">午</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">辛</span><span class="gz">巳</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱 · 日主</span><span class="gz">庚</span><span class="gz">辰</span></div>
+<div class="pillar"><span class="t-caption subtle">时柱</span><span class="gz">辛</span><span class="gz">巳</span></div>
+</div>
+<p class="t-caption subtle">虚构命盘：1990-05-15 10:30 男</p>
+</div>
+<div class="obj blk chart">
+<h3 class="t-heading">2027 流年</h3>
+<div class="pillars" style="grid-template-columns: minmax(0, 1fr)">
+<div class="pillar dm"><span class="t-caption subtle">流年</span><span class="gz">丁</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火 · 正官</span><span class="gz">未</span><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土 · 正印</span></div>
+</div>
+<p class="t-caption subtle">2027-02-04 立春 至 2028-02-04 立春</p>
+</div>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">十神</h3>
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">流年</th><th scope="col">对日主庚金</th><th scope="col">依据</th></tr></thead>
+<tbody>
+<tr><td class="k gzs">天干 丁</td><td class="nw" data-l="十神">正官</td><td class="full">丁火克庚金，阴阳相异，为正官。</td></tr>
+<tr><td class="k gzs">地支 未</td><td class="nw" data-l="十神">正印</td><td class="full">未中本气己土，己土生庚金，阴阳相异，为正印。藏干另有丁（正官）、乙（正财）。</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">流年地支与四柱的合冲</h3>
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">位置</th><th scope="col">关系</th><th scope="col">传统说法</th></tr></thead>
+<tbody>
+<tr><td class="k">年支 午</td><td class="nw" data-l="关系">午未六合</td><td class="full">流年与年柱相合。</td></tr>
+<tr><td class="k">月支 巳、时支 巳</td><td class="nw" data-l="关系">巳午未三会</td><td class="full">命盘有巳、午，流年补上未，三支会成南方火局。</td></tr>
+<tr><td class="k">日支 辰</td><td class="nw" data-l="关系">无合冲</td><td class="full">辰与未同为土，没有合、冲、刑、害。</td></tr>
+</tbody>
+</table>
+</div>
+<p class="notebox">以上只列出规则命中的关系。传统上如何权衡这些关系，取决于整张命盘的强弱与喜忌。</p>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">想看更细的解读？</h3>
+<p class="muted">详批按你的命盘逐项说明丁未年的十神、合冲与大运的配合。确认前会显示所需积分与余额，生成失败不扣积分。</p>
+</div>
+<a class="btn btn-primary" href="#ln-top">AI 详批 · 10 积分</a>
+</div>
+
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。</p>
+</section>
+
+<section class="relsec" aria-labelledby="ln-rel">
+<h2 class="t-heading" id="ln-rel">相关</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="Year2027Sign.dc.html"><b>属马 2027 年运势</b><span>年支午与丁未年的关系</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>八字排盘</b><span>完整命盘与大运流年</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>十神</b><span>十神的定义与算法</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>合冲刑害</b><span>地支关系的来历</span></a></li>
+</ul>
+</section>
+
+</main>
+
+<dc-import name="FtrEast" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","error"],"default":"result"},"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>
