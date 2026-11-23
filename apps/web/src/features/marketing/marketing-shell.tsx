@@ -9,7 +9,14 @@ import { SiteHeader } from './site-header.tsx'
  * data-surface="marketing"：brand.css 在该作用域内把字号角色（text-display … text-caption）换成营销取值
  * （openspec refresh-visual-system-warm design.md D5、D14）；应用区不带该属性，沿用模板默认字号。
  */
-export function MarketingShell({ children }: { children: ReactNode }) {
+export function MarketingShell({
+  children,
+  freeTools = false,
+}: {
+  children: ReactNode
+  freeTools?: boolean
+}) {
+  const aiEntry = freeTools ? null : site.marketing.aiEntry
   return (
     <div
       data-surface="marketing"
@@ -19,8 +26,8 @@ export function MarketingShell({ children }: { children: ReactNode }) {
       <main id="main" className="flex-1">
         {children}
       </main>
-      <SiteFooter floatingEntry={site.marketing.aiEntry !== null} />
-      {site.marketing.aiEntry !== null && <AiEntry href={site.marketing.aiEntry} />}
+      <SiteFooter floatingEntry={aiEntry !== null} freeTools={freeTools} />
+      {aiEntry !== null && <AiEntry href={aiEntry} />}
     </div>
   )
 }

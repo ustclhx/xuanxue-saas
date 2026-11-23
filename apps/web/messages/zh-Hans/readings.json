@@ -13,7 +13,7 @@
   "readings_coming_soon": "AI 详批尚未开放，目前无法购买或解锁。上方结果是免费计算，可照常使用。",
   "readings_packs_not_open": "AI 完整详批尚未开放，积分包暂不开放购买。所有排盘、计算器与塔罗牌阵现在都可以免费使用。",
   "readings_unlock_approx": "约 {price}",
-  "readings_unlock_cta": "解锁完整分析",
+  "readings_unlock_cta": "AI 详批 · {credits} 积分",
   "readings_unlock_note": "生成失败不扣积分 · 报告永久保存在你的账户",
   "readings_unlock_signin_note": "需要先登录，登录后会回到这里并自动开始生成。",
   "readings_unlock_balance": "目前余额：{balance} 积分",

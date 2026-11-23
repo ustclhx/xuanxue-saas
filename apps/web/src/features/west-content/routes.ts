@@ -1,3 +1,4 @@
+import { TOOLS_HUB_WEST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
 
@@ -27,6 +28,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...MOON_CONTENT_ROUTES,
   // 第 20 组：星座枢纽、12 个星座档案、配对总表与 78 组配对页（en）
   ...WESTERN_ZODIAC_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 6 组：「All tools」枢纽页（en `/tools`、es `/herramientas`）
+  ...TOOLS_HUB_WEST_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

@@ -35,8 +35,5 @@
   "landing_step_mark_2": "2",
   "landing_step_mark_3": "3",
   "landing_price_label": "Pricing",
-  "landing_price_line": "Every calculator is free. A full reading costs {reading} credits — new accounts get {first} credits on first sign-in, plus {daily} each day you sign in.",
-  "landing_price_line_daily": "Every calculator is free. A full reading costs {reading} credits, and you get {daily} free credits each day you sign in.",
-  "landing_price_line_no_daily": "Every calculator is free. A full reading costs {reading} credits.",
   "landing_price_cta": "See pricing →"
 }

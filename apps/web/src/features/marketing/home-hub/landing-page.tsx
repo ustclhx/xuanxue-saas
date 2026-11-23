@@ -3,57 +3,62 @@ import type { ReactNode } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
 import { useSiteId } from '../../site/context.tsx'
-import { AiDisclaimer } from '../../tools/disclaimer.tsx'
+import { Disclaimer } from '../../tools/disclaimer.tsx'
 import { InlineLinks } from '../../tools/inline-links.tsx'
 import { numerologyHref } from '../../tools/numerology/href.ts'
 import { isNumerologyLocale } from '../../tools/numerology/routes.ts'
 import { mainToolHref, toolHref } from '../../tools/tool-href.ts'
-import type { PricingCatalog } from '../pricing-data.ts'
-import { pricingSnapshot } from '../pricing-snapshot.ts'
-import {
-  DAILY_PAGES,
-  dailyEntryHref,
-  type HubPriceLine,
-  type HubTool,
-  hubMoreTool,
-  hubPriceLine,
-  hubTools,
-} from './data.ts'
+import { DAILY_PAGES, dailyEntryHref, type HubFeatured, hubFeatured } from './data.ts'
+import { FeaturedSection } from './featured-section.tsx'
 import { LandingHero, SAMPLE_ANCHOR } from './hero.tsx'
 import { HUB_SAMPLE_PARAGRAPHS, HUB_SAMPLE_SECTIONS, isHubSampleLocale } from './sample.ts'
 import { TodayStrip } from './today-strip.tsx'
 
 // 两站品牌落地页（openspec separate-landing-homepage design.md D2、D2a，specs/home-hub「品牌落地页结构」；
 // 设计稿副本 docs/design/prototypes/warm-refresh/Main.dc.html、LandingWest.dc.html、LandingKoMobile.dc.html）。
-// 区块顺序：品牌主视觉 → 3–4 个工具入口 → 样例报告 → 今日条 → 三步说明 → 一行价格 → 信任说明 → 品牌级 FAQ。
+// 区块顺序：品牌主视觉 → 精选区（主卡、季节位、副卡，content-growth-v2-tools 决策 5）→ 样例报告 → 今日条 → 三步说明 →
+// 定价入口 → 信任说明 → 品牌级 FAQ。
 // 首页不含工具表单、结果区、工具专属 FAQ 与说明长文；每个工具在首页只链接一次。
 // 除今日条在浏览器内填入当日信息外全部为静态内容：构建期预渲染，不查库。
-// 免费工具相关文案不写 AI；只有样例详批、三步中的详批一步与一行价格属于 AI 详批语境，样例附 AI 声明。
+// 首页使用免费工具文案，详批价格和扣费信息在定价页与解锁按钮展示。
 
 const textLink = 'inline-flex min-h-11 items-center text-body text-brand-ink hover:decoration-2'
 
 export function LandingPage({
   art,
   sampleChart,
-  catalog = pricingSnapshot,
+  mainVisual,
   dailyPages = DAILY_PAGES,
+  featured,
 }: {
   /** 首屏线描插画，由首页路由按站点传入；不传时保留同样大小的空位 */
   art?: ReactNode
   /** 样例命盘（东方站四柱、西方站数字环），由首页路由按站点传入，避免两站互相打包对方的图形 */
   sampleChart?: ReactNode
-  catalog?: PricingCatalog
+  /** 精选区主卡右侧的样例图形（东方站四柱、西方站三张牌背），同样由首页路由按站点传入 */
+  mainVisual?: ReactNode
   /** 每日运势公开页登记表；当前语言未登记时不渲染今日条 */
   dailyPages?: Readonly<Partial<Record<string, string>>>
+  /** 精选区数据；默认按当前站点、语言与构建日期选择（测试传入其他日期的结果） */
+  featured?: HubFeatured
 }) {
   const site = useSiteId()
   const locale = getLocale()
-  const daily = dailyEntryHref(locale, dailyPages)
+  const selected = featured ?? hubFeatured(site, locale)
+  const showSample = isHubSampleLocale(locale)
+  // 季节位已经是每日运势入口时不再渲染今日条：每个工具在首页只链接一次
+  const daily = selected.season?.kind === 'daily' ? null : dailyEntryHref(locale, dailyPages)
   return (
     <SectionStack data-landing>
-      <LandingHero toolHref={mainToolHref(locale)} art={art} />
-      <FeaturedTools tools={hubTools(site, locale)} more={hubMoreTool(site, locale)} />
-      {isHubSampleLocale(locale) && (
+      <LandingHero toolHref={mainToolHref(locale)} art={art} showSample={showSample} />
+      <FeaturedSection
+        featured={selected}
+        site={site}
+        title={m.landing_tools_title()}
+        intro={m.home_hub_tools_intro()}
+        mainVisual={mainVisual}
+      />
+      {showSample && (
         <SampleReading
           sections={HUB_SAMPLE_SECTIONS[locale]}
           paragraph={HUB_SAMPLE_PARAGRAPHS[locale]}
@@ -62,77 +67,15 @@ export function LandingPage({
       )}
       {daily && <TodayStrip site={site} href={daily} />}
       <LandingSteps />
-      <PriceLine line={hubPriceLine(catalog, locale)} href={toolHref('/pricing', locale)} />
+      <PricingLink href={toolHref('/pricing', locale)} />
       <TrustFacts />
       <BrandFaq />
     </SectionStack>
   )
 }
 
-/** 精选工具入口：整张卡片可点（链接只包住工具名），字形用站点强调色并对读屏隐藏 */
-function FeaturedTools({ tools, more }: { tools: HubTool[]; more: { href: string } | null }) {
-  if (tools.length === 0) return null
-  return (
-    <Section
-      id="tools"
-      data-landing-block="tools"
-      title={m.landing_tools_title()}
-      intro={m.home_hub_tools_intro()}
-    >
-      <ul
-        className={
-          tools.length === 4
-            ? 'm-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6'
-            : 'm-0 grid list-none gap-4 p-0 sm:grid-cols-3 lg:gap-6'
-        }
-      >
-        {tools.map((tool) => (
-          <li
-            key={tool.id}
-            className="relative flex w-full gap-3 rounded-object bg-surface px-6 py-5 text-ink transition-colors hover:bg-surface-2 sm:flex-col sm:gap-2.5 sm:p-7"
-          >
-            <span
-              aria-hidden="true"
-              className="w-11 shrink-0 font-heading text-mark text-title sm:w-auto"
-            >
-              {tool.glyph}
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-2.5">
-              {/* 链接只包住工具名（锚文本 = 目标页主词，openspec seo-fix-tdk-links 决策 5），
-                  伪元素铺满卡片：整张卡仍可点，焦点环画在卡片外沿 */}
-              <h3 className="m-0 font-heading text-ink text-subtitle">
-                <a
-                  href={tool.href}
-                  data-tool={tool.id}
-                  className="text-ink no-underline after:absolute after:inset-0 after:rounded-object focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ring focus-visible:after:outline-offset-3"
-                >
-                  {tool.title}
-                </a>
-              </h3>
-              <p className="m-0 text-body text-ink-muted">{tool.summary}</p>
-              <span
-                aria-hidden="true"
-                className="mt-auto text-body text-brand-ink underline underline-offset-4"
-              >
-                {tool.action}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {more && (
-        <p className="m-0 mt-4">
-          <a href={more.href} className={textLink}>
-            {m.landing_more_tool_link()}
-          </a>
-        </p>
-      )}
-    </Section>
-  )
-}
-
 /**
- * 样例报告：虚构样例命盘 + 章节大纲（与 catalog 默认提示词一致）+ 标明「示例」的段落，下方附 AI 声明。
+ * 样例报告：虚构样例命盘 + 章节大纲（与 catalog 默认提示词一致）+ 标明「示例」的段落。
  * 段落经使用者审定前不渲染（readings/samples.ts 的 SAMPLES_APPROVED）；不调用模型、不引用访客数据。
  * 不放按钮：工具入口已在上方，每个工具在首页只链接一次。
  */
@@ -190,7 +133,9 @@ function SampleReading({
           )}
         </div>
       </div>
-      <AiDisclaimer className="mt-4" />
+      <div className="mt-4">
+        <Disclaimer />
+      </div>
     </Section>
   )
 }
@@ -225,11 +170,7 @@ function LandingSteps() {
   )
 }
 
-/**
- * 一行价格：免费工具 + 每份详批积分数 + 每日登录赠送积分数，链接到定价页；不显示套餐与金额。
- * 当前语言没有可购买的方案时只写免费说明，不出现数字。
- */
-function PriceLine({ line, href }: { line: HubPriceLine | null; href: string }) {
+function PricingLink({ href }: { href: string }) {
   return (
     <Section
       id="pricing"
@@ -237,22 +178,7 @@ function PriceLine({ line, href }: { line: HubPriceLine | null; href: string }) 
       aria-label={m.landing_price_label()}
       data-landing-block="price"
     >
-      <p className="m-0 text-body text-ink">
-        {line === null
-          ? m.home_hub_plans_free()
-          : line.dailyCredits === null
-            ? m.landing_price_line_no_daily({ reading: line.readingCredits })
-            : line.firstLoginCredits === null
-              ? m.landing_price_line_daily({
-                  reading: line.readingCredits,
-                  daily: line.dailyCredits,
-                })
-              : m.landing_price_line({
-                  reading: line.readingCredits,
-                  first: line.firstLoginCredits,
-                  daily: line.dailyCredits,
-                })}
-      </p>
+      <p className="m-0 text-body text-ink">{m.home_hub_plans_free()}</p>
       <a href={href} className={`${textLink} shrink-0`}>
         {m.landing_price_cta()}
       </a>
@@ -269,12 +195,7 @@ function TrustFacts() {
   const intro = isNumerologyLocale(locale)
     ? [{ href: numerologyHref('numerology', locale), target: 'numerology' }]
     : []
-  const facts = [
-    m.home_hub_trust_1(),
-    m.home_hub_trust_2(),
-    m.home_hub_trust_3(),
-    m.home_hub_trust_4(),
-  ]
+  const facts = [m.home_hub_trust_1(), m.home_hub_trust_2(), m.home_hub_trust_4()]
   return (
     <Section id="trust" data-landing-block="trust" title={m.home_hub_trust_title()}>
       <ul className="m-0 grid max-w-240 list-none gap-4 p-0 sm:grid-cols-2 sm:gap-x-16 sm:gap-y-5">
@@ -292,18 +213,18 @@ function TrustFacts() {
 }
 
 /**
- * 品牌级 FAQ：三条取自定价页现有问答（design.md D2a），原生 details / summary，无需脚本即可展开。
+ * 品牌级 FAQ：沿用定价页的付款问答，免费结果与解读用途使用首页文案。
  * 首页不输出 FAQPage 结构化数据（工具专属 FAQ 与 FAQPage 在工具页）。
  */
 function BrandFaq() {
   const items: readonly (readonly [string, string])[] = [
-    [m.pricing_faq_free_q(), m.pricing_faq_free_a()],
-    [m.pricing_faq_accuracy_q(), m.pricing_faq_accuracy_a()],
-    [m.pricing_faq_pay_q(), m.pricing_faq_pay_a()],
+    [m.home_hub_faq_free_q(), m.home_hub_faq_free_a()],
+    [m.home_hub_faq_accuracy_q(), m.home_hub_faq_accuracy_a()],
+    [m.home_hub_faq_pay_q(), m.pricing_faq_pay_a()],
     // 日语访客常问「生年月日を入れても大丈夫か」（Yahoo!知恵袋，本地问法），日语首页另加这一问
     // （add-locales-eu-ja 决策 10：FAQ 选题本地化，不要求与其他语言同数）
     ...(getLocale() === 'ja'
-      ? [[m.marketing_faq_privacy_q(), m.marketing_faq_privacy_a()] as const]
+      ? [[m.marketing_faq_privacy_q(), m.home_hub_faq_privacy_a()] as const]
       : []),
   ]
   return (

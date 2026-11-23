@@ -135,6 +135,16 @@ const pathsOf = (year: YearlyYear, key: YearlyKey | 'index') =>
 const titlesOf = (year: YearlyYear, key: YearlyKey | 'index') =>
   Object.fromEntries(YEARLY_LOCALES.map((locale) => [locale, yearlyTitle(locale, year, key)]))
 
+/** 枢纽在首页与「全部工具」卡片上的一句话说明：沿用 content/yearly/<locale>/<年份>/index.mdx 已审定的 SEO 描述 */
+const YEARLY_HUB_DESCRIPTIONS: Readonly<
+  Record<YearlyYear, Readonly<Partial<Record<string, string>>>>
+> = {
+  2027: {
+    'zh-Hans':
+      '2027年是丁未年，纳音天河水。本页按传统地支规则列出十二生肖与丁未年的值、冲、刑、害、破太岁与六合、三合关系，并说明立春与春节两种起算方式，仅供参考。',
+  },
+}
+
 /**
  * 注册表条目（features/tools/registry.ts）：枢纽带年份小标（到 2 月底消失），由第 6 组的全部工具页与首页季节位引用；
  * 页头下拉由第 6 组改版，这里不加入现有「历法与生肖」分组，枢纽与子页都 nav: false。SEO 标题与描述由 yearly/seo-pages.ts 按内容集合补上，注册表只放路径与导航名。
@@ -149,6 +159,7 @@ export const YEARLY_TOOL_ROUTES: readonly ToolRoute[] = YEARLY_YEARS.flatMap((ye
     badge: { kind: 'year', label: String(year), until: `${year}-02-28` },
     paths: pathsOf(year, 'index'),
     titles: titlesOf(year, 'index'),
+    descriptions: YEARLY_HUB_DESCRIPTIONS[year],
   } satisfies ToolRoute,
   ...YEARLY_KEYS.map(
     (key): ToolRoute => ({

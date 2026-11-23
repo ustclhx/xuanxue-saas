@@ -1,5 +1,7 @@
 import { PageWidth, Section, SectionStack } from '@xuanxue/ui/project'
 import type { ReactNode } from 'react'
+import { type HubFeatured, type HubTool, hubFeatured } from '../marketing/home-hub/featured-data.ts'
+import { FeaturedSection } from '../marketing/home-hub/featured-section.tsx'
 import { Disclaimer } from '../tools/disclaimer.tsx'
 import { ToolFaq } from '../tools/faq.tsx'
 import { toolHref } from '../tools/tool-href.ts'
@@ -11,13 +13,46 @@ import { EAST_EN_LINKS, EastEnText } from './links.tsx'
 /** 工具卡片已链接的目标：正文段落里只保留锚文本，控制首页正文链接数（每页 2–5 条） */
 const CARD_TARGETS = ['bazi', 'ziwei', 'spreads', 'feelings'] as const satisfies readonly LinkKey[]
 
+/** 精选区的工具 id → 本页文案的条目：名称、说明与主卡按钮文字用东方站英文自己的写法 */
+const CARD_COPY: Readonly<Record<string, (typeof CARD_TARGETS)[number]>> = {
+  bazi: 'bazi',
+  ziwei: 'ziwei',
+  'tarot-three-card': 'spreads',
+  'tarot-card-index': 'feelings',
+}
+
+function withLandingCopy(tool: HubTool): HubTool {
+  const key = CARD_COPY[tool.id]
+  if (!key) return tool
+  const { title, summary, action } = LANDING.tools[key]
+  return { ...tool, title, summary, action }
+}
+
+/** 东方站英文的精选区（content-growth-v2-tools 决策 5）：与其他语言首页同一份选择，文案换成本页的 */
+export function eastEnFeatured(base: HubFeatured = hubFeatured('east', 'en')): HubFeatured {
+  return {
+    ...base,
+    main: base.main && withLandingCopy(base.main),
+    secondary: base.secondary.map(withLandingCopy),
+  }
+}
+
 /**
  * 东方站根路径英文落地页（openspec add-locales-eu-ja 5b）：东方站英文发布后取代 `/` 的英文入口页。
- * 沿用两站落地页的版式角色（品牌主视觉 → 工具入口 → 说明 → FAQ，home-hub/landing-page.tsx），
+ * 沿用两站落地页的版式角色（品牌主视觉 → 精选区 → 说明 → FAQ，home-hub/landing-page.tsx），
  * 不新增页面类型；文案来自 copy/landing.ts，只由本组件引用，不进其他首页的包。
  * 首屏唯一主按钮指向八字计算器（转化入口，不计正文内链）。
  */
-export function EastEnLanding({ art }: { art?: ReactNode }) {
+export function EastEnLanding({
+  art,
+  mainVisual,
+  featured = eastEnFeatured(),
+}: {
+  art?: ReactNode
+  /** 精选区主卡右侧的样例图形（四柱），由首页路由传入 */
+  mainVisual?: ReactNode
+  featured?: HubFeatured
+}) {
   return (
     <SectionStack data-landing>
       <section aria-labelledby="landing-title" data-landing-block="hero">
@@ -48,41 +83,13 @@ export function EastEnLanding({ art }: { art?: ReactNode }) {
           </div>
         </PageWidth>
       </section>
-      <Section
-        id="tools"
-        data-landing-block="tools"
+      <FeaturedSection
+        featured={featured}
+        site="east"
         title={LANDING.toolsTitle}
         intro={LANDING.toolsIntro}
-      >
-        <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-          {CARD_TARGETS.map((key) => {
-            const tool = LANDING.tools[key]
-            return (
-              <li
-                key={key}
-                className="relative flex w-full flex-col gap-1 rounded-object bg-surface px-6 py-5 text-ink transition-colors hover:bg-surface-2 sm:gap-2.5 sm:p-7"
-              >
-                <h3 className="m-0 font-heading text-ink text-subtitle">
-                  <a
-                    href={toolHref(EAST_EN_LINKS[key], 'en')}
-                    data-tool={key}
-                    className="text-ink no-underline after:absolute after:inset-0 after:rounded-object focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ring focus-visible:after:outline-offset-3"
-                  >
-                    {tool.title}
-                  </a>
-                </h3>
-                <p className="m-0 text-body text-ink-muted">{tool.summary}</p>
-                <span
-                  aria-hidden="true"
-                  className="mt-auto text-body text-brand-ink underline underline-offset-4"
-                >
-                  {tool.action}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      </Section>
+        mainVisual={mainVisual}
+      />
       {LANDING.sections.map((section, index) => (
         <Section
           key={section.heading}

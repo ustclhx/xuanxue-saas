@@ -12,7 +12,15 @@ export const SAMPLE_ANCHOR = 'sample'
  * 插画位固定尺寸（手机 168px 在标题上方，桌面 320px 在标题右侧）并对读屏隐藏：
  * 插画（features/illustrations/）由首页路由按站点传入并填满插画位，是否传入都不改变布局。
  */
-export function LandingHero({ toolHref, art }: { toolHref: string; art?: ReactNode }) {
+export function LandingHero({
+  toolHref,
+  art,
+  showSample,
+}: {
+  toolHref: string
+  art?: ReactNode
+  showSample: boolean
+}) {
   return (
     <section aria-labelledby="landing-title" data-landing-block="hero">
       <PageWidth className="flex flex-col-reverse gap-6 pt-6 lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:pt-18">
@@ -32,12 +40,14 @@ export function LandingHero({ toolHref, art }: { toolHref: string; art?: ReactNo
             >
               {m.landing_cta()}
             </a>
-            <a
-              href={`#${SAMPLE_ANCHOR}`}
-              className="inline-flex min-h-11 items-center justify-center text-body text-brand-ink hover:decoration-2"
-            >
-              {m.landing_sample_link()}
-            </a>
+            {showSample && (
+              <a
+                href={`#${SAMPLE_ANCHOR}`}
+                className="inline-flex min-h-11 items-center justify-center text-body text-brand-ink hover:decoration-2"
+              >
+                {m.landing_sample_link()}
+              </a>
+            )}
           </div>
           <p role="note" className="m-0 text-center text-caption text-ink-subtle sm:text-left">
             {m.landing_proof()}

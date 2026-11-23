@@ -17,11 +17,27 @@ import {
   conceptPath,
   EAST_EN_TOOL_PATHS,
 } from './bazi/eastern-routes.ts'
+import { TOOLS_HUB_ROUTES } from './hub/routes.ts'
 import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
-const DIRECTORY_GROUPS = {
+/**
+ * 「全部工具」枢纽页的分组与显示顺序（openspec content-growth-v2-tools 决策 5，specs/tool-directory）。
+ *
+ * 取值规则（第 6 组定，其他组登记条目时遵守）：
+ * - `directoryGroup`：东方 `chart` 排盘、`relation` 合盘与配对、`yearly` 年运与每日、`divination` 占卜、
+ *   `calendar` 历法与生肖、`knowledge` 概念与牌义；西方 `tarot`、`numerology`、`astrology`、`moon`、`compatibility`。
+ * - `freeLabel`：动作式免费标签，按工具的主要动作选一个（排盘 `free_chart`、合盘与配对 `free_compatibility`、
+ *   查表与阅读 `free_lookup`、抽牌 `free_draw`、起卦 `free_cast`、计算器 `free_calculate`）。入口卡只显示它，不标付费。
+ * - `badge`：新工具用 `{ kind: 'new', until }`（上线后 60 天内的日期），年份内容用 `{ kind: 'year', label: '2027', until }`；
+ *   构建日期晚于 `until` 即不再渲染（`activeBadge`）。
+ * - 进枢纽页的条目：`nav` 不为 false 的工具页；集合的下级页（月份、生肖、配对、场景页）设 `nav: false`，不进枢纽页。
+ *   `knowledge` 分组例外：带导航名的条目全部列为链接。牌阵子页等既有的 `nav: false` 工具由 directory.ts 的名单补入。
+ * - 首页精选引用的 id（home-hub/featured.ts）：`saju-gunghap`、`zodiac-pair`、`yearly-tool`、`yearly-<年份>`、`tojeong`、
+ *   `moon-phase-today`、`full-moon-calendar`、`western-zodiac-compatibility`；对应工具请用这些 id 登记，未登记的自动跳过。
+ */
+export const DIRECTORY_GROUPS = {
   east: ['chart', 'relation', 'yearly', 'divination', 'calendar', 'knowledge'],
   west: ['tarot', 'numerology', 'astrology', 'moon', 'compatibility'],
 } as const satisfies Record<SiteId, readonly string[]>
@@ -82,6 +98,11 @@ export interface ToolRoute {
 export interface RegisteredToolRoute extends ToolRoute {
   readonly directoryGroup: ToolDirectoryGroup
   readonly freeLabel: ToolFreeLabel
+}
+
+/** 小标是否仍在有效期内：`today` 为构建日期（YYYY-MM-DD），到 `until` 当日仍显示，次日起不渲染 */
+export function activeBadge(badge: ToolBadge | undefined, today: string): ToolBadge | undefined {
+  return badge && today <= badge.until ? badge : undefined
 }
 
 export function defineToolRoutes(
@@ -301,6 +322,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...ZODIAC_PAIR_TOOL_ROUTES.map((route) =>
     withDirectoryDefaults(route, 'relation', 'free_lookup'),
   ),
+  // openspec content-growth-v2-tools 第 6 组：两站的「全部工具」枢纽页
+  ...TOOLS_HUB_ROUTES,
 ])
 
 /**

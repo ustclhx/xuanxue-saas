@@ -1,3 +1,4 @@
+import { TOOLS_HUB_EAST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
 import { COMPAT_EAST_CONTENT_ROUTES } from './compat/paths.ts'
 import { TAI_SUI_YEAR_CONTENT_ROUTES } from './tai-sui-year/paths.ts'
@@ -46,6 +47,8 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...COMPAT_EAST_CONTENT_ROUTES,
   // content-growth-v2-tools 第 16 组：生肖配对总表与 78 个配对页（zh-hans）
   ...ZODIAC_PAIR_EAST_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 6 组：「全部工具」枢纽页（zh-Hant、zh-Hans、ko、ja）
+  ...TOOLS_HUB_EAST_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(
