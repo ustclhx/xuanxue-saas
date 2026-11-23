@@ -27,6 +27,7 @@ import {
   stemLabel,
   taiSuiText,
   timeText,
+  triadBranches,
   zodiacName,
 } from './labels.ts'
 import type { YearlyChildData, YearlyHubData } from './page.functions.ts'
@@ -434,7 +435,7 @@ function RelationTable({ page }: { page: YearlyChildData }) {
       key: 'triad',
       item: m.yearly_row_triad(),
       value: `${m.yearly_triad_value({
-        branches: facts.triad.map((branch) => glyph(branch)).join(''),
+        branches: triadBranches(locale, facts.triad),
         element: elementName(facts.triadElement),
       })} · ${
         facts.triadHasYear

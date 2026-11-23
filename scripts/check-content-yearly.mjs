@@ -3,6 +3,7 @@
 // 以及正文与 frontmatter 中写到的干支、纳音、立春与春节日期、地支关系名、太岁关系逐项用引擎复算
 // （@xuanxue/bazi/almanac 的 zodiacYearFacts、zodiacPairFacts、zodiacYears、zodiacBoundaries）。
 // 第 9、10、11 组在 LOCALES 中补登自己的一行（关系名与太岁写法按该语言另加解析；zh-Hant 先逐字归一到简体写法再复算）。
+// en（第 11 组）另校验 `/chinese-zodiac` 生肖枢纽（content/zodiac/en/index.mdx）。
 // 运行：node scripts/check-content-yearly.mjs [--report <文件>]
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -354,6 +355,369 @@ function bodySections(content) {
     })
 }
 
+// ---------------------------------------------------------------------------
+// 东方站根路径英文（第 11 组）：`/chinese-zodiac-2027` 枢纽与 12 页，以及 `/chinese-zodiac` 生肖枢纽
+// ---------------------------------------------------------------------------
+
+const STEM_PINYIN = ['Jia', 'Yi', 'Bing', 'Ding', 'Wu', 'Ji', 'Geng', 'Xin', 'Ren', 'Gui']
+const BRANCH_PINYIN = [
+  'Zi',
+  'Chou',
+  'Yin',
+  'Mao',
+  'Chen',
+  'Si',
+  'Wu',
+  'Wei',
+  'Shen',
+  'You',
+  'Xu',
+  'Hai',
+]
+const ANIMAL_EN = [
+  'Rat',
+  'Ox',
+  'Tiger',
+  'Rabbit',
+  'Dragon',
+  'Snake',
+  'Horse',
+  'Goat',
+  'Monkey',
+  'Rooster',
+  'Dog',
+  'Pig',
+]
+const MONTHS_EN = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+/** 纳音英文名（messages/en/yearly.json 的 yearly_nayin_*，按纳音序号） */
+const NAYIN_EN = JSON.parse(
+  readFileSync(new URL('../apps/web/messages/en/yearly.json', import.meta.url), 'utf8'),
+)
+const NAYIN_EN_NAMES = [...Array(30).keys()].map((i) => NAYIN_EN[`yearly_nayin_${i}`])
+const pinyinOfYear = (year) => {
+  const cycle = cycleOf(year)
+  return `${STEM_PINYIN[cycle.getHeavenStem().getIndex()]} ${BRANCH_PINYIN[cycle.getEarthBranch().getIndex()]}`
+}
+/** 「Ding Wei」→ 引擎纳音英文名 */
+const NAYIN_EN_OF = new Map(
+  [...Array(60).keys()].map((i) => {
+    const cycle = SixtyCycle.fromIndex(i)
+    const index = Math.floor(i / 2)
+    return [
+      `${STEM_PINYIN[cycle.getHeavenStem().getIndex()]} ${BRANCH_PINYIN[cycle.getEarthBranch().getIndex()]}`,
+      NAYIN_EN_NAMES[index],
+    ]
+  }),
+)
+const SP = `(?:${STEM_PINYIN.join('|')})`
+const BP = `(?:${BRANCH_PINYIN.join('|')})`
+const AN = `(?:${ANIMAL_EN.join('|')})`
+const branchOfName = (name) => {
+  const byPinyin = BRANCH_PINYIN.indexOf(name)
+  if (byPinyin >= 0) return BRANCHES[byPinyin]
+  const byAnimal = ANIMAL_EN.indexOf(name)
+  return byAnimal >= 0 ? BRANCHES[byAnimal] : undefined
+}
+const EN_RELATION = {
+  'six harmony': 'sixCombine',
+  'three harmony': 'triad',
+  clash: 'clash',
+  punishment: 'punish',
+  harm: 'harm',
+  break: 'break',
+}
+const EN_TAI_SUI = { meet: 'zhi', clash: 'chong', punish: 'xing', harm: 'hai', break: 'po' }
+
+/** 英文正文中写到的事实逐项复算（写法约定见第 11 组撰写说明） */
+export function factIssuesEn(text, { year, branch }) {
+  const issues = []
+  let checked = 0
+  const yearRows = zodiacYearFacts(year).rows
+  const verifyYear = (y, pillar, raw) => {
+    if (y < 1924 || y > 2043) return
+    checked++
+    if (pinyinOfYear(y) !== pillar) issues.push(`${raw}：${y} 年应为 ${pinyinOfYear(y)}`)
+  }
+  // 「1991 (Xin Wei)」「1991 Xin Wei」
+  for (const m of text.matchAll(new RegExp(`\\b(\\d{4}),? \\(?(${SP} ${BP})\\b`, 'g')))
+    verifyYear(Number(m[1]), m[2], m[0])
+  // 「Xin Wei (1991)」「Xin Wei (辛未, 1991)」
+  for (const m of text.matchAll(
+    new RegExp(`\\b(${SP} ${BP}) \\((?:[${STEM_HANZI}][${BRANCH_HANZI}], ?)?(\\d{4})\\)`, 'g'),
+  ))
+    verifyYear(Number(m[2]), m[1], m[0])
+  // 拼音与汉字对应：「Ding Wei (丁未)」
+  for (const m of text.matchAll(
+    new RegExp(`\\b(${SP}) (${BP}) \\(([${STEM_HANZI}])([${BRANCH_HANZI}])`, 'g'),
+  )) {
+    checked++
+    if (
+      STEM_PINYIN.indexOf(m[1]) !== STEM_HANZI.indexOf(m[3]) ||
+      BRANCH_PINYIN.indexOf(m[2]) !== BRANCH_HANZI.indexOf(m[4])
+    )
+      issues.push(`${m[0]}：拼音与汉字不一致`)
+  }
+  // 纳音：干支之后、同一句内、没有另一个干支之前的第一个纳音名
+  for (const m of text.matchAll(new RegExp(`\\b${SP} ${BP}\\b`, 'g'))) {
+    const after = text.slice(m.index + m[0].length, m.index + m[0].length + 90).split(/[.;\n]/)[0]
+    const next = after.search(new RegExp(`\\b${SP} ${BP}\\b`))
+    const window = next < 0 ? after : after.slice(0, next)
+    const name = NAYIN_EN_NAMES.filter((candidate) => window.includes(candidate)).sort(
+      (a, b) => window.indexOf(a) - window.indexOf(b),
+    )[0]
+    if (!name || !NAYIN_EN_OF.has(m[0])) continue
+    checked++
+    if (NAYIN_EN_OF.get(m[0]) !== name)
+      issues.push(`${m[0]}…${name}：${m[0]} 的纳音应为 ${NAYIN_EN_OF.get(m[0])}`)
+  }
+  // 日期：关键词（Li Chun / Beginning of Spring / Chinese New Year / Lunar New Year）之后 40 字符内的「February 4, 2027」
+  for (const m of text.matchAll(
+    new RegExp(
+      `\\b(${MONTHS_EN.join('|')}) (\\d{1,2}),? (\\d{4})(?:,? at (\\d{1,2}):(\\d{2}))?`,
+      'g',
+    ),
+  )) {
+    const before = text.slice(Math.max(0, m.index - 40), m.index)
+    const keyword = [
+      ...before.matchAll(/Li Chun|Beginning of Spring|Chinese New Year|Lunar New Year/g),
+    ].at(-1)?.[0]
+    if (!keyword) continue
+    const y = Number(m[3])
+    const month = MONTHS_EN.indexOf(m[1]) + 1
+    const day = Number(m[2])
+    if (keyword === 'Li Chun' || keyword === 'Beginning of Spring') {
+      const row = lichunOf(y)
+      if (!row) continue
+      checked++
+      if (month !== row.month || day !== row.day)
+        issues.push(`${m[0]}：${y} 年 Li Chun 应为 ${MONTHS_EN[row.month - 1]} ${row.day}`)
+      if (m[4] !== undefined && (Number(m[4]) !== row.hour || Number(m[5]) !== row.minute))
+        issues.push(
+          `${m[0]}：Li Chun 时刻应为 ${String(row.hour).padStart(2, '0')}:${String(row.minute).padStart(2, '0')}`,
+        )
+    } else {
+      const row = newYearOf(y)
+      if (!row) continue
+      checked++
+      if (month !== row.month || day !== row.day)
+        issues.push(`${m[0]}：${y} 年 Chinese New Year 应为 ${MONTHS_EN[row.month - 1]} ${row.day}`)
+    }
+  }
+  // 地支关系：「Chou–Wei clash」「Ox–Goat clash」「Wu (午)–Wei (未) six harmony」
+  const NAME = `(${BP}|${AN})(?: \\([${BRANCH_HANZI}]\\))?`
+  for (const m of text.matchAll(
+    new RegExp(
+      `\\b${NAME}[–-]${NAME} (six harmony|three harmony|clash|punishment|harm|break)\\b`,
+      'g',
+    ),
+  )) {
+    const a = branchOfName(m[1])
+    const b = branchOfName(m[2])
+    if (!a || !b) continue
+    checked++
+    const relations = zodiacPairFacts(a, b).relations
+    if (!relations.includes(EN_RELATION[m[3]]))
+      issues.push(`${m[0]}：${m[1]}–${m[2]} 没有 ${m[3]}（引擎：${relations.join('、') || '无'}）`)
+  }
+  // 太岁：「the Ox is clashing with Tai Sui」「Goat … meeting Tai Sui」；没有写明生肖时按本页生肖核对
+  for (const m of text.matchAll(
+    new RegExp(
+      `(?:\\b(${AN})\\b[^.;\\n]{0,48}?)?\\b(meet|clash|punish|harm|break)(?:s|es|ing)?(?: with)? Tai Sui`,
+      'g',
+    ),
+  )) {
+    const before = text.slice(Math.max(0, m.index + m[0].length - 40), m.index + m[0].length)
+    if (/\b(?:not|no|nor|never|without|neither|none)\b/i.test(before)) continue
+    // 泛指（「what meeting Tai Sui means」「labels such as clashing with Tai Sui」）不核对：须写明生肖或位于生肖页
+    if (!m[1] && !branch) continue
+    const target = m[1] ? branchOfName(m[1]) : branch
+    const row = yearRows.find((entry) => entry.branch === target)
+    checked++
+    if (!row?.taiSui.includes(EN_TAI_SUI[m[2]]))
+      issues.push(`${m[0]}：${target} 在 ${year} 年的太岁关系为 ${row?.taiSui.join('、') || '无'}`)
+  }
+  return { issues, checked }
+}
+
+/** en 合规与判定词（决策 14、16；与 i18n/glossary/en-east.json 的禁用写法互补） */
+const EN_BANNED = [
+  [/\bAI\b|artificial intelligence/, 'AI'],
+  [/\bentertainment\b|\bfor fun\b/i, '娱乐定位'],
+  [/\b(?:un)?lucky\b|\b(?:in)?auspicious\b|\bgood luck\b|\bbad luck\b/i, '吉凶'],
+  [/\bfortunes?\b|\bhoroscopes?\b/i, '运势'],
+  [/\bdestin(?:y|ed)\b(?! calculator)|\bdoomed\b|\bfated\b/i, '决定论'],
+  [/\bdisasters?\b|\bmisfortunes?\b|\bcurses?\b/i, '灾厄'],
+  [/\bremed(?:y|ies)\b|\bcures?\b|\bamulets?\b|\btalismans?\b|\blucky charms?\b/i, '化解'],
+  [/\bwill happen\b|\bwill bring\b|\bguarantee/i, '预测'],
+  [/self-exploration/i, '自我探索'],
+]
+const EN_VERDICT = [
+  /\bshould(?:n't| not) marry\b/i,
+  /\bwill divorce\b/i,
+  /\b(?:best|worst|perfect) match(?:es)?\b/i,
+  /\bincompatible\b/i,
+  /\bnot meant to be\b/i,
+]
+function complianceEn(text) {
+  // 链接地址与锚文本「Four Pillars of Destiny calculator」（术语表锚点）不计
+  const plainText = text.replace(/\]\([^)]*\)/g, ']').replace(/Four Pillars of Destiny/g, '')
+  const issues = []
+  for (const [re, label] of EN_BANNED) {
+    const hit = re.exec(plainText)
+    if (hit) issues.push(`合规禁用词（${label}）：${hit[0]}`)
+  }
+  for (const re of EN_VERDICT) {
+    const hit = re.exec(plainText)
+    if (hit) issues.push(`判定词：${hit[0]}`)
+  }
+  return issues
+}
+
+const ANIMAL_SLUG_EN = ANIMAL_EN.map((name) => name.toLowerCase())
+const wordCount = /\b[\p{L}\p{N}][\p{L}\p{N}’'-]*/gu
+
+LOCALES.en = {
+  prefix: '',
+  hubPath: (year) => `/chinese-zodiac-${year}`,
+  childSlug: (branch) => ANIMAL_SLUG_EN[BRANCHES.indexOf(branch)],
+  /** Title 与 H1 以「Rat 2027」开头（关键词归属：年份紧跟生肖，与 `/chinese-zodiac` 区分） */
+  childPrefix: (year, branch) => `${ANIMAL_EN[BRANCHES.indexOf(branch)]} ${year}`,
+  hubPrefix: (year) => `Chinese Zodiac ${year}`,
+  brandSuffix: ' | Ganjiday',
+  tdkWidth: (text) => text.length,
+  titleRange: [40, 60],
+  descriptionRange: [140, 160],
+  childMin: 900,
+  hubMin: 700,
+  childHeadings: (year) => [
+    `Branch relations with the ${pinyinOfYear(year)} year`,
+    `Reading ${year} with your full BaZi chart`,
+  ],
+  hubHeadings: (year) => [
+    `${year} ${pinyinOfYear(year)}: stem, branch and Na Yin`,
+    `The 12 animals and the ${pinyinOfYear(year)} year`,
+    'Two start dates: Li Chun and Chinese New Year',
+    'Beyond the year branch',
+  ],
+  focusRange: [80, 200],
+  yearsNote: [40, 140],
+  relationsNote: [30, 120],
+  yearlyTool: (year) => `/bazi-${year}`,
+  linkTargets: ['/bazi-calculator', '/bazi-compatibility', '/chinese-zodiac'],
+  // 没有 en 生肖子页：「本生肖子页」一项由生肖枢纽承担（yearly-outlook-pages「生肖页（存在时）」）
+  zodiacChild: () => '/chinese-zodiac',
+  anchors: (path, year) => {
+    const child = path.match(new RegExp(`^/chinese-zodiac-${year}/([a-z]+)$`))
+    if (child) {
+      const name = ANIMAL_EN[ANIMAL_SLUG_EN.indexOf(child[1])]
+      return [`${name} in ${year}`, `Year of the ${name} ${year}`]
+    }
+    if (path === `/chinese-zodiac-${year}`)
+      return [`Year of the Goat ${year}`, `Chinese zodiac ${year}`]
+    if (path === '/chinese-zodiac') return ['Chinese zodiac', 'Chinese zodiac years']
+    if (path === `/bazi-${year}`) return [`BaZi ${year}`, `${year} BaZi calculator`]
+    if (path === '/bazi-calculator')
+      return ['BaZi calculator', 'Four Pillars of Destiny calculator']
+    if (path === '/bazi-compatibility') return ['BaZi compatibility', 'BaZi chart compatibility']
+    return null
+  },
+  countUnit: wordCount,
+  facts: factIssuesEn,
+  compliance: complianceEn,
+  monthFortune: /\b(?:best|worst|lucky|unlucky|good|bad) months?\b/i,
+}
+
+/**
+ * `/chinese-zodiac`（集合 zodiac 的 en 枢纽，第 11 组）：TDK、篇幅（导语与正文 ≥700 词）、固定小标题、
+ * 正文内链与锚文本、合规与事实复算。12 个 en 生肖子页本期不做，只校验枢纽。
+ */
+const ZODIAC_EN_HUB = new URL('../apps/web/content/zodiac/en/index.mdx', import.meta.url)
+const ZODIAC_EN_HEADINGS = [
+  'The 12 Chinese zodiac animals',
+  'Li Chun or Chinese New Year: when the animal changes',
+  'Three harmony, six harmony and clash',
+  'Your animal is one branch of a BaZi chart',
+]
+export function checkZodiacHubEn(file = ZODIAC_EN_HUB) {
+  const failures = []
+  if (!existsSync(file)) return { failures, row: null, factsChecked: 0 }
+  const fail = (message) => failures.push(`zodiac/en/index.mdx: ${message}`)
+  const source = readFileSync(file, 'utf8')
+  const match = source.match(/^---\n([\s\S]+?)\n---\n\n([\s\S]+)$/)
+  if (!match) {
+    fail('缺少 frontmatter 分隔')
+    return { failures, row: null, factsChecked: 0 }
+  }
+  const data = parseDocument(match[1], { uniqueKeys: true }).toJS()
+  const content = match[2]
+  const spec = LOCALES.en
+  if (data.slug !== 'chinese-zodiac') fail('slug 应为 chinese-zodiac')
+  if (data.locale !== 'en') fail('locale 应为 en')
+  for (const key of ['title', 'heading']) {
+    const value = String(data[key] ?? '')
+    if (!value.startsWith('Chinese Zodiac')) fail(`${key} 应以「Chinese Zodiac」开头`)
+    // 关键词归属：年份页以「Chinese Zodiac 2027」开头，枢纽不抢年份主词
+    if (/^Chinese Zodiac \d{4}/.test(value)) fail(`${key} 不以年份开头（年份主词归年度枢纽）`)
+  }
+  const titleLength = `${data.title}${spec.brandSuffix}`.length
+  const descriptionLength = String(data.description ?? '').length
+  if (titleLength < 40 || titleLength > 60)
+    fail(`Title 长度 ${titleLength}（含站名后缀，须 40–60）`)
+  if (descriptionLength < 140 || descriptionLength > 160)
+    fail(`Description 长度 ${descriptionLength}（须 140–160）`)
+  const faq = Array.isArray(data.faq) ? data.faq : []
+  if (faq.length < 3 || faq.length > 4) fail(`FAQ 须 3–4 问，现为 ${faq.length}`)
+  const headings = bodySections(content).map((section) => section.title)
+  for (const [index, heading] of ZODIAC_EN_HEADINGS.entries())
+    if (headings[index] !== heading) fail(`第 ${index + 1} 个小标题须为「${heading}」`)
+  const words = ([data.lede, plain(content)].join('\n').match(wordCount) ?? []).length
+  if (words < 700) fail(`撰写正文 ${words} 词，少于 700`)
+  const links = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)].map((m) => ({
+    anchor: m[1],
+    href: m[2],
+  }))
+  const targets = new Set(links.map((link) => link.href))
+  if (targets.size < 2 || targets.size > 5) fail(`正文内链 ${targets.size} 个不同目标（须 2–5）`)
+  for (const required of ['/chinese-zodiac-2027', '/bazi-calculator'])
+    if (!targets.has(required)) fail(`缺少 ${required} 链接`)
+  for (const { anchor, href } of links) {
+    if (href === '/chinese-zodiac') fail('链接到本页')
+    const expected = spec.anchors(href, 2027)
+    if (!expected) fail(`正文链接目标不在允许清单：${href}`)
+    else if (!expected.includes(anchor))
+      fail(`锚文本「${anchor}」不在 ${href} 的约定锚文本（${expected.join('、')}）中`)
+  }
+  const everything = [
+    data.title,
+    data.heading,
+    data.description,
+    data.lede,
+    ...faq.flatMap((item) => [item.q, item.a]),
+    content,
+  ].join('\n')
+  for (const issue of complianceEn(everything)) fail(issue)
+  const facts = factIssuesEn(everything, { year: 2027, branch: null })
+  for (const issue of facts.issues) fail(`事实不一致：${issue}`)
+  return {
+    failures,
+    row: { title: data.title, titleLength, descriptionLength, words, links: targets.size },
+    factsChecked: facts.checked,
+  }
+}
+
 export function checkLocale(locale, root = ROOT) {
   const spec = LOCALES[locale]
   const failures = []
@@ -415,12 +779,15 @@ export function checkLocale(locale, root = ROOT) {
       if (!String(data.heading ?? '').startsWith(prefix)) fail(`H1 应以「${prefix}」开头`)
       if (!String(data.title ?? '').startsWith(prefix)) fail(`Title 应以「${prefix}」开头`)
 
-      const titleWidth = cjkWidth(`${data.title}${spec.brandSuffix}`)
-      const descriptionWidth = cjkWidth(String(data.description ?? ''))
-      if (titleWidth < 20 || titleWidth > 30)
-        fail(`Title 宽度 ${titleWidth}（含站名后缀，须 20–30）`)
-      if (descriptionWidth < 70 || descriptionWidth > 80)
-        fail(`Description 宽度 ${descriptionWidth}（须 70–80）`)
+      const measure = spec.tdkWidth ?? cjkWidth
+      const [titleMin, titleMax] = spec.titleRange ?? [20, 30]
+      const [descriptionMin, descriptionMax] = spec.descriptionRange ?? [70, 80]
+      const titleWidth = measure(`${data.title}${spec.brandSuffix}`)
+      const descriptionWidth = measure(String(data.description ?? ''))
+      if (titleWidth < titleMin || titleWidth > titleMax)
+        fail(`Title 宽度 ${titleWidth}（含站名后缀，须 ${titleMin}–${titleMax}）`)
+      if (descriptionWidth < descriptionMin || descriptionWidth > descriptionMax)
+        fail(`Description 宽度 ${descriptionWidth}（须 ${descriptionMin}–${descriptionMax}）`)
       for (const key of ['title', 'description', 'heading']) {
         const previous = seen[key].get(data[key])
         if (previous) fail(`${key} 与 ${previous} 重复`)
@@ -529,22 +896,30 @@ export function checkLocale(locale, root = ROOT) {
       ].join('\n')
       const normalize = spec.normalize ?? ((text) => text)
       const everything = normalize(raw)
-      for (const term of [...COMPLIANCE_TERMS, ...(spec.extraTerms ?? [])])
-        if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
-          fail(`合规禁用词：${term}`)
-      for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
-      if (/运势|运程/.test(everything)) {
+      if (spec.compliance) {
+        // 拼音文字按词与正则核对（en 合规与判定词表）
+        for (const issue of spec.compliance(everything)) fail(issue)
+      } else {
+        for (const term of [...COMPLIANCE_TERMS, ...(spec.extraTerms ?? [])])
+          if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
+            fail(`合规禁用词：${term}`)
+        for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
+      }
+      if (!spec.compliance && /运势|运程/.test(everything)) {
         // 「运势」只作主词出现在 Title、H1 与地址中
         const plainText = everything.replace(/\]\([^)]*\)/g, ']')
         if (/运势|运程/.test(plainText)) fail('正文不用「运势」「运程」（只作 Title、H1 主词）')
       }
-      const month = MONTH_FORTUNE.exec(everything)
+      const month = (spec.monthFortune ?? MONTH_FORTUNE).exec(everything)
       if (month) fail(`月份吉凶写法：${month[0]}`)
 
-      const facts = factIssues(normalize([data.title, data.heading, raw].join('\n')), {
-        year,
-        branch,
-      })
+      const facts = (spec.facts ?? factIssues)(
+        normalize([data.title, data.heading, raw].join('\n')),
+        {
+          year,
+          branch,
+        },
+      )
       factsChecked += facts.checked
       for (const issue of facts.issues) fail(`事实不一致：${issue}`)
 
@@ -583,6 +958,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         `| ${locale} | ${row.file} | ${row.title}（${row.titleWidth}） | ${row.descriptionWidth} | ${row.heading} | ${row.chars} | ${row.links} | ${row.facts} |`,
       )
   }
+  const zodiacHub = checkZodiacHubEn()
+  failures.push(...zodiacHub.failures)
+  total += zodiacHub.factsChecked
+  if (zodiacHub.row)
+    lines.push(
+      `| en | zodiac/en/index.mdx | ${zodiacHub.row.title}（${zodiacHub.row.titleLength}） | ${zodiacHub.row.descriptionLength} | — | ${zodiacHub.row.words} | ${zodiacHub.row.links} | ${zodiacHub.factsChecked} |`,
+    )
   lines.push('', `复算事实合计：${total} 处；失败：${failures.length}`)
   if (values.report)
     writeFileSync(

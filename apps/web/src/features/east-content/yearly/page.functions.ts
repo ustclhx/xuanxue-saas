@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { allYearlies } from 'content-collections'
 import { z } from 'zod'
 import { templateConfig } from '../../../server/template-config.ts'
+import { EAST_EN_CONTENT_ROUTES } from '../../east-en/paths.ts'
 import { pageHead, type SeoPage } from '../../seo/metadata.ts'
 import { getPageLinks } from '../../seo/pages.server.ts'
 import { breadcrumbData } from '../../seo/structured-data.ts'
@@ -46,12 +47,14 @@ export const getYearlyPage = createServerFn({ method: 'GET' })
     if (!entry || !path) throw notFound()
     const [seo] = yearlySeoPages([entry, ...allYearlies.filter((item) => item !== entry)])
     const page: SeoPage = { ...(seo as SeoPage) }
-    const links = getPageLinks(path, locale)
+    // 东方站所有语言都按东方站的页面清单取面包屑与同组链接（根路径英文与西方站同语言）
+    const links = getPageLinks(path, locale, undefined, 'east')
     const trail = [...links.breadcrumb, { href: path, label: page.titleMain ?? page.title }]
     const head = pageHead(page, '', [
       breadcrumbData(
         trail.map((item) => ({ name: item.label, path: item.href })),
         locale,
+        'east',
       ),
       faqPageData(entry.faq.map(({ q, a }) => ({ question: q, answer: a }))),
     ])
@@ -97,7 +100,7 @@ export const getYearlyPage = createServerFn({ method: 'GET' })
     }
     const facts = childFacts(year, key as YearlyKey, offset)
     // 次年同类页已登记时，过季提示链接过去
-    const next = EAST_CONTENT_ROUTES.find(
+    const next = [...EAST_CONTENT_ROUTES, ...EAST_EN_CONTENT_ROUTES].find(
       (route) =>
         route.collection === 'yearly' &&
         route.locale === locale &&

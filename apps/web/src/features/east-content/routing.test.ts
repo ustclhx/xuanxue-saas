@@ -160,7 +160,8 @@ const notFound = { isNotFound: true }
 it('东方站简中与根路径英文未登记地址返回 404', async () => {
   await expect(single('east', 'zh-Hans', '未登记内容')).rejects.toMatchObject(notFound)
   await expect(two('east', 'ko', '띠', '미등록')).rejects.toMatchObject(notFound)
-  await expect(single('east', 'en', 'chinese-zodiac-2027')).rejects.toMatchObject(notFound)
+  // 第 11 组已登记 `/chinese-zodiac-2027`；配对总表（第 17 组）尚未登记
+  await expect(single('east', 'en', 'chinese-zodiac-compatibility')).rejects.toMatchObject(notFound)
   await expect(two('east', 'en', 'bazi-compatibility', 'unknown')).rejects.toMatchObject(notFound)
 })
 

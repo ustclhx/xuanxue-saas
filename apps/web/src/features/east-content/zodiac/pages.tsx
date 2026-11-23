@@ -21,6 +21,7 @@ import {
   animal,
   annualChips,
   branchLabel,
+  branchList,
   branchName,
   branchPosition,
   direction,
@@ -34,19 +35,14 @@ import {
   hourRange,
   monthDay,
   monthDayTime,
+  monthValue,
   nayinName,
   RELATION_LABEL,
   zodiacName,
 } from './labels.ts'
 import { type LookupResult, type LookupYear, lookupZodiac } from './lookup.ts'
 import type { ZodiacChildData, ZodiacHubData } from './page.functions.ts'
-import {
-  isZodiacLocale,
-  ZODIAC_HUB_TITLES,
-  type ZodiacKey,
-  type ZodiacLocale,
-  zodiacPath,
-} from './paths.ts'
+import { isZodiacHubLocale, isZodiacLocale, type ZodiacLocale, zodiacHubTitle } from './paths.ts'
 
 /**
  * 生肖枢纽与子页（设计稿 docs/design/prototypes/content-growth-phase2/Main.dc.html、ZodiacPage.dc.html、
@@ -58,6 +54,7 @@ import {
 const HUB_SLOTS: Readonly<Record<string, { table: string; relations: string }>> = {
   'zh-Hans': { table: '十二生肖总表', relations: '三合、六合与六冲' },
   ko: { table: '열두 띠 표', relations: '삼합·육합·육충' },
+  en: { table: 'The 12 Chinese zodiac animals', relations: 'Three harmony, six harmony and clash' },
 }
 
 /**
@@ -639,20 +636,27 @@ function lookupValue(result: LookupYear, locale: string) {
 function LookupResultView({
   result,
   locale,
+  links,
 }: {
   result: Extract<LookupResult, { kind: 'ok' }>
   locale: string
+  links: ZodiacHubData['children']
 }) {
   const { lichun, newYear, year } = result
   const lichunText = m.zodiac_month_day_time({
-    month: lichun.month,
+    month: monthValue(locale, lichun.month),
     day: lichun.day,
     time: lichun.time,
   })
-  const childLink = (branch: Branch) => ({
-    href: toolHref(zodiacPath(zodiacLocale(locale), branch as ZodiacKey), locale),
-    text: m.zodiac_lookup_link({ name: zodiacName(branch) }),
-  })
+  const childLink = (branch: Branch) => {
+    const child = links.find((item) => item.key === branch)
+    return child
+      ? {
+          href: child.href,
+          text: m.zodiac_lookup_link({ name: child.label ?? zodiacName(branch) }),
+        }
+      : null
+  }
   const byLichun = lichun.state === 'before' ? lichun.before : lichun.after
   const differ = lichun.state !== 'same' && byLichun.branch !== newYear.result.branch
   return (
@@ -693,7 +697,10 @@ function LookupResultView({
             ? m.zodiac_lookup_new_year_after
             : m.zodiac_lookup_new_year_before)({
             year,
-            date: m.zodiac_month_day({ month: newYear.month, day: newYear.day }),
+            date: m.zodiac_month_day({
+              month: monthValue(locale, newYear.month),
+              day: newYear.day,
+            }),
           })}
           link={childLink(newYear.result.branch)}
         />
@@ -752,7 +759,9 @@ function ZodiacLookup({ page }: { page: ZodiacHubData }) {
         aria-live="polite"
         className="flex flex-col gap-3 empty:hidden"
       >
-        {result?.kind === 'ok' ? <LookupResultView result={result} locale={page.locale} /> : null}
+        {result?.kind === 'ok' ? (
+          <LookupResultView result={result} locale={page.locale} links={page.children} />
+        ) : null}
       </section>
     </>
   )
@@ -760,6 +769,7 @@ function ZodiacLookup({ page }: { page: ZodiacHubData }) {
 
 function HubTable({ page }: { page: ZodiacHubData }) {
   const { facts, locale } = page
+  const childOf = new Map(page.children.map((child) => [child.key as string, child]))
   return (
     <FactTable
       caption={m.zodiac_hub_table_caption()}
@@ -772,19 +782,23 @@ function HubTable({ page }: { page: ZodiacHubData }) {
           key: 'animal',
           header: m.zodiac_hub_col_animal(),
           kind: 'key',
-          cell: (row) => (
-            <>
-              <a
-                href={toolHref(zodiacPath(zodiacLocale(locale), row.key), locale)}
-                className={inlineLink}
-              >
-                {zodiacName(row.branch)}
-              </a>
-              {row.branch === facts.currentBranch && (
-                <span className={tag}>{m.zodiac_current_tag()}</span>
-              )}
-            </>
-          ),
+          cell: (row) => {
+            const child = childOf.get(row.key)
+            return (
+              <>
+                {child ? (
+                  <a href={child.href} className={inlineLink}>
+                    {child.label ?? zodiacName(row.branch)}
+                  </a>
+                ) : (
+                  zodiacName(row.branch)
+                )}
+                {row.branch === facts.currentBranch && (
+                  <span className={tag}>{m.zodiac_current_tag()}</span>
+                )}
+              </>
+            )
+          },
         },
         {
           key: 'branch',
@@ -809,7 +823,7 @@ function HubTable({ page }: { page: ZodiacHubData }) {
             const triad = TRIADS[row.triad]
             return triad
               ? m.zodiac_triad_value({
-                  branches: triad.branches.map((branch) => branchName(locale, branch)).join(''),
+                  branches: branchList(locale, triad.branches),
                   element: ELEMENT_LABEL[triad.element](),
                 })
               : ''
@@ -831,13 +845,16 @@ function HubTable({ page }: { page: ZodiacHubData }) {
 
 function HubRelations({ locale }: { locale: string }) {
   const korean = locale === 'ko'
+  const english = locale === 'en'
   const pairs = (list: readonly (readonly [Branch, Branch])[]) => (
     <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
       {list.map(([a, b]) => (
         <li key={a} className={chip}>
           {korean
             ? `${branchName(locale, a)}${branchName(locale, b)}(${glyph(a)}${glyph(b)})`
-            : `${glyph(a)} ${glyph(b)}`}
+            : english
+              ? `${branchList(locale, [a, b])} (${glyph(a)}${glyph(b)})`
+              : `${glyph(a)} ${glyph(b)}`}
         </li>
       ))}
     </ul>
@@ -860,7 +877,9 @@ function HubRelations({ locale }: { locale: string }) {
               <span>
                 {korean
                   ? `${triad.branches.map((branch) => branchName(locale, branch)).join('·')} (${triad.branches.map(animal).join('·')})`
-                  : `${triad.branches.map(glyph).join(' ')}（${triad.branches.map(animal).join(' ')}）`}
+                  : english
+                    ? `${branchList(locale, triad.branches)} (${triad.branches.map(animal).join(', ')})`
+                    : `${triad.branches.map(glyph).join(' ')}（${triad.branches.map(animal).join(' ')}）`}
               </span>
             </li>
           ))}
@@ -903,7 +922,7 @@ export function ZodiacHubPage({ page }: { page: ZodiacHubData }) {
       <PageHeader
         locale={locale}
         breadcrumb={page.breadcrumb}
-        current={ZODIAC_HUB_TITLES[zodiacLocale(locale)]}
+        current={isZodiacHubLocale(locale) ? zodiacHubTitle(locale) : ''}
         heading={page.heading}
         lede={page.lede}
       />

@@ -45,6 +45,35 @@ export const STEM_HANGUL: Record<Stem, string> = {
   gui: '계',
 }
 
+/** 东方站英文页的拼音写法（「Ding Wei (丁未)」，与 en 合盘、流年文案一致） */
+export const STEM_PINYIN: Record<Stem, string> = {
+  jia: 'Jia',
+  yi: 'Yi',
+  bing: 'Bing',
+  ding: 'Ding',
+  wu: 'Wu',
+  ji: 'Ji',
+  geng: 'Geng',
+  xin: 'Xin',
+  ren: 'Ren',
+  gui: 'Gui',
+}
+
+export const BRANCH_PINYIN: Record<Branch, string> = {
+  zi: 'Zi',
+  chou: 'Chou',
+  yin: 'Yin',
+  mao: 'Mao',
+  chen: 'Chen',
+  si: 'Si',
+  wu: 'Wu',
+  wei: 'Wei',
+  shen: 'Shen',
+  you: 'You',
+  xu: 'Xu',
+  hai: 'Hai',
+}
+
 export const BRANCH_HANGUL: Record<Branch, string> = {
   zi: '자',
   chou: '축',

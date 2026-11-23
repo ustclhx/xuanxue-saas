@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { zodiacBoundaries, zodiacYearFacts, zodiacYears } from '@xuanxue/bazi/almanac'
 import { describe, expect, it, vi } from 'vitest'
+import { eastEnContentRouteOf } from '../../east-en/paths.ts'
 import { pageHead } from '../../seo/metadata.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import type { EastContentRoute } from '../routes.ts'
@@ -126,14 +127,22 @@ describe('地址、注册表与 hreflang', () => {
       parent: '/2027生肖运势',
       group: '/2027生肖运势',
       titleMain: '2027属马',
-      alternates: { 'zh-Hans': '/2027生肖运势/属马', 'zh-Hant': '/2027生肖運勢/屬馬' },
+      // zh-Hans、zh-Hant、en 互为 hreflang（9.2、第 11 组）
+      alternates: {
+        'zh-Hans': '/2027生肖运势/属马',
+        'zh-Hant': '/2027生肖運勢/屬馬',
+        en: '/chinese-zodiac-2027/horse',
+      },
     })
-    // zh-Hant 与 zh-Hans 互为 hreflang（9.2）
     expect(pages.find((page) => page.path === '/2027生肖運勢/屬馬')).toMatchObject({
       locale: 'zh-Hant',
       parent: '/2027生肖運勢',
       titleMain: '2027屬馬',
-      alternates: { 'zh-Hans': '/2027生肖运势/属马', 'zh-Hant': '/2027生肖運勢/屬馬' },
+      alternates: {
+        'zh-Hans': '/2027生肖运势/属马',
+        'zh-Hant': '/2027生肖運勢/屬馬',
+        en: '/chinese-zodiac-2027/horse',
+      },
     })
     const links = pageHead(horse as NonNullable<typeof horse>, '').links
     expect(links).toContainEqual({
@@ -143,6 +152,22 @@ describe('地址、注册表与 hreflang', () => {
     const hreflangs = links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
     expect(hreflangs).toContain('zh-Hant')
     expect(hreflangs).not.toContain('ko')
+    expect(links).toContainEqual({
+      rel: 'alternate',
+      hrefLang: 'en',
+      href: 'https://ganjiday.com/chinese-zodiac-2027/horse',
+    })
+    const english = pages.find((page) => page.path === '/chinese-zodiac-2027/horse')
+    expect(english).toMatchObject({
+      locale: 'en',
+      site: 'east',
+      parent: '/chinese-zodiac-2027',
+      titleMain: 'Horse in 2027',
+    })
+    expect(pageHead(english as NonNullable<typeof english>, '').links).toContainEqual({
+      rel: 'canonical',
+      href: 'https://ganjiday.com/chinese-zodiac-2027/horse',
+    })
 
     // 加入一篇 ko 内容：ko 地址尚未登记（第 10 组），不进入 hreflang
     const withKo = yearlySeoPages([
@@ -152,15 +177,34 @@ describe('地址、注册表与 hreflang', () => {
     expect(withKo.find((page) => page.path === '/2027生肖运势/属马')?.alternates).toEqual({
       'zh-Hans': '/2027生肖运势/属马',
       'zh-Hant': '/2027生肖運勢/屬馬',
+      en: '/chinese-zodiac-2027/horse',
     })
   })
 
-  it.each(['zh-Hans', 'zh-Hant'])('%s 内容为枢纽加 12 生肖', (locale) => {
+  it.each(['zh-Hans', 'zh-Hant', 'en'])('%s 内容为枢纽加 12 生肖', (locale) => {
     const keys = generatedYearlies()
       .filter((entry) => entry.locale === locale && entry.year === 2027)
       .map((entry) => entry.key)
       .sort()
     expect(keys).toEqual([...YEARLY_KEYS, 'index'].sort())
+  })
+
+  it('en 地址由东方站英文分发，不进中日韩映射；注册表带 en 路径', () => {
+    expect(eastContentRouteOf('en', '/chinese-zodiac-2027')).toBeUndefined()
+    expect(eastEnContentRouteOf('/chinese-zodiac-2027')).toMatchObject({
+      collection: 'yearly',
+      id: '2027/index',
+    })
+    expect(eastEnContentRouteOf('/chinese-zodiac-2027/goat')).toMatchObject({
+      collection: 'yearly',
+      id: '2027/wei',
+    })
+    expect(TOOL_ROUTES.find((route) => route.id === 'yearly-2027-wei')).toMatchObject({
+      paths: { en: '/chinese-zodiac-2027/goat' },
+      titles: { en: 'Goat in 2027' },
+    })
+    // 个人年度工具（第 7 组）的 en 地址登记在东方站英文映射里，正文链接保留
+    expect(yearlyToolPath('en')).toBe('/bazi-2027')
   })
 })
 

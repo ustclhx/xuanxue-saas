@@ -577,7 +577,8 @@ const zodiac = defineCollection({
       .string()
       .min(1)
       .regex(/^[^/\s]+$/),
-    locale: z.enum(['zh-Hans', 'ko', 'zh-Hant']),
+    // en：东方站根路径英文只有枢纽 `/chinese-zodiac`（content-growth-v2-tools 第 11 组）
+    locale: z.enum(['zh-Hans', 'ko', 'zh-Hant', 'en']),
     // 枢纽页没有地支
     branch: z.enum(ZODIAC_BRANCHES).optional(),
     lede: z.string().min(1),
