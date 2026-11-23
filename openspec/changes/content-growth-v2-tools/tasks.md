@@ -74,9 +74,9 @@
 
 ## 4. 西方引擎：@xuanxue/astro 与月相 ★
 
-- [ ] 4.1 新建 `packages/astro`（`@xuanxue/astro`），依赖 astronomy-engine（MIT，记录版本与许可）；子入口 `./moon`；在 `scripts/check-deps.mjs` 登记为业务包；`pnpm install --frozen-lockfile`、`pnpm check:deps`、`pnpm check:singletons` 通过
-- [ ] 4.2 实现 `moonPhaseTable`、`moonQuarterEvents`、`fullMoonNames` 与超级月亮、蓝月标记（design 决策 4、11），输出只含 key 与数值。单测与 USNO 月相表比对 2026–2027 全部主要月相时刻，误差 ≤2 分钟；参考表存为测试夹具
-- [ ] 4.3 提供构建期预计算函数：生成「构建日前 1 个月至后 14 个月」的逐日表与事件表，并导出覆盖期检查（剩余 <13 个月时报错）；单测覆盖跨年与覆盖期不足
+- [x] 4.1 新建 `packages/astro`（`@xuanxue/astro`），依赖 astronomy-engine（MIT，记录版本与许可）；子入口 `./moon`；在 `scripts/check-deps.mjs` 登记为业务包；`pnpm install --frozen-lockfile`、`pnpm check:deps`、`pnpm check:singletons` 通过
+- [x] 4.2 实现 `moonPhaseTable`、`moonQuarterEvents`、`fullMoonNames` 与超级月亮、蓝月标记（design 决策 4、11），输出只含 key 与数值。单测与 USNO 月相表比对 2026–2027 全部主要月相时刻，误差 ≤2 分钟；参考表存为测试夹具
+- [x] 4.3 提供构建期预计算函数：生成「构建日前 1 个月至后 14 个月」的逐日表与事件表，并导出覆盖期检查（剩余 <13 个月时报错）；单测覆盖跨年与覆盖期不足
 
 ## 5. 设计稿登记（设计稿另行产出）★
 
