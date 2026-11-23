@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
+import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import {
@@ -254,6 +255,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...ALMANAC_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'calendar', 'free_lookup')),
   // openspec content-growth-phase2 第 4 组：生肖枢纽（页头「历法与生肖」分组）与 12 生肖页
   ...ZODIAC_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'calendar', 'free_lookup')),
+  // content-growth-v2-tools 第 15 组：ko 토정비결（年度组，2027 小标）
+  ...TOJEONG_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'yearly', 'free_cast')),
 ])
 
 /**

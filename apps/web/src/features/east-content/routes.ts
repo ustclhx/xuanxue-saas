@@ -1,4 +1,5 @@
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
+import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type EastContentCollection =
@@ -28,6 +29,8 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...ZODIAC_EAST_CONTENT_ROUTES,
   // 第 6 组：黄历工具页与 12 个月份页（zh-hans）
   ...ALMANAC_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 15 组：ko 토정비결工具页
+  ...TOJEONG_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(

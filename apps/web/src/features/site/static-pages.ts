@@ -1,4 +1,9 @@
 import { templateConfig } from '../../server/template-config.ts'
+import {
+  hasTojeongShareQuery,
+  TOJEONG_PATH,
+  TOJEONG_QUERY_ROBOTS,
+} from '../east-content/tojeong/paths.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
 import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL, resolveSite, siteOfLocale } from './site.ts'
@@ -44,6 +49,14 @@ export async function siteFaviconResponse(
   return result
 }
 
+function isTojeongPath(path: string): boolean {
+  try {
+    return decodeURI(path) === `/ko${TOJEONG_PATH}`
+  } catch {
+    return false
+  }
+}
+
 /** 只读取已知站点的公开 HTML；预览 Host 走 SSR，保留西方品牌与 noindex。 */
 export async function staticPageResponse(
   request: Request,
@@ -74,8 +87,16 @@ export async function staticPageResponse(
   url.search = ''
   const response = await fetchAsset(new Request(url, request))
   if (!response.ok) return null
-  if (!new URL(request.url).searchParams.has('r')) return response
+  const search = new URL(request.url).searchParams
+  // 토정비결分享参数（`?gwae=`、`?year=`）读到的是同一份预渲染 HTML，canonical 已指向工具页；
+  // 用响应头补上 noindex, follow（content-growth-v2-tools 决策 8「索引」）
+  const robots = search.has('r')
+    ? 'noindex, nofollow'
+    : isTojeongPath(path) && hasTojeongShareQuery(search)
+      ? TOJEONG_QUERY_ROBOTS
+      : null
+  if (!robots) return response
   const result = new Response(response.body, response)
-  result.headers.set('x-robots-tag', 'noindex, nofollow')
+  result.headers.set('x-robots-tag', robots)
   return result
 }
