@@ -466,7 +466,7 @@ describe('内容增长 v2 集合', () => {
       assert.equal(classify(encodeURI(path), locale), null, path)
   })
 
-  test('东方英文仍按字计，西方按词计，数据表与整页始终只报告', async () => {
+  test('集合按语言选单位：两站英文都按词计，数据表与整页始终只报告', async () => {
     const run = (siteId, paths) => {
       const root = siteId === 'east' ? 'https://ganjiday.com' : 'https://arcanumber.com'
       const entries = paths.map((path) => {
@@ -492,13 +492,14 @@ describe('内容增长 v2 集合', () => {
     ])
     const eastRows = east.eastCollections.en['compat-scenario']
     const westRows = west.westCollections.en['western-sign']
-    assert.equal(eastRows.find(({ title }) => title === 'Rhythm').mean, 5 / 6)
+    assert.equal(eastRows.find(({ title }) => title === 'Rhythm').mean, 0)
     assert.equal(westRows.find(({ title }) => title === 'Rhythm').mean, 0)
     assert.equal(westRows.find(({ scope }) => scope === 'table').mean, 1)
     assert.deepEqual(west.enforcedFailures, [
       'en western-sign Reflection: 1（最差 /zodiac-signs/aries 1）',
     ])
-    assert.equal(east.enforcedFailures.length, 2)
+    assert.equal(east.enforcedFailures.length, 1)
+    assert.match(east.enforcedFailures[0], /compat-scenario Reflection/)
     assert.match(renderMarkdown(west), /## 西方站集合/)
   })
 })

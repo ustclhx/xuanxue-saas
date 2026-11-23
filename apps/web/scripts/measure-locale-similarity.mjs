@@ -362,7 +362,7 @@ export async function measureSite({
               id: decode(path),
               sections: pages.get(path).collectionSections,
             })),
-            { unit: siteId === 'east' ? 'char' : 'word', collection },
+            { unit: unitOf(locale), collection },
           ),
         ]),
       )
