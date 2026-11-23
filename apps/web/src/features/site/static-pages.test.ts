@@ -50,6 +50,23 @@ describe('双站静态 HTML 分流', () => {
     expect(shared?.headers.get('x-robots-tag')).toBe('noindex, nofollow')
   })
 
+  it('토정비결分享参数读取同一份预渲染 HTML，响应头为 noindex, follow', async () => {
+    const fetchAsset = vi.fn(async (_request: Request) => new Response('html'))
+    const shared = await staticPageResponse(
+      new Request(`https://ganjiday.com/ko/${encodeURIComponent('토정비결')}?gwae=463&year=2027`),
+      fetchAsset,
+    )
+    expect(fetchAsset.mock.calls[0]?.[0].url).toBe(
+      `https://ganjiday.com/ko/${encodeURIComponent('토정비결')}.html`,
+    )
+    expect(shared?.headers.get('x-robots-tag')).toBe('noindex, follow')
+    const plain = await staticPageResponse(
+      new Request(`https://ganjiday.com/ko/${encodeURIComponent('토정비결')}`),
+      fetchAsset,
+    )
+    expect(plain?.headers.get('x-robots-tag')).toBeNull()
+  })
+
   it('/favicon.ico 按 Host 直接返回本站图标，不重定向', async () => {
     const fetchAsset = vi.fn(async (_request: Request) => new Response('ico'))
     const east = await siteFaviconResponse(

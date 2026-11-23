@@ -563,6 +563,51 @@ const zodiac = defineCollection({
   },
 })
 
+/**
+ * ko 토정비결工具页（openspec content-growth-v2-tools 决策 8，第 15 组）：content/tojeong/ko/index.mdx 是工具页的
+ * TDK、H1、导语、FAQ 与说明长文。144 段괘 解读在 content/tojeong/ko/gwae/<상괘>.json，页面按需加载，不进本集合
+ * （scripts/check-content-tojeong.mjs 校验괘 번호齐全与每段长度）。
+ * 构建期拦下合规禁用词；正文（不含空格）不少于 2,000 字（决策 16）。
+ */
+const TOJEONG_BANNED =
+  /띠별\s*운세|잠재의식\s*탐색|신년\s*운세|오락|재미로|재미\s*삼아|길일|대길|대흉|결혼하면 안|결혼해야|이혼수|인공지능|\bAI\b/iu
+const tojeong = defineCollection({
+  name: 'tojeong',
+  directory: 'content/tojeong',
+  include: '*/index.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    description: z.string().min(1).max(160),
+    heading: z.string().min(1),
+    lede: z.string().min(1),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(6),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale } = localeAndSlug(document._meta)
+    if (locale !== 'ko') throw new Error(`Tojeong locale must be ko: ${document._meta.path}`)
+    const text = [
+      data.title,
+      data.description,
+      data.heading,
+      data.lede,
+      content,
+      ...data.faq.flatMap(({ q, a }) => [q, a]),
+    ].join('\n')
+    const banned = TOJEONG_BANNED.exec(text)
+    if (banned) throw new Error(`Tojeong copy contains「${banned[0]}」: ${document._meta.path}`)
+    const html = await renderMdx(context, document)
+    if (plainText(html).replace(/\s/g, '').length < 2000)
+      throw new Error(`Tojeong body must contain at least 2000 characters: ${document._meta.path}`)
+    return { ...data, locale, html }
+  },
+})
+
 const guides = defineCollection({
   name: 'guides',
   directory: 'content/guides',
@@ -605,5 +650,6 @@ export default defineConfig({
     almanac,
     guides,
     zodiac,
+    tojeong,
   ],
 })
