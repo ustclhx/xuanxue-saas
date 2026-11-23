@@ -406,6 +406,42 @@
       "preferred": "annual pillar"
     },
     {
+      "id": "shichu.relation.stem-combine",
+      "en": "Stem combination (天干五合)",
+      "preferred": "stem combination"
+    },
+    {
+      "id": "shichu.relation.six-harmony",
+      "en": "Six Harmony (六合)",
+      "preferred": "Six Harmony"
+    },
+    {
+      "id": "shichu.relation.three-harmony",
+      "en": "Three Harmony (三合)",
+      "preferred": "Three Harmony"
+    },
+    {
+      "id": "shichu.relation.clash",
+      "en": "Clash (沖)",
+      "preferred": "clash"
+    },
+    {
+      "id": "shichu.relation.punishment",
+      "en": "Punishment (刑)",
+      "preferred": "punishment"
+    },
+    {
+      "id": "shichu.tai-sui",
+      "en": "Tai Sui (太歲)",
+      "preferred": "Tai Sui",
+      "note": "值太歲 meeting Tai Sui；沖太歲 clashing with Tai Sui"
+    },
+    {
+      "id": "shichu.na-yin",
+      "en": "Na Yin (納音)",
+      "preferred": "Na Yin"
+    },
+    {
       "id": "shichu.useful-god",
       "en": "Useful god",
       "preferred": "favorable element",
@@ -755,6 +791,7 @@
     "/": ["Ganjiday", "Chinese astrology birth chart"],
     "/bazi-calculator": ["BaZi calculator", "Four Pillars of Destiny calculator"],
     "/zi-wei-dou-shu": ["Zi Wei Dou Shu chart", "Purple Star Astrology chart"],
+    "/bazi-2027": ["BaZi 2027", "2027 BaZi calculator"],
     "/tarot-spreads": ["past present future tarot", "tarot spreads"],
     "/tarot-spreads/one-card": ["one card tarot pull", "draw a tarot card for today"],
     "/tarot-spreads/pick-a-card": ["pick a card tarot", "pick a card"],
@@ -772,6 +809,7 @@
     "apps/web/messages/en/bazi.json",
     "apps/web/messages/en/chart-bazi.json",
     "apps/web/messages/en/chart-ziwei.json",
-    "apps/web/src/features/east-en/copy/**/*.ts"
+    "apps/web/src/features/east-en/copy/**/*.ts",
+    "apps/web/src/features/east-content/yearly-tool/copy/en.ts"
   ]
 }

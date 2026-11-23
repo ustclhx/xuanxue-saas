@@ -2,6 +2,7 @@ import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
 import { TAI_SUI_YEAR_CONTENT_ROUTES } from './tai-sui-year/paths.ts'
 import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { YEARLY_EAST_CONTENT_ROUTES } from './yearly/paths.ts'
+import { YEARLY_TOOL_CONTENT_ROUTES } from './yearly-tool/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type EastContentCollection =
@@ -37,6 +38,8 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...TAI_SUI_YEAR_CONTENT_ROUTES,
   // content-growth-v2-tools 第 8 组：2027 年度枢纽与 12 生肖年度页（zh-hans；第 9–11 组在 yearly/paths.ts 补语言）
   ...YEARLY_EAST_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 7 组：个人 2027 流年工具（zh-hans、zh-hant、ko；en 见 east-en/paths.ts）
+  ...YEARLY_TOOL_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(

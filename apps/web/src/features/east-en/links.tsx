@@ -11,6 +11,7 @@ import type { LinkKey } from './copy/types.ts'
 export const EAST_EN_LINKS: Readonly<Record<LinkKey, string>> = {
   home: '/',
   bazi: '/bazi-calculator',
+  'bazi-2027': '/bazi-2027',
   ziwei: '/zi-wei-dou-shu',
   spreads: '/tarot-spreads',
   'one-card': '/tarot-spreads/one-card',
@@ -23,7 +24,7 @@ export const EAST_EN_LINKS: Readonly<Record<LinkKey, string>> = {
   refund: '/refund',
 }
 
-const LINK = /\[([^\]]+)\]\(([a-z-]+)\)/g
+const LINK = /\[([^\]]+)\]\(([a-z0-9-]+)\)/g
 
 /** 去掉链接标记、保留锚文本（结构化数据与 meta 用纯文本） */
 export function plainText(text: string): string {

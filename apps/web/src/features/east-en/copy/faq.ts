@@ -10,7 +10,7 @@ export const FAQ_PAGE: FaqPageCopy = {
   methods: [
     {
       q: 'Purple Star Astrology vs BaZi: what is the difference?',
-      a: 'Both start from your birth date and hour. BaZi turns them into four pillars and reads the balance of the five elements around your Day Master. Purple Star Astrology places 14 main stars in twelve palaces, one for each area of life. Our [BaZi calculator](bazi) works without a birth time; the [Zi Wei Dou Shu chart](ziwei) needs one.',
+      a: 'Both start from your birth date and hour. BaZi turns them into four pillars and reads the balance of the five elements around your Day Master. Purple Star Astrology places 14 main stars in twelve palaces, one for each area of life. Our [Four Pillars of Destiny calculator](bazi) works without a birth time; the [Purple Star Astrology chart](ziwei) needs one.',
       origin: 'local',
     },
     {

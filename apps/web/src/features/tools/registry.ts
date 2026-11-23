@@ -4,6 +4,7 @@ import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
 import { TAI_SUI_YEAR_TOOL_ROUTES } from '../east-content/tai-sui-year/paths.ts'
 import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
 import { YEARLY_TOOL_ROUTES } from '../east-content/yearly/paths.ts'
+import { YEARLY_TOOL_ROUTES as PERSONAL_YEARLY_TOOL_ROUTES } from '../east-content/yearly-tool/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
@@ -288,6 +289,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...TAI_SUI_YEAR_TOOL_ROUTES,
   // openspec content-growth-v2-tools 第 8 组：2027 年度枢纽（年份小标）与 12 生肖年度页
   ...YEARLY_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'yearly', 'free_lookup')),
+  // content-growth-v2-tools 第 7 组：个人 2027 流年工具（四种语言，目录分组 yearly，「2027」小标至 2027-02-28）
+  ...PERSONAL_YEARLY_TOOL_ROUTES,
 ])
 
 /**

@@ -1,4 +1,5 @@
 import { type EastContentRoute, eastContentRouteOf } from '../east-content/routes.ts'
+import { YEARLY_TOOL_EN_ROUTES } from '../east-content/yearly-tool/paths.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { westContentRouteOf } from '../west-content/routes.ts'
 
@@ -31,7 +32,10 @@ export const EAST_ENGLISH_PRERENDERED_STATIC = EAST_ENGLISH_STATIC_PATHS.filter(
 )
 
 /** 由各内容组随页面一同登记；塔罗地址仍来自工具注册表。 */
-export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] = []
+export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] = [
+  // content-growth-v2-tools 第 7 组：`/bazi-2027`
+  ...YEARLY_TOOL_EN_ROUTES,
+]
 
 export function eastEnContentRouteOf(path: string) {
   return eastContentRouteOf('en', path, EAST_EN_CONTENT_ROUTES)
