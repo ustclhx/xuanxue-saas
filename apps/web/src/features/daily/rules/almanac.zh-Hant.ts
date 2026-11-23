@@ -3,7 +3,7 @@ import type { AlmanacGlossary } from './types.ts'
 /**
  * 農民曆補充釋義（繁體中文，openspec content-growth-v2-tools 第 18 組）。以台灣、香港的農民曆用語另寫，
  * 不是簡體黃曆的字形轉換。十二神只說名稱由來，建除只說字義與次序，不寫吉凶斷語與行動建議。
- * 國曆節日只保留兩岸三地共通、日期相同的幾個；其餘國曆紀念日各地日期不同，不標示（空字串在頁面中略去）。
+ * 國曆只顯示選錄的紀念日，同日不同地區的名稱加註地區。公眾假期與補假不在此詞表。
  */
 export const ZH_HANT_ALMANAC: AlmanacGlossary = {
   twelveStar: [
@@ -18,7 +18,7 @@ export const ZH_HANT_ALMANAC: AlmanacGlossary = {
     { name: '天牢', gloss: '名中的「牢」是監牢，同樣只是字面取義。' },
     { name: '玄武', gloss: '取四象中守護北方的玄武（龜蛇合體）為名。' },
     { name: '司命', gloss: '司命是古代掌管壽命的神祇名，通書借來排日。' },
-    { name: '勾陳', gloss: '勾陳本是星官名，位在紫微垣，通書借作神名。' },
+    { name: '勾陳', gloss: '勾陳也是紫微垣的星官名，列在這組十二神的最後一位。' },
   ],
   duty: {
     jian: '「建」有立起、開頭的意思，排在十二建星之首；日支與當月月建相同的那天輪到「建」。',
@@ -64,8 +64,8 @@ export const ZH_HANT_ALMANAC: AlmanacGlossary = {
     '大雪',
   ],
   // tyme4ts 國曆節日序號：元旦 婦女節 植樹節 勞動節 青年節 兒童節 建黨節 建軍節 教師節 國慶節。
-  // 台灣、香港的青年節、兒童節、教師節與國慶日期不同，建黨節、建軍節不適用，一律不標示。
-  solarFestival: ['元旦', '婦女節', '植樹節', '勞動節', '', '', '', '', '', ''],
+  // 引擎的青年節、兒童節、教師節與國慶節日期不能直接套用到台港。
+  solarFestival: ['元旦', '國際婦女節', '植樹節（台灣）', '勞動節', '', '', '', '', '', ''],
   lunarFestival: [
     '春節',
     '元宵節',
@@ -77,7 +77,7 @@ export const ZH_HANT_ALMANAC: AlmanacGlossary = {
     '中元節',
     '中秋節',
     '重陽節',
-    '冬至',
+    '冬節',
     '臘八節',
     '除夕',
   ],

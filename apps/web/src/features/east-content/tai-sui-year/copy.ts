@@ -98,11 +98,11 @@ export const TAI_SUI_COPY = {
   tableCaption: (year: number) => `${year}年十二生肖與太歲的關係及出生年份`,
   colZodiac: '生肖',
   colRelation: '與太歲的關係',
-  colYears: '國曆出生年（立春後出生）',
+  colYears: '國曆出生年（以立春交節為界）',
   colYearsShort: '出生年',
   none: '—',
   zodiacCell: (zodiac: string, branch: string) => `屬${zodiac}（${branch}）`,
   yearsJoin: '、',
   faqTitle: '問與答',
-  disclaimer: '依傳統曆法推算，僅供參考與潛意識探索，不預測未來。',
+  disclaimer: '依傳統曆法推算，僅供參考與潛意識探索，不預測未來。身體不適請洽詢醫師。',
 } as const

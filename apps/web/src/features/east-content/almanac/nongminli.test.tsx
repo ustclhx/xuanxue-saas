@@ -80,7 +80,7 @@ const month = async (id: number, now = taipei('2026-11-22T10:00:00')) =>
 describe('農民曆工具页', () => {
   it('胎神、所沖干支与煞方与 lunar-javascript 一致', async () => {
     const cases = [
-      ['2027-01-01', '碓磨栖 外正西', '甲戌', '狗', '南'],
+      ['2027-01-01', '碓磨棲 外正西', '甲戌', '狗', '南'],
       ['2027-02-04', '占門爐 外東北', '戊申', '猴', '北'],
       ['2026-11-22', '占碓磨 房內南', '甲午', '馬', '南'],
     ] as const
@@ -101,7 +101,7 @@ describe('農民曆工具页', () => {
     const html = renderToStaticMarkup(<AlmanacToolPage payload={payload} />)
     expect(html).toContain('胎神占方')
     expect(html).toContain('沖猴(戊申) 煞北')
-    expect(html).toContain('這一欄今日沒有列出項目。')
+    expect(html).toContain('這一欄沒有可顯示的項目。')
     expect(html).not.toMatch(/吉日|擇日|<select/)
   })
 
@@ -138,6 +138,16 @@ describe('農民曆月份页', () => {
     const titles = new Set<string>()
     for (let id = 1; id <= 12; id++) titles.add(almanacHead(await month(id)).meta[0]?.title ?? '')
     expect(titles.size).toBe(12)
+  })
+
+  it('分别标出台湾植树节和冬节，清明节与农历节日同日时均显示', async () => {
+    const spring = await month(3)
+    expect(spring.view.days[11]?.marks).toContain('植樹節（台灣）')
+    const winter = await month(12, taipei('2027-12-01T10:00:00'))
+    expect(winter.view.days[21]).toMatchObject({ term: { name: '冬至', beginsToday: true } })
+    expect(winter.view.days[21]?.marks).toContain('冬節')
+    const qingming = await month(4, taipei('2030-04-01T10:00:00'))
+    expect(qingming.view.days[4]?.marks).toEqual(['上巳節', '清明節'])
   })
 })
 

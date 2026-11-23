@@ -118,9 +118,9 @@ const TEXT: Readonly<Record<AlmanacLocale, AlmanacText>> = {
     rules: ZH_HANT_RULES,
     weekday: (day) => `週${day}`,
     weekdayLong: (day) => `星期${day}`,
-    starGloss: (name, ecliptic, gloss) => `${name}歸在${ecliptic}六神。${gloss}`,
+    starGloss: (name, ecliptic, gloss) => `${name}屬於${ecliptic}六神。${gloss}`,
     clashGloss: ({ dayPillar, clashPillar, opposite, zodiac, dayBranch, triad, sha }) =>
-      `本日日柱${dayPillar}，與${clashPillar}天干相剋、地支相沖；${opposite}的生肖是${zodiac}。${dayBranch}歸在${triad}，煞方落在${sha}方。`,
+      `本日日柱${dayPillar}，所沖的干支為${clashPillar}。兩干陰陽相同，日干剋所沖的天干，兩支相沖。${opposite}對應${zodiac}，而日支${dayBranch}屬${triad}，煞方在${sha}方。`,
     caption: (date, weekdayLong, lunar) =>
       `國曆 ${date.year}年${date.month}月${date.day}日 ${weekdayLong}・農曆${lunar}`,
     yearChange: (from, to) => `年柱由${from}換成${to}`,
@@ -134,7 +134,7 @@ const TEXT: Readonly<Record<AlmanacLocale, AlmanacText>> = {
     dayMonth: (month, day) => `${month}/${day}`,
     fetus: {
       stems: ['門', '碓磨', '廚灶', '倉庫', '房床'],
-      branches: ['碓', '廁', '爐', '門', '栖', '床'],
+      branches: ['碓', '廁', '爐', '門', '棲', '床'],
       door: '門',
       mill: '碓磨',
       bed: '房床',
@@ -197,12 +197,18 @@ function tabooList(rules: EastRules, indices: readonly number[]): string[] {
     .map((index) => rules.taboo[index] as string)
 }
 
-function marksOf(glossary: AlmanacGlossary, day: AlmanacDay): string[] {
-  const marks = day.festivals.map((festival) =>
-    festival.calendar === 'solar'
-      ? glossary.solarFestival[festival.index]
-      : glossary.lunarFestival[festival.index],
-  )
+function marksOf(glossary: AlmanacGlossary, day: AlmanacDay, locale: AlmanacLocale): string[] {
+  const marks: (string | undefined)[] = []
+  for (const { calendar, index } of day.festivals) {
+    if (calendar === 'solar') marks.push(glossary.solarFestival[index])
+    else if (locale !== 'zh-Hant' || (index !== 4 && index !== 10))
+      marks.push(glossary.lunarFestival[index])
+  }
+  // 引擎每天只返回一个农历节日；清明、冬节按页面的交节日另列，避免同日节日覆盖。
+  if (locale === 'zh-Hant' && day.solarTerm.beginsToday) {
+    if (day.solarTerm.index === 7) marks.push(glossary.lunarFestival[4])
+    if (day.solarTerm.index === 0) marks.push(glossary.lunarFestival[10])
+  }
   if (day.dogDays?.dayIndex === 0) marks.push(glossary.dogDay[day.dogDays.phaseIndex])
   if (day.nineDays?.dayIndex === 0) marks.push(glossary.nineDay[day.nineDays.phaseIndex])
   if (day.plumRain?.dayIndex === 0) marks.push(glossary.plumRain[day.plumRain.phaseIndex])
@@ -280,7 +286,7 @@ export function dayView(day: AlmanacDay, locale: AlmanacLocale = ALMANAC_LOCALE)
       name: glossary.solarTerm[day.solarTerm.index] ?? '',
       beginsToday: day.solarTerm.beginsToday,
     },
-    marks: marksOf(glossary, day),
+    marks: marksOf(glossary, day, locale),
   }
 }
 
