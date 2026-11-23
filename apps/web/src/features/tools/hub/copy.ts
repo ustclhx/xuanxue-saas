@@ -115,10 +115,10 @@ const GLYPH: Readonly<Record<string, string>> = {
   'daily-numerology': '7',
   'life-path-compatibility': '2',
   numerology: '∑',
-  'moon-today': '☾',
+  'moon-phase-today': '☾',
   'full-moon-calendar': '○',
-  'zodiac-signs': '♈',
-  'zodiac-compatibility': '♌',
+  'western-zodiac-signs': '♈',
+  'western-zodiac-compatibility': '♌',
 }
 
 /** 工具卡的大号字形（装饰，对读屏隐藏）：没有登记的工具取名称里的第一个文字 */

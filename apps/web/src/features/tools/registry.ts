@@ -34,8 +34,8 @@ import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
  *   构建日期晚于 `until` 即不再渲染（`activeBadge`）。
  * - 进枢纽页的条目：`nav` 不为 false 的工具页；集合的下级页（月份、生肖、配对、场景页）设 `nav: false`，不进枢纽页。
  *   `knowledge` 分组例外：带导航名的条目全部列为链接。牌阵子页等既有的 `nav: false` 工具由 directory.ts 的名单补入。
- * - 首页精选引用的 id（home-hub/featured.ts）：`saju-gunghap`、`zodiac-pair`、`yearly-tool`、`yearly`、`tojeong`、
- *   `moon-today`、`full-moon-calendar`、`zodiac-compatibility`；对应工具请用这些 id 登记，未登记的自动跳过。
+ * - 首页精选引用的 id（home-hub/featured.ts）：`saju-gunghap`、`zodiac-pair`、`yearly-tool`、`yearly-<年份>`、`tojeong`、
+ *   `moon-phase-today`、`full-moon-calendar`、`western-zodiac-compatibility`；对应工具请用这些 id 登记，未登记的自动跳过。
  */
 export const DIRECTORY_GROUPS = {
   east: ['chart', 'relation', 'yearly', 'divination', 'calendar', 'knowledge'],

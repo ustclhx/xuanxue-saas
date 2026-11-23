@@ -40,8 +40,27 @@ interface FeaturedConfig {
   readonly offSeason: readonly string[]
 }
 
-/** 2027 丁未年窗口：12-01 至次年 2 月末（使用者 2026-11-23 确认），之后季节位换回每日运势 */
-const YEAR_2027 = { from: '2026-12-01', until: '2027-02-28', badge: '2027' } as const
+/** 年度生肖枢纽的注册表 id 随年份生成（yearly 集合登记为 `yearly-<年份>`） */
+export const yearlyHubId = (year: number) => `yearly-${year}`
+
+/** 个人年度流年工具的注册表 id（第 7 组登记时使用） */
+export const YEARLY_TOOL_ID = 'yearly-tool'
+
+/**
+ * 某一年的季节窗口：上一年 12-01 至该年 2 月末（使用者 2026-11-23 确认），之后季节位换回每日运势。
+ * 起止日期与小标都由年份算出，下一年只需把年份与干支加进 SEASON_YEARS。
+ */
+function yearWindow(year: number) {
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
+  return {
+    from: `${year - 1}-12-01`,
+    until: `${year}-02-${leap ? 29 : 28}`,
+    badge: String(year),
+  }
+}
+
+/** 当季年份与该年干支 */
+const SEASON_YEARS: readonly (readonly [number, string])[] = [[2027, '丁未']]
 
 /**
  * 精选配置（design 决策 5 的表）。东方站：主卡八字排盘 / 만세력 / 四柱推命 / BaZi Calculator；
@@ -64,26 +83,30 @@ export const FEATURED: Readonly<Record<SiteId, FeaturedConfig>> = {
     secondaryByLocale: {
       en: ['saju-gunghap', 'zodiac-pair', 'ziwei', 'tarot-three-card', 'tarot-card-index'],
     },
-    seasonal: [
-      {
-        ...YEAR_2027,
-        mark: '丁未',
-        links: ['yearly-tool', 'yearly'],
-        linksByLocale: { ko: ['tojeong', 'yearly-tool'], en: ['yearly', 'yearly-tool'] },
+    seasonal: SEASON_YEARS.map(([year, mark]) => ({
+      ...yearWindow(year),
+      mark,
+      links: [YEARLY_TOOL_ID, yearlyHubId(year)],
+      linksByLocale: {
+        ko: ['tojeong', YEARLY_TOOL_ID],
+        en: [yearlyHubId(year), YEARLY_TOOL_ID],
       },
-    ],
+    })),
     offSeason: ['daily'],
   },
   west: {
     main: ['tarot-three-card', 'life-path'],
     secondary: [
-      'moon-today',
-      'zodiac-compatibility',
+      'moon-phase-today',
+      'western-zodiac-compatibility',
       'life-path',
       'numerology-calculator',
       'life-path-compatibility',
     ],
-    seasonal: [{ ...YEAR_2027, links: ['moon-today', 'full-moon-calendar'] }],
+    seasonal: SEASON_YEARS.map(([year]) => ({
+      ...yearWindow(year),
+      links: ['moon-phase-today', 'full-moon-calendar'],
+    })),
     offSeason: ['daily-numerology'],
   },
 }

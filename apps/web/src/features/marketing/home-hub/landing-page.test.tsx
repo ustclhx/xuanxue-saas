@@ -138,10 +138,10 @@ const UPCOMING: readonly ToolRoute[] = [
     { 'zh-Hans': '/2027流年', ko: '/2027-신년-사주', en: '/bazi-2027' },
     { badge: { kind: 'year', label: '2027', until: '2027-02-28' } },
   ),
-  upcoming('yearly', 'east', { 'zh-Hans': '/2027生肖运势', en: '/chinese-zodiac-2027' }),
+  upcoming('yearly-2027', 'east', { 'zh-Hans': '/2027生肖运势', en: '/chinese-zodiac-2027' }),
   upcoming('tojeong', 'east', { ko: '/토정비결' }, { badge: { kind: 'new', until: '2027-02-28' } }),
   upcoming('zodiac-pair', 'east', { 'zh-Hans': '/生肖配对' }, { directoryGroup: 'relation' }),
-  upcoming('moon-today', 'west', { en: '/moon-phase-today' }),
+  upcoming('moon-phase-today', 'west', { en: '/moon-phase-today' }),
   upcoming('full-moon-calendar', 'west', { en: '/full-moon-calendar' }),
 ]
 const ids = (featured: ReturnType<typeof hubFeatured>) => ({
@@ -224,7 +224,7 @@ describe('落地页数据', () => {
     expect(featured.season?.kind).toBe(kind)
     if (kind === 'year') {
       // 按钮指向个人流年工具，文字链接指向 2027 生肖枢纽；小标与装饰大字取窗口配置
-      expect(ids(featured).season).toEqual(['year', 'yearly-tool', 'yearly'])
+      expect(ids(featured).season).toEqual(['year', 'yearly-tool', 'yearly-2027'])
       expect(featured.season).toMatchObject({ badge: '2027', mark: '丁未' })
       expect(featured.season?.primary.href).toBe(`/zh-hans/${encodeURI('2027流年')}`)
     } else {
@@ -264,7 +264,7 @@ describe('落地页数据', () => {
     language.locale = 'en'
     expect(ids(hubFeatured('east', 'en', UPCOMING, '2026-12-10')).season).toEqual([
       'year',
-      'yearly',
+      'yearly-2027',
       'yearly-tool',
     ])
   })
@@ -273,14 +273,14 @@ describe('落地页数据', () => {
     language.locale = 'en'
     expect(ids(hubFeatured('west', 'en', UPCOMING, '2026-12-10'))).toEqual({
       main: 'tarot-three-card',
-      season: ['year', 'moon-today', 'full-moon-calendar'],
+      season: ['year', 'moon-phase-today', 'full-moon-calendar'],
       secondary: ['life-path', 'numerology-calculator', 'life-path-compatibility'],
     })
     const off = hubFeatured('west', 'en', UPCOMING, '2027-03-01')
     expect(ids(off)).toEqual({
       main: 'tarot-three-card',
       season: ['daily', 'daily-numerology', undefined],
-      secondary: ['moon-today', 'life-path', 'numerology-calculator'],
+      secondary: ['moon-phase-today', 'life-path', 'numerology-calculator'],
     })
     const all = [off.main, ...off.secondary].map((tool) => tool?.id)
     expect(all).not.toEqual(
@@ -313,7 +313,7 @@ describe('落地页数据', () => {
       directoryGroups('east', 'zh-Hant', UPCOMING, '2026-12-10').flatMap((group) =>
         group.tools.map((tool) => tool.id),
       ),
-    ).not.toEqual(expect.arrayContaining(['tojeong', 'yearly-tool', 'yearly', 'zodiac-pair']))
+    ).not.toEqual(expect.arrayContaining(['tojeong', 'yearly-tool', 'yearly-2027', 'zodiac-pair']))
   })
 
   it('一行价格的两个数字与定价页同一份配置', () => {
