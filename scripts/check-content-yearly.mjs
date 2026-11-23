@@ -1,0 +1,529 @@
+// 年度生肖集合（content/yearly）的内容校验（openspec content-growth-v2-tools 任务 8.1、design 决策 6、13、15、16）：
+// frontmatter 字段、TDK 宽度、篇幅下限、固定小标题、正文内链与锚文本、合规措辞（不写月份吉凶、不给断语），
+// 以及正文与 frontmatter 中写到的干支、纳音、立春与春节日期、地支关系名、太岁关系逐项用引擎复算
+// （@xuanxue/bazi/almanac 的 zodiacYearFacts、zodiacPairFacts、zodiacYears、zodiacBoundaries）。
+// 第 9、10、11 组在 LOCALES 中补登自己的一行（关系名与太岁写法按该语言另加解析）。
+// 运行：node scripts/check-content-yearly.mjs [--report <文件>]
+import assert from 'node:assert/strict'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { parseArgs } from 'node:util'
+import { zodiacBoundaries, zodiacPairFacts, zodiacYearFacts } from '../packages/bazi/src/almanac.ts'
+import { BRANCHES } from '../packages/bazi/src/constants.ts'
+
+const webRequire = createRequire(new URL('../apps/web/package.json', import.meta.url))
+const coreRequire = createRequire(webRequire.resolve('@content-collections/core/package.json'))
+const baziRequire = createRequire(new URL('../packages/bazi/package.json', import.meta.url))
+const { parseDocument } = coreRequire('yaml')
+const { SixtyCycle } = baziRequire('tyme4ts')
+
+const ROOT = new URL('../apps/web/content/yearly/', import.meta.url)
+const STEM_HANZI = '甲乙丙丁戊己庚辛壬癸'
+const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
+const ANIMAL_HANS = '鼠牛虎兔龙蛇马羊猴鸡狗猪'
+const FOCUS = ['work', 'relationships', 'self']
+
+/**
+ * 各语言的地址、篇幅、固定小标题与允许的正文链接。
+ * `yearlyTool` 是个人年度工具的预定地址（第 7 组）：工具未登记时页面把链接还原为文字（page.functions.ts），
+ * 这里仍按正文内链计数。
+ */
+const LOCALES = {
+  'zh-Hans': {
+    prefix: '/zh-hans',
+    hubPath: (year) => `/${year}生肖运势`,
+    childSlug: (branch) => `属${ANIMAL_HANS[BRANCHES.indexOf(branch)]}`,
+    /** Title 与 H1 以「2027属X」开头（关键词归属：年份前置，与生肖子页的「属X」区分） */
+    childPrefix: (year, branch) => `${year}属${ANIMAL_HANS[BRANCHES.indexOf(branch)]}`,
+    hubPrefix: (year) => `${year}生肖运势`,
+    brandSuffix: '｜干支日',
+    childMin: 1200,
+    hubMin: 800,
+    childHeadings: (year) => [`与${ganzhiOfYear(year)}年的地支关系`, `用完整八字看 ${year}`],
+    hubHeadings: (year) => [
+      `${year} ${ganzhiOfYear(year)}年的干支与纳音`,
+      `十二生肖与${ganzhiOfYear(year)}年的关系`,
+      '立春与春节两个起点',
+      '年支之外的流年',
+    ],
+    focusRange: [120, 320],
+    yearsNote: [60, 220],
+    relationsNote: [50, 200],
+    yearlyTool: (year) => `/${year}流年`,
+    // 东方站已存在的可索引页（生肖子页另按地支生成）
+    linkTargets: ['/八字排盘', '/生肖', '/八字/大运', '/八字/十神', '/八字/五行'],
+    zodiacChild: (branch) => `/生肖/属${ANIMAL_HANS[BRANCHES.indexOf(branch)]}`,
+    /** 关键词归属（决策 13）：每个目标最多两种锚文本 */
+    anchors: (path, year) => {
+      const hub = `/${year}生肖运势`
+      const child = path.match(new RegExp(`^${hub}/属(.)$`))
+      if (child) return [`${year}属${child[1]}`, `属${child[1]}${year}年`]
+      const zodiac = path.match(/^\/生肖\/属(.)$/)
+      if (zodiac) return [`属${zodiac[1]}`, `生肖${zodiac[1]}`]
+      if (path === `/${year}流年`) return [`${year}流年`, `${year}年八字流年`]
+      if (path === '/生肖') return ['十二生肖', '生肖']
+      if (path === '/八字排盘') return ['八字排盘', '免费八字排盘']
+      return null
+    },
+    countUnit: /\p{Script=Han}/gu,
+  },
+}
+
+/**
+ * 合规措辞（design 决策 5、16）：不提 AI、不用「娱乐」、不给吉日与吉凶结论，不写化解、转运一类说法；
+ * 三个主题段不写月份吉凶（「三月运势」「五月宜」等）。「运势」只允许出现在 Title、H1 与 slug（主词）。
+ */
+const COMPLIANCE_TERMS = [
+  'AI',
+  '人工智能',
+  '娱乐',
+  '吉日',
+  '吉凶',
+  '大吉',
+  '大凶',
+  '一定会',
+  '注定',
+  '必有',
+  '灾',
+  '血光',
+  '破财',
+  '化解',
+  '转运',
+  '开运',
+  '好运',
+  '厄运',
+  '走运',
+  '倒霉',
+  '护身符',
+  '佩戴',
+  '自我探索',
+]
+const MONTH_FORTUNE =
+  /(?:正月|[一二三四五六七八九十]{1,2}月|\d{1,2} ?月)(?:份)?(?:的)?(?:运势|运程|吉|凶|宜|忌|旺|顺|不顺|不利|有利|财运|桃花)/u
+/** 判定词（design 决策 14 的 zh 词表子集；关系类审计由 apps/web/scripts/audit-verdict.mjs 负责全站） */
+const VERDICT_TERMS = [
+  '宜结婚',
+  '不宜结婚',
+  '不能结婚',
+  '会离婚',
+  '必离',
+  '克夫',
+  '克妻',
+  '注定分手',
+  '最佳婚配',
+]
+
+function cjkWidth(text) {
+  let width = 0
+  for (const char of text) width += /[ᄀ-ᇿ⺀-鿿가-힯豈-﫿︰-﹏＀-￯　-〿]/u.test(char) ? 1 : 0.5
+  return width
+}
+
+const cycleOf = (year) => SixtyCycle.fromIndex((((year - 1924) % 60) + 60) % 60)
+function ganzhiOfYear(year) {
+  const cycle = cycleOf(year)
+  return `${STEM_HANZI[cycle.getHeavenStem().getIndex()]}${BRANCH_HANZI[cycle.getEarthBranch().getIndex()]}`
+}
+const NAYIN_OF = new Map(
+  [...Array(60).keys()].map((i) => {
+    const cycle = SixtyCycle.fromIndex(i)
+    return [
+      `${STEM_HANZI[cycle.getHeavenStem().getIndex()]}${BRANCH_HANZI[cycle.getEarthBranch().getIndex()]}`,
+      cycle.getSound().getName(),
+    ]
+  }),
+)
+const NAYIN_NAMES = new Set(NAYIN_OF.values())
+
+const lichunOf = (year) => {
+  const boundary = zodiacBoundaries().find((entry) => entry.year === year)
+  if (!boundary) return null
+  const local = new Date(boundary.lichunEpochMs + 480 * 60_000)
+  return {
+    month: local.getUTCMonth() + 1,
+    day: local.getUTCDate(),
+    hour: local.getUTCHours(),
+    minute: local.getUTCMinutes(),
+  }
+}
+const newYearOf = (year) =>
+  zodiacBoundaries().find((entry) => entry.year === year)?.lunarNewYear ?? null
+
+const branchOfGlyph = (glyph) => BRANCHES[BRANCH_HANZI.indexOf(glyph)]
+const branchOfAnimal = (animal) => BRANCHES[ANIMAL_HANS.indexOf(animal)]
+
+/** 「子未相害」「午未六合」「丑未相冲」：关系名到引擎 key */
+const PAIR_RELATION = {
+  六合: 'sixCombine',
+  相合: 'sixCombine',
+  三合: 'triad',
+  相冲: 'clash',
+  冲: 'clash',
+  相刑: 'punish',
+  相害: 'harm',
+  害: 'harm',
+  相破: 'break',
+  破: 'break',
+}
+const TAI_SUI = { 值: 'zhi', 冲: 'chong', 刑: 'xing', 害: 'hai', 破: 'po' }
+const BZ = `[${BRANCH_HANZI}]`
+const GZ = `[${STEM_HANZI}][${BRANCH_HANZI}]`
+const NUM = '(\\d{1,2})'
+
+/** 正文中写到的事实逐项复算；返回不一致的描述 */
+export function factIssues(text, { year, branch }) {
+  const issues = []
+  let checked = 0
+  const yearRows = zodiacYearFacts(year).rows
+  // 「1990 年庚午」「2027 年（丁未）」
+  for (const match of text.matchAll(new RegExp(`(\\d{4}) ?年[（(]?(${GZ})`, 'g'))) {
+    const y = Number(match[1])
+    if (y < 1924 || y > 2043) continue
+    checked++
+    if (ganzhiOfYear(y) !== match[2]) issues.push(`${match[0]}：${y} 年应为 ${ganzhiOfYear(y)}`)
+  }
+  // 干支之后 10 字内、中间没有另一个干支的第一个纳音名
+  for (const match of text.matchAll(new RegExp(GZ, 'g'))) {
+    const after = text.slice(match.index + 2, match.index + 13).split(/[。；，、\n]/)[0] ?? ''
+    const next = after.search(new RegExp(GZ))
+    const window = next < 0 ? after : after.slice(0, next)
+    const name = [...NAYIN_NAMES].find((candidate) => window.includes(candidate))
+    if (!name) continue
+    checked++
+    if (NAYIN_OF.get(match[0]) !== name)
+      issues.push(`${match[0]}…${name}：${match[0]} 的纳音应为 ${NAYIN_OF.get(match[0])}`)
+  }
+  // 「2027 年立春在 2 月 4 日 09:46」「2027 年的立春是 2 月 4 日」
+  for (const match of text.matchAll(
+    new RegExp(
+      `(\\d{4}) ?年的?立春(?:交节)?(?:时刻)?(?:在|是|为|落在)? ?${NUM} ?月 ?${NUM} ?日(?: ?(\\d{1,2}):(\\d{2}))?`,
+      'g',
+    ),
+  )) {
+    const row = lichunOf(Number(match[1]))
+    if (!row) continue
+    checked++
+    if (Number(match[2]) !== row.month || Number(match[3]) !== row.day)
+      issues.push(`${match[0]}：立春应为 ${row.month} 月 ${row.day} 日`)
+    if (
+      match[4] !== undefined &&
+      (Number(match[4]) !== row.hour || Number(match[5]) !== row.minute)
+    )
+      issues.push(
+        `${match[0]}：立春时刻应为 ${String(row.hour).padStart(2, '0')}:${String(row.minute).padStart(2, '0')}`,
+      )
+  }
+  // 「2027 年春节是 2 月 6 日」
+  for (const match of text.matchAll(
+    new RegExp(`(\\d{4}) ?年的?春节(?:在|是|为|落在)? ?${NUM} ?月 ?${NUM} ?日`, 'g'),
+  )) {
+    const row = newYearOf(Number(match[1]))
+    if (!row) continue
+    checked++
+    if (Number(match[2]) !== row.month || Number(match[3]) !== row.day)
+      issues.push(`${match[0]}：春节应为 ${row.month} 月 ${row.day} 日`)
+  }
+  // 地支关系名：「午未六合」「子未相害」「丑未相冲」「戌未相刑又相破」
+  for (const match of text.matchAll(
+    new RegExp(
+      `(${BZ})(${BZ})((?:六合|相合|三合|相冲|相刑|相害|相破)(?:[又、与和及]?(?:六合|相合|三合|相冲|相刑|相害|相破|冲|刑|害|破))*)`,
+      'g',
+    ),
+  )) {
+    const a = branchOfGlyph(match[1])
+    const b = branchOfGlyph(match[2])
+    const relations = zodiacPairFacts(a, b).relations
+    for (const name of match[3].match(/六合|相合|三合|相冲|相刑|相害|相破|冲|刑|害|破/g) ?? []) {
+      checked++
+      if (!relations.includes(PAIR_RELATION[name]))
+        issues.push(
+          `${match[0]}：${match[1]}${match[2]}没有「${name}」（引擎：${relations.join('、') || '无'}）`,
+        )
+    }
+  }
+  // 太岁：「属羊值太岁」「属牛……冲太岁」；没有写明生肖时按本页生肖核对（枢纽页必须写明）
+  for (const match of text.matchAll(
+    /(?:属([鼠牛虎兔龙蛇马羊猴鸡狗猪])[^。；\n属]{0,24}?)?([值冲刑害破])太岁/gu,
+  )) {
+    // 否定与泛指（「而不是值太岁」「不在值、冲……之列」「犯太岁是指……」）不核对
+    const before = text.slice(
+      Math.max(0, match.index + match[0].length - 12),
+      match.index + match[0].length - 3,
+    )
+    if (/不|没有|并非|无|或[「“]?$/.test(before)) continue
+    const target = match[1] ? branchOfAnimal(match[1]) : branch
+    if (!target) continue
+    // 同一句中先写了别的干支年（「丙午年……值太岁」）时，按那一年（目标年前后 6 年内）核对
+    const sentence =
+      text
+        .slice(0, match.index + match[0].length)
+        .split(/[。；\n]/)
+        .at(-1) ?? ''
+    const named = [...sentence.matchAll(new RegExp(`(${GZ})年`, 'g'))].at(-1)?.[1]
+    const at =
+      named && named !== ganzhiOfYear(year)
+        ? [...Array(13).keys()].map((i) => year - 6 + i).find((y) => ganzhiOfYear(y) === named)
+        : year
+    if (at === undefined) continue
+    const row = (at === year ? yearRows : zodiacYearFacts(at).rows).find(
+      (entry) => entry.branch === target,
+    )
+    checked++
+    if (!row?.taiSui.includes(TAI_SUI[match[2]]))
+      issues.push(
+        `${match[0]}：${target} 在 ${at} 年的太岁关系为 ${row?.taiSui.join('、') || '无'}`,
+      )
+  }
+  return { issues, checked }
+}
+
+function plain(markdown) {
+  return markdown
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/^#+ .*$/gm, '')
+    .replace(/[*_`>]/g, '')
+}
+
+function bodySections(content) {
+  return content
+    .split(/^## /m)
+    .slice(1)
+    .map((chunk) => {
+      const nl = chunk.indexOf('\n')
+      return { title: chunk.slice(0, nl).trim(), body: chunk.slice(nl + 1) }
+    })
+}
+
+export function checkLocale(locale, root = ROOT) {
+  const spec = LOCALES[locale]
+  const failures = []
+  const rows = []
+  let factsChecked = 0
+  const dir = new URL(`${locale}/`, root)
+  if (!existsSync(dir)) return { failures, rows, factsChecked }
+  /** 目标 → 锚文本 → 次数（整个集合） */
+  const anchors = new Map()
+  const seen = { title: new Map(), description: new Map(), heading: new Map() }
+  for (const yearDir of readdirSync(dir).sort()) {
+    const year = Number(yearDir)
+    const files = readdirSync(new URL(`${yearDir}/`, dir)).filter((file) => file.endsWith('.mdx'))
+    for (const file of files.sort()) {
+      const fail = (message) => failures.push(`${locale}/${yearDir}/${file}: ${message}`)
+      const source = readFileSync(new URL(`${yearDir}/${file}`, dir), 'utf8')
+      const match = source.match(/^---\n([\s\S]+?)\n---\n\n([\s\S]+)$/)
+      if (!match) {
+        fail('缺少 frontmatter 分隔')
+        continue
+      }
+      const document = parseDocument(match[1], { uniqueKeys: true })
+      if (document.errors.length) {
+        fail(`YAML 错误：${document.errors[0].message}`)
+        continue
+      }
+      const data = document.toJS()
+      const content = match[2]
+      const hub = file === 'index.mdx'
+      const branch = hub ? null : file.replace(/\.mdx$/, '')
+      const required = hub
+        ? ['title', 'heading', 'description', 'slug', 'locale', 'year', 'lede', 'faq', 'updated']
+        : [
+            'title',
+            'heading',
+            'description',
+            'slug',
+            'locale',
+            'year',
+            'branch',
+            'lede',
+            'relations_note',
+            'focus',
+            'years_note',
+            'faq',
+            'updated',
+          ]
+      const extra = Object.keys(data).filter((key) => !required.includes(key))
+      const missing = required.filter((key) => data[key] === undefined)
+      if (extra.length) fail(`多余字段：${extra.join('、')}`)
+      if (missing.length) fail(`缺少字段：${missing.join('、')}`)
+      if (data.locale !== locale) fail(`locale 应为 ${locale}`)
+      if (data.year !== year) fail(`year 应为 ${year}`)
+      if (!hub && !BRANCHES.includes(branch)) fail(`文件名应为地支 key：${branch}`)
+      if (!hub && data.branch !== branch) fail('branch 与文件名不一致')
+      const slug = hub ? spec.hubPath(year).slice(1) : spec.childSlug(branch)
+      if (data.slug !== slug) fail(`slug 应为 ${slug}`)
+      const prefix = hub ? spec.hubPrefix(year) : spec.childPrefix(year, branch)
+      if (!String(data.heading ?? '').startsWith(prefix)) fail(`H1 应以「${prefix}」开头`)
+      if (!String(data.title ?? '').startsWith(prefix)) fail(`Title 应以「${prefix}」开头`)
+
+      const titleWidth = cjkWidth(`${data.title}${spec.brandSuffix}`)
+      const descriptionWidth = cjkWidth(String(data.description ?? ''))
+      if (titleWidth < 20 || titleWidth > 30)
+        fail(`Title 宽度 ${titleWidth}（含站名后缀，须 20–30）`)
+      if (descriptionWidth < 70 || descriptionWidth > 80)
+        fail(`Description 宽度 ${descriptionWidth}（须 70–80）`)
+      for (const key of ['title', 'description', 'heading']) {
+        const previous = seen[key].get(data[key])
+        if (previous) fail(`${key} 与 ${previous} 重复`)
+        seen[key].set(data[key], file)
+      }
+
+      const faq = Array.isArray(data.faq) ? data.faq : []
+      if (faq.length < 3 || faq.length > 4) fail(`FAQ 须 3–4 问，现为 ${faq.length}`)
+      for (const item of faq) if (!item?.q?.trim() || !item?.a?.trim()) fail('FAQ 每项须有 q 与 a')
+
+      const focus = hub ? [] : Array.isArray(data.focus) ? data.focus : []
+      if (!hub) {
+        if (focus.map((item) => item?.theme).join() !== FOCUS.join())
+          fail(`focus 须依次为 ${FOCUS.join('、')}`)
+        for (const item of focus) {
+          const count = (String(item?.text ?? '').match(spec.countUnit) ?? []).length
+          const [low, high] = spec.focusRange
+          if (count < low || count > high)
+            fail(`focus.${item?.theme} ${count} 字（须 ${low}–${high}）`)
+        }
+        for (const [key, [low, high]] of [
+          ['years_note', spec.yearsNote],
+          ['relations_note', spec.relationsNote],
+        ]) {
+          const count = (String(data[key] ?? '').match(spec.countUnit) ?? []).length
+          if (count < low || count > high) fail(`${key} ${count} 字（须 ${low}–${high}）`)
+        }
+      }
+
+      const sections = bodySections(content)
+      const headings = sections.map((section) => section.title)
+      const fixed = hub ? spec.hubHeadings(year) : spec.childHeadings(year)
+      if (JSON.stringify(headings) !== JSON.stringify(fixed))
+        fail(`正文小标题须依次为：${fixed.join(' / ')}（现为 ${headings.join(' / ')}）`)
+
+      // 篇幅：本页撰写的正文（导语、关系与年份导语、主题段、正文），不含 FAQ、表格与组件模板句
+      const authored = [
+        data.lede,
+        data.relations_note,
+        data.years_note,
+        ...focus.map((item) => item?.text),
+        plain(content),
+      ]
+        .filter(Boolean)
+        .join('\n')
+      const count = (authored.match(spec.countUnit) ?? []).length
+      const min = hub ? spec.hubMin : spec.childMin
+      if (count < min) fail(`撰写正文 ${count} 字，少于 ${min}`)
+
+      // 正文内链：只链接允许清单中的地址；子页 2–5 个不同目标
+      const prefixed = (path) => `${spec.prefix}${path}`
+      const allowed = new Set([
+        ...spec.linkTargets.map(prefixed),
+        prefixed(spec.yearlyTool(year)),
+        prefixed(spec.hubPath(year)),
+        ...BRANCHES.map((b) => prefixed(`${spec.hubPath(year)}/${spec.childSlug(b)}`)),
+        ...BRANCHES.map((b) => prefixed(spec.zodiacChild(b))),
+      ])
+      const self = prefixed(hub ? spec.hubPath(year) : `${spec.hubPath(year)}/${slug}`)
+      const links = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)].map((m) => ({
+        anchor: m[1],
+        href: m[2],
+      }))
+      for (const { anchor, href } of links) {
+        if (!allowed.has(href)) fail(`正文链接目标不在允许清单：${href}`)
+        if (href === self) fail(`链接到本页：${href}`)
+        const path = href.slice(spec.prefix.length)
+        const expected = spec.anchors(path, year)
+        if (expected && !expected.includes(anchor))
+          fail(`锚文本「${anchor}」不在 ${path} 的约定锚文本（${expected.join('、')}）中`)
+        if (!anchors.has(path)) anchors.set(path, new Map())
+        anchors.get(path).set(anchor, (anchors.get(path).get(anchor) ?? 0) + 1)
+      }
+      const targets = new Set(links.map((link) => link.href)).size
+      if (!hub && (targets < 2 || targets > 5)) fail(`正文内链 ${targets} 个不同目标（须 2–5）`)
+      if (!hub) {
+        // 决策 15：链接个人年度工具、本生肖子页，以及六合或冲对象的年度页（1 条）
+        const hrefs = new Set(links.map((link) => link.href))
+        if (!hrefs.has(prefixed(spec.yearlyTool(year)))) fail('缺少个人年度工具链接')
+        if (!hrefs.has(prefixed(spec.zodiacChild(branch)))) fail('缺少本生肖子页链接')
+        const partners = BRANCHES.filter(
+          (other) =>
+            other !== branch &&
+            zodiacPairFacts(branch, other).relations.some(
+              (r) => r === 'sixCombine' || r === 'clash',
+            ),
+        ).map((other) => prefixed(`${spec.hubPath(year)}/${spec.childSlug(other)}`))
+        const yearlyLinks = [...hrefs].filter((href) =>
+          href.startsWith(prefixed(`${spec.hubPath(year)}/`)),
+        )
+        if (yearlyLinks.length !== 1 || !partners.includes(yearlyLinks[0]))
+          fail(`年度页之间只链接六合或冲对象的 1 页（${partners.join('、')}）`)
+      }
+
+      const everything = [
+        data.description,
+        data.lede,
+        data.relations_note,
+        data.years_note,
+        ...focus.map((item) => item?.text),
+        ...faq.flatMap((item) => [item.q, item.a]),
+        content,
+      ].join('\n')
+      for (const term of COMPLIANCE_TERMS)
+        if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
+          fail(`合规禁用词：${term}`)
+      for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
+      if (/运势|运程/.test(everything)) {
+        // 「运势」只作主词出现在 Title、H1 与地址中
+        const plainText = everything.replace(/\]\([^)]*\)/g, ']')
+        if (/运势|运程/.test(plainText)) fail('正文不用「运势」「运程」（只作 Title、H1 主词）')
+      }
+      const month = MONTH_FORTUNE.exec(everything)
+      if (month) fail(`月份吉凶写法：${month[0]}`)
+
+      const facts = factIssues([data.title, data.heading, everything].join('\n'), { year, branch })
+      factsChecked += facts.checked
+      for (const issue of facts.issues) fail(`事实不一致：${issue}`)
+
+      rows.push({
+        file: `${yearDir}/${file}`,
+        title: data.title,
+        titleWidth,
+        descriptionWidth,
+        heading: data.heading,
+        chars: count,
+        links: targets,
+        facts: facts.checked,
+      })
+    }
+  }
+  for (const [path, counts] of anchors)
+    if (counts.size > 2)
+      failures.push(`${locale}: ${path} 的锚文本超过 2 种：${[...counts.keys()].join('、')}`)
+  return { failures, rows, factsChecked }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const { values } = parseArgs({ options: { report: { type: 'string' } } })
+  const failures = []
+  const lines = [
+    '| 语言 | 文件 | Title（宽） | Description 宽 | H1 | 撰写字数 | 正文内链 | 复算事实 |',
+    '|---|---|---|---|---|---|---|---|',
+  ]
+  let total = 0
+  for (const locale of Object.keys(LOCALES)) {
+    const result = checkLocale(locale)
+    failures.push(...result.failures)
+    total += result.factsChecked
+    for (const row of result.rows)
+      lines.push(
+        `| ${locale} | ${row.file} | ${row.title}（${row.titleWidth}） | ${row.descriptionWidth} | ${row.heading} | ${row.chars} | ${row.links} | ${row.facts} |`,
+      )
+  }
+  lines.push('', `复算事实合计：${total} 处；失败：${failures.length}`)
+  if (values.report)
+    writeFileSync(
+      values.report,
+      `${lines.join('\n')}\n${failures.map((f) => `- ${f}`).join('\n')}\n`,
+    )
+  if (failures.length) {
+    console.error(failures.map((failure) => `  - ${failure}`).join('\n'))
+    assert.fail(`年度生肖内容校验失败 ${failures.length} 项`)
+  }
+  console.log(`年度生肖内容校验通过（复算事实 ${total} 处）`)
+}

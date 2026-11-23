@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { SITE_IDS } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
+import { yearlySeoPages } from '../east-content/yearly/seo-pages.ts'
 import { zodiacSeoPages } from '../east-content/zodiac/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { isLocaleReleased, releasedSiteLocales } from '../i18n/rollout.ts'
@@ -42,6 +43,7 @@ const allPages = publicPages(
       ...tarotLocalizedSeoPages(),
       ...tarotFeelingsSeoPages(generated('allTarotFeelings')),
       ...zodiacSeoPages(generated('allZodiacs')),
+      ...yearlySeoPages(generated('allYearlies')),
     ],
   },
   new Date(),

@@ -135,6 +135,21 @@ describe('流年缺少撰写文字时只列关系名', () => {
     expect(without).toContain('2027 丁未年')
     expect(without).not.toContain('<p class="m-0 text-body')
   })
+
+  it('流年说明中的一条链接渲染为真实 <a>，地址按站内路径编码（content-growth-v2-tools 8.3）', () => {
+    const annual = annualOf(2027, 'wu')
+    if (!annual) throw new Error('missing 2027')
+    const html = renderToStaticMarkup(
+      createElement(AnnualCard, {
+        annual,
+        natal: 'wu',
+        text: '午未六合（见[2027属马](/zh-hans/2027生肖运势/属马)）。可以想想分工。',
+      }),
+    )
+    expect(html).toContain(`<a href="/zh-hans/${encodeURI('2027生肖运势/属马')}"`)
+    expect(html).toContain('>2027属马</a>')
+    expect(html).not.toContain('](')
+  })
 })
 
 describe('地址与 hreflang', () => {

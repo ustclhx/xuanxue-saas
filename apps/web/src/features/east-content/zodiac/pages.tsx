@@ -266,6 +266,28 @@ const relationBranches = (relation: ZodiacRelation, natal: Branch, locale: strin
     : branches.map(glyph).join(' ')
 }
 
+/**
+ * 流年说明中的一条 Markdown 链接（`[锚文本](/zh-hans/…)`，content-growth-v2-tools 8.3：链接到年度生肖页，
+ * 每页最多 1 条，写在现成句子里）。地址写成带语言前缀的站内路径，这里按 toolHref 编码输出。
+ */
+const ANNUAL_LINK = /\[([^\]]+)\]\((\/[^)\s]+)\)/
+function annualText(text: string, locale: string): ReactNode {
+  const match = ANNUAL_LINK.exec(text)
+  if (!match) return text
+  const [whole, anchor, href] = match as unknown as [string, string, string]
+  const prefix = `/${locale.toLowerCase()}`
+  const path = href.startsWith(`${prefix}/`) ? href.slice(prefix.length) : href
+  return (
+    <>
+      {text.slice(0, match.index)}
+      <a href={toolHref(path, locale)} className={inlineLink}>
+        {anchor}
+      </a>
+      {text.slice(match.index + whole.length)}
+    </>
+  )
+}
+
 /** 本年 / 次年卡片：引擎算出的太岁与地支关系；缺少撰写文字时只列关系名，不用模板句（zodiac-pages 规格「本年与次年的流年主题」） */
 export function AnnualCard({
   annual,
@@ -308,7 +330,7 @@ export function AnnualCard({
           </li>
         ))}
       </ul>
-      {text ? <p className="m-0 text-body text-ink-muted">{text}</p> : null}
+      {text ? <p className="m-0 text-body text-ink-muted">{annualText(text, locale)}</p> : null}
     </div>
   )
 }

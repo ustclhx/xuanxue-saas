@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { templateConfig } from '../../server/template-config.ts'
 import { TAI_SUI_YEAR_TOOL_ROUTES } from '../east-content/tai-sui-year/paths.ts'
+import { YEARLY_TOOL_ROUTES } from '../east-content/yearly/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
@@ -62,7 +63,9 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
         // 西方星座页由 west-content/zodiac/western-zodiac.test.tsx 验证
         !WESTERN_ZODIAC_TOOL_ROUTES.includes(tool) &&
         // 2027 太歲页由 east-content/almanac/nongminli.test.tsx 验证
-        !TAI_SUI_YEAR_TOOL_ROUTES.includes(tool),
+        !TAI_SUI_YEAR_TOOL_ROUTES.includes(tool) &&
+        // 年度生肖页由 east-content/yearly/yearly.test.ts 验证
+        !YEARLY_TOOL_ROUTES.includes(tool),
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/zh-hant' },

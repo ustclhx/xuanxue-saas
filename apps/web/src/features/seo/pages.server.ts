@@ -8,9 +8,11 @@ import {
   allTarotFeelings,
   allTarots,
   allWesternZodiacs,
+  allYearlies,
   allZodiacs,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
+import { yearlySeoPages } from '../east-content/yearly/seo-pages.ts'
 import { zodiacSeoPages } from '../east-content/zodiac/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
@@ -38,6 +40,8 @@ export function getPublicPages(site?: SiteId) {
         ...zodiacSeoPages(allZodiacs),
         // 西方站星座枢纽、档案、配对总表与配对页（content-growth-v2-tools 第 20 组）
         ...westernZodiacSeoPages(allWesternZodiacs),
+        // 东方站 2027 年度枢纽与年度生肖页（content-growth-v2-tools 第 8 组）
+        ...yearlySeoPages(allYearlies),
       ],
     },
     new Date(),

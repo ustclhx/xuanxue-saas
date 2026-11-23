@@ -99,9 +99,9 @@
 
 ## 8. 2027 年度生肖页（zh-Hans）★
 
-- [ ] 8.1 在 `content-collections.ts` 新建 `yearly` 集合（schema 见 design 决策 6）；新建年度页与枢纽组件（关系表来自 `zodiacYearFacts`，出生年份与纳音来自 `zodiacYears`）；登记 zh-Hans 地址与注册表；构建期预渲染。新建 `scripts/check-content-yearly.mjs` 逐项复算正文与 frontmatter 中的干支与关系名。单测覆盖关系表与引擎一致、hreflang 只含已发布语言
+- [x] 8.1 在 `content-collections.ts` 新建 `yearly` 集合（schema 见 design 决策 6）；新建年度页与枢纽组件（关系表来自 `zodiacYearFacts`，出生年份与纳音来自 `zodiacYears`）；登记 zh-Hans 地址与注册表；构建期预渲染。新建 `scripts/check-content-yearly.mjs` 逐项复算正文与 frontmatter 中的干支与关系名。单测覆盖关系表与引擎一致、hreflang 只含已发布语言
 - [ ] 8.2 Claude 子代理撰写 `content/yearly/zh-Hans/2027/` 的枢纽与 12 篇（长度见决策 16），三个主题段用反思与建议语气，不写月份吉凶；Codex 做事实与合规审阅，记录存证据目录
-- [ ] 8.3 验收：组内相似度 `--enforce zh-Hans`；TDK、长度；内链（个人年度工具、生肖子页、六合或冲对象年度页）；在第 2 阶段生肖子页「本年与次年」段的现成句子加入链（每页最多 1 条）；390px 截图；关键词归属补登
+- [x] 8.3 验收：组内相似度 `--enforce zh-Hans`；TDK、长度；内链（个人年度工具、生肖子页、六合或冲对象年度页）；在第 2 阶段生肖子页「本年与次年」段的现成句子加入链（每页最多 1 条）；390px 截图；关键词归属补登
 
 ## 9. 2027 年度生肖页（zh-Hant）★
 
