@@ -35,8 +35,5 @@
   "landing_step_mark_2": "2",
   "landing_step_mark_3": "3",
   "landing_price_label": "料金",
-  "landing_price_line": "命式づくりもタロットも、計算はすべて無料です。文章で詳しく読み解くAI鑑定は1回{reading}クレジット。新しく登録した方は初日に合計{first}クレジット、その後もログインした日に{daily}クレジットを無料で受け取れます。",
-  "landing_price_line_daily": "命式づくりもタロットも、計算はすべて無料です。AI鑑定は1回{reading}クレジットで、ログインした日には{daily}クレジットを無料で受け取れます。",
-  "landing_price_line_no_daily": "計算ツールはすべて無料です。AI鑑定は1回{reading}クレジットです。",
   "landing_price_cta": "料金プランを見る →"
 }

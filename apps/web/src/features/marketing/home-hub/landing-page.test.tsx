@@ -1,5 +1,4 @@
 import type { SiteId } from '@xuanxue/config'
-import { settingDefaults } from '@xuanxue/db'
 import { birthdayNumber, lifePath } from '@xuanxue/numerology'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -11,16 +10,7 @@ import { SAMPLE_BIRTH_DATE } from '../../tools/charts/samples.ts'
 import { directoryGroups, siteTools } from '../../tools/directory.ts'
 import { badgeText } from '../../tools/hub/badge.ts'
 import { type RegisteredToolRoute, TOOL_ROUTES, type ToolRoute } from '../../tools/registry.ts'
-import { DAILY_LOGIN_CREDITS, DEFAULT_READING_CREDITS } from '../pricing-credits.ts'
-import type { PricingCatalog } from '../pricing-data.ts'
-import { creditPacks } from '../pricing-page.tsx'
-import {
-  dailyEntryHref,
-  FEATURED_SECONDARY_LIMIT,
-  hubFeatured,
-  hubPriceLine,
-  hubPricing,
-} from './data.ts'
+import { dailyEntryHref, FEATURED_SECONDARY_LIMIT, hubFeatured } from './data.ts'
 import { LandingPage } from './landing-page.tsx'
 import {
   HUB_SAMPLE_KIND,
@@ -39,53 +29,6 @@ vi.mock('../../../paraglide/runtime.js', async (original) => ({
   getLocale: () => language.locale,
 }))
 vi.mock('../../growth/forms.tsx', () => ({ GrowthForm: () => null }))
-// 构建期常量 __PRICING_SNAPSHOT__ 只在 Vite 构建中注入；测试显式传入 catalog
-vi.mock('../pricing-snapshot.ts', () => ({
-  pricingSnapshot: { plans: [], prices: [], providers: [] },
-}))
-
-const catalog = (available: boolean): PricingCatalog =>
-  ({
-    plans: [
-      {
-        id: 'p1',
-        key: 'reading_single',
-        name: 'Single',
-        type: 'credit_pack',
-        credits: 100,
-        creditExpiryDays: 365,
-        features: {},
-      },
-      {
-        id: 'p2',
-        key: 'reading_five',
-        name: 'Five',
-        type: 'credit_pack',
-        credits: 500,
-        creditExpiryDays: 365,
-        features: {},
-      },
-    ],
-    prices: [
-      ['p1', 'USD', 199],
-      ['p1', 'TWD', 6500],
-      ['p1', 'KRW', 2800],
-      ['p2', 'USD', 799],
-      ['p2', 'TWD', 25500],
-      ['p2', 'KRW', 11000],
-    ].map(([planId, currency, amount], index) => ({
-      id: `price-${index}`,
-      planId,
-      provider: 'stripe',
-      interval: null,
-      amount,
-      currency,
-      active: available,
-      available,
-    })),
-    providers: [{ id: 'stripe', available: true }],
-  }) as unknown as PricingCatalog
-
 const HOMES = [
   ['east', 'zh-Hant', `/zh-hant/${encodeURI('八字排盤')}`, '八字排盤'],
   ['east', 'zh-Hans', `/zh-hans/${encodeURI('八字排盘')}`, '八字排盘'],
@@ -98,7 +41,6 @@ function render(site: SiteId, locale: string, props: Parameters<typeof LandingPa
   return renderToStaticMarkup(
     <SiteContext value={site}>
       <LandingPage
-        catalog={catalog(true)}
         sampleChart={site === 'east' ? <EastSampleChart /> : <WestSampleChart />}
         {...props}
       />
@@ -316,41 +258,6 @@ describe('落地页数据', () => {
     ).not.toEqual(expect.arrayContaining(['tojeong', 'yearly-tool', 'yearly-2027', 'zodiac-pair']))
   })
 
-  it('一行价格的两个数字与定价页同一份配置', () => {
-    // 定价页：每份详批积分取 DEFAULT_READING_CREDITS，每日赠送数写在文案 pricing_free_daily 中
-    expect(settingDefaults['credits.dailyAmount']).toBe(DAILY_LOGIN_CREDITS)
-    for (const [, locale] of HOMES) {
-      language.locale = locale
-      expect(m.pricing_free_daily()).toContain(String(DAILY_LOGIN_CREDITS))
-      // 首次登录合计与定价页「首次登录共送 20」一致（注册赠送 15 + 当天每日 5）
-      expect(m.pricing_free_first_login()).toContain('20')
-      expect(hubPriceLine(catalog(true), locale, { enabled: true, dailyEnabled: true })).toEqual({
-        readingCredits: DEFAULT_READING_CREDITS,
-        dailyCredits: DAILY_LOGIN_CREDITS,
-        firstLoginCredits: 20,
-      })
-      // 是否有可购买方案与定价页同一快照、同一选价规则
-      expect(hubPricing(catalog(true), locale).map((p) => [p.key, p.credits])).toEqual(
-        creditPacks(catalog(true), locale).map((p) => [p.key, p.credits]),
-      )
-    }
-  })
-
-  it('未开启每日赠送时不给每日数；没有可购买方案时不给任何数字', () => {
-    expect(hubPriceLine(catalog(true), 'en', { enabled: true, dailyEnabled: false })).toEqual({
-      readingCredits: DEFAULT_READING_CREDITS,
-      dailyCredits: null,
-      firstLoginCredits: null,
-    })
-    // 没有注册赠送时不写首次登录合计
-    expect(
-      hubPriceLine(catalog(true), 'en', { enabled: true, dailyEnabled: true }, 0)
-        ?.firstLoginCredits,
-    ).toBeNull()
-    expect(hubPriceLine(catalog(false), 'zh-Hant')).toBeNull()
-    expect(hubPriceLine({ plans: [], prices: [], providers: [] } as never, 'en')).toBeNull()
-  })
-
   it('每日运势入口只在登记了公开页时给出链接', () => {
     expect(dailyEntryHref('zh-Hant', {})).toBeNull()
     expect(dailyEntryHref('zh-Hant', { 'zh-Hant': '/每日運勢' })).toBe(
@@ -471,13 +378,13 @@ describe('落地页', () => {
     expect(counts.get(hrefs[0] ?? '')).toBe(2)
   })
 
-  it('样例报告标明示例、附 AI 声明，不放按钮；段落与 catalog 一致', () => {
+  it('样例报告标明示例、附参考说明，不放按钮；段落与 catalog 一致', () => {
     const html = render('east', 'zh-Hant')
     const sample = block(html, 'sample')
     expect(sample).toContain('data-sample-badge')
     expect(sample).toContain('示例段落')
     expect(sample).toContain('虛構命盤')
-    expect(sample).toContain('data-testid="ai-disclaimer"')
+    expect(sample).toContain(m.tools_disclaimer())
     expect(sample).not.toMatch(/<a\b/)
     expect(HUB_SAMPLE_PARAGRAPHS['zh-Hant']).toBeTruthy()
     expect(sample).toContain(HUB_SAMPLE_PARAGRAPHS['zh-Hant'])
@@ -492,50 +399,22 @@ describe('落地页', () => {
     expect(text(west)).toContain('6 · from the 15th')
   })
 
-  it.each(HOMES)('%s %s：免费区块不出现 AI 字样，全页文字通过合规检查', (site, locale) => {
-    const html = render(site, locale)
-    for (const name of ['hero', 'tools', 'trust']) {
-      const part = block(html, name)
-      expect(part, name).toBeTruthy()
-      expect(text(part), name).not.toMatch(/\bAI\b/)
-    }
-    expect(checkCompliance(blocks(html), locale).violations).toEqual([])
-    const paragraph = HUB_SAMPLE_PARAGRAPHS[locale]
-    expect(paragraph).toBeTruthy()
-    expect(checkCompliance(paragraph ?? '', locale).violations).toEqual([])
-  })
-
   it.each([
-    [
-      'east',
-      'zh-Hant',
-      '排盤免費；AI 詳批每份 10 積分。新用戶首次登入送 20 積分，之後每天登入再送 5 積分。',
-      '/zh-hant/pricing',
-    ],
-    [
-      'east',
-      'ko',
-      '만세력은 무료입니다. AI 상세 풀이는 1회 10 크레딧이며, 신규 회원은 첫 로그인 시 20 크레딧을 받고 이후 매일 로그인할 때마다 5 크레딧을 더 받습니다.',
-      '/ko/pricing',
-    ],
-    [
-      'west',
-      'en',
-      'Every calculator is free. A full reading costs 10 credits — new accounts get 20 credits on first sign-in, plus 5 each day you sign in.',
-      '/pricing',
-    ],
-  ] as const)('%s %s：一行价格写积分数并链接定价页，不显示金额', (site, locale, line, href) => {
-    const price = block(render(site, locale), 'price')
-    expect(text(price)).toContain(line)
-    expect(price).toContain(`href="${href}"`)
-    expect(price).not.toMatch(/NT\$|US\$|\$\d|₩/)
-  })
-
-  it('没有可购买方案时一行价格只写免费说明与定价页链接，没有数字', () => {
-    const price = block(render('east', 'zh-Hant', { catalog: catalog(false) }), 'price')
+    ...HOMES.map(([site, locale]) => [site, locale] as const),
+    ['east', 'ja'],
+    ['west', 'es'],
+  ] as const)('%s %s：首页文案合规，并保留定价页链接', (site, locale) => {
+    const html = render(site, locale)
+    expect(text(html)).not.toMatch(
+      /\b(?:AI|IA|credits?|créditos?)\b|積分|积分|크레딧|クレジット(?!カード)|띠별 운세/i,
+    )
+    expect(checkCompliance(blocks(html), locale).violations).toEqual([])
+    expect(html.includes('href="#sample"')).toBe(Boolean(block(html, 'sample')))
+    const price = block(html, 'price')
     expect(text(price)).toContain(m.home_hub_plans_free())
-    expect(price).toContain('href="/zh-hant/pricing"')
-    expect(text(price)).not.toMatch(/\d/)
+    expect(price).toContain(
+      locale === 'en' ? 'href="/pricing"' : `href="/${locale.toLowerCase()}/pricing"`,
+    )
   })
 
   it('今日条：服务端只输出骨架与链接，不写入日期', () => {
@@ -598,15 +477,15 @@ describe('落地页', () => {
     expect(todayHeadline('west', date)).toBe('Universal Day 2')
   })
 
-  it('品牌级 FAQ 三条取自定价页问答，第一条默认展开', () => {
+  it('品牌级 FAQ 保留三条问答，第一条默认展开', () => {
     language.locale = 'zh-Hant'
     const faq = block(render('east', 'zh-Hant'), 'faq')
     expect(faq.match(/<details\b/g)).toHaveLength(3)
     expect(faq.match(/<details\b[^>]*\bopen\b/g)).toHaveLength(1)
     for (const question of [
-      m.pricing_faq_free_q(),
-      m.pricing_faq_accuracy_q(),
-      m.pricing_faq_pay_q(),
+      m.home_hub_faq_free_q(),
+      m.home_hub_faq_accuracy_q(),
+      m.home_hub_faq_pay_q(),
     ])
       expect(faq).toContain(question)
   })

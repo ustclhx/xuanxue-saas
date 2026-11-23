@@ -35,8 +35,5 @@
   "landing_step_mark_2": "2",
   "landing_step_mark_3": "3",
   "landing_price_label": "Precios",
-  "landing_price_line": "Todas las calculadoras son gratis. Una lectura completa cuesta {reading} créditos: las cuentas nuevas reciben {first} créditos al entrar por primera vez y {daily} más cada día que inician sesión.",
-  "landing_price_line_daily": "Todas las calculadoras son gratis. Una lectura completa cuesta {reading} créditos y recibes {daily} créditos gratis cada día que inicias sesión.",
-  "landing_price_line_no_daily": "Todas las calculadoras son gratis. Una lectura completa cuesta {reading} créditos.",
   "landing_price_cta": "Ver precios →"
 }

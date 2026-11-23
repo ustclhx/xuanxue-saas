@@ -9,9 +9,9 @@ export const LANDING: LandingCopy = {
   h1: 'Free Chinese astrology birth charts: BaZi and Zi Wei Dou Shu',
   lead: 'Enter a birth date, time and place to see your Four Pillars and your twelve palaces. Both charts follow traditional rules, run on your own device and need no sign-up. Read them for reflection, not as a forecast.',
   cta: 'Calculate my BaZi chart',
-  toolsTitle: 'Four tools, one set of birth details',
+  toolsTitle: 'Free charts and tarot tools',
   toolsIntro:
-    'The two birth charts share the details you type once. The tarot tools need nothing but a question.',
+    'Switch between the two birth charts in the same tab to reuse your details, or pick a tarot spread to reflect on a question.',
   tools: {
     bazi: {
       title: 'BaZi calculator',
@@ -28,13 +28,13 @@ export const LANDING: LandingCopy = {
     spreads: {
       title: 'Past present future tarot',
       summary:
-        'Three cards that tell a short story about one situation, plus a one card pull, a pick a card draw and the ten-card Celtic Cross.',
+        'Turn over three cards and explore one situation through the traditional meanings of the past, present and future positions.',
       action: 'Choose a spread',
     },
     feelings: {
       title: 'Tarot cards as feelings',
       summary:
-        'All 78 cards read from one angle: what each card says about how someone feels, whether it is a partner, a crush or an ex.',
+        'Explore traditional interpretations of all 78 cards as prompts for reflecting on relationships.',
       action: 'Browse the 78 cards',
     },
   },
@@ -51,7 +51,7 @@ export const LANDING: LandingCopy = {
       paragraphs: [
         'Chinese months do not begin on the 1st. They change at the solar terms, the 24 points of the sun’s yearly path, so someone born on 3 February and someone born on 5 February can land in different years and months even though both dates are in February. The calculator places every birth against those boundaries, and the year itself changes at the Beginning of Spring rather than on 1 January or at the lunar New Year. The change to Ding Wei falls on 4 February 2027 in China. Use [BaZi 2027](bazi-2027) to compare that annual pillar with your birth chart.',
         'The hour matters just as much. Pick your birth city and the calculator applies that city’s historical time zone, including daylight saving time, before it finds your two-hour period. If you were born near the edge of an hour, you can switch on true solar time, which corrects for longitude and the equation of time. The calculation runs in your browser, on your own device, and you do not need an account.',
-        'Optional full readings are a separate step. They are written by AI from your finished chart, cost credits, and are listed on the [pricing](pricing) page. The free charts stay free either way.',
+        'After viewing your free chart, you can explore the optional written readings listed on the [pricing](pricing) page.',
       ],
     },
     {
@@ -66,7 +66,7 @@ export const LANDING: LandingCopy = {
   faq: [
     {
       q: 'Is there a free Chinese astrology reading with no sign-up?',
-      a: 'Yes. Both birth charts are calculated in your browser and shown in full without an account. Only the optional written readings use credits, and you can see your whole chart before deciding whether you want one.',
+      a: 'Yes. Both birth charts are calculated in your browser and shown without an account. You can explore the chart before deciding whether you want an optional written reading.',
       origin: 'local',
     },
     {

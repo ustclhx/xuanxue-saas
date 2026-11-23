@@ -25,7 +25,13 @@ const footerLink =
  * data-site-footer 让根布局在本页隐藏页面末尾的同一设置行。
  * data-link-zone="nav"：链接图检查把页脚当作导航层，并只在此区域统计页脚链接数（模板 0.7.3 seo-internal-linking）。
  */
-export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean } = {}) {
+export function SiteFooter({
+  floatingEntry = false,
+  freeTools = false,
+}: {
+  floatingEntry?: boolean
+  freeTools?: boolean
+} = {}) {
   const siteId = useSiteId()
   const locale = getLocale()
   const brand = siteBrandName(templateConfig, siteId, locale)
@@ -81,7 +87,9 @@ export function SiteFooter({ floatingEntry = false }: { floatingEntry?: boolean 
           <LanguageSetting className="w-full md:w-auto md:justify-start" />
         </div>
         {/* 不加 role="note"：页面正文里的合规声明才是 note，页脚这条是全站通用的小字 */}
-        <p className="m-0 max-w-180 text-caption text-ink-subtle">{m.tools_ai_disclaimer()}</p>
+        <p className="m-0 max-w-180 text-caption text-ink-subtle">
+          {freeTools ? m.tools_disclaimer() : m.tools_ai_disclaimer()}
+        </p>
         <p className="m-0 text-caption text-ink-subtle">
           {m.marketing_footer_copyright({ year: new Date().getFullYear(), name: brand })}
         </p>

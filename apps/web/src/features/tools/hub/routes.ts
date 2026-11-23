@@ -45,16 +45,16 @@ export const TOOLS_HUB_SEO_TITLES: Readonly<Record<SiteId, Readonly<Record<strin
 const DESCRIPTIONS: Readonly<Record<SiteId, Readonly<Record<string, string>>>> = {
   east: localeText({
     'zh-Hant':
-      '干支日的免費工具都整理在這一頁：八字排盤、紫微斗數、命盤查詢、塔羅占卜與今日運勢，依排盤、占卜與知識庫分類，每個工具都能免費看到結果，不需要註冊。',
+      '干支日把免費工具整理成一份清單。想排八字或紫微斗數命盤、查今日運勢，或用塔羅牌整理思緒，都能在這裡找到入口。也可查閱八字術語與傳統塔羅牌義。',
     'zh-Hans':
-      '干支日的免费工具都列在这一页：八字排盘、紫微斗数、命盘查询、塔罗占卜、今日运势、黄历与十二生肖，按排盘、占卜、历法分组，每个工具都能免费得到结果。',
-    ko: '간지데이의 무료 도구를 한 페이지에 모았습니다. 만세력, 사주궁합, 타로, 오늘의 운세, 열두 띠를 종류별로 찾으실 수 있고, 모두 무료로 결과를 보실 수 있습니다.',
+      '在干支日免费排八字和紫微斗数，查今日运势、黄历和十二生肖，或抽一组塔罗牌。按排盘、占卜和历法查找工具，也可以直接阅读传统牌义和常见命盘术语。',
+    ko: '간지데이에서 만세력, 사주궁합, 타로, 오늘의 운세와 띠를 한눈에 찾을 수 있습니다. 쓰임새에 따라 고르고, 결과는 회원가입 없이 무료로 확인할 수 있습니다.',
     ja: '干支日の無料ツールを一覧にまとめました。四柱推命、紫微斗数、タロット占いを種類ごとに探せます。どのツールも無料で結果を確認でき、会員登録は必要ありません。',
-    en: 'Every free tool on Ganjiday in one place: the BaZi calculator, Zi Wei Dou Shu chart and tarot spreads, grouped by type. Each one gives a free result.',
+    en: 'Browse the free BaZi calculator, Zi Wei Dou Shu charts and tarot spreads on Ganjiday. Find a chart, choose a spread or look up traditional card meanings.',
   }),
   west: localeText({
-    en: 'Every free tool on Arcanumber in one place: tarot spreads, life path and numerology calculators, and the number of the day. Each one gives a free result.',
-    es: 'Todas las herramientas gratuitas de Arcanumber en una página: tiradas de tarot, número de vida y calculadora de numerología. Cada una da un resultado gratis.',
+    en: 'Find free tarot spreads, the Life Path calculator and the Number of the Day on Arcanumber. Browse traditional card meanings and numerology tools by topic.',
+    es: 'Haz una tirada de tarot gratis, calcula tu número de vida o consulta el significado de las cartas. Encuentra tu calculadora de numerología en Arcanumber.',
   }),
 }
 

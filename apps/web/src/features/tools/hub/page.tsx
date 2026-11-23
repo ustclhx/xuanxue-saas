@@ -64,7 +64,7 @@ export function ToolsHubPage({
   const second = link(tools.get(START_SECOND), 'second')
   const start = site === 'east' ? m.tools_hub_start_east : m.tools_hub_start_west
   return (
-    <MarketingShell>
+    <MarketingShell freeTools>
       <PageWidth data-tools-hub={site} className="flex flex-col gap-8 pb-16 sm:gap-10 sm:pb-28">
         <header className="flex max-w-180 flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
           <Breadcrumb

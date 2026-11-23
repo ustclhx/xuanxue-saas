@@ -121,7 +121,7 @@ function IndexPage() {
   const east = isEastLocale(getLocale())
   const eastEnglish = Route.useLoaderData()?.eastEn !== undefined
   return (
-    <MarketingShell>
+    <MarketingShell freeTools>
       <Suspense>
         {eastEnglish ? (
           <EastEnLanding

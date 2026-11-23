@@ -5,7 +5,7 @@
   "landing_cta": "무료 만세력 보기",
   "landing_sample_link": "상세 풀이 예시 보기 ↓",
   "landing_proof": "무료 · 가입 없이 · 브라우저에서 계산",
-  "landing_tools_title": "도구 하나로 시작하세요",
+  "landing_tools_title": "무료 도구",
   "landing_tool_title_life_path": "라이프 패스 넘버",
   "landing_tool_cta_bazi": "만세력 보기 →",
   "landing_tool_cta_ziwei": "명반 보기 →",
@@ -35,8 +35,5 @@
   "landing_step_mark_2": "2",
   "landing_step_mark_3": "3",
   "landing_price_label": "요금",
-  "landing_price_line": "만세력은 무료입니다. AI 상세 풀이는 1회 {reading} 크레딧이며, 신규 회원은 첫 로그인 시 {first} 크레딧을 받고 이후 매일 로그인할 때마다 {daily} 크레딧을 더 받습니다.",
-  "landing_price_line_daily": "만세력은 무료입니다. AI 상세 풀이는 1회 {reading} 크레딧이며, 매일 로그인하면 {daily} 크레딧을 드립니다.",
-  "landing_price_line_no_daily": "만세력은 무료입니다. AI 상세 풀이는 1회 {reading} 크레딧입니다.",
   "landing_price_cta": "요금 보기 →"
 }
