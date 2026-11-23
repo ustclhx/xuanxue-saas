@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Arcanumber shared header</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+<header class="hdr">
+<div class="wrap hdr-in">
+<a class="logo" href="HomeWest.dc.html">Arcanumber</a>
+<nav class="nav d-only" aria-label="Main">
+<a href="Nav.dc.html">Tools<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></a>
+<a href="HomeWest.dc.html">Number of the Day</a>
+<a href="HomeWest.dc.html">Pricing</a>
+<a href="#footer">Sign in</a>
+</nav>
+<div class="hdr-icons m-only">
+<button class="iconbtn" type="button" aria-label="Account"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg></button>
+<button class="iconbtn" type="button" aria-label="Main menu"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg></button>
+</div>
+</div>
+</header>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["alone","in"],"default":"alone"},"$preview":{"width":1440,"height":80}}'>
+class Component extends DCLogic {
+renderVals() {
+const inPage = (this.props.mode ?? 'alone') === 'in';
+return { theme: inPage ? '' : 'west-light', cls: inPage ? 'part-in' : 'xx part' };
+}
+}
+</script>
+</body>
+</html>

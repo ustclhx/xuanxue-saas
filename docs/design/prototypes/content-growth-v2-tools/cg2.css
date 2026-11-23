@@ -1,0 +1,104 @@
+/* content-growth-phase2 画布补充样式。只引用 site.css / pages.css 已有的 token 与六个字号角色；两份已确认样式不改动。 */
+
+/* ---------- 韩文页：标题与正文用 Noto Sans KR ---------- */
+.xx.kr{--head:"Noto Sans KR","Apple SD Gothic Neo",sans-serif;--text:"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+.xx.kr .t-title,.xx.kr .t-heading,.xx.kr p,.xx.kr li,.xx.kr td{word-break:keep-all;overflow-wrap:anywhere}
+
+/* ---------- 事实表（提议的 project 组件 FactTable） ---------- */
+.xx .tblbox{background:var(--surface);border-radius:var(--radius-md);overflow-x:auto;max-width:100%}
+.xx table.dt{border-collapse:collapse;width:100%;text-align:left}
+.xx table.dt th{font-weight:500;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle);padding:14px 20px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+.xx table.dt td{padding:12px 20px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-muted)}
+.xx table.dt td.k{color:var(--ink);font-weight:500;white-space:nowrap}
+.xx table.dt td.nw{white-space:nowrap}
+.xx table.dt tbody tr:last-child td{border-bottom:0}
+.xx table.dt tr.cur td{background:var(--surface-2)}
+.xx table.dt .gzs{font-family:var(--head);font-weight:700;color:var(--ink)}
+.xx table.dt td.gap{text-align:center;color:var(--ink-subtle);font-size:var(--fs-caption);line-height:var(--lh-caption)}
+.xx.m table.dt th,.xx.m table.dt td{padding:10px 12px}
+.xx .tbl-narrow{max-width:var(--measure-prose)}
+/* stack：手机上每行改成两列小卡，不横向滚动 */
+.xx.m table.stk,.xx.m table.stk tbody{display:block}
+.xx.m table.stk thead{display:none}
+.xx.m table.stk tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px 12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.xx.m table.stk tbody tr:last-child{border-bottom:0}
+.xx.m table.stk td{display:block;padding:0;border:0;background:none;white-space:normal}
+.xx.m table.stk td.full{grid-column:1 / -1}
+.xx.m table.stk td[data-l]::before{content:attr(data-l) " ";color:var(--ink-subtle);font-size:var(--fs-caption);line-height:var(--lh-caption)}
+.xx.m table.stk tr.cur{background:var(--surface-2)}
+.xx.m table.stk tr.cur td{background:none}
+
+/* ---------- 速览与说明块 ---------- */
+.xx .quick{display:flex;gap:32px;align-items:center;max-width:760px}
+.xx.m .quick{flex-direction:column;align-items:flex-start;gap:16px}
+.xx .bigglyph{font-family:var(--head);font-weight:700;font-size:var(--fs-display);line-height:var(--lh-display);color:var(--accent);width:96px;height:96px;border-radius:var(--radius-md);background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex:none}
+.xx .facts4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px 24px;flex:1;min-width:0;width:100%}
+.xx.m .facts4{grid-template-columns:repeat(2,minmax(0,1fr))}
+.xx .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:760px}
+.xx.m .tiles{grid-template-columns:minmax(0,1fr)}
+.xx .tile{background:var(--surface);border-radius:var(--radius-md);padding:20px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.xx .tile .v{font-family:var(--head);font-weight:700;font-size:var(--fs-heading);line-height:var(--lh-heading);color:var(--ink);display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.xx .cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.xx.m .cols3{grid-template-columns:minmax(0,1fr)}
+.xx .cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.xx.m .cols2{grid-template-columns:minmax(0,1fr)}
+.xx .secblk{display:flex;flex-direction:column;gap:20px}
+.xx .secblk > p{max-width:var(--measure-prose);color:var(--ink-muted)}
+.xx .notebox{background:var(--surface);border-radius:var(--radius-md);padding:20px 24px;color:var(--ink-muted);max-width:var(--measure-prose)}
+.xx .rowline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+
+/* ---------- 黄历工具：日期栏与结果 ---------- */
+.xx .datebar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.xx .datebar .field{flex:1 1 220px}
+.xx .datebar .btn{padding:10px 20px}
+.xx.m .datebar .btn{flex:1 1 0}
+.xx .yiji dd,.xx .yiji p{color:var(--ink-muted)}
+.xx .mgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;max-width:760px}
+.xx.m .mgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.xx .mgrid a{background:var(--surface);border-radius:var(--radius-sm);min-height:56px;display:flex;align-items:center;justify-content:center;font-weight:500;color:var(--ink)}
+.xx .mgrid a.on{box-shadow:inset 0 0 0 1px var(--accent)}
+.xx .mgrid a:hover{background:var(--surface-2)}
+
+/* ---------- 月份页：逐日卡片（手机）与行内展开 ---------- */
+.xx .days{display:flex;flex-direction:column;gap:12px}
+.xx .day{background:var(--surface);border-radius:var(--radius-md);padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.xx .day.cur{box-shadow:inset 0 0 0 1px var(--accent)}
+.xx .day-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.xx .yj{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px 8px}
+.xx .yj dt{font-weight:700;color:var(--ink)}
+.xx .yj dd{color:var(--ink-muted)}
+.xx details.more{display:inline}
+.xx details.more summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;min-height:28px;color:var(--accent-ink);text-decoration:underline;text-underline-offset:4px;font-size:var(--fs-caption);line-height:var(--lh-caption);white-space:nowrap}
+.xx.m details.more summary{min-height:44px}
+.xx details.more summary::-webkit-details-marker{display:none}
+.xx .gapnote{background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 16px;color:var(--ink-subtle);font-size:var(--fs-caption);line-height:var(--lh-caption);text-align:center}
+
+/* 逐日表：桌面为表格，手机上每天一张卡片 */
+.xx .daysbox table.dt th,.xx .daysbox table.dt td{padding:12px 14px}
+.xx .daysbox .marks{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.xx.m .tblbox.daysbox{background:none;border-radius:0;overflow:visible}
+.xx.m .daysbox table.stk tr{background:var(--surface);border-radius:var(--radius-md);border-bottom:0;margin-bottom:12px;padding:16px 20px;gap:4px 12px}
+.xx.m .daysbox table.stk tbody tr:last-child{margin-bottom:0}
+.xx.m .daysbox table.stk td{padding:0}
+.xx.m .daysbox table.stk tr.cur{background:var(--surface);box-shadow:inset 0 0 0 1px var(--accent)}
+.xx.m .daysbox table.stk tr.gaprow{background:var(--surface-2);padding:12px 16px}
+.xx.m .daysbox .marks{display:inline-flex;margin:0 0 0 8px;vertical-align:middle}
+
+/* ---------- 相关区块（现有 LinkCardGrid / LinkCard）与相邻月份（现有 SeriesNav） ---------- */
+.xx .relsec{display:flex;flex-direction:column;gap:12px}
+.xx .relgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.xx.m .relgrid{grid-template-columns:minmax(0,1fr);gap:10px}
+.xx .relgrid li{display:flex;min-width:0}
+.xx a.relcard{display:flex;flex-direction:column;gap:6px;width:100%;min-height:44px;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;color:var(--ink)}
+.xx a.relcard b{font-weight:700;overflow-wrap:anywhere}
+.xx a.relcard:hover b{text-decoration:underline;text-underline-offset:3px}
+.xx a.relcard span{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx.m a.relcard{padding:14px 16px;gap:4px}
+.xx .series{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:var(--measure-prose)}
+.xx .series a.relcard.next{text-align:right;align-items:flex-end}
+
+/* ---------- 状态板与导航方案板 ---------- */
+.xx .b-phone .xx.m{min-height:0}
+.xx .opt{display:flex;flex-direction:column;gap:12px}
+.xx .opt-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.xx .nav.tight{gap:28px}

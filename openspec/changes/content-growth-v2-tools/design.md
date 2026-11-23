@@ -293,7 +293,7 @@
 5. 关键词归属补登；判定词审计为 0（关系类页面）。
 6. 引擎事实复算：每个新集合一个 `scripts/check-content-<集合>.mjs`，仿照 `check-content-zodiac.mjs`，逐项用引擎复算正文与 frontmatter 中出现的干支、关系、日期、괘 번호、月相时刻、角距。
 7. 首页包预算（`check-home-bundle`）；公开页数据库不可达时 200。
-8. 合规措辞：免费页写「依据传统方法推算、仅供参考与自我探索、不预测未来」（各语言对应）；不提 AI、不用「娱乐」、不给吉日判定；ko 用합쇼체。
+8. 合规措辞：免费页写「依据传统方法推算、仅供参考与潜意识探索、不预测未来（沿用站上现有措辞，画布中的「自我探索」不采用）」（各语言对应）；不提 AI、不用「娱乐」、不给吉日判定；ko 用합쇼체。
 
 **长度下限**（渲染正文，不含表格单元与 FAQ；中文按汉字，ko 按不含空格字符，en、es 按词）：
 
@@ -322,7 +322,7 @@ TDK 长度按 `audit-seo.mjs` 的 `tdkLength`（中韩 Title 20–30、Descripti
 
 ### 决策 18：设计稿
 
-- 设计稿**另行产出**（ui-design，Design 画布），本 change 只登记与核对覆盖面。确认后副本存 `docs/design/prototypes/content-growth-v2-tools/`，并在 `docs/design/prototypes/README.md` 每个页面一行登记（第 5 组；目前**待登记**）。
+- 设计稿**另行产出**（ui-design，Design 画布），本 change 只登记与核对覆盖面。确认后副本存 `docs/design/prototypes/content-growth-v2-tools/`，并在 `docs/design/prototypes/README.md` 每个页面一行登记（第 5 组；2026-11-23 已确认并登记，画布 https://claude.ai/artifact/JVKZo14GYdaGNPWfrtvZXt；使用者接受的 13 项默认见索引行）。
 - **第一批（波次 A，M0 前确认）**应覆盖：
   - 首页精选（东、西站，桌面与手机，季节位两态）、全部工具枢纽（东、西）、页头「全部工具」入口；
   - 2027 枢纽、年度生肖页（含 ko 手机长标题）、个人年度工具（四态：空、结果、无时辰、错误）；

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>生肖配对表</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrEast" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="zg-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><a href="HubEast.dc.html">全部工具</a><span aria-hidden="true">›</span><span>生肖配对</span></nav>
+<div class="rowline"><h1 class="t-title">生肖配对表</h1><span class="bdg bdg-new">新</span></div>
+<p class="muted">十二生肖对应十二地支。两个生肖之间的「配对」，说的是两个地支之间的三合、六合、六冲与相害。下表列出全部组合，点进任一格可看这一对的依据。</p>
+</div>
+
+<section class="secblk d-only" aria-labelledby="zg-grid">
+<h2 class="t-title" id="zg-grid">十二生肖两两关系</h2>
+<p class="keys" aria-label="图例"><span><i class="he"></i>三合、六合</span><span><i class="ch"></i>六冲、相害</span><span><i></i>同支或没有以上关系（—）</span></p>
+<div class="pgrid" role="group" aria-label="生肖配对表">
+<span class="ph" aria-hidden="true">×</span>
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="12">
+<a class="{{c.cls}}" href="ZodiacPair.dc.html" aria-label="{{c.label}}">{{c.t}}</a>
+</sc-for>
+</div>
+<p class="t-caption subtle">表格沿对角线对称，共 78 个不同的组合。相刑未列入本表，见各配对页。</p>
+</section>
+
+<section class="secblk m-only" aria-labelledby="zg-pick">
+<h2 class="t-title" id="zg-pick">选两个生肖</h2>
+<div class="cols2" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+<div class="field"><span class="label" id="zg-a">生肖一</span><button type="button" class="select" aria-haspopup="listbox" aria-labelledby="zg-a">属鼠<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+<div class="field"><span class="label" id="zg-b">生肖二</span><button type="button" class="select" aria-haspopup="listbox" aria-labelledby="zg-b">属牛<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<a class="btn btn-primary btn-block" href="ZodiacPair.dc.html">查看属鼠 × 属牛</a>
+<h3 class="t-heading" style="margin-top: 12px">属鼠与十二生肖</h3>
+<nav class="plist" aria-label="属鼠的全部配对">
+<sc-for list="{{row}}" as="r" hint-placeholder-count="12">
+<a href="ZodiacPair.dc.html"><span>{{r.name}}</span><span class="{{r.bcls}}">{{r.t}}</span></a>
+</sc-for>
+</nav>
+<p class="t-caption subtle">手机上不显示 12×12 表格：每格不足 44px，不便点按。改为两个下拉选择加一个生肖的 12 行列表，全部 78 个配对页仍有链接可达。</p>
+</section>
+
+<article class="article" aria-labelledby="zg-a1">
+<h2 class="t-title" id="zg-a1" style="margin-top: 0">这些关系是什么</h2>
+<p><strong>三合</strong>是相隔四位的三个地支合成一局，例如申子辰合水局。<strong>六合</strong>是两两相合的六组地支，例如子丑合。<strong>六冲</strong>是方位正对的六组，例如子午冲。<strong>相害</strong>又叫六害，例如子未害。</p>
+<p>这些规则出自干支历法，用在排八字、看流年时。它们描述地支与地支，不是对两个人关系的结论。想把两个人完整的四柱放在一起看，可以用<a class="il" href="Hehun.dc.html">八字合婚</a>。</p>
+</article>
+
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。</p>
+
+</main>
+
+<dc-import name="FtrEast" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":2500}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const names = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+const he6 = ['0-1', '2-11', '3-10', '4-9', '5-8', '6-7'];
+const hai = ['0-7', '1-6', '2-5', '3-4', '8-11', '9-10'];
+const rel = function (i, j) {
+const a = Math.min(i, j);
+const b = Math.max(i, j);
+const key = a + '-' + b;
+if (i === j) return { t: '同', k: '' };
+if (he6.indexOf(key) >= 0) return { t: '六合', k: 'he' };
+if ((b - a) % 4 === 0) return { t: '三合', k: 'he' };
+if (b - a === 6) return { t: '六冲', k: 'ch' };
+if (hai.indexOf(key) >= 0) return { t: '相害', k: 'ch' };
+return { t: '—', k: '' };
+};
+const cells = [];
+names.forEach(function (n) { cells.push({ cls: 'pc ph', t: n, label: '属' + n }); });
+names.forEach(function (n, i) {
+cells.push({ cls: 'pc ph', t: n, label: '属' + n });
+names.forEach(function (m, j) {
+const r = rel(i, j);
+const cur = (i === 0 && j === 1) || (i === 1 && j === 0);
+cells.push({ cls: 'pc' + (r.k ? ' ' + r.k : '') + (cur ? ' cur' : ''), t: r.t, label: '属' + n + ' × 属' + m + '：' + (r.t === '—' ? '没有三合、六合、六冲、相害' : r.t) });
+});
+});
+const row = names.map(function (m, j) {
+const r = rel(0, j);
+return { name: '属鼠 × 属' + m, t: r.t === '—' ? '无' : r.t, bcls: 'bdg ' + (r.k === 'he' ? 'bdg-free' : 'bdg-paid') };
+});
+return { theme: theme, cls: 'xx hans' + (device === 'mobile' ? ' m' : ''), cells: cells, row: row };
+}
+}
+</script>
+</body>
+</html>

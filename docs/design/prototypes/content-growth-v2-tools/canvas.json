@@ -1,0 +1,76 @@
+{
+ "v": 3,
+ "createdOnFiles": {"v": 1, "at": "2026-11-23T12:00:00Z"},
+ "title": "content-growth-v2-tools",
+ "launch": {"view": "canvas"},
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 1160, "title": "HomeEast · /zh-hans/ 首页精选区 · 桌面 1440 · 浅色"},
+  "HomeEastMobile.dc.html": {"x": 1520, "y": 0, "w": 390, "h": 2100, "title": "HomeEastMobile · 手机 390 · 浅色"},
+  "HomeEastDark.dc.html": {"x": 1990, "y": 0, "w": 1440, "h": 1160, "title": "HomeEastDark · 桌面 1440 · 深色"},
+  "HomeEastMobileDark.dc.html": {"x": 3510, "y": 0, "w": 390, "h": 2100, "title": "HomeEastMobileDark · 手机 390 · 深色"},
+  "HomeEastKo.dc.html": {"x": 3980, "y": 0, "w": 390, "h": 2100, "title": "HomeEastKo · /ko/ 精选区 · 手机 390 · 浅色"},
+
+  "HomeWest.dc.html": {"x": 0, "y": 3000, "w": 1440, "h": 1160, "title": "HomeWest · / 首页精选区 · 桌面 1440 · 浅色"},
+  "HomeWestMobile.dc.html": {"x": 1520, "y": 3000, "w": 390, "h": 2000, "title": "HomeWestMobile · 手机 390 · 浅色"},
+  "HomeWestDark.dc.html": {"x": 1990, "y": 3000, "w": 1440, "h": 1160, "title": "HomeWestDark · 桌面 1440 · 深色"},
+  "HomeWestMobileDark.dc.html": {"x": 3510, "y": 3000, "w": 390, "h": 2000, "title": "HomeWestMobileDark · 手机 390 · 深色"},
+
+  "HubEast.dc.html": {"x": 0, "y": 5900, "w": 1440, "h": 2900, "title": "HubEast · /zh-hans/ 全部工具 · 桌面 1440 · 浅色"},
+  "HubEastMobile.dc.html": {"x": 1520, "y": 5900, "w": 390, "h": 4700, "title": "HubEastMobile · 手机 390 · 浅色"},
+  "HubWest.dc.html": {"x": 1990, "y": 5900, "w": 1440, "h": 2700, "title": "HubWest · All tools · 桌面 1440 · 浅色"},
+  "HubWestMobile.dc.html": {"x": 3510, "y": 5900, "w": 390, "h": 4300, "title": "HubWestMobile · 手机 390 · 浅色"},
+  "HubEmpty.dc.html": {"x": 3980, "y": 5900, "w": 390, "h": 4000, "title": "HubEmpty · 空分组态（该语言某组没有页面）· 手机 390 · 浅色"},
+
+  "Nav.dc.html": {"x": 0, "y": 11100, "w": 1440, "h": 2700, "title": "Nav · 页头下拉与手机菜单中的「全部工具」· 两站"},
+  "Proposals.dc.html": {"x": 1520, "y": 11100, "w": 1440, "h": 2900, "title": "Proposals · token / 组件变更提议"},
+
+  "Year2027Sign.dc.html": {"x": 0, "y": 14600, "w": 1440, "h": 3700, "title": "Year2027Sign · /zh-hans/ 属马 2027 · 桌面 1440 · 浅色"},
+  "Year2027SignArchived.dc.html": {"x": 1520, "y": 14600, "w": 390, "h": 5600, "title": "Year2027SignArchived · 过季态（2028 立春后）· 手机 390 · 浅色"},
+  "Liunian2027.dc.html": {"x": 1990, "y": 14600, "w": 1440, "h": 3300, "title": "Liunian2027 · 个人 2027 流年 表单 + 结果 · 桌面 1440 · 浅色"},
+  "Liunian2027Error.dc.html": {"x": 3510, "y": 14600, "w": 390, "h": 1900, "title": "Liunian2027Error · 校验错误态 · 手机 390 · 浅色"},
+
+  "Hehun.dc.html": {"x": 0, "y": 20700, "w": 1440, "h": 3800, "title": "Hehun · /zh-hans/ 八字合婚 表单 + 结果 · 桌面 1440 · 浅色"},
+  "HehunEdge.dc.html": {"x": 1520, "y": 20700, "w": 390, "h": 6000, "title": "HehunEdge · 对方时辰未知 · 手机 390 · 浅色"},
+  "ZodiacPair.dc.html": {"x": 1990, "y": 20700, "w": 1440, "h": 3100, "title": "ZodiacPair · 属鼠 × 属牛 · 桌面 1440 · 浅色"},
+  "ZodiacGrid.dc.html": {"x": 3510, "y": 20700, "w": 1440, "h": 2500, "title": "ZodiacGrid · 生肖配对 12×12 枢纽 · 桌面 1440 · 浅色"},
+  "ZodiacGridMobile.dc.html": {"x": 5030, "y": 20700, "w": 390, "h": 2700, "title": "ZodiacGridMobile · 手机改为选择 + 列表 · 390 · 浅色"},
+
+  "Tojeong.dc.html": {"x": 0, "y": 27200, "w": 1440, "h": 3400, "title": "Tojeong · /ko/ 토정비결 2027 폼 + 결과 · 桌面 1440 · 浅色"},
+  "TojeongError.dc.html": {"x": 1520, "y": 27200, "w": 390, "h": 1900, "title": "TojeongError · 校验错误态 · 手机 390 · 浅色"},
+
+  "MoonToday.dc.html": {"x": 0, "y": 31100, "w": 1440, "h": 4000, "title": "MoonToday · Moon Phase Today · 桌面 1440 · 浅色"},
+  "MoonTodayEdge.dc.html": {"x": 1520, "y": 31100, "w": 390, "h": 6200, "title": "MoonTodayEdge · 时区未知改用 UTC · 手机 390 · 深色"},
+  "WestPair.dc.html": {"x": 1990, "y": 31100, "w": 1440, "h": 3100, "title": "WestPair · Aries × Leo · 桌面 1440 · 浅色"},
+  "WestGrid.dc.html": {"x": 3510, "y": 31100, "w": 1440, "h": 2500, "title": "WestGrid · Zodiac compatibility 12×12 · 桌面 1440 · 浅色"},
+  "WestGridMobile.dc.html": {"x": 5030, "y": 31100, "w": 390, "h": 2700, "title": "WestGridMobile · 手机改为选择 + 列表 · 390 · 浅色"},
+
+  "HdrEast.dc.html": {"x": 0, "y": 38000, "w": 1440, "h": 80, "title": "HdrEast · 共用页头（东方站）"},
+  "HdrWest.dc.html": {"x": 1520, "y": 38000, "w": 1440, "h": 80, "title": "HdrWest · 共用页头（西方站）"},
+  "FtrEast.dc.html": {"x": 0, "y": 38200, "w": 1440, "h": 360, "title": "FtrEast · 共用页脚（东方站）"},
+  "FtrWest.dc.html": {"x": 1520, "y": 38200, "w": 1440, "h": 360, "title": "FtrWest · 共用页脚（西方站）"}
+ },
+ "order": [
+  "Main.dc.html", "HomeEastMobile.dc.html", "HomeEastDark.dc.html", "HomeEastMobileDark.dc.html", "HomeEastKo.dc.html",
+  "HomeWest.dc.html", "HomeWestMobile.dc.html", "HomeWestDark.dc.html", "HomeWestMobileDark.dc.html",
+  "HubEast.dc.html", "HubEastMobile.dc.html", "HubWest.dc.html", "HubWestMobile.dc.html", "HubEmpty.dc.html",
+  "Nav.dc.html", "Proposals.dc.html",
+  "Year2027Sign.dc.html", "Year2027SignArchived.dc.html", "Liunian2027.dc.html", "Liunian2027Error.dc.html",
+  "Hehun.dc.html", "HehunEdge.dc.html", "ZodiacPair.dc.html", "ZodiacGrid.dc.html", "ZodiacGridMobile.dc.html",
+  "Tojeong.dc.html", "TojeongError.dc.html",
+  "MoonToday.dc.html", "MoonTodayEdge.dc.html", "WestPair.dc.html", "WestGrid.dc.html", "WestGridMobile.dc.html",
+  "HdrEast.dc.html", "HdrWest.dc.html", "FtrEast.dc.html", "FtrWest.dc.html"
+ ],
+ "notes": {
+  "t1": {"x": 0, "y": -300, "text": "1 · 东方站首页精选区：1 主卡 + 季节位 + 4 副卡", "kind": "title1", "maxW": 4370},
+  "t2": {"x": 0, "y": 2700, "text": "2 · 西方站首页精选区", "kind": "title1", "maxW": 3900},
+  "t3": {"x": 0, "y": 5600, "text": "3 · 「全部工具 / All tools」枢纽页", "kind": "title1", "maxW": 4370},
+  "t4": {"x": 0, "y": 10800, "text": "4 · 页头入口　·　token / 组件变更提议", "kind": "title1", "maxW": 2960},
+  "t5": {"x": 0, "y": 14300, "text": "5a · 东方站 2027：生肖年运页与个人流年工具", "kind": "title1", "maxW": 3900},
+  "t6": {"x": 0, "y": 20400, "text": "5b–c · 八字合婚、生肖配对页与 12×12 枢纽", "kind": "title1", "maxW": 5420},
+  "t7": {"x": 0, "y": 26900, "text": "5d · 토정비결 2027（ko）", "kind": "title1", "maxW": 1910},
+  "t8": {"x": 0, "y": 30800, "text": "5e–f · Moon Phase Today、星座配对页与 12×12", "kind": "title1", "maxW": 5420},
+  "t9": {"x": 0, "y": 37700, "text": "共用部件（各画板引用）", "kind": "title1", "maxW": 2960}
+ },
+ "designSystems": []
+}

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>全部工具</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrEast" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="hub-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="面包屑"><a href="Main.dc.html">首页</a><span aria-hidden="true">›</span><span>全部工具</span></nav>
+<h1 class="t-title">全部工具</h1>
+<p class="muted">本站的排盘、合盘、年运、占卜与历法工具都列在这里。每个工具都能免费得到结果；带「AI 详批」的工具，可以在结果页另选一份更细的解读。</p>
+</div>
+
+<p class="gapnote when when-empty">空分组态：本语言「在线占卜」一组暂时没有已发布的页面。这一组的标题与上方的跳转标签都不渲染，不显示空标题，也不显示「即将上线」。</p>
+
+<nav class="toc" aria-label="分组">
+<a href="#g-chart">免费排盘</a><a href="#g-pair">关系合盘</a><a href="#g-year">年运与时运</a><a class="hide-empty" href="#g-div">在线占卜</a><a href="#g-cal">历法与生肖</a><a href="#g-kb">知识库</a>
+</nav>
+
+<div class="hub">
+
+<section class="hub-group" id="g-chart" aria-labelledby="g-chart-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-chart-h">免费排盘</h2><p class="muted">输入出生时间，排出命盘。</p></div>
+<div class="tools">
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">八</span><div class="tool-top"><h3 class="t-heading">八字排盘</h3></div><p class="muted t-caption">四柱命盘、五行强弱、喜用神、大运流年与神煞。</p><div class="tags"><span class="bdg bdg-free">免费排盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">紫</span><div class="tool-top"><h3 class="t-heading">紫微斗数</h3></div><p class="muted t-caption">十二宫位、命宫与身宫、十四主星与生年四化。</p><div class="tags"><span class="bdg bdg-free">免费排盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">盘</span><div class="tool-top"><h3 class="t-heading">命盘查询</h3></div><p class="muted t-caption">四柱、藏干、十神与大运流年表。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+</div>
+</section>
+
+<section class="hub-group" id="g-pair" aria-labelledby="g-pair-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-pair-h">关系合盘</h2><p class="muted">两个人的命盘或生肖放在一起看。分数与关系只是传统参考。</p></div>
+<div class="tools">
+<a class="tool row" href="Hehun.dc.html"><span class="glyph" aria-hidden="true">合</span><div class="tool-top"><h3 class="t-heading">八字合婚</h3><span class="bdg bdg-new">新</span></div><p class="muted t-caption">两个人的日柱关系与五行互补，逐项列出依据。</p><div class="tags"><span class="bdg bdg-free">免费合盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool row" href="ZodiacGrid.dc.html"><span class="glyph" aria-hidden="true">配</span><div class="tool-top"><h3 class="t-heading">生肖配对</h3><span class="bdg bdg-new">新</span></div><p class="muted t-caption">十二生肖两两之间的三合、六合、六冲与相害。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+</div>
+</section>
+
+<section class="hub-group" id="g-year" aria-labelledby="g-year-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-year-h">年运与时运</h2><p class="muted">按年、按日看干支与命盘的关系。</p></div>
+<div class="tools">
+<a class="tool row" href="Liunian2027.dc.html"><span class="glyph" aria-hidden="true">年</span><div class="tool-top"><h3 class="t-heading">2027 流年</h3><span class="bdg bdg-new">2027</span></div><p class="muted t-caption">丁未年与你八字的十神、合冲关系。</p><div class="tags"><span class="bdg bdg-free">免费查询</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool row" href="Year2027Sign.dc.html"><span class="glyph" aria-hidden="true">未</span><div class="tool-top"><h3 class="t-heading">2027 生肖运势</h3><span class="bdg bdg-new">2027</span></div><p class="muted t-caption">十二生肖在丁未年的地支关系与传统说法。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">日</span><div class="tool-top"><h3 class="t-heading">每日运势</h3></div><p class="muted t-caption">今天的干支、建除与宜忌。</p><div class="tags"><span class="bdg bdg-free">免费查看</span></div></a>
+</div>
+</section>
+
+<section class="hub-group hide-empty" id="g-div" aria-labelledby="g-div-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-div-h">在线占卜</h2><p class="muted">带着一个问题来，抽牌看传统牌义。</p></div>
+<div class="tools">
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">牌</span><div class="tool-top"><h3 class="t-heading">三张牌塔罗</h3></div><p class="muted t-caption">洗牌、切牌，翻开过去、现在、未来三张牌。</p><div class="tags"><span class="bdg bdg-free">免费抽牌</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">一</span><div class="tool-top"><h3 class="t-heading">每日一张塔罗</h3></div><p class="muted t-caption">每天抽一张牌，读正位与逆位的牌义。</p><div class="tags"><span class="bdg bdg-free">免费抽牌</span></div></a>
+</div>
+</section>
+
+<section class="hub-group" id="g-cal" aria-labelledby="g-cal-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-cal-h">历法与生肖</h2><p class="muted">公历、农历、干支与生肖的对照。</p></div>
+<div class="tools">
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">历</span><div class="tool-top"><h3 class="t-heading">黄历</h3></div><p class="muted t-caption">公历、农历与干支对照，建除、宜忌与冲煞。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+<a class="tool row" href="Main.dc.html"><span class="glyph" aria-hidden="true">肖</span><div class="tool-top"><h3 class="t-heading">十二生肖</h3></div><p class="muted t-caption">出生日期查属相，立春与春节两种口径。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+</div>
+</section>
+
+<section class="hub-group" id="g-kb" aria-labelledby="g-kb-h">
+<div class="hub-ghead"><h2 class="t-title" id="g-kb-h">知识库</h2><p class="muted">工具里用到的概念，在这里有完整的说明。</p></div>
+<ul class="cgrid">
+<li><a class="il" href="Main.dc.html">十神</a></li>
+<li><a class="il" href="Main.dc.html">合冲刑害</a></li>
+<li><a class="il" href="Main.dc.html">五行生克</a></li>
+<li><a class="il" href="Main.dc.html">大运与流年</a></li>
+<li><a class="il" href="Main.dc.html">紫微十四主星</a></li>
+<li><a class="il" href="Main.dc.html">十二宫位</a></li>
+<li><a class="il" href="Main.dc.html">塔罗牌义（78 张）</a></li>
+<li><a class="il" href="Main.dc.html">二十四节气</a></li>
+</ul>
+</section>
+
+</div>
+
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。</p>
+
+</main>
+
+<dc-import name="FtrEast" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["list","empty"],"default":"list"},"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'list';
+return { theme: theme, cls: 'xx hans st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>token / 组件变更提议</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx hans board" style="gap: 24px">
+
+<div class="b-sec">
+<h1 class="t-title">token / 组件变更提议</h1>
+<p class="muted prose">本画布没有新增颜色、字号、圆角或阴影 token，全部取自 brand.css 现有变量。下面 8 项是新的组合方式，建议做成项目组件（apps/web 的 feature 或 @xuanxue/ui/project），不改模板拥有的 packages/ui 基础组件。请逐项确认。</p>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">1 · 工具标签 ToolLabel</h2>
+<p class="muted">三种：动作式免费标签（页面底色 --bg 填充）、「新 / 2027」（--accent 填充，同现有 tag）、详批价格（--line-strong 描边）。字号为 caption，高 24px。不引入「会员」「付费工具」标签。</p>
+</div>
+<div class="pp-demo" style="background: var(--surface)"><div class="rowline"><span class="bdg bdg-free">免费排盘</span><span class="bdg bdg-free">免费抽牌</span><span class="bdg bdg-free">免费查询</span><span class="bdg bdg-new">新</span><span class="bdg bdg-new">2027</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">2 · 工具卡增加标签位</h2>
+<p class="muted">现有工具卡（字形、标题、说明、文字链接）改为：字形、标题 + 角标、说明、标签行。原来的「开始排盘 →」文字链接由动作式免费标签取代，整张卡仍是一个链接。枢纽页与手机用横排（字形在左）。</p>
+</div>
+<div class="pp-demo"><a class="tool row" href="HubEast.dc.html"><span class="glyph" aria-hidden="true">合</span><div class="tool-top"><h3 class="t-heading">八字合婚</h3><span class="bdg bdg-new">新</span></div><p class="muted t-caption">两个人的日柱关系与五行互补。</p><div class="tags"><span class="bdg bdg-free">免费合盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">3 · 首页精选区 FeaturedTools</h2>
+<p class="muted">布局：第一行主卡（7 份宽，--surface）+ 季节位（5 份宽，--surface-2 色带）；第二行副卡，东方站 4 张，西方站 3 张。手机上依次堆叠。数据层：FEATURED_LIMIT = 4 改为「1 主卡 + 最多 4 副卡」，另加季节位配置（起止日期、到期后的替补项）。季节位到期且没有替补时，主卡占满整行。</p>
+</div>
+<div class="pp-demo"><div class="feat" style="gap: 8px"><div class="rule" style="height: 72px">主卡</div><div class="rule" style="height: 72px">季节位</div><div class="feat-row" style="gap: 8px"><div class="rule" style="height: 48px">副卡</div><div class="rule" style="height: 48px">副卡</div><div class="rule" style="height: 48px">副卡</div><div class="rule" style="height: 48px">副卡</div></div></div></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">4 · 全部工具枢纽页 ToolsHub</h2>
+<p class="muted">新路由，每种语言一页，服务端渲染，数据来自工具注册表（需要给每个工具加 group、freeLabel、badge、hasReading 四个字段）。分组跳转用现有 toc 标签；知识库一组用现有链接列表。某语言某组没有已发布页面时，分组与跳转标签都不渲染。</p>
+</div>
+<div class="pp-demo"><nav class="toc" aria-label="分组示例"><a href="HubEast.dc.html">免费排盘</a><a href="HubEast.dc.html">关系合盘</a><a href="HubEast.dc.html">年运与时运</a></nav></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">5 · 双人出生资料 DuoBirthForm 与隐私说明</h2>
+<p class="muted">现有表单面板内放两个 fieldset（你 / 对方），字段沿用单人表单。隐私说明是 --surface-2 底的一行，带锁形图标，放在提交按钮上方，始终可见，不放进折叠或提示气泡。</p>
+</div>
+<div class="pp-demo"><div class="privacy"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg><p>对方的出生资料只用于本次计算，不保存到你的账户，也不用于其他用途。</p></div></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">6 · 参考分 ScoreMeter</h2>
+<p class="muted">display 字号的数字 + 10px 高的进度条（轨道 --surface-2，填充 --accent），语义为 role="meter"。不分档、不配「上等婚 / 下等婚」一类的评语，不用红绿色。下方固定一句说明：分数只表示命中的传统规则数量。</p>
+</div>
+<div class="pp-demo" style="background: var(--surface)"><div class="score"><p class="num">72 <small>/ 100</small></p><div><div class="meter" role="meter" aria-label="示例参考分" aria-valuemin="0" aria-valuemax="100" aria-valuenow="72"><i style="width: 72%"></i></div><div class="meter-scale"><span>0</span><span>满分</span></div></div></div></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">7 · 配对网格 PairGrid</h2>
+<p class="muted">12×12 的链接网格，每格 ≥ 44px 高，格内是关系名称的文字。相合类用 --surface-2 填充，相冲类用 --line-strong 描边，其余为 --surface；区分靠填充与描边加文字，不靠色相。当前配对用 2px --accent 内框。只在桌面显示；手机改为两个 Select 加 12 行列表。东西两站共用。</p>
+</div>
+<div class="pp-demo"><div class="pgrid" style="grid-template-columns: 56px repeat(4, minmax(0, 1fr))"><span class="ph" aria-hidden="true">×</span><span class="ph">鼠</span><span class="ph">牛</span><span class="ph">龙</span><span class="ph">马</span><span class="ph">鼠</span><a class="pc" href="ZodiacGrid.dc.html">同</a><a class="pc he cur" href="ZodiacGrid.dc.html">六合</a><a class="pc he" href="ZodiacGrid.dc.html">三合</a><a class="pc ch" href="ZodiacGrid.dc.html">六冲</a></div></div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h2 class="t-heading">8 · 月相图 MoonPhase 与月历 MonthGrid</h2>
+<p class="muted">月相为内联 SVG：一个圆（暗面 --surface-2 加 --line-strong 描边）加一条由照明比例算出的亮面路径（--accent，西方站为黄铜色）。不用图片、不用渐变。月历是 7 列网格，主要月相的日期用 --surface-2 填充并写出名称，今天用 1px --accent 内框。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light" style="flex-direction: row; align-items: center; gap: 20px; flex-wrap: wrap">
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="New moon" style="width: 72px; height: 72px"><circle class="dk" cx="70" cy="70" r="60"/></svg>
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="Waxing crescent, 25%" style="width: 72px; height: 72px"><circle class="dk" cx="70" cy="70" r="60"/><path class="lt" d="M70 10 A60 60 0 0 1 70 130 A30 60 0 0 0 70 10 Z"/></svg>
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="First quarter, 50%" style="width: 72px; height: 72px"><circle class="dk" cx="70" cy="70" r="60"/><path class="lt" d="M70 10 A60 60 0 0 1 70 130 Z"/></svg>
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="Waxing gibbous, 98%" style="width: 72px; height: 72px"><circle class="dk" cx="70" cy="70" r="60"/><path class="lt" d="M70 10 A60 60 0 0 1 70 130 A57.6 60 0 0 1 70 10 Z"/></svg>
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="Full moon" style="width: 72px; height: 72px"><circle class="dk" cx="70" cy="70" r="60"/><circle class="lt" cx="70" cy="70" r="60"/></svg>
+</div>
+</div>
+
+<div class="b-sec" style="border-top: 1px solid var(--line); padding-top: 24px">
+<h2 class="t-heading">文案口径（需确认）</h2>
+<table class="spec">
+<thead><tr><th scope="col">位置</th><th scope="col">本画布</th><th scope="col">线上现状</th></tr></thead>
+<tbody>
+<tr><td><strong>东方站合规声明</strong></td><td>依据传统方法推算，仅供参考与自我探索，不预测未来。</td><td>依据传统历法与命理方法推算，仅供参考与潜意识探索，不预测未来。</td></tr>
+<tr><td><strong>西方站合规声明</strong></td><td>Calculated with traditional methods. For reference and self-reflection only; it does not predict the future.</td><td>…with AI-assisted interpretation… 一句在页脚与结果区出现。</td></tr>
+<tr><td><strong>付费标签</strong></td><td>AI 详批 · 10 积分 / AI reading · 10 credits / AI 상세 풀이 · 10 크레딧</td><td>沿用现有产品名；正文不出现其他 AI 字样。</td></tr>
+<tr><td><strong>韩语</strong></td><td>全部用합쇼체；不使用「띠별 운세」，用「2027 신년운세」「토정비결」「띠궁합」「열두 띠 나이표」。</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

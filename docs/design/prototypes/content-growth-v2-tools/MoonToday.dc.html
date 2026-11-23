@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moon Phase Today</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="mp-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWest.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWest.dc.html">All tools</a><span aria-hidden="true">›</span><span>Moon Phase Today</span></nav>
+<div class="rowline"><h1 class="t-title">Moon Phase Today</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">Tonight's phase and illumination, the next full and new moon, this month's calendar and every full moon of 2027. Calculated from the positions of the Sun and Moon.</p>
+</div>
+
+<div class="alert when when-utc">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" style="color: var(--ink)"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>
+<p>We could not read your time zone, so dates and times are shown in UTC. Near a phase change, your local date may differ by one day.</p>
+</div>
+
+<section class="obj" aria-labelledby="mp-now" style="max-width: 760px">
+<div class="lp-result">
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="Waxing gibbous moon, 98% illuminated"><circle class="dk" cx="70" cy="70" r="60"/><path class="lt" d="M70 10 A60 60 0 0 1 70 130 A57.6 60 0 0 1 70 10 Z"/></svg>
+<div class="stack" style="gap: 8px; min-width: 0">
+<p class="t-caption subtle"><span class="hide-utc">Monday, November 23, 2026 · your local time</span><span class="when when-utc wi">Monday, November 23, 2026 · UTC</span></p>
+<h2 class="bignum" id="mp-now">Waxing Gibbous</h2>
+<dl class="facts4" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px">
+<div class="kv"><dt class="t-caption subtle">Illumination</dt><dd class="t-heading">98%</dd></div>
+<div class="kv"><dt class="t-caption subtle">Moon age</dt><dd class="t-heading">14 days</dd></div>
+<div class="kv"><dt class="t-caption subtle">Next full moon</dt><dd class="t-heading">Nov 24 · in 1 day</dd></div>
+<div class="kv"><dt class="t-caption subtle">Next new moon</dt><dd class="t-heading">Dec 9 · in 16 days</dd></div>
+</dl>
+</div>
+</div>
+</section>
+<p class="t-caption subtle">Sample values for layout. The live page prints the engine's output for the visitor's date.</p>
+
+<section class="secblk" aria-labelledby="mp-phases">
+<h2 class="t-title" id="mp-phases">The eight phases</h2>
+<div class="scroller" role="list">
+<span class="chip" role="listitem">New Moon</span><span class="chip" role="listitem">Waxing Crescent</span><span class="chip" role="listitem">First Quarter</span><span class="chip" role="listitem" style="box-shadow: inset 0 0 0 1px var(--accent)" aria-current="true">Waxing Gibbous</span><span class="chip" role="listitem">Full Moon</span><span class="chip" role="listitem">Waning Gibbous</span><span class="chip" role="listitem">Last Quarter</span><span class="chip" role="listitem">Waning Crescent</span>
+</div>
+<p>A waxing gibbous moon is more than half lit and still growing toward full. It rises in the afternoon and is high in the sky through the evening.</p>
+</section>
+
+<section class="secblk" aria-labelledby="mp-cal">
+<h2 class="t-title" id="mp-cal">November 2026</h2>
+<div class="mcal" role="group" aria-label="Moon calendar for November 2026">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="35">
+<span class="{{d.cls}}"><b>{{d.n}}</b>{{d.ph}}</span>
+</sc-for>
+</div>
+<nav class="series" aria-label="Adjacent months" style="max-width: 760px">
+<a class="relcard" href="#mp-top"><span>Previous</span><b>October 2026</b></a>
+<a class="relcard next" href="#mp-top"><span>Next</span><b>December 2026</b></a>
+</nav>
+</section>
+
+<section class="secblk" aria-labelledby="mp-year">
+<h2 class="t-title" id="mp-year">Full moons in 2027</h2>
+<p>Dates are in UTC. The traditional names come from North American almanacs and follow the calendar month.</p>
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">Month</th><th scope="col">Full moon</th><th scope="col">Traditional name</th><th scope="col">New moon</th></tr></thead>
+<tbody>
+<tr><td class="k">January</td><td class="nw" data-l="Full">Jan 22</td><td data-l="Name">Wolf Moon</td><td class="nw" data-l="New">Jan 7</td></tr>
+<tr><td class="k">February</td><td class="nw" data-l="Full">Feb 20</td><td data-l="Name">Snow Moon</td><td class="nw" data-l="New">Feb 6</td></tr>
+<tr><td class="k">March</td><td class="nw" data-l="Full">Mar 22</td><td data-l="Name">Worm Moon</td><td class="nw" data-l="New">Mar 8</td></tr>
+<tr><td class="k">April</td><td class="nw" data-l="Full">Apr 20</td><td data-l="Name">Pink Moon</td><td class="nw" data-l="New">Apr 6</td></tr>
+<tr><td class="k">May</td><td class="nw" data-l="Full">May 20</td><td data-l="Name">Flower Moon</td><td class="nw" data-l="New">May 6</td></tr>
+<tr><td class="k">June</td><td class="nw" data-l="Full">Jun 19</td><td data-l="Name">Strawberry Moon</td><td class="nw" data-l="New">Jun 4</td></tr>
+<tr><td class="k">July</td><td class="nw" data-l="Full">Jul 18</td><td data-l="Name">Buck Moon</td><td class="nw" data-l="New">Jul 4</td></tr>
+<tr><td class="k">August</td><td class="nw" data-l="Full">Aug 17</td><td data-l="Name">Sturgeon Moon</td><td class="nw" data-l="New">Aug 2, Aug 31</td></tr>
+<tr><td class="k">September</td><td class="nw" data-l="Full">Sep 15</td><td data-l="Name">Harvest Moon</td><td class="nw" data-l="New">Sep 30</td></tr>
+<tr><td class="k">October</td><td class="nw" data-l="Full">Oct 15</td><td data-l="Name">Hunter's Moon</td><td class="nw" data-l="New">Oct 29</td></tr>
+<tr><td class="k">November</td><td class="nw" data-l="Full">Nov 14</td><td data-l="Name">Beaver Moon</td><td class="nw" data-l="New">Nov 28</td></tr>
+<tr><td class="k">December</td><td class="nw" data-l="Full">Dec 13</td><td data-l="Name">Cold Moon</td><td class="nw" data-l="New">Dec 27</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<article class="article" aria-labelledby="mp-a1">
+<h2 class="t-title" id="mp-a1" style="margin-top: 0">How the phase is calculated</h2>
+<p>The phase is the angle between the Sun and the Moon as seen from Earth. At 0° the Moon is new, at 90° it is at first quarter, at 180° it is full. Illumination is the share of the Moon's disc that is lit at that angle.</p>
+<p>The phase is the same everywhere on Earth at a given moment. Only the calendar date changes with your time zone, which is why a full moon can fall on two different dates in two countries.</p>
+</article>
+
+<section aria-labelledby="mp-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="mp-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>Is there a full moon tonight?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Not tonight. The Moon is 98% lit and reaches full on November 24, 2026.</p>
+</details>
+<details>
+<summary>Does the Moon look the same in the southern hemisphere?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>The phase and illumination are the same, but the lit side appears flipped. The drawing on this page shows the northern-hemisphere view.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="mp-rel">
+<h2 class="t-heading" id="mp-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="#mp-top"><b>Full Moon Calendar 2027</b><span>Every full and new moon of the year</span></a></li>
+<li><a class="relcard" href="#mp-top"><b>The Moon Tarot</b><span>Card meaning, upright and reversed</span></a></li>
+<li><a class="relcard" href="WestGrid.dc.html"><b>Zodiac Compatibility</b><span>All 78 sign pairs</span></a></li>
+<li><a class="relcard" href="HubWest.dc.html"><b>All tools</b><span>Tarot, numerology, moon and astrology</span></a></li>
+</ul>
+</section>
+
+<p class="disc">Calculated with standard astronomical methods. Traditional names and meanings are for reference and self-reflection only; they do not predict the future.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["local","utc"],"default":"local"},"$preview":{"width":1440,"height":4000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'local';
+const key = { 1: 'Last Q', 9: 'New', 17: 'First Q', 24: 'Full' };
+const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(function (w) { return { cls: 'wd', n: '', ph: w }; });
+for (let d = 1; d <= 30; d++) {
+days.push({ cls: (key[d] ? 'key' : '') + (d === 23 ? ' cur' : ''), n: String(d), ph: key[d] || (d === 23 ? 'Today' : '') });
+}
+for (let i = 0; i < 5; i++) days.push({ cls: 'off', n: '', ph: '' });
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : ''), days: days };
+}
+}
+</script>
+</body>
+</html>

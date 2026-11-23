@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>东方站共用页脚</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+<footer class="ftr" id="footer">
+<div class="wrap">
+<div class="ftr-top">
+<div class="ftr-brand">
+<span class="logo">干支日</span>
+<p class="t-caption subtle">通过命理工具与指南，认识传统智慧，探索自己。</p>
+</div>
+<nav class="ftr-links" aria-label="页脚">
+<a href="HubEast.dc.html">全部工具</a><a href="#footer">常见问题</a><a href="#footer">博客</a><a href="#footer">指南</a><a href="#footer">隐私政策</a><a href="#footer">服务条款</a><a href="#footer">退款政策</a><a href="#footer">免责声明</a>
+</nav>
+</div>
+<div class="ftr-set">
+<div class="set"><span class="t-caption subtle">主题</span><div class="seg" role="group" aria-label="主题"><button type="button" class="is-light">浅色</button><button type="button" class="is-dark">深色</button><button type="button">跟随系统</button></div></div>
+<div class="set"><span class="t-caption subtle">语言</span><button type="button" class="select sm" aria-haspopup="listbox">简体中文<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。健康相关问题请咨询专业医师。</p>
+<p class="t-caption subtle">© 2026 干支日。保留所有权利。</p>
+</div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["alone","in"],"default":"alone"},"$preview":{"width":1440,"height":360}}'>
+class Component extends DCLogic {
+renderVals() {
+const inPage = (this.props.mode ?? 'alone') === 'in';
+return { theme: inPage ? '' : 'east-light', cls: inPage ? 'part-in' : 'xx hans part' };
+}
+}
+</script>
+</body>
+</html>

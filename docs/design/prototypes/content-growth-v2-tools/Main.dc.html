@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>东方站首页精选区</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrEast" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap" style="display: flex; flex-direction: column; gap: 24px; padding-bottom: var(--space-section)">
+<p class="gapnote">首屏（标题、主按钮）沿用现有首页，此处省略。下面是改版的精选区。</p>
+
+<section aria-labelledby="tools-h">
+<div class="sec-head">
+<h2 class="t-title" id="tools-h">从一个工具开始</h2>
+<p class="muted">所有工具都能免费得到结果；想看得更细，再选详批。</p>
+</div>
+
+<div class="feat">
+
+<div class="feat-main">
+<div class="feat-txt">
+<span class="bdg bdg-free">免费排盘</span>
+<h3 class="t-title">八字排盘</h3>
+<p class="muted">四柱命盘、五行强弱、喜用神、大运流年与神煞，输入出生时间即可排出。</p>
+<p class="flowline"><span>① 免费排盘</span><span aria-hidden="true">→</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span><span>可选</span></p>
+<a class="btn btn-primary" href="HubEast.dc.html">免费排盘</a>
+</div>
+<div class="stack" aria-label="样例命盘">
+<div class="pillars">
+<div class="pillar"><span class="t-caption subtle">年柱</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">午</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar"><span class="t-caption subtle">月柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+<div class="pillar dm"><span class="t-caption subtle">日柱</span><span class="gz">庚</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">辰</span><span class="el"><i class="dot" style="background: var(--wx-earth)"></i>土</span></div>
+<div class="pillar"><span class="t-caption subtle">时柱</span><span class="gz">辛</span><span class="el"><i class="dot" style="background: var(--wx-metal)"></i>金</span><span class="gz">巳</span><span class="el"><i class="dot" style="background: var(--wx-fire)"></i>火</span></div>
+</div>
+<p class="t-caption subtle">虚构命盘：1990-05-15 10:30 男</p>
+</div>
+</div>
+
+<div class="feat-season">
+<span class="bdg bdg-new">2027</span>
+<p class="yr" aria-hidden="true">丁未</p>
+<h3 class="t-heading">2027 丁未年：流年与生肖运势</h3>
+<p class="muted">丁未年自 2027 年 2 月 4 日立春起算。按你的八字看这一年的干支关系，或按生肖读传统说法。</p>
+<div class="acts">
+<a class="btn btn-secondary" href="Liunian2027.dc.html">免费查流年</a>
+<a class="link" href="Year2027Sign.dc.html">十二生肖 2027 →</a>
+</div>
+</div>
+
+<div class="feat-row">
+<a class="tool" href="Hehun.dc.html"><span class="glyph" aria-hidden="true">合</span><div class="tool-top"><h3 class="t-heading">八字合婚</h3><span class="bdg bdg-new">新</span></div><p class="muted">两个人的日柱关系与五行互补，逐项列出依据。</p><div class="tags"><span class="bdg bdg-free">免费合盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool" href="HubEast.dc.html"><span class="glyph" aria-hidden="true">紫</span><div class="tool-top"><h3 class="t-heading">紫微斗数</h3></div><p class="muted">十二宫位、命宫与身宫、十四主星与生年四化。</p><div class="tags"><span class="bdg bdg-free">免费排盘</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool" href="HubEast.dc.html"><span class="glyph" aria-hidden="true">牌</span><div class="tool-top"><h3 class="t-heading">三张牌塔罗</h3></div><p class="muted">洗牌、切牌，翻开过去、现在、未来三张牌。</p><div class="tags"><span class="bdg bdg-free">免费抽牌</span><span class="bdg bdg-paid">AI 详批 · 10 积分</span></div></a>
+<a class="tool" href="HubEast.dc.html"><span class="glyph" aria-hidden="true">历</span><div class="tool-top"><h3 class="t-heading">黄历</h3></div><p class="muted">公历、农历与干支对照，建除、宜忌与冲煞。</p><div class="tags"><span class="bdg bdg-free">免费查询</span></div></a>
+</div>
+
+</div>
+
+<p class="feat-foot"><a class="link" href="HubEast.dc.html">全部工具 →</a></p>
+</section>
+
+<p class="disc">依据传统方法推算，仅供参考与自我探索，不预测未来。</p>
+</main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["east-light","east-dark"],"default":"east-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":1160}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'east-light';
+const device = this.props.device ?? 'desktop';
+return { theme: theme, cls: 'xx hans' + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Zodiac Compatibility Chart</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="wg-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWest.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWest.dc.html">All tools</a><span aria-hidden="true">›</span><span>Zodiac Compatibility</span></nav>
+<div class="rowline"><h1 class="t-title">Zodiac Compatibility Chart</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">How any two sun signs relate in traditional astrology: by the aspect between them, their elements and their modalities. Pick a cell to read the pair.</p>
+</div>
+
+<section class="secblk d-only" aria-labelledby="wg-grid">
+<h2 class="t-title" id="wg-grid">All twelve signs, pair by pair</h2>
+<p class="keys" aria-label="Key"><span><i class="he"></i>Trine, sextile</span><span><i class="ch"></i>Square, opposition</span><span><i></i>Same sign, or no major aspect (–)</span></p>
+<div class="pgrid" role="group" aria-label="Zodiac compatibility chart">
+<span class="ph" aria-hidden="true">×</span>
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="12">
+<a class="{{c.cls}}" href="WestPair.dc.html" aria-label="{{c.label}}">{{c.t}}</a>
+</sc-for>
+</div>
+<p class="t-caption subtle">The chart is symmetric, so there are 78 distinct pairs. Aspects are counted sign to sign, not by exact degrees.</p>
+</section>
+
+<section class="secblk m-only" aria-labelledby="wg-pick">
+<h2 class="t-title" id="wg-pick">Pick two signs</h2>
+<div class="cols2" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+<div class="field"><span class="label" id="wg-a">First sign</span><button type="button" class="select" aria-haspopup="listbox" aria-labelledby="wg-a">Aries<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+<div class="field"><span class="label" id="wg-b">Second sign</span><button type="button" class="select" aria-haspopup="listbox" aria-labelledby="wg-b">Leo<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button></div>
+</div>
+<a class="btn btn-primary btn-block" href="WestPair.dc.html">See Aries and Leo</a>
+<h3 class="t-heading" style="margin-top: 12px">Aries with every sign</h3>
+<nav class="plist" aria-label="All Aries pairs">
+<sc-for list="{{row}}" as="r" hint-placeholder-count="12">
+<a href="WestPair.dc.html"><span>{{r.name}}</span><span class="{{r.bcls}}">{{r.t}}</span></a>
+</sc-for>
+</nav>
+<p class="t-caption subtle">On phones the 12×12 chart is replaced by two selects and a twelve-row list for one sign: chart cells would be smaller than a 44px touch target. All 78 pair pages stay linked.</p>
+</section>
+
+<article class="article" aria-labelledby="wg-a1">
+<h2 class="t-title" id="wg-a1" style="margin-top: 0">What the aspects mean</h2>
+<p>Signs four apart share an element and form a <strong>trine</strong>. Signs two apart have complementary elements, fire with air or earth with water, and form a <strong>sextile</strong>. Signs three apart share a modality and form a <strong>square</strong>. Signs six apart sit opposite each other, an <strong>opposition</strong>.</p>
+<p>This chart compares sun signs only. It is a traditional reference for reading two charts side by side, not a verdict on a relationship.</p>
+</article>
+
+<p class="disc">Calculated with traditional methods. For reference and self-reflection only; it does not predict the future.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"$preview":{"width":1440,"height":2500}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const names = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+const rel = function (i, j) {
+const raw = Math.abs(i - j);
+const d = Math.min(raw, 12 - raw);
+if (d === 0) return { t: 'Same', k: '' };
+if (d === 2) return { t: 'Sextile', k: 'he' };
+if (d === 3) return { t: 'Square', k: 'ch' };
+if (d === 4) return { t: 'Trine', k: 'he' };
+if (d === 6) return { t: 'Opposite', k: 'ch' };
+return { t: '–', k: '' };
+};
+const cells = [];
+names.forEach(function (n) { cells.push({ cls: 'pc ph', t: n.slice(0, 3), label: n }); });
+names.forEach(function (n, i) {
+cells.push({ cls: 'pc ph', t: n.slice(0, 3), label: n });
+names.forEach(function (m, j) {
+const r = rel(i, j);
+const cur = (i === 0 && j === 4) || (i === 4 && j === 0);
+cells.push({ cls: 'pc' + (r.k ? ' ' + r.k : '') + (cur ? ' cur' : ''), t: r.t, label: n + ' and ' + m + ': ' + (r.t === '–' ? 'no major aspect' : r.t.toLowerCase()) });
+});
+});
+const row = names.map(function (m, j) {
+const r = rel(0, j);
+return { name: 'Aries and ' + m, t: r.t === '–' ? 'No major aspect' : r.t, bcls: 'bdg ' + (r.k === 'he' ? 'bdg-free' : 'bdg-paid') };
+});
+return { theme: theme, cls: 'xx' + (device === 'mobile' ? ' m' : ''), cells: cells, row: row };
+}
+}
+</script>
+</body>
+</html>
