@@ -1,12 +1,18 @@
 import type { BaziChart, PillarKey } from '@xuanxue/bazi'
 import { cn } from '@xuanxue/ui'
 import { m } from '../../../paraglide/messages.js'
+import {
+  isYearlyToolLocale,
+  YEARLY_TOOL_PATHS,
+  YEARLY_TOOL_TITLES,
+} from '../../east-content/yearly-tool/paths.ts'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { birthUnlock } from '../../readings/unlock-requests.ts'
 import { PillarsChart } from '../charts/pillars-chart.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
+import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import { toShareInput } from './birth-form-state.ts'
@@ -70,6 +76,13 @@ export function MingpanPage() {
         ...link(pageHref('ziwei', LOCALE), m.bazi_link_ziwei(), 'ziwei'),
         ...link(conceptHref(LOCALE, 'ten-gods'), m.bazi_link_ten_gods(), 'concept-ten-gods'),
         ...link(conceptHref(LOCALE, 'luck'), m.bazi_link_luck(), 'concept-luck'),
+        ...(isYearlyToolLocale(LOCALE)
+          ? link(
+              toolHref(YEARLY_TOOL_PATHS[LOCALE], LOCALE),
+              YEARLY_TOOL_TITLES[LOCALE],
+              'yearly-tool',
+            )
+          : []),
       ]}
       faq={[
         { question: m.bazi_mingpan_faq_q1(), answer: m.bazi_mingpan_faq_a1() },

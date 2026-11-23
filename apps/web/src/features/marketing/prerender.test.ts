@@ -89,6 +89,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hant/八字/神煞' },
       { path: '/zh-hant/八字/八字重量' },
       { path: '/zh-hant/八字/十神' },
+      // content-growth-v2-tools 第 7 组：个人 2027 流年工具
+      { path: '/zh-hant/2027流年' },
       { path: '/zh-hans' },
       { path: '/zh-hans/八字排盘' },
       { path: '/zh-hans/紫微斗数排盘' },
@@ -106,6 +108,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hans/八字/神煞' },
       { path: '/zh-hans/八字/八字重量' },
       { path: '/zh-hans/八字/十神' },
+      { path: '/zh-hans/2027流年' },
       { path: '/ko' },
       { path: '/ko/만세력' },
       { path: '/ko/사주궁합' },
@@ -122,6 +125,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ko/사주/십신' },
       { path: '/ko/사주/일주' },
       { path: '/ko/토정비결' },
+      { path: '/ko/2027-신년-사주' },
       // 日语（add-locales-eu-ja 第 4 组，pending：照常预渲染供 staging，正式域名由站点守卫返回 404）
       { path: '/ja' },
       { path: '/ja/四柱推命' },
@@ -141,6 +145,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/en/tarot-spreads/one-card' },
       { path: '/en/tarot-spreads/pick-a-card' },
       { path: '/en/tarot-spreads/celtic-cross' },
+      { path: '/en/bazi-2027' },
       { path: '/en/faq' },
       { path: '/en/privacy' },
       { path: '/en/terms' },

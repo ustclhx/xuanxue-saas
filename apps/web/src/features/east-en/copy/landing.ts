@@ -49,7 +49,7 @@ export const LANDING: LandingCopy = {
     {
       heading: 'How the charts are calculated',
       paragraphs: [
-        'Chinese months do not begin on the 1st. They change at the solar terms, the 24 points of the sun’s yearly path, so someone born on 3 February and someone born on 5 February can land in different years and months even though both dates are in February. The calculator places every birth against those boundaries, and the year itself changes at the Beginning of Spring rather than on 1 January or at the lunar New Year.',
+        'Chinese months do not begin on the 1st. They change at the solar terms, the 24 points of the sun’s yearly path, so someone born on 3 February and someone born on 5 February can land in different years and months even though both dates are in February. The calculator places every birth against those boundaries, and the year itself changes at the Beginning of Spring rather than on 1 January or at the lunar New Year. In 2027 that is 4 February, when the Ding Wei year covered by [BaZi 2027](bazi-2027) begins.',
         'The hour matters just as much. Pick your birth city and the calculator applies that city’s historical time zone, including daylight saving time, before it finds your two-hour period. If you were born near the edge of an hour, you can switch on true solar time, which corrects for longitude and the equation of time. The calculation runs in your browser, on your own device, and you do not need an account.',
         'Optional full readings are a separate step. They are written by AI from your finished chart, cost credits, and are listed on the [pricing](pricing) page. The free charts stay free either way.',
       ],

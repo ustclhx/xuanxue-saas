@@ -14,6 +14,7 @@ import type { SpreadId, Suit } from '@xuanxue/tarot'
 export type LinkKey =
   | 'home'
   | 'bazi'
+  | 'bazi-2027'
   | 'ziwei'
   | 'spreads'
   | 'one-card'
