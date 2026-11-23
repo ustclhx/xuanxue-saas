@@ -7,6 +7,7 @@ import {
   allPosts,
   allTarotFeelings,
   allTarots,
+  allWesternZodiacs,
   allZodiacs,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
@@ -15,6 +16,7 @@ import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
 import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
+import { westernZodiacSeoPages } from '../west-content/zodiac/seo-pages.ts'
 import { pageSite, type SeoPage } from './metadata.ts'
 import { type PageLinks, pageLinks } from './page-links.ts'
 import { publicPages } from './pages.ts'
@@ -34,6 +36,8 @@ export function getPublicPages(site?: SiteId) {
         ...tarotFeelingsSeoPages(allTarotFeelings),
         // 东方站生肖枢纽与子页（content-growth-phase2 第 4 组）
         ...zodiacSeoPages(allZodiacs),
+        // 西方站星座枢纽、档案、配对总表与配对页（content-growth-v2-tools 第 20 组）
+        ...westernZodiacSeoPages(allWesternZodiacs),
       ],
     },
     new Date(),

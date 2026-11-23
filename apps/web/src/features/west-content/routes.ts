@@ -1,4 +1,5 @@
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
+import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type WestContentCollection =
   | 'moon'
@@ -24,6 +25,8 @@ export interface WestContentRoute {
 export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   // 第 19 组：今日月相、满月、年度满月表、月历枢纽与 12 个月份页（en）
   ...MOON_CONTENT_ROUTES,
+  // 第 20 组：星座枢纽、12 个星座档案、配对总表与 78 组配对页（en）
+  ...WESTERN_ZODIAC_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

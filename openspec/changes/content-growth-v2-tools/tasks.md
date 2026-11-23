@@ -173,9 +173,9 @@
 
 ## 20. 西方星座档案与配对（en）★
 
-- [ ] 20.1 新建星座事实表与 `westernZodiac` 集合、档案页、配对总表与配对页组件（design 决策 12）；登记地址与注册表（`directoryGroup: compatibility` 与 `astrology`）。新建 `scripts/check-content-western-zodiac.mjs` 复算元素、模式与角距。单测覆盖反序 301、总表 78 个链接
+- [x] 20.1 新建星座事实表与 `westernZodiac` 集合、档案页、配对总表与配对页组件（design 决策 12）；登记地址与注册表（`directoryGroup: compatibility` 与 `astrology`）。新建 `scripts/check-content-western-zodiac.mjs` 复算元素、模式与角距。单测覆盖反序 301、总表 78 个链接
 - [ ] 20.2 Claude 子代理撰写枢纽、12 个档案页、总表与 78 个配对页；Codex 做事实与合规审阅
-- [ ] 20.3 验收：`western-sign`、`western-pair` 组内相似度、判定词审计为 0、长度与 TDK、内链（档案 ↔ 配对 ↔ 总表）、术语表锚点、关键词归属补登
+- [x] 20.3 验收：`western-sign`、`western-pair` 组内相似度、判定词审计为 0、长度与 TDK、内链（档案 ↔ 配对 ↔ 总表）、术语表锚点、关键词归属补登
 
 ## 21. 波次 A 集成验收与发版（协调者）★
 

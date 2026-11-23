@@ -1,0 +1,472 @@
+{
+  "locale": "en",
+  "site": "west",
+  "status": "draft",
+  "review": "西方站星座页（content-growth-v2-tools 第 20 组）：Codex 事实与合规审阅由协调者安排，记录放私有证据目录 content-growth/v2/20/",
+  "cardName": "{rank} of {suit}",
+  "scanOnly": true,
+  "terms": [
+    {
+      "id": "zodiac.sun-sign",
+      "en": "sun sign",
+      "preferred": "sun sign"
+    },
+    {
+      "id": "zodiac.element.fire",
+      "en": "fire",
+      "preferred": "fire"
+    },
+    {
+      "id": "zodiac.element.earth",
+      "en": "earth",
+      "preferred": "earth"
+    },
+    {
+      "id": "zodiac.element.air",
+      "en": "air",
+      "preferred": "air"
+    },
+    {
+      "id": "zodiac.element.water",
+      "en": "water",
+      "preferred": "water"
+    },
+    {
+      "id": "zodiac.modality.cardinal",
+      "en": "cardinal",
+      "preferred": "cardinal"
+    },
+    {
+      "id": "zodiac.modality.fixed",
+      "en": "fixed",
+      "preferred": "fixed"
+    },
+    {
+      "id": "zodiac.modality.mutable",
+      "en": "mutable",
+      "preferred": "mutable"
+    },
+    {
+      "id": "zodiac.aspect.conjunction",
+      "en": "conjunction",
+      "preferred": "conjunction",
+      "variants": ["same sign"]
+    },
+    {
+      "id": "zodiac.aspect.semisextile",
+      "en": "semi-sextile",
+      "preferred": "semi-sextile"
+    },
+    {
+      "id": "zodiac.aspect.sextile",
+      "en": "sextile",
+      "preferred": "sextile"
+    },
+    {
+      "id": "zodiac.aspect.square",
+      "en": "square",
+      "preferred": "square"
+    },
+    {
+      "id": "zodiac.aspect.trine",
+      "en": "trine",
+      "preferred": "trine"
+    },
+    {
+      "id": "zodiac.aspect.quincunx",
+      "en": "quincunx",
+      "preferred": "quincunx",
+      "variants": ["inconjunct"]
+    },
+    {
+      "id": "zodiac.aspect.opposition",
+      "en": "opposition",
+      "preferred": "opposition"
+    },
+    {
+      "id": "zodiac.ruler",
+      "en": "ruling planet",
+      "preferred": "ruling planet",
+      "variants": ["ruler"]
+    },
+    {
+      "id": "zodiac.tropical",
+      "en": "tropical zodiac",
+      "preferred": "tropical zodiac"
+    }
+  ],
+  "banned": [
+    {
+      "regex": "\\bsoul ?mates?\\b",
+      "flags": "i",
+      "reason": "关系判定（决策 14）"
+    },
+    {
+      "regex": "\\b(?:perfect|best|worst|ideal|good|bad) match(?:es)?\\b",
+      "flags": "i",
+      "reason": "关系判定（决策 14）"
+    },
+    {
+      "regex": "\\bincompatib(?:le|ility)\\b",
+      "flags": "i",
+      "reason": "关系判定（决策 14）"
+    },
+    {
+      "regex": "\\b(?:doomed|destined|meant to be)\\b",
+      "flags": "i",
+      "reason": "关系判定（决策 14）"
+    },
+    {
+      "regex": "\\bchinese zodiac\\b",
+      "flags": "i",
+      "reason": "chinese zodiac 系列英文主词归东方站（跨站主题归属），西方站不写"
+    },
+    {
+      "regex": "\\bAI\\b",
+      "reason": "公开正文不提 AI"
+    }
+  ],
+  "compliance": {
+    "required": [
+      {
+        "id": "traditional-method",
+        "phrases": [
+          "traditional rules",
+          "traditional astrology",
+          "traditional reading",
+          "traditional associations",
+          "traditional correspondences"
+        ]
+      },
+      {
+        "id": "reference-only",
+        "phrases": [
+          "for reference",
+          "for self-reflection",
+          "reference for self-reflection",
+          "for reflection"
+        ]
+      },
+      {
+        "id": "no-prediction",
+        "phrases": [
+          "does not predict",
+          "do not predict",
+          "not a prediction",
+          "not predictions",
+          "cannot predict",
+          "not a forecast"
+        ]
+      }
+    ],
+    "banned": [
+      {
+        "regex": "\\bentertainment(?: purposes)?\\b",
+        "flags": "i",
+        "reason": "不使用「娱乐」定位"
+      },
+      {
+        "regex": "\\b(?:just )?for fun\\b",
+        "flags": "i",
+        "reason": "不使用「娱乐」定位"
+      },
+      {
+        "regex": "\\bguaranteed? (?:accuracy|results|predictions?)\\b",
+        "flags": "i",
+        "reason": "不保证结果"
+      },
+      {
+        "regex": "\\bwill predict\\b",
+        "flags": "i",
+        "reason": "不做预测"
+      }
+    ]
+  },
+  "anchors": {
+    "/zodiac-signs": ["zodiac signs", "Western zodiac signs"],
+    "/zodiac-compatibility": ["zodiac compatibility chart", "zodiac compatibility"],
+    "/zodiac-signs/aries": ["Aries", "Aries compatibility"],
+    "/zodiac-signs/taurus": ["Taurus", "Taurus compatibility"],
+    "/zodiac-signs/gemini": ["Gemini", "Gemini compatibility"],
+    "/zodiac-signs/cancer": ["Cancer", "Cancer compatibility"],
+    "/zodiac-signs/leo": ["Leo", "Leo compatibility"],
+    "/zodiac-signs/virgo": ["Virgo", "Virgo compatibility"],
+    "/zodiac-signs/libra": ["Libra", "Libra compatibility"],
+    "/zodiac-signs/scorpio": ["Scorpio", "Scorpio compatibility"],
+    "/zodiac-signs/sagittarius": ["Sagittarius", "Sagittarius compatibility"],
+    "/zodiac-signs/capricorn": ["Capricorn", "Capricorn compatibility"],
+    "/zodiac-signs/aquarius": ["Aquarius", "Aquarius compatibility"],
+    "/zodiac-signs/pisces": ["Pisces", "Pisces compatibility"],
+    "/zodiac-compatibility/aries-and-aries": ["Aries and Aries", "Aries and Aries compatibility"],
+    "/zodiac-compatibility/aries-and-taurus": [
+      "Aries and Taurus",
+      "Aries and Taurus compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-gemini": [
+      "Aries and Gemini",
+      "Aries and Gemini compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-cancer": [
+      "Aries and Cancer",
+      "Aries and Cancer compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-leo": ["Aries and Leo", "Aries and Leo compatibility"],
+    "/zodiac-compatibility/aries-and-virgo": ["Aries and Virgo", "Aries and Virgo compatibility"],
+    "/zodiac-compatibility/aries-and-libra": ["Aries and Libra", "Aries and Libra compatibility"],
+    "/zodiac-compatibility/aries-and-scorpio": [
+      "Aries and Scorpio",
+      "Aries and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-sagittarius": [
+      "Aries and Sagittarius",
+      "Aries and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-capricorn": [
+      "Aries and Capricorn",
+      "Aries and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-aquarius": [
+      "Aries and Aquarius",
+      "Aries and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/aries-and-pisces": [
+      "Aries and Pisces",
+      "Aries and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-taurus": [
+      "Taurus and Taurus",
+      "Taurus and Taurus compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-gemini": [
+      "Taurus and Gemini",
+      "Taurus and Gemini compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-cancer": [
+      "Taurus and Cancer",
+      "Taurus and Cancer compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-leo": ["Taurus and Leo", "Taurus and Leo compatibility"],
+    "/zodiac-compatibility/taurus-and-virgo": [
+      "Taurus and Virgo",
+      "Taurus and Virgo compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-libra": [
+      "Taurus and Libra",
+      "Taurus and Libra compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-scorpio": [
+      "Taurus and Scorpio",
+      "Taurus and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-sagittarius": [
+      "Taurus and Sagittarius",
+      "Taurus and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-capricorn": [
+      "Taurus and Capricorn",
+      "Taurus and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-aquarius": [
+      "Taurus and Aquarius",
+      "Taurus and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/taurus-and-pisces": [
+      "Taurus and Pisces",
+      "Taurus and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-gemini": [
+      "Gemini and Gemini",
+      "Gemini and Gemini compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-cancer": [
+      "Gemini and Cancer",
+      "Gemini and Cancer compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-leo": ["Gemini and Leo", "Gemini and Leo compatibility"],
+    "/zodiac-compatibility/gemini-and-virgo": [
+      "Gemini and Virgo",
+      "Gemini and Virgo compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-libra": [
+      "Gemini and Libra",
+      "Gemini and Libra compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-scorpio": [
+      "Gemini and Scorpio",
+      "Gemini and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-sagittarius": [
+      "Gemini and Sagittarius",
+      "Gemini and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-capricorn": [
+      "Gemini and Capricorn",
+      "Gemini and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-aquarius": [
+      "Gemini and Aquarius",
+      "Gemini and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/gemini-and-pisces": [
+      "Gemini and Pisces",
+      "Gemini and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-cancer": [
+      "Cancer and Cancer",
+      "Cancer and Cancer compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-leo": ["Cancer and Leo", "Cancer and Leo compatibility"],
+    "/zodiac-compatibility/cancer-and-virgo": [
+      "Cancer and Virgo",
+      "Cancer and Virgo compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-libra": [
+      "Cancer and Libra",
+      "Cancer and Libra compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-scorpio": [
+      "Cancer and Scorpio",
+      "Cancer and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-sagittarius": [
+      "Cancer and Sagittarius",
+      "Cancer and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-capricorn": [
+      "Cancer and Capricorn",
+      "Cancer and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-aquarius": [
+      "Cancer and Aquarius",
+      "Cancer and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/cancer-and-pisces": [
+      "Cancer and Pisces",
+      "Cancer and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/leo-and-leo": ["Leo and Leo", "Leo and Leo compatibility"],
+    "/zodiac-compatibility/leo-and-virgo": ["Leo and Virgo", "Leo and Virgo compatibility"],
+    "/zodiac-compatibility/leo-and-libra": ["Leo and Libra", "Leo and Libra compatibility"],
+    "/zodiac-compatibility/leo-and-scorpio": ["Leo and Scorpio", "Leo and Scorpio compatibility"],
+    "/zodiac-compatibility/leo-and-sagittarius": [
+      "Leo and Sagittarius",
+      "Leo and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/leo-and-capricorn": [
+      "Leo and Capricorn",
+      "Leo and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/leo-and-aquarius": [
+      "Leo and Aquarius",
+      "Leo and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/leo-and-pisces": ["Leo and Pisces", "Leo and Pisces compatibility"],
+    "/zodiac-compatibility/virgo-and-virgo": ["Virgo and Virgo", "Virgo and Virgo compatibility"],
+    "/zodiac-compatibility/virgo-and-libra": ["Virgo and Libra", "Virgo and Libra compatibility"],
+    "/zodiac-compatibility/virgo-and-scorpio": [
+      "Virgo and Scorpio",
+      "Virgo and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/virgo-and-sagittarius": [
+      "Virgo and Sagittarius",
+      "Virgo and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/virgo-and-capricorn": [
+      "Virgo and Capricorn",
+      "Virgo and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/virgo-and-aquarius": [
+      "Virgo and Aquarius",
+      "Virgo and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/virgo-and-pisces": [
+      "Virgo and Pisces",
+      "Virgo and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/libra-and-libra": ["Libra and Libra", "Libra and Libra compatibility"],
+    "/zodiac-compatibility/libra-and-scorpio": [
+      "Libra and Scorpio",
+      "Libra and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/libra-and-sagittarius": [
+      "Libra and Sagittarius",
+      "Libra and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/libra-and-capricorn": [
+      "Libra and Capricorn",
+      "Libra and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/libra-and-aquarius": [
+      "Libra and Aquarius",
+      "Libra and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/libra-and-pisces": [
+      "Libra and Pisces",
+      "Libra and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/scorpio-and-scorpio": [
+      "Scorpio and Scorpio",
+      "Scorpio and Scorpio compatibility"
+    ],
+    "/zodiac-compatibility/scorpio-and-sagittarius": [
+      "Scorpio and Sagittarius",
+      "Scorpio and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/scorpio-and-capricorn": [
+      "Scorpio and Capricorn",
+      "Scorpio and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/scorpio-and-aquarius": [
+      "Scorpio and Aquarius",
+      "Scorpio and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/scorpio-and-pisces": [
+      "Scorpio and Pisces",
+      "Scorpio and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/sagittarius-and-sagittarius": [
+      "Sagittarius and Sagittarius",
+      "Sagittarius and Sagittarius compatibility"
+    ],
+    "/zodiac-compatibility/sagittarius-and-capricorn": [
+      "Sagittarius and Capricorn",
+      "Sagittarius and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/sagittarius-and-aquarius": [
+      "Sagittarius and Aquarius",
+      "Sagittarius and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/sagittarius-and-pisces": [
+      "Sagittarius and Pisces",
+      "Sagittarius and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/capricorn-and-capricorn": [
+      "Capricorn and Capricorn",
+      "Capricorn and Capricorn compatibility"
+    ],
+    "/zodiac-compatibility/capricorn-and-aquarius": [
+      "Capricorn and Aquarius",
+      "Capricorn and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/capricorn-and-pisces": [
+      "Capricorn and Pisces",
+      "Capricorn and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/aquarius-and-aquarius": [
+      "Aquarius and Aquarius",
+      "Aquarius and Aquarius compatibility"
+    ],
+    "/zodiac-compatibility/aquarius-and-pisces": [
+      "Aquarius and Pisces",
+      "Aquarius and Pisces compatibility"
+    ],
+    "/zodiac-compatibility/pisces-and-pisces": [
+      "Pisces and Pisces",
+      "Pisces and Pisces compatibility"
+    ]
+  },
+  "scan": [
+    "apps/web/content/western-zodiac/en/**/*.mdx",
+    "apps/web/src/features/west-content/zodiac/copy.ts"
+  ]
+}
