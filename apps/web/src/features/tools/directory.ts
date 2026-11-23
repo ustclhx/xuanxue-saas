@@ -41,6 +41,8 @@ const HUB_EXTRA_IDS: ReadonlySet<string> = new Set([
   'numerology',
   // 年运分组：个人流年工具（第 7 组）与年度枢纽、太歲页（第 8、18 组）只为不进页头下拉而设 `nav: false`
   'yearly-tool',
+  // 月相分组：年度满月表按已确认的 HubWest 画板进枢纽页（月份页与满月页不进）
+  'full-moon-calendar',
 ])
 
 /** 年度枢纽与太歲页的 id 随年份生成（`yearly-<年份>`、`tai-sui-<年份>`），同样进枢纽页的年运分组 */
