@@ -1,10 +1,22 @@
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
 
-export type EastContentCollection = 'zodiac' | 'almanac' | 'ziwei-stars'
+export type EastContentCollection =
+  | 'zodiac'
+  | 'almanac'
+  | 'ziwei-stars'
+  | 'yearly'
+  | 'yearly-tool'
+  | 'compat'
+  | 'compat-scenario'
+  | 'zodiac-pair'
+  | 'tojeong'
+  | 'nongminli'
+  | 'tai-sui-year'
+  | 'tools-hub'
 
 export interface EastContentRoute {
-  readonly locale: 'zh-Hans' | 'zh-Hant' | 'ko'
+  readonly locale: 'zh-Hans' | 'zh-Hant' | 'ko' | 'ja' | 'en'
   readonly path: `/${string}`
   readonly collection: EastContentCollection
   readonly id: string
@@ -18,7 +30,11 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...ALMANAC_CONTENT_ROUTES,
 ]
 
-export function eastContentRouteOf(locale: string, path: string): EastContentRoute | undefined {
+export function eastContentRouteOf(
+  locale: string,
+  path: string,
+  routes: readonly EastContentRoute[] = EAST_CONTENT_ROUTES,
+): EastContentRoute | undefined {
   let decoded = path
   try {
     // 解码 Unicode 路径段，保留编码后的斜杠，避免单段地址被当成两段。
@@ -26,5 +42,5 @@ export function eastContentRouteOf(locale: string, path: string): EastContentRou
   } catch {
     // 非法编码按原样比较。
   }
-  return EAST_CONTENT_ROUTES.find((route) => route.locale === locale && route.path === decoded)
+  return routes.find((route) => route.locale === locale && route.path === decoded)
 }

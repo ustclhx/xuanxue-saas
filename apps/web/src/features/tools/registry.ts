@@ -13,6 +13,27 @@ import { NUMEROLOGY_ROUTES } from './numerology/routes.ts'
 import { TAROT_MEANING_ROUTES } from './tarot/meaning-routes.ts'
 import { TAROT_TOOL_ROUTES } from './tarot/routes.ts'
 
+const DIRECTORY_GROUPS = {
+  east: ['chart', 'relation', 'yearly', 'divination', 'calendar', 'knowledge'],
+  west: ['tarot', 'numerology', 'astrology', 'moon', 'compatibility'],
+} as const satisfies Record<SiteId, readonly string[]>
+
+export type ToolDirectoryGroup = (typeof DIRECTORY_GROUPS)[SiteId][number]
+export type ToolFreeLabel =
+  | 'free_chart'
+  | 'free_compatibility'
+  | 'free_lookup'
+  | 'free_draw'
+  | 'free_cast'
+  | 'free_calculate'
+
+export interface ToolBadge {
+  readonly kind: 'new' | 'year'
+  readonly label?: string
+  /** 小标可显示至此日（含），格式为 YYYY-MM-DD。 */
+  readonly until: string
+}
+
 /**
  * 工具路由注册表（openspec add-dual-site-foundation 决策 3、5；docs/10-v1-plan.md §3）：
  * 每个工具一行，由各工具 change 追加，冲突时合并两边。预渲染范围、站点地图、页头导航与内链矩阵
@@ -43,6 +64,54 @@ export interface ToolRoute {
    * 省略时在工具组
    */
   readonly navGroup?: 'calendar'
+  /** 全部工具页的分组和动作式免费标签；现有独立路由清单可由注册表补上。 */
+  readonly directoryGroup?: ToolDirectoryGroup
+  readonly freeLabel?: ToolFreeLabel
+  readonly badge?: ToolBadge
+}
+
+/** 完整注册表的条目必须明确归类并提供免费标签。 */
+export interface RegisteredToolRoute extends ToolRoute {
+  readonly directoryGroup: ToolDirectoryGroup
+  readonly freeLabel: ToolFreeLabel
+}
+
+export function defineToolRoutes(
+  routes: readonly RegisteredToolRoute[],
+): readonly RegisteredToolRoute[] {
+  for (const { site, id, directoryGroup, badge } of routes) {
+    const groups: readonly ToolDirectoryGroup[] = DIRECTORY_GROUPS[site]
+    if (!groups.includes(directoryGroup)) {
+      throw new Error(`Invalid directoryGroup for ${site}/${id}: ${directoryGroup}`)
+    }
+    if (badge) {
+      // Date 会把无效月末顺延至下月，转回 ISO 后核对原值。
+      const midnight = `${badge.until}T00:00:00.000Z`
+      const date = new Date(midnight)
+      if (
+        badge.until.length !== 10 ||
+        !Number.isFinite(date.getTime()) ||
+        date.toISOString() !== midnight
+      ) {
+        throw new Error(
+          `Invalid badge.until for ${site}/${id}: ${badge.until} (expected YYYY-MM-DD)`,
+        )
+      }
+    }
+  }
+  return routes
+}
+
+function withDirectoryDefaults(
+  route: ToolRoute,
+  directoryGroup: ToolDirectoryGroup,
+  freeLabel: ToolFreeLabel,
+): RegisteredToolRoute {
+  // 保留与原清单的对象引用，调用端可按原清单辨识条目所属集合。
+  return Object.assign(route, {
+    directoryGroup: route.directoryGroup ?? directoryGroup,
+    freeLabel: route.freeLabel ?? freeLabel,
+  })
 }
 
 // 每个 conceptKey 一条记录，只有存在译文的语言参与 hreflang。
@@ -57,7 +126,7 @@ const conceptKeys: readonly Exclude<ConceptKey, 'base'>[] = [
   'ten-gods',
   'day-pillar',
 ]
-const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
+const conceptRoutes: RegisteredToolRoute[] = conceptKeys.map((key) => {
   const paths: Record<string, string> = {}
   const titles: Record<string, string> = {}
   for (const locale of ['zh-Hant', 'zh-Hans', 'ko'] as const) {
@@ -66,15 +135,25 @@ const conceptRoutes: ToolRoute[] = conceptKeys.map((key) => {
     paths[locale] = path
     titles[locale] = (CONCEPT_SLUGS[locale] as Record<string, string>)[key] ?? key
   }
-  return { id: `bazi-concept-${key}`, site: 'east', nav: false, paths, titles }
+  return {
+    id: `bazi-concept-${key}`,
+    site: 'east',
+    directoryGroup: 'knowledge',
+    freeLabel: 'free_lookup',
+    nav: false,
+    paths,
+    titles,
+  }
 })
 
-export const TOOL_ROUTES: readonly ToolRoute[] = [
+export const TOOL_ROUTES = defineToolRoutes([
   // openspec add-bazi-saju-chart：繁中八字排盤与韩语만세력是同一工具的两个语言版本；
   // 路径为关键词 URL（openspec separate-landing-homepage design.md D1），语言首页是品牌落地页
   {
     id: 'bazi',
     site: 'east',
+    directoryGroup: 'chart',
+    freeLabel: 'free_chart',
     // en：东方站根路径英文（openspec add-locales-eu-ja 5b，关键词地图 keyword-maps/east-en.md）；
     // 描述不登记 en（另一站点的同语言页面在 publicPages 以导航名代替，页面 head 取 features/east-en 的文案）
     paths: {
@@ -101,6 +180,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'ziwei',
     site: 'east',
+    directoryGroup: 'chart',
+    freeLabel: 'free_chart',
     paths: {
       'zh-Hant': '/紫微斗數排盤',
       'zh-Hans': '/紫微斗数排盘',
@@ -122,6 +203,8 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'mingpan',
     site: 'east',
+    directoryGroup: 'chart',
+    freeLabel: 'free_lookup',
     paths: { 'zh-Hant': '/命盤查詢', 'zh-Hans': '/命盘查询' },
     titles: { 'zh-Hant': '命盤查詢', 'zh-Hans': '命盘查询' },
     descriptions: localeText({
@@ -132,25 +215,46 @@ export const TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'saju-gunghap',
     site: 'east',
+    directoryGroup: 'relation',
+    freeLabel: 'free_compatibility',
     paths: { ko: '/사주궁합' },
     titles: { ko: '사주궁합' },
     descriptions: localeText({
       ko: '무료 사주궁합: 두 사람의 일주 관계와 오행 보완으로 본 참고 점수와 항목별 가감점.',
     }),
   },
-  ...TAROT_TOOL_ROUTES,
-  ...TAROT_MEANING_ROUTES,
+  ...TAROT_TOOL_ROUTES.map((route) =>
+    withDirectoryDefaults(route, route.site === 'east' ? 'divination' : 'tarot', 'free_draw'),
+  ),
+  ...TAROT_MEANING_ROUTES.map((route) =>
+    withDirectoryDefaults(route, route.site === 'east' ? 'knowledge' : 'tarot', 'free_lookup'),
+  ),
   // openspec add-numerology-tools：西方站 Life Path 工具页、工具内页、12 个数字页与两个枢纽页
-  ...NUMEROLOGY_ROUTES,
+  ...NUMEROLOGY_ROUTES.map((route) => {
+    switch (route.id) {
+      case 'life-path-compatibility':
+        return withDirectoryDefaults(route, 'compatibility', 'free_compatibility')
+      case 'numerology-chart':
+        return withDirectoryDefaults(route, 'numerology', 'free_chart')
+      case 'life-path':
+      case 'numerology-calculator':
+      case 'name-numerology':
+        return withDirectoryDefaults(route, 'numerology', 'free_calculate')
+      default:
+        return withDirectoryDefaults(route, 'numerology', 'free_lookup')
+    }
+  }),
   ...conceptRoutes,
   // openspec add-birth-profiles-daily-horoscope：公开每日运势页（SSR，不预渲染）
-  ...DAILY_TOOL_ROUTES,
+  ...DAILY_TOOL_ROUTES.map((route) =>
+    withDirectoryDefaults(route, route.site === 'east' ? 'yearly' : 'numerology', 'free_lookup'),
+  ),
   // openspec content-growth-phase2 第 6 组：黄历工具页与 12 个月份页（SSR，不预渲染）；
   // 黄历在前，页头「历法与生肖」分组依次为 黄历、十二生肖（设计稿 EastNavVariant 方案 C）
-  ...ALMANAC_TOOL_ROUTES,
+  ...ALMANAC_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'calendar', 'free_lookup')),
   // openspec content-growth-phase2 第 4 组：生肖枢纽（页头「历法与生肖」分组）与 12 生肖页
-  ...ZODIAC_TOOL_ROUTES,
-]
+  ...ZODIAC_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'calendar', 'free_lookup')),
+])
 
 /**
  * 各站点的主工具（openspec separate-landing-homepage design.md D1、D4）：迁移前位于语言首页，

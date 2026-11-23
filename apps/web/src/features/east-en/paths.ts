@@ -1,4 +1,6 @@
+import { type EastContentRoute, eastContentRouteOf } from '../east-content/routes.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
+import { westContentRouteOf } from '../west-content/routes.ts'
 
 /**
  * 东方站根路径英文页面的地址（openspec add-locales-eu-ja 5b；关键词地图 keyword-maps/east-en.md）。
@@ -28,6 +30,20 @@ export const EAST_ENGLISH_PRERENDERED_STATIC = EAST_ENGLISH_STATIC_PATHS.filter(
   (path) => path !== '/pricing',
 )
 
+/** 由各内容组随页面一同登记；塔罗地址仍来自工具注册表。 */
+export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] = []
+
+export function eastEnContentRouteOf(path: string) {
+  return eastContentRouteOf('en', path, EAST_EN_CONTENT_ROUTES)
+}
+
+/** 这些根路径留给东方站英文；未发布的地址由路由器直接返回 404。 */
+export function isEastEnglishContentNamespace(pathname: string): boolean {
+  return /^\/(?:chinese-zodiac(?:-2027|-compatibility)?|bazi-compatibility|bazi-2027|tools)(?:\/|$)/.test(
+    clean(pathname),
+  )
+}
+
 function clean(pathname: string): string {
   let path = pathname
   try {
@@ -56,17 +72,22 @@ function routePaths(tools: readonly ToolRoute[], site: 'east' | 'west'): Set<str
   return entry[site]
 }
 
-/** 东方站英文页面的对外地址（不含 `/`）：注册表中东方站的 `en` 路径与共用静态页 */
+/** 东方站英文页面的对外地址（不含 `/`）：已登记的内容、工具与共用静态页 */
 export function isEastEnglishPath(pathname: string, tools: readonly ToolRoute[] = TOOL_ROUTES) {
   const path = clean(pathname)
   return (
     (EAST_ENGLISH_STATIC_PATHS as readonly string[]).includes(path) ||
-    routePaths(tools, 'east').has(path)
+    routePaths(tools, 'east').has(path) ||
+    eastEnContentRouteOf(path) !== undefined
   )
 }
 
 /** 只属于东方站英文的地址（西方站没有同路径页面）：西方站上返回 404，预渲染不按西方站抓取 */
 export function isEastEnglishOnlyPath(pathname: string, tools: readonly ToolRoute[] = TOOL_ROUTES) {
   const path = clean(pathname)
-  return routePaths(tools, 'east').has(path) && !routePaths(tools, 'west').has(path)
+  return (
+    (routePaths(tools, 'east').has(path) || eastEnContentRouteOf(path) !== undefined) &&
+    !routePaths(tools, 'west').has(path) &&
+    westContentRouteOf('en', path) === undefined
+  )
 }

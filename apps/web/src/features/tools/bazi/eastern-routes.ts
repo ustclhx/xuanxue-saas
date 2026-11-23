@@ -13,7 +13,11 @@ export type EasternPageId = 'bazi' | 'ziwei' | 'mingpan' | 'gunghap'
  * 东方站根路径英文的工具页（openspec add-locales-eu-ja 5b，关键词地图 keyword-maps/east-en.md）：
  * 无语言前缀，只在东方站存在（西方站同路径由站点守卫返回 404）
  */
-export const EAST_EN_TOOL_PATHS = { bazi: '/bazi-calculator', ziwei: '/zi-wei-dou-shu' } as const
+export const EAST_EN_TOOL_PATHS = {
+  bazi: '/bazi-calculator',
+  ziwei: '/zi-wei-dou-shu',
+  gunghap: '/bazi-compatibility',
+} as const
 
 /** 东方站排盘页的语言：东方站各语言与东方站根路径英文 */
 export type EasternPageLocale = EastLocale | 'en'
@@ -26,17 +30,21 @@ export const EASTERN_PAGES: readonly {
   { id: 'bazi', locale: 'zh-Hant', slug: '八字排盤' },
   { id: 'ziwei', locale: 'zh-Hant', slug: '紫微斗數排盤' },
   { id: 'mingpan', locale: 'zh-Hant', slug: '命盤查詢' },
+  { id: 'gunghap', locale: 'zh-Hant', slug: '八字合盤' },
   { id: 'bazi', locale: 'zh-Hans', slug: '八字排盘' },
   { id: 'ziwei', locale: 'zh-Hans', slug: '紫微斗数排盘' },
   { id: 'mingpan', locale: 'zh-Hans', slug: '命盘查询' },
+  { id: 'gunghap', locale: 'zh-Hans', slug: '八字合盘' },
   { id: 'bazi', locale: 'ko', slug: '만세력' },
   { id: 'gunghap', locale: 'ko', slug: '사주궁합' },
   // 关键词地图 ja.md §2–3（使用者 2026-11-20 批准）：日语主词即路径段
   { id: 'bazi', locale: 'ja', slug: '四柱推命' },
   { id: 'ziwei', locale: 'ja', slug: '紫微斗数' },
+  { id: 'gunghap', locale: 'ja', slug: '四柱推命相性' },
   // 东方站英文：路由 `/$slug` 只在东方站匹配（西方站由站点守卫 404，见 features/east-en/paths.ts）
   { id: 'bazi', locale: 'en', slug: EAST_EN_TOOL_PATHS.bazi.slice(1) },
   { id: 'ziwei', locale: 'en', slug: EAST_EN_TOOL_PATHS.ziwei.slice(1) },
+  { id: 'gunghap', locale: 'en', slug: EAST_EN_TOOL_PATHS.gunghap.slice(1) },
 ]
 
 /** 路由参数可能是已解码的 Unicode，也可能保留百分号编码，两者都接受 */

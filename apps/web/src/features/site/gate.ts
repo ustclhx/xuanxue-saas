@@ -1,11 +1,17 @@
 import { localeUrlSegment, SITE_IDS } from '@xuanxue/config'
 import { NOT_FOUND_PATH } from '../admin/not-found-path.ts'
-import { isEastEnglishOnlyPath, isEastEnglishPath } from '../east-en/paths.ts'
+import {
+  isEastEnglishContentNamespace,
+  isEastEnglishOnlyPath,
+  isEastEnglishPath,
+} from '../east-en/paths.ts'
 import { isAppAreaPath } from '../i18n/app-area.ts'
 import { prefixLocale as segmentLocale } from '../i18n/locale-url.ts'
 import { isLocaleLive, LOCALE_RELEASE, type ReleaseTable, releaseState } from '../i18n/rollout.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
+import { reversedPairPath } from '../routing/pair-path.ts'
 import { mainToolPath } from '../tools/registry.ts'
+import { westContentRouteOf } from '../west-content/routes.ts'
 import {
   EAST_ENGLISH_LOCALE,
   resolveSite,
@@ -115,7 +121,7 @@ export function routeSite(
     site.known &&
     site.id === 'east' &&
     siteHasLocale('east', EAST_ENGLISH_LOCALE, config) &&
-    isEastEnglishPath(pathname) &&
+    (isEastEnglishPath(pathname) || isEastEnglishContentNamespace(pathname)) &&
     (release === null || isLocaleLive(EAST_ENGLISH_LOCALE, url.host, config, release))
   )
     return { kind: 'pass', noindex }
@@ -127,6 +133,11 @@ export function routeSite(
     isEastEnglishOnlyPath(pathname)
   )
     return { kind: 'not-found' }
+  if (site.known && site.id === 'east') {
+    const westPath = reversedPairPath('west', 'en', pathname) ?? pathname
+    if (westContentRouteOf('en', westPath) || isEastEnglishContentNamespace(pathname))
+      return { kind: 'not-found' }
+  }
   if (
     site.known &&
     config.sites[site.id].defaultLocale === null &&

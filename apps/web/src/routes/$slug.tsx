@@ -1,8 +1,10 @@
 import { createFileRoute, lazyRouteComponent, notFound } from '@tanstack/react-router'
 import { Suspense } from 'react'
 import { eastContentRouteOf } from '../features/east-content/routes.ts'
+import { eastEnContentRouteOf } from '../features/east-en/paths.ts'
 import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { originFromMatches } from '../features/seo/metadata.ts'
+import { siteOfLocale } from '../features/site/site.ts'
 import { type EasternPageId, easternPageOf } from '../features/tools/bazi/eastern-routes.ts'
 import {
   baziToolStructuredData,
@@ -14,7 +16,10 @@ import {
   numerologySlugHead,
   numerologySlugPage,
 } from '../features/tools/numerology/slug-route.ts'
+import { TOOL_ROUTES } from '../features/tools/registry.ts'
+import { westContentRouteOf } from '../features/west-content/routes.ts'
 import { getLocale } from '../paraglide/runtime.js'
+import { templateConfig } from '../server/template-config.ts'
 
 // 东方站排盘入口（openspec add-bazi-saju-chart 决策 7；separate-landing-homepage design.md D1）：
 // `/zh-hant/八字排盤`、`/zh-hans/八字排盘`、`/ko/만세력`（主工具页，迁移前在语言首页）、
@@ -53,6 +58,10 @@ const EastContentPage = lazyRouteComponent(
   () => import('../features/east-content/route-data.ts'),
   'EastContentPage',
 )
+const WestContentPage = lazyRouteComponent(
+  () => import('../features/west-content/route-data.ts'),
+  'WestContentPage',
+)
 
 // 东方站根路径英文（openspec add-locales-eu-ja 5b）：`/bazi-calculator`、`/zi-wei-dou-shu`，
 // 以及塔罗索引页 `/tarot-spreads`、`/tarot-feelings`（两段地址见 routes/$section/$item.tsx）
@@ -87,65 +96,82 @@ function pageComponent(id: EasternPageId, locale: string) {
 }
 
 export const Route = createFileRoute('/$slug')({
-  beforeLoad: ({ params }) => {
+  // 黄历等工具的查询参数变化时，客户端重新读取页面数据与 head。
+  loaderDeps: ({ search }) => ({ ...search, date: 'date' in search ? search.date : undefined }),
+  loader: async ({ params, deps, parentMatchPromise }) => {
     const locale = getLocale()
-    // en 的未登记 slug 交给 loader：可能是东方站英文的塔罗索引页（features/east-en/route-data.ts）
-    if (
-      locale !== 'en' &&
-      !easternPageOf(locale, params.slug) &&
-      !numerologySlugPage(locale, params.slug) &&
-      !eastContentRouteOf(locale, `/${params.slug}`)
-    )
-      throw notFound()
-  },
-  // 黄历工具页的日期写在查询参数中。客户端切换日期时重新执行 loader。
-  loaderDeps: ({ search }) => ({ date: 'date' in search ? search.date : undefined }),
-  loader: async ({ params, deps }) => {
-    const locale = getLocale()
-    const west = numerologySlugPage(locale, params.slug)
-    if (west) {
-      const [content] = await Promise.all([
-        numerologySlugContent(west),
-        NumerologySlugPage.preload?.(),
-      ])
-      return { west: { ...west, content } }
-    }
-    const id = easternPageOf(locale, params.slug)
-    if (!id) {
-      if (locale !== 'en') {
-        const route = eastContentRouteOf(locale, `/${params.slug}`)
-        if (!route) throw notFound()
-        const [{ loadEastContent }] = await Promise.all([
-          import('../features/east-content/route-data.ts'),
-          EastContentPage.preload?.(),
+    const path = `/${params.slug}`
+    const site =
+      locale === 'en'
+        ? (await parentMatchPromise).loaderData?.site.id
+        : siteOfLocale(locale, templateConfig)
+
+    if (site === 'west') {
+      const numerology = numerologySlugPage(locale, params.slug)
+      if (numerology) {
+        const [content] = await Promise.all([
+          numerologySlugContent(numerology),
+          NumerologySlugPage.preload?.(),
         ])
-        return { west: null, eastContent: await loadEastContent(route, deps.date) }
+        return { numerology: { ...numerology, content } }
       }
+      const route = westContentRouteOf(locale, path)
+      if (!route) throw notFound()
+      const [{ loadWestContent }] = await Promise.all([
+        import('../features/west-content/route-data.ts'),
+        WestContentPage.preload?.(),
+      ])
+      return { westContent: await loadWestContent(route, deps) }
+    }
+
+    if (site !== 'east') throw notFound()
+    const id = easternPageOf(locale, params.slug)
+    // 合盘地址随本组预留，正式发布语言以工具注册表为准。
+    if (id === 'gunghap' && !TOOL_ROUTES.find((tool) => tool.id === 'saju-gunghap')?.paths[locale])
+      throw notFound()
+    if (id) {
+      await pageComponent(id, locale).preload?.()
+      if (locale === 'en' && (id === 'bazi' || id === 'ziwei')) {
+        const { eastEnToolHead, toHead } = await import('../features/east-en/route-data.ts')
+        return { easternTool: id, eastEnToolHead: toHead(eastEnToolHead(id)) }
+      }
+      return { easternTool: id }
+    }
+
+    const route = locale === 'en' ? eastEnContentRouteOf(path) : eastContentRouteOf(locale, path)
+    if (route) {
+      const [{ loadEastContent }] = await Promise.all([
+        import('../features/east-content/route-data.ts'),
+        EastContentPage.preload?.(),
+      ])
+      return { eastContent: await loadEastContent(route, deps.date, deps) }
+    }
+    if (locale === 'en' && (path === '/tarot-spreads' || path === '/tarot-feelings')) {
       const [{ eastEnTarotData }] = await Promise.all([
         import('../features/east-en/route-data.ts'),
         EastEnTarotPage.preload?.(),
       ])
-      const tarot = await eastEnTarotData(`/${params.slug}`)
-      if (!tarot) throw notFound()
-      return { west: null, tarot, eastEn: tarot.head }
+      const tarot = await eastEnTarotData(path)
+      if (tarot) return { tarot }
     }
-    await pageComponent(id, locale).preload?.()
-    // 东方站英文的 head 数据按需加载（不把英文文案带进入口包，features/east-en/route-data.ts）
-    if (locale === 'en' && (id === 'bazi' || id === 'ziwei')) {
-      const { eastEnToolHead, toHead } = await import('../features/east-en/route-data.ts')
-      return { west: null, eastEn: toHead(eastEnToolHead(id)) }
-    }
-    return { west: null }
+    throw notFound()
   },
   head: ({ params, matches, loaderData }) => {
-    if (loaderData && 'eastEn' in loaderData && loaderData.eastEn) return loaderData.eastEn
+    if (loaderData?.eastEnToolHead) return loaderData.eastEnToolHead
     if (loaderData?.eastContent) return loaderData.eastContent.head
-    const locale = getLocale()
-    if (loaderData?.west)
-      return numerologySlugHead(loaderData.west, loaderData.west.content, matches)
-    const id = easternPageOf(locale, params.slug)
+    if (loaderData?.westContent) return loaderData.westContent.head
+    if (loaderData?.tarot) return loaderData.tarot.head
+    if (loaderData?.numerology)
+      return numerologySlugHead(loaderData.numerology, loaderData.numerology.content, matches)
+    const id = loaderData?.easternTool
     if (!id) return {}
-    const page = { path: `/${decodeURIComponent(params.slug)}`, locale, ...easternPageCopy(id) }
+    const locale = getLocale()
+    const page = {
+      site: 'east' as const,
+      path: `/${decodeURIComponent(params.slug)}`,
+      locale,
+      ...easternPageCopy(id),
+    }
     return easternToolHead(
       page,
       originFromMatches(matches),
@@ -156,16 +182,14 @@ export const Route = createFileRoute('/$slug')({
 })
 
 function EasternToolRoute() {
-  const { slug } = Route.useParams()
   const data = Route.useLoaderData()
-  const { west } = data
-  if (west) return <NumerologySlugPage id={west.id} content={west.content} />
-  if ('tarot' in data && data.tarot) return <EastEnTarotPage data={data.tarot} />
+  const { numerology } = data
+  if (numerology) return <NumerologySlugPage id={numerology.id} content={numerology.content} />
+  if (data.tarot) return <EastEnTarotPage data={data.tarot} />
   if (data.eastContent) return <EastContentPage data={data.eastContent} />
-  const locale = getLocale()
-  const id = easternPageOf(locale, slug)
-  if (!id) return null
-  const Page = pageComponent(id, locale)
+  if (data.westContent) return <WestContentPage data={data.westContent} />
+  if (!data.easternTool) return null
+  const Page = pageComponent(data.easternTool, getLocale())
   return (
     <MarketingShell>
       <Suspense>

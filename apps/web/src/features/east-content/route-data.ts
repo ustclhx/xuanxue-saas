@@ -13,7 +13,11 @@ export interface EastContentData extends EastContentPayload {
 }
 
 interface EastContentCollectionModule {
-  readonly load: (route: EastContentRoute, date: unknown) => Promise<EastContentPayload | null>
+  readonly load: (
+    route: EastContentRoute,
+    date: unknown,
+    search: Readonly<Record<string, unknown>>,
+  ) => Promise<EastContentPayload | null>
   readonly Page: (props: { data: EastContentData }) => ReactNode
 }
 
@@ -27,11 +31,15 @@ const collections = new Map(
   ]),
 )
 
-export async function loadEastContent(route: EastContentRoute, date?: unknown) {
+export async function loadEastContent(
+  route: EastContentRoute,
+  date?: unknown,
+  search: Readonly<Record<string, unknown>> = {},
+) {
   const collection = collections.get(route.collection)
   if (!collection) throw notFound()
   const [{ load }] = await Promise.all([collection.importModule(), collection.Page.preload?.()])
-  const payload = await load(route, date)
+  const payload = await load(route, date, search)
   if (!payload) throw notFound()
   return { route, ...payload }
 }
