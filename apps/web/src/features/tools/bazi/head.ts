@@ -1,5 +1,5 @@
 import { m } from '../../../paraglide/messages.js'
-import { pageHead } from '../../seo/metadata.ts'
+import { pageHead, type SeoPage } from '../../seo/metadata.ts'
 import { breadcrumbData, webApplicationData } from '../../seo/structured-data.ts'
 import { faqPageData } from '../numerology/seo.ts'
 import type { EasternPageId } from './eastern-routes.ts'
@@ -10,7 +10,7 @@ import type { EasternPageId } from './eastern-routes.ts'
  * （繁中八字排盤 ↔ 简体八字排盘 ↔ 韩语만세력互指）。
  */
 export function easternToolHead(
-  page: { path: string; locale: string; title: string; description: string },
+  page: Pick<SeoPage, 'path' | 'locale' | 'title' | 'description' | 'site'>,
   appUrl: string,
   structuredData: readonly unknown[] = [],
 ) {

@@ -60,10 +60,10 @@
 
 ## 2. 路由分发与注册表字段 ★
 
-- [ ] 2.1 按 design 决策 3 扩展东方站分发：`EastContentRoute.locale` 加 `zh-Hant`、`ja`，增加新集合 id；`$section/$item` 中东方 zh-Hant、ja 两段地址交给 `east-content`；东方站根路径英文先查 east-en 内容映射（`/chinese-zodiac*`、`/bazi-compatibility*`），再落到塔罗。各语言合盘工具页加入 `EASTERN_PAGES`（id `gunghap`）。单测覆盖：未登记地址 404、西方站同路径 404、现有生肖、黄历、塔罗与排盘页不变
-- [ ] 2.2 新建 `features/west-content/routes.ts`（只放地址与页面 id）与按需加载的 `route-data.ts`；`$slug` 与 `$section/$item` 增加西方站分支，已有路由目录不动。单测覆盖：东方站同路径 404、未登记地址 404、现有 `/life-path-number/7` 与 es 数字页不变
-- [ ] 2.3 实现配对类反序地址的 301（东方按地支、西方按黄道序），单测覆盖三种语言与同生肖 / 同星座组合
-- [ ] 2.4 `ToolRoute` 增加 `directoryGroup`、`freeLabel`、`badge` 字段类型与校验（`badge.until` 为合法日期），现有条目填写默认值；`check-home-bundle` 记录前后数据，首页包增长 ≤2 KB gzip
+- [x] 2.1 按 design 决策 3 扩展东方站分发：`EastContentRoute.locale` 加 `zh-Hant`、`ja`，增加新集合 id；`$section/$item` 中东方 zh-Hant、ja 两段地址交给 `east-content`；东方站根路径英文先查 east-en 内容映射（`/chinese-zodiac*`、`/bazi-compatibility*`），再落到塔罗。各语言合盘工具页加入 `EASTERN_PAGES`（id `gunghap`）。单测覆盖：未登记地址 404、西方站同路径 404、现有生肖、黄历、塔罗与排盘页不变
+- [x] 2.2 新建 `features/west-content/routes.ts`（只放地址与页面 id）与按需加载的 `route-data.ts`；`$slug` 与 `$section/$item` 增加西方站分支，已有路由目录不动。单测覆盖：东方站同路径 404、未登记地址 404、现有 `/life-path-number/7` 与 es 数字页不变
+- [x] 2.3 实现配对类反序地址的 301（东方按地支、西方按黄道序），单测覆盖三种语言与同生肖 / 同星座组合
+- [x] 2.4 `ToolRoute` 增加 `directoryGroup`、`freeLabel`、`badge` 字段类型与校验（`badge.until` 为合法日期），现有条目填写默认值；`check-home-bundle` 记录前后数据，首页包增长 ≤2 KB gzip
 
 ## 3. 东方引擎补充（packages/bazi）★
 
