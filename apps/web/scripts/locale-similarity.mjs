@@ -49,10 +49,16 @@ export const PROGRAMMATIC_KINDS = Object.freeze(['tarot-card', 'numerology-numbe
 /** 结构直译分适用的页面类型（正文为主） */
 export const LITERAL_KINDS = Object.freeze(['home', 'tool', 'numerology-number', 'faq'])
 /**
- * 另外判结构直译分的东方站集合（content-growth-phase2 任务 5.3，协调者 2026-11-22）：ko 与 zh-hans 生肖页
- * 共用版式骨架，按路径分类为 other，须单独纳入，否则跨语言直译不进门槛。
+ * 这些集合共用版式骨架，按路径分类为 other，须单独纳入结构直译分门槛。
  */
-export const LITERAL_COLLECTIONS = Object.freeze(['zodiac'])
+export const LITERAL_COLLECTIONS = Object.freeze([
+  'zodiac',
+  'yearly',
+  'zodiac-pair',
+  'compat-scenario',
+  'angel-number',
+  'personal-year',
+])
 /** 数字序列重合度适用的页面类型（含计算示例） */
 export const EXAMPLE_KINDS = Object.freeze(['tool', 'numerology-number', 'concept'])
 
@@ -88,7 +94,7 @@ export function pageKind(pathname) {
   return 'other'
 }
 
-// content-growth-phase2 决策 1、8：只纳入子页。后续批次按实际进入站点地图或预渲染的地址测量。
+// 第 2 阶段及 v2：集合内只比较同类子页，按实际进入站点地图或预渲染的地址测量。
 const EAST_COLLECTIONS = {
   'zh-Hans': [
     ['zodiac', /^\/zh-hans\/生肖\/属[鼠牛虎兔龙蛇马羊猴鸡狗猪]\/?$/],
@@ -98,9 +104,58 @@ const EAST_COLLECTIONS = {
       /^\/zh-hans\/十四主星\/(?:紫微|天机|太阳|武曲|天同|廉贞|天府|太阴|贪狼|巨门|天相|天梁|七杀|破军)星\/?$/,
     ],
     ['concepts', /^\/zh-hans\/八字\/(?:天干地支|藏干|十二长生|纳音|合冲刑害|太岁|格局|调候)\/?$/],
+    ['yearly', /^\/zh-hans\/\d{4}生肖运势\/属[鼠牛虎兔龙蛇马羊猴鸡狗猪]\/?$/],
+    [
+      'zodiac-pair',
+      /^\/zh-hans\/生肖配对\/属[鼠牛虎兔龙蛇马羊猴鸡狗猪]和属[鼠牛虎兔龙蛇马羊猴鸡狗猪]\/?$/,
+    ],
+    ['compat-scenario', /^\/zh-hans\/八字合盘\/(?:合婚|恋人|朋友|合伙|亲子)\/?$/],
   ],
-  'zh-Hant': [['zodiac', /^\/zh-hant\/生肖\/屬[鼠牛虎兔龍蛇馬羊猴雞狗豬]\/?$/]],
-  ko: [['zodiac', /^\/ko\/띠\/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠\/?$/]],
+  'zh-Hant': [
+    ['zodiac', /^\/zh-hant\/生肖\/屬[鼠牛虎兔龍蛇馬羊猴雞狗豬]\/?$/],
+    ['yearly', /^\/zh-hant\/\d{4}生肖運勢\/屬[鼠牛虎兔龍蛇馬羊猴雞狗豬]\/?$/],
+    ['compat-scenario', /^\/zh-hant\/八字合盤\/(?:合婚|戀人|朋友|合夥|親子)\/?$/],
+    ['nongminli-month', /^\/zh-hant\/農民曆\/(?:[1-9]|1[0-2])月\/?$/],
+  ],
+  ko: [
+    ['zodiac', /^\/ko\/띠\/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠\/?$/],
+    ['yearly', /^\/ko\/\d{4}년-띠\/(?:쥐|소|호랑이|토끼|용|뱀|말|양|원숭이|닭|개|돼지)띠\/?$/],
+    ['zodiac-pair', /^\/ko\/띠궁합\/[^/]+띠-[^/]+띠\/?$/],
+    ['compat-scenario', /^\/ko\/사주궁합\/(?:부부|연인|친구|동업|부모-자녀)\/?$/],
+  ],
+  ja: [['compat-scenario', /^\/ja\/四柱推命相性\/(?:結婚|恋愛|友人|仕事|親子)\/?$/]],
+  en: [
+    [
+      'yearly',
+      /^\/chinese-zodiac-\d{4}\/(?:rat|ox|tiger|rabbit|dragon|snake|horse|goat|monkey|rooster|dog|pig)\/?$/,
+    ],
+    ['zodiac-pair', /^\/chinese-zodiac-compatibility\/[a-z]+-and-[a-z]+\/?$/],
+    [
+      'compat-scenario',
+      /^\/bazi-compatibility\/(?:marriage|couples|friends|business-partners|parent-child)\/?$/,
+    ],
+  ],
+}
+
+const WEST_COLLECTIONS = {
+  en: [
+    [
+      'moon-month',
+      /^\/moon-calendar\/(?:january|february|march|april|may|june|july|august|september|october|november|december)\/?$/,
+    ],
+    [
+      'western-sign',
+      /^\/zodiac-signs\/(?:aries|taurus|gemini|cancer|leo|virgo|libra|scorpio|sagittarius|capricorn|aquarius|pisces)\/?$/,
+    ],
+    ['western-pair', /^\/zodiac-compatibility\/[a-z]+-and-[a-z]+\/?$/],
+    ['angel-number', /^\/angel-numbers\/\d+\/?$/],
+    ['personal-year', /^\/personal-year-number\/[1-9]\/?$/],
+    ['tarot-spread', /^\/tarot\/(?:love|career|full-moon)\/?$/],
+  ],
+  es: [
+    ['angel-number', /^\/es\/numeros-angelicales\/\d+\/?$/],
+    ['personal-year', /^\/es\/ano-personal\/[1-9]\/?$/],
+  ],
 }
 
 /**
@@ -127,6 +182,11 @@ export function eastSectionTitle(collection, title) {
 export function eastCollection(pathname, locale) {
   const path = safeDecode(pathname)
   return EAST_COLLECTIONS[locale]?.find(([, pattern]) => pattern.test(path))?.[0] ?? null
+}
+
+export function westCollection(pathname, locale) {
+  const path = safeDecode(pathname)
+  return WEST_COLLECTIONS[locale]?.find(([, pattern]) => pattern.test(path))?.[0] ?? null
 }
 
 const FAQ_RE =
@@ -247,9 +307,9 @@ export function createExtractor() {
   })
   const parser = new window.DOMParser()
   return {
-    extract(html, { eastProgrammatic = false } = {}) {
+    extract(html, { programmatic = false } = {}) {
       const doc = parser.parseFromString(html, 'text/html')
-      return extractDocument(doc, eastProgrammatic)
+      return extractDocument(doc, programmatic)
     },
     close() {
       return window.happyDOM.close()
@@ -257,15 +317,15 @@ export function createExtractor() {
   }
 }
 
-function extractDocument(doc, eastProgrammatic) {
+function extractDocument(doc, programmatic) {
   const main = doc.querySelector('main') ?? doc.body ?? doc.documentElement
   for (const el of [...main.querySelectorAll(REMOVED)]) el.remove()
-  const eastSections = eastProgrammatic
+  const collectionSections = programmatic
     ? extractSections(main.cloneNode(true), { tableSections: true }).sections
     : null
   stripFixedDigits(main)
   const page = extractSections(main)
-  if (eastSections) page.eastSections = eastSections
+  if (collectionSections) page.collectionSections = collectionSections
   return page
 }
 
@@ -279,7 +339,7 @@ function extractSections(main, { tableSections = false } = {}) {
   const page = sectionsFromText(structuredText(main), faqCount)
   if (tableSections)
     for (const [i, h] of headings.entries()) {
-      // 标记 H2 或仅包裹该数据表段的容器。表格单元的数字仍参与东方站 Dice。
+      // 标记 H2 或仅包裹该数据表段的容器。表格单元的数字仍参与集合内 Dice。
       page.sections[i + 1].tableSection = h.closest('[data-table-section]') !== null
     }
   return page
@@ -488,7 +548,7 @@ function pairwiseDice(items) {
 }
 
 /** 同站同语言内按 H2 可见文字对齐；只有正文段的未舍入均值用于门槛。 */
-export function eastCollectionSections(pages, { unit = 'char', collection = null } = {}) {
+export function collectionSections(pages, { unit = 'char', collection = null } = {}) {
   const byTitle = new Map()
   for (const { id, sections } of pages) {
     for (const { title, text, tableSection } of sections.slice(1)) {
@@ -521,7 +581,7 @@ export function eastCollectionSections(pages, { unit = 'char', collection = null
   return [...sections, measure('整页', 'page', wholePages)]
 }
 
-export function exceedsEastSectionThreshold({ scope, mean }) {
+export function exceedsCollectionSectionThreshold({ scope, mean }) {
   // 只消除浮点累加误差，例如数学上的 0.30 可能是 0.30000000000000004。
   return scope === 'section' && mean != null && mean - THRESHOLDS.templateRepeat > Number.EPSILON
 }
@@ -929,9 +989,10 @@ export function renderMarkdown(report) {
         )
     out.push('')
   }
-  if (report.eastCollections) {
+  const collectionsByLocale = report.eastCollections ?? report.westCollections
+  if (collectionsByLocale) {
     out.push(
-      '## 东方站集合',
+      report.eastCollections ? '## 东方站集合' : '## 西方站集合',
       '',
       `各集合按同语言 H2 标题对齐，同标题正文两两平均 Dice，门槛 ≤${THRESHOLDS.templateRepeat}（--enforce 生效）。最差页取与同段其余页的最高平均值。`,
       '共用段使用一致的 H2 可见文字。不足两页的同名段以「-」显示。同名段只在各页都用 `data-table-section` 标记 H2 或其专用容器时归入数据表段。数据表段与整页只报告。',
@@ -940,10 +1001,10 @@ export function renderMarkdown(report) {
       '|---|---|---|---|---|---|---|---|',
     )
     const scopeLabels = { section: '门槛', table: '数据表（参考）', page: '整页（参考）' }
-    for (const [locale, collections] of Object.entries(report.eastCollections))
+    for (const [locale, collections] of Object.entries(collectionsByLocale))
       for (const [collection, sections] of Object.entries(collections))
         for (const s of sections) {
-          const over = exceedsEastSectionThreshold(s)
+          const over = exceedsCollectionSectionThreshold(s)
           const mean =
             s.mean == null
               ? '-'
@@ -954,7 +1015,7 @@ export function renderMarkdown(report) {
             `| ${locale} | ${collection} | ${s.title.replaceAll('|', '\\|')} | ${scopeLabels[s.scope]} | ${s.pages} | ${mean}${over ? ' ⚠' : ''} | ${s.max == null ? '-' : r3(s.max)} | ${fmt(s.maxPage)} |`,
           )
         }
-    if (!Object.keys(report.eastCollections).length) out.push('', '尚未发现集合页面。')
+    if (!Object.keys(collectionsByLocale).length) out.push('', '尚未发现集合页面。')
     out.push('')
   }
   out.push(

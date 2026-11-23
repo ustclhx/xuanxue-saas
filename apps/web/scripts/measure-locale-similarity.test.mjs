@@ -8,17 +8,17 @@ import { join } from 'node:path'
 import { after, describe, test } from 'node:test'
 import {
   COMPONENT_SECTIONS,
+  collectionSections,
   componentSections,
   componentText,
   createExtractor,
   dice,
   digitSeq,
   eastCollection,
-  eastCollectionSections,
   eastSectionTitle,
   entryLocale,
   evaluatePage,
-  exceedsEastSectionThreshold,
+  exceedsCollectionSectionThreshold,
   faqOriginStats,
   lengthCheck,
   literalScore,
@@ -32,6 +32,7 @@ import {
   templateRepeat,
   unitOf,
   variantSimilarity,
+  westCollection,
 } from './locale-similarity.mjs'
 import { enforcedFailures, measureSite, siteClient } from './measure-locale-similarity.mjs'
 
@@ -263,17 +264,17 @@ describe('东方站集合', () => {
         <h2 data-table-section>年份</h2><div data-locale-fixed>甲子 2026</div>
         <section data-table-section><h2>逐日表</h2><p>乙丑</p></section>
         <h2>解释</h2><p>丙寅</p>`),
-      { eastProgrammatic: true },
+      { programmatic: true },
     )
     assert.deepEqual(
-      out.eastSections.slice(1).map(({ title, tableSection }) => [title, tableSection]),
+      out.collectionSections.slice(1).map(({ title, tableSection }) => [title, tableSection]),
       [
         ['年份', true],
         ['逐日表', true],
         ['解释', false],
       ],
     )
-    assert.equal(out.eastSections[1].text, '甲子 2026')
+    assert.equal(out.collectionSections[1].text, '甲子 2026')
     assert.equal(out.sections[1].text, '甲子')
   })
 
@@ -287,9 +288,9 @@ describe('东方站集合', () => {
       ['c', '<h2>연도 설명</h2><p>갑을병정</p>'],
     ].map(([id, body]) => ({
       id,
-      sections: extractor.extract(page(body), { eastProgrammatic: true }).eastSections,
+      sections: extractor.extract(page(body), { programmatic: true }).collectionSections,
     }))
-    const rows = eastCollectionSections(pages, { unit: unitOf('ko') })
+    const rows = collectionSections(pages, { unit: unitOf('ko') })
     const section = rows.find((row) => row.title === '연도 설명')
     assert.equal(section.pages, 3)
     assert.equal(section.scope, 'section', '同名段只有全部页面标记后才能豁免')
@@ -322,7 +323,7 @@ describe('东方站集合', () => {
       sections: sectionsFromText(`도입\n@@H2@@${a}@@\n갑을병정무\n@@H2@@${b}@@\n기경신임계`)
         .sections,
     }))
-    const rows = eastCollectionSections(pages, { unit: unitOf('ko'), collection: 'zodiac' })
+    const rows = collectionSections(pages, { unit: unitOf('ko'), collection: 'zodiac' })
     const titles = rows
       .filter((row) => row.scope === 'section')
       .map((row) => [row.title, row.pages])
@@ -332,7 +333,7 @@ describe('东方站集合', () => {
     ])
     // 不传集合时按可见标题对齐，各段只有一页
     assert.ok(
-      eastCollectionSections(pages, { unit: unitOf('ko') })
+      collectionSections(pages, { unit: unitOf('ko') })
         .filter((row) => row.scope === 'section')
         .every((row) => row.pages === 1),
     )
@@ -358,9 +359,9 @@ describe('东方站集合', () => {
       id,
       sections: sectionsFromText(`@@H2@@段落@@\n${body}`).sections,
     }))
-    const [section] = eastCollectionSections(pages)
+    const [section] = collectionSections(pages)
     assert.ok(Math.abs(section.mean - 0.3) < Number.EPSILON)
-    assert.equal(exceedsEastSectionThreshold(section), false)
+    assert.equal(exceedsCollectionSectionThreshold(section), false)
   })
 
   test('从站点地图访问 SSR 黄历月页，门槛比较未舍入平均值且只约束正文段', async (t) => {
@@ -421,6 +422,84 @@ describe('东方站集合', () => {
     assert.match(markdown, /常见问题 \| 门槛 \| 2 \| 0\.3002 ⚠/)
     assert.match(markdown, /逐日表 \| 数据表（参考） \| 2 \| 1/)
     assert.match(markdown, /整页 \| 整页（参考） \| 2/)
+  })
+})
+
+describe('内容增长 v2 集合', () => {
+  test('按站点和语言识别子页，跳过枢纽、旧工具与无效地址', () => {
+    const selected = [
+      [eastCollection, 'zh-Hans', '/zh-hans/2027生肖运势/属鼠', 'yearly'],
+      [eastCollection, 'zh-Hant', '/zh-hant/2027生肖運勢/屬龍', 'yearly'],
+      [eastCollection, 'ko', '/ko/2027년-띠/돼지띠', 'yearly'],
+      [eastCollection, 'en', '/chinese-zodiac-2027/goat', 'yearly'],
+      [eastCollection, 'zh-Hans', '/zh-hans/生肖配对/属鼠和属牛', 'zodiac-pair'],
+      [eastCollection, 'ko', '/ko/띠궁합/쥐띠-소띠', 'zodiac-pair'],
+      [eastCollection, 'en', '/chinese-zodiac-compatibility/rat-and-ox', 'zodiac-pair'],
+      [eastCollection, 'zh-Hans', '/zh-hans/八字合盘/合伙', 'compat-scenario'],
+      [eastCollection, 'zh-Hant', '/zh-hant/八字合盤/親子', 'compat-scenario'],
+      [eastCollection, 'ko', '/ko/사주궁합/부부', 'compat-scenario'],
+      [eastCollection, 'ja', '/ja/四柱推命相性/結婚', 'compat-scenario'],
+      [eastCollection, 'en', '/bazi-compatibility/parent-child', 'compat-scenario'],
+      [eastCollection, 'zh-Hant', '/zh-hant/農民曆/12月', 'nongminli-month'],
+      [westCollection, 'en', '/moon-calendar/january', 'moon-month'],
+      [westCollection, 'en', '/zodiac-signs/aries', 'western-sign'],
+      [westCollection, 'en', '/zodiac-compatibility/aries-and-leo', 'western-pair'],
+      [westCollection, 'en', '/angel-numbers/000', 'angel-number'],
+      [westCollection, 'es', '/es/numeros-angelicales/111', 'angel-number'],
+      [westCollection, 'en', '/personal-year-number/1', 'personal-year'],
+      [westCollection, 'es', '/es/ano-personal/9', 'personal-year'],
+      [westCollection, 'en', '/tarot/full-moon', 'tarot-spread'],
+    ]
+    const ignored = [
+      [eastCollection, 'zh-Hans', '/zh-hans/2027生肖运势'],
+      [eastCollection, 'ko', '/ko/사주궁합'],
+      [eastCollection, 'zh-Hant', '/zh-hant/農民曆/13月'],
+      [eastCollection, 'en', '/zodiac-signs/aries'],
+      [westCollection, 'en', '/chinese-zodiac-2027/goat'],
+      [westCollection, 'en', '/moon-calendar'],
+      [westCollection, 'en', '/tarot/celtic-cross'],
+      [westCollection, 'es', '/es/ano-personal/10'],
+    ]
+    for (const [classify, locale, path, collection] of selected)
+      assert.equal(classify(encodeURI(path), locale), collection, path)
+    for (const [classify, locale, path] of ignored)
+      assert.equal(classify(encodeURI(path), locale), null, path)
+  })
+
+  test('东方英文仍按字计，西方按词计，数据表与整页始终只报告', async () => {
+    const run = (siteId, paths) => {
+      const root = siteId === 'east' ? 'https://ganjiday.com' : 'https://arcanumber.com'
+      const entries = paths.map((path) => {
+        const loc = root + path
+        return { loc, alts: { en: loc } }
+      })
+      return measureSite({
+        siteId,
+        siteLocales: ['en'],
+        entries,
+        fetchHtml: async (path) =>
+          page(`<h2>Rhythm</h2><p>${path === paths[0] ? 'sun moon' : 'moon sun'}</p>
+            <h2>Reflection</h2><p>Shared wording</p>
+            <section data-table-section><h2>Facts</h2><p>Identical fixed row 2027</p></section>`),
+        pivot: 'en',
+        contentDir: join(tmpdir(), 'no-such-content-dir'),
+        enforce: ['en'],
+      })
+    }
+    const [east, west] = await Promise.all([
+      run('east', ['/bazi-compatibility/couples', '/bazi-compatibility/friends']),
+      run('west', ['/zodiac-signs/aries', '/zodiac-signs/leo']),
+    ])
+    const eastRows = east.eastCollections.en['compat-scenario']
+    const westRows = west.westCollections.en['western-sign']
+    assert.equal(eastRows.find(({ title }) => title === 'Rhythm').mean, 5 / 6)
+    assert.equal(westRows.find(({ title }) => title === 'Rhythm').mean, 0)
+    assert.equal(westRows.find(({ scope }) => scope === 'table').mean, 1)
+    assert.deepEqual(west.enforcedFailures, [
+      'en western-sign Reflection: 1（最差 /zodiac-signs/aries 1）',
+    ])
+    assert.equal(east.enforcedFailures.length, 2)
+    assert.match(renderMarkdown(west), /## 西方站集合/)
   })
 })
 
