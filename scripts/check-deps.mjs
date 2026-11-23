@@ -188,6 +188,7 @@ export function checkWorkspace(
   if (!scope) throw new Error(`${uiManifest}：name 必须为 @scope/ui，无法确定内部包 scope`)
   const emailPackage = `${scope}email`
   const platformPackage = `${scope}platform`
+  const astroPackage = `${scope}astro`
   // 评测工具只供根目录命令行使用，不得进入任何应用或运行时包（含其测试与脚本）。
   const evalsPackage = `${scope}evals`
   const layers = {
@@ -213,6 +214,11 @@ export function checkWorkspace(
   function checkEvalsDependency(pkgName, dep, where) {
     if (dep === evalsPackage && pkgName !== evalsPackage)
       violations.push(`${pkgName} → ${dep}（${where}）：${evalsPackage} 只允许根目录依赖`)
+  }
+
+  function checkAstroDependency(pkgName, dep, where) {
+    if (dep === 'astronomy-engine' && pkgName !== astroPackage)
+      violations.push(`${pkgName} → ${dep}（${where}）：仅允许 ${astroPackage} 直接依赖`)
   }
 
   function checkDependency(pkgName, dep, where) {
@@ -242,6 +248,7 @@ export function checkWorkspace(
     for (const field of DEP_FIELDS) {
       for (const dep of Object.keys(manifest[field] ?? {})) {
         checkUiDependency(manifest.name, dep, `package.json ${field}`)
+        checkAstroDependency(manifest.name, dep, `package.json ${field}`)
       }
     }
   }
@@ -251,6 +258,7 @@ export function checkWorkspace(
       for (const dep of Object.keys(manifest[field] ?? {})) {
         const where = `${relative(root, join(path, 'package.json')).split(sep).join('/')} ${field}`
         checkUiDependency(manifest.name, dep, where)
+        checkAstroDependency(manifest.name, dep, where)
         checkEvalsDependency(manifest.name, dep, where)
         if (isPackage) checkDependency(manifest.name, dep, where)
       }
@@ -271,6 +279,7 @@ export function checkWorkspace(
         // UI 原语检查覆盖应用和包的所有源码，不能被生产 src 或目标夹具豁免。
         const dep = packageNameOf(specifier)
         if (dep) checkUiDependency(manifest.name, dep, where)
+        if (dep) checkAstroDependency(manifest.name, dep, where)
         if (dep) checkEvalsDependency(manifest.name, dep, where)
         else if (specifier.startsWith('.') && manifest.name !== evalsPackage) {
           const target = resolve(join(file, '..'), specifier)
