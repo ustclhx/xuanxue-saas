@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { Route as TwoSegment } from '../../../routes/$section/$item.tsx'
 import { Route as SingleSegment } from '../../../routes/$slug.tsx'
+import { templateConfig } from '../../../server/template-config.ts'
+import { prerenderEntryPages } from '../../marketing/prerender.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { westContentRouteOf } from '../routes.ts'
 import { FULL_MOON_NAME_KEYS } from './copy.ts'
@@ -211,6 +213,9 @@ describe('月相页', () => {
       expect(route.nav).toBe(route.id === 'moon-phase-today' ? undefined : false)
     }
     expect(routes.map((route) => route.paths.en)).toContain(moonMonthPath(12))
+    // 16 个地址都进构建期预渲染入口（西方站 en 无前缀）
+    const entries = prerenderEntryPages(templateConfig, routes).map((entry) => entry.path)
+    for (const route of routes) expect(entries).toContain(route.paths.en)
   })
 
   it('服务端 HTML 为构建日的 UTC 视图，正文含月历、满月表与合规说明', () => {
