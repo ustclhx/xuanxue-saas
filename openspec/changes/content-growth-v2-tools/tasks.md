@@ -159,10 +159,10 @@
 
 ## 18. 農民曆与 2027 太歲（zh-Hant）★
 
-- [ ] 18.1 黄历组件加 `locale` 参数与胎神行，登记 `/zh-hant/農民曆` 与 12 个月份页（`prerender: false`，沿用边缘缓存）；日期查询 `noindex, follow`；新建 `content/almanac/zh-Hant/`。zh-Hans 黄历单测保持通过，补 zh-Hant 路径与胎神用例
-- [ ] 18.2 新建 2027 太歲页（集合 `tai-sui-year`，表来自 `zodiacYearFacts`），无化解、报名或商品链接
+- [x] 18.1 黄历组件加 `locale` 参数与胎神行，登记 `/zh-hant/農民曆` 与 12 个月份页（`prerender: false`，沿用边缘缓存）；日期查询 `noindex, follow`；新建 `content/almanac/zh-Hant/`。zh-Hans 黄历单测保持通过，补 zh-Hant 路径与胎神用例
+- [x] 18.2 新建 2027 太歲页（集合 `tai-sui-year`，表来自 `zodiacYearFacts`），无化解、报名或商品链接
 - [ ] 18.3 Claude 子代理另写農民曆工具页、12 个月份页与 2027 太歲页（台湾、香港用语）；Codex 回译审阅
-- [ ] 18.4 验收：`--opencc` 同文字变体门槛；月份页组内相似度；无擇日筛选；内链；数据库不可达 200；第二次请求命中缓存；关键词归属补登
+- [x] 18.4 验收：`--opencc` 同文字变体门槛；月份页组内相似度；无擇日筛选；内链；数据库不可达 200；第二次请求命中缓存；关键词归属补登
 
 ## 19. 月相（西方站 en，es 跟进）★
 

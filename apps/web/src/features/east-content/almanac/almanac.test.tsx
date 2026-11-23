@@ -238,7 +238,8 @@ describe('路由与站点地图', () => {
           ? { site: 'east', prerender: false, navGroup: 'calendar' }
           : { site: 'east', prerender: false, nav: false },
       )
-      expect(Object.keys(route.paths)).toEqual(['zh-Hans'])
+      // content-growth-v2-tools 第 18 组：zh-Hant 農民曆并入同一条目，互为 hreflang
+      expect(Object.keys(route.paths)).toEqual(['zh-Hans', 'zh-Hant'])
     }
     expect(
       toolsForSite('east', 'zh-Hans')

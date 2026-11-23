@@ -2,6 +2,7 @@ import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
 import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
+import { TAI_SUI_YEAR_TOOL_ROUTES } from '../east-content/tai-sui-year/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
@@ -282,6 +283,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...WESTERN_ZODIAC_TOOL_ROUTES.map((route) =>
     withDirectoryDefaults(route, 'astrology', 'free_lookup'),
   ),
+  // openspec content-growth-v2-tools 第 18 组：2027 太歲（zh-hant，预渲染）
+  ...TAI_SUI_YEAR_TOOL_ROUTES,
 ])
 
 /**

@@ -5,7 +5,7 @@ import { parseDateKey } from '../../daily/date.ts'
 import { ToolFaq } from '../../tools/faq.tsx'
 import { toolHref } from '../../tools/tool-href.ts'
 import type { AlmanacMonthPayload } from './almanac.functions.ts'
-import { ALMANAC_COPY as copy, JI_VISIBLE, monthH1, monthTitleMain, YI_VISIBLE } from './copy.ts'
+import { type AlmanacCopy, almanacCopy } from './copy.ts'
 import type { AlmanacMonthView } from './model.ts'
 import {
   AlmanacDisclaimer,
@@ -16,9 +16,8 @@ import {
   Tile,
   TodayTag,
 } from './parts.tsx'
-import { ALMANAC_LOCALE, ALMANAC_TOOL_PATH, almanacMonthPath } from './paths.ts'
+import { ALMANAC_TOOL_PATHS, almanacMonthPath } from './paths.ts'
 
-const href = (path: string) => toolHref(path, ALMANAC_LOCALE)
 const h2 = 'm-0 text-balance font-heading text-ink text-title'
 
 /**
@@ -27,9 +26,13 @@ const h2 = 'm-0 text-balance font-heading text-ink text-title'
  *
  * 组内相似度按 H2 对齐测量（scripts/locale-similarity.mjs）：各月 H2 文字一致；逐日表段以 data-table-section
  * 标记，只报告、不计门槛。合规声明与「黄历查询」入口放在逐日表段内，不混进 FAQ 段。
+ * zh-hant 農民曆用同一组件，按 `payload.locale` 换文案，逐日表多一列胎神；没有按事项筛选日子的控件或汇总段。
  */
 export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) {
-  const { view, month } = payload
+  const { view, month, locale } = payload
+  const copy = almanacCopy(locale)
+  const href = (path: string) => toolHref(path, locale)
+  const toolPath = ALMANAC_TOOL_PATHS[locale]
   const today = parseDateKey(payload.today)
   const isCurrent = today?.year === view.year && today.month === month
   return (
@@ -37,10 +40,10 @@ export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) 
       <AlmanacHeader
         crumbs={[
           { name: copy.home, href: href('/') },
-          { name: copy.toolCrumb, href: href(ALMANAC_TOOL_PATH) },
-          { name: `${month}月` },
+          { name: copy.toolCrumb, href: href(toolPath) },
+          { name: copy.monthLabel(month) },
         ]}
-        title={monthH1(view.year, month)}
+        title={copy.monthH1(view.year, month)}
       >
         <p className="m-0">{payload.lede}</p>
       </AlmanacHeader>
@@ -49,7 +52,7 @@ export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) 
         <h2 id="almanac-terms" className={h2}>
           {copy.termsTitle}
         </h2>
-        <TermTiles view={view} />
+        <TermTiles copy={copy} view={view} />
         {payload.termsNote.map((paragraph) => (
           <p key={paragraph} className="m-0 max-w-180 text-body text-ink-muted">
             {paragraph}
@@ -67,17 +70,17 @@ export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) 
             ? copy.rollover(month, view.year, view.year + 1)
             : copy.rolloverFuture(month, view.year)}
         </p>
-        <DayTable view={view} />
+        <DayTable copy={copy} view={view} />
         <p className="m-0 flex max-w-180 flex-col gap-1 rounded-object bg-surface-2 p-5 text-body text-ink-muted sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-1.5 sm:p-6">
           <span>{copy.band}</span>
           <span>
-            <a href={href(ALMANAC_TOOL_PATH)} className={bodyLink}>
+            <a href={href(toolPath)} className={bodyLink}>
               {copy.bandLink}
             </a>
             {copy.bandAfter}
           </span>
         </p>
-        <AlmanacDisclaimer />
+        <AlmanacDisclaimer text={copy.disclaimer} />
       </section>
 
       <section aria-labelledby="almanac-reading" className="flex max-w-180 flex-col gap-5">
@@ -91,13 +94,13 @@ export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) 
         label={copy.seriesLabel}
         className="max-w-180"
         previous={{
-          href: href(almanacMonthPath(payload.previous.month)),
-          title: monthTitleMain(payload.previous.month),
+          href: href(almanacMonthPath(payload.previous.month, locale)),
+          title: copy.monthTitleMain(payload.previous.month),
           label: copy.previousMonth,
         }}
         next={{
-          href: href(almanacMonthPath(payload.next.month)),
-          title: monthTitleMain(payload.next.month),
+          href: href(almanacMonthPath(payload.next.month, locale)),
+          title: copy.monthTitleMain(payload.next.month),
           label: copy.nextMonth,
         }}
       />
@@ -110,7 +113,7 @@ export function AlmanacMonthPage({ payload }: { payload: AlmanacMonthPayload }) 
   )
 }
 
-function TermTiles({ view }: { view: AlmanacMonthView }) {
+function TermTiles({ copy, view }: { copy: AlmanacCopy; view: AlmanacMonthView }) {
   const lunar = view.lunarStarts
   return (
     <div data-locale-fixed className="grid max-w-190 grid-cols-1 gap-3 sm:grid-cols-2">
@@ -133,7 +136,9 @@ function TermTiles({ view }: { view: AlmanacMonthView }) {
       <Tile label={copy.lunarTile} value={lunar.map((start) => start.name).join(' · ') || '—'}>
         {lunar.map((start) => copy.lunarNote(start.when, start.name)).join('')}
         {view.seasonal.length
-          ? copy.seasonal(view.seasonal.map((item) => `${item.when}${item.names}`).join('；'))
+          ? copy.seasonal(
+              view.seasonal.map((item) => `${item.when}${item.names}`).join(copy.seasonalJoin),
+            )
           : copy.noSeasonal}
       </Tile>
     </div>
@@ -148,7 +153,7 @@ function Cell({
   className,
   children,
 }: {
-  label?: string
+  label?: string | undefined
   full?: boolean
   nowrap?: boolean
   className?: string
@@ -173,7 +178,15 @@ function Cell({
   )
 }
 
-function Taboos({ items, visible }: { items: readonly string[]; visible: number }) {
+function Taboos({
+  copy,
+  items,
+  visible,
+}: {
+  copy: AlmanacCopy
+  items: readonly string[]
+  visible: number
+}) {
   if (items.length === 0)
     return (
       <>
@@ -185,28 +198,35 @@ function Taboos({ items, visible }: { items: readonly string[]; visible: number 
   const rest = items.slice(visible)
   return (
     <>
-      {shown.join('、')}
+      {shown.join(copy.separator)}
       {rest.length > 0 && (
         <details className="group inline">
           <summary className="ml-1.5 inline-flex min-h-7 cursor-pointer list-none items-center whitespace-nowrap text-brand-ink text-caption underline underline-offset-4 max-md:min-h-11 [&::-webkit-details-marker]:hidden">
             {copy.more(rest.length)}
           </summary>
-          <span className="block">{rest.join('、')}</span>
+          <span className="block">{rest.join(copy.separator)}</span>
         </details>
       )}
     </>
   )
 }
 
-function DayTable({ view }: { view: AlmanacMonthView }) {
-  const [, lunarLabel, ganzhiLabel, dutyLabel, starLabel, clashLabel, yiLabel, jiLabel] =
-    copy.columns
+function DayTable({ copy, view }: { copy: AlmanacCopy; view: AlmanacMonthView }) {
+  // 繁中：农历并入日期列（台湾农民历的写法），沖煞后多一列胎神；列数与简中相同
+  const fetus = copy.fetusLabel !== null
+  const columns = copy.columns
+  const lunarColumn = copy.lunarColumn
+  const [lunarLabel, ganzhiLabel, dutyLabel, starLabel, clashLabel] = columns.slice(
+    lunarColumn ? 1 : 0,
+  )
+  const fetusLabel = fetus ? columns[columns.length - 3] : undefined
+  const [yiLabel, jiLabel] = columns.slice(-2)
   return (
     <div className="max-w-full overflow-x-auto rounded-object bg-surface max-md:overflow-visible max-md:rounded-none max-md:bg-transparent">
       <table className="w-full border-collapse text-left text-body max-md:block">
         <thead className="max-md:hidden">
           <tr>
-            {copy.columns.map((column) => (
+            {columns.map((column) => (
               <th
                 key={column}
                 scope="col"
@@ -229,10 +249,10 @@ function DayTable({ view }: { view: AlmanacMonthView }) {
               )}
             >
               <Cell full nowrap className="font-medium text-ink">
-                {`${day.month}月${day.day}日 ${day.weekday}`}
+                {copy.dayCell(day.month, day.day, day.weekday, day.lunar)}
                 {(day.today || day.termMark || day.lunarStart || day.marks.length > 0) && (
                   <span className="mt-1 flex flex-wrap gap-1 max-md:ml-2 max-md:inline-flex max-md:align-middle">
-                    {day.today && <TodayTag />}
+                    {day.today && <TodayTag label={copy.todayTag} />}
                     {day.termMark && <Mark>{day.termMark}</Mark>}
                     {day.lunarStart && <Mark>{day.lunarStart}</Mark>}
                     {day.marks.map((mark) => (
@@ -241,9 +261,11 @@ function DayTable({ view }: { view: AlmanacMonthView }) {
                   </span>
                 )}
               </Cell>
-              <Cell label={lunarLabel} nowrap>
-                {day.lunar}
-              </Cell>
+              {lunarColumn && (
+                <Cell label={lunarLabel} nowrap>
+                  {day.lunar}
+                </Cell>
+              )}
               <Cell label={ganzhiLabel} nowrap className="font-bold font-heading text-ink">
                 {day.pillars.day}
               </Cell>
@@ -253,14 +275,19 @@ function DayTable({ view }: { view: AlmanacMonthView }) {
               <Cell label={starLabel} nowrap>
                 {copy.starCell(day.star.name, day.star.ecliptic)}
               </Cell>
-              <Cell label={clashLabel} full nowrap>
-                {copy.clashCell(day.clash.zodiac, day.clash.sha)}
+              <Cell label={clashLabel} full={!fetus} nowrap>
+                {copy.clashCell(day.clash.zodiac, day.clash.pillar, day.clash.sha)}
               </Cell>
+              {fetus && (
+                <Cell label={fetusLabel} nowrap>
+                  {day.fetus}
+                </Cell>
+              )}
               <Cell label={yiLabel} full>
-                <Taboos items={day.recommends} visible={YI_VISIBLE} />
+                <Taboos copy={copy} items={day.recommends} visible={copy.yiVisible} />
               </Cell>
               <Cell label={jiLabel} full>
-                <Taboos items={day.avoids} visible={JI_VISIBLE} />
+                <Taboos copy={copy} items={day.avoids} visible={copy.jiVisible} />
               </Cell>
             </tr>
           ))}

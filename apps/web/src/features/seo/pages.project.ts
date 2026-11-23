@@ -1,7 +1,7 @@
 import { brandName, siteBrandName, type TemplateConfig } from '@xuanxue/config'
 import { CARD_MEANINGS, CARDS, type Locale as TarotLocale } from '@xuanxue/tarot'
 import { templateConfig } from '../../server/template-config.ts'
-import { ALMANAC_TOOL_PATH } from '../east-content/almanac/paths.ts'
+import { ALMANAC_TOOL_PATHS, isAlmanacLocale } from '../east-content/almanac/paths.ts'
 import type { AppLocale } from '../i18n/locales.ts'
 import {
   isNumerologyLocale,
@@ -189,8 +189,12 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
         : LIFE_PATH_TOOL_PATH,
     }
   // 黄历月份页（content-growth-phase2 第 6 组）：面包屑「首页 › 黄历 › N月」，上级为黄历工具页
+  // zh-hant 農民曆月份页（content-growth-v2-tools 第 18 组）上级为 `/農民曆`
   if (route.id.startsWith('almanac-month-'))
-    return { titleMain: navTitle ?? page.title, parent: ALMANAC_TOOL_PATH }
+    return {
+      titleMain: navTitle ?? page.title,
+      parent: ALMANAC_TOOL_PATHS[isAlmanacLocale(locale) ? locale : 'zh-Hans'],
+    }
   // 月相月份页（content-growth-v2-tools 第 19 组）：面包屑「Home › Moon Calendar › January Moon Calendar」
   if (route.id.startsWith('moon-calendar-'))
     return { titleMain: navTitle ?? page.title, parent: MOON_PATHS['moon-calendar'] }
