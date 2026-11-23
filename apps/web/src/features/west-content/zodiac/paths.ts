@@ -44,6 +44,9 @@ export const WESTERN_ZODIAC_TOOL_ROUTES: readonly ToolRoute[] = [
     site: 'west',
     paths: { en: ZODIAC_SIGNS_PATH },
     titles: { en: 'Zodiac Signs' },
+    descriptions: {
+      en: 'All 12 zodiac signs with their dates, element, modality and ruling planet, plus the traditional traits each sign is linked with.',
+    },
     directoryGroup: 'astrology',
     freeLabel: 'free_lookup',
   },
@@ -63,6 +66,9 @@ export const WESTERN_ZODIAC_TOOL_ROUTES: readonly ToolRoute[] = [
     site: 'west',
     paths: { en: ZODIAC_COMPAT_PATH },
     titles: { en: 'Zodiac Compatibility' },
+    descriptions: {
+      en: 'How any two signs relate by element, modality and aspect, with a 12×12 chart covering all 78 sign pairs.',
+    },
     directoryGroup: 'compatibility',
     freeLabel: 'free_compatibility',
     badge: { kind: 'new', until: '2027-02-28' },

@@ -39,7 +39,12 @@ const HUB_EXTRA_IDS: ReadonlySet<string> = new Set([
   'tarot-celtic-cross',
   'tarot-card-index',
   'numerology',
+  // 年运分组：个人流年工具（第 7 组）与年度枢纽、太歲页（第 8、18 组）只为不进页头下拉而设 `nav: false`
+  'yearly-tool',
 ])
+
+/** 年度枢纽与太歲页的 id 随年份生成（`yearly-<年份>`、`tai-sui-<年份>`），同样进枢纽页的年运分组 */
+const HUB_EXTRA_PATTERN = /^(?:yearly|tai-sui)-\d{4}$/
 
 function entryOf(route: ToolRoute, locale: string, today: string): DirectoryEntry | undefined {
   const path = route.paths[locale]
@@ -83,7 +88,7 @@ export interface DirectoryGroup {
 
 /**
  * 「全部工具」枢纽页的分组：按站点的分组顺序，组内按注册表顺序；没有条目的分组不返回（空分组不显示）。
- * 列出的条目：`nav` 不为 false 的工具、`knowledge` 分组里带导航名的条目，以及 HUB_EXTRA_IDS。
+ * 列出的条目：`nav` 不为 false 的工具、`knowledge` 分组里带导航名的条目，以及 HUB_EXTRA_IDS 与 HUB_EXTRA_PATTERN。
  */
 export function directoryGroups(
   site: SiteId,
@@ -98,7 +103,8 @@ export function directoryGroups(
           route.site === site &&
           (route.nav !== false ||
             route.directoryGroup === 'knowledge' ||
-            HUB_EXTRA_IDS.has(route.id)),
+            HUB_EXTRA_IDS.has(route.id) ||
+            HUB_EXTRA_PATTERN.test(route.id)),
       )
       .map((route) => route.id),
   )

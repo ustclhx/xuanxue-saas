@@ -125,6 +125,11 @@ export const ZODIAC_PAIR_TOOL_ROUTES: readonly ToolRoute[] = [
     titles: Object.fromEntries(
       ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, ZODIAC_PAIR_HUB_TITLES[locale]]),
     ),
+    // 首页与「全部工具」卡片的一句话说明：沿用总表页已审定的 SEO 描述（content/zodiac-pair/zh-Hans/index.mdx）
+    descriptions: {
+      'zh-Hans':
+        '生肖配对表收录十二生肖的七十八种组合。总表标出三合、六合、六冲与相害，各配对页补充相刑、相破、五行生克和出生年份，并说明这些传统关系该怎样读。',
+    },
     badge: { kind: 'new', until: '2027-02-28' },
   },
   ...ZODIAC_PAIR_KEYS.map(

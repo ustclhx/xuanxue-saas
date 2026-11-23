@@ -12,7 +12,7 @@ import { publicPages } from '../../seo/pages.ts'
 import { routeSite } from '../../site/gate.ts'
 import { westContentRouteOf } from '../../west-content/routes.ts'
 import { directoryGroups } from '../directory.ts'
-import { type RegisteredToolRoute, TOOL_ROUTES, type ToolRoute } from '../registry.ts'
+import { TOOL_ROUTES } from '../registry.ts'
 import { toolHref } from '../tool-href.ts'
 import { toolsHubHead } from './head.ts'
 import { ToolsHubPage } from './page.tsx'
@@ -53,21 +53,6 @@ const hrefs = (html: string) =>
   [...html.matchAll(/<a\b[^>]*href="([^"]+)"/g)].map((m) => m[1] ?? '')
 const groupIds = (html: string) =>
   [...html.matchAll(/data-hub-group="group-([\w-]+)"/g)].map((match) => match[1])
-
-const upcoming = (
-  id: string,
-  site: SiteId,
-  paths: Record<string, string>,
-  extra: Partial<RegisteredToolRoute> = {},
-): RegisteredToolRoute => ({
-  id,
-  site,
-  directoryGroup: site === 'east' ? 'yearly' : 'moon',
-  freeLabel: 'free_lookup',
-  paths,
-  titles: Object.fromEntries(Object.keys(paths).map((locale) => [locale, `${id}-${locale}`])),
-  ...extra,
-})
 
 describe('「全部工具」枢纽页', () => {
   it.each(HUBS)(
@@ -121,8 +106,9 @@ describe('「全部工具」枢纽页', () => {
 
   it('西方站没有生肖与历法分组，也没有指向东方站的链接；东方站不列西方站工具', () => {
     const west = render('west', 'en')
-    expect(groupIds(west)).toEqual(['tarot', 'numerology', 'compatibility'])
-    expect(text(west)).not.toMatch(/zodiac|bazi|zi wei|almanac/i)
+    // 西方星座（astrology）与月相（moon）是西方站自己的分组；不出现东方的生肖、八字、紫微与历法
+    expect(groupIds(west)).toEqual(['tarot', 'numerology', 'astrology', 'moon', 'compatibility'])
+    expect(text(west)).not.toMatch(/chinese zodiac|bazi|zi wei|almanac/i)
     const eastOnly = new Set(
       TOOL_ROUTES.filter((route) => route.site === 'east').flatMap((route) =>
         Object.values(route.paths),
@@ -154,12 +140,13 @@ describe('「全部工具」枢纽页', () => {
   it('空分组不显示：标题与跳转标签都不渲染，也没有「即将上线」', () => {
     const routes = TOOL_ROUTES.filter((route) => route.directoryGroup !== 'divination')
     const html = render('east', 'zh-Hans', { routes })
-    expect(groupIds(html)).toEqual(['chart', 'yearly', 'calendar', 'knowledge'])
+    expect(groupIds(html)).toEqual(['chart', 'relation', 'yearly', 'calendar', 'knowledge'])
     expect(html).not.toContain('#group-divination')
     expect(text(html)).not.toMatch(/在线占卜|即将/)
-    // 繁中没有历法与合盘页面：这两组本来就不出现
-    expect(groupIds(render('east', 'zh-Hant'))).toEqual([
+    // 东方站英文没有历法页面：这一组本来就不出现
+    expect(groupIds(render('east', 'en'))).toEqual([
       'chart',
+      'relation',
       'yearly',
       'divination',
       'knowledge',
@@ -167,45 +154,29 @@ describe('「全部工具」枢纽页', () => {
   })
 
   it('小标到期后不渲染；未发布语言不显示入口与小标；集合下级页不进枢纽页', () => {
-    const routes: readonly ToolRoute[] = [
-      ...TOOL_ROUTES,
-      upcoming(
-        'yearly-tool',
-        'east',
-        { 'zh-Hans': '/2027流年', ko: '/2027-신년-사주' },
-        { badge: { kind: 'year', label: '2027', until: '2027-02-28' } },
-      ),
-      upcoming(
-        'zodiac-pair',
-        'east',
-        { 'zh-Hans': '/生肖配对' },
-        { directoryGroup: 'relation', badge: { kind: 'new', until: '2027-01-31' } },
-      ),
-      upcoming(
-        'zodiac-pair-zi-chou',
-        'east',
-        { 'zh-Hans': '/生肖配对/属鼠和属牛' },
-        { nav: false },
-      ),
-    ]
-    const before = render('east', 'zh-Hans', { routes, today: '2027-01-31' })
+    const card = (html: string, id: string) =>
+      html.split(/<li\b/).find((item) => item.includes(`data-tool="${id}"`)) ?? ''
+    const badge = (html: string, id: string) =>
+      card(html, id).match(/data-tool-label="new"[^>]*>([^<]*)</)?.[1] ?? null
+    // 个人流年与 2027 生肖枢纽为 nav: false（不进页头下拉），仍列在年运分组；配对页不进枢纽页
+    const before = render('east', 'zh-Hans', { today: '2027-02-28' })
     expect(groupIds(before)).toContain('relation')
-    expect(before.match(/data-tool-label="new"/g)).toHaveLength(2)
-    expect(text(before)).toContain('yearly-tool-zh-Hans 2027')
-    expect(text(before)).toContain('zodiac-pair-zh-Hans 新')
+    expect(badge(before, 'yearly-tool')).toBe('2027')
+    expect(badge(before, 'yearly-2027')).toBe('2027')
+    expect(badge(before, 'zodiac-pair')).toBe('新')
     expect(before).not.toContain('data-tool="zodiac-pair-zi-chou"')
-    // 2-01：「新」到期，「2027」仍在；3-01：两个小标都不再渲染，入口保留
-    expect(
-      render('east', 'zh-Hans', { routes, today: '2027-02-01' }).match(/data-tool-label="new"/g),
-    ).toHaveLength(1)
-    const after = render('east', 'zh-Hans', { routes, today: '2027-03-01' })
-    expect(after).not.toContain('data-tool-label="new"')
-    expect(after).toContain('data-tool="yearly-tool"')
-    // 繁中没有这些页面：入口与小标都不出现，合盘分组仍为空、不显示
-    const hant = render('east', 'zh-Hant', { routes, today: '2027-01-31' })
-    expect(hant).not.toContain('data-tool-label="new"')
-    expect(hant).not.toContain('data-tool="yearly-tool"')
-    expect(groupIds(hant)).not.toContain('relation')
+    // 3-01：小标都不再渲染，入口保留
+    const after = render('east', 'zh-Hans', { today: '2027-03-01' })
+    for (const id of ['yearly-tool', 'yearly-2027', 'zodiac-pair']) {
+      expect(after).toContain(`data-tool="${id}"`)
+      expect(badge(after, id)).toBeNull()
+    }
+    // 繁中没有生肖配对与 2027 生肖枢纽：入口与小标都不出现；太歲页与个人流年列在年运分组
+    const hant = render('east', 'zh-Hant', { today: '2027-02-28' })
+    expect(hant).not.toContain('data-tool="zodiac-pair"')
+    expect(hant).not.toContain('data-tool="yearly-2027"')
+    expect(badge(hant, 'tai-sui-2027')).toBe('2027')
+    expect(badge(hant, 'yearly-tool')).toBe('2027')
   })
 })
 
