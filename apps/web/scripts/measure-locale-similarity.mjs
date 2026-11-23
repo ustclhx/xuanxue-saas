@@ -16,7 +16,7 @@
 //   --out <目录>       输出目录，缺省 $EVIDENCE_DIR/locale-similarity（未设置时 test-results/evidence/）
 //   --enforce <语言>   这些语言有未达门槛的页面时以 1 退出；缺省只报告。
 //                      en、es 另判组件段（content-growth-phase1）：任一段平均 Dice >0.30 即失败
-//                      东方站新集合另判同语言、同 H2 的正文段；数据表段与整页只报告
+//                      新集合另判同语言、同 H2 的正文段（东方按字，西方按词）；数据表段与整页只报告
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
@@ -25,13 +25,13 @@ import { parseArgs } from 'node:util'
 import { hostRequest, startPreview } from './check-links.mjs'
 import {
   COMPONENT_LOCALES,
+  collectionSections,
   componentSections,
   createExtractor,
   eastCollection,
-  eastCollectionSections,
   entryLocale,
   evaluatePage,
-  exceedsEastSectionThreshold,
+  exceedsCollectionSectionThreshold,
   faqOriginStats,
   lengthCheck,
   literalScore,
@@ -47,6 +47,7 @@ import {
   templateRepeatFromDir,
   unitOf,
   variantSimilarity,
+  westCollection,
 } from './locale-similarity.mjs'
 
 const WEB_ROOT = new URL('..', import.meta.url).pathname
@@ -204,20 +205,21 @@ export async function measureSite({
     // 每个地址只取一次
     const byLocale = new Map()
     const allPaths = new Set()
-    const eastPaths = new Set()
+    const collectionPaths = new Set()
+    const collectionFor = { east: eastCollection, west: westCollection }[siteId]
     for (const entry of entries) {
       const locale = entryLocale(entry)
       if (!locale || !siteLocales.includes(locale)) continue
       const { pathname: path, search } = new URL(entry.loc)
-      const collection = siteId === 'east' && !search ? eastCollection(path, locale) : null
-      if (collection) eastPaths.add(path)
+      const collection = search ? null : (collectionFor?.(path, locale) ?? null)
+      if (collection) collectionPaths.add(path)
       allPaths.add(path)
       if (!byLocale.has(locale)) byLocale.set(locale, [])
       byLocale.get(locale).push({ path, alts: entry.alts, collection })
     }
     const paths = [...allPaths]
     const extracted = await pool(paths, async (path) =>
-      extractor.extract(await fetchHtml(path), { eastProgrammatic: eastPaths.has(path) }),
+      extractor.extract(await fetchHtml(path), { programmatic: collectionPaths.has(path) }),
     )
     const pages = new Map(paths.map((path, i) => [path, extracted[i]]))
     const pathOf = (href) => new URL(href).pathname
@@ -238,7 +240,7 @@ export async function measureSite({
           path: decode(basePath),
           base: baseLocale,
           kind: pageKind(basePath),
-          collection: siteId === 'east' ? eastCollection(basePath, baseLocale) : null,
+          collection: collectionFor?.(basePath, baseLocale) ?? null,
           chars: pages.get(basePath).chars,
           pairs: {},
           length: {},
@@ -343,29 +345,27 @@ export async function measureSite({
         })),
         { unit: unitOf(locale), disclaimer: disclaimers[locale] },
       )
-    const eastCollections = {}
-    if (siteId === 'east') {
-      for (const locale of locales) {
-        const groups = new Map()
-        for (const { path, collection } of byLocale.get(locale)) {
-          if (!collection) continue
-          if (!groups.has(collection)) groups.set(collection, new Set())
-          groups.get(collection).add(path)
-        }
-        if (!groups.size) continue
-        eastCollections[locale] = Object.fromEntries(
-          [...groups].map(([collection, paths]) => [
-            collection,
-            eastCollectionSections(
-              [...paths].map((path) => ({
-                id: decode(path),
-                sections: pages.get(path).eastSections,
-              })),
-              { unit: unitOf(locale), collection },
-            ),
-          ]),
-        )
+    const collections = {}
+    for (const locale of locales) {
+      const groups = new Map()
+      for (const { path, collection } of byLocale.get(locale)) {
+        if (!collection) continue
+        if (!groups.has(collection)) groups.set(collection, new Set())
+        groups.get(collection).add(path)
       }
+      if (!groups.size) continue
+      collections[locale] = Object.fromEntries(
+        [...groups].map(([collection, paths]) => [
+          collection,
+          collectionSections(
+            [...paths].map((path) => ({
+              id: decode(path),
+              sections: pages.get(path).collectionSections,
+            })),
+            { unit: siteId === 'east' ? 'char' : 'word', collection },
+          ),
+        ]),
+      )
     }
     const sourceRepeat = {}
     for (const locale of locales)
@@ -398,7 +398,10 @@ export async function measureSite({
       unpaired,
       templateRepeat: { rendered, source: sourceRepeat },
       componentSections: components,
-      ...(siteId === 'east' ? { eastCollections } : {}),
+      ...(siteId === 'east' ? { eastCollections: collections } : {}),
+      ...(siteId === 'west' && Object.keys(collections).length
+        ? { westCollections: collections }
+        : {}),
       faqOrigin,
       lengths,
       pages: [...records.values()],
@@ -411,12 +414,13 @@ export async function measureSite({
 }
 
 /**
- * --enforce 的语言：页面门槛、模板重复、东方站集合、组件段、FAQ 来源与长度任一不达标即计入。
+ * --enforce 的语言：页面门槛、模板重复、站点集合、组件段、FAQ 来源与长度任一不达标即计入。
  * 基准语言（如西方站 en）是原文：不判 FAQ 来源与 MDX 源模板重复（en 数字页源文件末尾的
  * 「Explore the other numbers」不渲染，#247 决定不处理）。
  */
 export function enforcedFailures(report, enforce) {
   const out = []
+  const collections = report.eastCollections ?? report.westCollections
   for (const locale of enforce) {
     const isPivot = locale === report.pivot
     for (const [key, pair] of Object.entries(report.pairs))
@@ -434,9 +438,9 @@ export function enforcedFailures(report, enforce) {
         out.push(
           `${locale} component ${s.kind} ${s.label}: ${s.mean}（最差 ${s.maxPage} ${s.max}）`,
         )
-    for (const [collection, sections] of Object.entries(report.eastCollections?.[locale] ?? {}))
+    for (const [collection, sections] of Object.entries(collections?.[locale] ?? {}))
       for (const s of sections)
-        if (exceedsEastSectionThreshold(s))
+        if (exceedsCollectionSectionThreshold(s))
           out.push(`${locale} ${collection} ${s.title}: ${s.mean}（最差 ${s.maxPage} ${s.max}）`)
     if (!isPivot)
       for (const page of report.faqOrigin[locale]?.failing ?? [])

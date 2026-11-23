@@ -53,10 +53,10 @@
 
 ## 1. 测量、审计与关键词归属 ★
 
-- [ ] 1.1 在 `locale-similarity.mjs` 增加 design 决策 16 列出的新集合定义（东方 `yearly`、`zodiac-pair`、`compat-scenario`、`nongminli-month`；西方 `moon-month`、`western-sign`、`western-pair`、`angel-number`、`personal-year`、`tarot-spread`）。西方集合按词二元组、东方按字二元组，`data-table-section` 段只报告。补 `measure-locale-similarity.test.mjs` 单测，并在 main 构建上跑一次确认现有集合结果不变，报告存证据目录
-- [ ] 1.2 新建判定词审计：按语言维护判定词表（决策 14），审计 Title、H1、H2、FAQ、正文与锚文本；`--rule verdict` 覆盖全部关系类页面与第 2 阶段生肖页，`--rule marriage-topic` 保持第 2 阶段原规则，并排除生肖页指向配对页的链接锚文本。单测覆盖命中、未命中与排除规则；在 main 构建上运行结果为 0
-- [ ] 1.3 用原型数据估算各新集合组件段需要的独有字数（同第 2 阶段第 1 组做法），必要时上调 design 决策 16 的长度下限，结论写入证据目录并在 PR 中说明
-- [ ] 1.4 在私有关键词归属表中按 design 决策 13 登记本 change 全部主词为「计划」，包括「英文生肖归东方站」的跨站条目；用第 1 阶段的核对脚本确认当前没有可索引页以这些词为 Title 或 H1 开头（重点核对第 2 阶段生肖子页与 2027 年度页、太岁概念页与 2027 太歲页、`/ko/사주궁합` 与场景页）。如需改写 slug 措辞，在 PR 中列出并通知第 2 组
+- [x] 1.1 在 `locale-similarity.mjs` 增加 design 决策 16 列出的新集合定义（东方 `yearly`、`zodiac-pair`、`compat-scenario`、`nongminli-month`；西方 `moon-month`、`western-sign`、`western-pair`、`angel-number`、`personal-year`、`tarot-spread`）。西方集合按词二元组、东方按字二元组，`data-table-section` 段只报告。补 `measure-locale-similarity.test.mjs` 单测，并在 main 构建上跑一次确认现有集合结果不变，报告存证据目录
+- [x] 1.2 新建判定词审计：按语言维护判定词表（决策 14），审计 Title、H1、H2、FAQ、正文与锚文本；`--rule verdict` 覆盖全部关系类页面与第 2 阶段生肖页，`--rule marriage-topic` 保持第 2 阶段原规则，并排除生肖页指向配对页的链接锚文本。单测覆盖命中、未命中与排除规则；在 main 构建上运行结果为 0
+- [x] 1.3 用原型数据估算各新集合组件段需要的独有字数（同第 2 阶段第 1 组做法），必要时上调 design 决策 16 的长度下限，结论写入证据目录并在 PR 中说明
+- [x] 1.4 在私有关键词归属表中按 design 决策 13 登记本 change 全部主词为「计划」，包括「英文生肖归东方站」的跨站条目；用第 1 阶段的核对脚本确认当前没有可索引页以这些词为 Title 或 H1 开头（重点核对第 2 阶段生肖子页与 2027 年度页、太岁概念页与 2027 太歲页、`/ko/사주궁합` 与场景页）。如需改写 slug 措辞，在 PR 中列出并通知第 2 组
 
 ## 2. 路由分发与注册表字段 ★
 
