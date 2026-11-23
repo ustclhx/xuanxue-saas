@@ -110,8 +110,8 @@
 
 ## 10. 2027 年度띠页（ko）★
 
-- [ ] 10.1 另一个 Claude 子代理按韩语搜索词直接撰写 `content/yearly/ko/2027/` 枢纽与 12 篇（합쇼체），不以「띠별 운세」为 Title、H1、H2 或锚文本目标，流年段用「올해 흐름」；登记 ko 地址与注册表，补 ko 标签文案
-- [ ] 10.2 Codex 回译审阅（`measure-locale-backtranslation --export-input` / `--from-file`）与跨语言结构直译分；验收：ko 组内相似度、长度与 TDK、hreflang、内链（链接 `/ko/띠/<X>띠` 与 `/ko/2027-신년-사주`）、「띠별 운세」审计、390px 长标题截图、关键词归属补登
+- [x] 10.1 另一个 Claude 子代理按韩语搜索词直接撰写 `content/yearly/ko/2027/` 枢纽与 12 篇（합쇼체），不以「띠별 운세」为 Title、H1、H2 或锚文本目标，流年段用「올해 흐름」；登记 ko 地址与注册表，补 ko 标签文案
+- [x] 10.2 Codex 回译审阅（`measure-locale-backtranslation --export-input` / `--from-file`）与跨语言结构直译分；验收：ko 组内相似度、长度与 TDK、hreflang、内链（链接 `/ko/띠/<X>띠` 与 `/ko/2027-신년-사주`）、「띠별 운세」审计、390px 长标题截图、关键词归属补登
 
 ## 11. Chinese zodiac 与 2027（东方站 en）★
 

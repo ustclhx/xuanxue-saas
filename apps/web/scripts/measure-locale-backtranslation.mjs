@@ -143,12 +143,13 @@ export const LOCALE_PLANS = Object.freeze({
     backTranslationExempt: BACKTRANSLATION_EXEMPT,
   },
   // content-growth-phase2 第 5 组（design 决策 14）：ko 生肖枢纽与 12 个子页按韩语另写，对照 zh-hans 版回译；
-  // ko 的其他页面早于本规则上线，不在此集合（include 只取生肖地址）
+  // ko 的其他页面早于本规则上线，不在此集合（include 只取生肖地址）；
+  // content-growth-v2-tools 第 10 组：加入 ko 2027 年度枢纽与 12 页（对照 zh-hans 年度页）
   ko: {
     site: 'east',
     sources: ['zh-Hans'],
     kinds: ['other'],
-    include: /^\/(?:ko\/띠|zh-hans\/生肖)(?:\/|$)/,
+    include: /^\/(?:ko\/(?:\d{4}년-)?띠|zh-hans\/(?:\d{4})?生肖(?:运势)?)(?:\/|$)/,
     exclude: /(?!)/,
     expansion: { 'zh-Hans': 1.6 },
     minChars: {},

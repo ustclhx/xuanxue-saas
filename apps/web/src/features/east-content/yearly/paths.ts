@@ -139,6 +139,39 @@ export const YEARLY_PATHS: Readonly<Partial<Record<YearlyLocale, YearlyLocalePat
       hai: 'Pig in {year}',
     },
   },
+  // 第 10 组：ko 主词「2027년 띠」「쥐띠 2027」（design 决策 6、13）；不以「띠별 운세」为目标
+  ko: {
+    hub: { 2027: '/2027년-띠' },
+    hubTitle: { 2027: '2027년 띠' },
+    slugs: {
+      zi: '쥐띠',
+      chou: '소띠',
+      yin: '호랑이띠',
+      mao: '토끼띠',
+      chen: '용띠',
+      si: '뱀띠',
+      wu: '말띠',
+      wei: '양띠',
+      shen: '원숭이띠',
+      you: '닭띠',
+      xu: '개띠',
+      hai: '돼지띠',
+    },
+    childTitle: {
+      zi: '쥐띠 {year}',
+      chou: '소띠 {year}',
+      yin: '호랑이띠 {year}',
+      mao: '토끼띠 {year}',
+      chen: '용띠 {year}',
+      si: '뱀띠 {year}',
+      wu: '말띠 {year}',
+      wei: '양띠 {year}',
+      shen: '원숭이띠 {year}',
+      you: '닭띠 {year}',
+      xu: '개띠 {year}',
+      hai: '돼지띠 {year}',
+    },
+  },
 }
 
 export const YEARLY_LOCALES = Object.keys(YEARLY_PATHS) as YearlyLocale[]
