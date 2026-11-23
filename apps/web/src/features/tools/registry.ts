@@ -1,6 +1,7 @@
 import type { SiteId } from '@xuanxue/config'
 import { DAILY_TOOL_ROUTES } from '../daily/routes.ts'
 import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
+import { COMPAT_SCENARIO_TOOL_ROUTES } from '../east-content/compat/paths.ts'
 import { TAI_SUI_YEAR_TOOL_ROUTES } from '../east-content/tai-sui-year/paths.ts'
 import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
 import { YEARLY_TOOL_ROUTES } from '../east-content/yearly/paths.ts'
@@ -291,6 +292,10 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...YEARLY_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'yearly', 'free_lookup')),
   // content-growth-v2-tools 第 7 组：个人 2027 流年工具（四种语言，目录分组 yearly，「2027」小标至 2027-02-28）
   ...PERSONAL_YEARLY_TOOL_ROUTES,
+  // content-growth-v2-tools 第 13 组：合盘的 5 个关系场景页（nav: false，同属 relation 组）
+  ...COMPAT_SCENARIO_TOOL_ROUTES.map((route) =>
+    withDirectoryDefaults(route, 'relation', 'free_compatibility'),
+  ),
 ])
 
 /**

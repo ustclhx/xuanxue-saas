@@ -1,3 +1,4 @@
+import { COMPAT_EAST_EN_CONTENT_ROUTES } from '../east-content/compat/paths.ts'
 import { type EastContentRoute, eastContentRouteOf } from '../east-content/routes.ts'
 import { YEARLY_TOOL_EN_ROUTES } from '../east-content/yearly-tool/paths.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
@@ -35,6 +36,8 @@ export const EAST_ENGLISH_PRERENDERED_STATIC = EAST_ENGLISH_STATIC_PATHS.filter(
 export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] = [
   // content-growth-v2-tools 第 7 组：`/bazi-2027`
   ...YEARLY_TOOL_EN_ROUTES,
+  // content-growth-v2-tools 第 13 组：`/bazi-compatibility` 正文与 5 个场景页
+  ...COMPAT_EAST_EN_CONTENT_ROUTES,
 ]
 
 export function eastEnContentRouteOf(path: string) {

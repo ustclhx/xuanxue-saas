@@ -35,5 +35,11 @@
   "compat_faq_q2": "看完分數後，可以怎麼理解這份結果？",
   "compat_faq_a2": "可以從明細看看兩張命盤有哪些對應，再聊聊平常的相處感受。即使分數偏低，也無法用來衡量一段關係。這些數字是依傳統規則計算，僅供參考與潛意識探索，不預測未來。",
   "compat_coming_soon": "即將開放。",
-  "compat_ask": "針對這份結果提問"
+  "compat_ask": "針對這份結果提問",
+  "compat_items_title": "七項規則逐一看",
+  "compat_items_desc": "參考分只由以下七項組成。算出結果後，可以對照有加減分的項目閱讀這些說明。",
+  "compat_block_reading": "這次命中的項目",
+  "compat_desc_reading": "只列出這次有加分或扣分的項目，說明依目前選擇的關係撰寫。",
+  "compat_scenarios_title": "依關係類型合盤",
+  "compat_scenarios_other": "其他關係類型"
 }

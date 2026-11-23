@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import {
+  allCompats,
   allDocs,
   allGuides,
   allLegalPages,
@@ -12,6 +13,7 @@ import {
   allZodiacs,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
+import { compatSeoPages } from '../east-content/compat/seo-pages.ts'
 import { yearlySeoPages } from '../east-content/yearly/seo-pages.ts'
 import { zodiacSeoPages } from '../east-content/zodiac/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
@@ -42,6 +44,8 @@ export function getPublicPages(site?: SiteId) {
         ...westernZodiacSeoPages(allWesternZodiacs),
         // 东方站 2027 年度枢纽与年度生肖页（content-growth-v2-tools 第 8 组）
         ...yearlySeoPages(allYearlies),
+        // 合盘工具页正文与关系场景页（content-growth-v2-tools 第 13 组）
+        ...compatSeoPages(allCompats),
       ],
     },
     new Date(),

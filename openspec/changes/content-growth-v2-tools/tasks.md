@@ -53,7 +53,7 @@
 
 ## 1. 测量、审计与关键词归属 ★
 
-- [x] 1.1 在 `locale-similarity.mjs` 增加 design 决策 16 列出的新集合定义（东方 `yearly`、`zodiac-pair`、`compat-scenario`、`nongminli-month`；西方 `moon-month`、`western-sign`、`western-pair`、`angel-number`、`personal-year`、`tarot-spread`）。西方集合按词二元组、东方按字二元组，`data-table-section` 段只报告。补 `measure-locale-similarity.test.mjs` 单测，并在 main 构建上跑一次确认现有集合结果不变，报告存证据目录
+- [x] 1.1 在 `locale-similarity.mjs` 增加 design 决策 16 列出的新集合定义（东方 `yearly`、`zodiac-pair`、`compat-scenario`、`nongminli-month`；西方 `moon-month`、`western-sign`、`western-pair`、`angel-number`、`personal-year`、`tarot-spread`）。西方集合按词二元组、东方按字二元组（2026-11-24 协调者修订为按语言选择：中日韩按字，英西按词），`data-table-section` 段只报告。补 `measure-locale-similarity.test.mjs` 单测，并在 main 构建上跑一次确认现有集合结果不变，报告存证据目录
 - [x] 1.2 新建判定词审计：按语言维护判定词表（决策 14），审计 Title、H1、H2、FAQ、正文与锚文本；`--rule verdict` 覆盖全部关系类页面与第 2 阶段生肖页，`--rule marriage-topic` 保持第 2 阶段原规则，并排除生肖页指向配对页的链接锚文本。单测覆盖命中、未命中与排除规则；在 main 构建上运行结果为 0
 - [x] 1.3 用原型数据估算各新集合组件段需要的独有字数（同第 2 阶段第 1 组做法），必要时上调 design 决策 16 的长度下限，结论写入证据目录并在 PR 中说明
 - [x] 1.4 在私有关键词归属表中按 design 决策 13 登记本 change 全部主词为「计划」，包括「英文生肖归东方站」的跨站条目；用第 1 阶段的核对脚本确认当前没有可索引页以这些词为 Title 或 H1 开头（重点核对第 2 阶段生肖子页与 2027 年度页、太岁概念页与 2027 太歲页、`/ko/사주궁합` 与场景页）。如需改写 slug 措辞，在 PR 中列出并通知第 2 组
@@ -127,9 +127,9 @@
 
 ## 13. 合盘场景页与多语言文案 ★
 
-- [ ] 13.1 新建 `compat` 内容集合：工具页正文与 5 个场景页（决策 2），每个 `CompatItemKey` × 场景一段解释；场景页嵌入合盘表单并预选场景；登记地址与注册表
-- [ ] 13.2 Claude 子代理撰写 zh-Hans 工具页与场景页；其他语言由各自的 Claude 子代理按本语言主词另写（ko 只写场景页，`/ko/사주궁합` 正文不改；ja、en、zh-Hant 写工具页与场景页）。亲子不写强化冲突的断语，合伙不写投资建议
-- [ ] 13.3 Codex 审 zh-Hans，回译审其他语言；验收：场景页组内相似度、长度与 TDK、判定词审计为 0、内链（工具页 ↔ 场景页、生肖配对总表）、390px 截图核对用途说明；关键词归属补登
+- [x] 13.1 新建 `compat` 内容集合：工具页正文与 5 个场景页（决策 2），每个 `CompatItemKey` × 场景一段解释；场景页嵌入合盘表单并预选场景；登记地址与注册表
+- [x] 13.2 Claude 子代理撰写 zh-Hans 工具页与场景页；其他语言由各自的 Claude 子代理按本语言主词另写（ko 只写场景页，`/ko/사주궁합` 正文不改；ja、en、zh-Hant 写工具页与场景页）。亲子不写强化冲突的断语，合伙不写投资建议
+- [x] 13.3 Codex 审 zh-Hans，回译审其他语言；验收：场景页组内相似度、长度与 TDK、判定词审计为 0、内链（工具页 ↔ 场景页、生肖配对总表）、390px 截图核对用途说明；关键词归属补登
 
 ## 14. 合盘详批的语言与场景（非关键路径）
 

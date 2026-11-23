@@ -40,7 +40,7 @@
 - **注册表**：`ToolRoute` 有 `nav`、`prerender`、`navGroup?: 'calendar'`（页头「历法与生肖」分组，phase2 EastNavVariant 方案 C）。
 - **ko 合盘**：`/ko/사주궁합`（`gunghap-page.tsx`），组件写死 `LOCALE = 'ko'`；对方资料用 `PARTNER_STORAGE_KEY` 写入 sessionStorage；分享片段 `toShareInput` 同时带两人的出生资料。首页东方精选已含 `saju-gunghap`。
 - **详批**：`saju-compat` 只有 ko 变体；`bazi-full` 有 zh-Hant、zh-Hans、en、ja（v4 含流年逐年章节），`saju-full` 有 ko。
-- **检查工具**：`locale-similarity.mjs`（东方站集合按 H2 分段、字二元组）、`measure-locale-backtranslation.mjs`、`audit-seo.mjs`、`check-links.mjs`、`check-i18n-seo.mjs`、`check-locale-glossary.mjs`（`apps/web/i18n/glossary/{en-east,es,ja}.json`）、`check-home-bundle.mjs`、`scripts/check-content-zodiac.mjs`（引擎复算样板）。
+- **检查工具**：`locale-similarity.mjs`（集合按 H2 分段；中日韩按字二元组，英、西等按词二元组，按语言而非站点选择——协调者 2026-11-24 修订：东方站英文页按字计会让任意英文段落都显得雷同）、`measure-locale-backtranslation.mjs`、`audit-seo.mjs`、`check-links.mjs`、`check-i18n-seo.mjs`、`check-locale-glossary.mjs`（`apps/web/i18n/glossary/{en-east,es,ja}.json`）、`check-home-bundle.mjs`、`scripts/check-content-zodiac.mjs`（引擎复算样板）。
 - **设计稿规则**（`docs/design-system.md` §8.1）：新页面模式与套用现有模式的新页面都要画布稿；已有集合新增文章、版式不变的免稿。
 
 ### 外部约束

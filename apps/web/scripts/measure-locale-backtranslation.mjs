@@ -16,12 +16,13 @@
 // 用法（先 `pnpm --filter @xuanxue/web build`）：
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja --export-input <目录>
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja --from-file <目录>
+//   node apps/web/scripts/measure-locale-backtranslation.mjs --collection compat --locale ko --from-file <目录>
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale ja [--dry-run]
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale es --calibrate --live --budget-usd 2
 //   node apps/web/scripts/measure-locale-backtranslation.mjs --locale es --live --budget-usd 5 \
 //     [--calibration <calibration.json>] [--base-url <地址>] [--out <目录>]
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { startPreview } from './check-links.mjs'
@@ -29,9 +30,11 @@ import {
   createExtractor,
   dice,
   entryLocale,
+  frontmatter,
   fullText,
   pageKind,
   r3,
+  sectionKind,
   THRESHOLDS,
   unitOf,
 } from './locale-similarity.mjs'
@@ -152,6 +155,68 @@ export const LOCALE_PLANS = Object.freeze({
     backTranslationExempt: {},
   },
 })
+
+const COMPAT_PLAN = {
+  site: 'east',
+  sources: ['zh-Hans'],
+  controlPaths: ['/八字合盘/合婚', '/八字合盘/恋人', '/八字合盘/朋友'],
+}
+const COMPAT_REVIEW_LOCALES = ['zh-Hant', 'ko', 'ja', 'en']
+
+/** 合盘回译只取各语言另写的导语、正文与 FAQ；共用表单和导航不参与比对。 */
+async function loadCompatPages(locales) {
+  const { COMPAT_TOOL_PATHS, compatScenarioPath } = await import(
+    '../src/features/east-content/compat/paths.ts'
+  )
+  return locales.flatMap((locale) => {
+    const dir = join(WEB_ROOT, 'content/compat', locale)
+    return readdirSync(dir)
+      .filter((file) => file.endsWith('.mdx'))
+      .sort()
+      .map((file) => {
+        const key = file.slice(0, -4)
+        const pathOf = (language) =>
+          key === 'index' ? COMPAT_TOOL_PATHS[language] : compatScenarioPath(language, key)
+        const mdx = readFileSync(join(dir, file), 'utf8')
+        const { lede, faq } = frontmatter(mdx)
+        const article = mdx.replace(/^---\n[\s\S]*?\n---\n/u, '')
+        const headings = [...article.matchAll(/^## (.+)$/gmu)].map((match) => match[1])
+        const segments = article.split(/^## .+$/gmu).map((part) => part.trim())
+        return {
+          locale,
+          path: encodeURI(pathOf(locale)),
+          alts: Object.fromEntries(
+            locales.map((language) => [
+              language,
+              new URL(encodeURI(pathOf(language)), 'https://ganjiday.com').href,
+            ]),
+          ),
+          kind: key === 'index' ? 'tool' : 'compat-scenario',
+          page: {
+            sections: [
+              { title: '', kind: 'intro', text: [lede, segments[0]].filter(Boolean).join('\n') },
+              ...headings.map((title, i) => ({
+                title,
+                kind: sectionKind(title, i + 1),
+                text: segments[i + 1],
+              })),
+              {
+                title: {
+                  'zh-Hans': '常见问题',
+                  'zh-Hant': '常見問題',
+                  ko: '자주 묻는 질문',
+                  ja: 'よくある質問',
+                  en: 'FAQ',
+                }[locale],
+                kind: 'faq',
+                text: faq.flatMap(({ q, a }) => [q, a]).join('\n'),
+              },
+            ],
+          },
+        }
+      })
+  })
+}
 
 /**
  * 每字符 token 数：conservative 与 @xuanxue/ai DEFAULT_TOKENS_PER_CHAR（预算预留口径）一致；
@@ -363,12 +428,13 @@ export function cachedCaller({ generate, ledger, cacheDir, model = BACKTRANSLATI
 export function backTranslationScore({ sourcePage, backText, sourceLocale }) {
   const unit = unitOf(sourceLocale)
   const back = splitSections(backText)
-  const sourceSections = sourcePage.sections.filter((s, i) => i > 0 || s.text.trim())
-  const sections = sourceSections.map((s, i) => ({
-    title: s.title,
-    kind: s.kind,
-    dice: r3(dice(s.text, back[i] ?? '', unit)),
-  }))
+  const backHeadings = [...backText.matchAll(/^## (.+)$/gm)].map((match) => match[1])
+  const backFaq = backHeadings.findIndex((title) => sectionKind(title, 1) === 'faq')
+  const sections = sourcePage.sections.flatMap((s, i) => {
+    if (i === 0 && !s.text.trim()) return []
+    const backIndex = s.kind === 'faq' && backFaq !== -1 ? backFaq + 1 : i
+    return [{ title: s.title, kind: s.kind, dice: r3(dice(s.text, back[backIndex] ?? '', unit)) }]
+  })
   const faq = sections.filter((s) => s.kind === 'faq').map((s) => s.dice)
   return {
     dice: r3(dice(fullText(sourcePage), back.join('\n'), unit)),
@@ -499,7 +565,10 @@ export function buildManifest({ locale, plan, pages }) {
         text,
       })
     }
-    const control = pickControlPages(pages.filter((p) => p.locale === source))
+    const sourcePages = pages.filter((p) => p.locale === source)
+    const control = plan.controlPaths
+      ? plan.controlPaths.map((path) => byPath.get(encodeURI(path)))
+      : pickControlPages(sourcePages)
     control.forEach(({ path, page }, n) => {
       const text = serializeSections(page)
       const base = `calibration/${source}/${n + 1}`
@@ -730,13 +799,20 @@ async function main() {
       calibration: { type: 'string' },
       'base-url': { type: 'string' },
       out: { type: 'string' },
+      collection: { type: 'string' },
       'export-input': { type: 'string' },
       'from-file': { type: 'string' },
     },
   })
-  const locales = values.locale?.length ? values.locale : Object.keys(LOCALE_PLANS)
+  if (values.collection && values.collection !== 'compat') throw new Error('未知的回译集合')
+  const compat = values.collection === 'compat'
+  if (compat && !values['export-input'] && !values['from-file'])
+    throw new Error('--collection compat 需要 --export-input 或 --from-file')
+  const availableLocales = compat ? COMPAT_REVIEW_LOCALES : Object.keys(LOCALE_PLANS)
+  const locales = values.locale?.length ? values.locale : availableLocales
+  if (compat && locales.length !== 1) throw new Error('--collection compat 需要指定一种 --locale')
   for (const locale of locales)
-    if (!LOCALE_PLANS[locale]) throw new Error(`没有 ${locale} 的页面计划（LOCALE_PLANS）`)
+    if (!availableLocales.includes(locale)) throw new Error(`没有 ${locale} 的页面计划`)
   const live = Boolean(values.live)
   if (live && values['dry-run']) throw new Error('--live 与 --dry-run 不能同时使用')
   if (live) {
@@ -751,16 +827,19 @@ async function main() {
         'locale-backtranslation',
       ),
   )
-  const config = await loadTemplateConfig()
-  const preview = values['base-url'] ? null : await startPreview()
-  const baseUrl = values['base-url'] ?? preview.baseUrl
+  const config = compat ? null : await loadTemplateConfig()
+  const preview = compat || values['base-url'] ? null : await startPreview()
+  const baseUrl = values['base-url'] ?? preview?.baseUrl
   try {
     const external = values['export-input'] ?? values['from-file']
     if (external) {
       if (live) throw new Error('--export-input / --from-file 不调用模型，不能与 --live 同用')
       for (const locale of locales) {
-        const plan = LOCALE_PLANS[locale]
-        const pages = await loadPages({ baseUrl, config, plan, locales: [locale, ...plan.sources] })
+        const plan = compat ? COMPAT_PLAN : LOCALE_PLANS[locale]
+        const pageLocales = [locale, ...plan.sources]
+        const pages = compat
+          ? await loadCompatPages(pageLocales)
+          : await loadPages({ baseUrl, config, plan, locales: pageLocales })
         const dir = resolve(external)
         if (values['export-input']) {
           const manifest = buildManifest({ locale, plan, pages })
@@ -782,7 +861,7 @@ async function main() {
           console.log(
             `${locale} → ${source}：${r.rows.length} 页，未达门槛 ${r.failing.length}，阈值 ${r.calibration.threshold}（对照组 ${r.calibration.control} 页，中位数 ${r.calibration.median}），缺回译 ${r.missing.length}，正文已变 ${r.stale.length}`,
           )
-          if (r.failing.length || r.missing.length) process.exitCode = 1
+          if (r.failing.length || r.missing.length || r.stale.length) process.exitCode = 1
         }
       }
       return

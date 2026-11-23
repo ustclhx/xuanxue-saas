@@ -1,4 +1,5 @@
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
+import { COMPAT_EAST_CONTENT_ROUTES } from './compat/paths.ts'
 import { TAI_SUI_YEAR_CONTENT_ROUTES } from './tai-sui-year/paths.ts'
 import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { YEARLY_EAST_CONTENT_ROUTES } from './yearly/paths.ts'
@@ -40,6 +41,8 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...YEARLY_EAST_CONTENT_ROUTES,
   // content-growth-v2-tools 第 7 组：个人 2027 流年工具（zh-hans、zh-hant、ko；en 见 east-en/paths.ts）
   ...YEARLY_TOOL_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 13 组：合盘工具正文（zh-Hans、zh-Hant、ja）与五种语言的场景页
+  ...COMPAT_EAST_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(

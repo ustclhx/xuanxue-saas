@@ -125,7 +125,10 @@ export const Route = createFileRoute('/$slug')({
     }
 
     if (site !== 'east') throw notFound()
-    const id = easternPageOf(locale, params.slug)
+    // 东方内容集合优先：合盘工具页（zh-Hans、zh-Hant、ja、en）在 EASTERN_PAGES 中登记供链接使用，
+    // 正文与 head 由 compat 集合提供（content-growth-v2-tools 第 13 组）；ko `/사주궁합` 不在集合中，照旧分发
+    const route = locale === 'en' ? eastEnContentRouteOf(path) : eastContentRouteOf(locale, path)
+    const id = route ? undefined : easternPageOf(locale, params.slug)
     // 合盘地址随本组预留，正式发布语言以工具注册表为准。
     if (id === 'gunghap' && !TOOL_ROUTES.find((tool) => tool.id === 'saju-gunghap')?.paths[locale])
       throw notFound()
@@ -138,7 +141,6 @@ export const Route = createFileRoute('/$slug')({
       return { easternTool: id }
     }
 
-    const route = locale === 'en' ? eastEnContentRouteOf(path) : eastContentRouteOf(locale, path)
     if (route) {
       const [{ loadEastContent }] = await Promise.all([
         import('../features/east-content/route-data.ts'),

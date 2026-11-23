@@ -269,17 +269,21 @@ it('现有生肖、黄历及东方英文塔罗仍使用各自集合', async () =
   })
 })
 
-it('合盘五种语言已在注册表发布（content-growth-v2-tools 12.3），排盘页继续分发', async () => {
+it('合盘五种语言已在注册表发布（content-growth-v2-tools 12.3）；中日英工具页由 compat 集合分发（第 13 组）', async () => {
   for (const [locale, slug] of [
     ['zh-Hans', '八字合盘'],
     ['zh-Hant', '八字合盤'],
     ['ja', '四柱推命相性'],
     ['en', 'bazi-compatibility'],
-    ['ko', '사주궁합'],
   ] as const) {
     expect(easternPageOf(locale, slug)).toBe('gunghap')
-    await expect(single('east', locale, slug)).resolves.toEqual({ easternTool: 'gunghap' })
+    await expect(single('east', locale, slug)).resolves.toMatchObject({
+      eastContent: { route: { locale, collection: 'compat', id: 'tool' } },
+    })
   }
+  // ko `/사주궁합` 正文不改：仍由排盘页分发
+  expect(easternPageOf('ko', '사주궁합')).toBe('gunghap')
+  await expect(single('east', 'ko', '사주궁합')).resolves.toEqual({ easternTool: 'gunghap' })
   // 西方站同路径仍为 404
   await expect(single('west', 'en', 'bazi-compatibility')).rejects.toMatchObject(notFound)
 

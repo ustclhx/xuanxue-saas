@@ -72,9 +72,8 @@ function compute(a: BirthFormValues, b: BirthFormValues) {
   return computeCompatibility(pa.input, pb.input, { referenceYear: 2026 })
 }
 
-describe('ko 사주궁합 快照（content-growth-v2-tools 12.1：多语言化前后 ko 输出不变）', () => {
-  // 基线为多语言化之前的输出；与基线的差别只有 12.2 的对方资料用途说明与进度条的 role="meter"
-  it('H1、简介与双人表单', () => {
+describe('ko 사주궁합 快照（含第 13 组场景导航）', () => {
+  it('H1、简介、双人表单与页尾导航', () => {
     messages.locale = 'ko'
     expect(normalize(render(<GunghapPage />))).toMatchSnapshot()
   })

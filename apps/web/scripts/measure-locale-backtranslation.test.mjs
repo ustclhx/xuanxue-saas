@@ -59,6 +59,22 @@ describe('分段序列化', () => {
     assert.ok(rewritten.dice < 0.3, String(rewritten.dice))
     assert.ok(rewritten.faqMax < 0.4)
   })
+
+  test('正文节数不同且没有导语时，仍按标题比较真实 FAQ 段', () => {
+    const source = mk([
+      ['', ''],
+      ['说明', '日支关系按传统规则计分。'],
+      ['补充', '出生时辰会影响五行占比。'],
+      ['常见问题', '结果可以分享吗？可以。'],
+    ])
+    const score = backTranslationScore({
+      sourcePage: source,
+      backText: '## 说明\n日支关系按传统规则计分。\n\n## 常见问题\n结果可以分享吗？可以。',
+      sourceLocale: 'zh-Hans',
+    })
+    assert.equal(score.sections[0].dice, 1)
+    assert.equal(score.faqMax, 1)
+  })
 })
 
 describe('阈值与对照组', () => {
