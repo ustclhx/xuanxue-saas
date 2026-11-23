@@ -203,12 +203,12 @@ describe('落地页数据', () => {
     // 日语既没有 2027 内容也没有每日页：不出季节位，主卡占满整行
     language.locale = 'ja'
     expect(hubFeatured('east', 'ja', TOOL_ROUTES, '2026-12-10').season).toBeNull()
-    // 东方站英文：2027 生肖枢纽尚无英文页（第 9–11 组补语言），按钮顺补为个人流年，没有文字链接
+    // 东方站英文：第 11 组补上 `/chinese-zodiac-2027`，季节位与简中相同（生肖枢纽加个人流年）
     language.locale = 'en'
     expect(ids(hubFeatured('east', 'en', TOOL_ROUTES, '2026-12-10')).season).toEqual([
       'year',
+      'yearly-2027',
       'yearly-tool',
-      undefined,
     ])
   })
 
