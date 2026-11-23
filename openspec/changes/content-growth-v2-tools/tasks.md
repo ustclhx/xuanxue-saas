@@ -121,9 +121,9 @@
 
 ## 12. 合盘工具多语言化与对方资料 ★
 
-- [ ] 12.1 把 `gunghap-page.tsx` 改为接收 `locale` 与 `scenario` 的通用组件，文案移到 `messages/<locale>/compat.json`；ko 页面用快照测试锁定 H1、表单与结果区不变
-- [ ] 12.2 对方资料（design 决策 7）：去掉对方字段默认写入 sessionStorage；ProfileBar 不默认填充对方字段，「保存为档案」为显式操作；对方字段旁显示用途说明；新生成的分享片段与分享卡不含出生资料，旧链接兼容读取；首次加载清除旧会话中的对方值。单测覆盖关闭标签页后对方字段为空、分享链接不含生日、旧链接仍可打开
-- [ ] 12.3 登记 zh-Hant、zh-Hans、ja、en 合盘工具地址（`EASTERN_PAGES`）与注册表（`directoryGroup: relation`、`freeLabel`）；未开放详批的语言显示「即将开放」占位。单测覆盖五种语言 hreflang 与占位
+- [x] 12.1 把 `gunghap-page.tsx` 改为接收 `locale` 与 `scenario` 的通用组件，文案移到 `messages/<locale>/compat.json`；ko 页面用快照测试锁定 H1、表单与结果区不变
+- [x] 12.2 对方资料（design 决策 7）：去掉对方字段默认写入 sessionStorage；ProfileBar 不默认填充对方字段，「保存为档案」为显式操作；对方字段旁显示用途说明；新生成的分享片段与分享卡不含出生资料，旧链接兼容读取；首次加载清除旧会话中的对方值。单测覆盖关闭标签页后对方字段为空、分享链接不含生日、旧链接仍可打开
+- [x] 12.3 登记 zh-Hant、zh-Hans、ja、en 合盘工具地址（`EASTERN_PAGES`）与注册表（`directoryGroup: relation`、`freeLabel`）；未开放详批的语言显示「即将开放」占位。单测覆盖五种语言 hreflang 与占位
 
 ## 13. 合盘场景页与多语言文案 ★
 

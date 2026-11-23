@@ -25,3 +25,10 @@ export function readingSite(kind: string, locale: string): SiteId | undefined {
   const fixed = Object.hasOwn(KIND_SITE, kind) ? KIND_SITE[kind as ReadingKind] : undefined
   return fixed ?? siteOfLocale(locale, templateConfig)
 }
+
+/**
+ * 合盘详批（`saju-compat`）已开放购买的语言（content-growth-v2-tools 决策 7、12.3）。
+ * 其他语言的合盘页照常给出免费结果，解锁位置显示「即将开放」占位。
+ * 新语言须先在 catalog 中有变体并通过评测门槛（第 14 组），使用者审阅样例后再加入这里（gunghap.test 核对）。
+ */
+export const COMPAT_READING_LOCALES: readonly string[] = ['ko']

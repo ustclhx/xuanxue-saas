@@ -115,8 +115,9 @@ const order = (html: string) =>
 
 describe('落地页数据', () => {
   it.each([
-    ['east', 'zh-Hant', ['bazi', 'ziwei', 'tarot-three-card', 'mingpan'], '八紫牌盤'],
-    ['east', 'zh-Hans', ['bazi', 'ziwei', 'tarot-three-card', 'mingpan'], '八紫牌盘'],
+    // 合盘中文版发布后（content-growth-v2-tools 12.3）按 FEATURED 顺序进入精选，命盤查詢移出前 4
+    ['east', 'zh-Hant', ['bazi', 'ziwei', 'saju-gunghap', 'tarot-three-card'], '八紫合牌'],
+    ['east', 'zh-Hans', ['bazi', 'ziwei', 'saju-gunghap', 'tarot-three-card'], '八紫合牌'],
     ['east', 'ko', ['bazi', 'saju-gunghap', 'tarot-three-card'], '사합타'],
     ['west', 'en', ['life-path', 'numerology-calculator', 'tarot-three-card'], '1922'],
   ] as const)('%s %s：精选入口 3–4 个，顺序与字形按设计稿', (site, locale, ids, glyphs) => {

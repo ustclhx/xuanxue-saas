@@ -36,7 +36,7 @@ const METHODS: Record<Locale, readonly Pair[]> = {
   ko: [
     [m.bazi_home_faq_q1, m.bazi_home_faq_a1],
     [m.bazi_home_faq_q3, m.bazi_home_faq_a3],
-    [m.bazi_gunghap_faq_q1, m.bazi_gunghap_faq_a1],
+    [m.compat_faq_q1, m.compat_faq_a1],
   ],
   // 西班牙语与英语同为西方站数字命理工具，取各自语言的工具页 FAQ
   es: [

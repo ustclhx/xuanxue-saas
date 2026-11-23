@@ -34,9 +34,11 @@ export function inputIssuesOf(error: unknown): InputIssue[] | null {
 /**
  * 一个人的表单值：挂载后从 sessionStorage 恢复（切页保留），变化时写回；
  * 恢复时更换 formKey，让非受控控件以新值重新挂载。
+ * `storageKey` 为 null 时不读写浏览器存储（合盘的对方资料属于第三方个人数据，
+ * content-growth-v2-tools 决策 7：默认不保存）。
  */
 export function useBirthValues(
-  storageKey: string,
+  storageKey: string | null,
   locale: string,
   initial?: Partial<BirthFormValues>,
 ) {
@@ -51,12 +53,12 @@ export function useBirthValues(
   const update = useCallback(
     (next: BirthFormValues) => {
       setValues(next)
-      saveBirthValues(sessionStore(), storageKey, next)
+      if (storageKey) saveBirthValues(sessionStore(), storageKey, next)
     },
     [storageKey],
   )
   const loadStored = useCallback(
-    () => loadBirthValues(sessionStore(), storageKey, defaults),
+    () => (storageKey ? loadBirthValues(sessionStore(), storageKey, defaults) : null),
     [storageKey, defaults],
   )
   // 从出生档案填入（add-birth-profiles-daily-horoscope 6.2）：只覆盖档案里有的字段，
@@ -67,7 +69,7 @@ export function useBirthValues(
     (partial: Partial<BirthFormValues>) => {
       const next = { ...current.current, ...partial }
       restore(next)
-      saveBirthValues(sessionStore(), storageKey, next)
+      if (storageKey) saveBirthValues(sessionStore(), storageKey, next)
     },
     [restore, storageKey],
   )

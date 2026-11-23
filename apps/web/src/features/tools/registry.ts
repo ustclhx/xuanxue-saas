@@ -218,10 +218,27 @@ export const TOOL_ROUTES = defineToolRoutes([
     site: 'east',
     directoryGroup: 'relation',
     freeLabel: 'free_compatibility',
-    paths: { ko: '/사주궁합' },
-    titles: { ko: '사주궁합' },
+    // content-growth-v2-tools 12.3：同一合盘组件的五个语言版本（决策 2）；en 为东方站根路径英文，
+    // 描述同 bazi 不登记 en（页面 head 取 messages/en/compat.json）
+    paths: {
+      'zh-Hant': '/八字合盤',
+      'zh-Hans': '/八字合盘',
+      ko: '/사주궁합',
+      ja: '/四柱推命相性',
+      en: EAST_EN_TOOL_PATHS.gunghap,
+    },
+    titles: {
+      'zh-Hant': '八字合盤',
+      'zh-Hans': '八字合盘',
+      ko: '사주궁합',
+      ja: '四柱推命の相性',
+      en: 'BaZi Compatibility',
+    },
     descriptions: localeText({
+      'zh-Hant': '免費八字合盤：雙方日柱的合沖與五行喜用互補，得出傳統參考分與逐項加減分。',
+      'zh-Hans': '免费八字合盘：两人日柱的合冲与五行喜用互补，得出传统参考分与逐项加减分。',
       ko: '무료 사주궁합: 두 사람의 일주 관계와 오행 보완으로 본 참고 점수와 항목별 가감점.',
+      ja: '無料の四柱推命相性：二人の日柱の干合・支合・冲と五行の補い合いから、伝統的な参考点と項目ごとの加点・減点を表示します。',
     }),
   },
   ...TAROT_TOOL_ROUTES.map((route) =>

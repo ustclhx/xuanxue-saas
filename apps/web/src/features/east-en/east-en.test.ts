@@ -68,6 +68,7 @@ describe('东方站英文页面地址', () => {
     expect(toolsForSite('east', 'en').map((tool) => tool.path)).toEqual([
       '/bazi-calculator',
       '/zi-wei-dou-shu',
+      '/bazi-compatibility',
       '/tarot-spreads',
     ])
   })

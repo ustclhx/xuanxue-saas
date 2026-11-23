@@ -7,7 +7,7 @@ import { AskAiEntry } from '../ai/ask-ai-entry.tsx'
 import { trackEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
-import { AiDisclaimer } from '../tools/disclaimer.tsx'
+import { AiDisclaimer, Disclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { useToolEvents } from '../tools/use-tool-events.ts'
 import { primaryButton, secondaryButton } from './buttons.ts'
@@ -146,6 +146,10 @@ type ReadingUnlockProps = {
   request: UnlockRequest | null
   /** 仅供本地演示页：使用固定报价，不读取服务端 */
   previewOffer?: ReadingOffer
+  /**
+   * 购买前的附加说明，显示在通用说明之上（合盘：对方资料随报告保存，content-growth-v2-tools 决策 7）
+   */
+  note?: string
 }
 
 /**
@@ -172,6 +176,7 @@ function ReadingUnlockCard({
   kind,
   request,
   previewOffer,
+  note,
   onOffer,
 }: ReadingUnlockProps & { onOffer?: (offer: ReadingOffer) => void }) {
   const hostSite = useSiteId()
@@ -358,7 +363,8 @@ function ReadingUnlockCard({
   }, [])
 
   const generating = phase.name === 'streaming' || phase.name === 'done'
-  if (offer?.comingSoon && request && phase.name === 'idle') return <ComingSoon kind={kind} />
+  if (offer?.comingSoon && request && phase.name === 'idle')
+    return <ReadingComingSoon kind={kind} />
   if (!offer?.available || (!request && !generating && phase.name === 'idle')) return null
 
   if (generating) {
@@ -465,10 +471,15 @@ function ReadingUnlockCard({
         </button>
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />
+      {note && (
+        <p role="note" data-testid="reading-unlock-extra-note" className={cn(label, 'max-w-180')}>
+          {note}
+        </p>
+      )}
       <p role="note" className={cn(label, 'max-w-180')}>
         {m.readings_unlock_note()}
       </p>
-      <AiDisclaimer />
+      {kind === 'saju-compat' ? <Disclaimer /> : <AiDisclaimer />}
     </section>
   )
 }
@@ -481,8 +492,11 @@ const label = 'm-0 text-caption text-ink-subtle'
 const option =
   'flex min-h-12 items-center justify-between gap-3 rounded-field px-4 text-left font-medium text-body transition-colors focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3'
 
-/** 运营关闭时的占位：只显示名称与「即将开放」，不显示价格、解锁按钮或目录 */
-function ComingSoon({ kind }: { kind: string }) {
+/**
+ * 运营关闭时的占位：只显示名称与「即将开放」，不显示价格、解锁按钮或目录。
+ * 也供该语言尚未开放详批的工具页直接使用（合盘 zh / ja / en，content-growth-v2-tools 12.3）。
+ */
+export function ReadingComingSoon({ kind }: { kind: string }) {
   return (
     <section
       aria-labelledby="reading-coming-soon-title"
@@ -492,7 +506,9 @@ function ComingSoon({ kind }: { kind: string }) {
       <h2 id="reading-coming-soon-title" className="m-0 font-heading text-ink text-subtitle">
         {readingTitle(kind)}
       </h2>
-      <p className="m-0 text-body text-ink-muted">{m.readings_coming_soon()}</p>
+      <p className="m-0 text-body text-ink-muted">
+        {kind === 'saju-compat' ? m.compat_coming_soon() : m.readings_coming_soon()}
+      </p>
     </section>
   )
 }

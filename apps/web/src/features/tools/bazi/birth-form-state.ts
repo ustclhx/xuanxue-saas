@@ -273,8 +273,20 @@ export function issuesByField(
 
 /** 八字、紫微、命盘查询与韩语만세력 / 궁합（本人）共用一份输入，切页时带入 */
 export const BIRTH_STORAGE_KEY = 'xuanxue.bazi.birth'
-/** 궁합的对方 */
-export const PARTNER_STORAGE_KEY = 'xuanxue.bazi.partner'
+/**
+ * 合盘对方资料的旧存储键（content-growth-v2-tools 决策 7）：对方出生资料属于第三方个人数据，
+ * 新版不再写入浏览器存储；首次加载新版时清除旧会话中残留的值（clearLegacyPartner）。
+ */
+export const LEGACY_PARTNER_STORAGE_KEY = 'xuanxue.bazi.partner'
+
+/** 清除旧版写入 sessionStorage 的对方资料；存储不可用时静默跳过 */
+export function clearLegacyPartner(storage: Pick<Storage, 'removeItem'> | undefined): void {
+  try {
+    storage?.removeItem(LEGACY_PARTNER_STORAGE_KEY)
+  } catch {
+    // 禁用站点数据时无从清除，也就没有残留
+  }
+}
 
 const KEYS = Object.keys(defaultBirthValues('zh-Hant')) as (keyof BirthFormValues)[]
 
