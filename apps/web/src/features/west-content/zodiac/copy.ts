@@ -98,7 +98,7 @@ export const ZODIAC_COPY = {
   hubTableCaption:
     'The twelve zodiac signs with their usual dates, element, modality and ruling planet',
   hubTableNote:
-    'Dates are the usual span of the Sun in each sign. The exact changeover moves by about a day from year to year, so a birthday on the first or last day may fall in the neighboring sign.',
+    'These dates are approximate. When the Sun changes signs, the local date can vary with the year and time zone. A birth chart can show which sign the Sun occupied at a boundary.',
   colSign: 'Sign',
   // 档案页 12 行配对一览
   rowTitle: (sign: string) => `${sign} compatibility with every sign`,
@@ -110,7 +110,7 @@ export const ZODIAC_COPY = {
   // 配对页
   signBySign: 'Sign by sign',
   signBySignNote:
-    'These are general rules about two sun signs. Full birth charts also include the Moon, the rising sign and the planets, which this page does not cover.',
+    'This comparison uses the signs occupied by the two Suns. A full chart comparison also looks at exact positions, the Moon, the rising signs and other planets.',
   factor: 'Factor',
   inTradition: 'In tradition',
   betweenThem: 'Between them',
@@ -120,7 +120,7 @@ export const ZODIAC_COPY = {
   seriesLabel: 'Adjacent pairs',
   previous: 'Previous',
   next: 'Next',
-  bandText: 'Curious about numbers too? Compare two birth dates by life path number.',
+  bandText: 'Compare two birth dates by life path number.',
   bandLink: 'Life Path Compatibility',
   // 总表
   gridTitle: 'All twelve signs, pair by pair',
@@ -149,7 +149,7 @@ export const traditionNote = {
       case 'complementary':
         return 'Complementary elements: fire and air feed each other, as do earth and water.'
       case 'other':
-        return 'Elements that are neither shared nor complementary, so each brings what the other lacks.'
+        return 'Different elements outside the fire–air and earth–water groupings. Each element brings its own themes to the reading.'
     }
   },
   modality(a: Modality, b: Modality): string {
@@ -171,7 +171,7 @@ export const traditionNote = {
       case 'opposition':
         return 'Counted among the challenging, dynamic aspects.'
       default:
-        return 'A minor aspect, read as an adjustment between neighboring styles.'
+        return 'Many modern astrologers class this as a minor aspect. The signs have different elements, modalities and polarities.'
     }
   },
 }

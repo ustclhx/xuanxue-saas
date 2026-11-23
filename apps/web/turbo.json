@@ -14,6 +14,7 @@
         "!$TURBO_ROOT$/apps/jobs/.wrangler",
         "!$TURBO_ROOT$/apps/jobs/.turbo",
         "!$TURBO_ROOT$/apps/jobs/.dev.vars",
+        "$TURBO_ROOT$/scripts/check-content-western-zodiac.*",
         "$TURBO_ROOT$/scripts/production/check-wrangler-envs.*",
         "$TURBO_ROOT$/scripts/sentry-node-maps.mjs",
         // 品牌 token 测试对照项目视觉规范
