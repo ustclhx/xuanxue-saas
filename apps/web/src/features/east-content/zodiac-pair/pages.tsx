@@ -24,7 +24,8 @@ import { toolHref } from '../../tools/tool-href.ts'
 import { useToolEvents } from '../../tools/use-tool-events.ts'
 import { ELEMENT_DOT, elementHanzi, glyph, zodiacName } from '../zodiac/labels.ts'
 import { ZODIAC_KEYS, type ZodiacKey } from '../zodiac/paths.ts'
-import { type PairFactsView, type PairMark, type PairRelation, TRIAD_GROUPS } from './data.ts'
+import { type PairMark, TRIAD_GROUPS } from './constants.ts'
+import type { PairFactsView, PairRelation } from './data.ts'
 import type { ZodiacPairChildData, ZodiacPairHubData } from './page.functions.ts'
 import {
   isZodiacPairLocale,

@@ -1,7 +1,10 @@
 import type { Branch, Element } from '@xuanxue/bazi'
 import { type ZodiacPairFacts, zodiacPairFacts } from '@xuanxue/bazi/almanac'
 import type { ZodiacKey } from '../zodiac/paths.ts'
+import { ORDER, type PairMark, TRIAD_GROUPS, triadGroupOf } from './constants.ts'
 import { pairBranches, ZODIAC_PAIR_KEYS, type ZodiacPairKey, zodiacPairKey } from './paths.ts'
+
+export type { PairMark } from './constants.ts'
 
 /**
  * 生肖配对的引擎事实（design 决策 4、9）：只在服务端与构建期计算，结果随 loader 下发，客户端不加载引擎。
@@ -10,35 +13,6 @@ import { pairBranches, ZODIAC_PAIR_KEYS, type ZodiacPairKey, zodiacPairKey } fro
 
 export type PairRelation = ZodiacPairFacts['relations'][number]
 export type ElementRelation = ZodiacPairFacts['elementRelation']
-
-/** 总表格子的标记（设计稿 ZodiacGrid：三合、六合为合类，六冲、相害为冲类；相刑、相破只在配对页列出） */
-export type PairMark = 'same' | 'sixCombine' | 'triad' | 'clash' | 'harm' | 'none'
-
-const ORDER: readonly Branch[] = [
-  'zi',
-  'chou',
-  'yin',
-  'mao',
-  'chen',
-  'si',
-  'wu',
-  'wei',
-  'shen',
-  'you',
-  'xu',
-  'hai',
-]
-
-/** 三合局组号 = 地支序号 mod 4：申子辰=0、巳酉丑=1、寅午戌=2、亥卯未=3 */
-export const triadGroupOf = (branch: Branch) => ORDER.indexOf(branch) % 4
-
-/** 三合局的成员（按生、旺、墓）与五行 */
-export const TRIAD_GROUPS: readonly { branches: readonly Branch[]; element: Element }[] = [
-  { branches: ['shen', 'zi', 'chen'], element: 'water' },
-  { branches: ['si', 'you', 'chou'], element: 'metal' },
-  { branches: ['yin', 'wu', 'xu'], element: 'fire' },
-  { branches: ['hai', 'mao', 'wei'], element: 'wood' },
-]
 
 export interface PairFactsView {
   readonly branches: readonly [Branch, Branch]
