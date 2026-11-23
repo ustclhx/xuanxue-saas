@@ -93,7 +93,7 @@ export const MOON_COPY = {
   localNote: 'your local time',
   utcNote: 'UTC',
   utcAlert:
-    'We could not read your time zone, so dates and times are shown in UTC. Near a phase change, your local date may differ by one day.',
+    'Your time zone is unavailable. Dates and times are shown in UTC, so a phase may fall on a different date where you are.',
   asOf: (date: string) => `As of ${date}`,
   illumination: 'Illumination',
   moonAge: 'Moon age',
@@ -110,17 +110,17 @@ export const MOON_COPY = {
   seriesLabel: 'Adjacent months',
   monthLink: (month: number) => `${MONTHS[month - 1]} moon calendar`,
   outOfRange:
-    'This date is outside the period the page was built for. Reload later for an updated table.',
+    'This date is outside the calendar’s current range. Check back for an updated calendar.',
 
   // 满月页
   tonightFull: 'Tonight is a full moon',
   tonightNot: 'Tonight is not a full moon',
-  tonightFullNote: (time: string) => `The Moon reaches full at ${time}.`,
+  tonightFullNote: (time: string) => `The full moon occurs at ${time}.`,
   tonightNotNote: (percent: number, date: string) =>
-    `The Moon is ${percent}% lit. The next full moon is on ${date}.`,
+    `Today’s illumination is about ${percent}%. The next full moon is on ${date}.`,
   nextName: 'Name',
-  fullAt: 'Full at',
-  ahead: 'Full moons ahead',
+  fullAt: 'Date and time',
+  ahead: 'Upcoming full moons',
   supermoon: 'Supermoon',
   blueMoon: 'Blue moon',
 
@@ -150,7 +150,7 @@ export const MOON_COPY = {
   monthRollover: (month: string, year: number, next: number) =>
     `This page shows ${month} ${year}. After the month ends it moves on to ${month} ${next}.`,
   monthFuture: (month: string, year: number) =>
-    `This page shows the next ${month}, in ${year}. It switches to the following year once that month ends.`,
+    `This page shows ${month} ${year}. It switches to the following year after that month ends.`,
   otherYear: (month: string, year: number) => `Show ${month} ${year}`,
   backToCurrent: (month: string, year: number) => `Back to ${month} ${year}`,
   fullMoonOf: (name: string) => `Full moon: ${name}`,
@@ -158,7 +158,7 @@ export const MOON_COPY = {
   faqTitle: 'Common questions',
   relatedTitle: 'Related',
   disclaimer:
-    'Moon phases are calculated with standard astronomical methods. Traditional names and customs are for reference and self-reflection only; they do not predict the future.',
+    'Moon phases are calculated with standard astronomical methods. Traditional names and customs are for reference and for exploring the subconscious. They do not predict the future.',
 } as const
 
 export function fillYear(text: string, year: number): string {

@@ -30,7 +30,6 @@ import {
   shortDate,
   UTC,
   zonedDateKey,
-  zoneLabel,
 } from './model.ts'
 import type { MoonPayload } from './moon.functions.ts'
 import { MOON_LOCALE, MOON_YEAR_PARAM, moonMonthPath } from './paths.ts'
@@ -328,12 +327,10 @@ function QuarterList({
   )
 }
 
-function ZoneNote({ clock, atMs }: { clock: Clock; atMs?: number | undefined }) {
+function ZoneNote({ clock }: { clock: Clock }) {
   return (
     <p className={caption}>
-      {clock.state === 'local'
-        ? copy.yearNoteLocal(zoneLabel(atMs ?? clock.nowMs, clock.timeZone))
-        : copy.yearNoteUtc}
+      {clock.state === 'local' ? copy.yearNoteLocal(clock.timeZone) : copy.yearNoteUtc}
     </p>
   )
 }
@@ -560,7 +557,7 @@ function TodayPage({ payload }: { payload: Kind<'today'> }) {
         <h2 id={aheadId} className={h2}>
           {copy.ahead}
         </h2>
-        <ZoneNote clock={clock} atMs={upcoming[0]?.utcMs} />
+        <ZoneNote clock={clock} />
         <FullMoonTable rows={upcoming} clock={clock} label={copy.ahead} />
       </section>
 
@@ -633,7 +630,7 @@ function FullMoonPage({ payload }: { payload: Kind<'full-moon'> }) {
         <h2 id={aheadId} className={h2}>
           {copy.ahead}
         </h2>
-        <ZoneNote clock={clock} atMs={next?.utcMs} />
+        <ZoneNote clock={clock} />
         <FullMoonTable
           rows={rows.slice(0, 13)}
           clock={clock}
@@ -677,7 +674,7 @@ function YearSection({ year, table, clock }: { year: number; table: MoonTable; c
       <h2 id={id} className={h2}>
         {copy.yearTitle(year)}
       </h2>
-      <ZoneNote clock={clock} atMs={rows[0]?.utcMs} />
+      <ZoneNote clock={clock} />
       <FullMoonTable rows={rows} clock={clock} label={copy.yearCaption(year)} />
     </section>
   )
@@ -787,7 +784,7 @@ function MonthPage({ payload }: { payload: Kind<'month'> }) {
         <MonthGrid table={payload.table} month={view} clock={clock} />
         <QuarterList events={events} clock={clock} label={copy.keyDatesLabel} />
         {full && <p className={muted}>{copy.fullMoonOf(copy.moonName(view.month))}</p>}
-        <ZoneNote clock={clock} atMs={full?.utcMs} />
+        <ZoneNote clock={clock} />
         <p role="note" className={cn(caption, 'max-w-180')}>
           {copy.disclaimer}
         </p>

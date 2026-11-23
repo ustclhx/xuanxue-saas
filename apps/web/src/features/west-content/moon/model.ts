@@ -302,15 +302,3 @@ export function fullDate(utcMs: number, timeZone: string): string {
   const { year, month, day } = zonedParts(utcMs, timeZone)
   return `${MONTH_FULL[month - 1]} ${day}, ${year}`
 }
-
-/** 访客时区的简称（只在水合后显示，避免服务端与浏览器的 ICU 差异） */
-export function zoneLabel(utcMs: number, timeZone: string): string {
-  try {
-    const part = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'short' })
-      .formatToParts(new Date(utcMs))
-      .find((item) => item.type === 'timeZoneName')
-    return part?.value ?? timeZone
-  } catch {
-    return timeZone
-  }
-}
