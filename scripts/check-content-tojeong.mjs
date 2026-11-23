@@ -1,7 +1,7 @@
 // ko 토정비결（content/tojeong/ko）的内容校验（openspec content-growth-v2-tools 任务 15.1、design 决策 8、16）：
 // - 144 个괘 번호（상괘 1–8 × 중괘 1–6 × 하괘 1–3）齐全，没有多余条目，各条目放在对应상괘的文件里；
 // - 每段总论不含空格 250–400 字，3 个主题短句齐全，标题互不重复；
-// - 合规：합쇼체（不出现해요체、반말结尾）、禁用词（띠별 운세、자기 탐색、判定词等）；
+// - 合规：합쇼체（不出现해요체、반말结尾）、禁用词（띠별 운세、잠재의식 탐색、判定词等）；
 // - 工具页正文 ≥2,000 字并含「계산 방법」与流派差异段；正文中的算例用引擎复算（@xuanxue/bazi/tojeong）。
 // 运行：node scripts/check-content-tojeong.mjs [--report <文件>]
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -14,11 +14,9 @@ const THEME_RANGE = [20, 120]
 const THEME_KEYS = ['work', 'people', 'self']
 const BODY_MIN = 2000
 const BANNED = [
-  '띠별 운세',
-  '자기 탐색',
-  '신년운세',
   '오락',
   '재미로',
+  '인공지능',
   '길일',
   '대길',
   '대흉',
@@ -40,6 +38,9 @@ const BANNED = [
   '상극이라 헤어',
   '헤어질 운명',
 ]
+const bannedWord = (text) =>
+  /띠별\s*운세|잠재의식\s*탐색|신년\s*운세|재미\s*삼아|\bAI\b/iu.exec(text)?.[0] ??
+  BANNED.find((item) => text.includes(item))
 /** 不预测具体月日：解读中不出现月份、季节与时段 */
 const TIMING =
   /(?:^|[^0-9])(?:1[0-2]|[1-9])월|정월|동짓달|섣달|(?<![가-힣])(?:봄|여름|가을|겨울)|상반기|하반기|연초|연말/u
@@ -90,7 +91,7 @@ export function checkEntries(files) {
         texts.push(text)
       }
       for (const text of [title, ...texts]) {
-        const word = BANNED.find((item) => text.includes(item))
+        const word = bannedWord(text)
         if (word) errors.push(`${key}: 含禁用词「${word}」`)
         const timing = TIMING.exec(text)
         if (timing) errors.push(`${key}: 含具体时段「${timing[0].trim()}」`)
@@ -118,7 +119,7 @@ export function checkToolPage(source) {
   if (length < BODY_MIN) errors.push(`工具页正文 ${length} 字，少于 ${BODY_MIN}`)
   for (const heading of ['## 계산 방법', '## 유파와 사이트마다 결과가 다른 이유'])
     if (!body.includes(heading)) errors.push(`工具页缺少小节「${heading}」`)
-  const word = BANNED.find((item) => source.includes(item))
+  const word = bannedWord(source)
   if (word) errors.push(`工具页含禁用词「${word}」`)
   const example =
     /양력 (\d{4})년 (\d{1,2})월 (\d{1,2})일에 태어나신[\s\S]*?(\d{4})년 괘는 (\d{3})번/u.exec(body)
@@ -127,7 +128,7 @@ export function checkToolPage(source) {
     const [, year, month, day, target, gwae] = example.map(Number)
     const result = tojeongGwae({ birth: { year, month, day }, calendar: 'solar' }, target)
     if (result.gwae !== gwae) errors.push(`算例괘 번호 ${gwae} 与引擎 ${result.gwae} 不符`)
-    const lunar = `음력 ${result.birthLunar.year}년 ${result.birthLunar.month}월 ${result.birthLunar.day}일생`
+    const lunar = `음력 ${result.birthLunar.year}년 ${result.birthLunar.month}월 ${result.birthLunar.day}일`
     const facts = [
       lunar,
       `세는 나이는 ${result.countingAge}세`,

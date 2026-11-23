@@ -570,7 +570,7 @@ const zodiac = defineCollection({
  * 构建期拦下合规禁用词；正文（不含空格）不少于 2,000 字（决策 16）。
  */
 const TOJEONG_BANNED =
-  /띠별 운세|자기 탐색|신년운세|오락|재미로|길일|대길|대흉|결혼하면 안|결혼해야|이혼수|\bAI\b/
+  /띠별\s*운세|잠재의식\s*탐색|신년\s*운세|오락|재미로|재미\s*삼아|길일|대길|대흉|결혼하면 안|결혼해야|이혼수|인공지능|\bAI\b/iu
 const tojeong = defineCollection({
   name: 'tojeong',
   directory: 'content/tojeong',

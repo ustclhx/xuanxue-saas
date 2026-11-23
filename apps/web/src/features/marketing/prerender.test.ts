@@ -106,6 +106,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ko/사주/신살' },
       { path: '/ko/사주/십신' },
       { path: '/ko/사주/일주' },
+      { path: '/ko/토정비결' },
       // 日语（add-locales-eu-ja 第 4 组，pending：照常预渲染供 staging，正式域名由站点守卫返回 404）
       { path: '/ja' },
       { path: '/ja/四柱推命' },
