@@ -10,12 +10,14 @@ import {
   allTarots,
   allWesternZodiacs,
   allYearlies,
+  allZodiacPairs,
   allZodiacs,
 } from 'content-collections'
 import { templateConfig } from '../../server/template-config.ts'
 import { compatSeoPages } from '../east-content/compat/seo-pages.ts'
 import { yearlySeoPages } from '../east-content/yearly/seo-pages.ts'
 import { zodiacSeoPages } from '../east-content/zodiac/seo-pages.ts'
+import { zodiacPairSeoPages } from '../east-content/zodiac-pair/seo-pages.ts'
 import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
@@ -46,6 +48,8 @@ export function getPublicPages(site?: SiteId) {
         ...yearlySeoPages(allYearlies),
         // 合盘工具页正文与关系场景页（content-growth-v2-tools 第 13 组）
         ...compatSeoPages(allCompats),
+        // 东方站生肖配对总表与配对页（content-growth-v2-tools 第 16 组）
+        ...zodiacPairSeoPages(allZodiacPairs),
       ],
     },
     new Date(),

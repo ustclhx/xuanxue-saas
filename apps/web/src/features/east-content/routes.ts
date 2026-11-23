@@ -5,6 +5,7 @@ import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { YEARLY_EAST_CONTENT_ROUTES } from './yearly/paths.ts'
 import { YEARLY_TOOL_CONTENT_ROUTES } from './yearly-tool/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
+import { ZODIAC_PAIR_EAST_CONTENT_ROUTES } from './zodiac-pair/paths.ts'
 
 export type EastContentCollection =
   | 'zodiac'
@@ -43,6 +44,8 @@ export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   ...YEARLY_TOOL_CONTENT_ROUTES,
   // content-growth-v2-tools 第 13 组：合盘工具正文（zh-Hans、zh-Hant、ja）与五种语言的场景页
   ...COMPAT_EAST_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 16 组：生肖配对总表与 78 个配对页（zh-hans）
+  ...ZODIAC_PAIR_EAST_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(
