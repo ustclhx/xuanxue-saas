@@ -45,7 +45,7 @@ export const BAZI: ToolCopy = {
     {
       heading: 'What else appears in your result',
       paragraphs: [
-        'After the pillars you will see a five element balance, a judgment of whether you have a strong or weak Day Master, the favorable elements that would bring the chart closer to balance, the ten-year luck pillars (the [BaZi 2027](bazi-2027) page sets a single year against them), symbolic stars and the traditional bone weight. Each block is calculated from the same eight characters, so if your birth time changes, all of them change with it.',
+        'After the pillars you will see a five element balance, a judgment of whether you have a strong or weak Day Master, the favorable elements that would bring the chart closer to balance, the ten-year luck pillars, symbolic stars and the traditional bone weight. Each block is calculated from the same eight characters, so if your birth time changes, all of them change with it. [BaZi 2027](bazi-2027) compares the Ding Wei annual pillar with your birth chart and the luck pillar in effect that year.',
         'If you want the whole chart explained in plain language, you can request an optional full reading written by AI from your finished chart. It uses credits; see [BaZi reading pricing](pricing). The chart itself stays free.',
       ],
     },
@@ -117,7 +117,7 @@ export const ZIWEI: ToolCopy = {
       paragraphs: [
         'A practical way in is to read the Life Palace first, then the palaces directly across from it and at the two angles of its triangle, since traditional readers treat those four squares as one group. After that, look at the palace for the question on your mind: Career for work, Spouse for relationships, Wealth for money. An empty palace is read through the stars in the palace opposite it.',
         'Brightness and transformations change the tone of what you find. A bright star in the Career Palace with Hua Quan beside it reads very differently from the same star dim and marked Hua Ji. Rather than memorizing single stars, note the combinations that repeat across the Life Palace group, since those are what traditional readers lean on most. Write down two or three themes in your own words before reading anyone else’s interpretation.',
-        'Zi Wei Dou Shu and the [BaZi calculator](bazi) start from the same birth moment but organize it differently, one by elements and the Day Master, the other by palaces and stars. Comparing them is a good check on your own reading, and the [2027 BaZi calculator](bazi-2027) sets the BaZi side against a single year. The calculation follows classical rules; the chart is for reference and self-reflection and does not predict events. Optional full readings written by AI from your chart use credits, as shown on the [pricing](pricing) page.',
+        'Zi Wei Dou Shu and the [BaZi calculator](bazi) start from the same birth moment but organize it differently, one by elements and the Day Master, the other by palaces and stars. For an example of how BaZi reads a single year, use the [2027 BaZi calculator](bazi-2027) to compare the Ding Wei annual pillar with your birth chart. The calculation follows classical rules; the chart is for reference and self-reflection and does not predict events. Optional full readings written by AI from your chart use credits, as shown on the [pricing](pricing) page.',
       ],
     },
   ],

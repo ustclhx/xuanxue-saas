@@ -197,10 +197,10 @@ describe('个人 2027 流年工具：结果', () => {
     expect(plain).toContain('藏干另有丁（正官）、乙（正财）')
     expect(year.relations).toEqual([{ with: 'year', type: 'sixCombine' }])
     expect(plain).toContain('年柱 庚午 六合')
-    expect(plain).toContain('日柱 庚辰 无合冲')
+    expect(plain).toContain('日柱 庚辰 无匹配关系')
     // 大运乙酉在 2027 年交运
     expect(year.decade).toEqual({ stem: 'yi', branch: 'you' })
-    expect(plain).toContain('大运 乙酉 无合冲；2027 年换入此运')
+    expect(plain).toContain('大运 乙酉 无匹配关系；2027 年为这步大运的起始年')
     expect(plain).toContain('本命年支午与流年未既不同支也不相冲')
     expect(plain).toContain('流年天干丁火为喜用，地支未土为忌')
     expect(html).not.toContain('data-testid="yearly-approximate"')
@@ -230,7 +230,7 @@ describe('个人 2027 流年工具：结果', () => {
     const relations = text(html.slice(html.indexOf('id="relations"'), html.indexOf('id="tai-sui"')))
     expect(relations).not.toContain('시주')
     expect(relations).toContain('연주 庚(경)午(오) 육합')
-    expect(relations).toContain('일주 庚(경)辰(진) 합충 없음')
+    expect(relations).toContain('일주 庚(경)辰(진) 해당 관계 없음')
   })
 
   it('详批入口在免费结果之后、说明长文之前；ko 接사주详批，其余接八字详批', () => {

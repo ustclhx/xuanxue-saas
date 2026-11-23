@@ -94,7 +94,7 @@
 ## 7. 个人年度流年工具（zh-Hans、zh-Hant、ko、en）★
 
 - [x] 7.1 新建 `yearly-tool` 页面组件：复用八字表单与 ProfileBar，结果区渲染 `annualOutlook(chart, { startYear: 2027, years: 1 })`（干支与十神、与四柱和大运的关系、太岁、喜忌），无时辰时标注近似；结果后接已有 `bazi-full` / `saju-full` 详批按钮。登记四种语言地址与注册表（`directoryGroup: yearly`、2027 小标至 2027-02-28）。单测覆盖结果与引擎一致、无时辰、详批入口位置、数据库不可达 200
-- [ ] 7.2 Claude 子代理撰写四种语言的工具页说明（计算方法、读法、FAQ），ko 用「신년 사주」写法、不以「띠별 운세」「신년운세」为 Title 或 H1 目标；Codex 审 zh-Hans，回译审其他三种
+- [x] 7.2 Claude 子代理撰写四种语言的工具页说明（计算方法、读法、FAQ），ko 用「신년 사주」写法、不以「띠별 운세」「신년운세」为 Title 或 H1 目标；Codex 审 zh-Hans，回译审其他三种
 - [x] 7.3 验收：长度与 TDK；四种语言互为 hreflang；内链与钱页入链 ≥3；390px 截图核对结果区；关键词归属补登
 
 ## 8. 2027 年度生肖页（zh-Hans）★

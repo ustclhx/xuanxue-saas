@@ -8,39 +8,39 @@ export const COPY: YearlyToolCopy = {
   seo: {
     title: 'BaZi 2027: Your Chart in the Fire Goat Year',
     description:
-      'Free BaZi 2027 calculator: how the Fire Goat year meets your Four Pillars: Ten Gods, clashes and combinations, luck pillar, Tai Sui and favorable elements.',
+      'Free BaZi 2027 calculator for the Fire Goat year. Compare Ding Wei with your Four Pillars and luck pillar. See your Ten Gods, Tai Sui and favorable elements.',
   },
   crumb: 'BaZi 2027',
-  h1: 'BaZi 2027: How the Fire Goat Year Meets Your Chart',
+  h1: 'BaZi 2027: Your Chart for the Fire Goat Year',
   intro:
-    'Enter your birth details to build your Four Pillars chart, then see how the 2027 annual pillar, Ding Wei (丁未), relates to your Day Master, each pillar and your current luck pillar. The Fire Goat year begins at the Beginning of Spring on February 4, 2027.',
-  submit: 'See my 2027 chart',
+    'Enter your birth details for a free BaZi 2027 chart comparison. See how Ding Wei (丁未), the Fire Goat year, relates to your Day Master, your Four Pillars and the luck pillar that covers 2027.',
+  submit: 'Compare my chart with 2027',
   result: {
     natalTitle: 'Your Four Pillars',
     yearTitle: '2027 annual pillar',
-    yearSpan: 'From the Beginning of Spring on 2027-02-04 to 2028-02-04',
+    yearSpan: 'From Li Chun in 2027 to the start of Li Chun in 2028',
     yearLabel: 'Annual',
     tenGodTitle: 'Ten Gods of the year',
-    tenGodLead: 'Measured against your Day Master, {dm}; the branch uses its main hidden stem.',
+    tenGodLead:
+      'The chart uses your Day Master ({dm}) as the reference. For the branch, the table uses its main hidden stem.',
     tenGodCols: ['2027', 'Ten God', 'Element', 'Role'],
     stemRow: 'Stem {gz}',
     branchRow: 'Branch {gz}',
     hiddenNote: 'Other hidden stems: {list}.',
     favorable: 'Favorable',
     unfavorable: 'Unfavorable',
-    relTitle: 'Combinations and clashes with your pillars and luck pillar',
+    relTitle: 'How 2027 relates to each pillar',
     relLead:
-      'Stems are checked for combinations; branches for Six Harmony, Three Harmony, clash and punishment.',
+      'The calculator checks the stems for combinations and the branches for Six Harmony, shared Three Harmony groups, clashes and punishments.',
     relCols: ['Pillar', 'Relation'],
     decadeLabel: 'Luck pillar',
     decadeValue: 'Luck pillar {gz}',
-    decadeStart: 'A new luck pillar begins in 2027',
-    noDecade:
-      'In 2027 your first luck pillar has not started yet, or the year falls after the tenth one, so this row is skipped.',
+    decadeStart: 'This luck pillar starts in 2027',
+    noDecade: '2027 falls outside the ten luck pillars calculated for this chart.',
     relTypes: {
       stemCombine: 'Stem combination',
       sixCombine: 'Six Harmony',
-      triad: 'Three Harmony (same frame)',
+      triad: 'Three Harmony (same group)',
       clash: 'Clash',
       punish: 'Punishment',
     },
@@ -53,57 +53,69 @@ export const COPY: YearlyToolCopy = {
       'Your year branch {natal} clashes with the 2027 branch {branch}. Tradition calls this clashing with Tai Sui.',
     taiSuiNone:
       'Your year branch {natal} neither matches nor clashes with the 2027 branch {branch}.',
-    favorTitle: 'Favorable or not',
+    favorTitle: 'Favorable elements',
     favorText:
-      'Using the support-and-restrain method, the 2027 stem ({stemEl}) is {stemRole} and the branch ({branchEl}) is {branchRole} for your chart.',
+      'By the support-and-restrain method, the stem ({stemEl}) is {stemRole} and the branch ({branchEl}) is {branchRole} for your chart.',
     ruleNote:
-      'Only relations that match a rule are listed. How much weight each one carries depends on the strength and favorable elements of the whole chart.',
+      'Read each relation alongside the strength of your Day Master and your favorable elements.',
     approximate:
-      'No birth time entered: the result uses the year, month and day pillars only, and the start of your luck pillars is estimated, so treat it as approximate.',
+      'Approximate result. The chart uses your year, month and day pillars. The calculator estimates when the luck pillars begin using local noon on your birth date.',
     unlockLead:
-      'The full reading goes through the Ten Gods, combinations and luck pillar of 2027 for your own chart, and includes a year-by-year chapter.',
+      'The full reading explains your birth chart and luck pillars and includes a year-by-year chapter.',
   },
   article: {
-    title: 'Reading your 2027 BaZi',
+    title: 'A guide to your BaZi 2027 results',
     sections: [
       {
-        heading: 'When does the Fire Goat year start?',
-        body: 'In BaZi the year does not turn on January 1 or on Lunar New Year. It turns at the Beginning of Spring (Li Chun), the solar term that opens the year. In 2027 that falls on February 4, two days before Lunar New Year on February 6. From that day the year pillar changes from Bing Wu (丙午, Fire Horse) to Ding Wei (丁未, Fire Goat), and it stays Ding Wei until the Beginning of Spring on February 4, 2028. If you were born in January or early February, your own year pillar may belong to the previous year, and so may your Chinese zodiac animal.\n\nDing is yin Fire and Wei is yin Earth. Inside Wei sit three hidden stems: Ji Earth as the main one, Ding Fire and Yi Wood as the minor ones. The Na Yin sound for the pair is Heavenly River Water. These facts are the same for everyone. What differs is where Ding Wei lands in your own Heavenly Stems and Earthly Branches.',
+        heading: 'Start with your birth chart',
+        body: 'A BaZi chart gives you a stem and a branch for each of four parts of your birth date and time: the year, month, day and hour. Each pair is called a pillar. The calculator builds your chart from the date, local clock time and place of birth. Enter the calendar your birth record uses. The month changes at the solar term that begins a BaZi month, and the calculator uses local standard time to place the birth hour. You can also choose true solar time. If you were born during daylight saving time, enter the time shown on your birth record. The calculator makes the adjustment for the time zone. If your family recorded your birthday in the lunar calendar, select that option before filling in the date. The form also lets you mark a leap month. The free calculation runs in your browser without an account.',
       },
       {
-        heading: 'How the calculator works',
-        body: 'First it builds your Four Pillars from the birth date, time and place you enter. The month pillar changes at each solar term, and the hour pillar uses local clock time at the birthplace, with an option for true solar time.\n\nNext it compares the 2027 stem, Ding, with your Day Master to find its Ten God, and does the same for the main hidden stem of Wei. The two minor hidden stems are listed as well. It then sets Ding Wei against your year, month, day and hour pillars one by one, recording stem combinations and the branch relations Six Harmony, Three Harmony, clash and punishment. The luck pillar you are in during 2027 is checked the same way, and the table notes it if a new luck pillar begins that year.\n\nFinally it looks at Tai Sui and your favorable elements. A year branch that matches the 2027 branch is said to meet Tai Sui; one that clashes with it is said to clash with Tai Sui. Whether Fire and Earth count as favorable comes from the support-and-restrain method used in our BaZi calculator. Everything runs in your browser, and no account is needed.',
+        heading: 'Read the two rows of the Ten Gods table',
+        body: 'Your Day Master is the stem at the top of your day pillar. Put that next to the annual stem, Ding, which is yin Fire. Their elements and yin or yang polarity determine the Ten God shown in the first row. The branch, Wei, is yin Earth. Its row uses Ji Earth, the main hidden stem of Wei, to calculate a Ten God against the same Day Master. Look below the table for the other hidden stems, Ding Fire and Yi Wood, with their own Ten Gods. Those entries let you trace each Ten God back to its own stem.\n\nTry reading one label at a time. Direct Resource, for instance, is traditionally linked with learning and support. If that is the label you see, you might use it to think about where you turn for help or what you want to learn. The label can vary from one chart to the next even though the annual stem and branch stay the same.',
       },
       {
-        heading: 'How to read the Ten Gods and relations',
-        body: 'The Ten Gods are categories for the relationship between the year and your Day Master, not verdicts. In traditional reading, the Officer stars point to rules and responsibility, the Resource stars to support and learning, the Wealth stars to resources and practical matters, Eating God and Hurting Officer to expression and output, and Friend and Rob Wealth to peers and independence. The same Ten God is weighed differently in a strong chart and a weak one, which is why the favorable column sits next to it.\n\nThe relations table lists only what matches a rule. A Six Harmony suggests that pillar and the year pull toward each other; a clash suggests the area that pillar stands for may call for some rearranging. Traditionally the year pillar relates to family and elders, the month pillar to work and social role, the day branch to partners and to yourself, and the hour pillar to children and long-term plans. Use these links as prompts for reflection about where you want to pay attention this year. The results follow traditional rules, are for reference and reflection, and do not predict events.',
+        heading: 'Check which pillar a relation belongs to',
+        body: 'The relations table names the pillar on each row. Each comparison uses the annual stem against the stem of that pillar and the annual branch against its branch. Look for stem combinations and the branch relations Six Harmony, Three Harmony, clash and punishment. A Three Harmony label means the two branches share a group. A pair alone leaves the third branch unaccounted for. If a row catches your eye, use its position as context. In traditional reading, the month pillar is often associated with work and social roles. You might use a relation there to consider how you divide your time or what responsibilities you want to revisit.',
       },
       {
-        heading: 'If you do not know your birth time',
-        body: 'Tick "I don\'t know my birth time" and submit. The calculator then works with three pillars, so relations involving the hour pillar will not appear, and the result is marked as approximate. The age at which luck pillars begin is also calculated from the birth moment, so without it the start is estimated and 2027 could be placed one luck pillar off. If you find your birth time later, enter it again for the full four-pillar result.',
+        heading: 'Read the luck pillar and favorable elements separately',
+        body: 'Look at the last line of the relations table for the luck pillar whose start and end years cover 2027. That comparison uses the same rules as the rows above. When the year is the first in that luck pillar, the calculator marks it. If 2027 lies outside the ten luck pillars calculated for your chart, the table explains why there is no luck pillar to compare.\n\nThe elements panel answers a different question. In this tool, favorable elements come from the traditional support-and-restrain method, which considers the strength of the Day Master across the chart. The panel checks Fire for Ding and Earth for Wei against that set of elements. Read it alongside the Ten Gods for context. The results follow traditional rules and are for reference and self-reflection only. They do not predict the future.',
       },
       {
-        heading: 'Why this differs from a zodiac forecast',
-        body: 'A general Year of the Goat forecast looks only at your birth-year branch. Someone born in an Ox year, for example, meets the Chou-Wei clash in 2027, and someone born in a Goat year meets the same branch again. That is one character out of eight. Your 2027 BaZi brings in the Day Master, the month branch, the day branch and the luck pillar you are in, so two people with the same animal can get very different results. For the complete chart, including every luck pillar, use the BaZi calculator after you have seen your 2027 result.',
+        heading: 'Know what Tai Sui covers',
+        body: 'If you came here looking for your zodiac animal, the Tai Sui panel is the part that uses the branch of your birth year alone. A chart whose year branch is Wei has the same branch as the Fire Goat year. Tradition calls that meeting Tai Sui. An Ox year branch is Chou, which clashes with Wei. Both people can have entirely different Day Masters and luck pillars. Think of the animal as a label for one branch of the chart. The comparison of stems and branches elsewhere in the results gives you the rest of the context.',
+      },
+      {
+        heading: 'Use Li Chun as the BaZi year boundary',
+        body: 'The annual pillar changes at the Beginning of Spring (Li Chun) on February 4, 2027 in the calendar used here. At that solar term, Bing Wu (丙午, Fire Horse) gives way to Ding Wei. The Fire Goat year lasts until Li Chun on February 4, 2028. Lunar New Year in 2027 falls on February 6 in the Chinese calendar. Those boundaries can assign different animals to the same birthday. Enter the place and time if your birth falls close to a solar term and check the resulting year pillar.',
+      },
+      {
+        heading: 'What you can see with three pillars',
+        body: 'Select “I don’t know my birth time” to get an approximate result. You can still read the Ten Gods and see relations for the year, month and day pillars. The hour pillar is left blank. The calculator uses local noon as an estimate for the start of the luck pillars. If you later confirm your birth time, run the calculation again. Check the luck pillar row in particular if 2027 was close to a transition.',
       },
     ],
   },
   faq: [
     {
-      q: 'What Chinese zodiac year is 2027?',
-      a: '2027 is a Ding Wei year, the Year of the Fire Goat (also called the Fire Sheep or Ram). In BaZi it begins at the Beginning of Spring on February 4, 2027; Lunar New Year falls on February 6.',
+      q: 'Do I need to know my Day Master before I start?',
+      a: 'Enter your birth details and find the Day Master at the top of the day pillar in the chart. The Ten Gods table also names it so you can refer to it as you read.',
     },
     {
-      q: 'Which signs clash with Tai Sui in 2027?',
-      a: 'By traditional rules, people born in Goat years meet Tai Sui and people born in Ox years clash with it. Some schools also count punishment, harm and destruction; this calculator marks only meeting and clashing, and treats them as one character in a larger chart.',
+      q: 'Why does my result show a new luck pillar?',
+      a: 'The calculator found a luck pillar with 2027 as its start year. That marker refers to the year. The result still shows just one luck pillar for 2027.',
     },
     {
-      q: 'Is a clash in my 2027 chart a bad sign?',
-      a: 'Not by itself. A clash is read as movement and adjustment, and its meaning depends on which pillar it touches, whether the year’s elements are favorable for you and how your luck pillar supports it. The calculator lists the relations; it does not label the year good or bad.',
+      q: 'Can I look at my whole birth chart and every luck pillar?',
+      a: 'Use the Four Pillars of Destiny calculator in Related reading for the full list of luck pillars and details about your birth chart.',
     },
     {
-      q: 'What does the full reading add?',
-      a: 'The free result lists the Ten Gods, relations, Tai Sui and favorable elements for 2027. The full reading explains each of them for your chart and includes a year-by-year chapter. You see the credit cost and your balance before confirming, and credits are not used if generation fails.',
+      q: 'Will I see the price before I request a full reading?',
+      a: 'The unlock button shows the credit cost. The full reading includes a year-by-year chapter. If the reading fails, you keep your credits.',
+    },
+    {
+      q: 'Can I compare 2027 BaZi results with just my zodiac animal?',
+      a: 'The year branch is enough to check whether it matches or clashes with Wei. Enter your birth details to compare Ding Wei with the rest of your chart and its luck pillars.',
     },
   ],
   linksTitle: 'Related',
