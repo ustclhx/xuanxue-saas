@@ -443,6 +443,42 @@
       "preferred": "bone weight"
     },
     {
+      "id": "shichu.day-pillar",
+      "en": "Day Pillar (日柱)",
+      "preferred": "Day Pillar"
+    },
+    {
+      "id": "shichu.stem-combine",
+      "en": "Heavenly Stem combination (天干五合)",
+      "preferred": "Day Master combination",
+      "variants": ["stem combination"],
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.six-harmony",
+      "en": "six harmony (六合)",
+      "preferred": "six harmony",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.three-harmony",
+      "en": "three harmony (三合)",
+      "preferred": "three harmony",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.clash",
+      "en": "clash (冲)",
+      "preferred": "clash",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.punishment",
+      "en": "punishment (刑)",
+      "preferred": "punishment",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
       "id": "ziwei.name",
       "en": "Zi Wei Dou Shu",
       "preferred": "Zi Wei Dou Shu",
@@ -726,7 +762,8 @@
     "/tarot-feelings": ["tarot cards as feelings", "all 78 cards as feelings"],
     "/tarot-feelings/*": ["{card} as feelings", "{card}"],
     "/faq": ["FAQ", "Ganjiday FAQ"],
-    "/pricing": ["pricing", "BaZi reading pricing"]
+    "/pricing": ["pricing", "BaZi reading pricing"],
+    "/bazi-compatibility": ["BaZi compatibility", "BaZi chart compatibility"]
   },
   "scanOnly": true,
   "scan": [

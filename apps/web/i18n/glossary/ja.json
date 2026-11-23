@@ -648,6 +648,44 @@
       "variants": ["十干", "十二支", "天干", "地支"]
     },
     {
+      "id": "shichu.day-pillar",
+      "en": "Day Pillar (日柱)",
+      "preferred": "日柱"
+    },
+    {
+      "id": "shichu.stem-combine",
+      "en": "Heavenly Stem combination (天干五合)",
+      "preferred": "干合",
+      "variants": ["天干合"],
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.six-harmony",
+      "en": "six harmony (六合)",
+      "preferred": "支合",
+      "variants": ["六合"],
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.three-harmony",
+      "en": "three harmony (三合)",
+      "preferred": "三合",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.clash",
+      "en": "clash (冲)",
+      "preferred": "冲",
+      "variants": ["沖"],
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
+      "id": "shichu.punishment",
+      "en": "punishment (刑)",
+      "preferred": "刑",
+      "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
+    },
+    {
       "id": "ziwei.name",
       "en": "Zi Wei Dou Shu",
       "preferred": "紫微斗数",
@@ -959,6 +997,7 @@
     "/ja/タロット/意味": ["タロットカードの意味", "タロットカード一覧"],
     "/ja/タロット/意味/*": ["{card}", "{card}の意味"],
     "/ja/faq": ["よくある質問", "干支日のよくある質問"],
-    "/ja/pricing": ["料金プラン", "鑑定クレジットの料金"]
+    "/ja/pricing": ["料金プラン", "鑑定クレジットの料金"],
+    "/ja/四柱推命相性": ["四柱推命の相性", "四柱推命 相性"]
   }
 }

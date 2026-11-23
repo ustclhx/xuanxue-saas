@@ -62,6 +62,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hant/八字排盤' },
       { path: '/zh-hant/紫微斗數排盤' },
       { path: '/zh-hant/命盤查詢' },
+      // 八字合盘多语言版（content-growth-v2-tools 12.3）
+      { path: '/zh-hant/八字合盤' },
       // 塔罗牌阵（openspec add-tarot-reading）
       { path: '/zh-hant/塔羅' },
       { path: '/zh-hant/塔羅/每日一張' },
@@ -79,6 +81,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/zh-hans/八字排盘' },
       { path: '/zh-hans/紫微斗数排盘' },
       { path: '/zh-hans/命盘查询' },
+      { path: '/zh-hans/八字合盘' },
       { path: '/zh-hans/塔罗' },
       { path: '/zh-hans/塔罗/每日一张' },
       { path: '/zh-hans/塔罗/是非' },
@@ -110,6 +113,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/ja' },
       { path: '/ja/四柱推命' },
       { path: '/ja/紫微斗数' },
+      { path: '/ja/四柱推命相性' },
       { path: '/ja/タロット' },
       { path: '/ja/タロット/一枚引き' },
       { path: '/ja/タロット/イエスノー' },
@@ -119,6 +123,7 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       // 东方站根路径英文（5b）：预渲染文件在 `/en/…` 命名空间，对外地址无前缀（features/east-en/paths.ts）
       { path: '/en/bazi-calculator' },
       { path: '/en/zi-wei-dou-shu' },
+      { path: '/en/bazi-compatibility' },
       { path: '/en/tarot-spreads' },
       { path: '/en/tarot-spreads/one-card' },
       { path: '/en/tarot-spreads/pick-a-card' },

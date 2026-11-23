@@ -31,7 +31,7 @@ export function easternPageCopy(id: EasternPageId): {
     case 'mingpan':
       return { title: m.bazi_mingpan_seo_title(), description: m.bazi_mingpan_description() }
     case 'gunghap':
-      return { title: m.bazi_gunghap_seo_title(), description: m.bazi_gunghap_description() }
+      return { title: m.compat_seo_title(), description: m.compat_description() }
   }
 }
 
