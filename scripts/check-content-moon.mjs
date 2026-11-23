@@ -89,6 +89,8 @@ const BANNED = [
   /lucky|unlucky/i,
   /!/,
 ]
+/** Title 按页面输出计（加站名后缀「 | Arcanumber」），与 audit-seo 的 tdkLength 同口径 */
+const BRAND_SUFFIX = ' | Arcanumber'
 const TITLE_LENGTH = [40, 60]
 const DESCRIPTION_LENGTH = [140, 160]
 
@@ -185,7 +187,7 @@ export function checkMoonContent(dir = new URL('en/', ROOT)) {
       fail('主页面不写 month / moon_name')
     }
     for (const year of [2026, 2027, 2028]) {
-      const title = String(data.title ?? '').replaceAll('{year}', String(year))
+      const title = `${String(data.title ?? '').replaceAll('{year}', String(year))}${BRAND_SUFFIX}`
       const description = String(data.description ?? '').replaceAll('{year}', String(year))
       if (title.length < TITLE_LENGTH[0] || title.length > TITLE_LENGTH[1])
         fail(`Title ${title.length} 字符（${TITLE_LENGTH.join('–')}）：${title}`)

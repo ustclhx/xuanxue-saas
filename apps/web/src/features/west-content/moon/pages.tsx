@@ -714,16 +714,21 @@ function CalendarPage({ payload }: { payload: Kind<'calendar'> }) {
             const full = names.find((row) => row.year === item.year && row.month === item.month)
             return (
               <li key={item.month} className="flex min-w-0">
-                <LinkCard
-                  href={href(moonMonthPath(item.month))}
-                  title={copy.monthLink(item.month)}
-                  description={copy.calendarMonthNote(
-                    item.year,
-                    full ? shortDate(full.utcMs, clock.timeZone) : null,
-                    copy.moonName(item.month),
-                  )}
-                  className="w-full"
-                />
+                <div className="flex w-full flex-col gap-1 rounded-object bg-surface p-5">
+                  <a
+                    href={href(moonMonthPath(item.month))}
+                    className="font-heading font-medium text-body text-ink underline-offset-4 hover:underline"
+                  >
+                    {copy.monthLink(item.month)}
+                  </a>
+                  <p className={caption}>
+                    {copy.calendarMonthNote(
+                      item.year,
+                      full ? shortDate(full.utcMs, clock.timeZone) : null,
+                      copy.moonName(item.month),
+                    )}
+                  </p>
+                </div>
               </li>
             )
           })}
@@ -758,7 +763,8 @@ function MonthPage({ payload }: { payload: Kind<'month'> }) {
           {isCurrent
             ? copy.monthRollover(monthName, view.year, view.year + 1)
             : copy.monthFuture(monthName, view.year)}
-          {payload.otherYear !== null && (
+          {/* 其他年份的入口只在水合后出现：预渲染抓取不跟随 `?year=`，静态页不被查询结果覆盖 */}
+          {payload.otherYear !== null && clock.state !== 'initial' && (
             <>
               {' '}
               <a
