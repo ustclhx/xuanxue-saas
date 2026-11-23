@@ -1,6 +1,6 @@
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
-import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { TAI_SUI_YEAR_CONTENT_ROUTES } from './tai-sui-year/paths.ts'
+import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type EastContentCollection =
