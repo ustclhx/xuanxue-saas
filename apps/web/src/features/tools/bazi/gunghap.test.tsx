@@ -89,11 +89,11 @@ describe('ko 사주궁합 快照（content-growth-v2-tools 12.1：多语言化�
 
 describe('合盘工具的语言版本（12.1、12.3）', () => {
   it.each([
-    ['zh-Hans', '八字合盘', '对方的出生资料只用于本次合盘计算'],
-    ['zh-Hant', '八字合盤', '對方的生辰只拿來做這一次合盤'],
-    ['ja', '四柱推命の相性', 'お相手の出生情報は今回の相性計算にだけ使い'],
-    ['en', 'BaZi Compatibility Calculator', 'birth details are used only for this calculation'],
-    ['ko', '사주궁합', '상대의 출생 정보는 이번 궁합 계산에만 쓰이며'],
+    ['zh-Hans', '八字合盘', '免费合盘只用对方的出生资料计算本次结果'],
+    ['zh-Hant', '八字合盤', '免費試算只會用對方的生辰排這次合盤'],
+    ['ja', '四柱推命の相性', 'お相手の出生情報は今回の計算にのみ使い'],
+    ['en', 'BaZi Compatibility Calculator', 'birth details only for this result'],
+    ['ko', '사주궁합', '상대의 출생 정보는 이번 계산에만 쓰이며'],
   ] as const)('%s：H1、双人表单与常显的用途说明，公开文案不提 AI', (locale, h1, note) => {
     messages.locale = locale
     const html = render(<GunghapPage />)

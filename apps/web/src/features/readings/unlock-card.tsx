@@ -7,7 +7,7 @@ import { AskAiEntry } from '../ai/ask-ai-entry.tsx'
 import { trackEvent } from '../analytics/track.ts'
 import { checkoutCustomer } from '../billing/customer.functions.ts'
 import { useSiteId } from '../site/context.tsx'
-import { AiDisclaimer } from '../tools/disclaimer.tsx'
+import { AiDisclaimer, Disclaimer } from '../tools/disclaimer.tsx'
 import { encodeShareInput, SHARE_PARAM, type ShareInput } from '../tools/share.ts'
 import { useToolEvents } from '../tools/use-tool-events.ts'
 import { primaryButton, secondaryButton } from './buttons.ts'
@@ -479,7 +479,7 @@ function ReadingUnlockCard({
       <p role="note" className={cn(label, 'max-w-180')}>
         {m.readings_unlock_note()}
       </p>
-      <AiDisclaimer />
+      {kind === 'saju-compat' ? <Disclaimer /> : <AiDisclaimer />}
     </section>
   )
 }
@@ -506,7 +506,9 @@ export function ReadingComingSoon({ kind }: { kind: string }) {
       <h2 id="reading-coming-soon-title" className="m-0 font-heading text-ink text-subtitle">
         {readingTitle(kind)}
       </h2>
-      <p className="m-0 text-body text-ink-muted">{m.readings_coming_soon()}</p>
+      <p className="m-0 text-body text-ink-muted">
+        {kind === 'saju-compat' ? m.compat_coming_soon() : m.readings_coming_soon()}
+      </p>
     </section>
   )
 }

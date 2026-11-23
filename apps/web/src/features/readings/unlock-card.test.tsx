@@ -461,4 +461,20 @@ describe('详批未开放时的结果页', () => {
     expect(container.querySelector('[data-testid="reading-coming-soon"]')).not.toBeNull()
     expect(container.querySelector('[data-testid="ask-ai-entry"]')).not.toBeNull()
   })
+
+  it.each([false, true])('韩语合盘卡与追问入口使用合规文案（已开放 %s）', async (available) => {
+    locale = 'ko'
+    vi.mocked(getReadingOffer).mockResolvedValue(available ? offer(0) : closed(true))
+    await act(async () =>
+      root.render(<ReadingUnlock kind="saju-compat" request={{ input: INPUT, share: {} }} />),
+    )
+    const card = container.querySelector(
+      available ? '[data-testid="reading-unlock"]' : '[data-testid="reading-coming-soon"]',
+    )
+    expect(card?.textContent).toContain(available ? '자기 탐색' : '공개를 준비하고 있습니다.')
+    expect(container.querySelector('[data-testid="ask-ai-button"]')?.textContent).toBe(
+      '이 결과에 관해 질문하기',
+    )
+    expect(container.textContent).not.toMatch(/\bAI\b/)
+  })
 })

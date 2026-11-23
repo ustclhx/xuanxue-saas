@@ -458,7 +458,7 @@ export function GunghapResult({
   locale?: CompatLocale
 }) {
   const label = (i: number): string => (i === 0 ? m.compat_person_a() : m.compat_person_b())
-  // 时辰未知时按三柱排盘（设计稿 HehunEdge.dc.html）：分数规则不变，只说明五行一项按六个字统计
+  // 时辰未知时按三柱排盘，五行互补使用这三柱的加权五行比例
   const unknown = result.charts.flatMap((chart, i) => (chart.input.time === null ? [label(i)] : []))
   return (
     <>

@@ -93,6 +93,7 @@ export function AskAiEntry({ kind, request }: { kind: string; request: UnlockReq
 
   // 结果出现前不显示；登录回跳自动继续时结果可能尚未恢复，仍显示进行中的状态
   if (!request && state === 'idle') return null
+  const label = kind === 'saju-compat' ? m.compat_ask() : m.ai_chat_ask()
   return (
     <div className="flex flex-col gap-1.5" data-testid="ask-ai-entry">
       <button
@@ -102,7 +103,7 @@ export function AskAiEntry({ kind, request }: { kind: string; request: UnlockReq
         data-testid="ask-ai-button"
         className="inline-flex min-h-11 items-center self-start rounded-lg border border-line-strong bg-transparent px-5 font-semibold text-ink transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {state === 'busy' ? m.ai_chat_ask_busy() : m.ai_chat_ask()}
+        {state === 'busy' ? m.ai_chat_ask_busy() : label}
       </button>
       <p className="m-0 text-ink-muted text-caption">
         {state === 'error' ? (
