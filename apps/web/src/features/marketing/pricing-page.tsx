@@ -290,7 +290,11 @@ export function PricingPage({
                 {daily && <li>{m.pricing_free_daily()}</li>}
                 {daily && <li>{m.pricing_free_daily_expiry()}</li>}
               </ul>
-              <Link to="/register" className={cn(textLink, 'gap-1 self-start')}>
+              <Link
+                to="/register"
+                data-link-zone="action"
+                className={cn(textLink, 'gap-1 self-start')}
+              >
                 {m.pricing_free_cta()}
                 <span aria-hidden="true">→</span>
               </Link>

@@ -15,7 +15,19 @@ vi.mock('../../paraglide/runtime.js', async (original) => ({
   getLocale: () => language.locale,
 }))
 vi.mock('@tanstack/react-router', () => ({
-  Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
+  Link: ({
+    children,
+    to,
+    'data-link-zone': zone,
+  }: {
+    children: ReactNode
+    to: string
+    'data-link-zone'?: string
+  }) => (
+    <a href={to} data-link-zone={zone}>
+      {children}
+    </a>
+  ),
 }))
 vi.mock('./marketing-shell.tsx', () => ({
   MarketingShell: ({ children }: { children: ReactNode }) => <main>{children}</main>,
@@ -328,6 +340,8 @@ describe('定价页订阅档位（enable-subscriptions-daily-credits 4.1）', ()
     expect(count(page, 'href="/app"')).toBe(4)
     expect(page).not.toContain('pricing-sub-soon')
     expect(page).toContain('Do unused subscription credits roll over?')
+    // 免费档注册入口是转化按钮（data-link-zone="action"），链接图检查不按正文链接到 noindex 页计
+    expect(page).toContain('<a href="/register" data-link-zone="action">')
   })
 
   it('订阅价格未同步时显示「即将开放」且没有订阅入口，积分包照常可买', () => {
