@@ -1,10 +1,11 @@
-import { LunarDay, LunarMonth, LunarYear, type SixtyCycle, SolarDay } from 'tyme4ts'
+import { LunarMonth, LunarYear, type SixtyCycle, SolarDay } from 'tyme4ts'
 import type { LunarDate } from './chart.ts'
 import type { DailyDate } from './daily.ts'
 import { BaziInputError, MAX_YEAR, MIN_YEAR } from './input.ts'
+import { type KoreanLunarMonth, koreanLunarDate, koreanLunarMonths } from './korean-lunar.ts'
 
 /** 土亭秘诀先天数规则，与其他排盘规则独立版本化。 */
-export const TOJEONG_RULES_VERSION = '1.0.0'
+export const TOJEONG_RULES_VERSION = '2.0.0'
 
 export type TojeongInput = {
   birth: DailyDate
@@ -45,28 +46,24 @@ function birthLunarDate({
     throw new BaziInputError([{ field: 'month', code: 'out_of_range' }])
   }
   const isLeapMonth = leapMonth === true
-  if (isLeapMonth && (calendar === 'solar' || LunarYear.fromYear(year).getLeapMonth() !== month)) {
+  const lunarMonth =
+    calendar === 'lunar'
+      ? koreanLunarMonths(year).find(
+          (entry) => entry.month === month && entry.isLeapMonth === isLeapMonth,
+        )
+      : undefined
+  if (isLeapMonth && !lunarMonth) {
     throw new BaziInputError([{ field: 'leapMonth', code: 'leap_month_not_exist' }])
   }
 
-  const signedMonth = isLeapMonth ? -month : month
   const monthDays =
-    calendar === 'lunar'
-      ? LunarMonth.fromYm(year, signedMonth).getDayCount()
-      : SolarDay.fromYmd(year, month, 1).getSolarMonth().getDayCount()
+    lunarMonth?.days ?? SolarDay.fromYmd(year, month, 1).getSolarMonth().getDayCount()
   if (!Number.isInteger(day) || day < 1 || day > monthDays) {
     throw new BaziInputError([{ field: 'day', code: 'invalid_date' }])
   }
   if (calendar === 'lunar') return { year, month, day, isLeapMonth }
 
-  const lunar = SolarDay.fromYmd(year, month, day).getLunarDay()
-  const lunarMonth = lunar.getLunarMonth()
-  return {
-    year: lunarMonth.getYear(),
-    month: lunarMonth.getMonth(),
-    day: lunar.getDay(),
-    isLeapMonth: lunarMonth.isLeap(),
-  }
+  return koreanLunarDate(SolarDay.fromYmd(year, month, day))
 }
 
 function cycleNumber(cycle: SixtyCycle): number {
@@ -76,7 +73,7 @@ function cycleNumber(cycle: SixtyCycle): number {
   return stemNumber + branchNumber
 }
 
-/** 以 tyme4ts 的 UTC+8 阴阳历及民用日界计算土亭秘诀三卦。 */
+/** 以 UTC+9 韩国民用阴历计算土亭秘诀三卦。 */
 export function tojeongGwae(input: TojeongInput, targetYear: number): TojeongResult {
   const birthLunar = birthLunarDate(input)
   if (
@@ -90,14 +87,16 @@ export function tojeongGwae(input: TojeongInput, targetYear: number): TojeongRes
 
   const month = birthLunar.month
   // 目标年始终使用同一月号的平月，月建按阴历月号推算。
-  const targetMonth = LunarMonth.fromYm(targetYear, month)
-  const monthDays = targetMonth.getDayCount()
+  const targetMonth = koreanLunarMonths(targetYear).find(
+    (entry) => entry.month === month && !entry.isLeapMonth,
+  ) as KoreanLunarMonth
+  const monthDays = targetMonth.days
   const day = Math.min(birthLunar.day, monthDays)
-  const targetDay = LunarDay.fromYmd(targetYear, month, day)
+  const targetDay = targetMonth.firstDay.next(day - 1)
   const countingAge = targetYear - birthLunar.year + 1
-  const taeseNumber = cycleNumber(targetMonth.getLunarYear().getSixtyCycle())
-  const wolgeonNumber = cycleNumber(targetMonth.getSixtyCycle())
-  const iljinNumber = cycleNumber(targetDay.getSixtyCycle())
+  const taeseNumber = cycleNumber(LunarYear.fromYear(targetYear).getSixtyCycle())
+  const wolgeonNumber = cycleNumber(LunarMonth.fromYm(targetYear, month).getSixtyCycle())
+  const iljinNumber = cycleNumber(targetDay.getSixtyCycleDay().getSixtyCycle())
 
   const sang = (countingAge + taeseNumber) % 8 || 8
   const jung = (monthDays + wolgeonNumber) % 6 || 6

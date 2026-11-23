@@ -1,7 +1,11 @@
 import { TOJEONG_RULES_VERSION, type TojeongInput, tojeongGwae } from '@xuanxue/bazi/tojeong'
 import { Lunar, Solar } from 'lunar-javascript'
+import type { SolarDay } from 'tyme4ts'
 import { assert, describe, expect, it } from 'vitest'
+import type { LunarDate } from '../src/chart.ts'
 import { BaziInputError } from '../src/input.ts'
+import { koreanLunarDate, koreanLunarMonths } from '../src/korean-lunar.ts'
+import kasi2027 from './fixtures/tojeong-kasi-2027.json'
 
 const STEMS = '甲乙丙丁戊己庚辛壬癸'
 const BRANCHES = '子丑寅卯辰巳午未申酉戌亥'
@@ -20,16 +24,60 @@ function sumOfCycle(cycle: string) {
   return stem + branch
 }
 
-/** 每个目标年只查一遍历表，月建按阴历月号独立排算。 */
-function oracleFor(targetYear: number) {
+const dangi = new Intl.DateTimeFormat('en-u-ca-dangi', {
+  timeZone: 'UTC',
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+})
+
+function koreanBirth(input: TojeongInput): LunarDate {
+  const { year, month, day } = input.birth
+  if (input.calendar === 'lunar') return { year, month, day, isLeapMonth: input.leapMonth === true }
+  // UTC 只用于把公历年月日交给 ICU；dangi 用韩国历法换算该民用日。
+  const parts = Object.fromEntries(
+    dangi
+      .formatToParts(new Date(Date.UTC(year, month - 1, day)))
+      .map(({ type, value }) => [type, value]),
+  )
+  const lunarMonth = parts.month as string
+  return {
+    year: Number(parts.relatedYear),
+    month: Number.parseInt(lunarMonth, 10),
+    day: Number(parts.day),
+    isLeapMonth: lunarMonth.endsWith('bis'),
+  }
+}
+
+function chineseBirth(input: TojeongInput): LunarDate {
+  const { year, month, day } = input.birth
+  const solar =
+    input.calendar === 'solar'
+      ? Solar.fromYmd(year, month, day)
+      : solarOfLunar(year, input.leapMonth ? -month : month, day)
+  const lunar = solar.getLunar()
+  return {
+    year: lunar.getYear(),
+    month: Math.abs(lunar.getMonth()),
+    day: lunar.getDay(),
+    isLeapMonth: lunar.getMonth() < 0,
+  }
+}
+
+/** 目标年分别以 KASI 和 lunar-javascript 为准，月建按阴历月号独立排算。 */
+function oracleFor2027(birthDate: (input: TojeongInput) => LunarDate, useKasi: boolean) {
+  const targetYear = kasi2027.lunarYear
   const yearCycle: string = solarOfLunar(targetYear, 1, 1).getLunar().getYearInGanZhi()
   const taeseNumber = sumOfCycle(yearCycle)
   const newYearStem = '丙戊庚壬甲'.charAt(STEMS.indexOf(yearCycle.charAt(0)) % 5)
-  const calendar = Array.from({ length: 12 }, (_, index) => {
+  const calendar = kasi2027.months.map(({ solar, days }, index) => {
     const monthStem = STEMS.charAt((STEMS.indexOf(newYearStem) + index) % 10)
     const monthBranch = '寅卯辰巳午未申酉戌亥子丑'.charAt(index)
-    const firstDay = solarOfLunar(targetYear, index + 1, 1)
-    const monthDays = firstDay.next(29).getLunar().getDay() === 30 ? 30 : 29
+    const [year, month, day] = solar.split('-').map(Number)
+    const firstDay = useKasi
+      ? Solar.fromYmd(year, month, day)
+      : solarOfLunar(targetYear, index + 1, 1)
+    const monthDays = useKasi ? days : firstDay.next(29).getLunar().getDay() === 30 ? 30 : 29
     const dayNumbers = Array.from({ length: monthDays }, (_, offset) =>
       sumOfCycle(firstDay.next(offset).getLunar().getDayInGanZhi()),
     )
@@ -37,18 +85,7 @@ function oracleFor(targetYear: number) {
   })
 
   return (input: TojeongInput) => {
-    const { year, month, day } = input.birth
-    const solar =
-      input.calendar === 'solar'
-        ? Solar.fromYmd(year, month, day)
-        : solarOfLunar(year, input.leapMonth ? -month : month, day)
-    const lunar = solar.getLunar()
-    const birthLunar = {
-      year: lunar.getYear(),
-      month: Math.abs(lunar.getMonth()),
-      day: lunar.getDay(),
-      isLeapMonth: lunar.getMonth() < 0,
-    }
+    const birthLunar = birthDate(input)
 
     const targetMonth = calendar[birthLunar.month - 1]
     assert.isDefined(targetMonth)
@@ -78,7 +115,54 @@ function oracleFor(targetYear: number) {
   }
 }
 
+function solarIso(date: SolarDay) {
+  return new Date(Date.UTC(date.getYear(), date.getMonth() - 1, date.getDay()))
+    .toISOString()
+    .slice(0, 10)
+}
+
 describe('tojeongGwae', () => {
+  it('matches every published KASI month start, month length, and leap status in 2027', () => {
+    const { lunarYear, months, previousYearLastMonth, nextYearFirstMonth } = kasi2027
+    const actual = koreanLunarMonths(lunarYear)
+    expect(
+      actual.map(({ month, firstDay, days, isLeapMonth }) => ({
+        lunarMonth: month,
+        solar: solarIso(firstDay),
+        days,
+        isLeapMonth,
+      })),
+    ).toEqual(months.map(({ source: _source, ...month }) => month))
+    for (const { month, firstDay, days } of actual) {
+      expect(koreanLunarDate(firstDay)).toEqual({
+        year: lunarYear,
+        month,
+        day: 1,
+        isLeapMonth: false,
+      })
+      expect(koreanLunarDate(firstDay.next(days - 1))).toEqual({
+        year: lunarYear,
+        month,
+        day: days,
+        isLeapMonth: false,
+      })
+    }
+    const previous = koreanLunarMonths(previousYearLastMonth.lunarYear).at(-1)
+    assert.isDefined(previous)
+    expect(solarIso(previous.firstDay)).toBe(previousYearLastMonth.solar)
+    expect(previous.days).toBe(previousYearLastMonth.days)
+    expect(koreanLunarDate(previous.firstDay.next(previous.days - 1))).toEqual({
+      year: previousYearLastMonth.lunarYear,
+      month: previousYearLastMonth.lunarMonth,
+      day: previousYearLastMonth.days,
+      isLeapMonth: false,
+    })
+    const next = koreanLunarMonths(nextYearFirstMonth.lunarYear)[0]
+    assert.isDefined(next)
+    expect(solarIso(next.firstDay)).toBe(nextYearFirstMonth.solar)
+    expect(next.days).toBe(nextYearFirstMonth.days)
+  })
+
   // 前两个见站点正文，其余三个由公开计算器原版客户端计算，出处及步骤见私有验收记录。
   it.each([
     ['lunar', 1990, 5, 5, false, 431],
@@ -95,10 +179,15 @@ describe('tojeongGwae', () => {
     },
   )
 
-  it('agrees with an independent calendar and calculation for 1940–2010', {
+  it('agrees with ICU dangi and KASI in a 1940–2010 sample and measures the change from UTC+8', {
     timeout: 30_000,
   }, () => {
-    const oracle = oracleFor(2027)
+    const korean = oracleFor2027(koreanBirth, true)
+    const chinese = oracleFor2027(chineseBirth, false)
+    const counts = {
+      solar: { samples: 0, birthDateChanges: 0, resultChanges: 0, gwaeChanges: 0 },
+      lunar: { samples: 0, birthDateChanges: 0, resultChanges: 0, gwaeChanges: 0 },
+    }
     for (let year = 1940; year <= 2010; year++) {
       for (let month = 1; month <= 12; month++) {
         for (const day of [1, 15, 29]) {
@@ -113,11 +202,24 @@ describe('tojeongGwae', () => {
             }
             const input = { birth: { year, month, day }, calendar }
             const { rulesVersion, ...result } = tojeongGwae(input, 2027)
-            assert.deepEqual(result, oracle(input), `${calendar} ${year}-${month}-${day}`)
+            const expected = korean(input)
+            assert.deepEqual(result, expected, `${calendar} ${year}-${month}-${day}`)
+            const previous = chinese(input)
+            const stats = counts[calendar]
+            stats.samples++
+            if (JSON.stringify(expected.birthLunar) !== JSON.stringify(previous.birthLunar)) {
+              stats.birthDateChanges++
+            }
+            if (JSON.stringify(expected) !== JSON.stringify(previous)) stats.resultChanges++
+            if (result.gwae !== previous.gwae) stats.gwaeChanges++
           }
         }
       }
     }
+    expect(counts).toEqual({
+      solar: { samples: 2503, birthDateChanges: 83, resultChanges: 443, gwaeChanges: 442 },
+      lunar: { samples: 2556, birthDateChanges: 0, resultChanges: 426, gwaeChanges: 426 },
+    })
   })
 
   it('maps a lunar leap month to the ordinary month after converting a solar birth', () => {
@@ -132,8 +234,26 @@ describe('tojeongGwae', () => {
   })
 
   it('uses the ordinary birth month when the target year also has a leap month', () => {
-    const input = { calendar: 'lunar', birth: { year: 2000, month: 6, day: 15 } } as const
-    expect(tojeongGwae(input, 2025)).toMatchObject(oracleFor(2025)(input))
+    // KASI：2028 平五月 5 月 24 日起 30 天，闰五月 6 月 23 日起 29 天。
+    const input = { calendar: 'lunar', birth: { year: 2000, month: 5, day: 15 } } as const
+    expect(tojeongGwae(input, 2028)).toMatchObject({
+      targetLunar: { year: 2028, month: 5, day: 15 },
+      monthDays: 30,
+      iljinNumber: sumOfCycle(Solar.fromYmd(2028, 6, 7).getLunar().getDayInGanZhi()),
+    })
+  })
+
+  it('validates a Korean leap month when the Chinese leap month number differs', () => {
+    // KASI：2012-04-21 为闰三月初一，UTC+8 则在四月置闰。
+    const birth = { year: 2012, month: 3, day: 1 }
+    const lunar = tojeongGwae({ calendar: 'lunar', birth, leapMonth: true }, 2027)
+    expect(lunar.birthLunar).toEqual({ ...birth, isLeapMonth: true })
+    expect(
+      tojeongGwae({ calendar: 'solar', birth: { year: 2012, month: 4, day: 21 } }, 2027),
+    ).toEqual(lunar)
+    expect(() =>
+      tojeongGwae({ calendar: 'lunar', birth: { ...birth, month: 4 }, leapMonth: true }, 2027),
+    ).toThrow(BaziInputError)
   })
 
   it('uses day 29 for both the day number and addition when the target month is short', () => {
