@@ -6,6 +6,7 @@ import {
 } from '../east-content/tojeong/paths.ts'
 import { prefixLocale } from '../i18n/url-prefix.ts'
 import { isPrerenderedPath } from '../marketing/prerender.ts'
+import { isMoonQueryRequest } from '../west-content/moon/paths.ts'
 import { EAST_ENGLISH_PATH, EAST_ENGLISH_URL, resolveSite, siteOfLocale } from './site.ts'
 
 /** 构建期用仅存在于本地 preview 的随机令牌授权内部入口，并按语言还原真实站点 Host。 */
@@ -68,7 +69,9 @@ export async function staticPageResponse(
     !site.known ||
     !templateConfig.marketing.enabled ||
     !['GET', 'HEAD'].includes(request.method) ||
-    !isPrerenderedPath(url.pathname, templateConfig.i18n.locales)
+    !isPrerenderedPath(url.pathname, templateConfig.i18n.locales) ||
+    // 月相月份页带 `?year=`：走 SSR 渲染所请求的年份并输出 noindex（content-growth-v2-tools 第 19 组）
+    isMoonQueryRequest(url.pathname, url.searchParams)
   )
     return null
   const path = url.pathname.replace(/\/+$/, '') || '/'

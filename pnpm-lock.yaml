@@ -281,6 +281,9 @@ importers:
       '@xuanxue/ai':
         specifier: workspace:*
         version: link:../../packages/ai
+      '@xuanxue/astro':
+        specifier: workspace:*
+        version: link:../../packages/astro
       '@xuanxue/auth':
         specifier: workspace:*
         version: link:../../packages/auth

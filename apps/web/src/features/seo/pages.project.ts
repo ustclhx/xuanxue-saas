@@ -10,6 +10,7 @@ import {
 } from '../tools/numerology/routes.ts'
 import { mainToolPath, TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { tarotIndexPath } from '../tools/tarot/meaning-routes.ts'
+import { MOON_PATHS } from '../west-content/moon/paths.ts'
 import type { SeoPage, StaticPath } from './metadata.ts'
 
 /**
@@ -190,6 +191,9 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
   // 黄历月份页（content-growth-phase2 第 6 组）：面包屑「首页 › 黄历 › N月」，上级为黄历工具页
   if (route.id.startsWith('almanac-month-'))
     return { titleMain: navTitle ?? page.title, parent: ALMANAC_TOOL_PATH }
+  // 月相月份页（content-growth-v2-tools 第 19 组）：面包屑「Home › Moon Calendar › January Moon Calendar」
+  if (route.id.startsWith('moon-calendar-'))
+    return { titleMain: navTitle ?? page.title, parent: MOON_PATHS['moon-calendar'] }
   if (route.id.startsWith('bazi-concept-'))
     return { titleMain: navTitle ?? page.title, parent: mainToolPath(locale) ?? '/' }
   return { titleMain: navTitle ?? WEST_MAIN[page.path] ?? page.title, parent: '/' }
