@@ -38,6 +38,11 @@ const WestSampleChart = lazyRouteComponent(
   () => import('../features/marketing/home-hub/sample-chart-west.tsx'),
   'WestSampleChart',
 )
+// 精选区主卡的样例图形（content-growth-v2-tools 第 6 组）：东方站复用样例命盘的四柱，西方站为三张牌背
+const WestSampleCards = lazyRouteComponent(
+  () => import('../features/marketing/home-hub/sample-cards-west.tsx'),
+  'WestSampleCards',
+)
 // 首屏线描插画（refresh-visual-system-warm D8）：每站一个母题，同样按站点加载
 const StemWheel = lazyRouteComponent(
   () => import('../features/illustrations/east/stem-wheel.tsx'),
@@ -64,14 +69,18 @@ export const Route = createFileRoute('/')({
   loader: async ({ parentMatchPromise: root }) => {
     const eastEnglish = await eastEnglishRouteData(root)
     if (eastEnglish) {
-      await Promise.all([EastEnLanding.preload?.(), StemWheel.preload?.()])
+      await Promise.all([
+        EastEnLanding.preload?.(),
+        StemWheel.preload?.(),
+        EastSampleChart.preload?.(),
+      ])
       return { eastEn: eastEnglish.eastEnLandingHead() }
     }
     await Promise.all([
       LandingPage.preload?.(),
       ...(isEastLocale(getLocale())
         ? [EastSampleChart.preload?.(), StemWheel.preload?.()]
-        : [WestSampleChart.preload?.(), NumberWheel.preload?.()]),
+        : [WestSampleChart.preload?.(), WestSampleCards.preload?.(), NumberWheel.preload?.()]),
     ])
     return null
   },
@@ -115,12 +124,16 @@ function IndexPage() {
     <MarketingShell>
       <Suspense>
         {eastEnglish ? (
-          <EastEnLanding art={<StemWheel className="size-full" />} />
+          <EastEnLanding
+            art={<StemWheel className="size-full" />}
+            mainVisual={<EastSampleChart />}
+          />
         ) : (
           // 插画填满 LandingHero 的固定尺寸插画位（手机 168px、桌面 320px），不引起布局位移
           <LandingPage
             art={east ? <StemWheel className="size-full" /> : <NumberWheel className="size-full" />}
             sampleChart={east ? <EastSampleChart /> : <WestSampleChart />}
+            mainVisual={east ? <EastSampleChart /> : <WestSampleCards />}
           />
         )}
       </Suspense>

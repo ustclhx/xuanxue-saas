@@ -1,6 +1,7 @@
 import { COMPAT_EAST_EN_CONTENT_ROUTES } from '../east-content/compat/paths.ts'
 import { type EastContentRoute, eastContentRouteOf } from '../east-content/routes.ts'
 import { YEARLY_TOOL_EN_ROUTES } from '../east-content/yearly-tool/paths.ts'
+import { TOOLS_HUB_EAST_EN_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { westContentRouteOf } from '../west-content/routes.ts'
 
@@ -38,6 +39,8 @@ export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en'
   ...YEARLY_TOOL_EN_ROUTES,
   // content-growth-v2-tools 第 13 组：`/bazi-compatibility` 正文与 5 个场景页
   ...COMPAT_EAST_EN_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 6 组：「All tools」枢纽页 `/tools`（西方站同路径另有自己的一页）
+  ...TOOLS_HUB_EAST_EN_CONTENT_ROUTES,
 ]
 
 export function eastEnContentRouteOf(path: string) {

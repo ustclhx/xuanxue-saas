@@ -1,9 +1,7 @@
-import type { SiteId } from '@xuanxue/config'
 import { m } from '../../../paraglide/messages.js'
 import { templateConfig } from '../../../server/template-config.ts'
 import { DAILY_PATHS } from '../../daily/routes.ts'
 import { displayPrice } from '../../readings/price.ts'
-import { TOOL_ROUTES, type ToolRoute, toolsForSite } from '../../tools/registry.ts'
 import { toolHref } from '../../tools/tool-href.ts'
 import { DAILY_LOGIN_CREDITS, DEFAULT_READING_CREDITS } from '../pricing-credits.ts'
 import { displayProvider, type PricingCatalog, selectDisplayPrice } from '../pricing-data.ts'
@@ -12,109 +10,23 @@ import { displayProvider, type PricingCatalog, selectDisplayPrice } from '../pri
 // 全部来自项目自有的静态数据——工具注册表、详批大纲常量、构建期价格快照与模板配置——不查库、不发请求，
 // 首页因此可完整预渲染，数据库不可达时照常显示。
 
-/** 精选工具入口的上限（home-hub「工具矩阵」：3–4 个） */
-export const FEATURED_LIMIT = 4
-
-/**
- * 精选入口与顺序（使用者 2026-11-17 在画布上确认，design.md D2a）：按顺序取当前语言有页面的前 4 个。
- * 东方站中文为八字排盤、紫微斗數、三張牌塔羅、命盤查詢；韩语没有紫微与命盤查詢，为만세력、사주궁합、쓰리 카드 타로。
- * 每日运势只在今日条出现，不进入口。
- */
-const FEATURED: Record<SiteId, readonly string[]> = {
-  east: ['bazi', 'ziwei', 'saju-gunghap', 'tarot-three-card', 'mingpan'],
-  west: ['life-path', 'numerology-calculator', 'tarot-three-card'],
-}
-
-/** 入口卡片下方的一行文字链接（西方站 Compatibility），不占入口名额 */
-const MORE_TOOL: Partial<Record<SiteId, string>> = { west: 'life-path-compatibility' }
-
-/** 工具卡的一句话说明（文案在 home-hub.json）；没有时用注册表的 SEO 描述 */
-const TOOL_SUMMARY: Record<string, () => string> = {
-  bazi: m.home_hub_tool_bazi,
-  ziwei: m.home_hub_tool_ziwei,
-  mingpan: m.home_hub_tool_mingpan,
-  'saju-gunghap': m.home_hub_tool_saju_gunghap,
-  'tarot-three-card': m.home_hub_tool_tarot_three_card,
-  'life-path': m.home_hub_tool_life_path,
-  'numerology-calculator': m.home_hub_tool_numerology_calculator,
-  'life-path-compatibility': m.home_hub_tool_life_path_compatibility,
-}
-
-/** 卡片上的名称与注册表导航名不同的工具（注册表中 life-path 的导航名是「Life Path」） */
-const TOOL_TITLE: Record<string, () => string> = {
-  'life-path': m.landing_tool_title_life_path,
-}
-
-/** 工具卡的大号字形（站点强调色，对读屏隐藏）与链接文字 */
-const TOOL_GLYPH: Record<string, () => string> = {
-  bazi: m.landing_tool_glyph_bazi,
-  ziwei: m.landing_tool_glyph_ziwei,
-  mingpan: m.landing_tool_glyph_mingpan,
-  'saju-gunghap': m.landing_tool_glyph_saju_gunghap,
-  'tarot-three-card': m.landing_tool_glyph_tarot,
-  'life-path': m.landing_tool_glyph_life_path,
-  'numerology-calculator': m.landing_tool_glyph_numerology_calculator,
-}
-
-const TOOL_ACTION: Record<string, () => string> = {
-  bazi: m.landing_tool_cta_bazi,
-  ziwei: m.landing_tool_cta_ziwei,
-  mingpan: m.landing_tool_cta_mingpan,
-  'saju-gunghap': m.landing_tool_cta_saju_gunghap,
-  'tarot-three-card': m.landing_tool_cta_tarot,
-  'life-path': m.landing_tool_cta_life_path,
-  'numerology-calculator': m.landing_tool_cta_numerology_calculator,
-}
-
-export interface HubTool {
-  readonly id: string
-  readonly title: string
-  readonly summary: string
-  /** 同站、同语言的站内地址 */
-  readonly href: string
-  readonly glyph: string
-  /** 卡片底部的链接文字，如「開始排盤 →」 */
-  readonly action: string
-}
-
-function hubTool(
-  tool: { id: string; path: string; title: string },
-  locale: string,
-  routes: readonly ToolRoute[],
-): HubTool {
-  const route = routes.find((item) => item.id === tool.id)
-  return {
-    id: tool.id,
-    title: TOOL_TITLE[tool.id]?.() ?? tool.title,
-    summary: TOOL_SUMMARY[tool.id]?.() ?? route?.descriptions?.[locale] ?? '',
-    href: toolHref(tool.path, locale),
-    glyph: TOOL_GLYPH[tool.id]?.() ?? '',
-    action: TOOL_ACTION[tool.id]?.() ?? '',
-  }
-}
-
-/** 精选工具入口：只取登记在本站、当前语言有页面的工具，按精选顺序最多 4 个，链接不跨站 */
-export function hubTools(
-  site: SiteId,
-  locale: string,
-  routes: readonly ToolRoute[] = TOOL_ROUTES,
-): HubTool[] {
-  const available = toolsForSite(site, locale, routes)
-  return FEATURED[site]
-    .flatMap((id) => available.filter((tool) => tool.id === id))
-    .slice(0, FEATURED_LIMIT)
-    .map((tool) => hubTool(tool, locale, routes))
-}
-
-/** 入口卡片下方的文字链接；该站点没有或当前语言没有页面时为 null */
-export function hubMoreTool(
-  site: SiteId,
-  locale: string,
-  routes: readonly ToolRoute[] = TOOL_ROUTES,
-): Pick<HubTool, 'id' | 'href'> | null {
-  const tool = toolsForSite(site, locale, routes).find((item) => item.id === MORE_TOOL[site])
-  return tool ? { id: tool.id, href: toolHref(tool.path, locale) } : null
-}
+// 首页精选（openspec content-growth-v2-tools 决策 5）：`FEATURED` 改为主卡、副卡与季节位三部分，按构建日期选择季节窗口。
+// 配置与选择在 featured.ts（纯数据，页头下拉也引用），配上文案的视图数据在 featured-data.ts（东方站英文落地页也引用，
+// 不带入下方的价格数据）；都从这里再导出，首页相关的数据仍以本文件为入口。
+export {
+  FEATURED,
+  FEATURED_MAIN_LIMIT,
+  FEATURED_SECONDARY_LIMIT,
+  selectFeatured,
+} from './featured.ts'
+export {
+  type HubFeatured,
+  type HubSeason,
+  type HubSeasonLink,
+  type HubTool,
+  hubFeatured,
+  hubTool,
+} from './featured-data.ts'
 
 export interface HubPrice {
   readonly key: string

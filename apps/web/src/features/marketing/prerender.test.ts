@@ -5,6 +5,7 @@ import { TAI_SUI_YEAR_TOOL_ROUTES } from '../east-content/tai-sui-year/paths.ts'
 import { YEARLY_TOOL_ROUTES } from '../east-content/yearly/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { ZODIAC_PAIR_TOOL_ROUTES } from '../east-content/zodiac-pair/paths.ts'
+import { TOOLS_HUB_ID } from '../tools/hub/routes.ts'
 import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
@@ -71,7 +72,9 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
         // 合盘场景页由 east-content/compat/compat.test.ts 验证
         !COMPAT_SCENARIO_TOOL_ROUTES.includes(tool) &&
         // 生肖配对由 east-content/zodiac-pair/zodiac-pair.test.ts 验证
-        !ZODIAC_PAIR_TOOL_ROUTES.includes(tool),
+        !ZODIAC_PAIR_TOOL_ROUTES.includes(tool) &&
+        // 「全部工具」枢纽页由 tools/hub/hub.test.tsx 验证
+        tool.id !== TOOLS_HUB_ID,
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/zh-hant' },

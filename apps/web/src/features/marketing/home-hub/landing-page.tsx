@@ -13,19 +13,20 @@ import { pricingSnapshot } from '../pricing-snapshot.ts'
 import {
   DAILY_PAGES,
   dailyEntryHref,
+  type HubFeatured,
   type HubPriceLine,
-  type HubTool,
-  hubMoreTool,
+  hubFeatured,
   hubPriceLine,
-  hubTools,
 } from './data.ts'
+import { FeaturedSection } from './featured-section.tsx'
 import { LandingHero, SAMPLE_ANCHOR } from './hero.tsx'
 import { HUB_SAMPLE_PARAGRAPHS, HUB_SAMPLE_SECTIONS, isHubSampleLocale } from './sample.ts'
 import { TodayStrip } from './today-strip.tsx'
 
 // 两站品牌落地页（openspec separate-landing-homepage design.md D2、D2a，specs/home-hub「品牌落地页结构」；
 // 设计稿副本 docs/design/prototypes/warm-refresh/Main.dc.html、LandingWest.dc.html、LandingKoMobile.dc.html）。
-// 区块顺序：品牌主视觉 → 3–4 个工具入口 → 样例报告 → 今日条 → 三步说明 → 一行价格 → 信任说明 → 品牌级 FAQ。
+// 区块顺序：品牌主视觉 → 精选区（主卡、季节位、副卡，content-growth-v2-tools 决策 5）→ 样例报告 → 今日条 → 三步说明 →
+// 一行价格 → 信任说明 → 品牌级 FAQ。
 // 首页不含工具表单、结果区、工具专属 FAQ 与说明长文；每个工具在首页只链接一次。
 // 除今日条在浏览器内填入当日信息外全部为静态内容：构建期预渲染，不查库。
 // 免费工具相关文案不写 AI；只有样例详批、三步中的详批一步与一行价格属于 AI 详批语境，样例附 AI 声明。
@@ -35,24 +36,38 @@ const textLink = 'inline-flex min-h-11 items-center text-body text-brand-ink hov
 export function LandingPage({
   art,
   sampleChart,
+  mainVisual,
   catalog = pricingSnapshot,
   dailyPages = DAILY_PAGES,
+  featured,
 }: {
   /** 首屏线描插画，由首页路由按站点传入；不传时保留同样大小的空位 */
   art?: ReactNode
   /** 样例命盘（东方站四柱、西方站数字环），由首页路由按站点传入，避免两站互相打包对方的图形 */
   sampleChart?: ReactNode
+  /** 精选区主卡右侧的样例图形（东方站四柱、西方站三张牌背），同样由首页路由按站点传入 */
+  mainVisual?: ReactNode
   catalog?: PricingCatalog
   /** 每日运势公开页登记表；当前语言未登记时不渲染今日条 */
   dailyPages?: Readonly<Partial<Record<string, string>>>
+  /** 精选区数据；默认按当前站点、语言与构建日期选择（测试传入其他日期的结果） */
+  featured?: HubFeatured
 }) {
   const site = useSiteId()
   const locale = getLocale()
-  const daily = dailyEntryHref(locale, dailyPages)
+  const selected = featured ?? hubFeatured(site, locale)
+  // 季节位已经是每日运势入口时不再渲染今日条：每个工具在首页只链接一次
+  const daily = selected.season?.kind === 'daily' ? null : dailyEntryHref(locale, dailyPages)
   return (
     <SectionStack data-landing>
       <LandingHero toolHref={mainToolHref(locale)} art={art} />
-      <FeaturedTools tools={hubTools(site, locale)} more={hubMoreTool(site, locale)} />
+      <FeaturedSection
+        featured={selected}
+        site={site}
+        title={m.landing_tools_title()}
+        intro={m.home_hub_tools_intro()}
+        mainVisual={mainVisual}
+      />
       {isHubSampleLocale(locale) && (
         <SampleReading
           sections={HUB_SAMPLE_SECTIONS[locale]}
@@ -66,68 +81,6 @@ export function LandingPage({
       <TrustFacts />
       <BrandFaq />
     </SectionStack>
-  )
-}
-
-/** 精选工具入口：整张卡片可点（链接只包住工具名），字形用站点强调色并对读屏隐藏 */
-function FeaturedTools({ tools, more }: { tools: HubTool[]; more: { href: string } | null }) {
-  if (tools.length === 0) return null
-  return (
-    <Section
-      id="tools"
-      data-landing-block="tools"
-      title={m.landing_tools_title()}
-      intro={m.home_hub_tools_intro()}
-    >
-      <ul
-        className={
-          tools.length === 4
-            ? 'm-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6'
-            : 'm-0 grid list-none gap-4 p-0 sm:grid-cols-3 lg:gap-6'
-        }
-      >
-        {tools.map((tool) => (
-          <li
-            key={tool.id}
-            className="relative flex w-full gap-3 rounded-object bg-surface px-6 py-5 text-ink transition-colors hover:bg-surface-2 sm:flex-col sm:gap-2.5 sm:p-7"
-          >
-            <span
-              aria-hidden="true"
-              className="w-11 shrink-0 font-heading text-mark text-title sm:w-auto"
-            >
-              {tool.glyph}
-            </span>
-            <div className="flex min-w-0 flex-1 flex-col gap-1 sm:gap-2.5">
-              {/* 链接只包住工具名（锚文本 = 目标页主词，openspec seo-fix-tdk-links 决策 5），
-                  伪元素铺满卡片：整张卡仍可点，焦点环画在卡片外沿 */}
-              <h3 className="m-0 font-heading text-ink text-subtitle">
-                <a
-                  href={tool.href}
-                  data-tool={tool.id}
-                  className="text-ink no-underline after:absolute after:inset-0 after:rounded-object focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-ring focus-visible:after:outline-offset-3"
-                >
-                  {tool.title}
-                </a>
-              </h3>
-              <p className="m-0 text-body text-ink-muted">{tool.summary}</p>
-              <span
-                aria-hidden="true"
-                className="mt-auto text-body text-brand-ink underline underline-offset-4"
-              >
-                {tool.action}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {more && (
-        <p className="m-0 mt-4">
-          <a href={more.href} className={textLink}>
-            {m.landing_more_tool_link()}
-          </a>
-        </p>
-      )}
-    </Section>
   )
 }
 

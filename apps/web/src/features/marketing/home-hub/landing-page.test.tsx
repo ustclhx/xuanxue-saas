@@ -8,16 +8,18 @@ import { readingDefinition } from '../../readings/catalog.ts'
 import { checkCompliance } from '../../readings/compliance.ts'
 import { SiteContext } from '../../site/context.tsx'
 import { SAMPLE_BIRTH_DATE } from '../../tools/charts/samples.ts'
+import { directoryGroups, siteTools } from '../../tools/directory.ts'
+import { badgeText } from '../../tools/hub/badge.ts'
+import { type RegisteredToolRoute, TOOL_ROUTES, type ToolRoute } from '../../tools/registry.ts'
 import { DAILY_LOGIN_CREDITS, DEFAULT_READING_CREDITS } from '../pricing-credits.ts'
 import type { PricingCatalog } from '../pricing-data.ts'
 import { creditPacks } from '../pricing-page.tsx'
 import {
   dailyEntryHref,
-  FEATURED_LIMIT,
-  hubMoreTool,
+  FEATURED_SECONDARY_LIMIT,
+  hubFeatured,
   hubPriceLine,
   hubPricing,
-  hubTools,
 } from './data.ts'
 import { LandingPage } from './landing-page.tsx'
 import {
@@ -113,56 +115,205 @@ const block = (html: string, name: string) =>
 const order = (html: string) =>
   [...html.matchAll(/data-landing-block="(\w+)"/g)].map((match) => match[1])
 
+/** 尚未上线的工具（由其他组登记）：测试用它们验证季节位、小标与顺补 */
+const upcoming = (
+  id: string,
+  site: SiteId,
+  paths: Record<string, string>,
+  extra: Partial<RegisteredToolRoute> = {},
+): RegisteredToolRoute => ({
+  id,
+  site,
+  directoryGroup: site === 'east' ? 'yearly' : 'moon',
+  freeLabel: 'free_lookup',
+  paths,
+  titles: Object.fromEntries(Object.keys(paths).map((locale) => [locale, `${id} ${locale}`])),
+  ...extra,
+})
+const UPCOMING: readonly ToolRoute[] = [
+  ...TOOL_ROUTES,
+  upcoming(
+    'yearly-tool',
+    'east',
+    { 'zh-Hans': '/2027流年', ko: '/2027-신년-사주', en: '/bazi-2027' },
+    { badge: { kind: 'year', label: '2027', until: '2027-02-28' } },
+  ),
+  upcoming('yearly', 'east', { 'zh-Hans': '/2027生肖运势', en: '/chinese-zodiac-2027' }),
+  upcoming('tojeong', 'east', { ko: '/토정비결' }, { badge: { kind: 'new', until: '2027-02-28' } }),
+  upcoming('zodiac-pair', 'east', { 'zh-Hans': '/生肖配对' }, { directoryGroup: 'relation' }),
+  upcoming('moon-today', 'west', { en: '/moon-phase-today' }),
+  upcoming('full-moon-calendar', 'west', { en: '/full-moon-calendar' }),
+]
+const ids = (featured: ReturnType<typeof hubFeatured>) => ({
+  main: featured.main?.id,
+  season: featured.season && [
+    featured.season.kind,
+    featured.season.primary.id,
+    featured.season.secondary?.id,
+  ],
+  secondary: featured.secondary.map((tool) => tool.id),
+})
+
 describe('落地页数据', () => {
   it.each([
-    // 合盘中文版发布后（content-growth-v2-tools 12.3）按 FEATURED 顺序进入精选，命盤查詢移出前 4
-    ['east', 'zh-Hant', ['bazi', 'ziwei', 'saju-gunghap', 'tarot-three-card'], '八紫合牌'],
-    ['east', 'zh-Hans', ['bazi', 'ziwei', 'saju-gunghap', 'tarot-three-card'], '八紫合牌'],
-    ['east', 'ko', ['bazi', 'saju-gunghap', 'tarot-three-card'], '사합타'],
-    ['west', 'en', ['life-path', 'numerology-calculator', 'tarot-three-card'], '1922'],
-  ] as const)('%s %s：精选入口 3–4 个，顺序与字形按设计稿', (site, locale, ids, glyphs) => {
-    language.locale = locale
-    const tools = hubTools(site, locale)
-    expect(tools.map((tool) => tool.id)).toEqual(ids)
-    expect(tools.length).toBeGreaterThanOrEqual(3)
-    expect(tools.length).toBeLessThanOrEqual(FEATURED_LIMIT)
-    expect(tools.map((tool) => tool.glyph).join('')).toBe(glyphs)
-    for (const tool of tools) {
-      expect(tool.title).toBeTruthy()
-      expect(tool.summary).toBeTruthy()
-      expect(tool.action).toMatch(/→$/)
-      // 站内地址：不跨站、不链接到其他域名
-      expect(tool.href).toMatch(/^\/(?!\/)/)
+    ['east', 'zh-Hant', 'bazi', ['ziwei', 'tarot-three-card', 'mingpan'], 'daily', '八紫牌盤'],
+    [
+      'east',
+      'zh-Hans',
+      'bazi',
+      ['ziwei', 'tarot-three-card', 'almanac', 'zodiac'],
+      'daily',
+      '八紫牌黄十',
+    ],
+    ['east', 'ko', 'bazi', ['saju-gunghap', 'tarot-three-card', 'zodiac'], 'daily', '사합타띠'],
+    ['east', 'ja', 'bazi', ['ziwei', 'tarot-three-card'], null, '四紫22'],
+    ['east', 'en', 'bazi', ['ziwei', 'tarot-three-card', 'tarot-card-index'], null, '八紫2278'],
+    [
+      'west',
+      'en',
+      'tarot-three-card',
+      ['life-path', 'numerology-calculator', 'life-path-compatibility'],
+      'daily-numerology',
+      '22192',
+    ],
+    [
+      'west',
+      'es',
+      'tarot-three-card',
+      ['life-path', 'numerology-calculator', 'life-path-compatibility'],
+      null,
+      '22192',
+    ],
+  ] as const)(
+    '%s %s：主卡 1 张、副卡不超过上限，当季内容未上线时季节位为每日入口',
+    (site, locale, main, secondary, daily, glyphs) => {
+      language.locale = locale
+      // 季节窗口内：2027 内容尚未登记，季节位由每日运势顶上；没有每日页的语言不出季节位
+      const featured = hubFeatured(site, locale, TOOL_ROUTES, '2026-12-10')
+      expect(featured.main?.id).toBe(main)
+      expect(featured.secondary.map((tool) => tool.id)).toEqual(secondary)
+      expect(featured.secondary.length).toBeLessThanOrEqual(FEATURED_SECONDARY_LIMIT[site])
+      expect(featured.season?.kind ?? null).toBe(daily ? 'daily' : null)
+      expect(featured.season?.primary.id ?? null).toBe(daily)
+      const cards = [featured.main, ...featured.secondary]
+      expect(cards.map((tool) => tool?.glyph).join('')).toBe(glyphs)
+      for (const tool of cards) {
+        expect(tool?.title).toBeTruthy()
+        expect(tool?.summary).toBeTruthy()
+        // 入口卡只标动作式免费标签：不写 AI、不标付费
+        expect(tool?.label).toBeTruthy()
+        expect(`${tool?.title}${tool?.summary}${tool?.label}${tool?.action}`).not.toMatch(
+          /\bAI\b|付费|付費|유료|有料|paid|de pago/i,
+        )
+        // 站内地址：不跨站、不链接到其他域名
+        expect(tool?.href).toMatch(/^\/(?!\/)/)
+      }
+      expect(featured.hub?.href).toBeTruthy()
+    },
+  )
+
+  it.each([
+    ['2026-11-30', 'daily'],
+    ['2026-12-01', 'year'],
+    ['2027-02-28', 'year'],
+    ['2027-03-01', 'daily'],
+  ] as const)('季节窗口边界 %s：季节位为 %s', (today, kind) => {
+    language.locale = 'zh-Hans'
+    const featured = hubFeatured('east', 'zh-Hans', UPCOMING, today)
+    expect(featured.main?.id).toBe('bazi')
+    expect(featured.season?.kind).toBe(kind)
+    if (kind === 'year') {
+      // 按钮指向个人流年工具，文字链接指向 2027 生肖枢纽；小标与装饰大字取窗口配置
+      expect(ids(featured).season).toEqual(['year', 'yearly-tool', 'yearly'])
+      expect(featured.season).toMatchObject({ badge: '2027', mark: '丁未' })
+      expect(featured.season?.primary.href).toBe(`/zh-hans/${encodeURI('2027流年')}`)
+    } else {
+      expect(ids(featured).season).toEqual(['daily', 'daily', undefined])
+      expect(featured.season).toMatchObject({ badge: null, mark: null })
     }
+    // 季节位用到的工具不占副卡；副卡按配置顺序取前 4 个有页面的
+    expect(ids(featured).secondary).toEqual(['ziwei', 'zodiac-pair', 'tarot-three-card', 'almanac'])
   })
 
-  it('韩语首页只列有韩语页面的东方站工具，链接带 /ko 前缀', () => {
+  it('当前语言没有该工具时由下一个有页面的工具顺补，季节位的链接同样只取本语言的页面', () => {
     language.locale = 'ko'
-    const tools = hubTools('east', 'ko')
-    for (const tool of tools) expect(tool.href.startsWith('/ko/')).toBe(true)
-    expect(tools.map((tool) => tool.id)).not.toEqual(expect.arrayContaining(['ziwei', 'mingpan']))
+    // 韩语没有紫微与生肖配对页：副卡顺补到塔罗与띠；季节位按钮为토정비결，文字链接为신년 사주
+    const season = hubFeatured('east', 'ko', UPCOMING, '2026-12-10')
+    expect(ids(season)).toEqual({
+      main: 'bazi',
+      season: ['year', 'tojeong', 'yearly-tool'],
+      secondary: ['saju-gunghap', 'tarot-three-card', 'zodiac'],
+    })
+    // 季节之外토정비결回到副卡（design 决策 5「토정비결（季节外）」）
+    expect(ids(hubFeatured('east', 'ko', UPCOMING, '2027-03-01'))).toEqual({
+      main: 'bazi',
+      season: ['daily', 'daily', undefined],
+      secondary: ['saju-gunghap', 'tarot-three-card', 'tojeong', 'zodiac'],
+    })
+    // 繁中没有 2027 内容：窗口内季节位仍是每日运势，不出现其他语言的入口
+    language.locale = 'zh-Hant'
+    expect(ids(hubFeatured('east', 'zh-Hant', UPCOMING, '2026-12-10')).season).toEqual([
+      'daily',
+      'daily',
+      undefined,
+    ])
+    // 日语既没有 2027 内容也没有每日页：不出季节位，主卡占满整行
+    language.locale = 'ja'
+    expect(hubFeatured('east', 'ja', UPCOMING, '2026-12-10').season).toBeNull()
+    // 东方站英文：按钮为 2027 生肖枢纽，文字链接为个人流年
+    language.locale = 'en'
+    expect(ids(hubFeatured('east', 'en', UPCOMING, '2026-12-10')).season).toEqual([
+      'year',
+      'yearly',
+      'yearly-tool',
+    ])
   })
 
-  it('西方站不含东方工具；Compatibility 为文字链接，不占入口', () => {
+  it('西方站：季节位为月相，副卡 3 张；不含东方工具，链接不跨站', () => {
     language.locale = 'en'
-    expect(hubTools('west', 'en').map((tool) => tool.id)).not.toEqual(
-      expect.arrayContaining([
-        'bazi',
-        'ziwei',
-        'mingpan',
-        'saju-gunghap',
-        'life-path-compatibility',
-      ]),
+    expect(ids(hubFeatured('west', 'en', UPCOMING, '2026-12-10'))).toEqual({
+      main: 'tarot-three-card',
+      season: ['year', 'moon-today', 'full-moon-calendar'],
+      secondary: ['life-path', 'numerology-calculator', 'life-path-compatibility'],
+    })
+    const off = hubFeatured('west', 'en', UPCOMING, '2027-03-01')
+    expect(ids(off)).toEqual({
+      main: 'tarot-three-card',
+      season: ['daily', 'daily-numerology', undefined],
+      secondary: ['moon-today', 'life-path', 'numerology-calculator'],
+    })
+    const all = [off.main, ...off.secondary].map((tool) => tool?.id)
+    expect(all).not.toEqual(
+      expect.arrayContaining(['bazi', 'ziwei', 'mingpan', 'saju-gunghap', 'zodiac']),
     )
-    expect(hubTools('west', 'en')[0]).toMatchObject({
+    expect(off.secondary.find((tool) => tool.id === 'life-path')).toMatchObject({
       title: 'Life Path Number',
       href: '/life-path-number',
     })
-    expect(hubMoreTool('west', 'en')).toEqual({
-      id: 'life-path-compatibility',
-      href: '/life-path-compatibility',
-    })
-    expect(hubMoreTool('east', 'zh-Hant')).toBeNull()
+    expect(off.hub).toEqual({ href: '/tools', label: 'All tools' })
+  })
+
+  it('小标到期后不渲染；未发布语言不显示入口与小标', () => {
+    language.locale = 'ko'
+    const badgeOf = (today: string, locale: string, id: string) =>
+      [...siteTools('east', locale, UPCOMING, today).values()].find((tool) => tool.id === id)
+    // 到期日当天仍显示，次日起不再显示
+    expect(badgeText(badgeOf('2027-02-28', 'ko', 'tojeong')?.badge)).toBe('새 도구')
+    expect(badgeOf('2027-03-01', 'ko', 'tojeong')?.badge).toBeUndefined()
+    expect(badgeText(badgeOf('2027-02-28', 'ko', 'yearly-tool')?.badge)).toBe('2027')
+    expect(badgeText(badgeOf('2027-03-01', 'ko', 'yearly-tool')?.badge)).toBeNull()
+    // 首页卡片与枢纽页取同一份条目：副卡上的小标随构建日期消失
+    const card = (today: string) =>
+      hubFeatured('east', 'ko', UPCOMING, today).secondary.find((tool) => tool.id === 'tojeong')
+    expect(card('2027-03-01')).toMatchObject({ badge: null })
+    // 繁中没有登记토정비결与 2027 流年：入口与小标都不存在
+    expect(badgeOf('2026-12-10', 'zh-Hant', 'tojeong')).toBeUndefined()
+    expect(badgeOf('2026-12-10', 'zh-Hant', 'yearly-tool')).toBeUndefined()
+    expect(
+      directoryGroups('east', 'zh-Hant', UPCOMING, '2026-12-10').flatMap((group) =>
+        group.tools.map((tool) => tool.id),
+      ),
+    ).not.toEqual(expect.arrayContaining(['tojeong', 'yearly-tool', 'yearly', 'zodiac-pair']))
   })
 
   it('一行价格的两个数字与定价页同一份配置', () => {
@@ -241,6 +392,30 @@ describe('落地页数据', () => {
 describe('落地页', () => {
   it.each(HOMES)('%s %s：区块顺序与入口数量', (site, locale) => {
     const html = render(site, locale)
+    // 当季内容未上线时季节位就是每日运势入口，不再单独渲染今日条（每个工具在首页只链接一次）
+    expect(order(html)).toEqual(['hero', 'tools', 'sample', 'steps', 'price', 'trust', 'faq'])
+    const tools = block(html, 'tools')
+    // 1 张主卡、1 个季节位、副卡不超过 4 张；下方一行「全部工具」链接
+    expect(tools.match(/data-featured="main"/g)).toHaveLength(1)
+    expect(tools.match(/data-featured="season"/g)).toHaveLength(1)
+    const cards = tools.match(/data-tool-card="stack"/g) ?? []
+    expect(cards.length).toBeGreaterThanOrEqual(2)
+    expect(cards.length).toBeLessThanOrEqual(4)
+    expect(tools).toContain('data-tool="tools-hub"')
+    // 入口卡只有动作式免费标签，没有付费标签
+    expect(tools).toContain('data-tool-label="free"')
+    expect(tools).not.toContain('data-tool-label="paid"')
+    // 一个 H1；没有工具表单
+    expect(html.match(/<h1\b/g)).toHaveLength(1)
+    expect(html).not.toMatch(/<(?:form|input|select|textarea)\b/)
+    expect(html).not.toContain('即將')
+  })
+
+  it('季节窗口内：季节位显示 2027 入口与小标，今日条照常在样例之后', () => {
+    language.locale = 'zh-Hans'
+    const html = render('east', 'zh-Hans', {
+      featured: hubFeatured('east', 'zh-Hans', UPCOMING, '2026-12-10'),
+    })
     expect(order(html)).toEqual([
       'hero',
       'tools',
@@ -251,13 +426,20 @@ describe('落地页', () => {
       'trust',
       'faq',
     ])
-    const entries = [...block(html, 'tools').matchAll(/data-tool="([\w-]+)"/g)]
-    expect(entries.length).toBeGreaterThanOrEqual(3)
-    expect(entries.length).toBeLessThanOrEqual(4)
-    // 一个 H1；没有工具表单
-    expect(html.match(/<h1\b/g)).toHaveLength(1)
-    expect(html).not.toMatch(/<(?:form|input|select|textarea)\b/)
-    expect(html).not.toContain('即將')
+    const season = html.match(/<article data-featured="season"[\s\S]*?<\/article>/)?.[0] ?? ''
+    expect(season).toContain('data-season="year"')
+    expect(text(season)).toContain('2027')
+    expect(text(season)).toContain('丁未')
+    expect(season).toContain(`href="/zh-hans/${encodeURI('2027流年')}"`)
+    expect(season).toContain(`href="/zh-hans/${encodeURI('2027生肖运势')}"`)
+    expect(season).not.toContain('data-today')
+    // 3-01 构建：季节位换回每日运势，2027 入口与小标都不再出现在首页
+    const after = render('east', 'zh-Hans', {
+      featured: hubFeatured('east', 'zh-Hans', UPCOMING, '2027-03-01'),
+    })
+    const tools = block(after, 'tools')
+    expect(tools).toContain('data-season="daily"')
+    expect(tools).not.toContain('2027')
   })
 
   it.each(HOMES)(
@@ -312,7 +494,7 @@ describe('落地页', () => {
 
   it.each(HOMES)('%s %s：免费区块不出现 AI 字样，全页文字通过合规检查', (site, locale) => {
     const html = render(site, locale)
-    for (const name of ['hero', 'tools', 'today', 'trust']) {
+    for (const name of ['hero', 'tools', 'trust']) {
       const part = block(html, name)
       expect(part, name).toBeTruthy()
       expect(text(part), name).not.toMatch(/\bAI\b/)
@@ -357,19 +539,51 @@ describe('落地页', () => {
   })
 
   it('今日条：服务端只输出骨架与链接，不写入日期', () => {
-    const today = block(render('east', 'zh-Hant'), 'today')
+    language.locale = 'zh-Hans'
+    const today = block(
+      render('east', 'zh-Hans', {
+        featured: hubFeatured('east', 'zh-Hans', UPCOMING, '2026-12-10'),
+      }),
+      'today',
+    )
     expect(today).toContain('data-today="pending"')
     expect(today.match(/data-today-skeleton/g)).toHaveLength(2)
-    expect(today).toContain(`href="/zh-hant/${encodeURI('每日運勢')}"`)
+    expect(today).toContain(`href="/zh-hans/${encodeURI('每日运势')}"`)
     expect(text(today)).not.toMatch(/\d/)
     expect(text(today)).not.toMatch(/[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]/)
-    expect(block(render('west', 'en'), 'today')).toContain('href="/daily-numerology"')
+    language.locale = 'en'
+    expect(
+      block(
+        render('west', 'en', { featured: hubFeatured('west', 'en', UPCOMING, '2026-12-10') }),
+        'today',
+      ),
+    ).toContain('href="/daily-numerology"')
   })
 
-  it('每日运势页未登记时不渲染今日条，其余区块顺序不变', () => {
-    const html = render('east', 'zh-Hant', { dailyPages: {} })
+  it('季节位为每日运势入口时带当日一行：服务端只输出骨架，不写入日期', () => {
+    const season =
+      render('east', 'zh-Hant').match(/<article data-featured="season"[\s\S]*?<\/article>/)?.[0] ??
+      ''
+    expect(season).toContain('data-season="daily"')
+    expect(season).toContain('data-today="pending"')
+    expect(season.match(/data-today-skeleton/g)).toHaveLength(2)
+    expect(season).toContain(`href="/zh-hant/${encodeURI('每日運勢')}"`)
+    expect(text(season)).not.toMatch(/\d/)
+    expect(text(season)).not.toMatch(/\bAI\b/)
+    expect(
+      render('west', 'en').match(/<article data-featured="season"[\s\S]*?<\/article>/)?.[0],
+    ).toContain('href="/daily-numerology"')
+  })
+
+  it('每日运势页未登记时不渲染今日条与每日入口，其余区块顺序不变', () => {
+    language.locale = 'zh-Hant'
+    const html = render('east', 'zh-Hant', {
+      dailyPages: {},
+      featured: { ...hubFeatured('east', 'zh-Hant'), season: null },
+    })
     expect(order(html)).toEqual(['hero', 'tools', 'sample', 'steps', 'price', 'trust', 'faq'])
     expect(html).not.toContain('data-today')
+    expect(html).not.toContain('data-featured="season"')
     expect(html).not.toContain(encodeURI('每日運勢'))
     expect(html).not.toContain('即將')
   })

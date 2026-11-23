@@ -467,7 +467,9 @@ function ReadingUnlockCard({
             ? phase.label
             : phase.name === 'payment-pending'
               ? m.readings_unlock_payment_pending()
-              : m.readings_unlock_cta()}
+              : // 付费只标在详批按钮上并写明积分数（specs/tool-directory「免费与付费标注」）；
+                // 积分数取本次报价（运行时价格），不写死
+                m.readings_unlock_cta({ credits: String(offer.credits) })}
         </button>
       )}
       <PhaseMessage phase={phase} signedIn={Boolean(offer.viewer)} onRetry={unlock} />

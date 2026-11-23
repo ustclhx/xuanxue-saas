@@ -173,7 +173,7 @@ test('新访客登录并购买积分包后回到原结果页，自动开始生�
   await expect(card.getByText('10 credits', { exact: true })).toBeVisible()
   await expect(card.getByTestId('reading-price')).toContainText('$0.60')
   await expect(card.getByRole('listitem').first()).toHaveText('Overview')
-  await card.getByRole('button', { name: 'Unlock the full reading' }).click()
+  await card.getByRole('button', { name: /^AI reading · \d+ credits$/ }).click()
 
   // 未登录：本语言登录页，redirect 带签名的 unlock 参数
   await expect(page).toHaveURL(/\/login\?redirect=%2Flife-path-number%3Funlock%3D/)
@@ -292,7 +292,7 @@ test('积分不足时选择订阅，首期积分到账后回到原结果页自�
   await fillDate(page, 'Date of birth', '1987-11-29')
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   const card = page.getByTestId('reading-unlock')
-  await card.getByRole('button', { name: 'Unlock the full reading' }).click()
+  await card.getByRole('button', { name: /^AI reading · \d+ credits$/ }).click()
   const plan = page.getByTestId('reading-plan')
   await expect(plan).toContainText('Plus · 100 credits a month')
   await expect(plan).toContainText('$4.99/month')
@@ -381,7 +381,7 @@ test('新用户验证邮箱后经解锁卡登录回到结果页，首日共 20 �
   await page.getByRole('button', { name: 'Calculate' }).first().click()
   await page
     .getByTestId('reading-unlock')
-    .getByRole('button', { name: 'Unlock the full reading' })
+    .getByRole('button', { name: /^AI reading · \d+ credits$/ })
     .click()
   await expect(page).toHaveURL(/\/login\?redirect=/)
   const form = page.getByRole('form', { name: 'Sign in with password' })
@@ -420,7 +420,7 @@ test('已验证邮箱的用户只停留在公开结果页时，解锁卡报价�
     await fillDate(page, 'Date of birth', '1987-11-29')
     await page.getByRole('button', { name: 'Calculate' }).first().click()
     const card = page.getByTestId('reading-unlock')
-    await card.getByRole('button', { name: 'Unlock the full reading' }).click()
+    await card.getByRole('button', { name: /^AI reading · \d+ credits$/ }).click()
     await expect(card.getByText('Your balance: 5 credits')).toBeVisible()
     const owner = await actor(email)
     const grants = await sql`select source, amount from credit_grant

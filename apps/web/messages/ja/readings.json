@@ -13,7 +13,7 @@
   "readings_coming_soon": "AI鑑定（詳しい鑑定）は、まだ公開されていないため、現在は購入・利用できません。上の結果は無料の算出結果で、引き続きご覧いただけます。",
   "readings_packs_not_open": "AI鑑定（詳しい鑑定）は、まだ公開されていないため、現在はクレジットパックを購入できません。命式、計算ツール、タロットのスプレッドは、現在すべて無料でご利用いただけます。",
   "readings_unlock_approx": "約 {price}",
-  "readings_unlock_cta": "詳しい鑑定を利用する",
+  "readings_unlock_cta": "AI鑑定 · {credits}クレジット",
   "readings_unlock_note": "生成に失敗した場合は課金されません・アカウントに保存されます",
   "readings_unlock_signin_note": "続けるにはログインしてください。ログイン後はこのページに戻り、鑑定が自動で始まります。",
   "readings_unlock_balance": "現在の残高：{balance}クレジット",

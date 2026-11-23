@@ -47,6 +47,11 @@ for (const binding of ['HYPERDRIVE', 'HYPERDRIVE_CACHED']) {
   if (value && !process.env[name]) process.env[name] = value
 }
 
+// BUILD_DATE 只用于本地验收其他日期的版式（季节位切换、小标到期）
+const buildDate = process.env.BUILD_DATE ?? new Date().toISOString().slice(0, 10)
+if (!/^\d{4}-\d{2}-\d{2}$/.test(buildDate))
+  throw new Error(`BUILD_DATE 应为 YYYY-MM-DD：${buildDate}`)
+
 export default defineConfig(({ command }) => {
   // 本地 dev 时把根目录 .env.local 的五项测试支付配置同步到 .dev.vars 管理区块（#26）
   if (command === 'serve') syncLocalPaymentEnv(new URL('./', import.meta.url))
@@ -69,6 +74,9 @@ export default defineConfig(({ command }) => {
     },
     define: {
       __APP_VERSION__: JSON.stringify(appVersion),
+      // 首页季节位与「新」「2027」小标按构建日期取舍（content-growth-v2-tools 决策 5）：服务端与客户端用同一个值，
+      // 预渲染页面水合时不会因访客当天的日期不同而不一致
+      __BUILD_DATE__: JSON.stringify(buildDate),
     },
     plugins: [
       ogImages(),

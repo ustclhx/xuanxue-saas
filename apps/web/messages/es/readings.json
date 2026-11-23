@@ -13,7 +13,7 @@
   "readings_coming_soon": "La lectura completa con IA aún no está disponible, así que por ahora no se puede comprar ni desbloquear. El resultado de arriba es un cálculo gratuito y seguirá disponible.",
   "readings_packs_not_open": "Las lecturas completas con IA aún no están disponibles, así que por ahora no se pueden comprar paquetes de créditos. Todas las cartas, calculadoras y tiradas de tarot ya se pueden usar gratis.",
   "readings_unlock_approx": "≈ {price}",
-  "readings_unlock_cta": "Desbloquear la lectura completa",
+  "readings_unlock_cta": "Lectura con IA · {credits} créditos",
   "readings_unlock_note": "Sin cargo si la generación falla · Se guarda en tu cuenta",
   "readings_unlock_signin_note": "Inicia sesión para continuar. Volverás directo aquí y la lectura empezará automáticamente.",
   "readings_unlock_balance": "Tu saldo: {balance} créditos",
