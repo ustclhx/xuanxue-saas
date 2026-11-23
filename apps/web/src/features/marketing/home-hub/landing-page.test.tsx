@@ -193,12 +193,12 @@ describe('落地页数据', () => {
       season: ['daily', 'daily', undefined],
       secondary: ['saju-gunghap', 'tarot-three-card', 'tojeong', 'zodiac'],
     })
-    // 繁中有个人流年、没有 2027 生肖枢纽：季节位只有按钮，不出现其他语言的入口
+    // 繁中有个人流年与 2027 生肖枢纽（第 9 组）：季节位按钮与文字链接都取本语言的页面
     language.locale = 'zh-Hant'
     expect(ids(hubFeatured('east', 'zh-Hant', TOOL_ROUTES, '2026-12-10')).season).toEqual([
       'year',
       'yearly-tool',
-      undefined,
+      'yearly-2027',
     ])
     // 日语既没有 2027 内容也没有每日页：不出季节位，主卡占满整行
     language.locale = 'ja'
@@ -249,13 +249,14 @@ describe('落地页数据', () => {
     const card = (today: string) =>
       hubFeatured('east', 'ko', TOOL_ROUTES, today).secondary.find((tool) => tool.id === 'tojeong')
     expect(card('2027-03-01')).toMatchObject({ badge: null })
-    // 繁中没有登记토정비결、2027 生肖枢纽与生肖配对：入口与小标都不存在
+    // 繁中没有登记토정비결与生肖配对：入口与小标都不存在；2027 生肖枢纽由第 9 组登记
     expect(badgeOf('2026-12-10', 'zh-Hant', 'tojeong')).toBeUndefined()
-    expect(badgeOf('2026-12-10', 'zh-Hant', 'yearly-2027')).toBeUndefined()
+    expect(badgeText(badgeOf('2026-12-10', 'zh-Hant', 'yearly-2027')?.badge)).toBe('2027')
     const zhHant = directoryGroups('east', 'zh-Hant', TOOL_ROUTES, '2026-12-10').flatMap((group) =>
       group.tools.map((tool) => tool.id),
     )
-    for (const id of ['tojeong', 'yearly-2027', 'zodiac-pair']) expect(zhHant).not.toContain(id)
+    for (const id of ['tojeong', 'zodiac-pair']) expect(zhHant).not.toContain(id)
+    expect(zhHant).toContain('yearly-2027')
   })
 
   it('每日运势入口只在登记了公开页时给出链接', () => {

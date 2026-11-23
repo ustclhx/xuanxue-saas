@@ -171,10 +171,11 @@ describe('「全部工具」枢纽页', () => {
       expect(after).toContain(`data-tool="${id}"`)
       expect(badge(after, id)).toBeNull()
     }
-    // 繁中没有生肖配对与 2027 生肖枢纽：入口与小标都不出现；太歲页与个人流年列在年运分组
+    // 繁中没有生肖配对：入口与小标都不出现；2027 生肖枢纽（第 9 组）、太歲页与个人流年列在年运分组
     const hant = render('east', 'zh-Hant', { today: '2027-02-28' })
     expect(hant).not.toContain('data-tool="zodiac-pair"')
-    expect(hant).not.toContain('data-tool="yearly-2027"')
+    expect(badge(hant, 'yearly-2027')).toBe('2027')
+    expect(hant).not.toContain('data-tool="yearly-2027-wu"')
     expect(badge(hant, 'tai-sui-2027')).toBe('2027')
     expect(badge(hant, 'yearly-tool')).toBe('2027')
   })
