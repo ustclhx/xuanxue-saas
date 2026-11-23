@@ -1064,6 +1064,72 @@ const compat = defineCollection({
   },
 })
 
+/**
+ * 生肖配对集合（openspec content-growth-v2-tools 决策 9，第 16 组建；第 17 组只加 ko、en 内容）：
+ * content/zodiac-pair/<locale>/<地支 key>-<地支 key>.mdx 为配对页（按地支顺序，如 `zi-chou.mdx`），
+ * index.mdx 为 12×12 总表页。地支关系、五行生克与年份表由页面按引擎计算（zodiacPairFacts），
+ * 这里只保存逐组撰写的文字：`relations_note`（关系表导语）与按 `## ` 切开的正文段。
+ */
+const zodiacPair = defineCollection({
+  name: 'zodiacPair',
+  directory: 'content/zodiac-pair',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    slug: z
+      .string()
+      .min(1)
+      .regex(/^[^/\s]+$/),
+    locale: z.enum(['zh-Hans', 'ko', 'en']),
+    // 总表页没有配对 key
+    pair: z
+      .string()
+      .regex(new RegExp(`^(?:${ZODIAC_BRANCHES.join('|')})-(?:${ZODIAC_BRANCHES.join('|')})$`))
+      .optional(),
+    lede: z.string().min(1),
+    relations_note: z.string().min(1).optional(),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    // content-collections 把 index.mdx 的路径记为所在目录，slug 为空
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    if (locale !== data.locale)
+      throw new Error(`Zodiac pair locale does not match directory: ${document._meta.path}`)
+    const hub = key === 'index'
+    if (hub ? data.pair !== undefined : data.pair !== key)
+      throw new Error(`Zodiac pair key does not match file name: ${document._meta.path}`)
+    if (!hub) {
+      const [a = '', b = ''] = key.split('-')
+      const order = ZODIAC_BRANCHES as readonly string[]
+      if (order.indexOf(a) > order.indexOf(b))
+        throw new Error(`Zodiac pair must follow branch order: ${document._meta.path}`)
+      if (!data.relations_note)
+        throw new Error(`Zodiac pair page needs relations_note: ${document._meta.path}`)
+    }
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Zodiac pair body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, key, sections }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -1084,5 +1150,6 @@ export default defineConfig({
     westernZodiac,
     yearly,
     compat,
+    zodiacPair,
   ],
 })

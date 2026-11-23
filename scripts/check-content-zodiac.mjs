@@ -66,6 +66,8 @@ const LOCALES = {
       '/八字/空亡',
       '/八字/八字重量',
     ],
+    // content-growth-v2-tools 16.3：关系段的现成句子可链接 1 个生肖配对页（zodiac-pages 修改，决策 9、14）
+    pairLink: /^\/zh-hans\/生肖配对\/属[鼠牛虎兔龙蛇马羊猴鸡狗猪]和属[鼠牛虎兔龙蛇马羊猴鸡狗猪]$/u,
     countUnit: /\p{Script=Han}/gu,
     annual: [120, 200],
     // content-growth-v2-tools 第 8 组：丁未年说明链接到本生肖的 2027 年度页
@@ -496,8 +498,15 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       ...spec.linkTargets.map(prefixed),
       ...BRANCHES.map((b) => prefixed(`${spec.hubPath}/${spec.childSlug(b)}`)),
     ])
+    const pairLinks = links.filter((href) => spec.pairLink?.test(href))
+    if (pairLinks.length > 1) fail(`配对页入链 ${pairLinks.length} 条（每页最多 1 条）`)
+    for (const href of pairLinks) {
+      const section = bodySections(content).find((item) => item.body.includes(`](${href})`))
+      if (section?.title !== fixed[0]) fail(`配对页入链须在关系段：${href}`)
+    }
     for (const href of links) {
-      if (!allowed.has(href)) fail(`正文链接目标不在允许清单：${href}`)
+      if (!allowed.has(href) && !spec.pairLink?.test(href))
+        fail(`正文链接目标不在允许清单：${href}`)
       if (href === prefixed(`${spec.hubPath}/${slug}`)) fail(`链接到本页：${href}`)
     }
     const targets = new Set(links).size
@@ -514,7 +523,13 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       ...faq.flatMap((item) => [item.q, item.a]),
       content,
     ].join('\n')
-    for (const term of MARRIAGE_TERMS) if (everything.includes(term)) fail(`婚配类禁用词：${term}`)
+    // 指向配对页的链接（地址与锚文本）不计入婚配类禁用词（决策 14：生肖页正文指向配对页的锚文本不计入）
+    const topical = spec.pairLink
+      ? everything.replace(/\[[^\]]*\]\(([^)]+)\)/g, (link, href) =>
+          spec.pairLink.test(href) ? '' : link,
+        )
+      : everything
+    for (const term of MARRIAGE_TERMS) if (topical.includes(term)) fail(`婚配类禁用词：${term}`)
     for (const term of COMPLIANCE_TERMS)
       if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
         fail(`合规禁用词：${term}`)

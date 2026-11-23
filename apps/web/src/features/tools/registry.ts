@@ -7,6 +7,7 @@ import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
 import { YEARLY_TOOL_ROUTES } from '../east-content/yearly/paths.ts'
 import { YEARLY_TOOL_ROUTES as PERSONAL_YEARLY_TOOL_ROUTES } from '../east-content/yearly-tool/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
+import { ZODIAC_PAIR_TOOL_ROUTES } from '../east-content/zodiac-pair/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
@@ -295,6 +296,10 @@ export const TOOL_ROUTES = defineToolRoutes([
   // content-growth-v2-tools 第 13 组：合盘的 5 个关系场景页（nav: false，同属 relation 组）
   ...COMPAT_SCENARIO_TOOL_ROUTES.map((route) =>
     withDirectoryDefaults(route, 'relation', 'free_compatibility'),
+  ),
+  // openspec content-growth-v2-tools 第 16 组：生肖配对总表与 78 个配对页（zh-Hans；ko、en 由第 17 组补语言）
+  ...ZODIAC_PAIR_TOOL_ROUTES.map((route) =>
+    withDirectoryDefaults(route, 'relation', 'free_lookup'),
   ),
 ])
 

@@ -230,7 +230,10 @@ it.each(pairs)(
     })
     for (const item of [canonical, same]) {
       const result = await two(site, locale, section, item)
-      expect(result.eastContent?.route ?? result.westContent?.route).toMatchObject({ id: item })
+      // zh-Hans 配对页已由第 16 组登记（id 为地支 key），按地址核对规范页
+      expect(result.eastContent?.route ?? result.westContent?.route).toMatchObject({
+        path: `/${section}/${item}`,
+      })
     }
   },
 )

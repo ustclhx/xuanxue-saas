@@ -174,7 +174,12 @@ describe('地址与 hreflang', () => {
       'zh-Hans': '/生肖/属马',
       ko: '/띠/말띠',
     })
-    expect(TOOL_ROUTES.filter((route) => route.id.startsWith('zodiac-'))).toHaveLength(12)
+    // 生肖配对（zodiac-pair*，content-growth-v2-tools 第 16 组）另有自己的条目
+    expect(
+      TOOL_ROUTES.filter(
+        (route) => route.id.startsWith('zodiac-') && !route.id.startsWith('zodiac-pair'),
+      ),
+    ).toHaveLength(12)
   })
 
   it('hreflang 只含已发布的语言版本，canonical 指向自身', () => {
