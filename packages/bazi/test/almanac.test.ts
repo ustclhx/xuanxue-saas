@@ -72,6 +72,26 @@ describe('黄历', () => {
     )
   })
 
+  it.each([
+    [5, 0, 2, 'outside', 5, '占门炉 外西北'],
+    [9, 4, 0, 'outside', 0, '房床碓 外正北'],
+    [14, 4, 5, 'inside', 0, '占房床 房内北'],
+    [19, 4, 4, 'inside', 4, '房床栖 房内中'],
+    [21, 1, 0, 'inside', 8, '占碓磨 房内南'],
+    [30, 0, 3, 'outside', 7, '占大门 外东北'],
+  ])(
+    '2027-01-%i 的胎神占位、内外及方位与 lunar-javascript 一致',
+    (day, heavenStemIndex, earthBranchIndex, side, directionIndex, position) => {
+      expect(almanacDay({ year: 2027, month: 1, day }).fetus).toEqual({
+        heavenStemIndex,
+        earthBranchIndex,
+        side,
+        directionIndex,
+      })
+      expect(Solar.fromYmd(2027, 1, day).getLunar().getDayPositionTai()).toBe(position)
+    },
+  )
+
   it('月表列出交节时刻、月建变化与农历月界，并保留交节日的重复建除', () => {
     const june = almanacMonth(2026, 6)
     expect(june.days).toHaveLength(30)
