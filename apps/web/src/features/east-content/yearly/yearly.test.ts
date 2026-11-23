@@ -102,7 +102,6 @@ describe('地址、注册表与 hreflang', () => {
       collection: 'yearly',
       id: '2027/wu',
     })
-    expect(eastContentRouteOf('ko', '/2027년-띠')).toBeUndefined()
     const hub = TOOL_ROUTES.find((route) => route.id === 'yearly-2027')
     expect(hub).toMatchObject({
       nav: false,
@@ -119,6 +118,27 @@ describe('地址、注册表与 hreflang', () => {
     expect(TOOL_ROUTES.filter((route) => route.id.startsWith('yearly-2027-'))).toHaveLength(12)
   })
 
+  it('ko（第 10 组）枢纽与 12 页登记在东方内容映射与注册表，主词为「2027년 띠」「말띠 2027」', () => {
+    expect(eastContentRouteOf('ko', encodeURI('/2027년-띠'))).toMatchObject({
+      collection: 'yearly',
+      id: '2027/index',
+    })
+    expect(eastContentRouteOf('ko', encodeURI('/2027년-띠/말띠'))).toMatchObject({
+      collection: 'yearly',
+      id: '2027/wu',
+    })
+    expect(TOOL_ROUTES.find((route) => route.id === 'yearly-2027')).toMatchObject({
+      paths: { ko: '/2027년-띠' },
+      titles: { ko: '2027년 띠' },
+    })
+    expect(TOOL_ROUTES.find((route) => route.id === 'yearly-2027-wu')).toMatchObject({
+      paths: { ko: '/2027년-띠/말띠' },
+      titles: { ko: '말띠 2027' },
+    })
+    for (const route of TOOL_ROUTES.filter((item) => item.id.startsWith('yearly-2027')))
+      expect(route.titles?.ko ?? '').not.toMatch(/운세/)
+  })
+
   it('hreflang 只含已发布的语言版本，canonical 指向自身', () => {
     const entries = generatedYearlies()
     const pages = yearlySeoPages(entries)
@@ -127,11 +147,12 @@ describe('地址、注册表与 hreflang', () => {
       parent: '/2027生肖运势',
       group: '/2027生肖运势',
       titleMain: '2027属马',
-      // zh-Hans、zh-Hant、en 互为 hreflang（9.2、第 11 组）
+      // zh-Hans、zh-Hant、en、ko 互为 hreflang（9.2、第 10、11 组）
       alternates: {
         'zh-Hans': '/2027生肖运势/属马',
         'zh-Hant': '/2027生肖運勢/屬馬',
         en: '/chinese-zodiac-2027/horse',
+        ko: '/2027년-띠/말띠',
       },
     })
     expect(pages.find((page) => page.path === '/2027生肖運勢/屬馬')).toMatchObject({
@@ -142,6 +163,7 @@ describe('地址、注册表与 hreflang', () => {
         'zh-Hans': '/2027生肖运势/属马',
         'zh-Hant': '/2027生肖運勢/屬馬',
         en: '/chinese-zodiac-2027/horse',
+        ko: '/2027년-띠/말띠',
       },
     })
     const links = pageHead(horse as NonNullable<typeof horse>, '').links
@@ -151,7 +173,7 @@ describe('地址、注册表与 hreflang', () => {
     })
     const hreflangs = links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
     expect(hreflangs).toContain('zh-Hant')
-    expect(hreflangs).not.toContain('ko')
+    expect(hreflangs).toContain('ko')
     expect(links).toContainEqual({
       rel: 'alternate',
       hrefLang: 'en',
@@ -163,22 +185,42 @@ describe('地址、注册表与 hreflang', () => {
       site: 'east',
       parent: '/chinese-zodiac-2027',
       titleMain: 'Horse in 2027',
+      alternates: {
+        'zh-Hans': '/2027生肖运势/属马',
+        'zh-Hant': '/2027生肖運勢/屬馬',
+        en: '/chinese-zodiac-2027/horse',
+        ko: '/2027년-띠/말띠',
+      },
     })
     expect(pageHead(english as NonNullable<typeof english>, '').links).toContainEqual({
       rel: 'canonical',
       href: 'https://ganjiday.com/chinese-zodiac-2027/horse',
     })
-
-    // 加入一篇 ko 内容：ko 地址尚未登记（第 10 组），不进入 hreflang
-    const withKo = yearlySeoPages([
-      ...entries,
-      { locale: 'ko', year: 2027, key: 'wu', title: 't', description: 'd' },
-    ])
-    expect(withKo.find((page) => page.path === '/2027生肖运势/属马')?.alternates).toEqual({
-      'zh-Hans': '/2027生肖运势/属马',
-      'zh-Hant': '/2027生肖運勢/屬馬',
-      en: '/chinese-zodiac-2027/horse',
+    // ko 页反向指向其他语言，且 canonical 指向自身
+    const koHorse = pages.find((page) => page.locale === 'ko' && page.path === '/2027년-띠/말띠')
+    expect(koHorse).toMatchObject({
+      parent: '/2027년-띠',
+      titleMain: '말띠 2027',
+      alternates: {
+        'zh-Hans': '/2027生肖运势/属马',
+        'zh-Hant': '/2027生肖運勢/屬馬',
+        en: '/chinese-zodiac-2027/horse',
+        ko: '/2027년-띠/말띠',
+      },
     })
+    expect(pageHead(koHorse as NonNullable<typeof koHorse>, '').links).toContainEqual({
+      rel: 'canonical',
+      href: `https://ganjiday.com/ko/${encodeURI('2027년-띠/말띠')}`,
+    })
+
+    // 地址未登记的语言不进入 hreflang
+    const withJa = yearlySeoPages([
+      ...entries,
+      { locale: 'ja', year: 2027, key: 'wu', title: 't', description: 'd' },
+    ])
+    expect(
+      Object.keys(withJa.find((page) => page.path === '/2027生肖运势/属马')?.alternates ?? {}),
+    ).not.toContain('ja')
   })
 
   it.each(['zh-Hans', 'zh-Hant', 'en'])('%s 内容为枢纽加 12 生肖', (locale) => {
@@ -205,6 +247,14 @@ describe('地址、注册表与 hreflang', () => {
     })
     // 个人年度工具（第 7 组）的 en 地址登记在东方站英文映射里，正文链接保留
     expect(yearlyToolPath('en')).toBe('/bazi-2027')
+  })
+
+  it('ko 内容为枢纽加 12 띠', () => {
+    const keys = generatedYearlies()
+      .filter((entry) => entry.locale === 'ko' && entry.year === 2027)
+      .map((entry) => entry.key)
+      .sort()
+    expect(keys).toEqual([...YEARLY_KEYS, 'index'].sort())
   })
 })
 

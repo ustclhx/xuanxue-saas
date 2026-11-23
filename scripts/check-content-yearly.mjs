@@ -9,7 +9,12 @@ import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { parseArgs } from 'node:util'
-import { zodiacBoundaries, zodiacPairFacts, zodiacYearFacts } from '../packages/bazi/src/almanac.ts'
+import {
+  lunarNewYearAt,
+  zodiacBoundaries,
+  zodiacPairFacts,
+  zodiacYearFacts,
+} from '../packages/bazi/src/almanac.ts'
 import { BRANCHES } from '../packages/bazi/src/constants.ts'
 
 const webRequire = createRequire(new URL('../apps/web/package.json', import.meta.url))
@@ -24,6 +29,54 @@ const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
 const ANIMAL_HANS = '鼠牛虎兔龙蛇马羊猴鸡狗猪'
 const ANIMAL_HANT = '鼠牛虎兔龍蛇馬羊猴雞狗豬'
 const FOCUS = ['work', 'relationships', 'self']
+const STEM_HANGUL = '갑을병정무기경신임계'
+const BRANCH_HANGUL = '자축인묘진사오미신유술해'
+const ANIMAL_KO = [
+  '쥐',
+  '소',
+  '호랑이',
+  '토끼',
+  '용',
+  '뱀',
+  '말',
+  '양',
+  '원숭이',
+  '닭',
+  '개',
+  '돼지',
+]
+const NAYIN_KO = [
+  '해중금',
+  '노중화',
+  '대림목',
+  '노방토',
+  '검봉금',
+  '산두화',
+  '간하수',
+  '성두토',
+  '백랍금',
+  '양류목',
+  '천중수',
+  '옥상토',
+  '벽력화',
+  '송백목',
+  '장류수',
+  '사중금',
+  '산하화',
+  '평지목',
+  '벽상토',
+  '금박금',
+  '복등화',
+  '천하수',
+  '대역토',
+  '차천금',
+  '상자목',
+  '대계수',
+  '사중토',
+  '천상화',
+  '석류목',
+  '대해수',
+]
 
 /**
  * 各语言的地址、篇幅、固定小标题与允许的正文链接。
@@ -119,6 +172,86 @@ const LOCALES = {
     // 复算与合规词按简体写法匹配：只换校验用到的字（不是正文转换）
     normalize: (text) => text.replace(HANT_CHARS, (char) => HANT_TO_HANS[char]),
     extraTerms: ['人工智慧', '倒楣'],
+  },
+  // 第 10 组：ko 按韩语主词另写（합쇼체）；篇幅按不含空格的字符计（决策 16）；
+  // 不以「띠별 운세」为 Title、H1、H2 或锚文本目标，流年段写「올해 흐름」（yearly-outlook-pages「ko 年度页的用词」）
+  ko: {
+    prefix: '/ko',
+    hubPath: (year) => `/${year}년-띠`,
+    childSlug: (branch) => `${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠`,
+    /** Title 与 H1 以「쥐띠 2027」开头（与生肖子页「쥐띠 …」区分：띠后紧接年份） */
+    childPrefix: (year, branch) => `${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠 ${year}`,
+    hubPrefix: (year) => `${year}년 띠`,
+    brandSuffix: ' | 간지데이',
+    childMin: 1600,
+    hubMin: 1000,
+    childHeadings: (year) => [
+      `${ganzhiHangulOfYear(year)}년 세운과의 지지 관계`,
+      '사주 전체로 읽는 올해 흐름',
+    ],
+    hubHeadings: (year) => [
+      `${year} ${ganzhiHangulOfYear(year)}년의 간지와 납음`,
+      `열두 띠와 ${ganzhiHangulOfYear(year)}년의 관계`,
+      '입춘과 설날, 두 가지 기준',
+      '연지 너머의 올해 흐름',
+    ],
+    focusRange: [170, 450],
+    yearsNote: [80, 300],
+    relationsNote: [70, 280],
+    yearlyTool: (year) => `/${year}-신년-사주`,
+    linkTargets: [
+      '/만세력',
+      '/띠',
+      '/토정비결',
+      '/사주/대운',
+      '/사주/십신',
+      '/사주/오행',
+      '/사주/신강신약',
+      '/사주/용신',
+    ],
+    zodiacChild: (branch) => `/띠/${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠`,
+    anchors: (path, year) => {
+      const hub = `/${year}년-띠`
+      const child = path.match(new RegExp(`^${hub}/(.+)띠$`))
+      if (child) return [`${child[1]}띠 ${year}`, `${year}년 ${child[1]}띠`]
+      const zodiac = path.match(/^\/띠\/(.+)띠$/)
+      if (zodiac) return [`${zodiac[1]}띠`, `${zodiac[1]}띠 나이`]
+      if (path === `/${year}-신년-사주`)
+        return [`${year} 신년 사주`, `${year} ${ganzhiHangulOfYear(year)}년 사주`]
+      if (path === '/띠') return ['띠', '열두 띠']
+      if (path === '/만세력') return ['무료 만세력', '만세력']
+      if (path === '/토정비결') return [`토정비결 ${year}`, '토정비결']
+      return null
+    },
+    countUnit: /\S/gu,
+    facts: (text, page) => koFactIssues(text, page),
+    compliance: [
+      'AI',
+      '인공지능',
+      '오락',
+      '재미로',
+      '길일',
+      '길흉',
+      '대길',
+      '대흉',
+      '반드시',
+      '무조건',
+      '액운',
+      '재앙',
+      '횡재',
+      '부적',
+      '개운',
+      '액막이',
+      '대박',
+      '불운',
+      '행운',
+      '운세',
+      '자기 탐색',
+      '자아 탐색',
+    ],
+    monthFortune:
+      /(?:\d{1,2}|정|동|섣)월(?:의|에는|에|엔)? ?(?:운세|운이|운은|길하|흉하|조심|재물|금전운|애정운)/u,
+    verdict: ['결혼하면 안', '이혼수', '상극이라 헤어'],
   },
 }
 
@@ -334,6 +467,182 @@ export function factIssues(text, { year, branch }) {
       issues.push(
         `${match[0]}：${target} 在 ${at} 年的太岁关系为 ${row?.taiSui.join('、') || '无'}`,
       )
+  }
+  return { issues, checked }
+}
+
+function ganzhiHangulOfYear(year) {
+  const cycle = cycleOf(year)
+  return `${STEM_HANGUL[cycle.getHeavenStem().getIndex()]}${BRANCH_HANGUL[cycle.getEarthBranch().getIndex()]}`
+}
+/** 干支（汉字）→ ko 纳音名：六十甲子两组共用一个纳音 */
+const NAYIN_KO_OF = new Map(
+  [...Array(60).keys()].map((i) => {
+    const cycle = SixtyCycle.fromIndex(i)
+    return [
+      `${STEM_HANZI[cycle.getHeavenStem().getIndex()]}${BRANCH_HANZI[cycle.getEarthBranch().getIndex()]}`,
+      NAYIN_KO[Math.floor(i / 2)],
+    ]
+  }),
+)
+const ANIMAL_KO_RE = ANIMAL_KO.join('|')
+const branchOfAnimalKo = (animal) => BRANCHES[ANIMAL_KO.indexOf(animal)]
+const KO_PAIR_RELATION = {
+  六合: 'sixCombine',
+  三合: 'triad',
+  沖: 'clash',
+  冲: 'clash',
+  刑: 'punish',
+  害: 'harm',
+  破: 'break',
+  육합: 'sixCombine',
+  삼합: 'triad',
+  충: 'clash',
+  형: 'punish',
+  해: 'harm',
+  파: 'break',
+}
+const KO_TAI_SUI = { 치: 'zhi', 충: 'chong', 형: 'xing', 해: 'hai', 파: 'po' }
+/** 삼재：本人三合局 → 들·눌·날三年的地支（申子辰→寅卯辰、巳酉丑→亥子丑、寅午戌→申酉戌、亥卯未→巳午未） */
+const SAMJAE = [
+  ['yin', 'mao', 'chen'],
+  ['hai', 'zi', 'chou'],
+  ['shen', 'you', 'xu'],
+  ['si', 'wu', 'wei'],
+]
+const SAMJAE_STEP = { 들: 0, 눌: 1, 날: 2 }
+
+/** 句子范围：上一个句号、问号或换行之后，到下一个之前 */
+function sentenceAround(text, index) {
+  const start =
+    Math.max(
+      text.lastIndexOf('.', index),
+      text.lastIndexOf('?', index),
+      text.lastIndexOf('\n', index),
+    ) + 1
+  const rest = text.slice(index).search(/[.?\n]/)
+  return {
+    start,
+    before: text.slice(start, index),
+    sentence: text.slice(start, rest < 0 ? undefined : index + rest),
+  }
+}
+
+/**
+ * ko 正文的事实复算（第 10 组）：干支写成「정미(丁未)」（读音与汉字须一致），关系名写成「축미충(丑未沖)」
+ * 或汉字「丑未沖」；立春按韩国标准时、설날按 UTC+9 的合朔日、「중국 춘절」按北京时间；
+ * 太岁写「소띠 … 충태세」，未写띠时按同句前面最后出现的띠、再按本页띠核对；삼재按三合局核对。
+ */
+export function koFactIssues(text, { year, branch }) {
+  const issues = []
+  let checked = 0
+  const STEM_RE = `[${STEM_HANGUL}]`
+  const BRANCH_RE = `[${BRANCH_HANGUL}]`
+  for (const match of text.matchAll(new RegExp(`(${STEM_RE})(${BRANCH_RE})\\((${GZ})\\)`, 'g'))) {
+    checked++
+    const hanja = `${STEM_HANZI[STEM_HANGUL.indexOf(match[1])]}${BRANCH_HANZI[BRANCH_HANGUL.indexOf(match[2])]}`
+    if (hanja !== match[3]) issues.push(`${match[0]}：读音与汉字不一致`)
+  }
+  // 「1990년 경오(庚午)」「1990년생 경오(庚午)」
+  for (const match of text.matchAll(
+    new RegExp(`(\\d{4})년(?:생)?(?:은|의|인|에)? ?${STEM_RE}${BRANCH_RE}\\((${GZ})\\)`, 'g'),
+  )) {
+    const y = Number(match[1])
+    if (y < 1924 || y > 2043) continue
+    checked++
+    if (ganzhiOfYear(y) !== match[2]) issues.push(`${match[0]}：${y} 应为 ${ganzhiOfYear(y)}`)
+  }
+  // 干支之后 16 字内、中间没有另一个干支的第一个纳音名
+  for (const match of text.matchAll(new RegExp(GZ, 'g'))) {
+    const end =
+      match.index + match[0].length + (text[match.index + match[0].length] === ')' ? 1 : 0)
+    const window =
+      (text.slice(end, end + 16).split(/[.,\n]/)[0] ?? '').split(new RegExp(GZ))[0] ?? ''
+    const name = NAYIN_KO.find((candidate) => window.includes(candidate))
+    if (!name) continue
+    checked++
+    if (NAYIN_KO_OF.get(match[0]) !== name)
+      issues.push(`${match[0]}…${name}：${match[0]} 的纳音应为 ${NAYIN_KO_OF.get(match[0])}`)
+  }
+  // 「2027년 입춘은 2월 4일 10:46」（韩国标准时）
+  for (const match of text.matchAll(
+    /(\d{4})년(?:의)? 입춘(?:은|이)?(?: 절입(?: 시각)?(?:은|이)?)? ?(\d{1,2})월 ?(\d{1,2})일(?: ?(\d{1,2}):(\d{2}))?/g,
+  )) {
+    const boundary = zodiacBoundaries().find((entry) => entry.year === Number(match[1]))
+    if (!boundary) continue
+    const local = new Date(boundary.lichunEpochMs + 540 * 60_000)
+    checked++
+    if (Number(match[2]) !== local.getUTCMonth() + 1 || Number(match[3]) !== local.getUTCDate())
+      issues.push(`${match[0]}：입춘应为 ${local.getUTCMonth() + 1}월 ${local.getUTCDate()}일`)
+    if (
+      match[4] !== undefined &&
+      (Number(match[4]) !== local.getUTCHours() || Number(match[5]) !== local.getUTCMinutes())
+    )
+      issues.push(`${match[0]}：입춘时刻应为 ${local.getUTCHours()}:${local.getUTCMinutes()}`)
+  }
+  // 「2027년 설날은 2월 7일」（UTC+9）与「2027년 중국 춘절은 2월 6일」（北京时间）
+  for (const match of text.matchAll(
+    /(\d{4})년(?:의)? (설날|중국 춘절)(?:은|이)? ?(\d{1,2})월 ?(\d{1,2})일/g,
+  )) {
+    const y = Number(match[1])
+    if (y < 1924 || y > 2043) continue
+    const date = match[2] === '설날' ? lunarNewYearAt(y, { utcOffsetMinutes: 540 }) : newYearOf(y)
+    if (!date) continue
+    checked++
+    if (Number(match[3]) !== date.month || Number(match[4]) !== date.day)
+      issues.push(`${match[0]}：应为 ${date.month}월 ${date.day}일`)
+  }
+  // 关系名：「丑未沖」「축미충(丑未沖)」
+  const relationIssue = (a, b, name, whole) => {
+    checked++
+    const relations = zodiacPairFacts(a, b).relations
+    if (!relations.includes(KO_PAIR_RELATION[name]))
+      issues.push(`${whole}：引擎为 ${relations.join('、') || '无'}`)
+  }
+  for (const match of text.matchAll(new RegExp(`(${BZ})(${BZ})(六合|三合|沖|冲|刑|害|破)`, 'g')))
+    relationIssue(branchOfGlyph(match[1]), branchOfGlyph(match[2]), match[3], match[0])
+  for (const match of text.matchAll(
+    new RegExp(`(${BRANCH_RE})(${BRANCH_RE})(육합|삼합|충|형|해|파)\\(`, 'g'),
+  ))
+    relationIssue(
+      BRANCHES[BRANCH_HANGUL.indexOf(match[1])],
+      BRANCHES[BRANCH_HANGUL.indexOf(match[2])],
+      match[3],
+      match[0],
+    )
+  // 太岁
+  const yearRows = zodiacYearFacts(year).rows
+  for (const match of text.matchAll(/(치|충|형|해|파)태세/gu)) {
+    const { before, sentence } = sentenceAround(text, match.index)
+    // 泛指的列举（同句写出三种以上太岁名）与否定（「충태세가 아닙니다」）不核对
+    if (new Set(sentence.match(/[치충형해파]태세/g)).size >= 3) continue
+    const after = text.slice(match.index + match[0].length, match.index + match[0].length + 12)
+    if (/^[가-힣]{0,3} ?(?:아니|않|없)/.test(after)) continue
+    const named = [...before.matchAll(new RegExp(`(${ANIMAL_KO_RE})띠`, 'g'))].at(-1)?.[1]
+    const target = named ? branchOfAnimalKo(named) : branch
+    if (!target) continue
+    checked++
+    const row = yearRows.find((entry) => entry.branch === target)
+    if (!row?.taiSui.includes(KO_TAI_SUI[match[1]]))
+      issues.push(
+        `${named ?? ''}…${match[0]}：${target} 在 ${year} 年的太岁关系为 ${row?.taiSui.join('、') || '无'}`,
+      )
+  }
+  // 삼재：「돼지띠·토끼띠·양띠는 날삼재」；没有写띠时按本页띠
+  const yearBranch = branchOfGlyph(ganzhiOfYear(year)[1])
+  for (const match of text.matchAll(/(들|눌|날)삼재/gu)) {
+    const { before, sentence } = sentenceAround(text, match.index)
+    // 泛指的列举（同句写出两种以上삼재名）与否定不核对
+    if (new Set(sentence.match(/[들눌날]삼재/g)).size >= 2) continue
+    const after = text.slice(match.index + match[0].length, match.index + match[0].length + 12)
+    if (/^[가-힣]{0,3} ?(?:아니|않|없)/.test(after)) continue
+    const animals = [...before.matchAll(new RegExp(`(${ANIMAL_KO_RE})띠`, 'g'))].map((m) => m[1])
+    const targets = animals.length ? animals.map(branchOfAnimalKo) : branch ? [branch] : []
+    for (const target of targets) {
+      checked++
+      if (SAMJAE[BRANCHES.indexOf(target) % 4][SAMJAE_STEP[match[1]]] !== yearBranch)
+        issues.push(`${target}…${match[0]}：${year} 年不是该띠的${match[0]}`)
+    }
   }
   return { issues, checked }
 }
@@ -896,16 +1205,22 @@ export function checkLocale(locale, root = ROOT) {
       ].join('\n')
       const normalize = spec.normalize ?? ((text) => text)
       const everything = normalize(raw)
-      if (spec.compliance) {
+      if (typeof spec.compliance === 'function') {
         // 拼音文字按词与正则核对（en 合规与判定词表）
         for (const issue of spec.compliance(everything)) fail(issue)
       } else {
-        for (const term of [...COMPLIANCE_TERMS, ...(spec.extraTerms ?? [])])
+        // 中日韩按词表核对：ko 用自己的合规与判定词表，zh-Hant 归一到简体后另加繁体用词
+        for (const term of spec.compliance ?? [...COMPLIANCE_TERMS, ...(spec.extraTerms ?? [])])
           if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
             fail(`合规禁用词：${term}`)
-        for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
+        for (const term of spec.verdict ?? VERDICT_TERMS)
+          if (everything.includes(term)) fail(`判定词：${term}`)
       }
-      if (!spec.compliance && /运势|运程/.test(everything)) {
+      // ko：Title、H1、H2 与锚文本也不含「운세」（含「띠별 운세」；正文由上面的禁用词覆盖）
+      if (locale === 'ko')
+        for (const text of [data.title, data.heading, ...headings, ...links.map((l) => l.anchor)])
+          if (/운세/.test(String(text))) fail(`Title/H1/H2/锚文本含「운세」：${text}`)
+      if ((locale === 'zh-Hans' || locale === 'zh-Hant') && /运势|运程/.test(everything)) {
         // 「运势」只作主词出现在 Title、H1 与地址中
         const plainText = everything.replace(/\]\([^)]*\)/g, ']')
         if (/运势|运程/.test(plainText)) fail('正文不用「运势」「运程」（只作 Title、H1 主词）')

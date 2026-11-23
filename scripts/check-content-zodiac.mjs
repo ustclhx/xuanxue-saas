@@ -106,9 +106,16 @@ const LOCALES = {
       '/사주/신살',
       '/사주/공망',
       '/사주/일주',
+      // content-growth-v2-tools 第 10 组：枢纽链接 2027 年度枢纽
+      '/2027년-띠',
     ],
     countUnit: /\S/gu,
     annual: [160, 320],
+    // content-growth-v2-tools 第 10 组：정미년说明链接到本띠的 2027 年度页
+    yearlyLink: (branch) => {
+      const animal = ANIMAL_KO[BRANCHES.indexOf(branch)]
+      return { anchor: `${animal}띠 2027`, href: `/ko/2027년-띠/${animal}띠` }
+    },
   },
 }
 
