@@ -148,9 +148,9 @@
 
 ## 16. 生肖配对（zh-Hans 78 页与总表）★
 
-- [ ] 16.1 新建 `zodiacPair` 集合与组件：总表 12×12（手机端按设计稿）、配对页（关系事实来自 `zodiacPairFacts`）；登记地址与注册表；构建期预渲染。新建 `scripts/check-content-zodiac-pair.mjs` 复算关系与五行。单测覆盖反序 301、总表 78 个链接、hreflang 只含已发布语言
+- [x] 16.1 新建 `zodiacPair` 集合与组件：总表 12×12（手机端按设计稿）、配对页（关系事实来自 `zodiacPairFacts`）；登记地址与注册表；构建期预渲染。新建 `scripts/check-content-zodiac-pair.mjs` 复算关系与五行。单测覆盖反序 301、总表 78 个链接、hreflang 只含已发布语言
 - [ ] 16.2 Claude 子代理撰写总表与 78 篇（每篇 ≥800 字，按 design 决策 9 的 H2），不对任何生肖作贬损描述；Codex 做事实与合规审阅
-- [ ] 16.3 验收：组内相似度 `--enforce zh-Hans`、判定词审计为 0、长度与 TDK、内链（合盘工具、生肖子页、同三合组配对）；第 2 阶段生肖子页关系段的现成句子加 1 条配对入链（`zodiac-pages` 修改）；关键词归属补登
+- [x] 16.3 验收：组内相似度 `--enforce zh-Hans`、判定词审计为 0、长度与 TDK、内链（合盘工具、生肖子页、同三合组配对）；第 2 阶段生肖子页关系段的现成句子加 1 条配对入链（`zodiac-pages` 修改）；关键词归属补登
 
 ## 17. 띠궁합（ko）与 Chinese zodiac compatibility（en）（2027-01-22 前，非关键路径）
 
