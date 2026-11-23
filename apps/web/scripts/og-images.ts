@@ -20,6 +20,7 @@ import {
   tarotLocalizedSeoPages,
   tarotMeaningSeoPages,
 } from '../src/features/tools/tarot/meaning-routes.ts'
+import { westernZodiacSeoPages } from '../src/features/west-content/zodiac/seo-pages.ts'
 import { createNodeShareCardRenderer } from '../src/node/share-card-renderer.ts'
 import { templateConfig } from '../src/server/template-config.ts'
 import { brandChartColors } from './brand-tokens.ts'
@@ -53,6 +54,9 @@ function pages() {
         read<Parameters<typeof tarotFeelingsSeoPages>[0]>('allTarotFeelings'),
       ),
       ...zodiacSeoPages(read<Parameters<typeof zodiacSeoPages>[0]>('allZodiacs')),
+      ...westernZodiacSeoPages(
+        read<Parameters<typeof westernZodiacSeoPages>[0]>('allWesternZodiacs'),
+      ),
     ],
     guides: read<NonNullable<Content['guides']>>('allGuides'),
   })

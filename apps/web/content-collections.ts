@@ -743,6 +743,80 @@ const moonData = defineCollection({
   },
 })
 
+/**
+ * 西方星座集合（openspec content-growth-v2-tools 决策 12，第 20 组）：content/western-zodiac/en/ 下
+ * `index.mdx` 为星座枢纽，`compatibility.mdx` 为 12×12 配对总表，`<星座>.mdx` 为档案页，
+ * `<a>-and-<b>.mdx`（黄道序）为配对页。元素、模式、守护星与角距由页面从事实表计算，这里只保存逐页撰写的文字；
+ * 正文按 `## ` 切段分别编译，页面在段间插入事实组件。小标题、篇幅与事实复算见 scripts/check-content-western-zodiac.mjs。
+ */
+const WESTERN_SIGNS = [
+  'aries',
+  'taurus',
+  'gemini',
+  'cancer',
+  'leo',
+  'virgo',
+  'libra',
+  'scorpio',
+  'sagittarius',
+  'capricorn',
+  'aquarius',
+  'pisces',
+] as const
+function westernZodiacKind(key: string): 'hub' | 'chart' | 'sign' | 'pair' | null {
+  if (key === 'index') return 'hub'
+  if (key === 'compatibility') return 'chart'
+  if ((WESTERN_SIGNS as readonly string[]).includes(key)) return 'sign'
+  const [a = '', b = '', ...rest] = key.split('-and-')
+  const order: readonly string[] = WESTERN_SIGNS
+  const i = order.indexOf(a)
+  const j = order.indexOf(b)
+  return rest.length === 0 && i >= 0 && j >= i ? 'pair' : null
+}
+const westernZodiac = defineCollection({
+  name: 'westernZodiac',
+  directory: 'content/western-zodiac',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    lede: z.string().min(1),
+    // 档案页 12 行配对一览的导语
+    compat_note: z.string().min(1).optional(),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    const kind = westernZodiacKind(key)
+    if (locale !== 'en' || !kind)
+      throw new Error(`Western zodiac file is not a known page: ${document._meta.path}`)
+    if ((kind === 'sign') !== Boolean(data.compat_note))
+      throw new Error(
+        `compat_note is only and always required on sign pages: ${document._meta.path}`,
+      )
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Western zodiac body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, kind, sections }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -759,5 +833,6 @@ export default defineConfig({
     tojeong,
     moon,
     moonData,
+    westernZodiac,
   ],
 })
