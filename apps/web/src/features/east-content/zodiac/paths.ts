@@ -71,6 +71,24 @@ export const ZODIAC_HUB_TITLES: Readonly<Record<ZodiacLocale, string>> = {
 export const isZodiacLocale = (locale: string): locale is ZodiacLocale =>
   Object.hasOwn(ZODIAC_HUB_PATHS, locale)
 
+/**
+ * 东方站根路径英文只有枢纽 `/chinese-zodiac`（content-growth-v2-tools 决策 6、13，第 11 组）：12 个 en 生肖基础页本期不做，
+ * 总表与查询结果改链 2027 年度页。地址交给 `features/east-en/paths.ts` 分发。
+ */
+export const ZODIAC_EN_HUB_PATH = '/chinese-zodiac'
+export const ZODIAC_EN_HUB_TITLE = 'Chinese Zodiac'
+export type ZodiacHubLocale = ZodiacLocale | 'en'
+export const isZodiacHubLocale = (locale: string): locale is ZodiacHubLocale =>
+  locale === 'en' || isZodiacLocale(locale)
+export const zodiacHubPath = (locale: ZodiacHubLocale) =>
+  locale === 'en' ? ZODIAC_EN_HUB_PATH : ZODIAC_HUB_PATHS[locale]
+export const zodiacHubTitle = (locale: ZodiacHubLocale) =>
+  locale === 'en' ? ZODIAC_EN_HUB_TITLE : ZODIAC_HUB_TITLES[locale]
+
+export const ZODIAC_EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] = [
+  { locale: 'en', path: ZODIAC_EN_HUB_PATH, collection: 'zodiac', id: 'index' },
+]
+
 const LOCALES = Object.keys(ZODIAC_HUB_PATHS) as ZodiacLocale[]
 
 export function zodiacPath(locale: ZodiacLocale, key: ZodiacKey | 'index'): string {
@@ -100,8 +118,8 @@ export const ZODIAC_TOOL_ROUTES: readonly ToolRoute[] = [
     id: 'zodiac',
     site: 'east',
     navGroup: 'calendar',
-    paths: pathsOf('index'),
-    titles: ZODIAC_HUB_TITLES,
+    paths: { ...pathsOf('index'), en: ZODIAC_EN_HUB_PATH },
+    titles: { ...ZODIAC_HUB_TITLES, en: ZODIAC_EN_HUB_TITLE },
   },
   ...ZODIAC_KEYS.map(
     (key): ToolRoute => ({

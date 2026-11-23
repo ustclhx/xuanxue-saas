@@ -74,8 +74,15 @@ function currentPages(): SeoPage[] {
 const ownerPages = () =>
   currentPages().filter((page) => pageSite(page) === siteOfLocale(page.locale, templateConfig))
 
-export function getPageLinks(path: string, locale: string, fallbackParent?: string): PageLinks {
-  return pageLinks(ownerPages(), path, locale, templateConfig.seo.linking, fallbackParent)
+export function getPageLinks(
+  path: string,
+  locale: string,
+  fallbackParent?: string,
+  /** 指定站点时取该站点的页面（东方站根路径英文的内容页，content-growth-v2-tools 第 11 组） */
+  site?: SiteId,
+): PageLinks {
+  const pages = site ? currentPages().filter((page) => pageSite(page) === site) : ownerPages()
+  return pageLinks(pages, path, locale, templateConfig.seo.linking, fallbackParent)
 }
 
 /** 公开页面清单中的一页（不带语言前缀的 path），用于由清单生成的页面（如 hub 分页）输出 head */

@@ -184,7 +184,15 @@ describe('地址与 hreflang', () => {
 
   it('hreflang 只含已发布的语言版本，canonical 指向自身', () => {
     const pages = zodiacSeoPages(generatedZodiacs())
-    expect(pages).toHaveLength(26)
+    // zh-Hans、ko 各 13 页，东方站英文只有枢纽 `/chinese-zodiac`（第 11 组）
+    expect(pages).toHaveLength(27)
+    const englishHub = pages.find((page) => page.path === '/chinese-zodiac')
+    expect(englishHub).toMatchObject({ locale: 'en', site: 'east', titleMain: 'Chinese Zodiac' })
+    expect(englishHub?.alternates).toEqual({
+      'zh-Hans': '/生肖',
+      ko: '/띠',
+      en: '/chinese-zodiac',
+    })
     const horse = pages.find((page) => page.path === '/生肖/属马')
     expect(horse).toMatchObject({ parent: '/生肖', group: '/生肖', titleMain: '属马' })
     // zh-Hans 与 ko 互为 hreflang（zodiac-pages 规格「简中子页与韩语子页互为 hreflang」）
@@ -213,7 +221,7 @@ describe('地址与 hreflang', () => {
       href: `https://ganjiday.com/ko/${encodeURI('띠/쥐띠')}`,
     })
     const koHub = pages.find((page) => page.locale === 'ko' && page.path === '/띠')
-    expect(koHub?.alternates).toEqual({ 'zh-Hans': '/生肖', ko: '/띠' })
+    expect(koHub?.alternates).toEqual({ 'zh-Hans': '/生肖', ko: '/띠', en: '/chinese-zodiac' })
   })
 
   it('zh-hans 与 ko 内容各有 12 个生肖与枢纽，每页都写了丙午、丁未两年', () => {

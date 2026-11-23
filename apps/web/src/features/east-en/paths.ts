@@ -1,6 +1,8 @@
 import { COMPAT_EAST_EN_CONTENT_ROUTES } from '../east-content/compat/paths.ts'
 import { type EastContentRoute, eastContentRouteOf } from '../east-content/routes.ts'
+import { YEARLY_EAST_EN_CONTENT_ROUTES } from '../east-content/yearly/paths.ts'
 import { YEARLY_TOOL_EN_ROUTES } from '../east-content/yearly-tool/paths.ts'
+import { ZODIAC_EAST_EN_CONTENT_ROUTES } from '../east-content/zodiac/paths.ts'
 import { TOOLS_HUB_EAST_EN_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { westContentRouteOf } from '../west-content/routes.ts'
@@ -41,6 +43,9 @@ export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en'
   ...COMPAT_EAST_EN_CONTENT_ROUTES,
   // content-growth-v2-tools 第 6 组：「All tools」枢纽页 `/tools`（西方站同路径另有自己的一页）
   ...TOOLS_HUB_EAST_EN_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 11 组：`/chinese-zodiac` 枢纽与 `/chinese-zodiac-2027` 年度枢纽及 12 页
+  ...ZODIAC_EAST_EN_CONTENT_ROUTES,
+  ...YEARLY_EAST_EN_CONTENT_ROUTES,
 ]
 
 export function eastEnContentRouteOf(path: string) {

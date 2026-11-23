@@ -1,3 +1,4 @@
+import { EAST_EN_CONTENT_ROUTES } from '../../east-en/paths.ts'
 import { EAST_CONTENT_ROUTES } from '../routes.ts'
 import type { YearlyLocale } from './paths.ts'
 
@@ -15,7 +16,7 @@ export const YEARLY_TOOL_PLANNED_PATHS: Readonly<Record<YearlyLocale, string>> =
 /** 已登记的个人年度工具地址（未登记时为 undefined） */
 export function yearlyToolPath(
   locale: YearlyLocale,
-  routes = EAST_CONTENT_ROUTES,
+  routes = [...EAST_CONTENT_ROUTES, ...EAST_EN_CONTENT_ROUTES],
 ): string | undefined {
   return routes.find((route) => route.collection === 'yearly-tool' && route.locale === locale)?.path
 }

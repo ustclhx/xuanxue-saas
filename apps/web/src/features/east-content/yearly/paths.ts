@@ -5,6 +5,7 @@ import type { EastContentRoute } from '../routes.ts'
  * 年度生肖集合的地址（openspec content-growth-v2-tools 决策 2、6）。只放字面量：路由映射、注册表、
  * 站点地图与预渲染都从这里读取，本文件随入口包加载，不得引用运行时模块。
  * zh-Hans 由第 8 组登记；zh-Hant、ko、en（第 9、10、11 组）各在下列表中补一行，组件与集合不必改。
+ * en 的地址不进 east-content 映射，由 `YEARLY_EAST_EN_CONTENT_ROUTES` 交给 east-en 分发。
  */
 export const YEARLY_KEYS = [
   'zi',
@@ -105,6 +106,39 @@ export const YEARLY_PATHS: Readonly<Partial<Record<YearlyLocale, YearlyLocalePat
       hai: '{year}屬豬',
     },
   },
+  // 第 11 组：东方站根路径英文（`features/east-en/paths.ts` 分发；决策 2、13）
+  en: {
+    hub: { 2027: '/chinese-zodiac-2027' },
+    hubTitle: { 2027: 'Chinese Zodiac 2027' },
+    slugs: {
+      zi: 'rat',
+      chou: 'ox',
+      yin: 'tiger',
+      mao: 'rabbit',
+      chen: 'dragon',
+      si: 'snake',
+      wu: 'horse',
+      wei: 'goat',
+      shen: 'monkey',
+      you: 'rooster',
+      xu: 'dog',
+      hai: 'pig',
+    },
+    childTitle: {
+      zi: 'Rat in {year}',
+      chou: 'Ox in {year}',
+      yin: 'Tiger in {year}',
+      mao: 'Rabbit in {year}',
+      chen: 'Dragon in {year}',
+      si: 'Snake in {year}',
+      wu: 'Horse in {year}',
+      wei: 'Goat in {year}',
+      shen: 'Monkey in {year}',
+      you: 'Rooster in {year}',
+      xu: 'Dog in {year}',
+      hai: 'Pig in {year}',
+    },
+  },
 }
 
 export const YEARLY_LOCALES = Object.keys(YEARLY_PATHS) as YearlyLocale[]
@@ -151,17 +185,26 @@ export function yearlyTitle(
     : paths.childTitle[key].replace('{year}', String(year))
 }
 
-export const YEARLY_EAST_CONTENT_ROUTES: readonly EastContentRoute[] = YEARLY_LOCALES.flatMap(
-  (locale) =>
-    YEARLY_YEARS.flatMap((year) =>
-      (['index', ...YEARLY_KEYS] as const).map((key) => ({
-        locale,
-        path: yearlyPath(locale, year, key) as `/${string}`,
-        collection: 'yearly' as const,
-        id: yearlyRouteId(year, key),
-      })),
-    ),
-)
+const routesOf = (locale: YearlyLocale) =>
+  YEARLY_YEARS.flatMap((year) =>
+    (['index', ...YEARLY_KEYS] as const).map((key) => ({
+      locale,
+      path: yearlyPath(locale, year, key) as `/${string}`,
+      collection: 'yearly' as const,
+      id: yearlyRouteId(year, key),
+    })),
+  )
+
+/** 中日韩：`features/east-content/routes.ts` 的内容映射 */
+export const YEARLY_EAST_CONTENT_ROUTES: readonly EastContentRoute[] = YEARLY_LOCALES.filter(
+  (locale) => locale !== 'en',
+).flatMap(routesOf)
+
+/** 东方站根路径英文：`features/east-en/paths.ts` 的内容映射（第 11 组） */
+export const YEARLY_EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] =
+  YEARLY_LOCALES.includes('en')
+    ? routesOf('en').map((route) => ({ ...route, locale: 'en' as const }))
+    : []
 
 const pathsOf = (year: YearlyYear, key: YearlyKey | 'index') =>
   Object.fromEntries(YEARLY_LOCALES.map((locale) => [locale, yearlyPath(locale, year, key)]))

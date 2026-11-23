@@ -1,6 +1,13 @@
 import type { Branch, Element, Stem } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
-import { BRANCH_HANGUL, BRANCH_HANZI, STEM_HANGUL, STEM_HANZI } from '../../tools/bazi/glyphs.ts'
+import {
+  BRANCH_HANGUL,
+  BRANCH_HANZI,
+  BRANCH_PINYIN,
+  STEM_HANGUL,
+  STEM_HANZI,
+  STEM_PINYIN,
+} from '../../tools/bazi/glyphs.ts'
 import { ELEMENT_LABEL } from '../../tools/bazi/labels.ts'
 import type {
   DateParts,
@@ -12,7 +19,7 @@ import type {
 
 /**
  * 年度生肖页的文案映射（messages/<locale>/yearly.json）：引擎只给稳定 key 与序号，这里换成当前语言的文字。
- * 组件不判断语言，各语言的差异都在文案里；只有干支的写法按语言选汉字或「韩文(汉字)」。
+ * 组件不判断语言，各语言的差异都在文案里；只有干支的写法按语言选汉字、「韩文(汉字)」或「拼音 (汉字)」。
  */
 type Message = () => string
 
@@ -99,20 +106,37 @@ export const ELEMENT_DOT: Record<Element, string> = {
 }
 
 const isKorean = (locale: string) => locale === 'ko'
+const isEnglish = (locale: string) => locale === 'en'
 
 /** 地支字形（速览大字与表格），各语言都用汉字 */
 export const glyph = (branch: Branch) => BRANCH_HANZI[branch]
 export const stemGlyph = (stem: Stem) => STEM_HANZI[stem]
-/** 地支名：ko 写「오(午)」，其他语言写汉字 */
+/** 地支名：ko 写「오(午)」，东方站英文写「Wu (午)」，中文写汉字 */
 export const branchLabel = (locale: string, branch: Branch) =>
-  isKorean(locale) ? `${BRANCH_HANGUL[branch]}(${BRANCH_HANZI[branch]})` : BRANCH_HANZI[branch]
+  isKorean(locale)
+    ? `${BRANCH_HANGUL[branch]}(${BRANCH_HANZI[branch]})`
+    : isEnglish(locale)
+      ? `${BRANCH_PINYIN[branch]} (${BRANCH_HANZI[branch]})`
+      : BRANCH_HANZI[branch]
 export const stemLabel = (locale: string, stem: Stem) =>
-  isKorean(locale) ? `${STEM_HANGUL[stem]}(${STEM_HANZI[stem]})` : STEM_HANZI[stem]
-/** 干支：ko 写「정미(丁未)」，其他语言写「丁未」 */
+  isKorean(locale)
+    ? `${STEM_HANGUL[stem]}(${STEM_HANZI[stem]})`
+    : isEnglish(locale)
+      ? `${STEM_PINYIN[stem]} (${STEM_HANZI[stem]})`
+      : STEM_HANZI[stem]
+/** 干支：ko 写「정미(丁未)」，东方站英文写「Ding Wei (丁未)」，中文写「丁未」 */
 export const ganzhiLabel = (locale: string, stem: Stem, branch: Branch) =>
   isKorean(locale)
     ? `${STEM_HANGUL[stem]}${BRANCH_HANGUL[branch]}(${STEM_HANZI[stem]}${BRANCH_HANZI[branch]})`
-    : `${STEM_HANZI[stem]}${BRANCH_HANZI[branch]}`
+    : isEnglish(locale)
+      ? `${STEM_PINYIN[stem]} ${BRANCH_PINYIN[branch]} (${STEM_HANZI[stem]}${BRANCH_HANZI[branch]})`
+      : `${STEM_HANZI[stem]}${BRANCH_HANZI[branch]}`
+
+/** 三合局的三支：东方站英文写「Hai–Mao–Wei (亥卯未)」，其他语言写汉字 */
+export const triadBranches = (locale: string, branches: readonly Branch[]) =>
+  isEnglish(locale)
+    ? `${branches.map((branch) => BRANCH_PINYIN[branch]).join('–')} (${branches.map(glyph).join('')})`
+    : branches.map(glyph).join('')
 
 export const animal = (branch: Branch) => ANIMAL[branch]()
 export const zodiacName = (branch: Branch) => m.yearly_name({ animal: ANIMAL[branch]() })

@@ -11,7 +11,7 @@ import {
 } from '@xuanxue/bazi'
 import { lunarNewYearAt, zodiacBoundaries, zodiacYears } from '@xuanxue/bazi/almanac'
 import { PUNISH_GROUPS, TRIADS } from './constants.ts'
-import type { ZodiacKey, ZodiacLocale } from './paths.ts'
+import type { ZodiacHubLocale, ZodiacKey } from './paths.ts'
 
 /**
  * 生肖页的引擎事实（design 决策 3、4）：只在服务端与构建期计算，结果随 loader 下发，客户端不加载 tyme4ts。
@@ -43,9 +43,11 @@ export const triadIndexOf = (branch: Branch) => triadOf(branchIndexOf(branch))
  * 各语言页显示立春时刻与春节日期所用的固定 UTC 偏移（分钟）：zh-hans 为北京时间；ko 为韩国标准时，
  * 설날也按 UTC+9 的合朔日（与中国春节偶有一天之差，如 1997、2027 年）。1954–1961 年等历史标准时差异不计（design Risks）。
  */
-export const ZODIAC_UTC_OFFSET: Readonly<Record<ZodiacLocale, number>> = {
+export const ZODIAC_UTC_OFFSET: Readonly<Record<ZodiacHubLocale, number>> = {
   'zh-Hans': 480,
   ko: 540,
+  // 东方站英文枢纽按北京时间（与 en 年度页、八字排盘的说明一致）
+  en: 480,
 }
 const CHINA_OFFSET = 480
 

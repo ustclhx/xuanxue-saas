@@ -690,6 +690,46 @@
       "id": "ziwei.major-period",
       "en": "Decade period",
       "preferred": "decade period"
+    },
+    {
+      "id": "shichu.zodiac",
+      "en": "Chinese zodiac (生肖)",
+      "preferred": "Chinese zodiac",
+      "variants": ["zodiac animal", "animal sign"],
+      "note": "东方站英文生肖枢纽与 2027 年度页（content-growth-v2-tools 第 11 组）"
+    },
+    {
+      "id": "shichu.zodiac.goat",
+      "en": "Goat (未)",
+      "preferred": "Goat",
+      "variants": ["Sheep", "Ram"],
+      "note": "未的生肖统一写 Goat；正文可说明亦译 Sheep、Ram（第 11 组）"
+    },
+    {
+      "id": "shichu.lichun",
+      "en": "Li Chun (立春)",
+      "preferred": "Li Chun",
+      "variants": ["Beginning of Spring"],
+      "note": "八字年柱的换年点（第 11 组）"
+    },
+    {
+      "id": "shichu.chinese-new-year",
+      "en": "Chinese New Year (春节)",
+      "preferred": "Chinese New Year",
+      "variants": ["Lunar New Year"],
+      "note": "农历正月初一（第 11 组）"
+    },
+    {
+      "id": "shichu.relation.harm",
+      "en": "Harm (害)",
+      "preferred": "harm",
+      "note": "六害（第 11 组）"
+    },
+    {
+      "id": "shichu.relation.break",
+      "en": "Break (破)",
+      "preferred": "break",
+      "note": "相破（第 11 组）"
     }
   ],
   "banned": [
@@ -800,7 +840,10 @@
     "/tarot-feelings/*": ["{card} as feelings", "{card}"],
     "/faq": ["FAQ", "Ganjiday FAQ"],
     "/pricing": ["pricing", "BaZi reading pricing"],
-    "/bazi-compatibility": ["BaZi compatibility", "BaZi chart compatibility"]
+    "/bazi-compatibility": ["BaZi compatibility", "BaZi chart compatibility"],
+    "/chinese-zodiac": ["Chinese zodiac", "Chinese zodiac years"],
+    "/chinese-zodiac-2027": ["Year of the Goat 2027", "Chinese zodiac 2027"],
+    "/chinese-zodiac-2027/*": ["{name} in 2027", "Year of the {name} 2027"]
   },
   "scanOnly": true,
   "scan": [
@@ -812,6 +855,10 @@
     "apps/web/src/features/east-en/copy/**/*.ts",
     "apps/web/src/features/east-content/yearly-tool/copy/en.ts",
     "apps/web/content/compat/en/**/*.mdx",
-    "apps/web/messages/en/compat.json"
+    "apps/web/messages/en/compat.json",
+    "apps/web/content/zodiac/en/**/*.mdx",
+    "apps/web/content/yearly/en/**/*.mdx",
+    "apps/web/messages/en/zodiac.json",
+    "apps/web/messages/en/yearly.json"
   ]
 }

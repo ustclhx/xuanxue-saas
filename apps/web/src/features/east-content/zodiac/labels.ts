@@ -1,6 +1,13 @@
 import type { Branch, BranchRelationType, Element, Stem } from '@xuanxue/bazi'
 import { m } from '../../../paraglide/messages.js'
-import { BRANCH_HANGUL, BRANCH_HANZI, STEM_HANGUL, STEM_HANZI } from '../../tools/bazi/glyphs.ts'
+import {
+  BRANCH_HANGUL,
+  BRANCH_HANZI,
+  BRANCH_PINYIN,
+  STEM_HANGUL,
+  STEM_HANZI,
+  STEM_PINYIN,
+} from '../../tools/bazi/glyphs.ts'
 import { ELEMENT_LABEL } from '../../tools/bazi/labels.ts'
 import type { MonthDay, MonthDayTime, ZodiacAnnual } from './data.ts'
 
@@ -97,17 +104,38 @@ export const glyph = (branch: Branch) => BRANCH_HANZI[branch]
 
 /**
  * ko 页的干支写法（设计稿 ZodiacPageKoMobile）：韩文读音在前、汉字在括号里，如「자(子)」「경자(庚子)」；
- * 中文页仍只写汉字。
+ * 东方站英文枢纽（第 11 组）写拼音加汉字，如「Zi (子)」「Geng Zi (庚子)」；中文页仍只写汉字。
  */
 const isKorean = (locale: string) => locale === 'ko'
+const isEnglish = (locale: string) => locale === 'en'
 export const branchName = (locale: string, branch: Branch) =>
-  isKorean(locale) ? BRANCH_HANGUL[branch] : BRANCH_HANZI[branch]
+  isKorean(locale)
+    ? BRANCH_HANGUL[branch]
+    : isEnglish(locale)
+      ? BRANCH_PINYIN[branch]
+      : BRANCH_HANZI[branch]
 export const branchLabel = (locale: string, branch: Branch) =>
-  isKorean(locale) ? `${BRANCH_HANGUL[branch]}(${BRANCH_HANZI[branch]})` : BRANCH_HANZI[branch]
+  isKorean(locale)
+    ? `${BRANCH_HANGUL[branch]}(${BRANCH_HANZI[branch]})`
+    : isEnglish(locale)
+      ? `${BRANCH_PINYIN[branch]} (${BRANCH_HANZI[branch]})`
+      : BRANCH_HANZI[branch]
 export const ganzhiHangul = (stem: Stem, branch: Branch) =>
   `${STEM_HANGUL[stem]}${BRANCH_HANGUL[branch]}`
 export const ganzhiLabel = (locale: string, stem: Stem, branch: Branch) =>
-  isKorean(locale) ? `${ganzhiHangul(stem, branch)}(${ganzhi(stem, branch)})` : ganzhi(stem, branch)
+  isKorean(locale)
+    ? `${ganzhiHangul(stem, branch)}(${ganzhi(stem, branch)})`
+    : isEnglish(locale)
+      ? `${STEM_PINYIN[stem]} ${BRANCH_PINYIN[branch]} (${ganzhi(stem, branch)})`
+      : ganzhi(stem, branch)
+
+/** 一组地支的写法（三合局、六合与六冲的组）：ko「자·축」，英文「Zi–Chou」，中文「子丑」或按 `hanziSeparator` 分隔 */
+export const branchList = (locale: string, branches: readonly Branch[], hanziSeparator = '') =>
+  isKorean(locale)
+    ? branches.map((branch) => BRANCH_HANGUL[branch]).join('·')
+    : isEnglish(locale)
+      ? branches.map((branch) => BRANCH_PINYIN[branch]).join('–')
+      : branches.map((branch) => BRANCH_HANZI[branch]).join(hanziSeparator)
 
 const ELEMENT_HANZI: Record<Element, string> = {
   wood: '木',
@@ -194,6 +222,24 @@ export function hourRange(index: number): string {
 
 const hhmm = (time: MonthDayTime) =>
   `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}`
+/** 东方站英文按月份名写日期（「February 4」），其他语言把月份数字交给文案 */
+const MONTH_NAMES_EN = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+export const monthValue = (locale: string, month: number): string | number =>
+  isEnglish(locale) ? (MONTH_NAMES_EN[month - 1] ?? month) : month
+
 export const monthDay = (date: MonthDay) => m.zodiac_month_day({ month: date.month, day: date.day })
 export const monthDayTime = (date: MonthDayTime) =>
   m.zodiac_month_day_time({ month: date.month, day: date.day, time: hhmm(date) })

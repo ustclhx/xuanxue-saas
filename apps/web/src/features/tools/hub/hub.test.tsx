@@ -143,12 +143,13 @@ describe('「全部工具」枢纽页', () => {
     expect(groupIds(html)).toEqual(['chart', 'relation', 'yearly', 'calendar', 'knowledge'])
     expect(html).not.toContain('#group-divination')
     expect(text(html)).not.toMatch(/在线占卜|即将/)
-    // 东方站英文没有历法页面：这一组本来就不出现
+    // 东方站英文：第 11 组的 `/chinese-zodiac` 归历法与生肖分组
     expect(groupIds(render('east', 'en'))).toEqual([
       'chart',
       'relation',
       'yearly',
       'divination',
+      'calendar',
       'knowledge',
     ])
   })

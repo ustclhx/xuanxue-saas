@@ -115,9 +115,9 @@
 
 ## 11. Chinese zodiac 与 2027（东方站 en）★
 
-- [ ] 11.1 新建 en 生肖枢纽 `/chinese-zodiac`：属相查询小工具复用 `zodiacBoundaries()`（客户端不加载 tyme4ts），12 生肖总表；登记 east-en 地址与注册表；Claude 子代理撰写正文（≥700 词）
-- [ ] 11.2 另一个 Claude 子代理撰写 `content/yearly/en/2027/` 枢纽与 12 篇（year of the fire goat 2027）；登记地址
-- [ ] 11.3 Codex 回译审阅；验收：en 组内相似度、长度与 TDK、术语表锚点（`i18n/glossary/en-east.json`）、四种语言 hreflang、内链、西方站无对应页（跨站归属审计）、关键词归属补登
+- [x] 11.1 新建 en 生肖枢纽 `/chinese-zodiac`：属相查询小工具复用 `zodiacBoundaries()`（客户端不加载 tyme4ts），12 生肖总表；登记 east-en 地址与注册表；Claude 子代理撰写正文（≥700 词）
+- [x] 11.2 另一个 Claude 子代理撰写 `content/yearly/en/2027/` 枢纽与 12 篇（year of the fire goat 2027）；登记地址
+- [x] 11.3 Codex 回译审阅；验收：en 组内相似度、长度与 TDK、术语表锚点（`i18n/glossary/en-east.json`）、四种语言 hreflang、内链、西方站无对应页（跨站归属审计）、关键词归属补登
 
 ## 12. 合盘工具多语言化与对方资料 ★
 

@@ -70,6 +70,8 @@ describe('东方站英文页面地址', () => {
       '/zi-wei-dou-shu',
       '/bazi-compatibility',
       '/tarot-spreads',
+      // content-growth-v2-tools 第 11 组：生肖枢纽进页头「历法与生肖」分组
+      '/chinese-zodiac',
     ])
   })
 })
