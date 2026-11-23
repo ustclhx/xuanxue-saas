@@ -9,6 +9,11 @@ import { cn } from '@xuanxue/ui'
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import { getLocale } from '../../../paraglide/runtime.js'
+import {
+  COMPAT_SCENARIO_KEYS,
+  COMPAT_SCENARIO_TITLES,
+  compatScenarioPath,
+} from '../../east-content/compat/paths.ts'
 import type { EastLocale } from '../../i18n/locales.ts'
 import { ProfileBar } from '../../profiles/profile-bar.tsx'
 import { COMPAT_READING_LOCALES } from '../../readings/release.ts'
@@ -18,7 +23,8 @@ import { useTool } from '../context.tsx'
 import type { FaqItem } from '../faq.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
-import type { ToolLink } from '../tool-links.tsx'
+import { toolHref } from '../tool-href.ts'
+import { type ToolLink, ToolLinks } from '../tool-links.tsx'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import {
@@ -285,7 +291,21 @@ export function GunghapPage({
         ) : null
       }
       breadcrumb={breadcrumb}
-      nav={nav}
+      nav={
+        nav ??
+        (locale === 'ko' && scenario === 'general' ? (
+          <div data-link-zone="siblings">
+            <ToolLinks
+              title={m.compat_scenarios_title()}
+              links={COMPAT_SCENARIO_KEYS.map((key) => ({
+                href: toolHref(compatScenarioPath('ko', key), 'ko'),
+                title: COMPAT_SCENARIO_TITLES.ko[key],
+                target: `saju-gunghap-${key}`,
+              }))}
+            />
+          </div>
+        ) : undefined)
+      }
       links={
         linksProp ?? [
           ...link(

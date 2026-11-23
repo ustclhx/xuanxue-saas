@@ -149,6 +149,13 @@ describe('场景页的逐项解释（13.1）', () => {
     expect(render(<GunghapPage />)).not.toContain('data-item-note')
   })
 
+  it('韩语工具页从同组导航链接到五个场景', () => {
+    runtime.locale = 'ko'
+    const html = render(<GunghapPage />)
+    for (const key of COMPAT_SCENARIO_KEYS)
+      expect(html).toContain(`href="/ko${encodeURI(compatScenarioPath('ko', key))}"`)
+  })
+
   it('结果只列出加减分不为 0 的项目及其场景解释', () => {
     runtime.locale = 'zh-Hans'
     // 1990-05-15 与 1991-11-11：日柱庚辰、乙酉（乙庚合、辰酉六合）

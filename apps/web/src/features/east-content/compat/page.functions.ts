@@ -32,6 +32,12 @@ const entryOf = (locale: string, page: string) =>
 const published = (locale: CompatPageLocale, path: string) =>
   TOOL_ROUTES.some((route) => route.site === 'east' && route.paths[locale] === path)
 
+const alternateZodiacPairTitle: Partial<Record<CompatPageLocale, string>> = {
+  'zh-Hans': '生肖配对表',
+  ko: '띠궁합 표',
+  en: 'Chinese zodiac pairings',
+}
+
 /** 同组卡片：本语言其他场景页（data-link-zone="siblings"，不计入正文内链） */
 function scenarioCards(locale: CompatPageLocale, except?: CompatScenarioKey) {
   return COMPAT_SCENARIO_KEYS.flatMap((key) => {
@@ -102,6 +108,15 @@ export const getCompatPage = createServerFn({ method: 'GET' })
     const nextKey = nextCompatScenario(key)
     const next = entryOf(locale, nextKey)
     const nextPath = compatScenarioPath(locale, nextKey)
+    const zodiacPair = TOOL_ROUTES.find(
+      (route) => route.site === 'east' && route.id === 'zodiac-pair',
+    )
+    const zodiacPairPath = zodiacPair?.paths[locale]
+    const zodiacPairTitle = zodiacPair?.titles[locale]
+    const zodiacPairAnchor =
+      key === 'couple' || key === 'business'
+        ? (alternateZodiacPairTitle[locale] ?? zodiacPairTitle)
+        : zodiacPairTitle
     return {
       head: pageHead(
         { path, locale, site, title: entry.title, description: entry.description },
@@ -118,11 +133,14 @@ export const getCompatPage = createServerFn({ method: 'GET' })
         items: entry.items,
         faq: entry.faq,
         crumbs,
-        // 正文内链（决策 15）：工具页（两种锚文本之一）与环形的下一个场景页
+        // 总表按语言分批上线，注册表有本语言的地址后才出链接。
         links: [
           { path: toolPath, title: entry.tool_anchor ?? toolTitle, target: 'saju-gunghap' },
           ...(next && published(locale, nextPath)
             ? [{ path: nextPath, title: next.short, target: `saju-gunghap-${nextKey}` }]
+            : []),
+          ...(zodiacPairPath && zodiacPairAnchor
+            ? [{ path: zodiacPairPath, title: zodiacPairAnchor, target: 'zodiac-pair' }]
             : []),
         ],
         scenarios: scenarioCards(locale, key),
