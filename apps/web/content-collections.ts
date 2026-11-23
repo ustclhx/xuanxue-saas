@@ -962,6 +962,108 @@ const yearly = defineCollection({
   },
 })
 
+/**
+ * 合盘工具正文与关系场景页（openspec content-growth-v2-tools 决策 2、7、14，第 13 组）：
+ * content/compat/<locale>/index.mdx 是工具页（zh-Hans、zh-Hant、ja、en；ko `/사주궁합` 正文不改，没有 index），
+ * <场景>.mdx 是 5 个场景页。`items` 是每个 CompatItemKey 在该场景下的一段解释，页面在结果与正文中渲染。
+ * 构建期拦下关系判定词（与 scripts/audit-verdict.mjs 同一词表口径）与合规禁用词，并按决策 16 检查渲染正文长度
+ * （导语与长文，不含 FAQ 与分项解释；中文按汉字，ko、ja 按不含空白的字符，en 按词）。
+ */
+const COMPAT_PAGES = ['index', 'marriage', 'couple', 'friends', 'business', 'parent-child'] as const
+const COMPAT_ITEM_KEYS = [
+  'stemCombine',
+  'branchSixCombine',
+  'branchTriad',
+  'branchClash',
+  'branchPunish',
+  'elementComplementAB',
+  'elementComplementBA',
+] as const
+const COMPAT_BANNED =
+  /宜结婚|宜結婚|不能结婚|不能結婚|会离婚|會離婚|必离|必離|克夫|剋夫|克妻|剋妻|注定分手|註定分手|必然分手|最佳婚配|不能在一起|不能嫁|自我探索|娱乐|娛樂|결혼하면 안|결혼해야|이혼수|이혼하게 됩|상극이라 헤어|헤어질 운명|최고의 혼인 상대|남편을 해치는|아내를 해치는|띠별\s*운세|신년\s*운세|오락|재미로|재미\s*삼아|잠재의식\s*탐색|結婚してはいけない|結婚すべき|離婚する|離婚します|必ず別れる|別れる運命|最良の結婚相手|夫を不幸にする|妻を不幸にする|娯楽|エンタメ|\bshould(?: not)? marry\b|\bmust not marry\b|\bcannot marry\b|\bwill (?:get )?divorced?\b|\bdoomed\b|\bdestined to break up\b|\bbest marriage match\b|\bentertainment\b|\bfor fun\b|人工智能|인공지능|\bAI\b/iu
+/** 渲染正文长度下限（决策 16）：[工具页, 场景页] */
+const COMPAT_MIN_LENGTH: Record<string, readonly [number, number]> = {
+  'zh-Hans': [1200, 800],
+  'zh-Hant': [1200, 800],
+  ko: [0, 1000],
+  ja: [1500, 1000],
+  en: [900, 600],
+}
+function compatLength(locale: string, text: string): number {
+  if (locale === 'zh-Hans' || locale === 'zh-Hant')
+    return text.match(/\p{Script=Han}/gu)?.length ?? 0
+  if (locale === 'en') return text.split(/\s+/).filter((word) => /[a-z0-9]/i.test(word)).length
+  return text.replace(/\s/g, '').length
+}
+const compat = defineCollection({
+  name: 'compat',
+  directory: 'content/compat',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    description: z.string().min(1).max(170),
+    /** 场景页的 H1 与导语；工具页沿用 messages/<locale>/compat.json 的 H1 与简介 */
+    heading: z.string().min(1).optional(),
+    lede: z.string().min(1).optional(),
+    /** 面包屑末项、同组卡片标题、其他页指向本页的锚文本（场景页与 compat/paths.ts 的导航名一致） */
+    short: z.string().min(1),
+    /** 同组卡片的一行说明（场景页） */
+    note: z.string().min(1).optional(),
+    /** 本页正文链向工具页的锚文本（场景页；每种语言两种表述之一） */
+    tool_anchor: z.string().min(1).optional(),
+    items: z
+      .object(Object.fromEntries(COMPAT_ITEM_KEYS.map((key) => [key, z.string().min(1)])))
+      .strict(),
+    /** origin：本语言原写（local）或改写自其他语言（adapted），多语言相似度的 FAQ 来源统计用 */
+    faq: z
+      .array(
+        z.object({
+          q: z.string().min(1),
+          a: z.string().min(1),
+          origin: z.enum(['local', 'adapted']),
+        }),
+      )
+      .min(2)
+      .max(5),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    const path = document._meta.path
+    const page = (slug || 'index') as (typeof COMPAT_PAGES)[number]
+    if (!(locale in COMPAT_MIN_LENGTH)) throw new Error(`Compat locale not supported: ${path}`)
+    if (!COMPAT_PAGES.includes(page)) throw new Error(`Unknown compat page: ${path}`)
+    if (page === 'index' && locale === 'ko')
+      throw new Error(`ko tool page body must not change (no index): ${path}`)
+    if (page !== 'index' && !(data.heading && data.lede && data.note && data.tool_anchor))
+      throw new Error(`Compat scenario page needs heading, lede, note and tool_anchor: ${path}`)
+    const items = data.items as Record<(typeof COMPAT_ITEM_KEYS)[number], string>
+    const html = await renderMdx(context, document)
+    if (/<a\s/i.test(html)) throw new Error(`Compat body links are generated, not written: ${path}`)
+    const text = [
+      data.title,
+      data.description,
+      data.heading,
+      data.lede,
+      data.short,
+      data.note,
+      content,
+      ...Object.values(items),
+      ...data.faq.flatMap(({ q, a }) => [q, a]),
+    ].join('\n')
+    const banned = COMPAT_BANNED.exec(text)
+    if (banned) throw new Error(`Compat copy contains「${banned[0]}」: ${path}`)
+    // 场景页的分项解释只在结果中出现（不在预渲染正文里），长度按导语与长文计
+    const body = [data.lede ?? '', plainText(html)].join('\n')
+    const min = COMPAT_MIN_LENGTH[locale]?.[page === 'index' ? 0 : 1] ?? 0
+    const length = compatLength(locale, body)
+    if (length < min) throw new Error(`Compat body is ${length}, below the minimum ${min}: ${path}`)
+    return { ...data, items, locale, page, html }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -981,5 +1083,6 @@ export default defineConfig({
     moonData,
     westernZodiac,
     yearly,
+    compat,
   ],
 })

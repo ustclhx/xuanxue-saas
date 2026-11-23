@@ -35,5 +35,11 @@
   "compat_faq_q2": "合盘参考分能说明什么？",
   "compat_faq_a2": "分数把几条传统命理规则换算成数字，方便对照日柱和五行。分数高低与现实中的相处好坏无关，仅供参考与潜意识探索，不预测未来。两人怎样相处，取决于彼此的沟通与选择。",
   "compat_coming_soon": "即将开放。",
-  "compat_ask": "就这份结果提问"
+  "compat_ask": "就这份结果提问",
+  "compat_items_title": "七项规则逐项读",
+  "compat_items_desc": "参考分只来自下面七项。得出结果后，可以对照命中的项目阅读这里的说明。",
+  "compat_block_reading": "命中项目的说明",
+  "compat_desc_reading": "只列出本次加分或扣分的项目，说明按当前的关系类型撰写。",
+  "compat_scenarios_title": "按关系类型合盘",
+  "compat_scenarios_other": "其他关系类型"
 }

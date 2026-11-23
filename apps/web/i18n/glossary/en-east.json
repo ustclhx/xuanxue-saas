@@ -810,6 +810,8 @@
     "apps/web/messages/en/chart-bazi.json",
     "apps/web/messages/en/chart-ziwei.json",
     "apps/web/src/features/east-en/copy/**/*.ts",
-    "apps/web/src/features/east-content/yearly-tool/copy/en.ts"
+    "apps/web/src/features/east-content/yearly-tool/copy/en.ts",
+    "apps/web/content/compat/en/**/*.mdx",
+    "apps/web/messages/en/compat.json"
   ]
 }

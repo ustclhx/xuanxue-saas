@@ -35,5 +35,11 @@
   "compat_faq_q2": "What can I take away from the score?",
   "compat_faq_a2": "Use the breakdown to see which chart relationships contributed to the score. A low number tells you nothing about how you get along. Use the result for reference and self-reflection only. It does not predict the future.",
   "compat_coming_soon": "Coming soon.",
-  "compat_ask": "Ask about this result"
+  "compat_ask": "Ask about this result",
+  "compat_items_title": "How to read the seven items",
+  "compat_items_desc": "The reference score comes only from these seven items. Once you have a result, read the notes for the items that added or subtracted points.",
+  "compat_block_reading": "Items in your result",
+  "compat_desc_reading": "Only the items that changed the score are listed, with notes written for the relationship you chose.",
+  "compat_scenarios_title": "Compatibility by relationship",
+  "compat_scenarios_other": "Other relationships"
 }

@@ -15,8 +15,10 @@ import { COMPAT_READING_LOCALES } from '../../readings/release.ts'
 import { ReadingComingSoon, ReadingUnlock } from '../../readings/unlock-card.tsx'
 import { compatUnlock } from '../../readings/unlock-requests.ts'
 import { useTool } from '../context.tsx'
+import type { FaqItem } from '../faq.tsx'
 import { SubmitButton, ToolForm } from '../form.tsx'
 import { ResultBlock } from '../result-block.tsx'
+import type { ToolLink } from '../tool-links.tsx'
 import { ToolPage } from '../tool-page.tsx'
 import { BirthFields } from './birth-fields.tsx'
 import {
@@ -41,6 +43,7 @@ import {
   usePrefetch,
 } from './common.tsx'
 import {
+  COMPAT_ITEM_KEYS,
   type CompatScenario,
   type CompatSummary,
   fromCompatShare,
@@ -59,6 +62,9 @@ import {
 
 /** 合盘工具的语言：东方站各语言与东方站根路径英文（content-growth-v2-tools 决策 2） */
 export type CompatLocale = EastLocale | 'en'
+
+/** 每个分项在当前场景下的一段解释（第 13 组 compat 集合的 `items`） */
+export type CompatItemNotes = Readonly<Record<CompatItemKey, string>>
 
 const A = 'a_'
 const B = 'b_'
@@ -92,6 +98,12 @@ export function GunghapPage({
   title,
   intro,
   article,
+  items: notes,
+  itemsInBody = false,
+  faq,
+  links: linksProp,
+  breadcrumb,
+  nav,
 }: {
   locale?: CompatLocale
   scenario?: CompatScenario
@@ -100,6 +112,20 @@ export function GunghapPage({
   intro?: ReactNode
   /** 长文（第 13 组 compat 集合） */
   article?: ReactNode
+  /** 各分项在当前场景下的解释：结果中列出命中的项目（ko 工具页不传，页面不变） */
+  items?: CompatItemNotes
+  /**
+   * 是否在长文前列出全部七项解释（工具页）。场景页不列：七项名称与说明句各页相同，
+   * 会使同名段的组内相似度超过 0.30（决策 16），场景解释只在结果中出现
+   */
+  itemsInBody?: boolean
+  /** 省略时为工具页的两条 FAQ */
+  faq?: readonly FaqItem[]
+  /** 延伸阅读（正文内链）；省略时为工具页的排盘与概念页链接 */
+  links?: readonly ToolLink[]
+  breadcrumb?: ReactNode
+  /** FAQ 与延伸阅读之间的场景卡片（同组区块） */
+  nav?: ReactNode
 } = {}) {
   const locale = localeProp ?? (getLocale() as CompatLocale)
   // 默认值只在挂载时读取：韩语页진태양시默认开启（决策 D5），其他语言与排盘页相同
@@ -250,31 +276,49 @@ export function GunghapPage({
                 result={result}
                 locale={locale}
                 share={toCompatShare(result, scenario)}
+                notes={notes}
               />
             )}
           </ResultStatus>
         ) : shared ? (
-          <SharedGunghapResult summary={shared} />
+          <SharedGunghapResult summary={shared} notes={notes} />
         ) : null
       }
-      links={[
-        ...link(
-          pageHref('bazi', locale),
-          m.bazi_link_home(),
-          locale === 'ko' ? 'manseryeok' : 'bazi',
-        ),
-        ...(ziwei ? link(ziwei, m.bazi_link_ziwei(), 'ziwei') : []),
-        ...link(conceptHref(locale, 'day-pillar'), m.compat_block_pillars(), 'concept-day-pillar'),
-        ...(chinese
-          ? []
-          : link(conceptHref(locale, 'elements'), m.bazi_block_elements(), 'concept-elements')),
-        ...link(conceptHref(locale, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
-      ]}
-      article={article}
-      faq={[
-        { question: m.compat_faq_q1(), answer: m.compat_faq_a1() },
-        { question: m.compat_faq_q2(), answer: m.compat_faq_a2() },
-      ]}
+      breadcrumb={breadcrumb}
+      nav={nav}
+      links={
+        linksProp ?? [
+          ...link(
+            pageHref('bazi', locale),
+            m.bazi_link_home(),
+            locale === 'ko' ? 'manseryeok' : 'bazi',
+          ),
+          ...(ziwei ? link(ziwei, m.bazi_link_ziwei(), 'ziwei') : []),
+          ...link(
+            conceptHref(locale, 'day-pillar'),
+            m.compat_block_pillars(),
+            'concept-day-pillar',
+          ),
+          ...(chinese
+            ? []
+            : link(conceptHref(locale, 'elements'), m.bazi_block_elements(), 'concept-elements')),
+          ...link(conceptHref(locale, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
+        ]
+      }
+      article={
+        (notes && itemsInBody) || article ? (
+          <>
+            {notes && itemsInBody && <ItemNotes notes={notes} />}
+            {article}
+          </>
+        ) : undefined
+      }
+      faq={
+        faq ?? [
+          { question: m.compat_faq_q1(), answer: m.compat_faq_a1() },
+          { question: m.compat_faq_q2(), answer: m.compat_faq_a2() },
+        ]
+      }
     >
       <ReadingSlots tool="saju-gunghap">
         {offered ? (
@@ -319,6 +363,59 @@ function PartnerNote() {
       </svg>
       <span>{m.compat_partner_note()}</span>
     </p>
+  )
+}
+
+/**
+ * 七项规则的通用读法（第 13 组，工具页）：服务端输出，位于长文之前。
+ */
+function ItemNotes({ notes }: { notes: CompatItemNotes }) {
+  return (
+    <section aria-labelledby="compat-items" className="flex max-w-180 flex-col gap-4">
+      <h2 id="compat-items" className="m-0 text-balance font-heading text-ink text-title">
+        {m.compat_items_title()}
+      </h2>
+      <p className="m-0 text-body text-ink-muted">{m.compat_items_desc()}</p>
+      <dl className="m-0 flex flex-col gap-4">
+        {COMPAT_ITEM_KEYS.map((key) => (
+          <div key={key} data-item-note={key} className="flex flex-col gap-1">
+            <dt className="font-medium text-body text-ink">{ITEM_LABEL[key]()}</dt>
+            <dd className="m-0 text-body text-ink-muted">{notes[key]}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  )
+}
+
+/** 结果中命中项目（加减分不为 0）的场景解释；没有命中的项目时不显示 */
+function ReadingBlock({
+  items,
+  notes,
+}: {
+  items: readonly { key: CompatItemKey; delta: number }[]
+  notes: CompatItemNotes | undefined
+}) {
+  const hits = notes ? items.filter((item) => item.delta !== 0) : []
+  if (!notes || hits.length === 0) return null
+  return (
+    <ResultBlock
+      id="reading"
+      title={m.compat_block_reading()}
+      description={m.compat_desc_reading()}
+    >
+      <dl className="m-0 flex flex-col gap-4">
+        {hits.map((item) => (
+          <div key={item.key} data-reading={item.key} className="flex flex-col gap-1">
+            <dt className="flex items-baseline justify-between gap-3 font-medium text-body text-ink">
+              <span>{ITEM_LABEL[item.key]()}</span>
+              <span className="tabular-nums">{signed(item.delta)}</span>
+            </dt>
+            <dd className="m-0 text-body text-ink-muted">{notes[item.key]}</dd>
+          </div>
+        ))}
+      </dl>
+    </ResultBlock>
   )
 }
 
@@ -452,10 +549,12 @@ export function GunghapResult({
   result,
   share,
   locale = 'ko',
+  notes,
 }: {
   result: Compatibility
   share: Readonly<Record<string, unknown>>
   locale?: CompatLocale
+  notes?: CompatItemNotes | undefined
 }) {
   const label = (i: number): string => (i === 0 ? m.compat_person_a() : m.compat_person_b())
   // 时辰未知时按三柱排盘，五行互补使用这三柱的加权五行比例
@@ -470,6 +569,7 @@ export function GunghapResult({
           <ResultNote key={person}>{m.compat_unknown_time({ person })}</ResultNote>
         ))}
       />
+      <ReadingBlock items={result.items} notes={notes} />
       <ResultBlock
         id="pillars"
         title={m.compat_block_pillars()}
@@ -493,13 +593,22 @@ export function GunghapResult({
 }
 
 /** 新版分享链接打开时：只有分数与各项关系，不含出生资料，不显示四柱 */
-export function SharedGunghapResult({ summary }: { summary: CompatSummary }) {
+export function SharedGunghapResult({
+  summary,
+  notes,
+}: {
+  summary: CompatSummary
+  notes?: CompatItemNotes | undefined
+}) {
   return (
-    <ScoreBlock
-      score={summary.score}
-      base={summary.base}
-      items={summary.items}
-      notes={<ResultNote>{m.compat_shared_note()}</ResultNote>}
-    />
+    <>
+      <ScoreBlock
+        score={summary.score}
+        base={summary.base}
+        items={summary.items}
+        notes={<ResultNote>{m.compat_shared_note()}</ResultNote>}
+      />
+      <ReadingBlock items={summary.items} notes={notes} />
+    </>
   )
 }
