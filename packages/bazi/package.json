@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./ziwei": "./src/ziwei.ts",
     "./daily": "./src/daily.ts",
-    "./almanac": "./src/almanac.ts"
+    "./almanac": "./src/almanac.ts",
+    "./tojeong": "./src/tojeong.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",

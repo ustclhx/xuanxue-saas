@@ -1,0 +1,105 @@
+{
+  "lunarYear": 2027,
+  "months": [
+    {
+      "lunarMonth": 1,
+      "solar": "2027-02-07",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 2,
+      "solar": "2027-03-08",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 3,
+      "solar": "2027-04-07",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 4,
+      "solar": "2027-05-06",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 5,
+      "solar": "2027-06-05",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 6,
+      "solar": "2027-07-04",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 7,
+      "solar": "2027-08-02",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 8,
+      "solar": "2027-09-01",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 9,
+      "solar": "2027-09-30",
+      "days": 29,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 10,
+      "solar": "2027-10-29",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 11,
+      "solar": "2027-11-28",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    },
+    {
+      "lunarMonth": 12,
+      "solar": "2027-12-28",
+      "days": 30,
+      "isLeapMonth": false,
+      "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2027"
+    }
+  ],
+  "previousYearLastMonth": {
+    "lunarYear": 2026,
+    "lunarMonth": 12,
+    "solar": "2027-01-08",
+    "days": 30,
+    "isLeapMonth": false,
+    "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2026"
+  },
+  "nextYearFirstMonth": {
+    "lunarYear": 2028,
+    "lunarMonth": 1,
+    "solar": "2028-01-27",
+    "days": 29,
+    "isLeapMonth": false,
+    "source": "https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2028"
+  }
+}

@@ -3,6 +3,7 @@ import {
   HeavenStem,
   LunarDay,
   ShouXingUtil,
+  Side,
   SixtyCycle,
   SolarDay,
   SolarTerm,
@@ -11,8 +12,16 @@ import {
 import { BRANCHES, type Branch, branchIndex, STEMS, type Stem } from './constants.ts'
 import { type DailyDate, type DayPillar, dayPillarOf } from './daily.ts'
 
+export {
+  type ZodiacPairFacts,
+  type ZodiacYearFacts,
+  zodiacPairFacts,
+  zodiacPairTable,
+  zodiacYearFacts,
+} from './zodiac-facts.ts'
+
 /** 黄历规则或输出结构变化时递增，独立于排盘与每日运势版本。 */
-export const ALMANAC_RULES_VERSION = '1.1.0'
+export const ALMANAC_RULES_VERSION = '1.2.0'
 
 const CHINA_OFFSET_MINUTES = 480
 const LICHUN_INDEX = 3
@@ -33,6 +42,14 @@ export type AlmanacDay = DayPillar & {
   eclipticIndex: number
   clashZodiacIndex: number
   ominousDirectionIndex: number
+  /** 胎神占位由 tyme4ts FetusHeavenStem 与 FetusEarthBranch 的序号共同确定。 */
+  fetus: {
+    heavenStemIndex: number
+    earthBranchIndex: number
+    side: 'inside' | 'outside'
+    /** tyme4ts Direction 的序号。 */
+    directionIndex: number
+  }
   /** 按 UTC+8 的民用日标记交节日。 */
   solarTerm: { index: number; beginsToday: boolean }
   festivals: Festival[]
@@ -91,6 +108,7 @@ export function almanacDay(date: DailyDate): AlmanacDay {
   const cycleDay = solar.getSixtyCycleDay()
   const branch = cycleDay.getSixtyCycle().getEarthBranch()
   const twelveStar = cycleDay.getTwelveStar()
+  const fetus = cycleDay.getFetusDay()
   const solarFestival = solar.getFestival()
   const lunarFestival = solar.getLunarDay().getFestival()
   const festivals: Festival[] = []
@@ -109,6 +127,13 @@ export function almanacDay(date: DailyDate): AlmanacDay {
     eclipticIndex: twelveStar.getEcliptic().getIndex(),
     clashZodiacIndex: branch.getOpposite().getZodiac().getIndex(),
     ominousDirectionIndex: branch.getOminous().getIndex(),
+    fetus: {
+      heavenStemIndex: fetus.getFetusHeavenStem().getIndex(),
+      earthBranchIndex: fetus.getFetusEarthBranch().getIndex(),
+      side: fetus.getSide() === Side.IN ? 'inside' : 'outside',
+      // tyme4ts 的房内北返回 -0，对外统一为北方序号 0。
+      directionIndex: Math.abs(fetus.getDirection().getIndex()),
+    },
     solarTerm: solarTermOf(solar),
     festivals,
     dogDays: dog && { phaseIndex: dog.getDog().getIndex(), dayIndex: dog.getDayIndex() },

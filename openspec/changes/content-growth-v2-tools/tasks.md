@@ -67,10 +67,10 @@
 
 ## 3. 东方引擎补充（packages/bazi）★
 
-- [ ] 3.1 在 `@xuanxue/bazi/almanac` 增加 `zodiacYearFacts(year)`、`zodiacPairFacts(a, b)` 与 `zodiacPairTable()`（design 决策 4），输出只含稳定 key；单测用 `lunar-javascript` 交叉核对 2027 丁未的 12 支关系（值太岁未、冲太岁丑等）与 78 组配对的关系类型
-- [ ] 3.2 `almanacDay` 增加胎神占方（tyme4ts `FetusDay`），升 `ALMANAC_RULES_VERSION`；单测固定 2027 年 1 月若干日的胎神并与 `lunar-javascript` 核对；zh-Hans 黄历现有单测保持通过
-- [ ] 3.3 新增子入口 `@xuanxue/bazi/tojeong`：`tojeongGwae()` 按 design 决策 8 的公式实现，导出 `TOJEONG_RULES_VERSION`。单测：测试内用 `lunar-javascript` 独立重写一遍，复算 1940–2010 每年 1、15、29 日出生对 2027 的结果；固定 5 个公开示例（来源记入证据目录）；覆盖闰月、小月 30 日与阴历输入
-- [ ] 3.4 确认 `@xuanxue/bazi` 主入口不引入新模块（`check-bazi-build` 通过），不改 `pnpm-lock.yaml`
+- [x] 3.1 在 `@xuanxue/bazi/almanac` 增加 `zodiacYearFacts(year)`、`zodiacPairFacts(a, b)` 与 `zodiacPairTable()`（design 决策 4），输出只含稳定 key；单测用 `lunar-javascript` 交叉核对 2027 丁未的 12 支关系（值太岁未、冲太岁丑等）与 78 组配对的关系类型
+- [x] 3.2 `almanacDay` 增加胎神占方（tyme4ts `FetusDay`），升 `ALMANAC_RULES_VERSION`；单测固定 2027 年 1 月若干日的胎神并与 `lunar-javascript` 核对；zh-Hans 黄历现有单测保持通过
+- [x] 3.3 新增子入口 `@xuanxue/bazi/tojeong`：`tojeongGwae()` 按 design 决策 8 的公式实现，导出 `TOJEONG_RULES_VERSION`。单测：测试内用 `lunar-javascript` 独立重写一遍，复算 1940–2010 每年 1、15、29 日出生对 2027 的结果；固定 5 个公开示例（来源记入证据目录）；覆盖闰月、小月 30 日与阴历输入
+- [x] 3.4 确认 `@xuanxue/bazi` 主入口不引入新模块（`check-bazi-build` 通过），不改 `pnpm-lock.yaml`
 
 ## 4. 西方引擎：@xuanxue/astro 与月相 ★
 
