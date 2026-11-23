@@ -212,7 +212,10 @@ export function GunghapPage({
   )
 
   const offered = COMPAT_READING_LOCALES.includes(locale)
-  const ziwei = locale === 'ko' ? undefined : localPageHref('ziwei', locale)
+  // 延伸阅读（正文内链 2–5 条）：ko 沿用原有 4 条；中文为八字排盘与喜用神，ja / en 为排盘与紫微。
+  // 中文不再链紫微与五行：这两页的正文入链已多、锚文本以一种为主，再加一条会使 top1 占比超过 70%（audit:seo）
+  const chinese = locale === 'zh-Hant' || locale === 'zh-Hans'
+  const ziwei = locale === 'ko' || chinese ? undefined : localPageHref('ziwei', locale)
   return (
     <ToolPage
       tool="saju-gunghap"
@@ -262,7 +265,9 @@ export function GunghapPage({
         ),
         ...(ziwei ? link(ziwei, m.bazi_link_ziwei(), 'ziwei') : []),
         ...link(conceptHref(locale, 'day-pillar'), m.compat_block_pillars(), 'concept-day-pillar'),
-        ...link(conceptHref(locale, 'elements'), m.bazi_block_elements(), 'concept-elements'),
+        ...(chinese
+          ? []
+          : link(conceptHref(locale, 'elements'), m.bazi_block_elements(), 'concept-elements')),
         ...link(conceptHref(locale, 'useful-god'), m.bazi_link_useful(), 'concept-useful-god'),
       ]}
       article={article}
