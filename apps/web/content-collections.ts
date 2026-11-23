@@ -426,9 +426,11 @@ const concepts = defineCollection({
  * `index.mdx` 是工具页的说明长文，`<m>.mdx` 是 m 月的导语、节气说明、宜忌读法（正文）与 FAQ。
  * 月份页网址不带年份，年份、节气时刻与逐日数据由页面按参考日期计算，文案不写具体年份与日期。
  * 构建期拦下婚嫁类与吉凶断语类措辞（design「约束」）：嫁娶只作为逐日表里的普通词条出现，不进入撰写文案。
+ * zh-Hant 農民曆（content-growth-v2-tools 第 18 组）用同一集合，`content/almanac/zh-Hant`；繁体写法一并拦下，
+ * 也不写「擇日」「自我探索」。月份页的撰写正文（导语、节气说明、读法）合计至少 600 字（决策 16）。
  */
 const ALMANAC_BANNED =
-  /嫁娶|结婚|婚嫁|婚配|合婚|配对|纳采|订婚|订盟|吉日|娱乐|运势|大吉|大凶|\bAI\b/
+  /嫁娶|结婚|結婚|婚嫁|婚配|合婚|配对|配對|纳采|納采|订婚|訂婚|订盟|訂盟|吉日|娱乐|娛樂|运势|運勢|大吉|大凶|擇日|自我探索|\bAI\b/
 const almanacFaq = z.array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
 const almanac = defineCollection({
   name: 'almanac',
@@ -470,9 +472,18 @@ const almanac = defineCollection({
     if (banned) throw new Error(`Almanac copy contains「${banned[0]}」: ${document._meta.path}`)
     const html = await renderMdx(context, document)
     const minimum = isTool ? 1200 : 150
-    if (plainText(html).replace(/[^\p{Script=Han}]/gu, '').length < minimum)
+    const han = (value: string) => value.replace(/[^\p{Script=Han}]/gu, '').length
+    if (han(plainText(html)) < minimum)
       throw new Error(
         `Almanac body must contain at least ${minimum} characters: ${document._meta.path}`,
+      )
+    if (
+      locale === 'zh-Hant' &&
+      !isTool &&
+      han(plainText(html)) + han(data.lede ?? '') + han(data.terms_note ?? '') < 600
+    )
+      throw new Error(
+        `農民曆 month copy must contain at least 600 characters: ${document._meta.path}`,
       )
     // terms_note 允许用空行分段
     const termsNote = (data.terms_note ?? '')
@@ -480,6 +491,55 @@ const almanac = defineCollection({
       .map((paragraph) => paragraph.replace(/\s+/g, ''))
       .filter(Boolean)
     return { ...data, locale, key: isTool ? 'tool' : String(data.month), termsNote, html }
+  },
+})
+
+/**
+ * 年度太歲页（openspec content-growth-v2-tools 决策 10，第 18 组）：content/tai-sui-year/<locale>/<年份>.mdx。
+ * 值、沖、刑、害、破的生肖与出生年份表由页面按 `zodiacYearFacts` 计算，这里只放逐页撰写的文字：
+ * `table_note`（表格导语）与正文（`## ` 小节）。安太歲只作民俗说明：不写化解方法、法會或點燈報名、商品，
+ * 也不给吉凶断语（构建期拦下）。正文、导语与表格导语合计至少 1,200 字（决策 16）。
+ */
+const TAI_SUI_YEAR_BANNED =
+  /化解|法會|法会|點燈|点灯|報名|报名|購買|购买|商品|開運|开运|吉日|運勢|运势|娛樂|娱乐|大吉|大凶|自我探索|嫁娶|結婚|\bAI\b/
+const taiSuiYear = defineCollection({
+  name: 'taiSuiYear',
+  directory: 'content/tai-sui-year',
+  include: '*/*.mdx',
+  schema: z.object({
+    year: z.number().int().min(2000).max(2100),
+    title: z.string().min(1),
+    description: z.string().min(1),
+    heading: z.string().min(1),
+    lede: z.string().min(1),
+    table_note: z.string().min(1),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(5),
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    if (String(data.year) !== slug)
+      throw new Error(`Tai Sui year does not match file name: ${document._meta.path}`)
+    const text = [
+      data.title,
+      data.description,
+      data.heading,
+      data.lede,
+      data.table_note,
+      content,
+      ...data.faq.flatMap(({ q, a }) => [q, a]),
+    ].join('\n')
+    const banned = TAI_SUI_YEAR_BANNED.exec(text)
+    if (banned) throw new Error(`Tai Sui copy contains「${banned[0]}」: ${document._meta.path}`)
+    const html = await renderMdx(context, document)
+    const han = (value: string) => value.replace(/[^\p{Script=Han}]/gu, '').length
+    if (han(plainText(html)) + han(data.lede) + han(data.table_note) < 1200)
+      throw new Error(`Tai Sui copy must contain at least 1200 characters: ${document._meta.path}`)
+    return { ...data, locale, key: slug, html }
   },
 })
 
@@ -828,6 +888,7 @@ export default defineConfig({
     tarotFeelings,
     concepts,
     almanac,
+    taiSuiYear,
     guides,
     zodiac,
     tojeong,

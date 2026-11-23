@@ -13,8 +13,8 @@ import {
   parseAlmanacDate,
   toolDay,
 } from './model.ts'
-import { ALMANAC_LOCALE, ALMANAC_MONTHS } from './paths.ts'
-import { MONTH_TERM_NAMES } from './routes.ts'
+import { ALMANAC_LOCALE, ALMANAC_LOCALES, ALMANAC_MONTHS, type AlmanacLocale } from './paths.ts'
+import { monthTermNames } from './routes.ts'
 
 const ENGINE = () => import('@xuanxue/bazi/almanac') as Promise<AlmanacEngine>
 
@@ -22,12 +22,13 @@ type Faq = { q: string; a: string }
 
 export type AlmanacToolPayload = {
   kind: 'tool'
+  locale: AlmanacLocale
   title: string
   description: string
   intro: string
   html: string
   faq: Faq[]
-  /** 参考日期（北京时间的今天） */
+  /** 参考日期（UTC+8 的今天） */
   today: string
   /** 带合法或非法 `?date=` 时为 true：head 输出 noindex, follow */
   query: boolean
@@ -41,6 +42,7 @@ export type AlmanacToolPayload = {
 
 export type AlmanacMonthPayload = {
   kind: 'month'
+  locale: AlmanacLocale
   month: number
   lede: string
   termsNote: string[]
@@ -62,9 +64,11 @@ export async function almanacPayload(
   rawDate: string | undefined,
   now: Date,
   engine: AlmanacEngine,
+  locale: AlmanacLocale = ALMANAC_LOCALE,
 ): Promise<AlmanacPayload | null> {
-  const today: CivilDate = referenceDate(ALMANAC_LOCALE, now)
-  const entry = allAlmanacs.find((page) => page.locale === ALMANAC_LOCALE && page.key === id)
+  // 简中与繁中的参考时区都是 UTC+8（daily/date.ts：Asia/Taipei，与北京时间相同）
+  const today: CivilDate = referenceDate(locale, now)
+  const entry = allAlmanacs.find((page) => page.locale === locale && page.key === id)
   if (!entry) return null
   const faq = entry.faq
   if (id === 'tool') {
@@ -73,6 +77,7 @@ export async function almanacPayload(
     const next = (today.month % 12) + 1
     return {
       kind: 'tool',
+      locale,
       title: entry.title ?? '',
       description: entry.description ?? '',
       intro: entry.intro ?? '',
@@ -81,7 +86,7 @@ export async function almanacPayload(
       today: dateKey(today),
       query,
       requested: rawDate ?? null,
-      result: selected ? toolDay(engine, selected) : null,
+      result: selected ? toolDay(engine, selected, locale) : null,
       months: { current: today.month, next },
     }
   }
@@ -92,33 +97,41 @@ export async function almanacPayload(
   const nextMonth = month === 12 ? 1 : month + 1
   return {
     kind: 'month',
+    locale,
     month,
     lede: entry.lede ?? '',
     termsNote: entry.termsNote,
     html: entry.html,
     faq,
     today: dateKey(today),
-    view: monthView(engine, year, month, today),
-    terms: MONTH_TERM_NAMES[month] ?? [],
+    view: monthView(engine, year, month, today, locale),
+    terms: monthTermNames(month, locale),
     previous: { month: previousMonth, year: displayYear(previousMonth, today) },
     next: { month: nextMonth, year: displayYear(nextMonth, today) },
   }
 }
 
 /**
- * 黄历页数据（openspec content-growth-phase2 决策 5）：按参考日期（北京时间）现算，只读构建期文案，
+ * 黄历页数据（openspec content-growth-phase2 决策 5）：按参考日期（UTC+8）现算，只读构建期文案，
  * 不访问数据库与会话；SSR 结果由边缘缓存按日缓存（features/daily/page-cache.ts）。
  */
 export const getAlmanacPage = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
+      locale: z.enum(ALMANAC_LOCALES).default(ALMANAC_LOCALE),
       id: z.string().min(1).max(8),
       date: z.string().max(32).optional(),
     }),
   )
   .handler(async ({ data }) => {
     if (!templateConfig.marketing.enabled) throw notFound()
-    const payload = await almanacPayload(data.id, data.date, new Date(), await ENGINE())
+    const payload = await almanacPayload(
+      data.id,
+      data.date,
+      new Date(),
+      await ENGINE(),
+      data.locale,
+    )
     if (!payload) throw notFound()
     return payload
   })

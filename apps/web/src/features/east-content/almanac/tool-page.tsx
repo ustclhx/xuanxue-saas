@@ -7,8 +7,9 @@ import { DateField } from '../../tools/date-field.tsx'
 import { ToolFaq } from '../../tools/faq.tsx'
 import { toolHref } from '../../tools/tool-href.ts'
 import type { AlmanacToolPayload } from './almanac.functions.ts'
-import { ALMANAC_COPY as copy, monthTitleMain } from './copy.ts'
-import { ALMANAC_YEAR_RANGE, type AlmanacToolDay, parseAlmanacDate } from './model.ts'
+import { type AlmanacCopy, almanacCopy } from './copy.ts'
+import { ALMANAC_YEAR_RANGE, parseAlmanacDate } from './date.ts'
+import type { AlmanacToolDay } from './model.ts'
 import {
   AlmanacDisclaimer,
   AlmanacHeader,
@@ -19,9 +20,12 @@ import {
   Tile,
   TodayTag,
 } from './parts.tsx'
-import { ALMANAC_LOCALE, ALMANAC_MONTHS, ALMANAC_TOOL_PATH, almanacMonthPath } from './paths.ts'
-
-const href = (path: string) => toolHref(path, ALMANAC_LOCALE)
+import {
+  ALMANAC_MONTHS,
+  ALMANAC_TOOL_PATHS,
+  type AlmanacLocale,
+  almanacMonthPath,
+} from './paths.ts'
 
 function shiftDate(date: CivilDate, days: number): string {
   const shifted = new Date(Date.UTC(date.year, date.month - 1, date.day + days))
@@ -32,17 +36,29 @@ function shiftDate(date: CivilDate, days: number): string {
   })
 }
 
-const readable = (key: string) => {
+const readable = (copy: AlmanacCopy, key: string) => {
   const date = parseDateKey(key)
-  return date ? `${date.year} 年 ${date.month} 月 ${date.day} 日` : key
+  return date ? copy.readable(date.year, date.month, date.day) : key
+}
+
+/** 本语言的站内地址与文案（zh-hans 黄历、zh-hant 農民曆） */
+function localeKit(locale: AlmanacLocale) {
+  return {
+    copy: almanacCopy(locale),
+    href: (path: string) => toolHref(path, locale),
+    toolPath: ALMANAC_TOOL_PATHS[locale],
+    monthPath: (month: number) => almanacMonthPath(month, locale),
+  }
 }
 
 /**
  * 黄历工具页（设计稿 content-growth-phase2/AlmanacTool、AlmanacToolStates）：日期选择写入 `?date=`，
- * 服务端按北京时间计算并输出结果；带参数时 head 为 noindex, follow（head.ts）。表单是 GET 表单，
+ * 服务端按 UTC+8 计算并输出结果；带参数时 head 为 noindex, follow（head.ts）。表单是 GET 表单，
  * 禁用脚本时也能查询；有脚本时经路由导航，只重跑 loader，结果区显示骨架块。
+ * zh-hant 農民曆用同一组件，按 `payload.locale` 换文案，结果区多一格胎神占方。不提供按事项筛选日子的控件。
  */
 export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
+  const { copy, href, toolPath, monthPath } = localeKit(payload.locale)
   const navigate = useNavigate()
   const errorId = useId()
   const { result } = payload
@@ -87,7 +103,7 @@ export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
 
       <form
         method="get"
-        action={href(ALMANAC_TOOL_PATH)}
+        action={href(toolPath)}
         aria-label={copy.dateLabel}
         onSubmit={submit}
         className="flex max-w-190 flex-col gap-3 rounded-object bg-surface p-5 shadow-raise sm:p-6"
@@ -136,15 +152,20 @@ export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
       </form>
 
       {pending ? (
-        <ResultSkeleton date={readable(pending)} />
+        <ResultSkeleton copy={copy} date={readable(copy, pending)} />
       ) : result ? (
-        <ToolResult day={result} today={payload.today} query={payload.query} />
+        <ToolResult
+          locale={payload.locale}
+          day={result}
+          today={payload.today}
+          query={payload.query}
+        />
       ) : (
         <section aria-label={copy.errorAlert} className="flex max-w-190 flex-col gap-3">
           <div className="flex items-start gap-2.5 rounded-field bg-surface-2 px-4 py-3 text-body text-ink">
             <p className="m-0">{copy.errorAlert}</p>
           </div>
-          <a href={href(ALMANAC_TOOL_PATH)} className={cn(bodyLink, 'min-h-11 content-center')}>
+          <a href={href(toolPath)} className={cn(bodyLink, 'min-h-11 content-center')}>
             {copy.backToToday}
           </a>
         </section>
@@ -155,17 +176,17 @@ export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
         <p className="m-0 text-body text-ink-muted">
           {(() => {
             const text = copy.monthLinks(
-              monthTitleMain(payload.months.current),
-              monthTitleMain(payload.months.next),
+              copy.monthTitleMain(payload.months.current),
+              copy.monthTitleMain(payload.months.next),
             )
             return (
               <>
                 {text.before}
-                <a href={href(almanacMonthPath(payload.months.current))} className={bodyLink}>
+                <a href={href(monthPath(payload.months.current))} className={bodyLink}>
                   {text.current}
                 </a>
                 {text.middle}
-                <a href={href(almanacMonthPath(payload.months.next))} className={bodyLink}>
+                <a href={href(monthPath(payload.months.next))} className={bodyLink}>
                   {text.next}
                 </a>
                 {text.after}
@@ -191,14 +212,14 @@ export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
             return (
               <a
                 key={month}
-                href={href(almanacMonthPath(month))}
+                href={href(monthPath(month))}
                 aria-current={current ? 'true' : undefined}
                 className={cn(
                   'flex min-h-14 items-center justify-center rounded-field bg-surface font-medium text-body text-ink transition-colors hover:bg-surface-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2',
                   current && 'ring-1 ring-mark ring-inset',
                 )}
               >
-                {month}月
+                {copy.monthLabel(month)}
               </a>
             )
           })}
@@ -213,7 +234,18 @@ export function AlmanacToolPage({ payload }: { payload: AlmanacToolPayload }) {
   )
 }
 
-function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string; query: boolean }) {
+function ToolResult({
+  locale,
+  day,
+  today,
+  query,
+}: {
+  locale: AlmanacLocale
+  day: AlmanacToolDay
+  today: string
+  query: boolean
+}) {
+  const { copy, href, toolPath } = localeKit(locale)
   const [copied, setCopied] = useState(false)
   const isToday = day.date === today
   const copyLink = () => {
@@ -225,7 +257,7 @@ function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string;
       () => setCopied(false),
     )
   }
-  const separator = '、'
+  const separator = copy.separator
   return (
     <section
       data-locale-fixed
@@ -236,9 +268,11 @@ function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string;
       <div className="flex flex-col gap-3">
         <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-2 text-caption text-ink-subtle">
           <span>{day.caption}</span>
-          {isToday && <TodayTag />}
+          {isToday && <TodayTag label={copy.todayTag} />}
         </p>
-        <h2 className="m-0 font-heading text-ink text-title">{`${day.pillars.day}日`}</h2>
+        <h2 className="m-0 font-heading text-ink text-title">
+          {copy.resultTitle(day.pillars.day)}
+        </h2>
         <div className="grid w-full max-w-90 grid-cols-3 gap-2">
           {(
             [
@@ -262,7 +296,7 @@ function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string;
         {query && !isToday && (
           <p className="m-0 flex flex-wrap items-center gap-x-3 text-body text-ink-muted">
             <span>{copy.queryNote}</span>
-            <a href={href(ALMANAC_TOOL_PATH)} className={cn(bodyLink, 'min-h-11 content-center')}>
+            <a href={href(toolPath)} className={cn(bodyLink, 'min-h-11 content-center')}>
               {copy.backToToday}
             </a>
           </p>
@@ -309,9 +343,17 @@ function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string;
         >
           {day.star.gloss}
         </Tile>
-        <Tile label={copy.clashLabel} value={copy.clashValue(day.clash.zodiac, day.clash.sha)}>
+        <Tile
+          label={copy.clashLabel}
+          value={copy.clashValue(day.clash.zodiac, day.clash.pillar, day.clash.sha)}
+        >
           {day.clash.gloss}
         </Tile>
+        {copy.fetusLabel && (
+          <Tile label={copy.fetusLabel} value={day.fetus}>
+            {copy.fetusNote}
+          </Tile>
+        )}
         <Tile
           label={copy.termLabel}
           value={
@@ -333,12 +375,12 @@ function ToolResult({ day, today, query }: { day: AlmanacToolDay; today: string;
         </button>
         <p className="m-0 text-caption text-ink-subtle">{copy.copyHint}</p>
       </div>
-      <AlmanacDisclaimer />
+      <AlmanacDisclaimer text={copy.disclaimer} />
     </section>
   )
 }
 
-function ResultSkeleton({ date }: { date: string }) {
+function ResultSkeleton({ copy, date }: { copy: AlmanacCopy; date: string }) {
   const block = 'block rounded-object bg-surface-2'
   return (
     <section
@@ -354,7 +396,7 @@ function ResultSkeleton({ date }: { date: string }) {
         <span className={cn(block, 'h-37')} />
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {[0, 1, 2, 3].map((key) => (
+        {(copy.fetusLabel ? [0, 1, 2, 3, 4] : [0, 1, 2, 3]).map((key) => (
           <span key={key} className={cn(block, 'h-33')} />
         ))}
       </div>

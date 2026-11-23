@@ -1,4 +1,4 @@
-import { ALMANAC_LOCALE, isAlmanacPath } from '../east-content/almanac/paths.ts'
+import { isAlmanacLocale, isAlmanacPath } from '../east-content/almanac/paths.ts'
 import { localePrefix, prefixLocale } from '../i18n/url-prefix.ts'
 import {
   type DailyLocale,
@@ -12,7 +12,8 @@ import { DAILY_PATHS } from './routes.ts'
 
 /**
  * 公开每日页的边缘缓存（add-birth-profiles-daily-horoscope design D7）。
- * 黄历工具页与 12 个月份页共用同一机制（openspec content-growth-phase2 决策 5）：内容随参考日期滚动、不查数据库。
+ * 黄历工具页与 12 个月份页共用同一机制（openspec content-growth-phase2 决策 5）：内容随参考日期滚动、不查数据库；
+ * zh-hant 農民曆（content-growth-v2-tools 第 18 组）同样处理。
  *
  * - 只处理登记页面（cachedPageOf）的 GET；带会话 Cookie 的请求直接 SSR，不读也不写缓存，响应标记为 private；
  * - 匿名请求以「规范 URL + 参考日期 + 部署版本」为键查缓存，参考时区跨过 00:00 后键随之变化，旧内容不再命中；
@@ -83,17 +84,18 @@ export interface CachedPage {
   readonly variant?: string | null
 }
 
-/** 请求对应的缓存页面：每日页、黄历工具页与月份页（只有 zh-hans）；其他地址返回 null */
+/** 请求对应的缓存页面：每日页、黄历 / 農民曆工具页与月份页（zh-hans、zh-hant）；其他地址返回 null */
 export function cachedPageOf(url: URL, locales: readonly string[]): CachedPage | null {
   const daily = dailyPageLocale(url.pathname, locales)
   if (daily) return { locale: daily }
   const parts = splitPagePath(url.pathname, locales)
-  if (!parts || parts.locale !== ALMANAC_LOCALE) return null
-  const kind = isAlmanacPath(parts.rest)
+  const locale = parts?.locale
+  if (!parts || !locale || !isAlmanacLocale(locale)) return null
+  const kind = isAlmanacPath(parts.rest, locale)
   if (!kind) return null
   const date = kind === 'tool' ? url.searchParams.get('date') : null
-  if (date === null) return { locale: ALMANAC_LOCALE }
-  return { locale: ALMANAC_LOCALE, variant: parseDateKey(date) ? `date=${date}` : null }
+  if (date === null) return { locale }
+  return { locale, variant: parseDateKey(date) ? `date=${date}` : null }
 }
 
 /** 会话 Cookie（better-auth 的 session_token / session_data，含 __Secure- 前缀） */

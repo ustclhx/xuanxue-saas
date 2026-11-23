@@ -4,6 +4,7 @@ import type { EastContentRoute } from '../routes.ts'
 import { type AlmanacPayload, getAlmanacPage } from './almanac.functions.ts'
 import { almanacHead } from './head.ts'
 import { AlmanacMonthPage } from './month-page.tsx'
+import { isAlmanacLocale } from './paths.ts'
 import { AlmanacToolPage } from './tool-page.tsx'
 
 /**
@@ -15,9 +16,12 @@ export async function load(
   route: EastContentRoute,
   date: unknown,
 ): Promise<EastContentPayload | null> {
+  if (!isAlmanacLocale(route.locale)) return null
   const query =
     route.id === 'tool' && date !== undefined && date !== null ? String(date) : undefined
-  const payload = await getAlmanacPage({ data: { id: route.id, date: query } })
+  const payload = await getAlmanacPage({
+    data: { locale: route.locale, id: route.id, date: query },
+  })
   return { head: almanacHead(payload), content: payload }
 }
 

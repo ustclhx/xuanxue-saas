@@ -2,7 +2,6 @@ import { cn } from '@xuanxue/ui'
 import type { ReactNode } from 'react'
 import { RichContent } from '../../marketing/rich-content.tsx'
 import { Breadcrumb, type Crumb } from '../../tools/breadcrumb.tsx'
-import { ALMANAC_COPY } from './copy.ts'
 
 /**
  * 黄历两类页面共用的小块（设计稿 content-growth-phase2/AlmanacTool、AlmanacMonth 的
@@ -47,10 +46,10 @@ export function Mark({ children }: { children: ReactNode }) {
 }
 
 /** 「今天」标签（设计稿 `.tag`） */
-export function TodayTag() {
+export function TodayTag({ label }: { label: string }) {
   return (
     <span className="inline-flex min-h-5.5 items-center whitespace-nowrap rounded-field bg-brand px-2 font-normal font-sans text-caption text-on-brand">
-      {ALMANAC_COPY.todayTag}
+      {label}
     </span>
   )
 }
@@ -83,10 +82,10 @@ export function AlmanacProse({ html, className }: { html: string; className?: st
 }
 
 /** 合规声明（设计稿 `.disc`） */
-export function AlmanacDisclaimer() {
+export function AlmanacDisclaimer({ text }: { text: string }) {
   return (
     <p role="note" className="m-0 max-w-180 text-caption text-ink-subtle">
-      {ALMANAC_COPY.disclaimer}
+      {text}
     </p>
   )
 }

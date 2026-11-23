@@ -1,4 +1,5 @@
 import { ALMANAC_CONTENT_ROUTES } from './almanac/paths.ts'
+import { TAI_SUI_YEAR_CONTENT_ROUTES } from './tai-sui-year/paths.ts'
 import { TOJEONG_CONTENT_ROUTES } from './tojeong/paths.ts'
 import { ZODIAC_EAST_CONTENT_ROUTES } from './zodiac/paths.ts'
 
@@ -27,10 +28,12 @@ export interface EastContentRoute {
 export const EAST_CONTENT_ROUTES: readonly EastContentRoute[] = [
   // 第 4 组：生肖枢纽与 12 生肖页（zh-hans）
   ...ZODIAC_EAST_CONTENT_ROUTES,
-  // 第 6 组：黄历工具页与 12 个月份页（zh-hans）
+  // 第 6 组：黄历工具页与 12 个月份页（zh-hans）；v2 第 18 组：農民曆（zh-hant）
   ...ALMANAC_CONTENT_ROUTES,
   // content-growth-v2-tools 第 15 组：ko 토정비결工具页
   ...TOJEONG_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 18 组：2027 太歲（zh-hant）
+  ...TAI_SUI_YEAR_CONTENT_ROUTES,
 ]
 
 export function eastContentRouteOf(

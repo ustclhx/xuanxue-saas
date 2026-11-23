@@ -48,7 +48,6 @@ if (typeof loadSingle !== 'function' || typeof loadTwo !== 'function' || !single
   throw new Error('缺少待测的路由处理函数')
 
 const eastFixtures: EastContentRoute[] = [
-  { locale: 'zh-Hant', path: '/農民曆/1月', collection: 'nongminli', id: '1' },
   { locale: 'ja', path: '/四柱推命相性/友人', collection: 'compat-scenario', id: 'friends' },
 ]
 const eastEnglishFixtures = [
@@ -205,7 +204,8 @@ it('已登记的西方站内容透过单段与两段路由分发，东方站同�
 
 it('东方站繁中和日文的两段地址交给东方内容集合', async () => {
   await expect(two('east', 'zh-Hant', '農民曆', '1月')).resolves.toMatchObject({
-    eastContent: { route: { collection: 'nongminli', locale: 'zh-Hant' } },
+    // 農民曆由第 18 组登记，复用黄历集合
+    eastContent: { route: { collection: 'almanac', locale: 'zh-Hant', id: '1' } },
   })
   await expect(two('east', 'ja', '四柱推命相性', '友人')).resolves.toMatchObject({
     eastContent: { route: { collection: 'compat-scenario', locale: 'ja' } },
