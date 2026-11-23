@@ -72,6 +72,39 @@ export const YEARLY_PATHS: Readonly<Partial<Record<YearlyLocale, YearlyLocalePat
       hai: '{year}属猪',
     },
   },
+  // 第 9 组：zh-Hant（台湾、香港用语另写，地址见 design 决策 2）
+  'zh-Hant': {
+    hub: { 2027: '/2027生肖運勢' },
+    hubTitle: { 2027: '2027生肖運勢' },
+    slugs: {
+      zi: '屬鼠',
+      chou: '屬牛',
+      yin: '屬虎',
+      mao: '屬兔',
+      chen: '屬龍',
+      si: '屬蛇',
+      wu: '屬馬',
+      wei: '屬羊',
+      shen: '屬猴',
+      you: '屬雞',
+      xu: '屬狗',
+      hai: '屬豬',
+    },
+    childTitle: {
+      zi: '{year}屬鼠',
+      chou: '{year}屬牛',
+      yin: '{year}屬虎',
+      mao: '{year}屬兔',
+      chen: '{year}屬龍',
+      si: '{year}屬蛇',
+      wu: '{year}屬馬',
+      wei: '{year}屬羊',
+      shen: '{year}屬猴',
+      you: '{year}屬雞',
+      xu: '{year}屬狗',
+      hai: '{year}屬豬',
+    },
+  },
 }
 
 export const YEARLY_LOCALES = Object.keys(YEARLY_PATHS) as YearlyLocale[]

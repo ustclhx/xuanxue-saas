@@ -88,7 +88,7 @@ describe('关系表与引擎一致', () => {
 })
 
 describe('地址、注册表与 hreflang', () => {
-  it('zh-Hans 枢纽与 12 页登记在东方内容映射与注册表，未撰写的语言不登记', () => {
+  it('zh-Hans、zh-Hant 枢纽与 12 页登记在东方内容映射与注册表，未撰写的语言不登记', () => {
     expect(eastContentRouteOf('zh-Hans', encodeURI('/2027生肖运势'))).toMatchObject({
       collection: 'yearly',
       id: '2027/index',
@@ -97,20 +97,23 @@ describe('地址、注册表与 hreflang', () => {
       collection: 'yearly',
       id: '2027/wu',
     })
-    expect(eastContentRouteOf('zh-Hant', '/2027生肖運勢')).toBeUndefined()
+    expect(eastContentRouteOf('zh-Hant', encodeURI('/2027生肖運勢/屬馬'))).toMatchObject({
+      collection: 'yearly',
+      id: '2027/wu',
+    })
     expect(eastContentRouteOf('ko', '/2027년-띠')).toBeUndefined()
     const hub = TOOL_ROUTES.find((route) => route.id === 'yearly-2027')
     expect(hub).toMatchObject({
       nav: false,
       directoryGroup: 'yearly',
       badge: { kind: 'year', until: '2027-02-28' },
-      paths: { 'zh-Hans': '/2027生肖运势' },
-      titles: { 'zh-Hans': '2027生肖运势' },
+      paths: { 'zh-Hans': '/2027生肖运势', 'zh-Hant': '/2027生肖運勢' },
+      titles: { 'zh-Hans': '2027生肖运势', 'zh-Hant': '2027生肖運勢' },
     })
     expect(TOOL_ROUTES.find((route) => route.id === 'yearly-2027-wu')).toMatchObject({
       nav: false,
-      paths: { 'zh-Hans': '/2027生肖运势/属马' },
-      titles: { 'zh-Hans': '2027属马' },
+      paths: { 'zh-Hans': '/2027生肖运势/属马', 'zh-Hant': '/2027生肖運勢/屬馬' },
+      titles: { 'zh-Hans': '2027属马', 'zh-Hant': '2027屬馬' },
     })
     expect(TOOL_ROUTES.filter((route) => route.id.startsWith('yearly-2027-'))).toHaveLength(12)
   })
@@ -123,7 +126,14 @@ describe('地址、注册表与 hreflang', () => {
       parent: '/2027生肖运势',
       group: '/2027生肖运势',
       titleMain: '2027属马',
-      alternates: { 'zh-Hans': '/2027生肖运势/属马' },
+      alternates: { 'zh-Hans': '/2027生肖运势/属马', 'zh-Hant': '/2027生肖運勢/屬馬' },
+    })
+    // zh-Hant 与 zh-Hans 互为 hreflang（9.2）
+    expect(pages.find((page) => page.path === '/2027生肖運勢/屬馬')).toMatchObject({
+      locale: 'zh-Hant',
+      parent: '/2027生肖運勢',
+      titleMain: '2027屬馬',
+      alternates: { 'zh-Hans': '/2027生肖运势/属马', 'zh-Hant': '/2027生肖運勢/屬馬' },
     })
     const links = pageHead(horse as NonNullable<typeof horse>, '').links
     expect(links).toContainEqual({
@@ -131,22 +141,23 @@ describe('地址、注册表与 hreflang', () => {
       href: `https://ganjiday.com/zh-hans/${encodeURI('2027生肖运势/属马')}`,
     })
     const hreflangs = links.flatMap((link) => ('hrefLang' in link ? [link.hrefLang] : []))
-    expect(hreflangs).not.toContain('zh-Hant')
+    expect(hreflangs).toContain('zh-Hant')
     expect(hreflangs).not.toContain('ko')
 
-    // 加入一篇 ko 内容后，两种语言互为 hreflang；地址未登记的语言不进入
+    // 加入一篇 ko 内容：ko 地址尚未登记（第 10 组），不进入 hreflang
     const withKo = yearlySeoPages([
       ...entries,
       { locale: 'ko', year: 2027, key: 'wu', title: 't', description: 'd' },
     ])
     expect(withKo.find((page) => page.path === '/2027生肖运势/属马')?.alternates).toEqual({
       'zh-Hans': '/2027生肖运势/属马',
+      'zh-Hant': '/2027生肖運勢/屬馬',
     })
   })
 
-  it('zh-Hans 内容为枢纽加 12 生肖', () => {
+  it.each(['zh-Hans', 'zh-Hant'])('%s 内容为枢纽加 12 生肖', (locale) => {
     const keys = generatedYearlies()
-      .filter((entry) => entry.locale === 'zh-Hans' && entry.year === 2027)
+      .filter((entry) => entry.locale === locale && entry.year === 2027)
       .map((entry) => entry.key)
       .sort()
     expect(keys).toEqual([...YEARLY_KEYS, 'index'].sort())

@@ -2,7 +2,7 @@
 // frontmatter 字段、TDK 宽度、篇幅下限、固定小标题、正文内链与锚文本、合规措辞（不写月份吉凶、不给断语），
 // 以及正文与 frontmatter 中写到的干支、纳音、立春与春节日期、地支关系名、太岁关系逐项用引擎复算
 // （@xuanxue/bazi/almanac 的 zodiacYearFacts、zodiacPairFacts、zodiacYears、zodiacBoundaries）。
-// 第 9、10、11 组在 LOCALES 中补登自己的一行（关系名与太岁写法按该语言另加解析）。
+// 第 9、10、11 组在 LOCALES 中补登自己的一行（关系名与太岁写法按该语言另加解析；zh-Hant 先逐字归一到简体写法再复算）。
 // 运行：node scripts/check-content-yearly.mjs [--report <文件>]
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -21,6 +21,7 @@ const ROOT = new URL('../apps/web/content/yearly/', import.meta.url)
 const STEM_HANZI = '甲乙丙丁戊己庚辛壬癸'
 const BRANCH_HANZI = '子丑寅卯辰巳午未申酉戌亥'
 const ANIMAL_HANS = '鼠牛虎兔龙蛇马羊猴鸡狗猪'
+const ANIMAL_HANT = '鼠牛虎兔龍蛇馬羊猴雞狗豬'
 const FOCUS = ['work', 'relationships', 'self']
 
 /**
@@ -67,7 +68,66 @@ const LOCALES = {
     },
     countUnit: /\p{Script=Han}/gu,
   },
+  // 第 9 组：zh-Hant 按台湾、香港用语另写；东方站 zh-Hant 没有第 2 阶段生肖子页，改链 2027 太歲与農民曆
+  'zh-Hant': {
+    prefix: '/zh-hant',
+    hubPath: (year) => `/${year}生肖運勢`,
+    childSlug: (branch) => `屬${ANIMAL_HANT[BRANCHES.indexOf(branch)]}`,
+    childPrefix: (year, branch) => `${year}屬${ANIMAL_HANT[BRANCHES.indexOf(branch)]}`,
+    hubPrefix: (year) => `${year}生肖運勢`,
+    brandSuffix: '｜干支日',
+    childMin: 1200,
+    hubMin: 800,
+    childHeadings: (year) => [`對照${ganzhiOfYear(year)}年的地支`, `從整張命盤看 ${year}`],
+    hubHeadings: (year) => [
+      `${year}年的干支：${ganzhiOfYear(year)}與納音`,
+      `十二生肖對照${ganzhiOfYear(year)}年`,
+      '換年：立春還是農曆新年',
+      '生肖以外的流年線索',
+    ],
+    focusRange: [120, 320],
+    yearsNote: [60, 220],
+    relationsNote: [50, 200],
+    yearlyTool: (year) => `/${year}流年`,
+    linkTargets: (year) => [
+      '/八字排盤',
+      '/八字/大運',
+      '/八字/十神',
+      '/八字/五行',
+      `/${year}太歲`,
+      '/農民曆',
+    ],
+    // 东方站 zh-Hant 未建生肖子页（spec：生肖页「存在时」才链接）
+    zodiacChild: null,
+    anchors: (path, year) => {
+      const hub = `/${year}生肖運勢`
+      const child = path.match(new RegExp(`^${hub}/屬(.)$`))
+      if (child) return [`${year}屬${child[1]}`, `${year}年屬${child[1]}`]
+      // 正文不写「運勢」（只作 Title、H1 主词），枢纽锚文本用「2027年十二生肖」
+      if (path === hub) return [`${year}年十二生肖`]
+      if (path === `/${year}流年`) return [`${year}流年`, `${year}年八字流年`]
+      if (path === `/${year}太歲`) return [`${year}太歲`, `${year}犯太歲`]
+      if (path === '/八字排盤') return ['八字排盤', '免費八字排盤']
+      if (path === '/農民曆') return ['農民曆']
+      if (path === '/八字/大運') return ['大運']
+      if (path === '/八字/十神') return ['十神']
+      if (path === '/八字/五行') return ['五行']
+      return null
+    },
+    countUnit: /\p{Script=Han}/gu,
+    // 复算与合规词按简体写法匹配：只换校验用到的字（不是正文转换）
+    normalize: (text) => text.replace(HANT_CHARS, (char) => HANT_TO_HANS[char]),
+    extraTerms: ['人工智慧', '倒楣'],
+  },
 }
+
+/** 繁体校验用的逐字对照（关系名、太岁、生肖、纳音、否定词与合规词用到的字） */
+const HANT_TO_HANS = Object.fromEntries(
+  [
+    ...'沖冲歲岁節节屬属龍龙馬马雞鸡豬猪與与沒没並并無无納纳爐炉劍剑鋒锋頭头澗涧蠟蜡楊杨靂雳長长燈灯驛驿釵钗釧钏運运勢势娛娱樂乐災灾轉转開开護护財财會会離离結结剋克順顺為为對对',
+  ].flatMap((char, i, chars) => (i % 2 === 0 ? [[char, chars[i + 1]]] : [])),
+)
+const HANT_CHARS = new RegExp(`[${Object.keys(HANT_TO_HANS).join('')}]`, 'g')
 
 /**
  * 合规措辞（design 决策 5、16）：不提 AI、不用「娱乐」、不给吉日与吉凶结论，不写化解、转运一类说法；
@@ -412,12 +472,14 @@ export function checkLocale(locale, root = ROOT) {
 
       // 正文内链：只链接允许清单中的地址；子页 2–5 个不同目标
       const prefixed = (path) => `${spec.prefix}${path}`
+      const linkTargets =
+        typeof spec.linkTargets === 'function' ? spec.linkTargets(year) : spec.linkTargets
       const allowed = new Set([
-        ...spec.linkTargets.map(prefixed),
+        ...linkTargets.map(prefixed),
         prefixed(spec.yearlyTool(year)),
         prefixed(spec.hubPath(year)),
         ...BRANCHES.map((b) => prefixed(`${spec.hubPath(year)}/${spec.childSlug(b)}`)),
-        ...BRANCHES.map((b) => prefixed(spec.zodiacChild(b))),
+        ...(spec.zodiacChild ? BRANCHES.map((b) => prefixed(spec.zodiacChild(b))) : []),
       ])
       const self = prefixed(hub ? spec.hubPath(year) : `${spec.hubPath(year)}/${slug}`)
       const links = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)].map((m) => ({
@@ -440,7 +502,8 @@ export function checkLocale(locale, root = ROOT) {
         // 决策 15：链接个人年度工具、本生肖子页，以及六合或冲对象的年度页（1 条）
         const hrefs = new Set(links.map((link) => link.href))
         if (!hrefs.has(prefixed(spec.yearlyTool(year)))) fail('缺少个人年度工具链接')
-        if (!hrefs.has(prefixed(spec.zodiacChild(branch)))) fail('缺少本生肖子页链接')
+        if (spec.zodiacChild && !hrefs.has(prefixed(spec.zodiacChild(branch))))
+          fail('缺少本生肖子页链接')
         const partners = BRANCHES.filter(
           (other) =>
             other !== branch &&
@@ -455,7 +518,7 @@ export function checkLocale(locale, root = ROOT) {
           fail(`年度页之间只链接六合或冲对象的 1 页（${partners.join('、')}）`)
       }
 
-      const everything = [
+      const raw = [
         data.description,
         data.lede,
         data.relations_note,
@@ -464,7 +527,9 @@ export function checkLocale(locale, root = ROOT) {
         ...faq.flatMap((item) => [item.q, item.a]),
         content,
       ].join('\n')
-      for (const term of COMPLIANCE_TERMS)
+      const normalize = spec.normalize ?? ((text) => text)
+      const everything = normalize(raw)
+      for (const term of [...COMPLIANCE_TERMS, ...(spec.extraTerms ?? [])])
         if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
           fail(`合规禁用词：${term}`)
       for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
@@ -476,7 +541,10 @@ export function checkLocale(locale, root = ROOT) {
       const month = MONTH_FORTUNE.exec(everything)
       if (month) fail(`月份吉凶写法：${month[0]}`)
 
-      const facts = factIssues([data.title, data.heading, everything].join('\n'), { year, branch })
+      const facts = factIssues(normalize([data.title, data.heading, raw].join('\n')), {
+        year,
+        branch,
+      })
       factsChecked += facts.checked
       for (const issue of facts.issues) fail(`事实不一致：${issue}`)
 
