@@ -106,7 +106,7 @@
 ## 9. 2027 年度生肖页（zh-Hant）★
 
 - [x] 9.1 另一个 Claude 子代理另写 `content/yearly/zh-Hant/2027/` 枢纽与 12 篇（台湾、香港用语，不做字形转换）；登记 zh-Hant 地址与注册表
-- [ ] 9.2 验收：`--opencc` 同文字变体门槛（整页 ≤0.60、整句 ≤0.15、FAQ ≤0.40）；zh-Hant 组内相似度；Codex 回译审阅 TDK；与 zh-Hans 互为 hreflang；内链；关键词归属补登
+- [x] 9.2 验收：`--opencc` 同文字变体门槛（整页 ≤0.60、整句 ≤0.15、FAQ ≤0.40）；zh-Hant 组内相似度；Codex 回译审阅 TDK；与 zh-Hans 互为 hreflang；内链；关键词归属补登
 
 ## 10. 2027 年度띠页（ko）★
 
