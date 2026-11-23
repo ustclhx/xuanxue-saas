@@ -4,6 +4,7 @@ import { ALMANAC_TOOL_ROUTES } from '../east-content/almanac/routes.ts'
 import { TOJEONG_TOOL_ROUTES } from '../east-content/tojeong/paths.ts'
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
+import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import {
   CONCEPT_SLUGS,
   type ConceptKey,
@@ -274,6 +275,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...ZODIAC_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'calendar', 'free_lookup')),
   // content-growth-v2-tools 第 15 组：ko 토정비결（年度组，2027 小标）
   ...TOJEONG_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'yearly', 'free_cast')),
+  // openspec content-growth-v2-tools 第 19 组：月相页（构建期预渲染，数据为构建期预计算表）
+  ...MOON_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'moon', 'free_lookup')),
 ])
 
 /**

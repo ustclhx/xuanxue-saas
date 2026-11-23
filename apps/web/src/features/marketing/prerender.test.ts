@@ -4,6 +4,7 @@ import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
+import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import { isPrerenderedPath, prerenderEntryPages } from './prerender.ts'
 
 const locales = ['en', 'zh-Hant', 'zh-Hans', 'ko']
@@ -53,7 +54,9 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
         !NUMEROLOGY_ROUTES.includes(tool) &&
         !TAROT_MEANING_ROUTES.includes(tool) &&
         // 生肖页由 east-content/zodiac/zodiac.test.ts 验证
-        !ZODIAC_TOOL_ROUTES.includes(tool),
+        !ZODIAC_TOOL_ROUTES.includes(tool) &&
+        // 月相页由 west-content/moon/moon.test.tsx 验证
+        !MOON_TOOL_ROUTES.includes(tool),
     )
     expect(prerenderEntryPages(templateConfig, tools)).toEqual([
       { path: '/zh-hant' },

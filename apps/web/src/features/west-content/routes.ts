@@ -1,3 +1,5 @@
+import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
+
 export type WestContentCollection =
   | 'moon'
   | 'zodiac'
@@ -19,7 +21,10 @@ export interface WestContentRoute {
 }
 
 /** 注册表和预渲染也可读取这份映射，因此这里只放不带语言前缀的地址和页面标识。 */
-export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = []
+export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
+  // 第 19 组：今日月相、满月、年度满月表、月历枢纽与 12 个月份页（en）
+  ...MOON_CONTENT_ROUTES,
+]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {
   let decoded = path

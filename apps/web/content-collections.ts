@@ -637,6 +637,112 @@ const guides = defineCollection({
   },
 })
 
+/**
+ * 西方站月相集合（openspec content-growth-v2-tools 决策 11，第 19 组）：
+ * content/moon/<locale>/<key>.mdx 为逐页文案（today、full-moon、full-moon-calendar、moon-calendar 与 12 个月份），
+ * `{year}` 占位由页面换成所显示的年份。正文按 `## ` 切段，页面在指定段之间插入月相组件。
+ * 文案不写具体日期与时刻（由 moonData 计算）；构建期拦下健康、生育、情绪与「AI」「娱乐」类措辞（决策 11「合规」）。
+ */
+const MOON_MONTH_KEYS = [
+  'january',
+  'february',
+  'march',
+  'april',
+  'may',
+  'june',
+  'july',
+  'august',
+  'september',
+  'october',
+  'november',
+  'december',
+] as const
+const MOON_MAIN_KEYS = ['today', 'full-moon', 'full-moon-calendar', 'moon-calendar'] as const
+const MOON_BANNED =
+  /\bAI\b|entertainment|for fun|fertil|pregnan|menstru|surger|\bhealth|\bmood|\bluck|manifest|horoscope/i
+
+const moon = defineCollection({
+  name: 'moon',
+  directory: 'content/moon',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1),
+    lede: z.string().min(1),
+    month: z.number().int().min(1).max(12).optional(),
+    moon_name: z.string().min(1).optional(),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug: key } = localeAndSlug(document._meta)
+    const month = MOON_MONTH_KEYS.indexOf(key as (typeof MOON_MONTH_KEYS)[number]) + 1
+    if (month === 0 && !MOON_MAIN_KEYS.includes(key as (typeof MOON_MAIN_KEYS)[number]))
+      throw new Error(`Unknown moon page: ${document._meta.path}`)
+    if ((month || undefined) !== data.month || Boolean(month) !== Boolean(data.moon_name))
+      throw new Error(
+        `Moon month pages need a matching month and moon_name: ${document._meta.path}`,
+      )
+    const text = [data.title, data.description, data.lede, content]
+      .concat(data.faq.flatMap(({ q, a }) => [q, a]))
+      .join('\n')
+    const banned = MOON_BANNED.exec(text)
+    if (banned) throw new Error(`Moon copy contains "${banned[0]}": ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Moon body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, sections }
+  },
+})
+
+/**
+ * 月相的构建期预计算表（决策 11）：构建日前 1 个月至后 14 个月的逐日表，加上构建年与次年整年的主要月相（年度满月表）。
+ * content/moon-data/table.yaml 只是触发文件；数据由 @xuanxue/astro/moon 在构建时生成，客户端不加载 astronomy-engine。
+ * 剩余覆盖期不足 13 个月时构建失败（scripts/check-content-moon.mjs 另按当天日期复核已生成的表）。
+ */
+const moonData = defineCollection({
+  name: 'moonData',
+  directory: 'content/moon-data',
+  include: 'table.yaml',
+  parser: 'yaml',
+  schema: z.object({ id: z.literal('moon-table') }),
+  transform: async (document) => {
+    const { assertMoonCoverage, generateMoonBuildData, moonQuarterEvents } = await import(
+      '@xuanxue/astro/moon'
+    )
+    const buildDate = new Date().toISOString().slice(0, 10)
+    const table = generateMoonBuildData(buildDate)
+    assertMoonCoverage(table.endDate, buildDate)
+    const year = Number(buildDate.slice(0, 4))
+    // 年度表与逐日表的事件合并为一份：起点取两者较早者，终点取较晚者
+    const from = [table.startDate, `${year}-01-01`].sort()[0] ?? table.startDate
+    const to = [table.endDate, `${year + 2}-01-01`].sort().at(-1) ?? table.endDate
+    return {
+      id: document.id,
+      buildDate,
+      startDate: table.startDate,
+      endDate: table.endDate,
+      days: table.days,
+      events: moonQuarterEvents(from, to),
+      years: [year, year + 1],
+    }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -651,5 +757,7 @@ export default defineConfig({
     guides,
     zodiac,
     tojeong,
+    moon,
+    moonData,
   ],
 })

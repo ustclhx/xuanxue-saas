@@ -28,6 +28,7 @@
     "@tanstack/react-router": "^1.170.41",
     "@tanstack/react-start": "^1.168.60",
     "@xuanxue/ai": "workspace:*",
+    "@xuanxue/astro": "workspace:*",
     "@xuanxue/auth": "workspace:*",
     "@xuanxue/bazi": "workspace:*",
     "@xuanxue/billing": "workspace:*",
