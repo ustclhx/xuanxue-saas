@@ -11,6 +11,7 @@ import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
 import { ANGEL_TOOL_ROUTES } from '../west-content/angel-numbers/paths.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
+import { NATAL_TOOL_ROUTES } from '../west-content/natal-chart/paths.ts'
 import { PERSONAL_YEAR_TOOL_ROUTES } from '../west-content/personal-year/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
 import { isPrerenderedPath, prerenderEntryPages } from './prerender.ts'
@@ -79,6 +80,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
         !ZODIAC_PAIR_TOOL_ROUTES.includes(tool) &&
         // personal year 页由 west-content/personal-year/personal-year.test.tsx 验证
         !PERSONAL_YEAR_TOOL_ROUTES.includes(tool) &&
+        // 三巨头计算器与出生星盘由 west-content/natal-chart/natal-chart.test.tsx 验证
+        !NATAL_TOOL_ROUTES.includes(tool) &&
         // 「全部工具」枢纽页由 tools/hub/hub.test.tsx 验证
         tool.id !== TOOLS_HUB_ID,
     )

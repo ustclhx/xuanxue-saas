@@ -9,6 +9,7 @@ const KIND_TITLE: Record<string, typeof m.readings_kind_bazi_full> = {
   'saju-compat': m.readings_kind_saju_compat,
   'numerology-full': m.readings_kind_numerology_full,
   'tarot-spread': m.readings_kind_tarot_spread,
+  'natal-full': m.readings_kind_natal_full,
 }
 
 export function readingTitle(kind: string, locale: string = getLocale()): string {

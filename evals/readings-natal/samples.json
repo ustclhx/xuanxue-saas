@@ -1,0 +1,1663 @@
+[
+  {
+    "id": "natal-en-01",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1990,
+        "month": 5,
+        "day": 15,
+        "hour": 10,
+        "minute": 30,
+        "latitude": 38.7167,
+        "longitude": -9.1333,
+        "timeZone": "Europe/Lisbon",
+        "houseSystem": "placidus"
+      },
+      "data": {
+        "birthTimeKnown": true,
+        "houseSystem": "Placidus",
+        "houseSystemNote": null,
+        "bigThree": {
+          "sun": "Taurus",
+          "moon": "Capricorn",
+          "rising": "Cancer"
+        },
+        "angles": {
+          "ascendant": "22°49′ Cancer",
+          "midheaven": "6°46′ Aries"
+        },
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Taurus",
+            "degree": "24°17′",
+            "house": "11th",
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Capricorn",
+            "degree": "25°52′",
+            "house": "7th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Taurus",
+            "degree": "8°01′",
+            "house": "10th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Venus",
+            "sign": "Aries",
+            "degree": "12°41′",
+            "house": "10th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Pisces",
+            "degree": "18°15′",
+            "house": "9th",
+            "motion": "direct"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Cancer",
+            "degree": "9°31′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Capricorn",
+            "degree": "25°15′",
+            "house": "7th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Capricorn",
+            "degree": "9°11′",
+            "house": "6th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Capricorn",
+            "degree": "14°21′",
+            "house": "6th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Scorpio",
+            "degree": "16°10′",
+            "house": "5th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "North Node",
+            "sign": "Aquarius",
+            "degree": "11°20′",
+            "house": "7th",
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": [
+          {
+            "house": "1st",
+            "cusp": "22°49′ Cancer"
+          },
+          {
+            "house": "2nd",
+            "cusp": "13°08′ Leo"
+          },
+          {
+            "house": "3rd",
+            "cusp": "6°55′ Virgo"
+          },
+          {
+            "house": "4th",
+            "cusp": "6°46′ Libra"
+          },
+          {
+            "house": "5th",
+            "cusp": "13°01′ Scorpio"
+          },
+          {
+            "house": "6th",
+            "cusp": "20°23′ Sagittarius"
+          },
+          {
+            "house": "7th",
+            "cusp": "22°49′ Capricorn"
+          },
+          {
+            "house": "8th",
+            "cusp": "13°08′ Aquarius"
+          },
+          {
+            "house": "9th",
+            "cusp": "6°55′ Pisces"
+          },
+          {
+            "house": "10th",
+            "cusp": "6°46′ Aries"
+          },
+          {
+            "house": "11th",
+            "cusp": "13°01′ Taurus"
+          },
+          {
+            "house": "12th",
+            "cusp": "20°23′ Gemini"
+          }
+        ],
+        "planetsByHouse": [
+          {
+            "house": "5th",
+            "planets": ["Pluto"]
+          },
+          {
+            "house": "6th",
+            "planets": ["Uranus", "Neptune"]
+          },
+          {
+            "house": "7th",
+            "planets": ["Moon", "Saturn"]
+          },
+          {
+            "house": "9th",
+            "planets": ["Mars"]
+          },
+          {
+            "house": "10th",
+            "planets": ["Mercury", "Venus"]
+          },
+          {
+            "house": "11th",
+            "planets": ["Sun"]
+          },
+          {
+            "house": "12th",
+            "planets": ["Jupiter"]
+          }
+        ],
+        "aspects": [
+          {
+            "between": "Jupiter and Uranus",
+            "aspect": "Opposition (180°)",
+            "orb": "0°20′"
+          },
+          {
+            "between": "Moon and Saturn",
+            "aspect": "Conjunction (0°)",
+            "orb": "0°37′"
+          },
+          {
+            "between": "Sun and Saturn",
+            "aspect": "Trine (120°)",
+            "orb": "0°57′"
+          },
+          {
+            "between": "Mercury and Uranus",
+            "aspect": "Trine (120°)",
+            "orb": "1°09′"
+          },
+          {
+            "between": "Mercury and Jupiter",
+            "aspect": "Sextile (60°)",
+            "orb": "1°29′"
+          },
+          {
+            "between": "Sun and Moon",
+            "aspect": "Trine (120°)",
+            "orb": "1°34′"
+          },
+          {
+            "between": "Venus and Neptune",
+            "aspect": "Square (90°)",
+            "orb": "1°39′"
+          },
+          {
+            "between": "Neptune and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "1°49′"
+          },
+          {
+            "between": "Mars and Pluto",
+            "aspect": "Trine (120°)",
+            "orb": "2°05′"
+          },
+          {
+            "between": "Venus and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "3°10′"
+          },
+          {
+            "between": "Venus and Uranus",
+            "aspect": "Square (90°)",
+            "orb": "3°30′"
+          },
+          {
+            "between": "Mars and Neptune",
+            "aspect": "Sextile (60°)",
+            "orb": "3°54′"
+          },
+          {
+            "between": "Jupiter and Neptune",
+            "aspect": "Opposition (180°)",
+            "orb": "4°49′"
+          },
+          {
+            "between": "Uranus and Neptune",
+            "aspect": "Conjunction (0°)",
+            "orb": "5°10′"
+          },
+          {
+            "between": "Mercury and Neptune",
+            "aspect": "Trine (120°)",
+            "orb": "6°19′"
+          },
+          {
+            "between": "Jupiter and Pluto",
+            "aspect": "Trine (120°)",
+            "orb": "6°38′"
+          }
+        ],
+        "countsNote": null,
+        "elements": [
+          {
+            "element": "Earth",
+            "planets": 6
+          },
+          {
+            "element": "Water",
+            "planets": 3
+          },
+          {
+            "element": "Fire",
+            "planets": 1
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Cardinal",
+            "planets": 6
+          },
+          {
+            "modality": "Fixed",
+            "planets": 3
+          },
+          {
+            "modality": "Mutable",
+            "planets": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "natal-en-02",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1985,
+        "month": 7,
+        "day": 4,
+        "hour": 14,
+        "minute": 30,
+        "latitude": 40.7143,
+        "longitude": -74.006,
+        "timeZone": "America/New_York",
+        "houseSystem": "placidus"
+      },
+      "data": {
+        "birthTimeKnown": true,
+        "houseSystem": "Placidus",
+        "houseSystemNote": null,
+        "bigThree": {
+          "sun": "Cancer",
+          "moon": "Aquarius",
+          "rising": "Libra"
+        },
+        "angles": {
+          "ascendant": "28°36′ Libra",
+          "midheaven": "3°52′ Leo"
+        },
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Cancer",
+            "degree": "12°42′",
+            "house": "9th",
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Aquarius",
+            "degree": "11°49′",
+            "house": "4th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Leo",
+            "degree": "7°15′",
+            "house": "10th",
+            "motion": "direct"
+          },
+          {
+            "point": "Venus",
+            "sign": "Taurus",
+            "degree": "28°19′",
+            "house": "8th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Cancer",
+            "degree": "16°43′",
+            "house": "9th",
+            "motion": "direct"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Aquarius",
+            "degree": "15°35′",
+            "house": "4th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Scorpio",
+            "degree": "21°49′",
+            "house": "1st",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Sagittarius",
+            "degree": "14°53′",
+            "house": "2nd",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Capricorn",
+            "degree": "1°56′",
+            "house": "3rd",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Scorpio",
+            "degree": "1°56′",
+            "house": "1st",
+            "motion": "retrograde"
+          },
+          {
+            "point": "North Node",
+            "sign": "Taurus",
+            "degree": "15°21′",
+            "house": "7th",
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": [
+          {
+            "house": "1st",
+            "cusp": "28°36′ Libra"
+          },
+          {
+            "house": "2nd",
+            "cusp": "26°43′ Scorpio"
+          },
+          {
+            "house": "3rd",
+            "cusp": "28°59′ Sagittarius"
+          },
+          {
+            "house": "4th",
+            "cusp": "3°52′ Aquarius"
+          },
+          {
+            "house": "5th",
+            "cusp": "7°04′ Pisces"
+          },
+          {
+            "house": "6th",
+            "cusp": "5°24′ Aries"
+          },
+          {
+            "house": "7th",
+            "cusp": "28°36′ Aries"
+          },
+          {
+            "house": "8th",
+            "cusp": "26°43′ Taurus"
+          },
+          {
+            "house": "9th",
+            "cusp": "28°59′ Gemini"
+          },
+          {
+            "house": "10th",
+            "cusp": "3°52′ Leo"
+          },
+          {
+            "house": "11th",
+            "cusp": "7°04′ Virgo"
+          },
+          {
+            "house": "12th",
+            "cusp": "5°24′ Libra"
+          }
+        ],
+        "planetsByHouse": [
+          {
+            "house": "1st",
+            "planets": ["Saturn", "Pluto"]
+          },
+          {
+            "house": "2nd",
+            "planets": ["Uranus"]
+          },
+          {
+            "house": "3rd",
+            "planets": ["Neptune"]
+          },
+          {
+            "house": "4th",
+            "planets": ["Moon", "Jupiter"]
+          },
+          {
+            "house": "8th",
+            "planets": ["Venus"]
+          },
+          {
+            "house": "9th",
+            "planets": ["Sun", "Mars"]
+          },
+          {
+            "house": "10th",
+            "planets": ["Mercury"]
+          }
+        ],
+        "aspects": [
+          {
+            "between": "Neptune and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "0°00′"
+          },
+          {
+            "between": "Jupiter and Uranus",
+            "aspect": "Sextile (60°)",
+            "orb": "0°41′"
+          },
+          {
+            "between": "Moon and Uranus",
+            "aspect": "Sextile (60°)",
+            "orb": "3°04′"
+          },
+          {
+            "between": "Moon and Jupiter",
+            "aspect": "Conjunction (0°)",
+            "orb": "3°45′"
+          },
+          {
+            "between": "Sun and Mars",
+            "aspect": "Conjunction (0°)",
+            "orb": "4°01′"
+          },
+          {
+            "between": "Moon and Mercury",
+            "aspect": "Opposition (180°)",
+            "orb": "4°33′"
+          },
+          {
+            "between": "Mars and Saturn",
+            "aspect": "Trine (120°)",
+            "orb": "5°05′"
+          },
+          {
+            "between": "Mercury and Pluto",
+            "aspect": "Square (90°)",
+            "orb": "5°19′"
+          },
+          {
+            "between": "Jupiter and Saturn",
+            "aspect": "Square (90°)",
+            "orb": "6°14′"
+          },
+          {
+            "between": "Venus and Saturn",
+            "aspect": "Opposition (180°)",
+            "orb": "6°30′"
+          },
+          {
+            "between": "Mercury and Uranus",
+            "aspect": "Trine (120°)",
+            "orb": "7°38′"
+          }
+        ],
+        "countsNote": null,
+        "elements": [
+          {
+            "element": "Water",
+            "planets": 4
+          },
+          {
+            "element": "Fire",
+            "planets": 2
+          },
+          {
+            "element": "Earth",
+            "planets": 2
+          },
+          {
+            "element": "Air",
+            "planets": 2
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Fixed",
+            "planets": 6
+          },
+          {
+            "modality": "Cardinal",
+            "planets": 3
+          },
+          {
+            "modality": "Mutable",
+            "planets": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "natal-en-03",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1972,
+        "month": 11,
+        "day": 3,
+        "hour": 6,
+        "minute": 15,
+        "latitude": -33.8678,
+        "longitude": 151.2073,
+        "timeZone": "Australia/Sydney",
+        "houseSystem": "whole-sign"
+      },
+      "data": {
+        "birthTimeKnown": true,
+        "houseSystem": "Whole sign",
+        "houseSystemNote": null,
+        "bigThree": {
+          "sun": "Scorpio",
+          "moon": "Libra",
+          "rising": "Scorpio"
+        },
+        "angles": {
+          "ascendant": "16°10′ Scorpio",
+          "midheaven": "29°55′ Cancer"
+        },
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Scorpio",
+            "degree": "10°28′",
+            "house": "1st",
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Libra",
+            "degree": "4°30′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Sagittarius",
+            "degree": "3°29′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Venus",
+            "sign": "Libra",
+            "degree": "3°29′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Libra",
+            "degree": "21°21′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Capricorn",
+            "degree": "5°16′",
+            "house": "3rd",
+            "motion": "direct"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Gemini",
+            "degree": "19°43′",
+            "house": "8th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Libra",
+            "degree": "20°03′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Sagittarius",
+            "degree": "4°04′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Libra",
+            "degree": "3°18′",
+            "house": "12th",
+            "motion": "direct"
+          },
+          {
+            "point": "North Node",
+            "sign": "Capricorn",
+            "degree": "20°23′",
+            "house": "3rd",
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": [
+          {
+            "house": "1st",
+            "cusp": "0°00′ Scorpio"
+          },
+          {
+            "house": "2nd",
+            "cusp": "0°00′ Sagittarius"
+          },
+          {
+            "house": "3rd",
+            "cusp": "0°00′ Capricorn"
+          },
+          {
+            "house": "4th",
+            "cusp": "0°00′ Aquarius"
+          },
+          {
+            "house": "5th",
+            "cusp": "0°00′ Pisces"
+          },
+          {
+            "house": "6th",
+            "cusp": "0°00′ Aries"
+          },
+          {
+            "house": "7th",
+            "cusp": "0°00′ Taurus"
+          },
+          {
+            "house": "8th",
+            "cusp": "0°00′ Gemini"
+          },
+          {
+            "house": "9th",
+            "cusp": "0°00′ Cancer"
+          },
+          {
+            "house": "10th",
+            "cusp": "0°00′ Leo"
+          },
+          {
+            "house": "11th",
+            "cusp": "0°00′ Virgo"
+          },
+          {
+            "house": "12th",
+            "cusp": "0°00′ Libra"
+          }
+        ],
+        "planetsByHouse": [
+          {
+            "house": "1st",
+            "planets": ["Sun"]
+          },
+          {
+            "house": "2nd",
+            "planets": ["Mercury", "Neptune"]
+          },
+          {
+            "house": "3rd",
+            "planets": ["Jupiter"]
+          },
+          {
+            "house": "8th",
+            "planets": ["Saturn"]
+          },
+          {
+            "house": "12th",
+            "planets": ["Moon", "Venus", "Mars", "Uranus", "Pluto"]
+          }
+        ],
+        "aspects": [
+          {
+            "between": "Mercury and Venus",
+            "aspect": "Sextile (60°)",
+            "orb": "0°00′"
+          },
+          {
+            "between": "Venus and Pluto",
+            "aspect": "Conjunction (0°)",
+            "orb": "0°10′"
+          },
+          {
+            "between": "Mercury and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "0°11′"
+          },
+          {
+            "between": "Saturn and Uranus",
+            "aspect": "Trine (120°)",
+            "orb": "0°19′"
+          },
+          {
+            "between": "Moon and Neptune",
+            "aspect": "Sextile (60°)",
+            "orb": "0°25′"
+          },
+          {
+            "between": "Mercury and Neptune",
+            "aspect": "Conjunction (0°)",
+            "orb": "0°35′"
+          },
+          {
+            "between": "Venus and Neptune",
+            "aspect": "Sextile (60°)",
+            "orb": "0°35′"
+          },
+          {
+            "between": "Moon and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "0°46′"
+          },
+          {
+            "between": "Neptune and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "0°46′"
+          },
+          {
+            "between": "Moon and Mercury",
+            "aspect": "Sextile (60°)",
+            "orb": "1°00′"
+          },
+          {
+            "between": "Moon and Venus",
+            "aspect": "Conjunction (0°)",
+            "orb": "1°00′"
+          },
+          {
+            "between": "Moon and Pluto",
+            "aspect": "Conjunction (0°)",
+            "orb": "1°11′"
+          },
+          {
+            "between": "Mars and Uranus",
+            "aspect": "Conjunction (0°)",
+            "orb": "1°17′"
+          },
+          {
+            "between": "Mars and Saturn",
+            "aspect": "Trine (120°)",
+            "orb": "1°37′"
+          },
+          {
+            "between": "Venus and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "1°47′"
+          },
+          {
+            "between": "Jupiter and Pluto",
+            "aspect": "Square (90°)",
+            "orb": "1°58′"
+          },
+          {
+            "between": "Sun and Jupiter",
+            "aspect": "Sextile (60°)",
+            "orb": "5°11′"
+          }
+        ],
+        "countsNote": null,
+        "elements": [
+          {
+            "element": "Air",
+            "planets": 6
+          },
+          {
+            "element": "Fire",
+            "planets": 2
+          },
+          {
+            "element": "Earth",
+            "planets": 1
+          },
+          {
+            "element": "Water",
+            "planets": 1
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Cardinal",
+            "planets": 6
+          },
+          {
+            "modality": "Mutable",
+            "planets": 3
+          },
+          {
+            "modality": "Fixed",
+            "planets": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "natal-en-04",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1990,
+        "month": 5,
+        "day": 15,
+        "latitude": 38.7167,
+        "longitude": -9.1333,
+        "timeZone": "Europe/Lisbon",
+        "houseSystem": "placidus"
+      },
+      "data": {
+        "birthTimeKnown": false,
+        "houseSystem": null,
+        "houseSystemNote": "No birth time: positions are for local noon; the rising sign, Midheaven and houses are unknown.",
+        "bigThree": {
+          "sun": "Taurus",
+          "moon": "Capricorn or Aquarius",
+          "rising": null
+        },
+        "angles": null,
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Taurus",
+            "degree": "24°21′",
+            "house": null,
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Capricorn or Aquarius",
+            "degree": "depends on the birth time",
+            "house": null,
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Taurus",
+            "degree": "8°01′",
+            "house": null,
+            "motion": "retrograde"
+          },
+          {
+            "point": "Venus",
+            "sign": "Aries",
+            "degree": "12°46′",
+            "house": null,
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Pisces",
+            "degree": "18°18′",
+            "house": null,
+            "motion": "direct"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Cancer",
+            "degree": "9°32′",
+            "house": null,
+            "motion": "direct"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Capricorn",
+            "degree": "25°15′",
+            "house": null,
+            "motion": "retrograde"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Capricorn",
+            "degree": "9°11′",
+            "house": null,
+            "motion": "retrograde"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Capricorn",
+            "degree": "14°21′",
+            "house": null,
+            "motion": "retrograde"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Scorpio",
+            "degree": "16°10′",
+            "house": null,
+            "motion": "retrograde"
+          },
+          {
+            "point": "North Node",
+            "sign": "Aquarius",
+            "degree": "11°20′",
+            "house": null,
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": null,
+        "planetsByHouse": null,
+        "aspects": [
+          {
+            "between": "Jupiter and Uranus",
+            "aspect": "Opposition (180°)",
+            "orb": "0°21′"
+          },
+          {
+            "between": "Sun and Saturn",
+            "aspect": "Trine (120°)",
+            "orb": "0°53′"
+          },
+          {
+            "between": "Mercury and Uranus",
+            "aspect": "Trine (120°)",
+            "orb": "1°09′"
+          },
+          {
+            "between": "Mercury and Jupiter",
+            "aspect": "Sextile (60°)",
+            "orb": "1°31′"
+          },
+          {
+            "between": "Venus and Neptune",
+            "aspect": "Square (90°)",
+            "orb": "1°34′"
+          },
+          {
+            "between": "Neptune and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "1°48′"
+          },
+          {
+            "between": "Mars and Pluto",
+            "aspect": "Trine (120°)",
+            "orb": "2°08′"
+          },
+          {
+            "between": "Venus and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "3°14′"
+          },
+          {
+            "between": "Venus and Uranus",
+            "aspect": "Square (90°)",
+            "orb": "3°35′"
+          },
+          {
+            "between": "Mars and Neptune",
+            "aspect": "Sextile (60°)",
+            "orb": "3°56′"
+          },
+          {
+            "between": "Jupiter and Neptune",
+            "aspect": "Opposition (180°)",
+            "orb": "4°49′"
+          },
+          {
+            "between": "Uranus and Neptune",
+            "aspect": "Conjunction (0°)",
+            "orb": "5°10′"
+          },
+          {
+            "between": "Mercury and Neptune",
+            "aspect": "Trine (120°)",
+            "orb": "6°20′"
+          },
+          {
+            "between": "Jupiter and Pluto",
+            "aspect": "Trine (120°)",
+            "orb": "6°38′"
+          }
+        ],
+        "countsNote": "Element and modality counts cover nine planets: the Moon is left out because its sign depends on the birth time.",
+        "elements": [
+          {
+            "element": "Earth",
+            "planets": 5
+          },
+          {
+            "element": "Water",
+            "planets": 3
+          },
+          {
+            "element": "Fire",
+            "planets": 1
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Cardinal",
+            "planets": 5
+          },
+          {
+            "modality": "Fixed",
+            "planets": 3
+          },
+          {
+            "modality": "Mutable",
+            "planets": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "natal-en-05",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1995,
+        "month": 1,
+        "day": 20,
+        "hour": 8,
+        "minute": 0,
+        "latitude": 69.6496,
+        "longitude": 18.957,
+        "timeZone": "Europe/Oslo",
+        "houseSystem": "placidus"
+      },
+      "data": {
+        "birthTimeKnown": true,
+        "houseSystem": "Whole sign",
+        "houseSystemNote": "Born above 66° latitude, so whole-sign houses are used instead of Placidus.",
+        "bigThree": {
+          "sun": "Capricorn",
+          "moon": "Virgo",
+          "rising": "Sagittarius"
+        },
+        "angles": {
+          "ascendant": "0°40′ Sagittarius",
+          "midheaven": "5°05′ Sagittarius"
+        },
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Capricorn",
+            "degree": "29°44′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Virgo",
+            "degree": "10°35′",
+            "house": "10th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Aquarius",
+            "degree": "18°25′",
+            "house": "3rd",
+            "motion": "direct"
+          },
+          {
+            "point": "Venus",
+            "sign": "Sagittarius",
+            "degree": "13°01′",
+            "house": "1st",
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Virgo",
+            "degree": "0°40′",
+            "house": "10th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Sagittarius",
+            "degree": "8°22′",
+            "house": "1st",
+            "motion": "direct"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Pisces",
+            "degree": "9°47′",
+            "house": "4th",
+            "motion": "direct"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Capricorn",
+            "degree": "26°36′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Capricorn",
+            "degree": "23°17′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Sagittarius",
+            "degree": "0°04′",
+            "house": "1st",
+            "motion": "direct"
+          },
+          {
+            "point": "North Node",
+            "sign": "Scorpio",
+            "degree": "10°44′",
+            "house": "12th",
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": [
+          {
+            "house": "1st",
+            "cusp": "0°00′ Sagittarius"
+          },
+          {
+            "house": "2nd",
+            "cusp": "0°00′ Capricorn"
+          },
+          {
+            "house": "3rd",
+            "cusp": "0°00′ Aquarius"
+          },
+          {
+            "house": "4th",
+            "cusp": "0°00′ Pisces"
+          },
+          {
+            "house": "5th",
+            "cusp": "0°00′ Aries"
+          },
+          {
+            "house": "6th",
+            "cusp": "0°00′ Taurus"
+          },
+          {
+            "house": "7th",
+            "cusp": "0°00′ Gemini"
+          },
+          {
+            "house": "8th",
+            "cusp": "0°00′ Cancer"
+          },
+          {
+            "house": "9th",
+            "cusp": "0°00′ Leo"
+          },
+          {
+            "house": "10th",
+            "cusp": "0°00′ Virgo"
+          },
+          {
+            "house": "11th",
+            "cusp": "0°00′ Libra"
+          },
+          {
+            "house": "12th",
+            "cusp": "0°00′ Scorpio"
+          }
+        ],
+        "planetsByHouse": [
+          {
+            "house": "1st",
+            "planets": ["Venus", "Jupiter", "Pluto"]
+          },
+          {
+            "house": "2nd",
+            "planets": ["Sun", "Uranus", "Neptune"]
+          },
+          {
+            "house": "3rd",
+            "planets": ["Mercury"]
+          },
+          {
+            "house": "4th",
+            "planets": ["Saturn"]
+          },
+          {
+            "house": "10th",
+            "planets": ["Moon", "Mars"]
+          }
+        ],
+        "aspects": [
+          {
+            "between": "Sun and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "0°19′"
+          },
+          {
+            "between": "Mars and Pluto",
+            "aspect": "Square (90°)",
+            "orb": "0°35′"
+          },
+          {
+            "between": "Moon and Saturn",
+            "aspect": "Opposition (180°)",
+            "orb": "0°47′"
+          },
+          {
+            "between": "Jupiter and Saturn",
+            "aspect": "Square (90°)",
+            "orb": "1°25′"
+          },
+          {
+            "between": "Moon and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "2°12′"
+          },
+          {
+            "between": "Moon and Venus",
+            "aspect": "Square (90°)",
+            "orb": "2°25′"
+          },
+          {
+            "between": "Sun and Uranus",
+            "aspect": "Conjunction (0°)",
+            "orb": "3°08′"
+          },
+          {
+            "between": "Venus and Saturn",
+            "aspect": "Square (90°)",
+            "orb": "3°13′"
+          },
+          {
+            "between": "Uranus and Neptune",
+            "aspect": "Conjunction (0°)",
+            "orb": "3°18′"
+          },
+          {
+            "between": "Uranus and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "3°28′"
+          },
+          {
+            "between": "Venus and Jupiter",
+            "aspect": "Conjunction (0°)",
+            "orb": "4°38′"
+          },
+          {
+            "between": "Mercury and Venus",
+            "aspect": "Sextile (60°)",
+            "orb": "5°24′"
+          },
+          {
+            "between": "Sun and Neptune",
+            "aspect": "Conjunction (0°)",
+            "orb": "6°26′"
+          },
+          {
+            "between": "Mars and Jupiter",
+            "aspect": "Square (90°)",
+            "orb": "7°42′"
+          }
+        ],
+        "countsNote": null,
+        "elements": [
+          {
+            "element": "Earth",
+            "planets": 5
+          },
+          {
+            "element": "Fire",
+            "planets": 3
+          },
+          {
+            "element": "Air",
+            "planets": 1
+          },
+          {
+            "element": "Water",
+            "planets": 1
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Mutable",
+            "planets": 6
+          },
+          {
+            "modality": "Cardinal",
+            "planets": 3
+          },
+          {
+            "modality": "Fixed",
+            "planets": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "natal-en-06",
+    "input": {
+      "kind": "natal-full",
+      "locale": "en",
+      "requestDate": "2026-11-24T08:00:00Z",
+      "request": {
+        "year": 1962,
+        "month": 3,
+        "day": 30,
+        "hour": 23,
+        "minute": 45,
+        "latitude": 51.5085,
+        "longitude": -0.1257,
+        "timeZone": "Europe/London",
+        "houseSystem": "placidus"
+      },
+      "data": {
+        "birthTimeKnown": true,
+        "houseSystem": "Placidus",
+        "houseSystemNote": null,
+        "bigThree": {
+          "sun": "Aries",
+          "moon": "Aquarius",
+          "rising": "Scorpio"
+        },
+        "angles": {
+          "ascendant": "25°26′ Scorpio",
+          "midheaven": "17°59′ Virgo"
+        },
+        "points": [
+          {
+            "point": "Sun",
+            "sign": "Aries",
+            "degree": "9°44′",
+            "house": "4th",
+            "motion": "direct"
+          },
+          {
+            "point": "Moon",
+            "sign": "Aquarius",
+            "degree": "2°21′",
+            "house": "2nd",
+            "motion": "direct"
+          },
+          {
+            "point": "Mercury",
+            "sign": "Pisces",
+            "degree": "24°21′",
+            "house": "4th",
+            "motion": "direct"
+          },
+          {
+            "point": "Venus",
+            "sign": "Aries",
+            "degree": "25°02′",
+            "house": "5th",
+            "motion": "direct"
+          },
+          {
+            "point": "Mars",
+            "sign": "Pisces",
+            "degree": "14°35′",
+            "house": "3rd",
+            "motion": "direct"
+          },
+          {
+            "point": "Jupiter",
+            "sign": "Pisces",
+            "degree": "1°04′",
+            "house": "3rd",
+            "motion": "direct"
+          },
+          {
+            "point": "Saturn",
+            "sign": "Aquarius",
+            "degree": "9°17′",
+            "house": "3rd",
+            "motion": "direct"
+          },
+          {
+            "point": "Uranus",
+            "sign": "Leo",
+            "degree": "26°54′",
+            "house": "9th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Neptune",
+            "sign": "Scorpio",
+            "degree": "12°57′",
+            "house": "12th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "Pluto",
+            "sign": "Virgo",
+            "degree": "8°05′",
+            "house": "9th",
+            "motion": "retrograde"
+          },
+          {
+            "point": "North Node",
+            "sign": "Leo",
+            "degree": "15°18′",
+            "house": "9th",
+            "motion": "mean node"
+          }
+        ],
+        "houseCusps": [
+          {
+            "house": "1st",
+            "cusp": "25°26′ Scorpio"
+          },
+          {
+            "house": "2nd",
+            "cusp": "27°12′ Sagittarius"
+          },
+          {
+            "house": "3rd",
+            "cusp": "8°24′ Aquarius"
+          },
+          {
+            "house": "4th",
+            "cusp": "17°59′ Pisces"
+          },
+          {
+            "house": "5th",
+            "cusp": "17°25′ Aries"
+          },
+          {
+            "house": "6th",
+            "cusp": "8°45′ Taurus"
+          },
+          {
+            "house": "7th",
+            "cusp": "25°26′ Taurus"
+          },
+          {
+            "house": "8th",
+            "cusp": "27°12′ Gemini"
+          },
+          {
+            "house": "9th",
+            "cusp": "8°24′ Leo"
+          },
+          {
+            "house": "10th",
+            "cusp": "17°59′ Virgo"
+          },
+          {
+            "house": "11th",
+            "cusp": "17°25′ Libra"
+          },
+          {
+            "house": "12th",
+            "cusp": "8°45′ Scorpio"
+          }
+        ],
+        "planetsByHouse": [
+          {
+            "house": "2nd",
+            "planets": ["Moon"]
+          },
+          {
+            "house": "3rd",
+            "planets": ["Mars", "Jupiter", "Saturn"]
+          },
+          {
+            "house": "4th",
+            "planets": ["Sun", "Mercury"]
+          },
+          {
+            "house": "5th",
+            "planets": ["Venus"]
+          },
+          {
+            "house": "9th",
+            "planets": ["Uranus", "Pluto"]
+          },
+          {
+            "house": "12th",
+            "planets": ["Neptune"]
+          }
+        ],
+        "aspects": [
+          {
+            "between": "Sun and Saturn",
+            "aspect": "Sextile (60°)",
+            "orb": "0°27′"
+          },
+          {
+            "between": "Mars and Neptune",
+            "aspect": "Trine (120°)",
+            "orb": "1°38′"
+          },
+          {
+            "between": "Venus and Uranus",
+            "aspect": "Trine (120°)",
+            "orb": "1°51′"
+          },
+          {
+            "between": "Saturn and Neptune",
+            "aspect": "Square (90°)",
+            "orb": "3°40′"
+          },
+          {
+            "between": "Jupiter and Uranus",
+            "aspect": "Opposition (180°)",
+            "orb": "4°10′"
+          },
+          {
+            "between": "Neptune and Pluto",
+            "aspect": "Sextile (60°)",
+            "orb": "4°52′"
+          },
+          {
+            "between": "Mars and Pluto",
+            "aspect": "Opposition (180°)",
+            "orb": "6°30′"
+          },
+          {
+            "between": "Moon and Saturn",
+            "aspect": "Conjunction (0°)",
+            "orb": "6°55′"
+          },
+          {
+            "between": "Jupiter and Pluto",
+            "aspect": "Opposition (180°)",
+            "orb": "7°00′"
+          },
+          {
+            "between": "Moon and Venus",
+            "aspect": "Square (90°)",
+            "orb": "7°19′"
+          }
+        ],
+        "countsNote": null,
+        "elements": [
+          {
+            "element": "Water",
+            "planets": 4
+          },
+          {
+            "element": "Fire",
+            "planets": 3
+          },
+          {
+            "element": "Air",
+            "planets": 2
+          },
+          {
+            "element": "Earth",
+            "planets": 1
+          }
+        ],
+        "modalities": [
+          {
+            "modality": "Fixed",
+            "planets": 4
+          },
+          {
+            "modality": "Mutable",
+            "planets": 4
+          },
+          {
+            "modality": "Cardinal",
+            "planets": 2
+          }
+        ]
+      }
+    }
+  }
+]

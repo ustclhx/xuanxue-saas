@@ -281,7 +281,7 @@ describe('样例段落', () => {
 
   it('六种详批的每种报告语言都有样例；解锁卡标题声明为虚构案例', () => {
     expect(new Set(variants.map((v) => v.kind))).toEqual(new Set(READING_KINDS))
-    expect(variants).toHaveLength(18)
+    expect(variants).toHaveLength(19)
     for (const { locale, sample } of variants) {
       expect(sample.length).toBeGreaterThan(0)
       // 正文自身以「示例」开头，解锁卡标题再声明为虚构案例（readings_unlock_sample）
@@ -328,6 +328,8 @@ describe('样例段落', () => {
       'Geng Wu, Xin Si, Geng Chen and Xin Si (庚午 辛巳 庚辰 辛巳)',
     )
     expect(sample('ziwei-full', 'en')).toContain('Po Jun')
+    // 出生星盘（第 23 组）：虚构 1990-05-15 10:30 里斯本，度数与宫位由 natal-chart.test.ts 按引擎复核
+    expect(sample('natal-full', 'en')).toContain('24° Taurus in the 11th house')
     expect(sample('numerology-full', 'es')).toContain('número de vida 3')
     // 西语样例按术语表写牌名与正位（Oros / Bastos、al derecho）
     expect(sample('tarot-spread', 'es')).toMatch(/Ocho de Oros al derecho.*As de Bastos al derecho/)

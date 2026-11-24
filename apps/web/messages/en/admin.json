@@ -350,6 +350,7 @@
   "admin_reading_kind_saju_compat": "Saju compatibility",
   "admin_reading_kind_numerology_full": "Numerology full reading",
   "admin_reading_kind_tarot_spread": "Tarot spread reading",
+  "admin_reading_kind_natal_full": "Birth chart full reading",
   "admin_reading_enabled": "Enabled",
   "admin_reading_credits": "Credits",
   "admin_reading_model": "Model",

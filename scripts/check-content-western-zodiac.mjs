@@ -349,7 +349,13 @@ const ALL_PATHS = new Set([
   ...PAIRS.map(([a, b]) => `/zodiac-compatibility/${a}-and-${b}`),
 ])
 /** 正文可链接的西方站其他可索引页 */
-const OTHER_TARGETS = new Set(['/life-path-compatibility', '/life-path-number', '/numerology'])
+const OTHER_TARGETS = new Set([
+  '/life-path-compatibility',
+  '/life-path-number',
+  '/numerology',
+  // 第 23 组：出生星盘（钱页入链）
+  '/birth-chart',
+])
 
 export function checkContent({ only } = {}) {
   const failures = []

@@ -49,6 +49,46 @@ const JA_INVESTMENT =
 const EN_DATE =
   /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?\b|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{4}\b|\b\d{4}-\d{2}(?:-\d{2})?\b/i
 const EN_ASSERT = /\b(?:will|shall|is going to|are going to|destined|certainly|definitely)\b/i
+const EN_CANCER = /\bcancer(?:s|ous)?\b/gi
+const EN_CHART_POINTS =
+  'Sun|Moon|Mercury|Venus|Mars|Jupiter|Saturn|Uranus|Neptune|Pluto|North Node|Ascendant|Midheaven|rising sign'
+const EN_ASTROLOGY_BEFORE_CANCER = new RegExp(
+  `\\b(?:sign of|(?:${EN_CHART_POINTS})(?:(?: is| sits| falls)? in| \\([a-z -]{1,35}, in))\\s+[*_]*$`,
+  'i',
+)
+const EN_ASTROLOGY_AFTER_CANCER = new RegExp(
+  `^[*_]*\\s+(?:rises at \\d{1,2}°|rising(?=$|[.*_),:!?]|\\s+(?:[—–]|is (?:traditionally|often) (?:read|associated)|adds a protective))|(?:${EN_CHART_POINTS})\\b(?!\\s+(?:exposure|damage|burns?)\\b)|(?:is (?:a|the) )?(?:(?:cardinal|water|zodiac) )+sign\\b)`,
+  'i',
+)
+const EN_ASTROLOGY_CANCER_GROUPS = [
+  [/\bwater(?: signs)?\s*\($/i, /^,\s*Scorpio\s*,\s*(?:and\s+)?Pisces\)/],
+  [/\bcardinal(?: signs)?\s*\(Aries\s*,\s*$/i, /^,\s*Libra\s*,\s*(?:and\s+)?Capricorn\)/],
+] as const
+const EN_MEDICAL_CANCER = {
+  test(text: string) {
+    // 恢复不区分大小写的病名匹配，只放行明确标注为星座的单个 Cancer。
+    let signAlreadyNamed = false
+    for (const match of text.matchAll(EN_CANCER)) {
+      if (match[0] !== 'Cancer') return true
+      const before = text.slice(0, match.index)
+      const after = text.slice(match.index + match[0].length)
+      if (
+        EN_ASTROLOGY_BEFORE_CANCER.test(before) ||
+        EN_ASTROLOGY_AFTER_CANCER.test(after) ||
+        EN_ASTROLOGY_CANCER_GROUPS.some(
+          ([prefix, suffix]) => prefix.test(before) && suffix.test(after),
+        )
+      ) {
+        signAlreadyNamed = true
+        continue
+      }
+      // 同一句群先明确为落座，再用「In Cancer,」继续解释该落座。
+      if (signAlreadyNamed && /[.;][*_]*\s+in\s+$/i.test(before) && after.startsWith(',')) continue
+      return true
+    }
+    return false
+  },
+}
 // 西班牙语（add-locales-eu-ja 任务 5.8）：「15 de marzo」「marzo de 2027」「2027-03」；断言语气用将来时与确定性副词
 const ES_MONTH =
   '(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)'
@@ -158,7 +198,8 @@ const RULES: Record<AppLocale, LocaleRules> = {
     patterns: {
       'date-prediction': [both(EN_DATE, EN_ASSERT)],
       medical: [
-        /\b(?:cancer|tumou?r|diabetes|hypertension|heart disease|stroke|depression|hepatitis|kidney disease|dementia|infertility|pneumonia|diagnos[ie]s|diagnosed)\b/i,
+        /\b(?:tumou?r|diabetes|hypertension|heart disease|stroke|depression|hepatitis|kidney disease|dementia|infertility|pneumonia|diagnos[ie]s|diagnosed)\b/i,
+        EN_MEDICAL_CANCER,
       ],
       investment: EN_INVESTMENT,
     },

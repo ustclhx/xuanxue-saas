@@ -1,6 +1,7 @@
 import { TOOLS_HUB_WEST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { ANGEL_CONTENT_ROUTES } from './angel-numbers/paths.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
+import { NATAL_CONTENT_ROUTES } from './natal-chart/paths.ts'
 import { PERSONAL_YEAR_CONTENT_ROUTES } from './personal-year/paths.ts'
 import { TAROT_SPREAD_CONTENT_ROUTES } from './tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
@@ -39,6 +40,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...ANGEL_CONTENT_ROUTES,
   // 第 27 组：personal year 计算器与 1–9 年份数页（en、es）
   ...PERSONAL_YEAR_CONTENT_ROUTES,
+  // 第 23 组：三巨头计算器 `/rising-sign-calculator` 与出生星盘 `/birth-chart`（en）
+  ...NATAL_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

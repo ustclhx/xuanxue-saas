@@ -30,12 +30,15 @@ import { z } from 'zod'
 import type { AppLocale } from '../i18n/locales.ts'
 import { birthInputSchema } from '../profiles/schema.ts'
 import { JA_DATA_VERSION, japaneseChartExtras } from './ja-chart.ts'
+import { recomputeNatal } from './natal-chart.ts'
 import { BAZI_FULL_V4_EN } from './prompts/bazi-full.en.v4.ts'
 import { BAZI_FULL_V5_EN } from './prompts/bazi-full.en.v5.ts'
 import { BAZI_FULL_V2 } from './prompts/bazi-full.v2.ts'
 import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
+import { NATAL_FULL_V1_EN } from './prompts/natal-full.en.v1.ts'
+import { NATAL_FULL_V2_EN } from './prompts/natal-full.en.v2.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
 import { NUMEROLOGY_FULL_V5 } from './prompts/numerology-full.v5.ts'
@@ -708,6 +711,22 @@ const entries = {
     },
     recompute: recomputeTarot,
   },
+  // content-growth-v2-tools 第 23 组：西方站出生星盘完整解读（en）。服务端按出生资料复算星盘（natal-chart.ts），
+  // 评测通过并经使用者审阅样例前不开放（READING_EVAL_PENDING、release.ts 的 NATAL_READING_LOCALES、默认关闭）
+  'natal-full': {
+    kind: 'natal-full',
+    variants: {
+      en: {
+        prompt: NATAL_FULL_V2_EN,
+        disclaimer:
+          'This reading follows traditional Western astrology and uses positions calculated by standard astronomical methods. It is for reference and self-reflection only, is not medical, legal or financial advice, and does not predict the future.',
+        healthSection: null,
+        sample: READING_SAMPLES['natal-full'].en,
+      },
+    },
+    versions: { 'natal-full.v1': { en: NATAL_FULL_V1_EN } },
+    recompute: (raw, now) => recomputeNatal(raw, now),
+  },
 } satisfies Record<ReadingKind, ReadingEntry>
 
 export type AvailableReadingKind = keyof typeof entries
@@ -720,6 +739,9 @@ export type AvailableReadingKind = keyof typeof entries
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
 export const READING_EVAL_PENDING: ReadonlySet<string> = new Set<string>([
+  // content-growth-v2-tools 第 23 组：出生星盘 natal-full.v2（evals/readings-natal）；
+  // --no-judge 样例经 Claude 复核与使用者审阅后再删去
+  'natal-full.en',
   // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；
   // 东方站英文八字 / 紫微（add-locales-eu-ja 5b.3）readings-east-en@v3（v5 英文标签数据）2026-11-21
   // 真实评测全部必需门槛通过（准确度八字 4.125、紫微 4.875），已删去。

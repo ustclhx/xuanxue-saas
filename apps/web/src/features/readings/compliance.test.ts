@@ -85,6 +85,38 @@ describe('合规规则检查', () => {
       ])
   })
 
+  it('英语：星座 Cancer 不算病名，小写 cancer 与病名语境照常替换', () => {
+    for (const text of [
+      'Cancer rises at 22°.',
+      'The Moon in **Cancer** is read as protective.',
+      'Cancer is a cardinal water sign.',
+      '**Cancer rising.**',
+      'Jupiter (growth, in Cancer) forms an aspect to Uranus.',
+      '- **Jupiter in Cancer.** In Cancer, Jupiter traditionally emphasizes care.',
+      'The conjunction includes a Cancer Sun and Cancer Mars.',
+      'Water (Cancer, Scorpio, Pisces) and cardinal signs (Aries, Cancer, Libra, Capricorn).',
+    ])
+      expect(checkCompliance(text, 'en'), text).toEqual({ content: text, violations: [] })
+    for (const text of [
+      'There is a risk of cancer.',
+      'Cancer-Screening is advised.',
+      'Cancer may affect your lungs.',
+      'Lung Cancer is likely.',
+      'CAnCeR can be fatal.',
+      'Cancerous cells spread.',
+      'Cancer rises among smokers.',
+      'Reports show Cancer rising sharply among smokers.',
+      'Cancer rising is a serious health problem.',
+      'The Moon in Cancer means Cancer is likely.',
+      // PR #309 代码审阅：病名语境的大写 Cancer 不因星盘详批放行
+      'Cancer may affect your later years.',
+      'There is a risk of developing Cancer.',
+      'Breast Cancer runs in some families.',
+      'Cancerous growths need a doctor.',
+    ])
+      expect(checkCompliance(text, 'en').violations, text).toEqual([{ rule: 'medical', block: 0 }])
+  })
+
   it('健康的报告不做任何改动', () => {
     const text = '## 總論\n\n日主甲木，性格正直。\n\n## 建議\n\n- 保持規律作息\n- 多與朋友交流'
     expect(checkCompliance(text, 'zh-Hant')).toEqual({ content: text, violations: [] })

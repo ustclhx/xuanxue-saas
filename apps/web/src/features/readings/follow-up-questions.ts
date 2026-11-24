@@ -72,6 +72,13 @@ const TABLE: Readonly<Record<ReadingKind, Readonly<Record<string, Questions>>>> 
       '이 궁합에서 관계를 오래 이어가기 위한 조언이 있을까요?',
     ],
   },
+  'natal-full': {
+    en: [
+      'How do my Sun, Moon and rising sign work together?',
+      'Which house holds the most planets in my chart, and what is it traditionally linked with?',
+      'What does my closest aspect suggest I reflect on?',
+    ],
+  },
   'numerology-full': {
     en: [
       'How does my Life Path number shape the way I make decisions?',

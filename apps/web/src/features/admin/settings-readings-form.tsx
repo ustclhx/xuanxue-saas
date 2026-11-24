@@ -26,6 +26,7 @@ const KIND_LABELS: Record<Row['kind'], () => string> = {
   'saju-compat': m.admin_reading_kind_saju_compat,
   'numerology-full': m.admin_reading_kind_numerology_full,
   'tarot-spread': m.admin_reading_kind_tarot_spread,
+  'natal-full': m.admin_reading_kind_natal_full,
 }
 
 export function ReadingSettingsForm() {

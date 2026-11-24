@@ -121,6 +121,57 @@
       "preferred": "root number",
       "variants": ["root"],
       "note": "Digit sum reduced with the life path rule; 11, 22 and 33 are kept"
+    },
+    {
+      "id": "natal.ascendant",
+      "en": "ascendant",
+      "preferred": "Ascendant"
+    },
+    {
+      "id": "natal.rising-sign",
+      "en": "rising sign",
+      "preferred": "rising sign"
+    },
+    {
+      "id": "natal.chart",
+      "en": "birth chart",
+      "preferred": "birth chart",
+      "variants": ["natal chart"]
+    },
+    {
+      "id": "natal.midheaven",
+      "en": "midheaven",
+      "preferred": "Midheaven"
+    },
+    {
+      "id": "natal.house-system.placidus",
+      "en": "Placidus",
+      "preferred": "Placidus"
+    },
+    {
+      "id": "natal.house-system.whole-sign",
+      "en": "whole-sign houses",
+      "preferred": "whole-sign houses"
+    },
+    {
+      "id": "natal.orb",
+      "en": "orb",
+      "preferred": "orb"
+    },
+    {
+      "id": "natal.ecliptic",
+      "en": "ecliptic",
+      "preferred": "ecliptic"
+    },
+    {
+      "id": "natal.mean-north-node",
+      "en": "mean north node",
+      "preferred": "mean North Node"
+    },
+    {
+      "id": "natal.retrograde",
+      "en": "retrograde",
+      "preferred": "retrograde"
     }
   ],
   "banned": [
@@ -216,6 +267,8 @@
     "/tarot/celtic-cross": ["Celtic Cross spread", "Celtic Cross tarot"],
     "/moon-phase-today": ["today's moon phase", "moon phase today"],
     "/full-moon-calendar": ["full moon calendar", "full moon dates"],
+    "/birth-chart": ["birth chart calculator", "birth chart"],
+    "/rising-sign-calculator": ["rising sign calculator", "big three"],
     "/zodiac-signs": ["zodiac signs", "Western zodiac signs"],
     "/zodiac-compatibility": ["zodiac compatibility chart", "zodiac compatibility"],
     "/zodiac-signs/aries": ["Aries", "Aries compatibility"],
@@ -509,6 +562,8 @@
     "apps/web/content/angel-numbers/en/**/*.mdx",
     "apps/web/src/features/west-content/angel-numbers/copy.ts",
     "apps/web/content/personal-year/en/**/*.mdx",
-    "apps/web/src/features/west-content/personal-year/copy.ts"
+    "apps/web/src/features/west-content/personal-year/copy.ts",
+    "apps/web/content/natal-chart/en/*.mdx",
+    "apps/web/src/features/west-content/natal-chart/copy.ts"
   ]
 }
