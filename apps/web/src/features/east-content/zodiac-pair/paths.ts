@@ -6,13 +6,13 @@ import { ZODIAC_KEYS, ZODIAC_SLUGS, type ZodiacKey } from '../zodiac/paths.ts'
  * 生肖配对集合的地址（openspec content-growth-v2-tools 决策 2、9）。只放字面量与纯函数：路由映射、注册表、
  * 站点地图与预渲染都从这里读取，本文件随入口包加载，不得引用运行时模块。
  * 规范顺序按地支（子丑寅…），反序地址由 features/routing/pair-path.ts 301 到规范地址。
- * zh-Hans 由第 16 组发布；ko（띠궁합）、根路径英文（chinese-zodiac-compatibility）由第 17 组补内容后
+ * zh-Hans 由第 16 组发布；ko（띠궁합）、根路径英文（chinese-zodiac-compatibility）由第 17 组写完 78 篇后
  * 加入 ZODIAC_PAIR_PUBLISHED（en 另在 features/east-en/paths.ts 登记映射）。
  */
 export type ZodiacPairLocale = 'zh-Hans' | 'ko' | 'en'
 
 /** 已发布的语言：未写完的语言整组不发布，hreflang 只列这些语言（chinese-zodiac-pair-pages 规格） */
-export const ZODIAC_PAIR_PUBLISHED: readonly ZodiacPairLocale[] = ['zh-Hans']
+export const ZODIAC_PAIR_PUBLISHED: readonly ZodiacPairLocale[] = ['zh-Hans', 'ko', 'en']
 
 export const ZODIAC_PAIR_HUB_PATHS: Readonly<Record<ZodiacPairLocale, `/${string}`>> = {
   'zh-Hans': '/生肖配对',

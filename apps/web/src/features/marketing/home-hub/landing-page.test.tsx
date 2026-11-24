@@ -93,18 +93,18 @@ describe('落地页数据', () => {
       'east',
       'ko',
       'bazi',
-      ['saju-gunghap', 'tarot-three-card', 'tojeong', 'zodiac'],
+      ['saju-gunghap', 'zodiac-pair', 'tarot-three-card', 'tojeong'],
       'daily',
-      '사합타토띠',
+      '사합띠타토',
     ],
     ['east', 'ja', 'bazi', ['saju-gunghap', 'ziwei', 'tarot-three-card'], null, '四合紫22'],
     [
       'east',
       'en',
       'bazi',
-      ['saju-gunghap', 'ziwei', 'tarot-three-card', 'tarot-card-index'],
+      ['saju-gunghap', 'zodiac-pair', 'ziwei', 'tarot-three-card'],
       null,
-      '八合紫2278',
+      '八合C紫22',
     ],
     [
       'west',
@@ -180,18 +180,18 @@ describe('落地页数据', () => {
 
   it('当前语言没有该工具时由下一个有页面的工具顺补，季节位的链接同样只取本语言的页面', () => {
     language.locale = 'ko'
-    // 韩语没有紫微与生肖配对页：副卡顺补到띠；季节位按钮为토정비결，文字链接为신년 사주
+    // 韩语没有紫微页：副卡按配置取 사주궁합、띠궁합（第 17 组）、타로，再顺补到띠；季节位按钮为토정비결，文字链接为신년 사주
     const season = hubFeatured('east', 'ko', TOOL_ROUTES, '2026-12-10')
     expect(ids(season)).toEqual({
       main: 'bazi',
       season: ['year', 'tojeong', 'yearly-tool'],
-      secondary: ['saju-gunghap', 'tarot-three-card', 'zodiac'],
+      secondary: ['saju-gunghap', 'zodiac-pair', 'tarot-three-card', 'zodiac'],
     })
     // 季节之外토정비결回到副卡（design 决策 5「토정비결（季节外）」）
     expect(ids(hubFeatured('east', 'ko', TOOL_ROUTES, '2027-03-01'))).toEqual({
       main: 'bazi',
       season: ['daily', 'daily', undefined],
-      secondary: ['saju-gunghap', 'tarot-three-card', 'tojeong', 'zodiac'],
+      secondary: ['saju-gunghap', 'zodiac-pair', 'tarot-three-card', 'tojeong'],
     })
     // 繁中有个人流年与 2027 生肖枢纽（第 9 组）：季节位按钮与文字链接都取本语言的页面
     language.locale = 'zh-Hant'

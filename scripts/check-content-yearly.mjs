@@ -208,6 +208,7 @@ const LOCALES = {
       '/사주/오행',
       '/사주/신강신약',
       '/사주/용신',
+      '/띠궁합',
     ],
     zodiacChild: (branch) => `/띠/${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠`,
     anchors: (path, year) => {
@@ -221,6 +222,8 @@ const LOCALES = {
       if (path === '/띠') return ['띠', '열두 띠']
       if (path === '/만세력') return ['무료 만세력', '만세력']
       if (path === '/토정비결') return [`토정비결 ${year}`, '토정비결']
+      // 第 17 组：띠궁합总表（ko 年度枢纽的一条正文入链）
+      if (path === '/띠궁합') return ['띠궁합', '띠궁합 표']
       return null
     },
     countUnit: /\S/gu,
@@ -941,6 +944,9 @@ LOCALES.en = {
     if (path === '/bazi-calculator')
       return ['BaZi calculator', 'Four Pillars of Destiny calculator']
     if (path === '/bazi-compatibility') return ['BaZi compatibility', 'BaZi chart compatibility']
+    // 第 17 组：生肖配对总表（`/chinese-zodiac` 枢纽的一条正文入链）
+    if (path === '/chinese-zodiac-compatibility')
+      return ['Chinese zodiac compatibility', 'Chinese zodiac pairings']
     return null
   },
   countUnit: wordCount,

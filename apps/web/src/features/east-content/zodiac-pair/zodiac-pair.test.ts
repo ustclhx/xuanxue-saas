@@ -2,6 +2,7 @@ import { zodiacPairTable } from '@xuanxue/bazi/almanac'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+import { eastEnContentRouteOf } from '../../east-en/paths.ts'
 import { reversedPairPath } from '../../routing/pair-path.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { eastContentRouteOf } from '../routes.ts'
@@ -56,17 +57,22 @@ describe('配对事实与引擎一致', () => {
 })
 
 describe('地址、反序与注册表', () => {
-  it('zh-hans 登记总表与 78 个配对页，ko、en 未发布不登记', () => {
+  it('三种语言都登记总表与 78 个配对页（ko、en 由第 17 组发布）', () => {
     expect(eastContentRouteOf('zh-Hans', '/生肖配对')).toMatchObject({ id: 'index' })
     expect(eastContentRouteOf('zh-Hans', '/生肖配对/属鼠和属牛')).toMatchObject({
       collection: 'zodiac-pair',
       id: 'zi-chou',
     })
     expect(eastContentRouteOf('zh-Hans', '/生肖配对/属牛和属鼠')).toBeUndefined()
-    expect(eastContentRouteOf('ko', '/띠궁합/쥐띠-소띠')).toBeUndefined()
+    expect(eastContentRouteOf('ko', '/띠궁합/쥐띠-소띠')).toMatchObject({ id: 'zi-chou' })
+    expect(eastEnContentRouteOf('/chinese-zodiac-compatibility/rat-and-ox')).toMatchObject({
+      collection: 'zodiac-pair',
+      id: 'zi-chou',
+    })
+    expect(eastEnContentRouteOf('/chinese-zodiac-compatibility/ox-and-rat')).toBeUndefined()
     const routes = TOOL_ROUTES.filter((route) => route.id.startsWith('zodiac-pair'))
     expect(routes).toHaveLength(79)
-    expect(routes.every((route) => Object.keys(route.paths).join() === 'zh-Hans')).toBe(true)
+    expect(routes.every((route) => Object.keys(route.paths).join() === 'zh-Hans,ko,en')).toBe(true)
     expect(routes[0]).toMatchObject({ directoryGroup: 'relation', freeLabel: 'free_lookup' })
   })
 
@@ -87,13 +93,13 @@ describe('地址、反序与注册表', () => {
     }
   })
 
-  it('hreflang 只含已发布语言：ko 内容存在也不进清单', () => {
+  it('hreflang 只含已发布语言：ko 内容存在、语言未发布时不进清单', () => {
     const entries = [
       { locale: 'zh-Hans', key: 'zi-chou', title: 't', description: 'd' },
       { locale: 'ko', key: 'zi-chou', title: 't', description: 'd' },
       { locale: 'zh-Hans', key: 'index', title: 't', description: 'd' },
     ]
-    const pages = zodiacPairSeoPages(entries)
+    const pages = zodiacPairSeoPages(entries, ['zh-Hans'])
     expect(pages.map((page) => page.locale)).toEqual(['zh-Hans', 'zh-Hans'])
     expect(pages[0]).toMatchObject({
       path: '/生肖配对/属鼠和属牛',

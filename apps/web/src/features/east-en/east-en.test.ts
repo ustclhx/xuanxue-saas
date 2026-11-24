@@ -72,6 +72,8 @@ describe('东方站英文页面地址', () => {
       '/tarot-spreads',
       // content-growth-v2-tools 第 11 组：生肖枢纽进页头「历法与生肖」分组
       '/chinese-zodiac',
+      // 第 17 组：生肖配对总表
+      '/chinese-zodiac-compatibility',
     ])
   })
 })
