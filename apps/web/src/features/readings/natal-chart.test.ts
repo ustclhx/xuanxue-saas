@@ -1,4 +1,5 @@
 import { natalChart } from '@xuanxue/astro/chart'
+import { settingDefaults } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { describe, expect, it } from 'vitest'
 import { readingDefinition, readingEvalPassed, readingMessages } from './catalog.ts'
@@ -97,13 +98,15 @@ describe('natal-full 服务端复算', () => {
 })
 
 describe('natal-full 注册与开放状态', () => {
-  it('只有 en，属于西方站；评测通过前不开放（解锁卡显示即将开放）', () => {
+  it('只有 en，属于西方站；使用者 2026-11-24 审阅样例后对 en 开放', () => {
     const definition = readingDefinition('natal-full', 'en')
     expect(definition?.locales).toEqual(['en'])
     expect(readingDefinition('natal-full', 'es')).toBeUndefined()
     expect(readingSite('natal-full', 'en')).toBe('west')
-    expect(readingEvalPassed('natal-full', 'en')).toBe(false)
-    expect(NATAL_READING_LOCALES).toEqual([])
+    expect(readingEvalPassed('natal-full', 'en')).toBe(true)
+    expect(NATAL_READING_LOCALES).toEqual(['en'])
+    // 生产不写设置行：开关取代码默认值（开启）
+    expect(settingDefaults['readings.natal-full.enabled']).toBe(true)
     expect(definition?.prompt.version).toBe('natal-full.v2')
     expect(definition?.healthSection).toBeNull()
   })

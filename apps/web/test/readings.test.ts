@@ -901,6 +901,65 @@ describe('其余详批类型（tasks.md 2.4）', () => {
       expect(run.sent).toHaveLength(1)
     })
 
+  it('natal-full（en，波次 B 开放）：不写设置行即可购买，按代码默认积分预扣并结算，星盘由服务端复算', async () => {
+    const definition = readingDefinition('natal-full', 'en')
+    if (!definition) throw new Error('natal-full missing')
+    const report = definition.prompt.sections
+      .map((title) => `## ${title}\n\n${title} …`)
+      .join('\n\n')
+    const credits = settingDefaults['readings.natal-full.credits']
+    const who = await member(credits)
+    const modelKey = await textModel()
+    const model = reportModel(report)
+    // 开关与积分都不覆盖：取代码默认值（生产不写设置行）；只有模型 key 由测试注入
+    const run = deps(model, modelKey, { 'readings.natal-full.credits': undefined })
+    expect(settingDefaults['readings.natal-full.enabled']).toBe(true)
+    const response = await post(
+      who,
+      {
+        kind: 'natal-full',
+        input: {
+          year: 1990,
+          month: 5,
+          day: 15,
+          hour: 10,
+          minute: 30,
+          latitude: 38.7167,
+          longitude: -9.1333,
+          timeZone: 'Europe/Lisbon',
+          houseSystem: 'placidus',
+          // 篡改的客户端结果：服务端只收出生资料，复算时丢弃
+          chart: { bigThree: { sun: 'Tampered', moon: 'Tampered', rising: 'Tampered' } },
+        },
+        locale: 'en',
+        site: 'west',
+      },
+      run.deps,
+    )
+    expect(response.status).toBe(200)
+    const readingId = response.headers.get('x-reading-id')
+    await response.text()
+    await run.settled()
+
+    const prompt = JSON.stringify(model.doStreamCalls[0]?.prompt ?? [])
+    expect(prompt).toContain(definition.prompt.system.slice(0, 20))
+    // 复算结果：Taurus 太阳、Capricorn 月亮、Cancer 上升（与 natal-chart.test.ts 同一出生资料）
+    expect(prompt).toContain('Cancer')
+    expect(prompt).not.toContain('Tampered')
+    expect((await getCreditBalance(db, who.workspaceId)).available).toBe(0)
+    expect(await holds(who.workspaceId)).toEqual([
+      { status: 'captured', amount: credits, captured_amount: credits },
+    ])
+    const [saved] = await readings(who.workspaceId)
+    expect(saved).toMatchObject({ id: readingId, status: 'ready', credits })
+    expect(saved?.content.startsWith(`> ${definition.disclaimer}`)).toBe(true)
+    const [row] = await sql<{ prompt_version: string; input: unknown; engine_version: string }[]>`
+      select prompt_version, input, engine_version from reading where id = ${readingId}`
+    expect(row?.prompt_version).toBe('natal-full.v2')
+    expect(JSON.stringify(row?.input)).not.toContain('Tampered')
+    expect(row?.engine_version).toBeTruthy()
+  })
+
   it('塔罗：牌义来自服务端，问题作为数据传给模型；单张牌阵返回 400', async () => {
     const who = await member(100)
     const modelKey = await textModel()

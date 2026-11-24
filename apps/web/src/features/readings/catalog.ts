@@ -712,7 +712,7 @@ const entries = {
     recompute: recomputeTarot,
   },
   // content-growth-v2-tools 第 23 组：西方站出生星盘完整解读（en）。服务端按出生资料复算星盘（natal-chart.ts），
-  // 评测通过并经使用者审阅样例前不开放（READING_EVAL_PENDING、release.ts 的 NATAL_READING_LOCALES、默认关闭）
+  // en 已通过评测并经使用者 2026-11-24 审阅样例，随波次 B 开放（release.ts 的 NATAL_READING_LOCALES、默认开启）
   'natal-full': {
     kind: 'natal-full',
     variants: {
@@ -739,9 +739,8 @@ export type AvailableReadingKind = keyof typeof entries
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
 export const READING_EVAL_PENDING: ReadonlySet<string> = new Set<string>([
-  // content-growth-v2-tools 第 23 组：出生星盘 natal-full.v2（evals/readings-natal）；
-  // --no-judge 样例经 Claude 复核与使用者审阅后再删去
-  'natal-full.en',
+  // content-growth-v2-tools 第 23 组出生星盘 natal-full.v2（evals/readings-natal）：--no-judge 样例经 Claude
+  // 复核（五维均分 ≥ 4.33）并由使用者 2026-11-24 审阅确认，已删去（证据在 content-growth/v2/23、wave-b-release）。
   // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；
   // 东方站英文八字 / 紫微（add-locales-eu-ja 5b.3）readings-east-en@v3（v5 英文标签数据）2026-11-21
   // 真实评测全部必需门槛通过（准确度八字 4.125、紫微 4.875），已删去。

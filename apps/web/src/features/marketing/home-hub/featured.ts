@@ -10,9 +10,12 @@ import { TOOL_ROUTES, type ToolRoute } from '../../tools/registry.ts'
 
 /** 主卡 1 张 */
 export const FEATURED_MAIN_LIMIT = 1
-/** 副卡上限：东方站 4 张，西方站 3 张（Proposals 提议 3） */
-export const FEATURED_SECONDARY_LIMIT: Readonly<Record<SiteId, number>> = { east: 4, west: 3 }
-/** 页头工具下拉列出的精选工具上限（Nav.dc.html：主卡 + 季节位 + 副卡，最多 5 项） */
+/**
+ * 副卡上限：东方站 4 张；西方站原为 3 张（Proposals 提议 3），出生星盘上线后增至 4 张
+ * （第二批默认 B12，设计稿 content-growth-v2-batch2/HomeWestB.dc.html）
+ */
+export const FEATURED_SECONDARY_LIMIT: Readonly<Record<SiteId, number>> = { east: 4, west: 4 }
+/** 页头工具下拉列出的精选工具上限（Nav.dc.html、NavWestB.dc.html：主卡 + 季节位 + 副卡，最多 5 项） */
 export const FEATURED_NAV_LIMIT = 5
 
 export interface SeasonWindow {
@@ -65,7 +68,8 @@ const SEASON_YEARS: readonly (readonly [number, string])[] = [[2027, '丁未']]
 /**
  * 精选配置（design 决策 5 的表）。东方站：主卡八字排盘 / 만세력 / 四柱推命 / BaZi Calculator；
  * 副卡依次为合盘、紫微、生肖配对、塔罗，韩语在季节之外补토정비결；其后是没有前述工具的语言的顺补项。
- * 西方站按设计稿 HomeWest：主卡三张牌塔罗，季节位月相，副卡星座配对、Life Path、Numerology Calculator。
+ * 西方站按设计稿 HomeWest：主卡三张牌塔罗，季节位月相；出生星盘上线后按 HomeWestB（默认 B12）副卡 4 张、
+ * Birth Chart 居首，其后星座配对、Life Path、Numerology Calculator（季节之外月相排在 Birth Chart 之后）。
  */
 export const FEATURED: Readonly<Record<SiteId, FeaturedConfig>> = {
   east: {
@@ -97,6 +101,7 @@ export const FEATURED: Readonly<Record<SiteId, FeaturedConfig>> = {
   west: {
     main: ['tarot-three-card', 'life-path'],
     secondary: [
+      'birth-chart',
       'moon-phase-today',
       'western-zodiac-compatibility',
       'life-path',
@@ -167,13 +172,16 @@ export function selectFeatured(
 }
 
 /**
- * 页头工具下拉里的精选工具（Nav.dc.html）：主卡、季节位的年度内容、副卡，最多 5 项。
+ * 页头工具下拉里的精选工具（Nav.dc.html、NavWestB.dc.html）：主卡、季节位的年度内容、副卡，最多 5 项。
+ * 季节位只取按钮那一项（画板上季节位在下拉里只占一行，如「2027 流年」「Moon Phase Today」），文字链接不进下拉；
+ * 西方站出生星盘上线后下拉为 Three-Card Tarot、Birth Chart、Moon Phase Today、Zodiac Compatibility、Life Path
+ * （默认 B13：Birth Chart 替换 Numerology Calculator）。
  * 每日运势在导航中单列，「历法与生肖」分组的工具列在分组里，都不重复出现在这里。
  */
 export function featuredNavTools(selection: FeaturedSelection): DirectoryEntry[] {
   return [
     ...(selection.main ? [selection.main] : []),
-    ...(selection.season?.kind === 'year' ? selection.season.links : []),
+    ...(selection.season?.kind === 'year' ? selection.season.links.slice(0, 1) : []),
     ...selection.secondary,
   ]
     .filter((tool) => tool.navGroup !== 'calendar')

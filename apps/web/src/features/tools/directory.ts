@@ -49,6 +49,37 @@ const HUB_EXTRA_IDS: ReadonlySet<string> = new Set([
   'full-moon-calendar',
 ])
 
+/**
+ * 西方站枢纽页组内顺序（第二批画板 HubWestB.dc.html，默认 B12/B13 同批确认）：列出的工具按这里的顺序排在前面，
+ * 未列出的保持注册表顺序排在其后；东方站不设，沿用注册表顺序。
+ */
+const HUB_ORDER: Readonly<Partial<Record<SiteId, readonly string[]>>> = {
+  west: [
+    // Tarot & Oracle：主题牌阵排在牌义索引之前
+    'tarot-three-card',
+    'tarot-daily',
+    'tarot-yes-or-no',
+    'tarot-celtic-cross',
+    'tarot-love',
+    'tarot-career',
+    'tarot-full-moon',
+    'tarot-card-index',
+    // Numerology：两个计算器、个人年、天使数字，之后是每日数字
+    'life-path',
+    'numerology-calculator',
+    'personal-year',
+    'angel-numbers',
+    'daily-numerology',
+    // Astrology：出生星盘居首
+    'birth-chart',
+    'rising-sign-calculator',
+    'western-zodiac-signs',
+    // Compatibility
+    'western-zodiac-compatibility',
+    'life-path-compatibility',
+  ],
+}
+
 /** 年度枢纽与太歲页的 id 随年份生成（`yearly-<年份>`、`tai-sui-<年份>`），同样进枢纽页的年运分组 */
 const HUB_EXTRA_PATTERN = /^(?:yearly|tai-sui)-\d{4}$/
 
@@ -93,7 +124,7 @@ export interface DirectoryGroup {
 }
 
 /**
- * 「全部工具」枢纽页的分组：按站点的分组顺序，组内按注册表顺序；没有条目的分组不返回（空分组不显示）。
+ * 「全部工具」枢纽页的分组：按站点的分组顺序，组内按 HUB_ORDER（西方站）再按注册表顺序；没有条目的分组不返回（空分组不显示）。
  * 列出的条目：`nav` 不为 false 的工具、`knowledge` 分组里带导航名的条目，以及 HUB_EXTRA_IDS 与 HUB_EXTRA_PATTERN。
  */
 export function directoryGroups(
@@ -117,9 +148,16 @@ export function directoryGroups(
   const tools = [...siteTools(site, locale, routes, today).values()].filter((tool) =>
     listed.has(tool.id),
   )
+  const order = HUB_ORDER[site] ?? []
+  const rank = (id: string) => {
+    const index = order.indexOf(id)
+    return index === -1 ? order.length : index
+  }
+  // Array.prototype.sort 是稳定排序：未列出的工具保持注册表顺序
+  const sorted = [...tools].sort((a, b) => rank(a.id) - rank(b.id))
   const groups: readonly ToolDirectoryGroup[] = DIRECTORY_GROUPS[site]
   return groups.flatMap((group) => {
-    const members = tools.filter((tool) => tool.group === group)
+    const members = sorted.filter((tool) => tool.group === group)
     return members.length > 0 ? [{ group, tools: members }] : []
   })
 }
