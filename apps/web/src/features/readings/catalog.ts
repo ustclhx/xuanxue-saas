@@ -38,6 +38,7 @@ import { BAZI_FULL_V3 } from './prompts/bazi-full.v3.ts'
 import { BAZI_FULL_V4_JA } from './prompts/bazi-full.v4.ja.ts'
 import { BAZI_FULL_V4 } from './prompts/bazi-full.v4.ts'
 import { NATAL_FULL_V1_EN } from './prompts/natal-full.en.v1.ts'
+import { NATAL_FULL_V2_EN } from './prompts/natal-full.en.v2.ts'
 import { NUMEROLOGY_FULL_V3 } from './prompts/numerology-full.v3.ts'
 import { NUMEROLOGY_FULL_V4 } from './prompts/numerology-full.v4.ts'
 import { NUMEROLOGY_FULL_V5 } from './prompts/numerology-full.v5.ts'
@@ -716,13 +717,14 @@ const entries = {
     kind: 'natal-full',
     variants: {
       en: {
-        prompt: NATAL_FULL_V1_EN,
+        prompt: NATAL_FULL_V2_EN,
         disclaimer:
-          'This reading follows traditional Western astrology, with positions calculated by standard astronomical methods and AI-assisted interpretation. It is for reference and self-reflection only, is not medical, legal or financial advice, and does not predict the future.',
+          'This reading follows traditional Western astrology and uses positions calculated by standard astronomical methods. It is for reference and self-reflection only, is not medical, legal or financial advice, and does not predict the future.',
         healthSection: null,
         sample: READING_SAMPLES['natal-full'].en,
       },
     },
+    versions: { 'natal-full.v1': { en: NATAL_FULL_V1_EN } },
     recompute: (raw, now) => recomputeNatal(raw, now),
   },
 } satisfies Record<ReadingKind, ReadingEntry>
@@ -737,7 +739,7 @@ export type AvailableReadingKind = keyof typeof entries
  * 由协调者在这里删掉对应项（随 PR 合入），即对该语言开放解锁卡。
  */
 export const READING_EVAL_PENDING: ReadonlySet<string> = new Set<string>([
-  // content-growth-v2-tools 第 23 组：出生星盘 natal-full.v1（evals/readings-natal）；
+  // content-growth-v2-tools 第 23 组：出生星盘 natal-full.v2（evals/readings-natal）；
   // --no-judge 样例经 Claude 复核与使用者审阅后再删去
   'natal-full.en',
   // ja（readings-ja@v2）与 es（readings@es-v2）2026-11-21 真实评测全部必需门槛通过，已删去；

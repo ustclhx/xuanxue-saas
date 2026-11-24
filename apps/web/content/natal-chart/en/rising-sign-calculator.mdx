@@ -1,13 +1,13 @@
 ---
 title: "Rising Sign Calculator: Find Your Big Three"
 heading: "Rising Sign Calculator"
-description: "Free rising sign calculator: enter your birth date, time and place to find your Sun, Moon and rising sign, worked out for that exact moment and place."
-lede: "Enter your birth date, time and place to find your Sun, Moon and rising sign, often called the big three. Each one is calculated for the moment and place you were born."
+description: "Find your Sun, Moon and rising sign with a free calculator that uses your birth date, local time and birthplace. See what each sign means in astrology."
+lede: "Enter your birth date, time and place to find your Sun, Moon and rising sign, often called the big three."
 faq:
   - q: "Is the rising sign the same as the Ascendant?"
-    a: "Yes. The Ascendant is the exact degree of the zodiac on the eastern horizon at the moment of birth, and the rising sign is the sign that degree falls in."
+    a: "The Ascendant is the point where the ecliptic meets the eastern horizon. Your rising sign is the zodiac sign that contains that point at the time and place of your birth."
   - q: "Why does my rising sign differ from another website's result?"
-    a: "The most common cause is the input: a birth time off by a few minutes, a different town, or a time zone entered by hand without daylight saving time. Check that the time zone and universal time in the calculation table match what you expect."
+    a: "A few minutes’ difference in the birth time, a different town or a different UTC offset can change the result. Compare the time zone and UTC time shown under your result."
   - q: "Can two people with the same birthday have different rising signs?"
     a: "Yes. The rising sign changes several times a day, and it also depends on where you were born, so people born on the same date often have different rising signs."
 updated: 2026-11-24
@@ -15,40 +15,40 @@ updated: 2026-11-24
 
 ## What the big three are
 
-The Sun sign is set by the date, the Moon sign by the date and roughly the hour, and the rising sign by the exact time and place. Together they are the first three things most astrologers look at on a birth chart, which is why they are often called the big three. This page finds all three in one step; the [birth chart calculator](/birth-chart) shows the same moment with every planet, the twelve houses and the aspects between them.
+The birth date usually tells you your Sun sign. For the Moon, the hour can matter too. The rising sign depends on the time and place of birth. In Western astrology these three placements are often called the big three. You can find them here, and the [birth chart calculator](/birth-chart) shows the same moment with every planet, the twelve houses and the aspects between them.
 
-Each of the three is a position in one of the twelve [zodiac signs](/zodiac-signs). The Sun sign is the one most people already know from their birthday. The Moon sign is the sign the Moon occupied at the moment of birth. The rising sign, also called the Ascendant, is the sign that was coming up over the eastern horizon at that moment, seen from the place where you were born.
+Each of the three is a position in one of the twelve [zodiac signs](/zodiac-signs). The Sun sign is the one most people already know from their birthday. The Moon sign is the sign the Moon occupied at the moment of birth. The rising sign is the zodiac sign on the eastern horizon at your time and place of birth.
 
-The rising sign also sets the starting point of the houses. The degree on the eastern horizon becomes the start of the first house, so two people born on the same day in different cities can share a Sun and Moon sign and still have quite different charts.
+In Placidus, the exact degree rising on the eastern horizon marks the first house cusp. With whole-sign houses, the entire rising sign makes up the first house. Two people born on the same date can share a Sun and Moon sign and still have different rising signs and house placements.
 
 ## Why the birth time and place matter
 
-The three placements move at very different speeds. The Sun spends about a month in each sign, so for most people the date alone is enough. The Moon moves much faster: between 2000 and 2019 it stayed in each sign for about two and a quarter days on average, never less than about 47 hours and never more than about 61. Someone born on a day when the Moon changed sign needs at least a rough birth time to know which of the two signs applies.
+The three placements move at very different speeds. The Sun spends about a month in each sign, so for most people the date alone is enough. The Moon moves much faster: between 2000 and 2019 it stayed in each sign for about two and a quarter days on average, with observed stays of about 47 to 61 hours. Someone born on a day when the Moon changed sign needs at least a rough birth time to know which of the two signs applies.
 
-The rising sign moves fastest of all. As the Earth turns, the whole zodiac passes over the eastern horizon in about a day, so on average a new sign rises roughly every two hours. The real time varies a great deal by sign and by latitude, because the zodiac crosses the horizon at a slant. Calculated for 40° north, a latitude close to Madrid or Philadelphia, Pisces and Aries each rise in about an hour and a quarter, while Leo, Virgo, Libra and Scorpio each take about two and a half hours. Further north the difference grows: at 51.5° north, close to London, Pisces and Aries take under an hour and Virgo and Libra close to three. In the southern hemisphere the pattern is reversed, and Virgo and Libra are among the quickest signs to rise. A birth time that is off by ten or fifteen minutes can be enough to change the rising sign when the Ascendant sits near the edge of a fast-rising sign.
+The rising sign moves fastest of all. As Earth turns, a new sign rises about every two hours on average at most populated latitudes. How long each sign takes to rise varies with latitude because the zodiac meets the horizon at a slant. Calculated for 40° north, a latitude close to Madrid or Philadelphia, Pisces and Aries each rise in about an hour and a quarter, while Leo, Virgo, Libra and Scorpio each take about two and a half hours. Farther north the difference grows. At 51.5° north, close to London, Pisces and Aries take under an hour and Virgo and Libra close to three. In the southern hemisphere the pattern is reversed, and Virgo and Libra are among the quickest signs to rise. Near a sign boundary, even a few minutes can change the rising sign.
 
 The place matters in two ways. First, it gives the latitude and longitude used to find the horizon. Second, it gives the time zone, and with it the offset from universal time that was in force on your birth date. Clocks have not always followed today's rules: daylight saving time has been introduced, dropped and moved many times, and before standard time many places kept local mean time based on their own longitude. A birth time of 10:30 in the morning can therefore correspond to different moments in different years, even in the same town.
 
 ## How this calculator works
 
-When you choose a place, the calculator takes its coordinates and its time zone from a list of towns and cities based on GeoNames data, covering places with a population of 15,000 or more. If your birthplace is smaller, choose the nearest larger town. The Sun and Moon positions depend only on the moment, not on the place, and a short distance changes the Ascendant only slightly: in one sample birth in Lisbon, moving the place about 20 km east shifted it by less than a fifth of a degree. The time zone's history comes from the IANA time-zone database, through the browser's own date and time support, so the UTC offset and any daylight saving time are those that applied on your date. Where the database records local mean time before standard time was adopted, that is used too.
+Start typing your birthplace and choose a match from the GeoNames list. It includes cities with more than 15,000 residents as well as some smaller administrative centers. If your town is missing, choose a nearby town in the same historical time zone. In one Lisbon example, moving the location about 20 km east shifted the Ascendant by less than a fifth of a degree.
 
-Your local birth time is converted to universal time, and the positions are calculated for that moment in the tropical zodiac, as apparent geocentric positions: where the Sun and Moon appeared from the Earth. The Ascendant is the point where the ecliptic, the Sun's apparent path, met the eastern horizon at your place. The table above the article shows each step, from the time you entered to the time zone, the universal time and the coordinates, so you can check them.
+Use the time on your birth record as entered locally. The browser uses the IANA time-zone database to look up the historical offset and turn that clock time into UTC. If the database records local mean time for that place and date, the calculator uses it. Below your result, the calculation table lists the local time, time zone, UTC time and coordinates so you can check the inputs.
 
-Before release, the calculation was compared with reference charts from the Swiss Ephemeris in 30 sample births in both hemispheres, including high latitudes, days when the clocks changed, births before 1970 and places near the date line. Planet positions agreed to within one arc-minute, the Ascendant and Midheaven to within 0.05°, and every sign and house matched. The free result is calculated in your browser, with no sign-up needed. Dates from 1900 through today are accepted.
+The calculator finds the Sun and Moon’s apparent positions from Earth’s center at the converted time. To find the Ascendant, it also works out where the Sun’s apparent path across the sky, called the ecliptic, met the eastern horizon at your birthplace. Errors in the recorded time matter most when one of the three placements lies close to a sign boundary.
 
 ## If you don't know your birth time
 
-Tick "I don't know my birth time". The Sun and Moon are then worked out for noon local time on your birth date. You still get your Sun sign, and your Moon sign unless the Moon changed signs that day; in that case both possible signs are shown, with the local time of the change, so you can tell which one applies if you know whether you were born before or after it. The same applies to the Sun on the rare birthdays when it changed sign.
+Select “I don’t know my birth time.” The Sun and Moon are then worked out for noon local time on your birth date. If the Moon changed signs that day, you’ll see both possible signs and the approximate local time of the change. The calculator does the same on days when the Sun changed signs.
 
-The rising sign is not calculated without a time, because it passes through all twelve signs in a day and can't be estimated from the date alone. A birth certificate, a hospital record, a baby book or a parent's memory can often narrow the time down. Even a rough window, such as "early morning", can help you compare the candidates, but the calculator only gives a rising sign for a time you enter.
+The rising sign is not calculated without a time, because its position at the horizon changes as Earth turns. A birth certificate, a hospital record, a baby book or a parent's memory can often narrow the time down. Even a rough window, such as "early morning", can help you compare the candidates, but the calculator only gives a rising sign for a time you enter.
 
 ## How tradition reads the big three
 
 In traditional astrology, the Sun sign is associated with the themes a person grows into over a lifetime and the way they tend to express themselves. The Moon sign is read as the inner side of the chart: how a person settles, what feels familiar and how they respond to change. The rising sign is often described as the way a person meets the world and the first impression they give, and astrologers who use it as the start of the houses treat it as the frame for the rest of the chart.
 
-Many astrologers read the three together rather than one at a time. A chart with all three in the same element is often described as having a single, consistent tone, while a chart where they fall in different elements is read as combining several tones. These are descriptions within a tradition, not measurements. Positions on this page are calculated with standard astronomical methods; sign meanings are traditional, for reference and self-reflection only, and the result does not predict the future.
+Many astrologers read the three together rather than one at a time. A chart with all three in the same element is often described as having a single, consistent tone, while a chart where they fall in different elements is read as combining several tones. These are descriptions within a tradition, not measurements. Positions on this page are calculated with standard astronomical methods. Traditional sign meanings are for reference and self-reflection only. They do not predict the future.
 
 ## From the big three to the full chart
 
-The big three are three points on a much larger picture. A full birth chart adds Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto, the mean North Node, the Midheaven, the twelve houses and the angles between planets, known as aspects. If you have a birth time, the birth chart page uses the same calculation and the same place list, so your Sun, Moon and rising sign there will match the ones shown here.
+The big three are a starting point for reading the full chart. A full birth chart adds Mercury, Venus, Mars, Jupiter, Saturn, Uranus, Neptune and Pluto, the mean North Node, the Midheaven, the twelve houses and the angles between planets, known as aspects. If you have a birth time, the birth chart page uses the same calculation and the same place list, so your Sun, Moon and rising sign there will match the ones shown here.

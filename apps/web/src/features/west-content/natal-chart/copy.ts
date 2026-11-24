@@ -82,11 +82,11 @@ const ASPECT_ANGLES: Record<AspectKey, number> = {
 }
 
 const ASPECT_READINGS: Record<AspectKey, string> = {
-  conjunction: 'blended into one theme',
-  sextile: 'in easy cooperation',
-  square: 'at a right angle, read as friction that asks for adjustment',
-  trine: 'in the same element, read as an easy flow',
-  opposition: 'facing each other, read as a pull toward balance',
+  conjunction: 'can blend into one theme',
+  sextile: 'may work together with a little effort',
+  square: 'can create tension that calls for adjustment',
+  trine: 'may flow easily together',
+  opposition: 'can pull in different directions and call for balance',
 }
 
 const ELEMENT_NAMES: Record<ElementKey, string> = {
@@ -124,14 +124,13 @@ export const NATAL_COPY = {
   errors: {
     date: 'Enter a valid date of birth.',
     dateRange: 'Enter a date between 1900 and today.',
-    time: 'Enter the time as hours and minutes, or tick “I don’t know my birth time”.',
+    time: 'Enter your birth time or select “I don’t know my birth time.”',
     place: 'Choose a place from the list so we can look up its coordinates and time zone.',
   },
   engineFailed:
-    'The calculation could not be loaded. Check your connection and try again; your details stay in this page.',
-  loading: 'Loading the ephemeris. This takes a moment the first time.',
-  zoneHint: (zone: string, offset: string, dst: boolean) =>
-    `Time zone ${zone} · ${offset} on that date${dst ? ' (daylight saving time)' : ''}`,
+    'Check your connection and try again. The details you entered are still on this page.',
+  loading: 'Getting the calculator ready. This can take a moment on your first visit.',
+  zoneHint: (zone: string, offset: string) => `Time zone ${zone} · ${offset} at local noon`,
   zoneHintUndated: (zone: string) => `Time zone ${zone}`,
 
   bigThreeTitle: 'Your big three',
@@ -141,27 +140,25 @@ export const NATAL_COPY = {
   risingSign: 'Rising sign (Ascendant)',
   needsTime: 'Needs a birth time',
   notCalculated: 'Not calculated',
-  sunText:
-    'The Sun sign is the one most people know. Tradition reads it as the themes you grow into over a lifetime.',
+  sunText: 'In astrology, the Sun sign is associated with identity and how you express it.',
   moonText:
-    'The Moon sign is read as how you settle and what feels familiar. The Moon changes sign roughly every two and a quarter days.',
+    'Astrologers associate the Moon sign with habits and what makes you feel at home. The Moon spends about two and a quarter days in each sign on average.',
   risingText:
     'The rising sign is the sign on the eastern horizon at birth. It changes on average about every two hours, which is why the time matters.',
-  risingNoTime:
-    'The rising sign moves through all twelve signs in a day, so it can’t be estimated from the date alone.',
+  risingNoTime: 'The rising sign depends on the time of day as well as the place of birth.',
   allDay: (sign: string) => `${sign} all day`,
   either: (signs: readonly string[]) => signs.join(' or '),
   changedAt: (time: string) => `Changed signs at ${time} local time`,
   bornBeforeAfter: (time: string, before: string, after: string) =>
-    `Born before ${time}: ${before}. Born after: ${after}. If a parent or a birth record can narrow down the hour, enter it above.`,
+    `${before} before about ${time}, then ${after}. You can enter a birth time above if you find it.`,
   noTimeBigThree: (moonChanged: boolean) =>
-    `Without a birth time the rising sign can’t be calculated. The Sun and Moon are worked out for the whole day.${moonChanged ? ' The Moon changed signs on this date, so both possibilities are listed.' : ''}`,
+    `Without a birth time, we can show the Sun and Moon signs and check whether either changed that day. The rising sign requires a birth time.${moonChanged ? ' The Moon changed signs that day, so both possibilities are listed.' : ''}`,
   noTimeChart: (moonChanged: boolean) =>
-    `No birth time entered. Planets are shown by sign for noon on that date. The Ascendant, Midheaven, houses and chart wheel need a time and are left out.${moonChanged ? ' The Moon changed signs that day, so both possibilities are listed.' : ''}`,
+    `With a date and place, you can find the Sun and Moon signs. Enter a birth time to see the full chart.${moonChanged ? ' The Moon changed signs that day, so both possibilities are listed.' : ''}`,
   aboutSign: (sign: string) => `About ${sign}`,
   zodiacSigns: 'Zodiac signs',
   placeLine: (degree: string, sign: string, house: number | null) =>
-    `${degree} ${sign}${house ? ` · ${house === 1 ? 'start of the 1st house' : `${houseName(house)} house`}` : ''}`,
+    `${degree} ${sign}${house === null ? '' : ` · ${ordinal(house)} house`}`,
 
   howTitle: 'How this was calculated',
   howCaption: 'Calculation steps',
@@ -170,13 +167,8 @@ export const NATAL_COPY = {
   note: 'Note',
   localTime: 'Local time',
   localTimeNote: 'As entered.',
-  localNoon: 'Local noon',
-  localNoonNote: 'Used when the birth time is unknown.',
   timeZone: 'Time zone',
-  zoneNote: (dst: boolean) =>
-    dst
-      ? 'Daylight saving time was in effect at this place on this date.'
-      : 'Standard time at this place on this date, from the time-zone database.',
+  zoneNote: 'The UTC offset in effect at the selected place and time.',
   ambiguousNote:
     'This clock time happened twice when the clocks went back; the earlier moment is used.',
   skippedNote:
@@ -186,9 +178,9 @@ export const NATAL_COPY = {
   coordinates: 'Coordinates',
   coordinatesNote: 'From the place you chose. Needed for the rising sign and houses.',
   houses: 'House system',
-  housesNote: 'Above 66° latitude the calculator switches to whole-sign houses and says so.',
+  housesNote: 'The house system used to calculate this chart.',
   highLatitude:
-    'This place is above 66° latitude, where Placidus cusps can’t be computed for every hour, so the chart uses whole-sign houses.',
+    'At latitudes beyond 66° north or south, Placidus cusps may be undefined. This chart uses whole-sign houses.',
 
   seeChartTitle: 'See the whole chart',
   seeChartText:
@@ -198,7 +190,7 @@ export const NATAL_COPY = {
   wheelTitle: 'Chart wheel',
   wheelLabel: (asc: string) =>
     `Chart wheel with the twelve signs, twelve houses, eleven points and the closest aspects; Ascendant in ${asc}. The same positions are listed in the planets table.`,
-  wheelKey: 'Ascendant on the left, Midheaven near the top.',
+  wheelKey: 'The Ascendant (AC) is on the left. The Midheaven is marked MC.',
   wheelSoft: 'conjunction, sextile, trine',
   wheelHard: 'square, opposition',
   axisLabels: ['AC', 'IC', 'DC', 'MC'] as const,
@@ -206,9 +198,8 @@ export const NATAL_COPY = {
   sun: 'Sun',
   moon: 'Moon',
   rising: 'Rising',
-  elementsTile: (count: number) => `Elements (${count === 10 ? 'ten' : count} planets)`,
-  modalitiesTile: (count: number) => `Modalities (${count === 10 ? 'ten' : count} planets)`,
-  moonLeftOut: 'The Moon is left out because its sign depends on the time.',
+  elementsTile: 'Elements (ten planets)',
+  modalitiesTile: 'Modalities (ten planets)',
 
   planetsTitle: 'Planets',
   planetsCaption: 'Planet positions: sign, degree, house and motion',
@@ -220,7 +211,6 @@ export const NATAL_COPY = {
   direct: 'Direct',
   retrograde: 'Retrograde',
   meanNode: 'Mean node',
-  dependsOnTime: 'Depends on time',
   ascendant: 'Ascendant',
   midheaven: 'Midheaven',
   cuspLabel: (n: number) => `${ordinal(n)} cusp`,
@@ -236,7 +226,6 @@ export const NATAL_COPY = {
   showFewer: 'Show the closest only',
   orbs: 'Orbs: 8° for conjunction, opposition, square and trine; 6° for sextile.',
   noAspects: 'No major aspects between the planets within these orbs.',
-  noMoonAspects: 'Without a birth time the Moon’s aspects are left out.',
 
   disclaimerBigThree:
     'Positions are calculated with standard astronomical methods. Sign meanings are traditional, for reference and self-reflection only; they do not predict the future.',
@@ -250,10 +239,6 @@ export const NATAL_COPY = {
   relatedTitle: 'Related',
   faqTitle: 'Common questions',
 } as const
-
-function houseName(house: number) {
-  return ordinal(house)
-}
 
 export const signName = (sign: SignKey) => capitalize(sign)
 export const pointName = (key: PointKey) => POINT_NAMES[key]

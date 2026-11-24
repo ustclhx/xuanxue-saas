@@ -1,17 +1,19 @@
 import type { Check, CheckResult } from '@xuanxue/evals'
 import { withDisclaimer } from '../../apps/web/src/features/readings/catalog.ts'
+import { natalChartWithSummary } from '../../apps/web/src/features/readings/natal-chart.ts'
 import { createReadingChecks } from '../readings/checks.ts'
 import type { ReadingSampleInput } from '../readings/prompts.ts'
-import { resolveReading } from './prompts.ts'
+import { CANDIDATE_VERSION, resolveReading } from './prompts.ts'
 
 /**
  * 出生星盘详批的确定性检查：`readings` 的通用检查（章节、顺序、合规替换、长度、拉丁语言无汉字）
- * 加五项星盘专属检查。判定词与预测类措辞列为失败项（design 决策 14、17）。
+ * 加星盘专属检查。判定词与预测类措辞列为失败项（design 决策 14、17）。
  * - `wording`：交付正文（加上声明后）含「传统占星 / 仅供参考与自我反思 / 不预测未来」；模型原文不提 AI、不用娱乐定位。
  * - `placements`：正文写出的「行星 in 星座」「行星 in the Nth house」与复算数据一致（无时间态跨座的点两个星座都算对）。
  * - `rising`：有时间时写出的上升星座与数据一致；无时间时不得写出上升星座。
  * - `verdicts`：不出现关系判定与命定类措辞。
  * - `extraPoints`：不出现数据之外的点（凯龙、莉莉丝、福点、小行星等）。
+ * - `chartSummary`：宫位、元素和模式的汇总逐行照抄，不在解读中重新统计。
  */
 
 type Point = { point: string; sign: string; house: string | null }
@@ -163,6 +165,38 @@ export const extraPointsCheck: Check = {
   },
 }
 
+const SUMMARY_LINE = /^- (?:Planets by house|Elements|Modalities|Counted planets):/
+// 解释传统含义可以自由行文，汇总数字与成员只出现在可逐行核对的清单。
+const HOUSE_AGGREGATE =
+  /\b(?:busiest houses?|single planets?|(?:holds?|holding|contains?|containing|with) (?:\d+|one|two|three|four|five|six|seven|eight|nine|ten) planets?)\b/i
+const GROUP = '(?:fire|earth|air|water|cardinal|fixed|mutable)'
+const GROUP_AGGREGATE = new RegExp(
+  `\\b(?:dominant (?:element|modality)|${GROUP} (?:appears|occurs) (?:once|twice|through)|${GROUP} (?:\\d+|\\(\\d+)|${GROUP} (?:includes?|contains?|comprises?|consists of))\\b`,
+  'i',
+)
+
+export const chartSummaryCheck: Check = {
+  id: 'chartSummary',
+  run(ctx) {
+    if (ctx.prompt.promptVersion !== CANDIDATE_VERSION) return result(true)
+    const restated = ctx.output
+      .split('\n')
+      .filter((line) => !SUMMARY_LINE.test(line))
+      .flatMap((line) =>
+        [HOUSE_AGGREGATE, GROUP_AGGREGATE].flatMap((pattern) => line.match(pattern)?.[0] ?? []),
+      )
+    const { recomputed } = resolveReading(ctx.prompt.promptVersion, inputOf(ctx.sample))
+    const expected = natalChartWithSummary(recomputed.result).summaryLines
+    const lines = ctx.output.split(/\r?\n/)
+    const actual = lines.filter((line) => SUMMARY_LINE.test(line))
+    const start = lines.indexOf('## Houses and Emphasis') + 2
+    const exact =
+      actual.length === expected.length &&
+      expected.every((line, i) => line === actual[i] && line === lines[start + i])
+    return result(exact && restated.length === 0, { exact, restated })
+  },
+}
+
 export const natalChecks: readonly Check[] = [
   ...createReadingChecks(resolveReading),
   wordingCheck,
@@ -170,6 +204,7 @@ export const natalChecks: readonly Check[] = [
   risingCheck,
   verdictsCheck,
   extraPointsCheck,
+  chartSummaryCheck,
 ]
 
 export const NATAL_WARN_CHECK_IDS: ReadonlySet<string> = new Set(

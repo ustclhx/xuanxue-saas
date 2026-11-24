@@ -121,6 +121,57 @@
       "preferred": "root number",
       "variants": ["root"],
       "note": "Digit sum reduced with the life path rule; 11, 22 and 33 are kept"
+    },
+    {
+      "id": "natal.ascendant",
+      "en": "ascendant",
+      "preferred": "Ascendant"
+    },
+    {
+      "id": "natal.rising-sign",
+      "en": "rising sign",
+      "preferred": "rising sign"
+    },
+    {
+      "id": "natal.chart",
+      "en": "birth chart",
+      "preferred": "birth chart",
+      "variants": ["natal chart"]
+    },
+    {
+      "id": "natal.midheaven",
+      "en": "midheaven",
+      "preferred": "Midheaven"
+    },
+    {
+      "id": "natal.house-system.placidus",
+      "en": "Placidus",
+      "preferred": "Placidus"
+    },
+    {
+      "id": "natal.house-system.whole-sign",
+      "en": "whole-sign houses",
+      "preferred": "whole-sign houses"
+    },
+    {
+      "id": "natal.orb",
+      "en": "orb",
+      "preferred": "orb"
+    },
+    {
+      "id": "natal.ecliptic",
+      "en": "ecliptic",
+      "preferred": "ecliptic"
+    },
+    {
+      "id": "natal.mean-north-node",
+      "en": "mean north node",
+      "preferred": "mean North Node"
+    },
+    {
+      "id": "natal.retrograde",
+      "en": "retrograde",
+      "preferred": "retrograde"
     }
   ],
   "banned": [

@@ -10,11 +10,12 @@ import {
  * 出生星盘完整解读的评测提示词（content-growth-v2-tools 第 23 组、design 决策 17、19）。
  * 独立套件的理由同 `readings-east-en`：已有套件的版本锁与门槛按各自样本集计算，新组合另起套件，已有录制一字不动。
  *
- * - `readings-natal@v1` → catalog 中 `natal-full.v1`（en 代码默认版本），system 与用户消息与线上 `readingMessages` 逐字相同。
+ * 两版的 system 与用户消息与线上 `readingMessages` 逐字相同，v1 保留供回放。
  */
 
 export const NATAL_COMBOS = ['natal-full.en'] as const
-export const CANDIDATE_VERSION = 'readings-natal@v1'
+export const CANDIDATE_VERSION = 'readings-natal@v2'
+export const BASELINE_VERSION = 'readings-natal@v1'
 
 export const comboOf = (input: Pick<ReadingSampleInput, 'kind' | 'locale'>) =>
   `${input.kind}.${input.locale}`
@@ -24,7 +25,8 @@ export function realVersion(promptVersion: string, input: ReadingSampleInput): s
   const combo = comboOf(input)
   if (!(NATAL_COMBOS as readonly string[]).includes(combo))
     throw new Error(`Unsupported reading combo ${combo}`)
-  if (promptVersion === CANDIDATE_VERSION) return 'natal-full.v1'
+  if (promptVersion === CANDIDATE_VERSION) return 'natal-full.v2'
+  if (promptVersion === BASELINE_VERSION) return 'natal-full.v1'
   throw new Error(`Unknown readings-natal prompt version ${promptVersion}`)
 }
 
@@ -47,6 +49,14 @@ export function renderReading(promptVersion: string, input: ReadingSampleInput) 
 export const readingsNatalV1: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>({
   id: 'readings-natal',
   version: 'v1',
+  system: (input) => renderReading(BASELINE_VERSION, input).system,
+  user: (input) => renderReading(BASELINE_VERSION, input).user,
+  maxOutputTokens: READING_MAX_OUTPUT_TOKENS,
+})
+
+export const readingsNatalV2: DefinedPrompt<ReadingSampleInput> = definePrompt<ReadingSampleInput>({
+  id: 'readings-natal',
+  version: 'v2',
   system: (input) => renderReading(CANDIDATE_VERSION, input).system,
   user: (input) => renderReading(CANDIDATE_VERSION, input).user,
   maxOutputTokens: READING_MAX_OUTPUT_TOKENS,

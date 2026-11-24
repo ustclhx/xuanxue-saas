@@ -24,5 +24,31 @@
       "input": "sha256:87a33b7b1af38994e4331580ff8b96cc701d2e2e7554f9fde38ef1adc5bff230",
       "rendered": "sha256:f6f95392e5c7345a5c7d4ad1d3f3ce44a1d9936a3c927c551acc7d6b703c0b0d"
     }
+  },
+  "readings-natal@v2": {
+    "natal-en-01": {
+      "input": "sha256:daa06fd0a914b7497f1a3260df3b33b8cdd1ebaba7c59c68e562750d1095cd20",
+      "rendered": "sha256:3fc4a264090196819c24b0de669e3514a3f29ed36be5dd7644dfd718e89a5b33"
+    },
+    "natal-en-02": {
+      "input": "sha256:60c6a9b9a4b06fe3a5cb9c0f236f35aca675babc55328ac393e2a2e47643ca8b",
+      "rendered": "sha256:1199be71c4fcc89cc3dd779d8241e5c21dc45bd45e9bd4ff7ec307b0d485609d"
+    },
+    "natal-en-03": {
+      "input": "sha256:607a2d9da310271992df12b25d550f3ff2b33301eb05df89294ba1585e6124a9",
+      "rendered": "sha256:4505bd741ee21eefa68d261858a6432790c90c1a22e38f5ff6c3cdc65ff67ba4"
+    },
+    "natal-en-04": {
+      "input": "sha256:38304c8124e2c540a543fd4de1df693c16e61e3ffdeed099407c848514f5028c",
+      "rendered": "sha256:247efc719b9f99368d3693335df05ccc0b304fb64bfca0fda8fe8a9f59b8810b"
+    },
+    "natal-en-05": {
+      "input": "sha256:1fd15302400cc1d6306fe8dc4693948a34ad2360dc7404df0a74edf5b3f62adc",
+      "rendered": "sha256:7fa71f31cd1717102a29df99b4dfee497ad4a040878b4dc60571a12ef4bb8ff3"
+    },
+    "natal-en-06": {
+      "input": "sha256:87a33b7b1af38994e4331580ff8b96cc701d2e2e7554f9fde38ef1adc5bff230",
+      "rendered": "sha256:ca69f2a988cabb78e49abda089c371ddb61827c4c9c52ebc833bb5d849beb5c1"
+    }
   }
 }

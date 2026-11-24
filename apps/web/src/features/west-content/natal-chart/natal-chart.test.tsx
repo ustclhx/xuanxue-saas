@@ -135,7 +135,7 @@ describe('计算', () => {
     const result = computeNatal(input(), chartEngine, timeEngine)
     expect(result.kind).toBe('timed')
     if (result.kind !== 'timed') return
-    expect(result.moment).toMatchObject({ offsetSeconds: 3600, status: 'ok', daylightSaving: true })
+    expect(result.moment).toMatchObject({ offsetSeconds: 3600, status: 'ok' })
     expect(result.moment.utcMs).toBe(Date.UTC(1990, 4, 15, 9, 30))
     const direct = chartEngine.natalChart({
       utcMs: Date.UTC(1990, 4, 15, 9, 30),

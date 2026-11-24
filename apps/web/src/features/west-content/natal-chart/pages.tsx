@@ -72,7 +72,7 @@ import { NATAL_LOCALE, NATAL_PATHS } from './paths.ts'
  * Wheel.dc.html，使用者 2026-11-24 确认；默认 B1–B5）。只用 @xuanxue/ui 组件与设计 token。
  *
  * 表单、正文与 FAQ 构建期预渲染；访客提交后才动态加载 `@xuanxue/astro/chart`（astronomy-engine），在浏览器计算。
- * 地名按首字母加载 `/geo/places/v<n>/<字母>.json` 静态切片，不查数据库；时差与夏令时由浏览器的 Intl 求得。
+ * 地名按首字母加载 `/geo/places/v<n>/<字母>.json` 静态切片，不查数据库；历史时差由浏览器的 Intl 求得。
  * 付费详批 `natal-full` 由服务端复算（features/readings/catalog.ts），评测通过并经使用者审阅前显示「即将开放」（B5）。
  */
 
@@ -349,10 +349,7 @@ export function NatalPage({ payload }: { payload: NatalPayload }) {
     try {
       const local = { year: Number(y), month: Number(m), day: Number(d), hour: 12, minute: 0 }
       const resolved = localToUtc(local, zone)
-      const jan = utcOffsetSeconds(Date.UTC(local.year, 0, 15, 12), zone)
-      const jul = utcOffsetSeconds(Date.UTC(local.year, 6, 15, 12), zone)
-      const dst = jan !== jul && resolved.offsetSeconds > Math.min(jan, jul)
-      return copy.zoneHint(zone, formatOffset(resolved.offsetSeconds), dst)
+      return copy.zoneHint(zone, formatOffset(resolved.offsetSeconds))
     } catch {
       return copy.zoneHintUndated(zone)
     }
@@ -668,7 +665,7 @@ function BigThreeTimed({ result }: { result: Timed }) {
           label={copy.risingSign}
           sign={signName(asc.sign)}
           glyph={SIGN_GLYPHS[signIndex(asc.sign)] ?? ''}
-          detail={copy.placeLine(`${Math.floor(asc.degree)}°`, signName(asc.sign), 1)}
+          detail={copy.placeLine(`${Math.floor(asc.degree)}°`, signName(asc.sign), null)}
           text={copy.risingText}
           link={signLink(asc.sign)}
         />
@@ -678,7 +675,7 @@ function BigThreeTimed({ result }: { result: Timed }) {
   )
 }
 
-function BigThreeUntimed({ result }: { result: Untimed }) {
+function BigThreeUntimed({ result, chart = false }: { result: Untimed; chart?: boolean }) {
   const sun = result.changes.sun
   const moon = result.changes.moon
   const sunClock = changeClock(result, 'sun')
@@ -686,9 +683,11 @@ function BigThreeUntimed({ result }: { result: Untimed }) {
   return (
     <>
       <Alert className="max-w-190">
-        <AlertDescription>{copy.noTimeBigThree(Boolean(moon))}</AlertDescription>
+        <AlertDescription>
+          {(chart ? copy.noTimeChart : copy.noTimeBigThree)(Boolean(moon))}
+        </AlertDescription>
       </Alert>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className={cn('grid grid-cols-1 gap-4', chart ? 'md:grid-cols-2' : 'md:grid-cols-3')}>
         <SignTile
           label={copy.sunSign}
           sign={untimedSign(result, 'sun')}
@@ -729,13 +728,15 @@ function BigThreeUntimed({ result }: { result: Untimed }) {
           }
           link={moon ? undefined : signLink(result.positions.moon.sign)}
         />
-        <SignTile
-          label={copy.risingSign}
-          sign={copy.needsTime}
-          glyph="?"
-          detail={copy.notCalculated}
-          text={copy.risingNoTime}
-        />
+        {chart ? null : (
+          <SignTile
+            label={copy.risingSign}
+            sign={copy.needsTime}
+            glyph="?"
+            detail={copy.notCalculated}
+            text={copy.risingNoTime}
+          />
+        )}
       </div>
     </>
   )
@@ -758,7 +759,7 @@ function HowCalculated({ result }: { result: Timed }) {
       ? copy.ambiguousNote
       : moment.status === 'nonexistent'
         ? copy.skippedNote
-        : copy.zoneNote(moment.daylightSaving)
+        : copy.zoneNote
   const rows: StepRow[] = [
     { step: copy.localTime, value: local, note: copy.localTimeNote },
     {
@@ -823,9 +824,24 @@ const WHEEL_ASPECTS = 10
 
 function ChartResult({ result }: { result: NatalResult }) {
   const titleId = useId()
+  return (
+    <section aria-labelledby={titleId} className="flex flex-col gap-8">
+      <h2 id={titleId} className={h2}>
+        {copy.chartTitle}
+      </h2>
+      {result.kind === 'timed' ? (
+        <TimedChartResult result={result} />
+      ) : (
+        <BigThreeUntimed result={result} chart />
+      )}
+    </section>
+  )
+}
+
+function TimedChartResult({ result }: { result: Timed }) {
   const tableId = useId()
-  const timed = result.kind === 'timed'
-  const positions = timed ? result.chart.points : result.positions
+  const { chart } = result
+  const positions = chart.points
   const planetKeys: PointKey[] = [
     'sun',
     'moon',
@@ -839,39 +855,35 @@ function ChartResult({ result }: { result: NatalResult }) {
     'pluto',
     'meanNode',
   ]
-  const moonUnknown = !timed && Boolean(result.changes.moon)
   const rows: PlanetRow[] = planetKeys.map((key) => {
     const point = positions[key]
-    const ambiguous = !timed && key === 'moon' && moonUnknown
     return {
       key,
       name: pointName(key),
-      sign: timed ? signName(point.sign) : untimedSign(result, key),
-      degree: ambiguous ? copy.dependsOnTime : formatDegree(point.degree),
-      house: timed ? houseOrdinal(result.chart.points[key].house) : '',
+      sign: signName(point.sign),
+      degree: formatDegree(point.degree),
+      house: houseOrdinal(point.house),
       motion: key === 'meanNode' ? copy.meanNode : point.retrograde ? copy.retrograde : copy.direct,
     }
   })
-  if (timed) {
-    rows.push(
-      {
-        key: 'asc',
-        name: copy.ascendant,
-        sign: signName(result.chart.ascendant.sign),
-        degree: formatDegree(result.chart.ascendant.degree),
-        house: copy.cuspLabel(1),
-        motion: '—',
-      },
-      {
-        key: 'mc',
-        name: copy.midheaven,
-        sign: signName(result.chart.midheaven.sign),
-        degree: formatDegree(result.chart.midheaven.degree),
-        house: copy.cuspLabel(10),
-        motion: '—',
-      },
-    )
-  }
+  rows.push(
+    {
+      key: 'asc',
+      name: copy.ascendant,
+      sign: signName(chart.ascendant.sign),
+      degree: formatDegree(chart.ascendant.degree),
+      house: chart.houses.system === 'placidus' ? copy.cuspLabel(1) : '—',
+      motion: '—',
+    },
+    {
+      key: 'mc',
+      name: copy.midheaven,
+      sign: signName(chart.midheaven.sign),
+      degree: formatDegree(chart.midheaven.degree),
+      house: chart.houses.system === 'placidus' ? copy.cuspLabel(10) : '—',
+      motion: '—',
+    },
+  )
   const columns: FactColumn<PlanetRow>[] = [
     { key: 'name', header: copy.planet, cell: (row) => row.name, kind: 'key' },
     { key: 'sign', header: copy.sign, cell: (row) => row.sign, kind: 'nowrap', stacked: 'label' },
@@ -882,98 +894,76 @@ function ChartResult({ result }: { result: NatalResult }) {
       kind: 'nowrap',
       stacked: 'label',
     },
-    ...(timed
-      ? [
-          {
-            key: 'house',
-            header: copy.house,
-            cell: (row: PlanetRow) => row.house,
-            kind: 'nowrap' as const,
-            stacked: 'label' as const,
-          },
-        ]
-      : []),
+    {
+      key: 'house',
+      header: copy.house,
+      cell: (row) => row.house,
+      kind: 'nowrap',
+      stacked: 'label',
+    },
     { key: 'motion', header: copy.motion, cell: (row) => row.motion, stacked: 'label' },
   ]
-  const tenSigns = planetKeys
-    .filter((key) => key !== 'meanNode' && !(key === 'moon' && moonUnknown))
-    .map((key) => positions[key].sign)
+  const tenSigns = planetKeys.filter((key) => key !== 'meanNode').map((key) => positions[key].sign)
   const { elements, modalities } = balance(tenSigns)
-  const aspects = result.kind === 'timed' ? result.chart.aspects : result.aspects
   return (
-    <section aria-labelledby={titleId} className="flex flex-col gap-8">
-      <h2 id={titleId} className={h2}>
-        {copy.chartTitle}
-      </h2>
-      {!timed ? (
-        <Alert className="max-w-190">
-          <AlertDescription>{copy.noTimeChart(moonUnknown)}</AlertDescription>
-        </Alert>
-      ) : result.chart.houses.highLatitudeFallback ? (
+    <>
+      {chart.houses.highLatitudeFallback ? (
         <Alert className="max-w-190">
           <AlertDescription>{copy.highLatitude}</AlertDescription>
         </Alert>
       ) : null}
-      <div className={cn('grid grid-cols-1 items-start gap-6', timed && 'lg:grid-cols-2')}>
-        {timed ? (
-          <div className={cn(tile, 'gap-4')}>
-            <h3 className={h3}>{copy.wheelTitle}</h3>
-            <ChartWheel
-              ascendant={result.chart.ascendant.longitude}
-              cusps={result.chart.houses.cusps}
-              points={planetKeys.map((key) => ({
-                key,
-                glyph: pointGlyph(key),
-                longitude: result.chart.points[key].longitude,
-              }))}
-              aspects={result.chart.aspects.slice(0, WHEEL_ASPECTS).map(
-                (aspect): ChartWheelAspect => ({
-                  a: aspect.a,
-                  b: aspect.b,
-                  hard: isHardAspect(aspect.aspect),
-                }),
-              )}
-              signGlyphs={SIGN_GLYPHS}
-              axisLabels={copy.axisLabels}
-              label={copy.wheelLabel(signName(result.chart.ascendant.sign))}
-              describedBy={tableId}
-            />
-            <p className={caption}>
-              {copy.wheelKey}{' '}
-              <span
-                aria-hidden="true"
-                className="inline-block w-7 border-illus border-t align-middle"
-              />{' '}
-              {copy.wheelSoft} ·{' '}
-              <span
-                aria-hidden="true"
-                className="inline-block w-7 border-illus border-t border-dashed align-middle"
-              />{' '}
-              {copy.wheelHard}
-            </p>
-          </div>
-        ) : null}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        <div className={cn(tile, 'gap-4')}>
+          <h3 className={h3}>{copy.wheelTitle}</h3>
+          <ChartWheel
+            ascendant={chart.ascendant.longitude}
+            midheaven={chart.midheaven.longitude}
+            cusps={chart.houses.cusps}
+            points={planetKeys.map((key) => ({
+              key,
+              glyph: pointGlyph(key),
+              longitude: chart.points[key].longitude,
+            }))}
+            aspects={chart.aspects.slice(0, WHEEL_ASPECTS).map(
+              (aspect): ChartWheelAspect => ({
+                a: aspect.a,
+                b: aspect.b,
+                hard: isHardAspect(aspect.aspect),
+              }),
+            )}
+            signGlyphs={SIGN_GLYPHS}
+            axisLabels={copy.axisLabels}
+            label={copy.wheelLabel(signName(chart.ascendant.sign))}
+            describedBy={tableId}
+          />
+          <p className={caption}>
+            {copy.wheelKey}{' '}
+            <span
+              aria-hidden="true"
+              className="inline-block w-7 border-illus border-t align-middle"
+            />{' '}
+            {copy.wheelSoft} ·{' '}
+            <span
+              aria-hidden="true"
+              className="inline-block w-7 border-illus border-t border-dashed align-middle"
+            />{' '}
+            {copy.wheelHard}
+          </p>
+        </div>
         <div className="flex min-w-0 flex-col gap-4">
           <div className={tile}>
             <p className={caption}>{copy.bigThreeTile}</p>
             <dl className="m-0 grid grid-cols-3 gap-3">
-              <Fact label={copy.sun}>
-                {timed ? signName(result.chart.points.sun.sign) : untimedSign(result, 'sun')}
-              </Fact>
-              <Fact label={copy.moon}>
-                {timed ? signName(result.chart.points.moon.sign) : untimedSign(result, 'moon')}
-              </Fact>
-              <Fact label={copy.rising}>
-                {timed ? signName(result.chart.ascendant.sign) : copy.needsTime}
-              </Fact>
+              <Fact label={copy.sun}>{signName(chart.points.sun.sign)}</Fact>
+              <Fact label={copy.moon}>{signName(chart.points.moon.sign)}</Fact>
+              <Fact label={copy.rising}>{signName(chart.ascendant.sign)}</Fact>
             </dl>
           </div>
           <div className={tile}>
-            <p className={caption}>{copy.elementsTile(tenSigns.length)}</p>
+            <p className={caption}>{copy.elementsTile}</p>
             <Chips items={elements.map((item) => `${elementName(item.key)} ${item.count}`)} />
-            <p className={caption}>{copy.modalitiesTile(tenSigns.length)}</p>
+            <p className={caption}>{copy.modalitiesTile}</p>
             <Chips items={modalities.map((item) => `${modalityName(item.key)} ${item.count}`)} />
-            {moonUnknown ? <p className={caption}>{copy.moonLeftOut}</p> : null}
           </div>
         </div>
       </div>
@@ -991,11 +981,11 @@ function ChartResult({ result }: { result: NatalResult }) {
             stack
           />
         </div>
-        {timed ? <Cusps result={result} /> : null}
+        <Cusps result={result} />
       </section>
 
-      <AspectsTable aspects={aspects} untimed={!timed} />
-    </section>
+      <AspectsTable aspects={chart.aspects} />
+    </>
   )
 }
 
@@ -1055,7 +1045,6 @@ interface AspectRow {
 
 function AspectsTable({
   aspects,
-  untimed,
 }: {
   aspects: readonly {
     a: PointKey
@@ -1063,7 +1052,6 @@ function AspectsTable({
     aspect: Parameters<typeof aspectName>[0]
     orb: number
   }[]
-  untimed: boolean
 }) {
   const titleId = useId()
   const [all, setAll] = useState(false)
@@ -1115,7 +1103,6 @@ function AspectsTable({
           </button>
         ) : null}
         <span className={caption}>{copy.orbs}</span>
-        {untimed ? <span className={caption}>{copy.noMoonAspects}</span> : null}
       </div>
     </section>
   )

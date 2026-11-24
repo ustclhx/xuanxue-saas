@@ -24,6 +24,8 @@ export interface ChartWheelAspect {
 export interface ChartWheelProps {
   /** 上升点黄经：画在左侧（9 点钟方向） */
   ascendant: number
+  /** 天顶黄经；整宫制时天顶不一定在第十宫宫头。 */
+  midheaven: number
   /** 第 1–12 宫宫头黄经 */
   cusps: readonly number[]
   points: readonly ChartWheelPoint[]
@@ -87,6 +89,7 @@ function spread(points: readonly ChartWheelPoint[]): { point: ChartWheelPoint; s
 
 export function ChartWheel({
   ascendant,
+  midheaven,
   cusps,
   points,
   aspects,
@@ -99,6 +102,7 @@ export function ChartWheel({
   const at = (longitude: number, radius: number) => point(longitude, radius, ascendant)
   const byKey = new Map(points.map((item) => [item.key, item]))
   const placed = spread(points)
+  const axes = [ascendant, midheaven + 180, ascendant + 180, midheaven]
   return (
     <svg
       viewBox="-44 -44 608 608"
@@ -148,9 +152,8 @@ export function ChartWheel({
       })}
       {cusps.map((cusp, i) => {
         const next = cusps[(i + 1) % cusps.length] ?? cusp
-        const axis = i % 3 === 0
         const a = at(cusp, R_CORE)
-        const b = at(cusp, axis ? R_OUTER : R_INNER)
+        const b = at(cusp, R_INNER)
         const n = at(cusp + norm(next - cusp) / 2, R_CORE + 14)
         return (
           // biome-ignore lint/suspicious/noArrayIndexKey: 宫位序号即身份
@@ -160,8 +163,8 @@ export function ChartWheel({
               y1={a.y}
               x2={b.x}
               y2={b.y}
-              strokeWidth={axis ? 1.5 : 1}
-              className={axis ? 'stroke-ink' : 'stroke-line-strong'}
+              strokeWidth={1}
+              className="stroke-line-strong"
             />
             <text
               x={n.x}
@@ -176,23 +179,26 @@ export function ChartWheel({
           </g>
         )
       })}
-      {axisLabels.map((text, i) => {
-        const cusp = cusps[i * 3]
-        if (cusp === undefined) return null
-        const q = at(cusp + 7, R_CORE - 16)
+      {axes.map((longitude, i) => {
+        const text = axisLabels[i]
+        const a = at(longitude, R_CORE)
+        const b = at(longitude, R_OUTER)
+        const q = at(longitude + 7, R_CORE - 16)
         return (
-          <text
-            key={text}
-            x={q.x}
-            y={q.y}
-            fontSize={12}
-            fontWeight={700}
-            textAnchor="middle"
-            dominantBaseline="central"
-            className="fill-mark font-heading"
-          >
-            {text}
-          </text>
+          <g key={text}>
+            <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} strokeWidth={1.5} className="stroke-ink" />
+            <text
+              x={q.x}
+              y={q.y}
+              fontSize={12}
+              fontWeight={700}
+              textAnchor="middle"
+              dominantBaseline="central"
+              className="fill-mark font-heading"
+            >
+              {text}
+            </text>
+          </g>
         )
       })}
       {aspects.map((aspect) => {

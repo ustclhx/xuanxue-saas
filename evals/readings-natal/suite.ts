@@ -3,7 +3,13 @@ import { createPrepareOutput } from '../readings/prepare.ts'
 import readings from '../readings/suite.ts'
 import { natalChecks } from './checks.ts'
 import { evaluateNatal } from './gates.ts'
-import { NATAL_COMBOS, readingsNatalV1, resolveReading } from './prompts.ts'
+import {
+  CANDIDATE_VERSION,
+  NATAL_COMBOS,
+  readingsNatalV1,
+  readingsNatalV2,
+  resolveReading,
+} from './prompts.ts'
 import { natalRubric } from './rubric.ts'
 
 /**
@@ -13,8 +19,8 @@ import { natalRubric } from './rubric.ts'
  */
 export default defineSuite({
   name: 'readings-natal',
-  prompts: [readingsNatalV1],
-  defaultPrompt: 'readings-natal@v1',
+  prompts: [readingsNatalV1, readingsNatalV2],
+  defaultPrompt: CANDIDATE_VERSION,
   inputSchema: z
     .strictObject({
       kind: z.literal('natal-full'),

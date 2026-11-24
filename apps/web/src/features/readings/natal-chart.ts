@@ -7,9 +7,12 @@ import { aspectName, houseOrdinal, pointName, signName } from '../west-content/n
 import {
   balance,
   computeNatal,
+  elementOf,
   formatDegree,
   MIN_YEAR,
+  modalityOf,
   type NatalInput,
+  SIGN_ORDER,
 } from '../west-content/natal-chart/model.ts'
 
 /**
@@ -146,6 +149,55 @@ export function natalReadingResult(input: NatalInput) {
       modality: capital(key),
       planets: count,
     })),
+  }
+}
+
+// v1 的用户消息已录制。用提示词自己的格式化入口追加 v2 的汇总，保留原始复算数据。
+export function natalChartWithSummary(result: Record<string, unknown>) {
+  const {
+    birthTimeKnown,
+    houseSystem,
+    houseSystemNote,
+    bigThree,
+    angles,
+    points,
+    houseCusps,
+    planetsByHouse,
+    aspects,
+  } = result as ReturnType<typeof natalReadingResult>
+  const planets = points.filter(({ point }) => point !== pointName('meanNode'))
+  const counted = planets.flatMap(({ point, sign }) => {
+    const singleSign = SIGN_ORDER.find((key) => signName(key) === sign)
+    return singleSign ? [{ name: point, sign: singleSign }] : []
+  })
+  const { elements, modalities } = balance(counted.map(({ sign }) => sign))
+  const members = <K extends string>(group: K, classify: (sign: chartEngine.SignKey) => K) =>
+    counted.filter(({ sign }) => classify(sign) === group).map(({ name }) => name)
+  const groupText = (label: string, names: readonly string[]) =>
+    `${label} — ${names.length} (${names.join(', ')})`
+
+  const summaryLines = [
+    planetsByHouse
+      ? `- Planets by house: ${planetsByHouse.map(({ house, planets }) => groupText(house, planets)).join('; ')}.`
+      : '- Planets by house: A birth time is needed to calculate houses.',
+    `- Elements: ${elements.map(({ key }) => groupText(capital(key), members(key, elementOf))).join('; ')}.`,
+    `- Modalities: ${modalities.map(({ key }) => groupText(capital(key), members(key, modalityOf))).join('; ')}.`,
+  ]
+  const omitted = planets.filter(({ sign }) => sign.includes(' or ')).map(({ point }) => point)
+  if (omitted.length > 0)
+    summaryLines.push(
+      `- Counted planets: ${counted.length}. Excluded because the sign depends on birth time: ${omitted.join(', ')}.`,
+    )
+  return {
+    birthTimeKnown,
+    houseSystem,
+    houseSystemNote,
+    bigThree,
+    angles,
+    points,
+    houseCusps,
+    aspects,
+    summaryLines,
   }
 }
 

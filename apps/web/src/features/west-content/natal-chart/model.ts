@@ -112,20 +112,10 @@ export function parseNatalForm(
 
 export interface ZonedMoment extends LocalTimeResolution {
   readonly local: LocalDateTime
-  /** 该地当年的标准时偏移（取 1 月与 7 月中较小者）不同于当时偏移：夏令时 */
-  readonly daylightSaving: boolean
 }
 
 function zoned(local: LocalDateTime, timeZone: string, engine: TimeEngine): ZonedMoment {
-  const resolved = engine.localToUtc(local, timeZone)
-  const january = engine.utcOffsetSeconds(Date.UTC(local.year, 0, 15, 12), timeZone)
-  const july = engine.utcOffsetSeconds(Date.UTC(local.year, 6, 15, 12), timeZone)
-  const standard = Math.min(january, july)
-  return {
-    ...resolved,
-    local,
-    daylightSaving: january !== july && resolved.offsetSeconds > standard,
-  }
+  return { ...engine.localToUtc(local, timeZone), local }
 }
 
 function nextDay({ year, month, day }: Pick<LocalDateTime, 'year' | 'month' | 'day'>) {

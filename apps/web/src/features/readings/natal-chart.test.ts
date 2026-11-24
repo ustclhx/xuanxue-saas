@@ -85,7 +85,7 @@ describe('natal-full 注册与开放状态', () => {
     expect(readingSite('natal-full', 'en')).toBe('west')
     expect(readingEvalPassed('natal-full', 'en')).toBe(false)
     expect(NATAL_READING_LOCALES).toEqual([])
-    expect(definition?.prompt.version).toBe('natal-full.v1')
+    expect(definition?.prompt.version).toBe('natal-full.v2')
     expect(definition?.healthSection).toBeNull()
   })
 

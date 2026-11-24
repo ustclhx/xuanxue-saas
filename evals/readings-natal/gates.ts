@@ -33,7 +33,7 @@ export const evaluateNatal: EvaluateRun = ({ samples, scope, candidate }) => {
     {
       id: 'versions',
       status: candidate.promptVersion === CANDIDATE_VERSION ? 'passed' : 'failed',
-      detail: `candidate ${candidate.promptVersion} (expected ${CANDIDATE_VERSION}); no baseline: first version`,
+      detail: `candidate ${candidate.promptVersion} (expected ${CANDIDATE_VERSION})`,
     },
     scope.filtered
       ? {

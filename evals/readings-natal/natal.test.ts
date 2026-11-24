@@ -4,9 +4,16 @@ import { join } from 'node:path'
 import { describe, it } from 'node:test'
 import type { CheckContext, Sample } from '@xuanxue/evals'
 import { readingMessages } from '../../apps/web/src/features/readings/catalog.ts'
+import { natalChartWithSummary } from '../../apps/web/src/features/readings/natal-chart.ts'
 import type { ReadingSampleInput } from '../readings/prompts.ts'
 import { natalChecks, placementIssues, risingClaims } from './checks.ts'
-import { CANDIDATE_VERSION, realVersion, renderReading, resolveReading } from './prompts.ts'
+import {
+  BASELINE_VERSION,
+  CANDIDATE_VERSION,
+  realVersion,
+  renderReading,
+  resolveReading,
+} from './prompts.ts'
 import suite from './suite.ts'
 
 // readings-natal 套件的离线单测（content-growth-v2-tools 第 23 组）：`pnpm test:evals`，不发起模型调用
@@ -20,7 +27,7 @@ const sample = (id: string) =>
 
 /** 按样本数据拼一份合格的报告：全部章节，正文写出与数据一致的落座 */
 function goodReport(id: string): string {
-  const { definition } = resolveReading(CANDIDATE_VERSION, sample(id).input)
+  const { definition, recomputed } = resolveReading(CANDIDATE_VERSION, sample(id).input)
   const data = sample(id).input.data as {
     points: { point: string; sign: string; house: string | null }[]
   }
@@ -31,7 +38,11 @@ function goodReport(id: string): string {
         title === 'The Big Three' && sun
           ? `Tradition reads the Sun in ${sun.sign.split(' or ')[0]}${sun.house ? `, in the ${sun.house} house,` : ''} as a steady theme.`
           : 'Astrologers often read this placement as a quiet emphasis on patient work.'
-      return `## ${title}\n\n${line}`
+      const summary =
+        title === 'Houses and Emphasis'
+          ? `${natalChartWithSummary(recomputed.result).summaryLines.join('\n')}\n\n`
+          : ''
+      return `## ${title}\n\n${summary}${line}`
     })
     .join('\n\n')
 }
@@ -73,9 +84,10 @@ describe('样本与提示词', () => {
     }
   })
 
-  it('套件版本对应 natal-full.v1，消息与线上 readingMessages 相同', () => {
+  it('保留 v1 回放，v2 候选的消息与线上 readingMessages 相同', () => {
     const s = sample('natal-en-01')
-    assert.equal(realVersion(CANDIDATE_VERSION, s.input), 'natal-full.v1')
+    assert.equal(realVersion(BASELINE_VERSION, s.input), 'natal-full.v1')
+    assert.equal(realVersion(CANDIDATE_VERSION, s.input), 'natal-full.v2')
     assert.throws(() => realVersion('readings-natal@v0', s.input))
     const { definition, recomputed } = resolveReading(CANDIDATE_VERSION, s.input)
     const [system, user] = readingMessages(definition, recomputed)
@@ -90,6 +102,20 @@ describe('检查', () => {
   it('合格报告通过全部 error 级检查', async () => {
     for (const s of samples)
       assert.deepEqual(failedErrors(await runAll(s.id, goodReport(s.id))), [], s.id)
+  })
+
+  it('汇总拦截原样例的宫内行星数与元素归属错误', async () => {
+    const base = goodReport('natal-en-01')
+    assert.match(base, /6th — 2 \(Uranus, Neptune\)/)
+    assert.match(base, /Fire — 1 \(Venus\)/)
+    for (const output of [
+      base.replace('6th — 2 (Uranus, Neptune)', '6th — 1 (Uranus)'),
+      base.replace('Fire — 1 (Venus)', 'Fire — 1 (Venus, Mars)'),
+      `${base}\n\nWith single planets scattered through the 5th, 6th, 9th, 11th and 12th.`,
+      `${base}\n\nFire appears once, through Venus in Aries and Mars in Pisces being the water-side of drive.`,
+    ]) {
+      assert.ok(failedErrors(await runAll('natal-en-01', output)).includes('chartSummary'))
+    }
   })
 
   it('落座或宫位与数据不符时失败；跨座的两个星座都算对', () => {
