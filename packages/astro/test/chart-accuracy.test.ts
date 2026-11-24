@@ -16,6 +16,8 @@ import reference from './fixtures/swisseph-natal-reference.json'
 const PLANET_MAX_ARCMIN = 1
 const ANGLE_MAX_DEG = 0.05
 const CUSP_MAX_DEG = 0.1
+// 引擎速度为 ±1 小时中心差分，参考为瞬时速度（度/日）。
+const SPEED_MAX_DEG_PER_DAY = 0.01
 
 type Case = (typeof reference.cases)[number]
 type Row = {
@@ -24,6 +26,8 @@ type Row = {
   houseSystem: string
   utcMatches: boolean
   pointsArcmin: Record<PointKey, number>
+  speedErrors: Record<PointKey, number>
+  retrogradeMismatches: string[]
   ascendantDeg: number
   midheavenDeg: number
   cuspsMaxDeg: number
@@ -45,12 +49,16 @@ function evaluate(c: Case): Row {
   const resolved = localToUtc(parseLocal(c.local), c.tz)
   const chart = natalChart({ utcMs: resolved.utcMs, latitude: c.lat, longitude: c.lon })
   const pointsArcmin = {} as Record<PointKey, number>
+  const speedErrors = {} as Record<PointKey, number>
+  const retrogradeMismatches: string[] = []
   const signMismatches: string[] = []
   const houseMismatches: string[] = []
   for (const key of POINT_KEYS) {
     const expected = c.points[key].lon
     const actual = chart.points[key]
     pointsArcmin[key] = diff(actual.longitude, expected) * 60
+    speedErrors[key] = Math.abs(actual.speed - c.points[key].speed)
+    if (actual.retrograde !== c.points[key].speed < 0) retrogradeMismatches.push(key)
     if (actual.sign !== zodiacPosition(expected).sign) signMismatches.push(key)
     if (actual.house !== houseOf(expected, c.cusps)) houseMismatches.push(key)
   }
@@ -62,6 +70,8 @@ function evaluate(c: Case): Row {
     houseSystem: chart.houses.system,
     utcMatches: resolved.utcMs === Date.parse(c.utc),
     pointsArcmin,
+    speedErrors,
+    retrogradeMismatches,
     ascendantDeg: diff(chart.ascendant.longitude, c.ascendant),
     midheavenDeg: diff(chart.midheaven.longitude, c.midheaven),
     cuspsMaxDeg: Math.max(...chart.houses.cusps.map((cusp, i) => diff(cusp, c.cusps[i] as number))),
@@ -91,6 +101,9 @@ describe('natal chart accuracy gate', () => {
     expect(row.houseSystem).toBe(c.houseSystem)
     // 整宫制宫头由上升星座决定，必须完全一致；Placidus 宫头按门槛比较。
     expect(row.cuspsMaxDeg).toBeLessThanOrEqual(c.houseSystem === 'placidus' ? CUSP_MAX_DEG : 1e-9)
+    for (const key of POINT_KEYS)
+      expect(row.speedErrors[key], `${key} speed`).toBeLessThanOrEqual(SPEED_MAX_DEG_PER_DAY)
+    expect(row.retrogradeMismatches).toEqual([])
     expect(row.signMismatches).toEqual([])
     expect(row.houseMismatches).toEqual([])
   })
@@ -106,9 +119,16 @@ afterAll(() => {
       planetArcmin: PLANET_MAX_ARCMIN,
       angleDeg: ANGLE_MAX_DEG,
       placidusCuspDeg: CUSP_MAX_DEG,
+      speedDegPerDay: SPEED_MAX_DEG_PER_DAY,
     },
     maxPointArcmin: Object.fromEntries(
       POINT_KEYS.map((key) => [key, max(rows.map((row) => row.pointsArcmin[key]))]),
+    ),
+    maxSpeedErrorDegPerDay: Object.fromEntries(
+      POINT_KEYS.map((key) => [key, max(rows.map((row) => row.speedErrors[key]))]),
+    ),
+    retrogradeMismatches: rows.flatMap((row) =>
+      row.retrogradeMismatches.map((key) => `${row.id}:${key}`),
     ),
     maxAscendantDeg: max(rows.map((row) => row.ascendantDeg)),
     maxMidheavenDeg: max(rows.map((row) => row.midheavenDeg)),

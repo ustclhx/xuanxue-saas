@@ -87,9 +87,12 @@ describe('place search', () => {
         ['São Paulo', 'São Paulo', 'BR', -23.5475, -46.6361, 0],
         ['Sao Paulo de Olivenca', 'Amazonas', 'BR', -3.3783, -68.8725, 0],
         ['Sassari', 'Sardinia', 'IT', 40.7259, 8.5557, 2],
+        // 主名首字母不在本切片，只能经别名命中。
+        ['Mumbai', 'Maharashtra', 'IN', 19.0728, 72.8826, 3, ['Salsette Bombay']],
       ],
     },
   }
+  slices.s?.tz.push('Asia/Kolkata')
   let loads = 0
   const search = createPlaceSearch(async (key) => {
     loads++
@@ -123,6 +126,13 @@ describe('place search', () => {
       'Sao Paulo de Olivenca',
     ])
     expect((await search('sassari')).map(({ name }) => name)).toEqual(['Sassari'])
+    expect(await search('salsette')).toEqual([
+      expect.objectContaining({
+        name: 'Mumbai',
+        alias: 'Salsette Bombay',
+        timeZone: 'Asia/Kolkata',
+      }),
+    ])
     expect(loads).toBe(1)
   })
 

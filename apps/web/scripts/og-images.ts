@@ -194,7 +194,9 @@ export function ogImages(): Plugin {
         source:
           '/og/*\n  Cache-Control: public, max-age=86400\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n' +
           // 分享卡片字体：文件名不变但内容稳定，长期缓存；不被索引
-          '/fonts/share-card/*\n  Cache-Control: public, max-age=31536000, immutable\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n',
+          '/fonts/share-card/*\n  Cache-Control: public, max-age=31536000, immutable\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n' +
+          // 出生地切片：路径带数据版本（/geo/places/v<N>/），重新生成时升版本，故可长期缓存
+          '/geo/*\n  Cache-Control: public, max-age=31536000, immutable\n  X-Robots-Tag: noindex\n  X-Content-Type-Options: nosniff\n',
       })
     },
     configureServer(server) {

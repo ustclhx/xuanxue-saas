@@ -44,5 +44,16 @@ describe('GeoNames place slices', () => {
   ])('finds %s first', async (query, name, country, timeZone) => {
     const [first] = await search(query)
     expect(first).toMatchObject({ name, country, timeZone })
+    expect(first?.alias).toBeUndefined()
+  })
+
+  it.each([
+    ['cologne', 'Köln', 'Cologne'],
+    ['koeln', 'Köln', 'Koeln'],
+    ['peking', 'Beijing', 'Peking'],
+    ['bombay', 'Mumbai', 'Bombay'],
+  ])('finds %s by ASCII or English alternate name', async (query, name, alias) => {
+    const [first] = await search(query)
+    expect(first).toMatchObject({ name, alias })
   })
 })

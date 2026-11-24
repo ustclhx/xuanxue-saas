@@ -123,6 +123,15 @@ describe('time-unknown helpers', () => {
     expect(moonSignsBetween(start, start)).toHaveLength(1)
     expect(() => moonSignsBetween(start, start + 3 * 86_400_000)).toThrow(RangeError)
   })
+
+  it.each([
+    // Swiss Ephemeris：两个 48 小时窗口里月亮由约 179.9° 走到约 210.4°，经过处女、天秤、天蝎三个星座。
+    ['2020-03-10T10:00:00Z'],
+    ['2020-04-06T21:00:00Z'],
+  ])('lists every sign when the moon crosses two boundaries in 48 hours (%s)', (iso) => {
+    const start = utc(iso)
+    expect(moonSignsBetween(start, start + 2 * 86_400_000)).toEqual(['virgo', 'libra', 'scorpio'])
+  })
 })
 
 describe('houseOf', () => {

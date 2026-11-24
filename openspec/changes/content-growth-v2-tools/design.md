@@ -344,7 +344,7 @@ TDK 长度按 `audit-seo.mjs` 的 `tdkLength`（中韩 Title 20–30、Descripti
   - 上升、天顶：由地方恒星时与黄赤交角计算；
   - 宫位：Placidus 为默认，整宫制为备选；纬度 >66° 时 Placidus 不可解，自动改用整宫制并标注；
   - 相位：合、六分、四分、三分、对分，容许度在代码中固定并在页面说明。
-- **地名与时区**：GeoNames cities15000（CC-BY 4.0，页面署名）按首字母切片为静态 JSON，放 R2 或随构建发布，客户端按需加载；时区取地名记录的 IANA id，历史时差与夏令时由 `Intl.DateTimeFormat` 求得。不查 Neon。
+- **地名与时区**：GeoNames cities15000（CC-BY 4.0，页面署名）按首字母切片为静态 JSON，放 R2 或随构建发布，客户端按需加载；时区取地名记录的 IANA id，历史时差与夏令时由 `Intl.DateTimeFormat` 求得。不查 Neon。浏览器与服务端 tzdata 版本可能不同，第 23 组以服务端复算的时刻换算为准（协调者 2026-11-24 决定）。
 - **精度门槛**（第 22 组，未通过不进入第 23 组）：30 个参考样例（南北半球、高纬度、夏令时切换当日、1970 年前、日期变更线附近），参考值取自 astro.com 星盘或 Swiss Ephemeris 输出，存为测试夹具（只存数值）；行星 ≤1 角分、上升与天顶 ≤0.05°、Placidus 宫头 ≤0.1°、落座与落宫全部一致。报告存证据目录。
 - **页面**（第 23 组）：三巨头计算器（主词 rising sign calculator，副词 big three calculator）与出生星盘（主词 birth chart calculator，副词 free birth chart）；星盘图 SVG 组件放 `@xuanxue/ui/project` 或 web 内部组件（按设计稿）。
 - **付费完整解读**：新增详批类型 `natal-full`（en 先行），服务端复算星盘后生成；评测流程同决策 17。

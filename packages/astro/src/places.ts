@@ -116,7 +116,7 @@ export function localToUtc(local: LocalDateTime, timeZone: string): LocalTimeRes
 // ---------------------------------------------------------------------------
 
 /** 切片格式版本；改动结构时同时改静态资源路径中的版本号。 */
-export const PLACE_DATA_VERSION = 1
+export const PLACE_DATA_VERSION = 2
 export const PLACE_SLICE_KEYS = 'abcdefghijklmnopqrstuvwxyz'.split('')
 export const PLACE_ATTRIBUTION = Object.freeze({
   source: 'GeoNames',
@@ -125,15 +125,28 @@ export const PLACE_ATTRIBUTION = Object.freeze({
   licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
 })
 
-/** [名称, 一级行政区, ISO 国家代码, 纬度, 经度, 时区下标]，按人口降序排列。 */
-export type PlaceRow = [
-  name: string,
-  admin1: string,
-  country: string,
-  latitude: number,
-  longitude: number,
-  timeZone: number,
-]
+/**
+ * [名称, 一级行政区, ISO 国家代码, 纬度, 经度, 时区下标, 别名?]，按人口降序排列。
+ * 别名为 GeoNames ASCII 名与英文别名中首字母属于本切片者；主名不在本切片首字母时只能经别名命中。
+ */
+export type PlaceRow =
+  | [
+      name: string,
+      admin1: string,
+      country: string,
+      latitude: number,
+      longitude: number,
+      timeZone: number,
+    ]
+  | [
+      name: string,
+      admin1: string,
+      country: string,
+      latitude: number,
+      longitude: number,
+      timeZone: number,
+      aliases: string[],
+    ]
 
 export type PlaceSlice = {
   v: number
@@ -151,6 +164,8 @@ export type Place = {
   latitude: number
   longitude: number
   timeZone: string
+  /** 经别名命中时的别名（如查询 cologne 得到 Köln 时为 Cologne），页面可附注。 */
+  alias?: string
 }
 
 /** 去掉变音符、统一大小写与标点，用于前缀匹配。 */
@@ -184,7 +199,8 @@ export type PlaceSearch = (query: string, limit?: number) => Promise<Place[]>
  * 排序：名称完全相同优先，其余按人口（切片内顺序）。
  */
 export function createPlaceSearch(load: (key: string) => Promise<PlaceSlice>): PlaceSearch {
-  const cache = new Map<string, Promise<{ slice: PlaceSlice; names: string[] }>>()
+  type Indexed = { slice: PlaceSlice; keys: { name: string; label: string | null }[][] }
+  const cache = new Map<string, Promise<Indexed>>()
   return async (query, limit = 8) => {
     const needle = normalizePlaceName(query)
     const key = placeSliceKey(needle)
@@ -194,20 +210,29 @@ export function createPlaceSearch(load: (key: string) => Promise<PlaceSlice>): P
       entry = load(key).then((slice) => {
         if (slice.v !== PLACE_DATA_VERSION || slice.key !== key)
           throw new Error(`Unexpected place slice ${slice.key} v${slice.v}`)
-        return { slice, names: slice.places.map(([name]) => normalizePlaceName(name)) }
+        const keys = slice.places.map(([name, , , , , , aliases = []]) => [
+          { name: normalizePlaceName(name), label: null },
+          ...aliases.map((alias) => ({ name: normalizePlaceName(alias), label: alias })),
+        ])
+        return { slice, keys }
       })
       // 加载失败不缓存，允许下次重试。
       entry.catch(() => cache.delete(key))
       cache.set(key, entry)
     }
-    const { slice, names } = await entry
+    const { slice, keys } = await entry
     const exact: Place[] = []
     const prefix: Place[] = []
-    for (let i = 0; i < names.length && exact.length < limit; i++) {
-      const name = names[i] as string
-      if (!name.startsWith(needle)) continue
+    for (let i = 0; i < keys.length && exact.length < limit; i++) {
+      // 同一地名优先用主名命中，其次完全相同的别名，再次前缀相符的别名。
+      const candidates = keys[i] as Indexed['keys'][number]
+      const hit =
+        candidates.find(({ name }, j) => j === 0 && name.startsWith(needle)) ??
+        candidates.find(({ name }) => name === needle) ??
+        candidates.find(({ name }) => name.startsWith(needle))
+      if (!hit) continue
       const [placeName, admin1, country, latitude, longitude, tzIndex] = slice.places[i] as PlaceRow
-      const place = {
+      const place: Place = {
         name: placeName,
         admin1,
         country,
@@ -215,7 +240,9 @@ export function createPlaceSearch(load: (key: string) => Promise<PlaceSlice>): P
         longitude,
         timeZone: slice.tz[tzIndex] as string,
       }
-      ;(name === needle ? exact : prefix).push(place)
+      if (hit.label) place.alias = hit.label
+      const isExact = hit.name === needle || candidates.some(({ name }) => name === needle)
+      ;(isExact ? exact : prefix).push(place)
     }
     return [...exact, ...prefix].slice(0, limit)
   }

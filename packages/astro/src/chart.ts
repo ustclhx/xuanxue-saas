@@ -179,16 +179,27 @@ export function chartPositions(utcMs: number): Record<PointKey, PointPosition> {
   return result
 }
 
-/** [startMs, endMs] 区间内月亮可能所在的星座（起止不同座时给两个）。区间不得超过 48 小时。 */
+/** [startMs, endMs] 区间内月亮经过的全部星座，按顺序排列。区间不得超过 48 小时。 */
 export function moonSignsBetween(startMs: number, endMs: number): SignKey[] {
   assertUtc(startMs)
   assertUtc(endMs)
   if (endMs < startMs || endMs - startMs > 2 * DAY_MS)
     throw new RangeError('Moon sign range must be ordered and at most 48 hours long')
-  // 月亮日行不超过约 15.4°，48 小时内至多跨一次星座边界。
-  const first = zodiacPosition(planetLongitude(Body.Moon, startMs)).sign
-  const last = zodiacPosition(planetLongitude(Body.Moon, endMs)).sign
-  return first === last ? [first] : [first, last]
+  // 月亮从不逆行，日行约 11.8°–15.4°；48 小时可走近 31°，可能跨两个边界（起止星座之间夹一个整座）。
+  // 按 6 小时步长累加黄经增量得到不回绕的终点黄经，再列出其间每个星座。
+  const step = DAY_MS / 4
+  const start = planetLongitude(Body.Moon, startMs)
+  let travelled = 0
+  let previous = start
+  for (let t = startMs; t < endMs; ) {
+    t = Math.min(t + step, endMs)
+    const current = planetLongitude(Body.Moon, t)
+    travelled += normalizeDegrees(current - previous)
+    previous = current
+  }
+  const first = Math.floor(start / 30)
+  const last = Math.floor((start + travelled) / 30)
+  return Array.from({ length: last - first + 1 }, (_, i) => SIGN_KEYS[(first + i) % 12] as SignKey)
 }
 
 type Frame = { ramc: number; obliquity: number; latitude: number }

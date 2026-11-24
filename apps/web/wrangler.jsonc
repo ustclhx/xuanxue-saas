@@ -18,7 +18,7 @@
       // 含模板 0.4.0 的分享卡片字体 /fonts/share-card/*（wrangler 拒绝被覆盖的冗余规则，不再单列）
       "!/fonts/*",
       "!/images/*",
-      // 出生地自动补全的 GeoNames 静态切片（/geo/places/v<版本>/<首字母>.json），不查数据库，直通 Asset Worker。
+      // 出生地自动补全的 GeoNames 静态切片（/geo/places/v<版本>/<首字母>.json），不查数据库，直通 Asset Worker；缓存头见 og-images.ts 生成的 _headers。
       "!/geo/*",
       // 站点图标在 /images/favicon-<site>.*；/favicon.ico 经 Worker 按 Host 重定向到本站图标
       "!/og/*",
