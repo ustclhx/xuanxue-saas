@@ -3,7 +3,7 @@ import type { Database } from './client.ts'
 import { setting } from './schema/platform.ts'
 import { READING_KINDS, type ReadingKind } from './schema/readings.ts'
 
-/** 每种付费详批的开关、积分价格与模型（ai_model.key；空字符串表示尚未选定，详批不可用）。 */
+/** 每种付费详批的开关、积分价格与模型（ai_model.key；空字符串表示沿用同站其他详批的模型，见 web 端 readings/config.ts）。 */
 type ReadingSettingValues = {
   [K in ReadingKind as `readings.${K}.enabled`]: boolean
 } & {

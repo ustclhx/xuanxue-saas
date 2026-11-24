@@ -354,7 +354,7 @@
   "admin_reading_enabled": "Enabled",
   "admin_reading_credits": "Credits",
   "admin_reading_model": "Model",
-  "admin_reading_model_unset": "Not selected",
+  "admin_reading_model_unset": "Use the same-site reading model",
   "admin_save_paid_readings": "Save paid readings",
   "admin_paid_readings_saved": "Saved. Changes apply within about 60 seconds.",
   "admin_paid_readings_unavailable": "Paid reading settings are unavailable. Reload and try again.",

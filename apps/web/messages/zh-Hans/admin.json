@@ -354,7 +354,7 @@
   "admin_reading_enabled": "启用",
   "admin_reading_credits": "积分",
   "admin_reading_model": "模型",
-  "admin_reading_model_unset": "未选定",
+  "admin_reading_model_unset": "沿用同站详批的模型",
   "admin_save_paid_readings": "存储付费详批",
   "admin_paid_readings_saved": "已存储，约 60 秒内生效。",
   "admin_paid_readings_unavailable": "无法载入或存储付费详批设置，请重新整理后再试。",
