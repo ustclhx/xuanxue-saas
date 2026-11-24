@@ -9,6 +9,7 @@ import { TOOLS_HUB_ID } from '../tools/hub/routes.ts'
 import { NUMEROLOGY_ROUTES } from '../tools/numerology/routes.ts'
 import { TOOL_ROUTES } from '../tools/registry.ts'
 import { TAROT_MEANING_ROUTES } from '../tools/tarot/meaning-routes.ts'
+import { ANGEL_TOOL_ROUTES } from '../west-content/angel-numbers/paths.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
 import { isPrerenderedPath, prerenderEntryPages } from './prerender.ts'
@@ -65,6 +66,8 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
         !MOON_TOOL_ROUTES.includes(tool) &&
         // 西方星座页由 west-content/zodiac/western-zodiac.test.tsx 验证
         !WESTERN_ZODIAC_TOOL_ROUTES.includes(tool) &&
+        // angel numbers 页由 west-content/angel-numbers/angel.test.tsx 验证
+        !ANGEL_TOOL_ROUTES.includes(tool) &&
         // 2027 太歲页由 east-content/almanac/nongminli.test.tsx 验证
         !TAI_SUI_YEAR_TOOL_ROUTES.includes(tool) &&
         // 年度生肖页由 east-content/yearly/yearly.test.ts 验证

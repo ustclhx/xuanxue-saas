@@ -166,12 +166,16 @@ export function LifePathCard({
   )
 }
 
-/** 1–33 数字网格（设计稿「All life path numbers」）：surface 方块，当前数字用站点强调色描边 */
+/**
+ * 1–33 数字网格（设计稿「All life path numbers」）：surface 方块，当前数字用站点强调色描边。
+ * 模板区块（data-link-zone="related"）：锚文本只是数字本身，不计正文锚文本表述
+ * （content-growth-v2-tools 第 26 组：angel number 页正文链接到数字页时用两种文字锚文本）。
+ */
 export function NumberGrid({ current, title }: { current?: number | undefined; title?: string }) {
   const headingId = useId()
   const { track } = useTool()
   return (
-    <nav aria-labelledby={headingId} className="flex flex-col gap-4">
+    <nav aria-labelledby={headingId} data-link-zone="related" className="flex flex-col gap-4">
       <h2 id={headingId} className="m-0 font-heading text-ink text-subtitle">
         {title ?? m.numerology_grid_title()}
       </h2>

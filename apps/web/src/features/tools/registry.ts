@@ -9,6 +9,7 @@ import { YEARLY_TOOL_ROUTES as PERSONAL_YEARLY_TOOL_ROUTES } from '../east-conte
 import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { ZODIAC_PAIR_TOOL_ROUTES } from '../east-content/zodiac-pair/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
+import { ANGEL_TOOL_ROUTES } from '../west-content/angel-numbers/paths.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import { TAROT_SPREAD_TOOL_ROUTES } from '../west-content/tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
@@ -323,6 +324,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...ZODIAC_PAIR_TOOL_ROUTES.map((route) =>
     withDirectoryDefaults(route, 'relation', 'free_lookup'),
   ),
+  // openspec content-growth-v2-tools 第 26 组：angel numbers 枢纽（numerology 组）与数字页（nav: false）
+  ...ANGEL_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'numerology', 'free_lookup')),
   // openspec content-growth-v2-tools 第 6 组：两站的「全部工具」枢纽页
   ...TOOLS_HUB_ROUTES,
   // openspec content-growth-v2-tools 第 28 组：爱情、事业、满月牌阵页（en，塔罗分组，New 小标）
