@@ -55,6 +55,11 @@ export const READING_SAMPLES = {
     ko: '예시 스프레드의 질문은 진로 방향입니다. 과거에 은둔자, 현재에 펜타클 8, 미래에 완드 에이스가 모두 정방향으로 놓였습니다. 세 장을 이어 보면 먼저 안으로 물러나 원하는 바를 정리한 시기가 있었고, 지금은 연습과 성실함으로 기술을 다듬는 단계입니다. 완드 에이스는 예측이 아닌 생각해 볼 방향으로, 새 영감에 첫걸음을 내디뎌 볼 만하다는 신호입니다.',
     es: 'Esta tirada de tres cartas de muestra pregunta por el rumbo profesional. El Ermitaño al derecho ocupa el Pasado, el Ocho de Oros al derecho el Presente y el As de Bastos al derecho el Futuro. Juntas trazan una línea clara: un tiempo de reflexión interior, luego una práctica paciente que pule un oficio y, por último, una chispa nueva de iniciativa. El Futuro es una dirección para considerar, no un pronóstico: sugiere que una idea nueva merece un primer paso cuando las bases se sientan firmes.',
   },
+  // content-growth-v2-tools 第 23 组：虚构出生 1990-05-15 10:30 里斯本（Europe/Lisbon，UTC+1），Placidus；
+  // 星座、度数、宫位与相位取自 @xuanxue/astro/chart 的计算结果（natal-chart.test.ts 复核）。未经使用者审定，星盘详批开放前不渲染
+  'natal-full': {
+    en: 'In this sample chart, a fictional morning birth in Lisbon, the Sun sits at 24° Taurus in the 11th house, the Moon at 25° Capricorn in the 7th, and Cancer rises at 22°. Tradition reads the earthy Sun and Moon as a preference for steady, practical progress, and a Cancer Ascendant as a protective first manner. The Moon meets Saturn within one degree, and both form a trine to the Sun, a pattern astrologers link with patience.',
+  },
 } as const satisfies Record<ReadingKind, Readonly<Record<string, string>>>
 
 export type ReadingSampleKind = keyof typeof READING_SAMPLES

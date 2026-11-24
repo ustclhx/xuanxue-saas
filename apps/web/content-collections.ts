@@ -1317,6 +1317,56 @@ const personalYear = defineCollection({
   },
 })
 
+/**
+ * 西方站三巨头计算器与出生星盘（openspec content-growth-v2-tools 决策 19，第 23 组）：
+ * content/natal-chart/en/rising-sign-calculator.mdx 与 birth-chart.mdx 为两页工具下方的正文与 FAQ。
+ * 行星位置、宫位与相位都在浏览器按 @xuanxue/astro/chart 计算，这里只保存逐页撰写的文字；正文按 `## ` 切段。
+ * 构建期拦下「AI」「娱乐」与预测类措辞（公开正文不提 AI，决策 16 第 8 项）。
+ */
+const NATAL_KEYS = ['rising-sign-calculator', 'birth-chart'] as const
+const NATAL_BANNED =
+  /\bAI\b|artificial intelligence|entertainment|for fun|guarantee|\bwill happen\b|self-exploration|chinese zodiac/i
+const natalChart = defineCollection({
+  name: 'natalChart',
+  directory: 'content/natal-chart',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1).max(47),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    lede: z.string().min(1),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(5),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug: key } = localeAndSlug(document._meta)
+    if (locale !== 'en' || !NATAL_KEYS.includes(key as (typeof NATAL_KEYS)[number]))
+      throw new Error(`Natal chart file is not a known page: ${document._meta.path}`)
+    const text = [data.title, data.description, data.lede, content]
+      .concat(data.faq.flatMap(({ q, a }) => [q, a]))
+      .join('\n')
+    const banned = NATAL_BANNED.exec(text)
+    if (banned) throw new Error(`Natal chart copy contains "${banned[0]}": ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Natal chart body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, sections }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -1341,5 +1391,6 @@ export default defineConfig({
     zodiacPair,
     angelNumbers,
     personalYear,
+    natalChart,
   ],
 })

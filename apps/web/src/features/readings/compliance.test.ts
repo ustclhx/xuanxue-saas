@@ -85,6 +85,13 @@ describe('合规规则检查', () => {
       ])
   })
 
+  it('英语：星座 Cancer 不算病名，小写 cancer 与病名语境照常替换', () => {
+    for (const text of ['Cancer rises at 22°.', 'The Moon in Cancer is read as protective.'])
+      expect(checkCompliance(text, 'en').violations).toEqual([])
+    for (const text of ['There is a risk of cancer.', 'Cancer screening is advised.'])
+      expect(checkCompliance(text, 'en').violations).toEqual([{ rule: 'medical', block: 0 }])
+  })
+
   it('健康的报告不做任何改动', () => {
     const text = '## 總論\n\n日主甲木，性格正直。\n\n## 建議\n\n- 保持規律作息\n- 多與朋友交流'
     expect(checkCompliance(text, 'zh-Hant')).toEqual({ content: text, violations: [] })

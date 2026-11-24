@@ -18,6 +18,7 @@ const KIND_SITE: Readonly<Partial<Record<ReadingKind, SiteId>>> = {
   'ziwei-full': 'east',
   'saju-compat': 'east',
   'numerology-full': 'west',
+  'natal-full': 'west',
 }
 
 /** 报告所属站点：`POST /api/readings` 的 `site` 必须与之相同；未知语言返回 undefined */
@@ -32,3 +33,9 @@ export function readingSite(kind: string, locale: string): SiteId | undefined {
  * 新语言须先在 catalog 中有变体并通过评测门槛（第 14 组），使用者审阅样例后再加入这里（gunghap.test 核对）。
  */
 export const COMPAT_READING_LOCALES: readonly string[] = ['ko']
+
+/**
+ * 出生星盘完整解读（`natal-full`，content-growth-v2-tools 第 23 组、设计稿默认 B5）已开放购买的语言。
+ * 未列出时星盘页在免费结果后显示「即将开放」占位；评测通过并经使用者审阅样例后再加入 `en`。
+ */
+export const NATAL_READING_LOCALES: readonly string[] = []

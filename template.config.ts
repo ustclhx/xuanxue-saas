@@ -151,6 +151,8 @@ export default defineTemplateConfig({
         '/tarot/cards/the-moon',
         '/tarot/cards/five-of-swords',
         '/tarot/cards/the-high-priestess',
+        // content-growth-v2-tools 第 23 组：出生星盘（design 决策 15 钱页）
+        '/birth-chart',
       ],
     },
   },

@@ -158,7 +158,10 @@ const RULES: Record<AppLocale, LocaleRules> = {
     patterns: {
       'date-prediction': [both(EN_DATE, EN_ASSERT)],
       medical: [
-        /\b(?:cancer|tumou?r|diabetes|hypertension|heart disease|stroke|depression|hepatitis|kidney disease|dementia|infertility|pneumonia|diagnos[ie]s|diagnosed)\b/i,
+        /\b(?:tumou?r|diabetes|hypertension|heart disease|stroke|depression|hepatitis|kidney disease|dementia|infertility|pneumonia|diagnos[ie]s|diagnosed)\b/i,
+        // 星座 Cancer（巨蟹座，首字母大写）不是病名：出生星盘详批（content-growth-v2-tools 第 23 组）常写
+        // 「Cancer rises」「Moon in Cancer」。小写 cancer、全大写与病名语境中的 Cancer 仍命中
+        /\bcancer(?:s|ous)?\b|\bCANCER\b|\bCancer\s+(?:patients?|cells?|treatments?|screenings?|risks?|survivors?|diagnos[ie]s|research)\b/,
       ],
       investment: EN_INVESTMENT,
     },

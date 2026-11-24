@@ -16,6 +16,8 @@ export const READING_KINDS = [
   'saju-compat',
   'numerology-full',
   'tarot-spread',
+  // content-growth-v2-tools 第 23 组：西方站出生星盘完整解读（en；评测通过并经使用者审阅前不开放）
+  'natal-full',
 ] as const
 export type ReadingKind = (typeof READING_KINDS)[number]
 
