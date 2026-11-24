@@ -25,12 +25,13 @@ export function policyEnv(env = process.env) {
   }
 }
 
+// GitHub 的 status=success 过滤偶尔漏掉已成功的运行（2026-11-24 v0.1.41 实测），只按 SHA 取，分支、事件与结论在下方判断
 export async function ciRunsViaGh(sha) {
   const repo = process.env.GITHUB_REPOSITORY
   if (!repo) throw new Error('GITHUB_REPOSITORY is required')
   const { stdout } = await execFileAsync('gh', [
     'api',
-    `repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&branch=main&event=push&status=success&per_page=100`,
+    `repos/${repo}/actions/workflows/ci.yml/runs?head_sha=${sha}&per_page=100`,
     '--jq',
     '[.workflow_runs[] | {head_sha, head_branch, event, conclusion}]',
   ])
