@@ -3,7 +3,7 @@
 // 2. 正文、牌位说明与 FAQ 中引用的牌义必须与站内牌库（packages/tarot/src/data/en.ts）一致：
 //    牌名后的括号「(a, b)」、「keywords (are) a and b」、「stands for / speak(s) of / points to a and|or b」
 //    中的每个词都须是该牌的正位关键词或逆位主题；Major / Minor Arcana 的张数与牌库一致；
-// 3. frontmatter、TDK 长度、篇幅下限（lede、牌位说明与正文合计 ≥800 词，不含 FAQ）、正文内链（2–5 个不同目标）、
+// 3. frontmatter、TDK 长度、篇幅下限（牌位说明与正文合计 ≥800 词，不含首屏导语与 FAQ）、正文内链（2–5 个不同目标）、
 //    Title / H1 不以 free tarot reading 开头、判定词与禁用措辞。
 // 运行：node scripts/check-content-tarot-spreads.mjs [--report <文件>]
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -151,7 +151,7 @@ for (const file of files) {
     for (const match of plain(all).matchAll(new RegExp(`(\\d+) cards of the ${label}`, 'g')))
       if (Number(match[1]) !== count) fail(`${file}：${label} 写作 ${match[1]} 张，牌库为 ${count}`)
 
-  const length = words(plain([data.lede, positionsText, body].join('\n'))).length
+  const length = words(plain([positionsText, body].join('\n'))).length
   if (length < MIN_WORDS) fail(`${file}：篇幅 ${length} 词，下限 ${MIN_WORDS}`)
   const links = [...body.matchAll(/\[([^\]]+)\]\((\/[^)]*)\)/g)].map(([, anchor, href]) => ({
     anchor,

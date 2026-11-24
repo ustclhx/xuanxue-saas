@@ -123,7 +123,7 @@ describe('主题牌阵页', () => {
       expect(html).toContain('data-link-zone="related"')
       expect(html).not.toMatch(/credits|\bAI\b/)
       if (id === 'full-moon') {
-        expect(html).toContain('The Moon is full tonight · Beaver Moon')
+        expect(html).toContain('Full moon today · Beaver Moon')
         expect(html).toContain('href="/moon-phase-today"')
         expect(html).toContain('href="/full-moon-calendar"')
       } else expect(html).not.toContain('href="/moon-phase-today"')

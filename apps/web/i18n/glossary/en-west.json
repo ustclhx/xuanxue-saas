@@ -93,6 +93,21 @@
       "id": "zodiac.tropical",
       "en": "tropical zodiac",
       "preferred": "tropical zodiac"
+    },
+    {
+      "id": "tarot.rider-waite-smith",
+      "en": "Rider–Waite–Smith",
+      "preferred": "Rider–Waite–Smith"
+    },
+    {
+      "id": "tarot.major-arcana",
+      "en": "Major Arcana",
+      "preferred": "Major Arcana"
+    },
+    {
+      "id": "tarot.minor-arcana",
+      "en": "Minor Arcana",
+      "preferred": "Minor Arcana"
     }
   ],
   "banned": [
@@ -183,6 +198,11 @@
     ]
   },
   "anchors": {
+    "/tarot": ["three-card tarot", "free tarot reading"],
+    "/tarot/cards": ["tarot meanings", "tarot card meanings"],
+    "/tarot/celtic-cross": ["Celtic Cross spread", "Celtic Cross tarot"],
+    "/moon-phase-today": ["today's moon phase", "moon phase today"],
+    "/full-moon-calendar": ["full moon calendar", "full moon dates"],
     "/zodiac-signs": ["zodiac signs", "Western zodiac signs"],
     "/zodiac-compatibility": ["zodiac compatibility chart", "zodiac compatibility"],
     "/zodiac-signs/aries": ["Aries", "Aries compatibility"],
@@ -466,6 +486,7 @@
     ]
   },
   "scan": [
+    "apps/web/content/tarot-spreads/en/*.mdx",
     "apps/web/content/western-zodiac/en/**/*.mdx",
     "apps/web/src/features/west-content/zodiac/copy.ts"
   ]

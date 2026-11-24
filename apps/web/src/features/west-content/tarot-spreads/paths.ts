@@ -32,7 +32,7 @@ export const TAROT_TOPIC_TITLES: Readonly<Record<TopicSpreadId, string>> = {
 export const TAROT_TOPIC_SUMMARIES: Readonly<Record<TopicSpreadId, string>> = {
   love: 'Five cards for a relationship question.',
   career: 'Four cards for a question about work.',
-  'full-moon': 'Four cards for the end of a lunar cycle.',
+  'full-moon': 'Four cards to reflect on the past few weeks.',
 }
 
 export const TAROT_SPREAD_CONTENT_ROUTES: readonly WestContentRoute[] = TAROT_TOPIC_SPREADS.map(

@@ -44,14 +44,14 @@ const COPY = {
   related: 'More spreads',
   source:
     'Card meanings follow the Rider–Waite–Smith tradition. The cards do not describe another person’s feelings.',
-  moonLabel: 'Tonight’s moon',
+  moonLabel: 'Today’s moon phase',
   asOf: (date: string) => `As of ${date} · changes to today’s date when the page loads`,
   localNote: 'your local time',
-  fullTonight: (name: string) => `The Moon is full tonight · ${name}`,
-  notFull: (phase: string, percent: number) => `Tonight’s moon: ${phase}, ${percent}% lit`,
+  fullToday: (name: string) => `Full moon today · ${name}`,
+  notFull: (phase: string, percent: number) => `Today’s moon: ${phase}, ${percent}% lit`,
   afterThis: (date: string) => `The next full moon after this one is ${date}.`,
   nextFull: (date: string, name: string) => `The next full moon is on ${date}, the ${name}.`,
-  anyTime: 'You can draw this spread at any time; the full moon is only the traditional occasion.',
+  anyTime: 'You can draw this spread at any time. The full moon is a reminder to reflect.',
   outOfRange:
     'Today is outside the moon calendar’s current range. You can still draw the spread; check the moon pages for the latest dates.',
 } as const
@@ -210,15 +210,15 @@ function useVisitorClock(moon: SpreadMoon | null): Clock {
 /** 日期键（YYYY-MM-DD）的「November 24, 2026」写法 */
 const dayText = (key: string) => fullDate((parseDateKey(key) ?? 0) + 43_200_000, UTC)
 
-/** 满月月相框（设计稿 SpreadMoon）：今晚是否满月、下一次满月与传统月名，链接两个月相页 */
+/** 满月月相框（设计稿 SpreadMoon）：按访客的当地日期显示当日相位、下一次满月与传统月名 */
 function MoonBox({ moon }: { moon: SpreadMoon | null }) {
   const clock = useVisitorClock(moon)
   const headingId = useId()
   const view = moon ? moonDay(moon.table, clock.today, clock.timeZone) : null
-  const tonight = view?.quarter?.phase === 'full-moon' ? view.quarter : null
+  const fullToday = view?.quarter?.phase === 'full-moon' ? view.quarter : null
   const next =
     moon && view
-      ? nextEvent(moon.table, 'full-moon', tonight ? tonight.utcMs + 1 : clock.nowMs)
+      ? nextEvent(moon.table, 'full-moon', fullToday ? fullToday.utcMs + 1 : clock.nowMs)
       : null
   const nameOf = (utcMs: number) =>
     MOON_COPY.moonName(Number(zonedDateKey(utcMs, clock.timeZone).slice(5, 7)))
@@ -246,15 +246,15 @@ function MoonBox({ moon }: { moon: SpreadMoon | null }) {
         )}
         <h2 id={headingId} className="m-0 text-balance font-heading text-heading text-ink">
           {view
-            ? tonight
-              ? COPY.fullTonight(nameOf(tonight.utcMs))
+            ? fullToday
+              ? COPY.fullToday(nameOf(fullToday.utcMs))
               : COPY.notFull(MOON_COPY.phase(view.phase), Math.round(view.illumination * 100))
             : COPY.moonLabel}
         </h2>
         <p className={muted}>
           {view && next
             ? `${
-                tonight
+                fullToday
                   ? COPY.afterThis(fullDate(next.utcMs, clock.timeZone))
                   : COPY.nextFull(fullDate(next.utcMs, clock.timeZone), nameOf(next.utcMs))
               } ${COPY.anyTime}`
