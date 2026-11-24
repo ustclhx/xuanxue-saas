@@ -219,7 +219,7 @@ export const ANGEL_COPY = {
   },
 } as const
 
-/** 相关区块的卡片（站内已上线页面；个人年数页由第 27 组上线后再加） */
+/** 相关区块的卡片（站内已上线页面，含第 27 组的个人年数计算器） */
 export interface RelatedCard {
   readonly path: string
   readonly title: string
@@ -240,14 +240,14 @@ export function hubRelated(locale: AngelLocale): readonly RelatedCard[] {
           description: 'Numbers from your name',
         },
         {
+          path: '/personal-year-number',
+          title: 'Personal Year Calculator',
+          description: 'The theme numerology gives your current year',
+        },
+        {
           path: '/daily-numerology',
           title: 'Number of the Day',
           description: 'Today’s universal day number',
-        },
-        {
-          path: '/numerology',
-          title: 'What is numerology',
-          description: 'The digits, the reduction and the core numbers',
         },
       ]
     : [
@@ -260,6 +260,11 @@ export function hubRelated(locale: AngelLocale): readonly RelatedCard[] {
           path: '/calculadora-numerologia',
           title: 'Calculadora de numerología',
           description: 'Los números de tu nombre',
+        },
+        {
+          path: '/ano-personal',
+          title: 'Calculadora del año personal',
+          description: 'El número que te corresponde en el año en curso',
         },
         {
           path: '/numerologia',

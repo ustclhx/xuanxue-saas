@@ -11,6 +11,7 @@ import {
 import { mainToolPath, TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { tarotIndexPath } from '../tools/tarot/meaning-routes.ts'
 import { MOON_PATHS } from '../west-content/moon/paths.ts'
+import { isPersonalYearLocale, PERSONAL_YEAR_PATHS } from '../west-content/personal-year/paths.ts'
 import { TAROT_TOPIC_SPREADS } from '../west-content/tarot-spreads/paths.ts'
 import type { SeoPage, StaticPath } from './metadata.ts'
 
@@ -203,6 +204,9 @@ function routeLinking(route: ToolRoute, page: SeoPage): { titleMain: string; par
   // 上级为塔罗入口页（设计稿 Spread 的三级面包屑）
   if ((TAROT_TOPIC_SPREADS as readonly string[]).some((id) => route.id === `tarot-${id}`))
     return { titleMain: navTitle ?? page.title, parent: '/tarot' }
+  // personal year 年份数页（content-growth-v2-tools 第 27 组）：面包屑「Home › Personal Year Calculator › Personal Year 5」
+  if (/^personal-year-[1-9]$/.test(route.id) && isPersonalYearLocale(locale))
+    return { titleMain: navTitle ?? page.title, parent: PERSONAL_YEAR_PATHS[locale] }
   if (route.id.startsWith('bazi-concept-'))
     return { titleMain: navTitle ?? page.title, parent: mainToolPath(locale) ?? '/' }
   return { titleMain: navTitle ?? WEST_MAIN[page.path] ?? page.title, parent: '/' }

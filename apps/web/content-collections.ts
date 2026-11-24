@@ -1250,6 +1250,73 @@ const angelNumbers = defineCollection({
   },
 })
 
+/**
+ * 西方站 personal year 集合（openspec content-growth-v2-tools 决策 2、16，第 27 组）：content/personal-year/<locale>/ 下
+ * `index.mdx` 为计算器页正文，`1.mdx` … `9.mdx` 为年份数页（en、es 各自撰写）。数字面板、示例算式与九年周期由页面
+ * 按 `@xuanxue/numerology` 计算，这里只保存逐页文字：年份数页另有 3 个自问问题（`questions`）。
+ * 正文按 `## ` 切段分别编译；构建期拦下 AI、预测与运气类措辞。篇幅与算式复核见 scripts/check-content-personal-year.mjs。
+ */
+const PERSONAL_YEAR_BANNED =
+  /\bAI\b|entertainment|for fun|\bluck|\blucky\b|\bfate\b|\bdestiny\b|manifest|guarantee|entretenimiento|\bsuerte\b|\bdestino\b|garantiz/i
+const personalYear = defineCollection({
+  name: 'personalYear',
+  directory: 'content/personal-year',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    lede: z.string().min(1),
+    questions: z.array(z.string().min(1)).length(3).optional(),
+    // origin：本语言原创（local）或改写自他语言（adapted），供本地化测量统计
+    faq: z
+      .array(
+        z.object({
+          q: z.string().min(1),
+          a: z.string().min(1),
+          origin: z.enum(['local', 'adapted']).optional(),
+        }),
+      )
+      .min(2)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    const number = /^[1-9]$/.test(key) ? Number(key) : null
+    if (!['en', 'es'].includes(locale) || (key !== 'index' && number === null))
+      throw new Error(`Personal year file is not a known page: ${document._meta.path}`)
+    if ((number !== null) !== Boolean(data.questions))
+      throw new Error(
+        `questions are only and always required on number pages: ${document._meta.path}`,
+      )
+    const text = [data.title, data.heading, data.description, data.lede, content]
+      .concat(
+        data.questions ?? [],
+        data.faq.flatMap(({ q, a }) => [q, a]),
+      )
+      .join('\n')
+    const banned = PERSONAL_YEAR_BANNED.exec(text)
+    if (banned)
+      throw new Error(`Personal year copy contains "${banned[0]}": ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Personal year body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, number, sections }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -1273,5 +1340,6 @@ export default defineConfig({
     compat,
     zodiacPair,
     angelNumbers,
+    personalYear,
   ],
 })
