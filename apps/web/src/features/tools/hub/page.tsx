@@ -115,7 +115,7 @@ export function ToolsHubPage({
                           layout="row"
                           href={toolHref(tool.path, locale)}
                           title={name}
-                          glyph={toolGlyph(tool, name)}
+                          glyph={toolGlyph(tool, name, locale)}
                           summary={toolSummary(tool, site, locale)}
                           badge={badge && <ToolLabel kind="new">{badge}</ToolLabel>}
                           labels={label && <ToolLabel kind="free">{label}</ToolLabel>}

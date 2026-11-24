@@ -515,6 +515,16 @@
       "note": "八字合盘分项（content-growth-v2-tools 第 12 组）"
     },
     {
+      "id": "shichu.branch-harm",
+      "en": "harm (害)",
+      "preferred": "harm"
+    },
+    {
+      "id": "shichu.branch-break",
+      "en": "break (破)",
+      "preferred": "break"
+    },
+    {
       "id": "ziwei.name",
       "en": "Zi Wei Dou Shu",
       "preferred": "Zi Wei Dou Shu",
@@ -843,7 +853,9 @@
     "/bazi-compatibility": ["BaZi compatibility", "BaZi chart compatibility"],
     "/chinese-zodiac": ["Chinese zodiac", "Chinese zodiac years"],
     "/chinese-zodiac-2027": ["Year of the Goat 2027", "Chinese zodiac 2027"],
-    "/chinese-zodiac-2027/*": ["{name} in 2027", "Year of the {name} 2027"]
+    "/chinese-zodiac-2027/*": ["{name} in 2027", "Year of the {name} 2027"],
+    "/chinese-zodiac-compatibility": ["Chinese zodiac compatibility", "Chinese zodiac pairings"],
+    "/chinese-zodiac-compatibility/*": ["{name} and {name} compatibility", "{name} and {name}"]
   },
   "scanOnly": true,
   "scan": [
@@ -857,8 +869,10 @@
     "apps/web/content/compat/en/**/*.mdx",
     "apps/web/messages/en/compat.json",
     "apps/web/content/zodiac/en/**/*.mdx",
+    "apps/web/content/zodiac-pair/en/**/*.mdx",
     "apps/web/content/yearly/en/**/*.mdx",
     "apps/web/messages/en/zodiac.json",
+    "apps/web/messages/en/zodiac-pair.json",
     "apps/web/messages/en/yearly.json"
   ]
 }

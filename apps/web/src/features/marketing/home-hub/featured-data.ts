@@ -55,7 +55,7 @@ export function hubTool(tool: DirectoryEntry, site: SiteId, locale: string): Hub
     title,
     summary: toolSummary(tool, site, locale),
     href: toolHref(tool.path, locale),
-    glyph: toolGlyph(tool, title),
+    glyph: toolGlyph(tool, title, locale),
     label,
     badge: badgeText(tool.badge),
     action: action ? withoutArrow(action) : (label ?? title),

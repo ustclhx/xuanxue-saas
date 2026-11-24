@@ -104,7 +104,7 @@ describe('落地页数据', () => {
       'bazi',
       ['saju-gunghap', 'zodiac-pair', 'ziwei', 'tarot-three-card'],
       null,
-      '八合C紫22',
+      '八合配紫22',
     ],
     [
       'west',
