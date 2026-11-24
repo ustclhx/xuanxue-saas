@@ -1,5 +1,6 @@
 import type { SiteId } from '@xuanxue/config'
 import {
+  allAngelNumbers,
   allCompats,
   allDocs,
   allGuides,
@@ -22,6 +23,7 @@ import { tarotFeelingsSeoPages } from '../east-en/seo-pages.ts'
 import { siteOfLocale } from '../site/site.ts'
 import { numerologySeoPages } from '../tools/numerology/routes.ts'
 import { tarotLocalizedSeoPages, tarotMeaningSeoPages } from '../tools/tarot/meaning-routes.ts'
+import { angelSeoPages } from '../west-content/angel-numbers/seo-pages.ts'
 import { westernZodiacSeoPages } from '../west-content/zodiac/seo-pages.ts'
 import { pageSite, type SeoPage } from './metadata.ts'
 import { type PageLinks, pageLinks } from './page-links.ts'
@@ -50,6 +52,8 @@ export function getPublicPages(site?: SiteId) {
         ...compatSeoPages(allCompats),
         // 东方站生肖配对总表与配对页（content-growth-v2-tools 第 16 组）
         ...zodiacPairSeoPages(allZodiacPairs),
+        // 西方站 angel numbers 枢纽与数字页（content-growth-v2-tools 第 26 组）
+        ...angelSeoPages(allAngelNumbers),
       ],
     },
     new Date(),

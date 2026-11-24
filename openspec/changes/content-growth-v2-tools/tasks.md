@@ -210,9 +210,9 @@
 
 ## 26. angel numbers（en、es）
 
-- [ ] 26.1 新建 `angelNumbers` 集合、枢纽与数字页组件，登记地址与注册表；单测覆盖枢纽只列已发布数字、hreflang 只列已发布对应页
-- [ ] 26.2 Claude 子代理撰写 en 枢纽与约 30 个数字页；另一个子代理按「números angelicales」另写 es（数字集合可以不同）；Codex 审 en、回译审 es
-- [ ] 26.3 验收：组内相似度、长度与 TDK、内链（生命灵数页）、术语表锚点、关键词归属补登
+- [x] 26.1 新建 `angelNumbers` 集合、枢纽与数字页组件，登记地址与注册表；单测覆盖枢纽只列已发布数字、hreflang 只列已发布对应页
+- [x] 26.2 Claude 子代理撰写 en 枢纽与约 30 个数字页；另一个子代理按「números angelicales」另写 es（数字集合可以不同）；Codex 审 en、回译审 es
+- [x] 26.3 验收：组内相似度、长度与 TDK、内链（生命灵数页）、术语表锚点、关键词归属补登
 
 ## 27. personal year 计算器与 9 页（en、es）
 

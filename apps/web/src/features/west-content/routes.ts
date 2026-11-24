@@ -1,4 +1,5 @@
 import { TOOLS_HUB_WEST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
+import { ANGEL_CONTENT_ROUTES } from './angel-numbers/paths.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
 import { TAROT_SPREAD_CONTENT_ROUTES } from './tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
@@ -33,6 +34,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...TOOLS_HUB_WEST_CONTENT_ROUTES,
   // 第 28 组：爱情、事业、满月牌阵页（en，`/tarot/…` 由塔罗文件路由转交本映射）
   ...TAROT_SPREAD_CONTENT_ROUTES,
+  // 第 26 组：angel numbers 枢纽与数字页（en、es 各自的数字集合）
+  ...ANGEL_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

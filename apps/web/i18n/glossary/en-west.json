@@ -108,6 +108,19 @@
       "id": "tarot.minor-arcana",
       "en": "Minor Arcana",
       "preferred": "Minor Arcana"
+    },
+    {
+      "id": "numerology.angel-number",
+      "en": "angel number",
+      "preferred": "angel number",
+      "note": "Group 26: hub /angel-numbers, Title and H1 «Angel Number {n}»"
+    },
+    {
+      "id": "numerology.root-number",
+      "en": "root number",
+      "preferred": "root number",
+      "variants": ["root"],
+      "note": "Digit sum reduced with the life path rule; 11, 22 and 33 are kept"
     }
   ],
   "banned": [
@@ -483,11 +496,15 @@
     "/zodiac-compatibility/pisces-and-pisces": [
       "Pisces and Pisces",
       "Pisces and Pisces compatibility"
-    ]
+    ],
+    "/angel-numbers": ["angel numbers", "angel number meanings"],
+    "/angel-numbers/*": ["angel number {n}", "{n}"]
   },
   "scan": [
     "apps/web/content/tarot-spreads/en/*.mdx",
     "apps/web/content/western-zodiac/en/**/*.mdx",
-    "apps/web/src/features/west-content/zodiac/copy.ts"
+    "apps/web/src/features/west-content/zodiac/copy.ts",
+    "apps/web/content/angel-numbers/en/**/*.mdx",
+    "apps/web/src/features/west-content/angel-numbers/copy.ts"
   ]
 }

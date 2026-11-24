@@ -122,6 +122,7 @@ const GLYPH: Readonly<Record<string, string>> = {
   'full-moon-calendar': '○',
   'western-zodiac-signs': '♈',
   'western-zodiac-compatibility': '♌',
+  'angel-numbers': '11',
 }
 
 /** 工具卡的大号字形（装饰，对读屏隐藏）：没有登记的工具取名称里的第一个文字 */

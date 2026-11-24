@@ -598,6 +598,37 @@
       "en": "Personal day number",
       "preferred": "número personal del día",
       "note": "segunda fase"
+    },
+    {
+      "id": "numerology.angel-number",
+      "en": "angel number",
+      "preferred": "número angelical",
+      "variants": ["números angelicales"],
+      "banned": [
+        {
+          "text": "angel number",
+          "reason": "nombre en inglés sin traducir"
+        },
+        {
+          "text": "número de ángel",
+          "use": "número angelical"
+        }
+      ],
+      "note": "Grupo 26 (content-growth-v2-tools): ruta /es/numeros-angelicales, Title y H1 con «número angelical {n}»"
+    },
+    {
+      "id": "numerology.mirror-hour",
+      "en": "mirror hour",
+      "preferred": "hora espejo",
+      "variants": ["horas espejo"],
+      "note": "Horas con cifras repetidas o simétricas (11:11, 12:21); término de búsqueda propio del español"
+    },
+    {
+      "id": "numerology.root-number",
+      "en": "root number",
+      "preferred": "número raíz",
+      "variants": ["raíz"],
+      "note": "Resultado de reducir las cifras de una secuencia con la regla del número de vida (11, 22 y 33 se conservan)"
     }
   ],
   "banned": [
@@ -815,6 +846,8 @@
     "/es/tarot/cartas": ["significado de las cartas del tarot", "las 78 cartas"],
     "/es/tarot/cartas/*": ["{card}", "significado de {card}"],
     "/es/faq": ["preguntas frecuentes", "preguntas frecuentes de Arcanumber"],
-    "/es/pricing": ["precios", "precios de las lecturas"]
+    "/es/pricing": ["precios", "precios de las lecturas"],
+    "/es/numeros-angelicales": ["números angelicales", "significado de los números angelicales"],
+    "/es/numeros-angelicales/*": ["número angelical {n}", "el {n}"]
   }
 }

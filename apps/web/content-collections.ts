@@ -1194,6 +1194,62 @@ const zodiacPair = defineCollection({
   },
 })
 
+/**
+ * 西方站 angel numbers 集合（openspec content-growth-v2-tools 第 26 组，specs/angel-number-pages）：
+ * content/angel-numbers/<locale>/<数字>.mdx 为数字页，index.mdx 为枢纽；en、es 各自选数字、各自撰写。
+ * 文件存在即已发布：枢纽只列本语言的数字页，hreflang 只连两种语言都有的同一数字
+ * （features/west-content/angel-numbers/seo-pages.ts）。各位数字、排列、各位之和与根数由页面按
+ * @xuanxue/numerology 的约简规则计算，这里只保存逐页撰写的文字：`theme`（枢纽格子副标签）、
+ * `question`（文末反思问题）与按 `## ` 切段的正文。
+ */
+const angelNumbers = defineCollection({
+  name: 'angelNumbers',
+  directory: 'content/angel-numbers',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    lede: z.string().min(1),
+    // 数字页必填：枢纽与相邻数字格子的副标签、文末问题
+    theme: z.string().min(1).optional(),
+    question: z.string().min(1).optional(),
+    faq: z
+      .array(
+        z.object({
+          q: z.string().min(1),
+          a: z.string().min(1),
+          origin: z.enum(['local', 'adapted']).optional(),
+        }),
+      )
+      .min(2)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    if (!['en', 'es'].includes(locale) || !(key === 'index' || /^\d{3,4}$/.test(key)))
+      throw new Error(`Angel number file is not a known page: ${document._meta.path}`)
+    if (key !== 'index' && !(data.theme && data.question))
+      throw new Error(`Angel number pages need theme and question: ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Angel number body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, sections }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -1216,5 +1272,6 @@ export default defineConfig({
     yearly,
     compat,
     zodiacPair,
+    angelNumbers,
   ],
 })
