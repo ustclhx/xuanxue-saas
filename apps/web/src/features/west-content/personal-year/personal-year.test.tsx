@@ -91,11 +91,12 @@ describe('页面数据', () => {
     expect(personalYearPage('es', '5', [], links)).toBeNull()
   })
 
-  it('年份数页的相关区块先列计算器与同数字的 Life Path 页', () => {
+  it('年份数页的相关区块先列计算器、同数字的 Life Path 页与三连 angel number 页', () => {
     const page = personalYearPage('es', '7', entries, links)
-    expect(page?.payload.related.slice(0, 2).map((item) => item.href)).toEqual([
+    expect(page?.payload.related.slice(0, 3).map((item) => item.href)).toEqual([
       '/ano-personal',
       '/numero-de-vida/7',
+      '/numeros-angelicales/777',
     ])
     expect(page?.payload).toMatchObject({ kind: 'number', number: 7, path: '/ano-personal/7' })
   })

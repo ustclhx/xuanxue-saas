@@ -237,8 +237,19 @@ const HUB = { en: '/angel-numbers', es: '/es/numeros-angelicales' }
 const LIFE_PATH_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33]
 /** 正文可链接的其他可索引页（生命灵数计算器、数字命理入门） */
 const OTHER_TARGETS = {
-  en: new Set(['/life-path-number', '/numerology', '/numerology-calculator']),
-  es: new Set(['/es/numero-de-vida', '/es/numerologia', '/es/calculadora-numerologia']),
+  // 个人年数计算器（第 27 组）：枢纽正文链向它
+  en: new Set([
+    '/life-path-number',
+    '/numerology',
+    '/numerology-calculator',
+    '/personal-year-number',
+  ]),
+  es: new Set([
+    '/es/numero-de-vida',
+    '/es/numerologia',
+    '/es/calculadora-numerologia',
+    '/es/ano-personal',
+  ]),
 }
 
 /** 站上其他内容对生命灵数页与入门页已使用的锚文本（与本集合合并统计每目标的表述数） */

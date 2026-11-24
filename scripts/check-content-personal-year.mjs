@@ -26,8 +26,13 @@ const SECTIONS = { en: { index: 5, number: 6 }, es: { index: 5, number: 7 } }
 const CALCULATOR = { en: '/personal-year-number', es: '/es/ano-personal' }
 const LIFE_PATH = { en: '/life-path-number', es: '/es/numero-de-vida' }
 const ALLOWED_INDEX_LINKS = {
-  en: ['/numerology', '/life-path-number', '/numerology-calculator'],
-  es: ['/es/numerologia', '/es/numero-de-vida', '/es/calculadora-numerologia'],
+  en: ['/numerology', '/life-path-number', '/numerology-calculator', '/angel-numbers'],
+  es: [
+    '/es/numerologia',
+    '/es/numero-de-vida',
+    '/es/calculadora-numerologia',
+    '/es/numeros-angelicales',
+  ],
 }
 // 首段须出现的传统主题词（fact-sheet §2，设计稿关键词）
 const THEME = {

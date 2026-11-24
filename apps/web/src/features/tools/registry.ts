@@ -11,8 +11,8 @@ import { ZODIAC_PAIR_TOOL_ROUTES } from '../east-content/zodiac-pair/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { ANGEL_TOOL_ROUTES } from '../west-content/angel-numbers/paths.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
-import { TAROT_SPREAD_TOOL_ROUTES } from '../west-content/tarot-spreads/paths.ts'
 import { PERSONAL_YEAR_TOOL_ROUTES } from '../west-content/personal-year/paths.ts'
+import { TAROT_SPREAD_TOOL_ROUTES } from '../west-content/tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
 import {
   CONCEPT_SLUGS,

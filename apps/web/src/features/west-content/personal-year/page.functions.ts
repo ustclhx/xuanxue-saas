@@ -8,6 +8,7 @@ import type { PageLink } from '../../seo/page-links.ts'
 import { getPageLinks, getPublicPage } from '../../seo/pages.server.ts'
 import { breadcrumbData } from '../../seo/structured-data.ts'
 import { faqPageData } from '../../tools/numerology/seo.ts'
+import { ANGEL_HUB_PATHS, ANGEL_NUMBERS } from '../angel-numbers/paths.ts'
 import {
   PERSONAL_YEAR_LOCALES,
   PERSONAL_YEAR_PATHS,
@@ -47,17 +48,13 @@ export interface PersonalYearPayload {
 }
 
 /**
- * 相关区块（设计稿「Related」）：只列 main 上已有的页面。设计稿中的 Angel Numbers（第 26 组）与
- * Solar Return（第 25 组）上线后再补（PR 记 TODO）。年份数页先列计算器与同数字的 Life Path 页。
+ * 相关区块（设计稿「Related」）：只列 main 上已有的页面。计算器页含 Angel Numbers 枢纽（第 26 组）；
+ * 设计稿中的 Solar Return（第 25 组）上线后再补（PR 记 TODO）。年份数页列计算器、同数字的 Life Path 页、
+ * 同数字三连的 angel number 页（设计稿 5 号页的「Angel Number 555」），再补一张计算器类页面。
  */
 const RELATED: Readonly<Record<PersonalYearLocale, readonly string[]>> = {
-  en: ['/life-path-number', '/numerology-calculator', '/daily-numerology', '/numerology'],
-  es: [
-    '/numero-de-vida',
-    '/calculadora-numerologia',
-    '/numerologia',
-    '/compatibilidad-numerologica',
-  ],
+  en: ['/life-path-number', '/numerology-calculator', ANGEL_HUB_PATHS.en, '/daily-numerology'],
+  es: ['/numero-de-vida', '/calculadora-numerologia', ANGEL_HUB_PATHS.es, '/numerologia'],
 }
 const LIFE_PATH_BASE: Readonly<Record<PersonalYearLocale, string>> = {
   en: '/life-path-number',
@@ -66,11 +63,16 @@ const LIFE_PATH_BASE: Readonly<Record<PersonalYearLocale, string>> = {
 
 export function relatedPaths(locale: PersonalYearLocale, number: PersonalYearNumber | null) {
   if (number === null) return RELATED[locale]
+  const triple = String(number).repeat(3)
+  const angel = (ANGEL_NUMBERS[locale] as readonly string[]).includes(triple)
+    ? [`${ANGEL_HUB_PATHS[locale]}/${triple}`]
+    : []
   return [
     PERSONAL_YEAR_PATHS[locale],
     `${LIFE_PATH_BASE[locale]}/${number}`,
-    ...RELATED[locale].filter((path) => path !== LIFE_PATH_BASE[locale]).slice(0, 2),
-  ]
+    ...angel,
+    ...RELATED[locale].filter((path) => path !== LIFE_PATH_BASE[locale]),
+  ].slice(0, 4)
 }
 
 /**
