@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Personal Year Number Calculator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="py-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Personal Year Calculator</span></nav>
+<h1 class="t-title">Personal Year Number Calculator</h1>
+<p class="muted">Enter your birth month and day and choose a year. The calculator adds the digits one step at a time and gives your personal year number, from 1 to 9.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birthday and year">
+<div class="field">
+<div class="field-top"><label class="label" for="py-day">Birth month and day</label></div>
+<input class="input hide-error hide-initial" id="py-day" type="text" value="July 14">
+<input class="input when when-initial" type="text" placeholder="For example July 14" aria-label="Birth month and day">
+<input class="input inv when when-error" type="text" value="July 41" aria-label="Birth month and day" aria-invalid="true" aria-describedby="py-day-err">
+<p class="err when when-error" id="py-day-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Enter a real month and day, for example July 14.</p>
+<p class="hint hide-error">Your birth year isn't needed.</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" id="py-year-l">Year</label></div>
+<button type="button" class="select" aria-labelledby="py-year-l" aria-haspopup="listbox">2027<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<p class="hint">Starts on the current year. Choose any year from 1900 to 2100.</p>
+</div>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Calculate</button>
+</div>
+</form>
+
+<section class="result hide-initial" aria-labelledby="py-res">
+<h2 class="t-title" id="py-res">Your personal year in 2027</h2>
+
+<div class="obj blk" style="max-width: 760px">
+<div class="lp-result">
+<svg class="numring" viewBox="0 0 132 132" role="img" aria-label="Personal Year 5">
+<circle class="mo-s" cx="66" cy="66" r="62"/>
+<circle class="mo-s mo-f" cx="66" cy="66" r="50"/>
+<text x="66" y="68" style="fill: var(--ink); font-family: var(--head); font-weight: 700; font-size: 52px; text-anchor: middle; dominant-baseline: central">5</text>
+</svg>
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Personal Year 5</h3>
+<p class="muted">The fifth year of the nine-year cycle is traditionally associated with change, movement and trying things out.</p>
+<a class="link" href="YearNumber.dc.html">Read about Personal Year 5</a>
+</div>
+</div>
+<h3 class="t-heading" style="margin-top: 8px">Calculation steps</h3>
+<ol class="steps-calc wide">
+<li><span class="subtle">Month</span><span>July → 7</span></li>
+<li><span class="subtle">Day</span><span>14 → 1 + 4</span></li>
+<li><span class="subtle">Year</span><span>2027 → 2 + 0 + 2 + 7</span></li>
+<li><span class="subtle">Sum</span><span>7 + 1 + 4 + 2 + 0 + 2 + 7 = 23</span></li>
+<li><span class="subtle">Reduce</span><span>2 + 3 = 5</span></li>
+</ol>
+</div>
+<p class="t-caption subtle">Sample input for layout: July 14, year 2027.</p>
+
+<div class="blk">
+<h3 class="t-heading">Your nine-year cycle</h3>
+<div class="numgrid c9">
+<a href="YearNumber.dc.html">1<small>2023</small></a><a href="YearNumber.dc.html">2<small>2024</small></a><a href="YearNumber.dc.html">3<small>2025</small></a><a href="YearNumber.dc.html">4<small>2026</small></a><a class="cur" href="YearNumber.dc.html" aria-current="true">5<small>2027</small></a><a href="YearNumber.dc.html">6<small>2028</small></a><a href="YearNumber.dc.html">7<small>2029</small></a><a href="YearNumber.dc.html">8<small>2030</small></a><a href="YearNumber.dc.html">9<small>2031</small></a>
+</div>
+<p class="notebox">This calculator counts a personal year from January 1 to December 31. Some numerologists start it on the birthday instead. The number is the same either way; only the starting date differs.</p>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Your other numbers</h3>
+<p class="muted">The personal year is one number in a numerology chart. The life path calculator works out your core number from your full birth date, with the same step-by-step arithmetic.</p>
+</div>
+<a class="btn btn-secondary" href="#py-top">Open the Life Path Calculator</a>
+</div>
+
+<p class="disc">Calculated with traditional methods. For reference and self-reflection only; it does not predict the future.</p>
+</section>
+
+<article class="article" aria-labelledby="py-a1">
+<h2 class="t-title" id="py-a1" style="margin-top: 0">What a personal year number is</h2>
+<p>In numerology each calendar year has a number for you, found by adding your birth month and day to the digits of the year. The numbers run from 1 to 9 and then start again, so the same theme comes round every nine years.</p>
+<h2 class="t-title">How it is calculated</h2>
+<p>Write the month as a number, add the digits of the day and of the year, and keep adding the digits of the total until a single digit is left. The steps above show every addition, so you can check the result by hand.</p>
+</article>
+
+<section class="secblk" aria-labelledby="py-all">
+<h2 class="t-title" id="py-all">Personal year numbers 1 to 9</h2>
+<div class="numgrid c9">
+<a href="YearNumber.dc.html">1<small>start</small></a><a href="YearNumber.dc.html">2<small>patience</small></a><a href="YearNumber.dc.html">3<small>expression</small></a><a href="YearNumber.dc.html">4<small>groundwork</small></a><a href="YearNumber.dc.html">5<small>change</small></a><a href="YearNumber.dc.html">6<small>care</small></a><a href="YearNumber.dc.html">7<small>study</small></a><a href="YearNumber.dc.html">8<small>results</small></a><a href="YearNumber.dc.html">9<small>completion</small></a>
+</div>
+</section>
+
+<section aria-labelledby="py-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="py-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>Is the personal year the same as the life path number?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>No. The life path number uses your full birth date and never changes. The personal year replaces your birth year with a calendar year, so it changes every year.</p>
+</details>
+<details>
+<summary>Why doesn't the calculator ask for my birth year?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>The formula uses only the month and day you were born and the year you are asking about.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="py-rel">
+<h2 class="t-heading" id="py-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="#py-top"><b>Life Path Calculator</b><span>Your core number from your birth date</span></a></li>
+<li><a class="relcard" href="#py-top"><b>Numerology Calculator</b><span>Numbers from your name</span></a></li>
+<li><a class="relcard" href="AngelHub.dc.html"><b>Angel Numbers</b><span>Repeating sequences, number by number</span></a></li>
+<li><a class="relcard" href="SolarReturn.dc.html"><b>Solar Return Calculator</b><span>The astrological year, from birthday to birthday</span></a></li>
+</ul>
+</section>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","initial","error"],"default":"result"},"$preview":{"width":1440,"height":3100}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>
