@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>第二批：提议与待确认项</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="east-light" class="xx hans board" style="gap: 24px">
+
+<div class="b-sec">
+<h1 class="t-title">提议与待确认项</h1>
+<p class="muted prose">本画布没有新增颜色、字号、圆角或阴影 token，全部取自 brand.css 现有变量。A 是 5 项新的组合方式，B 是出稿时做的 15 项默认选择，C 是状态矩阵与不适用说明。回复「确认」即全部按建议默认执行；要改哪一项，回复编号即可。</p>
+</div>
+
+<div class="b-sec">
+<h2 class="t-heading">A · 组件变更提议（均为项目组件，不改模板拥有的 packages/ui 基础组件）</h2>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">A1 · 地名自动补全</h3>
+<p class="muted">用现有 @xuanxue/ui 的 Combobox，不新增组件。选项两行：地名、行政区与国家。选中后在字段下显示时区与当日 UTC 偏移。页面底部固定一行 GeoNames CC BY 4.0 署名（caption 字号、--ink-subtle）。地名数据按首字母切片按需加载，不查数据库。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light">
+<div class="combo"><span class="input">Lis</span><div class="menu"><a class="cur" href="Main.dc.html"><b>Lisbon</b><span>Lisbon District, Portugal</span></a><a href="Main.dc.html"><b>Lisburn</b><span>Northern Ireland, United Kingdom</span></a></div></div>
+<p class="attr">Place names and coordinates from <a href="Main.dc.html">GeoNames</a>, licensed under <a href="Main.dc.html">CC BY 4.0</a>.</p>
+</div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">A2 · 星盘图 ChartWheel</h3>
+<p class="muted">新的项目组件，内联 SVG，建议放 web 的西方星盘 feature 内（只此一处使用）。星座环为 --surface-2 色带，环线与宫线 --line-strong，四轴 --ink，行星字形 --ink，轴标 --accent。相位线一律 --illus，合、六分、三分为实线，四分、对分为虚线，不靠色相区分。双盘时本人行星在环内、对方在环外并用 --accent。星盘图下方必有同数据的行星表，图本身带文字替代说明。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light" style="align-items: center">
+<div style="width: 300px; max-width: 100%"><dc-import name="Wheel" mode="in" kind="single" hint-size="300px,300px"></dc-import></div>
+</div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">A3 · 逆行时间条 RetroTimeline</h3>
+<p class="muted">每颗行星一行：轨道 --surface-2，逆行区间 --accent，今天为一条 --ink 竖线。只作概览，同一页必有逐项日期表；手机上月份标签隔一个显示。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light">
+<div class="rt">
+<div class="rt-row"><span>Mercury</span><span class="rt-track"><i style="left: 15.6%; width: 6%"></i><i style="left: 49.3%; width: 6.6%"></i><i style="left: 81.4%; width: 5.5%"></i><b style="left: 89.9%"></b></span></div>
+<div class="rt-row"><span>Saturn</span><span class="rt-track"><i style="left: 56.7%; width: 37.5%"></i><b style="left: 89.9%"></b></span></div>
+</div>
+</div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">A4 · 抽牌组件支持 4 张与 5 张牌阵</h3>
+<p class="muted">复用现有抽牌组件（洗牌、切牌、翻牌三步与牌面不变），只增加位置数与排布：桌面一行排开；手机 4 张为 2×2，5 张为 3 + 2。牌位名显示在牌上方，结果区由三列改为两列。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light">
+<div class="tcards c5" style="max-width: 320px"><div class="tslot"><div class="tcard tback"></div></div><div class="tslot"><div class="tcard tback"></div></div><div class="tslot"><div class="tcard tback"></div></div><div class="tslot"><div class="tcard tback"></div></div><div class="tslot"><div class="tcard tback"></div></div></div>
+</div>
+</div>
+
+<div class="pp">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">A5 · 数字格增加副文字与当前态</h3>
+<p class="muted">现有数字格（numgrid）每格加一行 caption 副文字（主题词或年份），当前项用 1px --accent 内框。用于 angel numbers 枢纽、相邻数字、九年周期与 1–9 年份数。</p>
+</div>
+<div class="pp-demo xx part" data-theme="west-light">
+<div class="numgrid" style="grid-template-columns: repeat(3, minmax(0, 1fr))"><a href="AngelHub.dc.html">111<small>beginnings</small></a><a class="cur" href="AngelHub.dc.html">1111<small>initiative</small></a><a href="AngelHub.dc.html">1212<small>steady steps</small></a></div>
+</div>
+</div>
+
+<div class="b-sec" style="border-top: 1px solid var(--line); padding-top: 24px">
+<h2 class="t-heading">B · 出稿时的默认选择（待确认）</h2>
+<table class="spec">
+<thead><tr><th scope="col">编号 · 事项</th><th scope="col">建议默认（画布所画）</th><th scope="col">备选</th></tr></thead>
+<tbody>
+<tr><td><strong>B1 · 状态矩阵</strong></td><td>三巨头、星盘、合盘、逆行日历、angel 两页、personal year、爱情牌阵、首页精选各画桌面 / 手机 × 浅 / 深四块；其余页面用画板的 theme、device、state 切换代替单独画板。</td><td>全部页面补齐四块。</td></tr>
+<tr><td><strong>B2 · 三巨头标题</strong></td><td>地址 /rising-sign-calculator，H1「Rising Sign Calculator」；big three 出现在导语、结果标题与按钮。</td><td>H1 改为「Big Three Calculator」。</td></tr>
+<tr><td><strong>B3 · 不知道出生时间</strong></td><td>三巨头给太阳与月亮，月亮跨座时列两个并给出换座时刻，上升不算。星盘页按当日正午给行星落座，不显示星盘图、宫位、上升与天顶；相位表保留（不含月亮）。</td><td>星盘页在无时间时整页只给落座表。</td></tr>
+<tr><td><strong>B4 · 宫位制</strong></td><td>默认 Placidus，表单提供 Whole sign 切换；纬度高于 66° 自动改整宫制并在结果上方提示。</td><td>不提供切换，只在高纬度自动改。</td></tr>
+<tr><td><strong>B5 · 星盘完整解读解锁卡</strong></td><td>沿用线上解锁卡：标题 Full reading，按钮「AI reading · {credits} credits」，说明「No charge if generation fails · Saved to your account」，并写明服务端按出生资料复算。积分数取运行时价格，画布写 10。评测与样例审阅通过前显示 Coming soon 态。</td><td>natal-full 单独定价（请给出积分数）。</td></tr>
+<tr><td><strong>B6 · 合盘 Synastry</strong></td><td>不出分数、不分等级，只列相位、容许度与传统读法，并给各类相位的条数。对方资料只用于本次计算，不存账户、不写浏览器存储，用途说明常显。本期没有付费解读，不放解锁卡。跨盘容许度 6°（六分 4°）。</td><td>沿用八字合盘的 100 分参考分。</td></tr>
+<tr><td><strong>B7 · 逆行日历</strong></td><td>一页同时列当年与次年，地址不带年份，H1 带两个年份并随发版滚动。水星单独成表，其余七颗行星合一表。日期按访客本地时区显示，预渲染为构建日数据并标注 as of。</td><td>每年一页（地址带年份）。</td></tr>
+<tr><td><strong>B8 · 土星回归与太阳返照</strong></td><td>土星回归的出生时间选填（不填时精确到约一天），列出每次回归的全部经过日期。太阳返照的出生时间必填，另问「当年生日所在地」，默认等于出生地。两页都不做付费解读，结果后引到出生星盘。</td><td>太阳返照不问所在地，只给返照时刻。</td></tr>
+<tr><td><strong>B9 · Angel numbers 枢纽</strong></td><td>按三位数、四位数、其他序列分组，每格带一个主题词；只列已发布数字，不做数字查询框。es 枢纽单组、数字较少，hreflang 只列已发布对应页。</td><td>加查询框，未发布的数字给出逐位拆解。</td></tr>
+<tr><td><strong>B10 · Personal year 口径</strong></td><td>按公历 1 月 1 日起算，只问出生月日与目标年份，结果约简为 1–9，不保留 11、22。以现有详批的逐年个人年数规则为准，若代码口径不同则改文案不改规则。</td><td>按生日起算。</td></tr>
+<tr><td><strong>B11 · 牌阵</strong></td><td>爱情 5 张、事业 4 张、满月 4 张。本期不接付费解读。满月牌阵顶部放「今晚月相」块并链到 Moon Phase Today 与 Full Moon Calendar，月相两页的相关区块回链满月牌阵。Title、H1 以牌阵主词开头。</td><td>三个牌阵统一为 3 张或 5 张。</td></tr>
+<tr><td><strong>B12 · 首页精选</strong></td><td>主卡、季节位不变；副卡由 3 张改为 4 张，Birth Chart Calculator 排第一并带 New。Rising Sign、Synastry 等只进枢纽页。</td><td>副卡保持 3 张，Birth Chart 替换 Numerology Calculator。</td></tr>
+<tr><td><strong>B13 · 页头下拉</strong></td><td>仍为 5 项加 All tools；Birth Chart 替换 Numerology Calculator。</td><td>下拉扩为 6 项，两者都留。</td></tr>
+<tr><td><strong>B14 · 合规文案</strong></td><td>西方页脚声明不变。天文计算类页面的结果区用「Positions are calculated with standard astronomical methods … for reference and self-reflection only; they do not predict the future.」公开正文、入口卡与枢纽不提 AI，只有解锁按钮沿用「AI reading」。中文说明不使用「自我探索」。</td><td>—</td></tr>
+<tr><td><strong>B15 · 副本目录</strong></td><td>确认后副本另存 docs/design/prototypes/content-growth-v2-batch2/。本画布的 Main、HdrWest、FtrWest、canvas.json 与第一批同名，不能放进第一批目录。Main.dc.html 是三巨头页。</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="b-sec" style="border-top: 1px solid var(--line); padding-top: 24px">
+<h2 class="t-heading">C · 状态矩阵与不适用说明</h2>
+<table class="spec">
+<thead><tr><th scope="col">页面</th><th scope="col">空</th><th scope="col">加载</th><th scope="col">错误</th></tr></thead>
+<tbody>
+<tr><td><strong>三巨头</strong></td><td>BigThreeEmpty</td><td>BigThreeLoading（引擎与地名数据按需加载）</td><td>BigThreeError</td></tr>
+<tr><td><strong>出生星盘</strong></td><td>NatalChartEmpty</td><td>NatalChartLoading</td><td>NatalChartError</td></tr>
+<tr><td><strong>合盘 Synastry</strong></td><td>不另画：空态即表单，版式同星盘空态</td><td>不另画：骨架同星盘加载态</td><td>SynastryError</td></tr>
+<tr><td><strong>逆行日历</strong></td><td colspan="3">不适用：预渲染静态页，没有输入，也没有运行时请求</td></tr>
+<tr><td><strong>土星回归、太阳返照</strong></td><td colspan="2">不另画：版式同三巨头的空态与加载态（按任务约定各画一块正常态与一块错误态）</td><td>SaturnReturnError、SolarReturnError</td></tr>
+<tr><td><strong>Angel numbers 枢纽、数字页</strong></td><td>不适用：静态内容页。「只列已发布」见 AngelHubEs</td><td>不适用：无请求</td><td>不适用：未发布的数字返回站点 404</td></tr>
+<tr><td><strong>Personal year 计算器</strong></td><td>PersonalYearEmpty</td><td>不适用：前端算术，没有异步步骤</td><td>PersonalYearError</td></tr>
+<tr><td><strong>年份数页</strong></td><td colspan="3">不适用：静态内容页，顶部小表单提交后跳到计算器</td></tr>
+<tr><td><strong>塔罗牌阵</strong></td><td>SpreadEmpty（未洗牌）</td><td>不适用：本地抽牌，没有请求</td><td>SpreadError（分享链接不完整）</td></tr>
+<tr><td><strong>首页精选、枢纽、页头</strong></td><td colspan="3">不适用：静态。空分组隐藏的规则沿用第一批 HubEmpty</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4600}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

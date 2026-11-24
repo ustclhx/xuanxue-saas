@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Synastry Chart</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="sy-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Synastry Chart</span></nav>
+<div class="rowline"><h1 class="t-title">Synastry Chart</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">Enter two sets of birth details to see both charts on one wheel and the aspects between them, listed one by one. The table shows which traditional aspects are present. It is a reference, not a verdict on a relationship.</p>
+</div>
+
+<form class="panel" aria-label="Birth details for two people">
+<fieldset class="duo">
+<legend>You</legend>
+<div class="field"><div class="field-top"><label class="label" for="sy-a-date">Date of birth</label></div>
+<input class="input hide-error" id="sy-a-date" type="text" value="May 15, 1990">
+<input class="input inv when when-error" type="text" value="" placeholder="Month, day, year" aria-label="Date of birth" aria-invalid="true" aria-describedby="sy-a-err">
+<p class="err when when-error" id="sy-a-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Enter your date of birth.</p></div>
+<div class="field"><div class="field-top"><label class="label" for="sy-a-time">Time of birth</label></div><input class="input" id="sy-a-time" type="text" value="10:30 AM"><label class="check"><input type="checkbox">I don't know the birth time</label></div>
+<div class="field combo"><div class="field-top"><label class="label" for="sy-a-place">Place of birth</label></div><input class="input" id="sy-a-place" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false"></div>
+</fieldset>
+<fieldset class="duo">
+<legend>The other person</legend>
+<div class="field"><div class="field-top"><label class="label" for="sy-b-date">Date of birth</label></div><input class="input" id="sy-b-date" type="text" value="November 11, 1991"></div>
+<div class="field"><div class="field-top"><label class="label" for="sy-b-time">Time of birth</label></div>
+<input class="input hide-edge" id="sy-b-time" type="text" value="2:00 PM">
+<span class="input when when-edge subtle" aria-hidden="true">Unknown</span>
+<label class="check"><input type="checkbox" class="hide-edge"><input type="checkbox" class="when when-edge wi" checked>I don't know the birth time</label></div>
+<div class="field combo"><div class="field-top"><label class="label" for="sy-b-place">Place of birth</label></div>
+<input class="input hide-error" id="sy-b-place" type="text" value="Porto, Portugal" role="combobox" aria-expanded="false">
+<input class="input inv when when-error" type="text" value="porto" aria-label="Place of birth" aria-invalid="true" aria-describedby="sy-b-err">
+<p class="err when when-error" id="sy-b-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Choose a place from the list so we can look up its coordinates and time zone.</p></div>
+</fieldset>
+<div class="full privacy">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="4.5" y="9" width="11" height="8" rx="1.5"/><path d="M7 9V6.5a3 3 0 016 0V9"/></svg>
+<p>The other person's birth details are used only for this calculation. They are not saved to your account, kept in this browser or used for anything else. Please enter them with that person's knowledge.</p>
+</div>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Compare charts</button>
+</div>
+</form>
+
+<section class="result" aria-labelledby="sy-res">
+<h2 class="t-title" id="sy-res">Two charts on one wheel</h2>
+
+<div class="alert when when-edge">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" style="color: var(--ink)"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>
+<p>No birth time for the other person. Their planets are placed for noon on that date. Their Moon, rising sign and houses are left out, so aspects to their Moon are not listed.</p>
+</div>
+
+<div class="chartgrid">
+<div class="obj blk">
+<h3 class="t-heading">Combined wheel</h3>
+<dc-import name="Wheel" mode="in" kind="duo" hint-size="100%,520px"></dc-import>
+<p class="t-caption subtle">Your planets sit inside the zodiac ring, the other person's outside it. Houses are yours. <span class="asp-key" aria-hidden="true"></span> conjunction, sextile, trine · <span class="asp-key hard" aria-hidden="true"></span> square, opposition</p>
+</div>
+<div class="blk">
+<div class="tile">
+<p class="t-caption subtle">You · inside the ring</p>
+<dl class="facts4" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+<div class="kv"><dt class="t-caption subtle">Sun</dt><dd class="t-heading">Taurus</dd></div>
+<div class="kv"><dt class="t-caption subtle">Moon</dt><dd class="t-heading">Aquarius</dd></div>
+<div class="kv"><dt class="t-caption subtle">Rising</dt><dd class="t-heading">Cancer</dd></div>
+</dl>
+</div>
+<div class="tile">
+<p class="t-caption subtle">The other person · outside the ring</p>
+<dl class="facts4" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+<div class="kv"><dt class="t-caption subtle">Sun</dt><dd class="t-heading">Scorpio</dd></div>
+<div class="kv"><dt class="t-caption subtle">Moon</dt><dd class="t-heading"><span class="hide-edge">Capricorn</span><span class="when when-edge wi subtle">Needs a time</span></dd></div>
+<div class="kv"><dt class="t-caption subtle">Rising</dt><dd class="t-heading"><span class="hide-edge">Aquarius</span><span class="when when-edge wi subtle">Needs a time</span></dd></div>
+</dl>
+</div>
+<div class="tile">
+<p class="t-caption subtle">Aspects found between the charts</p>
+<ul class="chips"><li class="chip">Trine <span class="hide-edge">4</span><span class="when when-edge wi">3</span></li><li class="chip">Conjunction <span class="hide-edge">2</span><span class="when when-edge wi">1</span></li><li class="chip">Sextile 1</li><li class="chip">Square 1</li></ul>
+<p class="muted t-caption">A count of what the rules find. There is no score, because more aspects does not mean a better match.</p>
+</div>
+<p class="t-caption subtle">Sample values for layout: two fictional births, May 15, 1990 in Lisbon and November 11, 1991 in Porto.</p>
+</div>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">Aspects between the two charts</h3>
+<div class="tblbox">
+<table class="dt stk">
+<thead><tr><th scope="col">Your planet</th><th scope="col">Their planet</th><th scope="col">Aspect</th><th scope="col">Orb</th><th scope="col">Traditional reading</th></tr></thead>
+<tbody>
+<tr><td class="k">Pluto</td><td class="nw" data-l="Their">Mars</td><td class="nw" data-l="Aspect">Conjunction (0°)</td><td class="nw" data-l="Orb">0°03′</td><td class="full">Two planets of drive at the same degree. Read as intensity around shared goals.</td></tr>
+<tr><td class="k">Mars</td><td class="nw" data-l="Their">Sun</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">0°28′</td><td class="full">Action and identity in the same element. Read as energy that moves in the same direction.</td></tr>
+<tr class="hide-edge"><td class="k">Sun</td><td class="nw" data-l="Their">Moon</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">1°18′</td><td class="full">The two lights in the same element. Read as ease in everyday rhythm.</td></tr>
+<tr><td class="k">Jupiter</td><td class="nw" data-l="Their">Jupiter</td><td class="nw" data-l="Aspect">Sextile (60°)</td><td class="nw" data-l="Orb">1°35′</td><td class="full">Common for people born about a year and a half apart. Read as compatible outlooks.</td></tr>
+<tr><td class="k">Mars</td><td class="nw" data-l="Their">Mars</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">2°02′</td><td class="full">Similar ways of acting and of handling disagreement.</td></tr>
+<tr><td class="k">Moon</td><td class="nw" data-l="Their">Venus</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">2°06′</td><td class="full">Feeling and affection in the same element. Read as comfort in each other's company.</td></tr>
+<tr class="hide-edge"><td class="k">Saturn</td><td class="nw" data-l="Their">Moon</td><td class="nw" data-l="Aspect">Conjunction (0°)</td><td class="nw" data-l="Orb">2°09′</td><td class="full">Structure meeting feeling. Read as seriousness, and a topic worth talking through.</td></tr>
+<tr><td class="k">Venus</td><td class="nw" data-l="Their">Uranus</td><td class="nw" data-l="Aspect">Square (90°)</td><td class="nw" data-l="Orb">2°27′</td><td class="full">Closeness and independence at a right angle. Read as a need to agree on room for each person.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="notebox">The table lists every aspect within orb, most exact first. How much weight each one carries is a matter of tradition and interpretation. None of them says whether two people suit each other, and nothing here is a recommendation about a relationship.</p>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Each chart on its own</h3>
+<p class="muted">Synastry compares two birth charts. To read either one in full, with houses and every aspect, open it in the birth chart calculator.</p>
+</div>
+<a class="btn btn-secondary" href="NatalChart.dc.html">Open my birth chart</a>
+</div>
+
+<p class="disc">Positions are calculated with standard astronomical methods. Aspect meanings are traditional, for reference and self-reflection only; they do not predict the future. Synastry results are not advice about a relationship or a marriage.</p>
+</section>
+
+<article class="article" aria-labelledby="sy-a1">
+<h2 class="t-title" id="sy-a1" style="margin-top: 0">How synastry works</h2>
+<p>Each chart is calculated separately, as in the <a class="il" href="NatalChart.dc.html">birth chart calculator</a>. The planets of one chart are then measured against the planets of the other, and any pair that falls within orb of a conjunction, sextile, square, trine or opposition is listed.</p>
+<h2 class="t-title">Orbs used on this page</h2>
+<p>Aspects between two charts use a tighter orb than aspects within one chart: 6° for conjunction, opposition, square and trine, and 4° for sextile.</p>
+</article>
+
+<section aria-labelledby="sy-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="sy-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>Why is there no compatibility score?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>A single number would suggest a judgement the chart can't make. The page lists the aspects and their traditional readings so you can decide what, if anything, is worth a conversation.</p>
+</details>
+<details>
+<summary>Is the other person's information stored?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>No. It is used in your browser for this calculation and is gone when you leave the page.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="sy-rel">
+<h2 class="t-heading" id="sy-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="NatalChart.dc.html"><b>Birth Chart Calculator</b><span>One chart in full</span></a></li>
+<li><a class="relcard" href="#sy-top"><b>Zodiac Compatibility</b><span>All 78 sign pairs by element and aspect</span></a></li>
+<li><a class="relcard" href="#sy-top"><b>Life Path Compatibility</b><span>Two birth dates, two numbers</span></a></li>
+<li><a class="relcard" href="Spread.dc.html"><b>Love Tarot Spread</b><span>Five cards for a relationship question</span></a></li>
+</ul>
+</section>
+
+<p class="attr">Place names and coordinates from <a href="#sy-top">GeoNames</a>, licensed under <a href="#sy-top">CC BY 4.0</a>.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","edge","error"],"default":"result"},"$preview":{"width":1440,"height":3900}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

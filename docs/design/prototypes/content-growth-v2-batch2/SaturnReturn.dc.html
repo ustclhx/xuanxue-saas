@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Saturn Return Calculator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="sr-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Saturn Return Calculator</span></nav>
+<div class="rowline"><h1 class="t-title">Saturn Return Calculator</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">Enter your birth details to see where Saturn was when you were born and the dates it comes back to that exact position, around ages 29, 58 and 88.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birth details">
+<div class="field">
+<div class="field-top"><label class="label" for="sr-date">Date of birth</label></div>
+<input class="input hide-error" id="sr-date" type="text" value="May 15, 1990">
+<input class="input inv when when-error" type="text" value="May 15, 2031" aria-label="Date of birth" aria-invalid="true" aria-describedby="sr-date-err">
+<p class="err when when-error" id="sr-date-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Enter a date between 1900 and today.</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="sr-time">Time of birth</label><span class="hint">Optional</span></div>
+<input class="input" id="sr-time" type="text" value="10:30 AM">
+<p class="hint">Without a time, the dates are accurate to about a day.</p>
+</div>
+<div class="field full combo">
+<div class="field-top"><label class="label" for="sr-place">Place of birth</label></div>
+<input class="input" id="sr-place" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false">
+<p class="hint">Used for the time zone on your birth date.</p>
+</div>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Find my Saturn return</button>
+</div>
+</form>
+
+<section class="result" aria-labelledby="sr-res">
+<h2 class="t-title" id="sr-res">Your Saturn returns</h2>
+
+<div class="obj blk" style="max-width: 760px">
+<div class="lp-result">
+<span class="bigglyph" aria-hidden="true">♄&#xFE0E;</span>
+<div class="stack" style="gap: 8px; min-width: 0">
+<p class="t-caption subtle">Saturn at your birth</p>
+<p class="bignum">25°09′ Capricorn</p>
+<ul class="chips"><li class="chip">Retrograde at birth</li><li class="chip">First return: passed</li><li class="chip">Second return: in 22 years</li></ul>
+</div>
+</div>
+</div>
+<p class="t-caption subtle">Sample values for layout: a fictional birth on May 15, 1990 in Lisbon. The live page prints the engine's output.</p>
+
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">Return</th><th scope="col">Exact dates</th><th scope="col">Your age</th><th scope="col">Passes</th></tr></thead>
+<tbody>
+<tr><td class="k">First</td><td data-l="Dates">Feb 23, 2020<br>Aug 28, 2020<br>Oct 31, 2020</td><td class="nw" data-l="Age">29 to 30</td><td data-l="Passes">Three: direct, retrograde, direct</td></tr>
+<tr><td class="k">Second</td><td data-l="Dates">Jan 14, 2049</td><td class="nw" data-l="Age">58</td><td data-l="Passes">One</td></tr>
+<tr><td class="k">Third</td><td data-l="Dates">Mar 6, 2078<br>Jul 19, 2078<br>Dec 2, 2078</td><td class="nw" data-l="Age">87 to 88</td><td data-l="Passes">Three</td></tr>
+</tbody>
+</table>
+</div>
+<p class="notebox">Saturn takes about 29.5 years to go around the zodiac. Because it turns retrograde once a year, it can cross the same degree up to three times within a few months. Every pass is listed.</p>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Saturn in your chart</h3>
+<p class="muted">The birth chart shows which house your Saturn is in and the aspects it makes to your other planets.</p>
+</div>
+<a class="btn btn-secondary" href="NatalChart.dc.html">Open my birth chart</a>
+</div>
+
+<p class="disc">Dates are calculated with standard astronomical methods. Traditional meanings are for reference and self-reflection only; they do not predict the future.</p>
+</section>
+
+<article class="article" aria-labelledby="sr-a1">
+<h2 class="t-title" id="sr-a1" style="margin-top: 0">What a Saturn return is</h2>
+<p>A Saturn return is the period when Saturn comes back to the zodiac degree it occupied at your birth. Astrological tradition reads it as a time for taking stock of commitments and responsibilities. It is a framework for reflection, not a prediction of what will happen.</p>
+<h2 class="t-title">How the dates are found</h2>
+<p>We compute Saturn's position at your birth, then search forward for each moment its apparent longitude matches that value again. The <a class="il" href="RetroCalendar.dc.html">retrograde calendar</a> shows why some returns have three passes.</p>
+</article>
+
+<section aria-labelledby="sr-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="sr-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>How long does a Saturn return last?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>The exact passes are single moments. Many astrologers count the whole time Saturn spends in your birth sign, roughly two and a half years.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="sr-rel">
+<h2 class="t-heading" id="sr-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="NatalChart.dc.html"><b>Birth Chart Calculator</b><span>Planets, houses and aspects</span></a></li>
+<li><a class="relcard" href="SolarReturn.dc.html"><b>Solar Return Calculator</b><span>The exact moment of your astrological birthday</span></a></li>
+<li><a class="relcard" href="RetroCalendar.dc.html"><b>Retrograde Calendar</b><span>Every retrograde this year and next</span></a></li>
+<li><a class="relcard" href="PersonalYear.dc.html"><b>Personal Year Calculator</b><span>Your numerology year number</span></a></li>
+</ul>
+</section>
+
+<p class="attr">Place names and coordinates from <a href="#sr-top">GeoNames</a>, licensed under <a href="#sr-top">CC BY 4.0</a>.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","error"],"default":"result"},"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

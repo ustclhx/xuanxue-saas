@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Birth Chart Calculator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="nc-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Birth Chart Calculator</span></nav>
+<div class="rowline"><h1 class="t-title">Birth Chart Calculator</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">A free birth chart from your date, time and place of birth: the chart wheel, every planet's sign, house and degree, and the aspects between them.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birth details">
+<div class="field">
+<div class="field-top"><label class="label" for="nc-date">Date of birth</label></div>
+<input class="input hide-error" id="nc-date" type="text" value="May 15, 1990">
+<input class="input inv when when-error" type="text" value="May 15, 1790" aria-label="Date of birth" aria-invalid="true" aria-describedby="nc-date-err">
+<p class="err when when-error" id="nc-date-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Enter a date between 1900 and today.</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="nc-time">Time of birth</label></div>
+<input class="input hide-notime" id="nc-time" type="text" value="10:30 AM">
+<span class="input when when-notime subtle" aria-hidden="true">Unknown</span>
+<label class="check"><input type="checkbox" class="hide-notime"><input type="checkbox" class="when when-notime wi" checked>I don't know my birth time</label>
+</div>
+<div class="field full combo">
+<div class="field-top"><label class="label" for="nc-place">Place of birth</label></div>
+<input class="input hide-error" id="nc-place" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false">
+<input class="input inv when when-error" type="text" value="lisbon portugal" aria-label="Place of birth" aria-invalid="true" aria-describedby="nc-place-err">
+<p class="hint hide-error">Time zone Europe/Lisbon · UTC+1 on that date (daylight saving time)</p>
+<p class="err when when-error" id="nc-place-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Choose a place from the list so we can look up its coordinates and time zone.</p>
+</div>
+<fieldset class="field full hide-notime">
+<legend class="label" style="margin-bottom: 6px">House system</legend>
+<div class="seg" role="group" style="align-self: flex-start"><button type="button" class="on" aria-pressed="true">Placidus</button><button type="button" aria-pressed="false">Whole sign</button></div>
+</fieldset>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Draw my chart</button>
+</div>
+</form>
+
+<section class="when when-loading" aria-label="Calculating" aria-busy="true">
+<div class="skcol">
+<span class="sk" style="width: 200px; height: 32px"></span>
+<div class="chartgrid"><span class="sk" style="aspect-ratio: 1 / 1; border-radius: var(--radius-md)"></span><div class="skcol"><span class="sk" style="height: 120px"></span><span class="sk" style="height: 120px"></span></div></div>
+<span class="sk" style="height: 16px"></span><span class="sk" style="width: 80%; height: 16px"></span><span class="sk" style="width: 55%; height: 16px"></span>
+<p class="t-caption subtle">Loading the ephemeris. This takes a moment the first time.</p>
+</div>
+</section>
+
+<section class="result hide-initial hide-loading" aria-labelledby="nc-res">
+<h2 class="t-title" id="nc-res">Your birth chart</h2>
+
+<div class="alert when when-notime">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" style="color: var(--ink)"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>
+<p>No birth time entered. Planets are shown by sign for noon on that date. The Ascendant, Midheaven, houses and chart wheel need a time and are left out. The Moon changed signs that day, so both possibilities are listed.</p>
+</div>
+
+<div class="chartgrid">
+<div class="obj blk hide-notime">
+<h3 class="t-heading">Chart wheel</h3>
+<dc-import name="Wheel" mode="in" kind="single" hint-size="100%,520px"></dc-import>
+<p class="t-caption subtle">Ascendant on the left, Midheaven near the top. <span class="asp-key" aria-hidden="true"></span> conjunction, sextile, trine · <span class="asp-key hard" aria-hidden="true"></span> square, opposition</p>
+</div>
+<div class="blk">
+<div class="tile">
+<p class="t-caption subtle">The big three</p>
+<dl class="facts4" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+<div class="kv"><dt class="t-caption subtle">Sun</dt><dd class="t-heading">Taurus</dd></div>
+<div class="kv"><dt class="t-caption subtle">Moon</dt><dd class="t-heading"><span class="hide-notime">Aquarius</span><span class="when when-notime wi">Capricorn or Aquarius</span></dd></div>
+<div class="kv"><dt class="t-caption subtle">Rising</dt><dd class="t-heading"><span class="hide-notime">Cancer</span><span class="when when-notime wi subtle">Needs a time</span></dd></div>
+</dl>
+</div>
+<div class="tile">
+<p class="t-caption subtle">Elements (ten planets)</p>
+<ul class="chips"><li class="chip">Earth 5</li><li class="chip">Water 3</li><li class="chip">Fire 1</li><li class="chip">Air 1</li></ul>
+</div>
+<div class="tile">
+<p class="t-caption subtle">Modalities (ten planets)</p>
+<ul class="chips"><li class="chip">Cardinal 5</li><li class="chip">Fixed 4</li><li class="chip">Mutable 1</li></ul>
+</div>
+<p class="t-caption subtle">Sample values for layout: a fictional birth on May 15, 1990, 10:30 AM in Lisbon. The live page prints the engine's output.</p>
+</div>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">Planets</h3>
+<div class="tblbox">
+<table class="dt stk">
+<thead><tr><th scope="col">Planet</th><th scope="col">Sign</th><th scope="col">Degree</th><th scope="col" class="hide-notime">House</th><th scope="col">Motion</th></tr></thead>
+<tbody>
+<tr><td class="k">Sun</td><td class="nw" data-l="Sign">Taurus</td><td class="nw" data-l="Degree">24°18′</td><td class="nw hide-notime" data-l="House">11th</td><td data-l="Motion">Direct</td></tr>
+<tr><td class="k">Moon</td><td class="nw" data-l="Sign"><span class="hide-notime">Aquarius</span><span class="when when-notime wi">Capricorn or Aquarius</span></td><td class="nw" data-l="Degree"><span class="hide-notime">4°06′</span><span class="when when-notime wi">Depends on time</span></td><td class="nw hide-notime" data-l="House">7th</td><td data-l="Motion">Direct</td></tr>
+<tr><td class="k">Mercury</td><td class="nw" data-l="Sign">Taurus</td><td class="nw" data-l="Degree">8°41′</td><td class="nw hide-notime" data-l="House">10th</td><td data-l="Motion">Retrograde</td></tr>
+<tr><td class="k">Venus</td><td class="nw" data-l="Sign">Aries</td><td class="nw" data-l="Degree">12°27′</td><td class="nw hide-notime" data-l="House">10th</td><td data-l="Motion">Direct</td></tr>
+<tr><td class="k">Mars</td><td class="nw" data-l="Sign">Pisces</td><td class="nw" data-l="Degree">18°02′</td><td class="nw hide-notime" data-l="House">9th</td><td data-l="Motion">Direct</td></tr>
+<tr><td class="k">Jupiter</td><td class="nw" data-l="Sign">Cancer</td><td class="nw" data-l="Degree">12°35′</td><td class="nw hide-notime" data-l="House">12th</td><td data-l="Motion">Direct</td></tr>
+<tr><td class="k">Saturn</td><td class="nw" data-l="Sign">Capricorn</td><td class="nw" data-l="Degree">25°09′</td><td class="nw hide-notime" data-l="House">7th</td><td data-l="Motion">Retrograde</td></tr>
+<tr><td class="k">Uranus</td><td class="nw" data-l="Sign">Capricorn</td><td class="nw" data-l="Degree">9°14′</td><td class="nw hide-notime" data-l="House">6th</td><td data-l="Motion">Retrograde</td></tr>
+<tr><td class="k">Neptune</td><td class="nw" data-l="Sign">Capricorn</td><td class="nw" data-l="Degree">14°20′</td><td class="nw hide-notime" data-l="House">6th</td><td data-l="Motion">Retrograde</td></tr>
+<tr><td class="k">Pluto</td><td class="nw" data-l="Sign">Scorpio</td><td class="nw" data-l="Degree">16°03′</td><td class="nw hide-notime" data-l="House">5th</td><td data-l="Motion">Retrograde</td></tr>
+<tr><td class="k">North Node</td><td class="nw" data-l="Sign">Aquarius</td><td class="nw" data-l="Degree">11°30′</td><td class="nw hide-notime" data-l="House">7th</td><td data-l="Motion">Mean node</td></tr>
+<tr class="hide-notime"><td class="k">Ascendant</td><td class="nw" data-l="Sign">Cancer</td><td class="nw" data-l="Degree">22°10′</td><td class="nw" data-l="House">1st cusp</td><td data-l="Motion">—</td></tr>
+<tr class="hide-notime"><td class="k">Midheaven</td><td class="nw" data-l="Sign">Aries</td><td class="nw" data-l="Degree">6°04′</td><td class="nw" data-l="House">10th cusp</td><td data-l="Motion">—</td></tr>
+</tbody>
+</table>
+</div>
+<details class="adv hide-notime">
+<summary>House cusps (Placidus)<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<ul class="chips" style="padding-top: 8px"><li class="chip">1 · 22° Cancer</li><li class="chip">2 · 12° Leo</li><li class="chip">3 · 7° Virgo</li><li class="chip">4 · 6° Libra</li><li class="chip">5 · 12° Scorpio</li><li class="chip">6 · 20° Sagittarius</li><li class="chip">7 · 22° Capricorn</li><li class="chip">8 · 12° Aquarius</li><li class="chip">9 · 7° Pisces</li><li class="chip">10 · 6° Aries</li><li class="chip">11 · 12° Taurus</li><li class="chip">12 · 20° Gemini</li></ul>
+</details>
+</div>
+
+<div class="blk">
+<h3 class="t-heading">Closest aspects</h3>
+<div class="tblbox">
+<table class="dt stk">
+<thead><tr><th scope="col">Planets</th><th scope="col">Aspect</th><th scope="col">Orb</th><th scope="col">Traditional reading</th></tr></thead>
+<tbody>
+<tr><td class="k">Venus · Jupiter</td><td class="nw" data-l="Aspect">Square (90°)</td><td class="nw" data-l="Orb">0°08′</td><td class="full">Two planets of ease at a right angle. Read as generosity that benefits from limits.</td></tr>
+<tr><td class="k">Mercury · Uranus</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">0°33′</td><td class="full">Thinking and invention in the same element. Read as quick, independent ideas.</td></tr>
+<tr><td class="k">Sun · Saturn</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">0°51′</td><td class="full">Identity supported by structure. Read as patience with long projects.</td></tr>
+<tr><td class="k">Neptune · Pluto</td><td class="nw" data-l="Aspect">Sextile (60°)</td><td class="nw" data-l="Orb">1°43′</td><td class="full">A slow aspect shared by everyone born within several decades.</td></tr>
+<tr><td class="k">Jupiter · Neptune</td><td class="nw" data-l="Aspect">Opposition (180°)</td><td class="nw" data-l="Orb">1°45′</td><td class="full">Growth facing imagination. Read as big hopes that need checking against facts.</td></tr>
+<tr><td class="k">Venus · Neptune</td><td class="nw" data-l="Aspect">Square (90°)</td><td class="nw" data-l="Orb">1°53′</td><td class="full">Affection and idealism at a right angle. Read as a pull toward the ideal picture.</td></tr>
+<tr><td class="k">Mars · Pluto</td><td class="nw" data-l="Aspect">Trine (120°)</td><td class="nw" data-l="Orb">1°59′</td><td class="full">Drive and persistence in the same element. Read as stamina.</td></tr>
+<tr><td class="k">Venus · Uranus</td><td class="nw" data-l="Aspect">Square (90°)</td><td class="nw" data-l="Orb">3°13′</td><td class="full">Closeness and independence at a right angle. Read as a need for room.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rowline"><a class="link" href="#nc-top">Show all 17 aspects</a><span class="t-caption subtle">Orbs: 8° for conjunction, opposition, square and trine; 6° for sextile.</span></div>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Full reading</h3>
+<p class="muted hide-soon">A full reading works through this chart in chapters: the big three, each planet by sign and house, the closest aspects, and questions to take away. Your chart is recalculated on our servers from your birth details before the reading is written.</p>
+<p class="muted when when-soon">The full reading for birth charts isn't open yet, so it can't be unlocked right now. The chart above is a free calculation and stays available.</p>
+<p class="t-caption subtle hide-soon">No charge if generation fails · Saved to your account</p>
+</div>
+<div class="stack hide-soon" style="gap: 8px; align-items: stretch">
+<p class="t-caption subtle">10 free credits each day you sign in</p>
+<a class="btn btn-primary" href="#nc-top">AI reading · 10 credits</a>
+</div>
+<div class="when when-soon"><span class="bdg bdg-paid">Coming soon</span></div>
+</div>
+
+<p class="disc">Positions are calculated with standard astronomical methods. Sign, house and aspect meanings are traditional, for reference and self-reflection only; they do not predict the future.</p>
+</section>
+
+<article class="article" aria-labelledby="nc-a1">
+<h2 class="t-title" id="nc-a1" style="margin-top: 0">How to read the chart wheel</h2>
+<p>The outer ring is the zodiac, divided into twelve signs of 30° each. The spokes inside it are the twelve houses, numbered counter-clockwise from the Ascendant on the left. Each glyph is a planet placed at its degree, and the lines in the centre join planets that form an aspect.</p>
+<p>Start with the <a class="il" href="Main.dc.html">Sun, Moon and rising sign</a>, then look at which houses hold the most planets.</p>
+<h2 class="t-title">Houses and the house system</h2>
+<p>This calculator uses Placidus houses by default and offers whole-sign houses as an alternative. Above 66° latitude Placidus cusps can't be computed, so the chart switches to whole-sign houses and says so above the wheel.</p>
+<h2 class="t-title">What is and isn't included</h2>
+<p>The chart shows the Sun, Moon, eight planets, the mean North Node, the Ascendant and the Midheaven. It does not include Chiron, Lilith or asteroids.</p>
+</article>
+
+<section aria-labelledby="nc-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="nc-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>How accurate is this birth chart?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Planet positions are checked against reference charts to within one arc-minute, and the Ascendant and Midheaven to within 0.05°. The largest source of error is usually the birth time itself.</p>
+</details>
+<details>
+<summary>Can I make a chart without a birth time?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Yes. You get each planet's sign, but not the rising sign, houses or wheel, because those depend on the hour.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="nc-rel">
+<h2 class="t-heading" id="nc-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="Main.dc.html"><b>Rising Sign Calculator</b><span>Sun, Moon and rising in one step</span></a></li>
+<li><a class="relcard" href="Synastry.dc.html"><b>Synastry Chart</b><span>Two charts, aspect by aspect</span></a></li>
+<li><a class="relcard" href="SaturnReturn.dc.html"><b>Saturn Return Calculator</b><span>When Saturn comes back to its birth position</span></a></li>
+<li><a class="relcard" href="RetroCalendar.dc.html"><b>Retrograde Calendar</b><span>Every retrograde this year and next</span></a></li>
+</ul>
+</section>
+
+<p class="attr">Place names and coordinates from <a href="#nc-top">GeoNames</a>, licensed under <a href="#nc-top">CC BY 4.0</a>.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","notime","initial","loading","error"],"default":"result"},"reading":{"editor":"enum","options":["open","soon"],"default":"open"},"$preview":{"width":1440,"height":4700}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+const reading = this.props.reading ?? 'open';
+return { theme: theme, cls: 'xx st-' + state + ' rd-' + reading + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

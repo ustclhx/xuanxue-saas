@@ -333,7 +333,7 @@ TDK 长度按 `audit-seo.mjs` 的 `tdkLength`（中韩 Title 20–30、Descripti
   - 農民曆差异（胎神行）与 2027 太歲页；
   - 月相四类页面（今日、满月、月份、年度表）；
   - 星座档案、配对总表与配对页。
-- **第二批（波次 B 与后续组开工前）**：三巨头、出生星盘（星盘图、行星表、地名自动补全与未知时间态）、后续工具、angel numbers、personal year、牌阵页。
+- **第二批（波次 B 与后续组开工前）**：三巨头、出生星盘（星盘图、行星表、地名自动补全与未知时间态）、后续工具、angel numbers、personal year、牌阵页。2026-11-24 已确认并登记：副本 `docs/design/prototypes/content-growth-v2-batch2/`，索引行见 `docs/design/prototypes/README.md`（14 行，含 A1–A5 组件提议与 B1–B15 默认）。组件提议均为项目层（`packages/ui/src/project/`），不新增 token。
 - 带 UI 的任务组在对应画板经使用者确认前不开始 UI 实现；文案、引擎与路由不受影响。
 - 第 2 阶段已确认的版式（黄历、生肖、FactTable）可直接复用；只有新区块需要新画板。
 

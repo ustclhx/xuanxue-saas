@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rising Sign Calculator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="b3-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Rising Sign Calculator</span></nav>
+<div class="rowline"><h1 class="t-title">Rising Sign Calculator</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">Enter your birth date, time and place to find your Sun, Moon and rising sign, often called the big three. Each one is calculated for the moment and place you were born.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birth details">
+<div class="field">
+<div class="field-top"><label class="label" for="b3-date">Date of birth</label></div>
+<input class="input hide-error" id="b3-date" type="text" value="May 15, 1990">
+<input class="input inv when when-error" type="text" value="May 15, 1790" aria-label="Date of birth" aria-invalid="true" aria-describedby="b3-date-err">
+<p class="err when when-error" id="b3-date-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Enter a date between 1900 and today.</p>
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="b3-time">Time of birth</label></div>
+<input class="input hide-notime" id="b3-time" type="text" value="10:30 AM">
+<span class="input when when-notime subtle" aria-hidden="true">Unknown</span>
+<label class="check"><input type="checkbox" class="hide-notime"><input type="checkbox" class="when when-notime wi" checked>I don't know my birth time</label>
+</div>
+<div class="field full combo">
+<div class="field-top"><label class="label" for="b3-place">Place of birth</label></div>
+<input class="input hide-place hide-error" id="b3-place" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false" aria-controls="b3-places">
+<input class="input when when-place" type="text" value="Lis" aria-label="Place of birth" role="combobox" aria-expanded="true" aria-controls="b3-places">
+<input class="input inv when when-error" type="text" value="lisbon portugal" aria-label="Place of birth" aria-invalid="true" aria-describedby="b3-place-err">
+<p class="hint hide-place hide-error">Time zone Europe/Lisbon · UTC+1 on that date (daylight saving time)</p>
+<div class="menu when when-place" id="b3-places" role="listbox" aria-label="Matching places">
+<a class="cur" href="#b3-top" role="option" aria-selected="true"><b>Lisbon</b><span>Lisbon District, Portugal</span></a>
+<a href="#b3-top" role="option" aria-selected="false"><b>Lisburn</b><span>Northern Ireland, United Kingdom</span></a>
+<a href="#b3-top" role="option" aria-selected="false"><b>Lisle</b><span>Illinois, United States</span></a>
+<a href="#b3-top" role="option" aria-selected="false"><b>Lisieux</b><span>Normandy, France</span></a>
+</div>
+<p class="hint when when-place">Type at least two letters, then choose your town or the nearest larger one.</p>
+<p class="err when when-error" id="b3-place-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Choose a place from the list so we can look up its coordinates and time zone.</p>
+</div>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Find my big three</button>
+</div>
+</form>
+
+<section class="when when-loading" aria-label="Calculating" aria-busy="true">
+<div class="skcol">
+<span class="sk" style="width: 180px; height: 32px"></span>
+<div class="cols3"><span class="sk" style="height: 220px"></span><span class="sk" style="height: 220px"></span><span class="sk" style="height: 220px"></span></div>
+<span class="sk" style="width: 70%; height: 16px"></span>
+<p class="t-caption subtle">Loading the ephemeris. This takes a moment the first time.</p>
+</div>
+</section>
+
+<section class="result hide-initial hide-loading hide-place" aria-labelledby="b3-res">
+<h2 class="t-title" id="b3-res">Your big three</h2>
+
+<div class="alert when when-notime">
+<svg class="ico" viewBox="0 0 20 20" aria-hidden="true" style="color: var(--ink)"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>
+<p>Without a birth time the rising sign can't be calculated. The Sun and Moon are worked out for the whole day. The Moon changed signs on this date, so both possibilities are listed.</p>
+</div>
+
+<div class="cols3">
+<div class="tile">
+<div class="rowline"><span class="bigglyph" aria-hidden="true">♉&#xFE0E;</span><div class="kv"><span class="t-caption subtle">Sun sign</span><span class="t-title">Taurus</span></div></div>
+<p class="t-caption subtle"><span class="hide-notime">24° Taurus · 11th house</span><span class="when when-notime wi">Taurus all day</span></p>
+<p class="muted">The Sun sign is the one most people know. Tradition reads it as the themes you grow into over a lifetime.</p>
+<a class="link" href="#b3-top">About Taurus</a>
+</div>
+<div class="tile">
+<div class="rowline"><span class="bigglyph" aria-hidden="true"><span class="hide-notime">♒&#xFE0E;</span><span class="when when-notime wi">☽&#xFE0E;</span></span><div class="kv"><span class="t-caption subtle">Moon sign</span><span class="t-title"><span class="hide-notime">Aquarius</span><span class="when when-notime wi">Capricorn or Aquarius</span></span></div></div>
+<p class="t-caption subtle"><span class="hide-notime">4° Aquarius · 7th house</span><span class="when when-notime wi">Changed signs at 2:40 AM local time</span></p>
+<p class="muted hide-notime">The Moon sign is read as how you settle and what feels familiar. It changes sign about every two and a half days.</p>
+<p class="muted when when-notime">Born before 2:40 AM: Capricorn. Born after: Aquarius. If a parent or a birth record can narrow down the hour, enter it above.</p>
+<a class="link" href="#b3-top">About Moon signs</a>
+</div>
+<div class="tile">
+<div class="rowline"><span class="bigglyph" aria-hidden="true"><span class="hide-notime">♋&#xFE0E;</span><span class="when when-notime wi subtle">?</span></span><div class="kv"><span class="t-caption subtle">Rising sign (Ascendant)</span><span class="t-title"><span class="hide-notime">Cancer</span><span class="when when-notime wi subtle">Needs a birth time</span></span></div></div>
+<p class="t-caption subtle"><span class="hide-notime">22° Cancer · start of the 1st house</span><span class="when when-notime wi">Not calculated</span></p>
+<p class="muted hide-notime">The rising sign is the sign on the eastern horizon at birth. It changes roughly every two hours, which is why the time matters.</p>
+<p class="muted when when-notime">The rising sign moves through all twelve signs in a day, so it can't be estimated from the date alone.</p>
+<a class="link hide-notime" href="#b3-top">About rising signs</a>
+</div>
+</div>
+<p class="t-caption subtle">Sample values for layout: a fictional birth on May 15, 1990 in Lisbon. The live page prints the engine's output.</p>
+
+<div class="blk hide-notime">
+<h3 class="t-heading">How this was calculated</h3>
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">Step</th><th scope="col">Value</th><th scope="col">Note</th></tr></thead>
+<tbody>
+<tr><td class="k">Local time</td><td class="nw" data-l="Value">May 15, 1990, 10:30 AM</td><td class="full">As entered.</td></tr>
+<tr><td class="k">Time zone</td><td class="nw" data-l="Value">Europe/Lisbon, UTC+1</td><td class="full">Daylight saving time was in effect in Portugal on this date.</td></tr>
+<tr><td class="k">Universal time</td><td class="nw" data-l="Value">09:30 UTC</td><td class="full">All positions are computed for this moment.</td></tr>
+<tr><td class="k">Coordinates</td><td class="nw" data-l="Value">38.72° N, 9.14° W</td><td class="full">From the place you chose. Needed for the rising sign and houses.</td></tr>
+<tr><td class="k">House system</td><td class="nw" data-l="Value">Placidus</td><td class="full">Above 66° latitude the calculator switches to whole-sign houses and says so.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">See the whole chart</h3>
+<p class="muted">The big three are three points on a birth chart. The full chart adds the other planets, the twelve houses and the aspects between them.</p>
+</div>
+<a class="btn btn-secondary" href="NatalChart.dc.html">Open my birth chart</a>
+</div>
+
+<p class="disc">Positions are calculated with standard astronomical methods. Sign meanings are traditional, for reference and self-reflection only; they do not predict the future.</p>
+</section>
+
+<article class="article" aria-labelledby="b3-a1">
+<h2 class="t-title" id="b3-a1" style="margin-top: 0">What the big three are</h2>
+<p>The Sun sign is set by the date, the Moon sign by the date and roughly the hour, and the rising sign by the exact time and place. Together they are the first three things most astrologers read on a <a class="il" href="NatalChart.dc.html">birth chart</a>.</p>
+<p>The rising sign also sets the starting point of the twelve houses, so two people born on the same day in different cities can share a Sun and Moon sign and still have different charts.</p>
+<h2 class="t-title">If you don't know your birth time</h2>
+<p>Tick “I don't know my birth time”. You still get your Sun sign, and your Moon sign unless the Moon changed signs that day, in which case both are shown with the time of the change.</p>
+</article>
+
+<section aria-labelledby="b3-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="b3-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>Why does the place of birth matter?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>The place gives the time zone that was in force on that date, including daylight saving time, and the latitude and longitude used to find the horizon.</p>
+</details>
+<details>
+<summary>Is the rising sign the same as the Ascendant?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Yes. The Ascendant is the exact degree on the eastern horizon, and the rising sign is the sign that degree falls in.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="b3-rel">
+<h2 class="t-heading" id="b3-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="NatalChart.dc.html"><b>Birth Chart Calculator</b><span>Planets, houses and aspects</span></a></li>
+<li><a class="relcard" href="#b3-top"><b>Zodiac Signs</b><span>A profile for each of the twelve signs</span></a></li>
+<li><a class="relcard" href="#b3-top"><b>Moon Phase Today</b><span>Tonight's phase and illumination</span></a></li>
+<li><a class="relcard" href="Synastry.dc.html"><b>Synastry Chart</b><span>Two charts, aspect by aspect</span></a></li>
+</ul>
+</section>
+
+<p class="attr">Place names and coordinates from <a href="#b3-top">GeoNames</a>, licensed under <a href="#b3-top">CC BY 4.0</a>.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","notime","place","initial","loading","error"],"default":"result"},"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>

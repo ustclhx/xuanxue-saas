@@ -1,0 +1,111 @@
+/* content-growth-v2-tools 画布补充样式。
+   只引用 site.css / pages.css / cg2.css 已有的 token 与六个字号角色；三份已确认样式不改动。
+   这里出现的新类都对应「token / 组件变更提议」画板中的条目，没有新颜色、新字号。 */
+
+/* ---------- 共用部件单独显示时 ---------- */
+.xx.part{min-height:0}
+.xx fieldset{border:0;margin:0;padding:0;min-width:0}
+.xx legend{padding:0}
+
+/* ---------- 标签（提议 1：ToolLabel） ---------- */
+.xx .bdg{display:inline-flex;align-items:center;min-height:24px;padding:0 8px;border-radius:var(--radius-sm);font-size:var(--fs-caption);line-height:var(--lh-caption);font-weight:500;white-space:nowrap;font-family:var(--text)}
+.xx .bdg-free{background:var(--bg);color:var(--ink)}
+.xx .bdg-new{background:var(--accent);color:var(--on-primary)}
+.xx .bdg-paid{box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink-muted)}
+
+/* ---------- 工具卡（提议 2：ToolCard 增加标签位） ---------- */
+.xx .tool{background:var(--surface);border-radius:var(--radius-md);padding:24px;display:flex;flex-direction:column;gap:8px;color:var(--ink);min-width:0}
+.xx a.tool:hover{background:var(--surface-2)}
+.xx .tool-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.xx .tool .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:8px}
+.xx.m .tool,.xx .tool.row{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;row-gap:4px;padding:20px;align-content:start}
+.xx.m .tool .glyph,.xx .tool.row .glyph{grid-row:1 / span 3}
+.xx.m .tool > :not(.glyph),.xx .tool.row > :not(.glyph){grid-column:2}
+.xx.m .tool .tags,.xx .tool.row .tags{margin-top:0;padding-top:4px}
+.xx .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.xx.m .tools{grid-template-columns:minmax(0,1fr);gap:12px}
+
+/* ---------- 首页精选区（提议 3：FeaturedTools） ---------- */
+.xx .feat{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:24px}
+.xx.m .feat{grid-template-columns:minmax(0,1fr);gap:16px}
+.xx .feat-main{background:var(--surface);border-radius:var(--radius-md);padding:var(--space-card);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:center}
+.xx.m .feat-main{grid-template-columns:minmax(0,1fr);gap:20px}
+.xx .feat-txt{display:flex;flex-direction:column;gap:12px;align-items:flex-start;min-width:0}
+.xx .feat-season{background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-card);display:flex;flex-direction:column;gap:12px;align-items:flex-start;min-width:0}
+.xx .feat-row{grid-column:1 / -1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.xx .feat-row.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.xx.m .feat-row,.xx.m .feat-row.c3{grid-template-columns:minmax(0,1fr);gap:12px}
+.xx .flowline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx .yr{font-family:var(--head);font-weight:700;font-size:var(--fs-display);line-height:var(--lh-display);color:var(--accent)}
+.xx .acts{display:flex;align-items:center;gap:8px 24px;flex-wrap:wrap;margin-top:auto}
+.xx.m .acts .btn{width:100%}
+.xx .feat-foot{margin-top:16px}
+
+/* ---------- 全部工具枢纽页（提议 4：ToolsHub） ---------- */
+.xx .hub{display:flex;flex-direction:column;gap:56px}
+.xx.m .hub{gap:40px}
+.xx .hub-group{display:flex;flex-direction:column;gap:16px}
+.xx .hub-ghead{display:flex;flex-direction:column;gap:4px;max-width:var(--measure-prose)}
+
+/* ---------- 双人出生资料（提议 5：DuoBirthForm） ---------- */
+.xx .duo{display:flex;flex-direction:column;gap:var(--space-stack);min-width:0}
+.xx .duo legend{font-family:var(--head);font-weight:700;font-size:var(--fs-heading);line-height:var(--lh-heading);margin-bottom:var(--space-stack)}
+.xx .privacy{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 16px;color:var(--ink-muted);font-size:var(--fs-caption);line-height:var(--lh-caption)}
+.xx .privacy svg{margin-top:1px;color:var(--ink)}
+
+/* ---------- 参考分（提议 6：ScoreMeter） ---------- */
+.xx .score{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 32px;align-items:center}
+.xx.m .score{grid-template-columns:minmax(0,1fr)}
+.xx .score .num{font-family:var(--head);font-weight:700;font-size:var(--fs-display);line-height:var(--lh-display);color:var(--ink);white-space:nowrap}
+.xx .score .num small{font-size:var(--fs-body);line-height:var(--lh-body);font-weight:400;color:var(--ink-subtle)}
+.xx .meter{height:10px;border-radius:var(--radius-pill);background:var(--surface-2);overflow:hidden}
+.xx .meter i{display:block;height:100%;border-radius:var(--radius-pill);background:var(--accent)}
+.xx .meter-scale{display:flex;justify-content:space-between;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle);margin-top:4px}
+
+/* ---------- 配对网格（提议 7：PairGrid） ---------- */
+.xx .pgrid{display:grid;grid-template-columns:76px repeat(12,minmax(0,1fr));gap:4px}
+.xx .pgrid > *{min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:var(--fs-caption);line-height:var(--lh-caption);text-align:center}
+.xx .pgrid .ph{font-family:var(--head);font-weight:700;color:var(--ink)}
+.xx .pgrid a.pc{background:var(--surface);color:var(--ink-subtle)}
+.xx .pgrid a.pc:hover{background:var(--surface-2)}
+.xx .pgrid a.pc.he{background:var(--surface-2);color:var(--ink);font-weight:500}
+.xx .pgrid a.pc.ch{box-shadow:inset 0 0 0 1px var(--line-strong);color:var(--ink)}
+.xx .pgrid a.pc.cur{box-shadow:inset 0 0 0 2px var(--accent)}
+.xx .keys{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx .keys span{display:inline-flex;align-items:center;gap:8px}
+.xx .keys i{width:28px;height:20px;border-radius:4px;display:inline-block;background:var(--surface)}
+.xx .keys i.he{background:var(--surface-2)}
+.xx .keys i.ch{box-shadow:inset 0 0 0 1px var(--line-strong)}
+.xx .pairhead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.xx .pairhead .x{color:var(--ink-subtle);font-size:var(--fs-title);line-height:var(--lh-title)}
+.xx .plist{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.xx .plist a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;border-bottom:1px solid var(--line);color:var(--ink)}
+
+/* ---------- 月相（提议 8：MoonPhase 与 MonthGrid） ---------- */
+.xx .moon{width:168px;height:168px;flex:none;display:block}
+.xx .moon .dk{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1}
+.xx .moon .lt{fill:var(--accent)}
+.xx .moon.s{width:28px;height:28px}
+.xx .mcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;max-width:760px}
+.xx .mcal > *{min-height:68px;border-radius:var(--radius-sm);background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle);text-align:center}
+.xx .mcal b{font-size:var(--fs-body);line-height:var(--lh-body);font-weight:500;color:var(--ink)}
+.xx .mcal .wd{min-height:32px;background:none}
+.xx .mcal .off{background:none}
+.xx .mcal .key{background:var(--surface-2);color:var(--ink)}
+.xx .mcal .cur{box-shadow:inset 0 0 0 1px var(--accent)}
+.xx.m .mcal > *{min-height:56px}
+.xx.m .mcal .wd{min-height:28px}
+
+/* ---------- 提议板 ---------- */
+.xx .pp{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:start;padding:24px 0;border-top:1px solid var(--line)}
+.xx .pp-demo{background:var(--bg);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--line);padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+
+/* ---------- 状态分支（补本画布用到的状态名） ---------- */
+.xx.st-archived .when-archived,.xx.st-utc .when-utc,.xx.st-edge .when-edge{display:flex}
+.xx.st-edge p.when-edge{display:block}
+.xx.st-edge .when-edge.wi{display:inline}
+.xx.st-archived .hide-archived,.xx.st-edge .hide-edge,.xx.st-utc .hide-utc{display:none}
+.xx.st-error .result{display:none}
+.xx .pgrid a.pc.ph{background:none;color:var(--ink)}
+.xx .plist .bdg-free{background:var(--surface-2)}
+.xx.st-utc .when-utc.wi{display:inline}

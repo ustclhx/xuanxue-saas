@@ -1,0 +1,80 @@
+/* 内容增长 v2 第二批画布补充样式。
+   只引用 site.css / pages.css / cg2.css / v2.css 已有的 token 与六个字号角色；四份已确认样式不改动。
+   这里出现的新类都对应 ProposalsB 画板中的条目，没有新颜色、新字号。 */
+
+/* ---------- 地名自动补全（现有 @xuanxue/ui Combobox；提议 1） ---------- */
+.xx .combo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.xx .combo .menu{background:var(--bg);box-shadow:inset 0 0 0 1px var(--line),var(--shadow-raise);padding:8px}
+.xx .combo .menu a{flex-direction:column;align-items:flex-start;justify-content:center;gap:0;min-height:56px;padding:6px 12px}
+.xx .combo .menu a.cur{background:var(--surface-2)}
+.xx .combo .menu a span{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx .attr{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle)}
+.xx .attr a{text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- 星盘图（提议 2：ChartWheel） ---------- */
+.xx .wheel{width:100%;max-width:520px;aspect-ratio:1 / 1;display:block;margin:0 auto}
+.xx .wheel .w-band{fill:none;stroke:var(--surface-2);stroke-width:44}
+.xx .wheel .w-ring{fill:none;stroke:var(--line-strong);stroke-width:1}
+.xx .wheel .w-tick{stroke:var(--line-strong);stroke-width:1}
+.xx .wheel .w-house{stroke:var(--line-strong);stroke-width:1}
+.xx .wheel .w-axis{stroke:var(--ink);stroke-width:1.5}
+.xx .wheel .w-lead{stroke:var(--ink-subtle);stroke-width:1}
+.xx .wheel .w-asp{stroke:var(--illus);stroke-width:1.25;fill:none}
+.xx .wheel .w-asp.hard{stroke-dasharray:5 5}
+.xx .wheel text{font-family:var(--head);text-anchor:middle;dominant-baseline:central}
+.xx .wheel .w-sign{fill:var(--ink-muted);font-size:17px}
+.xx .wheel .w-pl{fill:var(--ink);font-size:18px;font-weight:700}
+.xx .wheel .w-hn{fill:var(--ink-subtle);font-size:11px}
+.xx .wheel .w-ax{fill:var(--accent);font-size:12px;font-weight:700}
+.xx .wheel .w-dot{fill:var(--ink)}
+.xx .wheel.duo .w-pl.b{fill:var(--accent)}
+.xx .wheel.duo .w-dot.b{fill:var(--accent)}
+.xx .chartgrid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:24px;align-items:start}
+.xx.m .chartgrid{grid-template-columns:minmax(0,1fr)}
+.xx .sgl{font-family:var(--head);font-weight:700;color:var(--accent);margin-right:6px}
+.xx .asp-key{display:inline-block;width:28px;height:0;border-top:1.25px solid var(--illus);vertical-align:middle}
+.xx .asp-key.hard{border-top-style:dashed}
+
+/* ---------- 逆行时间条（提议 3：RetroTimeline） ---------- */
+.xx .rt{display:flex;flex-direction:column;gap:10px}
+.xx .rt-row{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center}
+.xx .rt-row > span{font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink)}
+.xx .rt-track{position:relative;height:20px;border-radius:var(--radius-sm);background:var(--surface-2);display:block}
+.xx .rt-track i{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--accent);display:block}
+.xx .rt-track b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);display:block}
+.xx .rt-months{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-subtle)}
+.xx.m .rt-row{grid-template-columns:64px minmax(0,1fr);gap:8px}
+.xx.m .rt-months span:nth-child(even){visibility:hidden}
+
+/* ---------- 牌阵：四张与五张（提议 4：复用抽牌组件，位置数可变） ---------- */
+.xx .tcards.c4{grid-template-columns:repeat(4,minmax(0,1fr));max-width:680px}
+.xx .tcards.c5{grid-template-columns:repeat(5,minmax(0,1fr));max-width:760px;gap:16px}
+.xx.m .tcards.c4{grid-template-columns:repeat(2,minmax(0,1fr));max-width:260px;gap:16px}
+.xx.m .tcards.c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.xx .treads.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.xx.m .treads.c2{grid-template-columns:minmax(0,1fr)}
+.xx .posn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--surface-2);font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink);flex:none}
+
+/* ---------- 数字枢纽与数字页 ---------- */
+.xx .numgrid a{flex-direction:column;gap:0;min-height:72px;padding:8px 4px;text-align:center}
+.xx .numgrid a small{font-family:var(--text);font-weight:400;font-size:var(--fs-caption);line-height:var(--lh-caption);color:var(--ink-muted)}
+.xx .numgrid a:hover{background:var(--surface-2)}
+.xx .numgrid.c9{grid-template-columns:repeat(9,minmax(0,1fr));max-width:760px}
+.xx.m .numgrid.c9{grid-template-columns:repeat(3,minmax(0,1fr))}
+.xx .numgrid a.cur{box-shadow:inset 0 0 0 1px var(--accent)}
+.xx .steps-calc.wide li{grid-template-columns:140px minmax(0,1fr)}
+.xx.m .steps-calc.wide li{grid-template-columns:96px minmax(0,1fr)}
+
+/* ---------- 状态分支（补本画布用到的状态名） ---------- */
+.xx.st-place .when-place,.xx.st-notime .when-notime,.xx.st-soon .when-soon,.xx.st-es .when-es{display:block}
+.xx.st-notime .alert.when-notime,.xx.st-edge .alert.when-edge,.xx.st-error .alert.when-error{display:flex}
+.xx.st-notime .when-notime.wi,.xx.st-es .when-es.wi{display:inline}
+.xx.st-place .hide-place,.xx.st-notime .hide-notime,.xx.st-soon .hide-soon,.xx.st-es .hide-es{display:none}
+.xx.st-es .relgrid.when-es{display:grid}
+.xx.st-es .tool-head.when-es,.xx.st-es .secblk.when-es{display:flex}
+.xx.rd-soon .when-soon{display:block}
+.xx.rd-soon .hide-soon{display:none}
+.xx.sp-love .when-love,.xx.sp-career .when-career,.xx.sp-moon .when-moon{display:block}
+.xx .part-in{display:block}
+.xx .skcol{display:flex;flex-direction:column;gap:12px}
+.xx.board .t-title + .muted{margin-top:8px}

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Chart wheel component</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+<svg class="{{svgCls}}" viewBox="-44 -44 608 608" role="img" aria-label="{{label}}">
+<circle class="w-band" cx="260" cy="260" r="228"/>
+<circle class="w-ring" cx="260" cy="260" r="250"/>
+<circle class="w-ring" cx="260" cy="260" r="206"/>
+<circle class="w-ring" cx="260" cy="260" r="110"/>
+<sc-for list="{{ticks}}" as="t" hint-placeholder-count="12">
+<line class="w-tick" x1="{{t.x1}}" y1="{{t.y1}}" x2="{{t.x2}}" y2="{{t.y2}}"/>
+</sc-for>
+<sc-for list="{{signs}}" as="s" hint-placeholder-count="12">
+<text class="w-sign" x="{{s.x}}" y="{{s.y}}">{{s.g}}</text>
+</sc-for>
+<sc-for list="{{houses}}" as="h" hint-placeholder-count="12">
+<line class="{{h.cls}}" x1="{{h.x1}}" y1="{{h.y1}}" x2="{{h.x2}}" y2="{{h.y2}}"/>
+<text class="w-hn" x="{{h.nx}}" y="{{h.ny}}">{{h.n}}</text>
+</sc-for>
+<sc-for list="{{axes}}" as="a" hint-placeholder-count="4">
+<text class="w-ax" x="{{a.x}}" y="{{a.y}}">{{a.t}}</text>
+</sc-for>
+<sc-for list="{{aspects}}" as="p" hint-placeholder-count="8">
+<line class="{{p.cls}}" x1="{{p.x1}}" y1="{{p.y1}}" x2="{{p.x2}}" y2="{{p.y2}}"/>
+</sc-for>
+<sc-for list="{{planets}}" as="b" hint-placeholder-count="11">
+<circle class="{{b.dotCls}}" cx="{{b.dx}}" cy="{{b.dy}}" r="2.5"/>
+<line class="w-lead" x1="{{b.lx1}}" y1="{{b.ly1}}" x2="{{b.lx2}}" y2="{{b.ly2}}"/>
+<text class="{{b.cls}}" x="{{b.x}}" y="{{b.y}}">{{b.g}}</text>
+</sc-for>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["alone","in"],"default":"alone"},"kind":{"editor":"enum","options":["single","duo"],"default":"single"},"$preview":{"width":560,"height":560}}'>
+class Component extends DCLogic {
+renderVals() {
+const inPage = (this.props.mode ?? 'alone') === 'in';
+const duo = (this.props.kind ?? 'single') === 'duo';
+const ASC = 112.17;
+const V = '︎';
+const pt = function (lon, r) {
+const a = (180 + lon - ASC) * Math.PI / 180;
+return { x: Math.round((260 + r * Math.cos(a)) * 10) / 10, y: Math.round((260 - r * Math.sin(a)) * 10) / 10 };
+};
+const glyphs = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+const ticks = [];
+const signs = [];
+for (let i = 0; i < 12; i++) {
+const a = pt(i * 30, 206);
+const b = pt(i * 30, 250);
+ticks.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+const c = pt(i * 30 + 15, 228);
+signs.push({ x: c.x, y: c.y, g: glyphs[i] + V });
+}
+// 样例宫头（Placidus）：虚构出生 1990-05-15 10:30 里斯本
+const cusps = [112.17, 132, 157, 186.07, 222, 260, 292.17, 312, 337, 6.07, 42, 80];
+const houses = cusps.map(function (c, i) {
+const next = cusps[(i + 1) % 12];
+const span = ((next - c) + 360) % 360;
+const axis = i % 3 === 0;
+const a = pt(c, 110);
+const b = pt(c, axis ? 250 : 206);
+const n = pt(c + span / 2, 124);
+return { cls: axis ? 'w-axis' : 'w-house', x1: a.x, y1: a.y, x2: b.x, y2: b.y, nx: n.x, ny: n.y, n: String(i + 1) };
+});
+const axes = [['AC', 0], ['IC', 3], ['DC', 6], ['MC', 9]].map(function (p) {
+const q = pt(cusps[p[1]] + 7, 94);
+return { t: p[0], x: q.x, y: q.y };
+});
+const spread = function (list, r, dotR, extra) {
+const s = list.slice().sort(function (m, n) { return m[1] - n[1]; });
+let prev = -100;
+return s.map(function (p) {
+const d = Math.max(p[1], prev + 10);
+prev = d;
+const g = pt(d, r);
+const dot = pt(p[1], dotR);
+const l1 = pt(p[1], dotR + (r > dotR ? 5 : -5));
+const l2 = pt(d, r + (r > dotR ? -11 : 11));
+return { g: p[0] + V, x: g.x, y: g.y, dx: dot.x, dy: dot.y, lx1: l1.x, ly1: l1.y, lx2: l2.x, ly2: l2.y, cls: 'w-pl' + extra, dotCls: 'w-dot' + extra };
+});
+};
+const A = [['♀', 12.45], ['☿', 38.68], ['☉', 54.3], ['♃', 102.58], ['♇', 226.05], ['♅', 279.23], ['♆', 284.33], ['♄', 295.15], ['☽', 304.1], ['☊', 311.5], ['♂', 348.03]];
+const B = [['♃', 161], ['♀', 182], ['♂', 226], ['☉', 228.5], ['♇', 230], ['☿', 250], ['♅', 280], ['♆', 284], ['☽', 293], ['♄', 301]];
+let planets = spread(A, 178, 206, '');
+if (duo) planets = planets.concat(spread(B, 274, 250, ' b'));
+const natal = [[12.45, 102.58, 1], [38.68, 279.23, 0], [54.3, 295.15, 0], [226.05, 284.33, 0], [102.58, 284.33, 1], [12.45, 284.33, 1], [348.03, 226.05, 0], [12.45, 279.23, 1]];
+const inter = [[226.05, 226, 0], [348.03, 228.5, 0], [54.3, 293, 0], [102.58, 161, 0], [348.03, 226, 0], [304.1, 182, 0], [295.15, 293, 0], [12.45, 280, 1]];
+const aspects = (duo ? inter : natal).map(function (p) {
+const a = pt(p[0], 110);
+const b = pt(p[1], 110);
+return { cls: 'w-asp' + (p[2] ? ' hard' : ''), x1: a.x, y1: a.y, x2: b.x, y2: b.y };
+});
+return {
+theme: inPage ? '' : 'west-light',
+cls: inPage ? 'part-in' : 'xx part',
+svgCls: 'wheel' + (duo ? ' duo' : ''),
+label: duo ? 'Two charts on one wheel: your planets inside the zodiac ring, the other person outside it' : 'Chart wheel with twelve signs, twelve houses, eleven points and the closest aspects',
+ticks: ticks, signs: signs, houses: houses, axes: axes, planets: planets, aspects: aspects
+};
+}
+}
+</script>
+</body>
+</html>

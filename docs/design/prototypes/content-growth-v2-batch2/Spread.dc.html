@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tarot spread pages</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="sp-top">
+
+<sc-if value="{{isLove}}" hint-placeholder-val="{{ true }}">
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">Tarot</a><span aria-hidden="true">›</span><span>Love Tarot Spread</span></nav>
+<div class="rowline"><h1 class="t-title">Love Tarot Spread: Five Cards for a Relationship Question</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">A five-card spread for thinking about a relationship: where you stand, how you see the other person, what connects you, what needs attention, and a question to take away. The cards are prompts for your own reflection. They don't speak for another person.</p>
+</div>
+</sc-if>
+<sc-if value="{{isCareer}}" hint-placeholder-val="{{ false }}">
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">Tarot</a><span aria-hidden="true">›</span><span>Career Tarot Spread</span></nav>
+<div class="rowline"><h1 class="t-title">Career Tarot Spread: Four Cards for a Work Question</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">A four-card spread for a question about work: where you are now, what you bring, what is in the way, and a next step to consider. Use it to organise your thinking, not to make the decision for you.</p>
+</div>
+</sc-if>
+<sc-if value="{{isMoon}}" hint-placeholder-val="{{ false }}">
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">Tarot</a><span aria-hidden="true">›</span><span>Full Moon Tarot Spread</span></nav>
+<div class="rowline"><h1 class="t-title">Full Moon Tarot Spread: Four Cards for the End of a Cycle</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">A four-card spread traditionally drawn around the full moon: what has come to light, what to set down, what to keep, and a question for the next cycle.</p>
+</div>
+<section class="obj" aria-labelledby="sp-moon" style="max-width: 760px">
+<div class="lp-result">
+<svg class="moon" viewBox="0 0 140 140" role="img" aria-label="Full moon" style="width: 96px; height: 96px"><circle class="dk" cx="70" cy="70" r="60"/><circle class="lt" cx="70" cy="70" r="60"/></svg>
+<div class="stack" style="gap: 8px; min-width: 0">
+<p class="t-caption subtle">As of November 24, 2026 · changes to today's date when the page loads</p>
+<h2 class="t-heading" id="sp-moon">The Moon is full tonight · Beaver Moon</h2>
+<p class="muted">The next full moon after this one is December 24, 2026. You can draw this spread at any time; the full moon is only the traditional occasion.</p>
+<div class="acts"><a class="link" href="#sp-top">Moon Phase Today</a><a class="link" href="#sp-top">Full Moon Calendar</a></div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<form class="panel tool-form" style="grid-template-columns: minmax(0, 1fr)" aria-label="Your spread">
+<div class="field">
+<div class="field-top"><label class="label" for="sp-q">Your question (optional)</label></div>
+<input class="input" id="sp-q" type="text" placeholder="Hold a question in mind, or write it here" value="{{question}}">
+</div>
+<details class="adv">
+<summary>Ways to ask<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<div class="scroller" style="padding-top: 8px">
+<sc-for list="{{asks}}" as="a" hint-placeholder-count="3"><button type="button" class="chip tap">{{a}}</button></sc-for>
+</div>
+</details>
+<div class="form-foot">
+<label class="check"><input type="checkbox" checked>Include reversed cards</label>
+<button type="button" class="btn btn-primary"><span class="hide-result">Shuffle</span><span class="when when-result">Shuffle again</span></button>
+</div>
+</form>
+
+<div class="when when-error">
+<div class="alert" role="alert" style="max-width: 760px"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6.5v4.5M10 13.6v.2"/></svg><p>This shared link is incomplete, so we couldn't restore that spread. A fresh deck is ready below.</p></div>
+</div>
+
+<section class="obj blk" aria-label="Spread">
+<ol class="tsteps" aria-label="Steps">
+<li class="{{s1}}">Shuffle</li><li aria-hidden="true"><i></i></li><li class="{{s2}}">Cut</li><li aria-hidden="true"><i></i></li><li class="{{s3}}">Reveal</li>
+</ol>
+<div class="{{cardsCls}}">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="5">
+<div class="tslot">
+<span class="t-caption subtle">{{c.n}} · {{c.pos}}</span>
+<div class="hide-result" style="width: 100%"><button type="button" class="tcard tback" aria-label="{{c.backAria}}"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="ring" cx="22" cy="22" r="19"/><path class="star" d="M22 6l3.5 12.5L38 22l-12.5 3.5L22 38l-3.5-12.5L6 22l12.5-3.5z"/></svg></button></div>
+<div class="when when-result" style="width: 100%"><span class="{{c.faceCls}}" role="img" aria-label="{{c.aria}}"><svg viewBox="0 0 120 140" aria-hidden="true"><path d="{{c.d}}"/></svg><span class="tname">{{c.name}}</span></span></div>
+</div>
+</sc-for>
+</div>
+<div class="hide-result">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 4px">
+<p class="t-caption subtle" style="text-align: center">Tap a card to turn it over.</p>
+<button type="button" class="link" style="background: none; border: 0; font-family: var(--text); font-size: var(--fs-body); cursor: pointer">Reveal all</button>
+</div>
+</div>
+</section>
+
+<div class="when when-result">
+<section class="result" aria-label="Your cards">
+<p class="muted">Your question: <q style="color: var(--ink)">{{question}}</q></p>
+<div class="treads c2">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+<div class="tread">
+<span class="t-caption subtle">{{c.n}} · {{c.pos}}</span>
+<h3 class="t-heading">{{c.title}}</h3>
+<p class="t-caption subtle">{{c.keys}}</p>
+<p class="muted">{{c.read}}</p>
+<a class="link" href="#sp-top">{{c.linkText}}</a>
+</div>
+</sc-for>
+</div>
+<p class="t-caption subtle">Sample draw for layout. The live page shows the cards the visitor turns over, with the meanings from the card library.</p>
+<p class="disc">Card meanings follow the Rider–Waite–Smith tradition. For reference and self-reflection only; the cards do not predict the future or describe another person's feelings.</p>
+</section>
+</div>
+
+<sc-if value="{{isLove}}" hint-placeholder-val="{{ true }}">
+<article class="article" aria-labelledby="sp-pos-l">
+<h2 class="t-title" id="sp-pos-l" style="margin-top: 0">The five positions</h2>
+<ol class="pl">
+<li><strong>You.</strong> Where you stand in this relationship or question right now.</li>
+<li><strong>How you see the other person.</strong> Your picture of them, which may differ from how they see themselves.</li>
+<li><strong>What connects you.</strong> The common ground the question rests on.</li>
+<li><strong>What needs attention.</strong> A tension or habit worth naming.</li>
+<li><strong>A question to bring.</strong> Something to ask yourself, or to talk about together.</li>
+</ol>
+<h2 class="t-title">How to use this spread</h2>
+<p>The spread works for a partner, someone you are getting to know, or a relationship that has ended. It does not tell you what someone else feels or whether a relationship will last. For a shorter draw, the <a class="il" href="#sp-top">three-card spread</a> covers past, present and future.</p>
+</article>
+</sc-if>
+<sc-if value="{{isCareer}}" hint-placeholder-val="{{ false }}">
+<article class="article" aria-labelledby="sp-pos-c">
+<h2 class="t-title" id="sp-pos-c" style="margin-top: 0">The four positions</h2>
+<ol class="pl">
+<li><strong>Where you are now.</strong> The situation as it stands, without the story around it.</li>
+<li><strong>What you bring.</strong> A skill or habit you can rely on.</li>
+<li><strong>What is in the way.</strong> An obstacle, inside or outside, worth looking at directly.</li>
+<li><strong>A next step to consider.</strong> One concrete thing to try. The choice stays yours.</li>
+</ol>
+<h2 class="t-title">How to use this spread</h2>
+<p>Bring one specific question, such as a role you are weighing or a project that has stalled. The cards are a way to look at it from four sides. They are not career, legal or financial advice. To look up a card, see <a class="il" href="#sp-top">tarot card meanings</a>.</p>
+</article>
+</sc-if>
+<sc-if value="{{isMoon}}" hint-placeholder-val="{{ false }}">
+<article class="article" aria-labelledby="sp-pos-m">
+<h2 class="t-title" id="sp-pos-m" style="margin-top: 0">The four positions</h2>
+<ol class="pl">
+<li><strong>What has come to light.</strong> Something that became clear over the past few weeks.</li>
+<li><strong>What to set down.</strong> A worry, plan or habit that has run its course.</li>
+<li><strong>What to keep.</strong> Something that is working and deserves care.</li>
+<li><strong>A question for the next cycle.</strong> What to carry into the weeks until the next new moon.</li>
+</ol>
+<h2 class="t-title">Why the full moon</h2>
+<p>The full moon is the midpoint of the lunar month, and many traditions treat it as a time to look back before starting again. That is a custom for reflection; the phase of the Moon has no effect on the cards. See <a class="il" href="#sp-top">tonight's moon phase</a> or the dates in the <a class="il" href="#sp-top">full moon calendar</a>.</p>
+</article>
+</sc-if>
+
+<section class="relsec" aria-labelledby="sp-rel">
+<h2 class="t-heading" id="sp-rel">More spreads</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="Spread.dc.html"><b>Love Tarot Spread</b><span>Five cards for a relationship question</span></a></li>
+<li><a class="relcard" href="SpreadCareer.dc.html"><b>Career Tarot Spread</b><span>Four cards for a work question</span></a></li>
+<li><a class="relcard" href="SpreadMoon.dc.html"><b>Full Moon Tarot Spread</b><span>Four cards for the end of a cycle</span></a></li>
+<li><a class="relcard" href="#sp-top"><b>Three-Card Tarot</b><span>Past, present and future</span></a></li>
+</ul>
+</section>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"spread":{"editor":"enum","options":["love","career","moon"],"default":"love"},"state":{"editor":"enum","options":["result","initial","error"],"default":"result"},"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const spread = this.props.spread ?? 'love';
+const state = this.props.state ?? 'result';
+const art = {
+cups: 'M26 44h28v14a14 14 0 0 1-28 0zM40 72v22M30 94h20M66 44h28v14a14 14 0 0 1-28 0zM80 72v22M70 94h20M18 122h84',
+star: 'M60 28l8 24 24 8-24 8-8 24-8-24-24-8 24-8z',
+lantern: 'M60 20v16M46 36h28l6 40H40zM52 76v20h16V76M30 120h60',
+coins: 'M36 50a12 12 0 1 0 24 0a12 12 0 1 0-24 0M64 84a12 12 0 1 0 24 0a12 12 0 1 0-24 0M20 124h80',
+wands: 'M34 112L52 24M60 112V20M86 112L68 24M24 124h72',
+swords: 'M40 20v84M32 92h16M80 20v84M72 92h16M60 30v84M52 102h16',
+moon: 'M72 30a34 34 0 1 0 0 68a26 26 0 1 1 0-68zM20 124h80',
+cup: 'M42 40h36v18a18 18 0 0 1-36 0zM60 76v26M46 102h28M20 124h80',
+wand: 'M60 18v96M50 30l10-12 10 12M24 124h72'
+};
+// 样例抽牌：位置名、牌名、正逆位、关键词、一句牌义、图形
+const data = {
+love: {
+question: 'What would help us talk more openly?',
+asks: ['What am I bringing to this relationship right now?', 'What would help us talk more openly?', 'What do I want to understand before the next step?'],
+cards: [
+['You', 'Two of Cups', false, 'partnership · mutual respect · exchange', 'An even exchange. Notice where you already feel able to speak plainly.', 'cups'],
+['How you see the other person', 'The Hermit', true, 'distance · withdrawal · needing space', 'Reversed, the Hermit points at distance. This is your picture of them, so ask how much of it you have checked.', 'lantern'],
+['What connects you', 'Six of Pentacles', false, 'giving · receiving · balance', 'Give and take. Look at what each of you offers and what each finds easy to accept.', 'coins'],
+['What needs attention', 'Five of Wands', false, 'friction · competing aims · noise', 'Small frictions that pile up. Pick one that is worth naming.', 'wands'],
+['A question to bring', 'The Star', false, 'hope · openness · renewal', 'What would you say if you trusted it would be heard?', 'star']
+]
+},
+career: {
+question: 'Should I put more time into the new project?',
+asks: ['What is this role asking of me?', 'Should I put more time into the new project?', 'What am I avoiding at work?'],
+cards: [
+['Where you are now', 'Eight of Pentacles', false, 'practice · craft · steady effort', 'Skill built by repetition. You are further along than a single week shows.', 'coins'],
+['What you bring', 'The Magician', false, 'resourcefulness · focus · initiative', 'The tools are already on the table. Name the ones you actually use.', 'wand'],
+['What is in the way', 'Seven of Swords', true, 'avoidance · half-truths · shortcuts', 'Reversed, the card asks what you have been working around instead of saying.', 'swords'],
+['A next step to consider', 'Page of Wands', false, 'curiosity · a first attempt · news', 'A small, low-cost first try. What would that be this month?', 'wands']
+]
+},
+moon: {
+question: 'What am I ready to set down this month?',
+asks: ['What became clear since the last new moon?', 'What am I ready to set down this month?', 'What do I want to give more care to?'],
+cards: [
+['What has come to light', 'The Moon', false, 'uncertainty · intuition · half-light', 'Something you sensed without being sure. What looks different now?', 'moon'],
+['What to set down', 'Ten of Swords', false, 'an ending · exhaustion · release', 'A matter that is already over. What would it take to stop carrying it?', 'swords'],
+['What to keep', 'Queen of Cups', false, 'care · steadiness · listening', 'A way of paying attention that is serving you well.', 'cup'],
+['A question for the next cycle', 'Ace of Wands', false, 'a spark · a beginning · energy', 'Where do you want to put the first hour of the next few weeks?', 'wand']
+]
+}
+};
+const d = data[spread] || data.love;
+const cards = d.cards.map(function (c, i) {
+const side = c[2] ? 'reversed' : 'upright';
+return { n: String(i + 1), pos: c[0], name: c[1], title: c[1] + ' · ' + side, keys: 'Keywords: ' + c[3], read: c[4], d: art[c[5]], faceCls: 'tcard tface' + (c[2] ? ' rev' : ''), aria: c[1] + ', ' + side, backAria: 'Turn over card ' + (i + 1) + ': ' + c[0], linkText: c[1] + ' meaning' };
+});
+const done = state === 'result';
+return {
+theme: theme,
+cls: 'xx st-' + state + (device === 'mobile' ? ' m' : ''),
+isLove: spread === 'love', isCareer: spread === 'career', isMoon: spread === 'moon',
+question: done ? d.question : '',
+asks: d.asks,
+cards: cards,
+cardsCls: 'tcards ' + (cards.length === 5 ? 'c5' : 'c4'),
+s1: done ? '' : 'on', s2: '', s3: done ? 'on' : ''
+};
+}
+}
+</script>
+</body>
+</html>

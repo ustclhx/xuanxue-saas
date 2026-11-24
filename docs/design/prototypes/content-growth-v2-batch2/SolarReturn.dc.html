@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Solar Return Calculator</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="pages.css">
+<link rel="stylesheet" href="cg2.css">
+<link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="b2.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" class="{{cls}}">
+
+<dc-import name="HdrWest" mode="in" hint-size="100%,72px"></dc-import>
+
+<main class="wrap tool-main" id="so-top">
+
+<div class="tool-head">
+<nav class="crumbs" aria-label="Breadcrumb"><a href="HomeWestB.dc.html">Home</a><span aria-hidden="true">›</span><a href="HubWestB.dc.html">All tools</a><span aria-hidden="true">›</span><span>Solar Return Calculator</span></nav>
+<div class="rowline"><h1 class="t-title">Solar Return Calculator</h1><span class="bdg bdg-new">New</span></div>
+<p class="muted">Find the exact moment the Sun returns to its position at your birth in any year, and the rising sign and Moon for that moment in the place you'll be.</p>
+</div>
+
+<form class="panel tool-form" aria-label="Birth details and return year">
+<div class="field">
+<div class="field-top"><label class="label" for="so-date">Date of birth</label></div>
+<input class="input" id="so-date" type="text" value="May 15, 1990">
+</div>
+<div class="field">
+<div class="field-top"><label class="label" for="so-time">Time of birth</label></div>
+<input class="input hide-error" id="so-time" type="text" value="10:30 AM">
+<input class="input inv when when-error" type="text" value="" placeholder="For example 10:30 AM" aria-label="Time of birth" aria-invalid="true" aria-describedby="so-time-err">
+<p class="err when when-error" id="so-time-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>A birth time is needed here. Any error in the birth time moves the return by the same amount.</p>
+</div>
+<div class="field full combo">
+<div class="field-top"><label class="label" for="so-place">Place of birth</label></div>
+<input class="input" id="so-place" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false">
+</div>
+<div class="field">
+<div class="field-top"><label class="label" id="so-year-l">Return year</label></div>
+<button type="button" class="select hide-error" aria-labelledby="so-year-l" aria-haspopup="listbox">2027<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<button type="button" class="select inv when when-error" aria-labelledby="so-year-l" aria-haspopup="listbox" aria-describedby="so-year-err">1985<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></button>
+<p class="err when when-error" id="so-year-err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 6v5M10 14v.5"/></svg>Choose a year after your birth year.</p>
+</div>
+<div class="field combo">
+<div class="field-top"><label class="label" for="so-where">Where you'll be on that birthday</label></div>
+<input class="input" id="so-where" type="text" value="Lisbon, Portugal" role="combobox" aria-expanded="false">
+<p class="hint">Starts as your birth place. Change it if you live elsewhere.</p>
+</div>
+<div class="full form-foot">
+<p class="hint">Calculated in your browser. No sign-up needed.</p>
+<button type="button" class="btn btn-primary">Find my solar return</button>
+</div>
+</form>
+
+<section class="result" aria-labelledby="so-res">
+<h2 class="t-title" id="so-res">Your 2027 solar return</h2>
+
+<div class="obj blk" style="max-width: 760px">
+<div class="lp-result">
+<span class="bigglyph" aria-hidden="true">☉&#xFE0E;</span>
+<div class="stack" style="gap: 8px; min-width: 0">
+<p class="t-caption subtle">The Sun returns to 24°18′ Taurus on</p>
+<p class="bignum">May 15, 2027 · 9:47 AM</p>
+<p class="t-caption subtle">Lisbon time (UTC+1) · 08:47 UTC</p>
+</div>
+</div>
+<dl class="facts4" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 8px">
+<div class="kv"><dt class="t-caption subtle">Rising sign at that moment</dt><dd class="t-heading">Cancer · 14°</dd></div>
+<div class="kv"><dt class="t-caption subtle">Moon</dt><dd class="t-heading">Leo · 2°</dd></div>
+<div class="kv"><dt class="t-caption subtle">Sun's house</dt><dd class="t-heading">11th</dd></div>
+</dl>
+</div>
+<p class="t-caption subtle">Sample values for layout: a fictional birth on May 15, 1990, 10:30 AM in Lisbon. The live page prints the engine's output.</p>
+
+<div class="blk">
+<h3 class="t-heading">Nearby years</h3>
+<div class="tblbox tbl-narrow">
+<table class="dt stk">
+<thead><tr><th scope="col">Year</th><th scope="col">Return moment (Lisbon time)</th><th scope="col">Rising sign</th><th scope="col">Your age</th></tr></thead>
+<tbody>
+<tr><td class="k">2026</td><td class="nw" data-l="Moment">May 15 · 3:58 AM</td><td data-l="Rising">Aries</td><td class="nw" data-l="Age">36</td></tr>
+<tr class="cur"><td class="k">2027</td><td class="nw" data-l="Moment">May 15 · 9:47 AM</td><td data-l="Rising">Cancer</td><td class="nw" data-l="Age">37</td></tr>
+<tr><td class="k">2028</td><td class="nw" data-l="Moment">May 14 · 3:36 PM</td><td data-l="Rising">Libra</td><td class="nw" data-l="Age">38</td></tr>
+</tbody>
+</table>
+</div>
+<p class="notebox">The return can fall the day before or after your calendar birthday, because the Sun takes about six hours more than 365 days to come back to the same degree.</p>
+</div>
+
+<div class="obj unlock">
+<div class="stack" style="gap: 8px">
+<h3 class="t-heading">Compare with your birth chart</h3>
+<p class="muted">A solar return chart is read next to the birth chart. Open yours to see the positions the return is measured from.</p>
+</div>
+<a class="btn btn-secondary" href="NatalChart.dc.html">Open my birth chart</a>
+</div>
+
+<p class="disc">Times are calculated with standard astronomical methods. Traditional meanings are for reference and self-reflection only; they do not predict the future.</p>
+</section>
+
+<article class="article" aria-labelledby="so-a1">
+<h2 class="t-title" id="so-a1" style="margin-top: 0">What a solar return is</h2>
+<p>Once a year the Sun comes back to the exact degree and minute it held when you were born. A chart drawn for that moment is called a solar return chart. Tradition reads it as a set of themes for the year from one birthday to the next, as a prompt for reflection.</p>
+<h2 class="t-title">Why the location matters</h2>
+<p>The return moment is the same everywhere, but the rising sign and houses depend on where you are. That is why the calculator asks where you'll be.</p>
+</article>
+
+<section aria-labelledby="so-faq">
+<div class="sec-head" style="margin-bottom: 24px"><h2 class="t-title" id="so-faq">Common questions</h2></div>
+<div class="faq">
+<details open>
+<summary>Is my solar return always on my birthday?<svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg></summary>
+<p>Usually, but it can be a day earlier or later depending on the year and your time zone.</p>
+</details>
+</div>
+</section>
+
+<section class="relsec" aria-labelledby="so-rel">
+<h2 class="t-heading" id="so-rel">Related</h2>
+<ul class="relgrid">
+<li><a class="relcard" href="NatalChart.dc.html"><b>Birth Chart Calculator</b><span>Planets, houses and aspects</span></a></li>
+<li><a class="relcard" href="SaturnReturn.dc.html"><b>Saturn Return Calculator</b><span>When Saturn comes back to its birth position</span></a></li>
+<li><a class="relcard" href="PersonalYear.dc.html"><b>Personal Year Calculator</b><span>Your numerology year number</span></a></li>
+<li><a class="relcard" href="Main.dc.html"><b>Rising Sign Calculator</b><span>Sun, Moon and rising in one step</span></a></li>
+</ul>
+</section>
+
+<p class="attr">Place names and coordinates from <a href="#so-top">GeoNames</a>, licensed under <a href="#so-top">CC BY 4.0</a>.</p>
+
+</main>
+
+<dc-import name="FtrWest" mode="in" hint-size="100%,340px"></dc-import>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["west-light","west-dark"],"default":"west-light"},"device":{"editor":"enum","options":["desktop","mobile"],"default":"desktop"},"state":{"editor":"enum","options":["result","error"],"default":"result"},"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+renderVals() {
+const theme = this.props.theme ?? 'west-light';
+const device = this.props.device ?? 'desktop';
+const state = this.props.state ?? 'result';
+return { theme: theme, cls: 'xx st-' + state + (device === 'mobile' ? ' m' : '') };
+}
+}
+</script>
+</body>
+</html>
