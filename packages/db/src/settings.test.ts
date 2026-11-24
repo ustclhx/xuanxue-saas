@@ -79,6 +79,14 @@ describe('详批运行时设置', () => {
     expect(settingDefaults['readings.saju-full.credits']).toBe(10)
     expect(settingDefaults['readings.tarot-spread.modelKey']).toBe('')
   })
+
+  it('natal-full 不写设置行时取代码默认值：开启（使用者 2026-11-24 审阅样例后开放）', async () => {
+    const { store } = memoryStore({})
+    const { cache } = memoryCache()
+    expect(await getSetting({ store, cache }, 'readings.natal-full.enabled')).toBe(true)
+    // 缓存里的「表中缺失」同样回退到默认值
+    expect(await getSetting({ store, cache }, 'readings.natal-full.enabled')).toBe(true)
+  })
 })
 
 describe('ai.freeFailures', () => {

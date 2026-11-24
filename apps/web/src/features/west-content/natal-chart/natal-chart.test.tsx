@@ -259,8 +259,8 @@ describe('地址、注册表与页面', () => {
     }
     expect(chartHtml).toContain('Placidus')
     expect(chartHtml).not.toContain('reading-coming-soon')
-    // B5：评测通过并经使用者审阅样例前不开放购买
-    expect(NATAL_READING_LOCALES).not.toContain('en')
+    // B5：使用者 2026-11-24 审阅样例后开放购买；解锁卡在出结果后挂载（服务端渲染无卡片）
+    expect(NATAL_READING_LOCALES).toContain('en')
   })
 
   it('页面模块不静态引入星历引擎（astronomy-engine 只在提交后动态加载）', () => {

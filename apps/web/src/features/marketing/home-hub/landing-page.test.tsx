@@ -11,6 +11,7 @@ import { directoryGroups, siteTools } from '../../tools/directory.ts'
 import { badgeText } from '../../tools/hub/badge.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { dailyEntryHref, FEATURED_SECONDARY_LIMIT, hubFeatured } from './data.ts'
+import { featuredNavTools, selectFeatured } from './featured.ts'
 import { LandingPage } from './landing-page.tsx'
 import {
   HUB_SAMPLE_KIND,
@@ -110,9 +111,9 @@ describe('落地页数据', () => {
       'west',
       'en',
       'tarot-three-card',
-      ['moon-phase-today', 'western-zodiac-compatibility', 'life-path'],
+      ['birth-chart', 'moon-phase-today', 'western-zodiac-compatibility', 'life-path'],
       'daily-numerology',
-      '22☾♌1',
+      '22☉☾♌1',
     ],
     [
       'west',
@@ -212,18 +213,32 @@ describe('落地页数据', () => {
     ])
   })
 
-  it('西方站：季节位为月相，副卡 3 张；不含东方工具，链接不跨站', () => {
+  it('西方站：季节位为月相，副卡 4 张、Birth Chart 居首（B12）；不含东方工具，链接不跨站', () => {
     language.locale = 'en'
-    expect(ids(hubFeatured('west', 'en', TOOL_ROUTES, '2026-12-10'))).toEqual({
+    const season = hubFeatured('west', 'en', TOOL_ROUTES, '2026-12-10')
+    // HomeWestB.dc.html：Birth Chart Calculator、Zodiac Compatibility、Life Path、Numerology Calculator
+    expect(ids(season)).toEqual({
       main: 'tarot-three-card',
       season: ['year', 'moon-phase-today', 'full-moon-calendar'],
-      secondary: ['western-zodiac-compatibility', 'life-path', 'numerology-calculator'],
+      secondary: [
+        'birth-chart',
+        'western-zodiac-compatibility',
+        'life-path',
+        'numerology-calculator',
+      ],
+    })
+    expect(season.secondary[0]).toMatchObject({
+      title: 'Birth Chart Calculator',
+      href: '/birth-chart',
+      glyph: '☉',
+      badge: 'New',
+      label: 'Free chart',
     })
     const off = hubFeatured('west', 'en', TOOL_ROUTES, '2027-03-01')
     expect(ids(off)).toEqual({
       main: 'tarot-three-card',
       season: ['daily', 'daily-numerology', undefined],
-      secondary: ['moon-phase-today', 'western-zodiac-compatibility', 'life-path'],
+      secondary: ['birth-chart', 'moon-phase-today', 'western-zodiac-compatibility', 'life-path'],
     })
     const all = [off.main, ...off.secondary].map((tool) => tool?.id)
     expect(all).not.toEqual(
@@ -234,6 +249,78 @@ describe('落地页数据', () => {
       href: '/life-path-number',
     })
     expect(off.hub).toEqual({ href: '/tools', label: 'All tools' })
+  })
+
+  it('西方站页头下拉保持 5 项，Birth Chart 替换 Numerology Calculator（B13，NavWestB.dc.html）', () => {
+    const nav = (site: SiteId, locale: string, today: string) =>
+      featuredNavTools(selectFeatured(site, locale, TOOL_ROUTES, today)).map((tool) => tool.id)
+    expect(nav('west', 'en', '2026-11-24')).toEqual([
+      'tarot-three-card',
+      'birth-chart',
+      'moon-phase-today',
+      'western-zodiac-compatibility',
+      'life-path',
+    ])
+    // 季节窗口内：季节位只占一行（Moon Phase Today），文字链接 Full Moon Calendar 不进下拉
+    expect(nav('west', 'en', '2026-12-10')).toEqual([
+      'tarot-three-card',
+      'moon-phase-today',
+      'birth-chart',
+      'western-zodiac-compatibility',
+      'life-path',
+    ])
+    // es 没有出生星盘：下拉不变
+    expect(nav('west', 'es', '2026-12-10')).toEqual([
+      'tarot-three-card',
+      'life-path',
+      'numerology-calculator',
+      'life-path-compatibility',
+    ])
+    // 东方站季节位同样只占一行（Nav.dc.html「2027 流年」）
+    expect(nav('east', 'zh-Hans', '2026-12-10').slice(0, 3)).toEqual([
+      'bazi',
+      'yearly-tool',
+      'saju-gunghap',
+    ])
+  })
+
+  it('全部工具枢纽页按 HubWestB 画板分组排序，es 只列已发布的工具', () => {
+    const groups = (locale: string) =>
+      Object.fromEntries(
+        directoryGroups('west', locale, TOOL_ROUTES, '2026-11-24').map((group) => [
+          group.group,
+          group.tools.map((tool) => tool.id),
+        ]),
+      )
+    const en = groups('en')
+    expect(en.tarot).toEqual([
+      'tarot-three-card',
+      'tarot-daily',
+      'tarot-yes-or-no',
+      'tarot-celtic-cross',
+      'tarot-love',
+      'tarot-career',
+      'tarot-full-moon',
+      'tarot-card-index',
+    ])
+    expect(en.numerology?.slice(0, 5)).toEqual([
+      'life-path',
+      'numerology-calculator',
+      'personal-year',
+      'angel-numbers',
+      'daily-numerology',
+    ])
+    expect(en.astrology?.slice(0, 3)).toEqual([
+      'birth-chart',
+      'rising-sign-calculator',
+      'western-zodiac-signs',
+    ])
+    expect(en.compatibility).toEqual(['western-zodiac-compatibility', 'life-path-compatibility'])
+    const es = groups('es')
+    expect(es.numerology).toEqual(expect.arrayContaining(['personal-year', 'angel-numbers']))
+    expect(Object.values(es).flat()).not.toEqual(
+      expect.arrayContaining(['birth-chart', 'rising-sign-calculator', 'tarot-love']),
+    )
   })
 
   it('小标到期后不渲染；未发布语言不显示入口与小标', () => {

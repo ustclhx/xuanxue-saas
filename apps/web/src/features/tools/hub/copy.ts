@@ -59,6 +59,10 @@ const SUMMARY: Readonly<Record<string, () => string>> = {
   'numerology-calculator': m.home_hub_tool_numerology_calculator,
   numerology: m.tools_hub_tool_numerology,
   'life-path-compatibility': m.home_hub_tool_life_path_compatibility,
+  // 第二批画板 HomeWestB / HubWestB 的卡片说明（注册表描述是较长的 SEO 句子）
+  'birth-chart': m.home_hub_tool_birth_chart,
+  'rising-sign-calculator': m.home_hub_tool_rising_sign,
+  'personal-year': m.home_hub_tool_personal_year,
 }
 
 /**
@@ -124,6 +128,9 @@ const GLYPH: Readonly<Record<string, string>> = {
   'western-zodiac-compatibility': '♌',
   'angel-numbers': '11',
   'personal-year': '5',
+  // 第二批画板 HubWestB：出生星盘为太阳符号，三巨头为上升箭头
+  'birth-chart': '☉',
+  'rising-sign-calculator': '↑',
 }
 
 /** 工具卡的大号字形（装饰，对读屏隐藏）：没有登记的工具取名称里的第一个文字 */

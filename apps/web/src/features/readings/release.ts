@@ -36,6 +36,7 @@ export const COMPAT_READING_LOCALES: readonly string[] = ['ko']
 
 /**
  * 出生星盘完整解读（`natal-full`，content-growth-v2-tools 第 23 组、设计稿默认 B5）已开放购买的语言。
- * 未列出时星盘页在免费结果后显示「即将开放」占位；评测通过并经使用者审阅样例后再加入 `en`。
+ * 未列出时星盘页在免费结果后显示「即将开放」占位。`en`：v2 样例经 Claude 复核，
+ * 使用者 2026-11-24 审阅确认（「样例确认，合并后做B12/B13然后发版」），随波次 B 发版开放。
  */
-export const NATAL_READING_LOCALES: readonly string[] = []
+export const NATAL_READING_LOCALES: readonly string[] = ['en']

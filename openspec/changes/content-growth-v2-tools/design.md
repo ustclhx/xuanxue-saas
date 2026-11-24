@@ -151,10 +151,11 @@
 | 东方 ko | 만세력 | 사주궁합、띠궁합、타로、토정비결（季节外） | 2027 신년 사주 · 토정비결 |
 | 东方 ja | 四柱推命 | 四柱推命相性、紫微斗数、タロット | （无 2027 ja 内容时为每日运势） |
 | 东方 en | Bazi Calculator | Bazi Compatibility、Chinese Zodiac Compatibility、Zi Wei Dou Shu、Tarot | Year of the Fire Goat 2027 |
-| 西方 en | Three-Card Tarot（Free Tarot Reading） | Zodiac Compatibility、Life Path Calculator、Numerology Calculator（副卡 3 张；季节之外 Moon Phase Today 排在最前） | Moon Phase Today，文字链接 Full Moon Calendar 2027 |
+| 西方 en | Three-Card Tarot（Free Tarot Reading） | Birth Chart Calculator、Zodiac Compatibility、Life Path Calculator、Numerology Calculator（波次 B 起副卡 4 张；季节之外 Moon Phase Today 排在 Birth Chart 之后） | Moon Phase Today，文字链接 Full Moon Calendar 2027 |
 | 西方 es | Tarot gratis | Fase lunar hoy、Número de vida、Calculadora de numerología | — |
 
   - 西方站的主卡、季节位与副卡以使用者 2026-11-23 确认的设计稿 `HomeWest.dc.html` 为准（主卡为三张牌塔罗，副卡 3 张）；首屏主按钮仍指向 Life Path 计算器。
+  - 波次 B（使用者 2026-11-24 确认第二批默认 B12、B13，设计稿 `content-growth-v2-batch2/HomeWestB.dc.html`、`NavWestB.dc.html`、`HubWestB.dc.html`）：西方站副卡由 3 张增至 4 张，Birth Chart Calculator 居首并带「New」小标；页头工具下拉保持 5 项（主卡、季节位按钮一行、副卡），Birth Chart 替换 Numerology Calculator，季节位的文字链接不进下拉；全部工具页的五个分组与顺序不变，第二批工具按 HubWestB 归入各组并排序，各语言只列已发布的工具（es 有 angel numbers 与 personal year）。
   - 首页仍预渲染；季节切换随发版生效（发版频率高于每月一次，可接受）。单测用注入的日期覆盖窗口边界。
 - **全部工具枢纽页**：服务端渲染，每语言一页，按 `directoryGroup` 分组，空组不显示；卡片含名称、一句说明、`freeLabel` 与小标。页头工具下拉末尾加「全部工具」入口，保留现有分组（`calendar`）。页面进站点地图、llms.txt。
 - **标签规则**：付费只出现在详批按钮「AI 详批 · 10 积分」（积分数取运行时价格快照，不写死）；入口卡不标付费；「会员」只给订阅专属内容（本 change 无）；小标到 `until` 次日不再渲染。

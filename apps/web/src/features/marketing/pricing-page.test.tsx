@@ -70,8 +70,8 @@ describe('定价页可解锁目录', () => {
     [
       'west',
       'en',
-      ['numerology-full', 'tarot-spread'],
-      ['Your full numerology reading', 'Full spread reading'],
+      ['numerology-full', 'tarot-spread', 'natal-full'],
+      ['Your full numerology reading', 'Full spread reading', 'Your full birth chart reading'],
     ],
     [
       'east',

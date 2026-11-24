@@ -16,8 +16,11 @@ type ReadingSettingValues = {
 }
 
 /** 详批价格种子：1 次详批 = 10 积分（2026-11-17「版本 A」，原 design 决策 4 为 100），后台可改。 */
-/** 默认关闭的详批：评测与使用者审阅样例之前不开放（content-growth-v2-tools 第 23 组 natal-full） */
-const READING_KINDS_OFF_BY_DEFAULT: readonly ReadingKind[] = ['natal-full']
+/**
+ * 默认关闭的详批：评测与使用者审阅样例之前不开放。natal-full（content-growth-v2-tools 第 23 组）
+ * 已由使用者 2026-11-24 审阅样例，随波次 B 改为默认开启；生产不写设置行，直接取这里的代码默认值。
+ */
+const READING_KINDS_OFF_BY_DEFAULT: readonly ReadingKind[] = []
 
 const readingSettingDefaults = Object.fromEntries(
   READING_KINDS.flatMap((kind) => [
