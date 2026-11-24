@@ -77,6 +77,17 @@ export function pairBranches(key: ZodiacPairKey): [ZodiacKey, ZodiacKey] {
   return key.split('-') as [ZodiacKey, ZodiacKey]
 }
 
+/** 配对页显示名（面包屑、相关配对与注册表标题）：zh-Hans 同 slug，ko「쥐띠와 소띠」，en「Rat and Ox」 */
+const EN_NAMES: Readonly<Record<ZodiacKey, string>> = Object.fromEntries(
+  Object.entries(EN_SLUGS).map(([key, slug]) => [key, `${slug[0]?.toUpperCase()}${slug.slice(1)}`]),
+) as Record<ZodiacKey, string>
+export function zodiacPairName(locale: ZodiacPairLocale, key: ZodiacPairKey): string {
+  const [a, b] = pairBranches(key)
+  if (locale === 'ko') return `${ZODIAC_SLUGS.ko[a]}와 ${ZODIAC_SLUGS.ko[b]}`
+  if (locale === 'en') return `${EN_NAMES[a]} and ${EN_NAMES[b]}`
+  return zodiacPairSlug(locale, key)
+}
+
 /** 配对页 slug 即主词（「属鼠和属牛」「쥐띠-소띠」「rat-and-ox」） */
 export function zodiacPairSlug(locale: ZodiacPairLocale, key: ZodiacPairKey): string {
   const [a, b] = pairBranches(key)
@@ -88,27 +99,50 @@ export function zodiacPairPath(locale: ZodiacPairLocale, key: ZodiacPairKey | 'i
   return key === 'index' ? hub : `${hub}/${zodiacPairSlug(locale, key)}`
 }
 
-/** 东方站中日韩的内容路由（根路径英文由 east-en 登记，第 17 组） */
-const ROUTE_LOCALES = ZODIAC_PAIR_PUBLISHED.filter(
-  (locale): locale is Exclude<ZodiacPairLocale, 'en'> => locale !== 'en',
-)
+const routesOf = <L extends ZodiacPairLocale>(locale: L) => [
+  {
+    locale,
+    path: zodiacPairPath(locale, 'index') as `/${string}`,
+    collection: 'zodiac-pair' as const,
+    id: 'index',
+  },
+  ...ZODIAC_PAIR_KEYS.map((key) => ({
+    locale,
+    path: zodiacPairPath(locale, key) as `/${string}`,
+    collection: 'zodiac-pair' as const,
+    id: key,
+  })),
+]
 
-export const ZODIAC_PAIR_EAST_CONTENT_ROUTES: readonly EastContentRoute[] = ROUTE_LOCALES.flatMap(
-  (locale) => [
-    {
-      locale,
-      path: zodiacPairPath(locale, 'index') as `/${string}`,
-      collection: 'zodiac-pair' as const,
-      id: 'index',
-    },
-    ...ZODIAC_PAIR_KEYS.map((key) => ({
-      locale,
-      path: zodiacPairPath(locale, key) as `/${string}`,
-      collection: 'zodiac-pair' as const,
-      id: key,
-    })),
-  ],
-)
+/** 某几种语言的内容路由（测试可传入未发布语言，验证登记后的地址与反序 301） */
+export function zodiacPairContentRoutes(locales: readonly ZodiacPairLocale[]): {
+  east: EastContentRoute[]
+  eastEn: (EastContentRoute & { locale: 'en' })[]
+} {
+  return {
+    east: locales
+      .filter((locale): locale is Exclude<ZodiacPairLocale, 'en'> => locale !== 'en')
+      .flatMap((locale) => routesOf(locale)),
+    eastEn: locales.includes('en') ? routesOf('en' as const) : [],
+  }
+}
+
+const PUBLISHED_ROUTES = zodiacPairContentRoutes(ZODIAC_PAIR_PUBLISHED)
+
+/** 东方站中日韩的内容路由（features/east-content/routes.ts 引用） */
+export const ZODIAC_PAIR_EAST_CONTENT_ROUTES: readonly EastContentRoute[] = PUBLISHED_ROUTES.east
+
+/** 东方站根路径英文的内容路由（features/east-en/paths.ts 引用，第 17 组） */
+export const ZODIAC_PAIR_EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en' })[] =
+  PUBLISHED_ROUTES.eastEn
+
+// 首页与「全部工具」卡片的一句话说明：沿用各语言总表页已审定的 SEO 描述（content/zodiac-pair/<locale>/index.mdx）
+const HUB_DESCRIPTIONS: Readonly<Record<ZodiacPairLocale, string>> = {
+  'zh-Hans':
+    '生肖配对表收录十二生肖的七十八种组合。总表标出三合、六合、六冲与相害，各配对页补充相刑、相破、五行生克和出生年份，并说明这些传统关系该怎样读。',
+  ko: '띠궁합 표에서 열두 띠의 78가지 조합을 한눈에 봅니다. 삼합, 육합, 충, 해를 표시했고 각 조합 페이지에서 형, 파, 오행 관계와 출생 연도를 함께 확인할 수 있습니다.',
+  en: 'Chinese zodiac compatibility chart for all 78 pairs, marking three harmony, six harmony, clash and harm, with a page per pair on elements and birth years.',
+}
 
 const pathsOf = (key: ZodiacPairKey | 'index') =>
   Object.fromEntries(ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, zodiacPairPath(locale, key)]))
@@ -125,11 +159,9 @@ export const ZODIAC_PAIR_TOOL_ROUTES: readonly ToolRoute[] = [
     titles: Object.fromEntries(
       ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, ZODIAC_PAIR_HUB_TITLES[locale]]),
     ),
-    // 首页与「全部工具」卡片的一句话说明：沿用总表页已审定的 SEO 描述（content/zodiac-pair/zh-Hans/index.mdx）
-    descriptions: {
-      'zh-Hans':
-        '生肖配对表收录十二生肖的七十八种组合。总表标出三合、六合、六冲与相害，各配对页补充相刑、相破、五行生克和出生年份，并说明这些传统关系该怎样读。',
-    },
+    descriptions: Object.fromEntries(
+      ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, HUB_DESCRIPTIONS[locale]]),
+    ),
     badge: { kind: 'new', until: '2027-02-28' },
   },
   ...ZODIAC_PAIR_KEYS.map(
@@ -139,7 +171,7 @@ export const ZODIAC_PAIR_TOOL_ROUTES: readonly ToolRoute[] = [
       nav: false,
       paths: pathsOf(key),
       titles: Object.fromEntries(
-        ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, zodiacPairSlug(locale, key)]),
+        ZODIAC_PAIR_PUBLISHED.map((locale) => [locale, zodiacPairName(locale, key)]),
       ),
     }),
   ),

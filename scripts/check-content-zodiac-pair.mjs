@@ -1,7 +1,7 @@
 // 生肖配对集合（content/zodiac-pair）的内容校验（openspec content-growth-v2-tools 任务 16.1、16.2，
 // design 决策 9、14、15、16）：frontmatter、TDK 宽度、篇幅下限、固定小标题、正文内链、判定词与合规措辞，
 // 以及正文中写到的地支关系、五行生克、合化、三合局与年份干支逐项用引擎复算（@xuanxue/bazi/almanac）。
-// ko、en（第 17 组）在 LOCALES 补登自己的一行。
+// ko、en（第 17 组）各自另写，按本语言的主词、TDK 区间、篇幅单位、判定词与合规词校验，并核对正文锚文本。
 // 运行：node scripts/check-content-zodiac-pair.mjs [--report <文件>]
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -9,6 +9,7 @@ import { createRequire } from 'node:module'
 import { parseArgs } from 'node:util'
 import { zodiacPairFacts } from '../packages/bazi/src/almanac.ts'
 import { BRANCHES } from '../packages/bazi/src/constants.ts'
+import { factIssuesEn, koFactIssues } from './check-content-yearly.mjs'
 import { factIssues } from './check-content-zodiac.mjs'
 
 const webRequire = createRequire(new URL('../apps/web/package.json', import.meta.url))
@@ -38,6 +39,17 @@ export const LOCALES = {
       path === '/zh-hans/生肖' ||
       path === '/zh-hans/八字排盘',
     countUnit: /\p{Script=Han}/gu,
+    titlePrefix: (slug) => slug,
+    measure: cjkWidth,
+    titleRange: [20, 30],
+    descriptionRange: [70, 80],
+    anchors: null,
+    terms: () => zhTermIssues,
+    facts: (text) => {
+      const years = factIssues(text)
+      const pairs = pairFactIssues(text)
+      return { issues: [...years.issues, ...pairs.issues], checked: years.checked + pairs.checked }
+    },
   },
 }
 
@@ -98,6 +110,15 @@ const COMPLIANCE_TERMS = [
   '凶',
   '克星',
 ]
+
+function zhTermIssues(text) {
+  const issues = []
+  for (const term of VERDICT_TERMS) if (text.includes(term)) issues.push(`判定词：${term}`)
+  for (const term of COMPLIANCE_TERMS)
+    if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(text))
+      issues.push(`合规或贬损禁用词：${term}`)
+  return issues
+}
 
 /** 六合的合化五行（午未两说并存，按土或火都接受） */
 const SIX_TRANSFORM = {
@@ -191,6 +212,296 @@ export function pairFactIssues(text) {
   return { issues, checked }
 }
 
+// ---------------------------------------------------------------------------
+// ko（띠궁합）与根路径英文（Chinese zodiac compatibility），第 17 组：按本语言搜索词另写，不由 zh-Hans 翻译
+// ---------------------------------------------------------------------------
+
+const ANIMAL_KO = [
+  '쥐',
+  '소',
+  '호랑이',
+  '토끼',
+  '용',
+  '뱀',
+  '말',
+  '양',
+  '원숭이',
+  '닭',
+  '개',
+  '돼지',
+]
+const ANIMAL_EN = [
+  'Rat',
+  'Ox',
+  'Tiger',
+  'Rabbit',
+  'Dragon',
+  'Snake',
+  'Horse',
+  'Goat',
+  'Monkey',
+  'Rooster',
+  'Dog',
+  'Pig',
+]
+const koSign = (branch) => `${ANIMAL_KO[BRANCHES.indexOf(branch)]}띠`
+const enSign = (branch) => ANIMAL_EN[BRANCHES.indexOf(branch)]
+
+/** 원진（怨嗔）：韩国띠궁합常见的传统说法，引擎不计算；只允许在这六组配对页（与总表）提到 */
+const WONJIN = ['zi-wei', 'chou-wu', 'yin-you', 'mao-shen', 'chen-hai', 'si-xu']
+
+/** 合规与判定检查：`verdict`、`compliance` 为子串（`AI` 按词边界），`patterns` 为正则；返回问题列表 */
+const termChecker =
+  ({ verdict, compliance, patterns = [] }) =>
+  (text) => {
+    const issues = []
+    for (const term of verdict) if (text.includes(term)) issues.push(`判定词：${term}`)
+    for (const term of compliance)
+      if (new RegExp(term === 'AI' ? '\\bAI\\b' : term, 'u').test(text))
+        issues.push(`合规或贬损禁用词：${term}`)
+    for (const [re, label] of patterns) {
+      const hit = re.exec(text)
+      if (hit) issues.push(`${label}：${hit[0]}`)
+    }
+    return issues
+  }
+
+const KO_VERDICT = [
+  // apps/web/scripts/audit-verdict.mjs 的 ko 词表
+  '결혼하면 안',
+  '결혼해야',
+  '이혼수',
+  '이혼하게 됩',
+  '상극이라 헤어',
+  '헤어질 운명',
+  '최고의 혼인 상대',
+  '남편을 해치는',
+  '아내를 해치는',
+  // 띠궁합常见的判定写法
+  '궁합이 좋',
+  '궁합이 나쁘',
+  '궁합이 안 좋',
+  '궁합이 맞',
+  '궁합이 안 맞',
+  '좋은 궁합',
+  '나쁜 궁합',
+  '최고의 궁합',
+  '최악의 궁합',
+  '찰떡궁합',
+  '천생연분',
+  '잘 맞는 띠',
+  '안 맞는 띠',
+  '맞지 않는 띠',
+  '상극인 띠',
+  '띠 상극',
+  '상극 궁합',
+  '이혼',
+  '헤어지게',
+  '헤어질 수밖에',
+  '결혼 상대로',
+  '피해야 할 띠',
+  '피해야 하는 띠',
+]
+const KO_COMPLIANCE = [
+  'AI',
+  '인공지능',
+  '오락',
+  '재미로',
+  '길일',
+  '길흉',
+  '대길',
+  '대흉',
+  '반드시',
+  '무조건',
+  '운명',
+  '액운',
+  '재앙',
+  '불운',
+  '행운',
+  '운세',
+  '자기 탐색',
+  '자아 탐색',
+  '부적',
+  '개운',
+  '액막이',
+  '살풀이',
+  '원진살',
+  '태세',
+  '삼재',
+  // 对生肖整体的贬损描述
+  '이기적',
+  '게으른',
+  '게으르',
+  '탐욕',
+  '인색',
+  '교활',
+  '위선',
+  '성질이 급',
+  '어리석',
+  '단명',
+  '재수 없',
+  '최악',
+  '불리하',
+  '불리한',
+  '흉하',
+  '흉한',
+  '악연',
+]
+
+/** ko 事实：干支读音与汉字、「1984년 갑자(甲子)」、关系名「자오충(子午沖)」「子午沖」（第 10 组的 koFactIssues）与 원진 */
+function koPairFacts(text, page) {
+  const result = koFactIssues(text, { year: 2027, branch: undefined })
+  const issues = [...result.issues]
+  let checked = result.checked
+  if (!page.hub && /원진/u.test(text)) {
+    checked++
+    if (!WONJIN.includes(`${page.a}-${page.b}`))
+      issues.push(
+        `원진：${page.a}-${page.b} 不是 원진 六组之一（子未、丑午、寅酉、卯申、辰亥、巳戌）`,
+      )
+  }
+  return { issues, checked }
+}
+
+LOCALES.ko = {
+  prefix: '/ko',
+  hubPath: '/띠궁합',
+  pairSlug: (a, b) => `${koSign(a)}-${koSign(b)}`,
+  /** 主词「쥐띠 소띠 궁합」；同띠写「쥐띠끼리 궁합」（design 决策 13：띠궁합、쥐띠 소띠 궁합） */
+  titlePrefix: (_slug, a, b) =>
+    a === b ? `${koSign(a)}끼리 궁합` : `${koSign(a)} ${koSign(b)} 궁합`,
+  hubPrefix: '띠궁합',
+  brandSuffix: ' | 간지데이',
+  measure: cjkWidth,
+  titleRange: [20, 30],
+  descriptionRange: [70, 80],
+  pairMin: 1000,
+  hubMin: 1000,
+  countLabel: '字（不含空格）',
+  pairHeadings: [
+    '두 지지의 관계',
+    '함께 지낼 때의 리듬',
+    '서로에게서 배울 점',
+    '맞춰 가야 할 부분',
+    '사주로 두 사람 보기',
+  ],
+  hubHeadings: ['띠궁합 표 읽는 법', '합과 충의 유래', '사주로 두 사람 보기'],
+  linkTargets: (path) =>
+    /^\/ko\/띠궁합\/[가-힣]+띠-[가-힣]+띠$/u.test(path) ||
+    /^\/ko\/띠\/[가-힣]+띠$/u.test(path) ||
+    ['/ko/띠', '/ko/만세력', '/ko/사주궁합'].includes(path),
+  anchors: (path) => {
+    const pair = path.match(/^\/ko\/띠궁합\/([가-힣]+)띠-([가-힣]+)띠$/u)
+    if (pair)
+      return pair[1] === pair[2]
+        ? [`${pair[1]}띠끼리 궁합`, `${pair[1]}띠와 ${pair[2]}띠`]
+        : [`${pair[1]}띠 ${pair[2]}띠 궁합`, `${pair[1]}띠와 ${pair[2]}띠`]
+    const sign = path.match(/^\/ko\/띠\/([가-힣]+)띠$/u)
+    if (sign) return [`${sign[1]}띠`, `${sign[1]}띠 나이`]
+    if (path === '/ko/띠') return ['띠', '열두 띠']
+    if (path === '/ko/만세력') return ['무료 만세력', '만세력']
+    if (path === '/ko/사주궁합') return ['사주궁합', '무료 사주궁합']
+    return null
+  },
+  countUnit: /\S/gu,
+  terms: () => termChecker({ verdict: KO_VERDICT, compliance: KO_COMPLIANCE }),
+  facts: koPairFacts,
+}
+
+const EN_VERDICT = [
+  [/\b(?:in)?compatible\b/i, '判定词（compatible）'],
+  [
+    /\b(?:best|worst|perfect|ideal|good|bad|great|poor) (?:match|pair|pairing|couple)(?:es|s)?\b/i,
+    '判定词',
+  ],
+  [/\bsoul ?mates?\b|\bmeant to be\b|\bmatch made in heaven\b|\bmade for each other\b/i, '判定词'],
+  [/\bshould(?:n't| not)? (?:marry|date|be together|avoid)\b/i, '判定词'],
+  [/\b(?:must|cannot|can't) (?:marry|be together)\b/i, '判定词'],
+  [/\bwill (?:divorce|break up|split up|get divorced|fight)\b/i, '判定词'],
+  [/\bdivorce\b/i, '判定词（divorce）'],
+  [/\bdoomed\b|\bdestined\b|\bfated\b/i, '判定词'],
+  [/\bbrings? misfortune\b/i, '判定词'],
+]
+const EN_BANNED = [
+  [/\bAI\b|artificial intelligence/, 'AI'],
+  [/\bentertainment\b|\bfor fun\b/i, '娱乐定位'],
+  [/\b(?:un)?lucky\b|\b(?:in)?auspicious\b|\bgood luck\b|\bbad luck\b/i, '吉凶'],
+  [/\bfortunes?\b|\bhoroscopes?\b/i, '运势'],
+  [/\bdestiny\b/i, '决定论'],
+  [/\bdisasters?\b|\bmisfortunes?\b|\bcurses?\b/i, '灾厄'],
+  [/\bremed(?:y|ies)\b|\bcures?\b|\bamulets?\b|\btalismans?\b|\blucky charms?\b/i, '化解'],
+  [/\bwill happen\b|\bwill bring\b|\bguarantee/i, '预测'],
+  [/self-exploration/i, '自我探索'],
+  [/\bTai Sui\b/i, '太岁（不在配对页范围）'],
+  [
+    /\b(?:selfish|lazy|greedy|stingy|cunning|deceitful|hot-tempered|stupid|arrogant|cold-hearted)\b/i,
+    '贬损描述',
+  ],
+  [/\b(?:worst|enemy|enemies|nemesis)\b/i, '贬损描述'],
+]
+function enTerms(text) {
+  // 链接地址与术语表锚点「Four Pillars of Destiny calculator」不计
+  const plainText = text.replace(/\]\([^)]*\)/g, ']').replace(/Four Pillars of Destiny/g, '')
+  return termChecker({ verdict: [], compliance: [], patterns: [...EN_VERDICT, ...EN_BANNED] })(
+    plainText,
+  )
+}
+
+const capitalized = (slug) => `${slug[0].toUpperCase()}${slug.slice(1)}`
+
+LOCALES.en = {
+  prefix: '',
+  hubPath: '/chinese-zodiac-compatibility',
+  pairSlug: (a, b) => `${enSign(a).toLowerCase()}-and-${enSign(b).toLowerCase()}`,
+  /** 主词「Rat and Ox Compatibility」（design 决策 13：chinese zodiac compatibility、rat and ox compatibility） */
+  titlePrefix: (_slug, a, b) => `${enSign(a)} and ${enSign(b)} Compatibility`,
+  hubPrefix: 'Chinese Zodiac Compatibility',
+  brandSuffix: ' | Ganjiday',
+  measure: (text) => [...text].length,
+  titleRange: [40, 60],
+  descriptionRange: [140, 160],
+  pairMin: 800,
+  hubMin: 700,
+  countLabel: '词',
+  pairHeadings: [
+    'How the two branches relate',
+    'Pace and rhythm together',
+    'What each can learn from the other',
+    'Where friction tends to show up',
+    'Reading two full BaZi charts',
+  ],
+  hubHeadings: [
+    'How to read the compatibility chart',
+    'Where harmony and clash come from',
+    'Reading two full BaZi charts',
+  ],
+  linkTargets: (path) =>
+    /^\/chinese-zodiac-compatibility\/[a-z]+-and-[a-z]+$/.test(path) ||
+    /^\/chinese-zodiac-2027\/[a-z]+$/.test(path) ||
+    ['/chinese-zodiac', '/chinese-zodiac-2027', '/bazi-calculator', '/bazi-compatibility'].includes(
+      path,
+    ),
+  anchors: (path) => {
+    const pair = path.match(/^\/chinese-zodiac-compatibility\/([a-z]+)-and-([a-z]+)$/)
+    if (pair) {
+      const names = `${capitalized(pair[1])} and ${capitalized(pair[2])}`
+      return [`${names} compatibility`, names]
+    }
+    const child = path.match(/^\/chinese-zodiac-2027\/([a-z]+)$/)
+    if (child)
+      return [`${capitalized(child[1])} in 2027`, `Year of the ${capitalized(child[1])} 2027`]
+    if (path === '/chinese-zodiac-2027') return ['Year of the Goat 2027', 'Chinese zodiac 2027']
+    if (path === '/chinese-zodiac') return ['Chinese zodiac', 'Chinese zodiac years']
+    if (path === '/bazi-calculator')
+      return ['BaZi calculator', 'Four Pillars of Destiny calculator']
+    if (path === '/bazi-compatibility') return ['BaZi compatibility', 'BaZi chart compatibility']
+    return null
+  },
+  countUnit: /\b[\p{L}\p{N}][\p{L}\p{N}’'-]*/gu,
+  terms: () => enTerms,
+  facts: (text) => factIssuesEn(text, { year: 2027, branch: undefined }),
+}
+
 function plain(markdown) {
   return markdown
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
@@ -264,14 +575,18 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
     }
     const slug = hub ? spec.hubPath.slice(1) : spec.pairSlug(a, b)
     if (data.slug !== slug) fail(`slug 应为 ${slug}`)
-    if (!String(data.heading ?? '').startsWith(slug)) fail(`H1 应以「${slug}」开头`)
-    if (!String(data.title ?? '').startsWith(slug)) fail(`Title 应以「${slug}」开头`)
+    const prefix = hub ? (spec.hubPrefix ?? slug) : spec.titlePrefix(slug, a, b)
+    if (!String(data.heading ?? '').startsWith(prefix)) fail(`H1 应以「${prefix}」开头`)
+    if (!String(data.title ?? '').startsWith(prefix)) fail(`Title 应以「${prefix}」开头`)
 
-    const titleWidth = cjkWidth(`${data.title}${spec.brandSuffix}`)
-    const descriptionWidth = cjkWidth(String(data.description ?? ''))
-    if (titleWidth < 20 || titleWidth > 30) fail(`Title 宽度 ${titleWidth}（含站名后缀，须 20–30）`)
-    if (descriptionWidth < 70 || descriptionWidth > 80)
-      fail(`Description 宽度 ${descriptionWidth}（须 70–80）`)
+    const titleWidth = spec.measure(`${data.title}${spec.brandSuffix}`)
+    const descriptionWidth = spec.measure(String(data.description ?? ''))
+    const [titleMin, titleMax] = spec.titleRange
+    const [descriptionMin, descriptionMax] = spec.descriptionRange
+    if (titleWidth < titleMin || titleWidth > titleMax)
+      fail(`Title 长度 ${titleWidth}（含站名后缀，须 ${titleMin}–${titleMax}）`)
+    if (descriptionWidth < descriptionMin || descriptionWidth > descriptionMax)
+      fail(`Description 长度 ${descriptionWidth}（须 ${descriptionMin}–${descriptionMax}）`)
     for (const field of ['title', 'description', 'heading']) {
       const previous = seen[field].get(data[field])
       if (previous) fail(`${field} 与 ${previous} 重复`)
@@ -291,14 +606,18 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
     const authored = [data.lede, data.relations_note, plain(content)].filter(Boolean).join('\n')
     const count = (authored.match(spec.countUnit) ?? []).length
     const min = hub ? spec.hubMin : spec.pairMin
-    if (count < min) fail(`撰写正文 ${count} 字，少于 ${min}`)
+    if (count < min) fail(`撰写正文 ${count} ${spec.countLabel ?? '字'}，少于 ${min}`)
 
-    // 正文内链：只链接已存在的可索引页，2–5 个不同目标，不链接本页
-    const links = [...content.matchAll(/\]\(([^)]+)\)/g)].map((m) => m[1])
+    // 正文内链：只链接已存在的可索引页，2–5 个不同目标，不链接本页；ko、en 另核对锚文本（每个目标 ≤2 种写法）
+    const linkMatches = [...content.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
+    const links = linkMatches.map((m) => m[2])
     const self = `${spec.prefix}${spec.hubPath}${hub ? '' : `/${slug}`}`
-    for (const href of links) {
+    for (const [, anchor, href] of linkMatches) {
       if (!spec.linkTargets(href)) fail(`正文链接目标不在允许清单：${href}`)
       if (href === self) fail(`链接到本页：${href}`)
+      const allowed = spec.anchors?.(href)
+      if (allowed && !allowed.some((text) => text.toLowerCase() === anchor.toLowerCase()))
+        fail(`锚文本「${anchor}」不在 ${href} 的允许写法：${allowed.join(' / ')}`)
     }
     const targets = new Set(links).size
     if (targets < 2 || targets > 5) fail(`正文内链 ${targets} 个不同目标（须 2–5）`)
@@ -312,15 +631,11 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       ...faq.flatMap((item) => [item.q, item.a]),
       content.replace(/\]\([^)]*\)/g, ']'),
     ].join('\n')
-    for (const term of VERDICT_TERMS) if (everything.includes(term)) fail(`判定词：${term}`)
-    for (const term of COMPLIANCE_TERMS)
-      if (new RegExp(term === 'AI' ? '\\bAI\\b' : term).test(everything))
-        fail(`合规或贬损禁用词：${term}`)
+    for (const issue of spec.terms()(everything, { hub, a, b })) fail(issue)
 
-    const years = factIssues(everything)
-    const pairs = pairFactIssues(everything)
-    factsChecked += years.checked + pairs.checked
-    for (const issue of [...years.issues, ...pairs.issues]) fail(`事实不一致：${issue}`)
+    const facts = spec.facts(everything, { hub, a, b })
+    factsChecked += facts.checked
+    for (const issue of facts.issues) fail(`事实不一致：${issue}`)
 
     rows.push({
       file,
@@ -330,7 +645,7 @@ export function checkLocale(locale, dir = new URL(`${locale}/`, ROOT)) {
       heading: data.heading,
       chars: count,
       links: targets,
-      facts: years.checked + pairs.checked,
+      facts: facts.checked,
     })
   }
   return { failures, rows, factsChecked }
