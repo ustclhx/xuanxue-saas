@@ -354,7 +354,7 @@
   "admin_reading_enabled": "활성화",
   "admin_reading_credits": "크레딧",
   "admin_reading_model": "모델",
-  "admin_reading_model_unset": "미선택",
+  "admin_reading_model_unset": "같은 사이트 상세 풀이 모델 사용",
   "admin_save_paid_readings": "유료 상세 풀이 저장",
   "admin_paid_readings_saved": "저장했습니다. 변경 사항은 약 60초 이내에 적용됩니다.",
   "admin_paid_readings_unavailable": "유료 상세 풀이 설정을 사용할 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",

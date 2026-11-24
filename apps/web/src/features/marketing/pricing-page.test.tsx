@@ -1,6 +1,7 @@
 import type { TextModelEnv } from '@xuanxue/ai'
 import type { SiteId } from '@xuanxue/config'
 import type { Database, SettingKey, SettingsContext } from '@xuanxue/db'
+import { READING_KINDS } from '@xuanxue/db'
 import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
@@ -121,18 +122,31 @@ describe('定价页可解锁目录', () => {
     expect(readings.map((reading) => reading.kind)).toEqual(['bazi-full', 'ziwei-full'])
   })
 
-  it('关闭、未配置模型或零积分的详批不出现在可解锁清单', async () => {
+  it('关闭、全部详批都未配置模型或零积分的详批不出现在可解锁清单', async () => {
+    // 单个详批未选模型会沿用同站已选模型（readings/config.ts），只有全部为空才视为未配置
+    const noModel = Object.fromEntries(
+      READING_KINDS.map((kind) => [`readings.${kind}.modelKey`, '']),
+    ) as Partial<Record<SettingKey, unknown>>
     const ctx = deps({
       'readings.saju-full.enabled': false,
-      'readings.saju-compat.modelKey': '',
       'readings.tarot-spread.credits': 0,
     })
     const readings = await siteReadingPricing('east', 'ko', ctx)
-    expect(readings).toEqual([])
+    expect(readings.map((r) => r.kind)).toEqual(['saju-compat'])
+    expect(await siteReadingPricing('east', 'ko', deps(noModel))).toEqual([])
     const html = renderToStaticMarkup(
-      <PricingPage catalog={{ plans: [], prices: [], providers: [] }} readings={readings} />,
+      <PricingPage catalog={{ plans: [], prices: [], providers: [] }} readings={[]} />,
     )
     expect(html).not.toContain('aria-labelledby="pricing-readings"')
+  })
+
+  it('单个详批未选模型时沿用同站已选模型，仍出现在可解锁清单', async () => {
+    const readings = await siteReadingPricing(
+      'east',
+      'ko',
+      deps({ 'readings.saju-compat.modelKey': '' }),
+    )
+    expect(readings.map((r) => r.kind)).toContain('saju-compat')
   })
 })
 
