@@ -265,6 +265,12 @@ export function NatalPage({ payload }: { payload: NatalPayload }) {
     }
   }
 
+  // 最近一次通过校验的提交：切换宫位制只重算这份输入，不带入之后改动但未提交的日期或地名
+  const submitted = useRef<{
+    state: FormState
+    place: (BirthPlace & { label: string }) | null
+  } | null>(null)
+
   const run = useCallback(
     async (state: FormState, place: (BirthPlace & { label: string }) | null) => {
       const parsed = parseNatalForm(
@@ -282,6 +288,7 @@ export function NatalPage({ payload }: { payload: NatalPayload }) {
         return
       }
       setErrors({})
+      submitted.current = { state, place }
       setPhase({ name: 'loading' })
       try {
         const engine = await loadChartEngine()
@@ -314,9 +321,10 @@ export function NatalPage({ payload }: { payload: NatalPayload }) {
   const onFormChange = (data: FormData) => {
     const house: HouseSystem = data.get('house') === 'whole-sign' ? 'whole-sign' : 'placidus'
     if (house === form.house) return
-    const state = { ...form, house }
-    setForm(state)
-    if (phase.name === 'done' && phase.result.kind === 'timed') void run(state, selectedPlace)
+    setForm((current) => ({ ...current, house }))
+    const last = submitted.current
+    if (last && phase.name === 'done' && phase.result.kind === 'timed')
+      void run({ ...last.state, house }, last.place)
   }
 
   // 打开分享链接（`#r=`）时恢复输入并直接出结果；只在挂载时读取一次

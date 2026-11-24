@@ -108,6 +108,11 @@ describe('合规规则检查', () => {
       'Reports show Cancer rising sharply among smokers.',
       'Cancer rising is a serious health problem.',
       'The Moon in Cancer means Cancer is likely.',
+      // PR #309 代码审阅：病名语境的大写 Cancer 不因星盘详批放行
+      'Cancer may affect your later years.',
+      'There is a risk of developing Cancer.',
+      'Breast Cancer runs in some families.',
+      'Cancerous growths need a doctor.',
     ])
       expect(checkCompliance(text, 'en').violations, text).toEqual([{ rule: 'medical', block: 0 }])
   })

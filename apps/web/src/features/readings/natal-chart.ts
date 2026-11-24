@@ -114,7 +114,9 @@ export function natalReadingResult(input: NatalInput) {
     }
   }
   const moonChange = result.changes.moon
-  const known = chartEngine.PLANET_KEYS.filter((key) => !(key === 'moon' && moonChange))
+  // 当天换座的行星（月亮，偶尔太阳或其他行星）星座不确定，不计入元素与模式
+  const changed = chartEngine.PLANET_KEYS.filter((key) => result.changes[key])
+  const known = chartEngine.PLANET_KEYS.filter((key) => !result.changes[key])
   const counts = balance(known.map((key) => result.positions[key].sign))
   return {
     birthTimeKnown: false,
@@ -141,8 +143,12 @@ export function natalReadingResult(input: NatalInput) {
     houseCusps: null,
     planetsByHouse: null,
     aspects: result.aspects.map(aspectRow),
-    countsNote: moonChange
-      ? 'Element and modality counts cover nine planets: the Moon is left out because its sign depends on the birth time.'
+    countsNote: changed.length
+      ? `Element and modality counts cover ${COUNT_WORDS[known.length] ?? known.length} planets: ${changed
+          .map((key) => `the ${pointName(key)}`)
+          .join(' and ')} ${changed.length === 1 ? 'is' : 'are'} left out because ${
+          changed.length === 1 ? 'its sign depends' : 'their signs depend'
+        } on the birth time.`
       : null,
     elements: counts.elements.map(({ key, count }) => ({ element: capital(key), planets: count })),
     modalities: counts.modalities.map(({ key, count }) => ({
@@ -214,6 +220,7 @@ function aspectRow(aspect: chartEngine.ChartAspect) {
   }
 }
 
+const COUNT_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 const capital = (key: string) => key.charAt(0).toUpperCase() + key.slice(1)
 const signsText = (signs: readonly chartEngine.SignKey[]) => signs.map(signName).join(' or ')
 
@@ -240,7 +247,8 @@ export function recomputeNatal(raw: unknown, now: Date) {
       longitude: round4(data.longitude),
       timeZone: data.timeZone,
     },
-    houseSystem: data.houseSystem,
+    // 没有出生时间就没有宫位：宫位制不影响结果，统一记为 placidus，避免同一资料因开关不同生成两份（输入哈希不同）
+    houseSystem: data.hour === undefined ? 'placidus' : data.houseSystem,
   }
   return {
     input: {

@@ -54,6 +54,25 @@ describe('natal-full 服务端复算', () => {
     expect(JSON.stringify(result.aspects)).not.toContain('Moon')
   })
 
+  it('无出生时间：宫位制统一记为 placidus，同一资料不因开关不同生成两份', () => {
+    const base = { ...TIMED, hour: undefined, minute: undefined }
+    const a = recomputeNatal({ ...base, houseSystem: 'placidus' }, NOW)
+    const b = recomputeNatal({ ...base, houseSystem: 'whole-sign' }, NOW)
+    expect(a.input).toEqual(b.input)
+    expect(b.input.houseSystem).toBe('placidus')
+  })
+
+  it('无出生时间且太阳当天换座：元素与模式不计入换座的点，说明写明', () => {
+    const { result } = recomputeNatal(
+      { year: 2000, month: 3, day: 20, latitude: 51.5085, longitude: -0.1257, timeZone: 'UTC' },
+      NOW,
+    )
+    expect(result.bigThree.sun).toBe('Pisces or Aries')
+    expect(result.countsNote).toMatch(/the Sun/)
+    const counted = result.elements.reduce((sum, item) => sum + item.planets, 0)
+    expect(result.countsNote).toMatch(counted === 9 ? /nine planets/ : /eight planets/)
+  })
+
   it('纬度超过 66°：改用整宫制并写明', () => {
     const { result } = recomputeNatal(
       { ...TIMED, latitude: 69.6496, longitude: 18.957, timeZone: 'Europe/Oslo' },
