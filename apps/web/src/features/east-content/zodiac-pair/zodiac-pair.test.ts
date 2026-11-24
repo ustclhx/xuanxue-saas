@@ -2,13 +2,20 @@ import { zodiacPairTable } from '@xuanxue/bazi/almanac'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
+import { eastEnContentRouteOf } from '../../east-en/paths.ts'
 import { reversedPairPath } from '../../routing/pair-path.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { eastContentRouteOf } from '../routes.ts'
 import { markOf, pairFacts, pairMarks, relatedPairs, seriesOf, signYears } from './data.ts'
 import type { ZodiacPairHubData } from './page.functions.ts'
 import { PairGrid } from './pages.tsx'
-import { ZODIAC_PAIR_KEYS, zodiacPairPath, zodiacPairSlug } from './paths.ts'
+import {
+  ZODIAC_PAIR_KEYS,
+  zodiacPairContentRoutes,
+  zodiacPairName,
+  zodiacPairPath,
+  zodiacPairSlug,
+} from './paths.ts'
 import { zodiacPairSeoPages } from './seo-pages.ts'
 
 vi.mock('../../../paraglide/runtime.js', async (original) => {
@@ -50,17 +57,22 @@ describe('配对事实与引擎一致', () => {
 })
 
 describe('地址、反序与注册表', () => {
-  it('zh-hans 登记总表与 78 个配对页，ko、en 未发布不登记', () => {
+  it('三种语言都登记总表与 78 个配对页（ko、en 由第 17 组发布）', () => {
     expect(eastContentRouteOf('zh-Hans', '/生肖配对')).toMatchObject({ id: 'index' })
     expect(eastContentRouteOf('zh-Hans', '/生肖配对/属鼠和属牛')).toMatchObject({
       collection: 'zodiac-pair',
       id: 'zi-chou',
     })
     expect(eastContentRouteOf('zh-Hans', '/生肖配对/属牛和属鼠')).toBeUndefined()
-    expect(eastContentRouteOf('ko', '/띠궁합/쥐띠-소띠')).toBeUndefined()
+    expect(eastContentRouteOf('ko', '/띠궁합/쥐띠-소띠')).toMatchObject({ id: 'zi-chou' })
+    expect(eastEnContentRouteOf('/chinese-zodiac-compatibility/rat-and-ox')).toMatchObject({
+      collection: 'zodiac-pair',
+      id: 'zi-chou',
+    })
+    expect(eastEnContentRouteOf('/chinese-zodiac-compatibility/ox-and-rat')).toBeUndefined()
     const routes = TOOL_ROUTES.filter((route) => route.id.startsWith('zodiac-pair'))
     expect(routes).toHaveLength(79)
-    expect(routes.every((route) => Object.keys(route.paths).join() === 'zh-Hans')).toBe(true)
+    expect(routes.every((route) => Object.keys(route.paths).join() === 'zh-Hans,ko,en')).toBe(true)
     expect(routes[0]).toMatchObject({ directoryGroup: 'relation', freeLabel: 'free_lookup' })
   })
 
@@ -81,13 +93,13 @@ describe('地址、反序与注册表', () => {
     }
   })
 
-  it('hreflang 只含已发布语言：ko 内容存在也不进清单', () => {
+  it('hreflang 只含已发布语言：ko 内容存在、语言未发布时不进清单', () => {
     const entries = [
       { locale: 'zh-Hans', key: 'zi-chou', title: 't', description: 'd' },
       { locale: 'ko', key: 'zi-chou', title: 't', description: 'd' },
       { locale: 'zh-Hans', key: 'index', title: 't', description: 'd' },
     ]
-    const pages = zodiacPairSeoPages(entries)
+    const pages = zodiacPairSeoPages(entries, ['zh-Hans'])
     expect(pages.map((page) => page.locale)).toEqual(['zh-Hans', 'zh-Hans'])
     expect(pages[0]).toMatchObject({
       path: '/生肖配对/属鼠和属牛',
@@ -110,5 +122,94 @@ describe('总表网格', () => {
     for (const key of ZODIAC_PAIR_KEYS)
       expect(unique.has(`/zh-hans${zodiacPairPath('zh-Hans', key)}`)).toBe(true)
     expect(html).toContain('aria-label="属鼠 × 属马：六冲"')
+  })
+})
+
+describe('ko 띠궁합与 en Chinese zodiac compatibility（第 17 组）', () => {
+  it('登记后各有总表与 78 个配对页：ko 按地支顺序「쥐띠-소띠」，en 走根路径「rat-and-ox」', () => {
+    const { east, eastEn } = zodiacPairContentRoutes(['ko', 'en'])
+    expect(east).toHaveLength(79)
+    expect(eastEn).toHaveLength(79)
+    expect(east.every((route) => route.locale === 'ko')).toBe(true)
+    expect(east[0]).toMatchObject({ path: '/띠궁합', id: 'index' })
+    expect(east.find((route) => route.id === 'zi-chou')?.path).toBe('/띠궁합/쥐띠-소띠')
+    expect(eastEn.find((route) => route.id === 'zi-chou')?.path).toBe(
+      '/chinese-zodiac-compatibility/rat-and-ox',
+    )
+    expect(eastEn.find((route) => route.id === 'xu-hai')?.path).toBe(
+      '/chinese-zodiac-compatibility/dog-and-pig',
+    )
+    expect(new Set(east.map((route) => route.path)).size).toBe(79)
+    expect(new Set(eastEn.map((route) => route.path)).size).toBe(79)
+    expect(zodiacPairName('ko', 'zi-chou')).toBe('쥐띠와 소띠')
+    expect(zodiacPairName('en', 'zi-chou')).toBe('Rat and Ox')
+    expect(zodiacPairName('zh-Hans', 'zi-chou')).toBe('属鼠和属牛')
+  })
+
+  it('反序地址 301 到规范地址，同生肖不跳转', () => {
+    expect(reversedPairPath('east', 'ko', encodeURI('/띠궁합/소띠-쥐띠'))).toBe('/띠궁합/쥐띠-소띠')
+    expect(reversedPairPath('east', 'en', '/chinese-zodiac-compatibility/ox-and-rat')).toBe(
+      '/chinese-zodiac-compatibility/rat-and-ox',
+    )
+    expect(reversedPairPath('east', 'ko', '/띠궁합/쥐띠-쥐띠')).toBeUndefined()
+    expect(reversedPairPath('east', 'en', '/chinese-zodiac-compatibility/rat-and-rat')).toBe(
+      undefined,
+    )
+    // 西方站不认东方站的地址
+    expect(reversedPairPath('west', 'en', '/chinese-zodiac-compatibility/ox-and-rat')).toBe(
+      undefined,
+    )
+    for (const locale of ['ko', 'en'] as const)
+      for (const key of ZODIAC_PAIR_KEYS) {
+        const separator = locale === 'ko' ? '-' : '-and-'
+        const [a, b] = zodiacPairSlug(locale, key).split(separator)
+        const hub = locale === 'ko' ? '/띠궁합' : '/chinese-zodiac-compatibility'
+        if (a !== b)
+          expect(reversedPairPath('east', locale, `${hub}/${b}${separator}${a}`)).toBe(
+            zodiacPairPath(locale, key),
+          )
+      }
+  })
+
+  it('hreflang：三种语言都发布时同一组配对互列，未发布的语言不出现', () => {
+    const entries = ['zh-Hans', 'ko', 'en'].flatMap((locale) =>
+      ['zi-chou', 'index'].map((key) => ({ locale, key, title: 't', description: 'd' })),
+    )
+    const all = zodiacPairSeoPages(entries, ['zh-Hans', 'ko', 'en'])
+    expect(all).toHaveLength(6)
+    const ko = all.find((page) => page.locale === 'ko' && page.path !== '/띠궁합')
+    expect(ko).toMatchObject({
+      path: '/띠궁합/쥐띠-소띠',
+      parent: '/띠궁합',
+      titleMain: '쥐띠와 소띠',
+      alternates: {
+        'zh-Hans': '/生肖配对/属鼠和属牛',
+        ko: '/띠궁합/쥐띠-소띠',
+        en: '/chinese-zodiac-compatibility/rat-and-ox',
+      },
+    })
+    expect(all.find((page) => page.path === '/chinese-zodiac-compatibility')).toMatchObject({
+      titleMain: 'Chinese Zodiac Compatibility',
+      alternates: { 'zh-Hans': '/生肖配对', ko: '/띠궁합', en: '/chinese-zodiac-compatibility' },
+    })
+    const onlyKo = zodiacPairSeoPages(entries, ['zh-Hans', 'ko'])
+    expect(onlyKo.some((page) => page.locale === 'en')).toBe(false)
+    expect(onlyKo.every((page) => !Object.hasOwn(page.alternates ?? {}, 'en'))).toBe(true)
+  })
+
+  it('总表网格按语言链接 78 个规范配对页（ko 带 /ko 前缀，en 为根路径）', () => {
+    for (const [locale, prefix] of [
+      ['ko', '/ko'],
+      ['en', ''],
+    ] as const) {
+      const page = { locale, marks: pairMarks() } as unknown as ZodiacPairHubData
+      const html = renderToStaticMarkup(createElement(PairGrid, { page }))
+      const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((match) => decodeURI(match[1] ?? ''))
+      expect(hrefs).toHaveLength(144)
+      const unique = new Set(hrefs)
+      expect(unique.size).toBe(78)
+      for (const key of ZODIAC_PAIR_KEYS)
+        expect(unique.has(`${prefix}${zodiacPairPath(locale, key)}`)).toBe(true)
+    }
   })
 })

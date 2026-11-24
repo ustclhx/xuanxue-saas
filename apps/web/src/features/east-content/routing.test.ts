@@ -160,8 +160,10 @@ const notFound = { isNotFound: true }
 it('东方站简中与根路径英文未登记地址返回 404', async () => {
   await expect(single('east', 'zh-Hans', '未登记内容')).rejects.toMatchObject(notFound)
   await expect(two('east', 'ko', '띠', '미등록')).rejects.toMatchObject(notFound)
-  // 第 11 组已登记 `/chinese-zodiac-2027`；配对总表（第 17 组）尚未登记
-  await expect(single('east', 'en', 'chinese-zodiac-compatibility')).rejects.toMatchObject(notFound)
+  // 第 17 组已登记配对总表与 78 个规范配对页；命名空间内未登记的配对仍为 404
+  await expect(
+    two('east', 'en', 'chinese-zodiac-compatibility', 'rat-and-unicorn'),
+  ).rejects.toMatchObject(notFound)
   await expect(two('east', 'en', 'bazi-compatibility', 'unknown')).rejects.toMatchObject(notFound)
 })
 
@@ -239,7 +241,7 @@ it.each(pairs)(
   },
 )
 
-it('未发布的反序地址在东方站保留英文分发并返回 404', async () => {
+it('已发布的反序地址在东方站保留英文分发并 301 到规范地址（第 17 组）', async () => {
   const path = '/chinese-zodiac-compatibility/goat-and-snake'
   expect(routeSite(new URL(path, 'https://ganjiday.com'), templateConfig)).toEqual({
     kind: 'pass',
@@ -247,7 +249,10 @@ it('未发布的反序地址在东方站保留英文分发并返回 404', async 
   })
   await expect(
     two('east', 'en', 'chinese-zodiac-compatibility', 'goat-and-snake'),
-  ).rejects.toMatchObject(notFound)
+  ).rejects.toMatchObject({
+    status: 301,
+    headers: expect.objectContaining({}),
+  })
 })
 
 it('现有生肖、黄历及东方英文塔罗仍使用各自集合', async () => {

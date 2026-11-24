@@ -3,6 +3,7 @@ import { type EastContentRoute, eastContentRouteOf } from '../east-content/route
 import { YEARLY_EAST_EN_CONTENT_ROUTES } from '../east-content/yearly/paths.ts'
 import { YEARLY_TOOL_EN_ROUTES } from '../east-content/yearly-tool/paths.ts'
 import { ZODIAC_EAST_EN_CONTENT_ROUTES } from '../east-content/zodiac/paths.ts'
+import { ZODIAC_PAIR_EAST_EN_CONTENT_ROUTES } from '../east-content/zodiac-pair/paths.ts'
 import { TOOLS_HUB_EAST_EN_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { TOOL_ROUTES, type ToolRoute } from '../tools/registry.ts'
 import { westContentRouteOf } from '../west-content/routes.ts'
@@ -46,6 +47,8 @@ export const EAST_EN_CONTENT_ROUTES: readonly (EastContentRoute & { locale: 'en'
   // content-growth-v2-tools 第 11 组：`/chinese-zodiac` 枢纽与 `/chinese-zodiac-2027` 年度枢纽及 12 页
   ...ZODIAC_EAST_EN_CONTENT_ROUTES,
   ...YEARLY_EAST_EN_CONTENT_ROUTES,
+  // content-growth-v2-tools 第 17 组：`/chinese-zodiac-compatibility` 总表与 78 个配对页（发布后才有条目）
+  ...ZODIAC_PAIR_EAST_EN_CONTENT_ROUTES,
 ]
 
 export function eastEnContentRouteOf(path: string) {

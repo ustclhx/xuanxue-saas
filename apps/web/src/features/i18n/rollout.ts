@@ -90,10 +90,25 @@ export const LENIENT_MESSAGE_FEATURES: readonly RegExp[] = [/^admin(-|$)/, /^ui-
  * 该语言之后提供这些工具时，从这里删除并补齐文案（严格检查随之生效）。
  */
 export const LOCALE_LENIENT_MESSAGE_FEATURES: Readonly<Record<string, readonly RegExp[]>> = {
-  // 生肖枢纽与年度生肖页没有 ja 版（content-growth-v2-tools 第 11 组为东方站英文补了 en 文案）
-  ja: [/^daily$/, /^numerology(-|$)/, /^chart-numerology$/, /^zodiac$/, /^yearly$/],
-  // 西方站没有八字、紫微、八字合盘与生肖页：这些文案只为东方站根路径英文提供了 en（5b、content-growth-v2-tools 11、12），es 不翻译
-  es: [/^bazi$/, /^chart-bazi$/, /^chart-ziwei$/, /^compat$/, /^zodiac$/, /^yearly$/],
+  // 生肖枢纽、年度生肖页与生肖配对没有 ja 版（content-growth-v2-tools 第 11、17 组为东方站英文补了 en 文案）
+  ja: [
+    /^daily$/,
+    /^numerology(-|$)/,
+    /^chart-numerology$/,
+    /^zodiac$/,
+    /^yearly$/,
+    /^zodiac-pair$/,
+  ],
+  // 西方站没有八字、紫微、八字合盘、生肖页与生肖配对：这些文案只为东方站根路径英文提供了 en（5b、content-growth-v2-tools 11、12、17），es 不翻译
+  es: [
+    /^bazi$/,
+    /^chart-bazi$/,
+    /^chart-ziwei$/,
+    /^compat$/,
+    /^zodiac$/,
+    /^yearly$/,
+    /^zodiac-pair$/,
+  ],
 }
 
 /** 语言在某站点上的发布状态；未登记为 pending */

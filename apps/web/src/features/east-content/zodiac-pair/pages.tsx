@@ -22,7 +22,15 @@ import { ToolFaq } from '../../tools/faq.tsx'
 import { fieldControl, fieldLabel } from '../../tools/form.tsx'
 import { toolHref } from '../../tools/tool-href.ts'
 import { useToolEvents } from '../../tools/use-tool-events.ts'
-import { ELEMENT_DOT, elementHanzi, glyph, zodiacName } from '../zodiac/labels.ts'
+import {
+  branchLabel,
+  branchList,
+  branchName,
+  ELEMENT_DOT,
+  elementLabel,
+  glyph,
+  zodiacName,
+} from '../zodiac/labels.ts'
 import { ZODIAC_KEYS, type ZodiacKey } from '../zodiac/paths.ts'
 import { type PairMark, TRIAD_GROUPS } from './constants.ts'
 import type { PairFactsView, PairRelation } from './data.ts'
@@ -33,15 +41,16 @@ import {
   type ZodiacPairKey,
   type ZodiacPairLocale,
   zodiacPairKey,
+  zodiacPairName,
   zodiacPairPath,
-  zodiacPairSlug,
 } from './paths.ts'
 
 /**
  * 生肖配对总表与配对页（设计稿 docs/design/prototypes/content-growth-v2-tools/ZodiacPair.dc.html、
  * ZodiacGrid.dc.html、ZodiacGridMobile.dc.html 与 Proposals「PairGrid」，使用者 2026-11-23 确认）。
  * 组件不写死语言：文案取 messages/<locale>/zodiac-pair.json 与 zodiac.json，地址取 paths.ts；
- * ko、en（第 17 组）只加内容与文案。地支关系、五行与年份都来自服务端引擎计算，本页只渲染。
+ * ko、en（第 17 组）只加内容与文案；关系、五行与三合局的文字按语言取地支写法（中文汉字、ko「자」、en「Zi」，
+ * 见 zodiac/labels.ts）。地支关系、五行与年份都来自服务端引擎计算，本页只渲染。
  * 配对页的小标题按 design 决策 9（两支关系、相处的节奏、彼此能学的、需要磨合的地方、用八字看两个人、FAQ），
  * 设计稿的「逐项关系」表放在「两支关系」段，年份表与合盘入口放在单独的数据表段。
  */
@@ -87,19 +96,19 @@ function relationNames(facts: PairFactsView): string[] {
   )
 }
 
-const triadName = (index: number) => {
+const triadName = (locale: string, index: number) => {
   const group = TRIAD_GROUPS[index]
   return group
-    ? { triad: group.branches.map(glyph).join(''), element: elementHanzi(group.element) }
+    ? { triad: branchList(locale, group.branches), element: elementLabel(locale, group.element) }
     : { triad: '', element: '' }
 }
 
-function elementValue(facts: PairFactsView): string {
+function elementValue(locale: string, facts: PairFactsView): string {
   const [a, b] = facts.branches
   const [ea, eb] = facts.elements
   const side = (branch: Branch, element: Element) => ({
-    glyph: glyph(branch),
-    element: elementHanzi(element),
+    glyph: branchName(locale, branch),
+    element: elementLabel(locale, element),
   })
   const x = side(a, ea)
   const y = side(b, eb)
@@ -237,34 +246,38 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
           ? m.zodiac_pair_relation_none()
           : names
               .map((relation) =>
-                m.zodiac_pair_relation_value({ a: glyph(a), b: glyph(b), relation }),
+                m.zodiac_pair_relation_value({
+                  a: branchName(locale, a),
+                  b: branchName(locale, b),
+                  relation,
+                }),
               )
               .join(m.zodiac_pair_year_separator()),
     },
-    { key: 'elements', label: m.zodiac_pair_row_elements(), value: elementValue(facts) },
+    { key: 'elements', label: m.zodiac_pair_row_elements(), value: elementValue(locale, facts) },
     {
       key: 'triads',
       label: m.zodiac_pair_row_triads(),
       value:
         facts.triads[0] === facts.triads[1]
-          ? m.zodiac_pair_triad_same(triadName(facts.triads[0]))
+          ? m.zodiac_pair_triad_same(triadName(locale, facts.triads[0]))
           : m.zodiac_pair_triad_apart({
-              a: glyph(a),
-              b: glyph(b),
-              triadA: triadName(facts.triads[0]).triad,
-              elementA: triadName(facts.triads[0]).element,
-              triadB: triadName(facts.triads[1]).triad,
-              elementB: triadName(facts.triads[1]).element,
+              a: branchName(locale, a),
+              b: branchName(locale, b),
+              triadA: triadName(locale, facts.triads[0]).triad,
+              elementA: triadName(locale, facts.triads[0]).element,
+              triadB: triadName(locale, facts.triads[1]).triad,
+              elementB: triadName(locale, facts.triads[1]).element,
             }),
     },
   ]
-  const slugOf = (key: ZodiacPairKey) => zodiacPairSlug(pairLocale(locale), key)
+  const nameOf = (key: ZodiacPairKey) => zodiacPairName(pairLocale(locale), key)
   return (
     <Shell tool="zodiac-pair" locale={locale}>
       <PageHeader
         locale={locale}
         breadcrumb={page.breadcrumb}
-        current={slugOf(page.key)}
+        current={nameOf(page.key)}
         heading={page.heading}
         lede={page.lede}
       />
@@ -291,14 +304,14 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
               names.length ? names.join(m.zodiac_pair_year_separator()) : m.zodiac_pair_rel_none(),
             ],
             [
-              m.zodiac_pair_fact_sign({ name: nameA, glyph: glyph(a) }),
+              m.zodiac_pair_fact_sign({ name: nameA, glyph: branchLabel(locale, a) }),
               <ElementMark key="a" element={facts.elements[0]} />,
             ],
             ...(a === b
               ? []
               : [
                   [
-                    m.zodiac_pair_fact_sign({ name: nameB, glyph: glyph(b) }),
+                    m.zodiac_pair_fact_sign({ name: nameB, glyph: branchLabel(locale, b) }),
                     <ElementMark key="b" element={facts.elements[1]} />,
                   ],
                 ]),
@@ -371,7 +384,7 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
               key: 'branch',
               header: m.zodiac_pair_col_branch(),
               kind: 'glyph',
-              cell: (row) => glyph(row.branch),
+              cell: (row) => branchLabel(locale, row.branch),
             },
             {
               key: 'years',
@@ -398,7 +411,7 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
             <li key={item.key} className="flex min-w-0">
               <LinkCard
                 href={pairHref(locale, item.key)}
-                title={slugOf(item.key)}
+                title={nameOf(item.key)}
                 description={MARK_LABEL[item.mark]()}
                 className="w-full"
               />
@@ -421,7 +434,7 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
           page.previous
             ? {
                 href: pairHref(locale, page.previous),
-                title: slugOf(page.previous),
+                title: nameOf(page.previous),
                 label: m.zodiac_pair_previous(),
               }
             : null
@@ -430,7 +443,7 @@ export function ZodiacPairPage({ page }: { page: ZodiacPairChildData }) {
           page.next
             ? {
                 href: pairHref(locale, page.next),
-                title: slugOf(page.next),
+                title: nameOf(page.next),
                 label: m.zodiac_pair_next(),
               }
             : null

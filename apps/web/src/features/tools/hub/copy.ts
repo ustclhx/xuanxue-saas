@@ -122,7 +122,9 @@ const GLYPH: Readonly<Record<string, string>> = {
 }
 
 /** 工具卡的大号字形（装饰，对读屏隐藏）：没有登记的工具取名称里的第一个文字 */
-export function toolGlyph(tool: DirectoryEntry, title: string): string {
+export function toolGlyph(tool: DirectoryEntry, title: string, locale: string): string {
+  // 东方英文卡片沿用总工具页画板上生肖配对的「配」字。
+  if (tool.id === 'zodiac-pair' && locale === 'en') return '配'
   return (
     GLYPH_MESSAGE[tool.id]?.() ??
     GLYPH[tool.id] ??
