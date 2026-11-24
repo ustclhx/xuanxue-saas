@@ -1,19 +1,16 @@
 import {
+  type AnySpreadId,
   CARD_MEANINGS,
   CARDS,
-  cutDeck,
-  type DrawnCard,
-  decodeReading,
-  drawCards,
   encodeReading,
+  type Position,
   type Reading,
   type SpreadId,
-  shuffleDeck,
   spreadPositions,
   yesNoAnswer,
 } from '@xuanxue/tarot'
 import { cn } from '@xuanxue/ui'
-import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
+import { Fragment, type ReactNode, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
 import type { SpreadCopy } from '../../east-en/copy/types.ts'
 import { ReadingUnlock } from '../../readings/unlock-card.tsx'
@@ -24,15 +21,16 @@ import { InlineLinks } from '../inline-links.tsx'
 import { ReadingGuide } from '../reading-guide.tsx'
 import { ReadingSlots } from '../reading-slots.tsx'
 import { ResultBlock } from '../result-block.tsx'
-import { readShareFragment, shareUrl } from '../share.ts'
 import { ShareLink } from '../share-link.tsx'
 import { toolHref } from '../tool-href.ts'
 import { ToolPage } from '../tool-page.tsx'
-import { prefetchCards } from './card.tsx'
 import { answerLabel, orientationLabel, SPREAD_COPY } from './copy.ts'
+import { sharedReading, useSpreadDraw } from './draw-state.ts'
 import { tarotIndexPath, tarotMeaningPath } from './meaning-routes.ts'
 import { TAROT_SPREADS, type TarotLocale, tarotNavTitle, tarotPath } from './routes.ts'
-import { CutSpread, DeckStack, SpreadTable, type Stage, useShuffleFrames } from './table.tsx'
+import { CutSpread, DeckStack, SpreadTable, type Stage } from './table.tsx'
+
+export { sharedReading }
 
 const CARD_BY_ID = new Map(CARDS.map((card) => [card.id, card]))
 
@@ -42,22 +40,6 @@ const MORE_SPREADS: Readonly<Record<SpreadId, () => string>> = {
   daily: m.tarot_more_daily,
   'yes-or-no': m.tarot_more_yes_or_no,
   'celtic-cross': m.tarot_more_celtic_cross,
-}
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-}
-
-/** 分享片段中的抽牌结果；牌阵与当前页面不一致或内容非法时视为无效 */
-export function sharedReading(hash: string, spread: SpreadId): Reading | 'invalid' | null {
-  const shared = readShareFragment(hash)
-  if (!shared) return hash.includes('r=') ? 'invalid' : null
-  try {
-    const reading = decodeReading(String(shared.reading ?? ''))
-    return reading.spread === spread ? reading : 'invalid'
-  } catch {
-    return 'invalid'
-  }
 }
 
 /**
@@ -83,81 +65,8 @@ export function TarotSpreadPage({
   const site = eastEn ? ('east' as const) : undefined
   const positions = spreadPositions(spread, locale)
   const [question, setQuestion] = useState('')
-  const [reversals, setReversals] = useState(true)
-  const [stage, setStage] = useState<Stage>('ready')
-  const [deck, setDeck] = useState<DrawnCard[] | null>(null)
-  const [reading, setReading] = useState<Reading | null>(null)
-  const [revealed, setRevealed] = useState<boolean[]>([])
-  const [shared, setShared] = useState<'none' | 'ok' | 'invalid'>('none')
-  const [hydrated, setHydrated] = useState(false)
-  const table = useRef<HTMLElement>(null)
-  const frame = useShuffleFrames(stage === 'shuffling', () => setStage('cut'))
-
-  // 打开分享链接时直接显示同一组牌，不重新抽牌
-  useEffect(() => {
-    setHydrated(true)
-    const result = sharedReading(window.location.hash, spread)
-    if (result === 'invalid') setShared('invalid')
-    else if (result) {
-      setReading(result)
-      setRevealed(result.cards.map(() => true))
-      setStage('reveal')
-      setShared('ok')
-    }
-  }, [spread])
-
-  const shuffle = () => {
-    setDeck(shuffleDeck(reversals))
-    setReading(null)
-    setRevealed([])
-    setShared('none')
-    // 重新洗牌后去掉旧结果的片段，避免之后返回时恢复上一组牌
-    window.history.replaceState(
-      window.history.state,
-      '',
-      window.location.pathname + window.location.search,
-    )
-    // 减少动态效果时跳过洗牌动画，铺开的牌直接淡入
-    setStage(prefersReducedMotion() ? 'cut' : 'shuffling')
-  }
-
-  const cut = (position: number) => {
-    if (!deck) return
-    const next = drawCards(spread, cutDeck(deck, position))
-    prefetchCards(next.cards)
-    setReading(next)
-    setRevealed(next.cards.map(() => false))
-    setStage('reveal')
-    requestAnimationFrame(() =>
-      table.current?.querySelector<HTMLButtonElement>('[data-slot-index]:not(:disabled)')?.focus(),
-    )
-  }
-
-  const reveal = (index: number) => {
-    const next = revealed.map((value, i) => value || i === index)
-    setRevealed(next)
-    // 翻开后焦点移到下一张未翻开的牌，键盘可连续翻牌
-    const following = next.findIndex((value) => !value)
-    if (following !== -1)
-      requestAnimationFrame(() =>
-        table.current
-          ?.querySelector<HTMLButtonElement>(`[data-slot-index="${following}"]`)
-          ?.focus(),
-      )
-  }
-
-  const complete = reading !== null && revealed.length > 0 && revealed.every(Boolean)
-
-  // 结果写入 `#r=` 片段（与分享链接同格式）：阅读牌义后用浏览器后退返回，页面会恢复同一组牌，
-  // 可以继续翻看其它牌的牌义，而不必重新洗牌抽牌
-  useEffect(() => {
-    if (!complete || !reading) return
-    window.history.replaceState(
-      window.history.state,
-      '',
-      shareUrl(window.location.href, { reading: encodeReading(reading) }),
-    )
-  }, [complete, reading])
+  const draw = useSpreadDraw(spread)
+  const { reading, complete } = draw
 
   const others = TAROT_SPREADS.filter((item) => item !== spread)
 
@@ -191,104 +100,21 @@ export function TarotSpreadPage({
         )
       }
       form={
-        <>
-          <ToolForm label={m.tarot_form_label()} onSubmit={shuffle} className="sm:grid-cols-1">
-            {/* 问题框与逆位开关不设 name：脚本加载前提交表单时，问题不会进入地址栏 */}
-            <TextField
-              label={m.tarot_question_label()}
-              value={question}
-              placeholder={m.tarot_question_placeholder()}
-              autoComplete="off"
-              maxLength={200}
-              onChange={(event) => setQuestion(event.currentTarget.value)}
-            />
-            <QuestionTemplates
-              templates={eastEn ? eastEn.copy.templates : copy.templates.map((t) => t())}
-              onPick={setQuestion}
-            />
-            <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-              <CheckboxField
-                label={m.tarot_reversals_label()}
-                checked={reversals}
-                onChange={(event) => setReversals(event.currentTarget.checked)}
-              />
-              <SubmitButton>
-                {stage === 'shuffling'
-                  ? m.tarot_shuffling()
-                  : stage === 'ready'
-                    ? m.tarot_shuffle()
-                    : m.tarot_again()}
-              </SubmitButton>
-            </div>
-          </ToolForm>
-          {shared === 'invalid' && (
-            <div
-              role="alert"
-              className="flex max-w-190 items-start gap-2.5 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
-            >
-              <svg
-                viewBox="0 0 20 20"
-                aria-hidden="true"
-                className="mt-1 size-5 shrink-0 text-danger"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              >
-                <circle cx="10" cy="10" r="7.5" />
-                <path d="M10 6v5M10 13.8v.2" />
-              </svg>
-              <p className="m-0">{m.tarot_shared_invalid()}</p>
-            </div>
-          )}
-          <section
-            ref={table}
-            aria-label={m.tarot_spread_label()}
-            data-stage={stage}
-            data-hydrated={hydrated}
-            data-testid="tarot-table"
-            className="flex max-w-190 flex-col gap-5 rounded-object bg-surface p-6 sm:p-8"
-          >
-            <Steps stage={stage} />
-            {shared === 'ok' && (
-              <p className="m-0 text-center text-caption text-ink-subtle">
-                {m.tarot_shared_note()}
-              </p>
-            )}
-            {stage === 'shuffling' && <DeckStack frame={frame} shuffling />}
-            {stage === 'cut' && <CutSpread onCut={cut} />}
-            {(stage === 'ready' || stage === 'reveal') && (
-              <SpreadTable
-                spread={spread}
-                cards={reading?.cards ?? []}
-                positions={positions}
-                revealed={revealed}
-                locale={locale}
-                onReveal={reveal}
-              />
-            )}
-            {stage === 'reveal' && reading && !complete && (
-              <div className="flex flex-col items-center gap-1">
-                <p className="m-0 text-center text-caption text-ink-subtle">
-                  {m.tarot_flip_prompt()}
-                </p>
-                {/* 次要操作用文字按钮：页面上只有「洗牌」一个主按钮 */}
-                <button
-                  type="button"
-                  onClick={() => setRevealed(reading.cards.map(() => true))}
-                  className="inline-flex min-h-11 items-center rounded-field text-body text-brand-ink underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
-                >
-                  {m.tarot_reveal_all()}
-                </button>
-              </div>
-            )}
-          </section>
-        </>
+        <SpreadDrawPanel
+          draw={draw}
+          spread={spread}
+          positions={positions}
+          locale={locale}
+          question={question}
+          onQuestion={setQuestion}
+          templates={eastEn ? eastEn.copy.templates : copy.templates.map((t) => t())}
+        />
       }
       result={
         complete && reading ? (
           <TarotResult
             reading={reading}
+            positions={positions}
             locale={locale}
             question={question}
             {...(eastEn ? { cardLink: eastEn.cardLink } : {})}
@@ -383,6 +209,123 @@ export function TarotSpreadPage({
         )}
       </ReadingSlots>
     </ToolPage>
+  )
+}
+
+/**
+ * 表单面板与牌桌（通用牌阵页与主题牌阵页共用）：问题框、收起的问句模板、逆位开关与唯一的主按钮，
+ * 分享链接无效时的提示，以及牌桌（洗牌 → 铺牌切牌 → 翻牌）。
+ */
+export function SpreadDrawPanel({
+  draw,
+  spread,
+  positions,
+  locale,
+  question,
+  onQuestion,
+  templates,
+}: {
+  draw: ReturnType<typeof useSpreadDraw<AnySpreadId>>
+  spread: AnySpreadId
+  positions: readonly Position[]
+  locale: TarotLocale
+  question: string
+  onQuestion: (question: string) => void
+  templates: readonly string[]
+}) {
+  const [reversals, setReversals] = useState(true)
+  const { stage, reading, revealed, shared, hydrated, table, frame, complete } = draw
+  return (
+    <>
+      <ToolForm
+        label={m.tarot_form_label()}
+        onSubmit={() => draw.shuffle(reversals)}
+        className="sm:grid-cols-1"
+      >
+        {/* 问题框与逆位开关不设 name：脚本加载前提交表单时，问题不会进入地址栏 */}
+        <TextField
+          label={m.tarot_question_label()}
+          value={question}
+          placeholder={m.tarot_question_placeholder()}
+          autoComplete="off"
+          maxLength={200}
+          onChange={(event) => onQuestion(event.currentTarget.value)}
+        />
+        <QuestionTemplates templates={templates} onPick={onQuestion} />
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <CheckboxField
+            label={m.tarot_reversals_label()}
+            checked={reversals}
+            onChange={(event) => setReversals(event.currentTarget.checked)}
+          />
+          <SubmitButton>
+            {stage === 'shuffling'
+              ? m.tarot_shuffling()
+              : stage === 'ready'
+                ? m.tarot_shuffle()
+                : m.tarot_again()}
+          </SubmitButton>
+        </div>
+      </ToolForm>
+      {shared === 'invalid' && (
+        <div
+          role="alert"
+          className="flex max-w-190 items-start gap-2.5 rounded-field bg-surface-2 px-4 py-3 text-body text-ink"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            aria-hidden="true"
+            className="mt-1 size-5 shrink-0 text-danger"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          >
+            <circle cx="10" cy="10" r="7.5" />
+            <path d="M10 6v5M10 13.8v.2" />
+          </svg>
+          <p className="m-0">{m.tarot_shared_invalid()}</p>
+        </div>
+      )}
+      <section
+        ref={table}
+        aria-label={m.tarot_spread_label()}
+        data-stage={stage}
+        data-hydrated={hydrated}
+        data-testid="tarot-table"
+        className="flex max-w-190 flex-col gap-5 rounded-object bg-surface p-6 sm:p-8"
+      >
+        <Steps stage={stage} />
+        {shared === 'ok' && (
+          <p className="m-0 text-center text-caption text-ink-subtle">{m.tarot_shared_note()}</p>
+        )}
+        {stage === 'shuffling' && <DeckStack frame={frame} shuffling />}
+        {stage === 'cut' && <CutSpread onCut={draw.cut} />}
+        {(stage === 'ready' || stage === 'reveal') && (
+          <SpreadTable
+            spread={spread}
+            cards={reading?.cards ?? []}
+            positions={positions}
+            revealed={revealed}
+            locale={locale}
+            onReveal={draw.reveal}
+          />
+        )}
+        {stage === 'reveal' && reading && !complete && (
+          <div className="flex flex-col items-center gap-1">
+            <p className="m-0 text-center text-caption text-ink-subtle">{m.tarot_flip_prompt()}</p>
+            {/* 次要操作用文字按钮：页面上只有「洗牌」一个主按钮 */}
+            <button
+              type="button"
+              onClick={draw.revealAll}
+              className="inline-flex min-h-11 items-center rounded-field text-body text-brand-ink underline underline-offset-4 hover:decoration-2 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2"
+            >
+              {m.tarot_reveal_all()}
+            </button>
+          </div>
+        )}
+      </section>
+    </>
   )
 }
 
@@ -525,20 +468,26 @@ function Steps({ stage }: { stage: Stage }) {
   )
 }
 
-/** 结果：是/否答案与判定依据（是/否牌阵），每张牌的牌位、正逆位、关键词、短义与牌义链接，分享链接 */
-function TarotResult({
+/**
+ * 结果：是/否答案与判定依据（是/否牌阵），每张牌的牌位、正逆位、关键词、短义与牌义链接，分享链接。
+ * 多张牌时桌面三列；`columns={2}` 为主题牌阵的两列（ProposalsB A4）。
+ */
+export function TarotResult({
   reading,
+  positions,
   locale,
   question,
   cardLink,
+  columns = 3,
 }: {
-  reading: Reading
+  reading: Reading<AnySpreadId>
+  positions: readonly Position[]
   locale: TarotLocale
   question: string
   /** 东方站英文：牌页链接文字（`{name}` 为牌名），链接指向 as feelings 牌页 */
   cardLink?: string
+  columns?: 2 | 3
 }) {
-  const positions = spreadPositions(reading.spread, locale)
   const first = reading.cards[0]
   const answer = reading.spread === 'yes-or-no' && first ? yesNoAnswer(first, locale) : null
   return (
@@ -565,7 +514,10 @@ function TarotResult({
       <div
         className={cn(
           'grid max-w-180 gap-6',
-          reading.cards.length > 1 && 'sm:max-w-none sm:grid-cols-3 sm:gap-8',
+          reading.cards.length > 1 &&
+            (columns === 2
+              ? 'sm:max-w-none sm:grid-cols-2 sm:gap-8'
+              : 'sm:max-w-none sm:grid-cols-3 sm:gap-8'),
         )}
       >
         {reading.cards.map((card, index) => {

@@ -879,6 +879,69 @@ const westernZodiac = defineCollection({
 })
 
 /**
+ * 西方站主题牌阵集合（openspec content-growth-v2-tools 第 28 组）：content/tarot-spreads/en/<牌阵>.mdx 为
+ * 爱情（5 张）、事业（4 张）、满月（4 张）牌阵页的逐页文案。`positions` 为牌位名与说明，按抽牌顺序，
+ * 数量须与 @xuanxue/tarot 的 TOPIC_SPREAD_SIZES 一致（scripts/check-content-tarot-spreads.mjs 另核对牌义引用）。
+ * 正文按 `## ` 切段。Title、H1 不以 free tarot reading 开头（不争三张牌入口页的主词）；构建期拦下 AI、娱乐类措辞。
+ */
+const TAROT_SPREAD_SIZES: Readonly<Record<string, number>> = { love: 5, career: 4, 'full-moon': 4 }
+const TAROT_SPREAD_BANNED =
+  /\bAI\b|artificial intelligence|entertainment|for fun|horoscope|\blucky?\b|soulmate|\bdoomed\b|\bdestined\b/i
+const tarotSpreads = defineCollection({
+  name: 'tarotSpreads',
+  directory: 'content/tarot-spreads',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1).max(160),
+    lede: z.string().min(1),
+    positions: z
+      .array(z.object({ name: z.string().min(1), meaning: z.string().min(1) }))
+      .min(4)
+      .max(5),
+    templates: z.array(z.string().min(1).max(80)).length(3),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(4),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    const { locale, slug: key } = localeAndSlug(document._meta)
+    if (locale !== 'en' || TAROT_SPREAD_SIZES[key] === undefined)
+      throw new Error(`Tarot spread file is not a known page: ${document._meta.path}`)
+    if (data.positions.length !== TAROT_SPREAD_SIZES[key])
+      throw new Error(`Tarot spread positions do not match the card count: ${document._meta.path}`)
+    if ([data.title, data.heading].some((text) => /^\s*free tarot reading/i.test(text)))
+      throw new Error(
+        `Title and H1 must not start with "free tarot reading": ${document._meta.path}`,
+      )
+    const text = [data.title, data.heading, data.description, data.lede, content]
+      .concat(data.positions.flatMap(({ name, meaning }) => [name, meaning]))
+      .concat(data.templates)
+      .concat(data.faq.flatMap(({ q, a }) => [q, a]))
+      .join('\n')
+    const banned = TAROT_SPREAD_BANNED.exec(text)
+    if (banned) throw new Error(`Tarot spread copy contains "${banned[0]}": ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Tarot spread body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, sections }
+  },
+})
+
+/**
  * 东方站年度生肖集合（openspec content-growth-v2-tools 决策 6；第 8 组建 schema，第 9、10、11 组只加内容文件）：
  * content/yearly/<locale>/<年份>/<地支 key>.mdx 为年度生肖页，index.mdx 为年度枢纽。
  * 关系表、出生年份与纳音、立春与春节由页面按引擎计算，这里只保存逐页撰写的文字：
@@ -1149,6 +1212,7 @@ export default defineConfig({
     moon,
     moonData,
     westernZodiac,
+    tarotSpreads,
     yearly,
     compat,
     zodiacPair,

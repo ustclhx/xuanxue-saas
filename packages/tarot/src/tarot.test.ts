@@ -6,8 +6,11 @@ import {
   decodeReading,
   drawCards,
   encodeReading,
+  isTopicSpread,
   SPREADS,
   shuffleDeck,
+  spreadSize,
+  TOPIC_SPREAD_SIZES,
   yesNoAnswer,
 } from './index.ts'
 
@@ -90,6 +93,23 @@ describe('RWS deck and readings', () => {
       'x'.repeat(257),
     ])
       expect(() => decodeReading(encoded)).toThrow()
+  })
+  it('draws topic spreads with their own card counts and decodes them only on their own page', () => {
+    expect(TOPIC_SPREAD_SIZES).toEqual({ love: 5, career: 4, 'full-moon': 4 })
+    for (const spread of ['love', 'career', 'full-moon'] as const) {
+      const reading = drawCards(spread, shuffleDeck())
+      expect(reading.cards).toHaveLength(TOPIC_SPREAD_SIZES[spread])
+      expect(spreadSize(spread)).toBe(TOPIC_SPREAD_SIZES[spread])
+      const encoded = encodeReading(reading)
+      expect(decodeReading(encoded, spread)).toEqual(reading)
+      // 通用入口（详批服务端）不接受主题牌阵；其他牌阵页也不恢复
+      expect(() => decodeReading(encoded)).toThrow()
+      expect(() => decodeReading(encoded, 'three-card')).toThrow()
+    }
+    expect(() => decodeReading('love:major-00,major-01,major-02,major-03', 'love')).toThrow()
+    expect(() => decodeReading('three-card:major-00,major-01,major-02', 'love')).toThrow()
+    expect(isTopicSpread('love')).toBe(true)
+    expect(isTopicSpread('daily')).toBe(false)
   })
   it('keeps every card within 5% of expected frequency over 100,000 ten-card draws', () => {
     // 每次抽十張，期望頻數約 12,821；避免單張抽取的正常噪聲使 5% 門檻不穩定。

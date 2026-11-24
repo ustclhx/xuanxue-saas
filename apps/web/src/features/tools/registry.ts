@@ -10,6 +10,7 @@ import { ZODIAC_TOOL_ROUTES } from '../east-content/zodiac/paths.ts'
 import { ZODIAC_PAIR_TOOL_ROUTES } from '../east-content/zodiac-pair/paths.ts'
 import { localeText } from '../i18n/split-messages.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
+import { TAROT_SPREAD_TOOL_ROUTES } from '../west-content/tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
 import {
   CONCEPT_SLUGS,
@@ -324,6 +325,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ),
   // openspec content-growth-v2-tools 第 6 组：两站的「全部工具」枢纽页
   ...TOOLS_HUB_ROUTES,
+  // openspec content-growth-v2-tools 第 28 组：爱情、事业、满月牌阵页（en，塔罗分组，New 小标）
+  ...TAROT_SPREAD_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'tarot', 'free_draw')),
 ])
 
 /**

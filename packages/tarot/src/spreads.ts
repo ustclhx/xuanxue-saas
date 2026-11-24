@@ -1,4 +1,4 @@
-import type { Locale, Position, Spread, SpreadId } from './types.ts'
+import type { AnySpreadId, Locale, Position, Spread, SpreadId, TopicSpreadId } from './types.ts'
 
 function positions(entries: readonly (readonly [string, string])[]): Position[] {
   return entries.map(([name, meaning]) => ({ name, meaning }))
@@ -152,4 +152,21 @@ export const SPREADS: Readonly<Record<SpreadId, Spread>> = {
 }
 export function spreadPositions(id: SpreadId, locale: Locale): readonly Position[] {
   return SPREADS[id].positions[locale]
+}
+
+/** 主题牌阵的牌数（设计稿 B11：爱情 5 张、事业 4 张、满月 4 张） */
+export const TOPIC_SPREAD_SIZES: Readonly<Record<TopicSpreadId, number>> = {
+  love: 5,
+  career: 4,
+  'full-moon': 4,
+}
+
+export function isTopicSpread(id: string): id is TopicSpreadId {
+  return Object.hasOwn(TOPIC_SPREAD_SIZES, id)
+}
+
+/** 牌阵的牌数；未知牌阵返回 undefined */
+export function spreadSize(id: AnySpreadId): number | undefined {
+  if (Object.hasOwn(SPREADS, id)) return SPREADS[id as SpreadId].positions.en.length
+  return isTopicSpread(id) ? TOPIC_SPREAD_SIZES[id] : undefined
 }

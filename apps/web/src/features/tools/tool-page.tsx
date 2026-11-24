@@ -26,6 +26,7 @@ export function ToolPage({
   nav,
   children,
   breadcrumb,
+  titleBadge,
 }: {
   /** 工具标识（注册表 id），埋点 tool 字段 */
   tool: string
@@ -48,6 +49,8 @@ export function ToolPage({
   children?: ReactNode
   /** 面包屑（H1 之上）：与页面 head 的 BreadcrumbList 同一组层级 */
   breadcrumb?: ReactNode
+  /** H1 右侧的小标（如「New」）；省略时 H1 单独成行 */
+  titleBadge?: ReactNode
 }) {
   const track = useToolEvents(tool)
   const context = useMemo(() => ({ tool, track }), [tool, track])
@@ -60,7 +63,14 @@ export function ToolPage({
       <PageWidth className="flex flex-col gap-8 pb-16 sm:gap-10 sm:pb-28">
         <header className="flex max-w-180 flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
           {breadcrumb}
-          <h1 className="m-0 text-balance font-heading text-ink text-title">{title}</h1>
+          {titleBadge ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h1 className="m-0 text-balance font-heading text-ink text-title">{title}</h1>
+              {titleBadge}
+            </div>
+          ) : (
+            <h1 className="m-0 text-balance font-heading text-ink text-title">{title}</h1>
+          )}
           <div className="text-body text-ink-muted">{intro}</div>
         </header>
         {/* data-locale-fixed：计算器与结果是引擎输出（数字、步骤、表格），多语言相似度测量不计其中的数字

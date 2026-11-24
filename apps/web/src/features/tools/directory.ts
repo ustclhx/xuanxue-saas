@@ -37,6 +37,10 @@ const HUB_EXTRA_IDS: ReadonlySet<string> = new Set([
   'tarot-daily',
   'tarot-yes-or-no',
   'tarot-celtic-cross',
+  // 第 28 组主题牌阵：只为不进页头下拉而设 `nav: false`
+  'tarot-love',
+  'tarot-career',
+  'tarot-full-moon',
   'tarot-card-index',
   'numerology',
   // 年运分组：个人流年工具（第 7 组）与年度枢纽、太歲页（第 8、18 组）只为不进页头下拉而设 `nav: false`
