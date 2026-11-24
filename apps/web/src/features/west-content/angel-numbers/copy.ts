@@ -97,7 +97,7 @@ export function patternText(locale: AngelLocale, f: AngelFacts): string {
   if (locale === 'en') {
     switch (f.pattern) {
       case 'repeat':
-        return `One digit repeated ${EN_TIMES[n]}, which stresses the theme of ${a}`
+        return `The digit ${a} appears ${EN_TIMES[n]}, which emphasizes its theme`
       case 'alternate':
         return `Two digits taking turns, so the themes of ${a} and ${b} are read together`
       case 'pairs':
@@ -112,11 +112,11 @@ export function patternText(locale: AngelLocale, f: AngelFacts): string {
   }
   switch (f.pattern) {
     case 'repeat':
-      return `Una sola cifra repetida ${ES_TIMES[n]}: refuerza el tema del ${a}`
+      return `La cifra ${a} aparece ${ES_TIMES[n]} y refuerza su tema`
     case 'alternate':
       return `Dos cifras que se turnan: los temas del ${a} y del ${b} se leen juntos`
     case 'pairs':
-      return `Dos parejas: el tema del ${a} da paso al del ${b}`
+      return `Dos pares: el tema del ${a} da paso al del ${b}`
     case 'mirror':
       return `La secuencia se lee igual de izquierda a derecha y al revés`
     case 'ascending':
@@ -156,12 +156,11 @@ export const ANGEL_COPY = {
       ],
       [
         'Reduce to a root',
-        'Add the digits until one remains: 1 + 2 + 1 + 2 = 6. The root links the sequence to the nine core numbers; 11, 22 and 33 are kept as master numbers.',
+        'Add the digits and repeat with each new total until you reach a single digit or one of the master numbers 11, 22 and 33. For example, 1 + 2 + 1 + 2 = 6.',
       ],
     ] as readonly (readonly [string, string])[],
     rootTitle: 'Root numbers 1 to 9',
-    rootIntro:
-      'Each root number has its own page in the life path series, with the same themes explained at length.',
+    rootIntro: 'The life path pages below explain the traditional themes of roots 1 to 9.',
     rootLink: (n: number) => `Life Path Number ${n}`,
     quickLabel: 'Number at a glance',
     digits: 'Digits',
@@ -194,7 +193,7 @@ export const ANGEL_COPY = {
         | undefined,
     howTitle: 'Cómo leer cualquier número',
     howIntro:
-      'Lee cada cifra, observa qué se repite y suma las cifras hasta quedarte con una sola: 1 + 2 + 1 + 2 = 6. Si la suma da 11, 22 o 33, se conserva como número maestro.',
+      'Lee cada cifra y fíjate en cómo se ordenan. Súmalas y, si hace falta, vuelve a sumar las cifras del resultado. Detente al llegar a una sola cifra o a un número maestro (11, 22 o 33). Por ejemplo, 1 + 2 + 1 + 2 = 6.',
     howSteps: [] as readonly (readonly [string, string])[],
     rootTitle: undefined as string | undefined,
     rootIntro: '',
