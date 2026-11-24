@@ -1040,12 +1040,13 @@ describe('详批运行时设置', () => {
         modelKey,
         promptVersion: 'bazi-full.v3',
       })
-      expect(await readingConfig(ctx, 'tarot-spread')).toEqual({
+      // 清空单独选定的模型后沿用同站（或其他）详批已选的模型
+      expect(await readingConfig(ctx, 'tarot-spread')).toMatchObject({
         enabled: false,
         credits: 80,
-        modelKey: '',
         promptVersion: '',
       })
+      expect((await readingConfig(ctx, 'tarot-spread')).modelKey).not.toBe('')
       const records = await db.select().from(auditLog).where(eq(auditLog.actorUserId, admin.id))
       expect(records.map((r) => r.targetId).sort()).toEqual([
         'readings.bazi-full',
