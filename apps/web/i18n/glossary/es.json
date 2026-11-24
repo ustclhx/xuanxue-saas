@@ -629,6 +629,18 @@
       "preferred": "número raíz",
       "variants": ["raíz"],
       "note": "Resultado de reducir las cifras de una secuencia con la regla del número de vida (11, 22 y 33 se conservan)"
+    },
+    {
+      "id": "numerology.personal-year",
+      "en": "Personal year number",
+      "preferred": "año personal",
+      "variants": ["número del año personal"],
+      "note": "content-growth-v2-tools 第 27 组：ruta /es/ano-personal"
+    },
+    {
+      "id": "numerology.master-number",
+      "en": "Master number",
+      "preferred": "número maestro"
     }
   ],
   "banned": [
@@ -848,6 +860,8 @@
     "/es/faq": ["preguntas frecuentes", "preguntas frecuentes de Arcanumber"],
     "/es/pricing": ["precios", "precios de las lecturas"],
     "/es/numeros-angelicales": ["números angelicales", "significado de los números angelicales"],
-    "/es/numeros-angelicales/*": ["número angelical {n}", "el {n}"]
+    "/es/numeros-angelicales/*": ["número angelical {n}", "el {n}"],
+    "/es/ano-personal": ["calculadora del año personal", "calcular tu año personal"],
+    "/es/ano-personal/*": ["año personal {n}", "el año personal {n}"]
   }
 }

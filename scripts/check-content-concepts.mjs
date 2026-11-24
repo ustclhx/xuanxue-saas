@@ -508,6 +508,8 @@ const INTRO = {
       '/es/calculadora-numerologia',
       '/es/numerologia-del-nombre',
       '/es/compatibilidad-numerologica',
+      // content-growth-v2-tools 第 27 组：personal year 计算器
+      '/es/ano-personal',
     ],
     phrases: [
       'métodos tradicionales',

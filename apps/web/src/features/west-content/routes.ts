@@ -2,6 +2,7 @@ import { TOOLS_HUB_WEST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { ANGEL_CONTENT_ROUTES } from './angel-numbers/paths.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
 import { TAROT_SPREAD_CONTENT_ROUTES } from './tarot-spreads/paths.ts'
+import { PERSONAL_YEAR_CONTENT_ROUTES } from './personal-year/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type WestContentCollection =
@@ -36,6 +37,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...TAROT_SPREAD_CONTENT_ROUTES,
   // 第 26 组：angel numbers 枢纽与数字页（en、es 各自的数字集合）
   ...ANGEL_CONTENT_ROUTES,
+  // 第 27 组：personal year 计算器与 1–9 年份数页（en、es）
+  ...PERSONAL_YEAR_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {
