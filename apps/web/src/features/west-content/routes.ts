@@ -1,5 +1,6 @@
 import { TOOLS_HUB_WEST_CONTENT_ROUTES } from '../tools/hub/routes.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
+import { TAROT_SPREAD_CONTENT_ROUTES } from './tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
 
 export type WestContentCollection =
@@ -30,6 +31,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...WESTERN_ZODIAC_CONTENT_ROUTES,
   // content-growth-v2-tools 第 6 组：「All tools」枢纽页（en `/tools`、es `/herramientas`）
   ...TOOLS_HUB_WEST_CONTENT_ROUTES,
+  // 第 28 组：爱情、事业、满月牌阵页（en，`/tarot/…` 由塔罗文件路由转交本映射）
+  ...TAROT_SPREAD_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

@@ -12,7 +12,7 @@ const fragment = `#r=${encodeReading(reading)}`
 
 `shuffleDeck(false)` 关闭逆位。洗牌用 Web Crypto 加密随机数和 Fisher–Yates；拒绝采样避免取模偏差，每张牌独立以 50% 概率逆位。`cutDeck` 返回数组旋转副本；`drawCards` 可接受点选位置（省略时抽顶部），返回独立牌对象并检查数量、不重复和有效 ID。
 
-四种 spread ID：`daily`、`yes-or-no`、`three-card`、`celtic-cross`。`SPREADS` 的三语 positions 与抽牌顺序对应。切牌、抽牌和解码的非法输入抛出 `INVALID_TAROT_READING` AppError；编码为 `spread:cardId[r],cardId[r]`，只存结果，不含问题或姓名。
+四种 spread ID：`daily`、`yes-or-no`、`three-card`、`celtic-cross`。`SPREADS` 的三语 positions 与抽牌顺序对应。另有三种只在西方站 en 使用的主题牌阵 `love`（5 张）、`career`（4 张）、`full-moon`（4 张），包里只登记牌数（`TOPIC_SPREAD_SIZES`），牌位文案在 apps/web 的内容集合；`decodeReading(encoded)` 只接受四种通用牌阵，主题牌阵页用 `decodeReading(encoded, spread)`。切牌、抽牌和解码的非法输入抛出 `INVALID_TAROT_READING` AppError；编码为 `spread:cardId[r],cardId[r]`，只存结果，不含问题或姓名。
 
 图片是 Commons 1909 Roses & Lilies 扫描，来源、许可与原图哈希位于 `apps/web/public/tarot/SOURCES.md`。本地安装 cwebp 后执行 `node scripts/tarot-images.mjs` 可重新下载和生成 156 张 240w/480w WebP；不依赖 Worker 内图片转换。
 

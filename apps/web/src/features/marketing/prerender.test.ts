@@ -165,6 +165,10 @@ describe('预渲染范围（tasks.md 3.1、3.3）', () => {
       { path: '/tarot/daily' },
       { path: '/tarot/yes-or-no' },
       { path: '/tarot/celtic-cross' },
+      // 主题牌阵页（content-growth-v2-tools 第 28 组，只有 en）
+      { path: '/tarot/love' },
+      { path: '/tarot/career' },
+      { path: '/tarot/full-moon' },
       // 西班牙语（add-locales-eu-ja 第 5 组，pending 也预渲染供 staging 验收；正式域名由站点守卫返回 404）
       { path: '/es' },
       { path: '/es/tarot' },

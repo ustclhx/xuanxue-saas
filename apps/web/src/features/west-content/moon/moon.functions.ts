@@ -248,7 +248,12 @@ export function moonPage(
   }
 }
 
-/** 相关区块（data-link-zone="related"）：其余三个月相主页与 The Moon 牌义页（设计稿 MoonToday「Related」） */
+/**
+ * 相关区块（data-link-zone="related"）：其余三个月相主页与 The Moon 牌义页（设计稿 MoonToday「Related」）。
+ * 今日月相与年度满月表的第四张卡改为满月牌阵（content-growth-v2-tools 第 28 组「满月牌阵与月相页互链」：
+ * 两页正文都是天文说明，没有能自然带出牌阵链接的现成句子）。
+ */
+const FULL_MOON_SPREAD_PATH = '/tarot/full-moon'
 function relatedOf(id: MoonPageId): string[] {
   const main = [
     MOON_PATHS.today,
@@ -257,7 +262,9 @@ function relatedOf(id: MoonPageId): string[] {
     MOON_PATHS['moon-calendar'],
   ]
   const self = moonPagePath(id)
-  return [...main.filter((path) => path !== self).slice(0, 3), '/tarot/cards/the-moon']
+  const tarot =
+    id === 'today' || id === 'full-moon-calendar' ? FULL_MOON_SPREAD_PATH : '/tarot/cards/the-moon'
+  return [...main.filter((path) => path !== self).slice(0, 3), tarot]
 }
 
 export function moonHead(page: MoonPage, trail: readonly PageLink[]) {

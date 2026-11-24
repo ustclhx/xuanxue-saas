@@ -1,4 +1,4 @@
-import type { DrawnCard, Position, SpreadId } from '@xuanxue/tarot'
+import type { AnySpreadId, DrawnCard, Position } from '@xuanxue/tarot'
 import { cn } from '@xuanxue/ui'
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { m } from '../../../paraglide/messages.js'
@@ -241,7 +241,7 @@ export function SpreadTable({
   locale,
   onReveal,
 }: {
-  spread: SpreadId
+  spread: AnySpreadId
   cards: readonly DrawnCard[]
   positions: readonly Position[]
   revealed: readonly boolean[]
@@ -274,6 +274,26 @@ export function SpreadTable({
       </div>
     )
   if (positions.length === 1) return <div className="mx-auto w-40 sm:w-48">{slot(0, 'above')}</div>
+  // 4、5 张牌阵（content-growth-v2-batch2 ProposalsB A4）：桌面一行排开；手机 4 张为 2×2，
+  // 5 张为 3 + 2（6 列网格每张跨 2 列，第二行两张居中）
+  if (positions.length === 4)
+    return (
+      <div className="mx-auto grid w-full max-w-56 grid-cols-2 items-end gap-3 sm:max-w-170 sm:grid-cols-4 sm:gap-6">
+        {positions.map((_, index) => slot(index, 'above'))}
+      </div>
+    )
+  if (positions.length === 5)
+    return (
+      <div className="mx-auto grid w-full max-w-130 grid-cols-6 items-end gap-3 sm:max-w-180 sm:grid-cols-5 sm:gap-5">
+        {positions.map((_, index) =>
+          slot(
+            index,
+            'above',
+            cn('col-span-2 sm:col-span-1', index === 3 && 'col-start-2 sm:col-start-auto'),
+          ),
+        )}
+      </div>
+    )
   return (
     <div className="mx-auto grid w-full max-w-130 grid-cols-3 gap-3 sm:gap-6">
       {positions.map((_, index) => slot(index, 'above'))}

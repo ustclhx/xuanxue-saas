@@ -21,6 +21,12 @@ export interface Position {
   meaning: string
 }
 export type SpreadId = 'daily' | 'yes-or-no' | 'three-card' | 'celtic-cross'
+/**
+ * 主题牌阵（content-growth-v2-tools 第 28 组）：只在西方站 en 提供的爱情、事业与满月牌阵。
+ * 包里只登记牌数（抽牌与分享校验用）；牌位名称与说明是逐页文案，在 apps/web 的内容集合里。
+ */
+export type TopicSpreadId = 'love' | 'career' | 'full-moon'
+export type AnySpreadId = SpreadId | TopicSpreadId
 export interface Spread {
   id: SpreadId
   positions: Record<Locale, readonly Position[]>
@@ -29,7 +35,7 @@ export interface DrawnCard {
   cardId: string
   reversed: boolean
 }
-export interface Reading {
-  spread: SpreadId
+export interface Reading<S extends AnySpreadId = SpreadId> {
+  spread: S
   cards: DrawnCard[]
 }

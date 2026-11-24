@@ -10,7 +10,13 @@ import type { DrawnCard, Locale } from './types.ts'
 
 export { CARDS } from './cards.ts'
 export { cutDeck, decodeReading, drawCards, encodeReading, shuffleDeck } from './draw.ts'
-export { SPREADS, spreadPositions } from './spreads.ts'
+export {
+  isTopicSpread,
+  SPREADS,
+  spreadPositions,
+  spreadSize,
+  TOPIC_SPREAD_SIZES,
+} from './spreads.ts'
 export type * from './types.ts'
 export const CARD_MEANINGS = { en, 'zh-Hant': zhHant, 'zh-Hans': zhHans, ko, es, ja } as const
 
