@@ -15,7 +15,8 @@
       "!packages/db/lint/fixtures",
       "!.template-base.json",
       "!docs/design-system/prototypes",
-      "!docs/design/prototypes"
+      "!docs/design/prototypes",
+      "!apps/web/public/geo/places"
     ]
   },
   "formatter": {
