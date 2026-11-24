@@ -151,7 +151,7 @@ const EN: PersonalYearCopy = {
     `The total stops at ${engine}, a master number that some numerologists keep as its own year. This calculator reduces every result to 1–9, so ${engine} is read as Personal Year ${value}.`,
   cycleTitle: 'Your nine-year cycle',
   cycleNote:
-    'This calculator counts a personal year from January 1 to December 31. Some numerologists start it on the birthday instead. The number is the same either way; only the starting date differs.',
+    'This calculator applies the result from January 1 to December 31 of the selected year. With the same formula, a birthday-based reading uses that number starting on the birthday in that year.',
   otherTitle: 'Your other numbers',
   otherText:
     'The personal year is one number in a numerology chart. The life path calculator works out your core number from your full birth date, with the same step-by-step arithmetic.',
@@ -225,7 +225,7 @@ const ES: PersonalYearCopy = {
   monthDayHint: 'No hace falta el año de nacimiento.',
   monthDayError: 'Escribe un mes y un día que existan, por ejemplo 14 de julio.',
   yearLabel: 'Año',
-  yearHint: 'Empieza en el año actual. Puedes elegir cualquier año entre 1900 y 2100.',
+  yearHint: 'El año actual aparece seleccionado. Puedes elegir cualquier año entre 1900 y 2100.',
   privacyHint: 'El cálculo se hace en tu navegador. No necesitas registrarte.',
   calculate: 'Calcular',
   resultTitle: (year) => `Tu año personal en ${year}`,
@@ -242,7 +242,7 @@ const ES: PersonalYearCopy = {
     `La suma se detiene en ${engine}, un número maestro que algunos numerólogos tratan como un año aparte. Esta calculadora reduce todos los resultados a un número del 1 al 9, así que ${engine} se lee como año personal ${value}.`,
   cycleTitle: 'Tu ciclo de nueve años',
   cycleNote:
-    'Esta calculadora cuenta el año personal del 1 de enero al 31 de diciembre. Algunos numerólogos lo empiezan en el cumpleaños. El número es el mismo; solo cambia la fecha de inicio.',
+    'Esta calculadora aplica el resultado del 1 de enero al 31 de diciembre del año elegido. Si se usa la misma fórmula y se cuenta desde el cumpleaños, ese número se aplica desde el cumpleaños de ese año.',
   otherTitle: 'Tus otros números',
   otherText:
     'El año personal es uno de los números de una carta numerológica. La calculadora del número de vida obtiene tu número principal a partir de la fecha de nacimiento completa, con los mismos pasos a la vista.',
