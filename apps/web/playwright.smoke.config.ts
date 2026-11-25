@@ -18,7 +18,10 @@ export default defineConfig({
   use: { ...base.use, trace: 'off', video: 'off', screenshot: 'off', serviceWorkers: 'block' },
   webServer: {
     ...(Array.isArray(base.webServer) ? base.webServer[0] : base.webServer),
-    command: 'pnpm exec vite dev --config e2e/smoke.vite.ts > /tmp/ci-e2e-smoke.log 2>&1',
+    // 先编译文案：CI 冷启动时 src/paraglide 尚不存在，插件源码经 @web/paraglide 别名导入文案，
+    // Vite 依赖扫描会因此失败并跳过预构建，首个请求前逐个发现依赖、反复重载，启动超过 120 秒（模板 0.9.0 插件）
+    command:
+      'node scripts/compile-messages.mjs > /tmp/ci-e2e-smoke.log 2>&1 && pnpm exec vite dev --config e2e/smoke.vite.ts >> /tmp/ci-e2e-smoke.log 2>&1',
     env: {
       ...(Array.isArray(base.webServer) ? base.webServer[0]?.env : base.webServer?.env),
       WRANGLER_SEND_METRICS: 'false',

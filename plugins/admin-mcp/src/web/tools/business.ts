@@ -100,12 +100,13 @@ const auditList = defineAdminTool({
   run: async ({ db }, input) => {
     const { rows, hasMore } = await listAuditLogs(db, input, ALL_SITES)
     return toolResult({
-      rows: rows.map(({ log, actorEmail }) => {
+      rows: rows.map(({ log, actorEmail, site }) => {
         const secret =
           log.targetType === 'setting' &&
           log.targetId !== null &&
           getSettingDefinition(log.targetId)?.secret === true
-        return { actorEmail, log: { ...log, meta: redactAuditMeta(log.meta, secret) } }
+        // 全部站点视图附带记录所属站点（项目扩展）
+        return { actorEmail, site, log: { ...log, meta: redactAuditMeta(log.meta, secret) } }
       }),
       hasMore,
     })
