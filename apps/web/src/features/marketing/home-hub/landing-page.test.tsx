@@ -119,9 +119,10 @@ describe('落地页数据', () => {
       'west',
       'es',
       'tarot-three-card',
-      ['life-path', 'numerology-calculator', 'life-path-compatibility'],
+      // 第 19.4 项 es「Fase lunar hoy」上线后按设计稿决策 5 的 es 副卡排在首位
+      ['moon-phase-today', 'life-path', 'numerology-calculator', 'life-path-compatibility'],
       null,
-      '22192',
+      '22☾192',
     ],
   ] as const)(
     '%s %s：主卡 1 张、副卡不超过上限，季节窗口之前季节位为每日入口',
@@ -269,9 +270,10 @@ describe('落地页数据', () => {
       'western-zodiac-compatibility',
       'life-path',
     ])
-    // es 没有出生星盘：下拉不变
+    // es 没有出生星盘：季节窗口内季节位为 Fase lunar hoy（第 19.4 项），其后为副卡
     expect(nav('west', 'es', '2026-12-10')).toEqual([
       'tarot-three-card',
+      'moon-phase-today',
       'life-path',
       'numerology-calculator',
       'life-path-compatibility',

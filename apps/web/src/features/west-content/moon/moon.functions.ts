@@ -21,13 +21,14 @@ import {
   shiftMonth,
 } from './model.ts'
 import {
-  MOON_LOCALE,
+  MOON_LOCALES,
   MOON_MONTHS,
   MOON_PAGE_IDS,
-  MOON_PATHS,
+  type MoonLocale,
   type MoonMonthSlug,
   type MoonPageId,
-  moonPagePath,
+  moonLocalePath,
+  moonPageIds,
 } from './paths.ts'
 
 /** 带 `?year=` 的月份页不进索引（seo「查询参数结果页不进索引」） */
@@ -61,6 +62,7 @@ export interface MoonData {
 
 interface Common {
   readonly id: MoonPageId
+  readonly locale: MoonLocale
   readonly path: string
   readonly heading: string
   readonly lede: string
@@ -144,16 +146,19 @@ export function moonPage(
   data: MoonData,
   entries: readonly MoonEntry[],
   links: (path: string) => { breadcrumb: readonly PageLink[]; titleOf: (path: string) => string },
+  locale: MoonLocale = 'en',
 ): MoonPage | null {
-  const entry = entries.find((item) => item.locale === MOON_LOCALE && item.key === id)
+  const path = moonLocalePath(id, locale)
+  if (!path || !moonPageIds(locale).includes(id)) return null
+  const entry = entries.find((item) => item.locale === locale && item.key === id)
   if (!entry) return null
   const asOf = dateKeyOf(now.getTime())
   const today = civilMonthOf(asOf)
-  const path = moonPagePath(id)
   const { breadcrumb, titleOf } = links(path)
-  const related = relatedOf(id).map((href) => ({ href, label: titleOf(href) }))
+  const related = relatedOf(id, locale).map((href) => ({ href, label: titleOf(href) }))
   const common = {
     id,
+    locale,
     path,
     lede: entry.lede,
     sections: entry.sections,
@@ -166,7 +171,7 @@ export function moonPage(
   }
   const seo = (year: number): SeoPage => ({
     path,
-    locale: MOON_LOCALE,
+    locale,
     title: fillYear(entry.title, year),
     description: fillYear(entry.description, year),
   })
@@ -220,10 +225,14 @@ export function moonPage(
         payload: { ...common, kind: 'full-moon', heading: entry.heading, table: full },
       }
     case 'moon-calendar': {
-      const months = Array.from({ length: 12 }, (_, i) => ({
-        month: i + 1,
-        year: displayYear(i + 1, today),
-      }))
+      // es 没有月份页（第 19.4 项只做三页）：不列月份入口，页面改列接下来的满月与新月
+      const months =
+        locale === 'en'
+          ? Array.from({ length: 12 }, (_, i) => ({
+              month: i + 1,
+              year: displayYear(i + 1, today),
+            }))
+          : []
       return {
         seo: seo(today.year),
         payload: { ...common, kind: 'calendar', heading: entry.heading, table: full, months },
@@ -254,17 +263,18 @@ export function moonPage(
  * 两页正文都是天文说明，没有能自然带出牌阵链接的现成句子）。
  */
 const FULL_MOON_SPREAD_PATH = '/tarot/full-moon'
-function relatedOf(id: MoonPageId): string[] {
-  const main = [
-    MOON_PATHS.today,
-    MOON_PATHS['full-moon'],
-    MOON_PATHS['full-moon-calendar'],
-    MOON_PATHS['moon-calendar'],
-  ]
-  const self = moonPagePath(id)
+/** es 只有三页，没有满月牌阵：其余两页加 La Luna 牌义页 */
+const ES_MOON_CARD_PATH = '/tarot/cartas/the-moon'
+const MAIN_IDS = ['today', 'full-moon', 'full-moon-calendar', 'moon-calendar'] as const
+function relatedOf(id: MoonPageId, locale: MoonLocale): string[] {
+  const self = moonLocalePath(id, locale)
+  const main = MAIN_IDS.map((key) => moonLocalePath(key, locale)).filter(
+    (path): path is `/${string}` => path !== null && path !== self,
+  )
+  if (locale === 'es') return [...main, ES_MOON_CARD_PATH]
   const tarot =
     id === 'today' || id === 'full-moon-calendar' ? FULL_MOON_SPREAD_PATH : '/tarot/cards/the-moon'
-  return [...main.filter((path) => path !== self).slice(0, 3), tarot]
+  return [...main.slice(0, 3), tarot]
 }
 
 export function moonHead(page: MoonPage, trail: readonly PageLink[]) {
@@ -275,7 +285,7 @@ export function moonHead(page: MoonPage, trail: readonly PageLink[]) {
         name: item.label,
         path: item.href,
       })),
-      MOON_LOCALE,
+      payload.locale,
     ),
     faqPageData(payload.faq.map(({ q, a }) => ({ question: q, answer: a }))),
   ])
@@ -292,6 +302,7 @@ export const getMoonPage = createServerFn({ method: 'GET' })
   .inputValidator(
     z.object({
       id: z.enum(MOON_PAGE_IDS as [MoonPageId, ...MoonPageId[]]),
+      locale: z.enum(MOON_LOCALES).default('en'),
       year: z.string().max(8).optional(),
     }),
   )
@@ -299,13 +310,22 @@ export const getMoonPage = createServerFn({ method: 'GET' })
     if (!templateConfig.marketing.enabled) throw notFound()
     const [table] = allMoonData
     if (!table) throw notFound()
-    const page = moonPage(data.id, data.year, new Date(), table, allMoons, (path) => ({
-      breadcrumb: getPageLinks(path, MOON_LOCALE).breadcrumb,
-      titleOf: (target) => {
-        const page = getPublicPage(target, MOON_LOCALE)
-        return page?.titleMain ?? page?.title ?? target
-      },
-    }))
+    const { locale } = data
+    const page = moonPage(
+      data.id,
+      data.year,
+      new Date(),
+      table,
+      allMoons,
+      (path) => ({
+        breadcrumb: getPageLinks(path, locale).breadcrumb,
+        titleOf: (target) => {
+          const page = getPublicPage(target, locale)
+          return page?.titleMain ?? page?.title ?? target
+        },
+      }),
+      locale,
+    )
     if (!page) throw notFound()
     return { head: moonHead(page, page.payload.breadcrumb), content: page.payload }
   })

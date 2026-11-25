@@ -641,6 +641,41 @@
       "id": "numerology.master-number",
       "en": "Master number",
       "preferred": "número maestro"
+    },
+    {
+      "id": "moon.phase-today",
+      "en": "Moon phase today",
+      "preferred": "fase lunar hoy",
+      "variants": ["fase lunar de hoy", "fase de la Luna"],
+      "note": "content-growth-v2-tools 19.4: ruta /es/fase-lunar-hoy"
+    },
+    {
+      "id": "moon.full-moon",
+      "en": "Full moon",
+      "preferred": "luna llena",
+      "variants": ["próxima luna llena"],
+      "note": "content-growth-v2-tools 19.4: ruta /es/luna-llena"
+    },
+    {
+      "id": "moon.calendar",
+      "en": "Moon calendar",
+      "preferred": "calendario lunar",
+      "note": "content-growth-v2-tools 19.4: ruta /es/calendario-lunar"
+    },
+    { "id": "moon.new-moon", "en": "New moon", "preferred": "luna nueva" },
+    { "id": "moon.waxing-crescent", "en": "Waxing crescent", "preferred": "luna creciente" },
+    { "id": "moon.first-quarter", "en": "First quarter", "preferred": "cuarto creciente" },
+    { "id": "moon.waxing-gibbous", "en": "Waxing gibbous", "preferred": "gibosa creciente" },
+    { "id": "moon.waning-gibbous", "en": "Waning gibbous", "preferred": "gibosa menguante" },
+    { "id": "moon.last-quarter", "en": "Last quarter", "preferred": "cuarto menguante" },
+    { "id": "moon.waning-crescent", "en": "Waning crescent", "preferred": "luna menguante" },
+    { "id": "moon.supermoon", "en": "Supermoon", "preferred": "superluna" },
+    { "id": "moon.blue-moon", "en": "Blue moon", "preferred": "luna azul" },
+    {
+      "id": "moon.full-moon-names",
+      "en": "Wolf Moon … Cold Moon",
+      "preferred": "Luna del Lobo … Luna Fría",
+      "note": "Traducciones de los nombres norteamericanos; el español no tiene una lista propia (evidencia content-growth/v2/19/es-fact-sheet.md §3)"
     }
   ],
   "banned": [
@@ -862,6 +897,9 @@
     "/es/numeros-angelicales": ["números angelicales", "significado de los números angelicales"],
     "/es/numeros-angelicales/*": ["número angelical {n}", "el {n}"],
     "/es/ano-personal": ["calculadora del año personal", "calcular tu año personal"],
-    "/es/ano-personal/*": ["año personal {n}", "el año personal {n}"]
+    "/es/ano-personal/*": ["año personal {n}", "el año personal {n}"],
+    "/es/fase-lunar-hoy": ["fase lunar hoy", "fase lunar de hoy"],
+    "/es/luna-llena": ["luna llena", "próxima luna llena"],
+    "/es/calendario-lunar": ["calendario lunar", "calendario lunar completo"]
   }
 }

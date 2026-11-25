@@ -2,10 +2,16 @@ import type { ToolRoute } from '../../tools/registry.ts'
 import type { WestContentRoute } from '../routes.ts'
 
 /**
- * 月相页的地址（openspec content-growth-v2-tools 决策 2、11）：en 先行，es 由第 19.4 项另写。
+ * 月相页的地址（openspec content-growth-v2-tools 决策 2、11）：en 为全部 16 页；es（第 19.4 项，按西语主词另写）
+ * 只有今日月相、满月与月历枢纽三页，月份页与年度满月表后续再做。
  * 只放字面量：西方内容路由映射、注册表、站点地图与预渲染都从这里读取，本文件随入口包加载，不得引用运行时模块。
  */
 export const MOON_LOCALE = 'en'
+export const MOON_LOCALES = ['en', 'es'] as const
+export type MoonLocale = (typeof MOON_LOCALES)[number]
+export function isMoonLocale(locale: string): locale is MoonLocale {
+  return (MOON_LOCALES as readonly string[]).includes(locale)
+}
 export const MOON_MONTHS = [
   'january',
   'february',
@@ -52,12 +58,34 @@ export function moonPagePath(id: MoonPageId): `/${string}` {
 const MAIN_IDS = Object.keys(MOON_PATHS) as Exclude<MoonPageId, MoonMonthSlug>[]
 export const MOON_PAGE_IDS: readonly MoonPageId[] = [...MAIN_IDS, ...MOON_MONTHS]
 
-export const MOON_CONTENT_ROUTES: readonly WestContentRoute[] = MOON_PAGE_IDS.map((id) => ({
-  locale: MOON_LOCALE,
-  path: moonPagePath(id),
-  collection: 'moon',
-  id,
-}))
+/** es 三页（第 19.4 项）：西语主词「fase lunar hoy」「luna llena」「calendario lunar」，地址不带语言前缀 */
+export const MOON_ES_PATHS = {
+  today: '/fase-lunar-hoy',
+  'full-moon': '/luna-llena',
+  'moon-calendar': '/calendario-lunar',
+} as const satisfies Partial<Record<MoonPageId, `/${string}`>>
+export type MoonEsPageId = keyof typeof MOON_ES_PATHS
+export const MOON_ES_PAGE_IDS = Object.keys(MOON_ES_PATHS) as MoonEsPageId[]
+
+/** 某语言有哪些月相页 */
+export function moonPageIds(locale: MoonLocale): readonly MoonPageId[] {
+  return locale === 'es' ? MOON_ES_PAGE_IDS : MOON_PAGE_IDS
+}
+
+/** 本地化地址（不含语言前缀）；该语言没有这一页时返回 null */
+export function moonLocalePath(id: MoonPageId, locale: MoonLocale): `/${string}` | null {
+  if (locale === 'en') return moonPagePath(id)
+  return (MOON_ES_PATHS as Partial<Record<MoonPageId, `/${string}`>>)[id] ?? null
+}
+
+export const MOON_CONTENT_ROUTES: readonly WestContentRoute[] = MOON_LOCALES.flatMap((locale) =>
+  moonPageIds(locale).map((id) => ({
+    locale,
+    path: moonLocalePath(id, locale) ?? moonPagePath(id),
+    collection: 'moon' as const,
+    id,
+  })),
+)
 
 const MONTH_NAMES = MOON_MONTHS.map((slug) => slug[0]?.toUpperCase() + slug.slice(1))
 
@@ -82,20 +110,22 @@ export const MOON_TOOL_ROUTES: readonly ToolRoute[] = [
   {
     id: 'moon-phase-today',
     site: 'west',
-    paths: { en: MOON_PATHS.today },
-    titles: { en: 'Moon Phase Today' },
+    paths: { en: MOON_PATHS.today, es: MOON_ES_PATHS.today },
+    titles: { en: 'Moon Phase Today', es: 'Fase lunar hoy' },
     descriptions: {
       en: 'Tonight’s moon phase, illumination and moon age for your time zone, with the next full and new moon dates.',
+      es: 'La fase de la Luna de hoy, qué porcentaje está iluminado y su edad en días, con las fechas de la próxima luna llena y luna nueva en tu zona horaria.',
     },
   },
   {
     id: 'full-moon',
     site: 'west',
     nav: false,
-    paths: { en: MOON_PATHS['full-moon'] },
-    titles: { en: 'Full Moon Tonight' },
+    paths: { en: MOON_PATHS['full-moon'], es: MOON_ES_PATHS['full-moon'] },
+    titles: { en: 'Full Moon Tonight', es: 'Luna llena' },
     descriptions: {
       en: 'Whether tonight is a full moon, the date, time and traditional name of the next full moon, and supermoon and blue moon notes.',
+      es: 'Si hoy hay luna llena, cuándo será la próxima, a qué hora y con qué nombre popular, con aviso de superluna y luna azul.',
     },
   },
   {
@@ -112,10 +142,11 @@ export const MOON_TOOL_ROUTES: readonly ToolRoute[] = [
     id: 'moon-calendar',
     site: 'west',
     nav: false,
-    paths: { en: MOON_PATHS['moon-calendar'] },
-    titles: { en: 'Moon Calendar' },
+    paths: { en: MOON_PATHS['moon-calendar'], es: MOON_ES_PATHS['moon-calendar'] },
+    titles: { en: 'Moon Calendar', es: 'Calendario lunar' },
     descriptions: {
       en: 'A month-by-month moon phase calendar with the four main phases and their times in your time zone.',
+      es: 'Las fases de la Luna día a día en el mes actual y las fechas de luna llena y luna nueva de los próximos meses, en tu zona horaria.',
     },
   },
   ...MOON_MONTHS.map(

@@ -170,6 +170,8 @@
 - [x] 19.2 Claude 子代理撰写 en 各页与 12 个月份页（满月名由来、观月提示、FAQ），不写健康、生育暗示；Codex 做事实与合规审阅
 - [x] 19.3 验收：月份页组内相似度 `--enforce en`、长度与 TDK、内链（满月 ↔ 年度表 ↔ 当月月历）、390px 截图、关键词归属补登
 - [ ] 19.4 （非关键路径）另一个 Claude 子代理按西语主词另写 es 今日月相、满月、月历枢纽三页；Codex 回译审阅；术语表锚点（`i18n/glossary/es.json`）；hreflang
+  - [x] 19.4.1 Claude 子代理按西语主词另写 es 三页（`/es/fase-lunar-hoy`、`/es/luna-llena`、`/es/calendario-lunar`）与界面文字，先建事实单；术语表锚点、hreflang（en↔es 三对）、`check-content-moon` 西语校验，文案副本存私有证据目录 `content-growth/v2/19/review-input/es/`
+  - [ ] 19.4.2 Codex 回译审阅 es（事实与合规）
 
 ## 20. 西方星座档案与配对（en）★
 

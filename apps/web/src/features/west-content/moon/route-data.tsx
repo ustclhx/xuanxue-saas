@@ -2,7 +2,7 @@ import type { WestContentData, WestContentPayload } from '../route-data.ts'
 import type { WestContentRoute } from '../routes.ts'
 import { getMoonPage, type MoonPayload } from './moon.functions.ts'
 import { MoonPage } from './pages.tsx'
-import { MOON_LOCALE, MOON_PAGE_IDS, MOON_YEAR_PARAM, type MoonPageId } from './paths.ts'
+import { isMoonLocale, MOON_YEAR_PARAM, type MoonPageId, moonPageIds } from './paths.ts'
 
 /**
  * 西方内容分发（features/west-content/route-data.ts）的月相集合入口：本模块随月相页按需加载，
@@ -13,11 +13,14 @@ export async function load(
   route: WestContentRoute,
   search: Readonly<Record<string, unknown>>,
 ): Promise<WestContentPayload | null> {
-  if (route.locale !== MOON_LOCALE || !MOON_PAGE_IDS.includes(route.id as MoonPageId)) return null
+  const { locale } = route
+  if (!isMoonLocale(locale) || !moonPageIds(locale).includes(route.id as MoonPageId)) return null
   const raw = search[MOON_YEAR_PARAM]
   const year =
     route.id.length > 0 && raw !== undefined && raw !== null ? String(raw).slice(0, 8) : undefined
-  return getMoonPage({ data: { id: route.id as MoonPageId, ...(year !== undefined && { year }) } })
+  return getMoonPage({
+    data: { id: route.id as MoonPageId, locale, ...(year !== undefined && { year }) },
+  })
 }
 
 export function Page({ data }: { data: WestContentData }) {

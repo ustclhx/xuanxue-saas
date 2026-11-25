@@ -1,7 +1,18 @@
-import type { MoonPhaseKey } from './model.ts'
+import {
+  clockTime,
+  clockTimeEs,
+  fullDate,
+  fullDateEs,
+  longDate,
+  longDateEs,
+  type MoonPhaseKey,
+  shortDate,
+  shortDateEs,
+} from './model.ts'
+import type { MoonLocale } from './paths.ts'
 
 /**
- * 月相页的界面文字（en；es 由第 19.4 项补一份同构对象）。正文、导语与 FAQ 在内容集合（content/moon/en）。
+ * 月相页的界面文字（en 与 es 两份同构对象；es 为第 19.4 项按西语写法另写）。正文、导语与 FAQ 在内容集合（content/moon/<locale>）。
  * 传统月名与 @xuanxue/astro/moon 的 fullMoonNames() 一一对应（单测与 scripts/check-content-moon.mjs 核对），
  * 页面不引入引擎，因此在这里按月份另列一份。
  */
@@ -76,7 +87,18 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 export const MOON_COPY = {
   home: 'Home',
-  month: (month: number) => MONTHS[month - 1] ?? '',
+  month: (month: number): string => MONTHS[month - 1] ?? '',
+  /** 「November 2026」 */
+  monthYear: (month: number, year: number) => `${MONTHS[month - 1] ?? ''} ${year}`,
+  shortDate,
+  clockTime,
+  longDate,
+  fullDate,
+  /** 水合后的当天日期行（首帧另用 asOf） */
+  todayLine: (date: string) => date,
+  phaseLabel: (phase: string, percent: number) => `${phase}, ${percent}% illuminated`,
+  /** 月历网格每周第一天：0 周日 */
+  weekStart: 0 as 0 | 1,
   monthShort: (month: number) => (MONTHS[month - 1] ?? '').slice(0, 3),
   phase: (key: MoonPhaseKey) => PHASES[key],
   /** 网格里的短标签 */
@@ -87,8 +109,9 @@ export const MOON_COPY = {
     'last-quarter': 'Last Q',
   } as Record<string, string>,
   /** 传统月名按当地公历月份；不带撇号变体，标题与表格共用 */
-  moonName: (month: number) => (NAMES[month - 1] ?? '').replace('’', "'"),
-  weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const,
+  moonName: (month: number): string => (NAMES[month - 1] ?? '').replace('’', "'"),
+  /** 按 weekStart 排好的星期表头 */
+  weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as readonly string[],
 
   localNote: 'your local time',
   utcNote: 'UTC',
@@ -109,6 +132,10 @@ export const MOON_COPY = {
   next: 'Next',
   seriesLabel: 'Adjacent months',
   monthLink: (month: number) => `${MONTHS[month - 1]} moon calendar`,
+  /** 没有月份页的语言里，当月月历下的链接改指月历枢纽（es） */
+  calendarLink: 'Moon calendar',
+  /** 没有月份页的语言里，月历枢纽列出接下来的满月与新月（es） */
+  upcomingTitle: 'Full and new moons ahead',
   outOfRange:
     'This date is outside the calendar’s current range. Check back for an updated calendar.',
 
@@ -159,7 +186,153 @@ export const MOON_COPY = {
   relatedTitle: 'Related',
   disclaimer:
     'Moon phases are calculated with standard astronomical methods. Traditional names and customs are for reference and for exploring the subconscious. They do not predict the future.',
-} as const
+}
+
+export type MoonCopy = typeof MOON_COPY
+
+const ES_MONTHS = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+] as const
+
+const ES_PHASES: Readonly<Record<MoonPhaseKey, string>> = {
+  'new-moon': 'Luna nueva',
+  'waxing-crescent': 'Luna creciente',
+  'first-quarter': 'Cuarto creciente',
+  'waxing-gibbous': 'Gibosa creciente',
+  'full-moon': 'Luna llena',
+  'waning-gibbous': 'Gibosa menguante',
+  'last-quarter': 'Cuarto menguante',
+  'waning-crescent': 'Luna menguante',
+}
+
+/**
+ * 满月的通俗名（es）：西语没有自己的一套逐月满月名，西语媒体与天文科普沿用北美名称的译名
+ * （证据目录 content-growth/v2/19/es-fact-sheet.md §3）；与 FULL_MOON_NAME_KEYS 逐月对应。
+ */
+const ES_NAMES = [
+  'Luna del Lobo',
+  'Luna de Nieve',
+  'Luna del Gusano',
+  'Luna Rosa',
+  'Luna de las Flores',
+  'Luna de Fresa',
+  'Luna del Ciervo',
+  'Luna del Esturión',
+  'Luna del Maíz',
+  'Luna del Cazador',
+  'Luna del Castor',
+  'Luna Fría',
+] as const
+
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
+const days = (n: number) => `${n} ${n === 1 ? 'día' : 'días'}`
+
+export const MOON_COPY_ES: MoonCopy = {
+  home: 'Inicio',
+  month: (month: number) => ES_MONTHS[month - 1] ?? '',
+  monthShort: (month: number) => (ES_MONTHS[month - 1] ?? '').slice(0, 3).toLowerCase(),
+  monthYear: (month: number, year: number) => `${ES_MONTHS[month - 1] ?? ''} de ${year}`,
+  shortDate: shortDateEs,
+  clockTime: clockTimeEs,
+  longDate: longDateEs,
+  fullDate: fullDateEs,
+  todayLine: capitalize,
+  phaseLabel: (phase: string, percent: number) => `${phase}, ${percent} % iluminada`,
+  weekStart: 1,
+  phase: (key: MoonPhaseKey) => ES_PHASES[key],
+  quarterShort: {
+    'new-moon': 'Nueva',
+    'first-quarter': 'C. crec.',
+    'full-moon': 'Llena',
+    'last-quarter': 'C. meng.',
+  },
+  moonName: (month: number) => ES_NAMES[month - 1] ?? '',
+  weekdays: ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+
+  localNote: 'tu hora local',
+  utcNote: 'UTC',
+  utcAlert:
+    'No pudimos leer tu zona horaria. Las fechas y horas se muestran en UTC, así que una fase puede caer en otra fecha donde estás.',
+  asOf: (date: string) => `Calculado para el ${date}`,
+  illumination: 'Iluminación',
+  moonAge: 'Edad de la Luna',
+  ageValue: (value: number) => days(Math.round(value)),
+  nextFull: 'Próxima luna llena',
+  nextNew: 'Próxima luna nueva',
+  inDays: (n: number) => (n === 0 ? 'hoy' : n === 1 ? 'mañana' : `en ${n} días`),
+  phasesTitle: 'Las ocho fases',
+  phasesLabel: 'Fases de la Luna en orden',
+  monthCalendarLabel: (month: string) => `Calendario lunar de ${month}`,
+  todayTag: 'Hoy',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  seriesLabel: 'Meses vecinos',
+  monthLink: (month: number) => `Calendario lunar de ${(ES_MONTHS[month - 1] ?? '').toLowerCase()}`,
+  calendarLink: 'Calendario lunar',
+  upcomingTitle: 'Lunas llenas y nuevas de los próximos meses',
+  outOfRange:
+    'Esta fecha queda fuera del periodo que cubre el calendario. Vuelve pronto para ver la versión actualizada.',
+
+  tonightFull: 'Hoy hay luna llena',
+  tonightNot: 'Hoy no hay luna llena',
+  tonightFullNote: (time: string) => `La luna llena exacta se produce a las ${time}.`,
+  tonightNotNote: (percent: number, date: string) =>
+    `Hoy la Luna está iluminada en un ${percent} % aproximadamente. La próxima luna llena será el ${date}.`,
+  nextName: 'Nombre popular',
+  fullAt: 'Fecha y hora',
+  ahead: 'Próximas lunas llenas',
+  supermoon: 'Superluna',
+  blueMoon: 'Luna azul',
+
+  yearTitle: (year: number) => `Lunas llenas de ${year}`,
+  yearCaption: (year: number) => `Lunas llenas y nuevas de ${year}`,
+  yearNoteUtc: 'Fechas y horas en UTC. El nombre popular sigue el mes del calendario.',
+  yearNoteLocal: (zone: string) =>
+    `Fechas y horas en tu zona horaria (${zone}). El nombre popular sigue el mes del calendario.`,
+  colMonth: 'Mes',
+  colFull: 'Luna llena',
+  colTime: 'Hora',
+  colName: 'Nombre popular',
+  colNew: 'Luna nueva',
+  stackFull: 'Llena',
+  stackTime: 'Hora',
+  stackName: 'Nombre',
+  stackNew: 'Nueva',
+
+  calendarMonthsTitle: 'Elige un mes',
+  calendarMonthNote: (year: number, date: string | null, name: string) =>
+    date ? `${year} · ${name} el ${date}` : `${year} · ${name}`,
+  daysTitle: 'Fases de la Luna día a día',
+  keyDatesTitle: 'Fases principales del mes',
+  keyDatesLabel: 'Fases principales',
+  monthRollover: (month: string, year: number, next: number) =>
+    `Esta página muestra ${month.toLowerCase()} de ${year}. Cuando termine el mes, pasará a ${month.toLowerCase()} de ${next}.`,
+  monthFuture: (month: string, year: number) =>
+    `Esta página muestra ${month.toLowerCase()} de ${year}. Cambiará al año siguiente cuando termine ese mes.`,
+  otherYear: (month: string, year: number) => `Ver ${month.toLowerCase()} de ${year}`,
+  backToCurrent: (month: string, year: number) => `Volver a ${month.toLowerCase()} de ${year}`,
+  fullMoonOf: (name: string) => `Luna llena: ${name}`,
+
+  faqTitle: 'Preguntas frecuentes',
+  relatedTitle: 'Relacionado',
+  disclaimer:
+    'Las fases se calculan con métodos astronómicos estándar. Los nombres y costumbres tradicionales se ofrecen solo como referencia para reflexionar y explorar el subconsciente; no predicen el futuro.',
+}
+
+export function moonCopy(locale: MoonLocale): MoonCopy {
+  return locale === 'es' ? MOON_COPY_ES : MOON_COPY
+}
 
 export function fillYear(text: string, year: number): string {
   return text.replaceAll('{year}', String(year))

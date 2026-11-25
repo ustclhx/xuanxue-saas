@@ -175,14 +175,15 @@ export interface MonthCell {
   readonly view: MoonDayView | null
 }
 
-/** 月历格：第一行前补齐星期（周日开头），供 7 列网格使用 */
+/** 月历格：第一行前补齐星期（`weekStart` 0 为周日开头，1 为周一开头，es 按西语习惯周一开头），供 7 列网格使用 */
 export function monthGrid(
   table: MoonTable,
   month: CivilMonth,
   timeZone: string,
+  weekStart: 0 | 1 = 0,
 ): { leading: number; cells: MonthCell[] } {
   const keys = monthDays(month)
-  const leading = new Date(`${keys[0]}T00:00:00Z`).getUTCDay()
+  const leading = (new Date(`${keys[0]}T00:00:00Z`).getUTCDay() - weekStart + 7) % 7
   return {
     leading,
     cells: keys.map((date, i) => ({ date, day: i + 1, view: moonDay(table, date, timeZone) })),
@@ -301,4 +302,35 @@ export function longDate(key: string): string {
 export function fullDate(utcMs: number, timeZone: string): string {
   const { year, month, day } = zonedParts(utcMs, timeZone)
   return `${MONTH_FULL[month - 1]} ${day}, ${year}`
+}
+
+// es（第 19.4 项）：西语日期写法「22 ene」「lunes, 23 de noviembre de 2026」「22 de enero de 2027」，时刻用 24 小时制
+const ES_MONTHS =
+  'enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre'.split(
+    ' ',
+  )
+const ES_WEEKDAYS = 'domingo lunes martes miércoles jueves viernes sábado'.split(' ')
+
+/** 「22 ene」 */
+export function shortDateEs(utcMs: number, timeZone: string): string {
+  const { month, day } = zonedParts(utcMs, timeZone)
+  return `${day} ${ES_MONTHS[month - 1]?.slice(0, 3)}`
+}
+
+/** 「03:17」 */
+export function clockTimeEs(utcMs: number, timeZone: string): string {
+  const { hour, minute } = zonedParts(utcMs, timeZone)
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+}
+
+/** 「lunes, 23 de noviembre de 2026」（日历日期本身，不换算时区） */
+export function longDateEs(key: string): string {
+  const date = new Date(parseDateKey(key) ?? 0)
+  return `${ES_WEEKDAYS[date.getUTCDay()]}, ${date.getUTCDate()} de ${ES_MONTHS[date.getUTCMonth()]} de ${date.getUTCFullYear()}`
+}
+
+/** 「22 de enero de 2027」 */
+export function fullDateEs(utcMs: number, timeZone: string): string {
+  const { year, month, day } = zonedParts(utcMs, timeZone)
+  return `${day} de ${ES_MONTHS[month - 1]} de ${year}`
 }
