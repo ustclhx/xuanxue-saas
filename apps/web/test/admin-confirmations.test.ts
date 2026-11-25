@@ -110,7 +110,7 @@ let originalSecret: unknown
 
 async function createAdmin(): Promise<Admin> {
   const id = newId()
-  await db.$client`insert into "user"(id,name,email,role) values(${id},'Confirm admin',${`${id}@${domain}`},'admin')`
+  await db.$client`insert into "user"(id,name,email,role,site) values(${id},'Confirm admin',${`${id}@${domain}`},'admin','west')`
   const base = { db, admin: { id }, ip: '203.0.113.30' }
   return {
     id,
@@ -122,7 +122,7 @@ async function createAdmin(): Promise<Admin> {
 async function createWorkspace() {
   const id = newId()
   workspaces.push(id)
-  await db.$client`insert into organization(id,name,slug) values(${id},'Confirm space',${`confirm-${id}`})`
+  await db.$client`insert into organization(id,name,slug,site) values(${id},'Confirm space',${`confirm-${id}`},'west')`
   return { id, slug: `confirm-${id}` }
 }
 

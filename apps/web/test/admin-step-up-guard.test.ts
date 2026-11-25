@@ -1,6 +1,6 @@
 import { createAuth, parseAuthEnv } from '@xuanxue/auth'
 import { defineTemplateConfig } from '@xuanxue/config'
-import { adminStepUp, auditLog, dbSettingStore, setting } from '@xuanxue/db'
+import { adminStepUp, auditLog, dbSettingStore, getSetting, setting } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError, newId } from '@xuanxue/shared'
 import { and, count, eq, isNotNull, sql } from 'drizzle-orm'
@@ -51,6 +51,7 @@ import { handleAuthRequest } from '../src/features/admin/impersonation-http.ts'
 import { saveAdminSettings } from '../src/features/admin/settings.functions.ts'
 import { readRuntimeSettings, writeRuntimeSetting } from '../src/features/admin/settings.ts'
 import { saveOperationsSettings } from '../src/features/admin/settings-operations.functions.ts'
+import { saveReadingSettings } from '../src/features/admin/settings-readings.functions.ts'
 import { STEP_UP_REQUIRED } from '../src/features/admin/step-up/check.ts'
 import { saveAdminModel } from '../src/features/ai/admin-models.functions.ts'
 import {
@@ -98,6 +99,7 @@ function createRuntime(): WebRuntime {
     })
   const queue = { available: true as const, value: { send: async () => {} } }
   const runtime = {
+    site: 'west' as const,
     // 支付运行时只需测试模式；未配置支付平台时 providers 为空
     config: { ...parseAuthEnv(runtimeConfig, templateConfig), PAYMENT_MODE: 'test' },
     db,
@@ -164,7 +166,11 @@ let context: AdminActionContext
 const workspaceId = newId()
 const planId = newId()
 const modelKeys: string[] = []
-const settingKeys = ['operations.telegramChatId', 'operations.discordWebhookUrl']
+// 项目动作 setting.readings.update 写入该详批的四项设置，测试后一并恢复
+const readingKeys = ['enabled', 'credits', 'modelKey', 'promptVersion'].map(
+  (field) => `readings.bazi-full.${field}`,
+)
+const settingKeys = ['operations.telegramChatId', 'operations.discordWebhookUrl', ...readingKeys]
 let originalSettings: { key: string; value: unknown }[] = []
 
 const call = (fn: unknown, data: unknown) =>
@@ -334,6 +340,27 @@ const guardCases: Record<string, GuardCase> = {
       expect(await dbSettingStore(db).find('operations.discordWebhookUrl')).toContain('step-up')
     },
   },
+  // 项目动作（xuanxue）：详批单价变化时敏感（actions.registry.ts readingPriceChanged）
+  'setting.readings.update': {
+    entry: 'saveReadingSettings（改动单价）',
+    run: async () =>
+      call(saveReadingSettings, {
+        readings: [
+          {
+            kind: 'bazi-full',
+            enabled: true,
+            credits:
+              (await getSetting({ store: dbSettingStore(db) }, 'readings.bazi-full.credits')) + 1,
+            modelKey: '',
+            promptVersion: '',
+          },
+        ],
+      }),
+    state: () => dbSettingStore(db).find('readings.bazi-full.credits'),
+    allowed: (outcome) => {
+      expect(outcome.ok).toBe(true)
+    },
+  },
   'ai.model_save': {
     entry: 'saveAdminModel（新建）',
     run: () => {
@@ -400,12 +427,14 @@ beforeAll(async () => {
     admin: { id: admin.id },
     ip: '203.0.113.21',
     session: { id: admin.sessionId, userId: admin.id },
-  }
+    // 项目的 adminMiddleware 另带按 Host 解析的当前站点（split-site-accounts 决策 7）
+    site: 'west',
+  } as AdminActionContext
   targets.ban = (await signUp('user')).id
   targets.unban = (await signUp('user')).id
   targets.impersonate = (await signUp('user')).id
   await db.$client`update "user" set banned=true, ban_reason='fixture' where id=${targets.unban}`
-  await db.$client`insert into organization(id,name,slug) values(${workspaceId},'Step-up guard',${workspaceId})`
+  await db.$client`insert into organization(id,name,slug,site) values(${workspaceId},'Step-up guard',${workspaceId},'west')`
   await db.$client`insert into plan(id,key,name,type,credits,features,active) values(${planId},${planId},'Step-up guard','subscription',100,'{"models":[],"maxConcurrentTasks":1,"maxSeats":1,"storageGb":1,"publicApi":false,"priorityQueue":false,"watermark":false}'::jsonb,false)`
   originalSettings = await db.$client<{ key: string; value: unknown }[]>`
     select key, value from setting where key in ${db.$client(settingKeys)}`

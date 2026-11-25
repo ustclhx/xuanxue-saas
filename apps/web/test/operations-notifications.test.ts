@@ -315,9 +315,13 @@ it('通用 webhook 设置：拒绝非公网 HTTPS 地址，保存后只返回状
       email: `${uid}@ops.test`,
       role: 'admin',
     })
+    // 运营通知设置均为密钥，保存需要重新验证（actions.registry.ts setting.operations.update）
+    const session = await stepUpSession(db, uid)
     const save = (input: Parameters<typeof writeOperationsSettings>[1]) =>
-      runAdminAction({ db, admin: { id: uid }, ip: null }, 'setting.operations.update', (scope) =>
-        writeOperationsSettings(scope, input),
+      runAdminAction(
+        { db, admin: { id: uid }, ip: null, session },
+        'setting.operations.update',
+        (scope) => writeOperationsSettings(scope, input),
       )
     await save(operationsSettingsInput.parse({ telegramChatId: '', webhookUrl: url }))
     expect(await readOperationsSettings(db)).toMatchObject({
@@ -343,6 +347,7 @@ it('通用 webhook 设置：拒绝非公网 HTTPS 地址，保存后只返回状
     await db.delete(setting).where(inArray(setting.key, [...OPERATIONS_SETTING_KEYS]))
     if (original.length) await db.insert(setting).values(original)
     await migrator.delete(auditLog).where(eq(auditLog.actorUserId, uid))
+    await deleteStepUpSessions(db)
     await db.delete(user).where(eq(user.id, uid))
   }
 })

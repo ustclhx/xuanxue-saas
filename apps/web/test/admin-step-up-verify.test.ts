@@ -85,6 +85,7 @@ function createRuntime(env: Record<string, string> = {}): WebRuntime {
     value: { send: async (message: T) => void list.push(message) },
   })
   return {
+    site: 'west',
     config: { ...parseAuthEnv({ ...baseConfig, ...env }, templateConfig), PAYMENT_MODE: 'test' },
     db,
     publicDb: db,

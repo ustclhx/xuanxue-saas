@@ -23,6 +23,7 @@ import {
   requestWebhookReplay,
 } from '../src/features/billing/admin-writes.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
+import { deleteStepUpSessions, type StepUpSession, stepUpSession } from './step-up-fixtures.ts'
 
 // 账务后台按站点（split-site-accounts 决策 7）：同一邮箱在两站各有一个管理员与一个申请人账户，
 // 各自拥有本站空间与账务记录；东站管理员对西站记录的写操作返回 403 且不改变任何数据。
@@ -55,7 +56,9 @@ const options: RefundServiceOptions = {
   notify,
 }
 const east = (site: SiteId) => assertAdminSite(site, 'east')
-const context = () => ({ db, admin: { id: f.east.admin }, ip: '203.0.113.9' })
+// 回调重放、积分调整等为敏感动作：东方站管理员先完成重新验证（step-up-fixtures）
+let session: StepUpSession | undefined
+const context = () => ({ db, admin: { id: f.east.admin }, ip: '203.0.113.9', session })
 const refundRow = async (id: string) =>
   (
     await db.$client`select status,approved_amount,reviewer_id from refund_request where id=${id}`
@@ -96,9 +99,11 @@ beforeAll(async () => {
   }
   await db.$client`insert into webhook_event(id,provider,provider_event_id,type,payload,status) values(${unresolved},'stripe',${unresolved},'fixture','{}'::jsonb,'failed')`
   await db.transaction((tx) => attributeWebhookEvent(tx, unresolved))
+  session = await stepUpSession(db, f.east.admin)
 })
 
 afterAll(async () => {
+  await deleteStepUpSessions(db)
   const spaces = sites.map((site) => f[site].ws)
   const users = sites.flatMap((site) => [f[site].admin, f[site].applicant])
   const webhooks = [...sites.map((site) => f[site].webhook), unresolved]
