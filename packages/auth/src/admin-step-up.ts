@@ -1,13 +1,5 @@
 import type { Database } from '@xuanxue/db'
-import {
-  type AccountSite,
-  account,
-  adminStepUp,
-  auditLog,
-  twoFactor,
-  user,
-  verification,
-} from '@xuanxue/db/schema'
+import { account, adminStepUp, auditLog, twoFactor, user, verification } from '@xuanxue/db/schema'
 import type { RateLimiter } from '@xuanxue/platform'
 import { AppError, newId } from '@xuanxue/shared'
 import { symmetricDecrypt, symmetricEncrypt } from 'better-auth/crypto'
@@ -77,6 +69,13 @@ export interface AdminStepUpDeps {
     readonly bootstrapEmails: string | undefined
   }
   readonly now?: () => Date
+  /**
+   * 写 `verification` 行时追加的项目列：衍生项目给该表加了必填列（如多站点的 `site`）时提供。
+   * 每次发码或校验在事务前按用户调用一次（事务内不再另取连接）；模板写入的列优先，不会被覆盖。
+   */
+  readonly verificationColumns?: (
+    userId: string,
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
 }
 
 export interface StepUpOptions {
@@ -204,8 +203,6 @@ type Tx = Parameters<Parameters<Database['transaction']>[0]>[0]
 type Executor = Database | Tx
 
 interface AccountFacts {
-  /** 账户站点：验证码与失败计数写入 verification 时带上（split-site-accounts 决策 2） */
-  readonly site: AccountSite
   readonly email: string
   readonly emailVerified: boolean
   readonly twoFactorEnabled: boolean
@@ -219,7 +216,6 @@ const activeTwoFactor = (userId: string) =>
 async function accountFacts(db: Executor, userId: string): Promise<AccountFacts | null> {
   const [row] = await db
     .select({
-      site: user.site,
       email: user.email,
       emailVerified: user.emailVerified,
       twoFactorEnabled: user.twoFactorEnabled,
@@ -236,7 +232,6 @@ async function accountFacts(db: Executor, userId: string): Promise<AccountFacts 
     .limit(1)
   if (!row) return null
   return {
-    site: row.site,
     email: row.email,
     emailVerified: row.emailVerified === true,
     // 只有完成绑定（two_factor 行已验证）的账号才算开启，与插件的登录判断一致
@@ -318,6 +313,12 @@ async function lockAccount(tx: Tx, userId: string) {
 }
 
 export function createAdminStepUp(deps: AdminStepUpDeps) {
+  // 本次调用的项目附加列，以会话引用为键在内部函数间传递（不改公开的 StepUpSessionRef）
+  const extraColumns = new WeakMap<StepUpSessionRef, Record<string, unknown>>()
+  async function prepareColumns(session: StepUpSessionRef) {
+    if (deps.verificationColumns)
+      extraColumns.set(session, await deps.verificationColumns(session.userId))
+  }
   const { db } = deps
   const now = () => deps.now?.() ?? new Date()
   const ip = deps.clientIp ?? null
@@ -412,19 +413,14 @@ export function createAdminStepUp(deps: AdminStepUpDeps) {
         .where(eq(verification.id, row.id))
     } else {
       await tx.delete(verification).where(eq(verification.identifier, identifier))
-      const [owner] = await tx
-        .select({ site: user.site })
-        .from(user)
-        .where(eq(user.id, session.userId))
-        .limit(1)
-      if (!owner) throw stepUpError(STEP_UP_METHOD_UNAVAILABLE, 'No verification method', 400)
       await tx.insert(verification).values({
+        ...extraColumns.get(session),
         id: newId(),
         identifier,
         value,
         expiresAt: lockedUntil ?? new Date(at.getTime() + STEP_UP_FAILURE_WINDOW_MINUTES * 60_000),
-        site: owner.site,
-      })
+        // 项目（xuanxue）：verification.site 为必填列，由 verificationColumns 在运行时追加，类型上无法证明
+      } as typeof verification.$inferInsert)
     }
     if (!lockedUntil) return null
     await tx.insert(auditLog).values({
@@ -624,6 +620,7 @@ export function createAdminStepUp(deps: AdminStepUpDeps) {
     /** 向已验证邮箱发送验证码（`email_otp` 或 `rescue`），60 秒内不重发；旧码随之作废 */
     async sendCode(session: StepUpSessionRef, method: 'email_otp' | 'rescue' = 'email_otp') {
       await throttle(session)
+      await prepareColumns(session)
       const at = now()
       const code = randomCode()
       const sent = await db.transaction(async (tx) => {
@@ -651,14 +648,15 @@ export function createAdminStepUp(deps: AdminStepUpDeps) {
         await tx.delete(verification).where(eq(verification.identifier, identifier))
         const expiresAt = new Date(at.getTime() + STEP_UP_CODE_MINUTES * 60_000)
         await tx.insert(verification).values({
+          ...extraColumns.get(session),
           id: newId(),
           identifier,
           value: `0:${method}:${await hashCode(session.id, code)}`,
           expiresAt,
-          site: facts.site,
           createdAt: at,
           updatedAt: at,
-        })
+          // 项目（xuanxue）：必填列 site 由 verificationColumns 在运行时追加（见上方失败计数行）
+        } as typeof verification.$inferInsert)
         return { to: facts.email, expiresAt }
       })
       await deps.sendEmail({
@@ -684,6 +682,7 @@ export function createAdminStepUp(deps: AdminStepUpDeps) {
       input: { readonly method: StepUpMethod; readonly code?: string; readonly password?: string },
     ): Promise<StepUpVerified> {
       await throttle(session)
+      await prepareColumns(session)
       const outcome = await db.transaction(async (tx): Promise<Outcome> => {
         await lockAccount(tx, session.userId)
         const lockedUntil = await readLock(tx, session.userId, now())

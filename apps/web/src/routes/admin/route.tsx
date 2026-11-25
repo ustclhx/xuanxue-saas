@@ -5,6 +5,7 @@ import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'
 import { siteLabel } from '../../features/admin/site-ui.tsx'
+import { getStepUpStatus } from '../../features/admin/step-up/step-up.functions.ts'
 import {
   StepUpProvider,
   StepUpRescueBanner,
@@ -23,16 +24,12 @@ import { templateConfig } from '../../server/template-config.ts'
 // 侧栏导航见 features/admin/nav.ts（add-admin-console tasks.md 1.3）。
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => ({ admin: await getAdminViewer() }),
-  // 顶部验证状态、救援警示与导航计数；读取失败时降级为不显示，不影响后台页面。
-  // 项目改为按需 import()：loader 不参与路由代码分割，静态导入会把导航与插件计数带进每个页面的入口包（首页包预算）
+  // 顶部验证状态、救援警示与导航计数；读取失败时降级为不显示，不影响后台页面
+  // loader 不在 TanStack 默认的按路由拆包范围内：导航计数经 import() 加载，避免插件 server fn 进入所有页面的入口包
   loader: async () => {
-    const [{ getStepUpStatus }, { loadAdminNavCounts }] = await Promise.all([
-      import('../../features/admin/step-up/step-up.functions.ts'),
-      import('../../features/admin/nav.ts'),
-    ])
     const [stepUp, navCounts] = await Promise.all([
       getStepUpStatus().catch(() => null),
-      loadAdminNavCounts(),
+      import('../../features/admin/nav.ts').then(({ loadAdminNavCounts }) => loadAdminNavCounts()),
     ])
     return { stepUp, navCounts }
   },

@@ -25,6 +25,8 @@ export default defineConfig({
                 name: 'integration',
                 include: ['test/**/*.integration.test.ts'],
                 globalSetup: ['@xuanxue/db/test/global-setup'],
+                // 本地 R2/KV 经 miniflare 往返，CI 并行负载下分页删除用例曾超过默认 5 秒；与 jobs 集成测试取同一上限。
+                testTimeout: 15_000,
               },
             },
           ]

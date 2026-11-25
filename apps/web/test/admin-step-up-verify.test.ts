@@ -23,7 +23,8 @@ vi.mock('@tanstack/react-start', () => ({
   },
 }))
 vi.mock('@tanstack/react-start/server', () => ({
-  getRequest: () => ({ headers: new Headers() }),
+  // 项目扩展点（step-up.project.ts）按请求 Host 选邮件品牌：西方站后台
+  getRequest: () => new Request('https://arcanumber.com/admin'),
   setResponseHeader: () => {},
   setResponseStatus: () => {},
 }))
@@ -67,7 +68,13 @@ const auth = createAuth({ APP_URL, BETTER_AUTH_SECRET: SECRET }, db, {
 // web 测试 Worker 没有 RL_AUTH 绑定；限流语义由 @xuanxue/auth 的集成测试覆盖
 const rateLimiter = { limit: async () => ({ success: true }) }
 
-const emails: { template: string; to: string; props: { otp?: string } }[] = []
+const emails: {
+  template: string
+  to: string
+  props: { otp?: string }
+  site?: string
+  appName?: string
+}[] = []
 const events: { operations: { event: string; sourceId: string }[] }[] = []
 
 function createRuntime(env: Record<string, string> = {}): WebRuntime {
@@ -188,7 +195,14 @@ describe('step-up server functions', () => {
       template: 'admin-step-up-code',
       to: admin.email,
       props: { otp: expect.stringMatching(/^\d{6}$/), expiresInMinutes: 10 },
+      // 项目（split-site-accounts）：消息带当前站点，品牌为本站品牌
+      site: 'west',
+      appName: 'Arcanumber',
     })
+    // 验证码行写入管理员账户所在站点（step-up.project.ts stepUpVerificationColumns）
+    expect(
+      await db.$client`select site from verification where identifier=${`admin-step-up:${admin.context.session?.id}`}`,
+    ).toEqual([{ site: 'west' }])
     expect(
       await call<Result>(sendStepUpCode, admin.context, { method: 'email_otp' }),
     ).toMatchObject({

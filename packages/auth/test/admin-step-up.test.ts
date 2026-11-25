@@ -96,6 +96,8 @@ async function service(overrides: Partial<AdminStepUpDeps> = {}) {
     sendEmail: async (email) => {
       if (email.type === 'admin-step-up-code') mail.push(email)
     },
+    // 项目（xuanxue）：verification.site 为必填列，与 web 的 step-up.project.ts 一样由附加列提供
+    verificationColumns: () => ({ site: 'west' }),
     ...overrides,
   }
   return { stepUp: createAdminStepUp(deps), mail, lastCode: () => mail.at(-1)?.otp ?? '' }
@@ -257,6 +259,32 @@ describe('admin step-up: email code and password', () => {
     const { stepUp } = await service()
     expect((await stepUp.options(a.session)).methods).toEqual(['password'])
     expect((await rejected(stepUp.sendCode(a.session))).code).toBe('STEP_UP_METHOD_UNAVAILABLE')
+  })
+
+  it('asks the project for extra verification columns without letting them override template columns', async () => {
+    const a = await account('project-columns')
+    const calls: string[] = []
+    const { stepUp, lastCode } = await service({
+      // 衍生项目的附加列（如多站点 site）；模板表没有这些列，同名的模板列不得被覆盖
+      verificationColumns: (userId) => {
+        calls.push(userId)
+        return { site: 'west', identifier: 'project-override', value: 'project-override' }
+      },
+    })
+    await stepUp.sendCode(a.session)
+    expect(
+      (await rejected(stepUp.verify(a.session, { method: 'email_otp', code: '000000' }))).code,
+    ).toBe('STEP_UP_INVALID')
+    expect(calls).toEqual([a.userId, a.userId])
+    const rows =
+      await sql`select identifier, value from verification where identifier in ${sql([`admin-step-up:${a.session.id}`, `admin-step-up-lock:${a.userId}`])}`
+    expect(rows.map((r) => r.identifier).sort()).toEqual(
+      [`admin-step-up-lock:${a.userId}`, `admin-step-up:${a.session.id}`].sort(),
+    )
+    expect(rows.every((r) => r.value !== 'project-override')).toBe(true)
+    expect((await stepUp.verify(a.session, { method: 'email_otp', code: lastCode() })).method).toBe(
+      'email_otp',
+    )
   })
 })
 

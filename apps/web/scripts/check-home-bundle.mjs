@@ -59,6 +59,26 @@ export const RENDERER_MARKERS = [
   'NotoSansKR-Regular',
 ]
 
+/**
+ * 水合闭包中不应出现的后台代码（0.10.1）：DataTable 只用于后台与列表页，应随路由组件分包加载。
+ * TanStack 默认只拆 component / errorComponent / notFoundComponent，路由的 loader 与 pendingComponent
+ * 留在路由树里随入口水合，它们静态导入的列表页会把 DataTable 带进所有页面。
+ */
+export const HYDRATION_PATTERNS = [
+  { marker: 'DataTable', pattern: /["']?data-slot["']?\s*:\s*[`"']data-table[`"']/ },
+]
+
+/** 在水合闭包中查找 HYDRATION_PATTERNS */
+export function hydrationViolations(clientDir, files) {
+  const violations = []
+  for (const asset of files) {
+    const text = readFileSync(join(clientDir, asset), 'utf8')
+    for (const { marker, pattern } of HYDRATION_PATTERNS)
+      if (pattern.test(text)) violations.push({ asset, marker })
+  }
+  return violations
+}
+
 // 静态导入的 WASM、Data 模块与字体文件（渲染器随包的部分）
 const BINARY_IMPORT =
   /\b(?:import|export)\s*(?:[\w$*{}\s,]*?\bfrom\s*)?["']([^"']+\.(?:wasm|bin|woff2?|otf|ttf))["']/g
@@ -349,6 +369,7 @@ export function checkHomePage(clientDir, file = 'index.html') {
     files,
     hydration,
     hydrationGzipBytes: zod.gzipBytes,
+    hydrationViolations: hydrationViolations(clientDir, hydration),
     zodSources: zod.violations.length
       ? zodSources(
           clientDir,
@@ -525,6 +546,9 @@ export function checkHomePages(
       ...result,
       violations: configBudget === null ? all.filter((item) => !zod.includes(item)) : all,
       zodWarnings: configBudget === null ? zod : [],
+      // 模板 0.10.1：水合闭包中的后台列表代码（DataTable）与 zod 相同，设置预算时判失败、否则只警告
+      hydrationWarnings: configBudget === null ? result.hydrationViolations : [],
+      hydrationProblems: configBudget === null ? [] : result.hydrationViolations,
       overBudget: budgetViolation(result.gzipBytes, budget) !== null,
       head,
       headDiffs: diffHomeHead(head, snapshot[id]),
@@ -656,6 +680,9 @@ export function reportToolPages(tools, splits) {
 }
 
 /** 把检查结果整理为输出行；有任何问题时 ok 为 false */
+const HYDRATION_HINT =
+  '水合闭包（所有页面都会下载）中出现了后台列表代码。路由的 loader 与 pendingComponent 不会按路由拆包：loader 里的重模块改用 import()，骨架组件放在不导入列表页的单独文件'
+
 export function reportHomePages(results) {
   const lines = []
   const warnings = []
@@ -673,7 +700,15 @@ export function reportHomePages(results) {
           'server function 的 schema 写在 .validator() 调用内或只在服务端模块定义，模块顶层 schema 用 /* @__PURE__ */ 标注',
         ...page.zodSources.map((source) => `    · ${source}`),
       )
+    if (page.hydrationWarnings.length > 0)
+      warnings.push(
+        `首页包检查警告：${label} ${HYDRATION_HINT}`,
+        ...page.hydrationWarnings.map(({ asset, marker }) => `  - 客户端 ${asset} 含 ${marker}`),
+      )
     const problems = [
+      ...page.hydrationProblems.map(
+        ({ asset, marker }) => `客户端 ${asset} 含 ${marker}：${HYDRATION_HINT}`,
+      ),
       ...page.violations.map(
         ({ asset, marker }) =>
           `静态依赖 ${asset} 含 "${marker}"（阅读器 / 对话 / Markdown / 分享图与分享卡片渲染器 / zod schema 只应懒加载）`,
