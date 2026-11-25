@@ -1,0 +1,14 @@
+Acme
+
+
+Confirma una acción de administración sensible
+
+Hola, Ada:
+
+Alguien con tu sesión en el panel de administración de Acme va a realizar una acción sensible. Ingresa el siguiente código para confirmar que eres tú. Vence en 10 minutos y solo funciona en la sesión del navegador que lo pidió.
+
+730215
+
+----------------------------------------
+
+No compartas este código. Si no lo pediste, alguien podría estar usando tu sesión de administración: cierra todas las sesiones y cambia tu contraseña.

@@ -1,10 +1,16 @@
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
-import { Button, Separator } from '@xuanxue/ui'
+import { createFileRoute, Link, Outlet, useRouterState } from '@tanstack/react-router'
+import { Badge, Button, Separator } from '@xuanxue/ui'
 import { useEffect, useState } from 'react'
 import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
-import { getAdminNavGroups } from '../../features/admin/nav.ts'
+import { getAdminNavGroups, loadAdminNavCounts } from '../../features/admin/nav.ts'
 import { siteLabel } from '../../features/admin/site-ui.tsx'
+import { getStepUpStatus } from '../../features/admin/step-up/step-up.functions.ts'
+import {
+  StepUpProvider,
+  StepUpRescueBanner,
+  StepUpVerifiedChip,
+} from '../../features/admin/step-up/step-up-provider.tsx'
 import { signOut as signOutClient } from '../../features/auth/auth-client.ts'
 import { LanguageSelect } from '../../features/i18n/language-select.tsx'
 import { useSignedInHint } from '../../features/i18n/signed-in.ts'
@@ -18,6 +24,14 @@ import { templateConfig } from '../../server/template-config.ts'
 // 侧栏导航见 features/admin/nav.ts（add-admin-console tasks.md 1.3）。
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => ({ admin: await getAdminViewer() }),
+  // 顶部验证状态、救援警示与导航计数；读取失败时降级为不显示，不影响后台页面
+  loader: async () => {
+    const [stepUp, navCounts] = await Promise.all([
+      getStepUpStatus().catch(() => null),
+      loadAdminNavCounts(),
+    ])
+    return { stepUp, navCounts }
+  },
   head: ({ matches }) => ({ meta: [{ title: siteTitle(ADMIN_COPY.title, matches) }] }),
   component: AdminLayout,
 })
@@ -25,63 +39,87 @@ export const Route = createFileRoute('/admin')({
 function AdminLayout() {
   useSignedInHint()
   const { admin } = Route.useRouteContext()
+  const isLoading = useRouterState({ select: (state) => state.isLoading })
+  const { stepUp, navCounts } = Route.useLoaderData()
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
-      {/* 外层随正文拉伸提供整列背景与分隔线，内层在桌面端吸顶，底部控件始终可见 */}
-      <div className="border-b bg-muted/30 md:w-60 md:shrink-0 md:border-r md:border-b-0">
-        <aside className="flex min-w-0 flex-col gap-4 p-4 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
-          <header className="flex flex-col gap-1">
-            <h1 className="font-semibold text-title">{ADMIN_COPY.heading}</h1>
-            <p className="break-all text-muted-foreground text-caption">
-              {ADMIN_COPY.signedInAs} {admin.email}
-            </p>
-            <p className="text-muted-foreground text-caption">
-              {m.admin_current_site({ site: siteLabel(admin.site) })}
-            </p>
-          </header>
-          <nav aria-label={ADMIN_COPY.nav.label} className="flex flex-col gap-3 md:gap-4">
-            {getAdminNavGroups().map((group) => (
-              <div key={group.id} className="flex flex-col gap-1">
-                {group.label && (
-                  <p className="px-3 font-medium text-muted-foreground text-caption">
-                    {group.label}
-                  </p>
-                )}
-                <ul className="flex flex-wrap gap-1 md:flex-col">
-                  {group.items.map(({ label, ...link }) => (
-                    <li key={link.to}>
-                      <Link
-                        {...link}
-                        className="block rounded-md px-3 py-1.5 text-body hover:bg-hover"
-                        activeProps={{ className: 'bg-active font-medium', 'aria-current': 'page' }}
-                      >
-                        {label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+    <StepUpProvider status={stepUp}>
+      <StepUpRescueBanner />
+      <div className="flex min-h-screen flex-col md:flex-row">
+        {/* 外层随正文拉伸提供整列背景与分隔线，内层在桌面端吸顶，底部控件始终可见 */}
+        <div className="border-b bg-muted/30 md:w-60 md:shrink-0 md:border-r md:border-b-0">
+          <aside className="flex min-w-0 flex-col gap-4 p-4 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
+            <header className="flex flex-col gap-1">
+              <h1 className="font-semibold text-title">{ADMIN_COPY.heading}</h1>
+              <p className="break-all text-muted-foreground text-caption">
+                {ADMIN_COPY.signedInAs} {admin.email}
+              </p>
+              <p className="text-muted-foreground text-caption">
+                {m.admin_current_site({ site: siteLabel(admin.site) })}
+              </p>
+            </header>
+            <nav aria-label={ADMIN_COPY.nav.label} className="flex flex-col gap-3 md:gap-4">
+              {getAdminNavGroups().map((group) => (
+                <div key={group.id} className="flex flex-col gap-1">
+                  {group.label && (
+                    <p className="px-3 font-medium text-muted-foreground text-caption">
+                      {group.label}
+                    </p>
+                  )}
+                  <ul className="flex flex-wrap gap-1 md:flex-col">
+                    {group.items.map(({ label, ...link }) => {
+                      const count = navCounts[link.to] ?? 0
+                      return (
+                        <li key={link.to}>
+                          <Link
+                            {...link}
+                            className="flex items-center gap-2 rounded-md px-3 py-1.5 text-body hover:bg-hover"
+                            activeProps={{
+                              className: 'bg-active font-medium',
+                              'aria-current': 'page',
+                            }}
+                          >
+                            <span className="min-w-0 flex-1">{label}</span>
+                            {count > 0 ? (
+                              <Badge color="accent" size="compact">
+                                {count}
+                              </Badge>
+                            ) : null}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+            <div className="mt-auto flex flex-col gap-3">
+              <Separator />
+              <div className="flex flex-wrap items-center gap-2">
+                {templateConfig.i18n.enabled && <LanguageSelect />}
+                <ThemeToggle />
               </div>
-            ))}
-          </nav>
-          <div className="mt-auto flex flex-col gap-3">
-            <Separator />
-            <div className="flex flex-wrap items-center gap-2">
-              {templateConfig.i18n.enabled && <LanguageSelect />}
-              <ThemeToggle />
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/app">{ADMIN_COPY.backToApp}</Link>
+                </Button>
+                <SignOutButton />
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/app">{ADMIN_COPY.backToApp}</Link>
-              </Button>
-              <SignOutButton />
-            </div>
+          </aside>
+        </div>
+        <main className="min-w-0 flex-1 p-4 sm:p-6">
+          <div className="mb-4 flex justify-end empty:hidden">
+            <StepUpVerifiedChip />
           </div>
-        </aside>
+          {isLoading && (
+            <p role="status" className="mb-4 text-muted-foreground text-body">
+              {m.admin_loading_page()}
+            </p>
+          )}
+          <Outlet />
+        </main>
       </div>
-      <main className="min-w-0 flex-1 p-4 sm:p-6">
-        <Outlet />
-      </main>
-    </div>
+    </StepUpProvider>
   )
 }
 

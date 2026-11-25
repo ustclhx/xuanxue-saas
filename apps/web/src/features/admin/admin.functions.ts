@@ -17,7 +17,14 @@ export const adminMiddleware = createMiddleware({ type: 'function' }).server(asy
   // IP 只使用入口完成信任校验后的请求元数据；site 为按 Host 解析的当前站点（split-site-accounts 决策 7），
   // 列表默认筛选与写操作的站点校验都以它为准，客户端不能指定。
   return next({
-    context: { admin: admin.user, db, ip: runtime.requestMeta.clientIp, site: runtime.site },
+    context: {
+      admin: admin.user,
+      db,
+      ip: runtime.requestMeta.clientIp,
+      site: runtime.site,
+      // 敏感动作按此会话检查重新验证（add-admin-step-up 决策 2）
+      session: { id: admin.session.id, userId: admin.user.id },
+    },
   })
 })
 

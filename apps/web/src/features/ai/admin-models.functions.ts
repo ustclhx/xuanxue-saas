@@ -9,6 +9,7 @@ import { templateConfig } from '../../server/template-config.ts'
 import { withAdminAction } from '../admin/action.server.ts'
 import { adminMiddleware } from '../admin/admin.functions.ts'
 import { ADMIN_MAX_OFFSET, ADMIN_PAGE_SIZE, adminListSearch } from '../admin/list.ts'
+import { rethrowStepUpRequired } from '../admin/step-up/client.ts'
 import { availableMediaProviders } from './admin-model-provider.ts'
 import { adminModelInput, adminModelKey, adminModelKinds } from './admin-models.schema.ts'
 import {
@@ -42,6 +43,7 @@ async function safe(action: () => Promise<string>): Promise<Result> {
     await invalidateModelCache(getWebRuntime().cache)
     return { ok: true, id }
   } catch (error) {
+    rethrowStepUpRequired(error)
     if (error instanceof PricingError) return { ok: false, error: error.code }
     if (error instanceof AppError) return { ok: false, error: error.code, message: error.message }
     if (isUniqueViolation(error)) return { ok: false, error: 'MODEL_KEY_TAKEN' }
@@ -79,8 +81,10 @@ export const saveAdminModel = createServerFn({ method: 'POST' })
   .inputValidator(adminModelInput.extend({ id: z.uuid().optional() }))
   .handler(({ context, data }) =>
     safe(() =>
-      withAdminAction(context, 'ai.model_save', (scope) =>
-        saveAdminModelRecord(scope, data, modelRuntimeCapabilities()),
+      withAdminAction(
+        context,
+        { name: 'ai.model_save', input: { id: data.id, pricing: data.pricing } },
+        (scope) => saveAdminModelRecord(scope, data, modelRuntimeCapabilities()),
       ),
     ),
   )
@@ -90,7 +94,7 @@ export const setAdminModelEnabled = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ id: z.uuid(), enabled: z.boolean() }))
   .handler(({ context, data }) =>
     safe(() =>
-      withAdminAction(context, 'ai.model_set_enabled', (scope) =>
+      withAdminAction(context, 'ai.model_toggle', (scope) =>
         setAdminModelRecordEnabled(scope, data, modelRuntimeCapabilities()),
       ),
     ),

@@ -18,8 +18,10 @@ export const saveReadingSettings = createServerFn({ method: 'POST' })
   .middleware([adminMiddleware])
   .inputValidator(readingSettingsInput)
   .handler(async ({ context, data }) => {
-    await withAdminAction(context, 'setting.readings.update', (scope) =>
-      writeReadingSettings(scope, data),
+    await withAdminAction(
+      context,
+      { name: 'setting.readings.update', input: { readings: data.readings } },
+      (scope) => writeReadingSettings(scope, data),
     )
     try {
       await invalidateReadingSettings(getWebRuntime().cache)

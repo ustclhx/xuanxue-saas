@@ -1,10 +1,10 @@
 import type { SiteId } from '@xuanxue/config'
-import { grant, revokeGrant } from '@xuanxue/credits'
-import { auditLog, organization } from '@xuanxue/db'
+import { getCreditBalance, grant, revokeGrant } from '@xuanxue/credits'
+import { auditLog, type Database, organization } from '@xuanxue/db'
 import { AppError } from '@xuanxue/shared'
 import { and, eq, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import type { AdminActionScope } from './action.ts'
+import type { AdminActionScope, AdminTransaction } from './action.ts'
 import { assertAdminSite } from './site.ts'
 
 export const creditAdjustmentInput = z.discriminatedUnion('kind', [
@@ -26,6 +26,17 @@ export const creditAdjustmentInput = z.discriminatedUnion('kind', [
 ])
 
 /** 调整 ID 锁跨空间串行化重试；原始审计绑定参数，失败时积分与审计一起回滚。 */
+/**
+ * 空间当前可用积分（未过期的有效批次剩余之和）：MCP 积分调整的发起时快照与确认页的实时余额。
+ * 只用于展示，执行不以余额变化阻断（调整是增量，且有幂等 adjustmentId）。
+ */
+export async function adminCreditBalance(
+  db: Database | AdminTransaction,
+  workspaceId: string,
+): Promise<number> {
+  return (await getCreditBalance(db, workspaceId)).available
+}
+
 export async function adjustAdminCredits(
   { tx, audit }: AdminActionScope,
   data: z.infer<typeof creditAdjustmentInput>,

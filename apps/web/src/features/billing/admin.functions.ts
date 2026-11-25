@@ -4,16 +4,11 @@ import { setResponseStatus } from '@tanstack/react-start/server'
 import {
   createBillingEventHandler,
   createCompensationFailureHandler,
-  createPaymentRuntime,
   markManualRefund,
-  notifyRefundRequest,
-  type RefundServiceOptions,
   replayWebhook,
   retryRefundNotification,
   reviewRefundRequest,
 } from '@xuanxue/billing'
-import { siteBrandName } from '@xuanxue/config'
-import type { Database } from '@xuanxue/db'
 import { requireCapability } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
 import { withRequestId } from '@xuanxue/shared/log'
@@ -25,8 +20,8 @@ import { withAdminAction, withDelegatedAdminAction } from '../admin/action.serve
 import { adminMiddleware } from '../admin/admin.functions.ts'
 import { adminWorkspaceIdFilter } from '../admin/list.ts'
 import { ADMIN_ALL_SITES, ADMIN_OTHER_SITE, assertAdminSite } from '../admin/site.ts'
+import { rethrowStepUpRequired } from '../admin/step-up/client.ts'
 import { enqueueServerAnalytics } from '../analytics/server.ts'
-
 import {
   listAdminPayments,
   listAdminPurchases,
@@ -34,6 +29,10 @@ import {
   listAdminSubscriptions,
   listAdminWebhooks,
 } from './admin-data.ts'
+import {
+  adminRefundOptions as refundOptions,
+  adminPaymentRuntime as runtime,
+} from './admin-refunds.server.ts'
 import { requestRefundNotificationRetry, requestWebhookReplay } from './admin-writes.ts'
 
 const page = z.object({
@@ -43,45 +42,14 @@ const page = z.object({
   site: z.literal(ADMIN_ALL_SITES).optional(),
 })
 const request = z.object({ requestId: z.uuid() })
-function runtime(db: Database) {
-  try {
-    return createPaymentRuntime(getWebRuntime().config, templateConfig.billing.providers, {
-      cache: getWebRuntime().cache,
-      db,
-    })
-  } catch (error) {
-    if (error instanceof AppError && error.status === 503) setResponseStatus(503)
-    throw error
-  }
-}
-function refundOptions(db: Database): RefundServiceOptions {
-  const queue = requireCapability(getWebRuntime().emailQueue, 'Email queue')
-  return {
-    db,
-    providers: runtime(db).providers,
-    config: templateConfig.billing,
-    notify: (notification) =>
-      notifyRefundRequest(
-        {
-          db,
-          queue: {
-            send: async (message) => {
-              await queue.send(withRequestId(message))
-            },
-          },
-          appName: (locale, site) => siteBrandName(templateConfig, site, locale),
-          supportEmail: (_locale, site) => templateConfig.sites[site].supportEmail,
-        },
-        notification,
-      ),
-  }
-}
 async function safe(action: () => Promise<string>) {
   try {
     return { ok: true as const, status: await action() }
   } catch (error) {
     // 写事务内发现管理员已失效：与守卫一样返回 404，不当作业务失败
     if (isNotFound(error)) throw error
+    // 需要重新验证：原样抛出，交给后台调用包装弹出验证（add-admin-step-up 决策 10）
+    rethrowStepUpRequired(error)
     if (error instanceof AppError && (error.status === 503 || error.code === ADMIN_OTHER_SITE))
       setResponseStatus(error.status)
     return {
@@ -209,6 +177,7 @@ export const reviewAdminRefund = createServerFn({ method: 'POST' })
     safe(async () =>
       withDelegatedAdminAction(
         context,
+        { name: 'billing.refund_review', input: { decision: data.decision } },
         async (db) =>
           (
             await reviewRefundRequest(refundOptions(db), {
@@ -237,6 +206,7 @@ export const completeAdminRefund = createServerFn({ method: 'POST' })
     safe(async () =>
       withDelegatedAdminAction(
         context,
+        'billing.refund_manual',
         async (db) =>
           (
             await markManualRefund(refundOptions(db), {
@@ -255,9 +225,9 @@ export const retryAdminRefundEmail = createServerFn({ method: 'POST' })
   .inputValidator(request)
   .handler(({ context, data }) =>
     safe(async () =>
-      withDelegatedAdminAction(context, async (db) => {
+      withDelegatedAdminAction(context, 'billing.refund_email_retry', async (db) => {
         const options = refundOptions(db)
-        await withAdminAction(context, 'billing.refund_notification_retry_requested', (scope) =>
+        await withAdminAction(context, 'billing.refund_email_retry', (scope) =>
           requestRefundNotificationRetry(scope, data.requestId, context.site),
         )
         await retryRefundNotification(options, {

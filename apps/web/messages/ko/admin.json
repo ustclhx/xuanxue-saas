@@ -290,6 +290,7 @@
   "admin_name_slug_or_id": "이름, 슬러그 또는 ID",
   "admin_all": "전체",
   "admin_admin": "관리자 콘솔",
+  "admin_loading_page": "페이지를 불러오는 중…",
   "admin_signed_in_as": "로그인 계정",
   "admin_back_to_app": "앱으로 돌아가기",
   "admin_sign_out": "로그아웃",

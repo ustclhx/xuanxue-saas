@@ -6,27 +6,25 @@ import { getAnnouncement } from '../features/admin/settings-announcement.functio
 import { AnnouncementBanner } from '../features/admin/settings-announcement-banner.tsx'
 import { ProductAnalytics } from '../features/analytics/analytics.tsx'
 import { analyticsHeadScripts } from '../features/analytics/head.ts'
+import { RootError, RootNotFound } from '../features/app-shell/root-fallbacks.project.tsx'
 import { LocalePromptLoader } from '../features/i18n/locale-prompt-loader.tsx'
 import { getBlogLocales } from '../features/marketing/content.functions.ts'
-import { contentLinks } from '../features/marketing/content-links.ts'
-import { ContentHead, ContentPage, inlineLinks } from '../features/marketing/content-page.tsx'
-import { MarketingShell } from '../features/marketing/marketing-shell.tsx'
 import { privateMeta, titleWithSite } from '../features/seo/metadata.ts'
 import {
   getPlausibleSite,
   getSafeImpersonation,
   getSeoOrigin,
 } from '../features/seo/origin.functions.ts'
-import { SiteContext, useSiteId } from '../features/site/context.tsx'
+import { SiteContext } from '../features/site/context.tsx'
 import { pvuvHeadScripts } from '../features/site/pvuv.ts'
 import { getCurrentSite } from '../features/site/site.functions.ts'
-import { siteNavLocale, siteServesLocale } from '../features/site/site.ts'
+import { siteServesLocale } from '../features/site/site.ts'
 import { siteFontScript, siteIconLinks, siteThemeScript } from '../features/site/theme.ts'
 import { getHtmlAttributes } from '../features/theme/html-attributes.isomorphic.ts'
 import { RootDocument } from '../features/theme/root-document.tsx'
 import { SiteSettings } from '../features/theme/site-settings.tsx'
 import { m } from '../paraglide/messages.js'
-import { getLocale, type Locale, localizeHref } from '../paraglide/runtime.js'
+import { getLocale } from '../paraglide/runtime.js'
 import { templateConfig } from '../server/template-config.ts'
 import appCss from '../styles/app.css?url'
 
@@ -81,7 +79,9 @@ export const Route = createRootRoute({
     ],
   }),
   component: RootComponent,
-  notFoundComponent: NotFoundPage,
+  // 404 与错误界面由项目自有的 root-fallbacks.project.tsx 提供，template-sync 更新本文件时不替换项目组件
+  notFoundComponent: RootNotFound,
+  errorComponent: RootErrorComponent,
 })
 
 function rootBrand(site: SiteId): string {
@@ -97,39 +97,23 @@ function rootBrand(site: SiteId): string {
 }
 
 /**
- * 404 页（保持 404 状态，不跳转首页；设计稿 warm-refresh/NotFound.dc.html）：小字「错误 404」、H1、一句说明
- * 与回到本站首页的主按钮。说明里链接本站的主工具与三张牌塔罗（正文内链 2 条）。
- * 链接按本站导航语言生成完整地址（siteNavLocale），不落到另一站点或本站不存在的语言路径。
- * 营销站点开启时带站点页头与页脚；关闭时只输出正文。
+ * 根路由自身出错时（beforeLoad / loader / 渲染）会替换整个 RootComponent，这里补上 HTML 外壳，
+ * 仍显示带站点导航的错误界面而不是框架默认错误页（public-site-availability）。
+ * 站点取自首屏已计算的 <html data-site>（RootComponent 的 loader 已失败，拿不到站点数据）。
  */
-function NotFoundPage() {
-  const site = useSiteId()
-  const locale = siteNavLocale(site, getLocale(), templateConfig) as Locale
-  const body = (
-    <ContentPage>
-      <ContentHead
-        eyebrow={<p className="m-0 text-caption text-ink-subtle">{m.common_not_found_eyebrow()}</p>}
-        title={m.common_not_found_title()}
-      >
-        <p className="m-0 text-body text-ink-muted">
-          {inlineLinks(m.common_not_found_body({}, { locale }), contentLinks(locale))}
-        </p>
-        <p className="m-0 mt-3 flex">
-          <a
-            href={localizeHref('/', { locale })}
-            className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-brand px-7 font-medium text-body text-on-brand no-underline transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-3 sm:w-auto"
-          >
-            {m.common_not_found_home({ brand: siteBrandName(templateConfig, site, locale) })}
-          </a>
-        </p>
-      </ContentHead>
-    </ContentPage>
-  )
-  if (templateConfig.marketing.enabled) return <MarketingShell>{body}</MarketingShell>
+function RootErrorComponent() {
+  const htmlAttributes = useRouterState({
+    select: (state) =>
+      (state.matches[0]?.context as { htmlAttributes?: Record<string, string> } | undefined)
+        ?.htmlAttributes,
+  })
+  const site: SiteId = htmlAttributes?.['data-site'] === 'east' ? 'east' : 'west'
   return (
-    <main data-surface="marketing" className="text-body">
-      {body}
-    </main>
+    <SiteContext value={site}>
+      <RootDocument floatingControls={false} htmlAttributes={htmlAttributes ?? {}}>
+        <RootError />
+      </RootDocument>
+    </SiteContext>
   )
 }
 

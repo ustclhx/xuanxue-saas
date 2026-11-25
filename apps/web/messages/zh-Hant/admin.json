@@ -290,6 +290,7 @@
   "admin_name_slug_or_id": "名稱、路徑標識或 ID",
   "admin_all": "全部",
   "admin_admin": "管理後台",
+  "admin_loading_page": "正在載入頁面…",
   "admin_signed_in_as": "目前登入",
   "admin_back_to_app": "返回應用",
   "admin_sign_out": "退出登入",

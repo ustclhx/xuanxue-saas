@@ -244,7 +244,7 @@ describe('账务后台写操作按站点', () => {
   it('重发退款邮件：另一站的申请返回 403、无审计、不发信，本站正常重发', async () => {
     notify.mockClear()
     await expect(
-      runAdminAction(context(), 'billing.refund_notification_retry_requested', (scope) =>
+      runAdminAction(context(), 'billing.refund_email_retry', (scope) =>
         requestRefundNotificationRetry(scope, f.west.refund, 'east'),
       ),
     ).rejects.toMatchObject(otherSite)
@@ -262,7 +262,7 @@ describe('账务后台写操作按站点', () => {
       ),
     ).toHaveLength(0)
 
-    await runAdminAction(context(), 'billing.refund_notification_retry_requested', (scope) =>
+    await runAdminAction(context(), 'billing.refund_email_retry', (scope) =>
       requestRefundNotificationRetry(scope, f.east.refund, 'east'),
     )
     await retryRefundNotification(options, {

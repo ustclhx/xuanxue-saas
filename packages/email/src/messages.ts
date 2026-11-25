@@ -31,6 +31,8 @@ export interface EmailTemplateProps {
   'verify-email': { readonly url: string }
   /** 邮箱验证码（emailOTP 插件），用途决定文案 */
   otp: { readonly otp: string; readonly purpose: OtpPurpose; readonly expiresInMinutes: number }
+  /** 后台敏感操作的重新验证码（@xuanxue/auth admin-step-up.ts） */
+  'admin-step-up-code': { readonly otp: string; readonly expiresInMinutes: number }
   /** 魔法链接登录 */
   'magic-link': { readonly url: string; readonly expiresInMinutes: number }
   /** 找回密码 */
@@ -189,6 +191,19 @@ const en: CopyBuilders = {
         'Never share this code with anyone. If you did not request it, you can ignore this email.',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${otp} is your ${appName} admin verification code`,
+    preview: 'Confirm it is you before a sensitive admin action.',
+    heading: 'Confirm a sensitive admin action',
+    greeting: greetingEn(recipientName),
+    paragraphs: [
+      `Someone signed in as you in the ${appName} admin console is about to perform a sensitive action. Enter the code below to confirm it is you. It expires in ${minutesEn(expiresInMinutes)} and works only in the browser session that requested it.`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      'Never share this code. If you did not request it, someone may be using your admin session: sign out of all sessions and change your password.',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `Sign in to ${appName}`,
     preview: `Your sign-in link for ${appName}.`,
@@ -327,6 +342,19 @@ const zhHant: CopyBuilders = {
       footer: '請勿將驗證碼告訴任何人。如果這不是你本人的操作，請忽略這封郵件。',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${otp} 是你的 ${appName} 後台操作驗證碼`,
+    preview: '執行敏感後台操作前，請確認是你本人。',
+    heading: '確認敏感後台操作',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      `有人以你的身分在 ${appName} 後台準備執行敏感操作。請輸入以下驗證碼確認是你本人。驗證碼 ${expiresInMinutes} 分鐘內有效，只能在申請它的瀏覽器工作階段中使用。`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      '請勿將驗證碼告訴任何人。如果這不是你本人的操作，你的後台工作階段可能已遭盜用：請登出所有工作階段並修改密碼。',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `登入 ${appName}`,
     preview: `你的 ${appName} 登入連結。`,
@@ -462,6 +490,19 @@ const zhHans: CopyBuilders = {
       footer: '请勿将验证码告诉任何人。如果这不是你本人的操作，请忽略这封邮件。',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${otp} 是你的 ${appName} 后台操作验证码`,
+    preview: '执行敏感后台操作前，请确认是你本人。',
+    heading: '确认敏感后台操作',
+    greeting: greetingZh(recipientName),
+    paragraphs: [
+      `有人以你的身份在 ${appName} 后台准备执行敏感操作。请输入以下验证码确认是你本人。验证码 ${expiresInMinutes} 分钟内有效，只能在申请它的浏览器会话中使用。`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      '请勿将验证码告诉任何人。如果这不是你本人的操作，你的后台会话可能已被盗用：请退出所有会话并修改密码。',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `登录 ${appName}`,
     preview: `你的 ${appName} 登录链接。`,
@@ -606,6 +647,19 @@ const ko: CopyBuilders = {
         '이 코드를 다른 사람에게 알려 주지 마세요. 직접 요청하지 않았다면 이 메일을 무시하세요.',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${appName} 관리자 작업 인증 코드: ${otp}`,
+    preview: '민감한 관리자 작업 전에 본인인지 확인해 주세요.',
+    heading: '민감한 관리자 작업 확인',
+    greeting: greetingKo(recipientName),
+    paragraphs: [
+      `${appName} 관리자 콘솔에서 회원님의 계정으로 민감한 작업을 진행하려고 합니다. 본인이 맞다면 아래 코드를 입력하세요. 코드는 ${expiresInMinutes}분 동안 유효하며, 코드를 요청한 브라우저 세션에서만 사용할 수 있습니다.`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      '이 코드를 다른 사람에게 알려 주지 마세요. 직접 요청하지 않았다면 관리자 세션이 도용되었을 수 있습니다. 모든 세션에서 로그아웃하고 비밀번호를 변경하세요.',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `${appName} 로그인`,
     preview: `${appName} 로그인 링크입니다.`,
@@ -755,6 +809,19 @@ const es: CopyBuilders = {
       footer: 'No compartas este código con nadie. Si no lo pediste, ignora este correo.',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${otp} es tu código de verificación de administración de ${appName}`,
+    preview: 'Confirma que eres tú antes de una acción de administración sensible.',
+    heading: 'Confirma una acción de administración sensible',
+    greeting: greetingEs(recipientName),
+    paragraphs: [
+      `Alguien con tu sesión en el panel de administración de ${appName} va a realizar una acción sensible. Ingresa el siguiente código para confirmar que eres tú. Vence en ${minutesEs(expiresInMinutes)} y solo funciona en la sesión del navegador que lo pidió.`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      'No compartas este código. Si no lo pediste, alguien podría estar usando tu sesión de administración: cierra todas las sesiones y cambia tu contraseña.',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `Inicia sesión en ${appName}`,
     preview: `Tu enlace para entrar a ${appName}.`,
@@ -902,6 +969,19 @@ const ja: CopyBuilders = {
         'このコードは誰にも教えないでください。お心当たりがない場合は、このメールを破棄してください。',
     }
   },
+  'admin-step-up-code': ({ otp, expiresInMinutes }, { appName, recipientName }) => ({
+    subject: `${appName}の管理操作確認コード：${otp}`,
+    preview: '重要な管理操作の前に、ご本人であることを確認してください。',
+    heading: '重要な管理操作の確認',
+    greeting: greetingJa(recipientName),
+    paragraphs: [
+      `${appName}の管理画面で、あなたのアカウントから重要な操作が行われようとしています。ご本人の場合は、次のコードを入力してください。コードの有効期限は${expiresInMinutes}分で、コードを要求したブラウザのセッションでのみ使用できます。`,
+    ],
+    code: otp,
+    linkHint: '',
+    footer:
+      'このコードは誰にも教えないでください。お心当たりがない場合は、管理セッションが不正に使われている可能性があります。すべてのセッションからログアウトし、パスワードを変更してください。',
+  }),
   'magic-link': ({ url, expiresInMinutes }, { appName, recipientName }) => ({
     subject: `${appName}へのログイン`,
     preview: `${appName}のログイン用リンクです。`,

@@ -1,5 +1,6 @@
 import { createRouter } from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
+import { RootError } from './features/app-shell/root-fallbacks.project.tsx'
 import { localeRewrite } from './features/i18n/routing.ts'
 import { routeTree } from './routeTree.gen'
 import { securityNonce } from './security-context.server.ts'
@@ -26,6 +27,10 @@ export function getRouter() {
     routeTree,
     ...(nonce ? { ssr: { nonce } } : {}),
     scrollRestoration: true,
+    // 404 由根路由的 notFoundComponent（root-fallbacks.project.tsx 的 RootNotFound）整页渲染：项目不设
+    // defaultNotFoundComponent，子路由抛出的 notFound 冒泡到根路由，不在后台等布局内嵌营销页头页脚。
+    // 子路由的未处理错误渲染在根布局的 Outlet 中；根路由自身的错误见 __root.tsx 的 errorComponent
+    defaultErrorComponent: RootError,
     rewrite: localeRewrite,
   })
 }
