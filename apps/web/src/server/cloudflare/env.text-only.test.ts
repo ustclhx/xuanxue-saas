@@ -1,11 +1,15 @@
 import { expect, it, vi } from 'vitest'
 
+// 模拟文字项目构建时生成的空 Worker 插件注册表。
+vi.mock('../../plugins.worker.gen.ts', () => ({ default: [] }))
+
 vi.mock('../template-config.ts', async (original) => {
   const { templateConfig } = await original<typeof import('../template-config.ts')>()
   return {
     templateConfig: {
       ...templateConfig,
       ai: { ...templateConfig.ai, image: false, video: false },
+      plugins: {},
       auth: { ...templateConfig.auth, oauth: [], turnstile: false },
       features: { ...templateConfig.features, publicApi: false },
     },
@@ -22,7 +26,10 @@ it('文本项目不需要已从 manifest 移除的媒体 Workflow 绑定', () =>
       EMAIL_QUEUE: { send: fn },
       CACHE: { get: fn, put: fn, delete: fn },
       RL_AUTH: { limit: fn },
+      RL_ADMIN_MCP: { limit: fn },
       RL_AI: { limit: fn },
+      // 模板启用的 agents 插件声明的 Durable Object 绑定
+      AGENT_CONVERSATION: { idFromName: fn, get: fn },
       APP_URL: 'https://text.example',
       BETTER_AUTH_SECRET: 'x'.repeat(32),
     }),

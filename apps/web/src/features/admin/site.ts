@@ -12,8 +12,11 @@ import { templateConfig } from '../../server/template-config.ts'
 
 export const ADMIN_ALL_SITES = 'all'
 
-/** 列表筛选的站点：`all` 返回 null（不限站点），其余取值一律按当前站点，客户端不能指定另一站 */
-export function adminSiteFilter(value: string | undefined, current: SiteId): SiteId | null {
+/**
+ * 列表筛选的站点：`all` 返回 null（不限站点），其余取值一律按当前站点，客户端不能指定另一站。
+ * 当前站点为 null 表示调用方本身是只读的全部站点视图（管理员 MCP 的列表工具）。
+ */
+export function adminSiteFilter(value: string | undefined, current: SiteId | null): SiteId | null {
   return value === ADMIN_ALL_SITES ? null : current
 }
 

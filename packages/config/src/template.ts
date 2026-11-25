@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import type { MediaPluginConfig } from './media.ts'
+import type { PluginConfigSection } from './plugins.ts'
 
 /**
  * 模板配置（`template.config.ts`）：功能开关与产品形态，改代码、重新部署才生效。
@@ -11,7 +13,6 @@ export type PaymentProvider = 'stripe' | 'paypal'
 /** 'per_call' 按次 | 'token' 按 token | 'per_unit' 按张/秒 */
 export type PricingMode = 'per_call' | 'token' | 'per_unit'
 export type AiModality = 'text' | 'image' | 'video'
-export type MediaProviderId = 'fal' | 'workers-ai'
 
 export type DefaultLocale = 'en' | 'zh-Hant' | 'zh-Hans' | 'ko'
 
@@ -463,10 +464,15 @@ export interface TemplateConfig<L extends string = string> {
     readonly text: TextConfig
     readonly image: boolean
     readonly video: boolean
-    /** 启用的媒体服务商；凭据与绑定仍由运行环境提供 */
-    readonly mediaProviders: readonly MediaProviderId[]
     /** 新建模型时的默认计费方式，后台可逐个模型修改 */
     readonly defaultPricingMode: { readonly [M in AiModality]: PricingMode }
+  }
+  /**
+   * 启用的构建期插件：键为插件 id，值为该插件的配置段（openspec add-plugin-system）。
+   * 未出现的插件不进入路由树、服务端与 jobs 入口；配置段由插件清单的 schema 在生成注册文件时校验。
+   */
+  readonly plugins: Readonly<Record<string, PluginConfigSection>> & {
+    readonly media?: MediaPluginConfig
   }
   readonly features: {
     /**
@@ -555,6 +561,7 @@ export interface TemplateConfigInput<L extends string = DefaultLocale> {
     text?: z.input<typeof textConfigSchema>
     defaultPricingMode?: Partial<Section<'ai'>['defaultPricingMode']>
   }
+  plugins?: Section<'plugins'>
   features?: Partial<Section<'features'>>
   analytics?: Partial<Section<'analytics'>>
 }
@@ -632,9 +639,9 @@ export const templateConfigDefaults = {
     },
     image: true,
     video: true,
-    mediaProviders: ['fal', 'workers-ai'],
     defaultPricingMode: { text: 'token', image: 'per_call', video: 'per_call' },
   },
+  plugins: {},
   features: {
     analytics: 'plausible',
     publicApi: false,
@@ -857,8 +864,23 @@ export function defineTemplateConfig<const L extends string = DefaultLocale>(
       text: textConfigSchema.parse(input.ai?.text ?? {}),
       defaultPricingMode: { ...d.ai.defaultPricingMode, ...input.ai?.defaultPricingMode },
     },
+    plugins: input.plugins ?? d.plugins,
     features: { ...d.features, ...input.features },
     analytics: { ...d.analytics, ...input.analytics },
+  }
+
+  // 插件 id 与配置段形状；未知 id、依赖与配置段内容由 resolvePlugins 对照插件清单校验
+  if (
+    typeof config.plugins !== 'object' ||
+    config.plugins === null ||
+    Array.isArray(config.plugins)
+  )
+    throw new RangeError('template config: plugins must be an object keyed by plugin id')
+  for (const [id, section] of Object.entries(config.plugins)) {
+    if (!/^[a-z][a-z0-9-]*$/.test(id))
+      throw new RangeError(`template config: plugins.${id} is not a valid plugin id`)
+    if (typeof section !== 'object' || section === null || Array.isArray(section))
+      throw new RangeError(`template config: plugins.${id} must be an object (use {} for defaults)`)
   }
 
   // 配置文件可能由 JS 或生成器写入，运行时再校验一次取值

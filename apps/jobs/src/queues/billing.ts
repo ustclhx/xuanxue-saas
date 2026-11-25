@@ -3,11 +3,17 @@ import type { Database } from '@xuanxue/db'
 import type { DeadLetterSink, QueueBatch, QueueFailure, QueueMessage } from '@xuanxue/platform'
 import { isAppError } from '@xuanxue/shared'
 import { parseServerAnalyticsMessage } from '@xuanxue/shared/analytics'
-import { log, newRequestId, withLogContext } from '@xuanxue/shared/log'
+import {
+  type JobObserver,
+  log,
+  logJobObserver,
+  newRequestId,
+  withJobObserver,
+  withLogContext,
+} from '@xuanxue/shared/log'
 import { type BillingEnv, createBillingContext, postprocessBillingDelivery } from '../billing.ts'
 import { deliverServerAnalytics } from '../notifications/analytics.ts'
 import { deliverOperations, parseOperationsMessage } from '../notifications/operations.ts'
-import { type JobObserver, logJobObserver, withJobObserver } from '../observer.ts'
 
 const EVENTS_MAX_ATTEMPTS = 6
 

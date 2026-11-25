@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers'
 import {
   createTaskMediaProvider,
+  FalProviderError,
   initialMediaFaultProof,
   type MediaAcceptanceFault,
   type MediaAcceptanceFaultProof,
@@ -32,7 +33,7 @@ import {
   type MediaRunnerDeps,
   runMediaTask,
   submitMediaOnce,
-} from '../src/workflows/media-runner.ts'
+} from '../../../plugins/media/src/jobs/media-runner.ts'
 
 const db = createDb(env.HYPERDRIVE)
 const sql = db.$client
@@ -115,7 +116,7 @@ function harness(
   options: {
     replay?: string[]
     onWait?: () => Promise<void>
-    onSleep?: (duration: number, now: number) => Promise<void>
+    onSleep?: (duration: number, now: number) => number | Promise<void>
     start?: number
   } = {},
 ) {
@@ -174,8 +175,8 @@ function harness(
     },
     async sleep(_name: string, duration: number) {
       sleeps.push(duration)
-      await options.onSleep?.(duration, now)
-      now += duration
+      const elapsed = await options.onSleep?.(duration, now)
+      now += elapsed ?? duration
     },
   } as unknown as WorkflowStep
   return { deps, step, names, sleeps, waits, fetcher, values, now: () => now }
@@ -624,6 +625,41 @@ it('Workers AI 8007 keeps its safe code and summary through the Cloudflare step 
   await refunded(f)
 })
 
+it('fal 明确拒绝（401）经 Cloudflare step 适配器不重试并保留原错误码', async () => {
+  const f = await fixture()
+  const fake = provider()
+  fake.submit.mockRejectedValue(
+    new FalProviderError('FAL_HTTP_ERROR', 'fal.ai HTTP request failed (401)', 401, 'rejected'),
+  )
+  const h = harness(fake)
+  // 模拟 CF 引擎：NonRetryableError 不再重试，回调异常经 RPC 复制后只剩 name/message。
+  const engine = {
+    async do(_name: string, configOrCallback: unknown, maybeCallback?: () => Promise<unknown>) {
+      const callback = (maybeCallback ?? configOrCallback) as () => Promise<unknown>
+      const limit = maybeCallback
+        ? ((configOrCallback as { retries?: { limit: number } }).retries?.limit ?? 0)
+        : 0
+      for (let attempt = 0; ; attempt++) {
+        try {
+          return await callback()
+        } catch (error) {
+          const { name, message } = error as Error
+          if (name === 'NonRetryableError' || attempt >= limit)
+            throw Object.assign(new Error(message), { name })
+        }
+      }
+    },
+  }
+  await runMediaTask(f.taskId, createCloudflareWorkflowStep(engine as never), h.deps)
+  expect(fake.submit).toHaveBeenCalledTimes(1)
+  expect((await state(f)).task).toMatchObject({
+    status: 'failed',
+    errorCode: 'FAL_HTTP_ERROR',
+    providerJobId: null,
+  })
+  await refunded(f)
+})
+
 it('Workers AI transient errors stop after the retry limit and refund the whole hold', async () => {
   const f = await fixture()
   const fake = await workersAi(f)
@@ -790,11 +826,15 @@ it('fal early barrier observes a committed callback before normal checking witho
 it('fal early barrier fails when no callback is committed and never falls back to successful polling', async () => {
   const f = await faultFixture('fal-callback-early')
   const fake = faultProvider()
-  const h = harness(fake, { start: f.start })
+  const h = harness(fake, {
+    start: f.start,
+    // 模拟第一次唤醒延迟到期限前一秒，保留真实十分钟策略和最后一次探测。
+    onSleep: (duration, now) => (now === f.start ? f.fault.barrierMs - 1_000 : duration),
+  })
   enableFaults(h)
   await runMediaTask(f.taskId, h.step, h.deps)
   expect(h.now()).toBe(f.start + 10 * 60_000)
-  expect(h.sleeps.reduce((total, duration) => total + duration, 0)).toBe(10 * 60_000)
+  expect(h.sleeps).toEqual([2_000, 1_000])
   expect(fake.submit).toHaveBeenCalledTimes(1)
   expect(fake.getStatus).not.toHaveBeenCalled()
   expect(h.waits).toEqual([])

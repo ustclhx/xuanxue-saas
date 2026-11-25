@@ -1,0 +1,31 @@
+{
+  "name": "@xuanxue/plugin-media",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@xuanxue/ai": "workspace:*",
+    "@xuanxue/auth": "workspace:*",
+    "@xuanxue/billing": "workspace:*",
+    "@xuanxue/config": "workspace:*",
+    "@xuanxue/credits": "workspace:*",
+    "@xuanxue/db": "workspace:*",
+    "@xuanxue/entitlements": "workspace:*",
+    "@xuanxue/platform": "workspace:*",
+    "@xuanxue/shared": "workspace:*",
+    "@xuanxue/storage": "workspace:*",
+    "@xuanxue/ui": "workspace:*",
+    "@sentry/cloudflare": "^11.6.0",
+    "@tanstack/react-router": "^1.170.41",
+    "@tanstack/react-start": "^1.168.60",
+    "drizzle-orm": "^0.45.3",
+    "react": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "vitest": "^4.1.11"
+  }
+}

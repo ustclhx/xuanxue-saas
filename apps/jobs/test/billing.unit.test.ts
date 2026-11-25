@@ -52,6 +52,7 @@ vi.mock('../src/cron/workspace-cleanup.ts', () => ({
   runWorkspaceCleanup: vi.fn(),
 }))
 
+import { logJobObserver } from '@xuanxue/shared/log'
 import {
   BILLING_DAILY_CRON,
   BILLING_HOURLY_CRON,
@@ -66,7 +67,6 @@ import { runHeartbeat } from '../src/cron/heartbeat.ts'
 import { runMetricsDaily } from '../src/cron/metrics-daily.ts'
 import { runWorkspaceCleanup } from '../src/cron/workspace-cleanup.ts'
 import { consumeJobsBatch, type JobsContext, runJobsSchedule } from '../src/handlers.ts'
-import { logJobObserver } from '../src/observer.ts'
 import { handleBillingBatch } from '../src/queues/billing.ts'
 
 const id = '93f577ac-e28b-4ca3-9768-05d4e2aa5649'

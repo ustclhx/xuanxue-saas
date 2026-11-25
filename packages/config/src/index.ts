@@ -28,6 +28,28 @@ export {
 } from './env.ts'
 export * from './media.ts'
 export {
+  definePlugin,
+  PLUGIN_BINDING_KINDS,
+  PLUGIN_BINDING_METHODS,
+  PLUGIN_ENTRY_KINDS,
+  PLUGIN_FEATURES,
+  PLUGIN_TARGETS,
+  type PluginBinding,
+  type PluginBindingKind,
+  type PluginCheckConfig,
+  PluginConfigError,
+  type PluginConfigSection,
+  type PluginEntryKind,
+  type PluginFeature,
+  type PluginManifest,
+  type PluginTarget,
+  pluginBindingsShape,
+  pluginManifestIssues,
+  pluginsForTarget,
+  type ResolvedPlugin,
+  resolvePlugins,
+} from './plugins.ts'
+export {
   type AiModality,
   brandName,
   type DefaultLocale,
@@ -40,7 +62,6 @@ export {
   type MarketingProduct,
   type MarketingStat,
   type MarketingStep,
-  type MediaProviderId,
   type OAuthProvider,
   type PaymentProvider,
   type PricingMode,

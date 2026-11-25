@@ -1,5 +1,6 @@
 import type { QueueBatch, QueueMessage } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
+import { logJobObserver } from '@xuanxue/shared/log'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { BillingEnv } from '../src/billing.ts'
 import {
@@ -7,7 +8,6 @@ import {
   parseOperationsMessage,
   sendOperationsChannel,
 } from '../src/notifications/operations.ts'
-import { logJobObserver } from '../src/observer.ts'
 import { handleBillingBatch } from '../src/queues/billing.ts'
 
 const deliver = vi.hoisted(() => vi.fn())

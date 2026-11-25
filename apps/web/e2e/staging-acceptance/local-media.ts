@@ -3,7 +3,7 @@ import { readMediaTaskInput, type TaskMediaProvider } from '@xuanxue/ai'
 import { type Database, file, notFound, scoped } from '@xuanxue/db'
 import { persistMediaOutputs } from '@xuanxue/storage'
 import { createCloudflareMediaCopier } from '@xuanxue/storage/cloudflare'
-import { runMediaTask } from '../../../jobs/src/workflows/media-runner.ts'
+import { runMediaTask } from '../../../../plugins/media/src/jobs/media-runner.ts'
 import { requireFileWorkspace } from '../../src/features/files/access.ts'
 import type { FileHttpDeps } from '../../src/features/files/http.ts'
 

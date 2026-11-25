@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "paths": { "@web/*": ["../web/src/*"] },
     "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
   },
   "include": ["test", "src", "vitest.config.ts"],
-  "exclude": ["test/global-setup.ts"]
+  "exclude": ["test/global-setup.ts", "src/plugins.node.gen.ts"]
 }

@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { Button, Checkbox, Input, Label, Textarea } from '@xuanxue/ui'
 import { type FormEvent, useEffect, useState } from 'react'
+import { getAdminFeatureModels } from '../../features/admin/feature-models.functions.ts'
+import { FeatureModelsForm } from '../../features/admin/feature-models-form.tsx'
 import { getAdminSettings, saveAdminSettings } from '../../features/admin/settings.functions.ts'
 import { OperationsSettingsForm } from '../../features/admin/settings-operations-form.tsx'
 import { ReadingSettingsForm } from '../../features/admin/settings-readings-form.tsx'
@@ -8,7 +10,13 @@ import { AdminPage, Field, panelClass } from '../../features/admin/ui.tsx'
 import { m } from '../../paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/settings')({
-  loader: () => getAdminSettings(),
+  loader: async () => {
+    const [settings, featureModels] = await Promise.all([
+      getAdminSettings(),
+      getAdminFeatureModels(),
+    ])
+    return { ...settings, featureModels }
+  },
   errorComponent: () => <p role="alert">{m.admin_settings_are_unavailable_please_reload()}</p>,
   component: Settings,
 })
@@ -215,6 +223,7 @@ function Settings() {
         </p>
       )}
       <ReadingSettingsForm />
+      <FeatureModelsForm items={saved.featureModels} />
       <OperationsSettingsForm />
     </AdminPage>
   )

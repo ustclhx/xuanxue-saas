@@ -5,16 +5,27 @@ import { and, desc, eq, ilike, or, sql } from 'drizzle-orm'
 import { ADMIN_PAGE_SIZE, adminListSearch } from './list.ts'
 import { adminSiteFilter } from './site.ts'
 
+const userListFields = {
+  id: user.id,
+  email: user.email,
+  name: user.name,
+  role: user.role,
+  banned: user.banned,
+  site: user.site,
+}
+
 /**
  * 用户列表默认只列当前站点；`site: 'all'` 为只读的全部站点视图，
  * 同一邮箱在两站的账户作为两个用户分别列出（split-site-accounts 决策 7）。
+ * `currentSite` 为 null（管理员 MCP 的只读查询）时不限站点；`limit` 供 MCP 分页。
  */
 export async function listAdminUsers(
   db: Database,
-  input: { offset?: number; q?: string | undefined; site?: string | undefined },
-  currentSite: SiteId,
+  input: { offset?: number; limit?: number; q?: string | undefined; site?: string | undefined },
+  currentSite: SiteId | null,
 ) {
   const { offset, q, site } = adminListSearch(['q', 'site'])(input)
+  const limit = input.limit ?? ADMIN_PAGE_SIZE
   const scope = adminSiteFilter(site, currentSite)
   const where = and(
     scope ? eq(user.site, scope) : undefined,
@@ -27,23 +38,30 @@ export async function listAdminUsers(
       : undefined,
   )
   const rows = await db
-    .select()
+    .select(userListFields)
     .from(user)
     .where(where)
     .orderBy(desc(user.createdAt), desc(user.id))
     .offset(offset)
-    .limit(ADMIN_PAGE_SIZE + 1)
-  return { rows: rows.slice(0, ADMIN_PAGE_SIZE), hasMore: rows.length > ADMIN_PAGE_SIZE }
+    .limit(limit + 1)
+  return { rows: rows.slice(0, limit), hasMore: rows.length > limit }
 }
 
 export async function adminUserDetail(db: Database, id: string) {
-  const [target] = await db.select().from(user).where(eq(user.id, id))
+  const [target] = await db
+    .select({
+      ...userListFields,
+      createdAt: user.createdAt,
+      banReason: user.banReason,
+      banExpires: user.banExpires,
+    })
+    .from(user)
+    .where(eq(user.id, id))
   if (!target) throw new AppError('NOT_FOUND', 'User not found', { status: 404 })
   const workspaces = await db
     .select({
       id: organization.id,
       name: organization.name,
-      slug: organization.slug,
       role: member.role,
       site: organization.site,
       deletedAt: organization.deletedAt,

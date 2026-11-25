@@ -8,7 +8,7 @@ import { z } from 'zod'
  */
 
 export const ADMIN_PAGE_SIZE = 50
-const MAX_OFFSET = 100_000
+export const ADMIN_MAX_OFFSET = 100_000
 const MAX_FILTER_LENGTH = 200
 
 export type AdminListSearch<TFilter extends string> = { offset: number } & Partial<
@@ -18,7 +18,9 @@ export type AdminListSearch<TFilter extends string> = { offset: number } & Parti
 export function adminListSearch<const TFilter extends string>(filters: readonly TFilter[]) {
   return (search: Record<string, unknown>): AdminListSearch<TFilter> => {
     const offset = Math.trunc(Number(search.offset) || 0)
-    const result = { offset: Math.min(MAX_OFFSET, Math.max(0, offset)) } as AdminListSearch<TFilter>
+    const result = {
+      offset: Math.min(ADMIN_MAX_OFFSET, Math.max(0, offset)),
+    } as AdminListSearch<TFilter>
     for (const key of filters) {
       const value = search[key]
       const text =

@@ -17,8 +17,6 @@ declare namespace Cloudflare {
     HYPERDRIVE: Hyperdrive
     /** 带查询缓存（app-db-cached）：可容忍短暂旧数据的读 */
     HYPERDRIVE_CACHED: Hyperdrive
-    /** 定义在 apps/jobs 的 AiMediaWorkflow（script_name: jobs）；参数类型在 P4 移入 packages/ai */
-    AI_MEDIA_WORKFLOW: Workflow<{ taskId: string }>
     /** 邮件队列 producer，apps/jobs 消费（消息格式见 @xuanxue/email/queue） */
     EVENTS_QUEUE: Queue<
       | import('@xuanxue/billing').BillingQueueMessage
@@ -35,6 +33,8 @@ declare namespace Cloudflare {
     RL_API: RateLimit
     /** 分享卡片缓存未命中与分享页按 IP 限流（features/share-cards） */
     RL_SHARE_CARD: RateLimit
+    /** 管理员 MCP 按令牌限流；插件清单负责校验启用时的绑定。 */
+    RL_ADMIN_MCP?: RateLimit
     /** 站点地址（vars；`vite dev` 时由 vite.config.ts 按端口覆盖） */
     APP_URL: string
     /** 邮件发信通道（vars，log | resend）；须与 apps/jobs 一致，web 只据此决定是否提示「已寄信」 */
