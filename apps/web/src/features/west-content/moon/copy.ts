@@ -217,8 +217,7 @@ const ES_PHASES: Readonly<Record<MoonPhaseKey, string>> = {
 }
 
 /**
- * 满月的通俗名（es）：西语没有自己的一套逐月满月名，西语媒体与天文科普沿用北美名称的译名
- * （证据目录 content-growth/v2/19/es-fact-sheet.md §3）；与 FULL_MOON_NAME_KEYS 逐月对应。
+ * 西语媒体和科普出版物采用的北美满月名译名，与 FULL_MOON_NAME_KEYS 逐月对应。
  */
 const ES_NAMES = [
   'Luna del Lobo',
@@ -286,9 +285,9 @@ export const MOON_COPY_ES: MoonCopy = {
 
   tonightFull: 'Hoy hay luna llena',
   tonightNot: 'Hoy no hay luna llena',
-  tonightFullNote: (time: string) => `La luna llena exacta se produce a las ${time}.`,
+  tonightFullNote: (time: string) => `La luna llena ocurre a las ${time}.`,
   tonightNotNote: (percent: number, date: string) =>
-    `Hoy la Luna está iluminada en un ${percent} % aproximadamente. La próxima luna llena será el ${date}.`,
+    `Hoy está iluminado cerca del ${percent} % del disco lunar. La próxima luna llena será el ${date}.`,
   nextName: 'Nombre popular',
   fullAt: 'Fecha y hora',
   ahead: 'Próximas lunas llenas',
@@ -325,9 +324,9 @@ export const MOON_COPY_ES: MoonCopy = {
   fullMoonOf: (name: string) => `Luna llena: ${name}`,
 
   faqTitle: 'Preguntas frecuentes',
-  relatedTitle: 'Relacionado',
+  relatedTitle: 'Temas relacionados',
   disclaimer:
-    'Las fases se calculan con métodos astronómicos estándar. Los nombres y costumbres tradicionales se ofrecen solo como referencia para reflexionar y explorar el subconsciente; no predicen el futuro.',
+    'Las fases se calculan con métodos astronómicos estándar. Los nombres y las costumbres tradicionales sirven solo como referencia para reflexionar y explorar el subconsciente, y no predicen el futuro.',
 }
 
 export function moonCopy(locale: MoonLocale): MoonCopy {
