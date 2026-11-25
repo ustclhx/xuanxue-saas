@@ -1,0 +1,436 @@
+{
+  "provenance": {
+    "source": "Swiss Ephemeris via pyswisseph 2.10.3.2 (swe 2.10.03), SWIEPH file sepl_18.se1; run locally only to produce numbers. No Swiss Ephemeris code or data files are in this repository.",
+    "settings": "calc_ut with FLG_SWIEPH|FLG_SPEED (apparent geocentric, true equinox of date, tropical). A station is the instant the ecliptic-longitude speed changes sign: 0.5-day scan, then bisection to 0.1 s. Delta T = Swiss Ephemeris default.",
+    "range": "2025-01-01T00:00Z to 2029-01-01T00:00Z (exclusive)",
+    "generated": "2026-11-25"
+  },
+  "stations": [
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2025-03-15T06:46:06Z",
+      "longitude": 9.588927
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2025-04-07T11:07:37Z",
+      "longitude": 356.826355
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2025-07-18T04:45:01Z",
+      "longitude": 135.575192
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2025-08-11T07:29:52Z",
+      "longitude": 124.249447
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2025-11-09T19:01:42Z",
+      "longitude": 246.861883
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2025-11-29T17:38:27Z",
+      "longitude": 230.706873
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2026-02-26T06:48:09Z",
+      "longitude": 352.565325
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2026-03-20T19:32:50Z",
+      "longitude": 338.490757
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2026-06-29T17:35:55Z",
+      "longitude": 116.257359
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2026-07-23T22:57:51Z",
+      "longitude": 106.316536
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2026-10-24T07:12:42Z",
+      "longitude": 230.978988
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2026-11-13T15:53:52Z",
+      "longitude": 215.03349
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2027-02-09T17:36:05Z",
+      "longitude": 335.981258
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2027-03-03T12:32:01Z",
+      "longitude": 320.923154
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2027-06-10T18:15:14Z",
+      "longitude": 96.361151
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2027-07-04T19:39:22Z",
+      "longitude": 87.469208
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2027-10-07T14:37:04Z",
+      "longitude": 214.9278
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2027-10-28T14:10:38Z",
+      "longitude": 199.312067
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2028-01-24T11:02:26Z",
+      "longitude": 319.698449
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2028-02-14T12:37:47Z",
+      "longitude": 303.98541
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2028-05-21T08:42:59Z",
+      "longitude": 76.314593
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2028-06-14T06:05:59Z",
+      "longitude": 67.756825
+    },
+    {
+      "planet": "mercury",
+      "kind": "retrograde",
+      "utc": "2028-09-19T16:33:49Z",
+      "longitude": 198.594084
+    },
+    {
+      "planet": "mercury",
+      "kind": "direct",
+      "utc": "2028-10-11T10:27:31Z",
+      "longitude": 183.480563
+    },
+    {
+      "planet": "venus",
+      "kind": "retrograde",
+      "utc": "2025-03-02T00:36:07Z",
+      "longitude": 10.835729
+    },
+    {
+      "planet": "venus",
+      "kind": "direct",
+      "utc": "2025-04-13T01:02:17Z",
+      "longitude": 354.624899
+    },
+    {
+      "planet": "venus",
+      "kind": "retrograde",
+      "utc": "2026-10-03T07:15:54Z",
+      "longitude": 218.491152
+    },
+    {
+      "planet": "venus",
+      "kind": "direct",
+      "utc": "2026-11-14T00:27:27Z",
+      "longitude": 202.863661
+    },
+    {
+      "planet": "venus",
+      "kind": "retrograde",
+      "utc": "2028-05-10T23:02:46Z",
+      "longitude": 79.686797
+    },
+    {
+      "planet": "venus",
+      "kind": "direct",
+      "utc": "2028-06-22T22:12:39Z",
+      "longitude": 63.179756
+    },
+    {
+      "planet": "mars",
+      "kind": "direct",
+      "utc": "2025-02-24T01:59:47Z",
+      "longitude": 107.015208
+    },
+    {
+      "planet": "mars",
+      "kind": "retrograde",
+      "utc": "2027-01-10T12:59:17Z",
+      "longitude": 160.429012
+    },
+    {
+      "planet": "mars",
+      "kind": "direct",
+      "utc": "2027-04-01T14:08:14Z",
+      "longitude": 140.926607
+    },
+    {
+      "planet": "jupiter",
+      "kind": "direct",
+      "utc": "2025-02-04T09:40:23Z",
+      "longitude": 71.278359
+    },
+    {
+      "planet": "jupiter",
+      "kind": "retrograde",
+      "utc": "2025-11-11T16:41:24Z",
+      "longitude": 115.152549
+    },
+    {
+      "planet": "jupiter",
+      "kind": "direct",
+      "utc": "2026-03-11T03:29:50Z",
+      "longitude": 105.087282
+    },
+    {
+      "planet": "jupiter",
+      "kind": "retrograde",
+      "utc": "2026-12-13T00:56:40Z",
+      "longitude": 147.02461
+    },
+    {
+      "planet": "jupiter",
+      "kind": "direct",
+      "utc": "2027-04-13T02:11:25Z",
+      "longitude": 136.995458
+    },
+    {
+      "planet": "jupiter",
+      "kind": "retrograde",
+      "utc": "2028-01-12T08:53:35Z",
+      "longitude": 177.512146
+    },
+    {
+      "planet": "jupiter",
+      "kind": "direct",
+      "utc": "2028-05-13T20:00:12Z",
+      "longitude": 167.540332
+    },
+    {
+      "planet": "saturn",
+      "kind": "retrograde",
+      "utc": "2025-07-13T04:07:19Z",
+      "longitude": 1.934417
+    },
+    {
+      "planet": "saturn",
+      "kind": "direct",
+      "utc": "2025-11-28T03:51:34Z",
+      "longitude": 355.15756
+    },
+    {
+      "planet": "saturn",
+      "kind": "retrograde",
+      "utc": "2026-07-26T19:56:29Z",
+      "longitude": 14.749959
+    },
+    {
+      "planet": "saturn",
+      "kind": "direct",
+      "utc": "2026-12-10T23:31:06Z",
+      "longitude": 7.931038
+    },
+    {
+      "planet": "saturn",
+      "kind": "retrograde",
+      "utc": "2027-08-09T18:05:51Z",
+      "longitude": 27.880414
+    },
+    {
+      "planet": "saturn",
+      "kind": "direct",
+      "utc": "2027-12-24T02:47:00Z",
+      "longitude": 21.020574
+    },
+    {
+      "planet": "saturn",
+      "kind": "retrograde",
+      "utc": "2028-08-22T22:17:02Z",
+      "longitude": 41.313632
+    },
+    {
+      "planet": "uranus",
+      "kind": "direct",
+      "utc": "2025-01-30T16:22:14Z",
+      "longitude": 53.261496
+    },
+    {
+      "planet": "uranus",
+      "kind": "retrograde",
+      "utc": "2025-09-06T04:51:21Z",
+      "longitude": 61.463715
+    },
+    {
+      "planet": "uranus",
+      "kind": "direct",
+      "utc": "2026-02-04T02:33:09Z",
+      "longitude": 57.459779
+    },
+    {
+      "planet": "uranus",
+      "kind": "retrograde",
+      "utc": "2026-09-10T18:27:14Z",
+      "longitude": 65.696977
+    },
+    {
+      "planet": "uranus",
+      "kind": "direct",
+      "utc": "2027-02-08T12:29:27Z",
+      "longitude": 61.682623
+    },
+    {
+      "planet": "uranus",
+      "kind": "retrograde",
+      "utc": "2027-09-15T09:09:13Z",
+      "longitude": 69.955688
+    },
+    {
+      "planet": "uranus",
+      "kind": "direct",
+      "utc": "2028-02-12T23:49:24Z",
+      "longitude": 65.931131
+    },
+    {
+      "planet": "uranus",
+      "kind": "retrograde",
+      "utc": "2028-09-19T00:01:24Z",
+      "longitude": 74.240952
+    },
+    {
+      "planet": "neptune",
+      "kind": "retrograde",
+      "utc": "2025-07-04T21:33:04Z",
+      "longitude": 2.175537
+    },
+    {
+      "planet": "neptune",
+      "kind": "direct",
+      "utc": "2025-12-10T12:23:18Z",
+      "longitude": 359.372654
+    },
+    {
+      "planet": "neptune",
+      "kind": "retrograde",
+      "utc": "2026-07-07T10:54:36Z",
+      "longitude": 4.418066
+    },
+    {
+      "planet": "neptune",
+      "kind": "direct",
+      "utc": "2026-12-12T22:17:26Z",
+      "longitude": 1.612924
+    },
+    {
+      "planet": "neptune",
+      "kind": "retrograde",
+      "utc": "2027-07-09T22:41:14Z",
+      "longitude": 6.659551
+    },
+    {
+      "planet": "neptune",
+      "kind": "direct",
+      "utc": "2027-12-15T09:06:20Z",
+      "longitude": 3.85261
+    },
+    {
+      "planet": "neptune",
+      "kind": "retrograde",
+      "utc": "2028-07-11T13:04:16Z",
+      "longitude": 8.900323
+    },
+    {
+      "planet": "neptune",
+      "kind": "direct",
+      "utc": "2028-12-16T20:43:25Z",
+      "longitude": 6.091897
+    },
+    {
+      "planet": "pluto",
+      "kind": "retrograde",
+      "utc": "2025-05-04T15:27:22Z",
+      "longitude": 303.818697
+    },
+    {
+      "planet": "pluto",
+      "kind": "direct",
+      "utc": "2025-10-14T02:52:09Z",
+      "longitude": 301.367039
+    },
+    {
+      "planet": "pluto",
+      "kind": "retrograde",
+      "utc": "2026-05-06T15:34:27Z",
+      "longitude": 305.509524
+    },
+    {
+      "planet": "pluto",
+      "kind": "direct",
+      "utc": "2026-10-16T02:40:18Z",
+      "longitude": 303.068616
+    },
+    {
+      "planet": "pluto",
+      "kind": "retrograde",
+      "utc": "2027-05-08T12:54:15Z",
+      "longitude": 307.178061
+    },
+    {
+      "planet": "pluto",
+      "kind": "direct",
+      "utc": "2027-10-18T03:52:31Z",
+      "longitude": 304.748257
+    },
+    {
+      "planet": "pluto",
+      "kind": "retrograde",
+      "utc": "2028-05-09T09:29:28Z",
+      "longitude": 308.825394
+    },
+    {
+      "planet": "pluto",
+      "kind": "direct",
+      "utc": "2028-10-19T03:46:12Z",
+      "longitude": 306.406878
+    }
+  ]
+}

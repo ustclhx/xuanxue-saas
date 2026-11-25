@@ -553,7 +553,8 @@
     "/angel-numbers": ["angel numbers", "angel number meanings"],
     "/angel-numbers/*": ["angel number {n}", "{n}"],
     "/personal-year-number": ["personal year calculator", "personal year number calculator"],
-    "/personal-year-number/*": ["Personal Year {n}", "a {n} personal year"]
+    "/personal-year-number/*": ["Personal Year {n}", "a {n} personal year"],
+    "/retrograde-calendar": ["retrograde calendar", "Mercury retrograde"]
   },
   "scan": [
     "apps/web/content/tarot-spreads/en/*.mdx",
@@ -564,6 +565,8 @@
     "apps/web/content/personal-year/en/**/*.mdx",
     "apps/web/src/features/west-content/personal-year/copy.ts",
     "apps/web/content/natal-chart/en/*.mdx",
-    "apps/web/src/features/west-content/natal-chart/copy.ts"
+    "apps/web/src/features/west-content/natal-chart/copy.ts",
+    "apps/web/content/retrograde-calendar/en/*.mdx",
+    "apps/web/src/features/west-content/retrograde-calendar/copy.ts"
   ]
 }

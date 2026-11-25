@@ -6,7 +6,8 @@
   "exports": {
     "./moon": "./src/moon.ts",
     "./chart": "./src/chart.ts",
-    "./places": "./src/places.ts"
+    "./places": "./src/places.ts",
+    "./retrograde": "./src/retrograde.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
