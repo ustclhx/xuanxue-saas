@@ -6,6 +6,7 @@ import {
   member,
   organization,
   setting,
+  settingDefaults,
   user,
 } from '@xuanxue/db'
 import { newId, SIGNUP_BONUS_DOMAIN_BLACKLIST_KEY } from '@xuanxue/shared'
@@ -331,7 +332,7 @@ describe('daily credits on PostgreSQL', () => {
   })
 
   it('falls back to defaults for persisted settings that no longer match their schema', async () => {
-    // 项目收紧 schema 后的遗留值：按代码默认值领取（10 积分、每月 10 天、7 天有效），不中断领取
+    // 项目收紧 schema 后的遗留值：按代码默认值领取（项目默认 5 积分、每月 10 天、7 天有效），不中断领取
     for (const [key, value] of [
       ['credits.dailyAmount', 0],
       ['credits.dailyAmount', '10'],
@@ -344,7 +345,7 @@ describe('daily credits on PostgreSQL', () => {
       await configure(key, value)
       expect(await claim(id)).toMatchObject({
         status: 'granted',
-        credits: 10,
+        credits: settingDefaults['credits.dailyAmount'],
         maxDaysPerMonth: 10,
         expiresAt: '2026-11-08T12:34:56.000Z',
       })
