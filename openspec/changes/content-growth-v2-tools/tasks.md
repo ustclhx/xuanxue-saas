@@ -207,7 +207,7 @@
 - [ ] 25.2 逆行日历：预计算、预渲染，当年与次年行星逆行起止时刻，不查数据库；与 ephemeris 参考比对 ≤2 分钟
   - [x] 25.2.1 `@xuanxue/astro/retrograde`（视黄经速度变号求停滞）、构建期停滞表与覆盖期检查、`/retrograde-calendar` 页面（设计稿 RetroCalendar 四块）、注册表与内链、`scripts/check-content-retrograde.mjs`；正文副本在私有证据目录 `content-growth/v2/25/review-input/`
   - [ ] 25.2.2 精度：与 Swiss Ephemeris 2025–2028 共 71 次停滞比对，日期全部一致，≤2 分钟 25/71（水星至火星最大 6.7 分、海王星与冥王星最大 41 分，astronomy-engine 精度所限）；按行星分级的门槛待协调者裁定，报告见 `content-growth/v2/25/retrograde/`
-  - [ ] 25.2.3 Codex 事实与合规审阅
+  - [x] 25.2.3 Codex 事实与合规审阅
 - [ ] 25.3 土星回归与太阳返照计算器：用黄经搜索实现，测试与参考值比对
 - [ ] 25.4 每项各自的设计稿、文案、审阅与通用验收，分别开 PR
 

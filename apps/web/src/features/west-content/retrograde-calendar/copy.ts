@@ -59,7 +59,7 @@ export const RETRO_COPY = {
   localNote: 'your local time',
   utcNote: 'UTC',
   until: (planet: string, date: string) => `${planet} · until ${date}`,
-  noneNow: 'No planet is retrograde today.',
+  noneNow: 'No planet is retrograde right now.',
   mercury: 'Mercury',
   mercuryRetro: (date: string) => `Retrograde until ${date}`,
   mercuryDirect: (date: string) => `Direct since ${date}`,
@@ -79,7 +79,7 @@ export const RETRO_COPY = {
   // 年度分区
   yearTitle: (year: number) => `Retrogrades in ${year}`,
   timelineLabel: (year: number) =>
-    `Timeline of retrograde periods in ${year} for eight planets. The same dates are listed in the tables below.`,
+    `Timeline of retrograde periods in ${year} from Mercury to Pluto. The same dates are listed in the tables below.`,
   timelineCaption: (today: boolean) =>
     today
       ? 'Filled bars are retrograde periods. The vertical line is today.'
@@ -99,7 +99,7 @@ export const RETRO_COPY = {
   none: (year: number) => `No retrograde in ${year}.`,
   noneNext: (year: number, date: string) => `No retrograde in ${year}. The next begins ${date}.`,
   tableNote: (zone: 'local' | 'utc', highlighted: boolean) =>
-    `${highlighted ? 'Highlighted rows are retrograde today. ' : ''}${
+    `${highlighted ? 'Highlighted rows are retrograde right now. ' : ''}${
       zone === 'local' ? 'Dates are in your local time zone.' : 'Dates are in UTC.'
     }`,
 

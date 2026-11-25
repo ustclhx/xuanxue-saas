@@ -295,20 +295,29 @@ export function checkAccuracyClaims(text) {
   let sameDate = true
   for (const [i, station] of reference.stations.entries()) {
     const engine = ours[i]
+    if (engine.planet !== station.planet || engine.kind !== station.kind)
+      return [`停滞顺序与夹具不符：${station.planet} ${station.kind} ${station.utc}`]
     const diff = Math.abs(engine.utcMs - Date.parse(station.utc)) / 60_000
     minutes[station.planet] = Math.max(minutes[station.planet] ?? 0, diff)
     if (new Date(engine.utcMs).toISOString().slice(0, 10) !== station.utc.slice(0, 10))
       sameDate = false
   }
-  const inner = Math.max(minutes.mercury, minutes.venus, minutes.mars)
-  const slow = Math.max(minutes.neptune, minutes.pluto)
-  if (!sameDate || !text.includes('All of them fall on the same UTC date'))
+  if (!sameDate || !text.includes('Each one fell on the same UTC date in both calculations'))
     failures.push('「全部同一 UTC 日期」与夹具不符')
-  if (Math.ceil(inner) !== 7 || !text.includes('to within about seven minutes'))
-    failures.push(`水星至火星最大偏差 ${inner.toFixed(2)} 分钟，与正文「about seven minutes」不符`)
-  if (Math.round(slow) !== 41 || !text.includes('the gap reaches about 41 minutes'))
-    failures.push(`海王星、冥王星最大偏差 ${slow.toFixed(2)} 分钟，与正文「about 41 minutes」不符`)
-  if (!text.includes('every station from 2025 through 2028')) failures.push('比对区间说法不符')
+  if (!text.includes(`all ${ours.length} stations from 2025 through 2028`))
+    failures.push('比对次数或区间与夹具不符')
+  // 与 packages/astro/test/retrograde.test.ts 的 MAX_MINUTES 保持一致。
+  const tolerances = [
+    { planets: ['Mercury', 'Venus', 'Mars'], label: 'Mercury, Venus and Mars', limit: 8 },
+    { planets: ['Jupiter', 'Saturn'], label: 'Jupiter and Saturn', limit: 15 },
+    { planets: ['Uranus'], label: 'Uranus', limit: 20 },
+    { planets: ['Neptune', 'Pluto'], label: 'Neptune and Pluto', limit: 45 },
+  ]
+  for (const { planets, label, limit } of tolerances) {
+    const max = Math.max(...planets.map((planet) => minutes[planet.toLowerCase()]))
+    if (max > limit || !text.includes(`${limit} minutes for ${label}`))
+      failures.push(`${label} 最大偏差 ${max.toFixed(2)} 分钟，正文应注明测试容差 ${limit} 分钟`)
+  }
   return failures
 }
 
