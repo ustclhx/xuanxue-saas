@@ -8,7 +8,7 @@ import { templateConfig } from '../../../server/template-config.ts'
 import { prerenderEntryPages } from '../../marketing/prerender.ts'
 import { TOOL_ROUTES } from '../../tools/registry.ts'
 import { westContentRouteOf } from '../routes.ts'
-import { FULL_MOON_NAME_KEYS } from './copy.ts'
+import { FULL_MOON_NAME_KEYS, MOON_COPY_ES } from './copy.ts'
 import {
   clockTime,
   displayYear,
@@ -20,7 +20,7 @@ import {
 } from './model.ts'
 import { MOON_QUERY_ROBOTS, type MoonData, type MoonEntry, moonPage } from './moon.functions.ts'
 import { MoonPage } from './pages.tsx'
-import { isMoonQueryRequest, MOON_TOOL_ROUTES, moonMonthPath } from './paths.ts'
+import { isMoonQueryRequest, MOON_ES_PATHS, MOON_TOOL_ROUTES, moonMonthPath } from './paths.ts'
 
 const runtime = vi.hoisted(() => ({ locale: 'en' }))
 vi.mock('../../../paraglide/runtime.js', async (original) => {
@@ -77,8 +77,13 @@ const DATA: MoonData = (() => {
 })()
 const TABLE: MoonTable = DATA
 const links = () => ({ breadcrumb: [], titleOf: (path: string) => path })
-const page = (id: Parameters<typeof moonPage>[0], now: string, year?: string) => {
-  const result = moonPage(id, year, new Date(now), DATA, entries, links)
+const page = (
+  id: Parameters<typeof moonPage>[0],
+  now: string,
+  year?: string,
+  locale: 'en' | 'es' = 'en',
+) => {
+  const result = moonPage(id, year, new Date(now), DATA, entries, links, locale)
   if (!result) throw new Error(`no page ${id}`)
   return result
 }
@@ -250,6 +255,70 @@ describe('月相页', () => {
       expect(source, file).not.toMatch(/from 'astronomy-engine'/)
       for (const match of source.matchAll(/^import (type )?[^;]*from '@xuanxue\/astro[^']*'/gm))
         expect(match[1], file).toBe('type ')
+    }
+  })
+})
+
+describe('es 月相三页（任务 19.4）', () => {
+  it('只有今日月相、满月与月历枢纽三页，地址为西语 slug；月份页与年度表只在 en', () => {
+    expect(westContentRouteOf('es', '/fase-lunar-hoy')).toMatchObject({ id: 'today' })
+    expect(westContentRouteOf('es', '/luna-llena')).toMatchObject({ id: 'full-moon' })
+    expect(westContentRouteOf('es', '/calendario-lunar')).toMatchObject({ id: 'moon-calendar' })
+    expect(westContentRouteOf('es', '/moon-calendar/january')).toBeUndefined()
+    expect(westContentRouteOf('es', '/full-moon-calendar')).toBeUndefined()
+    expect(moonPage('january', undefined, new Date(), DATA, entries, links, 'es')).toBeNull()
+    expect(
+      moonPage('full-moon-calendar', undefined, new Date(), DATA, entries, links, 'es'),
+    ).toBeNull()
+    // hreflang 由注册表的两语地址推出：只有这三对有 es
+    const withEs = MOON_TOOL_ROUTES.filter((route) => route.paths.es)
+    expect(Object.fromEntries(withEs.map((route) => [route.paths.en, route.paths.es]))).toEqual({
+      '/moon-phase-today': MOON_ES_PATHS.today,
+      '/full-moon': MOON_ES_PATHS['full-moon'],
+      '/moon-calendar': MOON_ES_PATHS['moon-calendar'],
+    })
+    const entriesEs = prerenderEntryPages(templateConfig, withEs).map((entry) => entry.path)
+    for (const path of Object.values(MOON_ES_PATHS)) expect(entriesEs).toContain(`/es${path}`)
+  })
+
+  it('数据库不可达时 es 三页照常返回数据', async () => {
+    runtime.locale = 'es'
+    const site = Promise.resolve({ loaderData: { site: { id: 'west' } } })
+    const loadSingle = SingleSegment.options.loader as unknown as (input: unknown) => Promise<{
+      westContent?: { route: unknown }
+    }>
+    for (const slug of ['fase-lunar-hoy', 'luna-llena', 'calendario-lunar']) {
+      const data = await loadSingle({ params: { slug }, deps: {}, parentMatchPromise: site })
+      expect(data.westContent?.route).toMatchObject({ collection: 'moon', locale: 'es' })
+    }
+    runtime.locale = 'en'
+    expect(database.calls).toBe(0)
+  })
+
+  it('服务端 HTML 为西语：日期写法、周一开头、合规声明，月历枢纽不链接不存在的月份页', () => {
+    const today = renderToStaticMarkup(
+      <MoonPage payload={page('today', '2026-11-23T08:00:00Z', undefined, 'es').payload} />,
+    )
+    expect(today).toContain('Calculado para el lunes, 23 de noviembre de 2026')
+    expect(today).toContain('href="/es/calendario-lunar"')
+    expect(today).not.toContain('/moon-calendar/')
+    const calendar = renderToStaticMarkup(
+      <MoonPage payload={page('moon-calendar', '2026-11-23T08:00:00Z', undefined, 'es').payload} />,
+    )
+    expect(calendar).toContain('Noviembre de 2026')
+    expect(calendar).toContain(MOON_COPY_ES.upcomingTitle)
+    expect(calendar).not.toContain('/moon-calendar/')
+    // 2026-12-24 01:28 UTC 的满月（引擎复算）：西语日期与 24 小时制
+    expect(calendar).toContain('24 dic')
+    expect(calendar).toContain('01:28')
+    for (const id of ['today', 'full-moon', 'moon-calendar'] as const) {
+      const html = renderToStaticMarkup(
+        <MoonPage payload={page(id, '2026-11-23T08:00:00Z', undefined, 'es').payload} />,
+      )
+      expect(html).toContain('no predicen el futuro')
+      expect(html).not.toMatch(/\bIA\b|\bAI\b/)
+      expect(html).not.toContain('href="/moon-')
+      expect(html).not.toContain('href="/full-moon')
     }
   })
 })

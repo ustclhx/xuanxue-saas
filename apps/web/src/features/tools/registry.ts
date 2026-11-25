@@ -13,6 +13,7 @@ import { ANGEL_TOOL_ROUTES } from '../west-content/angel-numbers/paths.ts'
 import { MOON_TOOL_ROUTES } from '../west-content/moon/paths.ts'
 import { NATAL_TOOL_ROUTES } from '../west-content/natal-chart/paths.ts'
 import { PERSONAL_YEAR_TOOL_ROUTES } from '../west-content/personal-year/paths.ts'
+import { RETROGRADE_TOOL_ROUTES } from '../west-content/retrograde-calendar/paths.ts'
 import { TAROT_SPREAD_TOOL_ROUTES } from '../west-content/tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_TOOL_ROUTES } from '../west-content/zodiac/paths.ts'
 import {
@@ -338,6 +339,8 @@ export const TOOL_ROUTES = defineToolRoutes([
   ...TAROT_SPREAD_TOOL_ROUTES.map((route) => withDirectoryDefaults(route, 'tarot', 'free_draw')),
   // openspec content-growth-v2-tools 第 23 组：三巨头计算器与出生星盘（en，astrology）
   ...NATAL_TOOL_ROUTES,
+  // openspec content-growth-v2-tools 第 25.2 项：逆行日历（en，astrology，New 小标）
+  ...RETROGRADE_TOOL_ROUTES,
 ])
 
 /**

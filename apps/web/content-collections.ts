@@ -1367,6 +1367,91 @@ const natalChart = defineCollection({
   },
 })
 
+/**
+ * 西方站逆行日历（openspec content-growth-v2-tools 第 25.2 项，设计稿 content-growth-v2-batch2/RetroCalendar*.dc.html）：
+ * content/retrograde-calendar/en/index.mdx 为正文与 FAQ，`{year}`、`{next}` 占位由页面换成所列的两个年份，
+ * FAQ 中的 `{mercury-now}` 由页面按参考日换成水星现状。正文不写具体日期（由 retrogradeData 计算），按 `## ` 切段。
+ * 构建期拦下「AI」「娱乐」、预测与恐吓类措辞（决策 16 第 8 项）。
+ */
+const RETROGRADE_BANNED =
+  /\bAI\b|artificial intelligence|entertainment|for fun|horoscope|\bluck|unlucky|chaos|disaster|doom|curse|beware|guarantee|\bwill happen\b|self-exploration|chinese zodiac/i
+const retrogradeCalendar = defineCollection({
+  name: 'retrogradeCalendar',
+  directory: 'content/retrograde-calendar',
+  include: '*/*.mdx',
+  schema: z.object({
+    title: z.string().min(1),
+    heading: z.string().min(1),
+    description: z.string().min(1),
+    lede: z.string().min(1),
+    faq: z
+      .array(z.object({ q: z.string().min(1), a: z.string().min(1) }))
+      .min(3)
+      .max(5),
+    updated: isoDate,
+    content: z.string(),
+  }),
+  transform: async (document, context) => {
+    const { content, ...data } = document
+    // index.mdx 的 _meta.path 只有语言段（`en`），slug 为空
+    const { locale, slug } = localeAndSlug(document._meta)
+    const key = slug || 'index'
+    if (locale !== 'en' || key !== 'index')
+      throw new Error(`Retrograde calendar file is not a known page: ${document._meta.path}`)
+    const text = [data.title, data.description, data.lede, content]
+      .concat(data.faq.flatMap(({ q, a }) => [q, a]))
+      .join('\n')
+    const banned = RETROGRADE_BANNED.exec(text)
+    if (banned) throw new Error(`Retrograde copy contains "${banned[0]}": ${document._meta.path}`)
+    const chunks = content.split(/^## /m).slice(1)
+    if (chunks.length === 0)
+      throw new Error(`Retrograde body needs "## " sections: ${document._meta.path}`)
+    const sections = await Promise.all(
+      chunks.map(async (chunk) => {
+        const newline = chunk.indexOf('\n')
+        const title = chunk.slice(0, newline).trim()
+        const body = chunk.slice(newline + 1)
+        return { title, html: await renderMdx(context, { ...document, content: body }) }
+      }),
+    )
+    return { ...data, locale, key, sections }
+  },
+})
+
+/**
+ * 逆行日历的构建期预计算表（25.2）：@xuanxue/astro/retrograde 求构建年前一年至后两年的全部停滞，配成逆行期并附经过的星座。
+ * content/retrograde-data/table.yaml 只是触发文件；浏览器不加载星历引擎。当天不在所列两年内或剩余不足 13 个月时构建失败
+ * （scripts/check-content-retrograde.mjs 另按当天日期复核已生成的表）。
+ */
+const retrogradeData = defineCollection({
+  name: 'retrogradeData',
+  directory: 'content/retrograde-data',
+  include: 'table.yaml',
+  parser: 'yaml',
+  schema: z.object({ id: z.literal('retrograde-table') }),
+  transform: async (document) => {
+    const { assertRetrogradeCoverage, generateRetrogradeBuildData, retrogradeSigns } = await import(
+      '@xuanxue/astro/retrograde'
+    )
+    const buildDate = new Date().toISOString().slice(0, 10)
+    const table = generateRetrogradeBuildData(buildDate)
+    assertRetrogradeCoverage(table, buildDate)
+    return {
+      id: document.id,
+      buildDate,
+      years: table.years,
+      searchStartMs: table.searchStartMs,
+      searchEndMs: table.searchEndMs,
+      periods: table.periods.map(({ planet, startMs, endMs, startLongitude, endLongitude }) => ({
+        planet,
+        startMs,
+        endMs,
+        signs: retrogradeSigns(startLongitude, endLongitude),
+      })),
+    }
+  },
+})
+
 export default defineConfig({
   content: [
     posts,
@@ -1392,5 +1477,7 @@ export default defineConfig({
     angelNumbers,
     personalYear,
     natalChart,
+    retrogradeCalendar,
+    retrogradeData,
   ],
 })

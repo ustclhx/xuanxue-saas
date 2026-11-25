@@ -3,6 +3,7 @@ import { ANGEL_CONTENT_ROUTES } from './angel-numbers/paths.ts'
 import { MOON_CONTENT_ROUTES } from './moon/paths.ts'
 import { NATAL_CONTENT_ROUTES } from './natal-chart/paths.ts'
 import { PERSONAL_YEAR_CONTENT_ROUTES } from './personal-year/paths.ts'
+import { RETROGRADE_CONTENT_ROUTES } from './retrograde-calendar/paths.ts'
 import { TAROT_SPREAD_CONTENT_ROUTES } from './tarot-spreads/paths.ts'
 import { WESTERN_ZODIAC_CONTENT_ROUTES } from './zodiac/paths.ts'
 
@@ -42,6 +43,8 @@ export const WEST_CONTENT_ROUTES: readonly WestContentRoute[] = [
   ...PERSONAL_YEAR_CONTENT_ROUTES,
   // 第 23 组：三巨头计算器 `/rising-sign-calculator` 与出生星盘 `/birth-chart`（en）
   ...NATAL_CONTENT_ROUTES,
+  // 第 25.2 项：逆行日历 `/retrograde-calendar`（en）
+  ...RETROGRADE_CONTENT_ROUTES,
 ]
 
 export function westContentRouteOf(locale: string, path: string): WestContentRoute | undefined {

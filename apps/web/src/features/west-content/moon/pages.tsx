@@ -1,22 +1,19 @@
 import { Alert, AlertDescription, cn, LinkCard, SeriesNav } from '@xuanxue/ui'
 import { FactTable, PageWidth } from '@xuanxue/ui/project'
-import { type ReactNode, useEffect, useId, useState } from 'react'
+import { createContext, type ReactNode, useContext, useEffect, useId, useState } from 'react'
 import { MarketingShell } from '../../marketing/marketing-shell.tsx'
 import { RichContent } from '../../marketing/rich-content.tsx'
 import type { PageLink } from '../../seo/page-links.ts'
 import { Breadcrumb } from '../../tools/breadcrumb.tsx'
 import { ToolFaq } from '../../tools/faq.tsx'
 import { toolHref } from '../../tools/tool-href.ts'
-import { MOON_COPY as copy, PHASE_ORDER } from './copy.ts'
+import { type MoonCopy, moonCopy, PHASE_ORDER } from './copy.ts'
 import {
   type CivilMonth,
-  clockTime,
   daysBetween,
-  fullDate,
   fullMoons,
   isValidTimeZone,
   isWaxing,
-  longDate,
   type MoonDayView,
   type MoonPhaseKey,
   type MoonQuarterEvent,
@@ -27,12 +24,11 @@ import {
   moonDay,
   moonLitPath,
   nextEvent,
-  shortDate,
   UTC,
   zonedDateKey,
 } from './model.ts'
 import type { MoonPayload } from './moon.functions.ts'
-import { MOON_LOCALE, MOON_YEAR_PARAM, moonMonthPath } from './paths.ts'
+import { MOON_YEAR_PARAM, type MoonLocale, moonLocalePath, moonMonthPath } from './paths.ts'
 
 /**
  * 月相页（设计稿 docs/design/prototypes/content-growth-v2-tools/MoonToday.dc.html、MoonTodayEdge.dc.html 与
@@ -42,7 +38,31 @@ import { MOON_LOCALE, MOON_YEAR_PARAM, moonMonthPath } from './paths.ts'
  * 浏览器不加载 astronomy-engine。时区读不到时保留 UTC 并提示（设计稿 UTC 回退态）。
  */
 
-const href = (path: string) => toolHref(path, MOON_LOCALE)
+interface MoonView {
+  readonly locale: MoonLocale
+  readonly copy: MoonCopy
+  readonly href: (path: string) => string
+  /** 当月月历的链接：有月份页的语言指向月份页，es 指向月历枢纽（第 19.4 项只做三页） */
+  readonly monthHref: (month: number) => string
+  readonly monthLabel: (month: number) => string
+}
+
+function moonView(locale: MoonLocale): MoonView {
+  const copy = moonCopy(locale)
+  const href = (path: string) => toolHref(path, locale)
+  const calendar = moonLocalePath('moon-calendar', locale)
+  const months = locale === 'en'
+  return {
+    locale,
+    copy,
+    href,
+    monthHref: (month) => href(months || !calendar ? moonMonthPath(month) : calendar),
+    monthLabel: (month) => (months ? copy.monthLink(month) : copy.calendarLink),
+  }
+}
+
+const MoonContext = createContext<MoonView>(moonView('en'))
+const useMoon = () => useContext(MoonContext)
 const h2 = 'm-0 text-balance font-heading text-ink text-title'
 const muted = 'm-0 max-w-180 text-body text-ink-muted'
 const caption = 'm-0 text-caption text-ink-subtle'
@@ -124,8 +144,8 @@ export function MoonPhaseIcon({
   )
 }
 
-function phaseLabel(view: Pick<MoonDayView, 'phase' | 'illumination'>) {
-  return `${copy.phase(view.phase)}, ${Math.round(view.illumination * 100)}% illuminated`
+function phaseLabel(copy: MoonCopy, view: Pick<MoonDayView, 'phase' | 'illumination'>) {
+  return copy.phaseLabel(copy.phase(view.phase), Math.round(view.illumination * 100))
 }
 
 function Shell({ children }: { children: ReactNode }) {
@@ -145,6 +165,7 @@ function Header({
   heading: string
   lede: string
 }) {
+  const { href } = useMoon()
   return (
     <header className="flex max-w-180 flex-col gap-2 pt-5 sm:gap-3 sm:pt-10">
       <Breadcrumb
@@ -160,6 +181,7 @@ function Header({
 }
 
 function UtcAlert({ clock }: { clock: Clock }) {
+  const { copy } = useMoon()
   if (clock.state !== 'utc') return null
   return (
     <Alert className="max-w-190">
@@ -190,6 +212,7 @@ function Fact({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Related({ items }: { items: readonly PageLink[] }) {
+  const { copy, href } = useMoon()
   const id = useId()
   if (items.length === 0) return null
   return (
@@ -209,6 +232,7 @@ function Related({ items }: { items: readonly PageLink[] }) {
 }
 
 function Footer({ payload }: { payload: MoonPayload }) {
+  const { copy } = useMoon()
   return (
     <>
       <ToolFaq
@@ -225,19 +249,22 @@ function Footer({ payload }: { payload: MoonPayload }) {
 
 /** 当地日期的说明行：首帧为构建日（UTC），之后为访客当天 */
 function DateLine({ clock }: { clock: Clock }) {
+  const { copy } = useMoon()
   const zone = clock.state === 'local' ? copy.localNote : copy.utcNote
   return (
     <p className={caption}>
-      {clock.state === 'initial' ? copy.asOf(longDate(clock.today)) : longDate(clock.today)}
+      {clock.state === 'initial'
+        ? copy.asOf(copy.longDate(clock.today))
+        : copy.todayLine(copy.longDate(clock.today))}
       {` · ${zone}`}
     </p>
   )
 }
 
-function eventWhen(event: MoonQuarterEvent | null, clock: Clock): string {
+function eventWhen(copy: MoonCopy, event: MoonQuarterEvent | null, clock: Clock): string {
   if (!event) return '—'
   const days = daysBetween(clock.today, zonedDateKey(event.utcMs, clock.timeZone))
-  return `${shortDate(event.utcMs, clock.timeZone)} · ${copy.inDays(days)}`
+  return `${copy.shortDate(event.utcMs, clock.timeZone)} · ${copy.inDays(days)}`
 }
 
 // ---------------------------------------------------------------------------
@@ -245,8 +272,9 @@ function eventWhen(event: MoonQuarterEvent | null, clock: Clock): string {
 // ---------------------------------------------------------------------------
 
 function MonthGrid({ table, month, clock }: { table: MoonTable; month: CivilMonth; clock: Clock }) {
-  const { leading, cells } = monthGrid(table, month, clock.timeZone)
-  const title = `${copy.month(month.month)} ${month.year}`
+  const { copy } = useMoon()
+  const { leading, cells } = monthGrid(table, month, clock.timeZone, copy.weekStart)
+  const title = copy.monthYear(month.month, month.year)
   return (
     <div data-locale-fixed="" className="flex max-w-190 flex-col gap-1">
       <div aria-hidden="true" className="grid grid-cols-7 gap-1">
@@ -292,7 +320,7 @@ function MonthGrid({ table, month, clock }: { table: MoonTable; month: CivilMont
               <span aria-hidden="true" className="min-h-4 leading-tight">
                 {quarter ?? (today ? copy.todayTag : '')}
               </span>
-              {view && <span className="sr-only">{`, ${phaseLabel(view)}`}</span>}
+              {view && <span className="sr-only">{`, ${phaseLabel(copy, view)}`}</span>}
             </li>
           )
         })}
@@ -310,6 +338,7 @@ function QuarterList({
   clock: Clock
   label: string
 }) {
+  const { copy } = useMoon()
   return (
     <dl
       aria-label={label}
@@ -317,9 +346,9 @@ function QuarterList({
     >
       {events.map((event) => (
         <Fact key={`${event.phase}-${event.utcMs}`} label={copy.phase(event.phase)}>
-          <span className="block">{shortDate(event.utcMs, clock.timeZone)}</span>
+          <span className="block">{copy.shortDate(event.utcMs, clock.timeZone)}</span>
           <span className="block font-sans text-caption text-ink-muted">
-            {clockTime(event.utcMs, clock.timeZone)}
+            {copy.clockTime(event.utcMs, clock.timeZone)}
           </span>
         </Fact>
       ))}
@@ -328,6 +357,7 @@ function QuarterList({
 }
 
 function ZoneNote({ clock }: { clock: Clock }) {
+  const { copy } = useMoon()
   return (
     <p className={caption}>
       {clock.state === 'local' ? copy.yearNoteLocal(clock.timeZone) : copy.yearNoteUtc}
@@ -367,6 +397,7 @@ function fullMoonTableRows(
 }
 
 function Flags({ row }: { row: Pick<FullMoonTableRow, 'supermoon' | 'blueMoon'> }) {
+  const { copy } = useMoon()
   if (!row.supermoon && !row.blueMoon) return null
   return (
     <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
@@ -387,6 +418,7 @@ function FullMoonTable({
   label: string
   withNewMoon?: boolean
 }) {
+  const { copy } = useMoon()
   return (
     <FactTable
       caption={label}
@@ -409,7 +441,7 @@ function FullMoonTable({
           kind: 'nowrap',
           stacked: 'label',
           stackLabel: copy.stackFull,
-          cell: (row) => shortDate(row.utcMs, clock.timeZone),
+          cell: (row) => copy.shortDate(row.utcMs, clock.timeZone),
         },
         {
           key: 'time',
@@ -417,7 +449,7 @@ function FullMoonTable({
           kind: 'nowrap',
           stacked: 'label',
           stackLabel: copy.stackTime,
-          cell: (row) => clockTime(row.utcMs, clock.timeZone),
+          cell: (row) => copy.clockTime(row.utcMs, clock.timeZone),
         },
         {
           key: 'name',
@@ -439,7 +471,7 @@ function FullMoonTable({
                 stacked: 'label' as const,
                 stackLabel: copy.stackNew,
                 cell: (row: FullMoonTableRow) =>
-                  row.newMoons.map((ms) => shortDate(ms, clock.timeZone)).join(', ') || '—',
+                  row.newMoons.map((ms) => copy.shortDate(ms, clock.timeZone)).join(', ') || '—',
               },
             ]
           : []),
@@ -455,6 +487,14 @@ function FullMoonTable({
 type Kind<K extends MoonPayload['kind']> = Extract<MoonPayload, { kind: K }>
 
 export function MoonPage({ payload }: { payload: MoonPayload }) {
+  return (
+    <MoonContext.Provider value={moonView(payload.locale)}>
+      <MoonPageBody payload={payload} />
+    </MoonContext.Provider>
+  )
+}
+
+function MoonPageBody({ payload }: { payload: MoonPayload }) {
   switch (payload.kind) {
     case 'today':
       return <TodayPage payload={payload} />
@@ -470,6 +510,7 @@ export function MoonPage({ payload }: { payload: MoonPayload }) {
 }
 
 function TodayPage({ payload }: { payload: Kind<'today'> }) {
+  const { copy, monthHref, monthLabel } = useMoon()
   const clock = useVisitorClock(payload)
   const view = moonDay(payload.table, clock.today, clock.timeZone)
   const age = moonAgeAt(payload.table, clock.nowMs) ?? view?.ageDays ?? 0
@@ -497,7 +538,7 @@ function TodayPage({ payload }: { payload: Kind<'today'> }) {
             <MoonPhaseIcon
               illumination={view.illumination}
               waxing={isWaxing(view)}
-              label={phaseLabel(view)}
+              label={phaseLabel(copy, view)}
               className="size-32 sm:size-42"
             />
             <div className="flex min-w-0 flex-col gap-2">
@@ -508,8 +549,8 @@ function TodayPage({ payload }: { payload: Kind<'today'> }) {
               <dl className="m-0 mt-2 grid grid-cols-2 gap-x-6 gap-y-4">
                 <Fact label={copy.illumination}>{Math.round(view.illumination * 100)}%</Fact>
                 <Fact label={copy.moonAge}>{copy.ageValue(age)}</Fact>
-                <Fact label={copy.nextFull}>{eventWhen(nextFull, clock)}</Fact>
-                <Fact label={copy.nextNew}>{eventWhen(nextNew, clock)}</Fact>
+                <Fact label={copy.nextFull}>{eventWhen(copy, nextFull, clock)}</Fact>
+                <Fact label={copy.nextNew}>{eventWhen(copy, nextNew, clock)}</Fact>
               </dl>
             </div>
           </div>
@@ -543,12 +584,12 @@ function TodayPage({ payload }: { payload: Kind<'today'> }) {
 
       <section data-table-section="" aria-labelledby={calendarId} className="flex flex-col gap-5">
         <h2 id={calendarId} className={h2}>
-          {`${copy.month(current.month)} ${current.year}`}
+          {copy.monthYear(current.month, current.year)}
         </h2>
         <MonthGrid table={payload.table} month={current} clock={clock} />
         <p className={muted}>
-          <a href={href(moonMonthPath(current.month))} className={inlineLink}>
-            {copy.monthLink(current.month)}
+          <a href={monthHref(current.month)} className={inlineLink}>
+            {monthLabel(current.month)}
           </a>
         </p>
       </section>
@@ -570,6 +611,7 @@ function TodayPage({ payload }: { payload: Kind<'today'> }) {
 }
 
 function FullMoonPage({ payload }: { payload: Kind<'full-moon'> }) {
+  const { copy } = useMoon()
   const clock = useVisitorClock(payload)
   const view = moonDay(payload.table, clock.today, clock.timeZone)
   const tonight = view?.quarter?.phase === 'full-moon' ? view.quarter : null
@@ -594,7 +636,7 @@ function FullMoonPage({ payload }: { payload: Kind<'full-moon'> }) {
             <MoonPhaseIcon
               illumination={view.illumination}
               waxing={isWaxing(view)}
-              label={phaseLabel(view)}
+              label={phaseLabel(copy, view)}
               className="size-32 sm:size-42"
             />
             <div className="flex min-w-0 flex-col gap-2">
@@ -604,10 +646,10 @@ function FullMoonPage({ payload }: { payload: Kind<'full-moon'> }) {
               </p>
               <p className={muted}>
                 {tonight
-                  ? copy.tonightFullNote(clockTime(tonight.utcMs, clock.timeZone))
+                  ? copy.tonightFullNote(copy.clockTime(tonight.utcMs, clock.timeZone))
                   : copy.tonightNotNote(
                       Math.round(view.illumination * 100),
-                      fullDate(next.utcMs, clock.timeZone),
+                      copy.fullDate(next.utcMs, clock.timeZone),
                     )}
               </p>
               <dl className="m-0 mt-2 grid grid-cols-2 gap-x-6 gap-y-4">
@@ -616,7 +658,7 @@ function FullMoonPage({ payload }: { payload: Kind<'full-moon'> }) {
                   <Flags row={first} />
                 </Fact>
                 <Fact label={copy.fullAt}>
-                  {`${shortDate(next.utcMs, clock.timeZone)}, ${clockTime(next.utcMs, clock.timeZone)}`}
+                  {`${copy.shortDate(next.utcMs, clock.timeZone)}, ${copy.clockTime(next.utcMs, clock.timeZone)}`}
                 </Fact>
               </dl>
             </div>
@@ -667,6 +709,7 @@ function YearPage({ payload }: { payload: Kind<'year'> }) {
 }
 
 function YearSection({ year, table, clock }: { year: number; table: MoonTable; clock: Clock }) {
+  const { copy } = useMoon()
   const id = useId()
   const rows = fullMoonTableRows(table, clock, (row) => row.year === year)
   return (
@@ -681,6 +724,7 @@ function YearSection({ year, table, clock }: { year: number; table: MoonTable; c
 }
 
 function CalendarPage({ payload }: { payload: Kind<'calendar'> }) {
+  const { copy, href } = useMoon()
   const clock = useVisitorClock(payload)
   const current = { year: Number(clock.today.slice(0, 4)), month: Number(clock.today.slice(5, 7)) }
   const gridId = useId()
@@ -692,7 +736,7 @@ function CalendarPage({ payload }: { payload: Kind<'calendar'> }) {
       <UtcAlert clock={clock} />
       <section data-table-section="" aria-labelledby={gridId} className="flex flex-col gap-5">
         <h2 id={gridId} className={h2}>
-          {`${copy.month(current.month)} ${current.year}`}
+          {copy.monthYear(current.month, current.year)}
         </h2>
         <MonthGrid table={payload.table} month={current} clock={clock} />
         <QuarterList
@@ -702,35 +746,55 @@ function CalendarPage({ payload }: { payload: Kind<'calendar'> }) {
         />
       </section>
 
-      <section data-table-section="" aria-labelledby={monthsId} className="flex flex-col gap-5">
-        <h2 id={monthsId} className={h2}>
-          {copy.calendarMonthsTitle}
-        </h2>
-        <ul className="m-0 grid list-none grid-cols-1 gap-2.5 p-0 sm:grid-cols-2 lg:grid-cols-3">
-          {payload.months.map((item) => {
-            const full = names.find((row) => row.year === item.year && row.month === item.month)
-            return (
-              <li key={item.month} className="flex min-w-0">
-                <div className="flex w-full flex-col gap-1 rounded-object bg-surface p-5">
-                  <a
-                    href={href(moonMonthPath(item.month))}
-                    className="font-heading font-medium text-body text-ink underline-offset-4 hover:underline"
-                  >
-                    {copy.monthLink(item.month)}
-                  </a>
-                  <p className={caption}>
-                    {copy.calendarMonthNote(
-                      item.year,
-                      full ? shortDate(full.utcMs, clock.timeZone) : null,
-                      copy.moonName(item.month),
-                    )}
-                  </p>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
+      {payload.months.length === 0 ? (
+        // 没有月份页的语言（es）：列出从本月起接下来 12 次满月与同月的新月，代替月份入口
+        <section data-table-section="" aria-labelledby={monthsId} className="flex flex-col gap-5">
+          <h2 id={monthsId} className={h2}>
+            {copy.upcomingTitle}
+          </h2>
+          <ZoneNote clock={clock} />
+          <FullMoonTable
+            rows={fullMoonTableRows(
+              payload.table,
+              clock,
+              (row) =>
+                zonedDateKey(row.utcMs, clock.timeZone).slice(0, 7) >= clock.today.slice(0, 7),
+            ).slice(0, 12)}
+            clock={clock}
+            label={copy.upcomingTitle}
+          />
+        </section>
+      ) : (
+        <section data-table-section="" aria-labelledby={monthsId} className="flex flex-col gap-5">
+          <h2 id={monthsId} className={h2}>
+            {copy.calendarMonthsTitle}
+          </h2>
+          <ul className="m-0 grid list-none grid-cols-1 gap-2.5 p-0 sm:grid-cols-2 lg:grid-cols-3">
+            {payload.months.map((item) => {
+              const full = names.find((row) => row.year === item.year && row.month === item.month)
+              return (
+                <li key={item.month} className="flex min-w-0">
+                  <div className="flex w-full flex-col gap-1 rounded-object bg-surface p-5">
+                    <a
+                      href={href(moonMonthPath(item.month))}
+                      className="font-heading font-medium text-body text-ink underline-offset-4 hover:underline"
+                    >
+                      {copy.monthLink(item.month)}
+                    </a>
+                    <p className={caption}>
+                      {copy.calendarMonthNote(
+                        item.year,
+                        full ? copy.shortDate(full.utcMs, clock.timeZone) : null,
+                        copy.moonName(item.month),
+                      )}
+                    </p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
 
       {payload.sections.map((section) => (
         <ProseSection key={section.title} title={section.title} html={section.html} />
@@ -741,6 +805,7 @@ function CalendarPage({ payload }: { payload: Kind<'calendar'> }) {
 }
 
 function MonthPage({ payload }: { payload: Kind<'month'> }) {
+  const { copy, href } = useMoon()
   const clock = useVisitorClock(payload)
   const { view } = payload
   const monthName = copy.month(view.month)
