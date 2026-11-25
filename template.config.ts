@@ -171,9 +171,14 @@ export default defineTemplateConfig({
     },
     image: false,
     video: false,
-    mediaProviders: ['fal', 'workers-ai'], // 只启用需要的媒体服务商；Workers AI 使用 AI 绑定，无外部密钥
     // 新建模型时的默认计费方式，后台可逐个模型修改：'per_call' 按次 | 'token' 按 token | 'per_unit' 按张/秒
     defaultPricingMode: { text: 'token', image: 'per_call', video: 'per_call' },
+  },
+  // 构建期插件（模板 0.9.0，docs/plugins.md）：只启用管理员 MCP。
+  // 不启用 agents（使用者 2026-11-25 决定，首次部署前移除，见升级说明 0.9.0 动作 5）；
+  // 不启用 media（ai.image / ai.video 关闭）。
+  plugins: {
+    'admin-mcp': {},
   },
   features: {
     analytics: 'plausible',

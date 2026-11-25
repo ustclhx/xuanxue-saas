@@ -30,7 +30,6 @@ function SpaceOverviewPage() {
   const candidates = [
     { show: sections.readings, to: '/app/$slug/readings', label: m.readings_list_title() },
     { show: sections.chat, to: '/app/$slug/chat', label: m.app_chat() },
-    { show: sections.tasks, to: '/app/$slug/tasks', label: m.media_tasks_title() },
     { show: sections.usage, to: '/app/$slug/usage', label: m.app_usage() },
     { show: sections.billing, to: '/app/$slug/billing', label: m.app_billing() },
     { show: true, to: '/app/$slug/settings', label: m.app_workspace_settings() },

@@ -1,5 +1,6 @@
 import type { QueueBatch, QueueMessage } from '@xuanxue/platform'
 import { AppError } from '@xuanxue/shared'
+import { logJobObserver } from '@xuanxue/shared/log'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { BillingEnv } from '../src/billing.ts'
 import {
@@ -7,7 +8,6 @@ import {
   parseOperationsMessage,
   sendOperationsChannel,
 } from '../src/notifications/operations.ts'
-import { logJobObserver } from '../src/observer.ts'
 import { handleBillingBatch } from '../src/queues/billing.ts'
 
 const deliver = vi.hoisted(() => vi.fn())
@@ -31,6 +31,33 @@ it('accepts all four event types but rejects malformed envelopes and drops unrec
       }),
     ).toEqual({ requestId: 'req-1', operations: [{ event, sourceId: 'id-1' }] })
   }
+  expect(
+    parseOperationsMessage({
+      v: 1,
+      operations: [
+        {
+          event: 'ops.bulk_job.guard_tripped',
+          sourceId: 'bulk_job:files-cleanup:rows-out-of-range:2026-11-25',
+          count: 2,
+        },
+      ],
+    }),
+  ).toEqual({
+    requestId: undefined,
+    operations: [
+      {
+        event: 'ops.bulk_job.guard_tripped',
+        sourceId: 'bulk_job:files-cleanup:rows-out-of-range:2026-11-25',
+        count: 2,
+      },
+    ],
+  })
+  expect(
+    parseOperationsMessage({
+      v: 1,
+      operations: [{ event: 'ops.bulk_job.guard_tripped', sourceId: 'x', count: -1 }],
+    }),
+  ).toBeNull()
   expect(parseOperationsMessage({ v: 1, deliveryId: 'old-message' })).toBeNull()
   expect(
     parseOperationsMessage({ v: 1, operations: [{ event: 'unknown', sourceId: '1' }] }),

@@ -74,3 +74,11 @@ APP_VERSION 使用同一个完整提交 SHA，CI 已负责注入并上传 source
 
 - 营销页面已启用，/ 为营销首页。
 - 多语言已启用，默认语言 en；其他语言使用语言前缀。
+
+## 插件配置
+
+### admin-mcp
+
+- [x] 配置绑定 `web` 的 `RL_ADMIN_MCP`（rate_limit）：顶层 1011、staging 21010、production 22010
+
+未启用 agents（不声明 `AGENT_CONVERSATION` 与 `agents-v1` 迁移）与 media。

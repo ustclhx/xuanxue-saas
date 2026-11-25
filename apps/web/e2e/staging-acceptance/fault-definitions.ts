@@ -1,4 +1,5 @@
 import type { AcceptanceFaultMode, Pricing } from '@xuanxue/ai'
+import templateConfig from '../../../../template.config.ts'
 import { deepseekCall, deepseekToken, falImage, workersImage } from './models.ts'
 
 export interface FaultModelDefinition {
@@ -24,7 +25,7 @@ const mediaModes = [
 ] as const
 
 export const FAULT_MODELS: readonly FaultModelDefinition[] = [
-  ...mediaModes.map((mode, index) => {
+  ...(templateConfig.plugins.media ? mediaModes : []).map((mode, index) => {
     const base = mode.startsWith('workers-') ? workersImage : falImage
     return {
       ...base,
@@ -38,6 +39,7 @@ export const FAULT_MODELS: readonly FaultModelDefinition[] = [
   ...(['chat-before-stream', 'chat-mid-stream'] as const).flatMap((mode, index) =>
     [deepseekToken, deepseekCall].map((base, pricingIndex) => ({
       ...base,
+      supportsTools: false,
       key: `acceptance-fault-${mode}-${base.pricing.mode}`,
       mode,
       sort: -1990 + index * 2 + pricingIndex,

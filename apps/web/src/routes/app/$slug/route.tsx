@@ -155,26 +155,7 @@ function WorkspaceLayout() {
                   {m.app_chat()}
                 </Link>
               ) : null}
-              {sections.tasks ? (
-                <Link
-                  to="/app/$slug/tasks"
-                  params={{ slug }}
-                  activeProps={activeProps}
-                  inactiveProps={inactiveProps}
-                >
-                  {m.media_tasks_title()}
-                </Link>
-              ) : null}
-              {sections.media ? (
-                <Link
-                  to="/app/$slug/media/new"
-                  params={{ slug }}
-                  activeProps={activeProps}
-                  inactiveProps={inactiveProps}
-                >
-                  {m.media_title()}
-                </Link>
-              ) : null}
+              {/* 媒体任务与生成入口由 media 插件的 appNav 提供（模板 0.9.0），本项目未启用 */}
               {sections.usage ? (
                 <Link
                   to="/app/$slug/usage"

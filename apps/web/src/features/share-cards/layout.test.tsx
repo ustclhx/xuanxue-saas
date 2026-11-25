@@ -48,6 +48,7 @@ const light = shareCardThemes.light
 // 生成器会改名与改域名，断言从项目配置推导，不写死模板默认值。
 const brandInitial = (Array.from(templateConfig.app.name)[0] ?? '').toUpperCase()
 const brandHost = new URL(templateConfig.app.url).host
+const taglineSite = { ...defaultShareCardSite(), brand: { name: 'Acme' }, host: 'acme.example' }
 const zh = {
   title: '2026 年第三季度用户调研要点',
   description: '新用户留存提升 12%，主要来自引导流程简化；移动端满意度仍低于桌面端。',
@@ -107,19 +108,19 @@ describe('分享卡片版式（4.2）', () => {
   })
 
   it('默认版式（构建期分享图）用大标题、无标签与摘要', () => {
-    const tree = defaultShareCardLayout('定价与套餐', resolveShareCardTheme('light'))
+    const tree = defaultShareCardLayout('定价与套餐', resolveShareCardTheme('light'), taglineSite)
     expect(withText(tree, '定价与套餐').props.style).toMatchObject({ fontSize: 76, maxHeight: 184 })
-    // 副标题取默认语言的首页标语（不含品牌名），不再写死英文
+    // 副标题取默认语言的首页标语（不含品牌名），品牌行取传入站点的品牌
     const tagline = homeTagline(templateConfig.i18n.defaultLocale)
-    expect(collectText(tree)).toContain(`${templateConfig.app.name} · ${tagline}`)
+    expect(collectText(tree)).toContain(`${taglineSite.brand.name} · ${tagline}`)
     expect(elements(tree).some((node) => node.props.style?.height === 44)).toBe(false)
   })
 
   it('默认分享图副标题跟随页面语言', () => {
     // 衍生项目的语言列表不同（xuanxue 没有 zh），取配置中的最后一个语言
     const pageLocale = templateConfig.i18n.locales.at(-1) ?? 'en'
-    const tree = defaultShareCardLayout('定价与套餐', light, defaultShareCardSite(pageLocale))
-    expect(collectText(tree)).toContain(`${templateConfig.app.name} · ${homeTagline(pageLocale)}`)
+    const tree = defaultShareCardLayout('定价与套餐', light, { ...taglineSite, locale: pageLocale })
+    expect(collectText(tree)).toContain(`${taglineSite.brand.name} · ${homeTagline(pageLocale)}`)
   })
 
   it('未提供品牌与域名时与模板配置一致；提供时替换品牌行、首字与域名', () => {

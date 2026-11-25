@@ -272,7 +272,11 @@ export async function startWorkspaceChat(
   if (conversationId !== undefined) {
     const [conversation] = await s
       .select(aiConversation, {
-        where: and(eq(aiConversation.id, conversationId), eq(aiConversation.userId, userId)) as SQL,
+        where: and(
+          eq(aiConversation.id, conversationId),
+          eq(aiConversation.userId, userId),
+          eq(aiConversation.kind, 'chat'),
+        ) as SQL,
       })
       .limit(1)
     if (!conversation) throw new AppError('NOT_FOUND', 'Not found', { status: 404 })
@@ -569,7 +573,7 @@ const ownReply = (s: ReturnType<typeof scoped>, userId: string) =>
   inArray(
     aiMessage.conversationId,
     s.select(aiConversation, {
-      where: eq(aiConversation.userId, userId),
+      where: and(eq(aiConversation.userId, userId), eq(aiConversation.kind, 'chat')) as SQL,
       fields: { id: aiConversation.id },
     }),
   )
@@ -715,7 +719,11 @@ async function stopChatRequest(
   const s = scoped(db, resolved.workspace.id)
   const [conversation] = await s
     .select(aiConversation, {
-      where: and(eq(aiConversation.id, conversationId), eq(aiConversation.userId, user.id)) as SQL,
+      where: and(
+        eq(aiConversation.id, conversationId),
+        eq(aiConversation.userId, user.id),
+        eq(aiConversation.kind, 'chat'),
+      ) as SQL,
       fields: { id: aiConversation.id },
     })
     .limit(1)

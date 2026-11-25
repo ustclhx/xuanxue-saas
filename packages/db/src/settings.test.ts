@@ -1,15 +1,37 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
+import { defineSetting } from './setting-definition.ts'
 import {
   getSetting,
+  getSettingDefinition,
+  getSettingValue,
+  listSettingDefinitions,
+  registerSettingDefinitions,
+  resetInvalidSettingWarnings,
+  resolveStoredSetting,
   SETTING_CACHE_TTL_SECONDS,
   type SettingCache,
-  type SettingKey,
   type SettingStore,
   settingDefaults,
+  validateSettingValue,
 } from './settings.ts'
 
-function memoryStore(rows: Partial<Record<SettingKey, unknown>>) {
-  const calls: SettingKey[] = []
+vi.mock('./settings.project.ts', async () => {
+  const { z } = await import('zod')
+  const { defineSetting } = await import('./setting-definition.ts')
+  return {
+    default: {
+      'project.reportPrice': defineSetting({
+        schema: z.number().int().nonnegative(),
+        default: 25,
+        description: '报告积分价格',
+      }),
+    },
+  }
+})
+
+function memoryStore(rows: Readonly<Record<string, unknown>>) {
+  const calls: string[] = []
   const store: SettingStore = {
     async find(key) {
       calls.push(key)
@@ -34,6 +56,62 @@ function memoryCache() {
   return { cache, data, ttls }
 }
 
+describe('运行时设置定义', () => {
+  it('按键及列表返回定义元数据和可用的 JSON Schema', () => {
+    const amount = getSettingDefinition('credits.dailyAmount')
+    expect(amount).toMatchObject({
+      key: 'credits.dailyAmount',
+      description: expect.any(String),
+      secret: false,
+      // 项目默认值（2026-11-18「版本 B」每日送 5 积分；模板为 10）
+      default: 5,
+      jsonSchema: { type: 'integer', minimum: 1, maximum: 2147483647 },
+    })
+    expect(listSettingDefinitions()).toContain(amount)
+    expect(getSettingDefinition('operations.telegramBotToken')?.secret).toBe(true)
+    expect(getSettingDefinition('operations.discordWebhookUrl')?.secret).toBe(true)
+    for (const definition of listSettingDefinitions()) expect(definition.jsonSchema).toBeDefined()
+  })
+
+  it('从项目自有文件读取设置的默认值并校验写入值', async () => {
+    const key = 'project.reportPrice'
+    const { store } = memoryStore({})
+    expect(await getSettingValue({ store }, key)).toBe(25)
+    expect(validateSettingValue(key, 10)).toBe(10)
+    expect(() => validateSettingValue(key, -1)).toThrow('Invalid runtime setting')
+    expect(() => validateSettingValue('project.typo', 10)).toThrow('Unknown runtime setting')
+  })
+
+  it('重复键使整批登记失败，保留原有定义', () => {
+    const definition = defineSetting({ schema: z.boolean(), default: false, description: 'Test' })
+    expect(() =>
+      registerSettingDefinitions({
+        'project.unregistered': definition,
+        'auth.signupEnabled': definition,
+      }),
+    ).toThrow('Duplicate runtime setting: auth.signupEnabled')
+    expect(getSettingDefinition('project.unregistered')).toBeUndefined()
+    expect(getSettingDefinition('auth.signupEnabled')?.default).toBe(true)
+  })
+
+  it('拒绝不受信任的 Discord Webhook 地址', () => {
+    expect(() => validateSettingValue('operations.discordWebhookUrl', 'http://127.0.0.1/')).toThrow(
+      'Invalid runtime setting',
+    )
+  })
+})
+
+// 读取回落时写 console.warn 结构化日志；每个用例重置「每键一次」的记录
+// db 包不引入 DOM / Node 全局类型，经 globalThis 取 console
+const warn = vi
+  .spyOn((globalThis as unknown as { console: { warn(line: string): void } }).console, 'warn')
+  .mockImplementation(() => {})
+beforeEach(() => {
+  resetInvalidSettingWarnings()
+  warn.mockClear()
+})
+afterEach(() => warn.mockClear())
+
 describe('getSetting', () => {
   it('表中存在时返回表中的值', async () => {
     const { store } = memoryStore({ 'auth.signupEnabled': false })
@@ -53,6 +131,46 @@ describe('getSetting', () => {
     expect(await getSetting({ store }, 'ai.mediaUncertainWaitSeconds')).toBe(3600)
   })
 
+  it('数据库值不符合定义时回落默认值，缓存原值，告警只含键名且每键一次', async () => {
+    const { store } = memoryStore({ 'site.announcement': false })
+    const { cache, data } = memoryCache()
+    expect(await getSetting({ store, cache }, 'site.announcement')).toBe('')
+    expect(await getSetting({ store, cache }, 'site.announcement')).toBe('')
+    expect(data.get('setting:site.announcement')).toBe('{"v":false}')
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(JSON.parse(String(warn.mock.calls[0]?.[0]))).toMatchObject({
+      level: 'warn',
+      event: 'runtime_setting.invalid_stored_value',
+      key: 'site.announcement',
+      scope: 'global',
+      fallback: 'default',
+    })
+  })
+
+  it('密钥项的非法值不进入告警', async () => {
+    const secret = 'not-a-telegram-token'
+    const { store } = memoryStore({ 'operations.telegramBotToken': secret })
+    expect(await getSetting({ store }, 'operations.telegramBotToken')).toBe('')
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(String(warn.mock.calls[0]?.[0])).not.toContain(secret)
+  })
+
+  it('resolveStoredSetting 区分表中值、缺失与回落', () => {
+    expect(resolveStoredSetting('auth.signupEnabled', false)).toEqual({
+      value: false,
+      source: 'database',
+    })
+    expect(resolveStoredSetting('auth.signupEnabled', undefined)).toEqual({
+      value: true,
+      source: 'default',
+    })
+    expect(resolveStoredSetting('auth.signupEnabled', 'false')).toEqual({
+      value: true,
+      source: 'fallback',
+    })
+    expect(() => resolveStoredSetting('project.typo', 1)).toThrow('Unknown runtime setting')
+  })
+
   it('表中存在时写入缓存，之后命中缓存不再查表', async () => {
     const { store, calls } = memoryStore({ 'auth.signupEnabled': false })
     const { cache, data, ttls } = memoryCache()
@@ -70,22 +188,6 @@ describe('getSetting', () => {
     expect(await getSetting({ store, cache }, 'auth.signupEnabled')).toBe(true)
     expect(calls).toEqual(['auth.signupEnabled'])
     expect(data.get('setting:auth.signupEnabled')).toBe('{}')
-  })
-})
-
-describe('详批运行时设置', () => {
-  it('每种详批默认启用、100 积分、尚未选定模型', () => {
-    expect(settingDefaults['readings.bazi-full.enabled']).toBe(true)
-    expect(settingDefaults['readings.saju-full.credits']).toBe(10)
-    expect(settingDefaults['readings.tarot-spread.modelKey']).toBe('')
-  })
-
-  it('natal-full 不写设置行时取代码默认值：开启（使用者 2026-11-24 审阅样例后开放）', async () => {
-    const { store } = memoryStore({})
-    const { cache } = memoryCache()
-    expect(await getSetting({ store, cache }, 'readings.natal-full.enabled')).toBe(true)
-    // 缓存里的「表中缺失」同样回退到默认值
-    expect(await getSetting({ store, cache }, 'readings.natal-full.enabled')).toBe(true)
   })
 })
 
@@ -138,13 +240,14 @@ describe('每日赠送设置读取边界', () => {
     ['credits.dailyMaxDaysPerMonth', 32],
     ['credits.dailyExpiryDays', 366],
     ['credits.dailyRequireVerifiedEmail', 'false'],
-  ] as const)('拒绝数据库与缓存中的非法设置 %s=%s', async (key, value) => {
+  ] as const)('数据库与缓存中的非法设置 %s=%s 回落默认值', async (key, value) => {
     const { store } = memoryStore({ [key]: value })
-    await expect(getSetting({ store }, key)).rejects.toThrow(RangeError)
+    expect(await getSetting({ store }, key)).toBe(settingDefaults[key])
     const { cache, data } = memoryCache()
     data.set(`setting:${key}`, JSON.stringify({ v: value }))
-    await expect(getSetting({ store: memoryStore({}).store, cache }, key)).rejects.toThrow(
-      RangeError,
+    expect(await getSetting({ store: memoryStore({}).store, cache }, key)).toBe(
+      settingDefaults[key],
     )
+    expect(warn).toHaveBeenCalledTimes(1)
   })
 })

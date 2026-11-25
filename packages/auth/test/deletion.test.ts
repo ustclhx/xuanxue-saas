@@ -232,6 +232,41 @@ describe('atomic deletion in workerd', () => {
       (await a.db.query.organization.findFirst({ where: (o, { eq }) => eq(o.id, id) }))?.deletedAt,
     ).toBeNull()
   })
+  it('runs after hooks once the deletion commits; their failures do not fail the deletion', async () => {
+    const a = app()
+    const owner = await actor(a, 'after-hooks')
+    const id = await team(a, owner)
+    const calls: string[] = []
+    let seen: unknown
+    const disposers = [
+      registerDeletionStep('workspace', {
+        execute: async (context) => {
+          seen = context
+          calls.push('execute')
+        },
+        after: async (context) => {
+          calls.push(context === seen ? 'after:same-context' : 'after:other-context')
+          throw new Error('external cleanup failed')
+        },
+      }),
+      registerDeletionStep('workspace', {
+        after: async () => {
+          const row = await a.db.query.organization.findFirst({
+            where: (o, { eq }) => eq(o.id, id),
+          })
+          calls.push(row?.deletedAt ? 'after:committed' : 'after:uncommitted')
+        },
+      }),
+    ]
+    try {
+      await expect(deleteTeamWorkspace({ ...owner.options, workspaceId: id })).resolves.toEqual({
+        deleted: true,
+      })
+    } finally {
+      for (const dispose of disposers) dispose()
+    }
+    expect(calls).toEqual(['execute', 'after:same-context', 'after:committed'])
+  })
   it('keeps native deletion disabled and enforces owner, personal and tenancy boundaries', async () => {
     silenceExpectedErrors(/Delete user is disabled/)
     const a = app()
@@ -331,9 +366,9 @@ describe('atomic deletion in workerd', () => {
     // Simulate a newer cached value. Retry must never delete this reusable email key.
     await env.CACHE.put(`auth:west:verification:${row?.identifier}`, JSON.stringify(row))
     fail = false
-    expect(await retryDeletionCleanup(a.db, kv)).toEqual({ completed: 1, failed: 0 })
+    expect(await retryDeletionCleanup(a.db, kv)).toMatchObject({ completed: 1, failed: 0 })
     expect(await env.CACHE.get(`auth:west:verification:${row?.identifier}`)).not.toBeNull()
-    expect(await retryDeletionCleanup(a.db, kv)).toEqual({ completed: 0, failed: 0 })
+    expect(await retryDeletionCleanup(a.db, kv)).toMatchObject({ completed: 0, failed: 0 })
     if (replacement?.type === 'otp')
       expect(
         (await a.post('/sign-in/email-otp', { email: owner.email, otp: replacement.otp })).status,

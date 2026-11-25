@@ -1,6 +1,9 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { Button, Checkbox, Input, Label, Textarea } from '@xuanxue/ui'
+import { Alert, AlertDescription, Button, Checkbox, Input, Label, Textarea } from '@xuanxue/ui'
+import { CircleAlert } from '@xuanxue/ui/icons'
 import { type FormEvent, useEffect, useState } from 'react'
+import { getAdminFeatureModels } from '../../features/admin/feature-models.functions.ts'
+import { FeatureModelsForm } from '../../features/admin/feature-models-form.tsx'
 import { getAdminSettings, saveAdminSettings } from '../../features/admin/settings.functions.ts'
 import { OperationsSettingsForm } from '../../features/admin/settings-operations-form.tsx'
 import { ReadingSettingsForm } from '../../features/admin/settings-readings-form.tsx'
@@ -8,7 +11,13 @@ import { AdminPage, Field, panelClass } from '../../features/admin/ui.tsx'
 import { m } from '../../paraglide/messages.js'
 
 export const Route = createFileRoute('/admin/settings')({
-  loader: () => getAdminSettings(),
+  loader: async () => {
+    const [settings, featureModels] = await Promise.all([
+      getAdminSettings(),
+      getAdminFeatureModels(),
+    ])
+    return { ...settings, featureModels }
+  },
   errorComponent: () => <p role="alert">{m.admin_settings_are_unavailable_please_reload()}</p>,
   component: Settings,
 })
@@ -72,6 +81,14 @@ function Settings() {
     <AdminPage title={m.admin_runtime_settings()} className="max-w-3xl">
       <form onSubmit={submit} aria-label={m.admin_runtime_settings()} className={panelClass()}>
         <fieldset disabled={!hydrated || busy} className="grid min-w-0 gap-5">
+          {saved.fallbackKeys.length > 0 && (
+            <Alert>
+              <CircleAlert />
+              <AlertDescription>
+                {m.admin_settings_using_defaults({ keys: saved.fallbackKeys.join(', ') })}
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="grid gap-2">
             <Label htmlFor="registration-enabled" className="font-normal text-body leading-normal">
               <Checkbox
@@ -215,6 +232,7 @@ function Settings() {
         </p>
       )}
       <ReadingSettingsForm />
+      <FeatureModelsForm items={saved.featureModels} />
       <OperationsSettingsForm />
     </AdminPage>
   )

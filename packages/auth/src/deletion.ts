@@ -2,6 +2,12 @@ import type { SiteId } from '@xuanxue/config'
 import type { Database } from '@xuanxue/db'
 import type { KeyValueStore } from '@xuanxue/platform'
 import { AppError, newId, normalizeSignupEmail } from '@xuanxue/shared'
+import {
+  BULK_JOB_TIME_FLOOR,
+  bulkJobOutcome,
+  bulkJobSkipped,
+  checkBulkJobTime,
+} from '@xuanxue/shared/bulk-job'
 import { log } from '@xuanxue/shared/log'
 import type { BetterAuthPlugin } from 'better-auth'
 import { APIError, createAuthEndpoint } from 'better-auth/api'
@@ -26,6 +32,11 @@ export interface DeletionStep {
   readonly before?: (context: DeletionContext) => Promise<void>
   /** Database writes only; throwing rolls back the entire deletion. */
   readonly execute?: (context: DeletionContext, sql: DeletionTransaction) => Promise<void>
+  /**
+   * 删除事务提交后的外部清理（例如 agent 对话实例）。失败只记日志、不影响已完成的删除，
+   * 步骤须自带兜底（重试或自清理）；`context` 与 before / execute 收到的是同一对象。
+   */
+  readonly after?: (context: DeletionContext) => Promise<void>
 }
 const steps: Record<DeletionKind, DeletionStep[]> = { account: [], workspace: [] }
 /** Register once at application startup; the returned disposer is useful in tests. */
@@ -44,6 +55,19 @@ interface Options {
   readonly headers: Headers
   readonly kv?: Pick<KeyValueStore, 'delete'> | undefined
   readonly clientIp?: string | null | undefined
+}
+/** 提交后的清理逐个执行，单个失败不阻塞其余步骤 */
+async function runAfterSteps(steps: readonly DeletionStep[], context: DeletionContext) {
+  for (const step of steps) {
+    if (!step.after) continue
+    try {
+      await step.after(context)
+    } catch (error) {
+      log.warn('deletion.after-step.failed', {
+        errorName: error instanceof Error ? error.name : typeof error,
+      })
+    }
+  }
 }
 function fail(
   code: string,
@@ -103,18 +127,50 @@ async function runCleanup(
   await db.$client`delete from verification where id=${id} and identifier=${DELETION_CLEANUP_PREFIX + id}`
   return true
 }
-/** Retry only reserved manifests. No KV/network operations occur inside a DB transaction. */
-export async function retryDeletionCleanup(db: Database, kv: Pick<KeyValueStore, 'delete'>) {
-  await db.$client`delete from verification where identifier like ${`${DELETION_CLEANUP_PREFIX}%`} and expires_at<=now()`
+/** 每轮最多处理的清单数（过期删除与重试合计，add-ops-safeguards D2） */
+export const DELETION_CLEANUP_CAP = 200
+
+/**
+ * Retry only reserved manifests. No KV/network operations occur inside a DB transaction.
+ * 每轮最多 200 个清单，按 expires_at 升序：先删除已过期清单，再重试未过期清单。
+ * 应用与数据库时钟偏差超过 5 分钟时不执行；expires_at 早于下限的清单不删除并告警。
+ */
+export async function retryDeletionCleanup(
+  db: Database,
+  kv: Pick<KeyValueStore, 'delete'>,
+  { now = new Date() }: { now?: Date } = {},
+) {
+  const reserved = `${DELETION_CLEANUP_PREFIX}%`
+  const floor = BULK_JOB_TIME_FLOOR.toISOString()
+  const [probe] = await db.$client<{ db_now: Date; out_of_range: number }[]>`
+    select now() as db_now, (select count(*) from verification
+      where identifier like ${reserved} and expires_at<${floor})::int as out_of_range`
+  const dbNow = new Date(probe?.db_now ?? Number.NaN)
+  const verdict = checkBulkJobTime({ appNow: now, dbNow })
+  if (!verdict.ok) return { completed: 0, failed: 0, guard: bulkJobSkipped(verdict.reason) }
+  const expired = await db.$client<{ id: string }[]>`
+    delete from verification where id in (select id from verification
+      where identifier like ${reserved} and expires_at>=${floor} and expires_at<=now()
+      order by expires_at, id limit ${DELETION_CLEANUP_CAP})
+    returning id`
   const rows = await db.$client<{ id: string; value: string; site: SiteId }[]>`
-    select id,value,site from verification where identifier like ${`${DELETION_CLEANUP_PREFIX}%`} and expires_at>now()`
+    select id,value,site from verification where identifier like ${reserved} and expires_at>now()
+    order by expires_at, id limit ${DELETION_CLEANUP_CAP - expired.length}`
   let completed = 0
   let failed = 0
   for (const row of rows) {
     if (await runCleanup(db, kv, row.id, row.site, JSON.parse(row.value))) completed++
     else failed++
   }
-  return { completed, failed }
+  return {
+    completed,
+    failed,
+    guard: bulkJobOutcome({
+      processed: expired.length + rows.length,
+      cap: DELETION_CLEANUP_CAP,
+      outOfRange: probe?.out_of_range ?? 0,
+    }),
+  }
 }
 async function finishCleanup(
   db: Database,
@@ -213,6 +269,7 @@ export async function deleteTeamWorkspace(
     const keys = await softDelete(sql, workspaceId, fresh.user.id, options.clientIp ?? null)
     return saveCleanup(sql, keys, site, options.kv)
   })
+  await runAfterSteps(registered, context)
   await finishCleanup(options.db, options.kv, keys)
   return { deleted: true }
 }
@@ -318,6 +375,7 @@ export async function deleteAccount(options: Options) {
     await sql`insert into audit_log (id,actor_user_id,action,target_type,target_id,ip,meta) values (${newId()},${current.id},'account.deleted','user',${current.id},${options.clientIp ?? null},${JSON.stringify({ anonymized: true, deletedPersonalWorkspaceIds: personal.map((workspace) => workspace.id) })}::jsonb)`
     return saveCleanup(sql, cacheKeys, site, options.kv)
   })
+  await runAfterSteps(registered, context)
   const cleanup = await Promise.allSettled([
     finishCleanup(options.db, options.kv, keys),
     ...(options.cleanupShareCards

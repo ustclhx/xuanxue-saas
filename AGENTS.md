@@ -23,6 +23,7 @@ v1 产品需求见 `doc/design.md`，任务拆分、波次与补充共享文件�
 
 - `apps/web`：TanStack Start 路由、页面、Server Functions 和 HTTP 接口。
 - `apps/jobs`：Cloudflare Workflows、Queue 消费者和 Cron；web 经绑定调用 jobs。
+- `plugins/<id>` 承载可选功能。新增、启停或调整插件入口时，见 [插件开发与部署](docs/plugins.md)。
 - `packages/shared`：类型、错误、ID、结构化日志；`config`：模板类型、默认值和环境校验；
   `db`：Drizzle schema、迁移、租户查询和运行时设置；`platform`：目标中立能力契约与 Cloudflare 适配。
 - `packages/auth`：身份、会话和空间；`billing`：支付、订单和订阅；`credits`：积分账本和预扣结算；
@@ -54,6 +55,15 @@ config/db 不反向依赖 platform。业务包之间允许依赖，检查器没�
 - 验收/自测证据写入 `EVIDENCE_DIR`（未设置时使用已忽略的 `test-results/evidence/`），提交到项目自身的私有验收记录；主仓库与 PR 只引用，不提交证据。
 - 只修改任务所需内容；复用现有实现与测试，为核心行为和真实回归风险增加精简用例。
 - 修改 `.github/workflows/`、`.github/actions/` 或 Turbo 配置前阅读 [CI 规范](docs/ci.md)：合并前必须通过的检查、CI 模式、缓存输入与并发规则以该文档为准。
+- 新增或改动 MCP 工具能力时，同一 PR 更新工具与参数说明及[管理员 MCP 工具表](docs/admin-mcp.md#工具与权限)。
+- 新增或改动会删除数据、销毁积分、调用外部写或批量发送的后台任务（含插件 cron 与 Durable Object alarm 等非 cron 入口），
+  必须声明每轮上限、最早到期优先的顺序与时间防护（`@xuanxue/shared/bulk-job`），并在 [批量任务登记表](docs/bulk-jobs.md) 登记；
+  非 cron 入口同时加入 `apps/jobs/src/bulk-job-registry.ts` 的 `NON_CRON_BULK_JOBS`。
+- 访客不会因后台问题看不到公开页面：公开页面的可用性不依赖后台配置、后台专用绑定、插件路由或数据库，需要数据的部分降级显示；预渲染页在环境校验失败时仍返回，插件绑定缺失只让该插件入口 503。见 `public-site-availability` 规范。
+- 第三方集成登记在 [第三方登记表](docs/third-party.md)，新增第三方 SDK 依赖须同时加登记行与
+  `scripts/third-party-deps.json` 映射（`pnpm check` 检查）。能经 API 或 CLI 查询第三方状态时，提供查询方式而不是教手工步骤。
+- 写或改第三方操作说明前先查官方文档，在说明旁注明出处链接与核对日期，并同步登记表的「上次核对」。
+- 真账号中看到的数据（账号 ID、余额、域名配置、部分密钥、截图）不进本仓库，写入 `EVIDENCE_DIR` 对应的私有证据库，仓库只引用。
 
 ## 常用命令
 

@@ -22,13 +22,13 @@ export interface BillingListInput {
   workspaceId?: string | undefined
   site?: string | undefined
 }
-const siteScope = (data: BillingListInput, currentSite: SiteId) => {
+const siteScope = (data: BillingListInput, currentSite: SiteId | null) => {
   const scope = adminSiteFilter(data.site, currentSite)
   return scope ? eq(organization.site, scope) : undefined
 }
-const pageResult = <T>(rows: T[]) => ({
-  rows: rows.slice(0, ADMIN_PAGE_SIZE),
-  hasMore: rows.length > ADMIN_PAGE_SIZE,
+const pageResult = <T>(rows: T[], limit = ADMIN_PAGE_SIZE) => ({
+  rows: rows.slice(0, limit),
+  hasMore: rows.length > limit,
 })
 
 export async function listAdminPayments(db: Database, data: BillingListInput, currentSite: SiteId) {
@@ -90,9 +90,11 @@ export async function listAdminSubscriptions(
 }
 export async function listAdminPurchases(
   db: Database,
-  data: BillingListInput,
-  currentSite: SiteId,
+  data: BillingListInput & { limit?: number },
+  // null：管理员 MCP 的只读查询，不限站点
+  currentSite: SiteId | null,
 ) {
+  const limit = data.limit ?? ADMIN_PAGE_SIZE
   const rows = await db
     .select({
       id: purchase.id,
@@ -114,9 +116,9 @@ export async function listAdminPurchases(
       ),
     )
     .orderBy(desc(purchase.createdAt), desc(purchase.id))
-    .limit(ADMIN_PAGE_SIZE + 1)
+    .limit(limit + 1)
     .offset(data.offset)
-  return pageResult(rows)
+  return pageResult(rows, limit)
 }
 
 /**

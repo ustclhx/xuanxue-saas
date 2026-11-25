@@ -1,4 +1,12 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { compile } from '@inlang/paraglide-js'
@@ -214,5 +222,52 @@ it('含大写字母的语言 id 编译为小写前缀，localize / deLocalize �
     }
   } finally {
     rmSync(mixedRoot, { recursive: true, force: true })
+  }
+})
+it('只编译启用插件的文案目录，关闭插件时 Paraglide 输出中没有其消息键（add-plugin-system 3.3）', async () => {
+  const pluginRoot = mkdtempSync(join(tmpdir(), 'xuanxue-i18n-plugin-'))
+  try {
+    const webRoot = join(pluginRoot, 'apps/web')
+    const pluginMessages = join(pluginRoot, 'plugins/example/messages')
+    mkdirSync(webRoot, { recursive: true })
+    symlinkSync(new URL('../node_modules', import.meta.url).pathname, join(webRoot, 'node_modules'))
+    for (const [dir, feature, messages] of [
+      [
+        join(webRoot, 'messages'),
+        'common',
+        { en: { common_save: 'Save' }, zh: { common_save: '保存' } },
+      ],
+      [pluginMessages, 'example', { en: { example_title: 'Example' }, zh: {} }],
+    ] as const) {
+      for (const [locale, values] of Object.entries(messages)) {
+        mkdirSync(join(dir, locale), { recursive: true })
+        writeFileSync(join(dir, locale, `${feature}.json`), JSON.stringify(values))
+      }
+    }
+    // 启用：插件文案进入路径模式与缺失检查，编译后可用
+    const pluginI18n = { locales: ['en', 'zh'], defaultLocale: 'en' }
+    writeInlangProject(pluginI18n, webRoot, [pluginMessages])
+    expect(findMissingMessages(pluginI18n, webRoot, [pluginMessages])).toEqual([
+      { locale: 'zh', feature: 'example', key: 'example_title' },
+    ])
+    await compile({ ...paraglideOptions(pluginI18n, [], webRoot), emitTsDeclarations: false })
+    const enabled = await import(`${join(webRoot, 'src/paraglide/messages.js')}?enabled`)
+    expect(enabled.m.example_title?.({}, { locale: 'en' })).toBe('Example')
+    // 关闭：重新生成后输出中没有插件的消息键
+    rmSync(join(webRoot, 'src/paraglide'), { recursive: true, force: true })
+    writeInlangProject(pluginI18n, webRoot)
+    await compile({ ...paraglideOptions(pluginI18n, [], webRoot), emitTsDeclarations: false })
+    // 模块缓存会保留上一次的消息模块，这里直接检查编译输出的文本
+    const output = readdirSync(join(webRoot, 'src/paraglide'), {
+      recursive: true,
+      encoding: 'utf8',
+    })
+      .filter((file) => file.endsWith('.js'))
+      .map((file) => readFileSync(join(webRoot, 'src/paraglide', file), 'utf8'))
+      .join('\n')
+    expect(output).toContain('common_save')
+    expect(output).not.toContain('example_title')
+  } finally {
+    rmSync(pluginRoot, { recursive: true, force: true })
   }
 })

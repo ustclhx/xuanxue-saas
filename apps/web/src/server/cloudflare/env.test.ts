@@ -1,6 +1,22 @@
 import { withLogContext } from '@xuanxue/shared/log'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { checkEnv } from './env.ts'
+import { templateConfig } from '../template-config.ts'
+import { checkEnv, pluginBindingStatus } from './env.ts'
+
+// Node 单元测试只校验清单声明的绑定形状，不装配 Workerd Workflow adapter。
+// 入口用例（server.ts）只走到静态资源与环境校验，Start 处理器与 Sentry 包装换成替身。
+vi.mock('@xuanxue/platform/cloudflare', () => ({
+  createCloudflareWorkflow: vi.fn(),
+  createCloudflareRequestMetadata: () => ({ requestId: 'entry-request', clientIp: null }),
+}))
+vi.mock('@tanstack/react-start/server', async (original) => ({
+  ...(await original<typeof import('@tanstack/react-start/server')>()),
+  createStartHandler: () => vi.fn(),
+}))
+vi.mock('./sentry.ts', async (original) => ({
+  ...(await original<typeof import('./sentry.ts')>()),
+  instrumentWeb: (handler: unknown) => handler,
+}))
 
 // 校验用例固定要求 OAuth 与 Turnstile，生成项目关闭登录方式时仍覆盖缺失变量。
 vi.mock('../template-config.ts', async (original) => {
@@ -8,7 +24,6 @@ vi.mock('../template-config.ts', async (original) => {
   return {
     templateConfig: {
       ...templateConfig,
-      ai: { ...templateConfig.ai, image: true, video: true },
       auth: { ...templateConfig.auth, oauth: ['google', 'github'], turnstile: true },
       features: { ...templateConfig.features, publicApi: false },
     },
@@ -23,9 +38,12 @@ function completeEnv() {
   return {
     HYPERDRIVE: { connectionString: SECRET },
     AI_MEDIA_WORKFLOW: { create: fn, get: fn },
+    // 模板启用的 agents 插件声明的 Durable Object 绑定（plugins.worker.gen.ts）
+    AGENT_CONVERSATION: { idFromName: fn, get: fn },
     EMAIL_QUEUE: { send: fn },
     CACHE: { get: fn, put: fn, delete: fn },
     RL_AUTH: { limit: fn },
+    RL_ADMIN_MCP: { limit: fn },
     RL_AI: { limit: fn },
     APP_URL: 'http://localhost:3000',
     BETTER_AUTH_SECRET: 'x'.repeat(32),
@@ -87,16 +105,66 @@ describe('checkEnv（请求入口的环境校验）', () => {
     expect(logged).not.toContain(SECRET)
   })
 
-  it('缺少 Workflow / Queue 绑定时返回 500 并列出绑定名', () => {
+  it('Queue 绑定形状非法时返回 500 并列出绑定名', () => {
     const error = captureErrors()
-    const { AI_MEDIA_WORKFLOW: _, ...env } = completeEnv()
-    const response = checkEnv({ ...env, EMAIL_QUEUE: {} })
-    expect(response?.status).toBe(500)
-    expect(JSON.parse(error.mock.calls.flat().join(' '))).toEqual({
-      level: 'error',
-      event: 'env.invalid',
-      missing: ['AI_MEDIA_WORKFLOW'],
+    expect(checkEnv({ ...completeEnv(), EMAIL_QUEUE: {} })?.status).toBe(500)
+    expect(JSON.parse(error.mock.calls.flat().join(' '))).toMatchObject({
+      missing: [],
       invalid: ['EMAIL_QUEUE'],
+    })
+  })
+
+  it.skipIf(!templateConfig.plugins.media)(
+    '插件绑定不进入全站校验：媒体缺 Workflow 绑定时只有该插件不可用，可选 AI 绑定可以省略',
+    () => {
+      const error = captureErrors()
+      const { AI_MEDIA_WORKFLOW: _, ...env } = completeEnv()
+      expect(checkEnv(env)).toBeNull()
+      expect(pluginBindingStatus(env).media).toBe('unavailable')
+      expect(JSON.parse(error.mock.calls.flat().join(' '))).toEqual({
+        level: 'error',
+        event: 'plugin.bindings_invalid',
+        plugin: 'media',
+        missing: ['AI_MEDIA_WORKFLOW'],
+        invalid: [],
+      })
+    },
+  )
+
+  it.skipIf(!templateConfig.plugins['admin-mcp'])(
+    '缺 RL_ADMIN_MCP 时公开页校验通过，只有 admin-mcp 标为不可用且同一 env 只记一次日志',
+    () => {
+      const error = captureErrors()
+      const { RL_ADMIN_MCP: _, ...env } = completeEnv()
+      expect(checkEnv(env)).toBeNull()
+      const status = pluginBindingStatus(env)
+      expect(status['admin-mcp']).toBe('unavailable')
+      for (const [id, value] of Object.entries(status))
+        if (id !== 'admin-mcp') expect(value, id).toBe('up')
+      expect(pluginBindingStatus(env)).toBe(status)
+      expect(error).toHaveBeenCalledTimes(1)
+      expect(JSON.parse(String(error.mock.calls[0]?.[0]))).toMatchObject({
+        event: 'plugin.bindings_invalid',
+        plugin: 'admin-mcp',
+        missing: ['RL_ADMIN_MCP'],
+      })
+    },
+  )
+
+  it('插件绑定形状不对与缺失同样只影响该插件', () => {
+    captureErrors()
+    const plugins = [
+      { id: 'sample', bindings: [{ name: 'RL_SAMPLE', kind: 'rate_limit' as const }] },
+      { id: 'optional', bindings: [{ name: 'AI', kind: 'ai' as const, optional: true }] },
+      { id: 'none', bindings: [] },
+    ]
+    expect(pluginBindingStatus({ RL_SAMPLE: {} }, plugins)).toEqual({
+      sample: 'unavailable',
+      optional: 'up',
+    })
+    expect(pluginBindingStatus({ RL_SAMPLE: { limit: () => undefined } }, plugins)).toEqual({
+      sample: 'up',
+      optional: 'up',
     })
   })
 

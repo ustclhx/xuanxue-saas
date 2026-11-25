@@ -2,7 +2,7 @@ import type { SiteId } from '@xuanxue/config'
 import { auditLog, type Database, type JsonValue, organization, user } from '@xuanxue/db'
 import { and, desc, eq, gte, lt, or, type SQL, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { ADMIN_PAGE_SIZE, adminWorkspaceIdFilter } from './list.ts'
+import { ADMIN_MAX_OFFSET, ADMIN_PAGE_SIZE, adminWorkspaceIdFilter } from './list.ts'
 import { ADMIN_ALL_SITES, adminSiteFilter } from './site.ts'
 
 /**
@@ -20,7 +20,7 @@ const auditDateFilter = z
   .optional()
 
 export const auditSearchSchema = z.object({
-  offset: z.number().int().min(0).max(100_000),
+  offset: z.number().int().min(0).max(ADMIN_MAX_OFFSET).default(0),
   actor: z.string().max(200).optional(),
   workspaceId: adminWorkspaceIdFilter,
   action: z.string().max(200).optional(),
@@ -38,10 +38,16 @@ const auditSite = sql<SiteId | null>`coalesce(${organization.site}, ${user.site}
 
 /**
  * 操作人可用 ID / 邮箱查询；模拟期间也匹配实际管理员 ID。
- * 默认只列当前站点的记录，按邮箱筛选操作人也只匹配当前站点的账户；`site: 'all'` 为只读的全部站点视图。
+ * 默认只列当前站点的记录，按邮箱筛选操作人也只匹配当前站点的账户；`site: 'all'` 为只读的全部站点视图，
+ * `currentSite` 为 null（管理员 MCP 的只读查询）时同样不限站点。`limit` 供 MCP 分页，后台沿用默认页长。
  */
-export async function listAuditLogs(db: Database, input: AuditSearch, currentSite: SiteId) {
+export async function listAuditLogs(
+  db: Database,
+  input: AuditSearch & { limit?: number },
+  currentSite: SiteId | null,
+) {
   const data = auditSearchSchema.parse(input)
+  const limit = input.limit ?? ADMIN_PAGE_SIZE
   const scope = adminSiteFilter(data.site, currentSite)
   const actorEmail: SQL | undefined = data.actor
     ? and(eq(user.email, data.actor), scope ? eq(user.site, scope) : undefined)
@@ -73,11 +79,11 @@ export async function listAuditLogs(db: Database, input: AuditSearch, currentSit
     .where(where)
     .orderBy(desc(auditLog.createdAt), desc(auditLog.id))
     .offset(data.offset)
-    .limit(ADMIN_PAGE_SIZE + 1)
+    .limit(limit + 1)
   return {
     rows: rows
-      .slice(0, ADMIN_PAGE_SIZE)
+      .slice(0, limit)
       .map((row) => ({ ...row, log: { ...row.log, meta: row.log.meta as JsonValue } })),
-    hasMore: rows.length > ADMIN_PAGE_SIZE,
+    hasMore: rows.length > limit,
   }
 }

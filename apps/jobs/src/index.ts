@@ -1,29 +1,24 @@
 // Cloudflare composition entry：绑定、WorkflowEntrypoint 与 Sentry SDK 只在目标入口装配。
-import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from 'cloudflare:workers'
-import { instrumentWorkflowWithSentry, withSentry } from '@sentry/cloudflare'
-import { createTaskMediaProvider, getMediaOutputHosts, readMediaTaskInput } from '@xuanxue/ai'
-import {
-  emailTransportConfig,
-  MEDIA_MAX_FILE_BYTES,
-  MEDIA_OUTPUT_MIME_TYPES,
-} from '@xuanxue/config'
-import { createDb } from '@xuanxue/db'
-import { getEntitlements } from '@xuanxue/entitlements'
+// 启用插件的 jobs 入口来自生成文件 plugins.gen.ts：具名导出（Workflow 类）原样导出，
+// 队列、定时任务与积分预扣清理器合并到核心注册表。
+
+import { withSentry } from '@sentry/cloudflare'
+import { emailTransportConfig } from '@xuanxue/config'
 import {
   createCloudflareDatabase,
   createCloudflareKv,
   createCloudflareQueue,
   createCloudflareQueueBatch,
-  createCloudflareWorkflowStep,
 } from '@xuanxue/platform/cloudflare'
 import { newRequestId, withLogContext } from '@xuanxue/shared/log'
-import { getFileDownload, persistMediaOutputs } from '@xuanxue/storage'
-import { createCloudflareMediaCopier, createCloudflareStorage } from '@xuanxue/storage/cloudflare'
+import { createCloudflareObjectDeleter, createCloudflareStorage } from '@xuanxue/storage/cloudflare'
 import templateConfig from '../../../template.config.ts'
 import { registerAiHoldSweepers } from './ai.ts'
 import { serverAnalyticsTarget } from './billing.ts'
 import { requireEnv } from './env.ts'
 import { consumeJobsBatch, type JobsContext, runJobsSchedule } from './handlers.ts'
+import { registerPluginHoldSweepers } from './plugins/register.ts'
+import jobsPlugins from './plugins.gen.ts'
 import { createEventsDeadLetterSink } from './queues/events-dead-letter.ts'
 import {
   captureJobException,
@@ -32,7 +27,6 @@ import {
   sentryOptions,
   tagJobContext,
 } from './sentry.ts'
-import { runMediaTask } from './workflows/media-runner.ts'
 
 const cloudflareJobObserver = { tagContext: tagJobContext, captureException: captureJobException }
 
@@ -40,9 +34,20 @@ const features = {
   billing: templateConfig.billing.enabled,
   credits: templateConfig.credits.enabled,
   text: templateConfig.ai.text.enabled,
-  media: templateConfig.ai.image || templateConfig.ai.video,
 }
 registerAiHoldSweepers(features)
+const pluginModules = jobsPlugins.flatMap((plugin) => (plugin.entry ? [plugin.entry] : []))
+for (const plugin of pluginModules)
+  plugin.configureWorker?.({
+    requireEnv,
+    tagJobContext,
+    createWorkflowSentry,
+    sentryEnabled,
+    sentryOptions,
+  })
+registerPluginHoldSweepers(pluginModules, templateConfig)
+
+export * from './plugins.gen.ts'
 
 /** 每事件装配并显式挑选标量配置；不把 bindings 传入业务 env。 */
 function createJobsContext(env: Cloudflare.Env, queue?: string): JobsContext {
@@ -76,10 +81,11 @@ function createJobsContext(env: Cloudflare.Env, queue?: string): JobsContext {
     }),
     emailTransport: emailTransportConfig(valid),
     ...(shareCards && { shareCards }),
-    files: { available: true, value: { delete: (key) => env.FILES.delete(key) } },
+    files: { available: true, value: createCloudflareObjectDeleter(env.FILES) },
     observer: cloudflareJobObserver,
     billingEnabled: features.billing,
     analytics: serverAnalyticsTarget(env),
+    plugins: pluginModules,
   }
 }
 
@@ -127,83 +133,3 @@ export default {
     })
   },
 } satisfies ExportedHandler<Cloudflare.Env>
-
-export type AiMediaParams = {
-  taskId: string
-  requestId?: string
-}
-
-class AiMediaWorkflowBase extends WorkflowEntrypoint<Cloudflare.Env, AiMediaParams> {
-  override run(event: WorkflowEvent<AiMediaParams>, step: WorkflowStep) {
-    return withLogContext(
-      { requestId: event.payload.requestId ?? newRequestId(), taskId: event.payload.taskId },
-      async () => {
-        tagJobContext()
-        const workflowSentry = createWorkflowSentry(step, sentryEnabled(this.env))
-        try {
-          requireEnv(this.env)
-          const db = createDb(this.env.HYPERDRIVE)
-          const workflowStep = createCloudflareWorkflowStep(workflowSentry.step)
-          return await runMediaTask(event.payload.taskId, workflowStep, {
-            db,
-            faultEnv: this.env,
-            callbackOrigin: templateConfig.app.url,
-            callbackSecret: this.env.MEDIA_WEBHOOK_SECRET ?? '',
-            provider: (task) =>
-              createTaskMediaProvider(this.env, task, templateConfig.ai.mediaProviders),
-            params: async (task) => {
-              const input = readMediaTaskInput(task)
-              const params = { ...input.params }
-              for (const name of input.fileParams) {
-                params[name] = await getFileDownload(db, createCloudflareStorage(this.env), {
-                  workspaceId: task.workspaceId,
-                  fileId: input.params[name] as string,
-                })
-              }
-              return params
-            },
-            observer: workflowSentry.observer,
-            persist: async (task, result) => {
-              const entitlements = await getEntitlements(db, task.workspaceId, {
-                pastDueGraceDays: templateConfig.billing.pastDueGraceDays,
-              })
-              return persistMediaOutputs({
-                db,
-                storage: createCloudflareStorage(this.env),
-                copyOutput: createCloudflareMediaCopier(this.env.FILES),
-                task,
-                result,
-                limits: {
-                  maxFileBytes: MEDIA_MAX_FILE_BYTES,
-                  allowedHosts: getMediaOutputHosts(task.provider),
-                  allowedMimeTypes: MEDIA_OUTPUT_MIME_TYPES[task.kind],
-                  storageBytes: Math.min(
-                    readMediaTaskInput(task).storageBytes,
-                    entitlements.features.storageGb * 1024 ** 3,
-                  ),
-                },
-              })
-            },
-          })
-        } catch (error) {
-          workflowSentry.observer.captureException(error)
-          throw error
-        }
-      },
-    )
-  }
-}
-
-const InstrumentedAiMediaWorkflow = instrumentWorkflowWithSentry(sentryOptions, AiMediaWorkflowBase)
-
-// Workflow 包装器在构造时绑定环境；禁用时直接构造原始类，避免 run 初始化 SDK。
-export const AiMediaWorkflow = new Proxy(AiMediaWorkflowBase, {
-  construct(target, args, newTarget) {
-    const env = args[1] as Cloudflare.Env
-    return Reflect.construct(
-      sentryEnabled(env) ? InstrumentedAiMediaWorkflow : target,
-      args,
-      newTarget,
-    )
-  },
-})

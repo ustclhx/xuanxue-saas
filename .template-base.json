@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "repository": "https://github.com/ustclhx/saas-template",
-  "commit": "e823375cfe571607a34de5f4bb8d4c1c06c9248c",
-  "version": "0.8.1",
+  "commit": "9a80ce25b00857ec7410b2cb0e46e805584e09e0",
+  "version": "0.9.1",
   "clean": true,
   "params": {
     "ai": [
@@ -60,6 +60,8 @@
     "0021_daily_credits",
     "0022_subject_chat",
     "0023_feedback_reason",
-    "0024_feedback_share"
+    "0024_feedback_share",
+    "0025_ai_agent_turn",
+    "0026_admin_api_token"
   ]
 }
