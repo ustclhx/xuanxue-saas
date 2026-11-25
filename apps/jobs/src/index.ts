@@ -11,7 +11,7 @@ import {
   createCloudflareQueueBatch,
 } from '@xuanxue/platform/cloudflare'
 import { newRequestId, withLogContext } from '@xuanxue/shared/log'
-import { createCloudflareStorage } from '@xuanxue/storage/cloudflare'
+import { createCloudflareObjectDeleter, createCloudflareStorage } from '@xuanxue/storage/cloudflare'
 import templateConfig from '../../../template.config.ts'
 import { registerAiHoldSweepers } from './ai.ts'
 import { serverAnalyticsTarget } from './billing.ts'
@@ -81,7 +81,7 @@ function createJobsContext(env: Cloudflare.Env, queue?: string): JobsContext {
     }),
     emailTransport: emailTransportConfig(valid),
     ...(shareCards && { shareCards }),
-    files: { available: true, value: { delete: (key) => env.FILES.delete(key) } },
+    files: { available: true, value: createCloudflareObjectDeleter(env.FILES) },
     observer: cloudflareJobObserver,
     billingEnabled: features.billing,
     analytics: serverAnalyticsTarget(env),

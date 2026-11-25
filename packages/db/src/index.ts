@@ -1,3 +1,4 @@
+export { bulkJobFloorSql, probeBulkJob } from './bulk-job.ts'
 export {
   createDb,
   type Database,
@@ -38,9 +39,12 @@ export {
   isValidDailyCreditSetting,
   listSettingDefinitions,
   registerSettingDefinitions,
+  resetInvalidSettingWarnings,
+  resolveStoredSetting,
   SETTING_CACHE_TTL_SECONDS,
   type SettingCache,
   type SettingKey,
+  type SettingSource,
   type SettingStore,
   type SettingsContext,
   type SettingValues,

@@ -9,8 +9,9 @@ import { adminMcpConfigSchema } from '../config.ts'
 import { TOKEN_NAME_MAX, tokenTerms } from './api-tokens.ts'
 import { createAdminApiToken, revokeAdminApiToken } from './tokens.ts'
 
-// 后台 API 令牌页（openspec add-admin-mcp 任务 5.2）。只操作当前管理员自己的令牌；
-// 创建与吊销经 adminAction 在同一事务写审计，meta 不含令牌值与哈希。完整令牌只出现在创建响应中。
+// 后台 API 令牌页的创建与吊销（openspec add-admin-mcp 任务 5.2）。只操作当前管理员自己的令牌；
+// 经 adminAction 在同一事务写审计，meta 不含令牌值与哈希。完整令牌只出现在创建响应中。
+// 列表读取在 api-tokens-list.functions.ts：路由 loader 只导入它，输入 schema 与写入函数不进入入口包。
 
 const DAY_MS = 86_400_000
 

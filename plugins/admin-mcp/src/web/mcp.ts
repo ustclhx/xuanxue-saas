@@ -1,5 +1,5 @@
 import { Server, WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/server'
-import type { WebRuntime } from '@web/server/runtime.ts'
+import { pluginUnavailable, type WebRuntime } from '@web/server/runtime.ts'
 import { isAiFaultInjectionEnabled } from '@xuanxue/config'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
@@ -12,6 +12,8 @@ import { settingTools } from './tools/settings.ts'
 
 const maxRequestBodySize = 256 * 1024
 const responseHeaders = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }
+
+export const adminTools = [pingTool, ...settingTools, ...modelTools, ...businessTools] as const
 
 function mcpError(status: number, message: string, headers?: Record<string, string>) {
   return Response.json(
@@ -30,9 +32,7 @@ async function dispatch(request: Request, ctx: AdminToolContext) {
     { name: 'admin-mcp', version: '1.0.0' },
     { capabilities: { tools: {} } },
   )
-  const tools = [pingTool, ...settingTools, ...modelTools, ...businessTools].map((tool) =>
-    tool.register(ctx),
-  )
+  const tools = adminTools.map((tool) => tool.register(ctx))
   const byName = new Map(tools.map((tool) => [tool.spec.name, tool]))
   server.setRequestHandler('tools/list', () => ({ tools: tools.map((tool) => tool.spec) }))
   server.setRequestHandler('tools/call', async ({ params }) => {
@@ -55,7 +55,10 @@ async function dispatch(request: Request, ctx: AdminToolContext) {
   }
 }
 
-type McpRuntime = Pick<WebRuntime, 'db' | 'cache' | 'rateLimiter' | 'requestMeta' | 'ai'> & {
+type McpRuntime = Pick<
+  WebRuntime,
+  'db' | 'cache' | 'rateLimiter' | 'requestMeta' | 'ai' | 'pluginStatus'
+> & {
   readonly config: Pick<WebRuntime['config'], 'APP_URL'>
 }
 
@@ -66,6 +69,8 @@ export async function respondToAdminMcp(
   if (request.method !== 'POST') return mcpError(405, 'Method not allowed', { Allow: 'POST' })
   try {
     const runtime = getRuntime()
+    // 限流绑定 RL_ADMIN_MCP 缺失时只有本端点不可用，公开页面照常（public-site-availability）
+    if (pluginUnavailable(runtime, 'admin-mcp')) return mcpError(503, 'Service unavailable')
     // CLI 可以省略 Origin。浏览器来源以部署配置为准，避免使用请求中的 Host 自证。
     const origin = request.headers.get('origin')
     if (origin !== null && origin !== new URL(runtime.config.APP_URL).origin)

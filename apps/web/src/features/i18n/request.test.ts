@@ -10,11 +10,16 @@ import { readRequestSession, withSessionCache } from './session.server.ts'
 
 vi.mock('@xuanxue/auth', async (original) => ({
   ...(await original<typeof import('@xuanxue/auth')>()),
-  requireFreshSession: vi.fn(async ({ headers }) => ({
-    user: { id: headers.get('x-user'), locale: headers.get('x-locale') },
-    session: {},
-  })),
+  requireFreshSession: vi.fn(async ({ headers }) => {
+    // 模拟数据库不可达：会话读取抛出非 AppError
+    if (headers.get('x-db-down')) throw new Error('connect ECONNREFUSED')
+    return {
+      user: { id: headers.get('x-user'), locale: headers.get('x-locale') },
+      session: {},
+    }
+  }),
 }))
+vi.mock('@xuanxue/shared/log', () => ({ log: { warn: vi.fn(), error: vi.fn(), info: vi.fn() } }))
 
 const runtime = { db: {}, auth: {} } as Pick<WebRuntime, 'db' | 'auth'>
 
@@ -284,5 +289,27 @@ describe.runIf(templateConfig.i18n.enabled)('公开页语言只由 URL 决定（
         expect(await response.json(), url).toEqual({ locale })
       }
     }
+  })
+})
+
+describe('数据库故障时公开页导航降级（public-site-availability）', () => {
+  it('已登录访客的 server function 读会话失败时按无账号语言继续并记警告', async () => {
+    const { log } = await import('@xuanxue/shared/log')
+    vi.mocked(log.warn).mockClear()
+    for (const path of ['/_serverFn/blog-post', '/account']) {
+      const request = new Request(`${origin}${path}`, {
+        headers: { 'x-db-down': '1', 'x-user': 'one', 'x-locale': 'zh' },
+      })
+      const response = await localizeRequest(
+        request,
+        runtime,
+        async () => new Response(getLocale()),
+      )
+      expect(response.status, path).toBe(200)
+      expect(await response.text(), path).toBe(baseLocale)
+      expect(response.headers.get('set-cookie'), path).toBeNull()
+    }
+    if (templateConfig.i18n.enabled)
+      expect(log.warn).toHaveBeenCalledWith('i18n.account_locale_read_failed', { code: undefined })
   })
 })

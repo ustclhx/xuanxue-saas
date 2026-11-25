@@ -374,5 +374,6 @@
   "admin_total_users": "使用者數",
   "admin_total_workspaces": "有效工作空間數",
   "admin_revoke_remaining_credits_in_batch": "確定撤銷批次 {batchId} 中的剩餘積分嗎？",
-  "admin_partial_amount_in_currency": "部分退款金額（{currency}）"
+  "admin_partial_amount_in_currency": "部分退款金額（{currency}）",
+  "admin_settings_using_defaults": "{keys} 的已存值不符合目前規則，正在使用預設值。儲存本表單會以目前顯示的值覆蓋。"
 }

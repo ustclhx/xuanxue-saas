@@ -374,5 +374,6 @@
   "admin_total_users": "사용자 수",
   "admin_total_workspaces": "활성 워크스페이스 수",
   "admin_revoke_remaining_credits_in_batch": "배치 {batchId}의 잔여 크레딧을 회수할까요?",
-  "admin_partial_amount_in_currency": "부분 환불 금액 ({currency})"
+  "admin_partial_amount_in_currency": "부분 환불 금액 ({currency})",
+  "admin_settings_using_defaults": "{keys}에 저장된 값이 현재 규칙에 맞지 않아 기본값을 사용하고 있습니다. 이 양식을 저장하면 표시된 값으로 바뀝니다."
 }

@@ -410,7 +410,6 @@ function EmptyTokens({ action }: { action: ReactNode }) {
   )
 }
 
-/** 加载态：与列表同一外框的骨架条 */
 /** 桌面居中弹窗、手机底部面板的统一外壳 */
 function ResponsiveDialog({
   open,
@@ -757,5 +756,3 @@ function RevokeTokenDialog({
     </AlertDialog>
   )
 }
-
-export { ApiTokensError, ApiTokensSkeleton } from './api-tokens-states.tsx'

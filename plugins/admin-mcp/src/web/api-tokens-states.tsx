@@ -1,10 +1,12 @@
-// 令牌页的加载与错误状态（项目扩展）：路由的 pendingComponent 不参与按路由拆包，
-// 单独成模块，避免它把整页（弹窗、表格与 UI 组件）带进每个页面的入口包（首页包预算）。
 import { AdminPage } from '@web/features/admin/ui.tsx'
 import { m } from '@web/paraglide/messages.js'
 import { Button } from '@xuanxue/ui'
 import { CircleAlert } from '@xuanxue/ui/icons'
 
+// 令牌页的加载与错误状态单独成模块：路由的 pendingComponent 不参与默认代码分割，与整页同模块时会把
+// 弹窗、表格与 Dialog / Checkbox / AlertDialog 等组件带进每个页面的客户端入口包（约 19KB gzip）
+
+/** 加载态：与列表同一外框的骨架条 */
 export function ApiTokensSkeleton() {
   return (
     <AdminPage title={m.admin_mcp_title()} className="max-w-5xl">

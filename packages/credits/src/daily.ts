@@ -3,12 +3,11 @@ import {
   creditGrant,
   type DailyCreditSettingKey,
   type Database,
-  isValidDailyCreditSetting,
   member,
   organization,
+  resolveStoredSetting,
   type SettingValues,
   setting,
-  settingDefaults,
   user,
 } from '@xuanxue/db'
 import {
@@ -129,11 +128,10 @@ export async function grantDailyCredits(input: {
       .from(setting)
       .where(inArray(setting.key, [...dailyKeys, SIGNUP_BONUS_DOMAIN_BLACKLIST_KEY]))
     const values = new Map(persisted.map((row) => [row.key, row.value]))
-    const read = <K extends DailyCreditSettingKey>(key: K): SettingValues[K] => {
-      const value = values.has(key) ? values.get(key) : settingDefaults[key]
-      if (!isValidDailyCreditSetting(key, value)) throw new Error('Invalid daily credits setting')
-      return value
-    }
+    // 已存值不符合当前定义（如项目收紧了范围）时回落默认值并告警，与 getSetting 一致
+    const read = <K extends DailyCreditSettingKey>(key: K): SettingValues[K] =>
+      resolveStoredSetting(key, values.has(key) ? values.get(key) : undefined)
+        .value as SettingValues[K]
     const amount = read('credits.dailyAmount')
     const maxDays = read('credits.dailyMaxDaysPerMonth')
     const expiryDays = read('credits.dailyExpiryDays')

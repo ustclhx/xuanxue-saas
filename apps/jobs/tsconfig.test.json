@@ -6,5 +6,5 @@
     "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"]
   },
   "include": ["test", "src", "vitest.config.ts"],
-  "exclude": ["test/global-setup.ts", "src/plugins.node.gen.ts"]
+  "exclude": ["test/global-setup.ts"]
 }

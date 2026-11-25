@@ -1,4 +1,5 @@
 import { AppError } from '@xuanxue/shared'
+import { log } from '@xuanxue/shared/log'
 import { baseLocale, cookieName, isLocale, type Locale } from '../../paraglide/runtime.js'
 import { paraglideMiddleware } from '../../paraglide/server.js'
 import type { WebRuntime } from '../../server/runtime.ts'
@@ -38,8 +39,13 @@ export function localizeRequest(
         })
         locale = accountLocale(fresh.user.locale, request)
       } catch (error) {
-        if (!(error instanceof AppError && [401, 403].includes(error.status))) throw error
-        // 未登录时应用区按 Cookie 取语言；Cookie 是另一站的语言（旧版同域名下切换过语言、
+        // 未登录（401/403）按 URL / Cookie 规则；其余错误（数据库不可达等）同样降级为无账号语言，
+        // 不能让已登录访客在公开页之间导航时的 server function 失败（public-site-availability）。
+        if (!(error instanceof AppError && [401, 403].includes(error.status)))
+          log.warn('i18n.account_locale_read_failed', {
+            code: error instanceof AppError ? error.code : undefined,
+          })
+        // 无账号语言时应用区按 Cookie 取语言；Cookie 是另一站的语言（旧版同域名下切换过语言、
         // 账号语言曾被同步到本站）时不能沿用，否则 `/app` 的登录跳转会生成 `/zh-hans/login` 这类
         // 本站不存在的地址。改用本站回退语言并更正 Cookie。
         const current = readCookie(request.headers.get('cookie') ?? '', cookieName)

@@ -56,7 +56,7 @@ import { withSecurityNonce } from './security-context.server.ts'
 import { withSecurityHeaders, withStaticSecurityHeaders } from './security-headers.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
-import { checkEnv, webEnvSchema } from './server/cloudflare/env.ts'
+import { checkEnv, pluginBindingStatus, webEnvSchema } from './server/cloudflare/env.ts'
 import { captureServerError, instrumentWeb, sentryEnabled } from './server/cloudflare/sentry.ts'
 import { getWebRuntime, type WebRuntime, withWebRuntime } from './server/runtime.ts'
 import { SENTRY_TEST_PATH, sentryTest } from './server/sentry-test.ts'
@@ -352,6 +352,7 @@ function createCloudflareWebRuntime(
             ),
         }
       : { available: false },
+    pluginStatus: pluginBindingStatus(env),
     // 分享卡片的数据中心级缓存；写入放进 waitUntil，不阻塞本次响应。
     shareCardCache: {
       available: true,

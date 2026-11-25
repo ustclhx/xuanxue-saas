@@ -39,13 +39,13 @@ plugins/<id>/
 |---|---|
 | `web` | `appNav` 增加应用区导航（侧栏与顶栏布局共用），同 id 依模板、插件、项目的次序覆盖。`adminNav` 向现有后台分组追加条目，组内按 `order` 排序。`toolRenderers` 注册对话工具卡片，项目可覆盖。 |
 | `worker` | `fetch(request, env, ctx)` 在网关与 TanStack Start 之前运行。返回 `Response` 即结束，返回 `undefined` 继续请求链。 |
-| `jobs` | `queues` 按基础队列名注册处理器，Cloudflare 同时匹配 `-staging` 和 `-production` 后缀。`crons` 使用已有 `heartbeat`、`ten-minute`、`daily` 分组。`holdSweepers` 按预扣来源注册清理器。 |
+| `jobs` | `queues` 按基础队列名注册处理器，Cloudflare 同时匹配 `-staging` 和 `-production` 后缀。`crons` 使用已有 `heartbeat`、`ten-minute`、`daily` 分组，每个任务必须声明 `safety`：会删除、销毁积分、外部写或群发时写明每轮上限、顺序与时间防护并登记到 [批量任务登记表](bulk-jobs.md)，否则写 `{ kind: 'none', reason }`。`holdSweepers` 按预扣来源注册清理器。 |
 | `webNode` | Node Web 的 `fetch(request)`，采用同样的请求链约定。 |
 | `jobsNode` | 共用 jobs 的队列、Cron 与清理器。`registerWorkflows` 装配 Node 持久任务，可以返回内部 HTTP 路由与停机时停止接收的回调。 |
 
 插件可在 `web` 入口具名导出 `agentTools` 数组或返回数组的同步函数，使用 `@xuanxue/ai` 的 `defineAgentTool` 定义工具。工具依赖服务端模块时，用 `createServerOnlyFn(() => tools)` 导出同步函数，将工具实现模块仅引用在函数体内。启用 `agents` 后，Cloudflare Worker 启动时汇总工具，名称须与所有已启用插件和项目工具中的名称互不重复。有副作用的工具须声明 `needsApproval`，用 `ctx.idempotencyKey` 在业务写入边界去重，并在重放时返回已有结果。工具在对话实例（Durable Object）中执行，不在 web 请求运行时内：数据库用 `ctx.db`，Worker 绑定与变量、插件提供的 AI 任务工作流和限流器取自 `ctx.services`（类型 `AgentToolServices`，见 Web 契约）。提交长任务的工具立即返回 `@xuanxue/ai` 的 `pendingTaskOutput(taskId)`；对话实例按 taskId 轮询 `ai_task`，终态时把该工具调用的输出改写为结果，不自动续轮。
 
-接口定义见 [Web](../apps/web/src/features/plugins/contract.ts)、[Cloudflare Web Worker](../apps/web/src/server/cloudflare/plugins.ts)、[jobs](../apps/jobs/src/plugins/contract.ts) 与 [Node jobs](../apps/jobs/src/node/plugins.ts)。
+接口定义见 [Web](../apps/web/src/features/plugins/contract.ts)、[Cloudflare Web Worker](../apps/web/src/server/cloudflare/plugins.ts)、[Node Web](../apps/web/src/node/plugins.ts)、[jobs](../apps/jobs/src/plugins/contract.ts) 与 [Node jobs](../apps/jobs/src/node/plugins.ts)。
 
 ## 依赖边界
 
@@ -57,9 +57,13 @@ plugins/<id>/
 
 1. 在 `template.config.ts` 的 `plugins` 中加入插件 id 与配置，例如 `plugins: { example: {} }`。同时启用其 `requires` 声明的插件和模板开关。
 2. Cloudflare 部署时，按清单在对应的 `apps/web/wrangler.jsonc` 或 `apps/jobs/wrangler.jsonc` 顶层、`env.staging`、`env.production` 分别补齐所需绑定。绑定名与种类须一致，环境资源名与 ID 按各自部署填写。跨 Worker 的 Durable Object 或 Workflow 绑定指向实际导出类的 Worker。配置所需密钥后重新构建并部署。Node 使用插件自己的 Node 入口校验运行时配置。
+
+   运行时，web 不把插件绑定并入全站环境校验：某个启用插件的必需绑定缺失或形状不对时，只有该插件的入口返回 503（如 admin-mcp 的 `/api/admin/mcp`、agents 的 `/agents/*`；media 经 `ai.workflow` 能力报告不可用），公开页面和其他插件照常，`/api/health` 的 `plugins` 字段列出各插件状态，日志记 `plugin.bindings_invalid`（只含插件 id 与绑定名）。漏配由部署前的 `pnpm check`（`scripts/check-plugins.mjs`）按环境拦截。新插件的入口须用 `pluginUnavailable(runtime, '<id>')` 自行检查，不要依赖全站校验。
 3. 停用时，删除 `plugins` 中的键，调整依赖该插件的开关和其他插件，移除专属的 Wrangler 绑定并保留仍在使用的共享绑定。重新构建与部署后，插件路由返回 404，构建产物移除该插件的入口和文案。
 
 Cloudflare 使用声明了 `cloudflare` 的插件。`pnpm build:node` 只打包启用且支持 `node` 的插件，并提示已排除的仅 Cloudflare 插件。使用生成器创建 selfhost 项目时，只能选择支持 `node` 的插件。启停和目标筛选在构建时生效。数据库表与迁移统一由 `packages/db` 管理。
+
+只部署 Cloudflare 的项目可以删除 Node 入口。删除 `apps/web/src/node/plugins.ts` 或 `apps/jobs/src/node/plugins.ts` 后，插件生成器不再写出该侧的 `*.node.gen.*`，并移除之前生成的旧文件。两目标共用的契约不引用 Node 配置类型。
 
 ## 内置插件
 
@@ -72,6 +76,8 @@ Cloudflare 使用声明了 `cloudflare` 的插件。`pnpm build:node` 只打包�
 生成 Cloudflare 项目时可用 `--plugins agents` 选择 Agent。web 的 `AGENT_CONVERSATION` 绑定指向同一 Worker 内的 `AgentConversation`，并用 `agents-v1` SQLite 类迁移。jobs 沿用先部署的顺序。`plugins.agents` 可配置 `maxSteps`、`maxTurnCredits`、`maxPersistedMessages`、`retentionDays` 与 `defaultAgent`。详见 [插件清单](../plugins/agents/plugin.ts) 与 [配置 schema](../plugins/agents/src/config.ts)。
 
 `admin-mcp` 使用 `packages/db` 的 `admin_api_token` 表，启用时应用数据库迁移。Cloudflare web 各环境需配置 `RL_ADMIN_MCP` 限流绑定，默认每分钟 120 次，额度按各环境的绑定配置。Node 用 `plugins['admin-mcp'].rateLimitPerMinute` 调整额度。令牌有效期上限由 `plugins['admin-mcp'].maxTokenDays` 设置，默认 365 天。停用并重新部署后，管理页和 MCP 端点返回 404。[插件清单](../plugins/admin-mcp/plugin.ts)
+
+新增或改动 MCP 工具能力时，同一 PR 更新工具的英文 `description`、`params` 中每个输入参数的说明，以及[管理员 MCP 工具表](./admin-mcp.md#工具与权限)中的工具名、scope 和参数。无参数的工具声明 `params: {}`。
 
 ## 新增插件与验证
 

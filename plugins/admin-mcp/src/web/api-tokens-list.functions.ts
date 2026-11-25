@@ -1,5 +1,3 @@
-// 令牌页的列表读取（项目扩展，从 api-tokens.functions.ts 拆出）：路由 loader 位于每个页面的入口包，
-// 单独成模块，创建与吊销的 Server Function 及其输入 schema 只随令牌页分包加载（首页包预算）。
 import { createServerFn } from '@tanstack/react-start'
 import { adminMiddleware } from '@web/features/admin/admin.functions.ts'
 import { getWebRuntime } from '@web/server/runtime.ts'
@@ -7,6 +5,9 @@ import { templateConfig } from '@web/server/template-config.ts'
 import { adminMcpConfigSchema } from '../config.ts'
 import { tokenTerms } from './api-tokens.ts'
 import { listAdminApiTokens } from './tokens.ts'
+
+// 后台 API 令牌页的列表读取。路由 loader 不参与默认代码分割，只导入本文件，
+// 避免把创建 / 吊销函数及其输入 schema 带进每个页面的客户端入口包。
 
 function maxTokenDays() {
   return adminMcpConfigSchema.parse(templateConfig.plugins['admin-mcp'] ?? {}).maxTokenDays

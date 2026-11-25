@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { Button, Checkbox, Input, Label, Textarea } from '@xuanxue/ui'
+import { Alert, AlertDescription, Button, Checkbox, Input, Label, Textarea } from '@xuanxue/ui'
+import { CircleAlert } from '@xuanxue/ui/icons'
 import { type FormEvent, useEffect, useState } from 'react'
 import { getAdminFeatureModels } from '../../features/admin/feature-models.functions.ts'
 import { FeatureModelsForm } from '../../features/admin/feature-models-form.tsx'
@@ -80,6 +81,14 @@ function Settings() {
     <AdminPage title={m.admin_runtime_settings()} className="max-w-3xl">
       <form onSubmit={submit} aria-label={m.admin_runtime_settings()} className={panelClass()}>
         <fieldset disabled={!hydrated || busy} className="grid min-w-0 gap-5">
+          {saved.fallbackKeys.length > 0 && (
+            <Alert>
+              <CircleAlert />
+              <AlertDescription>
+                {m.admin_settings_using_defaults({ keys: saved.fallbackKeys.join(', ') })}
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="grid gap-2">
             <Label htmlFor="registration-enabled" className="font-normal text-body leading-normal">
               <Checkbox
