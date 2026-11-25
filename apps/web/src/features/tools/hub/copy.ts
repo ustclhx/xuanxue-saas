@@ -131,6 +131,8 @@ const GLYPH: Readonly<Record<string, string>> = {
   // 第二批画板 HubWestB：出生星盘为太阳符号，三巨头为上升箭头
   'birth-chart': '☉',
   'rising-sign-calculator': '↑',
+  // 第二批画板 HubWestB：逆行日历为处方符号
+  'retrograde-calendar': '℞',
 }
 
 /** 工具卡的大号字形（装饰，对读屏隐藏）：没有登记的工具取名称里的第一个文字 */

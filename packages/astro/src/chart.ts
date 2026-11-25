@@ -147,6 +147,12 @@ function planetLongitude(body: Body, utcMs: number): number {
   return Ecliptic(GeoVector(body, new Date(utcMs), true)).elon
 }
 
+/** 单颗行星的地心视黄经（与 chartPositions 同一口径），供逆行停滞搜索等逐点扫描使用。 */
+export function apparentLongitude(planet: PlanetKey, utcMs: number): number {
+  assertUtc(utcMs)
+  return planetLongitude(BODIES[planet], utcMs)
+}
+
 function meanNodeLongitude(utcMs: number): number {
   // Meeus《Astronomical Algorithms》式 47.7（平黄道），再加黄经章动转到真春分点，与视黄经同一参考系。
   const time = MakeTime(new Date(utcMs))

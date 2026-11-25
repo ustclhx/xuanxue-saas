@@ -35,6 +35,11 @@ export interface FactTableProps<Row> {
   caption: string
   /** 当前行（本年、今天）：surface-2 底 */
   isCurrent?: (row: Row) => boolean
+  /**
+   * 整行说明（设计稿 `td.gap.full`）：返回内容时该行只保留首列，其余列合并为一格显示这段说明
+   * （如「本年没有逆行」）；返回 null 或 undefined 时按列正常渲染。
+   */
+  rowNote?: (row: Row) => ReactNode
   /** 手机上每行改成两列小卡（设计稿「stack」），否则在容器内横向滚动 */
   stack?: boolean
   /** 限宽为正文宽度（720px），用于列数少的表 */
@@ -57,6 +62,7 @@ export function FactTable<Row>({
   rowKey,
   caption,
   isCurrent,
+  rowNote,
   stack = false,
   narrow = false,
   className,
@@ -95,6 +101,8 @@ export function FactTable<Row>({
         <tbody className={cn(stack && 'max-sm:block')}>
           {rows.map((row) => {
             const current = isCurrent?.(row) ?? false
+            const note = rowNote?.(row)
+            const noted = note !== null && note !== undefined
             return (
               <tr
                 key={rowKey(row)}
@@ -105,7 +113,7 @@ export function FactTable<Row>({
                     'max-sm:grid max-sm:grid-cols-2 max-sm:gap-x-3 max-sm:gap-y-0.5 max-sm:px-4 max-sm:py-3.5',
                 )}
               >
-                {columns.map((column) => (
+                {(noted ? columns.slice(0, 1) : columns).map((column) => (
                   <td
                     key={column.key}
                     className={cn(
@@ -124,6 +132,17 @@ export function FactTable<Row>({
                     {column.cell(row)}
                   </td>
                 ))}
+                {noted ? (
+                  <td
+                    colSpan={columns.length - 1}
+                    className={cn(
+                      'px-3 py-2.5 text-center align-middle text-caption text-ink-subtle sm:px-5 sm:py-3',
+                      stack && 'max-sm:col-span-2 max-sm:block max-sm:p-0 max-sm:text-left',
+                    )}
+                  >
+                    {note}
+                  </td>
+                ) : null}
               </tr>
             )
           })}
