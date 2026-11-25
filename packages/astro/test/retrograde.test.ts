@@ -23,7 +23,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import reference from './fixtures/swisseph-retrograde-stations.json'
 
 const TARGET_MINUTES = 2
-/** 按行星分级的实测门槛（分钟），见文件头说明 */
+/** 按行星分级的门槛（分钟）：使用者 2026-11-25 裁定以此取代「≤2 分钟」（design 决策 19），正文须写明同一组数 */
 const MAX_MINUTES: Record<RetrogradePlanet, number> = {
   mercury: 8,
   venus: 8,
