@@ -537,8 +537,8 @@ describe('cleanup safeguards (add-ops-safeguards 1.2)', () => {
     const a = app()
     const id = newId()
     await a.db
-      .$client`insert into verification (id,identifier,value,expires_at,created_at,updated_at)
-      values (${id},${DELETION_CLEANUP_PREFIX + id},'[]','1970-01-01T00:00:00Z',now(),now())`
+      .$client`insert into verification (site,id,identifier,value,expires_at,created_at,updated_at)
+      values ('west',${id},${DELETION_CLEANUP_PREFIX + id},'[]','1970-01-01T00:00:00Z',now(),now())`
     try {
       const kv = { delete: vi.fn(async () => {}) }
       expect(
