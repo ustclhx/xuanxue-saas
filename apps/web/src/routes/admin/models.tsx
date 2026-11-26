@@ -485,7 +485,7 @@ function ModelEditor({
           {m.admin_key()} <Input required maxLength={64} {...field('key')} />
         </label>
         <label
-          className="grid gap-2 text-sm font-medium"
+          className="grid gap-2 text-body font-medium"
           htmlFor={`${model?.id ?? 'new'}-displayName`}
         >
           {m.admin_model_display_name()}
