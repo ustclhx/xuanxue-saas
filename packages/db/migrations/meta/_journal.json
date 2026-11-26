@@ -211,6 +211,20 @@
       "when": 1794576753754,
       "tag": "0029_tpl_admin_step_up",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794576753755,
+      "tag": "0030_tpl_media_studio",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794576753756,
+      "tag": "0031_tpl_studio_publication_quota",
+      "breakpoints": true
     }
   ]
 }
