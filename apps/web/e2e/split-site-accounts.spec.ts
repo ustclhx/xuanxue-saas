@@ -8,7 +8,7 @@ import {
 } from '@playwright/test'
 import { createDb } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
-import { APP_URL, AUTH_FORM_COPY, login, register, simulateClientIp } from './fixtures.ts'
+import { APP_URL, AUTH_FORM_COPY, grantStepUp, login, register, simulateClientIp } from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // openspec split-site-accounts 4.1：两站账户按站点独立。同一邮箱在 east.localhost 与 west.localhost
@@ -106,6 +106,8 @@ test('same email on east and west: independent balances, sessions and deletion',
     const promoted =
       await sql`update "user" set role = 'admin' where email = ${adminEmail} and site = 'east' returning id`
     expect(promoted).toHaveLength(1)
+    // 积分调整属于敏感后台操作（step-up）；本用例不测验证框，直接预置当前会话的验证状态
+    await grantStepUp(sql, promoted[0]?.id as string)
     // 东方站应用区（含后台）没有保存语言时按东方站语言显示，这里为繁体中文
     await admin.page.goto(`/admin/credits?workspaceId=${eastAccount.workspace_id}`)
     await expect(admin.page.getByRole('heading', { name: '積分調整' })).toBeVisible()

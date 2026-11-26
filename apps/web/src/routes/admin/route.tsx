@@ -5,7 +5,6 @@ import { getAdminViewer } from '../../features/admin/admin.functions.ts'
 import { ADMIN_COPY } from '../../features/admin/copy.ts'
 import { getAdminNavGroups } from '../../features/admin/nav.ts'
 import { siteLabel } from '../../features/admin/site-ui.tsx'
-import { getStepUpStatus } from '../../features/admin/step-up/step-up.functions.ts'
 import {
   StepUpProvider,
   StepUpRescueBanner,
@@ -28,7 +27,10 @@ export const Route = createFileRoute('/admin')({
   // loader 不在 TanStack 默认的按路由拆包范围内：导航计数经 import() 加载，避免插件 server fn 进入所有页面的入口包
   loader: async () => {
     const [stepUp, navCounts] = await Promise.all([
-      getStepUpStatus().catch(() => null),
+      // 项目（xuanxue）：验证状态也经 import() 加载，首页包预算（352,174 B）容不下静态导入的 server fn 存根
+      import('../../features/admin/step-up/step-up.functions.ts')
+        .then(({ getStepUpStatus }) => getStepUpStatus())
+        .catch(() => null),
       import('../../features/admin/nav.ts').then(({ loadAdminNavCounts }) => loadAdminNavCounts()),
     ])
     return { stepUp, navCounts }
