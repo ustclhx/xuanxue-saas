@@ -107,6 +107,8 @@ async function authOptions(userId: string) {
   return {
     db,
     auth: {
+      // 项目 auth 实例按站点服务（split-site-accounts 决策 1）
+      site: 'west' as const,
       $context: Promise.resolve({ secret, authCookies: { sessionToken: { name: 'test' } } }),
     },
     headers: new Headers({ cookie: `test=${encodeURIComponent(`${token}.${signature}`)}` }),

@@ -80,6 +80,8 @@ describe.skipIf(!templateConfig.plugins.studio)('Studio 后台审核', () => {
   beforeAll(async () => {
     await db.insert(user).values({
       id: adminId,
+      // 项目账户按站点隔离（split-site-accounts）
+      site: 'west',
       name: 'Studio admin',
       email: `${adminId}@studio-admin.example.test`,
       role: 'admin',

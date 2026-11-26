@@ -27,10 +27,17 @@ export async function seedStudioWorkspace(
   const workspaceId = options.workspaceId ?? (options.isPersonal ? userId : newId())
   await db
     .insert(user)
-    .values({ id: userId, name: 'Studio test', email: `studio-${userId}@example.test` })
+    // 项目账户按站点隔离（split-site-accounts）：用户与空间带站点
+    .values({
+      id: userId,
+      site: 'west',
+      name: 'Studio test',
+      email: `studio-${userId}@example.test`,
+    })
     .onConflictDoNothing({ target: user.id })
   await db.insert(organization).values({
     id: workspaceId,
+    site: 'west',
     name: 'Studio test',
     slug: `studio-${workspaceId}`,
     isPersonal: options.isPersonal ?? false,

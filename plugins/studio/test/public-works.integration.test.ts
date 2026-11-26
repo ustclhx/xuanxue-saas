@@ -48,8 +48,15 @@ async function withFixture(run: (tx: Transaction) => Promise<void>) {
 async function createAuthor(tx: Transaction) {
   const userId = newId()
   const workspaceId = newId()
-  await tx.insert(user).values({ id: userId, email: `${userId}@example.test`, name: 'Author' })
-  await tx.insert(organization).values({ id: workspaceId, slug: workspaceId, name: 'Workspace' })
+  await tx.insert(user).values({
+    id: userId,
+    site: 'west',
+    email: `${userId}@example.test`,
+    name: 'Author',
+  })
+  await tx
+    .insert(organization)
+    .values({ id: workspaceId, site: 'west', slug: workspaceId, name: 'Workspace' })
   return { userId, workspaceId, site: `studio-${workspaceId}` }
 }
 

@@ -1207,7 +1207,7 @@ describe.skipIf(!templateConfig.plugins.media || studioModes.length === 0)('Stud
     modelKey: string,
     mode = studioMode,
   ) {
-    const resolved = await resolveDefaultWorkspace(db, { id: who.userId }, who.workspaceId)
+    const resolved = await resolveDefaultWorkspace(db, { id: who.userId }, who.workspaceId, 'west')
     if (!resolved) throw new Error('Studio test workspace is unavailable')
     const { deps } = dependencies()
     const data: StudioSubmitData = {
