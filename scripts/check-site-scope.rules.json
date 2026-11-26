@@ -1,7 +1,7 @@
 [
   {
     "path": "packages/auth/src/ai-content-cleanup.ts",
-    "query": "db.$client<{ id: string }[]>` select u.id from \"user\" u where u.email='deleted+'||u.id::text||'@invalid' and ( exists(select 1 from ai_conversation c join organization o on o.id=c.workspace_id where c.user_id=u.id and not o.is_personal) or exists(select 1 from ai_task t join organization o on o.id=t.workspace_id where t.user_id=u.id and not o.is_personal)) order by u.id`",
+    "query": "db.$client<{ id: string }[]>` select u.id from \"user\" u where u.email='deleted+'||u.id::text||'@invalid' and ( exists(select 1 from ai_conversation c join organization o on o.id=c.workspace_id where c.user_id=u.id and not o.is_personal) or exists(select 1 from ai_task t join organization o on o.id=t.workspace_id where t.user_id=u.id and not o.is_personal) or exists(select 1 from studio_work w join organization o on o.id=w.workspace_id where w.user_id=u.id and not o.is_personal)) order by u.id`",
     "reason": "按匿名化占位邮箱扫描已删除账户，全站清理其遗留 AI 内容；不按真实邮箱寻找账户。"
   },
   {

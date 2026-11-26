@@ -133,6 +133,8 @@ test('地图发布过滤、robots 与 构建期 PNG 输出', async ({ request })
   const rules = await (await request.get('/robots.txt')).text()
   // 默认 localhost 属于预览 Host，禁止全部抓取；已知 Host 的规则由 dual-site-seo 验证。
   expect(rules).toContain('Disallow: /')
+  // 预览 Host 也不列任何站点地图（含模板 0.11.0 的插件站点地图）；已知 Host 的插件站点地图由单元测试覆盖
+  expect(rules).not.toMatch(/^Sitemap:/m)
   // 含样例 OG 模板的登记页面（redesign-home-chart-visuals 8.1）：开发服务器经 runnerImport 加载图形组件；
   // 样例图随注册表挂到主工具页（separate-landing-homepage OQ8），首页沿用默认分享图。
   // 渲染器有并发上限（超出时返回 500「renderer is busy」）：逐个请求

@@ -75,6 +75,8 @@
   "admin_disabled_models_are_hidden_from_model_pickers_and": "비활성화된 모델은 모델 선택기에 표시되지 않으며 호출도 거부됩니다. 요금 변경은 저장 후 시작되는 호출부터 적용됩니다.",
   "admin_new_model": "새 모델",
   "admin_key": "키",
+  "admin_model_display_name": "표시 이름(선택)",
+  "admin_model_display_name_too_long": "표시 이름은 {max}자 이하여야 합니다.",
   "admin_type": "유형",
   "admin_provider": "서비스 제공자",
   "admin_pricing": "요금",

@@ -7,11 +7,18 @@ import {
   dbSettingStore,
   getSettingValue,
   type NewAiModel,
+  scoped,
   setting,
   settingDefaults,
+  studioReport,
+  studioWork,
   user,
 } from '@xuanxue/db'
 import type { RateLimiter } from '@xuanxue/platform'
+import {
+  type InvalidateStudioWorks,
+  setStudioMediaInvalidator,
+} from '@xuanxue/plugin-studio/work-invalidation'
 import { newId } from '@xuanxue/shared'
 import { eq, inArray, like } from 'drizzle-orm'
 import { afterAll, describe, expect, it, vi } from 'vitest'
@@ -22,8 +29,19 @@ import {
   revokeAdminApiToken,
 } from '../../../plugins/admin-mcp/src/web/tokens.ts'
 import { connectAdminMcpTestClient } from '../../../plugins/admin-mcp/test/client.ts'
+import {
+  deleteStudioFixtures,
+  seedStudioOutput,
+  seedStudioWorkspace,
+} from '../../../plugins/studio/test/works-fixtures.ts'
 import { templateConfig } from '../src/server/template-config.ts'
 import { adminCache, cacheValues, createAdminTestDb } from './admin-test-resources.ts'
+
+// Workerd 测试直接调用 HTTP 处理器，保留插件服务端工厂并省略 Start 构建期转换。
+vi.mock('@tanstack/react-start', () => ({
+  createMiddleware: () => ({ server: () => ({}) }),
+  createServerOnlyFn: (fn: unknown) => fn,
+}))
 
 vi.mock('../../../packages/ai/src/feature-models.project.ts', () => ({
   default: {
@@ -102,6 +120,8 @@ async function expectUnauthorized(response: Response) {
 }
 
 describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
+  const studioWorkspaceIds: string[] = []
+
   afterAll(async () => {
     const db = createAdminTestDb()
     const migrator = createAdminTestDb('migrator')
@@ -116,6 +136,7 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
           admins.map(({ id }) => id),
         ),
       )
+      await deleteStudioFixtures(db, studioWorkspaceIds)
       await db.delete(user).where(
         inArray(
           user.id,
@@ -123,7 +144,7 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
         ),
       )
     }
-    await Promise.all([db.$client.end(), migrator.$client.end()])
+    await Promise.all([db.close(), migrator.close()])
   })
 
   it('用 SDK 完成 initialize、tools/list、tools/call 和协议 ping', async () => {
@@ -157,6 +178,7 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
         'settings.get',
         'settings.list',
         'settings.set',
+        ...(templateConfig.plugins.studio ? ['studio.works.list', 'studio.works.moderate'] : []),
         'users.get',
         'users.search',
         'workspaces.list',
@@ -169,7 +191,13 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
       })
       expect(
         tools.filter((tool) => tool.annotations?.readOnlyHint === false).map(({ name }) => name),
-      ).toEqual(['settings.set', 'models.update', 'credits.adjust', 'refunds.review'])
+      ).toEqual([
+        'settings.set',
+        'models.update',
+        'credits.adjust',
+        'refunds.review',
+        ...(templateConfig.plugins.studio ? ['studio.works.moderate'] : []),
+      ])
       expect(await client.callTool({ name: 'ping', arguments: {} })).toEqual({
         content: [{ type: 'text', text: 'pong' }],
       })
@@ -179,6 +207,155 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
       await client.close()
     }
   })
+
+  it.skipIf(!templateConfig.plugins.studio)(
+    'Studio 审核工具使用真实令牌校验、预览和事务审计',
+    async () => {
+      const { db, createAdmin, connect } = setup()
+      const adminId = await createAdmin()
+      const read = await issueToken(db, adminId)
+      const write = await issueToken(db, adminId, true)
+      const author = await seedStudioWorkspace(db)
+      studioWorkspaceIds.push(author.workspaceId)
+      const reader = await connect(read.token)
+      const writer = await connect(write.token)
+      const id = newId()
+      const site = `studio-mcp-${id}`
+      const slug = site
+      const tenant = scoped(db, author.workspaceId)
+      const getWork = () => tenant.findById(studioWork, id)
+      let committedModeration: string | undefined
+      const invalidated = vi.fn<InvalidateStudioWorks>(async () => {
+        const work = await getWork()
+        committedModeration = work?.moderation
+      })
+      setStudioMediaInvalidator(Object.assign(() => {}, { many: invalidated }))
+
+      try {
+        const { fileId, taskId } = await seedStudioOutput(db, author)
+        await tenant.insert(studioWork, {
+          id,
+          userId: author.userId,
+          fileId,
+          taskId,
+          site,
+          slug,
+          title: 'MCP review work',
+          prompt: 'Moderation prompt',
+          kind: 'image',
+          modelKey: 'fixture',
+          reportCount: 1,
+        })
+        await db.insert(studioReport).values({
+          workId: id,
+          reporterKey: 'ip:fixture-network-key',
+          reason: 'copyright',
+          note: 'Private report note',
+        })
+        const listed = await reader.callTool({
+          name: 'studio.works.list',
+          arguments: { tab: 'reported', site, page: 1 },
+        })
+        expect(listed.structuredContent).toMatchObject({
+          rows: [
+            {
+              id,
+              site,
+              workspaceId: author.workspaceId,
+              reportReasons: [{ reason: 'copyright', total: 1, unresolved: 1 }],
+            },
+          ],
+          hasMore: false,
+          nextCursor: null,
+        })
+        expect(JSON.stringify(listed)).not.toMatch(
+          /fixture-network-key|Private report note|r2Key|fileId|taskId/,
+        )
+
+        const remove = { workId: id, action: 'remove', reason: 'Copyright violation' }
+        const moderate = (client: typeof writer, args: Record<string, unknown>) =>
+          client.callTool({ name: 'studio.works.moderate', arguments: args })
+
+        expectToolError(await moderate(reader, remove), 'INSUFFICIENT_SCOPE')
+        expectToolError(
+          await moderate(writer, { workId: id, action: 'remove' }),
+          'INVALID_TOOL_ARGUMENTS',
+        )
+        await expect(moderate(writer, { ...remove, dryRun: true })).resolves.toMatchObject({
+          structuredContent: {
+            work: { moderation: 'removed', removalReason: remove.reason, version: 2 },
+            dryRun: true,
+          },
+        })
+        await expect(getWork()).resolves.toMatchObject({
+          moderation: 'pending',
+          removalReason: null,
+          version: 1,
+        })
+        expect(invalidated).not.toHaveBeenCalled()
+        const beforeWrite = await actorAudits(db, adminId)
+        expect(beforeWrite.filter(({ action }) => action === 'studio.work.remove')).toEqual([])
+        expect(beforeWrite).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              action: 'admin.mcp.call',
+              targetId: read.metadata.id,
+              meta: expect.objectContaining({
+                via: 'mcp',
+                tool: 'studio.works.moderate',
+                result: 'INSUFFICIENT_SCOPE',
+              }),
+            }),
+            expect.objectContaining({
+              action: 'admin.mcp.call',
+              targetId: write.metadata.id,
+              meta: expect.objectContaining({
+                via: 'mcp',
+                tool: 'studio.works.moderate',
+                dryRun: true,
+                result: 'ok',
+              }),
+            }),
+          ]),
+        )
+
+        await expect(moderate(writer, remove)).resolves.toMatchObject({
+          structuredContent: {
+            work: { moderation: 'removed', removalReason: remove.reason, version: 2 },
+            dryRun: false,
+          },
+        })
+        await expect(getWork()).resolves.toMatchObject({
+          moderation: 'removed',
+          reviewedBy: adminId,
+          version: 2,
+        })
+        expect(invalidated).toHaveBeenCalledExactlyOnceWith([{ id, site, slug, version: 1 }])
+        expect(committedModeration).toBe('removed')
+        expect(
+          (await actorAudits(db, adminId)).filter(({ targetId }) => targetId === id),
+        ).toMatchObject([
+          {
+            action: 'studio.work.remove',
+            workspaceId: author.workspaceId,
+            meta: {
+              via: 'mcp',
+              tokenId: write.metadata.id,
+              tool: 'studio.works.moderate',
+              moderationBefore: 'pending',
+              moderationAfter: 'removed',
+              reason: remove.reason,
+              result: 'ok',
+            },
+          },
+        ])
+      } finally {
+        setStudioMediaInvalidator(() => {})
+        await Promise.all([reader.close(), writer.close()])
+        await db.close()
+      }
+    },
+  )
 
   it('只读、scope 拒绝、输入错误和执行错误各写一条脱敏调用审计', async () => {
     const { db, connect, createAdmin } = setup()
@@ -340,6 +517,7 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
       const { token } = await issueToken(db, adminId, true)
       const client = await connect(token)
       const key = `mcp-${newId()}`
+      const displayName = 'MCP 测试模型'
       const pricing = { mode: 'token', inputPer1k: 1, outputPer1k: 1, minCharge: 1 } as const
       const update = (args: Record<string, unknown>) =>
         client.callTool({ name: 'models.update', arguments: { key, ...args } })
@@ -369,6 +547,10 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
         })
         const [unchanged] = await db.select().from(aiModel).where(eq(aiModel.key, key))
         expect(unchanged?.pricing).toEqual(pricing)
+        expect((await update({ displayName })).structuredContent).toMatchObject({
+          key,
+          changes: { displayName: { before: null, after: displayName } },
+        })
         // 只改参数或定价不变时直接写入
         const saved = await update({ pricing, paramsSchema })
         expect(saved.structuredContent).toMatchObject({
@@ -385,20 +567,31 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
         })
         expect(list.structuredContent).toMatchObject({
           models: expect.arrayContaining([
-            expect.objectContaining({ key, pricing: newPricing, paramsSchema }),
+            expect.objectContaining({ key, displayName, pricing: newPricing, paramsSchema }),
           ]),
         })
         expect(
-          (await actorAudits(db, adminId)).find(({ action }) => action === 'ai.model_updated'),
-        ).toMatchObject({
-          meta: {
-            changes: {
-              pricing: { before: pricing, after: pricing },
-              paramsSchema: { before: null, after: expect.stringMatching(/^[0-9a-f]{64}$/) },
-            },
-            params: { key },
+          (await actorAudits(db, adminId)).filter(({ action }) => action === 'ai.model_updated'),
+        ).toMatchObject([
+          {
+            meta: { changes: { displayName: { before: null, after: displayName } } },
           },
+          {
+            meta: {
+              changes: {
+                pricing: { before: pricing, after: pricing },
+                paramsSchema: { before: null, after: expect.stringMatching(/^[0-9a-f]{64}$/) },
+              },
+              params: { key },
+            },
+          },
+        ])
+        expect((await update({ displayName: null })).structuredContent).toMatchObject({
+          key,
+          changes: { displayName: { before: displayName, after: null } },
         })
+        const [cleared] = await db.select().from(aiModel).where(eq(aiModel.key, key))
+        expect(cleared?.displayName).toBeNull()
       } finally {
         await db.delete(aiModel).where(eq(aiModel.key, key))
         await client.close()

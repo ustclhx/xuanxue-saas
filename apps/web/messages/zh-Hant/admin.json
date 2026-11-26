@@ -75,6 +75,8 @@
   "admin_disabled_models_are_hidden_from_model_pickers_and": "已停用的模型不會顯示在模型選擇器中，也無法被呼叫。價格調整適用於儲存後發起的呼叫。",
   "admin_new_model": "新建模型",
   "admin_key": "標識",
+  "admin_model_display_name": "顯示名稱（選填）",
+  "admin_model_display_name_too_long": "顯示名稱最多 {max} 個字元。",
   "admin_type": "類型",
   "admin_provider": "服務商",
   "admin_pricing": "定價",

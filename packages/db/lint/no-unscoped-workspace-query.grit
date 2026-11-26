@@ -35,6 +35,7 @@ pattern workspace_table() {
     `purchase`,
     `reading`,
     `refundRequest`,
+    `studioWork`,
     `subscription`
   }
 }

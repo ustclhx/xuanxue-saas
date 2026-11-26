@@ -1,0 +1,43 @@
+{
+  "name": "@xuanxue/plugin-studio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./moderation": "./src/web/moderation.functions.ts",
+    "./moderation-input": "./src/web/moderation-input.ts",
+    "./moderation-queue.server": "./src/web/moderation-queue.server.ts",
+    "./moderation.server": "./src/web/moderation.server.ts",
+    "./removal-reason": "./src/web/removal-reason.ts",
+    "./work-invalidation": "./src/web/work-invalidation.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@xuanxue/ai": "workspace:*",
+    "@xuanxue/auth": "workspace:*",
+    "@xuanxue/config": "workspace:*",
+    "@xuanxue/credits": "workspace:*",
+    "@xuanxue/db": "workspace:*",
+    "@xuanxue/plugin-media": "workspace:*",
+    "@xuanxue/shared": "workspace:*",
+    "@xuanxue/storage": "workspace:*",
+    "@xuanxue/ui": "workspace:*",
+    "@tanstack/react-router": "^1.170.41",
+    "@tanstack/react-start": "^1.168.60",
+    "drizzle-orm": "^0.45.3",
+    "react": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "happy-dom": "^20.14.5",
+    "react-dom": "^19.3.0",
+    "vitest": "^4.1.11"
+  }
+}

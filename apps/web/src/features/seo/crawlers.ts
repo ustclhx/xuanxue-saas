@@ -111,7 +111,11 @@ export const AI_CRAWLERS = [
   'PerplexityBot',
 ] as const
 
-export function robots(appUrl: string, known = true): string {
+/**
+ * 项目扩展：按站点输出（appUrl 为该站点的 SEO origin，未知 Host 全站禁止）；
+ * 模板 0.11.0 的插件站点地图（PluginWebEntry.sitemaps）按同一站点 origin 解析，并与 /sitemap.xml 去重。
+ */
+export function robots(appUrl: string, known = true, sitemaps: readonly string[] = []): string {
   if (!known) return 'User-agent: *\nDisallow: /\n'
 
   const prefixes = [
@@ -123,6 +127,9 @@ export function robots(appUrl: string, known = true): string {
           .map(localePrefix)
       : []),
   ]
+  const sitemapUrls = new Set(
+    ['/sitemap.xml', ...sitemaps].map((path) => absoluteUrl(appUrl, path)),
+  )
   const rules = [
     ...prefixes.flatMap((prefix) =>
       ['/app', '/account', '/admin', '/api'].map((path) => `Disallow: ${prefix}${path}`),
@@ -139,7 +146,7 @@ export function robots(appUrl: string, known = true): string {
     ...rules,
     ...AI_CRAWLERS.flatMap((bot) => ['', `User-agent: ${bot}`, 'Allow: /', ...rules]),
     '',
-    `Sitemap: ${absoluteUrl(appUrl, '/sitemap.xml')}`,
+    ...Array.from(sitemapUrls, (url) => `Sitemap: ${url}`),
     '',
   ].join('\n')
 }
