@@ -28,9 +28,15 @@ export interface HomePageResult {
   hydration: string[]
   hydrationGzipBytes: number
   zodSources: string[]
+  hydrationViolations: { asset: string; marker: string }[]
 }
 export function stripComments(code: string): string
 export function htmlScripts(html: string): string[]
+export const HYDRATION_PATTERNS: readonly { marker: string; pattern: RegExp }[]
+export function hydrationViolations(
+  clientDir: string,
+  files: readonly string[],
+): { asset: string; marker: string }[]
 export function entryScripts(html: string): string[]
 export function entryDynamicImports(clientDir: string, entries: readonly string[]): string[]
 export function decodeMappings(mappings: string): [number, number][]
@@ -61,6 +67,8 @@ export function checkHomePages(
 ): (HomePage &
   HomePageResult & {
     zodWarnings: { asset: string; marker: string }[]
+    hydrationWarnings: { asset: string; marker: string }[]
+    hydrationProblems: { asset: string; marker: string }[]
     overBudget: boolean
     head: HomeHead
     headDiffs: string[]

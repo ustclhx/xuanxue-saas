@@ -4,16 +4,13 @@ import { isAiFaultInjectionEnabled } from '@xuanxue/config'
 import { AppError } from '@xuanxue/shared'
 import { log } from '@xuanxue/shared/log'
 import { markAdminApiTokenUsed, verifyAdminApiToken } from './tokens.ts'
-import { businessTools } from './tools/business.ts'
 import { type AdminToolContext, rejectUnknownAdminTool } from './tools/define.ts'
-import { modelTools } from './tools/models.ts'
-import { pingTool } from './tools/ping.ts'
-import { settingTools } from './tools/settings.ts'
+import { adminTools } from './tools/index.ts'
 
 const maxRequestBodySize = 256 * 1024
 const responseHeaders = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' }
 
-export const adminTools = [pingTool, ...settingTools, ...modelTools, ...businessTools] as const
+export { adminTools }
 
 function mcpError(status: number, message: string, headers?: Record<string, string>) {
   return Response.json(
@@ -92,6 +89,7 @@ export async function respondToAdminMcp(
       cache,
       requestMetadata: requestMeta,
       ip: requestMeta.clientIp,
+      appUrl: runtime.config.APP_URL,
       workersAiAvailable: runtime.ai?.available === true && runtime.ai.value.workersAi.available,
       aiFaultInjectionEnabled: isAiFaultInjectionEnabled(
         runtime.ai?.available === true ? runtime.ai.value.config : {},

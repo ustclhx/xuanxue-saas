@@ -21,6 +21,64 @@ Phase 0 本机链路的历史实测条件与当前观察范围：
 - Phase 0 请求绕回本机，其延迟基线只验证原链路可用，不能代表 Neon 或生产环境。
 - 本机 PG 不做备份；Neon staging 为可重建测试数据，24 小时观察显示 compute 常驻约 165 CU-hrs/月，超出 Free 100 CU-hrs；2026-10-10 曾决定测试阶段保持 Free，2026-10-15 已随组织升级为 Launch（见 runbook staging-neon §6 与 production-neon §4），staging 不替代生产备份方案。阶段一的旧 Hyperdrive、Tunnel 与 Workers VPC 资源已于 2026-10-10 删除。
 
+### 部署资源自动解析（Cloudflare）
+
+> 本项目 staging 与 production 的 KV、Hyperdrive 均已在 `wrangler.jsonc` 固定真实 ID，限流 `namespace_id` 沿用现有号段（不采用生成器号段）；解析步骤按下文「已固定优先」不调用资源 API。
+
+KV、R2 桶与队列（含死信队列）不再手工创建和回填 ID，由 `pnpm deploy:resources` 在部署前按约定名称查找或创建，
+写出已填好 ID 的部署配置 `apps/{web,jobs}/wrangler.deploy.json`（已 gitignore），已提交的 `wrangler.jsonc` 不被修改。
+设计与取舍见 `openspec/changes/add-deploy-autoprovision/design.md`（归档后在 `openspec/changes/archive/` 下）。
+
+```sh
+pnpm deploy:resources --env staging            # 只读计划：列出每个绑定的期望名称、来源与 ID
+pnpm deploy:resources --env staging --apply    # 创建缺失的 KV / R2 / 队列（staging 流水线即运行此命令）
+pnpm deploy:resources --env production --apply --allow-production   # 维护者本地一次性补齐生产资源
+pnpm deploy:resources --env staging --verify   # 另行核对已固定 ID 在账号中存在
+```
+
+- **已固定优先**：`wrangler.jsonc` 中写着真实 ID 的 KV / Hyperdrive 原样沿用，不查找也不创建；只有缺少 ID 或占位格式（24 个 0 加 8 位十六进制）才解析。
+  目标环境的 KV 与 Hyperdrive 全部已固定时，R2 与队列按配置名称沿用，整次解析不调用 API，已有项目不需要给令牌加权限。
+  **不要删除已填写的 ID**：删除后会按约定名称新建空资源（新 KV 意味着全部会话失效）。
+- **命名约定**：前缀与后缀从该环境 web Worker 名推出（`acme-web-staging` → `acme-` 与 `-staging`）。
+  `CACHE` → `<前缀>cache<后缀>`，`HYPERDRIVE` / `HYPERDRIVE_CACHED` → `<前缀>hyperdrive<后缀>` / `<前缀>hyperdrive-cached<后缀>`，
+  插件新增的 KV → `<前缀><绑定名小写，_ 换成 -><后缀>`；R2 与队列用配置里的 `bucket_name` / `queue`。web 与 jobs 的同名绑定解析为同一个资源。
+  改 Worker 名或前缀会改变约定名称；同一账号中两个项目不要用相同前缀，按名称找到的资源无法自动判定归属。
+- **运行模式与退出码**：默认只读；`--apply` 按 KV → R2 → 死信队列 → 队列的顺序创建，每建一项重新查询确认，失败即停，重跑沿用已建资源。
+  production 不加 `--allow-production` 时只查找不创建。每次运行先删除上次的部署配置；退出码 0 已写出部署配置，1 解析失败或仍有缺项，2 参数错误。
+  同名资源多于一个、令牌缺权限时失败并指出缺少的权限，不跳过绑定。
+- **不能自动创建的资源**：
+  - Hyperdrive 需要数据库连接串，默认只按名称查找，缺失即失败。做法二选一：按 [staging runbook §3](./runbooks/staging-neon.md#3-hyperdrive-与切换)
+    在控制台创建（一个关闭缓存，一个开启缓存 `max_age=60`）并填回 ID；或仅在本地运行
+    `HYPERDRIVE_APP_URL=… pnpm deploy:resources --env <env> --apply --create-hyperdrive`（连接串只从进程环境读取，不进参数与输出，CI 不启用）。
+  - 限流 `namespace_id` 由项目分配：Cloudflare 没有列出或创建它的接口，账号内同一 ID 共享计数（[Rate Limiting binding](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)，2026-11-25 核对）。命令只检查项目内互不相同。
+  - `R2_ACCOUNT_ID` / `AI_GATEWAY_ACCOUNT_ID` 为空时用 `CLOUDFLARE_ACCOUNT_ID` 补齐；`AI_GATEWAY_ID`、`TURNSTILE_SITE_KEY`、`routes`、`APP_URL` 仍由项目填写，plan 中列为缺项。
+- **API 令牌权限**（按 GitHub environment 拆分，使用者 2026-11-25 确认）。命令只读取 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID`，`wrangler login` 的登录态不能代替；
+  缺凭据时 plan 会列出所需权限。权限名在各 API 页面的 Token permissions 核对（2026-11-25）：
+  [KV list](https://developers.cloudflare.com/api/resources/kv/subresources/namespaces/methods/list/) /
+  [create](https://developers.cloudflare.com/api/resources/kv/subresources/namespaces/methods/create/)、
+  [R2 list](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/list/) /
+  [create](https://developers.cloudflare.com/api/resources/r2/subresources/buckets/methods/create/)、
+  [Queues list](https://developers.cloudflare.com/api/resources/queues/methods/list/) /
+  [create](https://developers.cloudflare.com/api/resources/queues/methods/create/)、
+  [Hyperdrive list](https://developers.cloudflare.com/api/resources/hyperdrive/subresources/configs/methods/list/) /
+  [create](https://developers.cloudflare.com/api/resources/hyperdrive/subresources/configs/methods/create/)。
+
+  | 令牌 | 在部署权限之外增加 | 说明 |
+  | --- | --- | --- |
+  | GitHub `staging` environment | Workers KV Storage Write、Workers R2 Storage Write、Queues Write，以及 Hyperdrive Read（查找需要对应的 Read） | 流水线 `--apply` 创建缺失资源 |
+  | GitHub `production` environment | Workers KV Storage Read、Workers R2 Storage Read、Queues Read、Hyperdrive Read | 只查找；缺资源即失败 |
+  | 维护者本地令牌 | 按需加 Write 与 Hyperdrive Write | `--allow-production`、`--create-hyperdrive` 只在本地运行 |
+
+  所有资源都已固定 ID 的环境不调用这些 API，无需新增权限。
+- **流水线接入**（§5）：staging 在迁移前运行 `--apply`，production 在构建前只做 plan；jobs 构建与部署加 `--config wrangler.deploy.json`，
+  web 构建设 `WRANGLER_DEPLOY_CONFIG=wrangler.deploy.json`（`vite.config.ts` 把它作为 Cloudflare 插件的 `configPath`，仍需 `CLOUDFLARE_ENV` 选择环境）。
+  部署命令加 `--no-x-provision` 关闭 Wrangler 自身的自动创建（wrangler 4.146.0 实测，见 design 决策 1），并以 `--message <完整 SHA>` 在控制台的部署记录中标出提交。
+- **Workers Builds 不是支持的部署入口**：它的默认部署命令直接读取已提交配置，占位 ID 会部署失败；Builds 用环境变量覆盖 Worker 名；构建变量在运行时不可见；
+  Wrangler 自动创建的资源 ID 不会写回配置（[Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/)、
+  [Wrangler configuration](https://developers.cloudflare.com/workers/wrangler/configuration/)，2026-11-25 核对）。迁移、Sentry 与版本门也只在 GitHub Actions 中执行。
+- **回滚**：在部署工作流中删除解析步骤、`--config wrangler.deploy.json`、`WRANGLER_DEPLOY_CONFIG` 与 `--no-x-provision`，即回到直接读 `wrangler.jsonc`。
+  已固定 ID 的项目不受影响；依赖自动解析的项目先把 plan 末尾打印的 ID 清单填回 `wrangler.jsonc`。已创建的资源不删除，命令也没有删除功能。
+
 ## 1. 自建 Postgres（后路，未采用）
 
 2026-10-15 起生产使用 Neon 付费档（§0），仓库不再提供 VPS 上的 PG / cloudflared / WAL-G Compose。若以后改为自建 PG，经 Cloudflare Tunnel 或 Workers VPC 暴露给 Hyperdrive（§2），沿用下表的数据库账号划分。
@@ -126,6 +184,7 @@ BETTER_AUTH_SECRET
 GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET
 GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET
 TURNSTILE_SECRET_KEY
+ADMIN_STEP_UP_RESCUE          # 可选应急开关，平时不设置；见 runbooks/admin-step-up-rescue.md
 RESEND_API_KEY_EAST / RESEND_API_KEY_WEST   # jobs；仅 EMAIL_TRANSPORT=resend 时必填，每站一个，各只能发该站 mail.<域名>
 STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET
 PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET / PAYPAL_WEBHOOK_ID
@@ -165,6 +224,8 @@ APP_VERSION                      # CI 完整提交 SHA；jobs 通过 --var 注�
 jobs 侧的邮件变量由 `@xuanxue/config` 的 `withEmailEnv()` 校验（`apps/jobs/src/env.ts`），`resend` 通道缺少任一站点 key 时消费者拒绝处理消息（消息留在队列中重试）。发件域名 `mail.<站点域名>` 需在 Resend 验证。
 
 ### Bindings
+
+KV、R2、队列与 Hyperdrive 的 ID 由部署资源解析填入部署配置（§0「部署资源自动解析」）；限流 `namespace_id` 由项目分配。
 ```
 HYPERDRIVE, HYPERDRIVE_CACHED     (Hyperdrive)
 FILES                             (R2)
@@ -183,16 +244,17 @@ PR:    install → biome check → typecheck → unit test (vitest-plugin) → b
        并行 e2e-smoke：临时 PG → migrate → 本地 vite dev → Chromium 冒烟
        → （可选，且 PR 不含新迁移时）部署预览版本
 main:  以上 + 数据库迁移(staging) → 部署 staging → e2e (Playwright) 
-tag:   发布门禁 → production 审批 → 构建 jobs/web → 数据库迁移 → 部署 jobs/web → 冒烟测试
+tag:   发布门禁 → production 审批 → 解析部署资源（只查找） → 构建 jobs/web → 数据库迁移 → 部署 jobs/web → 冒烟测试
 ```
 
 **staging 自动发布**：`.github/workflows/deploy-staging.yml` 跟随 main 上成功的 `CI`，检出该次 CI 的提交；也可在 main 上手动触发 `workflow_dispatch`。手动发布复用生产 CI 门禁：目标 SHA 必须有本仓库 main 上成功的 `CI` push 运行。仓库变量 `RELEASE_PHASE` 仅接受 `testing|live`，未设置按 `live`；`testing` 可绕过 CI，上线后仅手动选择 `bypass=hotfix` 并填写非空 `reason` 才能绕过。每次绕过都会输出 warning 与 Job Summary，记录类型、原因和触发人。发布使用 GitHub `staging` environment，`staging-deploy` concurrency 串行执行且不取消进行中的运行。PR 的 `ci.yml` 不引用 staging secrets，只操作临时 CI 数据库。
 
-发布顺序为 install → Neon 迁移 → 构建 jobs 与 web → Sentry release / source map 上传 → 部署 jobs → 部署 web → 健康检查 → Playwright `staging` 项目 → finalize release。release 与两个 Worker 的 `APP_VERSION` 均为所检出提交的完整 SHA（`workflow_run.head_sha`，手动运行时为 `github.sha`），与 `/api/health.version` 一致。迁移通过 environment 的 `STAGING_MIGRATION_DATABASE_URL` 直连 Neon，以 `migrator` 执行；Cloudflare 认证使用 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID`。健康检查每 5 秒轮询、最多 3 分钟，要求 200、`db.status=up`、`version` 等于目标 SHA；之后用 Chromium 检查首页、定价与一次随机邮箱注册。任一步失败即停止发布。
+发布顺序为 install → 解析部署资源（`--apply`）→ Neon 迁移 → 构建 jobs 与 web → Sentry release / source map 上传 → 部署 jobs → 部署 web → 健康检查 → Playwright `staging` 项目 → finalize release。release 与两个 Worker 的 `APP_VERSION` 均为所检出提交的完整 SHA（`workflow_run.head_sha`，手动运行时为 `github.sha`），与 `/api/health.version` 一致。迁移通过 environment 的 `STAGING_MIGRATION_DATABASE_URL` 直连 Neon，以 `migrator` 执行；Cloudflare 认证使用 `CLOUDFLARE_API_TOKEN` 与 `CLOUDFLARE_ACCOUNT_ID`。健康检查每 5 秒轮询、最多 3 分钟，要求 200、`db.status=up`、`version` 等于目标 SHA；之后用 Chromium 检查首页、定价与一次随机邮箱注册。任一步失败即停止发布；资源解析失败时不迁移、不部署。解析脚本取自 main 的发布工具（与迁移脚本相同），以 `--root` 指向所检出的提交，只注入 Cloudflare 凭据。
+production 在 deploy job 的构建前运行同一脚本的只读 plan，缺资源即失败；回滚到本功能之前的 tag 时脚本仍来自 main，旧 tag 的 web 按其 `wrangler.jsonc` 构建。
 
-jobs 用 `wrangler deploy --env staging --dry-run --outdir dist --var APP_VERSION:<SHA>` 构建；web 用 `CLOUDFLARE_ENV=staging APP_VERSION=<SHA> vite build`，两个不可达的 Hyperdrive 占位连接保留。构建后 `sentry-cli releases new` 创建 release，分别对 `apps/web/dist/server` 与 `apps/jobs/dist` 执行 `sourcemaps inject`，再以 `--release <SHA> --dist web|jobs --validate --strict --wait` 上传。web/jobs 的独立 dist 避免同名文件冲突，并与各自 SDK 配置一致。上传失败阻止部署；浏览器尚未接入 SDK，CI 在部署前删除 `dist/client` 下的全部 `.map`。SSR 与 jobs map 不在静态 assets 目录内。
+jobs 用 `wrangler deploy --config wrangler.deploy.json --env staging --dry-run --no-x-provision --outdir dist --var APP_VERSION:<SHA>` 构建；web 用 `CLOUDFLARE_ENV=staging WRANGLER_DEPLOY_CONFIG=wrangler.deploy.json APP_VERSION=<SHA> vite build`，两个不可达的 Hyperdrive 占位连接保留。构建后 `sentry-cli releases new` 创建 release，分别对 `apps/web/dist/server` 与 `apps/jobs/dist` 执行 `sourcemaps inject`，再以 `--release <SHA> --dist web|jobs --validate --strict --wait` 上传。web/jobs 的独立 dist 避免同名文件冲突，并与各自 SDK 配置一致。上传失败阻止部署；浏览器尚未接入 SDK，CI 在部署前删除 `dist/client` 下的全部 `.map`。SSR 与 jobs map 不在静态 assets 目录内。
 
-部署直接使用注入后的产物：jobs 指定 `dist/index.js --no-bundle` 并再次传入版本 var；web 指定 Vite 生成的 `dist/server/wrangler.json --no-bundle`（包含 staging 绑定与 client assets 路径）。CI 不调用会重新构建的 `deploy:staging` 脚本。Sentry 认证只在上传与 finalize 步骤从 environment secrets 读取，PR CI 不上传。验收与失败排查见 [Sentry runbook](./runbooks/sentry.md)。
+部署直接使用注入后的产物：jobs 指定 `dist/index.js --config wrangler.deploy.json --no-bundle` 并再次传入版本 var；web 指定 Vite 生成的 `dist/server/wrangler.json --no-bundle`（包含 staging 绑定与 client assets 路径）。两条部署命令都带 `--no-x-provision --message <SHA>`。CI 不调用会重新构建的 `deploy:staging` 脚本。Sentry 认证只在上传与 finalize 步骤从 environment secrets 读取，PR CI 不上传。验收与失败排查见 [Sentry runbook](./runbooks/sentry.md)。
 
 
 ### 本地冒烟 e2e

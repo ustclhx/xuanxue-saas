@@ -1,5 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`templates (en) > 'admin-step-up-code' > subject 1`] = `"730215 is your Acme admin verification code"`;
+
 exports[`templates (en) > 'magic-link' > subject 1`] = `"Sign in to Acme"`;
 
 exports[`templates (en) > 'otp' > subject 1`] = `"482913 is your Acme verification code"`;
@@ -9,6 +11,8 @@ exports[`templates (en) > 'reset-password' > subject 1`] = `"Reset your Acme pas
 exports[`templates (en) > 'verify-email' > subject 1`] = `"Verify your email for Acme"`;
 
 exports[`templates (en) > 'workspace-invitation' > subject 1`] = `"Grace invited you to join Research Lab on Acme"`;
+
+exports[`templates (es) > 'admin-step-up-code' > subject 1`] = `"730215 es tu código de verificación de administración de Acme"`;
 
 exports[`templates (es) > 'magic-link' > subject 1`] = `"Inicia sesión en Acme"`;
 
@@ -20,6 +24,8 @@ exports[`templates (es) > 'verify-email' > subject 1`] = `"Verifica tu correo en
 
 exports[`templates (es) > 'workspace-invitation' > subject 1`] = `"Grace te invitó a Research Lab en Acme"`;
 
+exports[`templates (ko) > 'admin-step-up-code' > subject 1`] = `"Acme 관리자 작업 인증 코드: 730215"`;
+
 exports[`templates (ko) > 'magic-link' > subject 1`] = `"Acme 로그인"`;
 
 exports[`templates (ko) > 'otp' > subject 1`] = `"Acme 인증 코드: 482913"`;
@@ -30,6 +36,8 @@ exports[`templates (ko) > 'verify-email' > subject 1`] = `"Acme 이메일 주소
 
 exports[`templates (ko) > 'workspace-invitation' > subject 1`] = `"Grace 님이 Acme의 Research Lab에 초대했습니다"`;
 
+exports[`templates (zh-Hans) > 'admin-step-up-code' > subject 1`] = `"730215 是你的 Acme 后台操作验证码"`;
+
 exports[`templates (zh-Hans) > 'magic-link' > subject 1`] = `"登录 Acme"`;
 
 exports[`templates (zh-Hans) > 'otp' > subject 1`] = `"482913 是你的 Acme 验证码"`;
@@ -39,6 +47,8 @@ exports[`templates (zh-Hans) > 'reset-password' > subject 1`] = `"重置你的 A
 exports[`templates (zh-Hans) > 'verify-email' > subject 1`] = `"验证你的 Acme 电子邮件"`;
 
 exports[`templates (zh-Hans) > 'workspace-invitation' > subject 1`] = `"Grace 邀请你加入 Acme 上的 Research Lab"`;
+
+exports[`templates (zh-Hant) > 'admin-step-up-code' > subject 1`] = `"730215 是你的 Acme 後台操作驗證碼"`;
 
 exports[`templates (zh-Hant) > 'magic-link' > subject 1`] = `"登入 Acme"`;
 

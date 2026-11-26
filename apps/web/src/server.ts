@@ -1,6 +1,9 @@
 // Worker 入口（wrangler.jsonc 的 main）。
-// 在交给 TanStack Start 处理之前校验环境变量与绑定，缺失或非法时任何请求都返回 500。
-// 先按 Host 识别东方站 / 西方站并校验语言前缀归属：不属于本站的语言返回 404，缺前缀时跳转（features/site/gate.ts）。
+// 每个请求先经项目闸门（server/project-gate.ts，项目自有），再查预渲染静态资源，命中直接返回；
+// 其余请求在交给 TanStack Start 处理之前校验环境变量与核心绑定，缺失或非法时返回 500。
+// 启用插件声明的绑定按插件单独校验，缺失只让该插件入口返回 503（env.ts）。
+// 本项目的项目闸门按 Host 识别东方站 / 西方站：地址规范化与语言前缀跳转、按 Host 读取本站预渲染页与站点图标；
+// 动态请求仍经 gateSiteRequest：不属于本站的语言改写到本站风格的 404（features/site/gate.ts）。
 // /admin/** 的请求先经角色守卫，非 admin 与不存在的页面得到相同的 404（features/admin/gate.ts）。
 // 之后由 Paraglide 按 URL 前缀 / Cookie 确定本次请求的语言（features/i18n/routing.ts）。
 // 账户站点同样只取自 Host（accountSiteOf），传给认证实例与空间解析，客户端无法指定（openspec split-site-accounts 决策 1）。
@@ -38,24 +41,21 @@ import {
 import { createBillingDeletionSteps } from './features/billing/deletion.server.ts'
 import { type DailyCacheStore, dailyPageCache } from './features/daily/page-cache.ts'
 import { assertSignupAdmission } from './features/growth/service.ts'
-import { authLocaleRedirect, isAuthPagePath } from './features/i18n/auth-locale.ts'
+import { authLocaleRedirect } from './features/i18n/auth-locale.ts'
 import { gateLocaleRequest } from './features/i18n/gate.ts'
 import { localizeRequest } from './features/i18n/request.server.ts'
 import { createPluginAiWorkflow, runPluginFetch } from './features/plugins/extensions.ts'
 import { workspaceContentDeletionStep } from './features/readings/deletion.server.ts'
-import { AUTH_ROBOTS } from './features/seo/metadata.ts'
+import { responseRobotsTag } from './features/seo/robots-header.ts'
 import { gateSiteRequest } from './features/site/gate.ts'
 import { accountSiteOf, siteHosts } from './features/site/site.ts'
-import {
-  prerenderRequest,
-  siteFaviconResponse,
-  staticPageResponse,
-} from './features/site/static-pages.ts'
+import { prerenderRequest } from './features/site/static-pages.ts'
 import workerPlugins from './plugins.worker.gen.ts'
 import { withSecurityNonce } from './security-context.server.ts'
 import { withSecurityHeaders, withStaticSecurityHeaders } from './security-headers.ts'
 import { createWebAuth } from './server/auth.ts'
 import { createQueueAuthEmailSender, userLocaleByEmail } from './server/auth-email.ts'
+import { responseBeforeRuntime } from './server/cloudflare/assets.ts'
 import { checkEnv, pluginBindingStatus, webEnvSchema } from './server/cloudflare/env.ts'
 import { captureServerError, instrumentWeb, sentryEnabled } from './server/cloudflare/sentry.ts'
 import { getWebRuntime, type WebRuntime, withWebRuntime } from './server/runtime.ts'
@@ -88,19 +88,9 @@ const worker = instrumentWeb({
         request,
         templateConfig,
         // 不属于本站的语言前缀已被改写到 404 路径，后续一律使用守卫传入的请求。
-        // 地址规范化（HTTPS、结尾斜杠）与东方站根路径跳转在守卫内完成；构建期预渲染请求不跳转
+        // 跳转与预渲染页、站点图标已由项目闸门（server/project-gate.ts）在静态资源之前处理；
+        // 这里的守卫只对动态请求生效（构建期预渲染请求不跳转）
         async (request) =>
-          (!import.meta.env.DEV && !buildRequest && env.ASSETS
-            ? await siteFaviconResponse(request, (asset) => env.ASSETS.fetch(asset))
-            : null) ??
-          (!import.meta.env.DEV && !buildRequest && env.ASSETS
-            ? await staticPageResponse(request, async (asset) =>
-                withStaticSecurityHeaders(
-                  await env.ASSETS.fetch(asset),
-                  staticSecurity(request, env),
-                ),
-              )
-            : null) ??
           // 启用插件的 fetch 前置处理（plugins.worker.gen.ts）在网关与 Start 之前运行，返回 Response 即结束
           (await runPluginFetch(workerPlugins, request, env, ctx)) ??
           gatePublicApiRequest(request, templateConfig) ??
@@ -113,6 +103,7 @@ const worker = instrumentWeb({
               cache: !import.meta.env.DEV && !buildRequest ? workersCache() : undefined,
               waitUntil: (promise) => ctx.waitUntil(promise),
               version: __APP_VERSION__,
+              // 缓存的整页 HTML 不带本次请求的 nonce，按内联脚本哈希补 CSP
               secure: (response) =>
                 withStaticSecurityHeaders(response, staticSecurity(request, env)),
             },
@@ -136,9 +127,17 @@ export default {
     return withSecurityNonce(nonce, () =>
       withLogContext(context, async () => {
         try {
-          // 不在站点守卫之前直接返回 ASSETS：run_worker_first 覆盖的预渲染 HTML（含 /tarot 工具页）
-          // 必须先经过 gateSiteRequest 与东方站跳转；预渲染页由 staticPageResponse 读取并按脚本哈希补头。
+          // run_worker_first 覆盖的预渲染 HTML（含 /tarot 工具页）不按原始地址直接读取 ASSETS：
+          // 项目闸门先做站点判定与跳转，再按 Host 读取本站页面（server/project-gate.ts）。
           const invalid = checkEnv(env)
+          // 公开页面优先（public-site-availability）：项目闸门与命中的预渲染静态资源先于环境校验结果返回，
+          // 静态 HTML 不使用运行时绑定；只有动态请求因校验失败返回 500。项目可用 staticFirst 关闭。
+          const asset = await responseBeforeRuntime(request, { env, envValid: !invalid })
+          if (asset) {
+            const response = await withStaticSecurityHeaders(asset, security)
+            response.headers.set('x-request-id', context.requestId)
+            return response
+          }
           const response =
             invalid ??
             (await withWebRuntime(
@@ -155,14 +154,9 @@ export default {
           // 重定向与静态响应的 headers 可能只读，复制后再附请求 ID。
           const headers = withSecurityHeaders(response.headers, security)
           headers.set('x-request-id', context.requestId)
-          // 分享结果链接与认证页（含 `?redirect=` 变体与各语言前缀）不进索引；robots.txt 不禁止抓取认证页，
-          // 爬虫才能读到 noindex（specs/seo「认证页不进索引」）
-          const url = new URL(request.url)
-          if (
-            url.searchParams.has('r') ||
-            isAuthPagePath(url.pathname, templateConfig.i18n.locales)
-          )
-            headers.set('x-robots-tag', AUTH_ROBOTS)
+          // 分享结果链接与认证页不进索引（features/seo/robots-header.ts）
+          const robots = responseRobotsTag(request.url)
+          if (robots) headers.set('x-robots-tag', robots)
           return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,

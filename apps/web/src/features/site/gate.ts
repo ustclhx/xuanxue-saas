@@ -249,17 +249,22 @@ export function notFoundPath(
 }
 
 /**
- * Worker 入口使用：先把地址规范化（canonicalUrl），再按规范地址做站点判定、旧首页查询跳转与东方站根路径跳转，
- * 使协议、结尾斜杠与站点跳转合并为一次跳转；只有地址需要规范化而站点判定放行时，
- * 才单独跳到规范地址（GET/HEAD 301，其他方法 308 保留方法与请求体）。
- * 构建期预渲染请求传 `canonicalize: false`：它使用本地 http 地址，且不应跳转。
- * 不属于本站的语言改写到不存在的路径，由应用渲染本站风格的 404；
- * 未登记 Host 的响应附加 `X-Robots-Tag: noindex`。
+ * 站点闸门的判定部分（不调用后续处理）：先把地址规范化（canonicalUrl），再按规范地址做站点判定、
+ * 旧首页查询跳转与东方站根路径跳转，使协议、结尾斜杠与站点跳转合并为一次跳转；只有地址需要规范化而
+ * 站点判定放行时，才单独跳到规范地址（GET/HEAD 301，其他方法 308 保留方法与请求体）。
+ * 项目闸门（server/project-gate.ts，早于预渲染静态资源与环境校验）与 gateSiteRequest 共用。
+ * - `redirect`：应直接返回的跳转响应；
+ * - `not-found`：不属于本站的地址，`path` 为应改写到的本站 404 路径；
+ * - `pass`：放行，未登记的 Host 带 `noindex`。
  */
-export async function gateSiteRequest(
+export type SiteGateResult =
+  | { readonly kind: 'redirect'; readonly response: Response }
+  | { readonly kind: 'not-found'; readonly url: URL }
+  | { readonly kind: 'pass'; readonly noindex: boolean }
+
+export function siteGateDecision(
   request: Request,
   config: SitesConfig,
-  next: (request: Request) => Response | Promise<Response>,
   {
     canonicalize = true,
     prerender = false,
@@ -268,31 +273,64 @@ export async function gateSiteRequest(
     /** 构建期预渲染请求：未发布语言的页面也要生成（正式域名上由本守卫在运行时返回 404） */
     readonly prerender?: boolean
   } = {},
-): Promise<Response> {
+): SiteGateResult {
   const original = new URL(request.url)
   const canonical = canonicalize ? canonicalUrl(original, request.method, config) : null
   const url = canonical ?? original
   const decision = routeSite(url, config, prerender ? null : LOCALE_RELEASE)
   if (decision.kind === 'redirect')
-    return new Response(null, { status: decision.status, headers: { location: decision.location } })
+    return {
+      kind: 'redirect',
+      response: new Response(null, {
+        status: decision.status,
+        headers: { location: decision.location },
+      }),
+    }
   // 不属于本站的地址直接给 404，不先跳到规范形式
   if (decision.kind === 'not-found')
-    return next(new Request(new URL(notFoundPath(url, config), url), request))
+    return { kind: 'not-found', url: new URL(notFoundPath(url, config), url) }
   // 只对 GET/HEAD 复制请求：带请求体的请求复制后原请求体会被占用。
   // 东方站根路径不再按浏览器语言跳转（使用者 2026-11-20：两站 `/` 都是英文首页，不自动选语言）
   if (canonicalize && ['GET', 'HEAD'].includes(request.method)) {
     const home = legacyHomeRedirect(new Request(url, request), config)
-    if (home) return home
+    if (home) return { kind: 'redirect', response: home }
   }
   if (canonical)
-    return new Response(null, {
-      status: ['GET', 'HEAD'].includes(request.method) ? 301 : 308,
-      headers: { location: canonical.href },
-    })
-  const response = await next(request)
-  if (!decision.noindex) return response
-  // 重定向与静态响应的 headers 可能只读，复制后再设置
+    return {
+      kind: 'redirect',
+      response: new Response(null, {
+        status: ['GET', 'HEAD'].includes(request.method) ? 301 : 308,
+        headers: { location: canonical.href },
+      }),
+    }
+  return { kind: 'pass', noindex: decision.noindex }
+}
+
+/** 未登记 Host 的响应附加 `X-Robots-Tag: noindex`（重定向与静态响应的 headers 可能只读，复制后再设置）。 */
+export function withSiteNoindex(response: Response): Response {
   const result = new Response(response.body, response)
   result.headers.set('x-robots-tag', 'noindex')
   return result
+}
+
+/**
+ * Worker 入口使用：按 siteGateDecision 的判定返回跳转，或把请求交给后续处理。
+ * 构建期预渲染请求传 `canonicalize: false`：它使用本地 http 地址，且不应跳转。
+ * 不属于本站的语言改写到不存在的路径，由应用渲染本站风格的 404；
+ * 未登记 Host 的响应附加 `X-Robots-Tag: noindex`。
+ */
+export async function gateSiteRequest(
+  request: Request,
+  config: SitesConfig,
+  next: (request: Request) => Response | Promise<Response>,
+  options: {
+    readonly canonicalize?: boolean
+    readonly prerender?: boolean
+  } = {},
+): Promise<Response> {
+  const result = siteGateDecision(request, config, options)
+  if (result.kind === 'redirect') return result.response
+  if (result.kind === 'not-found') return next(new Request(result.url, request))
+  const response = await next(request)
+  return result.noindex ? withSiteNoindex(response) : response
 }

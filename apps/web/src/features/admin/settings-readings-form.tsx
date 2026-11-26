@@ -11,6 +11,8 @@ import {
 import { type FormEvent, useEffect, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { getReadingSettings, saveReadingSettings } from './settings-readings.functions.ts'
+import { isStepUpCancelled } from './step-up/client.ts'
+import { useStepUpCall } from './step-up/step-up-provider.tsx'
 import { Field, panelClass } from './ui.tsx'
 
 // Select 选项不能用空字符串表示「未选择」，界面内用哨兵值，保存时仍写空字符串
@@ -46,6 +48,9 @@ export function ReadingSettingsForm() {
       })
       .catch(() => setMessage(m.admin_paid_readings_unavailable()))
   }, [])
+  // 改动详批单价为敏感操作（actions.registry.ts setting.readings.update）：未重新验证时当场弹窗，
+  // 通过后用同一份表单数据自动提交
+  const save = useStepUpCall(saveReadingSettings, { action: m.admin_paid_readings() })
   const update = (kind: Row['kind'], patch: Partial<Row>) =>
     setRows((current) => current.map((row) => (row.kind === kind ? { ...row, ...patch } : row)))
 
@@ -53,7 +58,7 @@ export function ReadingSettingsForm() {
     event.preventDefault()
     setBusy(true)
     try {
-      const result = await saveReadingSettings({
+      const result = await save({
         data: {
           readings: rows.map(({ kind, enabled, credits, modelKey, promptVersion }) => ({
             kind,
@@ -64,6 +69,8 @@ export function ReadingSettingsForm() {
           })),
         },
       })
+      // 取消验证：未保存，表单保持原样
+      if (isStepUpCancelled(result)) return
       apply(await getReadingSettings())
       setMessage(result.ok ? m.admin_paid_readings_saved() : m.admin_save_failed())
     } catch {

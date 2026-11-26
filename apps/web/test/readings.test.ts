@@ -9,6 +9,7 @@ import {
   aiModel,
   auditLog,
   dbSettingStore,
+  getSetting,
   READING_KINDS,
   type SettingKey,
   type SettingStore,
@@ -46,6 +47,7 @@ import {
 import { yearGanzhi } from '../src/features/readings/guard.ts'
 import { birthUnlock } from '../src/features/readings/unlock-requests.ts'
 import { createAdminTestDb } from './admin-test-resources.ts'
+import { deleteStepUpSessions, stepUpSession } from './step-up-fixtures.ts'
 
 // add-reading-monetization tasks.md 1.2：后台修改详批设置后前台读取到新值。
 // tasks.md 2.4：其余四种详批各一个成功生成的用例。
@@ -1015,6 +1017,8 @@ describe('详批运行时设置', () => {
         email: `${admin.id}@readings-settings.test`,
         role: 'admin',
       })
+      // 改动单价需要重新验证（actions.registry.ts setting.readings.update）
+      const session = await stepUpSession(db, admin.id)
       const before = await readingConfig(ctx, 'tarot-spread')
       const input = readingSettingsInput.parse({
         readings: [
@@ -1028,9 +1032,16 @@ describe('详批运行时设置', () => {
           { kind: 'tarot-spread', enabled: false, credits: 80, modelKey: '' },
         ],
       })
-      await runAdminAction({ db, admin, ip: '203.0.113.20' }, 'setting.readings.update', (scope) =>
-        writeReadingSettings(scope, input),
+      await runAdminAction(
+        { db, admin, ip: '203.0.113.20', session },
+        { name: 'setting.readings.update', input },
+        (scope) => writeReadingSettings(scope, input),
       )
+      // 校验失败的写入：判定输入为空（不改单价），只验证写入校验
+      const readingsAction = {
+        name: 'setting.readings.update' as const,
+        input: { readings: [] },
+      }
       // 缓存未清除前仍是旧值
       expect(await readingConfig(ctx, 'tarot-spread')).toEqual(before)
       await invalidateReadingSettings(cache)
@@ -1059,7 +1070,7 @@ describe('详批运行时设置', () => {
       })
 
       await expect(
-        runAdminAction({ db, admin }, 'setting.readings.update', (scope) =>
+        runAdminAction({ db, admin, session }, readingsAction, (scope) =>
           writeReadingSettings(
             scope,
             readingSettingsInput.parse({
@@ -1069,7 +1080,7 @@ describe('详批运行时设置', () => {
         ),
       ).rejects.toMatchObject({ code: 'INVALID_REQUEST' })
       await expect(
-        runAdminAction({ db, admin }, 'setting.readings.update', (scope) =>
+        runAdminAction({ db, admin, session }, readingsAction, (scope) =>
           writeReadingSettings(
             scope,
             readingSettingsInput.parse({
@@ -1091,6 +1102,50 @@ describe('详批运行时设置', () => {
           readings: [{ kind: 'saju-full', enabled: true, credits: 0, modelKey: '' }],
         }).success,
       ).toBe(false)
+    } finally {
+      await db.delete(setting).where(inArray(setting.key, READING_SETTING_KEYS))
+      if (original.length) await db.insert(setting).values(original)
+      await createAdminTestDb('migrator').delete(auditLog).where(eq(auditLog.actorUserId, admin.id))
+      await deleteStepUpSessions(db)
+      await db.delete(user).where(eq(user.id, admin.id))
+    }
+  })
+
+  it('只有改动详批单价才要求重新验证', async () => {
+    const admin = { id: newId() }
+    const original = await db
+      .select()
+      .from(setting)
+      .where(inArray(setting.key, READING_SETTING_KEYS))
+    try {
+      await db.insert(user).values({
+        site: 'west',
+        ...admin,
+        name: 'Readings step-up admin',
+        email: `${admin.id}@readings-step-up.test`,
+        role: 'admin',
+      })
+      const ctx = { store: dbSettingStore(db) }
+      const credits = await getSetting(ctx, 'readings.bazi-full.credits')
+      const row = (patch: { credits: number; enabled: boolean }) =>
+        readingSettingsInput.parse({
+          readings: [{ kind: 'bazi-full', modelKey: '', ...patch }],
+        })
+      // 单价不变（只改启停）：没有重新验证的会话也可保存
+      const toggle = row({ credits, enabled: false })
+      await runAdminAction(
+        { db, admin },
+        { name: 'setting.readings.update', input: toggle },
+        (scope) => writeReadingSettings(scope, toggle),
+      )
+      // 改单价：未重新验证时拒绝，且不写入
+      const price = row({ credits: credits + 1, enabled: false })
+      await expect(
+        runAdminAction({ db, admin }, { name: 'setting.readings.update', input: price }, (scope) =>
+          writeReadingSettings(scope, price),
+        ),
+      ).rejects.toMatchObject({ code: 'STEP_UP_REQUIRED' })
+      expect(await getSetting(ctx, 'readings.bazi-full.credits')).toBe(credits)
     } finally {
       await db.delete(setting).where(inArray(setting.key, READING_SETTING_KEYS))
       if (original.length) await db.insert(setting).values(original)

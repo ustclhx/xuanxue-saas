@@ -16,6 +16,7 @@ import { createWebAuth } from '../src/server/auth.ts'
 import type { WebRuntime } from '../src/server/runtime.ts'
 import { templateConfig } from '../src/server/template-config.ts'
 import { adminCache, cacheValues, createAdminTestDb, rateLimiter } from './admin-test-resources.ts'
+import { stepUpSession } from './step-up-fixtures.ts'
 
 const APP_URL = 'http://localhost:3000'
 const SECRET = 'test-secret-0123456789-abcdefghijklmnopqrstuvwxyz'
@@ -93,6 +94,11 @@ async function actor(role = 'user', site: SiteId = 'west', email = `${newId()}@$
   expect(response.status).toBe(200)
   const body = (await response.json()) as { user: { id: string } }
   await db.$client`update "user" set role=${role} where id=${body.user.id}`
+  // 管理员夹具的会话视为已重新验证（add-admin-step-up）；未验证的拒绝由守卫测试覆盖。
+  if (role === 'admin')
+    await db.$client`insert into admin_step_up(session_id,user_id,method,verified_at,expires_at)
+      select id, user_id, 'password', now(), now() + interval '10 minutes'
+      from session where user_id=${body.user.id}`
   return {
     id: body.user.id,
     email,
@@ -430,7 +436,13 @@ describe('后台按站点（split-site-accounts 决策 7）', () => {
       expiresAt: null,
       reason: 'Site test',
     })
-    const context = { db, admin: { id: admin.id }, ip: null }
+    // 积分调整需要重新验证（actions.registry.ts credits.adjust）；会话随 afterAll 按用户删除
+    const context = {
+      db,
+      admin: { id: admin.id },
+      ip: null,
+      session: await stepUpSession(db, admin.id),
+    }
     await expect(
       runAdminAction(context, 'credits.adjust', (scope) =>
         adjustAdminCredits(scope, input(east.id), 'west'),

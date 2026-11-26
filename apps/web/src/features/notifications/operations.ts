@@ -2,7 +2,12 @@ import { type Database, payment, type RefundRequest, scoped } from '@xuanxue/db'
 import { log, withRequestId } from '@xuanxue/shared/log'
 
 export interface OperationsEvent {
-  event: 'payment.succeeded' | 'refund.requested' | 'webhook.failed' | 'reconciliation.failed'
+  event:
+    | 'payment.succeeded'
+    | 'refund.requested'
+    | 'webhook.failed'
+    | 'reconciliation.failed'
+    | 'admin.step_up.rescue'
   sourceId: string
   workspaceId?: string
   amount?: number

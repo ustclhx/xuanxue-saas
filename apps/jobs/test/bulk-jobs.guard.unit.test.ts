@@ -20,6 +20,7 @@ const { AI_PURGE_MAX_BATCHES, DELETION_CLEANUP_CAP, EXPIRED_WORKSPACE_CAP } = aw
 )
 const { PERSONAL_SHARE_CARDS_WORKSPACE_CAP } = await import('@xuanxue/auth')
 const { FILES_CLEANUP_OBJECT_CAP, FILES_CLEANUP_WORKSPACE_CAP } = await import('@xuanxue/storage')
+const { ADMIN_PENDING_ACTION_CLEANUP_CAP } = await import('@xuanxue/db')
 const { AGENT_RETENTION_MIN_MS } = await import('../../../plugins/agents/src/core/lifecycle.ts')
 const { BILLING_JOBS } = await import('../src/billing.ts')
 const { CORE_JOBS, CORE_TASK_GROUP_JOBS, NON_CRON_BULK_JOBS } = await import(
@@ -128,6 +129,7 @@ describe('bulk job registry guard', () => {
     expect(cap('personal-share-cards-cleanup')).toBe(PERSONAL_SHARE_CARDS_WORKSPACE_CAP)
     expect(cap('workspace-cleanup')).toBe(EXPIRED_WORKSPACE_CAP)
     expect(cap('deleted-user-ai-cleanup')).toBe(AI_PURGE_MAX_BATCHES)
+    expect(cap('admin-confirmations-cleanup')).toBe(ADMIN_PENDING_ACTION_CLEANUP_CAP)
     expect(AGENT_RETENTION_MIN_MS).toBe(86_400_000)
   })
 

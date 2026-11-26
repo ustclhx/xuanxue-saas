@@ -12,6 +12,7 @@ export interface OperationsEvent {
     | 'reconciliation.failed'
     | 'queue.dead_letter'
     | 'ops.bulk_job.guard_tripped'
+    | 'admin.step_up.rescue'
   sourceId: string
   workspaceId?: string
   amount?: number
@@ -32,6 +33,7 @@ const events = new Set([
   'reconciliation.failed',
   'queue.dead_letter',
   'ops.bulk_job.guard_tripped',
+  'admin.step_up.rescue',
 ])
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -113,6 +115,9 @@ const labels = {
   'reconciliation.failed': 'Reconciliation failed',
   'queue.dead_letter': 'Events queue dead letter',
   'ops.bulk_job.guard_tripped': 'Bulk job guard tripped; nothing unsafe was deleted or sent',
+  // 救援开关开启期间每次救援验证都通知：确认是本人操作，并提醒问题解决后删除 ADMIN_STEP_UP_RESCUE
+  'admin.step_up.rescue':
+    'Admin re-verified via rescue email code (ADMIN_STEP_UP_RESCUE is on); confirm it was expected and remove the switch when done',
 }
 
 export type OperationsChannel = 'telegram' | 'discord' | 'webhook'

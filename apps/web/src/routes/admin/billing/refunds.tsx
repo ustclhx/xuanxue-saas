@@ -13,6 +13,8 @@ import {
   offsetOfPage,
 } from '../../../features/admin/list.ts'
 import { AllSitesNotice, siteFilter, siteLabel } from '../../../features/admin/site-ui.tsx'
+import { isStepUpCancelled, type StepUpCancelled } from '../../../features/admin/step-up/client.ts'
+import { useStepUpCall } from '../../../features/admin/step-up/step-up-provider.tsx'
 import { AdminPage, adminTableLabels, Field, panelClass } from '../../../features/admin/ui.tsx'
 import {
   completeAdminRefund,
@@ -83,12 +85,21 @@ function Refund({ row }: { row: RefundRow }) {
   const [proof, setProof] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
+  // 退款通过与手动退款为敏感操作：未重新验证时当场弹窗，通过后用同一份参数（金额、备注）自动提交
+  const review = useStepUpCall(reviewAdminRefund, { action: m.admin_refund({ id: row.id }) })
+  const complete = useStepUpCall(completeAdminRefund, {
+    action: m.admin_mark_manual_refund_complete(),
+  })
   async function act(
-    action: () => Promise<{ ok: true; status: string } | { ok: false; error: string }>,
+    action: () => Promise<
+      { ok: true; status: string } | { ok: false; error: string } | StepUpCancelled
+    >,
   ) {
     setBusy(true)
     try {
       const result = await action()
+      // 取消验证：未执行，已填写的金额与备注保留
+      if (isStepUpCancelled(result)) return
       setMessage(
         result.ok
           ? result.status
@@ -101,9 +112,9 @@ function Refund({ row }: { row: RefundRow }) {
       setBusy(false)
     }
   }
-  function review(decision: 'approve' | 'reject', approvedAmount?: number) {
+  function decide(decision: 'approve' | 'reject', approvedAmount?: number) {
     return act(() =>
-      reviewAdminRefund({
+      review({
         data: {
           requestId: row.id,
           decision,
@@ -173,7 +184,7 @@ function Refund({ row }: { row: RefundRow }) {
             <Button
               type="button"
               disabled={!row.providerAvailable || row.remainingRefundable <= 0}
-              onClick={() => review('approve')}
+              onClick={() => decide('approve')}
             >
               {m.admin_approve_full_refund()}
             </Button>
@@ -181,7 +192,7 @@ function Refund({ row }: { row: RefundRow }) {
               type="button"
               variant="outline"
               disabled={!note.trim()}
-              onClick={() => review('reject')}
+              onClick={() => decide('reject')}
             >
               {m.admin_reject_refund()}
             </Button>
@@ -209,7 +220,7 @@ function Refund({ row }: { row: RefundRow }) {
               onClick={() => {
                 // 按币种显示单位输入，提交前换算为最小单位；服务端再按币种约束校验
                 const amount = partialRefundAmount(cents, row.currency, row.remainingRefundable)
-                if (amount !== null) void review('approve', amount)
+                if (amount !== null) void decide('approve', amount)
               }}
             >
               {m.admin_approve_partial_refund()}
@@ -224,7 +235,7 @@ function Refund({ row }: { row: RefundRow }) {
           disabled={busy}
           onClick={() =>
             act(() =>
-              reviewAdminRefund({
+              review({
                 data: {
                   requestId: row.id,
                   decision: 'approve',
@@ -265,7 +276,7 @@ function Refund({ row }: { row: RefundRow }) {
             disabled={!refundId.trim() || !proof.trim()}
             onClick={() =>
               act(() =>
-                completeAdminRefund({
+                complete({
                   data: { requestId: row.id, providerRefundId: refundId, proof },
                 }),
               )

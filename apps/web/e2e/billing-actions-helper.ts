@@ -67,25 +67,36 @@ export async function offlineProviderTransport(
       await reply(route, await action(requestData(route)))
       return
     }
-    const response = await route.fetch()
-    expect(response.headers()['x-tss-serialized']).toBe('true')
-    const envelope = serializer.fromCrossJSON(await response.json(), { refs: new Map() })
-    const result = envelope.result
-    // 同一路径也承载返回站点 URL 等标量的函数，保持这些响应原样透传。
-    if (!result || typeof result !== 'object') return route.fulfill({ response })
-    if (result && 'catalog' in result) {
-      const catalog = result.catalog as { providers: { id: string; available: boolean }[] }
-      for (const provider of catalog.providers)
-        if (provider.id === 'paypal') provider.available = true
-    }
-    if (result && typeof result === 'object' && 'rows' in result)
-      for (const row of result.rows as { provider: string; providerAvailable: boolean }[])
-        if (row.provider === 'paypal') row.providerAvailable = true
-    await route.fulfill({
-      status: response.status(),
-      headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
-      body: JSON.stringify(await serializer.toCrossJSONAsync(envelope, { refs: new Map() })),
-    })
+    // 本项目离线结账走 PayPal
+    await fulfillWithProviderAvailable(route, 'paypal')
+  })
+}
+
+/** Real authenticated GET with only the Stripe readiness flags flipped to available. */
+export function fulfillWithStripeAvailable(route: Route) {
+  return fulfillWithProviderAvailable(route, 'stripe')
+}
+
+/** Real authenticated GET with only the given provider's readiness flags flipped to available. */
+export async function fulfillWithProviderAvailable(route: Route, providerId: 'paypal' | 'stripe') {
+  const response = await route.fetch()
+  expect(response.headers()['x-tss-serialized']).toBe('true')
+  const envelope = serializer.fromCrossJSON(await response.json(), { refs: new Map() })
+  const result = envelope.result
+  // 同一路径也承载返回站点 URL 等标量的函数，保持这些响应原样透传。
+  if (!result || typeof result !== 'object') return route.fulfill({ response })
+  if ('catalog' in result) {
+    const catalog = result.catalog as { providers: { id: string; available: boolean }[] }
+    for (const provider of catalog.providers)
+      if (provider.id === providerId) provider.available = true
+  }
+  if ('rows' in result)
+    for (const row of result.rows as { provider: string; providerAvailable: boolean }[])
+      if (row.provider === providerId) row.providerAvailable = true
+  await route.fulfill({
+    status: response.status(),
+    headers: { 'content-type': 'application/json', 'x-tss-serialized': 'true' },
+    body: JSON.stringify(await serializer.toCrossJSONAsync(envelope, { refs: new Map() })),
   })
 }
 
