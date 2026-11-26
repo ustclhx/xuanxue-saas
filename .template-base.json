@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "repository": "https://github.com/ustclhx/saas-template",
-  "commit": "b39b3d2990511b62d2cb7d7627ce4c5d73b84032",
-  "version": "0.10.2",
+  "commit": "3b3fe0bbcecaa6faa3d2a73c54ecd7020b799567",
+  "version": "0.11.0",
   "clean": true,
   "params": {
     "ai": [
@@ -63,6 +63,8 @@
     "0024_feedback_share",
     "0025_ai_agent_turn",
     "0026_admin_api_token",
-    "0027_admin_step_up"
+    "0027_admin_step_up",
+    "0028_media_studio",
+    "0029_studio_publication_quota"
   ]
 }
