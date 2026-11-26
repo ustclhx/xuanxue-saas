@@ -8,7 +8,14 @@ import {
 } from '@playwright/test'
 import { createDb } from '@xuanxue/db'
 import { readLocalEnv } from '@xuanxue/db/worktree-env'
-import { APP_URL, AUTH_FORM_COPY, grantStepUp, login, register, simulateClientIp } from './fixtures.ts'
+import {
+  APP_URL,
+  AUTH_FORM_COPY,
+  grantStepUp,
+  login,
+  register,
+  simulateClientIp,
+} from './fixtures.ts'
 import { stubTurnstile } from './turnstile.ts'
 
 // openspec split-site-accounts 4.1：两站账户按站点独立。同一邮箱在 east.localhost 与 west.localhost
