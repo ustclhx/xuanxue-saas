@@ -37,7 +37,7 @@ plugins/<id>/
 
 | 入口 | 扩展点 |
 |---|---|
-| `web` | `appNav` 增加应用区导航（侧栏与顶栏布局共用），同 id 依模板、插件、项目的次序覆盖。`adminNav` 向现有后台分组追加条目，组内按 `order` 排序；可选 `count` 在后台布局加载时读取，大于 0 时在条目旁显示数量（读取失败不显示）。`toolRenderers` 注册对话工具卡片，项目可覆盖。 |
+| `web` | `appNav` 增加应用区导航（侧栏与顶栏布局共用），同 id 依模板、插件、项目的次序覆盖。`adminNav` 向现有后台分组追加条目，组内按 `order` 排序。可选 `count` 在后台布局加载时读取，大于 0 时在条目旁显示数量（读取失败不显示）。`toolRenderers` 注册对话工具卡片，项目可覆盖。`sitemaps` 声明插件提供的站点地图根路径，由 `robots.txt` 输出完整网址。具名导出 `adminMcpTools` 注册管理员工具。 |
 | `worker` | `fetch(request, env, ctx)` 在网关与 TanStack Start 之前运行。返回 `Response` 即结束，返回 `undefined` 继续请求链。它晚于预渲染静态资源与环境校验，静态页命中时不会调用；必须早于静态页生效的项目规则写在[项目闸门](02-project-structure.md#项目自有扩展文件)。 |
 | `jobs` | `queues` 按基础队列名注册处理器，Cloudflare 同时匹配 `-staging` 和 `-production` 后缀。`crons` 使用已有 `heartbeat`、`ten-minute`、`daily` 分组，每个任务必须声明 `safety`：会删除、销毁积分、外部写或群发时写明每轮上限、顺序与时间防护并登记到 [批量任务登记表](bulk-jobs.md)，否则写 `{ kind: 'none', reason }`。`holdSweepers` 按预扣来源注册清理器。 |
 | `webNode` | Node Web 的 `fetch(request)`，采用同样的请求链约定。 |
@@ -46,6 +46,8 @@ plugins/<id>/
 插件可在 `web` 入口具名导出 `agentTools` 数组或返回数组的同步函数，使用 `@xuanxue/ai` 的 `defineAgentTool` 定义工具。工具依赖服务端模块时，用 `createServerOnlyFn(() => tools)` 导出同步函数，将工具实现模块仅引用在函数体内。启用 `agents` 后，Cloudflare Worker 启动时汇总工具，名称须与所有已启用插件和项目工具中的名称互不重复。有副作用的工具须声明 `needsApproval`，用 `ctx.idempotencyKey` 在业务写入边界去重，并在重放时返回已有结果。工具在对话实例（Durable Object）中执行，不在 web 请求运行时内：数据库用 `ctx.db`，Worker 绑定与变量、插件提供的 AI 任务工作流和限流器取自 `ctx.services`（类型 `AgentToolServices`，见 Web 契约）。提交长任务的工具立即返回 `@xuanxue/ai` 的 `pendingTaskOutput(taskId)`；对话实例按 taskId 轮询 `ai_task`，终态时把该工具调用的输出改写为结果，不自动续轮。
 
 接口定义见 [Web](../apps/web/src/features/plugins/contract.ts)、[Cloudflare Web Worker](../apps/web/src/server/cloudflare/plugins.ts)、[Node Web](../apps/web/src/node/plugins.ts)、[jobs](../apps/jobs/src/plugins/contract.ts) 与 [Node jobs](../apps/jobs/src/node/plugins.ts)。
+
+插件可在 `web` 入口直接具名导出 `adminMcpTools = createServerOnlyFn(() => ({ 'example.tool': exampleTool }))`。对象键是 MCP 工具名，必须使用以插件 ID 和 `.` 开头的字符串字面量，且全局唯一。用 `@web/features/admin/mcp-tool.ts` 的 `definePluginAdminMcpTool` 定义工具，只在回调内引用工具实现。生成器按部署目标汇总启用插件的工具，`admin-mcp` 启用时才会注册。写工具使用 `adminAction` 指定已登记的后台动作，支持 `dryRun` 的业务实现只预览，缓存等副作用通过 `ctx.afterCommit` 在提交后运行。敏感操作须同时实现 `confirm` 与 `execute`，由同一注册表提供确认后的执行器。[Studio 工具示例](../plugins/studio/src/web/admin-mcp-tools.ts) · [管理员 MCP](./admin-mcp.md)
 
 ## 依赖边界
 
@@ -70,10 +72,13 @@ Cloudflare 使用声明了 `cloudflare` 的插件。`pnpm build:node` 只打包�
 | 插件 | 部署目标 | 功能与依赖 |
 |---|---|---|
 | `media` | Cloudflare、Node | 图片和视频任务，依赖 `billing` 与 `credits`。[媒体任务](./06-ai.md#4-图片--视频异步任务) |
+| `studio` | Cloudflare、Node | 图片和视频创作、作品库、公开画廊、举报与后台审核。依赖 `media`、`billing` 与 `credits`。模板默认启用。[Studio 创作站](./06-ai.md#9-studio-创作站) |
 | `agents` | Cloudflare | 持久对话、多步工具和人工确认，依赖 `billing` 与 `credits`。web 提供 `AGENT_CONVERSATION` SQLite Durable Object，jobs 复用现有清理 Cron 处理 PG 预扣。[Agent 对话](./06-ai.md#8-agent-对话pluginsagents) |
 | `admin-mcp` | Cloudflare、Node | 平台管理员个人令牌、MCP 后台数据读取及设置与模型更新。模板默认启用。[管理员 MCP](./admin-mcp.md) |
 
 生成 Cloudflare 项目时可用 `--plugins agents` 选择 Agent。web 的 `AGENT_CONVERSATION` 绑定指向同一 Worker 内的 `AgentConversation`，并用 `agents-v1` SQLite 类迁移。jobs 沿用先部署的顺序。`plugins.agents` 可配置 `maxSteps`、`maxTurnCredits`、`maxPersistedMessages`、`retentionDays` 与 `defaultAgent`。详见 [插件清单](../plugins/agents/plugin.ts) 与 [配置 schema](../plugins/agents/src/config.ts)。
+
+Studio 的 Web 入口通过 `sitemaps` 将 `/sitemap-gallery.xml` 加入 `robots.txt`，通过 `adminMcpTools` 提供 `studio.works.list` 与 `studio.works.moderate`。Cloudflare 与 Node 共用作品和审核业务逻辑，分别接入各自的公开媒体请求链。[插件清单](../plugins/studio/plugin.ts) · [Web 入口](../plugins/studio/src/web/web.ts)
 
 `admin-mcp` 使用 `packages/db` 的 `admin_api_token` 表，启用时应用数据库迁移。Cloudflare web 各环境需配置 `RL_ADMIN_MCP` 限流绑定，默认每分钟 120 次，额度按各环境的绑定配置。Node 用 `plugins['admin-mcp'].rateLimitPerMinute` 调整额度。令牌有效期上限由 `plugins['admin-mcp'].maxTokenDays` 设置，默认 365 天。停用并重新部署后，管理页和 MCP 端点返回 404。[插件清单](../plugins/admin-mcp/plugin.ts)
 
