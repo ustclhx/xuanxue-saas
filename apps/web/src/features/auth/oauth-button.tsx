@@ -1,4 +1,4 @@
-import { Button } from '@xuanxue/ui'
+import { Badge, Button } from '@xuanxue/ui'
 import { type ReactNode, useState } from 'react'
 import { m } from '../../paraglide/messages.js'
 import { authClient, signInCallbackURL, signInErrorCallbackURL } from './auth-client.ts'
@@ -6,7 +6,22 @@ import { FormAlert } from './auth-layout.tsx'
 import { authErrorMessage } from './errors.ts'
 import type { AuthUiOptions } from './options.ts'
 
-export function OAuthButton({ provider }: { provider: AuthUiOptions['oauth'][number] }) {
+/** 登录页「上次使用」标记（Better Auth lastLoginMethod Cookie，按 Host 下发，两站各记各的） */
+export function LastUsedBadge() {
+  return (
+    <Badge color="accent" size="compact">
+      {m.auth_last_used()}
+    </Badge>
+  )
+}
+
+export function OAuthButton({
+  provider,
+  lastUsed = false,
+}: {
+  provider: AuthUiOptions['oauth'][number]
+  lastUsed?: boolean
+}) {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const onClick = async () => {
@@ -30,6 +45,7 @@ export function OAuthButton({ provider }: { provider: AuthUiOptions['oauth'][num
       <Button type="button" variant="outline" disabled={pending} onClick={onClick}>
         {OAUTH_ICONS[provider]}
         {provider === 'google' ? m.auth_continue_with_google() : m.auth_continue_with_github()}
+        {lastUsed ? <LastUsedBadge /> : null}
       </Button>
       <FormAlert message={error} />
     </>

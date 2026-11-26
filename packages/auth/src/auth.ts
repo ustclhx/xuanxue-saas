@@ -8,7 +8,14 @@ import { log } from '@xuanxue/shared/log'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
-import { admin, emailOTP, magicLink, organization, twoFactor } from 'better-auth/plugins'
+import {
+  admin,
+  emailOTP,
+  lastLoginMethod,
+  magicLink,
+  organization,
+  twoFactor,
+} from 'better-auth/plugins'
 import { accountSettings, userSettingsFields } from './account-settings.ts'
 import { adminBootstrap } from './admin-bootstrap.ts'
 import type { CleanupWorkspaceShareCards } from './ai-content-cleanup.ts'
@@ -82,7 +89,7 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
   const bootstrapAdmin = adminBootstrap(db, vars.BOOTSTRAP_ADMIN_EMAILS, site)
   // 始终包装：没有不按站点隔离的认证实例（未知的 adapter 成员在这里直接报错）
   const adapter = siteScopedAdapter(drizzleAdapter(db, { provider: 'pg', schema }), site)
-  const storage = sessionStorageOptions(deps.cache, site)
+  const storage = sessionStorageOptions(deps.cache, site, config.auth.sessionDays)
   const auth = betterAuth({
     appName: config.app.name,
     baseURL: baseURLOption(vars.APP_URL, deps.hosts),
@@ -209,6 +216,9 @@ export function createAuth(env: AuthEnv, db: Database, deps: CreateAuthDeps) {
       }),
       // 敏感接口按数据库实时校验会话与封禁（fresh-session.ts）
       freshSessionGuard(db, site),
+      // 记住上次登录方式（只存方式名，不存邮箱），登录页据此标出「上次使用」并默认选中。
+      // Cookie 按 Host 下发，两站各记各的；不开 storeInDatabase，不写 user 表
+      lastLoginMethod({ maxAge: config.auth.sessionDays * 24 * 60 * 60 }),
       deletionPlugin(
         db,
         site,
