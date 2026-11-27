@@ -167,6 +167,7 @@ describe.skipIf(!templateConfig.plugins['admin-mcp'])('管理员 MCP', () => {
         'audit.list',
         'confirmations.get',
         'credits.adjust',
+        'credits.grants',
         'credits.ledger',
         'features.models',
         'metrics.summary',

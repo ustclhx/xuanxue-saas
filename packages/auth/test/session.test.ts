@@ -1,4 +1,5 @@
 import { env } from 'cloudflare:workers'
+import { templateConfigDefaults } from '@xuanxue/config'
 import { createDb } from '@xuanxue/db'
 import { createCloudflareKv } from '@xuanxue/platform/cloudflare'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -123,5 +124,77 @@ describe('会话三层', () => {
     expect(await sessionOf(s, victim.cookie)).toBeNull()
     // 未被吊销的会话不受影响
     expect((await sessionOf(s, other.cookie))?.session.token).toBe(other.token)
+  })
+})
+
+describe('登录保持', () => {
+  it('会话有效期取 auth.sessionDays，并记住上次登录方式（只存方式名）', async () => {
+    const s = setup({ config: { auth: { ...templateConfigDefaults.auth, sessionDays: 45 } } })
+    const address = users.email('remember')
+    expect((await s.post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    const res = await s.post('/sign-in/email', { email: address, password: PASSWORD })
+    expect(res.status).toBe(200)
+    const { token } = (await res.json()) as { token: string }
+
+    const row = await s.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, token) })
+    const days = ((row?.expiresAt.getTime() ?? 0) - Date.now()) / 86_400_000
+    expect(days).toBeGreaterThan(44.9)
+    expect(days).toBeLessThanOrEqual(45)
+
+    const method = res.headers
+      .getSetCookie()
+      .find((c) => c.startsWith('better-auth.last_used_login_method='))
+    expect(method).toMatch(/^better-auth\.last_used_login_method=email;/)
+    expect(method).toContain(`Max-Age=${45 * 86_400}`)
+    expect(method).not.toContain(address)
+  })
+
+  it('超过 updateAge 后 get-session（跳过 Cookie 缓存）把会话与 Cookie 有效期延长回 sessionDays', async () => {
+    const s = setup()
+    const address = users.email('renew')
+    expect((await s.post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    const { cookie, token } = await signIn(s, address)
+    const expiresAt = async () =>
+      (await s.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, token) }))?.expiresAt
+    const before = await expiresAt()
+
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.now() })
+    vi.setSystemTime(Date.now() + 2 * 86_400_000)
+    const res = await s.get('/get-session?disableCookieCache=true', { cookie })
+    expect(res.status).toBe(200)
+    const after = await expiresAt()
+    expect((after?.getTime() ?? 0) - (before?.getTime() ?? 0)).toBeGreaterThan(86_400_000)
+    const renewed = res.headers.getSetCookie().find((c) => c.includes('session_token='))
+    expect(renewed).toContain(`Max-Age=${30 * 86_400}`)
+  })
+
+  it('续期只作用于本站会话：另一站用同一 Cookie 续期取不到会话，也不延长有效期', async () => {
+    // 两站共用 Worker、密钥、KV 与数据库，只有按 Host 解析的账户站点不同（split-site-accounts）
+    const west = setup({ site: 'west' })
+    const east = setup({ site: 'east' })
+    const address = users.email('renew-site')
+    expect((await west.post('/sign-up/email', signUpBody(address))).status).toBe(200)
+    const { cookie, token } = await signIn(west, address)
+    const expiresAt = async () =>
+      (
+        await west.db.query.session.findFirst({ where: (t, { eq }) => eq(t.token, token) })
+      )?.expiresAt.getTime()
+    const before = await expiresAt()
+
+    vi.useFakeTimers({ toFake: ['Date'], now: Date.now() })
+    vi.setSystemTime(Date.now() + 2 * 86_400_000)
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const cross = await east.get('/get-session?disableCookieCache=true', { cookie })
+    expect(cross.status === 200 ? await cross.json() : null).toBeNull()
+    expect(await expiresAt()).toBe(before)
+    const crossRenewed = cross.headers
+      .getSetCookie()
+      .find((c) => c.includes('session_token=') && !/Max-Age=0\b/.test(c))
+    expect(crossRenewed).toBeUndefined()
+
+    // 本站续期照常生效
+    const own = await west.get('/get-session?disableCookieCache=true', { cookie })
+    expect((await own.json()) as unknown).toMatchObject({ session: { token } })
+    expect((await expiresAt()) ?? 0).toBeGreaterThan((before ?? 0) + 86_400_000)
   })
 })

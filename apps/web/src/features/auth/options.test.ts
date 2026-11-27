@@ -1,6 +1,6 @@
 import { defineTemplateConfig } from '@xuanxue/config'
 import { describe, expect, it } from 'vitest'
-import { authUiOptions } from './options.ts'
+import { authUiOptions, parseLastLoginMethod } from './options.ts'
 
 const app = {
   name: 'Test',
@@ -47,5 +47,16 @@ describe('authUiOptions（登录页显示哪些入口）', () => {
   it('关闭 Turnstile 时不下发 site key', () => {
     const config = defineTemplateConfig({ app, auth: { turnstile: false } })
     expect(authUiOptions(config, credentials).turnstileSiteKey).toBeNull()
+  })
+})
+
+describe('parseLastLoginMethod', () => {
+  it('只接受已知方式名，其余按无记录处理', () => {
+    expect(parseLastLoginMethod('a=1; better-auth.last_used_login_method=google')).toBe('google')
+    expect(parseLastLoginMethod('better-auth.last_used_login_method=email-otp')).toBe('email-otp')
+    expect(parseLastLoginMethod('better-auth.last_used_login_method=%3Cscript%3E')).toBeNull()
+    expect(parseLastLoginMethod('other=email')).toBeNull()
+    expect(parseLastLoginMethod('better-auth.last_used_login_method=%')).toBeNull()
+    expect(parseLastLoginMethod(null)).toBeNull()
   })
 })

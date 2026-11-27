@@ -16,9 +16,9 @@ import {
   StatusAlert,
 } from '../../features/auth/auth-layout.tsx'
 import { authErrorMessage } from '../../features/auth/errors.ts'
-import { OAuthButton } from '../../features/auth/oauth-button.tsx'
+import { LastUsedBadge, OAuthButton } from '../../features/auth/oauth-button.tsx'
 import { getAuthUiOptions } from '../../features/auth/options.functions.ts'
-import type { AuthUiOptions } from '../../features/auth/options.ts'
+import type { AuthUiOptions, LastLoginMethod } from '../../features/auth/options.ts'
 import { SignInFailure } from '../../features/auth/site-accounts.tsx'
 import { useTurnstile } from '../../features/auth/turnstile.tsx'
 import { useAuthRequest } from '../../features/auth/use-auth-request.ts'
@@ -109,6 +109,12 @@ const COPY = {
 
 type Mode = keyof typeof COPY.modes
 
+const LAST_METHOD_MODE: Partial<Record<LastLoginMethod, Mode>> = {
+  email: 'password',
+  'email-otp': 'otp',
+  'magic-link': 'magicLink',
+}
+
 export const Route = createFileRoute('/(auth)/login')({
   // OAuth / 魔法链接失败时 Better Auth 把错误码放在 ?error= 中带回登录页
   validateSearch: (search: Record<string, unknown>) =>
@@ -133,7 +139,11 @@ function LoginPage() {
   const options = Route.useLoaderData()
   const { error: callbackError } = Route.useSearch()
   const modes = enabledModes(options)
-  const [mode, setMode] = useState<Mode | undefined>(modes[0])
+  // 上次用邮箱类方式登录时默认展开该方式；OAuth 在按钮上标出
+  const lastMode = options.lastMethod ? LAST_METHOD_MODE[options.lastMethod] : undefined
+  const [mode, setMode] = useState<Mode | undefined>(
+    lastMode && modes.includes(lastMode) ? lastMode : modes[0],
+  )
   const otherModes = modes.filter((m) => m !== mode)
   const hasAny = modes.length > 0 || options.oauth.length > 0
 
@@ -159,7 +169,11 @@ function LoginPage() {
       {options.oauth.length > 0 ? (
         <div className="grid gap-2">
           {options.oauth.map((provider) => (
-            <OAuthButton key={provider} provider={provider} />
+            <OAuthButton
+              key={provider}
+              provider={provider}
+              lastUsed={options.lastMethod === provider}
+            />
           ))}
         </div>
       ) : null}
@@ -167,6 +181,11 @@ function LoginPage() {
         <AuthDivider>{m.auth_divider_email()}</AuthDivider>
       ) : null}
 
+      {lastMode !== undefined && mode === lastMode ? (
+        <div className="flex justify-end">
+          <LastUsedBadge />
+        </div>
+      ) : null}
       {mode === 'password' ? <PasswordSignIn siteKey={options.turnstileSiteKey} /> : null}
       {mode === 'otp' ? <OtpSignIn siteKey={options.turnstileSiteKey} /> : null}
       {mode === 'magicLink' ? <MagicLinkSignIn siteKey={options.turnstileSiteKey} /> : null}

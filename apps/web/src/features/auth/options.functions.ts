@@ -4,12 +4,16 @@ import { requireFreshSession } from '@xuanxue/auth'
 import { AppError } from '@xuanxue/shared'
 import { getWebRuntime } from '../../server/runtime.ts'
 import { templateConfig } from '../../server/template-config.ts'
-import { authUiOptions } from './options.ts'
+import { authUiOptions, parseLastLoginMethod } from './options.ts'
 
-/** 认证页面的 loader：在服务端读取模板配置与 env，只返回公开的部分 */
-export const getAuthUiOptions = createServerFn({ method: 'GET' }).handler(() =>
-  authUiOptions(templateConfig, getWebRuntime().config),
-)
+/**
+ * 认证页面的 loader：在服务端读取模板配置与 env，只返回公开的部分。
+ * lastMethod 取自本浏览器的「上次登录方式」Cookie，服务端读取使首屏即可标出，避免水合后闪动。
+ */
+export const getAuthUiOptions = createServerFn({ method: 'GET' }).handler(() => ({
+  ...authUiOptions(templateConfig, getWebRuntime().config),
+  lastMethod: parseLastLoginMethod(getRequest().headers.get('cookie')),
+}))
 
 /** 结果页只读数据库中的验证状态，不能以缺少 error 参数作为验证成功的证据。 */
 export const getEmailVerificationState = createServerFn({ method: 'GET' }).handler(async () => {
