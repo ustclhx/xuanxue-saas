@@ -58,7 +58,8 @@
 
   验证：`check-content` 新增规则（西方站内容不得以 `/` 作为计算器链接）并通过；全站预渲染 HTML 中没有锚文本为工具关键词、目标为语言首页的链接（脚本扫描结果写入 PR）
 - [x] 3.2 实现 D4 的 `legacyToolPath`，接入显示临时上下文「返回结果」链接的地方。验证：单测覆盖四个语言首页映射与其他路径原样返回
-- [ ] 3.3 把在首页填写表单或断言首页 H1 / Title 的 e2e 改到工具 URL，首页改为断言落地页。涉及 `bazi`、`numerology`、`reading-unlock`、`reading-optin`、`analytics`、`ai-chat`、`i18n-preference`、`floating-controls`、`theme` 各 spec，以及 `staging/smoke`、`production/smoke`。新增 e2e：旧 `/#r=` 与 `/zh-hant#r=` 分享链接打开后显示结果；`/zh-hant?unlock=<测试令牌>` 跳到工具页并恢复输入。验证：本地离线 e2e 通过；冒烟用例在本组分支的 staging 预览上通过（如可用）
+- [x] 3.3 把在首页填写表单或断言首页 H1 / Title 的 e2e 改到工具 URL，首页改为断言落地页。涉及 `bazi`、`numerology`、`reading-unlock`、`reading-optin`、`analytics`、`ai-chat`、`i18n-preference`、`floating-controls`、`theme` 各 spec，以及 `staging/smoke`、`production/smoke`。新增 e2e：旧 `/#r=` 与 `/zh-hant#r=` 分享链接打开后显示结果；`/zh-hant?unlock=<测试令牌>` 跳到工具页并恢复输入。验证：本地离线 e2e 通过；冒烟用例在本组分支的 staging 预览上通过（如可用）
+  - 2026-11-27 台账核对：e2e 迁移随 #212 合并，旧 `#r=` 用例的 fixme 随 #214 去掉（`apps/web/e2e/legacy-home-links.spec.ts`）；`staging/smoke`、`production/smoke` 已拆为落地页与主工具页两组，并在 v0.1.28 起每次发布流水线运行通过（v0.1.44 run 45829365237）
 
 ## 4. 落地页（WT-landing，【Claude】）
 
@@ -125,4 +126,5 @@
 - [x] 6.4 【用户】审阅 6.1–6.3 证据，授权生产发布。验证：使用者在会话中确认
 - [x] 6.5 【协调者】随常规版本发布生产（与 `refresh-visual-system-warm` 同批或之后），确认 main 部署流水线成功、两站 `/api/health` 版本 SHA、发布流水线的 IndexNow 提交日志；【Codex】在 Search Console 提交站点地图，并对三个新工具页与 `/life-path-number` 请求编入索引。验证：发布记录、健康检查与 IndexNow 日志存入 `EVIDENCE_DIR`
 - [ ] 6.6 【Codex】上线两周后按 D9 对照基线检查：新 URL 收录、落地 URL、主词展示与排名、首页与工具页是否争同一查询。【协调者】把结论写入项目日志（`kb_journal`），未达标时提出内链与文案调整（不做首页跳转）。验证：对照表存入 `EVIDENCE_DIR`，日志条目存在
+  - 2026-11-27 台账核对：v0.1.28 于 2026-11-18 上线，两周检查点约 2026-12-02，待执行
 - [ ] 6.7 【协调者】`redesign-home-chart-visuals` 归档后再归档本 change（`home-hub` 主规格须先存在）。验证：`openspec archive` 成功，主规格 `home-hub`、`eastern-tool-pages`、`numerology-pages`、`seo` 含本 change 的要求

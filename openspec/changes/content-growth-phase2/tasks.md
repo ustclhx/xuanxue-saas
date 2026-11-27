@@ -48,8 +48,10 @@
 
 ## 3. 设计稿（ui-design）
 
-- [ ] 3.1 第一批：按 `ui-design` 技能在一张「content-growth-phase2」Design 画布上画 design 决策 10 第一批的全部画板（生肖枢纽、生肖子页四态、ko 子页手机、生肖异常态、黄历工具四态与异常态、月份页三块、EastNavVariant），使用 `@xuanxue/ui` 组件与 token。交给使用者确认，记录原话；EastNavVariant 画板必须保留，页头是否加入「黄历」「生肖」由使用者看该画板后决定（使用者 2026-11-22 裁定）。未确认前第 4、5、6 组不开始 UI 实现
-- [ ] 3.2 第一批确认后，用 Artifact `read` 取回画板副本，存入 `docs/design/prototypes/content-growth-phase2/`，并在原型索引登记每个页面一行
+- [x] 3.1 第一批：按 `ui-design` 技能在一张「content-growth-phase2」Design 画布上画 design 决策 10 第一批的全部画板（生肖枢纽、生肖子页四态、ko 子页手机、生肖异常态、黄历工具四态与异常态、月份页三块、EastNavVariant），使用 `@xuanxue/ui` 组件与 token。交给使用者确认，记录原话；EastNavVariant 画板必须保留，页头是否加入「黄历」「生肖」由使用者看该画板后决定（使用者 2026-11-22 裁定）。未确认前第 4、5、6 组不开始 UI 实现
+  - 2026-11-27 台账核对：第一批画板经使用者在确认问卷中确认（2026-11-22，原话见原型索引，含页头方案「C: dropdown group」），随 #279 登记
+- [x] 3.2 第一批确认后，用 Artifact `read` 取回画板副本，存入 `docs/design/prototypes/content-growth-phase2/`，并在原型索引登记每个页面一行
+  - 2026-11-27 台账核对：副本存 `docs/design/prototypes/content-growth-phase2/`，原型索引登记 8 行（#279）
 - [ ] 3.3 第二批：在同一画布追加十四主星枢纽、主星页（桌面、手机）与不知道时辰的状态，交使用者确认并存副本、登记索引。第 7 组裁定暂停第 8 组时，本项标注「随第 8 组暂停」
 
 ## 4. 生肖枢纽与 12 生肖页（zh-hans）

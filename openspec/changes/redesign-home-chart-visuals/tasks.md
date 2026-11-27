@@ -66,6 +66,7 @@
 依赖：3（7.1 可在 3 合并后立即开始）；7.3 依赖 4、5、6 合并。冲突点：`features/tools/share-link.tsx` 与新模块 `features/tools/share-card/` 只由本组修改；文案 `share-card.json`。
 
 - [ ] 7.1 技术预研：用 3.1 的外框与一个样例图形，验证「克隆 SVG → 内联颜色 → Image → Canvas → PNG」在 iOS Safari、Android Chrome、桌面 Chrome / Safari / Firefox 的中韩文字形与导出；不通过时按 design.md D5 改为 Canvas 2D 绘字。验证：各浏览器导出图存入 `EVIDENCE_DIR`，结论写入 PR 与 design.md D5（2026-11-14：桌面 Chromium / Chrome / WebKit / Firefox 已通过并写入 D5；iOS Safari、Android Chrome 实机待 10.3 staging 验收后勾选）
+  - 2026-11-27 台账核对：iOS Safari、Android Chrome 实机导出仍无记录，随 10.3 实机验收；使用者未裁剪
 - [x] 7.2 实现按需加载的分享图模块：卡片框架（图形、站名与网址、合规声明、可选出生日期勾选，默认不含）、1080×1350 PNG、`navigator.share` 文件分享与下载回退、失败提示与重试。验证：单元测试断言默认输出不含出生日期 / 姓名 / 出生地文本；Playwright 断言生成期间无携带输入的网络请求、离线可生成；2.2 的禁止标记检查通过
 - [x] 7.3 在八字、만세력、紫微、生命灵数结果的分享操作旁接入「保存分享图」。验证：四类结果各生成一张，与「分享图」画布副本对照，截图存入 `EVIDENCE_DIR`
 
@@ -95,5 +96,7 @@
   - 2026-11-16 采纳模板 0.5.4（fonts.project.ts 关闭 Inter 预加载、hydration after-paint、criticalCss used）后复测（final-10/template-0.5.4），六页全部达标：/ 1.986（基线 5.712）、/zh-hant 1.836（7.895）、/zh-hans 1.986（8.957）、/ko 1.986（6.763）、紫微 1.836（11.603）、/numerology-chart 1.685（4.957），三次波动 < 3ms；CLS 中位数均 < 0.002（/numerology-chart 0.001495 来自页头导航字体替换，不在本任务范围）。18 份报告中水合脚本与完整样式表均在首帧后请求
 - [x] 10.2 SEO 与预渲染复核：2.3 对照测试、`seo.spec.ts`、禁用 JavaScript 抓取两站首页与工具页、数据库不可达时首页可用（本地停 PG 后访问预渲染页）。验证：结果记录在 PR 或证据目录
 - [ ] 10.3 【需使用者授权】合并各 PR 并部署 staging，在 staging 两站按 home-hub、chart-visuals、share-cards 的场景逐项验收（含手机实机生成分享图）。验证：staging 验收记录存入 `EVIDENCE_DIR`
+  - 2026-11-27 台账核对：各 PR 已合并并经 staging 部署（v0.1.23 起上生产）；staging 逐项验收记录与手机实机生成分享图仍无记录，待使用者实机走查或明确裁剪
 - [ ] 10.4 【需使用者授权】随常规版本发布到生产，确认 main 部署流水线成功与 `/api/health` 版本 SHA；上线两周内观察 Search Console 首页展示与排名。验证：发布记录与健康检查结果；观察结论写入项目日志
   - （2026-11-16：已随 v0.1.23 发布生产（run 43803684100，两站 `/api/health` 为 c30b67b3）；两周 Search Console 观察未做）
+  - 2026-11-27 台账核对：发布部分已完成；Search Console 首页两周观察未做。注意首页已于 v0.1.28 换为落地页（`separate-landing-homepage`），观察可并入其 6.6（约 2026-12-02）

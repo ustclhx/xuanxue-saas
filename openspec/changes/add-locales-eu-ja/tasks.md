@@ -8,6 +8,7 @@
 ## 0. 基线（Opus，第 1 组开始前）
 
 - [ ] 0.1（除 Lighthouse 外已完成，见 phase0/baseline；Lighthouse 移动端待补）在 origin/main 生产构建上保存基线：两站 seo-snapshot（canonical/hreflang/sitemap/robots）、`check:links` 与 `audit:seo` 报告、四个首页的 HTML 原始与 gzip 大小、首页包 gzip、Lighthouse 移动端（两站首页与主工具页）、全量构建与预渲染耗时、Worker 上传体积；写入 `EVIDENCE_DIR`
+  - 2026-11-27 台账核对：Lighthouse 移动端基线始终没有采集（私有验收目录 `locales-eu-ja/phase0/baseline/` 只有其余各项）；发布前基线已无法补测，需使用者决定豁免或以现行版本重测代替
 
 ## 1. 语言基础设施（第 0 期，Opus；可合入 main，正式站无可见变化）
 
@@ -29,7 +30,8 @@
 ## 2. 本地化质量工具（Opus，可与第 1 组并行）
 
 - [x] 2.1 移植 part-b 测量为 `apps/web/scripts/measure-locale-similarity.mjs`（happy-dom 解析；按站点地图与 hreflang 配对；结构直译分、数字序列重合、同语言按位置段落 Dice、同文字变体 Dice/整句复现、FAQ `origin` 统计、长度下限）；输出 JSON/Markdown 到 `EVIDENCE_DIR`；单元测试用小样例
-- [ ] 2.2 回译相似度：固定模型与温度 0 回译、词二元组 Dice；用每语言 3 页机器直译对照组校准阈值，写入报告；成本记录（真实调用需使用者批准预算）
+- [x] 2.2 回译相似度：固定模型与温度 0 回译、词二元组 Dice；用每语言 3 页机器直译对照组校准阈值，写入报告；成本记录（真实调用需使用者批准预算）
+  - 2026-11-27 台账核对：ja 以 6 页对照组校准阈值 0.421/0.500，173/173 通过（私有验收目录 `locales-eu-ja/ja/backtranslation-input/result.md`）；es 以 3 页对照组校准 0.500，第二轮全部通过（`es/backtranslation-input-r2/result.md`，#257）；成本估算 `quality-tools/locale-backtranslation/estimate.md`。偏离：回译按使用者决定改由另一 agent 交叉执行（Claude 写的由 Codex 回译），不是固定模型温度 0 的 API 调用
 - [x] 2.3 术语表格式 `apps/web/i18n/glossary/<locale>.json` 与 `check-locale-glossary.mjs`（禁用写法、合规表述、「娱乐」定位禁用词），接入 `pnpm check`
 - [x] 2.4 `ja`、`es` 术语表初稿（塔罗牌名/花色/正逆位、数字命理术语、四柱推命与紫微术语、合规表述、每个目标页的 ≤2 种锚文本）；Opus 起草，另一模型交叉审阅定稿
 - [x] 2.5 写作事实单模板与生成脚本（引擎事实、关键词、本地问题来源、术语、锚文本），不含源语言正文
@@ -37,13 +39,18 @@
 ## 3. 视觉（Fable）
 
 - [ ] 3.1 东方站字体规则：TC 规则只在 `:lang(zh-Hant)` 生效；`ja` 标题用系统日文字体与度量匹配回退；`ko`/`zh-Hans` 页不再内联 TC 分片；截图对比（手机/桌面、浅/深色）与 HTML 大小前后对比
+  - 2026-11-27 台账核对：代码已上线（分语言字体样式表、`:lang(ja)` 系统字体，线上 `/ko`、`/zh-hans`、`/ja` 不再内联 TC 分片）；缺前后截图对比与 HTML 大小对比
 - [ ] 3.2 西方站出现语言菜单后的页头检查（手机宽度不换行、无 CLS）；菜单项 class 精简
+  - 2026-11-27 台账核对：语言菜单改为普通链接（#251）时 es 尚未发布；es 上线后的西方站页头手机宽度、CLS 检查与 class 精简没有记录
 - [ ] 3.3 `ja` 与 `es` 落地页、主工具页、牌义页在 staging 的视觉检查（日文换行与禁则、长西语单词断行、按钮文字溢出），只做样式修正
+  - 2026-11-27 台账核对：只有生产抽查 ja/es 首页与主工具页（私有验收目录 `prod-check-v0134/`，发现的 390px 溢出与 ja 页脚英文由 #266 修复）；牌义页、日文禁则与长西语单词断行未查
 - [ ] 3.4（若 D-11 选是，第二期前）语言菜单改造：经 ui-design 取得使用者确认的设计稿后实现
+  - 2026-11-27 台账核对：D-11 默认「是」，第二期开工前需经 ui-design 取得设计稿；改造须保留真实 `<a>` 链接（ML-08，#251）
 
 ## 4. 日语（东方站，第一期）
 
-- [ ] 4.0 [Opus] 日语关键词地图（先于 4.1–4.2）：为第一期每个页面（落地页、四柱推命、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价）调研当地搜索词，定主词与次词、slug、Title、H1、≤2 种锚文本，避免页面间抢词；依据写明来源（搜索建议、竞品页、可得的量级数据），存 `EVIDENCE_DIR`，使用者过目后再定 slug
+- [x] 4.0 [Opus] 日语关键词地图（先于 4.1–4.2）：为第一期每个页面（落地页、四柱推命、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价）调研当地搜索词，定主词与次词、slug、Title、H1、≤2 种锚文本，避免页面间抢词；依据写明来源（搜索建议、竞品页、可得的量级数据），存 `EVIDENCE_DIR`，使用者过目后再定 slug
+  - 2026-11-27 台账核对：使用者 2026-11-21 接受全部关键词地图建议（私有验收目录 `locales-eu-ja/keyword-maps/ja.md`），随 #253 实施
 - [x] 4.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.east.locales` 末尾追加 `ja`，`brand.names.ja = '干支日'`，`seo.linking.sites` 东方站组加 `ja`；`rollout.ts` 设为 pending
 - [x] 4.2 [Opus] 注册表与路由：`/ja/四柱推命`、`/ja/紫微斗数`、塔罗四页、`/ja/タロット/カード` 与 78 张牌义；`pages.project.ts` 的 STATIC_MAIN、主词与 parent；`switchLocalePath` 测试
 - [x] 4.3 [Opus] 四柱推命呈现：命式、通変星、蔵干、十二運星、天中殺等日语标签；日本标准时间与 1948–1951 夏令时（引擎复算测试）；默认出生地为东京；概念页链接在 `ja` 不渲染
@@ -51,14 +58,19 @@
 - [x] 4.5 [Opus] 公开页文案与内容：落地页、四柱推命与紫微工具页正文/FAQ、塔罗抽牌页、牌义索引、FAQ 页、定价页（事实单写作，不给中文正文）
 - [x] 4.6 [Opus] 78 张牌义 `content/tarot/ja` + `packages/tarot/src/data/ja.ts`：按花色分 5 批并行，每批跑 2.1–2.3 与 `measure-intra`
 - [x] 4.7 [Opus] 法律页与运营方说明 `content/legal/{east,shared}/ja`（注明以繁中版为准）；`packages/email` 的 `ja` 邮件文案
-- [ ] 4.8 [Opus] AI 详批：四柱推命、紫微、塔罗的 `ja` 提示词变体；`evals/readings` 新套件版本，每组合 ≥8 个样本；文字检测与术语检查；离线单测；经批准预算后真实运行并过门槛
+- [x] 4.8 [Opus] AI 详批：四柱推命、紫微、塔罗的 `ja` 提示词变体；`evals/readings` 新套件版本，每组合 ≥8 个样本；文字检测与术语检查；离线单测；经批准预算后真实运行并过门槛
+  - 2026-11-27 台账核对：#253 离线套件每组合 8 个样本；#261 `readings-ja@v2` 真实评测全部必需门槛通过并开放解锁（私有验收目录 `locales-eu-ja/live-evals/prompt-evals/readings-ja/`）
 - [ ] 4.9 [Codex] 计费：JPY 加入币种表（零小数）、价目表、回调白名单、`formatMoney`、同步脚本；`ja` → JPY；测试。staging 沙盒同步；live 价格创建等使用者批准（D-13）
+  - 2026-11-27 台账核对：代码随 #253 合并，Stripe live JPY 价格已创建（见 6.4）；`xuanxue-staging` 沙盒没有 JPY 价格（只读列表只有 USD/TWD/KRW），「staging 沙盒同步」未做
 - [ ] 4.10 [Opus] 门槛验收：measure 报告（结构直译 ≤0.60、回译 ≤校准阈值、FAQ ≤0.40、数字重合 ≤0.50、跨牌 ≤0.30、FAQ local ≥2）、术语检查、跨模型审阅记录（D-6）
+  - 2026-11-27 台账核对：测量部分通过（#253 enforce 0 失败、术语 0 问题、回译 173/173）；D-6 跨模型审阅只覆盖法律页与邮件（私有验收目录 `locales-eu-ja/ja/legal-email/review-sonnet.md`），落地页、主工具、定价与牌义抽样的跨模型审阅没有记录
 - [ ] 4.11 [Opus] staging 验收（`*.workers.dev` 下 `/ja` 全部页面、认证、购买、详批、邮件）；e2e：`dual-site-seo.spec.ts` 等补 `ja` 用例（隔离库）
+  - 2026-11-27 台账核对：`apps/web/e2e/locale-ja.spec.ts` 本地通过（#253、#262）；staging 下 `/ja` 认证、购买、详批、邮件的验收没有记录
 
 ## 5. 西班牙语（西方站，第一期）
 
-- [ ] 5.0 [Opus] 西班牙语关键词地图（先于 5.1–5.2）：同 4.0，覆盖数字命理工具与 12 个数字页、两个枢纽页、塔罗四页、牌义索引与 78 张牌义、FAQ、定价；按西语当地搜索词（如 número de vida / camino de vida、numerología、significado de las cartas del tarot）定主词，使用者过目后再定 slug
+- [x] 5.0 [Opus] 西班牙语关键词地图（先于 5.1–5.2）：同 4.0，覆盖数字命理工具与 12 个数字页、两个枢纽页、塔罗四页、牌义索引与 78 张牌义、FAQ、定价；按西语当地搜索词（如 número de vida / camino de vida、numerología、significado de las cartas del tarot）定主词，使用者过目后再定 slug
+  - 2026-11-27 台账核对：使用者 2026-11-21 接受（私有验收目录 `locales-eu-ja/keyword-maps/es.md`），随 #254 实施
 - [x] 5.1 [Opus] `template.config.ts`：`i18n.locales`、`sites.west.locales` 追加 `es`，`seo.linking.sites` 西方站组加 `es`；`rollout.ts` 设为 pending（与 4.1 同一 PR 或先后 rebase）
 - [x] 5.2 [Opus] 注册表与路由：design 决策 2 的 `es` 路径表（数字命理全部工具与 12 数字页、塔罗四页、牌义索引与 78 张）；主词与 parent；hreflang 测试
 - [x] 5.3 [Codex] `messages/es/*.json` 界面文案（中性拉美西语），按术语表；缺键为 0
@@ -66,27 +78,39 @@
 - [x] 5.5 [Opus] 公开页文案：落地页、计算器/姓名/相性/图表工具页、塔罗抽牌页、FAQ 页、定价页
 - [x] 5.6 [Opus] 78 张牌义 `content/tarot/es` + `packages/tarot/src/data/es.ts`：分 5 批并行，每批跑门槛
 - [x] 5.7 [Opus] 法律页 `content/legal/{west,shared}/es`（注明以英文版为准）；`es` 邮件文案
-- [ ] 5.8 [Opus] AI 详批：数字命理与塔罗的 `es` 变体；评测样本 ≥8/组合；过门槛
+- [x] 5.8 [Opus] AI 详批：数字命理与塔罗的 `es` 变体；评测样本 ≥8/组合；过门槛
+  - 2026-11-27 台账核对：#260（`numerology-full.v6`、`readings@es-v2` 每组合 8 样本）与 #261 回放通过并开放解锁（私有验收目录 `locales-eu-ja/live-evals/prompt-evals/readings/`）
 - [x] 5.9 [Codex] 计费：`es` 维持 USD（D-4），确认定价页与解锁卡的西语金额格式
-- [ ] 5.10 [Opus] 门槛验收（同 4.10，源语言为 `en`）
+- [x] 5.10 [Opus] 门槛验收（同 4.10，源语言为 `en`）
+  - 2026-11-27 台账核对：相似度第二轮 108 页 0 未达标（私有验收目录 `locales-eu-ja/es/locale-similarity-r2/west.md`）、回译第二轮 0 超阈值（#257）；跨模型审阅覆盖首页、定价、工具长文、2/12 数字页、8/78 牌义与法律、邮件（`es/review/content-review.md`、`legal-email-review.md`），6 项应修改均已处理。注：塔罗抽牌与牌义页类型不在 enforce 门槛集合内
 - [ ] 5.11 [Opus] staging 验收与 e2e 补 `es` 用例
+  - 2026-11-27 台账核对：`locale-es.spec.ts` 本地通过（#254、#262）；staging 认证、购买、详批、邮件验收没有记录
 
 ## 5b. 东方站英文（ganjiday `/…`（根路径英文），第一期，使用者 2026-11-20 新增）
 
-- [ ] 5b.0 [Opus] 英文关键词地图（东方站）：Four Pillars / BaZi calculator、Zi Wei Dou Shu chart、Chinese astrology birth chart、tarot（与西方站英文页面分主词，避免两站同词竞争）等，定每页主词、slug、Title、H1、≤2 种锚文本；使用者过目后定 slug
+- [x] 5b.0 [Opus] 英文关键词地图（东方站）：Four Pillars / BaZi calculator、Zi Wei Dou Shu chart、Chinese astrology birth chart、tarot（与西方站英文页面分主词，避免两站同词竞争）等，定每页主词、slug、Title、H1、≤2 种锚文本；使用者过目后定 slug
+  - 2026-11-27 台账核对：使用者 2026-11-21 接受（私有验收目录 `locales-eu-ja/keyword-maps/east-en.md`），随 #255 实施
 - [x] 5b.1 [Opus] 站点配置：东方站 `en` 作为独立发布项登记（pending）；东方站英文页面放在根路径下（`/` 已是英文首页，`/en` 已 301 到 `/`，1.11），内页路径按 5b.0 关键词地图定
 - [x] 5b.2 [Opus] 路由与内容：八字（Four Pillars）、紫微、塔罗四页、牌义索引与 78 张牌义、FAQ、定价、法律页的东方站英文版；事实单写作，不给西方站英文正文；概念页按 4.x 同样暂缓
-- [ ] 5b.3 [Opus] AI 详批：东方站英文的八字、紫微提示词与评测（每组合 ≥8 样本，预算按每语言 ≤US$15）
-- [ ] 5b.4 [Opus] 门槛验收：与东方站其他语言、与西方站英文同类页（塔罗）分别测相似度；术语检查；跨模型审阅（相似度、术语与链接检查已完成并存证据；回译由 Codex 执行，87/87 页通过、0 页超阈值；跨模型审阅待做）
+- [x] 5b.3 [Opus] AI 详批：东方站英文的八字、紫微提示词与评测（每组合 ≥8 样本，预算按每语言 ≤US$15）
+  - 2026-11-27 台账核对：#264 v5 提示词（英文标签）`readings-east-en@v3` 真实评测通过（八字准确度 4.125、紫微 4.875，私有验收目录 `locales-eu-ja/live-evals/prompt-evals/readings-east-en/`）；生产八字、紫微提示词版本留空，英文走代码默认 v5
+- [x] 5b.4 [Opus] 门槛验收：与东方站其他语言、与西方站英文同类页（塔罗）分别测相似度；术语检查；跨模型审阅（相似度、术语与链接检查已完成并存证据；回译由 Codex 执行，87/87 页通过、0 页超阈值；跨模型审阅待做）
+  - 2026-11-27 台账核对：跨模型审阅已完成（私有验收目录 `locales-eu-ja/east-en/cross-review.md`），修正随 #258 合并；相似度、术语与链接见 #255，回译 87/87
 - [ ] 5b.5 [Opus] staging 验收与 e2e（东方站根路径下的英文页面），两站英文页面互不链接、hreflang 不跨 host（e2e `east-en.spec.ts` 已加；staging 验收待做：staging 只有一个预览主机，需要东方站主机才能浏览根路径英文）
+  - 2026-11-27 台账核对：`east-en.spec.ts` 本地通过（#255、#262）；staging 只有一个预览主机，东方站根路径英文的 staging 验收没有做；生产 head 抽查 17/17（私有验收目录 `prod-check-v0134/`）只能部分代替
 
 ## 6. 第一期发布（协调者，需使用者授权）
 
 - [ ] 6.1 生产构建上跑全部验收并存证据：两站 `check:links`（孤岛 0、死链 0）、`audit:seo`（正文内链 2–5、锚文本 ≤2 种、top1 ≤70%、钱页入链 ≥3、两站互不链接）、相似度报告、术语检查、Lighthouse（LCP 不劣于基线 100ms 以上、CLS 不增加）、首页包预算、落地页 HTML ≤ 约 105KB、构建时间与 Worker 体积
+  - 2026-11-27 台账核对：发布后 `audit:seo` 0 违规、`check:i18n-seo` 0（#263，私有验收目录 `seo-links-ja-es/`），各语言相似度报告在案；缺与 0.1 基线的 Lighthouse 对比、发布后构建时间与 Worker 体积、与生产构建对应的 `check:links`。另：线上落地页 HTML 现已超过约 105KB（`/` 109,660 B、`/ja` 108,710 B、`/zh-hant` 111,891 B，来自之后的内容增长）
 - [ ] 6.2 canonical/hreflang/sitemap 与 0.1 基线 diff：既有页面只多出 `ja`/`es` 的 hreflang 行，站点地图只多出新语言子站点地图与其条目，其余逐字节一致
-- [ ] 6.3 使用者确认后把 `ja`、`es` 改为 released 并发版；确认 main 部署流水线成功、`/api/health` 版本正确、两站抽样页面 200 与 hreflang 正确
-- [ ] 6.4 Stripe live JPY 价格创建（使用者批准后执行）并在生产只读核对
+  - 2026-11-27 台账核对：只有各 PR 待发布期间的差异（私有验收目录 `locales-eu-ja/ja/seo-diff/`、`es/seo/seo-diff-final.txt`、`east-en/seo/`），没有发布后生产构建对 0.1 基线的 diff；1.11 与东方站英文有意改变了东方站 en 与 x-default 行，「只多出 ja/es 行」的严格口径需改写后再验
+- [x] 6.3 使用者确认后把 `ja`、`es` 改为 released 并发版；确认 main 部署流水线成功、`/api/health` 版本正确、两站抽样页面 200 与 hreflang 正确
+  - 2026-11-27 台账核对：#262（621078c7）把 ja、es、东方站英文改为 released，v0.1.31 发布流水线成功（2026-11-21）；线上 `/ja` hreflang 含 en/ja/ko/zh-Hans/zh-Hant 与 x-default，`/es` 含 en/es 与 x-default，东方站站点地图索引含 `ja.xml`、`en.xml`
+- [x] 6.4 Stripe live JPY 价格创建（使用者批准后执行）并在生产只读核对
+  - 2026-11-27 台账核对：Stripe live 有 4 个 active JPY 价格（¥450、¥1,200 一次性，¥750、¥1,500 月付，2026-11-21 创建），只读核对记录存私有验收目录 `openspec-ledger-20261127/stripe-live-jpy-prices.txt`；生产 `/ja/pricing` 显示 ￥ 价格
 - [ ] 6.5 发布后 4 周 GSC 覆盖率复盘（「已抓取-尚未编入索引」占比），结论决定第二期是否开工；Search Console 站点地图重提留到全部工作完成后交 Grok bot
+  - 2026-11-27 台账核对：发布于 2026-11-21，4 周复盘约 2026-12-19
 
 ## 7. 第二、三期（使用者 2026-11-20：`ja`、`es` 上线后暂停，先做 content growth，之后再开始本组）（每种语言一组，复用第 4/5 组流程）
 

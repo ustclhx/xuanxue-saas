@@ -75,14 +75,16 @@
 
 - [x] 6.1 紫微、命盤查詢、사주궁합、概念页按新 token、`Section`、字号角色与紧凑布局改版；长文与内链矩阵移到结果之后；替换原始字号与任意值。验证：`visual-rules.spec.ts` 启用这些页面并通过；`pnpm check`、相关单测与 e2e 通过；本组条目从两份允许名单删除
   - 记录：`features/tools/share-link.tsx`、`share-card/share-card-action.tsx`（结果末尾的分享区，两站共用）不在第 6、7 组的文件范围内，仍在 `check-type-roles` 允许名单中，需由协调者指定负责人；四柱图形（`charts/pillars-chart.tsx`）的日柱仍为反色块，与设计稿「日主用强调色细框」不同，属 `redesign-home-chart-visuals` 已确认的图形，未改。
-- [ ] 6.2 【Codex】按副本对照截图（390 / 1440 × 浅 / 深 + 打印预览），axe 检查无新增问题。验证：截图与 axe 结果存入 `EVIDENCE_DIR`，差异逐项列给 6.1 负责人修正或记为使用者确认的偏离
+- [x] 6.2 【Codex】按副本对照截图（390 / 1440 × 浅 / 深 + 打印预览），axe 检查无新增问题。验证：截图与 axe 结果存入 `EVIDENCE_DIR`，差异逐项列给 6.1 负责人修正或记为使用者确认的偏离
+  - 2026-11-27 台账核对：已执行，截图矩阵、打印与 axe 结果存 私有验收目录 `warm-refresh/group6-checks/`，差异逐项列于 `diff-list.md` 交 6.1 负责人；axe 无新增 serious/critical，D5 字号种数、A4 续页无标题与命盤查詢键盘问题均在改版前父提交复现（存量），随 v0.1.29 上线
 
 ## 7. 西方站工具页与塔罗、每日页（WT-pages-west，【Claude】）
 
 依赖：3、4、5。冲突点：`features/tools/numerology/`（除 `home.tsx`）、`features/tools/tarot/`、`features/daily/` 页面组件、`routes/numerology-*.tsx`、`routes/life-path-*.tsx`、`routes/life-path-number/$number.tsx`、`routes/tarot/`、`routes/塔羅/` 等塔罗路由、`routes/daily-numerology.tsx` 与三个东方每日页路由。
 
 - [x] 7.1 数字命理工具页、12 个数字页、两个枢纽页、塔罗抽牌与牌义页、每日页按新视觉改版（西方站浅色默认、深色可切换；塔罗牌面与图形在两种主题下可读）。验证：`visual-rules.spec.ts` 启用并通过；`chart-visuals`「西方站浅色与深色」场景的对比度断言通过；本组条目从允许名单删除
-- [ ] 7.2 【Codex】按副本对照截图（西方站 390 / 1440 × 浅 / 深，东方站塔罗与每日页 × 浅 / 深），axe 检查。验证：同 6.2
+- [x] 7.2 【Codex】按副本对照截图（西方站 390 / 1440 × 浅 / 深，东方站塔罗与每日页 × 浅 / 深），axe 检查。验证：同 6.2
+  - 2026-11-27 台账核对：已执行（私有验收目录 `warm-refresh/group7-checks/`），差异修正后复验五项定向检查全部通过（`group7-recheck/summary.md`，塔罗标题层级 heading-order 6→0）
 
 ## 8. 定价、详批与应用区（WT-pages-commerce，【Claude】）
 
@@ -91,22 +93,28 @@
 - [x] 8.1 定价页、解锁卡、报告页、应用区（空间框架、今日面板、出生档案、报告列表）与认证页按新视觉改版；应用区沿用模板字号默认值，只换色调与间距。验证：`visual-rules.spec.ts` 启用定价页；应用区组件测试与 e2e 通过；本组条目从允许名单删除
   - 实现记录（第 8 组 PR）：定价页按 `PricingEastMobile` / `PricingWestMobile` 的顺序排为积分包（积分多的在前，「最划算」与唯一的主按钮在它上面）→ 免费 → 每月方案；文案与价格未改，设计稿「版本 A」里仓库没有的文案（每份约价、「一次性购买」）没有新增，免费档保留 0 元价格、积分扣用顺序与可解锁详批清单两个区块保留。解锁卡改为 surface 卡片（不再反色）。报告页的标题、目录与正文放进营销作用域取阅读字号，应用区框架与追问对话仍用模板字号；设计稿中的命盘卡片需要报告携带命盘数据，未做；目录标签没有当前章节高亮。报告列表的删除确认由 `window.confirm` 改为 AlertDialog。
   - 未处理：`features/tools/form.tsx` 的 `SubmitButton` 打印时白字无底（第 5 组文件）；`features/ai/`、`ai-media/`、`settings/`、`deletion/`、`routes/account/`、`admin` 的原始字号条目不在本组冲突边界内，仍在允许名单。
-- [ ] 8.2 【Codex】按副本对照截图（含登录后页面，用 e2e 夹具），axe 检查。验证：同 6.2
+- [x] 8.2 【Codex】按副本对照截图（含登录后页面，用 e2e 夹具），axe 检查。验证：同 6.2
+  - 2026-11-27 台账核对：已执行（私有验收目录 `warm-refresh/group8-checks/`），记录的报告页水合与打印两项疑似缺陷（改版前同样存在）由 #229 修复
 
 ## 9. 内容页（WT-pages-content，【Claude】）
 
 依赖：3、4、5。冲突点：`features/marketing/legal-page.tsx`、`rich-content.tsx`、`blog/`、`docs-layout.tsx`、`east-english/page.tsx`、`routes/faq.tsx`、`newsletter.tsx`、`waitlist.tsx`、`disclaimer.tsx`、404 页。
 
 - [x] 9.1 法律页、博客列表与文章、文档、FAQ、newsletter / waitlist、东方站 `/en` 入口页与 404 按新视觉改版，正文使用 `Prose`（≤ 720px、CJK 行高）。验证：`visual-rules.spec.ts` 启用法律页与博客文章；`legal-pages` 测试通过；本组条目从允许名单删除
-- [ ] 9.2 【Codex】按副本对照截图，axe 检查。验证：同 6.2
+- [x] 9.2 【Codex】按副本对照截图，axe 检查。验证：同 6.2
+  - 2026-11-27 台账核对：已执行（私有验收目录 `warm-refresh/group9-checks/`，含 axe 审阅与副本差异清单），电子报与候补名单表单复验通过（`group9-recheck/summary.md`）
 
 ## 10. 集成验收与发布（协调者；外部动作需使用者授权）
 
 依赖：3–9 全部合并（`separate-landing-homepage` 的首页可同批验收）。
 
 - [x] 10.1 【Claude】确认 `check-type-roles` 允许名单为空、`check-ui.allow.local.json` 中本 change 触及文件无待替换条目、`visual-rules.spec.ts` 不再有 `fixme`。验证：三项检查结果写入 PR
-- [ ] 10.2 【Codex】在 main 本地生产预览上按 2.1 同一方法复测 Lighthouse 与密度指标。验证：各页 LCP 中位数不高于 2.1 基线的 110%，CLS 中位数 < 0.1；`homeScriptGzipBudget` 检查通过；`check-critical-css.mjs` 四个主题组合通过；对照表存入 `EVIDENCE_DIR`
-- [ ] 10.3 【Codex】数据库不可达时（本地停 PG）两站营销页与工具页完整显示；禁用 JavaScript 时页头导航面板可展开。验证：记录存入 `EVIDENCE_DIR`
-- [ ] 10.4 【用户】审阅 10.1–10.3 证据与关键页面截图，确认上线。验证：使用者在会话中确认
+- [x] 10.2 【Codex】在 main 本地生产预览上按 2.1 同一方法复测 Lighthouse 与密度指标。验证：各页 LCP 中位数不高于 2.1 基线的 110%，CLS 中位数 < 0.1；`homeScriptGzipBudget` 检查通过；`check-critical-css.mjs` 四个主题组合通过；对照表存入 `EVIDENCE_DIR`
+  - 2026-11-27 台账核对：首轮（私有验收目录 `warm-refresh/final-checks/`）8 页未达标；#234 补测 v0.1.28 真实基线并修复每日页水合、牌义页牌面加载与博客 CLS，复测全部达标或不劣于基线（`lcp-fix/fix/medians.md`、`lcp-fix/v0128/`），首页包 345,584 B 低于预算；随 v0.1.29 上线
+- [x] 10.3 【Codex】数据库不可达时（本地停 PG）两站营销页与工具页完整显示；禁用 JavaScript 时页头导航面板可展开。验证：记录存入 `EVIDENCE_DIR`
+  - 2026-11-27 台账核对：通过，断库与禁用 JavaScript 记录见 私有验收目录 `warm-refresh/final-checks/resilience.md`、`no-db/`、`no-js/`
+- [x] 10.4 【用户】审阅 10.1–10.3 证据与关键页面截图，确认上线。验证：使用者在会话中确认
+  - 2026-11-27 台账核对：使用者在会话中批准 v0.1.29 生产发布（deploy-production run 44706063102 审批备注「使用者在会话中批准 v0.1.29」）
 - [ ] 10.5 【协调者】【需使用者授权】合并并部署 staging，两站浅 / 深逐项验收（含手机实机：主题切换、导航面板、Select、分享图）；随常规版本发布生产，确认 main 部署流水线成功与两站 `/api/health` 版本 SHA。验证：staging 验收与发布记录存入 `EVIDENCE_DIR`
+  - 2026-11-27 台账核对：已随 v0.1.29 发布生产（run 44706063102 成功，之后各版本沿用），main 每次合并自动部署 staging 并跑冒烟；手机实机验收（主题切换、导航面板、Select、分享图）没有记录，保持未勾选，待使用者实机走查或明确裁剪
 - [ ] 10.6 【协调者】`redesign-home-chart-visuals` 归档后再归档本 change（`chart-visuals` 主规格须先存在）。验证：`openspec archive` 成功，主规格含「西方站浅色与深色」场景

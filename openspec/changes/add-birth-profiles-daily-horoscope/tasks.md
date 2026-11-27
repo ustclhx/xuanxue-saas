@@ -106,4 +106,5 @@
   2026-11-17：西方站在 staging、东方站在本地 east.localhost（使用者批准）完成：档案增删改与默认切换、工具页预填、档案预填解锁详批（本地；staging 测试账号无积分未解锁）、两站删号后档案 1→0（只读查询核对）、四语每日页无 JS 正文与 staging 缓存命中、今日面板四态、390px 两主题无横向滚动。验收中发现每日页缓存命中旧版本 HTML 导致资源 404，已由 #185（缓存键加部署版本）修复并在 staging 复核。证据 私有验收目录 `legacy-pre-0.1.24/C/`
 - [ ] 9.3 【用户批准 → Codex】发布 production（推送 `v*` tag），并检查 `/api/health` 的 SHA 与部署流水线成功。一周内查看 Neon Usage，确认运行时长没有因每日页明显上升。验证：发布记录与 Neon Usage 截图存入 `EVIDENCE_DIR`
   - （2026-11-16：v0.1.23（c30b67b3）已发布生产，deploy-production run 43803684100 成功，两站 `/api/health` 为 c30b67b3；一周内的 Neon Usage 检查未做）
+  - 2026-11-27 台账核对：发布部分已完成；一周内的 Neon Usage 检查没有做。`neonctl` 只读显示生产项目本计费周期（11-01 起）累计运行约 377 小时（日均约 14 小时），无按日数据，无法判断每日页上线前后是否上升；需在 Neon 控制台 Usage 按日查看后再勾选（私有验收目录 `openspec-ledger-20261127/README.md`）
 - [ ] 9.4 【协调者】全部任务合并并验收后，按并行计划同步 specs 并归档本 change。验证：`openspec validate --strict` 通过；`openspec list --json` 中不再有本 change
