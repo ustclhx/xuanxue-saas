@@ -89,7 +89,7 @@
 - **THEN** 两个域名的卡片地址不同，各自显示本站点的品牌与域名
 
 ### Requirement: 通用分享页
-模板 SHALL 提供公开分享页路由 `/s/<类型>/<令牌>`：对有效分享显示卡片图片、项目注册的标题与描述，以及前往站点的入口；无效、已撤销或已到期时返回 404 页面。分享页 SHALL 输出指向分享卡片的元数据，MUST 带 `noindex`，MUST NOT 进入站点地图或 `llms.txt`。项目 SHALL 能对某个类型关闭通用分享页，改用自己的页面并使用同一个元数据工具。
+模板 SHALL 提供公开分享页路由 `/s/<类型>/<令牌>`：对有效分享显示卡片图片、项目注册的标题与描述，以及前往站点的入口；无效、已撤销或已到期时返回 404 页面。分享页 SHALL 输出指向分享卡片的元数据，robots meta 与 `X-Robots-Tag` MUST 为 `noindex, follow`（不进索引、跟随页内链接），MUST NOT 进入站点地图或 `llms.txt`；robots.txt MUST NOT 因此禁止抓取分享页，已收录的分享页靠 noindex 退出索引。分享卡片图片地址 `/share-card/*` 不是 HTML，只以响应头 `X-Robots-Tag: noindex` 声明。项目 SHALL 能对某个类型关闭通用分享页，改用自己的页面并使用同一个元数据工具。
 
 #### Scenario: 打开有效分享页
 - **WHEN** 访客打开一个有效分享的分享页
@@ -102,6 +102,10 @@
 #### Scenario: 项目关闭通用分享页
 - **WHEN** 项目对某个类型关闭通用分享页
 - **THEN** 该类型的 `/s/<类型>/<令牌>` 返回 404，卡片地址不受影响
+
+#### Scenario: 搜索引擎抓取分享页
+- **WHEN** 搜索引擎抓取一个有效分享页
+- **THEN** 页面 robots meta 与响应头 `X-Robots-Tag` 都是 `noindex, follow`，页面中前往站点的链接可被跟随
 
 ### Requirement: 分享页元数据
 模板 SHALL 提供元数据工具，输出指向分享卡片的 `og:image`、`og:image:width`、`og:image:height`、`og:image:alt`、`twitter:card`（`summary_large_image`）与 `twitter:image`；地址 MUST 为当前环境 `APP_URL` 下的绝对地址，项目站点解析对当前请求返回声明了规范域名的覆盖时 MUST 改用该规范域名（协议沿用 `APP_URL`）；MUST NOT 使用请求的原始 Host。规范域名 MUST 为裸主机名（可带端口，不含协议、路径或用户信息），不合法时整个覆盖 MUST 视为无效。卡片地址 MUST 带 `X-Robots-Tag: noindex`，MUST NOT 进入站点地图。

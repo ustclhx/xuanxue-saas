@@ -5,7 +5,7 @@
 - **订阅套餐**（`plan.type='subscription'`）：按月/年付费，**每月**发放一批积分（年付也按月发放，见 §4「年付按月发放」），并解锁一组权益（可用模型、并发数、席位等）。
 - **积分包**（`plan.type='credit_pack'`）：一次性购买，发放一批有效期较长的积分，不改变权益（或只附加少量权益）。
 - **免费档**：`plan.key='free'`，无需支付记录；注册赠送积分 `signupBonusCredits`（用户领取时触发邮箱验证，验证完成后才发放，见 §4「注册赠送防刷」）。
-- 币种（多币种规则，见 change [`localize-checkout-currency`](../openspec/changes/localize-checkout-currency/design.md)）：
+- 币种（多币种规则，见 change [`localize-checkout-currency`](../openspec/changes/archive/2026-11-27-localize-checkout-currency/design.md)）：
   - 启用币种为 USD、TWD、KRW，规则集中在 `packages/billing/src/currency.ts`（浏览器可用的
     `@xuanxue/billing/currency`）：最小单位指数以 Stripe 为准（USD 2、TWD 2、KRW 0），TWD 金额必须是
     100 的倍数（整元）；展示用 `formatMoney`，换算用 `toMajor` / `toMinor`，任何地方都不写死「除以 100」。
